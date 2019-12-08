@@ -291,19 +291,6 @@ public final class SettingsManager {
         editor.commit();
     }
 
-    public void saveCameraUploadNumber(int waiting, int total) {
-        editor.putInt(WAITING_UPLOAD_NUMBER, waiting).commit();
-        editor.putInt(TOTAL_UPLOAD_NUMBER, total).commit();
-    }
-
-    public int getWaitingUploadNumber() {
-        return sharedPref.getInt(WAITING_UPLOAD_NUMBER, 0);
-    }
-
-    public int getTotalUploadNumber() {
-        return sharedPref.getInt(TOTAL_UPLOAD_NUMBER, 0);
-    }
-
     public void saveUploadCompletedTime(String completedTime) {
         editor.putString(UPLOAD_COMPLETED_TIME, completedTime);
         editor.commit();
@@ -311,14 +298,6 @@ public final class SettingsManager {
 
     public String getUploadCompletedTime() {
         return sharedPref.getString(SettingsManager.UPLOAD_COMPLETED_TIME, null);
-    }
-
-    public void saveCheckScanStart(int startState) {
-        editor.putInt(PIC_CHECK_START, startState).commit();
-    }
-
-    public int getCheckScanStart() {
-        return sharedPref.getInt(PIC_CHECK_START, 0);
     }
 
 }

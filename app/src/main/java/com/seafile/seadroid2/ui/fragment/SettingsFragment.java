@@ -21,6 +21,7 @@ import android.widget.Toast;
 
 import com.google.common.collect.Maps;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
@@ -127,7 +128,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
         }
 
         ConcurrentAsyncTask.execute(new RequestAccountInfoTask(), account);
-        cameraSyncStart = SettingsManager.instance().getCheckScanStart();
+        cameraSyncStart = SeadroidApplication.getInstance().getCheckStart();
 
     }
 
@@ -316,7 +317,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
         if (cameraSyncStart == CameraSyncStatus.SCAN_START) {
             cUploadRepoState.setSummary(R.string.is_scanning);
         } else {
-            String end_time = SettingsManager.instance().getUploadCompletedTime();
+            String end_time =SettingsManager.instance().getUploadCompletedTime();
             cUploadRepoState.setSummary(end_time);
         }
 
@@ -861,26 +862,26 @@ public class SettingsFragment extends CustomPreferenceFragment {
             cUploadRepoState.setSummary(R.string.network_unavailable);
 
         } else if (result.getTagCode() == CameraSyncStatus.ADD_TASK_QUE) {
-            SettingsManager.instance().saveCameraUploadNumber(result.getWaitingNumber(), result.getTotalNumber());
-            cUploadRepoState.setSummary(getString(R.string.is_uploading) + (result.getTotalNumber() - result.getWaitingNumber()) + " / " + result.getTotalNumber());
+            SeadroidApplication.getInstance().saveCameraUploadNumber(result.getWaitingNumber(), result.getTotalNumber());
+            cUploadRepoState.setSummary(getString(R.string.is_uploading) + " " + (result.getTotalNumber() - result.getWaitingNumber()) + " / " + result.getTotalNumber());
 
         } else if (result.getTagCode() == CameraSyncStatus.SCAN_END) {
 
-            int wait = SettingsManager.instance().getWaitingUploadNumber();
-            int end = SettingsManager.instance().getTotalUploadNumber();
+            int wait = SeadroidApplication.getInstance().getWaitingNumber();
+            int end = SeadroidApplication.getInstance().getTotalNumber();
             if (wait != 0) {
-                cUploadRepoState.setSummary(getString(R.string.is_uploading) + (end - wait) + " / " + end);
+                cUploadRepoState.setSummary(getString(R.string.is_uploading) + " " + (end - wait) + " / " + end);
 
             } else {
                 formatter = new SimpleDateFormat("MM-dd HH:mm");
                 date = new Date(System.currentTimeMillis());
                 String completedTime = formatter.format(date);
-                SettingsManager.instance().saveUploadCompletedTime(getString(R.string.Upload_completed) + completedTime);
-                cUploadRepoState.setSummary(getString(R.string.Upload_completed) + completedTime);
+                SettingsManager.instance().saveUploadCompletedTime(getString(R.string.Upload_completed) + " " + completedTime);
+                cUploadRepoState.setSummary(getString(R.string.Upload_completed) + " " + completedTime);
 
             }
         }
 
-//        Log.d(DEBUG_TAG, result.getWaitingNum() + "==========" + result.getTotal_number() + "-----" + result.getLoginfo());
+        Log.d(DEBUG_TAG, result.getWaitingNumber() + "==========" + result.getTotalNumber() + "-----" + result.getLogInfo());
     }
 }

@@ -561,9 +561,9 @@
   <string name="above_quota">Above Quota</string>
   <string name="camera_upload_state">Upload Info</string>
   <string name="waiting_state">Upload waiting</string>
-  <string name="Upload_completed">Last sync finished at  &#160;</string>
+  <string name="Upload_completed">Last sync finished at</string>
 
   <string name="is_scanning">Scanning</string>
-  <string name="is_uploading">Uploading  &#160;</string>
+  <string name="is_uploading">Uploading</string>
   <string name="network_unavailable">Network unavailable</string>
 </resources>
