@@ -875,7 +875,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
                 formatter = new SimpleDateFormat("MM-dd HH:mm");
                 date = new Date(System.currentTimeMillis());
                 String completedTime = formatter.format(date);
-                SettingsManager.instance().saveUploadCompletedTime(completedTime);
+                SettingsManager.instance().saveUploadCompletedTime(getString(R.string.Upload_completed) + completedTime);
                 cUploadRepoState.setSummary(getString(R.string.Upload_completed) + completedTime);
 
             }
