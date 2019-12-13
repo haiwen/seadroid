@@ -869,7 +869,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
                 cUploadRepoState.setSummary(getString(R.string.is_uploading) + " " + (end - wait) + " / " + end);
 
             } else {
-                String completedTime = Utils.saveSyncCompletedTime();
+                String completedTime = Utils.getSyncCompletedTime();
                 SettingsManager.instance().saveUploadCompletedTime(getString(R.string.Upload_completed) + " " + completedTime);
                 cUploadRepoState.setSummary(getString(R.string.Upload_completed) + " " + completedTime);
 
