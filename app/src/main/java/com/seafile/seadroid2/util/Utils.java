@@ -899,4 +899,10 @@ public class Utils {
         mJobScheduler.schedule(builder.build());
     }
 
+    public static String saveSyncCompletedTime() {
+        SimpleDateFormat formatter = new SimpleDateFormat("MM-dd HH:mm");
+        Date date = new Date(System.currentTimeMillis());
+        String completedTime = formatter.format(date);
+        return completedTime;
+    }
 }

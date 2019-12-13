@@ -53,9 +53,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -68,8 +66,6 @@ public class SettingsFragment extends CustomPreferenceFragment {
     public static final String CONTACTS_UPLOAD_REMOTE_LIBRARY = "com.seafile.seadroid2.contacts.upload.library";
     public static final int CHOOSE_CAMERA_UPLOAD_REQUEST = 2;
 //    public static final int CHOOSE_CONTACTS_UPLOAD_REQUEST = 3;
-    private Date date;
-    private SimpleDateFormat formatter;
     // Account Info
     private static Map<String, AccountInfo> accountInfoMap = Maps.newHashMap();
 
@@ -873,9 +869,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
                 cUploadRepoState.setSummary(getString(R.string.is_uploading) + " " + (end - wait) + " / " + end);
 
             } else {
-                formatter = new SimpleDateFormat("MM-dd HH:mm");
-                date = new Date(System.currentTimeMillis());
-                String completedTime = formatter.format(date);
+                String completedTime = Utils.saveSyncCompletedTime();
                 SettingsManager.instance().saveUploadCompletedTime(getString(R.string.Upload_completed) + " " + completedTime);
                 cUploadRepoState.setSummary(getString(R.string.Upload_completed) + " " + completedTime);
 
