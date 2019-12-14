@@ -6,11 +6,6 @@ public class CameraSyncEvent {
     private int waitingNumber;
     private int totalNumber;
 
-//    public CameraSyncEvent(int tagCode, String logInfo) {
-//        this.tagCode = tagCode;
-//        this.logInfo = logInfo;
-//    }
-
     public CameraSyncEvent(String logInfo) {
         this.logInfo = logInfo;
     }

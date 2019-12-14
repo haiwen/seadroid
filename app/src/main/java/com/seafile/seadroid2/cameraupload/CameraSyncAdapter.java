@@ -229,7 +229,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
         synchronized (this) {
             cancelled = false;
         }
-        SeadroidApplication.getInstance().setScanUploadStatus("start");
+        SeadroidApplication.getInstance().setScanUploadStatus("Scanning");
         EventBus.getDefault().post(new CameraSyncEvent("start"));
         /*Log.i(DEBUG_TAG, "Syncing images and video to " + account);
 
@@ -252,6 +252,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
             // Log.d(DEBUG_TAG, "Not syncing because of data plan restriction.");
             // treat dataPlan abort the same way as a network connection error
             syncResult.stats.numIoExceptions++;
+            SeadroidApplication.getInstance().setScanUploadStatus("Network unavailable");
             EventBus.getDefault().post(new CameraSyncEvent( "noNetwork"));
             return;
         }
@@ -270,7 +271,6 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
             // we're logged out on this account. disable camera upload.
             ContentResolver.cancelSync(account, CameraUploadManager.AUTHORITY);
             ContentResolver.setIsSyncable(account, CameraUploadManager.AUTHORITY, 0);
-            SeadroidApplication.getInstance().setScanUploadStatus("end");
             return;
         }
 
@@ -293,7 +293,6 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
                  */
                 Log.e(DEBUG_TAG, "Sync aborted because the target repository does not exist");
                 syncResult.databaseError = true;
-                SeadroidApplication.getInstance().setScanUploadStatus("end");
                 showNotificationRepoError();
                 return;
             }
@@ -364,7 +363,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
                 txService = null;
             }
         }
-        SeadroidApplication.getInstance().setScanUploadStatus("end");
+        SettingsManager.instance().saveUploadCompletedTime(SeadroidApplication.getAppContext().getString(R.string.Upload_completed) + " " + Utils.getSyncCompletedTime());
         EventBus.getDefault().post(new CameraSyncEvent("end"));
     }
 
