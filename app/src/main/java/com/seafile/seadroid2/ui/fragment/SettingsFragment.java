@@ -21,7 +21,6 @@ import android.widget.Toast;
 
 import com.google.common.collect.Maps;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
@@ -44,7 +43,6 @@ import com.seafile.seadroid2.ui.dialog.ClearCacheTaskDialog;
 import com.seafile.seadroid2.ui.dialog.ClearPasswordTaskDialog;
 import com.seafile.seadroid2.ui.dialog.SwitchStorageTaskDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog.TaskDialogListener;
-import com.seafile.seadroid2.util.CameraSyncStatus;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.util.Utils;
 
@@ -308,12 +306,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
         });
 
         cUploadRepoState = findPreference(SettingsManager.CAMERA_UPLOAD_STATE);
-        int scanUploadStatus = SeadroidApplication.getInstance().getScanUploadStatus();
-        if (scanUploadStatus == CameraSyncStatus.SCANNING) {
-            cUploadRepoState.setSummary(R.string.is_scanning);
-        } else {
-            cUploadRepoState.setSummary(SettingsManager.instance().getUploadCompletedTime());
-        }
+        cUploadRepoState.setSummary(Utils.getUploadStateShow(getActivity()));
 
         // Contacts Upload
 //        cContactsCategory = (PreferenceCategory) findPreference(SettingsManager.CONTACTS_UPLOAD_CATEGORY_KEY);
@@ -849,32 +842,9 @@ public class SettingsFragment extends CustomPreferenceFragment {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(CameraSyncEvent result) {
 
-        int scanUploadStatus = SeadroidApplication.getInstance().getScanUploadStatus();
-        int waitingNumber = SeadroidApplication.getInstance().getWaitingNumber();
-        int totalNumber = SeadroidApplication.getInstance().getTotalNumber();
+        cUploadRepoState.setSummary(Utils.getUploadStateShow(getActivity()));
 
-        switch (scanUploadStatus) {
-            case CameraSyncStatus.SCANNING:
-
-                cUploadRepoState.setSummary(getString(R.string.is_scanning));
-                break;
-            case CameraSyncStatus.NETWORK_UNAVAILABLE:
-
-                cUploadRepoState.setSummary(getString(R.string.network_unavailable));
-                break;
-            case CameraSyncStatus.UPLOADING:
-
-                cUploadRepoState.setSummary(getString(R.string.is_uploading) + " " + (totalNumber - waitingNumber) + " / " + totalNumber);
-                break;
-            case CameraSyncStatus.SCAN_END:
-
-                cUploadRepoState.setSummary(SettingsManager.instance().getUploadCompletedTime());
-                break;
-            default:
-                cUploadRepoState.setSummary(getString(R.string.waiting_state));
-                break;
-        }
-
-        Log.d(DEBUG_TAG, scanUploadStatus + "------" + waitingNumber + "==========" + totalNumber + "-----" + result.getLogInfo());
+        Log.d(DEBUG_TAG, "==========" + result.getLogInfo());
     }
+
 }

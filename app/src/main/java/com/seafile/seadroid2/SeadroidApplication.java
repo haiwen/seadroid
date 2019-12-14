@@ -101,7 +101,7 @@ public class SeadroidApplication extends Application {
         notificationManager.createNotificationChannel(channel);
     }
 
-    public void saveCameraUploadNumber(int waitingNumber, int totalNumber) {
+    public void setCameraUploadNumber(int waitingNumber, int totalNumber) {
         this.waitingNumber = waitingNumber;
         this.totalNumber = totalNumber;
     }
@@ -114,7 +114,7 @@ public class SeadroidApplication extends Application {
         return totalNumber;
     }
 
-    public void saveUploadStatusInfo(int scanUploadStatus) {
+    public void setScanUploadStatus(int scanUploadStatus) {
         this.scanUploadStatus = scanUploadStatus;
     }
 

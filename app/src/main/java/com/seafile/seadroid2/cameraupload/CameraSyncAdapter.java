@@ -230,7 +230,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
         synchronized (this) {
             cancelled = false;
         }
-        SeadroidApplication.getInstance().saveUploadStatusInfo(CameraSyncStatus.SCANNING);
+        SeadroidApplication.getInstance().setScanUploadStatus(CameraSyncStatus.SCANNING);
         EventBus.getDefault().post(new CameraSyncEvent("start"));
         /*Log.i(DEBUG_TAG, "Syncing images and video to " + account);
 
@@ -253,7 +253,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
             // Log.d(DEBUG_TAG, "Not syncing because of data plan restriction.");
             // treat dataPlan abort the same way as a network connection error
             syncResult.stats.numIoExceptions++;
-            SeadroidApplication.getInstance().saveUploadStatusInfo(CameraSyncStatus.NETWORK_UNAVAILABLE);
+            SeadroidApplication.getInstance().setScanUploadStatus(CameraSyncStatus.NETWORK_UNAVAILABLE);
             EventBus.getDefault().post(new CameraSyncEvent("noNetwork"));
             return;
         }
@@ -365,7 +365,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
             }
         }
         String completedTime = SeadroidApplication.getAppContext().getString(R.string.Upload_completed) + " " + Utils.getSyncCompletedTime();
-        SeadroidApplication.getInstance().saveUploadStatusInfo(CameraSyncStatus.SCAN_END);
+        SeadroidApplication.getInstance().setScanUploadStatus(CameraSyncStatus.SCAN_END);
         SettingsManager.instance().saveUploadCompletedTime(completedTime);
         EventBus.getDefault().post(new CameraSyncEvent("end"));
     }

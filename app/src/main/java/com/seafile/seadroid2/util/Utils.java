@@ -35,6 +35,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
+import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.cameraupload.MediaSchedulerService;
 import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.fileschooser.SelectableFile;
@@ -904,5 +905,30 @@ public class Utils {
         Date date = new Date(System.currentTimeMillis());
         String completedTime = formatter.format(date);
         return completedTime;
+    }
+
+    public static String getUploadStateShow(Context context) {
+        String results = null;
+        int scanUploadStatus = SeadroidApplication.getInstance().getScanUploadStatus();
+        int waitingNumber = SeadroidApplication.getInstance().getWaitingNumber();
+        int totalNumber = SeadroidApplication.getInstance().getTotalNumber();
+        switch (scanUploadStatus) {
+            case CameraSyncStatus.SCANNING:
+                results = context.getString(R.string.is_scanning);
+                break;
+            case CameraSyncStatus.NETWORK_UNAVAILABLE:
+                results = context.getString(R.string.network_unavailable);
+                break;
+            case CameraSyncStatus.UPLOADING:
+                results = context.getString(R.string.is_uploading) + " " + (totalNumber - waitingNumber) + " / " + totalNumber;
+                break;
+            case CameraSyncStatus.SCAN_END:
+                results = SettingsManager.instance().getUploadCompletedTime();
+                break;
+            default:
+                results = context.getString(R.string.waiting_state);
+                break;
+        }
+        return results;
     }
 }
