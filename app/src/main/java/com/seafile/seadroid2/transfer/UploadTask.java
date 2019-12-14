@@ -113,8 +113,7 @@ public class UploadTask extends TransferTask {
         state = err == null ? TaskState.FINISHED : TaskState.FAILED;
         if (uploadStateListener != null) {
             if (err == null) {
-                String completedTime = Utils.getSyncCompletedTime();
-                SettingsManager.instance().saveUploadCompletedTime(SeadroidApplication.getAppContext().getString(R.string.Upload_completed) + " " + completedTime);
+                SettingsManager.instance().saveUploadCompletedTime(Utils.getSyncCompletedTime());
                 uploadStateListener.onFileUploaded(taskID);
             }
             else {

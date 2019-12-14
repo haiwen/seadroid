@@ -364,9 +364,8 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
                 txService = null;
             }
         }
-        String completedTime = SeadroidApplication.getAppContext().getString(R.string.Upload_completed) + " " + Utils.getSyncCompletedTime();
         SeadroidApplication.getInstance().setScanUploadStatus(CameraSyncStatus.SCAN_END);
-        SettingsManager.instance().saveUploadCompletedTime(completedTime);
+        SettingsManager.instance().saveUploadCompletedTime(Utils.getSyncCompletedTime());
         EventBus.getDefault().post(new CameraSyncEvent("end"));
     }
 
