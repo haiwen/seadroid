@@ -18,6 +18,7 @@ import com.seafile.seadroid2.avatar.AuthImageDownloader;
 import com.seafile.seadroid2.data.StorageManager;
 import com.seafile.seadroid2.gesturelock.AppLockManager;
 import com.seafile.seadroid2.ui.CustomNotificationBuilder;
+import com.seafile.seadroid2.util.CameraSyncStatus;
 
 import java.io.File;
 
@@ -25,8 +26,8 @@ public class SeadroidApplication extends Application {
     private static Context context;
     private int waitingNumber;
     private int totalNumber;
-//    private int checkStart;
-    private String scanUploadStatus;
+    private int scanUploadStatus;
+    private String scanUploadInfo;
     private static SeadroidApplication instance;
 
     public void onCreate() {
@@ -115,12 +116,20 @@ public class SeadroidApplication extends Application {
         return totalNumber;
     }
 
-    public void setScanUploadStatus(String scanUploadStatus) {
+    public void saveUploadStatusInfo(int scanUploadStatus, String scanUploadInfo) {
         this.scanUploadStatus = scanUploadStatus;
+        this.scanUploadInfo = scanUploadInfo;
+        if (scanUploadStatus == CameraSyncStatus.SCAN_END) {
+            SettingsManager.instance().saveUploadCompletedTime(scanUploadInfo);
+        }
     }
 
-    public String getScanUploadStatus() {
+    public int getScanUploadStatus() {
         return scanUploadStatus;
+    }
+
+    public String getScanUploadInfo() {
+        return scanUploadInfo;
     }
 
 }

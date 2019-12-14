@@ -44,6 +44,7 @@ import com.seafile.seadroid2.ui.dialog.ClearCacheTaskDialog;
 import com.seafile.seadroid2.ui.dialog.ClearPasswordTaskDialog;
 import com.seafile.seadroid2.ui.dialog.SwitchStorageTaskDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog.TaskDialogListener;
+import com.seafile.seadroid2.util.CameraSyncStatus;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.util.Utils;
 
@@ -307,8 +308,8 @@ public class SettingsFragment extends CustomPreferenceFragment {
         });
 
         cUploadRepoState = findPreference(SettingsManager.CAMERA_UPLOAD_STATE);
-        String cameraSyncStart = SeadroidApplication.getInstance().getScanUploadStatus();
-        if (cameraSyncStart != null && cameraSyncStart.equals("start")) {
+        int scanUploadStatus = SeadroidApplication.getInstance().getScanUploadStatus();
+        if (scanUploadStatus == CameraSyncStatus.SCANNING) {
             cUploadRepoState.setSummary(R.string.is_scanning);
         } else {
             cUploadRepoState.setSummary(SettingsManager.instance().getUploadCompletedTime());
@@ -847,15 +848,22 @@ public class SettingsFragment extends CustomPreferenceFragment {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(CameraSyncEvent result) {
-        String scanUploadStatus = SeadroidApplication.getInstance().getScanUploadStatus();
-        if (result.getLogInfo().equals("upload")) {
-            cUploadRepoState.setSummary(scanUploadStatus + " " + (result.getTotalNumber() - result.getWaitingNumber()) + " / " + result.getTotalNumber());
-        } else if (result.getLogInfo().equals("end")) {
-            cUploadRepoState.setSummary(SettingsManager.instance().getUploadCompletedTime());
-        } else {
-            cUploadRepoState.setSummary(scanUploadStatus);
-        }
 
-        Log.d(DEBUG_TAG, scanUploadStatus+"------"+result.getWaitingNumber() + "==========" + result.getTotalNumber() + "-----" + result.getLogInfo());
+        int scanUploadStatus = SeadroidApplication.getInstance().getScanUploadStatus();
+        String scanUploadInfo = SeadroidApplication.getInstance().getScanUploadInfo();
+        int waitingNumber = SeadroidApplication.getInstance().getWaitingNumber();
+        int totalNumber = SeadroidApplication.getInstance().getTotalNumber();
+        switch (scanUploadStatus) {
+            case 3:
+                cUploadRepoState.setSummary(scanUploadInfo + " " + (totalNumber - waitingNumber) + " / " + totalNumber);
+                break;
+            case 4:
+                cUploadRepoState.setSummary(SettingsManager.instance().getUploadCompletedTime());
+                break;
+            default:
+                cUploadRepoState.setSummary(scanUploadInfo);
+                break;
+        }
+        Log.d(DEBUG_TAG, scanUploadStatus + "------" + waitingNumber + "==========" + totalNumber + "-----" + result.getLogInfo());
     }
 }

@@ -5,6 +5,7 @@ import android.util.Log;
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.data.CameraSyncEvent;
+import com.seafile.seadroid2.util.CameraSyncStatus;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 
 import org.greenrobot.eventbus.EventBus;
@@ -97,8 +98,8 @@ public abstract class TransferManager {
             TransferTask task = waitingList.remove(0);
             transferringList.add(task);
             SeadroidApplication.getInstance().saveCameraUploadNumber(waitingList.size(), allTaskList.size());
-            SeadroidApplication.getInstance().setScanUploadStatus("Uploading");
-            EventBus.getDefault().post(new CameraSyncEvent(waitingList.size(), allTaskList.size(), "upload"));
+            SeadroidApplication.getInstance().saveUploadStatusInfo(CameraSyncStatus.UPLOADING, "Uploading");
+            EventBus.getDefault().post(new CameraSyncEvent("upload"));
             ConcurrentAsyncTask.execute(task);
         }
     }
