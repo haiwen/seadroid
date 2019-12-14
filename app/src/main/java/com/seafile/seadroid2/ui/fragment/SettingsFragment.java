@@ -309,11 +309,9 @@ public class SettingsFragment extends CustomPreferenceFragment {
         });
 
         cUploadRepoState = findPreference(SettingsManager.CAMERA_UPLOAD_STATE);
-        if (cameraSyncStart.equals("start")) {
-            Log.d(DEBUG_TAG, cameraSyncStart+"=====1");
+        if (cameraSyncStart != null && cameraSyncStart.equals("start")) {
             cUploadRepoState.setSummary(R.string.is_scanning);
         } else {
-            Log.d(DEBUG_TAG, cameraSyncStart+"=====2");
             cUploadRepoState.setSummary(SettingsManager.instance().getUploadCompletedTime());
         }
 
