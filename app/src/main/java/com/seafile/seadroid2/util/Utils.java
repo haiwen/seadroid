@@ -923,7 +923,7 @@ public class Utils {
                 results = context.getString(R.string.is_uploading) + " " + (totalNumber - waitingNumber) + " / " + totalNumber;
                 break;
             case CameraSyncStatus.SCAN_END:
-                results = SeadroidApplication.getAppContext().getString(R.string.Upload_completed) + " " + SettingsManager.instance().getUploadCompletedTime();
+                results = context.getString(R.string.Upload_completed) + " " + SettingsManager.instance().getUploadCompletedTime();
                 break;
             default:
                 results = context.getString(R.string.waiting_state);
