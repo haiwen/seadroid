@@ -15,7 +15,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.data.CameraSyncEvent;
+import com.seafile.seadroid2.data.CheckUploadServiceEvent;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -273,6 +273,6 @@ public class BaseActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        EventBus.getDefault().post(new CameraSyncEvent("checkServices"));
+        EventBus.getDefault().post(new CheckUploadServiceEvent("checkServices"));
     }
 }
