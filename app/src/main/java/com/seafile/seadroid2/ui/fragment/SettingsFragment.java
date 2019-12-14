@@ -29,6 +29,7 @@ import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.cameraupload.CameraUploadConfigActivity;
 import com.seafile.seadroid2.cameraupload.CameraUploadManager;
 import com.seafile.seadroid2.cameraupload.GalleryBucketUtils;
+import com.seafile.seadroid2.data.CameraSyncEvent;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.DatabaseHelper;
 import com.seafile.seadroid2.data.ServerInfo;
@@ -46,6 +47,9 @@ import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.util.Utils;
 
 import org.apache.commons.io.FileUtils;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,7 +64,6 @@ public class SettingsFragment extends CustomPreferenceFragment {
     public static final String CONTACTS_UPLOAD_REMOTE_LIBRARY = "com.seafile.seadroid2.contacts.upload.library";
     public static final int CHOOSE_CAMERA_UPLOAD_REQUEST = 2;
 //    public static final int CHOOSE_CONTACTS_UPLOAD_REQUEST = 3;
-
     // Account Info
     private static Map<String, AccountInfo> accountInfoMap = Maps.newHashMap();
 
@@ -89,6 +92,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
 //    private Preference cContactsRepoBackUp;
 //    private Preference cContactsRepoRecovery;
     private long mMtime;
+    private Preference cUploadRepoState;
 
     @Override
     public void onAttach(Activity activity) {
@@ -108,7 +112,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
     public void onCreate(Bundle savedInstanceState) {
         Log.d(DEBUG_TAG, "onCreate");
         super.onCreate(savedInstanceState);
-
+        EventBus.getDefault().register(this);
         settingsMgr.registerSharedPreferencesListener(settingsListener);
         Account account = accountMgr.getCurrentAccount();
         if (!Utils.isNetworkOn()) {
@@ -123,7 +127,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-
+        EventBus.getDefault().unregister(this);
         Log.d(DEBUG_TAG, "onDestroy()");
         settingsMgr.unregisterSharedPreferencesListener(settingsListener);
     }
@@ -300,6 +304,9 @@ public class SettingsFragment extends CustomPreferenceFragment {
                 return true;
             }
         });
+
+        cUploadRepoState = findPreference(SettingsManager.CAMERA_UPLOAD_STATE);
+        cUploadRepoState.setSummary(Utils.getUploadStateShow(getActivity()));
 
         // Contacts Upload
 //        cContactsCategory = (PreferenceCategory) findPreference(SettingsManager.CONTACTS_UPLOAD_CATEGORY_KEY);
@@ -830,5 +837,14 @@ public class SettingsFragment extends CustomPreferenceFragment {
                     }
                 }
             };
+
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(CameraSyncEvent result) {
+
+        cUploadRepoState.setSummary(Utils.getUploadStateShow(getActivity()));
+
+        Log.d(DEBUG_TAG, "==========" + result.getLogInfo());
+    }
 
 }

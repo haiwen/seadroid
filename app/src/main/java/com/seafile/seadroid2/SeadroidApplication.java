@@ -23,11 +23,15 @@ import java.io.File;
 
 public class SeadroidApplication extends Application {
     private static Context context;
-    
+    private int waitingNumber;
+    private int totalNumber;
+    private int scanUploadStatus;
+    private static SeadroidApplication instance;
+
     public void onCreate() {
         super.onCreate();
         Iconify.with(new MaterialCommunityModule());
-
+        instance = this;
         initImageLoader(getApplicationContext());
 
         // set gesture lock if available
@@ -45,6 +49,10 @@ public class SeadroidApplication extends Application {
 
     public static Context getAppContext() {
         return SeadroidApplication.context;
+    }
+
+    public static SeadroidApplication getInstance() {
+        return instance;
     }
 
     public static void initImageLoader(Context context) {
@@ -92,4 +100,26 @@ public class SeadroidApplication extends Application {
         NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         notificationManager.createNotificationChannel(channel);
     }
+
+    public void setCameraUploadNumber(int waitingNumber, int totalNumber) {
+        this.waitingNumber = waitingNumber;
+        this.totalNumber = totalNumber;
+    }
+
+    public int getWaitingNumber() {
+        return waitingNumber;
+    }
+
+    public int getTotalNumber() {
+        return totalNumber;
+    }
+
+    public void setScanUploadStatus(int scanUploadStatus) {
+        this.scanUploadStatus = scanUploadStatus;
+    }
+
+    public int getScanUploadStatus() {
+        return scanUploadStatus;
+    }
+
 }
