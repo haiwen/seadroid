@@ -41,6 +41,7 @@ import android.widget.FrameLayout;
 
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SeafConnection;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.SettingsManager;
@@ -92,7 +93,6 @@ import com.seafile.seadroid2.ui.dialog.UploadChoiceDialog;
 import com.seafile.seadroid2.ui.fragment.ActivitiesFragment;
 import com.seafile.seadroid2.ui.fragment.ReposFragment;
 import com.seafile.seadroid2.ui.fragment.StarredFragment;
-import com.seafile.seadroid2.util.CameraSyncStatus;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.util.Utils;
 import com.seafile.seadroid2.util.UtilsJellyBean;
@@ -2439,7 +2439,7 @@ public class BrowserActivity extends BaseActivity
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(CameraSyncEvent result) {
-        if (!Utils.isServiceRunning(BrowserActivity.this, "com.seafile.seadroid2.cameraupload.MediaObserverService") && result.getTagCode() == CameraSyncStatus.IS_SERVICE) {
+        if (!Utils.isServiceRunning(BrowserActivity.this, "com.seafile.seadroid2.cameraupload.MediaObserverService") && result.getLogInfo().equals("checkServices")) {
             mediaObserver = new Intent(this, MediaObserverService.class);
             startService(mediaObserver);
             syncCamera();

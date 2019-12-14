@@ -25,7 +25,8 @@ public class SeadroidApplication extends Application {
     private static Context context;
     private int waitingNumber;
     private int totalNumber;
-    private int checkStart;
+//    private int checkStart;
+    private String scanUploadStatus;
     private static SeadroidApplication instance;
 
     public void onCreate() {
@@ -101,7 +102,7 @@ public class SeadroidApplication extends Application {
         notificationManager.createNotificationChannel(channel);
     }
 
-    public void saveCameraUploadNumber(int waitingNumber,int totalNumber) {
+    public void saveCameraUploadNumber(int waitingNumber, int totalNumber) {
         this.waitingNumber = waitingNumber;
         this.totalNumber = totalNumber;
     }
@@ -114,12 +115,12 @@ public class SeadroidApplication extends Application {
         return totalNumber;
     }
 
-    public void setCheckStart(int checkStart) {
-        this.checkStart = checkStart;
+    public void setScanUploadStatus(String scanUploadStatus) {
+        this.scanUploadStatus = scanUploadStatus;
     }
 
-    public int getCheckStart() {
-        return checkStart;
+    public String getScanUploadStatus() {
+        return scanUploadStatus;
     }
 
 }

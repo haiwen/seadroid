@@ -44,7 +44,6 @@ import com.seafile.seadroid2.ui.dialog.ClearCacheTaskDialog;
 import com.seafile.seadroid2.ui.dialog.ClearPasswordTaskDialog;
 import com.seafile.seadroid2.ui.dialog.SwitchStorageTaskDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog.TaskDialogListener;
-import com.seafile.seadroid2.util.CameraSyncStatus;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.util.Utils;
 
@@ -95,7 +94,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
 //    private Preference cContactsRepoRecovery;
     private long mMtime;
     private Preference cUploadRepoState;
-    private int cameraSyncStart;
+    private String cameraSyncStart;
 
     @Override
     public void onAttach(Activity activity) {
@@ -124,7 +123,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
         }
 
         ConcurrentAsyncTask.execute(new RequestAccountInfoTask(), account);
-        cameraSyncStart = SeadroidApplication.getInstance().getCheckStart();
+        cameraSyncStart = SeadroidApplication.getInstance().getScanUploadStatus();
 
     }
 
@@ -310,11 +309,12 @@ public class SettingsFragment extends CustomPreferenceFragment {
         });
 
         cUploadRepoState = findPreference(SettingsManager.CAMERA_UPLOAD_STATE);
-        if (cameraSyncStart == CameraSyncStatus.SCAN_START) {
+        if (cameraSyncStart.equals("start")) {
+            Log.d(DEBUG_TAG, cameraSyncStart+"=====1");
             cUploadRepoState.setSummary(R.string.is_scanning);
         } else {
-            String end_time =SettingsManager.instance().getUploadCompletedTime();
-            cUploadRepoState.setSummary(end_time);
+            Log.d(DEBUG_TAG, cameraSyncStart+"=====2");
+            cUploadRepoState.setSummary(SettingsManager.instance().getUploadCompletedTime());
         }
 
         // Contacts Upload
@@ -850,18 +850,20 @@ public class SettingsFragment extends CustomPreferenceFragment {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(CameraSyncEvent result) {
+        String scanUploadStatus = SeadroidApplication.getInstance().getScanUploadStatus();
+        if (result.getLogInfo().equals("start")) {
 
-        if (result.getTagCode() == CameraSyncStatus.SCAN_START) {
             cUploadRepoState.setSummary(R.string.is_scanning);
 
-        } else if (result.getTagCode() == CameraSyncStatus.NETWORK_AVAILABLE) {
+        } else if (result.getLogInfo().equals("noNetwork")) {
+
             cUploadRepoState.setSummary(R.string.network_unavailable);
 
-        } else if (result.getTagCode() == CameraSyncStatus.ADD_TASK_QUE) {
-            SeadroidApplication.getInstance().saveCameraUploadNumber(result.getWaitingNumber(), result.getTotalNumber());
+        } else if (result.getLogInfo() .equals("upload")) {
+
             cUploadRepoState.setSummary(getString(R.string.is_uploading) + " " + (result.getTotalNumber() - result.getWaitingNumber()) + " / " + result.getTotalNumber());
 
-        } else if (result.getTagCode() == CameraSyncStatus.SCAN_END) {
+        } else if (result.getLogInfo().equals("end")) {
 
             int wait = SeadroidApplication.getInstance().getWaitingNumber();
             int end = SeadroidApplication.getInstance().getTotalNumber();
@@ -876,6 +878,6 @@ public class SettingsFragment extends CustomPreferenceFragment {
             }
         }
 
-        Log.d(DEBUG_TAG, result.getWaitingNumber() + "==========" + result.getTotalNumber() + "-----" + result.getLogInfo());
+        Log.d(DEBUG_TAG, scanUploadStatus+"------"+result.getWaitingNumber() + "==========" + result.getTotalNumber() + "-----" + result.getLogInfo());
     }
 }

@@ -36,7 +36,6 @@ import com.seafile.seadroid2.transfer.UploadTaskInfo;
 import com.seafile.seadroid2.ui.CustomNotificationBuilder;
 import com.seafile.seadroid2.ui.activity.AccountsActivity;
 import com.seafile.seadroid2.ui.activity.SettingsActivity;
-import com.seafile.seadroid2.util.CameraSyncStatus;
 import com.seafile.seadroid2.util.Utils;
 
 import org.greenrobot.eventbus.EventBus;
@@ -230,8 +229,8 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
         synchronized (this) {
             cancelled = false;
         }
-        SeadroidApplication.getInstance().setCheckStart(CameraSyncStatus.SCAN_START);
-        EventBus.getDefault().post(new CameraSyncEvent(CameraSyncStatus.SCAN_START, "Start_scanning"));
+        SeadroidApplication.getInstance().setScanUploadStatus("start");
+        EventBus.getDefault().post(new CameraSyncEvent("start"));
         /*Log.i(DEBUG_TAG, "Syncing images and video to " + account);
 
         Log.d(DEBUG_TAG, "Selected buckets for camera upload: "+settingsMgr.getCameraUploadBucketList());
@@ -253,8 +252,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
             // Log.d(DEBUG_TAG, "Not syncing because of data plan restriction.");
             // treat dataPlan abort the same way as a network connection error
             syncResult.stats.numIoExceptions++;
-            SeadroidApplication.getInstance().setCheckStart(CameraSyncStatus.STATUS_DEFAULT);
-            EventBus.getDefault().post(new CameraSyncEvent(CameraSyncStatus.NETWORK_AVAILABLE, "checkNetworkAvailable"));
+            EventBus.getDefault().post(new CameraSyncEvent( "noNetwork"));
             return;
         }
 
@@ -272,7 +270,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
             // we're logged out on this account. disable camera upload.
             ContentResolver.cancelSync(account, CameraUploadManager.AUTHORITY);
             ContentResolver.setIsSyncable(account, CameraUploadManager.AUTHORITY, 0);
-            SeadroidApplication.getInstance().setCheckStart(CameraSyncStatus.STATUS_DEFAULT);
+            SeadroidApplication.getInstance().setScanUploadStatus("end");
             return;
         }
 
@@ -295,7 +293,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
                  */
                 Log.e(DEBUG_TAG, "Sync aborted because the target repository does not exist");
                 syncResult.databaseError = true;
-                SeadroidApplication.getInstance().setCheckStart(CameraSyncStatus.STATUS_DEFAULT);
+                SeadroidApplication.getInstance().setScanUploadStatus("end");
                 showNotificationRepoError();
                 return;
             }
@@ -366,8 +364,8 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
                 txService = null;
             }
         }
-        EventBus.getDefault().post(new CameraSyncEvent(CameraSyncStatus.SCAN_END, "end_scan"));
-        SeadroidApplication.getInstance().setCheckStart(CameraSyncStatus.STATUS_DEFAULT);
+        SeadroidApplication.getInstance().setScanUploadStatus("end");
+        EventBus.getDefault().post(new CameraSyncEvent("end"));
     }
 
     private void uploadImages(SyncResult syncResult, DataManager dataManager) throws SeafException, InterruptedException {
