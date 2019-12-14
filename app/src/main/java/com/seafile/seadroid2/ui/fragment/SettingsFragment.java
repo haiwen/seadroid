@@ -850,20 +850,31 @@ public class SettingsFragment extends CustomPreferenceFragment {
     public void onEvent(CameraSyncEvent result) {
 
         int scanUploadStatus = SeadroidApplication.getInstance().getScanUploadStatus();
-        String scanUploadInfo = SeadroidApplication.getInstance().getScanUploadInfo();
         int waitingNumber = SeadroidApplication.getInstance().getWaitingNumber();
         int totalNumber = SeadroidApplication.getInstance().getTotalNumber();
+
         switch (scanUploadStatus) {
-            case 3:
-                cUploadRepoState.setSummary(scanUploadInfo + " " + (totalNumber - waitingNumber) + " / " + totalNumber);
+            case CameraSyncStatus.SCANNING:
+
+                cUploadRepoState.setSummary(getString(R.string.is_scanning));
                 break;
-            case 4:
+            case CameraSyncStatus.NETWORK_UNAVAILABLE:
+
+                cUploadRepoState.setSummary(getString(R.string.network_unavailable));
+                break;
+            case CameraSyncStatus.UPLOADING:
+
+                cUploadRepoState.setSummary(getString(R.string.is_uploading) + " " + (totalNumber - waitingNumber) + " / " + totalNumber);
+                break;
+            case CameraSyncStatus.SCAN_END:
+
                 cUploadRepoState.setSummary(SettingsManager.instance().getUploadCompletedTime());
                 break;
             default:
-                cUploadRepoState.setSummary(scanUploadInfo);
+                cUploadRepoState.setSummary(getString(R.string.waiting_state));
                 break;
         }
+
         Log.d(DEBUG_TAG, scanUploadStatus + "------" + waitingNumber + "==========" + totalNumber + "-----" + result.getLogInfo());
     }
 }

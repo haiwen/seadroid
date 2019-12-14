@@ -98,7 +98,7 @@ public abstract class TransferManager {
             TransferTask task = waitingList.remove(0);
             transferringList.add(task);
             SeadroidApplication.getInstance().saveCameraUploadNumber(waitingList.size(), allTaskList.size());
-            SeadroidApplication.getInstance().saveUploadStatusInfo(CameraSyncStatus.UPLOADING, "Uploading");
+            SeadroidApplication.getInstance().saveUploadStatusInfo(CameraSyncStatus.UPLOADING);
             EventBus.getDefault().post(new CameraSyncEvent("upload"));
             ConcurrentAsyncTask.execute(task);
         }
