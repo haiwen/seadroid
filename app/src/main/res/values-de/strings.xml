@@ -541,4 +541,11 @@ E-Mail: support@seafile.com<br>
   <string name="channel_name_error">Fehlermeldungen</string>
   <string name="channel_name_upload">Upload-Information</string>
   <string name="channel_name_download">Download-Information</string>
+  <string name="above_quota">Datenvolumen überschritten</string>
+  <string name="camera_upload_state">Upload-Information</string>
+  <string name="waiting_state">Warte auf Hochladen</string>
+  <string name="Upload_completed">Zuletzt synchronisiert am</string>
+  <string name="is_scanning">Scannen</string>
+  <string name="is_uploading">Hochladen</string>
+  <string name="network_unavailable">Netzwerk nicht verfügbar</string>
 </resources>

@@ -531,4 +531,11 @@
   <string name="channel_name_error">错误信息</string>
   <string name="channel_name_upload">文件上传</string>
   <string name="channel_name_download">文件下载</string>
+  <string name="above_quota">空间超额</string>
+  <string name="camera_upload_state">上传信息显示</string>
+  <string name="waiting_state">上传等待中</string>
+  <string name="Upload_completed">最后同步完成于</string>
+  <string name="is_scanning">扫描中</string>
+  <string name="is_uploading">上传中</string>
+  <string name="network_unavailable">网络不可用</string>
 </resources>

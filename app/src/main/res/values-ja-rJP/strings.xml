@@ -531,4 +531,11 @@
   <string name="channel_name_error">エラーアラート</string>
   <string name="channel_name_upload">ファイルアップロード情報</string>
   <string name="channel_name_download">ファイルダウンロード情報</string>
+  <string name="above_quota">クォータ以上</string>
+  <string name="camera_upload_state">アップロード情報</string>
+  <string name="waiting_state">ダウンロードの待機中</string>
+  <string name="Upload_completed">最後の同期終了</string>
+  <string name="is_scanning">スキャンしています</string>
+  <string name="is_uploading">アップロードしています</string>
+  <string name="network_unavailable">ネットワークが利用できません</string>
 </resources>

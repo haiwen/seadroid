@@ -558,4 +558,11 @@
   <string name="channel_name_error">Предупреждения об ошибках</string>
   <string name="channel_name_upload">Информация о загрузке файла</string>
   <string name="channel_name_download">Информация о скачивании файла</string>
+  <string name="above_quota">Больше квоты</string>
+  <string name="camera_upload_state">Информация о загрузке</string>
+  <string name="waiting_state">Ожидание загрузки</string>
+  <string name="Upload_completed">Последняя синхронизация завершена в</string>
+  <string name="is_scanning">Сканирование</string>
+  <string name="is_uploading">Загрузка</string>
+  <string name="network_unavailable">Сеть недоступна</string>
 </resources>
