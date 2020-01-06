@@ -879,7 +879,7 @@ public class SeafConnection {
      */
     public String uploadFile(String repoID, String dir, String filePath, ProgressMonitor monitor, boolean update)
             throws SeafException, IOException {
-            String url = getUploadLink(repoID, update, dir);
+            String url = getUploadLink(repoID, update, Utils.toURLEncoded(dir));
             return uploadFileCommon(url, repoID, dir, filePath, monitor, update);
     }
 
