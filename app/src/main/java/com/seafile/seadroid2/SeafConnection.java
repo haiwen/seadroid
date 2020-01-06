@@ -776,13 +776,13 @@ public class SeafConnection {
         return false;
     }
 
-    private String getUploadLink(String repoID, boolean update) throws SeafException {
+    private String getUploadLink(String repoID, boolean update, String dir) throws SeafException {
         try {
             String apiPath;
             if (update) {
                 apiPath = "api2/repos/" + repoID + "/update-link/";
             } else {
-                apiPath = "api2/repos/" + repoID + "/upload-link/";
+                apiPath = "api2/repos/" + repoID + "/upload-link/?p=" + dir;
             }
             HttpRequest req;
             req = prepareApiGetRequest(apiPath);
@@ -879,7 +879,7 @@ public class SeafConnection {
      */
     public String uploadFile(String repoID, String dir, String filePath, ProgressMonitor monitor, boolean update)
             throws SeafException, IOException {
-            String url = getUploadLink(repoID, update);
+            String url = getUploadLink(repoID, update, dir);
             return uploadFileCommon(url, repoID, dir, filePath, monitor, update);
     }
 
