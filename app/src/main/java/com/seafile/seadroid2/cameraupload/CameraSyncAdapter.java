@@ -244,10 +244,10 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
 //        }
 
         // resync all media
-        if (extras.getBoolean(ContentResolver.SYNC_EXTRAS_INITIALIZE)) {
-            // Log.i(DEBUG_TAG, "Doing a full resync");
-            dbHelper.cleanPhotoCache();
-        }
+//        if (extras.getBoolean(ContentResolver.SYNC_EXTRAS_INITIALIZE)) {
+//             Log.i(DEBUG_TAG, "Doing a full resync");
+//            dbHelper.cleanPhotoCache();
+//        }
 
         if (!settingsMgr.checkCameraUploadNetworkAvailable()) {
             // Log.d(DEBUG_TAG, "Not syncing because of data plan restriction.");
