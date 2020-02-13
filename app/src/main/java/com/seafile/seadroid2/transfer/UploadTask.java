@@ -1,11 +1,16 @@
 package com.seafile.seadroid2.transfer;
 
 import android.util.Log;
+import android.widget.Toast;
 
+import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SeafException;
+import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.ProgressMonitor;
+import com.seafile.seadroid2.util.Utils;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,6 +30,7 @@ public class UploadTask extends TransferTask {
     private UploadStateListener uploadStateListener;
 
     private DataManager dataManager;
+    public static final int HTTP_ABOVE_QUOTA = 443;
 
     public UploadTask(int taskID, Account account, String repoID, String repoName,
                       String dir, String filePath, boolean isUpdate, boolean isCopyToLocal, boolean byBlock,
@@ -107,9 +113,14 @@ public class UploadTask extends TransferTask {
         state = err == null ? TaskState.FINISHED : TaskState.FAILED;
         if (uploadStateListener != null) {
             if (err == null) {
+                SettingsManager.instance().saveUploadCompletedTime(Utils.getSyncCompletedTime());
                 uploadStateListener.onFileUploaded(taskID);
             }
             else {
+                if (err.getCode() == HTTP_ABOVE_QUOTA) {
+
+                    Toast.makeText(SeadroidApplication.getAppContext(), R.string.above_quota, Toast.LENGTH_SHORT).show();
+                }
                 uploadStateListener.onFileUploadFailed(taskID);
             }
         }

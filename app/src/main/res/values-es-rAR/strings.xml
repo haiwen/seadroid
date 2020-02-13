@@ -10,6 +10,12 @@
   <string name="delete_successful">Eliminado con éxito</string>
   <string name="delete_repo_title">Eliminar biblioteca</string>
   <string name="delete_file_f">Eliminar archivo</string>
+  <string name="recover_library">Recuperar biblioteca</string>
+  <string name="recover_file">Recuperar archivo</string>
+  <string name="move_file">Mover archivo</string>
+  <string name="update_file">Actualizar archivo</string>
+  <string name="recover_folder">Recuperar carpeta</string>
+  <string name="move_folder">Mover carpeta</string>
   <string name="delete_dir">Eliminar carpeta</string>
   <string name="name_hint">Nombre</string>
   <string name="server_hint">Dirección del servidor</string>
@@ -131,6 +137,11 @@
   <string name="load_dir_fail">Falla al cargar el contenido de esta carpeta</string>
   <string name="not_supported_share">Este tipo de recurso compartido no es compatible</string>
   <string name="edit">Editar</string>
+  <string name="create_draft">Crear borrador</string>
+  <string name="rename_draft">Renombrar borrador</string>
+  <string name="del_draft">Eliminar borrador</string>
+  <string name="update_draft">Actualizar borrador</string>
+  <string name="release_draft">Liberar borrador</string>
   <string name="encrypt">Encriptar</string>
   <string name="download_folder">Descargar carpeta</string>
   <string name="download_folder_title">Escoja su opción preferida</string>
@@ -155,6 +166,7 @@
   <string name="create_new_folder_success">Carpeta %s creada con éxito</string>
   <string name="create_new_file_success">Archivo %s creado con éxito</string>
   <string name="create_new_file">Crear un nuevo archivo</string>
+  <string name="create_files">Crear archivos</string>
   <string name="create_new_dir">Crear una nueva carpeta</string>
   <string name="camera">Tomar una foto aquí</string>
   <string name="download">Descargar</string>
@@ -528,4 +540,11 @@
   <string name="channel_name_error">Alertas de error</string>
   <string name="channel_name_upload">Información de subida de archivos</string>
   <string name="channel_name_download">Información de descarga de archivos</string>
+  <string name="above_quota">Cuota Excedida</string>
+  <string name="camera_upload_state">Información de subida</string>
+  <string name="waiting_state">Subida en espera</string>
+  <string name="Upload_completed">Última sincronización finalizada en</string>
+  <string name="is_scanning">Escaneando</string>
+  <string name="is_uploading">Subiendo</string>
+  <string name="network_unavailable">Red no disponible</string>
 </resources>

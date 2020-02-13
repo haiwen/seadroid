@@ -7,15 +7,15 @@ android {
         applicationId 'de.luckycloud.luckycloud'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 101
-        versionName "2.2.19"
+        versionCode 100
+        versionName "2.2.25"
         multiDexEnabled true
         setProperty("archivesBaseName",  "luckycloud-v" + versionName)
         resValue "string", "authorities", applicationId + '.cameraupload.provider'
         resValue "string", "account_type", "de.luckycloud.luckycloud.account.api2"
         buildConfigField "String", "ACCOUNT_TYPE", '"de.luckycloud.luckycloud.account.api2"'
         ndk {
-            abiFilters 'armeabi', 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
+            abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86_64', 'x86'
         }
     }
 
@@ -118,6 +118,7 @@ android {
         implementation 'com.yydcdut:markdown-processor:0.1.3'
         implementation 'ren.qinc.edit:lib:0.0.5'//editor undo redo
         implementation 'com.github.tiagohm.MarkdownView:library:0.19.0'
+        implementation 'org.greenrobot:eventbus:3.1.1'
     }
 }
 

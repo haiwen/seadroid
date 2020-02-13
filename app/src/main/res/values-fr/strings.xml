@@ -10,6 +10,12 @@
   <string name="delete_successful">Supprimé avec succès</string>
   <string name="delete_repo_title">Supprimer une bibliothèque</string>
   <string name="delete_file_f">Effacer le fichier</string>
+  <string name="recover_library">Récupérer la bibliothèque</string>
+  <string name="recover_file">Récupérer le fichier</string>
+  <string name="move_file">Déplacer le fichier</string>
+  <string name="update_file">Mettre à jour le fichier</string>
+  <string name="recover_folder">Récupérer le dossier</string>
+  <string name="move_folder">Déplacer le dossier</string>
   <string name="delete_dir">Effacer le dossier</string>
   <string name="name_hint">Nom</string>
   <string name="server_hint">Serveur, par exemple cloud.seafile.com</string>
@@ -131,6 +137,11 @@
   <string name="load_dir_fail">Échec du chargement du contenu de ce dossier</string>
   <string name="not_supported_share">Ce type de partage n\'est pas supporté</string>
   <string name="edit">Modifier</string>
+  <string name="create_draft">Créer un brouillon</string>
+  <string name="rename_draft">Renommer le brouillon</string>
+  <string name="del_draft">Supprimer le brouillon</string>
+  <string name="update_draft">Mettre à jour le brouillon</string>
+  <string name="release_draft">Publication du brouillon</string>
   <string name="encrypt">Crypter</string>
   <string name="download_folder">Télécharger le dossier</string>
   <string name="download_folder_title">Choisissez votre option préférée</string>
@@ -155,6 +166,7 @@
   <string name="create_new_folder_success">Le dossier %s a été créé avec succès</string>
   <string name="create_new_file_success">Le fichier %s a été créé avec succès</string>
   <string name="create_new_file">Créer un nouveau fichier</string>
+  <string name="create_files">Créer des fichiers</string>
   <string name="create_new_dir">Créer un nouveau dossier</string>
   <string name="camera">Prendre une photo</string>
   <string name="download">Télécharger</string>

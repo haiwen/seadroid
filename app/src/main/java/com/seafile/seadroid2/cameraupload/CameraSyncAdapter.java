@@ -20,10 +20,12 @@ import android.util.Log;
 
 import com.google.common.base.Joiner;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
+import com.seafile.seadroid2.data.CameraSyncEvent;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafRepo;
@@ -34,7 +36,10 @@ import com.seafile.seadroid2.transfer.UploadTaskInfo;
 import com.seafile.seadroid2.ui.CustomNotificationBuilder;
 import com.seafile.seadroid2.ui.activity.AccountsActivity;
 import com.seafile.seadroid2.ui.activity.SettingsActivity;
+import com.seafile.seadroid2.util.CameraSyncStatus;
 import com.seafile.seadroid2.util.Utils;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
 import java.net.HttpURLConnection;
@@ -225,7 +230,8 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
         synchronized (this) {
             cancelled = false;
         }
-
+        SeadroidApplication.getInstance().setScanUploadStatus(CameraSyncStatus.SCANNING);
+        EventBus.getDefault().post(new CameraSyncEvent("start"));
         /*Log.i(DEBUG_TAG, "Syncing images and video to " + account);
 
         Log.d(DEBUG_TAG, "Selected buckets for camera upload: "+settingsMgr.getCameraUploadBucketList());
@@ -238,15 +244,17 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
 //        }
 
         // resync all media
-        if (extras.getBoolean(ContentResolver.SYNC_EXTRAS_INITIALIZE)) {
-            // Log.i(DEBUG_TAG, "Doing a full resync");
-            dbHelper.cleanPhotoCache();
-        }
+//        if (extras.getBoolean(ContentResolver.SYNC_EXTRAS_INITIALIZE)) {
+//             Log.i(DEBUG_TAG, "Doing a full resync");
+//            dbHelper.cleanPhotoCache();
+//        }
 
         if (!settingsMgr.checkCameraUploadNetworkAvailable()) {
             // Log.d(DEBUG_TAG, "Not syncing because of data plan restriction.");
             // treat dataPlan abort the same way as a network connection error
             syncResult.stats.numIoExceptions++;
+            SeadroidApplication.getInstance().setScanUploadStatus(CameraSyncStatus.NETWORK_UNAVAILABLE);
+            EventBus.getDefault().post(new CameraSyncEvent("noNetwork"));
             return;
         }
 
@@ -286,7 +294,6 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
                  */
                 Log.e(DEBUG_TAG, "Sync aborted because the target repository does not exist");
                 syncResult.databaseError = true;
-
                 showNotificationRepoError();
                 return;
             }
@@ -357,6 +364,9 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
                 txService = null;
             }
         }
+        SeadroidApplication.getInstance().setScanUploadStatus(CameraSyncStatus.SCAN_END);
+        SettingsManager.instance().saveUploadCompletedTime(Utils.getSyncCompletedTime());
+        EventBus.getDefault().post(new CameraSyncEvent("end"));
     }
 
     private void uploadImages(SyncResult syncResult, DataManager dataManager) throws SeafException, InterruptedException {

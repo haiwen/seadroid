@@ -15,6 +15,9 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.data.CheckUploadServiceEvent;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -265,5 +268,11 @@ public class BaseActivity extends AppCompatActivity {
             return;
 
         showLongToast(activity, activity.getString(resId));
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        EventBus.getDefault().post(new CheckUploadServiceEvent("checkServices"));
     }
 }
