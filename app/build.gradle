@@ -7,7 +7,7 @@ android {
         applicationId 'de.luckycloud.luckycloud'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 100
+        versionCode 103
         versionName "2.2.25"
         multiDexEnabled true
         setProperty("archivesBaseName",  "luckycloud-v" + versionName)
