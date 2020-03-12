@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="fill_parent"
+                android:background="?android:selectableItemBackground"
+                android:layout_height="@dimen/lv_item_height"
+                android:padding="@dimen/lv_item_padding">
+
+    <ImageView
+            android:id="@+id/repo_list_item_icon"
+            android:layout_width="@dimen/lv_icon_width"
+            android:layout_height="@dimen/lv_icon_height"
+            android:layout_alignParentLeft="true"
+            android:layout_centerInParent="true"/>
+
+    <ImageView
+            android:id="@+id/repo_list_item_space"
+            android:layout_width="@dimen/lv_space_width"
+            android:layout_height="fill_parent"
+            android:layout_toRightOf="@id/repo_list_item_icon"/>
+
+    <TextView
+            android:id="@+id/repo_list_item_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:lines="1"
+            android:singleLine="true"
+            android:textColor="@color/fancy_dark_black"
+            android:textSize="@dimen/lv_title_txt_size"
+            android:layout_alignTop="@id/repo_list_item_icon"
+            android:layout_toRightOf="@id/repo_list_item_space"
+            android:layout_toLeftOf="@+id/repo_list_item_action"/>
+
+    <TextView
+            android:id="@+id/repo_list_item_subtitle"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/repo_list_item_title"
+            android:layout_toLeftOf="@+id/repo_list_item_action"
+            android:layout_toRightOf="@id/repo_list_item_space"
+            android:textColor="@color/fancy_black"
+            android:textSize="@dimen/lv_subtitle_txt_size"/>
+
+    <ImageView
+            android:id="@+id/repo_list_item_action"
+            android:layout_width="@dimen/lv_iv_action_width"
+            android:layout_height="fill_parent"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"/>
+
+</RelativeLayout>

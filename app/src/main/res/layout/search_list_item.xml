@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:background="?android:selectableItemBackground"
+                android:layout_width="fill_parent"
+                android:layout_height="80dp"
+                android:paddingTop="@dimen/lv_item_padding_top"
+                android:paddingBottom="@dimen/lv_item_padding_bottom"
+                android:paddingLeft="@dimen/lv_item_padding_left"
+                android:paddingRight="@dimen/lv_item_padding_right">
+
+    <ImageView
+            android:id="@+id/search_item_icon"
+            android:layout_width="@dimen/lv_icon_width"
+            android:layout_height="fill_parent"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            />
+
+    <ImageView
+            android:id="@+id/search_item_action"
+            android:layout_width="@dimen/lv_iv_action_width"
+            android:layout_height="fill_parent"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            />
+
+    <TextView android:id="@+id/search_item_path" 
+              android:layout_width="fill_parent" 
+              android:layout_height="wrap_content"
+              android:gravity="left"
+              android:layout_toLeftOf="@+id/search_item_action"
+              android:layout_toRightOf="@id/search_item_icon"
+              android:paddingTop="@dimen/lv_title_padding_top"
+              android:paddingLeft="@dimen/lv_title_padding_left"
+              android:lines="1"
+              android:textColor="@color/fancy_black"
+              android:textSize="@dimen/lv_subtitle_txt_size"
+              android:singleLine="true"/>
+    <TextView
+            android:id="@+id/search_item_title"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/search_item_path"
+            android:layout_below="@id/search_item_path"
+            android:layout_toLeftOf="@+id/search_item_action"
+            android:layout_toRightOf="@id/search_item_icon"
+            android:gravity="left"
+            android:lines="1"
+            android:paddingTop="@dimen/lv_title_padding_top"
+            android:paddingLeft="@dimen/lv_title_padding_left"
+            android:singleLine="true"
+            android:textColor="@color/fancy_dark_black"
+            android:textSize="@dimen/lv_title_txt_size"/>
+
+    <TextView
+            android:id="@+id/search_item_subtitle"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/search_item_title"
+            android:layout_below="@id/search_item_title"
+            android:layout_toLeftOf="@+id/search_item_action"
+            android:gravity="left"
+            android:lines="1"
+            android:singleLine="true"
+            android:paddingLeft="@dimen/lv_subtitle_padding_left"
+            android:textColor="@color/fancy_black"
+            android:textSize="@dimen/lv_subtitle_txt_size"/>
+
+</RelativeLayout>

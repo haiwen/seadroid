@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="vertical"
+	android:layout_width="wrap_content"
+	android:layout_height="wrap_content"
+	android:paddingBottom="15dp"
+    android:paddingLeft="10dp"
+    android:paddingRight="10dp"
+    android:paddingTop="10dp">
+
+	<TextView
+    	android:id="@+id/delete_file_name"
+    	android:layout_width="fill_parent"
+    	android:layout_height="wrap_content"
+		android:layout_marginLeft="@dimen/margin_big"
+    	android:textSize="@dimen/font_size_normal"
+		android:textColor="@color/grey"
+    	android:text="@string/delete_file"
+    />
+
+</LinearLayout>

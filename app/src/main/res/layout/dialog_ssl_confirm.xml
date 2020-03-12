@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:orientation="vertical" >
+
+    <TextView
+        android:id="@+id/message"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:textColor="@color/black"
+        android:textSize="@dimen/dialog_msg_txt_size" />
+
+    <LinearLayout
+        android:id="@+id/cert_details"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="5dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginStart="20dp"
+        android:orientation="vertical" >
+
+        <LinearLayout
+            android:id="@+id/issuer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:textColor="@color/black" >
+
+            <TextView
+                android:id="@+id/issuer_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/issued_to"
+                android:textColor="@color/black"
+                android:textSize="@dimen/dialog_msg_title_txt_size"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/common_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black" />
+
+            <LinearLayout
+                android:id="@+id/finger_prints"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:orientation="vertical" >
+
+                <TextView
+                    android:id="@+id/finger_prints_header"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/finger_prints"
+                    android:textColor="@color/black"
+                    android:textSize="@dimen/dialog_msg_title_txt_size"
+                    android:textStyle="bold" />
+                
+                <TextView
+                    android:id="@+id/sha256"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/black" />                
+
+                <TextView
+                    android:id="@+id/sha1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/black" />
+
+                <TextView
+                    android:id="@+id/md5"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/black" />
+
+                <TextView
+                    android:id="@+id/serial_number"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/black" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/validity"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="10dp"
+            android:gravity="center_horizontal"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/validity_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/period_of_validity"
+                android:textColor="@color/black"
+                android:textSize="@dimen/dialog_msg_title_txt_size"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/not_before"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black" />
+
+            <TextView
+                android:id="@+id/not_after"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

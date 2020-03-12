@@ -1,0 +1,69 @@
+<resources>
+  <declare-styleable name="GalleryScrollBar">
+    <attr name="android:background"/>
+    <attr name="android:clickable"/>
+    <attr name="android:contentDescription"/>
+    <attr name="android:drawingCacheQuality"/>
+    <attr name="android:duplicateParentState"/>
+    <attr name="android:fadeScrollbars"/>
+    <attr name="android:fadingEdge"/>
+    <attr name="android:fadingEdgeLength"/>
+    <attr name="android:fitsSystemWindows"/>
+    <attr name="android:focusable"/>
+    <attr name="android:focusableInTouchMode"/>
+    <attr name="android:hapticFeedbackEnabled"/>
+    <attr name="android:id"/>
+    <attr name="android:isScrollContainer"/>
+    <attr name="android:keepScreenOn"/>
+    <attr name="android:longClickable"/>
+    <attr name="android:minHeight"/>
+    <attr name="android:minWidth"/>
+    <attr name="android:nextFocusDown"/>
+    <attr name="android:nextFocusLeft"/>
+    <attr name="android:nextFocusRight"/>
+    <attr name="android:nextFocusUp"/>
+    <attr name="android:onClick"/>
+    <attr name="android:padding"/>
+    <attr name="android:paddingBottom"/>
+    <attr name="android:paddingLeft"/>
+    <attr name="android:paddingRight"/>
+    <attr name="android:paddingTop"/>
+    <attr name="android:saveEnabled"/>
+    <attr name="android:scrollX"/>
+    <attr name="android:scrollY"/>
+    <attr name="android:scrollbarAlwaysDrawHorizontalTrack"/>
+    <attr name="android:scrollbarAlwaysDrawVerticalTrack"/>
+    <attr name="android:scrollbarDefaultDelayBeforeFade"/>
+    <attr name="android:scrollbarFadeDuration"/>
+    <attr name="android:scrollbarSize"/>
+    <attr name="android:scrollbarStyle"/>
+    <attr name="android:scrollbarThumbHorizontal"/>
+    <attr name="android:scrollbarThumbVertical"/>
+    <attr name="android:scrollbarTrackHorizontal"/>
+    <attr name="android:scrollbarTrackVertical"/>
+    <attr name="android:scrollbars"/>
+    <attr name="android:soundEffectsEnabled"/>
+    <attr name="android:tag"/>
+    <attr name="android:visibility"/>
+
+  </declare-styleable>
+  <declare-styleable name="LockPatternView">
+        <!-- Aspect to use when drawing LockPatternView. Choices are "square"(default), "lock_width"
+             or "lock_height" -->
+        <attr name="aspect" format="string" />
+   </declare-styleable>
+
+  <style name="dialog_light" parent="@android:style/Theme.Dialog">
+    <item name="android:windowBackground">@color/whitegrey</item>
+    <item name="android:textColor">@color/black</item>
+  </style>
+
+  <declare-styleable name="BaseTheme">
+    <attr name="actionBarInsetStart" format="dimension" />
+  </declare-styleable>
+
+  <declare-styleable name="CircleImageView">
+    <attr name="border_width" format="dimension" />
+    <attr name="border_color" format="color" />
+  </declare-styleable>
+</resources>

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="72dp"
+    android:padding="10dp">
+
+    <ImageView
+        android:id="@+id/transfer_file_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_alignParentLeft="true"
+        android:paddingRight="10dp" />
+    <TextView
+        android:id="@+id/transfer_target_path"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/transfer_file_icon"
+        android:layout_toRightOf="@id/transfer_file_icon"
+        android:lines="1"
+        android:singleLine="true"
+        android:textSize="@dimen/lv_subtitle_txt_size" />
+    <TextView
+        android:id="@+id/transfer_file_name"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="50dp"
+        android:layout_below="@id/transfer_target_path"
+        android:layout_alignLeft="@id/transfer_target_path"
+        android:lines="1"
+        android:singleLine="true"
+        android:textColor="@color/black"
+        android:textSize="@dimen/lv_title_txt_size" />
+    <TextView
+        android:id="@+id/transfer_file_state"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/transfer_file_name"
+        android:layout_alignLeft="@id/transfer_file_name"
+        android:paddingTop="4dp"
+        android:paddingRight="20dp"
+        android:lines="1"
+        android:singleLine="true"
+        android:textSize="@dimen/lv_download_state_txt_size" />
+    <ProgressBar
+        android:id="@+id/transfer_file_progress_bar"
+        android:layout_width="fill_parent"
+        android:layout_height="6dp"
+        android:layout_below="@id/transfer_file_state"
+        android:layout_alignLeft="@id/transfer_file_state"
+        android:layout_marginTop="5dp"
+        android:layout_marginRight="50dp"
+        style="@style/Widget.AppCompat.ProgressBar.Horizontal" />
+    <TextView
+        android:id="@+id/transfer_file_size"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/transfer_file_state"
+        android:layout_alignBottom="@id/transfer_file_state"
+        android:paddingLeft="0dp"
+        android:lines="1"
+        android:singleLine="true"
+        android:textColor="@color/black"
+        android:textSize="@dimen/lv_download_state_txt_size" />
+    <ImageView
+            android:id="@+id/transfer_file_multi_select_btn"
+            android:src="@drawable/btn_multiselect"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="10dp"
+            android:layout_centerInParent="true"
+            android:layout_alignParentRight="true"/>
+
+
+</RelativeLayout>

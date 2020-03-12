@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+  
+  <!-- Displayed when the share intent contains a text instead of a file -->
+  <TextView
+      android:id="@+id/not_supported_text"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:gravity="center"
+      android:text="@string/not_supported_share"
+      android:textSize="18dp" />
+
+  <!-- Error message -->
+  <TextView
+      android:id="@+id/error_message"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:gravity="center"
+      android:textSize="18dp"
+      android:visibility="gone" />
+
+  <RelativeLayout
+      android:id="@+id/main"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent" >
+
+    <LinearLayout
+        android:id="@+id/content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+      <LinearLayout
+          android:id="@+id/progressContainer"
+          android:orientation="vertical"
+          android:layout_width="match_parent"
+          android:layout_height="match_parent"
+          android:visibility="gone"
+          android:gravity="center">
+
+        <ProgressBar
+            style="?android:attr/progressBarStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text=""
+            android:paddingTop="4dip"
+            android:singleLine="true" />
+
+      </LinearLayout>
+
+      <FrameLayout
+          android:id="@+id/listContainer"
+          android:layout_width="match_parent"
+          android:layout_height="match_parent">
+
+        <ListView
+            android:id="@android:id/list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:drawSelectorOnTop="false" />
+        <TextView
+            android:id="@android:id/empty"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:visibility="gone"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+      </FrameLayout>
+      
+    </LinearLayout>
+    
+    <!-- buttons -->
+    <LinearLayout
+        android:id="@+id/buttonsContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_horizontal"
+        android:layout_alignParentBottom="true"
+        android:background="@color/light_grey"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp">
+       <Button
+            android:id="@+id/cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="60dp"
+            android:layout_weight="0.4"
+            android:text="@string/cancel"
+            android:textColor="@color/light_black"
+            android:gravity="center"
+            android:theme="@style/NegativeButton"
+           />
+
+		<View
+		    android:id="@+id/transparent_space"
+		    android:layout_width="0dp"
+		    android:layout_height="60dp"
+		    android:layout_weight="0.2" />
+
+        <Button
+            android:id="@+id/ok"
+            android:layout_width="wrap_content"
+            android:layout_height="60dp"
+            android:layout_weight="0.4"
+            android:text="@string/ok"
+            android:textColor="@color/white"
+            android:gravity="center"
+            />
+        
+    </LinearLayout>
+  </RelativeLayout>
+
+</FrameLayout>

@@ -1,0 +1,33 @@
+Speichern Sie Ihre Daten sicher in der Zero Knowledge Cloud von luckycloud - garantiert keine Sicherheitslücken und Datenverarbeitung ausschließlich in zertifizierten Rechenzentren in Deutschland.
+
+Die verschlüsselte Sync- and Share Plattform eignet sich für Unternehmen und Privatpersonen mit hohen Ansprüchen an Sicherheit, Performance und Zuverlässigkeit. 
+Die datenschutzkonforme Cloud-Plattform enthält alle Funktionen, die Ihr bisheriger Cloudspeicher auch besitzt. Der wesentliche Unterschied: Bei luckycloud sind Sie Kunde - nicht das Produkt. Bezahlen Sie nie wieder mit Ihren Daten. Testen Sie luckycloud kostenlos und unverbindlich für 14 Tage.
+
+Das kann die luckycloud Android App: 
+- Erstellen von verschlüsselten Bibliotheken 
+- Einfacher Zugriff auf die Daten in der luckycloud
+- Daten können bei Bedarf direkt aus der Cloud abgerufen oder herunterladen
+- Dateien mit einer Drittapp, wie OfficeSuite, bearbeiten
+- Downloadlinks für Unterordner und Dateien erstellen - optional auch Passwortgeschützt
+- Automatischer Fotoupload (BETA)
+- Übersicht Ihrer Aktivitäten
+
+Jeder Account bei luckycloud beginnt mit einer 14 tägigen Testphase. Erstellen Sie sich auf www.luckycloud.de einen Account, den Sie nach der Registrierung im Konfigurator jederzeit individuell anpassen können.
+--------------------------------------------------------------------------------
+Weitere Informationen und Nutzungsbedingungen
+
+Einrichtungshilfe:
+https://docs.luckycloud.de/de/erste-schritte
+
+AGB:
+https://luckycloud.de/de/terms-and-conditions
+
+Datenschutzhinweise: 
+https://luckycloud.de/de/data-and-privacy
+
+luckycloud basiert auf der Open-Source-Software von Seafile. Die hochverfügbare Serverinfrastruktur gehört der luckycloud GmbH - Dritte erhalten keinen Zugang. Nur durch Einsatz von OpenSource Software können wir plausiblen Datenschutz anbieten und garantieren, dass nicht einmal luckycloud-Mitarbeiter in Ihre Daten einsehen können.
+
+Den Quellcode können Sie hier einsehen: https://github.com/luckycloud-GmbH/seadroid
+
+Den Quellcode der ursprünglichen Seafile-Entwickler können Sie hier einsehen:
+https://github.com/haiwen/seadroid

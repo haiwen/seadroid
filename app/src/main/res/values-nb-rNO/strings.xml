@@ -1,0 +1,382 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="welcome_to_seafile">Velkommen til Seafile</string>
+  <string name="select_account">Velg en konto for å starte</string>
+  <string name="edit_account">Redigere</string>
+  <string name="delete_account">Slette</string>
+  <string name="delete">Slette</string>
+  <string name="delete_file_f">Slett fil</string>
+  <string name="delete_dir">Slett mappe</string>
+  <string name="passwd_hint">Passord</string>
+  <string name="open_file">Åpne</string>
+  <string name="download_file">Last ned</string>
+  <string name="redownload_file">Last ned på nytt</string>
+  <string name="cancel_download">Avbryt</string>
+  <string name="activity_not_found">Kan ikke finne et program å åpne denne filen med</string>
+  <string name="refresh">Oppfrisk</string>
+  <string name="add_account">Legg til konto</string>
+  <string name="personal">Personlig</string>
+  <string name="shared">Delt</string>
+  <string name="libraries">Biblioteker</string>
+  <string name="cached">Mellomlagret</string>
+  <string name="activities">Aktiviteter</string>
+  <string name="pick_upload_type">Laste opp</string>
+  <string name="transfer_tasks">Overføringsliste</string>
+  <string name="accounts">Kontoer</string>
+  <string name="settings">Innstillinger</string>
+  <string-array name="pick_upload_array">
+    <item>Fil</item>
+    <item>Bilder/Videoer</item>
+    <item>Annet</item>
+  </string-array>
+  <string name="choose_server">Velg en Seafile-server</string>
+  <string name="network_down">Ingen nettverkstilkobling</string>
+  <string name="unknow_error">Ukjent feil</string>
+  <string name="invalid_server_address">Ugyldig serveradresse</string>
+  <string name="err_server_andress_empty">Serveradressen kan ikke være tom</string>
+  <string name="err_email_empty">E-post kan ikke være tom</string>
+  <string name="err_passwd_empty">Passord kan ikke være tomt</string>
+  <string name="err_login_failed">Klarte ikke å logge inn</string>
+  <string name="err_wrong_user_or_passwd">E-post- eller passordfeil</string>
+  <string name="err_token_expired">Autentiseringen er ikke lenger gyldring. Logg inn pånytt.</string>
+  <string name="upload">Laste opp</string>
+  <string name="uploaded">Opplastet</string>
+  <string name="updated">Oppdatert</string>
+  <string name="download_failed">Nedlasting feilet</string>
+  <string name="download_waiting">Nedlasting venter</string>
+  <string name="download_finished">Nedlasting fullført</string>
+  <string name="download_cancelled">Nedlasting avbrutt</string>
+  <string name="task_cancel">Avbryt</string>
+  <string name="task_retry">Prøv igjen</string>
+  <string name="task_remove">Fjern</string>
+  <string name="task_remove_all_cancelled">Fjern alle avbrudte oppgaver</string>
+  <string name="task_remove_all_finished">Fjern alle fjerdige oppgaver</string>
+  <string name="file_action_star">Favoritt</string>
+  <string name="file_action_download">Last ned</string>
+  <string name="file_action_update">Laste opp</string>
+  <string name="file_action_export">Eksportere</string>
+  <string name="file_action_delete">Slette</string>
+  <string name="file_action_rename">Omdøpe</string>
+  <string name="file_action_copy">Kopiere</string>
+  <string name="file_action_move">Flytte</string>
+  <string name="file_action_open_as">Åpne som</string>
+  <string name="file_action_more">Mer</string>
+  <string name="file_action_more_title">Ditt foretrukne valg</string>
+  <string-array name="file_action_more_array">
+    <item>Eksportere</item>
+    <item>Kopiere</item>
+    <item>Flytte</item>
+    <item>Favorittmarkere</item>
+  </string-array>
+  <string-array name="file_type_array">
+    <item>Tekst</item>
+    <item>Lyd</item>
+    <item>Video</item>
+    <item>Bilde</item>
+    <item>Annet</item>
+  </string-array>
+  <string name="wait">Vent</string>
+  <string name="image_gallery_NoImageView_text">Fant ikke bildet</string>
+  <string name="pick_photo_video_title">Velg bildene/ videoene som skal lastes opp</string>
+  <string name="select_upload_items">Velg elementer til å laste</string>
+  <plurals name="n_upload_items_selected">
+    <item quantity="one">%1$d element valgt</item>
+    <item quantity="other">%1$d elementer valgt</item>
+  </plurals>
+  <string name="dir_name_empty">Skriv inn navnet på mappen</string>
+  <string name="file_name_empty">Skriv inn navnet på filen</string>
+  <string name="password_empty">Skriv inn passordet</string>
+  <string name="wrong_password">feil passord</string>
+  <string name="library_read_only">Dette biblioteket er skrivebeskyttet</string>
+  <string name="dir_empty">Denne mappen er tom</string>
+  <string name="no_repo">Du har ingen biblioteker enda</string>
+  <string name="no_app_available">Ingen app finnes</string>
+  <string name="add_to_seafile">Legg til i Seafile</string>
+  <string name="ok">OK</string>
+  <string name="no_account">Vennligst opprett en konto i Seafile først.</string>
+  <string name="choose_an_account">Velg en konto</string>
+  <string name="choose_a_library">Velg et bibliotek</string>
+  <string name="load_accounts_fail">Klarte ikke å laste inn Seafilekontoene</string>
+  <string name="load_libraries_fail">Klarte ikke å laste inn bibliotekene</string>
+  <string name="load_dir_fail">Klarte ikke å laste inn innholdet i denne mappen</string>
+  <string name="not_supported_share">Denne typen delt resurss er ikke støttet</string>
+  <string name="edit">Redigere</string>
+  <string name="download_folder">Nedlastingsmappe</string>
+  <string name="download_folder_title">Ditt foretrukne valg</string>
+  <string-array name="download_folder_options_array">
+    <item>Nedlastingsmappe</item>
+    <item>Nedlastingsmappe og undermapper</item>
+  </string-array>
+  <string name="add_file">Legg til</string>
+  <string-array name="add_file_options_array">
+    <item>Opprett fil</item>
+    <item>Opprett mappe</item>
+    <item>Laste opp fil</item>
+    <item>Ta et bilde</item>
+  </string-array>
+  <string name="create_new_file">Opprett en ny fil</string>
+  <string name="create_new_dir">Opprett en ny mappe</string>
+  <string name="camera">Ta et bilde her</string>
+  <string name="download">Last ned</string>
+  <string name="open">Åpne</string>
+  <string name="last_modified">sist endret</string>
+  <string name="file_modified">endret</string>
+  <string name="file_size">filstørrelse</string>
+  <string name="library_not_found">Biblioteket har blitt slettet</string>
+  <string name="export_file">Eksporter denne filen</string>
+  <string name="no_upload_tasks">Ingen opplastingsoppgaver enda</string>
+  <string name="no_download_tasks">Ingen nedlastingsoppgaver enda</string>
+  <string name="seahub_url_hint">Merknad: Serveradressen bør inneholde portadressen. For eksempel, www.eksempel.no:8000</string>
+  <string name="copy_link">Kopiere lenke</string>
+  <string name="share_file_link">Dele en lenke til denne filen</string>
+  <string name="share_dir_link">Dele en lenke til denne mappen</string>
+  <string name="generating_link">Lager lenke...</string>
+  <string name="link_ready_to_be_pasted">Lenken er klar til å bli limt inn</string>
+  <string name="rename_file">Omdøpe fil</string>
+  <string name="rename_dir">Omdøpe mappe</string>
+  <string name="rename_successful">Omdøpingen var vellykket</string>
+  <string-array name="nav_array">
+    <item>Filer</item>
+    <item>Opplastinger</item>
+    <item>Kontoer</item>
+    <item>Sikkerhetskopiere bilder</item>
+  </string-array>
+  <string name="no_starred_file">Ingen favorittmarkerte filer enda</string>
+  <string name="added_to_upload_tasks">Opplasting startet</string>
+  <string name="added_photo_to_upload_tasks">Bildeopplasting startet</string>
+  <string name="take_photo_successfully">Ta bilde lykkes</string>
+  <string name="tabs_library">Biblioteker</string>
+  <string name="tabs_activity">Aktiviteter</string>
+  <string name="tabs_starred">Favoritt</string>
+  <string name="provide_password">Skriv passordet for biblioteket \"%s\"</string>
+  <string name="upload_waiting">Opplasting venter</string>
+  <string name="upload_finished">Opplasting ferdig</string>
+  <string name="upload_cancelled">Opplasting avbrudt</string>
+  <string name="upload_failed">Opplasting feilet</string>
+  <string name="days_ago">%d dager siden</string>
+  <string name="hours_ago">%d timer siden</string>
+  <string name="minutes_ago">%d minutter siden</string>
+  <string name="seconds_ago">%d sekunder siden</string>
+  <string name="just_now">Akkurat nå</string>
+  <string name="open_as">Åpne som</string>
+  <string name="select_upload_files">Velg filer å laste opp</string>
+  <string name="storage_removed">Lagringen ble fjernet</string>
+  <string name="error_selecting_file">Feil ved valg av fil</string>
+  <plurals name="n_upload_files_selected">
+    <item quantity="one">%1$d fil valgt</item>
+    <item quantity="other">%1$d valgte filer</item>
+  </plurals>
+  <string name="empty_folder">Tom mappe</string>
+  <string name="choose_file">Velg en fil</string>
+  <string name="ssl_error">Sikkerhetskontroll feilet</string>
+  <string name="ssl_confirm">Sikkerhetssertifikatet til %s er ikke bekreftet. Ønsker du å fortsette?</string>
+  <string name="ssl_confirm_title">Usikker tilkobling</string>
+  <string name="issued_to">Utstedt til</string>
+  <string name="finger_prints">Fingeravtrykk</string>
+  <string name="period_of_validity">Gyldighetsperiode</string>
+  <string name="sha1">SHA-1 %s</string>
+  <string name="md5">MD5 %s</string>
+  <string name="not_available">ikke tilgjengelig</string>
+  <string name="serial_number">Serienummer %s</string>
+  <string name="not_before">Gyldig fra %s</string>
+  <string name="not_after">Gyldig til %s</string>
+  <string name="yes">Ja</string>
+  <string name="no">Nei</string>
+  <string name="remember_my_choice">Husk valget mitt</string>
+  <string name="copied_successfully">Kopieringen var vellykket</string>
+  <string name="moved_successfully">Flyttingen var vellykket</string>
+  <string name="internal_server_error">Intern serverfeil</string>
+  <string name="copy_file_ing">Kopierer fil</string>
+  <string name="move_file_ing">Flytter vil</string>
+  <string name="copy_folder_ing">Kopierer mappe</string>
+  <string name="move_folder_ing">Flytter mappe</string>
+  <string name="upload_started">Opplastingen har begynt</string>
+  <string name="cannot_copy_folder_to_subfolder">Du kan ikke kopierere en mappe til dens undermappe</string>
+  <string name="cannot_move_folder_to_subfolder">Du kan ikke flytte en mappe til dens undermappe</string>
+  <string name="cancel">Avbryt</string>
+  <string name="confirm">Bekreft</string>
+  <string name="settings_account">Konto</string>
+  <string name="settings_account_info_title">Brukerinformasjon</string>
+  <string name="settings_account_info_load_data">laster inn...</string>
+  <string name="settings_account_space_title">Forbrukt lagringsplass</string>
+  <string name="settings_account_sign_out_title">Logg ut</string>
+  <string name="settings_account_sign_out_hint">Trykk her for å logge ut</string>
+  <string name="settings_account_sign_out_confirm">Ønsker du å logge ut?</string>
+  <string name="security">Sikkerhet</string>
+  <string name="gesture_lock">Bevegelseslås</string>
+  <string name="gesture_lock_on">Bevegelseslås er på</string>
+  <string name="gesture_lock_off">Bevegelseslås er av</string>
+  <string name="lockscreen_access_pattern_hint">Tegn et bevegelseslåsmønster</string>
+  <string name="lockscreen_access_pattern_start">Begynn å tegn</string>
+  <string name="lockscreen_access_pattern_cleared">Mønster fjernet</string>
+  <string name="lockscreen_access_pattern_cell_added">Mønstercelle lagt til</string>
+  <string name="lockscreen_access_pattern_detected">Mønster oppdaget</string>
+  <string name="lockscreen_access_pattern_passwd_forget">Glemt passord</string>
+  <plurals name="lockscreen_access_pattern_failure_left_try_seconds">
+    <item quantity="one">Du kan prøve igjen om %1$d sekund</item>
+    <item quantity="other">Du kan prøve igjen om %1$d sekunder</item>
+  </plurals>
+  <plurals name="lockscreen_access_pattern_failure_left_try_times">
+    <item quantity="one">Ukorrekt mønseter, du kan prøve igjen %1$d gang</item>
+    <item quantity="other">Ukorrekt mønster, du akn prøve igjen %1$d ganger</item>
+  </plurals>
+  <string name="lockscreen_access_pattern_failure_not_long_enough">Sammenkoblingspunktene er ikke lange nok. Prøv igjen</string>
+  <string name="lockpattern_retry_button_text">Prøv igjen</string>
+  <string name="lockpattern_continue_button_text">Neste</string>
+  <string name="lockpattern_confirm_button_text">OK</string>
+  <string name="lockpattern_recording_intro_header">Tegn bevegelseslåsmønsteret</string>
+  <string name="lockpattern_settings_help_how_to_record">Lær hvordan du tegner bevegelseslåsmønster for å låse</string>
+  <string name="lockpattern_recording_incorrect_too_short">Sveip over minst 4 poeng. Prøv igjen!</string>
+  <string name="lockpattern_pattern_entered_header">Mønster lagret</string>
+  <string name="lockpattern_need_to_draw">Tegn bevegelseslåsmønsteret</string>
+  <string name="lockpattern_need_to_confirm">Vennligst bekreft ditt mønster</string>
+  <string name="lockpattern_need_to_unlock_wrong">Mønsteret stemte ikke overens. Prøv igjen.</string>
+  <string name="lockpattern_pattern_confirmed_header">Trykk OK for å lagre mønsteret ditt</string>
+  <string name="lockpattern_recording_inprogress">Løft fingeren når du er ferdig å tegne</string>
+  <string name="lockpattern_pattern_toast_saved">Bevegelseslåsmønsteret ble lagret</string>
+  <!--Strings for possible PreferenceActivity Back/Next buttons-->
+  <string name="back_button_label">Tilbake</string>
+  <string name="next_button_label">Neste</string>
+  <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
+  <string name="skip_button_label">Hopp over</string>
+  <!--contacts  upload-->
+  <!--Camera Upload Preference-->
+  <string name="settings_camera_upload_info_title">Opplasting av kamerabilder</string>
+  <string name="settings_camera_upload_service_started">Opplastingstjenesten har begynt</string>
+  <string name="settings_camera_upload_service_stopped">Opplastingstjenesten har stoppet</string>
+  <string name="settings_camera_upload_allow_data_plan">Tillat mobildata</string>
+  <string name="settings_camera_upload_default_wifi">Bruk bare Wi-Fi som standard</string>
+  <string name="settings_camera_upload_data_plan_allowed">Tillat mobildata </string>
+  <string name="settings_camera_upload_default_photos">Bare opplasting av bilder som standard</string>
+  <string name="settings_camera_upload_videos_allowed">Videoer inkludert</string>
+  <string name="settings_camera_upload_change_repo_title">Endre opplastingsbibliotek</string>
+  <string name="settings_camera_upload_repo_hint">Velg et bibliotek først</string>
+  <string name="settings_camera_upload_turn_on">Slå på kameraopplasting</string>
+  <string name="settings_camera_upload_dir_auto_scan">Automatisk leting etter bilder som standard</string>
+  <string name="settings_camera_upload_lib_not_found">Valgt bibliotek eksisterer ikke</string>
+  <string name="settings_camera_upload_advanced_feature_title">Avanserte innstillinger</string>
+  <string name="settings_camera_upload_advanced_feature_subtitle">Tilpass opplastingsvalg</string>
+  <string name="settings_camera_upload_advanced_custom_directories_off">Automatisk leting på enheten</string>
+  <!--Camera Upload Configuration View-->
+  <string name="settings_cuc_title">Konfigurasjonsassistent</string>
+  <string name="settings_cuc_network_title">Hvordan laste opp</string>
+  <string name="settings_cuc_network_wifi">Kun Wi-Fi</string>
+  <string name="settings_cuc_network_data_plan">Wi-Fi eller mobildata</string>
+  <string name="settings_cuc_option_hint">Velg dine preferanser. \nDu akn endre disse valgene senere i \"innstillinger\".</string>
+  <string name="settings_cuc_type_title">Hva vil du laste opp</string>
+  <string name="settings_cuc_type_photo">Bare bilder</string>
+  <string name="settings_cuc_type_video">Bilder og videoer</string>
+  <plurals name="settings_cuc_local_dir_items">
+    <item quantity="one">%1$d element</item>
+    <item quantity="other">%1$d elementer</item>
+  </plurals>
+  <string name="settings_cuc_remote_lib_title">Velg biblioteket på server</string>
+  <string name="settings_cuc_remote_lib_account">Velg en konto</string>
+  <string name="settings_cuc_remote_lib_repo">%s ble valgt</string>
+  <string name="settings_cuc_upload_to_parent_folder">Opp til forrige mappe</string>
+  <string name="settings_cuc_finish_title">Avslutt</string>
+  <string name="settings_cuc_swipe_left">Sveip mot venstre for å fortsette.</string>
+  <string name="settings_cuc_click_btn">Trykk for å lukke konfigurasjonsassistenten.</string>
+  <string name="settings_cuc_loading">laster...</string>
+  <!--Camera Sync-->
+  <string name="settings_about_title">OM</string>
+  <string name="settings_about_version_title">Programversjon</string>
+  <string name="settings_cache_title">Størrelse på mellomlager</string>
+  <string name="settings_clear_cache_title">Tøm mellomlageret</string>
+  <string name="settings_clear_cache_hint">Ønsker du å tømme mellomlageret?</string>
+  <string name="settings_clear_cache_success">Mellomlageret ble tømt</string>
+  <string name="settings_clear_cache_failed">Klarte ikke å tømme mellomlageret</string>
+  <string name="settings_cache_empty">0 KB</string>
+  <!--pull to refresh-->
+  <string name="pull_to_refresh_pull_label">Trekk ned for å fornye...</string>
+  <string name="pull_to_refresh_release_label">Slipp for å fornye...</string>
+  <string name="pull_to_refresh_refreshing_label">Laster...</string>
+  <string name="pull_to_refresh_last_update">Siste oppdatering:</string>
+  <string name="pull_to_refresh_last_update_seconds_ago">%d sekunder siden</string>
+  <string name="pull_to_refresh_last_update_minutes_ago">%d minutter siden</string>
+  <string name="pull_to_refresh_last_update_hours_ago">%d timer siden</string>
+  <!--storage access framework-->
+  <string name="saf_open_file_exception">Kunne ikke åpne filen %s.</string>
+  <string name="saf_open_directory_exception">Kan ikke åpne mappen.</string>
+  <string name="saf_file_not_cached_exception">Filen %s er ikke mellomlagret.</string>
+  <string name="saf_thumbnail_not_found_exception">Kunne ikke finne/ åpne miniatyrbilde %s.</string>
+  <string name="saf_file_not_downloaded_exception">Kunne ikke laste ned filen %s fra serveren.</string>
+  <string name="saf_write_diretory_exception">Kunne ikke åpne mappen for lesing/ skriving.</string>
+  <string name="saf_account_not_found_exception">Kunne ikke fille Seafile konto.</string>
+  <string name="saf_upload_path_not_available">Klarte ikke å laste opp. Ingen tilgjengelig sti.</string>
+  <string name="saf_failed_to_create_directory">Kunne ikke opprette mappe %s</string>
+  <string name="saf_bad_mime_type">Feil forespørselstype</string>
+  <!--Single Sign-On  SSO-->
+  <string name="shib_server_url_empty">Serveren er tom!</string>
+  <string name="shib_load_page_error">Feil: </string>
+  <string name="shib_loading">laster...</string>
+  <!--Transfer List-->
+  <string name="transfer_list_network_error">Nettverkstilkoblingsfeil. Prøv igjen senere!</string>
+  <string name="transfer_list_cancel_all">Avbryt alle oppgaver</string>
+  <string name="transfer_list_restart_all">Omstart</string>
+  <string name="transfer_list_retry_failed_tasks">Prøv på nytt</string>
+  <string name="transfer_list_restart_cancelled_tasks">Start om avbrudte oppgaver</string>
+  <string name="transfer_list_clear_failed_tasks">Tøm feilede oppgaver</string>
+  <string name="transfer_list_clear_all_tasks">Tøm alle oppgaver</string>
+  <string name="transfer_list_clear_finished_tasks">Tøm fullførte oppgaver</string>
+  <string name="transfer_tabs_downloads">Nedlastingsliste</string>
+  <string name="transfer_tabs_uploads">Opplastingsliste</string>
+  <plurals name="transfer_download_started">
+    <item quantity="one">Starter nedlastingen av %1$d fil</item>
+    <item quantity="other">Starter nedlastingen av %1$d filer</item>
+  </plurals>
+  <string name="transfer_list_select_all">Velg alle</string>
+  <string name="transfer_list_deselect_all">Opphev alle</string>
+  <plurals name="transfer_list_items_selected">
+    <item quantity="one">%d valgt element</item>
+    <item quantity="other">%d valgte elementer</item>
+  </plurals>
+  <!--Sort-->
+  <string name="sort_menu_item">Sortere</string>
+  <string name="sort_files">Sorter på</string>
+  <string-array name="sort_files_options_array">
+    <item>Navn</item>
+    <item>Navn (Beskr.)</item>
+    <item>Tidspunkt for siste endring</item>
+    <item>Tidspunkt for siste endring (Beskr.)</item>
+  </string-array>
+  <!--Search-->
+  <string name="search_menu_item">Søk</string>
+  <string name="search_bar_hint">Søker...</string>
+  <string name="search_txt_empty">Skriv inn nøkkelsord</string>
+  <string name="search_content_empty">Fant ingen ting</string>
+  <string name="search_server_not_support">Ups. Søk er ikke støttet på denne serveren!</string>
+  <string name="search_library_not_found">Kunne ikke finne dette biblioteket. Det kan være slettet</string>
+  <!--star a file-->
+  <string name="star_file_succeed">Filen ble favorittmerket</string>
+  <string name="star_file_failed">Kunne ikke favorittmarkere filen</string>
+  <!--unstar a file-->
+  <!--notification bar-->
+  <string name="notification_upload_started_title">Laster opp filer...</string>
+  <string name="notification_download_started_title">Laster ned filer....</string>
+  <string name="notification_upload_completed">Opplasting fullføt</string>
+  <plurals name="notification_upload_info">
+    <item quantity="one">Laster opp %1$d fil (%2$d%%)</item>
+    <item quantity="other">Laster opp %1$d filer (%2$d%%)</item>
+  </plurals>
+  <plurals name="notification_download_info">
+    <item quantity="one">Laster ned %1$d fil (%2$d%%)</item>
+    <item quantity="other">Laster ned %1$d filer (%2$d%%)</item>
+  </plurals>
+  <string name="notification_download_completed">Nedlasting fullført</string>
+  <!--Gallery-->
+  <string name="gallery_load_photos_error">Bildeinnlastingsfeil</string>
+  <string name="gallery_encrypted_repo_not_supported">Kryptert bibliotek var ikke støttet</string>
+  <!--Overwrite existing files-->
+  <string name="overwrite_existing_file_title">Erstatt eksisterende fil</string>
+  <!--Action Mode-->
+  <string name="action_mode_no_items_selected">Ingen elementer ble valgt</string>
+  <!--Accessibility description for navigation drawer-->
+  <!--permission-->
+  <!--client side encryption and decryption-->
+  <!--clear password-->
+  <!--Two factor auth-->
+  <!--Operation Exceptions-->
+  <!--Home list title-->
+  <!--editor-->
+</resources>

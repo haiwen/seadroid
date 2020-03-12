@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Title -->
+    <dimen name="tv_title_txt_size">45sp</dimen>
+    <dimen name="tv_subtitle_txt_size">24sp</dimen>
+    <dimen name="tv_title_margin_top">30dp</dimen>
+    <dimen name="tv_subtitle_margin_top">10dp</dimen>
+
+    <dimen name="section_margin_top">25dp</dimen>
+
+    <!-- Header -->
+    <dimen name="abs_actionbar_height">64dp</dimen>
+    <dimen name="tab_height">48dp</dimen>
+
+    <!-- Content -->
+    <dimen name="head_progressBar_width">32dp</dimen>
+    <dimen name="head_progressBar_height">32dp</dimen>
+    <dimen name="tv_txt_size">14sp</dimen>
+    <dimen name="lv_item_height">70dp</dimen>
+    <dimen name="lv_multi_select_width">48dp</dimen>
+    <dimen name="lv_multi_select_height">48dp</dimen>
+    <dimen name="lv_item_padding">10dp</dimen>
+    <dimen name="lv_icon_width">60dp</dimen>
+    <dimen name="lv_space_width">14dp</dimen>
+    <dimen name="lv_iv_action_width">60dp</dimen>
+    <dimen name="lv_title_padding_left">12dp</dimen>
+    <dimen name="lv_title_txt_size">18sp</dimen>
+    <dimen name="lv_subtitle_txt_size">16sp</dimen>
+    <dimen name="lv_subtitle_padding_left">12dp</dimen>
+    <dimen name="lv_download_state_txt_size">14sp</dimen>
+
+    <!-- slide expandable listview -->
+    <dimen name="lv_expandable_item_padding">10dp</dimen>
+    <dimen name="lv_expandable_element_width">110dp</dimen>
+    <dimen name="lv_expandable_element_padding">5dp</dimen>
+    <dimen name="lv_expandable_txt_size">14sp</dimen>
+
+    <dimen name="lv_act_icon_width">70dp</dimen> <!-- Account -->
+    <dimen name="lv_act_icon_height">70dp</dimen>
+    <dimen name="lv_act_icon_margin_top">7dp</dimen>
+    <dimen name="lv_act_icon_margin_right">18dp</dimen>
+    <dimen name="lv_act_title_group_width">200dp</dimen>
+    <dimen name="lv_act_title_group_height">90dp</dimen>
+    <dimen name="lv_act_title_height">35dp</dimen>
+    <dimen name="lv_act_title_margin_top">15sp</dimen>
+    <dimen name="lv_act_title_txt_size">24sp</dimen>
+    <dimen name="lv_act_subtitle_height">35dp</dimen>
+    <dimen name="lv_act_subtitle_margin_top">0sp</dimen>
+    <dimen name="lv_act_subtitle_margin_bottom">10sp</dimen>
+    <dimen name="lv_act_subtitle_txt_size">20sp</dimen>
+
+    <dimen name="long_btn_height">80dp</dimen>
+    <dimen name="long_btn_txt_size">30sp</dimen>
+
+    <dimen name="btn_txt_size">24sp</dimen>
+
+    <dimen name="cb_btn_txt_size">22sp</dimen>
+
+    <dimen name="rb_margin_top">10dp</dimen> <!-- RadioButton -->
+
+    <dimen name="et_txt_size">22dp</dimen>
+    <dimen name="et_margin_bottom">10dp</dimen>
+    <dimen name="clearable_et_btn_width">30dp</dimen>
+    <dimen name="clearable_et_btn_height">30dp</dimen>
+
+    <dimen name="dialog_title_margin_top">10dp</dimen>
+    <dimen name="dialog_title_margin_bottom">3dp</dimen>
+    <dimen name="dialog_title_txt_size">26sp</dimen>
+    <dimen name="dialog_lv_txt_size">22sp</dimen>
+    <dimen name="dialog_msg_txt_size">20sp</dimen>
+    <dimen name="dialog_msg_title_txt_size">18sp</dimen>
+    <dimen name="dialog_error_txt_size">16sp</dimen>
+    <dimen name="dialog_btn_txt_size">20sp</dimen>
+    <dimen name="dialog_msg_progressbar_height">30dp</dimen>
+    <dimen name="dialog_et_txt_size">20sp</dimen>
+
+    <dimen name="ptr_tv_tip_txt_size">16sp</dimen>
+    <dimen name="ptr_tv_label_txt_size">12sp</dimen>
+
+    <dimen name="preference_fragment_padding_bottom">0dp</dimen>
+    <dimen name="preference_fragment_padding_side">32dp</dimen>
+
+    <dimen name="empty_folder_height">300dp</dimen>
+    <dimen name="empty_folder_width">300dp</dimen>
+    <dimen name="error_msg_height">300dp</dimen>
+    <dimen name="error_msg_width">300dp</dimen>
+    <!-- Footer -->
+    <dimen name="keyline_2">80dp</dimen>
+
+    <dimen name="item_modification_desc">300dp</dimen>
+
+</resources>

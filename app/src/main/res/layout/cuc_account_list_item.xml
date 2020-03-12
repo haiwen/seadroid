@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:background="?android:selectableItemBackground"
+              android:gravity="center_vertical"
+              android:padding="@dimen/lv_item_padding" >
+
+    <ImageView
+            android:id="@+id/cuc_account_list_item_account_icon"
+            android:layout_width="@dimen/lv_act_icon_width"
+            android:layout_height="@dimen/lv_act_icon_height"
+            android:layout_marginRight="@dimen/lv_act_icon_margin_right"
+            android:layout_marginEnd="@dimen/lv_act_icon_margin_right"
+            android:src="@drawable/default_avatar"/>
+
+    <LinearLayout
+            android:layout_width="@dimen/lv_act_title_group_width"
+            android:layout_height="@dimen/lv_act_title_group_height"
+            android:orientation="vertical">
+
+        <TextView
+                android:id="@+id/cuc_account_list_item_account_title"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/lv_act_title_height"
+                android:lines="1"
+                android:layout_marginTop="@dimen/lv_act_title_margin_top"
+                android:singleLine="true"
+                android:text="Titel"
+                android:textColor="@color/light_black"
+                android:textSize="@dimen/lv_act_title_txt_size"/>
+
+        <TextView
+                android:id="@+id/cuc_account_list_item_account_subtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/lv_act_subtitle_height"
+                android:layout_marginTop="@dimen/lv_act_subtitle_margin_top"
+                android:layout_marginBottom="@dimen/lv_act_subtitle_margin_bottom"
+                android:lines="1"
+                android:text="Subtitle"
+                android:textColor="@color/light_grey"
+                android:textSize="@dimen/lv_act_subtitle_txt_size"/>
+    </LinearLayout>
+</LinearLayout>

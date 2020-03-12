@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Title -->
+
+    <!-- Content -->
+    <dimen name="long_btn_height">100dp</dimen>
+
+    <dimen name="preference_fragment_padding_side">32dp</dimen>
+
+    <!-- Footer -->
+
+</resources>

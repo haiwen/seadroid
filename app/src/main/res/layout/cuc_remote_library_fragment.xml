@@ -1,0 +1,45 @@
+<RelativeLayout android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <TextView
+            android:id="@+id/cuc_remote_library_title_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginLeft="@dimen/tv_title_margin_left"
+            android:layout_marginTop="@dimen/tv_title_margin_top"
+            android:text="@string/settings_cuc_remote_lib_title"
+            android:textColor="@color/luckycloud_green"
+            android:textSize="@dimen/tv_title_txt_size"/>
+
+    <RelativeLayout
+            android:id="@+id/cuc_remote_library_list_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginTop="@dimen/section_margin_top"
+            android:layout_marginBottom="5dp"
+            android:layout_above="@+id/cuc_remote_library_btn"
+            android:layout_below="@+id/cuc_remote_library_title_tv">
+
+    </RelativeLayout>
+
+    <Button android:id="@+id/cuc_remote_library_btn"
+            android:layout_marginTop="@dimen/long_btn_padding_top"
+            android:layout_marginBottom="@dimen/long_btn_padding_bottom"
+            android:layout_marginLeft="@dimen/long_btn_margin_left"
+            android:layout_marginRight="@dimen/long_btn_margin_right"
+            android:text="@string/confirm"
+            android:visibility="gone"
+            android:textSize="@dimen/long_btn_txt_size"
+            android:textColor="@color/white"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/long_btn_height"
+            android:layout_alignParentBottom="true"/>
+
+</RelativeLayout>

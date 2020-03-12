@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/transfer_overflow_menu"
+        android:icon="@drawable/ic_action_overflow"
+        app:showAsAction="always"
+        android:title="@string/transfer_tasks">
+        <menu>
+            <item
+                android:id="@+id/cancel_transfer_tasks"
+                app:showAsAction="ifRoom"
+                android:title="@string/transfer_list_cancel_all"
+                android:visible="true">
+            Cancel all tasks
+            </item>
+            <item
+                android:id="@+id/clear_all_transfer_tasks"
+                app:showAsAction="ifRoom"
+                android:title="@string/transfer_list_clear_all_tasks"
+                android:visible="true">
+            Clear all tasks
+            </item>
+        </menu>
+    </item>
+</menu>

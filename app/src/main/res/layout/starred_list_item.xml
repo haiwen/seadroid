@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:background="?android:selectableItemBackground"
+                android:layout_width="fill_parent"
+                android:layout_height="@dimen/lv_item_height"
+                android:padding="@dimen/lv_item_padding">
+
+    <ImageView
+            android:id="@+id/list_item_multi_select_btn"
+            android:layout_width="@dimen/lv_multi_select_width"
+            android:layout_height="@dimen/lv_multi_select_height"
+            android:paddingLeft="@dimen/lv_multi_select_padding_left"
+            android:layout_alignParentLeft="true"
+            android:layout_centerInParent="true"
+            android:visibility="visible"/>
+
+    <ImageView
+            android:id="@+id/starred_list_item_icon"
+            android:layout_width="@dimen/lv_icon_width"
+            android:layout_height="@dimen/lv_icon_height"
+            android:layout_toRightOf="@id/list_item_multi_select_btn"
+            android:layout_centerVertical="true"/>
+
+    <ImageView
+            android:id="@+id/starred_list_item_space"
+            android:layout_width="@dimen/lv_space_width"
+            android:layout_height="fill_parent"
+            android:layout_toRightOf="@id/starred_list_item_icon"/>
+
+        <LinearLayout
+                android:id="@+id/starred_list_item_txt_group"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_centerVertical="true"
+                android:layout_toRightOf="@id/starred_list_item_space"
+                android:layout_toLeftOf="@+id/starred_list_item_action">
+
+                <TextView
+                        android:id="@+id/starred_list_item_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:lines="1"
+                        android:singleLine="true"
+                        android:textColor="@color/fancy_dark_black"
+                        android:textSize="@dimen/lv_title_txt_size"/>
+
+                <TextView
+                        android:id="@+id/starred_list_item_subtitle"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/starred_list_item_title"
+                        android:textColor="@color/fancy_black"
+                        android:textSize="@dimen/lv_subtitle_txt_size"/>
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/starred_list_item_action"
+            android:layout_width="@dimen/lv_iv_action_width"
+            android:layout_height="fill_parent"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"/>
+
+</RelativeLayout>

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/lv_item_height"
+    android:background="?android:selectableItemBackground">
+
+    <ImageView
+        android:id="@+id/cuc_repo_list_item_icon"
+        android:layout_width="@dimen/lv_icon_width"
+        android:layout_height="@dimen/lv_icon_height"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="@dimen/margin_normal" />
+
+    <ImageView
+        android:id="@+id/cuc_repo_list_item_space"
+        android:layout_width="@dimen/lv_space_width"
+        android:layout_height="fill_parent"
+        android:layout_toRightOf="@id/cuc_repo_list_item_icon" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_toLeftOf="@+id/cuc_repo_list_item_action"
+        android:layout_toRightOf="@id/cuc_repo_list_item_space"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/cuc_repo_list_item_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:lines="1"
+            android:singleLine="true"
+            android:textColor="@color/fancy_dark_black"
+            android:textSize="@dimen/lv_title_txt_size" />
+
+        <TextView
+            android:id="@+id/cuc_repo_list_item_subtitle"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/fancy_black"
+            android:textSize="@dimen/lv_subtitle_txt_size" />
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/cuc_repo_list_item_action"
+        android:layout_width="@dimen/lv_iv_action_width"
+        android:layout_height="fill_parent"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:src="@drawable/cuc_repo_selected"
+        android:visibility="invisible" />
+
+</RelativeLayout>

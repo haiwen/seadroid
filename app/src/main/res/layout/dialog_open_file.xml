@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="vertical"
+	android:layout_width="fill_parent"
+	android:layout_height="wrap_content" >
+
+	<ImageView
+        android:id="@+id/file_icon"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal" />
+
+	<TextView
+        android:id="@+id/file_name"
+    	android:layout_width="fill_parent"
+    	android:layout_height="wrap_content"
+        android:padding="5dp"
+		android:singleLine="true"
+		android:lines="1"
+		android:textColor="@color/black"
+        android:gravity="center_horizontal"
+		android:textSize="18dp" />
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:padding="20dp" >
+
+        <TextView
+            android:id="@+id/file_size"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:paddingBottom="4dp"
+            android:lines="1"
+            android:singleLine="true"
+            android:textSize="12dp" />
+
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            android:layout_width="fill_parent"
+            android:layout_height="6dp"
+            android:indeterminate="true"
+            style="@style/Widget.AppCompat.ProgressBar.Horizontal" />
+
+    </LinearLayout>
+
+</LinearLayout>

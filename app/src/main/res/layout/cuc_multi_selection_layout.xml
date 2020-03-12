@@ -1,0 +1,121 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent">
+
+    <RelativeLayout
+            android:id="@+id/cuc_multi_selection_up_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?android:selectableItemBackground"
+            android:layout_alignParentTop="true">
+
+        <ImageView
+                android:id="@+id/cuc_multi_selection_up_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_centerVertical="true"
+                android:paddingLeft="10dp"
+                android:src="@drawable/up"/>
+
+        <TextView
+                android:id="@+id/cuc_multi_selection_up_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/settings_cuc_upload_to_parent_folder"
+                android:textSize="@dimen/tv_subtitle_txt_size"
+                android:textColor="@color/fancy_gray"
+                android:layout_centerVertical="true"
+                android:layout_toRightOf="@+id/cuc_multi_selection_up_icon"/>
+
+    </RelativeLayout>
+
+    <TextView
+            android:id="@+id/cuc_multi_selection_current_directory_txt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/choose_a_library"
+            android:textSize="@dimen/tv_txt_size"
+            android:padding="10dp"
+            android:layout_below="@+id/cuc_multi_selection_up_layout"/>
+
+    <ImageView
+            android:id="@+id/cuc_multi_selection_refresh_iv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingRight="20dp"
+            android:src="@drawable/refresh"
+            android:layout_alignParentRight="true"
+            android:layout_alignTop="@id/cuc_multi_selection_current_directory_txt"
+            android:layout_below="@+id/cuc_multi_selection_up_layout"/>
+
+    <LinearLayout android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:layout_marginTop="5dp"
+                  android:layout_below="@+id/cuc_multi_selection_current_directory_txt"
+                  android:orientation="vertical">
+        <TextView
+                android:id="@+id/cuc_multi_selection_error_msg"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:textSize="18sp"
+                android:visibility="gone"/>
+        <TextView
+                android:id="@+id/cuc_multi_selection_empty_msg"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:visibility="gone"
+                android:textAppearance="?android:attr/textAppearanceLarge"/>
+
+        <LinearLayout android:id="@+id/cuc_multi_selection_list_container"
+                      android:layout_width="match_parent"
+                      android:layout_height="wrap_content"
+                      android:orientation="vertical">
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/lv_divider_inset"/>
+
+            <ListView
+                    android:id="@+id/cuc_multi_selection_lv"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:divider="@drawable/lv_divider_inset"
+                    android:dividerHeight="@dimen/lv_divider_height"
+                    android:drawSelectorOnTop="true"/>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/lv_divider_inset"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+                android:id="@+id/cuc_multi_selection_progress_container"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone"
+                android:gravity="center">
+
+            <ProgressBar
+                    style="?android:attr/progressBarStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:text="@string/settings_cuc_loading"
+                    android:paddingTop="4dip"
+                    android:singleLine="true"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</RelativeLayout>

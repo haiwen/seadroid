@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center"
+    android:padding="15dip" >
+
+    <ProgressBar
+        android:id="@+id/progressbar"
+        style="@style/loading"
+        android:layout_width="18dip"
+        android:layout_height="18dip"
+        android:visibility="visible" />
+
+    <TextView
+        android:id="@+id/text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/shib_loading"
+        android:layout_marginLeft="10dip"
+        android:textColor="@color/fancy_light_black"
+        android:textSize="16sp" />
+
+</LinearLayout>

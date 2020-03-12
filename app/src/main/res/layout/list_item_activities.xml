@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    >
+    <RelativeLayout
+        android:id="@+id/rl_activities_old"
+        android:visibility="visible"
+        android:padding="@dimen/padding_normal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+
+
+    <com.seafile.seadroid2.ui.widget.CircleImageView
+        android:id="@+id/iv_activities_avatar"
+        android:layout_width="@dimen/lv_act_icon_width"
+        android:layout_height="@dimen/lv_act_icon_height"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:src="@drawable/account"/>
+
+    <LinearLayout
+        android:id="@+id/ll_activities_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/margin_normal"
+        android:layout_marginStart="@dimen/margin_normal"
+        android:layout_marginRight="@dimen/margin_small"
+        android:layout_marginEnd="@dimen/margin_small"
+        android:layout_toRightOf="@id/iv_activities_avatar"
+        android:layout_toEndOf="@id/iv_activities_avatar"
+        android:layout_toLeftOf="@+id/tv_activities_repo_name"
+        android:layout_toStartOf="@+id/tv_activities_repo_name"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_activities_mod_desc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="desc"/>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_small"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tv_activities_nick"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="nick"
+                android:textColor="@color/luckycloud_green"/>
+
+            <TextView
+                android:id="@+id/tv_activities_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:text="date"
+                android:layout_marginStart="@dimen/margin_small"
+                android:layout_marginLeft="@dimen/margin_small"/>
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tv_activities_repo_name"
+        android:layout_width="@dimen/item_repo_name"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:text="repo_name"
+        android:gravity="end"
+        android:textColor="@color/luckycloud_green" />
+    </RelativeLayout>
+    <RelativeLayout
+        android:id="@+id/rl_activities_new"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <com.seafile.seadroid2.ui.widget.CircleImageView
+            android:id="@+id/iv_activities_avatar_url"
+            android:layout_marginTop="@dimen/padding_normal"
+            android:layout_marginBottom="@dimen/padding_normal"
+            android:layout_marginLeft="@dimen/padding_normal"
+            android:layout_width="@dimen/lv_act_icon_width"
+            android:layout_height="@dimen/lv_act_icon_height"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:src="@drawable/account"/>
+        <TextView
+            android:id="@+id/tv_activities_name"
+            android:textColor="@color/luckycloud_green"
+            android:layout_toRightOf="@+id/iv_activities_avatar_url"
+            android:layout_alignTop="@+id/iv_activities_avatar_url"
+            android:layout_marginLeft="@dimen/padding_normal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/font_size_big"
+            android:text="desc"/>
+
+        <TextView
+            android:id="@+id/tv_activities_state"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/iv_activities_avatar_url"
+            android:layout_marginLeft="@dimen/padding_small"
+            android:layout_toRightOf="@+id/tv_activities_name"
+            android:background="@drawable/activities_text_bg"
+            android:paddingLeft="@dimen/padding_small"
+            android:paddingRight="@dimen/padding_small"
+            android:text="desc"
+            android:textColor="@color/white"/>
+
+        <TextView
+            android:id="@+id/tv_activities_desc"
+            android:layout_alignBottom="@+id/iv_activities_avatar_url"
+            android:layout_toRightOf="@+id/iv_activities_avatar_url"
+            android:layout_marginLeft="@dimen/padding_normal"
+            android:layout_toLeftOf="@+id/tv_activities_mod"
+            android:layout_marginRight="@dimen/padding_normal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:text="desc"/>
+        <TextView
+            android:id="@+id/tv_activities_time"
+            android:layout_alignParentRight="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="@dimen/padding_normal"
+            android:layout_alignTop="@+id/iv_activities_avatar_url"
+            android:text="desc"/>
+        <TextView
+            android:id="@+id/tv_activities_mod"
+            android:layout_alignParentRight="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="@dimen/padding_normal"
+            android:layout_alignBottom="@+id/iv_activities_avatar_url"
+            android:textColor="@color/luckycloud_green"
+            android:text="desc"/>
+    </RelativeLayout>
+</LinearLayout>

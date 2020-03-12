@@ -1,0 +1,568 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="welcome_to_seafile">Добро пожаловать в Seafile</string>
+  <string name="select_account">Чтобы начать, выберите аккаунт</string>
+  <string name="edit_account">Редактировать</string>
+  <string name="delete_account">Удалить</string>
+  <string name="delete">Удалить</string>
+  <string name="delete_repo">Вы действительно хотите удалить эту библиотеку?</string>
+  <string name="delete_file">Вы действительно хотите удалить этот файл или папку?</string>
+  <string name="delete_successful">Успешно удалено</string>
+  <string name="delete_repo_title">Удалить библиотеку</string>
+  <string name="delete_file_f">Удалить файл</string>
+  <string name="recover_library">Восстановить библиотеку</string>
+  <string name="recover_file">Восстановить файл</string>
+  <string name="move_file">Переместить файл</string>
+  <string name="update_file">Обновить файл</string>
+  <string name="recover_folder">Восстановить папку</string>
+  <string name="move_folder">Переместить папку</string>
+  <string name="delete_dir">Удалить папку</string>
+  <string name="name_hint">Имя</string>
+  <string name="server_hint">Адрес сервера</string>
+  <string name="email_hint">Email или Логин</string>
+  <string name="passwd_hint">Пароль</string>
+  <string name="passwd_min_len_limit_hint">Пароль (не менее %d символов)</string>
+  <string name="passwd_confirmation_hint">Пароль еще раз</string>
+  <string name="login">Войти</string>
+  <string name="open_file">Открыть</string>
+  <string name="download_file">Скачать</string>
+  <string name="redownload_file">Скачать еще раз</string>
+  <string name="cancel_download">Отмена</string>
+  <string name="unknown_file_type">Неизвестный тип файла</string>
+  <string name="activity_not_found">Не возможно найти приложение для открытия этого файла</string>
+  <string name="refresh">Обновить</string>
+  <string name="add_account">Добавить аккаунт</string>
+  <string name="personal">Личные</string>
+  <string name="shared">Общедоступно</string>
+  <string name="libraries">Библиотеки</string>
+  <string name="cached">Кэшированы</string>
+  <string name="activities">Активность</string>
+  <string name="pick_upload_type">Загрузить</string>
+  <string name="transfer_tasks">Список передачи</string>
+  <string name="accounts">Аккаунты</string>
+  <string name="settings">Настройки</string>
+  <string-array name="pick_upload_array">
+    <item>Файл</item>
+    <item>Фото/Видео</item>
+    <item>Другое</item>
+  </string-array>
+  <string name="choose_server">Выберите сервер Seafile</string>
+  <string-array name="choose_server_array">
+    <item>Единая точка входа</item>
+    <item>Другой Seafile сервер</item>
+  </string-array>
+  <string name="network_down">Нет соединения с сетью</string>
+  <string name="unknow_error">Неизвестная ошибка</string>
+  <string name="invalid_server_address">Неправильный адрес сервера</string>
+  <string name="err_server_andress_empty">Адрес сервера не может быть пустым</string>
+  <string name="err_email_empty">Поле Email не может быть пустым</string>
+  <string name="err_passwd_empty">Поле Пароль не может быть пустым</string>
+  <string name="err_passwd_too_short">Пароль слишком короткий</string>
+  <string name="err_passwd_mismatch">Пароли не совпадают</string>
+  <string name="err_login_failed">Вход не удался</string>
+  <string name="err_wrong_user_or_passwd">Ошибка Email или пароля</string>
+  <string name="err_token_expired">Истекло время сессии, войдите снова</string>
+  <string name="upload">Загрузить</string>
+  <string name="uploaded">Загруженные</string>
+  <string name="updated">Обновленные</string>
+  <string name="download_failed">Скачивание не удалось</string>
+  <string name="download_waiting">Скачивание ожидается</string>
+  <string name="download_finished">Скачивание завершено</string>
+  <string name="download_cancelled">Скачивание отменено</string>
+  <string name="task_cancel">Отмена</string>
+  <string name="task_retry">Повторить</string>
+  <string name="task_remove">Удалить</string>
+  <string name="task_remove_all_cancelled">Удалить все отмененные задачи</string>
+  <string name="task_remove_all_finished">Удалить все завершенные задачи</string>
+  <string name="repo_action_delete">Удалить</string>
+  <string name="repo_action_rename">Переименовать</string>
+  <string name="file_action_star">Пометить</string>
+  <string name="file_action_download">Скачать</string>
+  <string name="file_action_update">Загрузить</string>
+  <string name="file_share">Поделиться</string>
+  <string name="file_action_share_wechat">Поделиться в WeChat</string>
+  <string name="file_action_share_link">Общедоступная ссылка</string>
+  <string name="file_action_share_encrypt">Общедоступная ссылка с паролем</string>
+  <string name="file_action_export">Экспорт</string>
+  <string name="file_action_open">Открыть с помощью</string>
+  <string name="file_action_delete">Удалить</string>
+  <string name="file_action_rename">Переименовать</string>
+  <string name="file_action_copy">Копировать</string>
+  <string name="file_action_move">Переместить</string>
+  <string name="file_action_open_as">Открыть как</string>
+  <string name="file_action_more">Больше</string>
+  <string name="file_action_more_title">Выберите нужный вариант</string>
+  <string-array name="file_action_more_array">
+    <item>Экспорт</item>
+    <item>Копировать</item>
+    <item>Переместить</item>
+    <item>Отметить</item>
+  </string-array>
+  <string-array name="file_type_array">
+    <item>Текст</item>
+    <item>Аудио</item>
+    <item>Видео</item>
+    <item>Изображение</item>
+    <item>Другое</item>
+  </string-array>
+  <string name="wait">Подождите</string>
+  <string name="image_gallery_NoImageView_text">Не найдено ни одно изображение</string>
+  <string name="pick_photo_video_title">Выберите фото/видео для загрузки</string>
+  <string name="select_upload_items">Выбрать элементы для загрузки</string>
+  <plurals name="n_upload_items_selected">
+    <item quantity="one">%1$d элемент выбран</item>
+    <item quantity="few">%1$d выбранных элементов</item>
+    <item quantity="many">%1$d выбранных элементов</item>
+    <item quantity="other">%1$d выбранных элементов</item>
+  </plurals>
+  <string name="repo_name_empty">Пожалуйста, введите имя библиотеки</string>
+  <string name="dir_name_empty">Пожалуйста, введите имя папки</string>
+  <string name="file_name_empty">Пожалуйста, введите имя файла</string>
+  <string name="password_empty">Пожалуйста, введите пароль</string>
+  <string name="wrong_password">неправильный пароль</string>
+  <string name="library_read_only">Эта библиотека только для чтения</string>
+  <string name="error_when_load_dirents">Ошибка загрузки папки.\n Нажмите, чтобы обновить</string>
+  <string name="error_when_load_repos">Ошибка загрузки библиотек.\n Нажмите, чтобы обновить</string>
+  <string name="error_when_load_activities">Ошибка загрузки действий.\n Нажмите, чтобы обновить</string>
+  <string name="error_when_load_starred">Ошибка загрузки отмеченных файлов.\n Нажмите, чтобы обновить</string>
+  <string name="dir_empty">Эта папка пуста</string>
+  <string name="no_repo">У вас еще нет библиотек</string>
+  <string name="no_app_available">Не найдено ни одно приложение</string>
+  <string name="add_to_seafile">Добавить в Seafile</string>
+  <string name="ok">ОК</string>
+  <string name="no_account">Пожалуйста, сначала добавьте аккаунт в Seafile</string>
+  <string name="choose_an_account">Выберите аккаунт</string>
+  <string name="choose_a_library">Выберите библиотеку</string>
+  <string name="choose_a_folder">Выбрать папку</string>
+  <string name="load_accounts_fail">Не удалось загрузить аккаунты Seafile</string>
+  <string name="load_libraries_fail">Не удалось загрузить библиотеки</string>
+  <string name="load_dir_fail">Не удалось загрузить содержимое этой папки</string>
+  <string name="not_supported_share">Этот тип обмена не поддерживается</string>
+  <string name="edit">Изменить</string>
+  <string name="create_draft">Создать черновик</string>
+  <string name="rename_draft">Переименовать черновик</string>
+  <string name="del_draft">Удалить черновик</string>
+  <string name="update_draft">Обновить черновик</string>
+  <string name="release_draft">Выпустить черновик</string>
+  <string name="encrypt">Зашифровать</string>
+  <string name="download_folder">Скачать папку</string>
+  <string name="download_folder_title">Выберите нужный вариант</string>
+  <string-array name="download_folder_options_array">
+    <item>Скачать папку</item>
+    <item>Скачать папку и подпапки</item>
+  </string-array>
+  <string name="add_repo">Новая библиотека</string>
+  <string name="add_file">Добавить</string>
+  <string-array name="add_file_options_array">
+    <item>Создать файл</item>
+    <item>Создать папку</item>
+    <item>Загрузить файл</item>
+    <item>Сделать фото</item>
+  </string-array>
+  <string-array name="video_download_array">
+    <item>воспроизвести</item>
+    <item>скачать</item>
+  </string-array>
+  <string name="create_new_repo">Создать новую библиотеку</string>
+  <string name="create_new_repo_success">Успешно создана библиотека %s</string>
+  <string name="create_new_folder_success">Успешно создана папка %s</string>
+  <string name="create_new_file_success">Успешно создан файл %s</string>
+  <string name="create_new_file">Создать новый файл</string>
+  <string name="create_files">Создать файлы</string>
+  <string name="create_new_dir">Создать новую папку</string>
+  <string name="camera">Сделать фотографию</string>
+  <string name="download">Скачать</string>
+  <string name="open">Открыть</string>
+  <string name="last_modified">последний раз изменено</string>
+  <string name="file_modified">изменено</string>
+  <string name="file_size">размер файла</string>
+  <string name="library_not_found">Библиотека была удалена.</string>
+  <string name="file_not_found">Файл \"%s\" был удален</string>
+  <string name="export_file">Экспортировать этот файл</string>
+  <string name="no_upload_tasks">Пока нет задач на загрузку</string>
+  <string name="no_download_tasks">Пока нет задач на скачивание</string>
+  <string name="seahub_url_hint">Примечание: Адрес сервера должен содержать порт. Например, www.example.com:8000</string>
+  <string name="copy_link">Копировать ссылку</string>
+  <string name="share_file_link">Поделиться ссылкой на этот файл</string>
+  <string name="share_dir_link">Поделиться ссылкой на эту папку</string>
+  <string name="share_input_password">пароль</string>
+  <string name="generating_link">Создание ссылки...</string>
+  <string name="link_ready_to_be_pasted">Ссылка готова для вставки.</string>
+  <string name="rename_repo">Переименовать библиотеку</string>
+  <string name="rename_file">Переименовать файл</string>
+  <string name="rename_dir">Переименовать папку</string>
+  <string name="rename_successful">Успешно переименовано.</string>
+  <string-array name="nav_array">
+    <item>Файлы</item>
+    <item>Загрузки</item>
+    <item>Аккаунты</item>
+    <item>Резервное копирование фото</item>
+  </string-array>
+  <string name="no_starred_file">Пока нет помеченных файлов</string>
+  <string name="added_to_upload_tasks">Загрузка началась</string>
+  <string name="added_photo_to_upload_tasks">Загрузка фото началась</string>
+  <string name="take_photo_successfully">Фото успешно сделано</string>
+  <string name="tabs_library">Библиотеки</string>
+  <string name="tabs_activity">Активность</string>
+  <string name="tabs_starred">Помеченные</string>
+  <string name="provide_password">Задать пароль для библиотеки \"%s\"</string>
+  <string name="upload_waiting">Ожидание загрузки</string>
+  <string name="upload_finished">Загрузка завершена</string>
+  <string name="upload_cancelled">Загрузка отменена</string>
+  <string name="upload_failed">Загрузка не удалась</string>
+  <string name="upload_file_exist">Файл уже существует</string>
+  <string name="upload_duplicate_found">Элемент с именем \"%s\" уже существует в этом месте.\n Вы хотите заменить его на загружаемый ?</string>
+  <string name="upload_replace_all">Заменить все</string>
+  <string name="upload_keep_both">Оставить оба</string>
+  <string name="upload_replace">Заменить</string>
+  <string name="days_ago">%d дней назад</string>
+  <string name="hours_ago">%d часов назад</string>
+  <string name="minutes_ago">%d минут назад</string>
+  <string name="seconds_ago">%d секунд назад</string>
+  <string name="just_now">Прямо сейчас</string>
+  <string name="open_as">Открыть как</string>
+  <string name="select_upload_files">Выберите файлы для загрузки</string>
+  <string name="storage_removed">Хранилище было удалено</string>
+  <string name="storage_space_insufficient">Недостаточно места для хранения</string>
+  <string name="error_selecting_file">Ошибка при выборе файла</string>
+  <plurals name="n_upload_files_selected">
+    <item quantity="one">%1$d файл выбран</item>
+    <item quantity="few">%1$d файлов выбраны</item>
+    <item quantity="many">%1$d файлов выбраны</item>
+    <item quantity="other">%1$d файл(ов) выбраны</item>
+  </plurals>
+  <string name="empty_folder">Пустая папка</string>
+  <string name="choose_file">Выбрать файл</string>
+  <string name="ssl_error">Проверка безопасности прошла неудачно</string>
+  <string name="ssl_confirm">Сертификат безопасности %s недоверенный. Вы хотите продолжить?</string>
+  <string name="ssl_confirm_cert_changed">%s использует недействительный сертификат безопасности. Соединение не безопасно. Все равно продолжить?</string>
+  <string name="ssl_confirm_title">Недоверенное соединение</string>
+  <string name="issued_to">Выдано</string>
+  <string name="finger_prints">Отпечатки пальцев</string>
+  <string name="period_of_validity">Срок действия</string>
+  <string name="sha1">SHA-1 %s</string>
+  <string name="md5">MD5 %s</string>
+  <string name="not_available">не доступно</string>
+  <string name="serial_number">Серийный номер %s</string>
+  <string name="not_before">Действует с %s</string>
+  <string name="not_after">Действителен до %s</string>
+  <string name="yes">Да</string>
+  <string name="no">Нет</string>
+  <string name="remember_my_choice">Запомнить мой выбор</string>
+  <string name="copied_successfully">Успешно скопировано</string>
+  <string name="moved_successfully">Успешно перемещено</string>
+  <string name="internal_server_error">Внутренняя ошибка сервера</string>
+  <string name="copy_file_ing">Копирование файла</string>
+  <string name="move_file_ing">Перемещение файла</string>
+  <string name="copy_file_from">Копирование из %1$s \n В %2$s</string>
+  <string name="move_file_from">Перемещение из %1$s \n В %2$s</string>
+  <string name="copy_folder_ing">Копирование папки</string>
+  <string name="move_folder_ing">Перемещение папки</string>
+  <string name="upload_started">Загрузка началась</string>
+  <string name="cannot_copy_folder_to_subfolder">Вы не можете скопировать папку в эту подпапку</string>
+  <string name="cannot_move_folder_to_subfolder">Вы не можете переместить папку в эту подпапку</string>
+  <string name="cancel">Отмена</string>
+  <string name="confirm">Подтвердить</string>
+  <string name="repo_not_found">Невозможно найти эту библиотеку. Возможно, она была удалена или зашифрована</string>
+  <string name="settings_account">Аккаунт</string>
+  <string name="settings_account_info_title">Информация о пользователе</string>
+  <string name="settings_account_info_load_data">загрузка...</string>
+  <string name="settings_account_space_title">Использовано пространства</string>
+  <string name="settings_account_sign_out_title">Выйти</string>
+  <string name="settings_account_sign_out_hint">Нажмите, чтобы выйти</string>
+  <string name="settings_account_sign_out_confirm">Вы хотите выйти?</string>
+  <string name="security">Безопасность</string>
+  <string name="gesture_lock">Защита жестом</string>
+  <string name="gesture_lock_on">Защита жестом включена</string>
+  <string name="gesture_lock_off">Защита жестом выключена</string>
+  <string name="lockscreen_access_pattern_hint">Пожалуйста, нарисуйте графический ключ</string>
+  <string name="lockscreen_access_pattern_start">Начать рисовать</string>
+  <string name="lockscreen_access_pattern_cleared">Графический ключ очищен</string>
+  <string name="lockscreen_access_pattern_cell_added">Ячейка графического ключа добавлена</string>
+  <string name="lockscreen_access_pattern_detected">Графический ключ обраружен</string>
+  <string name="lockscreen_access_pattern_passwd_forget">Я забыл(а) пароль</string>
+  <string name="lockscreen_access_pattern_failure">Не удалось 5 раз ввести пароль, пожалуйста, подождите 30 секунд, прежде чем попробовать снова</string>
+  <plurals name="lockscreen_access_pattern_failure_left_try_seconds">
+    <item quantity="one">Вы можете повторить через %1$d секундй</item>
+    <item quantity="few">Вы можете повторить через %1$d секунд</item>
+    <item quantity="many">Вы можете повторить через %1$d секунд</item>
+    <item quantity="other">Вы можете повторить через %1$d секунд</item>
+  </plurals>
+  <plurals name="lockscreen_access_pattern_failure_left_try_times">
+    <item quantity="one">Не правильный шаблон, вы можете попробовать еще %1$d раз</item>
+    <item quantity="few">Не правильный шаблон, вы можете попробовать еще %1$d раз</item>
+    <item quantity="many">Не правильный шаблон, вы можете попробовать еще %1$d раз</item>
+    <item quantity="other">Не правильный шаблон, вы можете попробовать еще %1$d раз</item>
+  </plurals>
+  <string name="lockscreen_access_pattern_failure_not_long_enough">Соединяйте точки не так долго, попробуйте еще раз</string>
+  <string name="lockpattern_retry_button_text">Повторить</string>
+  <string name="lockpattern_continue_button_text">Далее</string>
+  <string name="lockpattern_confirm_button_text">ОК</string>
+  <string name="lockpattern_recording_intro_header">Пожалуйста, нарисуйте графический ключ</string>
+  <string name="lockpattern_settings_help_how_to_record">Узнать, как нарисовать графический ключ</string>
+  <string name="lockpattern_recording_incorrect_too_short">Соедините не менее 4 точек, попробуйте еще раз!</string>
+  <string name="lockpattern_pattern_entered_header">Графический ключ сохранен</string>
+  <string name="lockpattern_need_to_draw">Пожалуйста, нарисуйте графический ключ</string>
+  <string name="lockpattern_need_to_confirm">Пожалуйста, подтвердите графический ключ</string>
+  <string name="lockpattern_need_to_unlock_wrong">Графический ключ не совпадает, попробуйте еще раз!</string>
+  <string name="lockpattern_pattern_confirmed_header">Нажмите ОК, чтобы сохранить графический ключ</string>
+  <string name="lockpattern_recording_inprogress">По завершении отпустите палец</string>
+  <string name="lockpattern_pattern_toast_saved">Защита жестом успешно сохранена</string>
+  <!--Strings for possible PreferenceActivity Back/Next buttons-->
+  <string name="back_button_label">Назад</string>
+  <string name="next_button_label">Далее</string>
+  <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
+  <string name="skip_button_label">Пропустить</string>
+  <!--contacts  upload-->
+  <string name="settings_contacts_upload_info_title">Резервное копирование контактов</string>
+  <string name="settings_contacts_upload_turn_on">Включить резервное копирование контактов</string>
+  <string name="settings_contacts_upload_service_started">Резервное копирование контактов включено</string>
+  <string name="settings_contacts_upload_service_stopped">Резервное копирование контактов отключено</string>
+  <string name="settings_contacts_upload_repo_hint">Пожалуйста, выберите библиотеку для сохранения резервных копий контактов</string>
+  <string name="settings_contacts_upload_change_repo_title">Изменить библиотеку для сохранения резервных копий контактов</string>
+  <string name="settings_contacts_upload_repo_time">Последнее время резервного копирования</string>
+  <string name="settings_contacts_upload_repo_history">Нет резервных копий</string>
+  <string name="settings_contacts_upload_start_backup">Резервная копия</string>
+  <string name="settings_contacts_upload_start_backup_hint">Нажмите, чтобы начать резервное копирование контактов</string>
+  <!--Camera Upload Preference-->
+  <string name="settings_camera_upload_info_title">Загрузка фото с камеры</string>
+  <string name="settings_camera_upload_service_started">Сервис загрузки запущен</string>
+  <string name="settings_camera_upload_service_stopped">Сервис загрузки остановлен</string>
+  <string name="settings_camera_upload_allow_data_plan">Разрешить мобильные данные</string>
+  <string name="settings_camera_upload_allow_videos">Разрешить загрузку видео</string>
+  <string name="settings_camera_upload_default_wifi">По умолчанию использовать только Wi-Fi</string>
+  <string name="settings_camera_upload_data_plan_allowed">Мобильные данные разрешены</string>
+  <string name="settings_camera_upload_default_photos">По умолчанию загружать только фото</string>
+  <string name="settings_camera_upload_videos_allowed">Видео включены</string>
+  <string name="settings_camera_upload_change_repo_title">Изменить папку загрузки</string>
+  <string name="settings_camera_upload_repo_hint">Пожалуйста, сначала выберите библиотеку</string>
+  <string name="settings_camera_upload_turn_on">Включить загрузку с камеры</string>
+  <string name="settings_camera_upload_choose_dir">Изменить альбомы</string>
+  <string name="settings_camera_upload_dir_auto_scan">Автоматическое сканирование фото по умолчанию</string>
+  <string name="settings_camera_upload_lib_not_found">Выбранная библиотека не существует</string>
+  <string name="settings_camera_upload_advanced_feature_title">Дополнительные опции</string>
+  <string name="settings_camera_upload_advanced_feature_subtitle">Пользовательские опции загрузки</string>
+  <string name="settings_camera_upload_advanced_custom_directories">Пользовательская загрузка альбомов</string>
+  <string name="settings_camera_upload_advanced_custom_directories_on">Выбрать фотоальбомы</string>
+  <string name="settings_camera_upload_advanced_custom_directories_off">Автоматическое сканирование устройства</string>
+  <!--Camera Upload Configuration View-->
+  <string name="settings_cuc_title">Помощник по настройке</string>
+  <string name="settings_cuc_welcome_text">Спасибо за использование помощника по настройке загрузки фото. \nЧтобы освоиться с сервисом загрузки фото, вам нужно пройти всего лишь несколько шагов.</string>
+  <string name="settings_cuc_network_title">Как загружать</string>
+  <string name="settings_cuc_network_wifi">Только Wi-Fi</string>
+  <string name="settings_cuc_network_data_plan">Wi-Fi или мобильные данные</string>
+  <string name="settings_cuc_option_hint">Выберите нужный вариант. \nВы можете изменить эти параметры позже в меню Настройки.</string>
+  <string name="settings_cuc_type_title">Что загружать</string>
+  <string name="settings_cuc_type_photo">Только фото</string>
+  <string name="settings_cuc_type_video">Фото и видео</string>
+  <string name="settings_cuc_local_dir_title">Выбрать альбомы</string>
+  <plurals name="settings_cuc_local_dir_items">
+    <item quantity="one">%1$d элемент</item>
+    <item quantity="few">%1$d элементов</item>
+    <item quantity="many">%1$d элементов</item>
+    <item quantity="other">%1$d элементов</item>
+  </plurals>
+  <string name="settings_cuc_remote_lib_title">Выбрать удаленную библиотеку</string>
+  <string name="settings_cuc_remote_lib_account">Выберите аккаунт</string>
+  <string name="settings_cuc_remote_lib_repo">%s выбранных элементов</string>
+  <string name="settings_cuc_upload_to_parent_folder">К родительской папке</string>
+  <string name="settings_cuc_auto_scan">Автоматически определить альбомы с камеры</string>
+  <string name="settings_cuc_pick_albums">Позволить мне выбрать мои фотоальбомы</string>
+  <string name="settings_cuc_remote_lib_hint">Выберите нужный аккаунт и библиотеку. \nВы можете изменить эти параметры позже в меню Настройки.</string>
+  <string name="settings_cuc_finish_title">Завершить</string>
+  <string name="settings_cuc_ready">Seafile начнет загрузку файлов из выбранных вами папок после подтверждения.\nВо время этого вы можете закрыть приложение.</string>
+  <string name="settings_cuc_swipe_left">Проведите влево, чтобы продолжить.</string>
+  <string name="settings_cuc_click_btn">Щелкните, чтобы закрыть помощник.</string>
+  <string name="settings_cuc_loading">загрузка...</string>
+  <!--Camera Sync-->
+  <string name="sync_provider_camera_upload">Фото и видео с камеры</string>
+  <string name="camera_sync_notification_title_failed">Загрузка с камеры не удалась</string>
+  <string name="camera_sync_notification_repo_missing_failed">Репозиторий на сервере отсутствует</string>
+  <string name="camera_sync_notification_auth_error_failed">Ошибка аутентификации.</string>
+  <string name="camera_sync_rename_file">%s (переименовано Seafile)</string>
+  <string name="settings_about_title">О ПРИЛОЖЕНИИ</string>
+  <string name="settings_about_version_title">Версия</string>
+  <string name="settings_about_author_title">Об авторе</string>
+  <string name="settings_about_author_info">
+        <![CDATA[
+        <h5>Seafile Android Client</h5>
+        <p>%s</p>
+        <h5>Связь с нами</h5>
+        <p>
+            Twitter: Seafile<br>
+            Email: support@seafile.com<br>
+        </p>
+        <h5>Внести свой вклад</h5>
+        <p>https://github.com/haiwen/seadroid.git</P>
+        <h5>Copyright ©2013-2018 Seafile Ltd.</h5>
+        ]]>
+    </string>
+  <string name="settings_advance_feature_title">ДОПОЛНИТЕЛЬНЫЕ ФУНКЦИИ</string>
+  <string name="settings_storage_title">Кэш-хранилище</string>
+  <string name="settings_cache_title">Размер кэша</string>
+  <string name="settings_clear_cache_title">Очистить кэш</string>
+  <string name="settings_clear_cache_hint">Вы хотите очистить кэш?</string>
+  <string name="settings_clear_cache_success">Удаление кэша прошло успешно</string>
+  <string name="settings_clear_cache_failed">Очистка кэша прошла неудачно</string>
+  <string name="settings_cache_empty">0 КБ</string>
+  <string name="settings_cache_location_title">Место хранения кэша</string>
+  <string name="dialog_switch_storage_info_text">Существующие файлы будут перемещены в новое место хранения. Это может занять некоторое время.</string>
+  <string name="storage_manager_primary_storage">Основное место хранения</string>
+  <string name="storage_manager_secondary_storage">Вторичное место хранения</string>
+  <string name="storage_manager_storage_description">%1$s (%2$s свободно/%3$s всего)</string>
+  <string name="storage_manager_storage_description_not_available">%1$s (недоступно)</string>
+  <!--pull to refresh-->
+  <string name="pull_to_refresh_pull_label">Потяните, чтобы обновить...</string>
+  <string name="pull_to_refresh_release_label">Отпустите, чтобы обновить...</string>
+  <string name="pull_to_refresh_refreshing_label">Загрузка...</string>
+  <string name="pull_to_refresh_last_update">Последнее обновление:</string>
+  <string name="pull_to_refresh_last_update_seconds_ago">%d секунд назад</string>
+  <string name="pull_to_refresh_last_update_minutes_ago">%d минут назад</string>
+  <string name="pull_to_refresh_last_update_hours_ago">%d часов назад</string>
+  <!--storage access framework-->
+  <string name="saf_open_file_exception">Невозможно открыть файл %s.</string>
+  <string name="saf_open_directory_exception">Невозможно открыть папку.</string>
+  <string name="saf_file_not_cached_exception">Файл %s не кэширован.</string>
+  <string name="saf_thumbnail_not_found_exception">Невозможно найти/открыть миниатюру файла %s.</string>
+  <string name="saf_file_not_downloaded_exception">Невозможно скачать с сервера файл %s.</string>
+  <string name="saf_write_diretory_exception">Невозможно открыть папку для чтения/записи.</string>
+  <string name="saf_account_not_found_exception">Невозможно найти аккаунт Seafile.</string>
+  <string name="saf_upload_path_not_available">Невозможно загрузить, нет доступного пути</string>
+  <string name="saf_failed_to_create_directory">Не возможно создать папку %s</string>
+  <string name="saf_file_exist">Файл уже существует</string>
+  <string name="saf_bad_mime_type">Неправильный тип ответа</string>
+  <!--Single Sign-On  SSO-->
+  <string name="shib_server_url_empty">Сервер пуст!</string>
+  <string name="shib_server_incorrect_prefix">Адрес сервера должен начинаться с https://</string>
+  <string name="shib_load_page_error">Ошибка:</string>
+  <string name="shib_login_title">Единая точка входа</string>
+  <string name="shib_loading">загрузка...</string>
+  <!--Transfer List-->
+  <string name="transfer_list_network_error">Ошибка подключения к сети, пожалуйста, повторите позже!</string>
+  <string name="transfer_list_cancel_all">Отменить все задания</string>
+  <string name="transfer_list_restart_all">Перезапустить</string>
+  <string name="transfer_list_retry_failed_tasks">Повтор неудачных задач</string>
+  <string name="transfer_list_restart_cancelled_tasks">Перезапустить отмененные задания</string>
+  <string name="transfer_list_clear_failed_tasks">Удалить неудачные задания</string>
+  <string name="transfer_list_clear_all_tasks">Удалить все задания</string>
+  <string name="transfer_list_clear_finished_tasks">Удалить завершенные задания</string>
+  <string name="transfer_tabs_downloads">Список загрузок</string>
+  <string name="transfer_tabs_uploads">Список закачек</string>
+  <string name="transfer_download_no_task">Все файлы были загружены</string>
+  <plurals name="transfer_download_started">
+    <item quantity="one">Начало скачивания %1$d файла</item>
+    <item quantity="few">Начало скачивания %1$d файлов</item>
+    <item quantity="many">Начало скачивания %1$d файлов</item>
+    <item quantity="other">Начало скачивания %1$d файлов</item>
+  </plurals>
+  <string name="transfer_list_select_all">Выбрать все</string>
+  <string name="transfer_list_deselect_all">Отменить выбор</string>
+  <plurals name="transfer_list_items_selected">
+    <item quantity="one">%d выбранный элемент</item>
+    <item quantity="few">%d выбранных элементов</item>
+    <item quantity="many">%d выбранных элементов</item>
+    <item quantity="other">%d выбранных элементов</item>
+  </plurals>
+  <!--Sort-->
+  <string name="sort_menu_item">Сортировка</string>
+  <string name="sort_files">Сортировка по</string>
+  <string-array name="sort_files_options_array">
+    <item>Имя</item>
+    <item>Имя (В обратном порядке)</item>
+    <item>Время последнего изменения</item>
+    <item>Время последнего изменения (Сначала новые)</item>
+  </string-array>
+  <!--Search-->
+  <string name="search_menu_item">Поиск</string>
+  <string name="search_bar_hint">Поиск...</string>
+  <string name="search_txt_empty">Пожалуйста, введите ключевые слова</string>
+  <string name="search_content_empty">Ничего не было найдено</string>
+  <string name="search_server_not_support">Упс, поиск недоступен на этом сервере!</string>
+  <string name="search_library_not_found">Невозможно найти эту библиотеку. Возможно, она была удалена</string>
+  <!--star a file-->
+  <string name="star_file_succeed">Файл успешно помечен</string>
+  <string name="star_file_failed">Не удалось пометить файл</string>
+  <!--unstar a file-->
+  <string name="unstar_file_failed">Не удалось снять метку</string>
+  <string name="unstar">Снять метку</string>
+  <!--notification bar-->
+  <string name="notification_upload_started_title">Загрузка файлов...</string>
+  <string name="notification_download_started_title">Скачивание файлов...</string>
+  <string name="notification_upload_completed">Загрузка завершена</string>
+  <plurals name="notification_upload_info">
+    <item quantity="one">Загружается %1$d файл (%2$d%%)</item>
+    <item quantity="few">Загружается %1$d файлов (%2$d%%)</item>
+    <item quantity="many">Загружается %1$d файлов (%2$d%%)</item>
+    <item quantity="other">Загружается %1$d файлов (%2$d%%)</item>
+  </plurals>
+  <plurals name="notification_download_info">
+    <item quantity="one">Скачивается %1$d файл (%2$d%%)</item>
+    <item quantity="few">Скачивается %1$d файлов (%2$d%%)</item>
+    <item quantity="many">Скачивается %1$d файлов (%2$d%%)</item>
+    <item quantity="other">Скачивается %1$d файлов (%2$d%%)</item>
+  </plurals>
+  <string name="notification_download_completed">Скачивание завершено</string>
+  <!--Gallery-->
+  <string name="gallery_load_photos_error">Ошибка загрузки фотографий</string>
+  <string name="gallery_encrypted_repo_not_supported">Зашифрованная библиотека не поддерживается</string>
+  <!--Overwrite existing files-->
+  <string name="overwrite_existing_file_title">Заменить существующий файл</string>
+  <string name="overwrite_existing_file_msg">Файл уже существует, вы действительно хотите заменить его?</string>
+  <string name="overwrite_existing_file_exist">Файл уже существует</string>
+  <!--Action Mode-->
+  <string name="action_mode_no_items_selected">Нет выбранных элементов</string>
+  <!--Accessibility description for navigation drawer-->
+  <!--permission-->
+  <string name="permission_read_exteral_storage_rationale">Для обработки файлов, позволить получить доступ к их хранилищу</string>
+  <string name="permission_read_contacts_storage_rationale">Для обработки контактов, разрешить к ним доступ.</string>
+  <string name="permission_not_granted">Разрешение не было предоставлено</string>
+  <string name="history_change_title">Подробности изменений</string>
+  <string name="no_more_activities">Не больше действий</string>
+  <!--client side encryption and decryption-->
+  <string name="enc_on">Расшифровать данные локально</string>
+  <string name="enc_off">Расшифровать данные на стороне сервера</string>
+  <string name="enc_title">Режим дешифрования для данных зашифрованной библиотеки</string>
+  <!--clear password-->
+  <string name="clear_password_title">Удалить пароль библиотеки</string>
+  <string name="clear_password_hint">Нажмите, чтобы удалить пароль</string>
+  <string name="clear_password_successful">Удаление пароля прошло успешно</string>
+  <string name="clear_password_failed">Удаление пароля прошло неудачно</string>
+  <string name="clear_password_warning">Вы хотите удалить пароль?</string>
+  <string name="clear_password_auto">Автоматический сброс паролей</string>
+  <!--Two factor auth-->
+  <string name="two_factor_auth_error">токен аутентификации обязателен</string>
+  <string name="two_factor_auth_invalid">токен аутентификации недействителен</string>
+  <string name="two_factor_auth_token">Токен двухфакторной аутентификации</string>
+  <string name="two_factor_auth_token_empty">Токен аутентификации не может быть пустым</string>
+  <string name="two_factor_auth_remember_phone">Запомнить это устройство</string>
+  <!--Operation Exceptions-->
+  <string name="op_exception_folder_deleted">Папка \"%s\" была удалена</string>
+  <string name="op_exception_suitable_app_not_found">Не удается найти подходящее приложение для MIME-типа %s</string>
+  <string name="op_exception_failed_to_download_file">Не удалось скачать файл %s</string>
+  <!--Home list title-->
+  <string name="shared_with_all">Общие со всеми</string>
+  <string name="add_password_protection">Добавить защиту паролем</string>
+  <string name="expiration_dates">даты истечения срока действия</string>
+  <string name="add_auto_expiration">Добавить авто истечение срока действия</string>
+  <string name="input_auto_expiration">Введите даты истечения срока действия</string>
+  <!--editor-->
+  <string name="editor_lines_error">Невозможно работать с несколькими строками</string>
+  <string name="editor_file_save">Вы хотите сохранить и выйти?</string>
+  <string name="editor_file_save_success">Файл успешно сохранен</string>
+  <string name="editor_file_save_failed">Не удалось очистить кэш</string>
+  <string name="editor_file_save_title">Сохранение файла</string>
+  <string name="description">Описание</string>
+  <string name="undo">отмена</string>
+  <string name="redo">повтор</string>
+  <string name="link">Ссылка</string>
+  <string name="channel_name_error">Предупреждения об ошибках</string>
+  <string name="channel_name_upload">Информация о загрузке файла</string>
+  <string name="channel_name_download">Информация о скачивании файла</string>
+  <string name="above_quota">Больше квоты</string>
+  <string name="camera_upload_state">Информация о загрузке</string>
+  <string name="waiting_state">Ожидание загрузки</string>
+  <string name="Upload_completed">Последняя синхронизация завершена в</string>
+  <string name="is_scanning">Сканирование</string>
+  <string name="is_uploading">Загрузка</string>
+  <string name="network_unavailable">Сеть недоступна</string>
+</resources>

@@ -1,0 +1,502 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="welcome_to_seafile">Üdvözlöm a Seafile-ban</string>
+  <string name="select_account">Válasszon egy fiókot</string>
+  <string name="edit_account">Szerkeszt</string>
+  <string name="delete_account">Töröl</string>
+  <string name="delete">Töröl</string>
+  <string name="delete_repo">Biztosan törli ez a kötetet?</string>
+  <string name="delete_file">Biztos, hogy törli a fájlt vagy könyvtárat?</string>
+  <string name="delete_successful">Sikeres törlés</string>
+  <string name="delete_repo_title">Kötet törlése</string>
+  <string name="delete_file_f">Fájl törlés</string>
+  <string name="delete_dir">Könyvtár törlés</string>
+  <string name="name_hint">Név</string>
+  <string name="server_hint">Szerver cím</string>
+  <string name="email_hint">Email vagy felhasználónév</string>
+  <string name="passwd_hint">Jelszó</string>
+  <string name="passwd_min_len_limit_hint">Jelszó (legalább %d karakter)</string>
+  <string name="passwd_confirmation_hint">Jelszó újra</string>
+  <string name="login">Bejelentkezés</string>
+  <string name="open_file">Megnyit</string>
+  <string name="download_file">Letölt</string>
+  <string name="redownload_file">Újra letölt</string>
+  <string name="cancel_download">Mégse</string>
+  <string name="unknown_file_type">Ismeretlen fájltípus</string>
+  <string name="activity_not_found">Nem található olyan alkalmazás amivel a fájlt meg lehet nyitni</string>
+  <string name="refresh">Frissít</string>
+  <string name="add_account">Fiók hozzáadása</string>
+  <string name="personal">Személyes</string>
+  <string name="shared">Megosztva</string>
+  <string name="libraries">Kötetek</string>
+  <string name="cached">Gyorsítótárazva</string>
+  <string name="activities">Tevékenységek</string>
+  <string name="pick_upload_type">Feltölt</string>
+  <string name="transfer_tasks">Átviteli lista</string>
+  <string name="accounts">Fiókok</string>
+  <string name="settings">Beállítások</string>
+  <string-array name="pick_upload_array">
+    <item>Fájl</item>
+    <item>Képek/Videók</item>
+    <item>Más</item>
+  </string-array>
+  <string name="choose_server">Seafile szerver választás</string>
+  <string name="network_down">Nincs hálózati kapcsolat</string>
+  <string name="unknow_error">Ismeretlen hiba</string>
+  <string name="invalid_server_address">Hibás szerver cím</string>
+  <string name="err_server_andress_empty">Szerver cím nem lehet üres</string>
+  <string name="err_email_empty">Az email cím nem lehet üres</string>
+  <string name="err_passwd_empty">Jelszó nem lehet üres</string>
+  <string name="err_passwd_too_short">Jelszó túl rövid</string>
+  <string name="err_passwd_mismatch">A jelszavak nem egyeznek</string>
+  <string name="err_login_failed">Belépés nem sikerült</string>
+  <string name="err_wrong_user_or_passwd">Email vagy jelszó hiba</string>
+  <string name="err_token_expired">Az azonosítás lejárt, kérem lépjen be újra</string>
+  <string name="upload">Feltölt</string>
+  <string name="uploaded">Feltöltve</string>
+  <string name="updated">Frissítve</string>
+  <string name="download_failed">Letöltés nem sikerült</string>
+  <string name="download_waiting">Letöltés várakozik</string>
+  <string name="download_finished">Letöltés kész</string>
+  <string name="download_cancelled">Letöltés megszakítva</string>
+  <string name="task_cancel">Mégse</string>
+  <string name="task_retry">Újra</string>
+  <string name="task_remove">Töröl</string>
+  <string name="task_remove_all_cancelled">Minden megszakított feladatot töröl</string>
+  <string name="task_remove_all_finished">Minden elkészült feladatot töröl</string>
+  <string name="repo_action_delete">Törlés</string>
+  <string name="repo_action_rename">Átnevez</string>
+  <string name="file_action_star">Kedvenc</string>
+  <string name="file_action_download">Letöltés</string>
+  <string name="file_action_update">Feltölt</string>
+  <string name="file_action_share_encrypt">Megosztás link jelszóval</string>
+  <string name="file_action_export">Exportálás</string>
+  <string name="file_action_delete">Törlés</string>
+  <string name="file_action_rename">Átnevez</string>
+  <string name="file_action_copy">Másol</string>
+  <string name="file_action_move">Mozgat</string>
+  <string name="file_action_open_as">Megnyit mint</string>
+  <string name="file_action_more">Több</string>
+  <string name="file_action_more_title">Válassza ki a preferált beállítást</string>
+  <string-array name="file_action_more_array">
+    <item>Export</item>
+    <item>Másol</item>
+    <item>Mozgat</item>
+    <item>Kedvenc</item>
+  </string-array>
+  <string-array name="file_type_array">
+    <item>Szöveg</item>
+    <item>Hang</item>
+    <item>Videó</item>
+    <item>Kép</item>
+    <item>Más</item>
+  </string-array>
+  <string name="wait">Várakozik</string>
+  <string name="image_gallery_NoImageView_text">Kép nem található</string>
+  <string name="pick_photo_video_title">Fotó/videó választás feltöltéshez</string>
+  <string name="select_upload_items">Elemek kiválasztása feltöltéshez</string>
+  <plurals name="n_upload_items_selected">
+    <item quantity="one">%1$d elem kiválasztva</item>
+    <item quantity="other">%1$d elem kiválasztva</item>
+  </plurals>
+  <string name="repo_name_empty">Adja meg a kötet nevét</string>
+  <string name="dir_name_empty">Adja meg a könyvtár nevét</string>
+  <string name="file_name_empty">Adja meg a fájl nevét</string>
+  <string name="password_empty">Adja meg a jelszót</string>
+  <string name="wrong_password">hibás jelszó</string>
+  <string name="library_read_only">This library is read-only</string>
+  <string name="error_when_load_dirents">Hiba a könyvtár betöltésénél.\nKoppintson a frissítéshez</string>
+  <string name="error_when_load_repos">Hiba a kötet betöltésénél.\n Koppintson a frissítéshez</string>
+  <string name="error_when_load_activities">Hiba a tevékenységnapló betöltésekor. \n Kattintson a frissítéshez.</string>
+  <string name="error_when_load_starred">Hiba a csillagozott fájlok betöltésénél.\n Frissítés koppintással</string>
+  <string name="dir_empty">A könyvtár üres</string>
+  <string name="no_repo">Nincsenek kötetei</string>
+  <string name="no_app_available">Nem található alkalmazás</string>
+  <string name="add_to_seafile">Hozzáadás a Seafile-hoz</string>
+  <string name="ok">Rendben</string>
+  <string name="no_account">Először hozzon létre egy felhasználói fiókot a Seafile-on</string>
+  <string name="choose_an_account">Fiók kiválasztása</string>
+  <string name="choose_a_library">Kötet kiválasztása</string>
+  <string name="choose_a_folder">Könyvtár kiválasztása</string>
+  <string name="load_accounts_fail">Hiba a Seafile fiókok betöltésénél</string>
+  <string name="load_libraries_fail">Hiba a kötetek letöltésénél</string>
+  <string name="load_dir_fail">Hiba a könyvtár tartalmának betöltésénél</string>
+  <string name="not_supported_share">Ez a megosztás típus nem támogatott</string>
+  <string name="edit">Szerkeszt</string>
+  <string name="encrypt">Titkosít</string>
+  <string name="download_folder">Könyvtár letöltés</string>
+  <string name="download_folder_title">Válassza ki a preferált beállítást</string>
+  <string-array name="download_folder_options_array">
+    <item>Letöltési könyvtár</item>
+    <item>Letöltési könyvtár és alkönyvtár</item>
+  </string-array>
+  <string name="add_repo">Új kötet</string>
+  <string name="add_file">Hozzáad</string>
+  <string-array name="add_file_options_array">
+    <item>Fájl létrehozás</item>
+    <item>Könyvtár létrehozás</item>
+    <item>Fájl feltöltés</item>
+    <item>Fénykép készítés</item>
+  </string-array>
+  <string name="create_new_repo">Új kötet létrehozása</string>
+  <string name="create_new_repo_success">%s kötet sikeresen létrehozva</string>
+  <string name="create_new_folder_success">%s könyvtár sikeresen létrehozva</string>
+  <string name="create_new_file_success">%s fájl sikeresen létrehozva</string>
+  <string name="create_new_file">Új fájl létrehozása</string>
+  <string name="create_new_dir">Új könyvtár létrehozása</string>
+  <string name="camera">Fénykép ide</string>
+  <string name="download">Letöltés</string>
+  <string name="open">Megnyit</string>
+  <string name="last_modified">utoljára módosítva</string>
+  <string name="file_modified">módosítva</string>
+  <string name="file_size">fájl mérete</string>
+  <string name="library_not_found">Ez a kötet törölve lett.</string>
+  <string name="file_not_found">\"%s\" fájl törölve</string>
+  <string name="export_file">Fájl exportálása</string>
+  <string name="no_upload_tasks">Nincs feltöltési feladat</string>
+  <string name="no_download_tasks">Nincs letöltési feladat</string>
+  <string name="seahub_url_hint">Megj.: A szerver cím tartalmazhat portszámot. Például, www.example.com:8000</string>
+  <string name="copy_link">Link másolása</string>
+  <string name="share_file_link">Link megosztása ehhez a fájlhoz</string>
+  <string name="share_dir_link">Link megosztása ehhez a könyvtárhoz</string>
+  <string name="share_input_password">megosztás jelszó bevitele</string>
+  <string name="generating_link">Link elkészítése...</string>
+  <string name="link_ready_to_be_pasted">A link beilleszthető.</string>
+  <string name="rename_repo">Kötet átnevezése</string>
+  <string name="rename_file">Fájl átnevezése</string>
+  <string name="rename_dir">Könyvtár átnevezése</string>
+  <string name="rename_successful">Sikeres átnevezés.</string>
+  <string-array name="nav_array">
+    <item>Fájlok</item>
+    <item>Feltöltések</item>
+    <item>Fiókok</item>
+    <item>Fénykép mentések</item>
+  </string-array>
+  <string name="no_starred_file">Jelenleg nincsenek kedvenc fájlok</string>
+  <string name="added_to_upload_tasks">Feltöltés elindítva</string>
+  <string name="added_photo_to_upload_tasks">Fénykép feltöltés elindítva</string>
+  <string name="take_photo_successfully">Sikeres fénykép készítés</string>
+  <string name="tabs_library">Kötetek</string>
+  <string name="tabs_activity">Tevékenységek</string>
+  <string name="tabs_starred">Kedvencek</string>
+  <string name="provide_password">Jelszó megadása ehhez: \"%s\"</string>
+  <string name="upload_waiting">Feltöltés várakozik</string>
+  <string name="upload_finished">Feltöltés kész</string>
+  <string name="upload_cancelled">Feltöltés megszakítva</string>
+  <string name="upload_failed">Sikertelen feltöltés</string>
+  <string name="upload_file_exist">A fájl már létezik</string>
+  <string name="upload_duplicate_found">Egy \"%s\" nevű elem már létezik ezen a helyen.\n Lecseréljük arra, amit éppen feltölt?</string>
+  <string name="upload_replace_all">Mindegyik cseréje</string>
+  <string name="upload_keep_both">Mindkettő megtartása</string>
+  <string name="upload_replace">Csere</string>
+  <string name="days_ago">%d napja</string>
+  <string name="hours_ago">%d órája</string>
+  <string name="minutes_ago">%d perce</string>
+  <string name="seconds_ago">%d másodperce</string>
+  <string name="just_now">most</string>
+  <string name="open_as">Megnyitás mint</string>
+  <string name="select_upload_files">Fájlok kiválasztása feltöltéshez</string>
+  <string name="storage_removed">Eltávolították a tárolót</string>
+  <string name="error_selecting_file">Hiba a fájlok kiválasztásánál</string>
+  <plurals name="n_upload_files_selected">
+    <item quantity="one">%1$d fájl kiválasztva</item>
+    <item quantity="other">%1$d fájl kiválasztva</item>
+  </plurals>
+  <string name="empty_folder">Üres könyvtár</string>
+  <string name="choose_file">Fájl kiválasztása</string>
+  <string name="ssl_error">A biztonsági vizsgálat sikertelen</string>
+  <string name="ssl_confirm">A biztonsági tanúsítvány: %s , nem megbízható. Így is folytatja?</string>
+  <string name="ssl_confirm_cert_changed">%s érvénytelen biztonsági tanúsítványt használ, a kapcsolat nem biztonságos. Folytatja?</string>
+  <string name="ssl_confirm_title">Nem megbízható kapcsolat</string>
+  <string name="issued_to">Elküldve ide:</string>
+  <string name="finger_prints">Ujjlenyomat</string>
+  <string name="period_of_validity">Érvényesség ideje</string>
+  <string name="sha1">SHA-1 %s</string>
+  <string name="md5">MD5 %s</string>
+  <string name="not_available">nem érhető el</string>
+  <string name="serial_number">Sorozatszám %s</string>
+  <string name="not_before">Innentől érvényes: %s</string>
+  <string name="not_after">Eddig érvényes: %s</string>
+  <string name="yes">Igen</string>
+  <string name="no">Nem</string>
+  <string name="remember_my_choice">Válasz megjegyzése</string>
+  <string name="copied_successfully">Sikeres másolás</string>
+  <string name="moved_successfully">Sikeres mozgatás</string>
+  <string name="internal_server_error">Belső hiba</string>
+  <string name="copy_file_ing">Fájl másolása</string>
+  <string name="move_file_ing">Fájl mozgatása</string>
+  <string name="copy_file_from">Másolás: %1$s -&gt; %2$s</string>
+  <string name="move_file_from">Mozgatás: %1$s \n -&gt; %2$s</string>
+  <string name="copy_folder_ing">Könyvtár másolása</string>
+  <string name="move_folder_ing">Könyvtár mozgatása</string>
+  <string name="upload_started">Feltöltés elindítva</string>
+  <string name="cannot_copy_folder_to_subfolder">A könyvtár nem másolható az alkönyvtárába</string>
+  <string name="cannot_move_folder_to_subfolder">A könyvtár nem mozgatható az alkönyvtárába</string>
+  <string name="cancel">Mégse</string>
+  <string name="confirm">Megerősít</string>
+  <string name="repo_not_found">A kötet nem található. Lehet, hogy törölve lett vagy titkosítva van</string>
+  <string name="settings_account">Fiók</string>
+  <string name="settings_account_info_title">Felhasználói információ</string>
+  <string name="settings_account_info_load_data">betöltés...</string>
+  <string name="settings_account_space_title">Felhasznált hely</string>
+  <string name="settings_account_sign_out_title">Kijelentkezés</string>
+  <string name="settings_account_sign_out_hint">Koppintson a kilépéshez</string>
+  <string name="settings_account_sign_out_confirm">Ki szeretne lépni?</string>
+  <string name="security">Biztonság</string>
+  <string name="gesture_lock">Feloldóminta</string>
+  <string name="gesture_lock_on">Feloldóminta bekapcsolva</string>
+  <string name="gesture_lock_off">Feloldóminta kikapcsolva</string>
+  <string name="lockscreen_access_pattern_hint">Rajzolja le a feloldómintát</string>
+  <string name="lockscreen_access_pattern_start">Kezdjen rajzolni</string>
+  <string name="lockscreen_access_pattern_cleared">Minta törölve</string>
+  <string name="lockscreen_access_pattern_cell_added">Pont hozzáadva</string>
+  <string name="lockscreen_access_pattern_detected">Minta megtalálva</string>
+  <string name="lockscreen_access_pattern_passwd_forget">Jelszó elfelejtve</string>
+  <string name="lockscreen_access_pattern_failure">5 hibás próbálkozás, várjon 30 másodpercet mielőtt újra próbálja</string>
+  <plurals name="lockscreen_access_pattern_failure_left_try_seconds">
+    <item quantity="one">%1$d másodperc múlva újra megpróbálhatja</item>
+    <item quantity="other">%1$d másodperc múlva újra megpróbálhatja</item>
+  </plurals>
+  <plurals name="lockscreen_access_pattern_failure_left_try_times">
+    <item quantity="one">Hibás minta, még %1$d alkalommal probálkozhat</item>
+    <item quantity="other">Hibás minta, még %1$d alkalommal probálkozhat</item>
+  </plurals>
+  <string name="lockscreen_access_pattern_failure_not_long_enough">Nincs elég pont összekötve, próbálja újra</string>
+  <string name="lockpattern_retry_button_text">Újra</string>
+  <string name="lockpattern_continue_button_text">Következő</string>
+  <string name="lockpattern_confirm_button_text">OK</string>
+  <string name="lockpattern_recording_intro_header">Rajzolja le a feloldómintát</string>
+  <string name="lockpattern_settings_help_how_to_record">Ismerje meg, hogy lehet feloldómintát rajzolni</string>
+  <string name="lockpattern_recording_incorrect_too_short">Legalább 4 pontot kössön össze!</string>
+  <string name="lockpattern_pattern_entered_header">Minta elmentve</string>
+  <string name="lockpattern_need_to_draw">Rajzolja le a feloldómintát</string>
+  <string name="lockpattern_need_to_confirm">Kérem erősítse meg a mintát</string>
+  <string name="lockpattern_need_to_unlock_wrong">A minták nem egyeznek, ismételje meg!</string>
+  <string name="lockpattern_pattern_confirmed_header">Koppintson az OK-ra a minta elmentéséhez</string>
+  <string name="lockpattern_recording_inprogress">Emelje fel az ujját, ha a rajzolást befejezte</string>
+  <string name="lockpattern_pattern_toast_saved">Feloldóminta sikeresen elmentve</string>
+  <!--Strings for possible PreferenceActivity Back/Next buttons-->
+  <string name="back_button_label">Vissza</string>
+  <string name="next_button_label">Következő</string>
+  <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
+  <string name="skip_button_label">Kihagy</string>
+  <!--contacts  upload-->
+  <string name="settings_contacts_upload_info_title">Névjegyek mentése</string>
+  <string name="settings_contacts_upload_turn_on">Névjegyek mentésének engedélyezése</string>
+  <string name="settings_contacts_upload_service_started">Névjegyek mentése engedélyezve</string>
+  <string name="settings_contacts_upload_service_stopped">Névjegyek mentése tiltva</string>
+  <string name="settings_contacts_upload_repo_hint">Válassz kötetet a névjegyek mentéséhez </string>
+  <string name="settings_contacts_upload_change_repo_title">Kötet megváltoztatása névjegyek mentéséhez</string>
+  <string name="settings_contacts_upload_repo_time">Utolsó mentés ideje</string>
+  <string name="settings_contacts_upload_repo_history">Nincs mentés bejegyzés</string>
+  <string name="settings_contacts_upload_start_backup">Mentés</string>
+  <string name="settings_contacts_upload_start_backup_hint">Koppints a névjegyek mentésének elkezdéséhez</string>
+  <!--Camera Upload Preference-->
+  <string name="settings_camera_upload_info_title">Fénykép feltöltés</string>
+  <string name="settings_camera_upload_service_started">Feltöltési szolgáltatás elindítva</string>
+  <string name="settings_camera_upload_service_stopped">Feltöltési szolgáltatás leállítva</string>
+  <string name="settings_camera_upload_allow_data_plan">Mobil internet engedélyezés</string>
+  <string name="settings_camera_upload_allow_videos">Videó feltöltés engedélyezése</string>
+  <string name="settings_camera_upload_default_wifi">Alapesetben csak Wi-Fi használata</string>
+  <string name="settings_camera_upload_data_plan_allowed">Mobil internet engedélyezve</string>
+  <string name="settings_camera_upload_default_photos">Alapesetben csak fényképeket tölt fel</string>
+  <string name="settings_camera_upload_videos_allowed">Videókat is</string>
+  <string name="settings_camera_upload_change_repo_title">Feltöltési kötet megváltoztatása</string>
+  <string name="settings_camera_upload_repo_hint">Először a kötetet kell kiválasztani</string>
+  <string name="settings_camera_upload_turn_on">Fényképezőgép feltöltés bekapcsolása</string>
+  <string name="settings_camera_upload_choose_dir">Album kicserélése</string>
+  <string name="settings_camera_upload_dir_auto_scan">Alapesetben keresse a fényképeket</string>
+  <string name="settings_camera_upload_lib_not_found">A kiválasztott kötet nem létezik.</string>
+  <string name="settings_camera_upload_advanced_feature_title">Haladó beállítások</string>
+  <string name="settings_camera_upload_advanced_feature_subtitle">Egyéni feltöltési beállítások</string>
+  <string name="settings_camera_upload_advanced_custom_directories">Egyéni albumok feltöltése</string>
+  <string name="settings_camera_upload_advanced_custom_directories_on">Fényképalbum kiválasztása</string>
+  <string name="settings_camera_upload_advanced_custom_directories_off">Automatikus keresés az eszközön</string>
+  <!--Camera Upload Configuration View-->
+  <string name="settings_cuc_title">Beállítási segéd</string>
+  <string name="settings_cuc_welcome_text">Köszönjük, hogy a kamera feltöltési segédet használja.\nA kamera feltöltési szolgáltatás elindításához átvezetjük a kezdő lépéseken.</string>
+  <string name="settings_cuc_network_title">Hogyan lehet feltölteni</string>
+  <string name="settings_cuc_network_wifi">Csak Wi-Fi</string>
+  <string name="settings_cuc_network_data_plan">Wi-Fi vagy mobil internet</string>
+  <string name="settings_cuc_option_hint">Válassza ki a preferált beállítást. \nEzeket a beállításokat később bármikor megváltoztathatja.</string>
+  <string name="settings_cuc_type_title">Mit tölt fel</string>
+  <string name="settings_cuc_type_photo">Csak fénykép</string>
+  <string name="settings_cuc_type_video">Fénykép és videó</string>
+  <string name="settings_cuc_local_dir_title">Válassza ki az albumokat</string>
+  <plurals name="settings_cuc_local_dir_items">
+    <item quantity="one">%1$d elem</item>
+    <item quantity="other">%1$d elem</item>
+  </plurals>
+  <string name="settings_cuc_remote_lib_title">Távoli kötet kiválasztása</string>
+  <string name="settings_cuc_remote_lib_account">Fiók kiválasztása</string>
+  <string name="settings_cuc_remote_lib_repo">%s kiválasztva</string>
+  <string name="settings_cuc_upload_to_parent_folder">Egy könyvtárral feljebb</string>
+  <string name="settings_cuc_auto_scan">Fénykép albumok automatikus megkeresése</string>
+  <string name="settings_cuc_pick_albums">Fénykép albumok kézi kiválasztása</string>
+  <string name="settings_cuc_remote_lib_hint">Válassza ki a preferált fiókot és kötetet. \nEzeket a beállításokat később bármikor megváltoztathatja.</string>
+  <string name="settings_cuc_finish_title">Kész</string>
+  <string name="settings_cuc_ready">A Seafile most elkezdi feltölteni a kiválasztott könyvtárakból a fájlokat. \nBezárhatja az alkalmazást.</string>
+  <string name="settings_cuc_swipe_left">Továbblépéshez húzza balra.</string>
+  <string name="settings_cuc_click_btn">A konfigurációs segéd bezárásához koppintson.</string>
+  <string name="settings_cuc_loading">betöltés...</string>
+  <!--Camera Sync-->
+  <string name="sync_provider_camera_upload">Kamera fényképek és videók</string>
+  <string name="camera_sync_notification_title_failed">Fénykép feltöltés sikertelen</string>
+  <string name="camera_sync_notification_repo_missing_failed">A szerver tárhely nem található.</string>
+  <string name="camera_sync_notification_auth_error_failed">Azonosítási hiba.</string>
+  <string name="camera_sync_rename_file">%s (Seafile nevezte át)</string>
+  <string name="settings_about_title">Névjegy</string>
+  <string name="settings_about_version_title">Alkalmazás verzió</string>
+  <string name="settings_about_author_title">Névjegy</string>
+  <string name="settings_about_author_info">
+<![CDATA[
+<h5>Seafile Android Kliens</h5>
+<p>%s</p>
+<h5>Kapcsolat</h5>
+<p>
+Twitter: Seafile<br>
+Email: support@seafile.com<br>
+</p>
+<h5>Hozzájárulás</h5>
+<p>https://github.com/haiwen/seadroid.git</P>
+<h5>Copyright ©2013-2018 Seafile Ltd.</h5>
+]]></string>
+  <string name="settings_advance_feature_title">HALADÓ BEÁLLÍTÁSOK</string>
+  <string name="settings_storage_title">GYORSÍTÓTÁR</string>
+  <string name="settings_cache_title">Gyorsítótár mérete</string>
+  <string name="settings_clear_cache_title">Gyorsítótár törlése</string>
+  <string name="settings_clear_cache_hint">Biztos, hogy törli a gyorsítótárat?</string>
+  <string name="settings_clear_cache_success">Gyorsítótár sikeresen törölve</string>
+  <string name="settings_clear_cache_failed">Gyorsítótár törlése sikertelen</string>
+  <string name="settings_cache_empty">0 KB</string>
+  <string name="settings_cache_location_title">Gyorsítótár helye</string>
+  <string name="dialog_switch_storage_info_text">A fájlok az új tárolóba kerülnek átmozgatásra. Ez eltarthat egy darabig.</string>
+  <string name="storage_manager_primary_storage">Elsődleges tároló</string>
+  <string name="storage_manager_secondary_storage">Másodlagos tároló</string>
+  <string name="storage_manager_storage_description">%1$s (%2$s szabad/%3$s összes)</string>
+  <string name="storage_manager_storage_description_not_available">%1$s (nem elérhető)</string>
+  <!--pull to refresh-->
+  <string name="pull_to_refresh_pull_label">Frissítéshez húzza ezt le...</string>
+  <string name="pull_to_refresh_release_label">Frissítéshez engedje el...</string>
+  <string name="pull_to_refresh_refreshing_label">Betöltés...</string>
+  <string name="pull_to_refresh_last_update">Utolsó frissítés:</string>
+  <string name="pull_to_refresh_last_update_seconds_ago">%d másodperce</string>
+  <string name="pull_to_refresh_last_update_minutes_ago">%d perce</string>
+  <string name="pull_to_refresh_last_update_hours_ago">%d órája</string>
+  <!--storage access framework-->
+  <string name="saf_open_file_exception">%s fájlt nem lehet megnyitni.</string>
+  <string name="saf_open_directory_exception">Könyvtárat nem lehet megnyitni.</string>
+  <string name="saf_file_not_cached_exception">%s fájl nincs gyorsítótárazva.</string>
+  <string name="saf_thumbnail_not_found_exception">%s bélyegképet nem lehet megnyitni/megtalálni.</string>
+  <string name="saf_file_not_downloaded_exception">%s fájlt nem lehet letölteni a szerverről.</string>
+  <string name="saf_write_diretory_exception">A könyvtár nem nyitható meg írásra/olvasásra.</string>
+  <string name="saf_account_not_found_exception">Nem található Seafile fiók.</string>
+  <string name="saf_upload_path_not_available">Nem lehet feltölteni, nem létező útvonal</string>
+  <string name="saf_failed_to_create_directory">Nem lehet létrehozni a könyvtárat: %s</string>
+  <string name="saf_file_exist">A fájl már létezik</string>
+  <string name="saf_bad_mime_type">Hibás fájl típus kérés</string>
+  <!--Single Sign-On  SSO-->
+  <string name="shib_server_url_empty">A szerver üres!</string>
+  <string name="shib_load_page_error">Hiba:</string>
+  <string name="shib_loading">betöltés...</string>
+  <!--Transfer List-->
+  <string name="transfer_list_network_error">Hálózati hiba, próbálja meg később!</string>
+  <string name="transfer_list_cancel_all">Minden feladat megszakítása</string>
+  <string name="transfer_list_restart_all">Újraindítás</string>
+  <string name="transfer_list_retry_failed_tasks">Hibás feladatok újrakezdése</string>
+  <string name="transfer_list_restart_cancelled_tasks">Megszakított feladatok újraindítása</string>
+  <string name="transfer_list_clear_failed_tasks">Hibás feladatok törlése</string>
+  <string name="transfer_list_clear_all_tasks">Minden feladat törlése</string>
+  <string name="transfer_list_clear_finished_tasks">Befejezett feladatok törlése</string>
+  <string name="transfer_tabs_downloads">Letöltési lista</string>
+  <string name="transfer_tabs_uploads">Feltöltési lista</string>
+  <string name="transfer_download_no_task">Minden fájl letöltve</string>
+  <plurals name="transfer_download_started">
+    <item quantity="one">%1$d fájl letöltésének elkezdése</item>
+    <item quantity="other">%1$d fájl letöltésének elkezdése</item>
+  </plurals>
+  <string name="transfer_list_select_all">Mindet kijelöl</string>
+  <string name="transfer_list_deselect_all">Minden kijelölést megszűntet</string>
+  <plurals name="transfer_list_items_selected">
+    <item quantity="one">%d db kiválasztva</item>
+    <item quantity="other">%d db kiválasztva</item>
+  </plurals>
+  <!--Sort-->
+  <string name="sort_menu_item">Rendez</string>
+  <string name="sort_files">Rendezve:</string>
+  <string-array name="sort_files_options_array">
+    <item>Név</item>
+    <item>Név (Leírás)</item>
+    <item>Utolsó módosítás ideje</item>
+    <item>Utolsó módosítás ideje (Leírás)</item>
+  </string-array>
+  <!--Search-->
+  <string name="search_menu_item">Keres</string>
+  <string name="search_bar_hint">Keresés...</string>
+  <string name="search_txt_empty">Adja meg a kulcsszavakat</string>
+  <string name="search_content_empty">Semmi sem található</string>
+  <string name="search_server_not_support">Hoppá, a keresés nem támogatott ezen a szerveren!</string>
+  <string name="search_library_not_found">Nem található a kötet. Lehet, hogy törölve lett</string>
+  <!--star a file-->
+  <string name="star_file_succeed">Fájl sikeresen felvéve a kedvencek közé</string>
+  <string name="star_file_failed">A fájlt nem sikerült felvenni a kedvencek közé</string>
+  <!--unstar a file-->
+  <string name="unstar_file_failed">A kedvencnek jelölés eltávolítása sikertelen</string>
+  <string name="unstar">Nem kedvenc</string>
+  <!--notification bar-->
+  <string name="notification_upload_started_title">Fájlok feltöltése...</string>
+  <string name="notification_download_started_title">Fájlok letöltése...</string>
+  <string name="notification_upload_completed">Feltöltés kész</string>
+  <plurals name="notification_upload_info">
+    <item quantity="one">%1$d fájl feltöltése (%2$d%%)</item>
+    <item quantity="other">%1$d fájl feltöltése (%2$d%%)</item>
+  </plurals>
+  <plurals name="notification_download_info">
+    <item quantity="one">%1$d fájl letöltése (%2$d%%)</item>
+    <item quantity="other">%1$d fájl letöltése (%2$d%%)</item>
+  </plurals>
+  <string name="notification_download_completed">Letöltés kész</string>
+  <!--Gallery-->
+  <string name="gallery_load_photos_error">Hiba a fényképek betöltésénél</string>
+  <string name="gallery_encrypted_repo_not_supported">A titkosított kötet nem támogatott</string>
+  <!--Overwrite existing files-->
+  <string name="overwrite_existing_file_title">Létező fájlok felülírása</string>
+  <string name="overwrite_existing_file_msg">A fájl már létezik, felülírja?</string>
+  <string name="overwrite_existing_file_exist">A fájl már létezik</string>
+  <!--Action Mode-->
+  <string name="action_mode_no_items_selected">Nincs kiválasztott elem</string>
+  <!--Accessibility description for navigation drawer-->
+  <!--permission-->
+  <string name="permission_read_exteral_storage_rationale">A fájlok kezeléséhez engedélyezze a tárhely elérését.</string>
+  <string name="permission_read_contacts_storage_rationale">A névjegyek kezeléséhez engedélyezd a névjegyekhez való hozzáférést.</string>
+  <string name="permission_not_granted">Engedély nem lett megadva</string>
+  <string name="history_change_title">Változtatás részletei</string>
+  <string name="no_more_activities">Nincs több tevékenység</string>
+  <!--client side encryption and decryption-->
+  <string name="enc_on">Adatok titkosításának lokális feloldása</string>
+  <string name="enc_off">Adatok titkosításának szerveroldali feloldása</string>
+  <string name="enc_title">Titkosított kötet feloldási módja</string>
+  <!--clear password-->
+  <string name="clear_password_title">Kötetjelszó eltávolítása</string>
+  <string name="clear_password_hint">Kattintson a jelszó eltávolításához</string>
+  <string name="clear_password_successful">Jelszó sikeresen eltávolítva</string>
+  <string name="clear_password_failed">Jelszó eltávolítása meghiúsult</string>
+  <string name="clear_password_warning">Biztosan eltávolítja a jelszót?</string>
+  <string name="clear_password_auto">Jelszavak automatikus eltávolítása</string>
+  <!--Two factor auth-->
+  <string name="two_factor_auth_error">Azonosítókulcs szükséges</string>
+  <string name="two_factor_auth_invalid">Azonosítókulcs érvénytelen</string>
+  <string name="two_factor_auth_token">Kétlépcsős azonosítókulcs</string>
+  <string name="two_factor_auth_token_empty">Az azonosítókulcs nem lehet üres</string>
+  <!--Operation Exceptions-->
+  <string name="op_exception_folder_deleted">\"%s\" könyvtár törölve</string>
+  <string name="op_exception_suitable_app_not_found">%s mime típushoz nem található alkalmazás</string>
+  <string name="op_exception_failed_to_download_file">%s fájl letöltése sikertelen</string>
+  <!--Home list title-->
+  <string name="shared_with_all">Mindenkivel megosztva</string>
+  <string name="add_password_protection">Jelszó védelem hozzáadása</string>
+  <string name="expiration_dates">lejárati idők</string>
+  <string name="add_auto_expiration">Automatikus lejárat hozzáadása</string>
+  <string name="input_auto_expiration">Adja meg a lejárati időt</string>
+  <!--editor-->
+</resources>
