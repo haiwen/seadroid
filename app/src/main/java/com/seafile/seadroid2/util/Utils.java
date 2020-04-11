@@ -63,6 +63,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
@@ -930,5 +931,18 @@ public class Utils {
                 break;
         }
         return results;
+    }
+
+    public static String toURLEncoded(String paramString) {
+        if (paramString == null || paramString.equals("")) {
+            return "";
+        }
+        try {
+            String str = new String(paramString.getBytes(), "UTF-8");
+            str = URLEncoder.encode(str, "UTF-8");
+            return str;
+        } catch (Exception localException) {
+        }
+        return "";
     }
 }
