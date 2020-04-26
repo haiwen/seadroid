@@ -238,7 +238,7 @@ public class StarredFragment extends ListFragment {
 
         final SeafStarredFile starredFile = (SeafStarredFile) adapter.getItem(position);
         if (starredFile.isDir()) {
-            onSearchedFileSelected(starredFile);
+            onStarredDirSelected(starredFile);
         } else {
             mActivity.onStarredFileSelected(starredFile);
         }
@@ -256,7 +256,7 @@ public class StarredFragment extends ListFragment {
         return passwordDialog;
     }
 
-    public void onSearchedFileSelected(SeafStarredFile searchedFile) {
+    public void onStarredDirSelected(SeafStarredFile searchedFile) {
         final String repoID = searchedFile.getRepoID();
         final SeafRepo repo = getDataManager().getCachedRepoByID(repoID);
         final String repoName = repo.getName();
