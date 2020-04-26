@@ -71,6 +71,13 @@ public class SystemSwitchUtils {
         return Utils.translateCommitTime(Long.parseLong(date2TimeStamp(arr1[0], "yyyy-MM-dd HH:mm:ss")) * 1000);
     }
 
+    public static Long parseDateTimeStar(String dateString) {
+        if (dateString == null) return null;
+        if (dateString.contains("T")) dateString = dateString.replace('T', ' ');
+        String[] arr1 = dateString.split("\\+");
+        return Long.parseLong(date2TimeStamp(arr1[0], "yyyy-MM-dd HH:mm:ss"));
+    }
+
     public static String obj_type(Context ct, String obj_type, String op_type) {
         if (obj_type.equals("repo")) {
             if (op_type.equals("create")) {

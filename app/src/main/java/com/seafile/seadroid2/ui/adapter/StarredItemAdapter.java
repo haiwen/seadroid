@@ -164,7 +164,15 @@ public class StarredItemAdapter extends BaseAdapter {
             } else
                 ImageLoader.getInstance().displayImage(url, viewHolder.icon, options, animateFirstListener);
         } else {
-            viewHolder.icon.setImageResource(item.getIcon());
+
+            if (((SeafStarredFile) item).isRepo_encrypted() && ((SeafStarredFile) item).isDir()) {
+                viewHolder.icon.setImageResource(R.drawable.repo_encrypted);
+
+            } else {
+
+                viewHolder.icon.setImageResource(item.getIcon());
+            }
+
         }
 
         if (actionModeOn) {
