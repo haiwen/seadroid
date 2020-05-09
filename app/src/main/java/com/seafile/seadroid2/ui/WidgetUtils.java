@@ -248,6 +248,15 @@ public class WidgetUtils {
         context.startActivity(intent);
     }
 
+    public static void showStarredRepo(Activity activity, String repoID, String repoName, String path, String dirID) {
+        Intent intent = new Intent(activity, BrowserActivity.class);
+        intent.putExtra("repoID", repoID);
+        intent.putExtra("repoName", repoName);
+        intent.putExtra("path", path);
+        intent.putExtra("dirID", dirID);
+        activity.startActivityForResult(intent, 0);
+    }
+
     public static void startMarkdownActivity(Context context, String path) {
         Intent intent = new Intent(context, MarkdownActivity.class);
         intent.putExtra("path", path);

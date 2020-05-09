@@ -345,7 +345,8 @@ public class SeafConnection {
 
     public String getStarredFiles() throws SeafException {
         try {
-            HttpRequest req = prepareApiGetRequest("api2/starredfiles/");
+//            HttpRequest req = prepareApiGetRequest("api2/starredfiles/");
+            HttpRequest req = prepareApiGetRequest("api/v2.1/starred-items/");
             checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
 
             return new String(req.bytes(), "UTF-8");

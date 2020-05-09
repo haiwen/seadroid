@@ -140,9 +140,9 @@ public class StarredItemAdapter extends BaseAdapter {
             viewHolder = (Viewholder) convertView.getTag();
         }
 
-        viewHolder.icon.setImageResource(item.getIcon());
         viewHolder.title.setText(item.getTitle());
         viewHolder.subtitle.setText(item.getSubtitle());
+        judgeRepo(item, viewHolder);
 
         if (Utils.isViewableImage(item.getTitle())) {
             DisplayImageOptions options = new DisplayImageOptions.Builder()
@@ -160,11 +160,13 @@ public class StarredItemAdapter extends BaseAdapter {
             ImageLoadingListener animateFirstListener = new AnimateFirstDisplayListener();
             String url = mActivity.getDataManager().getThumbnailLink(((SeafStarredFile) item).getRepoID(), ((SeafStarredFile) item).getPath(), WidgetUtils.getThumbnailWidth());
             if (url == null) {
-                viewHolder.icon.setImageResource(item.getIcon());
+                judgeRepo(item, viewHolder);
             } else
                 ImageLoader.getInstance().displayImage(url, viewHolder.icon, options, animateFirstListener);
         } else {
-            viewHolder.icon.setImageResource(item.getIcon());
+
+            judgeRepo(item, viewHolder);
+
         }
 
         if (actionModeOn) {
@@ -196,6 +198,19 @@ public class StarredItemAdapter extends BaseAdapter {
             viewHolder.multiSelect.setVisibility(View.GONE);
 
         return view;
+    }
+
+    private void judgeRepo(SeafItem item, Viewholder viewHolder) {
+        if (((SeafStarredFile) item).isRepo_encrypted() && ((SeafStarredFile) item).isDir() && ((SeafStarredFile) item).getPath().equals("/")) {
+            viewHolder.icon.setImageResource(R.drawable.repo_encrypted);
+
+        } else {
+            if (((SeafStarredFile) item).isDir() && ((SeafStarredFile) item).getPath().equals("/")) {
+                viewHolder.icon.setImageResource(R.drawable.repo);
+            } else {
+                viewHolder.icon.setImageResource(item.getIcon());
+            }
+        }
     }
 
     private class Viewholder {

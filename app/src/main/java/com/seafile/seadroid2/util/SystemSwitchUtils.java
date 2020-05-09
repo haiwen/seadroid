@@ -6,6 +6,8 @@ import android.net.ConnectivityManager;
 
 import com.seafile.seadroid2.R;
 
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
 
@@ -69,6 +71,19 @@ public class SystemSwitchUtils {
         if (dateString.contains("T")) dateString = dateString.replace('T', ' ');
         String[] arr1 = dateString.split("\\+");
         return Utils.translateCommitTime(Long.parseLong(date2TimeStamp(arr1[0], "yyyy-MM-dd HH:mm:ss")) * 1000);
+    }
+
+    public static Long parseISODateTime(String dateString) {
+        String format;
+        DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+        DateFormat sd = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        try {
+            format = sd.format(sdf.parse(dateString));
+            String str = date2TimeStamp(format, "yyyy-MM-dd HH:mm:ss");
+            return Long.parseLong(str);
+        } catch (ParseException e) {
+            return null;
+        }
     }
 
     public static String obj_type(Context ct, String obj_type, String op_type) {
