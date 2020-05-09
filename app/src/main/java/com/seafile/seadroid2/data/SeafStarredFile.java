@@ -1,12 +1,12 @@
 package com.seafile.seadroid2.data;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.util.Log;
 
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.util.SystemSwitchUtils;
 import com.seafile.seadroid2.util.Utils;
+
+import org.json.JSONObject;
 
 public class SeafStarredFile implements SeafItem {
     public enum FileType { DIR, FILE };
@@ -15,23 +15,27 @@ public class SeafStarredFile implements SeafItem {
     private String repoID;
     private long mtime;
     private String path;
+    private String obj_name;
+    private boolean repo_encrypted;
     private FileType type;
     private long size;    // size of file, 0 if type is dir
 
     static SeafStarredFile fromJson(JSONObject obj) {
         SeafStarredFile starredFile = new SeafStarredFile();
         try {
-            starredFile.repoID = obj.getString("repo");
-            starredFile.mtime = obj.getLong("mtime");
-            starredFile.path = obj.getString("path");
-            starredFile.size = obj.getLong("size");
-            boolean type = obj.getBoolean("dir");
+            starredFile.repoID = obj.optString("repo_id");
+            starredFile.mtime = SystemSwitchUtils.parseISODateTime(obj.optString("mtime"));
+            starredFile.path = obj.optString("path");
+            starredFile.obj_name = obj.optString("obj_name");
+            starredFile.size = obj.optLong("size");
+            starredFile.repo_encrypted = obj.optBoolean("repo_encrypted");
+            boolean type = obj.optBoolean("is_dir");
             if (!type) {
                 starredFile.type = FileType.FILE;
             } else
                 starredFile.type = FileType.DIR;
             return starredFile;
-        } catch (JSONException e) {
+        } catch (Exception e) {
             Log.d(DEBUG_TAG, e.getMessage());
             return null;
         }
@@ -45,8 +49,16 @@ public class SeafStarredFile implements SeafItem {
         return mtime;
     }
 
+    public String getObj_name() {
+        return obj_name;
+    }
+
     public boolean isDir() {
         return (type == FileType.DIR);
+    }
+
+    public boolean isRepo_encrypted() {
+        return repo_encrypted;
     }
 
     public String getRepoID() {
@@ -59,7 +71,8 @@ public class SeafStarredFile implements SeafItem {
 
     @Override
     public String getTitle() {
-        return path.substring(path.lastIndexOf('/') + 1);
+//        return path.substring(path.lastIndexOf('/') + 1);
+        return getObj_name();
     }
 
     @Override

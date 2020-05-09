@@ -543,7 +543,9 @@ public class DataManager {
 
     private List<SeafStarredFile> parseStarredFiles(String json) {
         try {
-            JSONArray array = Utils.parseJsonArray(json);
+            JSONObject jsonObject = new JSONObject(json);
+            JSONArray array = (JSONArray) jsonObject.opt("starred_item_list");
+//            JSONArray array = Utils.parseJsonArray(json);
             if (array == null)
                 return null;
 

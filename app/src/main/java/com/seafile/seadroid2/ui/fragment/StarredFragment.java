@@ -21,14 +21,19 @@ import android.widget.Toast;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.data.DataManager;
+import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.data.SeafStarredFile;
 import com.seafile.seadroid2.ui.NavContext;
+import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
 import com.seafile.seadroid2.ui.adapter.StarredItemAdapter;
+import com.seafile.seadroid2.ui.dialog.PasswordDialog;
+import com.seafile.seadroid2.ui.dialog.TaskDialog;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.util.Utils;
 
 import java.util.List;
+
 
 public class StarredFragment extends ListFragment {
     private StarredItemAdapter adapter;
@@ -47,6 +52,7 @@ public class StarredFragment extends ListFragment {
     private static final int REFRESH_ON_PULL = 1;
     private static final int REFRESH_ON_OVERFLOW_MENU = 2;
     private static int mRefreshType = -1;
+    public static final String PASSWORD_DIALOG_STARREDFRAGMENT_TAG = "password_starredfragment";
 
     private DataManager getDataManager() {
         return mActivity.getDataManager();
@@ -230,8 +236,51 @@ public class StarredFragment extends ListFragment {
             return;
         }
 
-        final SeafStarredFile starredFile = (SeafStarredFile)adapter.getItem(position);
-        mActivity.onStarredFileSelected(starredFile);
+        final SeafStarredFile starredFile = (SeafStarredFile) adapter.getItem(position);
+        if (starredFile.isDir()) {
+            onStarredDirSelected(starredFile);
+        } else {
+            mActivity.onStarredFileSelected(starredFile);
+        }
+    }
+
+    public PasswordDialog showPasswordDialog(String repoName, String repoID,
+                                             TaskDialog.TaskDialogListener listener, String password) {
+        PasswordDialog passwordDialog = new PasswordDialog();
+        passwordDialog.setRepo(repoName, repoID, mActivity.getAccount());
+        if (password != null) {
+            passwordDialog.setPassword(password);
+        }
+        passwordDialog.setTaskDialogLisenter(listener);
+        passwordDialog.show(mActivity.getSupportFragmentManager(), PASSWORD_DIALOG_STARREDFRAGMENT_TAG);
+        return passwordDialog;
+    }
+
+    public void onStarredDirSelected(SeafStarredFile searchedFile) {
+        final String repoID = searchedFile.getRepoID();
+        final SeafRepo repo = getDataManager().getCachedRepoByID(repoID);
+        final String repoName = repo.getName();
+        final String filePath = searchedFile.getPath();
+
+        if (searchedFile.isRepo_encrypted()) {
+            if (repo.encrypted && !getDataManager().getRepoPasswordSet(repo.id)) {
+                String password = getDataManager().getRepoPassword(repo.id);
+                showPasswordDialog(repo.name, repo.id,
+                        new TaskDialog.TaskDialogListener() {
+                            @Override
+                            public void onTaskSuccess() {
+                                WidgetUtils.showStarredRepo(mActivity, repoID, repoName, filePath, null);
+                            }
+                        }, password);
+
+                return;
+            } else {
+                WidgetUtils.showStarredRepo(mActivity, repoID, repoName, filePath, null);
+            }
+        } else {
+            WidgetUtils.showStarredRepo(mActivity, repoID, repoName, filePath, null);
+        }
+        return;
     }
 
     private void unStarFiles(List<SeafStarredFile> starredFiles) {
