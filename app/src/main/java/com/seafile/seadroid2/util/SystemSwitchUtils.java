@@ -73,7 +73,7 @@ public class SystemSwitchUtils {
         return Utils.translateCommitTime(Long.parseLong(date2TimeStamp(arr1[0], "yyyy-MM-dd HH:mm:ss")) * 1000);
     }
 
-    public static Long parseDateTimeStar(String dateString) {
+    public static Long parseISODateTime(String dateString) {
         String format;
         DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
         DateFormat sd = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
