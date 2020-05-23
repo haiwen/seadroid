@@ -48,6 +48,10 @@ public class SeafDirent implements SeafItem, Serializable {
         return (type == DirentType.DIR);
     }
 
+    public long getFileSize() {
+        return size;
+    }
+
     @Override
     public String getTitle() {
         return name;
