@@ -949,7 +949,23 @@ public class ReposFragment extends ListFragment {
             myRepoID = params[1];
             myPath = params[2];
             try {
-                return dataManager.getDirentsFromServer(myRepoID, myPath);
+                List<SeafDirent> dirents = dataManager.getDirentsFromServer(myRepoID, myPath);
+                for (SeafDirent sd : dirents) {
+                    if (!sd.isDir()) {
+                        String repoName = getNavContext().getRepoName();
+                        String repoID = getNavContext().getRepoID();
+                        String path = Utils.pathJoin(getNavContext().getDirPath(), sd.name);
+                        File localfile = dataManager.getLocalRepoFile(repoName, repoID, path);
+                        long localfileSize = localfile.length();
+                        if (localfileSize != sd.getFileSize()) {
+                            SeafCachedFile scf = dataManager.getCachedFile(repoName, repoID, path);
+                            if (scf != null) {
+                                dataManager.removeCachedFile(scf);
+                            }
+                        }
+                    }
+                }
+                return dirents;
             } catch (SeafException e) {
                 err = e;
                 return null;
@@ -985,22 +1001,6 @@ public class ReposFragment extends ListFragment {
             if (mActivity == null)
                 // this occurs if user navigation to another activity
                 return;
-
-            for (SeafDirent sd : dirents) {
-                if (!sd.isDir()) {
-                    String repoName = getNavContext().getRepoName();
-                    String repoID = getNavContext().getRepoID();
-                    String path = Utils.pathJoin(getNavContext().getDirPath(), sd.name);
-                    File localfile = dataManager.getLocalRepoFile(repoName, repoID, path);
-                    long localfileSize = localfile.length();
-                    if (localfileSize != sd.getFileSize()) {
-                        SeafCachedFile scf = dataManager.getCachedFile(repoName, repoID, path);
-                        if (scf != null) {
-                            dataManager.removeCachedFile(scf);
-                        }
-                    }
-                }
-            }
 
             if (mRefreshType == REFRESH_ON_CLICK
                     || mRefreshType == REFRESH_ON_OVERFLOW_MENU
