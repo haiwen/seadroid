@@ -987,15 +987,17 @@ public class ReposFragment extends ListFragment {
                 return;
 
             for (SeafDirent sd : dirents) {
-                String repoName = getNavContext().getRepoName();
-                String repoID = getNavContext().getRepoID();
-                String path = Utils.pathJoin(getNavContext().getDirPath(), sd.name);
-                File localfile = dataManager.getLocalRepoFile(repoName, repoID, path);
-                long localfileSize = localfile.length();
-                if (localfileSize != sd.getFileSize()) {
-                    SeafCachedFile scf = dataManager.getCachedFile(repoName, repoID, path);
-                    if (scf != null) {
-                        dataManager.removeCachedFile(scf);
+                if (!sd.isDir()) {
+                    String repoName = getNavContext().getRepoName();
+                    String repoID = getNavContext().getRepoID();
+                    String path = Utils.pathJoin(getNavContext().getDirPath(), sd.name);
+                    File localfile = dataManager.getLocalRepoFile(repoName, repoID, path);
+                    long localfileSize = localfile.length();
+                    if (localfileSize != sd.getFileSize()) {
+                        SeafCachedFile scf = dataManager.getCachedFile(repoName, repoID, path);
+                        if (scf != null) {
+                            dataManager.removeCachedFile(scf);
+                        }
                     }
                 }
             }
