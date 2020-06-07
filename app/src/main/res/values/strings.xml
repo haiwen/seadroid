@@ -5,6 +5,12 @@
   <string name ="new_luckycloud_account"> new Account</string>
   <string name="demo_account"> Demo Account</string>
 
+  <string name="server_prompt">choose a server</string>
+  <string-array name="server_urls">
+    <item>https://storage.luckycloud.de</item>
+    <item>https://sync.luckycloud.de</item>
+  </string-array>
+
 
   <string name="app_name" translatable="false">luckycloud</string>
   <string name="app_url" translatable="false">http://seafile.com</string>

@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.TextInputLayout;
@@ -22,11 +21,14 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.seafile.seadroid2.R;
@@ -58,6 +60,8 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
 
     private TextView statusView;
     private TextView demoWarningText;
+
+    private Spinner spinnerServerURL;
     private EditText serverText;
     private EditText passwdText;
     private EditText authTokenText;
@@ -89,6 +93,28 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
         loginButton = (Button) findViewById(R.id.login_button);
 
         httpsCheckBox = (CheckBox) findViewById(R.id.https_checkbox);
+        spinnerServerURL = (Spinner) findViewById(R.id.spinner_server_url);
+
+        ArrayAdapter<CharSequence> staticAdapter = ArrayAdapter
+                .createFromResource(this, R.array.server_urls,
+                        android.R.layout.simple_spinner_item);
+        staticAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        //Setting the ArrayAdapter data on the Spinner
+        spinnerServerURL.setAdapter(staticAdapter);
+
+        spinnerServerURL.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view,
+                                       int position, long id) {
+                Log.v("item", (String) parent.getItemAtPosition(position));
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // nothing to do
+            }
+        });
+
         serverText = (EditText) findViewById(R.id.server_url);
         emailText = (EmailAutoCompleteTextView) findViewById(R.id.email_address);
         passwdText = (EditText) findViewById(R.id.password);
@@ -138,6 +164,7 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
                 httpsCheckBox.setChecked(true);
             serverText.setText(defaultServerUri);
             if(demoAccount) {
+                spinnerServerURL.setVisibility(View.GONE);
                 emailText.setText(intent.getStringExtra(SeafileAuthenticatorActivity.ARG_DEMO_ACCOUNT_NAME));
                 passwdText.setText(intent.getStringExtra(SeafileAuthenticatorActivity.ARG_DEMO_ACCOUNT_PASSWORD));
                 demoWarningText.setVisibility(View.VISIBLE);
@@ -385,6 +412,11 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
 
     /** Called when the user clicks the Login button */
     public void login(View view) {
+        String selectedURL = spinnerServerURL.getSelectedItem().toString();
+        if (selectedURL.contentEquals("https://sync.luckycloud.de")) {
+            serverText.setText(selectedURL);
+        }
+
         String serverURL = serverText.getText().toString().trim();
         String email = emailText.getText().toString().trim();
         String passwd = passwdText.getText().toString();
