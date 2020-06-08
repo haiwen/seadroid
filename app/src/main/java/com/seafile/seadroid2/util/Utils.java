@@ -746,10 +746,9 @@ public class Utils {
     public static boolean isTextMimeType(String fileName) {
         String suffix = fileName.substring(fileName.lastIndexOf('.') + 1).toLowerCase();
         //file is markdown or  txt
-        if ("md".equals(suffix) || "markdown".equals(suffix) || "txt".equals(suffix)) {
-            return true;
-        }
-        return false;
+        String[] array = {"md", "markdown", "txt", "pde", "scd", "sc", "schelp", "java", "xml", "json"};
+        boolean flag = Arrays.asList(array).contains(suffix);
+        return flag;
     }
 
     private static long lastClickTime;
