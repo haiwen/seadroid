@@ -746,10 +746,13 @@ public class Utils {
     public static boolean isTextMimeType(String fileName) {
         String suffix = fileName.substring(fileName.lastIndexOf('.') + 1).toLowerCase();
         //file is markdown or  txt
-        if ("md".equals(suffix) || "markdown".equals(suffix) || "txt".equals(suffix)) {
-            return true;
-        }
-        return false;
+        String[] array = {"ac", "am", "bat", "c", "cc", "cmake", "conf", "cpp", "cs", "css", "csv", "diff",
+                "el", "go", "groovy", "h", "htm", "html", "java", "js", "json", "less", "log", "make",
+                "markdown", "md", "org", "patch", "pde", "php", "pl", "properties", "py", "rb", "rst",
+                "sc", "scala", "scd", "schelp", "script", "sh", "sql", "text", "tex", "txt", "vi", "vim",
+                "xhtml", "xml", "yml"};
+        boolean flag = Arrays.asList(array).contains(suffix);
+        return flag;
     }
 
     private static long lastClickTime;
