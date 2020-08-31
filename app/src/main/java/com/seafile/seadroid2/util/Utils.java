@@ -292,6 +292,9 @@ public class Utils {
         if (i != null)
             return i;
 
+        if (suffix.equals("flv")) {
+            return R.drawable.file_video;
+        }
         String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(suffix);
         return getResIdforMimetype(mime);
     }
@@ -316,6 +319,9 @@ public class Utils {
         String suffix = name.substring(name.lastIndexOf('.') + 1).toLowerCase();
         if (TextUtils.isEmpty(suffix))
             return false;
+        if (suffix.equals("flv")) {
+            return true;
+        }
         String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(suffix);
         if (mime == null)
             return false;
