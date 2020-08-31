@@ -102,7 +102,7 @@ public class MarkdownActivity extends BaseActivity implements Toolbar.OnMenuItem
         Intent editAsMarkDown = new Intent(Intent.ACTION_EDIT);
         Uri uri;
         if (android.os.Build.VERSION.SDK_INT > 23) {
-            uri = FileProvider.getUriForFile(this, getPackageName() + ".provider", new File(path));
+            uri = FileProvider.getUriForFile(this, getPackageName() , new File(path));
             editAsMarkDown.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
         } else {
             uri = Uri.parse(path);

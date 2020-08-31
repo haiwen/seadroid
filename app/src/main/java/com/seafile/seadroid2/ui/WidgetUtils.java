@@ -161,7 +161,7 @@ public class WidgetUtils {
             final File file = browserActivity.getDataManager().getLocalRepoFile(repoName, repoID, fullPath);
             Uri uri = null;
             if (android.os.Build.VERSION.SDK_INT > 23) {
-                uri = FileProvider.getUriForFile(activity, activity.getApplicationContext().getPackageName() + ".provider", file);
+                uri = FileProvider.getUriForFile(activity, activity.getApplicationContext().getPackageName(), file);
             } else {
                 uri = Uri.fromFile(file);
             }
@@ -218,7 +218,7 @@ public class WidgetUtils {
         open.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
         if (android.os.Build.VERSION.SDK_INT > 23) {
-            Uri photoURI = FileProvider.getUriForFile(activity, activity.getApplicationContext().getPackageName() + ".provider", file);
+            Uri photoURI = FileProvider.getUriForFile(activity, activity.getApplicationContext().getPackageName(), file);
             open.setDataAndType(photoURI, mime);
             open.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
         } else {
