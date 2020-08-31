@@ -90,6 +90,9 @@ public class PasswordDialog extends TaskDialog {
         View view = inflater.inflate(R.layout.dialog_password, null);
         passwordText = (EditText) view.findViewById(R.id.password);
 
+        passwordText.setFocusable(true);
+        passwordText.setFocusableInTouchMode(true);
+        passwordText.requestFocus();
         if (savedInstanceState != null) {
             repoName = savedInstanceState.getString(STATE_TASK_REPO_NAME);
             repoID = savedInstanceState.getString(STATE_TASK_REPO_ID);

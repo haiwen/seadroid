@@ -375,6 +375,7 @@ public class ReposFragment extends ListFragment {
     }
 
     public void refreshView(boolean forceRefresh, boolean restorePosition) {
+        refreshAdapter();
         if (mActivity == null)
             return;
 
@@ -956,6 +957,9 @@ public class ReposFragment extends ListFragment {
                         String repoID = getNavContext().getRepoID();
                         String path = Utils.pathJoin(getNavContext().getDirPath(), sd.name);
                         File localfile = dataManager.getLocalRepoFile(repoName, repoID, path);
+                        if (localfile == null) {
+                            return null;
+                        }
                         long localfileSize = localfile.length();
                         if (localfileSize != sd.getFileSize()) {
                             SeafCachedFile scf = dataManager.getCachedFile(repoName, repoID, path);
@@ -1191,4 +1195,13 @@ public class ReposFragment extends ListFragment {
         }
 
     }
+
+    public void refreshAdapter() {
+//        Log.d(DEBUG_TAG, "refreshAdapter");
+        if (adapter != null && mListView != null) {
+            adapter.clear();
+            mListView.setAdapter(adapter);
+        }
+    }
+
 }
