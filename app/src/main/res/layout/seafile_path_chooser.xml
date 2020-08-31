@@ -89,6 +89,18 @@
             android:theme="@style/NegativeButton"
            />
 
+      <Button
+          android:id="@+id/new_folder"
+          android:layout_width="match_parent"
+          android:layout_height="@dimen/btn_height"
+          android:layout_weight="0.4"
+          android:text="@string/create_new_dir"
+          android:textSize="@dimen/btn_txt_size"
+          android:textColor="@color/light_black"
+          android:gravity="center"
+          android:theme="@style/NegativeButton"
+          />
+
         <Button
             android:id="@+id/ok"
             android:layout_width="match_parent"

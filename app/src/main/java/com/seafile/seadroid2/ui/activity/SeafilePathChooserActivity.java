@@ -32,6 +32,7 @@ import com.seafile.seadroid2.ui.adapter.AccountAdapter;
 import com.seafile.seadroid2.ui.adapter.DirentsAdapter;
 import com.seafile.seadroid2.ui.adapter.SeafAccountAdapter;
 import com.seafile.seadroid2.ui.adapter.SeafReposAdapter;
+import com.seafile.seadroid2.ui.dialog.NewDirDialog;
 import com.seafile.seadroid2.ui.dialog.PasswordDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog;
 import com.seafile.seadroid2.ui.fragment.SettingsFragment;
@@ -71,7 +72,7 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
     private boolean isOnlyChooseRepo;
 
     private View mProgressContainer, mListContainer, mContentArea;
-    private Button mOkButton, mCancelButton;
+    private Button mOkButton, mCancelButton, mNewFolder;
     private TextView mEmptyText, mErrorText;
     private ListView mListView;
 
@@ -80,6 +81,7 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
     private static final int STEP_CHOOSE_DIR = 3;
     private int mStep = 1;
 
+    public static final String DATA_REPO_PERMISSION = "permission";
     public static final String DATA_REPO_ID = "repoID";
     public static final String DATA_REPO_NAME = "repoNAME";
     public static final String DATA_DIRECTORY_PATH = "dirPath";
@@ -106,6 +108,7 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
         encryptedRepoId = intent.getStringExtra(ENCRYPTED_REPO_ID);
 
         mOkButton = (Button) findViewById(R.id.ok);
+        mNewFolder = (Button) findViewById(R.id.new_folder);
         mCancelButton = (Button) findViewById(R.id.cancel);
         mListView = (ListView) findViewById(android.R.id.list);
         mEmptyText = (TextView) findViewById(android.R.id.empty);
@@ -116,6 +119,7 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
         isOnlyChooseRepo = intent.getBooleanExtra(SettingsFragment.CAMERA_UPLOAD_BOTH_PAGES, false);
         if (isOnlyChooseRepo) {
             mOkButton.setVisibility(View.GONE);
+            mNewFolder.setVisibility(View.GONE);
         }
         mListView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         mListView.setOnItemClickListener(new ListView.OnItemClickListener() {
@@ -138,6 +142,13 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
                 intent.putExtra(DATA_ACCOUNT, mAccount);
                 setResult(RESULT_OK, intent);
                 finish();
+            }
+        });
+
+        mNewFolder.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                createNewFolder();
             }
         });
 
@@ -229,12 +240,14 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
             if (!isOnlyChooseRepo) {
                 nav.setRepoName(repo.name);
                 nav.setRepoID(repo.id);
+                nav.setDirPermission(repo.permission);
                 nav.setDir("/", repo.root);
                 chooseDir();
             } else {
                 Intent intent = new Intent();
                 intent.putExtra(DATA_REPO_NAME, repo.name);
                 intent.putExtra(DATA_REPO_ID, repo.id);
+                intent.putExtra(DATA_REPO_PERMISSION, repo.permission);
                 intent.putExtra(DATA_DIR, repo.root);
                 intent.putExtra(DATA_ACCOUNT, mAccount);
                 setResult(RESULT_OK, intent);
@@ -376,6 +389,7 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
         ConcurrentAsyncTask.execute(mLoadAccountsTask);
         setListAdapter(getAccountAdapter());
         mOkButton.setVisibility(View.GONE);
+        mNewFolder.setVisibility(View.GONE);
 
         // update action bar
         ActionBar bar = getSupportActionBar();
@@ -400,6 +414,7 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
 
         setListAdapter(getReposAdapter());
         mOkButton.setVisibility(View.GONE);
+        mNewFolder.setVisibility(View.GONE);
 
         getNavContext().setRepoID(null);
 
@@ -436,6 +451,7 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
         // update action bar
         setListAdapter(getDirentsAdapter());
         mOkButton.setVisibility(View.VISIBLE);
+        mNewFolder.setVisibility(View.VISIBLE);
         refreshDir(forceRefresh);
     }
 
@@ -484,6 +500,7 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
                     NavContext nav = getNavContext();
                     nav.setRepoName(item.name);
                     nav.setRepoID(item.id);
+                    nav.setDirPermission(item.permission);
                     nav.setDir("/", item.root);
                     chooseDir();
                     mStep = STEP_CHOOSE_REPO;
@@ -791,5 +808,32 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
 
             updateAdapterWithDirents(dirents);
         }
+    }
+
+    private void createNewFolder() {
+        if (!hasRepoWritePermission()) {
+            showShortToast(this, R.string.library_read_only);
+            return;
+        }
+
+        final NewDirDialog dialog = new NewDirDialog();
+        dialog.init(mNavContext.getRepoID(), mNavContext.getDirPath(), mAccount);
+        dialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
+            @Override
+            public void onTaskSuccess() {
+                refreshDir();
+            }
+        });
+        dialog.show(getSupportFragmentManager(), "PathChooserNewDirDialogFragment");
+    }
+
+    public boolean hasRepoWritePermission() {
+        if (mNavContext == null) {
+            return false;
+        }
+        if (mNavContext.getDirPermission() == null || mNavContext.getDirPermission().indexOf('w') == -1) {
+            return false;
+        }
+        return true;
     }
 }

@@ -11,7 +11,6 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
-import com.seafile.seadroid2.ui.dialog.TaskDialog.Task;
 
 class NewDirTask extends TaskDialog.Task {
     String repoID;
@@ -85,6 +84,9 @@ public class NewDirDialog extends TaskDialog {
     @Override
     protected void onDialogCreated(Dialog dialog) {
         dialog.setTitle(getResources().getString(R.string.create_new_dir));
+        dirNameText.setFocusable(true);
+        dirNameText.setFocusableInTouchMode(true);
+        dirNameText.requestFocus();
         dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
     }
 
