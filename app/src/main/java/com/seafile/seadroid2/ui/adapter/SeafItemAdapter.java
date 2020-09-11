@@ -417,7 +417,7 @@ public class SeafItemAdapter extends BaseAdapter {
             viewHolder.subtitle.setText(dirent.getSubtitle());
         }
 
-        if (Utils.isViewableImage(file.getName())) {
+        if (Utils.isViewableImage(file.getName()) || Utils.isVideoFile(file.getName())) {
             DisplayImageOptions options = new DisplayImageOptions.Builder()
                     .extraForDownloader(dataManager.getAccount())
                     .delayBeforeLoading(500)
