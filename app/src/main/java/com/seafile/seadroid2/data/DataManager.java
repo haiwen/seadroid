@@ -1229,9 +1229,9 @@ public class DataManager {
 
 
         final Pair<String, String> pair = getRepoEncKey(repoID);
-        if (pair != null) {
-            final String encKey = pair.first;
-            final String encIv = pair.second;
+        if (pair == null) return;
+        final String encKey = pair.first;
+        final String encIv = pair.second;
         // Log.d(DEBUG_TAG, "encKey " + encKey + " encIv " + encIv);
         if (TextUtils.isEmpty(encKey) || TextUtils.isEmpty(encIv)) {
             // TODO calculate them and continue
@@ -1267,5 +1267,4 @@ public class DataManager {
         // Update file cache entry
         addCachedFile(repoName, repoID, path, newFileID, fileInRepo);
     }
-  }
 }
