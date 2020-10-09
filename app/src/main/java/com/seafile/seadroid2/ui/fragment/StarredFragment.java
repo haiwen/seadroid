@@ -107,7 +107,7 @@ public class StarredFragment extends ListFragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        adapter = new StarredItemAdapter(mActivity);
+        adapter = new StarredItemAdapter(mActivity, mListView);
         setListAdapter(adapter);
 
         getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);

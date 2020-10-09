@@ -1,42 +1,57 @@
 package com.seafile.seadroid2.ui.adapter;
 
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.model.GlideUrl;
+import com.bumptech.glide.load.model.LazyHeaders;
+import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.google.common.collect.Lists;
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafItem;
 import com.seafile.seadroid2.data.SeafStarredFile;
-import com.seafile.seadroid2.ui.AnimateFirstDisplayListener;
 import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
 import com.seafile.seadroid2.util.Utils;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 public class StarredItemAdapter extends BaseAdapter {
-
+    private static final String DEBUG_TAG = "StarredItemAdapter";
     private ArrayList<SeafItem> items;
     private BrowserActivity mActivity;
+    private DataManager dataManager;
 
     private boolean actionModeOn;
     private SparseBooleanArray mSelectedItemsIds;
     private List<Integer> mSelectedItemsPositions = Lists.newArrayList();
     private List<SeafStarredFile> mSelectedItemsValues = Lists.newArrayList();
+    private ListView mListView;
 
-    public StarredItemAdapter(BrowserActivity activity) {
+    public StarredItemAdapter(BrowserActivity activity, ListView listView) {
         this.mActivity = activity;
+        this.mListView = listView;
         items = Lists.newArrayList();
         mSelectedItemsIds = new SparseBooleanArray();
+        dataManager = mActivity.getDataManager();
+
     }
 
     @Override
@@ -139,30 +154,51 @@ public class StarredItemAdapter extends BaseAdapter {
         } else {
             viewHolder = (Viewholder) convertView.getTag();
         }
-
+        String imageUrl = dataManager.getThumbnailLink(((SeafStarredFile) item).getRepoID(), ((SeafStarredFile) item).getPath(), WidgetUtils.getThumbnailWidth());
+        viewHolder.icon.setTag(imageUrl);
         viewHolder.title.setText(item.getTitle());
         viewHolder.subtitle.setText(item.getSubtitle());
         judgeRepo(item, viewHolder);
 
         if (Utils.isViewableImage(item.getTitle())) {
-            DisplayImageOptions options = new DisplayImageOptions.Builder()
-                    .extraForDownloader(mActivity.getDataManager().getAccount())
-                    .delayBeforeLoading(500)
-                    .resetViewBeforeLoading(true)
-                    .showImageOnLoading(R.drawable.file_image)
-                    .showImageForEmptyUri(R.drawable.file_image)
-                    .showImageOnFail(R.drawable.file_image)
-                    .cacheInMemory(true)
-                    .cacheOnDisk(true)
-                    .considerExifParams(true)
-                    .build();
-
-            ImageLoadingListener animateFirstListener = new AnimateFirstDisplayListener();
-            String url = mActivity.getDataManager().getThumbnailLink(((SeafStarredFile) item).getRepoID(), ((SeafStarredFile) item).getPath(), WidgetUtils.getThumbnailWidth());
+            String url = dataManager.getThumbnailLink(((SeafStarredFile) item).getRepoID(), ((SeafStarredFile) item).getPath(), WidgetUtils.getThumbnailWidth());
             if (url == null) {
                 judgeRepo(item, viewHolder);
-            } else
-                ImageLoader.getInstance().displayImage(url, viewHolder.icon, options, animateFirstListener);
+            } else {
+                viewHolder.icon.setImageResource(R.drawable.file_image);
+                GlideUrl glideUrl = new GlideUrl(url, new LazyHeaders.Builder()
+                        .addHeader("Authorization", "Token " + dataManager.getAccount().token)
+                        .build());
+                RequestOptions opt = new RequestOptions()
+                        .placeholder(R.drawable.file_image)
+                        .skipMemoryCache(true)
+                        .override(WidgetUtils.getThumbnailWidth(), WidgetUtils.getThumbnailWidth())
+                        .diskCacheStrategy(DiskCacheStrategy.NONE);
+                Glide.with(mActivity)
+                        .asBitmap()
+                        .load(glideUrl)
+                        .apply(opt)
+                        .thumbnail(0.1f)
+                        .into(new SimpleTarget<Bitmap>() {
+                            @Override
+                            public void onLoadFailed(@Nullable Drawable errorDrawable) {
+                                ImageView imageView = (ImageView) mListView.findViewWithTag(url);
+                                File file = dataManager.getLocalRepoFile(((SeafStarredFile) item).getRepoName(), ((SeafStarredFile) item).getRepoID(), ((SeafStarredFile) item).getPath());
+                                if (imageView != null && file.exists() && Utils.isViewableImage(file.getName())) {
+                                    Bitmap bitmap = Utils.openImage(file.getAbsolutePath().toString());
+                                    imageView.setImageBitmap(bitmap);
+                                }
+                            }
+
+                            @Override
+                            public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                                ImageView imageView = (ImageView) mListView.findViewWithTag(url);
+                                if (imageView != null) {
+                                    imageView.setImageBitmap(resource);
+                                }
+                            }
+                        });
+            }
         } else {
 
             judgeRepo(item, viewHolder);

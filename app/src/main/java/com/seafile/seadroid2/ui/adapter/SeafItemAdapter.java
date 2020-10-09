@@ -1,19 +1,28 @@
 package com.seafile.seadroid2.ui.adapter;
 
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.model.GlideUrl;
+import com.bumptech.glide.load.model.LazyHeaders;
+import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.google.common.collect.Lists;
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.data.DataManager;
@@ -23,8 +32,8 @@ import com.seafile.seadroid2.data.SeafGroup;
 import com.seafile.seadroid2.data.SeafItem;
 import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.transfer.DownloadTaskInfo;
-import com.seafile.seadroid2.ui.AnimateFirstDisplayListener;
 import com.seafile.seadroid2.ui.NavContext;
+import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
 import com.seafile.seadroid2.util.Utils;
 
@@ -35,10 +44,14 @@ import java.util.List;
 
 public class SeafItemAdapter extends BaseAdapter {
 
+    private static final String DEBUG_TAG = "SeafItemAdapter";
     private ArrayList<SeafItem> items;
     private BrowserActivity mActivity;
     private boolean repoIsEncrypted;
     private boolean actionModeOn;
+    private NavContext nav;
+    private DataManager dataManager;
+    private ListView mListView;
 
     private SparseBooleanArray mSelectedItemsIds;
     private List<Integer> mSelectedItemsPositions = Lists.newArrayList();
@@ -49,10 +62,13 @@ public class SeafItemAdapter extends BaseAdapter {
      **/
     private List<DownloadTaskInfo> mDownloadTaskInfos;
 
-    public SeafItemAdapter(BrowserActivity activity) {
+    public SeafItemAdapter(BrowserActivity activity, ListView listView) {
+        this.mListView = listView;
         mActivity = activity;
         items = Lists.newArrayList();
         mSelectedItemsIds = new SparseBooleanArray();
+        nav = mActivity.getNavContext();
+        dataManager = mActivity.getDataManager();
     }
 
     /**
@@ -268,7 +284,11 @@ public class SeafItemAdapter extends BaseAdapter {
         } else {
             viewHolder = (Viewholder) convertView.getTag();
         }
-
+        String repoName = nav.getRepoName();
+        String repoID = nav.getRepoID();
+        String filePath = Utils.pathJoin(nav.getDirPath(), dirent.name);
+        String imageUrl = dataManager.getThumbnailLink(repoName, repoID, filePath, getThumbnailWidth());
+        viewHolder.icon.setTag(imageUrl);
         viewHolder.action.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -344,8 +364,6 @@ public class SeafItemAdapter extends BaseAdapter {
      * @param position
      */
     private void setFileView(SeafDirent dirent, Viewholder viewHolder, int position) {
-        NavContext nav = mActivity.getNavContext();
-        DataManager dataManager = mActivity.getDataManager();
         String repoName = nav.getRepoName();
         String repoID = nav.getRepoID();
         String filePath = Utils.pathJoin(nav.getDirPath(), dirent.name);
@@ -416,28 +434,47 @@ public class SeafItemAdapter extends BaseAdapter {
             viewHolder.downloadStatusIcon.setImageResource(downloadStatusIcon);
             viewHolder.subtitle.setText(dirent.getSubtitle());
         }
-
         if (Utils.isViewableImage(file.getName())) {
-            DisplayImageOptions options = new DisplayImageOptions.Builder()
-                    .extraForDownloader(dataManager.getAccount())
-                    .delayBeforeLoading(500)
-                    .resetViewBeforeLoading(true)
-                    .showImageOnLoading(R.drawable.file_image)
-                    .showImageForEmptyUri(R.drawable.file_image)
-                    .showImageOnFail(R.drawable.file_image)
-                    .cacheInMemory(true)
-                    .cacheOnDisk(true)
-                    .considerExifParams(true)
-                    .build();
-
-            ImageLoadingListener animateFirstListener = new AnimateFirstDisplayListener();
             String url = dataManager.getThumbnailLink(repoName, repoID, filePath, getThumbnailWidth());
+            viewHolder.icon.setImageResource(R.drawable.file_image);
             if (url == null) {
                 viewHolder.icon.setImageResource(dirent.getIcon());
             } else {
-                ImageLoader.getInstance().clearMemoryCache();
-                ImageLoader.getInstance().clearDiskCache();
-                ImageLoader.getInstance().displayImage(url, viewHolder.icon, options, animateFirstListener);
+                GlideUrl glideUrl = new GlideUrl(url, new LazyHeaders.Builder()
+                        .addHeader("Authorization", "Token " + mActivity.getAccount().token)
+                        .build());
+                RequestOptions opt = new RequestOptions()
+                        .placeholder(R.drawable.file_image)
+                        .skipMemoryCache(true)
+                        .override(WidgetUtils.getThumbnailWidth(), WidgetUtils.getThumbnailWidth())
+                        .diskCacheStrategy(DiskCacheStrategy.NONE);
+                Glide.with(mActivity)
+                        .asBitmap()
+                        .load(glideUrl)
+                        .apply(opt)
+                        .thumbnail(0.1f)
+                        .into(new SimpleTarget<Bitmap>() {
+                            @Override
+                            public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                                ImageView imageView = (ImageView) mListView.findViewWithTag(url);
+                                if (imageView != null) {
+                                    imageView.setImageBitmap(resource);
+                                }
+                            }
+
+                            @Override
+                            public void onLoadFailed(@Nullable Drawable errorDrawable) {
+
+                                ImageView imageView = (ImageView) mListView.findViewWithTag(url);
+                                File file = dataManager.getLocalRepoFile(repoName, repoID, filePath);
+                                if (imageView != null && file.exists() && file.length() == dirent.getFileSize()) {
+                                    Bitmap bitmap = Utils.openImage(file.getAbsolutePath().toString());
+                                    imageView.setImageBitmap(bitmap);
+
+                                }
+                            }
+                        });
+
             }
         } else {
             viewHolder.icon.setImageResource(dirent.getIcon());

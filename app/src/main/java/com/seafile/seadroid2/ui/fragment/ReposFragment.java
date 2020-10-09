@@ -322,7 +322,7 @@ public class ReposFragment extends ListFragment {
         super.onActivityCreated(savedInstanceState);
         Log.d(DEBUG_TAG, "ReposFragment onActivityCreated");
         scrollPostions = Maps.newHashMap();
-        adapter = new SeafItemAdapter(mActivity);
+        adapter = new SeafItemAdapter(mActivity, mListView);
 
         mListView.setAdapter(adapter);
     }
@@ -375,7 +375,6 @@ public class ReposFragment extends ListFragment {
     }
 
     public void refreshView(boolean forceRefresh, boolean restorePosition) {
-        refreshAdapter();
         if (mActivity == null)
             return;
 
@@ -653,6 +652,11 @@ public class ReposFragment extends ListFragment {
                     mActivity.setUpButtonTitle(dirent.name);
                 } else {
                     String currentPath = nav.getDirPath();
+                    File file = getDataManager().getLocalRepoFile(nav.getRepoName(), nav.getRepoID(), Utils.pathJoin(currentPath, dirent.name));
+                    SeafCachedFile scf = getDataManager().getCachedFile(nav.getRepoName(), nav.getRepoID(), Utils.pathJoin(currentPath, dirent.name));
+                    if (scf != null && file != null && file.exists() && file.length() == dirent.getFileSize()) {
+                        getDataManager().removeCachedFile(scf);
+                    }
                     saveDirentScrollPosition(repo.getID(), currentPath);
                     mActivity.onFileSelected(dirent);
                 }
