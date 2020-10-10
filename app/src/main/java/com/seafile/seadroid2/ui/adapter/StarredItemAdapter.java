@@ -154,8 +154,7 @@ public class StarredItemAdapter extends BaseAdapter {
         } else {
             viewHolder = (Viewholder) convertView.getTag();
         }
-        String imageUrl = dataManager.getThumbnailLink(((SeafStarredFile) item).getRepoID(), ((SeafStarredFile) item).getPath(), WidgetUtils.getThumbnailWidth());
-        viewHolder.icon.setTag(imageUrl);
+        viewHolder.icon.setTag(item.getTitle());
         viewHolder.title.setText(item.getTitle());
         viewHolder.subtitle.setText(item.getSubtitle());
         judgeRepo(item, viewHolder);
@@ -182,7 +181,7 @@ public class StarredItemAdapter extends BaseAdapter {
                         .into(new SimpleTarget<Bitmap>() {
                             @Override
                             public void onLoadFailed(@Nullable Drawable errorDrawable) {
-                                ImageView imageView = (ImageView) mListView.findViewWithTag(url);
+                                ImageView imageView = (ImageView) mListView.findViewWithTag(item.getTitle());
                                 File file = dataManager.getLocalRepoFile(((SeafStarredFile) item).getRepoName(), ((SeafStarredFile) item).getRepoID(), ((SeafStarredFile) item).getPath());
                                 if (imageView != null && file.exists() && Utils.isViewableImage(file.getName())) {
                                     Bitmap bitmap = Utils.openImage(file.getAbsolutePath().toString());
@@ -192,7 +191,7 @@ public class StarredItemAdapter extends BaseAdapter {
 
                             @Override
                             public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
-                                ImageView imageView = (ImageView) mListView.findViewWithTag(url);
+                                ImageView imageView = (ImageView) mListView.findViewWithTag(item.getTitle());
                                 if (imageView != null) {
                                     imageView.setImageBitmap(resource);
                                 }

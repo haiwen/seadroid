@@ -1200,12 +1200,11 @@ public class ReposFragment extends ListFragment {
 
     }
 
-    public void refreshAdapter() {
+    public void clearAdapterData() {
 //        Log.d(DEBUG_TAG, "refreshAdapter");
         if (adapter != null && mListView != null) {
             adapter.clear();
             mListView.setAdapter(adapter);
         }
     }
-
 }

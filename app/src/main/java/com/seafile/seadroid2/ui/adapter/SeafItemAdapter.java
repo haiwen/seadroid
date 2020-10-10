@@ -284,11 +284,7 @@ public class SeafItemAdapter extends BaseAdapter {
         } else {
             viewHolder = (Viewholder) convertView.getTag();
         }
-        String repoName = nav.getRepoName();
-        String repoID = nav.getRepoID();
-        String filePath = Utils.pathJoin(nav.getDirPath(), dirent.name);
-        String imageUrl = dataManager.getThumbnailLink(repoName, repoID, filePath, getThumbnailWidth());
-        viewHolder.icon.setTag(imageUrl);
+        viewHolder.icon.setTag(dirent.name);
         viewHolder.action.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -436,14 +432,15 @@ public class SeafItemAdapter extends BaseAdapter {
         }
         if (Utils.isViewableImage(file.getName())) {
             String url = dataManager.getThumbnailLink(repoName, repoID, filePath, getThumbnailWidth());
-            viewHolder.icon.setImageResource(R.drawable.file_image);
             if (url == null) {
                 viewHolder.icon.setImageResource(dirent.getIcon());
             } else {
+                viewHolder.icon.setImageResource(R.drawable.file_image);
                 GlideUrl glideUrl = new GlideUrl(url, new LazyHeaders.Builder()
                         .addHeader("Authorization", "Token " + mActivity.getAccount().token)
                         .build());
                 RequestOptions opt = new RequestOptions()
+                        .fallback(R.drawable.file_image)
                         .placeholder(R.drawable.file_image)
                         .skipMemoryCache(true)
                         .override(WidgetUtils.getThumbnailWidth(), WidgetUtils.getThumbnailWidth())
@@ -456,7 +453,7 @@ public class SeafItemAdapter extends BaseAdapter {
                         .into(new SimpleTarget<Bitmap>() {
                             @Override
                             public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
-                                ImageView imageView = (ImageView) mListView.findViewWithTag(url);
+                                ImageView imageView = (ImageView) mListView.findViewWithTag(dirent.name);
                                 if (imageView != null) {
                                     imageView.setImageBitmap(resource);
                                 }
