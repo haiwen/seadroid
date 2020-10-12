@@ -9,6 +9,7 @@ import android.os.Handler;
 import android.support.v4.app.ListFragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.view.ActionMode;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -77,6 +78,7 @@ public class ReposFragment extends ListFragment {
     public static final int FILE_ACTION_COPY = 1;
     public static final int FILE_ACTION_MOVE = 2;
     public static final int FILE_ACTION_STAR = 3;
+    public static final int IMAGE_CHANGE_MARK = 1;//The same name image has been replaced
 
     private SwipeRefreshLayout refreshLayout;
     private ListView mListView;
@@ -554,6 +556,14 @@ public class ReposFragment extends ListFragment {
         adapter.clear();
         if (dirents.size() > 0) {
             for (SeafDirent dirent : dirents) {
+                if (Utils.isViewableImage(dirent.name)) {
+                    String imageSize = getDataManager().getImageSize(dirent.name);
+                    if (!TextUtils.isEmpty(imageSize) && Long.valueOf(imageSize).longValue() != dirent.getFileSize()) {
+                        dirent.setImageChange(IMAGE_CHANGE_MARK);
+                    } else {
+                        getDataManager().setImageSize(dirent.name, dirent.size + "");
+                    }
+                }
                 adapter.add(dirent);
             }
             NavContext nav = getNavContext();

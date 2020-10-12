@@ -1,9 +1,5 @@
 package com.seafile.seadroid2.ui.adapter;
 
-import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,8 +16,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.model.GlideUrl;
 import com.bumptech.glide.load.model.LazyHeaders;
 import com.bumptech.glide.request.RequestOptions;
-import com.bumptech.glide.request.target.SimpleTarget;
-import com.bumptech.glide.request.transition.Transition;
+import com.bumptech.glide.signature.ObjectKey;
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
@@ -35,12 +30,14 @@ import com.seafile.seadroid2.transfer.DownloadTaskInfo;
 import com.seafile.seadroid2.ui.NavContext;
 import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
+import com.seafile.seadroid2.ui.fragment.ReposFragment;
 import com.seafile.seadroid2.util.Utils;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 public class SeafItemAdapter extends BaseAdapter {
 
@@ -284,7 +281,6 @@ public class SeafItemAdapter extends BaseAdapter {
         } else {
             viewHolder = (Viewholder) convertView.getTag();
         }
-        viewHolder.icon.setTag(dirent.name);
         viewHolder.action.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -435,43 +431,24 @@ public class SeafItemAdapter extends BaseAdapter {
             if (url == null) {
                 viewHolder.icon.setImageResource(dirent.getIcon());
             } else {
-                viewHolder.icon.setImageResource(R.drawable.file_image);
                 GlideUrl glideUrl = new GlideUrl(url, new LazyHeaders.Builder()
                         .addHeader("Authorization", "Token " + mActivity.getAccount().token)
                         .build());
                 RequestOptions opt = new RequestOptions()
                         .fallback(R.drawable.file_image)
                         .placeholder(R.drawable.file_image)
-                        .skipMemoryCache(true)
+                        .skipMemoryCache(false)
                         .override(WidgetUtils.getThumbnailWidth(), WidgetUtils.getThumbnailWidth())
-                        .diskCacheStrategy(DiskCacheStrategy.NONE);
+                        .diskCacheStrategy(DiskCacheStrategy.ALL);
+                if (dirent.getImageChange() == ReposFragment.IMAGE_CHANGE_MARK) {
+                    opt = opt.signature(new ObjectKey(UUID.randomUUID().toString()));
+                }
                 Glide.with(mActivity)
                         .asBitmap()
                         .load(glideUrl)
                         .apply(opt)
                         .thumbnail(0.1f)
-                        .into(new SimpleTarget<Bitmap>() {
-                            @Override
-                            public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
-                                ImageView imageView = (ImageView) mListView.findViewWithTag(dirent.name);
-                                if (imageView != null) {
-                                    imageView.setImageBitmap(resource);
-                                }
-                            }
-
-                            @Override
-                            public void onLoadFailed(@Nullable Drawable errorDrawable) {
-
-                                ImageView imageView = (ImageView) mListView.findViewWithTag(url);
-                                File file = dataManager.getLocalRepoFile(repoName, repoID, filePath);
-                                if (imageView != null && file.exists() && file.length() == dirent.getFileSize()) {
-                                    Bitmap bitmap = Utils.openImage(file.getAbsolutePath().toString());
-                                    imageView.setImageBitmap(bitmap);
-
-                                }
-                            }
-                        });
-
+                        .into(viewHolder.icon);
             }
         } else {
             viewHolder.icon.setImageResource(dirent.getIcon());
