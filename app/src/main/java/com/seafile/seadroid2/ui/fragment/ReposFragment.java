@@ -555,6 +555,10 @@ public class ReposFragment extends ListFragment {
     private void updateAdapterWithDirents(final List<SeafDirent> dirents, boolean restoreScrollPosition) {
         adapter.clear();
         if (dirents.size() > 0) {
+            NavContext nav = getNavContext();
+            final String repoName = nav.getRepoName();
+            final String repoID = nav.getRepoID();
+            final String dirPath = nav.getDirPath();
             for (SeafDirent dirent : dirents) {
                 if (Utils.isViewableImage(dirent.name)) {
                     String imageSize = getDataManager().getImageSize(dirent.name);
@@ -564,12 +568,15 @@ public class ReposFragment extends ListFragment {
                         getDataManager().setImageSize(dirent.name, dirent.size + "");
                     }
                 }
+                String file_path = Utils.pathJoin(dirPath, dirent.name);
+                File file = getDataManager().getLocalRepoFile(repoName, repoID, file_path);
+                if (file.exists()) {
+                    dirent.setImageAbsolutePath(file.getAbsolutePath().toString());
+                    Log.d(DEBUG_TAG,"==========="+dirent.name);
+                }
                 adapter.add(dirent);
             }
-            NavContext nav = getNavContext();
-            final String repoName = nav.getRepoName();
-            final String repoID = nav.getRepoID();
-            final String dirPath = nav.getDirPath();
+
 
             adapter.sortFiles(SettingsManager.instance().getSortFilesTypePref(),
                     SettingsManager.instance().getSortFilesOrderPref());
@@ -662,11 +669,11 @@ public class ReposFragment extends ListFragment {
                     mActivity.setUpButtonTitle(dirent.name);
                 } else {
                     String currentPath = nav.getDirPath();
-                    File file = getDataManager().getLocalRepoFile(nav.getRepoName(), nav.getRepoID(), Utils.pathJoin(currentPath, dirent.name));
-                    SeafCachedFile scf = getDataManager().getCachedFile(nav.getRepoName(), nav.getRepoID(), Utils.pathJoin(currentPath, dirent.name));
-                    if (scf != null && file != null && file.exists() && file.length() == dirent.getFileSize()) {
-                        getDataManager().removeCachedFile(scf);
-                    }
+//                    File file = getDataManager().getLocalRepoFile(nav.getRepoName(), nav.getRepoID(), Utils.pathJoin(currentPath, dirent.name));
+//                    SeafCachedFile scf = getDataManager().getCachedFile(nav.getRepoName(), nav.getRepoID(), Utils.pathJoin(currentPath, dirent.name));
+//                    if (scf != null && file != null && file.exists() && file.length() != dirent.getFileSize()) {
+//                        getDataManager().removeCachedFile(scf);
+//                    }
                     saveDirentScrollPosition(repo.getID(), currentPath);
                     mActivity.onFileSelected(dirent);
                 }

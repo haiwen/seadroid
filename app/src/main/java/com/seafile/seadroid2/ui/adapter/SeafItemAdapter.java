@@ -1,5 +1,6 @@
 package com.seafile.seadroid2.ui.adapter;
 
+import android.text.TextUtils;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -443,12 +444,17 @@ public class SeafItemAdapter extends BaseAdapter {
                 if (dirent.getImageChange() == ReposFragment.IMAGE_CHANGE_MARK) {
                     opt = opt.signature(new ObjectKey(UUID.randomUUID().toString()));
                 }
-                Glide.with(mActivity)
-                        .asBitmap()
-                        .load(glideUrl)
-                        .apply(opt)
-                        .thumbnail(0.1f)
-                        .into(viewHolder.icon);
+                if (!TextUtils.isEmpty(dirent.getImageAbsolutePath())) {
+                    Glide.with(mActivity).load("file://" + dirent.getImageAbsolutePath()).apply(opt).into(viewHolder.icon);
+                } else {
+                    Glide.with(mActivity)
+                            .asBitmap()
+                            .load(glideUrl)
+                            .apply(opt)
+                            .thumbnail(0.1f)
+                            .into(viewHolder.icon);
+                }
+
             }
         } else {
             viewHolder.icon.setImageResource(dirent.getIcon());

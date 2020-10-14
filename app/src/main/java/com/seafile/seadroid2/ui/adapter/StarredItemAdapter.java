@@ -1,9 +1,6 @@
 package com.seafile.seadroid2.ui.adapter;
 
-import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,8 +15,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.model.GlideUrl;
 import com.bumptech.glide.load.model.LazyHeaders;
 import com.bumptech.glide.request.RequestOptions;
-import com.bumptech.glide.request.target.SimpleTarget;
-import com.bumptech.glide.request.transition.Transition;
+import com.bumptech.glide.signature.ObjectKey;
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.data.DataManager;
@@ -27,11 +23,12 @@ import com.seafile.seadroid2.data.SeafItem;
 import com.seafile.seadroid2.data.SeafStarredFile;
 import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
+import com.seafile.seadroid2.ui.fragment.ReposFragment;
 import com.seafile.seadroid2.util.Utils;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class StarredItemAdapter extends BaseAdapter {
     private static final String DEBUG_TAG = "StarredItemAdapter";
@@ -154,7 +151,6 @@ public class StarredItemAdapter extends BaseAdapter {
         } else {
             viewHolder = (Viewholder) convertView.getTag();
         }
-        viewHolder.icon.setTag(item.getTitle());
         viewHolder.title.setText(item.getTitle());
         viewHolder.subtitle.setText(item.getSubtitle());
         judgeRepo(item, viewHolder);
@@ -164,39 +160,26 @@ public class StarredItemAdapter extends BaseAdapter {
             if (url == null) {
                 judgeRepo(item, viewHolder);
             } else {
-                viewHolder.icon.setImageResource(R.drawable.file_image);
                 GlideUrl glideUrl = new GlideUrl(url, new LazyHeaders.Builder()
-                        .addHeader("Authorization", "Token " + dataManager.getAccount().token)
+                        .addHeader("Authorization", "Token " + mActivity.getAccount().token)
                         .build());
                 RequestOptions opt = new RequestOptions()
                         .placeholder(R.drawable.file_image)
-                        .skipMemoryCache(true)
+                        .skipMemoryCache(false)
                         .override(WidgetUtils.getThumbnailWidth(), WidgetUtils.getThumbnailWidth())
-                        .diskCacheStrategy(DiskCacheStrategy.NONE);
-                Glide.with(mActivity)
-                        .asBitmap()
-                        .load(glideUrl)
-                        .apply(opt)
-                        .thumbnail(0.1f)
-                        .into(new SimpleTarget<Bitmap>() {
-                            @Override
-                            public void onLoadFailed(@Nullable Drawable errorDrawable) {
-                                ImageView imageView = (ImageView) mListView.findViewWithTag(item.getTitle());
-                                File file = dataManager.getLocalRepoFile(((SeafStarredFile) item).getRepoName(), ((SeafStarredFile) item).getRepoID(), ((SeafStarredFile) item).getPath());
-                                if (imageView != null && file.exists() && Utils.isViewableImage(file.getName())) {
-                                    Bitmap bitmap = Utils.openImage(file.getAbsolutePath().toString());
-                                    imageView.setImageBitmap(bitmap);
-                                }
-                            }
-
-                            @Override
-                            public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
-                                ImageView imageView = (ImageView) mListView.findViewWithTag(item.getTitle());
-                                if (imageView != null) {
-                                    imageView.setImageBitmap(resource);
-                                }
-                            }
-                        });
+                        .diskCacheStrategy(DiskCacheStrategy.ALL);
+                if (((SeafStarredFile) item).getImageChange() == ReposFragment.IMAGE_CHANGE_MARK) {
+                    opt = opt.signature(new ObjectKey(UUID.randomUUID().toString()));
+                }
+                if (!TextUtils.isEmpty(((SeafStarredFile) item).getImageAbsolutePath())) {
+                    Glide.with(mActivity).load("file://" + ((SeafStarredFile) item).getImageAbsolutePath()).apply(opt).into(viewHolder.icon);
+                } else {
+                    Glide.with(mActivity)
+                            .asBitmap()
+                            .load(glideUrl)
+                            .apply(opt)
+                            .into(viewHolder.icon);
+                }
             }
         } else {
 

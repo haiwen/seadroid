@@ -20,6 +20,8 @@ public class SeafStarredFile implements SeafItem {
     private FileType type;
     private long size;    // size of file, 0 if type is dir
     private String repoName;
+    private int imageChange;
+    private String imageAbsolutePath;
 
     static SeafStarredFile fromJson(JSONObject obj) {
         SeafStarredFile starredFile = new SeafStarredFile();
@@ -41,6 +43,22 @@ public class SeafStarredFile implements SeafItem {
             Log.d(DEBUG_TAG, e.getMessage());
             return null;
         }
+    }
+
+    public String getImageAbsolutePath() {
+        return imageAbsolutePath;
+    }
+
+    public void setImageAbsolutePath(String imageAbsolutePath) {
+        this.imageAbsolutePath = imageAbsolutePath;
+    }
+
+    public int getImageChange() {
+        return imageChange;
+    }
+
+    public void setImageChange(int imageChange) {
+        this.imageChange = imageChange;
     }
 
     public String getRepoName() {
