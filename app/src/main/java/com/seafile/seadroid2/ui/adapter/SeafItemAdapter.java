@@ -435,8 +435,6 @@ public class SeafItemAdapter extends BaseAdapter {
             if (url == null) {
                 viewHolder.icon.setImageResource(dirent.getIcon());
             } else {
-                ImageLoader.getInstance().clearMemoryCache();
-                ImageLoader.getInstance().clearDiskCache();
                 ImageLoader.getInstance().displayImage(url, viewHolder.icon, options, animateFirstListener);
             }
         } else {

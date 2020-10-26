@@ -20,7 +20,7 @@ import java.util.List;
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DEBUG_TAG = "DatabaseHelper";
     // If you change the database schema, you must increment the database version.
-    public static final int DATABASE_VERSION = 9;
+    public static final int DATABASE_VERSION = 10;
     public static final String DATABASE_NAME = "data.db";
 
     // FileCache table
@@ -68,6 +68,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String ENCKEY_COLUMN_ENCIV = "enc_iv";
     public static final String ENCKEY_COLUMN_REPO_ID = "repo_id";
 
+    public static final String IMAGE_SIZE_TABLE_NAME = "ImageSize";
+
+    public static final String IMAGE_SIZE_COLUMN_ID = "id";
+    public static final String IMAGE_SIZE_COLUMN_NAME = "image_name";
+    public static final String IMAGE_SIZE_COLUMN_SIZE = "image_size";
+
     private static final String SQL_CREATE_FILECACHE_TABLE =
         "CREATE TABLE " + FILECACHE_TABLE_NAME + " ("
         + FILECACHE_COLUMN_ID + " INTEGER PRIMARY KEY, "
@@ -104,6 +110,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     + ENCKEY_COLUMN_ENCIV + " TEXT NOT NULL, "
                     + ENCKEY_COLUMN_REPO_ID + " TEXT NOT NULL);";
 
+    private static final String SQL_CREATE_IMAGESIZE_TABLE =
+            "CREATE TABLE " + IMAGE_SIZE_TABLE_NAME + " ("
+                    + IMAGE_SIZE_COLUMN_ID + " INTEGER PRIMARY KEY, "
+                    + IMAGE_SIZE_COLUMN_NAME + " TEXT NOT NULL, "
+                    + IMAGE_SIZE_COLUMN_SIZE + " TEXT NOT NULL);";
+
     // Use only single dbHelper to prevent multi-thread issue and db is closed exception
     // Reference http://stackoverflow.com/questions/2493331/what-are-the-best-practices-for-sqlite-on-android
     private static DatabaseHelper dbHelper = null;
@@ -128,6 +140,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         createDirentsCacheTable(db);
         createStarredFilesCacheTable(db);
         createEnckeyTable(db);
+        createImageSizeTable(db);
     }
 
     private void createFileCacheTable(SQLiteDatabase db) {
@@ -209,6 +222,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + DIRENTS_CACHE_TABLE_NAME + ";");
         db.execSQL("DROP TABLE IF EXISTS " + STARRED_FILECACHE_TABLE_NAME + ";");
         db.execSQL("DROP TABLE IF EXISTS " + ENCKEY_TABLE_NAME + ";");
+        db.execSQL("DROP TABLE IF EXISTS " + IMAGE_SIZE_TABLE_NAME + ";");
         onCreate(db);
     }
 
@@ -606,5 +620,62 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public void clearEnckeys() {
         database.delete(ENCKEY_TABLE_NAME, null, null);
+    }
+
+    private void createImageSizeTable(SQLiteDatabase db) {
+        db.execSQL(SQL_CREATE_IMAGESIZE_TABLE);
+
+        String sql;
+        sql = String.format("CREATE UNIQUE INDEX image_size_index ON %s (%s, %s)",
+                IMAGE_SIZE_TABLE_NAME,
+                IMAGE_SIZE_COLUMN_NAME,
+                IMAGE_SIZE_COLUMN_SIZE);
+        db.execSQL(sql);
+    }
+
+    public void saveImageSize(@NonNull String imageName, @NonNull String imageSize) {
+        String size = getImageSize(imageName);
+
+        if (!TextUtils.isEmpty(size)) {
+            if (size.equals(imageSize)) {
+                return;
+            } else {
+                delImageSize(imageName);
+            }
+        }
+
+        ContentValues values = new ContentValues();
+        values.put(IMAGE_SIZE_COLUMN_NAME, imageName);
+        values.put(IMAGE_SIZE_COLUMN_SIZE, imageSize);
+        database.insert(IMAGE_SIZE_TABLE_NAME, null, values);
+    }
+
+    public String getImageSize(@NonNull String name) {
+        String imageSize = null;
+        String[] projection = {
+                IMAGE_SIZE_COLUMN_SIZE
+        };
+        Cursor c = database.query(
+                IMAGE_SIZE_TABLE_NAME,
+                projection,
+                IMAGE_SIZE_COLUMN_NAME + "=?",
+                new String[]{name},
+                null,   // don't group the rows
+                null,   // don't filter by row groups
+                null    // The sort order
+        );
+        c.moveToFirst();
+        while (!c.isAfterLast()) {
+            imageSize = c.getString(0);
+            c.moveToNext();
+        }
+
+        c.close();
+        return imageSize;
+    }
+
+    private void delImageSize(String imageName) {
+        database.delete(IMAGE_SIZE_TABLE_NAME, IMAGE_SIZE_COLUMN_NAME + "=?",
+                new String[]{imageName});
     }
 }

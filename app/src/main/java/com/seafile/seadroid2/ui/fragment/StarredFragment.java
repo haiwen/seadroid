@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.view.ActionMode;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -18,6 +20,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.nostra13.universalimageloader.core.ImageLoader;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.data.DataManager;
@@ -53,6 +56,7 @@ public class StarredFragment extends ListFragment {
     private static final int REFRESH_ON_OVERFLOW_MENU = 2;
     private static int mRefreshType = -1;
     public static final String PASSWORD_DIALOG_STARREDFRAGMENT_TAG = "password_starredfragment";
+    public static final String DEBUG_TAG = "StarredFragment";
 
     private DataManager getDataManager() {
         return mActivity.getDataManager();
@@ -213,6 +217,17 @@ public class StarredFragment extends ListFragment {
         adapter.clear();
         if (starredFiles.size() > 0) {
             for (SeafStarredFile starred : starredFiles) {
+                if (Utils.isViewableImage(starred.getTitle())) {
+                    String imageSize = getDataManager().getImageSize(starred.getTitle());
+                    if (!TextUtils.isEmpty(imageSize) && Long.valueOf(imageSize).longValue() != 0
+                            && starred.getSize() != 0 && Long.valueOf(imageSize).longValue() != starred.getSize()) {
+                        ImageLoader.getInstance().clearMemoryCache();
+                        ImageLoader.getInstance().clearDiskCache();
+                        Log.d(DEBUG_TAG, imageSize + "===222221=========" + starred.getTitle() + "------" + starred.getSize());
+                    }
+                    getDataManager().setImageSize(starred.getTitle(), starred.getSize() + "");
+                }
+
                 adapter.add(starred);
             }
             adapter.notifyChanged();

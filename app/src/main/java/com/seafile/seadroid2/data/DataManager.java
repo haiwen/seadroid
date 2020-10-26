@@ -1038,6 +1038,18 @@ public class DataManager {
         return dbHelper.getEnckey(repoID);
     }
 
+    public void setImageSize(String name, String size) {
+        if (!TextUtils.isEmpty(name)
+                && !TextUtils.isEmpty(size)) {
+            dbHelper.saveImageSize(name, size);
+        }
+    }
+
+    public String getImageSize(String imageName) {
+        String imageSize = dbHelper.getImageSize(imageName);
+        return imageSize;
+    }
+
     /**
      * calculate if refresh time is expired, the expiration is 10 mins
      */

@@ -9,6 +9,7 @@ import android.os.Handler;
 import android.support.v4.app.ListFragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.view.ActionMode;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -24,6 +25,7 @@ import android.widget.TextView;
 
 import com.cocosw.bottomsheet.BottomSheet;
 import com.google.common.collect.Maps;
+import com.nostra13.universalimageloader.core.ImageLoader;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafConnection;
 import com.seafile.seadroid2.SeafException;
@@ -554,6 +556,15 @@ public class ReposFragment extends ListFragment {
         adapter.clear();
         if (dirents.size() > 0) {
             for (SeafDirent dirent : dirents) {
+                if (Utils.isViewableImage(dirent.name)) {
+                    String imageSize = getDataManager().getImageSize(dirent.name);
+                    if (!TextUtils.isEmpty(imageSize) && Long.valueOf(imageSize).longValue() != 0 && Long.valueOf(imageSize).longValue() != dirent.getFileSize()) {
+                        ImageLoader.getInstance().clearMemoryCache();
+                        ImageLoader.getInstance().clearDiskCache();
+                        Log.d(DEBUG_TAG, imageSize + "===11111=========" + dirent.name + "----" + dirent.getFileSize());
+                    }
+                    getDataManager().setImageSize(dirent.name, dirent.getFileSize() + "");
+                }
                 adapter.add(dirent);
             }
             NavContext nav = getNavContext();
