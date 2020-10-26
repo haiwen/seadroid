@@ -324,7 +324,7 @@ public class ReposFragment extends ListFragment {
         super.onActivityCreated(savedInstanceState);
         Log.d(DEBUG_TAG, "ReposFragment onActivityCreated");
         scrollPostions = Maps.newHashMap();
-        adapter = new SeafItemAdapter(mActivity, mListView);
+        adapter = new SeafItemAdapter(mActivity);
 
         mListView.setAdapter(adapter);
     }

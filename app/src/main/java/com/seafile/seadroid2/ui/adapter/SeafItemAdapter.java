@@ -1,5 +1,7 @@
 package com.seafile.seadroid2.ui.adapter;
 
+import android.graphics.Bitmap;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
@@ -7,16 +9,18 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.load.model.GlideUrl;
 import com.bumptech.glide.load.model.LazyHeaders;
+import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.signature.ObjectKey;
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.R;
@@ -49,7 +53,6 @@ public class SeafItemAdapter extends BaseAdapter {
     private boolean actionModeOn;
     private NavContext nav;
     private DataManager dataManager;
-    private ListView mListView;
 
     private SparseBooleanArray mSelectedItemsIds;
     private List<Integer> mSelectedItemsPositions = Lists.newArrayList();
@@ -60,8 +63,7 @@ public class SeafItemAdapter extends BaseAdapter {
      **/
     private List<DownloadTaskInfo> mDownloadTaskInfos;
 
-    public SeafItemAdapter(BrowserActivity activity, ListView listView) {
-        this.mListView = listView;
+    public SeafItemAdapter(BrowserActivity activity) {
         mActivity = activity;
         items = Lists.newArrayList();
         mSelectedItemsIds = new SparseBooleanArray();
@@ -321,6 +323,7 @@ public class SeafItemAdapter extends BaseAdapter {
             viewHolder.multiSelect.setVisibility(View.GONE);
 
         viewHolder.title.setText(dirent.getTitle());
+        viewHolder.icon.setTag(R.id.imageloader_uri, dirent.getTitle());
         if (dirent.isDir()) {
             viewHolder.downloadStatusIcon.setVisibility(View.GONE);
             viewHolder.progressBar.setVisibility(View.GONE);
@@ -438,9 +441,7 @@ public class SeafItemAdapter extends BaseAdapter {
                 RequestOptions opt = new RequestOptions()
                         .fallback(R.drawable.file_image)
                         .placeholder(R.drawable.file_image)
-                        .skipMemoryCache(false)
-                        .override(WidgetUtils.getThumbnailWidth(), WidgetUtils.getThumbnailWidth())
-                        .diskCacheStrategy(DiskCacheStrategy.ALL);
+                        .override(WidgetUtils.getThumbnailWidth(), WidgetUtils.getThumbnailWidth());
                 if (dirent.getImageChange() == ReposFragment.IMAGE_CHANGE_MARK) {
                     opt = opt.signature(new ObjectKey(UUID.randomUUID().toString()));
                 }
@@ -452,6 +453,22 @@ public class SeafItemAdapter extends BaseAdapter {
                             .load(glideUrl)
                             .apply(opt)
                             .thumbnail(0.1f)
+                            .listener(new RequestListener<Bitmap>() {
+                                @Override
+                                public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Bitmap> target, boolean isFirstResource) {
+                                    return false;
+                                }
+
+                                @Override
+                                public boolean onResourceReady(Bitmap resource, Object model, Target<Bitmap> target, DataSource dataSource, boolean isFirstResource) {
+                                    String tag = (String) viewHolder.icon.getTag(R.id.imageloader_uri);
+                                    if (tag.equals(dirent.getTitle())) {
+                                        viewHolder.icon.setImageBitmap(resource);
+                                        return false;
+                                    }
+                                    return true;
+                                }
+                            })
                             .into(viewHolder.icon);
                 }
 
