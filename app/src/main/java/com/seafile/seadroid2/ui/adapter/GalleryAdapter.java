@@ -9,12 +9,10 @@ import android.widget.ProgressBar;
 
 import com.bumptech.glide.Glide;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafPhoto;
-import com.seafile.seadroid2.ui.AnimateFirstDisplayListener;
 import com.seafile.seadroid2.ui.activity.GalleryActivity;
 import com.seafile.seadroid2.util.Utils;
 
@@ -89,7 +87,7 @@ public class GalleryAdapter extends PagerAdapter {
             Glide.with(mActivity).load("file://" + file.getAbsolutePath().toString()).into(photoView);
             seafPhoto.setDownloaded(true);
         } else {
-            ImageLoadingListener animateFirstListener = new AnimateFirstDisplayListener();
+//            ImageLoadingListener animateFirstListener = new AnimateFirstDisplayListener();
             String urlicon = dm.getThumbnailLink(repoName, repoID, filePath, Utils.getThumbnailWidth());
 //            ImageLoader.getInstance().displayImage(urlicon, photoView, options, animateFirstListener);
             Utils.utilGlide(mActivity, urlicon, mAccount.token, photoView, displayMetrics.widthPixels, displayMetrics.heightPixels);

@@ -45,7 +45,6 @@ import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.cameraupload.MediaSchedulerService;
 import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.fileschooser.SelectableFile;
-import com.seafile.seadroid2.ui.WidgetUtils;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -71,6 +70,7 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.security.MessageDigest;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
@@ -978,10 +978,24 @@ public class Utils {
                 .into(iv);
     }
 
-    public static Bitmap openImage(String path) {
-        Bitmap bitmap = BitmapFactory.decodeFile(path);
-        Bitmap image = Bitmap.createScaledBitmap(bitmap, WidgetUtils.getThumbnailWidth(), WidgetUtils.getThumbnailWidth(), false);
-        return image;
+    public static String MD5Utils(String password) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("MD5");
+            byte[] bytes = digest.digest(password.getBytes());
+            StringBuilder sb = new StringBuilder();
+            for (byte b : bytes) {
+                int c = b & 0xff;
+                String result = Integer.toHexString(c);
+                if (result.length() < 2) {
+                    sb.append(0);
+                }
+                sb.append(result);
+            }
+            return sb.toString();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return "";
+        }
     }
 
 }

@@ -42,7 +42,7 @@ import static com.seafile.seadroid2.ui.fragment.ReposFragment.IMAGE_CHANGE_MARK;
 public class StarredFragment extends ListFragment {
     private StarredItemAdapter adapter;
     private BrowserActivity mActivity = null;
-
+    private static final String DEBUG_TAG = "StarredFragment";
     private SwipeRefreshLayout refreshLayout;
     private ListView mListView;
     private TextView mNoStarredView;
@@ -218,11 +218,11 @@ public class StarredFragment extends ListFragment {
         if (starredFiles.size() > 0) {
             for (SeafStarredFile starred : starredFiles) {
                 if (Utils.isViewableImage(starred.getTitle())) {
-                    String imageSize = getDataManager().getImageSize(starred.getTitle());
+                    String imageSize = getDataManager().getImageSize(Utils.MD5Utils(starred.getTitle() + starred.getRepoName() + starred.getPath()));
                     if (!TextUtils.isEmpty(imageSize) && Long.valueOf(imageSize).longValue() != starred.getSize()) {
                         starred.setImageChange(IMAGE_CHANGE_MARK);
                     } else {
-                        getDataManager().setImageSize(starred.getTitle(), starred.getSize() + "");
+                        getDataManager().setImageSize(Utils.MD5Utils(starred.getTitle() + starred.getRepoName() + starred.getPath()), starred.getSize() + "");
                     }
                 }
                 File file = getDataManager().getLocalRepoFile(starred.getRepoName(), starred.getRepoID(), starred.getPath());
