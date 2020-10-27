@@ -42,7 +42,7 @@ import static com.seafile.seadroid2.ui.fragment.ReposFragment.IMAGE_CHANGE_MARK;
 public class StarredFragment extends ListFragment {
     private StarredItemAdapter adapter;
     private BrowserActivity mActivity = null;
-    private static final String DEBUG_TAG = "StarredFragment";
+
     private SwipeRefreshLayout refreshLayout;
     private ListView mListView;
     private TextView mNoStarredView;

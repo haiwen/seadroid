@@ -670,11 +670,6 @@ public class ReposFragment extends ListFragment {
                     mActivity.setUpButtonTitle(dirent.name);
                 } else {
                     String currentPath = nav.getDirPath();
-//                    File file = getDataManager().getLocalRepoFile(nav.getRepoName(), nav.getRepoID(), Utils.pathJoin(currentPath, dirent.name));
-//                    SeafCachedFile scf = getDataManager().getCachedFile(nav.getRepoName(), nav.getRepoID(), Utils.pathJoin(currentPath, dirent.name));
-//                    if (scf != null && file != null && file.exists() && file.length() != dirent.getFileSize()) {
-//                        getDataManager().removeCachedFile(scf);
-//                    }
                     saveDirentScrollPosition(repo.getID(), currentPath);
                     mActivity.onFileSelected(dirent);
                 }
@@ -1219,7 +1214,6 @@ public class ReposFragment extends ListFragment {
     }
 
     public void clearAdapterData() {
-//        Log.d(DEBUG_TAG, "refreshAdapter");
         if (adapter != null && mListView != null) {
             adapter.clear();
             mListView.setAdapter(adapter);
