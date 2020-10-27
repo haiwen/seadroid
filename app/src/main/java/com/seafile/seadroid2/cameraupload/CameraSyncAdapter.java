@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.cameraupload.provider;
+package com.seafile.seadroid2.cameraupload;
 
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -25,9 +25,6 @@ import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
-import com.seafile.seadroid2.cameraupload.CameraUploadDBHelper;
-import com.seafile.seadroid2.cameraupload.CameraUploadManager;
-import com.seafile.seadroid2.cameraupload.GalleryBucketUtils;
 import com.seafile.seadroid2.data.CameraSyncEvent;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafDirent;
@@ -233,7 +230,6 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
         synchronized (this) {
             cancelled = false;
         }
-         Log.d(DEBUG_TAG, "=========================start==onPerformSync");
         SeadroidApplication.getInstance().setScanUploadStatus(CameraSyncStatus.SCANNING);
         EventBus.getDefault().post(new CameraSyncEvent("start"));
         /*Log.i(DEBUG_TAG, "Syncing images and video to " + account);
@@ -270,7 +266,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
          * account signs out.
          */
         if (!seafileAccount.hasValidToken()) {
-             Log.d(DEBUG_TAG, "This account has no auth token. Disable camera upload.");
+            // Log.d(DEBUG_TAG, "This account has no auth token. Disable camera upload.");
             syncResult.stats.numAuthExceptions++;
 
             // we're logged out on this account. disable camera upload.
@@ -327,11 +323,11 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
             }
 
             if (isCancelled()) {
-                 Log.i(DEBUG_TAG, "sync was cancelled.");
+                // Log.i(DEBUG_TAG, "sync was cancelled.");
             } else {
-                 Log.i(DEBUG_TAG, "sync finished successfully.");
+                // Log.i(DEBUG_TAG, "sync finished successfully.");
             }
-             Log.d(DEBUG_TAG, "syncResult: " + syncResult);
+            // Log.d(DEBUG_TAG, "syncResult: " + syncResult);
 
         } catch (SeafException e) {
             switch (e.getCode()) {
@@ -375,7 +371,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
 
     private void uploadImages(SyncResult syncResult, DataManager dataManager) throws SeafException, InterruptedException {
 
-         Log.d(DEBUG_TAG, "Starting to upload images...");
+        // Log.d(DEBUG_TAG, "Starting to upload images...");
 
         if (isCancelled())
             return;
@@ -549,7 +545,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
     }
 
     private void waitForUploads() throws InterruptedException {
-         Log.d(DEBUG_TAG, "wait for transfer service to finish our tasks");
+        // Log.d(DEBUG_TAG, "wait for transfer service to finish our tasks");
         WAITLOOP: while (!isCancelled()) {
             Thread.sleep(100); // wait
 
@@ -618,13 +614,13 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
         Pattern pattern = Pattern.compile(Pattern.quote(prefix) + "( \\(\\d+\\))?" + Pattern.quote(suffix));
         for (SeafDirent dirent : list) {
             if (pattern.matcher(dirent.name).matches() && dirent.size == file.length()) {
-                 Log.d(DEBUG_TAG, "File " + file.getName() + " in bucket " + bucketName + " already exists on the server. Skipping.");
+                // Log.d(DEBUG_TAG, "File " + file.getName() + " in bucket " + bucketName + " already exists on the server. Skipping.");
                 dbHelper.markAsUploaded(file);
                 return;
             }
         }
 
-         Log.d(DEBUG_TAG, "uploading file " + file.getName() + " to " + serverPath);
+        // Log.d(DEBUG_TAG, "uploading file " + file.getName() + " to " + serverPath);
         int taskID = txService.addUploadTask(dataManager.getAccount(), targetRepoId, targetRepoName,
                 serverPath, file.getAbsolutePath(), false, false);
         tasksInProgress.add(taskID);
