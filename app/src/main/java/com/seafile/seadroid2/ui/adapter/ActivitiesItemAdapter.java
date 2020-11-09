@@ -13,10 +13,11 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.google.common.collect.Lists;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.data.SeafEvent;
 import com.seafile.seadroid2.data.SeafItem;
-import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
 import com.seafile.seadroid2.ui.widget.CircleImageView;
 import com.seafile.seadroid2.util.SystemSwitchUtils;
@@ -40,11 +41,25 @@ public class ActivitiesItemAdapter extends BaseAdapter {
 
     private ArrayList<SeafEvent> items;
     private BrowserActivity mActivity;
+    private ImageLoader loader;
+    private DisplayImageOptions options;
     private boolean useNewActivity;
 
     public ActivitiesItemAdapter(BrowserActivity activity) {
         this.mActivity = activity;
         items = Lists.newArrayList();
+        loader = ImageLoader.getInstance();
+        options = new DisplayImageOptions.Builder()
+                .extraForDownloader(mActivity.getAccount())
+                .showStubImage(R.drawable.default_avatar)
+                .showImageOnLoading(R.drawable.default_avatar)
+                .showImageForEmptyUri(R.drawable.default_avatar)
+                .showImageOnFail(R.drawable.default_avatar)
+                .resetViewBeforeLoading()
+                .cacheInMemory(true)
+                .cacheOnDisk(true)
+                .considerExifParams(true)
+                .build();
     }
 
     @Override
@@ -151,9 +166,7 @@ public class ActivitiesItemAdapter extends BaseAdapter {
             rl_new.setVisibility(View.VISIBLE);
             item.setAvatar(item.getAvatar_url());
             viewHolder.tv_name.setText(item.getAuthor_name());
-//            loader.displayImage(item.getAvatar_url(), viewHolder.icon_url, options);
-            Utils.glideCircle(mActivity, item.getAvatar_url(), mActivity.getDataManager().getAccount().token, viewHolder.icon_url,
-                    WidgetUtils.getThumbnailWidth(), WidgetUtils.getThumbnailWidth());
+            loader.displayImage(item.getAvatar_url(), viewHolder.icon_url, options);
             viewHolder.tv_time.setText(SystemSwitchUtils.parseDateTime(item.getV_time()));
             viewHolder.tv_mod.setText(item.getRepo_name());
             viewHolder.tv_desc.setText(item.getPath());
@@ -165,14 +178,10 @@ public class ActivitiesItemAdapter extends BaseAdapter {
         }
         if (!TextUtils.isEmpty(item.getAvatar())) {
             final String avatar = parseAvatar(item.getAvatar());
-//            loader.displayImage(avatar, viewHolder.icon, options);
-            Utils.glideCircle(mActivity, avatar, mActivity.getDataManager().getAccount().token, viewHolder.icon_url,
-                    WidgetUtils.getThumbnailWidth(), WidgetUtils.getThumbnailWidth());
+            loader.displayImage(avatar, viewHolder.icon, options);
         } else {
             // show a place holder indicating the error
-//            loader.displayImage(item.getAvatar(), viewHolder.icon, options);
-            Utils.glideCircle(mActivity, item.getAvatar(), mActivity.getDataManager().getAccount().token, viewHolder.icon_url,
-                    WidgetUtils.getThumbnailWidth(), WidgetUtils.getThumbnailWidth());
+            loader.displayImage(item.getAvatar(), viewHolder.icon, options);
         }
 
         viewHolder.title.setText(item.getDesc());
