@@ -20,6 +20,7 @@ import com.bumptech.glide.load.model.LazyHeaders;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.Target;
+import com.bumptech.glide.signature.ObjectKey;
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
@@ -441,7 +442,7 @@ public class SeafItemAdapter extends BaseAdapter {
 //                if (dirent.getImageChange() == ReposFragment.IMAGE_CHANGE_MARK) {
 //                    opt = opt.signature(new ObjectKey(UUID.randomUUID().toString()));
 //                }
-//                opt = opt.signature(new ObjectKey(dirent.size+""));
+                opt = opt.signature(new ObjectKey(dirent.size+""));
                 Glide.with(mActivity)
                         .asBitmap()
                         .load(glideUrl)
