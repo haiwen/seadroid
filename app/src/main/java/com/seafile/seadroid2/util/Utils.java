@@ -30,7 +30,13 @@ import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.MimeTypeMap;
+import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.model.GlideUrl;
+import com.bumptech.glide.load.model.LazyHeaders;
+import com.bumptech.glide.request.RequestOptions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.seafile.seadroid2.R;
@@ -953,5 +959,21 @@ public class Utils {
         } catch (Exception localException) {
         }
         return "";
+    }
+
+    public static void glideImage(Context ct, String urlicon, String token, ImageView iv, int width, int height) {
+        GlideUrl glideUrl = new GlideUrl(urlicon, new LazyHeaders.Builder()
+                .addHeader("Authorization", "Token " + token)
+                .build());
+        RequestOptions opt = new RequestOptions()
+                .placeholder(R.drawable.file_image)
+                .skipMemoryCache(true)
+                .override(width, height)
+                .diskCacheStrategy(DiskCacheStrategy.NONE);
+        Glide.with(ct)
+                .asBitmap()
+                .load(glideUrl)
+                .apply(opt)
+                .into(iv);
     }
 }

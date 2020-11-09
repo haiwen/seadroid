@@ -1,19 +1,17 @@
 package com.seafile.seadroid2.ui.adapter;
 
 import android.support.v4.view.PagerAdapter;
+import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
+import com.bumptech.glide.Glide;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafPhoto;
-import com.seafile.seadroid2.ui.AnimateFirstDisplayListener;
 import com.seafile.seadroid2.ui.activity.GalleryActivity;
 import com.seafile.seadroid2.util.Utils;
 
@@ -35,25 +33,19 @@ public class GalleryAdapter extends PagerAdapter {
     private GalleryActivity mActivity;
     private List<SeafPhoto> seafPhotos;
     private LayoutInflater inflater;
-    private DisplayImageOptions options;
     private Account mAccount;
     private DataManager dm;
+    private DisplayMetrics displayMetrics;
 
     public GalleryAdapter(GalleryActivity context, Account account,
                           List<SeafPhoto> photos, DataManager dataManager) {
         mActivity = context;
         seafPhotos = photos;
         inflater = context.getLayoutInflater();
-        options = new DisplayImageOptions.Builder()
-                .showImageForEmptyUri(R.drawable.ic_gallery_empty2)
-                .showImageOnFail(R.drawable.gallery_loading_failed)
-                .cacheInMemory(true)
-                .cacheOnDisk(true)
-                .considerExifParams(true)
-                .extraForDownloader(account)
-                .build();
         mAccount = account;
         dm = dataManager;
+        displayMetrics = new DisplayMetrics();
+        mActivity.getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
     }
 
     @Override
@@ -81,13 +73,14 @@ public class GalleryAdapter extends PagerAdapter {
                 seafPhoto.getName());
         final File file = dm.getLocalRepoFile(repoName, repoID, filePath);
         if (file.exists()) {
-            ImageLoader.getInstance().displayImage("file://" + file.getAbsolutePath().toString(), photoView, options);
+//            ImageLoader.getInstance().displayImage("file://" + file.getAbsolutePath().toString(), photoView, options);
+            Glide.with(mActivity).load("file://" + file.getAbsolutePath().toString()).into(photoView);
             seafPhoto.setDownloaded(true);
         } else {
-            ImageLoadingListener animateFirstListener = new AnimateFirstDisplayListener();
+//            ImageLoadingListener animateFirstListener = new AnimateFirstDisplayListener();
             String urlicon = dm.getThumbnailLink(repoName, repoID, filePath, Utils.getThumbnailWidth());
-            ImageLoader.getInstance().displayImage(urlicon, photoView, options, animateFirstListener);
-
+//            ImageLoader.getInstance().displayImage(urlicon, photoView, options, animateFirstListener);
+            Utils.glideImage(mActivity, urlicon, mAccount.token, photoView, displayMetrics.widthPixels, displayMetrics.heightPixels);
         }
 
         photoView.setOnPhotoTapListener(new PhotoViewAttacher.OnPhotoTapListener() {
@@ -114,6 +107,7 @@ public class GalleryAdapter extends PagerAdapter {
 
     @Override
     public void destroyItem(ViewGroup container, int position, Object object) {
+        Glide.with(mActivity).clear((View) object);
         container.removeView((View) object);
     }
 

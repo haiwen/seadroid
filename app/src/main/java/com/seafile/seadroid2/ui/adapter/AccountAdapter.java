@@ -132,7 +132,7 @@ public abstract class AccountAdapter extends BaseAdapter {
             ImageLoader.getInstance().displayImage(getAvatarUrl(account), viewHolder.icon, options, animateFirstListener);
         }
         ImageLoader.getInstance().handleSlowNetwork(true);
-        
+
         return view;
     }
 

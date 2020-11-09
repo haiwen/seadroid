@@ -125,6 +125,15 @@ public class DataManager {
         }
     }
 
+    public String getImageThumbnailLink(String repoName, String repoID, String filePath, int size) {
+        try {
+            String pathEnc = URLEncoder.encode(filePath, "UTF-8");
+            return account.getServer() + String.format("api2/repos/%s/thumbnail/?p=%s&size=%s", repoID, pathEnc, size);
+        } catch (UnsupportedEncodingException e) {
+            return null;
+        }
+    }
+
     public String getThumbnailLink(String repoID, String filePath, int size) {
         SeafRepo repo = getCachedRepoByID(repoID);
         if (repo != null)
@@ -228,6 +237,9 @@ public class DataManager {
         File repoDir;
 
         // Check if there is a record in database
+        if (account == null || TextUtils.isEmpty(repoID)) {
+            return null;
+        }
         String uniqueRepoName = dbHelper.getRepoDir(account, repoID);
         if (uniqueRepoName != null) {
             // Has record in database
@@ -274,7 +286,11 @@ public class DataManager {
      * @param path
      */
     public File getLocalRepoFile(String repoName, String repoID, String path) throws RuntimeException {
-        String localPath = Utils.pathJoin(getRepoDir(repoName, repoID), path);
+        String repoDir = getRepoDir(repoName, repoID);
+        if (TextUtils.isEmpty(repoDir)) {
+            return null;
+        }
+        String localPath = Utils.pathJoin(repoDir, path);
         File parentDir = new File(Utils.getParentPath(localPath));
         if (!parentDir.exists()) {
             // TODO should check if the directory creation succeeds
@@ -1222,6 +1238,7 @@ public class DataManager {
 
 
         final Pair<String, String> pair = getRepoEncKey(repoID);
+        if (pair == null) return;
         final String encKey = pair.first;
         final String encIv = pair.second;
         // Log.d(DEBUG_TAG, "encKey " + encKey + " encIv " + encIv);

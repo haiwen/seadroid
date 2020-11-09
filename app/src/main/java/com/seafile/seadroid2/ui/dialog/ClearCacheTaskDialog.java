@@ -5,7 +5,9 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 
+import com.bumptech.glide.Glide;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.data.DatabaseHelper;
 import com.seafile.seadroid2.data.StorageManager;
 
@@ -19,6 +21,9 @@ class ClearCacheTask extends TaskDialog.Task {
         // clear cached data from database
         DatabaseHelper dbHelper = DatabaseHelper.getDatabaseHelper();
         dbHelper.delCaches();
+
+        //clear Glide cache
+        Glide.get(SeadroidApplication.getAppContext()).clearDiskCache();
     }
 }
 

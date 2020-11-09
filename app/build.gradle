@@ -118,6 +118,8 @@ android {
         implementation 'ren.qinc.edit:lib:0.0.5'//editor undo redo
         implementation 'com.github.tiagohm.MarkdownView:library:0.19.0'
         implementation 'org.greenrobot:eventbus:3.1.1'
+        implementation 'com.github.bumptech.glide:glide:4.9.0'
+        annotationProcessor 'com.github.bumptech.glide:compiler:4.9.0'
     }
 }
 

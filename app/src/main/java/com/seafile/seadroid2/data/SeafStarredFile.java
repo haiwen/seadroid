@@ -19,6 +19,7 @@ public class SeafStarredFile implements SeafItem {
     private boolean repo_encrypted;
     private FileType type;
     private long size;    // size of file, 0 if type is dir
+    private String repoName;
 
     static SeafStarredFile fromJson(JSONObject obj) {
         SeafStarredFile starredFile = new SeafStarredFile();
@@ -30,6 +31,7 @@ public class SeafStarredFile implements SeafItem {
             starredFile.size = obj.optLong("size");
             starredFile.repo_encrypted = obj.optBoolean("repo_encrypted");
             boolean type = obj.optBoolean("is_dir");
+            starredFile.repoName = obj.optString("repo_name");
             if (!type) {
                 starredFile.type = FileType.FILE;
             } else
@@ -39,6 +41,14 @@ public class SeafStarredFile implements SeafItem {
             Log.d(DEBUG_TAG, e.getMessage());
             return null;
         }
+    }
+
+    public String getRepoName() {
+        return repoName;
+    }
+
+    public void setRepoName(String repoName) {
+        this.repoName = repoName;
     }
 
     public long getSize() {

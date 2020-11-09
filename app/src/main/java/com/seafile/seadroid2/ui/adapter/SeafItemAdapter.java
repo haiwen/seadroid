@@ -1,5 +1,7 @@
 package com.seafile.seadroid2.ui.adapter;
 
+import android.graphics.Bitmap;
+import android.support.annotation.Nullable;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,10 +12,16 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.load.model.GlideUrl;
+import com.bumptech.glide.load.model.LazyHeaders;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.Target;
+import com.bumptech.glide.signature.ObjectKey;
 import com.google.common.collect.Lists;
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.data.DataManager;
@@ -23,8 +31,8 @@ import com.seafile.seadroid2.data.SeafGroup;
 import com.seafile.seadroid2.data.SeafItem;
 import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.transfer.DownloadTaskInfo;
-import com.seafile.seadroid2.ui.AnimateFirstDisplayListener;
 import com.seafile.seadroid2.ui.NavContext;
+import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
 import com.seafile.seadroid2.util.Utils;
 
@@ -35,10 +43,13 @@ import java.util.List;
 
 public class SeafItemAdapter extends BaseAdapter {
 
+    private static final String DEBUG_TAG = "SeafItemAdapter";
     private ArrayList<SeafItem> items;
     private BrowserActivity mActivity;
     private boolean repoIsEncrypted;
     private boolean actionModeOn;
+    private NavContext nav;
+    private DataManager dataManager;
 
     private SparseBooleanArray mSelectedItemsIds;
     private List<Integer> mSelectedItemsPositions = Lists.newArrayList();
@@ -53,6 +64,8 @@ public class SeafItemAdapter extends BaseAdapter {
         mActivity = activity;
         items = Lists.newArrayList();
         mSelectedItemsIds = new SparseBooleanArray();
+        nav = mActivity.getNavContext();
+        dataManager = mActivity.getDataManager();
     }
 
     /**
@@ -268,7 +281,6 @@ public class SeafItemAdapter extends BaseAdapter {
         } else {
             viewHolder = (Viewholder) convertView.getTag();
         }
-
         viewHolder.action.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -308,6 +320,7 @@ public class SeafItemAdapter extends BaseAdapter {
             viewHolder.multiSelect.setVisibility(View.GONE);
 
         viewHolder.title.setText(dirent.getTitle());
+        viewHolder.icon.setTag(R.id.imageloader_uri, dirent.getTitle());
         if (dirent.isDir()) {
             viewHolder.downloadStatusIcon.setVisibility(View.GONE);
             viewHolder.progressBar.setVisibility(View.GONE);
@@ -344,8 +357,6 @@ public class SeafItemAdapter extends BaseAdapter {
      * @param position
      */
     private void setFileView(SeafDirent dirent, Viewholder viewHolder, int position) {
-        NavContext nav = mActivity.getNavContext();
-        DataManager dataManager = mActivity.getDataManager();
         String repoName = nav.getRepoName();
         String repoID = nav.getRepoID();
         String filePath = Utils.pathJoin(nav.getDirPath(), dirent.name);
@@ -416,28 +427,42 @@ public class SeafItemAdapter extends BaseAdapter {
             viewHolder.downloadStatusIcon.setImageResource(downloadStatusIcon);
             viewHolder.subtitle.setText(dirent.getSubtitle());
         }
-
         if (Utils.isViewableImage(file.getName())) {
-            DisplayImageOptions options = new DisplayImageOptions.Builder()
-                    .extraForDownloader(dataManager.getAccount())
-                    .delayBeforeLoading(500)
-                    .resetViewBeforeLoading(true)
-                    .showImageOnLoading(R.drawable.file_image)
-                    .showImageForEmptyUri(R.drawable.file_image)
-                    .showImageOnFail(R.drawable.file_image)
-                    .cacheInMemory(true)
-                    .cacheOnDisk(true)
-                    .considerExifParams(true)
-                    .build();
-
-            ImageLoadingListener animateFirstListener = new AnimateFirstDisplayListener();
-            String url = dataManager.getThumbnailLink(repoName, repoID, filePath, getThumbnailWidth());
+            String url = dataManager.getImageThumbnailLink(repoName, repoID, filePath, getThumbnailWidth());
             if (url == null) {
                 viewHolder.icon.setImageResource(dirent.getIcon());
             } else {
-                ImageLoader.getInstance().clearMemoryCache();
-                ImageLoader.getInstance().clearDiskCache();
-                ImageLoader.getInstance().displayImage(url, viewHolder.icon, options, animateFirstListener);
+                GlideUrl glideUrl = new GlideUrl(url, new LazyHeaders.Builder()
+                        .addHeader("Authorization", "Token " + mActivity.getAccount().token)
+                        .build());
+                RequestOptions opt = new RequestOptions()
+                        .fallback(R.drawable.file_image)
+                        .placeholder(R.drawable.file_image)
+                        .signature(new ObjectKey(dirent.size + ""))
+                        .override(WidgetUtils.getThumbnailWidth(), WidgetUtils.getThumbnailWidth());
+                Glide.with(mActivity)
+                        .asBitmap()
+                        .load(glideUrl)
+                        .apply(opt)
+                        .thumbnail(0.1f)
+                        .listener(new RequestListener<Bitmap>() {
+                            @Override
+                            public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Bitmap> target, boolean isFirstResource) {
+                                return false;
+                            }
+
+                            @Override
+                            public boolean onResourceReady(Bitmap resource, Object model, Target<Bitmap> target, DataSource dataSource, boolean isFirstResource) {
+                                String tag = (String) viewHolder.icon.getTag(R.id.imageloader_uri);
+                                if (tag.equals(dirent.getTitle())) {
+                                    viewHolder.icon.setImageBitmap(resource);
+                                    return false;
+                                }
+                                return true;
+                            }
+                        })
+                        .into(viewHolder.icon);
+
             }
         } else {
             viewHolder.icon.setImageResource(dirent.getIcon());

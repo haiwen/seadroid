@@ -1,5 +1,7 @@
 package com.seafile.seadroid2.ui.adapter;
 
+import android.graphics.Bitmap;
+import android.support.annotation.Nullable;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,14 +10,19 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.load.model.GlideUrl;
+import com.bumptech.glide.load.model.LazyHeaders;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.Target;
 import com.google.common.collect.Lists;
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafItem;
 import com.seafile.seadroid2.data.SeafStarredFile;
-import com.seafile.seadroid2.ui.AnimateFirstDisplayListener;
 import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
 import com.seafile.seadroid2.util.Utils;
@@ -24,9 +31,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class StarredItemAdapter extends BaseAdapter {
-
+    private static final String DEBUG_TAG = "StarredItemAdapter";
     private ArrayList<SeafItem> items;
     private BrowserActivity mActivity;
+    private DataManager dataManager;
 
     private boolean actionModeOn;
     private SparseBooleanArray mSelectedItemsIds;
@@ -37,6 +45,8 @@ public class StarredItemAdapter extends BaseAdapter {
         this.mActivity = activity;
         items = Lists.newArrayList();
         mSelectedItemsIds = new SparseBooleanArray();
+        dataManager = mActivity.getDataManager();
+
     }
 
     @Override
@@ -139,30 +149,45 @@ public class StarredItemAdapter extends BaseAdapter {
         } else {
             viewHolder = (Viewholder) convertView.getTag();
         }
-
         viewHolder.title.setText(item.getTitle());
         viewHolder.subtitle.setText(item.getSubtitle());
+        viewHolder.icon.setTag(R.id.imageloader_uri, item.getTitle());
         judgeRepo(item, viewHolder);
 
         if (Utils.isViewableImage(item.getTitle())) {
-            DisplayImageOptions options = new DisplayImageOptions.Builder()
-                    .extraForDownloader(mActivity.getDataManager().getAccount())
-                    .delayBeforeLoading(500)
-                    .resetViewBeforeLoading(true)
-                    .showImageOnLoading(R.drawable.file_image)
-                    .showImageForEmptyUri(R.drawable.file_image)
-                    .showImageOnFail(R.drawable.file_image)
-                    .cacheInMemory(true)
-                    .cacheOnDisk(true)
-                    .considerExifParams(true)
-                    .build();
-
-            ImageLoadingListener animateFirstListener = new AnimateFirstDisplayListener();
-            String url = mActivity.getDataManager().getThumbnailLink(((SeafStarredFile) item).getRepoID(), ((SeafStarredFile) item).getPath(), WidgetUtils.getThumbnailWidth());
+            String url = dataManager.getImageThumbnailLink(((SeafStarredFile) item).getRepoName(), ((SeafStarredFile) item).getRepoID(),
+                    ((SeafStarredFile) item).getPath(), WidgetUtils.getThumbnailWidth());
             if (url == null) {
                 judgeRepo(item, viewHolder);
-            } else
-                ImageLoader.getInstance().displayImage(url, viewHolder.icon, options, animateFirstListener);
+            } else {
+                GlideUrl glideUrl = new GlideUrl(url, new LazyHeaders.Builder()
+                        .addHeader("Authorization", "Token " + mActivity.getAccount().token)
+                        .build());
+                RequestOptions opt = new RequestOptions()
+                        .placeholder(R.drawable.file_image)
+                        .override(WidgetUtils.getThumbnailWidth(), WidgetUtils.getThumbnailWidth());
+                Glide.with(mActivity)
+                        .asBitmap()
+                        .load(glideUrl)
+                        .apply(opt)
+                        .listener(new RequestListener<Bitmap>() {
+                            @Override
+                            public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Bitmap> target, boolean isFirstResource) {
+                                return false;
+                            }
+
+                            @Override
+                            public boolean onResourceReady(Bitmap resource, Object model, Target<Bitmap> target, DataSource dataSource, boolean isFirstResource) {
+                                String tag = (String) viewHolder.icon.getTag(R.id.imageloader_uri);
+                                if (tag.equals(item.getTitle())) {
+                                    viewHolder.icon.setImageBitmap(resource);
+                                    return false;
+                                }
+                                return true;
+                            }
+                        })
+                        .into(viewHolder.icon);
+            }
         } else {
 
             judgeRepo(item, viewHolder);
