@@ -19,8 +19,10 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.google.common.collect.Maps;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
@@ -650,6 +652,8 @@ public class SettingsFragment extends CustomPreferenceFragment {
             public void onTaskSuccess() {
                 // refresh cache size
                 calculateCacheSize();
+                //clear Glide cache
+                Glide.get(SeadroidApplication.getAppContext()).clearMemory();
                 Toast.makeText(mActivity, getString(R.string.settings_clear_cache_success), Toast.LENGTH_SHORT).show();
             }
 

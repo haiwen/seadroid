@@ -125,6 +125,15 @@ public class DataManager {
         }
     }
 
+    public String getImageThumbnailLink(String repoName, String repoID, String filePath, int size) {
+        try {
+            String pathEnc = URLEncoder.encode(filePath, "UTF-8");
+            return account.getServer() + String.format("api2/repos/%s/thumbnail/?p=%s&size=%s", repoID, pathEnc, size);
+        } catch (UnsupportedEncodingException e) {
+            return null;
+        }
+    }
+
     public String getThumbnailLink(String repoID, String filePath, int size) {
         SeafRepo repo = getCachedRepoByID(repoID);
         if (repo != null)

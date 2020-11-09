@@ -36,6 +36,8 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.model.GlideUrl;
 import com.bumptech.glide.load.model.LazyHeaders;
+import com.bumptech.glide.load.resource.bitmap.CenterCrop;
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -962,7 +964,7 @@ public class Utils {
         return "";
     }
 
-    public static void utilGlide(Context ct, String urlicon, String token, ImageView iv, int width, int height) {
+    public static void glideImage(Context ct, String urlicon, String token, ImageView iv, int width, int height) {
         GlideUrl glideUrl = new GlideUrl(urlicon, new LazyHeaders.Builder()
                 .addHeader("Authorization", "Token " + token)
                 .build());
@@ -975,6 +977,22 @@ public class Utils {
                 .asBitmap()
                 .load(glideUrl)
                 .apply(opt)
+                .into(iv);
+    }
+
+    public static void glideCircle(Context ct, String urlicon, String token, ImageView iv, int width, int height) {
+        GlideUrl glideUrl = new GlideUrl(urlicon, new LazyHeaders.Builder()
+                .addHeader("Authorization", "Token " + token)
+                .build());
+        RequestOptions opt = new RequestOptions()
+                .placeholder(R.drawable.file_image)
+                .override(width, height)
+                .transform(new CenterCrop(), new RoundedCorners(100));
+        Glide.with(ct)
+                .asBitmap()
+                .load(glideUrl)
+                .apply(opt)
+                .thumbnail(0.1f)
                 .into(iv);
     }
 

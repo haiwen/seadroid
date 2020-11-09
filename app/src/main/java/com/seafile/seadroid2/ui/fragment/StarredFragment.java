@@ -33,7 +33,6 @@ import com.seafile.seadroid2.ui.dialog.TaskDialog;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.util.Utils;
 
-import java.io.File;
 import java.util.List;
 
 import static com.seafile.seadroid2.ui.fragment.ReposFragment.IMAGE_CHANGE_MARK;
@@ -57,6 +56,7 @@ public class StarredFragment extends ListFragment {
     private static final int REFRESH_ON_OVERFLOW_MENU = 2;
     private static int mRefreshType = -1;
     public static final String PASSWORD_DIALOG_STARREDFRAGMENT_TAG = "password_starredfragment";
+    private static final String DEBUG_TAG = "StarredFragment";
 
     private DataManager getDataManager() {
         return mActivity.getDataManager();
@@ -218,16 +218,12 @@ public class StarredFragment extends ListFragment {
         if (starredFiles.size() > 0) {
             for (SeafStarredFile starred : starredFiles) {
                 if (Utils.isViewableImage(starred.getTitle())) {
-                    String imageSize = getDataManager().getImageSize(Utils.MD5Utils(starred.getTitle() + starred.getRepoName() + starred.getPath()));
+                    String imageSize = getDataManager().getImageSize(Utils.MD5Utils(starred.getRepoID() + starred.getPath() + starred.getTitle()));
                     if (!TextUtils.isEmpty(imageSize) && Long.valueOf(imageSize).longValue() != starred.getSize()) {
                         starred.setImageChange(IMAGE_CHANGE_MARK);
                     } else {
-                        getDataManager().setImageSize(Utils.MD5Utils(starred.getTitle() + starred.getRepoName() + starred.getPath()), starred.getSize() + "");
+                        getDataManager().setImageSize(Utils.MD5Utils(starred.getRepoID() + starred.getPath() + starred.getTitle()), starred.getSize() + "");
                     }
-                }
-                File file = getDataManager().getLocalRepoFile(starred.getRepoName(), starred.getRepoID(), starred.getPath());
-                if (file.exists() && Utils.isViewableImage(file.getName())) {
-                    starred.setImageAbsolutePath(file.getAbsolutePath().toString());
                 }
                 adapter.add(starred);
             }

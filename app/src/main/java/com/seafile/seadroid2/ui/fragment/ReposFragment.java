@@ -556,22 +556,18 @@ public class ReposFragment extends ListFragment {
         adapter.clear();
         if (dirents.size() > 0) {
             NavContext nav = getNavContext();
-            final String repoName = nav.getRepoName();
+//            final String repoName = nav.getRepoName();
             final String repoID = nav.getRepoID();
             final String dirPath = nav.getDirPath();
             for (SeafDirent dirent : dirents) {
                 String file_path = Utils.pathJoin(dirPath, dirent.name);
-                File file = getDataManager().getLocalRepoFile(repoName, repoID, file_path);
-                if (file.exists()) {
-                    dirent.setImageAbsolutePath(file.getAbsolutePath().toString());
-                }
                 if (Utils.isViewableImage(dirent.name)) {
 
-                    String imageSize = getDataManager().getImageSize(Utils.MD5Utils(dirent.name + repoName + file_path));
+                    String imageSize = getDataManager().getImageSize(Utils.MD5Utils(repoID + file_path+ dirent.name));
                     if (!TextUtils.isEmpty(imageSize) && Long.valueOf(imageSize).longValue() != dirent.getFileSize()) {
                         dirent.setImageChange(IMAGE_CHANGE_MARK);
                     } else {
-                        getDataManager().setImageSize(Utils.MD5Utils(dirent.name + repoName + file_path), dirent.size + "");
+                        getDataManager().setImageSize(Utils.MD5Utils(repoID + file_path + dirent.name), dirent.size + "");
                     }
                 }
 

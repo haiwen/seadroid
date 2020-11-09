@@ -24,7 +24,6 @@ public class SeafDirent implements SeafItem, Serializable {
     public long size;    // size of file, 0 if type is dir
     public long mtime;   // last modified timestamp
     public int imageChange;
-    public String imageAbsolutePath;
 
     static SeafDirent fromJson(JSONObject obj) {
         SeafDirent dirent = new SeafDirent();
@@ -44,14 +43,6 @@ public class SeafDirent implements SeafItem, Serializable {
             Log.d(DEBUG_TAG, e.getMessage());
             return null;
         }
-    }
-
-    public String getImageAbsolutePath() {
-        return imageAbsolutePath;
-    }
-
-    public void setImageAbsolutePath(String imageAbsolutePath) {
-        this.imageAbsolutePath = imageAbsolutePath;
     }
 
     public void setImageChange(int imageChange) {

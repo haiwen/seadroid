@@ -11,7 +11,6 @@ import android.text.ClipboardManager;
 import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.account.Account;
@@ -284,12 +283,4 @@ public class WidgetUtils {
     public static int getThumbnailWidth() {
         return (int) SeadroidApplication.getAppContext().getResources().getDimension(R.dimen.lv_icon_width);
     }
-
-    public static DisplayImageOptions iconOptions = new DisplayImageOptions.Builder()
-            .delayBeforeLoading(0)
-            .resetViewBeforeLoading(true)
-            .cacheInMemory(true)
-            .cacheOnDisk(false)
-            .build();
-
 }

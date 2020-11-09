@@ -2,7 +2,6 @@ package com.seafile.seadroid2.ui.adapter;
 
 import android.graphics.Bitmap;
 import android.support.annotation.Nullable;
-import android.text.TextUtils;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,7 +20,6 @@ import com.bumptech.glide.load.model.LazyHeaders;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.Target;
-import com.bumptech.glide.signature.ObjectKey;
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
@@ -35,14 +33,12 @@ import com.seafile.seadroid2.transfer.DownloadTaskInfo;
 import com.seafile.seadroid2.ui.NavContext;
 import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
-import com.seafile.seadroid2.ui.fragment.ReposFragment;
 import com.seafile.seadroid2.util.Utils;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 
 public class SeafItemAdapter extends BaseAdapter {
 
@@ -431,7 +427,7 @@ public class SeafItemAdapter extends BaseAdapter {
             viewHolder.subtitle.setText(dirent.getSubtitle());
         }
         if (Utils.isViewableImage(file.getName())) {
-            String url = dataManager.getThumbnailLink(repoName, repoID, filePath, getThumbnailWidth());
+            String url = dataManager.getImageThumbnailLink(repoName, repoID, filePath, getThumbnailWidth());
             if (url == null) {
                 viewHolder.icon.setImageResource(dirent.getIcon());
             } else {
@@ -442,35 +438,32 @@ public class SeafItemAdapter extends BaseAdapter {
                         .fallback(R.drawable.file_image)
                         .placeholder(R.drawable.file_image)
                         .override(WidgetUtils.getThumbnailWidth(), WidgetUtils.getThumbnailWidth());
-                if (dirent.getImageChange() == ReposFragment.IMAGE_CHANGE_MARK) {
-                    opt = opt.signature(new ObjectKey(UUID.randomUUID().toString()));
-                }
-                if (!TextUtils.isEmpty(dirent.getImageAbsolutePath())) {
-                    Glide.with(mActivity).load("file://" + dirent.getImageAbsolutePath()).apply(opt).into(viewHolder.icon);
-                } else {
-                    Glide.with(mActivity)
-                            .asBitmap()
-                            .load(glideUrl)
-                            .apply(opt)
-                            .thumbnail(0.1f)
-                            .listener(new RequestListener<Bitmap>() {
-                                @Override
-                                public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Bitmap> target, boolean isFirstResource) {
+//                if (dirent.getImageChange() == ReposFragment.IMAGE_CHANGE_MARK) {
+//                    opt = opt.signature(new ObjectKey(UUID.randomUUID().toString()));
+//                }
+//                opt = opt.signature(new ObjectKey(dirent.size+""));
+                Glide.with(mActivity)
+                        .asBitmap()
+                        .load(glideUrl)
+                        .apply(opt)
+                        .thumbnail(0.1f)
+                        .listener(new RequestListener<Bitmap>() {
+                            @Override
+                            public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Bitmap> target, boolean isFirstResource) {
+                                return false;
+                            }
+
+                            @Override
+                            public boolean onResourceReady(Bitmap resource, Object model, Target<Bitmap> target, DataSource dataSource, boolean isFirstResource) {
+                                String tag = (String) viewHolder.icon.getTag(R.id.imageloader_uri);
+                                if (tag.equals(dirent.getTitle())) {
+                                    viewHolder.icon.setImageBitmap(resource);
                                     return false;
                                 }
-
-                                @Override
-                                public boolean onResourceReady(Bitmap resource, Object model, Target<Bitmap> target, DataSource dataSource, boolean isFirstResource) {
-                                    String tag = (String) viewHolder.icon.getTag(R.id.imageloader_uri);
-                                    if (tag.equals(dirent.getTitle())) {
-                                        viewHolder.icon.setImageBitmap(resource);
-                                        return false;
-                                    }
-                                    return true;
-                                }
-                            })
-                            .into(viewHolder.icon);
-                }
+                                return true;
+                            }
+                        })
+                        .into(viewHolder.icon);
 
             }
         } else {

@@ -25,7 +25,6 @@ import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.database.Cursor;
 import android.database.MatrixCursor;
-import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.net.Uri;
 import android.os.Build;
@@ -39,8 +38,6 @@ import android.provider.DocumentsContract.Root;
 import android.provider.DocumentsProvider;
 import android.util.Log;
 
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.nostra13.universalimageloader.core.ImageLoader;
 import com.seafile.seadroid2.BuildConfig;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
@@ -59,7 +56,6 @@ import org.apache.commons.io.IOUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -405,13 +401,6 @@ public class SeafileProvider extends DocumentsProvider {
 
         String path = DocumentIdParser.getPathFromId(documentId);
 
-        final DisplayImageOptions options = new DisplayImageOptions.Builder()
-                .extraForDownloader(dm.getAccount())
-                .cacheInMemory(false) // SAF does its own caching
-                .cacheOnDisk(true)
-                .considerExifParams(true)
-                .build();
-
         final ParcelFileDescriptor[] pair;
         try {
             pair = ParcelFileDescriptor.createReliablePipe();
@@ -429,15 +418,15 @@ public class SeafileProvider extends DocumentsProvider {
             @Override
             public void run() {
                 try {
-                    FileOutputStream fileStream = new FileOutputStream(pair[1].getFileDescriptor());
+//                    FileOutputStream fileStream = new FileOutputStream(pair[1].getFileDescriptor());
 
                     // load the file. this might involve talking to the seafile server. this will hang until
                     // it is done.
-                    Bitmap bmp = ImageLoader.getInstance().loadImageSync(url, options);
-
-                    if (bmp != null) {
-                        bmp.compress(Bitmap.CompressFormat.PNG, 100, fileStream);
-                    }
+//                    Bitmap bmp = ImageLoader.getInstance().loadImageSync(url, options);
+//
+//                    if (bmp != null) {
+//                        bmp.compress(Bitmap.CompressFormat.PNG, 100, fileStream);
+//                    }
                 } finally {
                     IOUtils.closeQuietly(pair[1]);
                 }

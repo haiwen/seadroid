@@ -296,6 +296,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         database.delete(FILECACHE_TABLE_NAME, null, null);
         database.delete(DIRENTS_CACHE_TABLE_NAME, null, null);
         database.delete(STARRED_FILECACHE_TABLE_NAME, null, null);
+        database.delete(IMAGE_SIZE_TABLE_NAME, null, null);
     }
 
     public List<SeafCachedFile> getFileCacheItems(DataManager dataManager) {

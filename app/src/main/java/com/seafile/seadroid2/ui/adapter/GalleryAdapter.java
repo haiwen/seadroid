@@ -8,7 +8,6 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 
 import com.bumptech.glide.Glide;
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
@@ -34,7 +33,6 @@ public class GalleryAdapter extends PagerAdapter {
     private GalleryActivity mActivity;
     private List<SeafPhoto> seafPhotos;
     private LayoutInflater inflater;
-    private DisplayImageOptions options;
     private Account mAccount;
     private DataManager dm;
     private DisplayMetrics displayMetrics;
@@ -44,14 +42,6 @@ public class GalleryAdapter extends PagerAdapter {
         mActivity = context;
         seafPhotos = photos;
         inflater = context.getLayoutInflater();
-        options = new DisplayImageOptions.Builder()
-                .showImageForEmptyUri(R.drawable.ic_gallery_empty2)
-                .showImageOnFail(R.drawable.gallery_loading_failed)
-                .cacheInMemory(true)
-                .cacheOnDisk(true)
-                .considerExifParams(true)
-                .extraForDownloader(account)
-                .build();
         mAccount = account;
         dm = dataManager;
         displayMetrics = new DisplayMetrics();
@@ -90,7 +80,7 @@ public class GalleryAdapter extends PagerAdapter {
 //            ImageLoadingListener animateFirstListener = new AnimateFirstDisplayListener();
             String urlicon = dm.getThumbnailLink(repoName, repoID, filePath, Utils.getThumbnailWidth());
 //            ImageLoader.getInstance().displayImage(urlicon, photoView, options, animateFirstListener);
-            Utils.utilGlide(mActivity, urlicon, mAccount.token, photoView, displayMetrics.widthPixels, displayMetrics.heightPixels);
+            Utils.glideImage(mActivity, urlicon, mAccount.token, photoView, displayMetrics.widthPixels, displayMetrics.heightPixels);
         }
 
         photoView.setOnPhotoTapListener(new PhotoViewAttacher.OnPhotoTapListener() {
