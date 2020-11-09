@@ -20,7 +20,6 @@ public class SeafStarredFile implements SeafItem {
     private FileType type;
     private long size;    // size of file, 0 if type is dir
     private String repoName;
-    private int imageChange;
 
     static SeafStarredFile fromJson(JSONObject obj) {
         SeafStarredFile starredFile = new SeafStarredFile();
@@ -42,14 +41,6 @@ public class SeafStarredFile implements SeafItem {
             Log.d(DEBUG_TAG, e.getMessage());
             return null;
         }
-    }
-
-    public int getImageChange() {
-        return imageChange;
-    }
-
-    public void setImageChange(int imageChange) {
-        this.imageChange = imageChange;
     }
 
     public String getRepoName() {

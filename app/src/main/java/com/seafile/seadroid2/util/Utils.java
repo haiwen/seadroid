@@ -36,8 +36,6 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.model.GlideUrl;
 import com.bumptech.glide.load.model.LazyHeaders;
-import com.bumptech.glide.load.resource.bitmap.CenterCrop;
-import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -72,7 +70,6 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.security.MessageDigest;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
@@ -979,41 +976,4 @@ public class Utils {
                 .apply(opt)
                 .into(iv);
     }
-
-    public static void glideCircle(Context ct, String urlicon, String token, ImageView iv, int width, int height) {
-        GlideUrl glideUrl = new GlideUrl(urlicon, new LazyHeaders.Builder()
-                .addHeader("Authorization", "Token " + token)
-                .build());
-        RequestOptions opt = new RequestOptions()
-                .placeholder(R.drawable.file_image)
-                .override(width, height)
-                .transform(new CenterCrop(), new RoundedCorners(100));
-        Glide.with(ct)
-                .asBitmap()
-                .load(glideUrl)
-                .apply(opt)
-                .thumbnail(0.1f)
-                .into(iv);
-    }
-
-    public static String MD5Utils(String password) {
-        try {
-            MessageDigest digest = MessageDigest.getInstance("MD5");
-            byte[] bytes = digest.digest(password.getBytes());
-            StringBuilder sb = new StringBuilder();
-            for (byte b : bytes) {
-                int c = b & 0xff;
-                String result = Integer.toHexString(c);
-                if (result.length() < 2) {
-                    sb.append(0);
-                }
-                sb.append(result);
-            }
-            return sb.toString();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            return "";
-        }
-    }
-
 }

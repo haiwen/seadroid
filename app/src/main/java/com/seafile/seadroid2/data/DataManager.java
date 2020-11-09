@@ -1020,18 +1020,6 @@ public class DataManager {
         }
     }
 
-    public void setImageSize(String name, String size) {
-        if (!TextUtils.isEmpty(name)
-                && !TextUtils.isEmpty(size)) {
-            dbHelper.saveImageSize(name, size);
-        }
-    }
-
-    public String getImageSize(String imageName) {
-        String imageSize = dbHelper.getImageSize(imageName);
-        return imageSize;
-    }
-
     public void setRepoPasswordSet(String repoID, String password) {
         passwords.put(repoID, new PasswordInfo(password, Utils.now()));
     }

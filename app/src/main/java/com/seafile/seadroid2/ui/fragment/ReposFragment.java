@@ -9,7 +9,6 @@ import android.os.Handler;
 import android.support.v4.app.ListFragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.view.ActionMode;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -78,7 +77,6 @@ public class ReposFragment extends ListFragment {
     public static final int FILE_ACTION_COPY = 1;
     public static final int FILE_ACTION_MOVE = 2;
     public static final int FILE_ACTION_STAR = 3;
-    public static final int IMAGE_CHANGE_MARK = 1;//The same name image has been replaced
 
     private SwipeRefreshLayout refreshLayout;
     private ListView mListView;
@@ -555,25 +553,13 @@ public class ReposFragment extends ListFragment {
     private void updateAdapterWithDirents(final List<SeafDirent> dirents, boolean restoreScrollPosition) {
         adapter.clear();
         if (dirents.size() > 0) {
-            NavContext nav = getNavContext();
-//            final String repoName = nav.getRepoName();
-            final String repoID = nav.getRepoID();
-            final String dirPath = nav.getDirPath();
             for (SeafDirent dirent : dirents) {
-                String file_path = Utils.pathJoin(dirPath, dirent.name);
-                if (Utils.isViewableImage(dirent.name)) {
-
-                    String imageSize = getDataManager().getImageSize(Utils.MD5Utils(repoID + file_path+ dirent.name));
-                    if (!TextUtils.isEmpty(imageSize) && Long.valueOf(imageSize).longValue() != dirent.getFileSize()) {
-                        dirent.setImageChange(IMAGE_CHANGE_MARK);
-                    } else {
-                        getDataManager().setImageSize(Utils.MD5Utils(repoID + file_path + dirent.name), dirent.size + "");
-                    }
-                }
-
                 adapter.add(dirent);
             }
-
+            NavContext nav = getNavContext();
+            final String repoName = nav.getRepoName();
+            final String repoID = nav.getRepoID();
+            final String dirPath = nav.getDirPath();
 
             adapter.sortFiles(SettingsManager.instance().getSortFilesTypePref(),
                     SettingsManager.instance().getSortFilesOrderPref());
@@ -971,13 +957,12 @@ public class ReposFragment extends ListFragment {
                         String path = Utils.pathJoin(getNavContext().getDirPath(), sd.name);
                         File localfile = dataManager.getLocalRepoFile(repoName, repoID, path);
                         if (localfile == null) {
-                            return null;
-                        }
-                        long localfileSize = localfile.length();
-                        if (localfileSize != sd.getFileSize()) {
-                            SeafCachedFile scf = dataManager.getCachedFile(repoName, repoID, path);
-                            if (scf != null) {
-                                dataManager.removeCachedFile(scf);
+                            long localfileSize = localfile.length();
+                            if (localfileSize != sd.getFileSize()) {
+                                SeafCachedFile scf = dataManager.getCachedFile(repoName, repoID, path);
+                                if (scf != null) {
+                                    dataManager.removeCachedFile(scf);
+                                }
                             }
                         }
                     }

@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.view.ActionMode;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -35,8 +34,6 @@ import com.seafile.seadroid2.util.Utils;
 
 import java.util.List;
 
-import static com.seafile.seadroid2.ui.fragment.ReposFragment.IMAGE_CHANGE_MARK;
-
 
 public class StarredFragment extends ListFragment {
     private StarredItemAdapter adapter;
@@ -56,7 +53,6 @@ public class StarredFragment extends ListFragment {
     private static final int REFRESH_ON_OVERFLOW_MENU = 2;
     private static int mRefreshType = -1;
     public static final String PASSWORD_DIALOG_STARREDFRAGMENT_TAG = "password_starredfragment";
-    private static final String DEBUG_TAG = "StarredFragment";
 
     private DataManager getDataManager() {
         return mActivity.getDataManager();
@@ -217,14 +213,6 @@ public class StarredFragment extends ListFragment {
         adapter.clear();
         if (starredFiles.size() > 0) {
             for (SeafStarredFile starred : starredFiles) {
-                if (Utils.isViewableImage(starred.getTitle())) {
-                    String imageSize = getDataManager().getImageSize(Utils.MD5Utils(starred.getRepoID() + starred.getPath() + starred.getTitle()));
-                    if (!TextUtils.isEmpty(imageSize) && Long.valueOf(imageSize).longValue() != starred.getSize()) {
-                        starred.setImageChange(IMAGE_CHANGE_MARK);
-                    } else {
-                        getDataManager().setImageSize(Utils.MD5Utils(starred.getRepoID() + starred.getPath() + starred.getTitle()), starred.getSize() + "");
-                    }
-                }
                 adapter.add(starred);
             }
             adapter.notifyChanged();

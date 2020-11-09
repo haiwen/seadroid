@@ -438,11 +438,8 @@ public class SeafItemAdapter extends BaseAdapter {
                 RequestOptions opt = new RequestOptions()
                         .fallback(R.drawable.file_image)
                         .placeholder(R.drawable.file_image)
+                        .signature(new ObjectKey(dirent.size + ""))
                         .override(WidgetUtils.getThumbnailWidth(), WidgetUtils.getThumbnailWidth());
-//                if (dirent.getImageChange() == ReposFragment.IMAGE_CHANGE_MARK) {
-//                    opt = opt.signature(new ObjectKey(UUID.randomUUID().toString()));
-//                }
-                opt = opt.signature(new ObjectKey(dirent.size+""));
                 Glide.with(mActivity)
                         .asBitmap()
                         .load(glideUrl)

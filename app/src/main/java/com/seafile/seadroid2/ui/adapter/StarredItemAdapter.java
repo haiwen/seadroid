@@ -18,7 +18,6 @@ import com.bumptech.glide.load.model.LazyHeaders;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.Target;
-import com.bumptech.glide.signature.ObjectKey;
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.data.DataManager;
@@ -167,10 +166,6 @@ public class StarredItemAdapter extends BaseAdapter {
                 RequestOptions opt = new RequestOptions()
                         .placeholder(R.drawable.file_image)
                         .override(WidgetUtils.getThumbnailWidth(), WidgetUtils.getThumbnailWidth());
-//                if (((SeafStarredFile) item).getImageChange() == ReposFragment.IMAGE_CHANGE_MARK) {
-//                    opt = opt.signature(new ObjectKey(UUID.randomUUID().toString()));
-//                }
-                opt = opt.signature(new ObjectKey(((SeafStarredFile) item).getSize()+""));
                 Glide.with(mActivity)
                         .asBitmap()
                         .load(glideUrl)
