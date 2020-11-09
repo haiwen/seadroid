@@ -956,7 +956,7 @@ public class ReposFragment extends ListFragment {
                         String repoID = getNavContext().getRepoID();
                         String path = Utils.pathJoin(getNavContext().getDirPath(), sd.name);
                         File localfile = dataManager.getLocalRepoFile(repoName, repoID, path);
-                        if (localfile == null) {
+                        if (localfile != null) {
                             long localfileSize = localfile.length();
                             if (localfileSize != sd.getFileSize()) {
                                 SeafCachedFile scf = dataManager.getCachedFile(repoName, repoID, path);
