@@ -1,5 +1,7 @@
 package com.seafile.seadroid2.ui.adapter;
 
+import android.graphics.Bitmap;
+import android.support.annotation.Nullable;
 import android.support.v4.view.PagerAdapter;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
@@ -8,6 +10,14 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.load.model.GlideUrl;
+import com.bumptech.glide.load.model.LazyHeaders;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.Target;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
@@ -73,14 +83,36 @@ public class GalleryAdapter extends PagerAdapter {
                 seafPhoto.getName());
         final File file = dm.getLocalRepoFile(repoName, repoID, filePath);
         if (file.exists()) {
-//            ImageLoader.getInstance().displayImage("file://" + file.getAbsolutePath().toString(), photoView, options);
             Glide.with(mActivity).load("file://" + file.getAbsolutePath().toString()).into(photoView);
             seafPhoto.setDownloaded(true);
         } else {
-//            ImageLoadingListener animateFirstListener = new AnimateFirstDisplayListener();
             String urlicon = dm.getThumbnailLink(repoName, repoID, filePath, Utils.getThumbnailWidth());
-//            ImageLoader.getInstance().displayImage(urlicon, photoView, options, animateFirstListener);
-            Utils.glideImage(mActivity, urlicon, mAccount.token, photoView, displayMetrics.widthPixels, displayMetrics.heightPixels);
+            progressBar.setVisibility(View.VISIBLE);
+            GlideUrl glideUrl = new GlideUrl(urlicon, new LazyHeaders.Builder()
+                    .addHeader("Authorization", "Token " + mAccount.token)
+                    .build());
+            RequestOptions opt = new RequestOptions()
+                    .skipMemoryCache(true)
+                    .override(displayMetrics.widthPixels, displayMetrics.heightPixels)
+                    .diskCacheStrategy(DiskCacheStrategy.NONE);
+            Glide.with(mActivity)
+                    .asBitmap()
+                    .load(glideUrl)
+                    .apply(opt)
+                    .listener(new RequestListener<Bitmap>() {
+                        @Override
+                        public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Bitmap> target, boolean isFirstResource) {
+                            progressBar.setVisibility(View.GONE);
+                            return false;
+                        }
+
+                        @Override
+                        public boolean onResourceReady(Bitmap resource, Object model, Target<Bitmap> target, DataSource dataSource, boolean isFirstResource) {
+                            progressBar.setVisibility(View.GONE);
+                            return false;
+                        }
+                    })
+                    .into(photoView);
         }
 
         photoView.setOnPhotoTapListener(new PhotoViewAttacher.OnPhotoTapListener() {
