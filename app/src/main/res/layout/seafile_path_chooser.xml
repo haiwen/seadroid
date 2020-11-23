@@ -98,6 +98,7 @@
           android:textSize="@dimen/btn_txt_size"
           android:textColor="@color/light_black"
           android:gravity="center"
+          android:visibility="gone"
           android:theme="@style/NegativeButton"
           />
 
