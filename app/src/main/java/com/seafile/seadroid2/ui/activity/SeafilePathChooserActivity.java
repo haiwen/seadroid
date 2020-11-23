@@ -451,7 +451,7 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
         // update action bar
         setListAdapter(getDirentsAdapter());
         mOkButton.setVisibility(View.VISIBLE);
-        mNewFolder.setVisibility(View.VISIBLE);
+//        mNewFolder.setVisibility(View.VISIBLE);
         refreshDir(forceRefresh);
     }
 
