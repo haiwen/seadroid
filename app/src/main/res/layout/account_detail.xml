@@ -43,7 +43,7 @@
                     android:importantForAutofill="auto"
                     android:inputType="textUri"
                     android:textSize="@dimen/et_txt_size"
-                    android:visibility="invisible" />
+                    android:visibility="visible" />
             </android.support.design.widget.TextInputLayout>
 
             <!-- Spinner Element -->

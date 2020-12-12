@@ -7,8 +7,8 @@ android {
         applicationId 'de.luckycloud.luckycloud'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 103
-        versionName "2.2.25"
+        versionCode 104
+        versionName "2.2.26"
         multiDexEnabled true
         setProperty("archivesBaseName",  "luckycloud-v" + versionName)
         resValue "string", "authorities", applicationId + '.cameraupload.provider'
