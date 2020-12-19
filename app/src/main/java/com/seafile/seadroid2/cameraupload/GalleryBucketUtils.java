@@ -2,11 +2,12 @@ package com.seafile.seadroid2.cameraupload;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteException;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.util.Log;
 
 import com.seafile.seadroid2.data.StorageManager;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -66,14 +67,26 @@ public class GalleryBucketUtils {
 
         String BUCKET_ORDER_BY = MediaStore.Video.Media.BUCKET_DISPLAY_NAME + " ASC";
         String BUCKET_GROUP_BY = "1) GROUP BY 1,(2";
-        Cursor cursor = context.getContentResolver().query(images,
-                projection,            // Which columns to return
-                BUCKET_GROUP_BY,       // Which rows to return (all rows)
-                null,                  // Selection arguments (none)
-                BUCKET_ORDER_BY        // Ordering
-        );
+        BUCKET_GROUP_BY = "";
 
         List<Bucket> buckets = new ArrayList<Bucket>();
+
+
+        Cursor cursor = null;
+        try {
+            cursor = context.getContentResolver().query(images,
+                    projection,            // Which columns to return
+                    BUCKET_GROUP_BY,       // Which rows to return (all rows)
+                    null,                  // Selection arguments (none)
+                    BUCKET_ORDER_BY        // Ordering
+            );
+        } catch (SQLiteException e) {
+            e.printStackTrace();
+            Log.e(DEBUG_TAG, "SQLiteException occurred");
+            return buckets;
+        }
+
+
 
         if (cursor == null) {
             return buckets;
@@ -106,6 +119,8 @@ public class GalleryBucketUtils {
 
     private static List<Bucket> getImageBuckets(Context context) {
         Uri images = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+
+
         String[] projection = new String[]{
                 MediaStore.Images.Media.BUCKET_ID,
                 MediaStore.Images.Media.BUCKET_DISPLAY_NAME,
@@ -115,14 +130,24 @@ public class GalleryBucketUtils {
 
         String BUCKET_ORDER_BY = MediaStore.Images.Media.BUCKET_DISPLAY_NAME + " ASC";
         String BUCKET_GROUP_BY = "1) GROUP BY 1,(2";
-        Cursor cursor = context.getContentResolver().query(images,
-                projection,            // Which columns to return
-                BUCKET_GROUP_BY,       // Which rows to return (all rows)
-                null,                  // Selection arguments (none)
-                BUCKET_ORDER_BY        // Ordering
-        );
+        BUCKET_GROUP_BY = "";
 
         List<Bucket> buckets = new ArrayList<Bucket>();
+
+        Cursor cursor = null;
+        try {
+            cursor = context.getContentResolver().query(images,
+                    projection,            // Which columns to return
+                    BUCKET_GROUP_BY,       // Which rows to return (all rows)
+                    null,                  // Selection arguments (none)
+                    BUCKET_ORDER_BY        // Ordering
+            );
+        } catch (SQLiteException e) {
+            e.printStackTrace();
+            Log.e(DEBUG_TAG, "SQLiteException occurred");
+            return buckets;
+        }
+
 
         if (cursor == null) {
             return buckets;
