@@ -4,6 +4,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
 import android.net.Uri;
+import android.os.Build;
 import android.provider.MediaStore;
 import android.util.Log;
 
@@ -67,10 +68,12 @@ public class GalleryBucketUtils {
 
         String BUCKET_ORDER_BY = MediaStore.Video.Media.BUCKET_DISPLAY_NAME + " ASC";
         String BUCKET_GROUP_BY = "1) GROUP BY 1,(2";
-        BUCKET_GROUP_BY = "";
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            BUCKET_GROUP_BY = "";
+        }
 
         List<Bucket> buckets = new ArrayList<Bucket>();
-
 
         Cursor cursor = null;
         try {
@@ -85,8 +88,6 @@ public class GalleryBucketUtils {
             Log.e(DEBUG_TAG, "SQLiteException occurred");
             return buckets;
         }
-
-
 
         if (cursor == null) {
             return buckets;
@@ -130,7 +131,10 @@ public class GalleryBucketUtils {
 
         String BUCKET_ORDER_BY = MediaStore.Images.Media.BUCKET_DISPLAY_NAME + " ASC";
         String BUCKET_GROUP_BY = "1) GROUP BY 1,(2";
-        BUCKET_GROUP_BY = "";
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            BUCKET_GROUP_BY = "";
+        }
 
         List<Bucket> buckets = new ArrayList<Bucket>();
 
