@@ -5,6 +5,10 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
 
+import com.seafile.seadroid2.SeadroidApplication;
+import com.seafile.seadroid2.data.StorageManager;
+import com.seafile.seadroid2.util.Utils;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -87,7 +91,13 @@ public class GalleryBucketUtils {
                     b.isCameraBucket = true;
                 }
             }
-            buckets.add(b);
+
+            // ignore buckets created by Seadroid
+            String id = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Video.Media._ID));
+            Uri uri = Uri.withAppendedPath(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, id);
+            String file = Utils.getRealPathFromURI(SeadroidApplication.getAppContext(),uri);
+            if (file == null || !file.startsWith(StorageManager.getInstance().getMediaDir().getAbsolutePath()))
+                buckets.add(b);
         }
         cursor.close();
 
@@ -95,43 +105,46 @@ public class GalleryBucketUtils {
     }
 
     private static List<Bucket> getImageBuckets(Context context) {
-        Uri images = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-        String[] projection = new String[]{
-                MediaStore.Images.Media.BUCKET_ID,
+        final Uri contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+        List<Bucket> buckets = new ArrayList<Bucket>();
+        final String[] projection = {
                 MediaStore.Images.Media.BUCKET_DISPLAY_NAME,
+                MediaStore.Images.Media.BUCKET_ID,
                 MediaStore.Images.Media._ID
         };
 
-        Cursor cursor = context.getContentResolver().query(images,
-                projection,            // Which columns to return
-                null,       // Which rows to return (all rows)
-                null,                  // Selection arguments (none)
-                null        // Ordering
-        );
+        try (final Cursor cursor = context.getContentResolver().query(
+                contentUri,
+                projection,
+                null,
+                null,
+                null
+        )) {
+            if ((cursor != null) && (cursor.moveToFirst() == true)) {
+                final int columnBucketName = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.BUCKET_DISPLAY_NAME);
+                final int columnBucketId = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.BUCKET_ID);
+                final int idColumnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID);
 
-        List<Bucket> buckets = new ArrayList<Bucket>();
+                do {
+                    final String bucketId = cursor.getString(columnBucketId);
+                    final String bucketName = cursor.getString(columnBucketName);
+                    Bucket b = new Bucket();
+                    b.id = bucketId;
+                    b.name = bucketName;
+                    b.image_id = cursor.getInt(idColumnIndex);
+                    b.isCameraBucket = false;
+                    for (String name : CAMERA_BUCKET_NAMES) {
+                        if (b.name != null && b.name.equalsIgnoreCase(name)) {
+                            b.isCameraBucket = true;
+                        }
+                    }
 
-        if (cursor == null) {
-            return buckets;
-        }
+                    buckets.add(b);
 
-        while (cursor.moveToNext()) {
-            int bucketIdColumnIndex = cursor.getColumnIndex(MediaStore.Images.Media.BUCKET_ID);
-            int bucketColumnIndex = cursor.getColumnIndex(MediaStore.Images.Media.BUCKET_DISPLAY_NAME);
-            Bucket b = new Bucket();
-            b.id = cursor.getString(bucketIdColumnIndex);
-            b.name = cursor.getString(bucketColumnIndex);
-
-            b.isCameraBucket = false;
-            for (String name : CAMERA_BUCKET_NAMES) {
-                if (b.name != null && b.name.equalsIgnoreCase(name)) {
-                    b.isCameraBucket = true;
-                }
+                } while (cursor.moveToNext());
             }
-            buckets.add(b);
         }
-        cursor.close();
-
         return buckets;
+
     }
 }

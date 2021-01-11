@@ -507,22 +507,16 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
         tasksInProgress.clear();
 
         File file;
-        Uri uri;
-        String id;
         // upload them one by one
         while (!isCancelled() && cursor.moveToNext()) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                id = cursor.getString(cursor.getColumnIndexOrThrow(mediaId));
-                if (MediaStore.Images.Media._ID.equals(mediaId)) {
-                    uri = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id);
-                } else {
-                    uri = Uri.withAppendedPath(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, id);
-                }
+                String id = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID));
+                Uri uri = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id);
                 if (uri == null) {
                     syncResult.stats.numSkippedEntries++;
                     continue;
                 }
-                file = new File(Utils.getRealPathFromURI(SeadroidApplication.getAppContext(), uri, mediaId));
+                file = new File(Utils.getRealPathFromUri(SeadroidApplication.getAppContext(), uri));
             } else {
                 int dataColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA);
                 if (cursor.getString(dataColumn) == null) {
@@ -532,7 +526,6 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
                 file = new File(cursor.getString(dataColumn));
 
             }
-//            Utils.utilsLogInfo(true,"======iterateCursor");
             int bucketColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME);
             String bucketName = cursor.getString(bucketColumn);
 
