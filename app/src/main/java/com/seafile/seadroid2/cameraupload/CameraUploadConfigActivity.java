@@ -8,6 +8,7 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.view.View;
+
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
@@ -18,19 +19,20 @@ import com.seafile.seadroid2.ui.fragment.SettingsFragment;
 import com.seafile.seadroid2.util.SystemSwitchUtils;
 import com.viewpagerindicator.LinePageIndicator;
 
-import java.util.List;
+import java.util.ArrayList;
 
 
 /**
  * Camera upload configuration helper
  */
 public class CameraUploadConfigActivity extends BaseActivity {
-    public static final String DEBUG_TAG = "CameraUploadConfigActivity";
+    public  String DEBUG_TAG = "CameraUploadConfigActivity";
 
     private ViewPager mViewPager;
     private LinePageIndicator mIndicator;
-    private BucketsFragment mBucketsFragment;
+//    private BucketsFragment mBucketsFragment;
     private CloudLibraryFragment mCloudLibFragment;
+    private WhatToUploadFragment whatToUploadFragment;
     private SettingsManager sm;
     private SeafRepo mSeafRepo;
     private Account mAccount;
@@ -60,7 +62,7 @@ public class CameraUploadConfigActivity extends BaseActivity {
 
         FragmentManager fm = getSupportFragmentManager();
         mViewPager.setAdapter(new CameraUploadConfigAdapter(fm));
-        mViewPager.setOffscreenPageLimit(6);
+        mViewPager.setOffscreenPageLimit(5);
 
         mIndicator = (LinePageIndicator) findViewById(R.id.cuc_indicator);
         mIndicator.setViewPager(mViewPager);
@@ -100,13 +102,13 @@ public class CameraUploadConfigActivity extends BaseActivity {
         if (isChooseBothPages || isChooseDirPage) {
 
             SettingsManager settingsManager = SettingsManager.instance();
-            List<String> selectedBuckets = mBucketsFragment.getSelectionFragment().getSelectedBuckets();
-            if (mBucketsFragment.isAutoScanSelected()){
-                selectedBuckets.clear();
-            }
+//            List<String> selectedBuckets = mBucketsFragment.getSelectionFragment().getSelectedBuckets();
+//            if (mBucketsFragment.isAutoScanSelected()) {
+//                selectedBuckets.clear();
+//            }
             // this is the only setting that is safed here. all other are returned to caller
             // and safed there...
-            settingsManager.setCameraUploadBucketList(selectedBuckets);
+            settingsManager.setCameraUploadBucketList(new ArrayList<>());
         }
 
         Intent intent = new Intent();
@@ -164,16 +166,16 @@ public class CameraUploadConfigActivity extends BaseActivity {
                 return position == 0 ? new CloudLibraryFragment() : null;
             }
 
-            if (isChooseDirPage) {
-                switch (position) {
-                    case 0:
-                        mBucketsFragment = new BucketsFragment();
-                        return mBucketsFragment;
-                    default:
-                        return null;
-                }
-
-            }
+//            if (isChooseDirPage) {
+//                switch (position) {
+//                    case 0:
+//                        mBucketsFragment = new BucketsFragment();
+//                        return mBucketsFragment;
+//                    default:
+//                        return null;
+//                }
+//
+//            }
 
             // Assign the appropriate screen to the fragment object, based on which screen is displayed.
             switch (position) {
@@ -182,14 +184,15 @@ public class CameraUploadConfigActivity extends BaseActivity {
                 case 1:
                     return new HowToUploadFragment();
                 case 2:
-                    return new WhatToUploadFragment();
+                    whatToUploadFragment = new WhatToUploadFragment();
+                    return whatToUploadFragment;
+//                case 3:
+//                    mBucketsFragment = new BucketsFragment();
+//                    return mBucketsFragment;
                 case 3:
-                    mBucketsFragment = new BucketsFragment();
-                    return mBucketsFragment;
-                case 4:
                     mCloudLibFragment = new CloudLibraryFragment();
                     return mCloudLibFragment;
-                case 5:
+                case 4:
                     return new ReadyToScanFragment();
                 default:
                     return null;
@@ -201,7 +204,7 @@ public class CameraUploadConfigActivity extends BaseActivity {
             if (isChooseLibPage || isChooseDirPage)
                 return 1;
             else
-                return 6;
+                return 5;
         }
 
     }

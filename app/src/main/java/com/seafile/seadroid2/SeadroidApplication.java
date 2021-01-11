@@ -15,11 +15,14 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 import com.seafile.seadroid2.avatar.AuthImageDownloader;
+import com.seafile.seadroid2.cameraupload.GalleryBucketUtils;
 import com.seafile.seadroid2.data.StorageManager;
 import com.seafile.seadroid2.gesturelock.AppLockManager;
 import com.seafile.seadroid2.ui.CustomNotificationBuilder;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SeadroidApplication extends Application {
     private static Context context;
@@ -27,6 +30,7 @@ public class SeadroidApplication extends Application {
     private int totalNumber;
     private int scanUploadStatus;
     private static SeadroidApplication instance;
+    private List<GalleryBucketUtils.Bucket> buckets = new ArrayList<>();
 
     public void onCreate() {
         super.onCreate();
@@ -122,4 +126,11 @@ public class SeadroidApplication extends Application {
         return scanUploadStatus;
     }
 
+    public void setBuckets(List<GalleryBucketUtils.Bucket> buckets) {
+        this.buckets = buckets;
+    }
+
+    public List<GalleryBucketUtils.Bucket> getBuckets() {
+        return buckets;
+    }
 }

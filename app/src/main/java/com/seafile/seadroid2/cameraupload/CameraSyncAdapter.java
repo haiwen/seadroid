@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SyncResult;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -504,19 +505,27 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
 
         tasksInProgress.clear();
 
+        File file;
         // upload them one by one
         while (!isCancelled() && cursor.moveToNext()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                String id = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID));
+                Uri uri = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id);
+                if (uri == null) {
+                    syncResult.stats.numSkippedEntries++;
+                    continue;
+                }
+                file = new File(Utils.getRealPathFromUri(SeadroidApplication.getAppContext(), uri));
+            } else {
+                int dataColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA);
+                if (cursor.getString(dataColumn) == null) {
+                    syncResult.stats.numSkippedEntries++;
+                    continue;
+                }
+                file = new File(cursor.getString(dataColumn));
 
-            int dataColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA);
-            int bucketColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME);
-
-            // some inconsistency in the Media Provider? Ignore and continue
-            if (cursor.getString(dataColumn) == null) {
-                syncResult.stats.numSkippedEntries++;
-                continue;
             }
-
-            File file = new File(cursor.getString(dataColumn));
+            int bucketColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME);
             String bucketName = cursor.getString(bucketColumn);
 
             // local file does not exist. some inconsistency in the Media Provider? Ignore and continue
