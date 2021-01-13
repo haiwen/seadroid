@@ -848,6 +848,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
         cUploadRepoState.setSummary(Utils.getUploadStateShow(getActivity()));
 
         Log.d(DEBUG_TAG, "==========" + result.getLogInfo());
+        Utils.utilsLogInfo(true,"==========" + result.getLogInfo());
     }
 
 }
