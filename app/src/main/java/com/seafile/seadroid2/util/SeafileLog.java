@@ -17,8 +17,9 @@ public class SeafileLog {
     private static Boolean MYLOG_SWITCH = true; // Main switch
     private static Boolean MYLOG_WRITE_TO_FILE = true;// log switch
     private static char MYLOG_TYPE = 'v';
+    private static String MYLOG_PATH_SDCARD_DIR = "/sdcard/kantu/log";
     private static int SDCARD_LOG_FILE_SAVE_DAYS = 0;
-    private static String MYLOGFILENAME = "Log.txt";
+    private static String MYLOGFILEName = "Log.txt";
     private static SimpleDateFormat myLogSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");// The output format of the log
     private static SimpleDateFormat logfile = new SimpleDateFormat("yyyy-MM-dd");// Log file format
     public Context context;
@@ -90,13 +91,15 @@ public class SeafileLog {
      */
     private static void writeLogtoFile(String mylogtype, String tag, String text) {
         Date nowtime = new Date();
-        String needWriteFile = logfile.format(nowtime);
+        String needWriteFiel = logfile.format(nowtime);
         String needWriteMessage = myLogSdf.format(nowtime) + "    " + mylogtype + "    " + tag + "    " + text;
-        File dirsFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Seafile/");
+        File dirPath = Environment.getExternalStorageDirectory();
+
+        File dirsFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath());
         if (!dirsFile.exists()) {
             dirsFile.mkdirs();
         }
-        File file = new File(dirsFile.toString(), needWriteFile + MYLOGFILENAME);// MYLOG_PATH_SDCARD_DIR
+        File file = new File(dirsFile.toString(), needWriteFiel + MYLOGFILEName);// MYLOG_PATH_SDCARD_DIR
         if (!file.exists()) {
             try {
                 file.createNewFile();
@@ -121,8 +124,8 @@ public class SeafileLog {
      */
     public static void delFile() {
         String needDelFiel = logfile.format(getDateBefore());
-        File dirPath = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Seafile/");
-        File file = new File(dirPath, needDelFiel + MYLOGFILENAME);// MYLOG_PATH_SDCARD_DIR
+        File dirPath = Environment.getExternalStorageDirectory();
+        File file = new File(dirPath, needDelFiel + MYLOGFILEName);// MYLOG_PATH_SDCARD_DIR
         if (file.exists()) {
             file.delete();
         }
