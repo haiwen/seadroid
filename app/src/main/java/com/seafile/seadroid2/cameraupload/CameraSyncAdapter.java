@@ -175,7 +175,6 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
 
         // create base directory
         forceCreateDirectory(dataManager, "/", BASE_DIR);
-        Utils.utilsLogInfo(true,"========开始遍历相册---"+buckets.size());
         for (GalleryBucketUtils.Bucket bucket : buckets) {
 
             // the user has selected specific buckets: only create directories for these
@@ -412,12 +411,12 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
                 return;
             }
             // Log.d(DEBUG_TAG, "i see " + cursor.getCount() + " new images.");
-            Utils.utilsLogInfo(true,"===i see " + cursor.getCount() + " new images.");
+            Utils.utilsLogInfo(true,"===i see " + cursor.getCount() + "images.");
             if (cursor.getCount() > 0) {
                 // create directories for media buckets
                 createDirectories(dataManager);
 
-                iterateCursor(syncResult, dataManager, cursor);
+                iterateCursor(syncResult, dataManager, cursor, MediaStore.Images.Media._ID);
 
                 if (isCancelled())
                     return;
@@ -471,12 +470,12 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
                 return;
             }
             // Log.d(DEBUG_TAG, "i see " + cursor.getCount() + " new videos.");
-            Utils.utilsLogInfo(true,"=====i see " + cursor.getCount() + " new videos.");
+            Utils.utilsLogInfo(true,"=====i see " + cursor.getCount() + " videos.");
             if (cursor.getCount() > 0) {
                 // create directories for media buckets
                 createDirectories(dataManager);
 
-                iterateCursor(syncResult, dataManager, cursor);
+                iterateCursor(syncResult, dataManager, cursor, MediaStore.Video.Media._ID);
 
                 if (isCancelled())
                     return;
@@ -504,21 +503,27 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
      * @param cursor
      * @throws SeafException
      */
-    private void iterateCursor(SyncResult syncResult, DataManager dataManager, Cursor cursor) throws SeafException, InterruptedException {
+    private void iterateCursor(SyncResult syncResult, DataManager dataManager, Cursor cursor, String mediaId) throws SeafException, InterruptedException {
 
         tasksInProgress.clear();
 
         File file;
+        Uri uri;
+        String id;
         // upload them one by one
         while (!isCancelled() && cursor.moveToNext()) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                String id = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID));
-                Uri uri = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id);
+                id = cursor.getString(cursor.getColumnIndexOrThrow(mediaId));
+                if (MediaStore.Images.Media._ID.equals(mediaId)) {
+                    uri = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id);
+                } else {
+                    uri = Uri.withAppendedPath(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, id);
+                }
                 if (uri == null) {
                     syncResult.stats.numSkippedEntries++;
                     continue;
                 }
-                file = new File(Utils.getRealPathFromURI(SeadroidApplication.getAppContext(), uri));
+                file = new File(Utils.getRealPathFromURI(SeadroidApplication.getAppContext(), uri, mediaId));
             } else {
                 int dataColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA);
                 if (cursor.getString(dataColumn) == null) {
