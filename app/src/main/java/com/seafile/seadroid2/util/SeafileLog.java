@@ -1,9 +1,8 @@
 package com.seafile.seadroid2.util;
 
 import android.content.Context;
+import android.os.Environment;
 import android.util.Log;
-
-import com.seafile.seadroid2.data.StorageManager;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -93,7 +92,7 @@ public class SeafileLog {
         Date nowtime = new Date();
         String needWriteFiel = logfile.format(nowtime);
         String needWriteMessage = myLogSdf.format(nowtime) + "    " + mylogtype + "    " + tag + "    " + text;
-        File dirsFile = StorageManager.getInstance().getStorageLocation().cachePath;
+        File dirsFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Seafile/");
         if (!dirsFile.exists()) {
             dirsFile.mkdirs();
         }
@@ -122,7 +121,7 @@ public class SeafileLog {
      */
     public static void delFile() {
         String needDelFiel = logfile.format(getDateBefore());
-        File dirPath = StorageManager.getInstance().getStorageLocation().cachePath;
+        File dirPath = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Seafile/");
         File file = new File(dirPath, needDelFiel + MYLOGFILENAME);// MYLOG_PATH_SDCARD_DIR
         if (file.exists()) {
             file.delete();
