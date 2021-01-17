@@ -369,7 +369,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
     }
 
     private void uploadImages(SyncResult syncResult, DataManager dataManager) throws SeafException, InterruptedException {
-        Utils.utilsLogInfo(true,"========Starting to upload images...");
+        Utils.utilsLogInfo(true, "========Starting to upload images...");
         // Log.d(DEBUG_TAG, "Starting to upload images...");
 
         if (isCancelled())
@@ -411,7 +411,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
                 return;
             }
             // Log.d(DEBUG_TAG, "i see " + cursor.getCount() + " new images.");
-            Utils.utilsLogInfo(true,"===i see " + cursor.getCount() + "images.");
+            Utils.utilsLogInfo(true, "===i see " + cursor.getCount() + " images.");
             if (cursor.getCount() > 0) {
                 // create directories for media buckets
                 createDirectories(dataManager);
@@ -482,7 +482,6 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
 
             }
         } finally {
-            Utils.utilsLogInfo(true,"==cursor====finally=");
             if (cursor != null)
                 cursor.close();
         }
@@ -543,7 +542,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
             // local file does not exist. some inconsistency in the Media Provider? Ignore and continue
             if (!file.exists()) {
                 // Log.d(DEBUG_TAG, "Skipping media "+file+" because it doesn't exist");
-                Utils.utilsLogInfo(true,"=====Skipping media "+file+" because it doesn't exist");
+                Utils.utilsLogInfo(true, "=====Skipping media " + file + " because it doesn't exist");
                 syncResult.stats.numSkippedEntries++;
                 continue;
             }
@@ -551,13 +550,13 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
             // Ignore all media by Seafile. We don't want to upload our own cached files.
             if (file.getAbsolutePath().startsWith(StorageManager.getInstance().getMediaDir().getAbsolutePath())) {
                 // Log.d(DEBUG_TAG, "Skipping media "+file+" because it's part of the Seadroid cache");
-                Utils.utilsLogInfo(true,"======Skipping media "+file+" because it's part of the Seadroid cache");
+                Utils.utilsLogInfo(true, "======Skipping media " + file + " because it's part of the Seadroid cache");
                 continue;
             }
 
             if (dbHelper.isUploaded(file)) {
                 // Log.d(DEBUG_TAG, "Skipping media " + file + " because we have uploaded it in the past.");
-                Utils.utilsLogInfo(true,"=====Skipping media " + file + " because we have uploaded it in the past.");
+//                Utils.utilsLogInfo(true, "=====Skipping media " + file + " because we have uploaded it in the past.");
                 continue;
             }
 
