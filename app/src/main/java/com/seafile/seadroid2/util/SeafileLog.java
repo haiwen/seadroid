@@ -90,13 +90,13 @@ public class SeafileLog {
      */
     private static void writeLogtoFile(String mylogtype, String tag, String text) {
         Date nowtime = new Date();
-        String needWriteFiel = logfile.format(nowtime);
+        String needWriteFile = logfile.format(nowtime);
         String needWriteMessage = myLogSdf.format(nowtime) + "    " + mylogtype + "    " + tag + "    " + text;
         File dirsFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Seafile/");
         if (!dirsFile.exists()) {
             dirsFile.mkdirs();
         }
-        File file = new File(dirsFile.toString(), needWriteFiel + MYLOGFILENAME);// MYLOG_PATH_SDCARD_DIR
+        File file = new File(dirsFile.toString(), needWriteFile + MYLOGFILENAME);// MYLOG_PATH_SDCARD_DIR
         if (!file.exists()) {
             try {
                 file.createNewFile();
