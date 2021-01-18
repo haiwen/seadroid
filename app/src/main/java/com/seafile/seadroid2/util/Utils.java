@@ -21,6 +21,7 @@ import android.net.http.SslCertificate;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.LocaleList;
+import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
@@ -30,13 +31,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.MimeTypeMap;
-import android.widget.ImageView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.load.model.GlideUrl;
-import com.bumptech.glide.load.model.LazyHeaders;
-import com.bumptech.glide.request.RequestOptions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.seafile.seadroid2.R;
@@ -961,19 +956,38 @@ public class Utils {
         return "";
     }
 
-    public static void glideImage(Context ct, String urlicon, String token, ImageView iv, int width, int height) {
-        GlideUrl glideUrl = new GlideUrl(urlicon, new LazyHeaders.Builder()
-                .addHeader("Authorization", "Token " + token)
-                .build());
-        RequestOptions opt = new RequestOptions()
-                .placeholder(R.drawable.file_image)
-                .skipMemoryCache(true)
-                .override(width, height)
-                .diskCacheStrategy(DiskCacheStrategy.NONE);
-        Glide.with(ct)
-                .asBitmap()
-                .load(glideUrl)
-                .apply(opt)
-                .into(iv);
+    public static String getRealPathFromURI(Context context, Uri contentUri, String mediaId) {
+        Cursor cursor = null;
+        try {
+            if (MediaStore.Images.Media._ID.equals(mediaId)) {//image
+                String[] proj = {MediaStore.Images.Media.DATA};
+                cursor = context.getContentResolver().query(contentUri, proj, null, null, null);
+                int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+                cursor.moveToFirst();
+                return cursor.getString(column_index);
+            } else {//Video
+                String[] proj = {MediaStore.Video.Media.DATA};
+                cursor = context.getContentResolver().query(contentUri, proj, null, null, null);
+                int column_index = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATA);
+                cursor.moveToFirst();
+                return cursor.getString(column_index);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+    }
+
+    public static void utilsLogInfo(boolean b, String info) {
+        if (b) {
+//            Log.d(DEBUG_TAG, info);
+            SeafileLog.d(DEBUG_TAG, info);
+        }
     }
 }
+

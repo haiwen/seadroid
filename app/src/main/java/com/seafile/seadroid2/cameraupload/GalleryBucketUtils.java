@@ -5,8 +5,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
 
-import com.seafile.seadroid2.data.StorageManager;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,18 +57,15 @@ public class GalleryBucketUtils {
     private static List<Bucket> getVideoBuckets(Context context) {
         Uri images = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
         String[] projection = new String[]{
+                MediaStore.Video.Media._ID,
                 MediaStore.Video.Media.BUCKET_ID,
                 MediaStore.Video.Media.BUCKET_DISPLAY_NAME,
-                MediaStore.Video.Media.DATA
         };
-
-        String BUCKET_ORDER_BY = MediaStore.Video.Media.BUCKET_DISPLAY_NAME + " ASC";
-        String BUCKET_GROUP_BY = "1) GROUP BY 1,(2";
         Cursor cursor = context.getContentResolver().query(images,
                 projection,            // Which columns to return
-                BUCKET_GROUP_BY,       // Which rows to return (all rows)
+                null,       // Which rows to return (all rows)
                 null,                  // Selection arguments (none)
-                BUCKET_ORDER_BY        // Ordering
+                null        // Ordering
         );
 
         List<Bucket> buckets = new ArrayList<Bucket>();
@@ -82,7 +77,6 @@ public class GalleryBucketUtils {
         while (cursor.moveToNext()) {
             int bucketIdColumnIndex = cursor.getColumnIndex(MediaStore.Video.Media.BUCKET_ID);
             int bucketColumnIndex = cursor.getColumnIndex(MediaStore.Video.Media.BUCKET_DISPLAY_NAME);
-            int dataColumnIndex = cursor.getColumnIndex(MediaStore.Video.Media.DATA);
             Bucket b = new Bucket();
             b.id = cursor.getString(bucketIdColumnIndex);
             b.name = cursor.getString(bucketColumnIndex);
@@ -93,11 +87,7 @@ public class GalleryBucketUtils {
                     b.isCameraBucket = true;
                 }
             }
-
-            // ignore buckets created by Seadroid
-            String file = cursor.getString(dataColumnIndex);
-            if (file == null || !file.startsWith(StorageManager.getInstance().getMediaDir().getAbsolutePath()))
-                buckets.add(b);
+            buckets.add(b);
         }
         cursor.close();
 
@@ -109,17 +99,14 @@ public class GalleryBucketUtils {
         String[] projection = new String[]{
                 MediaStore.Images.Media.BUCKET_ID,
                 MediaStore.Images.Media.BUCKET_DISPLAY_NAME,
-                MediaStore.Video.Media.DATA,
                 MediaStore.Images.Media._ID
         };
 
-        String BUCKET_ORDER_BY = MediaStore.Images.Media.BUCKET_DISPLAY_NAME + " ASC";
-        String BUCKET_GROUP_BY = "1) GROUP BY 1,(2";
         Cursor cursor = context.getContentResolver().query(images,
                 projection,            // Which columns to return
-                BUCKET_GROUP_BY,       // Which rows to return (all rows)
+                null,       // Which rows to return (all rows)
                 null,                  // Selection arguments (none)
-                BUCKET_ORDER_BY        // Ordering
+                null        // Ordering
         );
 
         List<Bucket> buckets = new ArrayList<Bucket>();
@@ -131,12 +118,9 @@ public class GalleryBucketUtils {
         while (cursor.moveToNext()) {
             int bucketIdColumnIndex = cursor.getColumnIndex(MediaStore.Images.Media.BUCKET_ID);
             int bucketColumnIndex = cursor.getColumnIndex(MediaStore.Images.Media.BUCKET_DISPLAY_NAME);
-            int dataColumnIndex = cursor.getColumnIndex(MediaStore.Video.Media.DATA);
-            int idColumnIndex = cursor.getColumnIndex(MediaStore.Images.Media._ID);
             Bucket b = new Bucket();
             b.id = cursor.getString(bucketIdColumnIndex);
             b.name = cursor.getString(bucketColumnIndex);
-            b.image_id = cursor.getInt(idColumnIndex);
 
             b.isCameraBucket = false;
             for (String name : CAMERA_BUCKET_NAMES) {
@@ -144,11 +128,7 @@ public class GalleryBucketUtils {
                     b.isCameraBucket = true;
                 }
             }
-
-            // ignore buckets created by Seadroid
-            String file = cursor.getString(dataColumnIndex);
-            if (file == null || !file.startsWith(StorageManager.getInstance().getMediaDir().getAbsolutePath()))
-                buckets.add(b);
+            buckets.add(b);
         }
         cursor.close();
 
