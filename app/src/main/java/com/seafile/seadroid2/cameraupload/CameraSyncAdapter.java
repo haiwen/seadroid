@@ -532,10 +532,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
                 file = new File(cursor.getString(dataColumn));
 
             }
-            Utils.utilsLogInfo(true,"======iterateCursor");
-//            String id = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID));
-//            Uri uri = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id);
-//            file = new File(Utils.getRealPathFromUri(SeadroidApplication.getAppContext(), uri));
+//            Utils.utilsLogInfo(true,"======iterateCursor");
             int bucketColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME);
             String bucketName = cursor.getString(bucketColumn);
 
