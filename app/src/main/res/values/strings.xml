@@ -5,11 +5,10 @@
   <string name ="new_luckycloud_account"> new Account</string>
   <string name="demo_account"> Demo Account</string>
 
-  <string name="server_prompt">choose a server</string>
-  <string-array name="server_urls">
-    <item>https://storage.luckycloud.de</item>
-    <item>https://sync.luckycloud.de</item>
-  </string-array>
+  <string name="server_url_storage">https://storage.luckycloud.de/</string>
+  <string name="server_url_sync">https://sync.luckycloud.de/</string>
+  <string name="auto_server_url_error">Login failed with storage.luckycloud.de,
+    try again with sync.luckycloud.de</string>
 
 
   <string name="app_name" translatable="false">luckycloud</string>
