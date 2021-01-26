@@ -43,7 +43,7 @@
                     android:importantForAutofill="auto"
                     android:inputType="textUri"
                     android:textSize="@dimen/et_txt_size"
-                    android:visibility="visible" />
+                    android:visibility="invisible" />
             </android.support.design.widget.TextInputLayout>
 
             <!-- Spinner Element -->
@@ -55,7 +55,8 @@
                 android:layout_marginRight="@dimen/et_margin_right"
                 android:layout_marginBottom="20dp"
                 android:entries="@array/server_urls"
-                android:prompt="@string/server_prompt"/>
+                android:prompt="@string/server_prompt"
+                android:visibility="invisible" />
 
             <RelativeLayout
                 android:layout_width="match_parent"

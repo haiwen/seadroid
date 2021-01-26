@@ -473,7 +473,7 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
             progressDialog = new ProgressDialog(this);
             progressDialog.setMessage(getString(R.string.settings_cuc_loading));
             progressDialog.setCancelable(false);
-            ConcurrentAsyncTask.execute(new LoginTask(tmpAccount, passwd, authToken,rememberDevice));
+            ConcurrentAsyncTask.execute(new LoginTask(tmpAccount, passwd, authToken, rememberDevice));
 
         } else {
             statusView.setText(R.string.network_down);
@@ -505,7 +505,7 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
             if (params.length != 0)
                 return "Error number of parameter";
 
-            return doLogin();
+            return checkLogin();
         }
 
         private void resend() {
@@ -571,28 +571,20 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
             loginButton.setEnabled(true);
         }
 
-        private String doLogin() {
-            SeafConnection sc = new SeafConnection(loginAccount);
-
+        private String checkLogin() {
             try {
-                // if successful, this will place the auth token into "loginAccount"
-                if (!sc.doLogin(passwd, authToken, rememberDevice))
-                    return getString(R.string.err_login_failed);
-
-                // fetch email address from the server
-                DataManager manager = new DataManager(loginAccount);
-                AccountInfo accountInfo = manager.getAccountInfo();
-
-                if (accountInfo == null)
-                    return "Unknown error";
-
-                // replace email address/username given by the user with the address known by the server.
-//                loginAccount = new Account(loginAccount.server, accountInfo.getEmail(), loginAccount.token, false, loginAccount.sessionKey);
-                loginAccount = new Account(accountInfo.getName(),loginAccount.server, accountInfo.getEmail(), loginAccount.token, false, loginAccount.sessionKey);
-
-                return "Success";
-
-            } catch (SeafException e) {
+                return doLogin("https://storage.luckycloud.de/");
+            }
+            catch (SeafException e) {
+                // try again with 2nd server url
+                e.printStackTrace();
+                Log.e(DEBUG_TAG, "Login failed with storage.luckycloud.de, " +
+                        "try again with sync.luckycloud.de");
+            }
+            try {
+                return doLogin("https://sync.luckycloud.de/");
+            }
+            catch (SeafException e) {
                 err = e;
                 if (e == SeafException.sslException) {
                     return getString(R.string.ssl_error);
@@ -609,7 +601,34 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
                     default:
                         return e.getMessage();
                 }
-            } catch (JSONException e) {
+            }
+        }
+
+        private String doLogin(String serverURL) throws SeafException{
+            loginAccount.setServerURL(serverURL);
+            SeafConnection sc = new SeafConnection(loginAccount);
+
+            try {
+                // if successful, this will place the auth token into "loginAccount"
+                if (!sc.doLogin(passwd, authToken, rememberDevice))
+                    return getString(R.string.err_login_failed);
+
+                // fetch email address from the server
+                DataManager manager = new DataManager(loginAccount);
+                AccountInfo accountInfo = manager.getAccountInfo();
+
+                if (accountInfo == null)
+                    return "Unknown error";
+
+                // replace email address/username given by the user with the address known by the server.
+//                loginAccount = new Account(loginAccount.server, accountInfo.getEmail(), loginAccount.token, false, loginAccount.sessionKey);
+                loginAccount = new Account(accountInfo.getName(), loginAccount.server,
+                        accountInfo.getEmail(), loginAccount.token, false, loginAccount.sessionKey);
+
+                return "Success";
+
+            }
+            catch (JSONException e) {
                 return e.getMessage();
             }
         }

@@ -17,7 +17,7 @@ public class Account implements Parcelable, Comparable<Account> {
     public final static String ACCOUNT_TYPE = BuildConfig.ACCOUNT_TYPE;
 
     // The full URL of the server, like 'http://gonggeng.org/seahub/' or 'http://gonggeng.org/'
-    public final String server;
+    public String server;
     public final String name;
 
     public final String email;
@@ -94,6 +94,10 @@ public class Account implements Parcelable, Comparable<Account> {
 
     public void setSessionKey(String sessionKey) {
         this.sessionKey = sessionKey;
+    }
+
+    public void setServerURL(String serverURL) {
+        this.server = serverURL;
     }
 
     @Override
