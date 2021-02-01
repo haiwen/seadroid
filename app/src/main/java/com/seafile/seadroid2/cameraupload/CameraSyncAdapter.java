@@ -416,7 +416,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
                 // create directories for media buckets
                 createDirectories(dataManager);
 
-                iterateCursor(syncResult, dataManager, cursor, MediaStore.Images.Media._ID);
+                iterateCursor(syncResult, dataManager, cursor, "images");
 
                 if (isCancelled())
                     return;
@@ -475,7 +475,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
                 // create directories for media buckets
                 createDirectories(dataManager);
 
-                iterateCursor(syncResult, dataManager, cursor, MediaStore.Video.Media._ID);
+                iterateCursor(syncResult, dataManager, cursor, "video");
 
                 if (isCancelled())
                     return;
@@ -502,27 +502,30 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
      * @param cursor
      * @throws SeafException
      */
-    private void iterateCursor(SyncResult syncResult, DataManager dataManager, Cursor cursor, String mediaId) throws SeafException, InterruptedException {
+    private void iterateCursor(SyncResult syncResult, DataManager dataManager, Cursor cursor, String media) throws SeafException, InterruptedException {
 
         tasksInProgress.clear();
-
         File file;
-        Uri uri;
-        String id;
         // upload them one by one
         while (!isCancelled() && cursor.moveToNext()) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                id = cursor.getString(cursor.getColumnIndexOrThrow(mediaId));
-                if (MediaStore.Images.Media._ID.equals(mediaId)) {
-                    uri = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id);
+                if (media.equals("images")) {
+                    String image_id = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID));
+                    Uri image_uri = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, image_id);
+                    if (image_uri == null) {
+                        syncResult.stats.numSkippedEntries++;
+                        continue;
+                    }
+                    file = new File(Utils.getRealPathFromURI(SeadroidApplication.getAppContext(), image_uri, media));
                 } else {
-                    uri = Uri.withAppendedPath(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, id);
+                    String video_id = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Video.Media._ID));
+                    Uri video_uri = Uri.withAppendedPath(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, video_id);
+                    if (video_uri == null) {
+                        syncResult.stats.numSkippedEntries++;
+                        continue;
+                    }
+                    file = new File(Utils.getRealPathFromURI(SeadroidApplication.getAppContext(), video_uri, media));
                 }
-                if (uri == null) {
-                    syncResult.stats.numSkippedEntries++;
-                    continue;
-                }
-                file = new File(Utils.getRealPathFromURI(SeadroidApplication.getAppContext(), uri, mediaId));
             } else {
                 int dataColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA);
                 if (cursor.getString(dataColumn) == null) {

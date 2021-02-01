@@ -1,19 +1,26 @@
 package com.seafile.seadroid2.cameraupload;
 
+import android.content.Context;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.*;
-import android.content.Context;
+import android.widget.BaseAdapter;
+import android.widget.GridView;
+import android.widget.ImageView;
+import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SettingsManager;
-import com.seafile.seadroid2.cameraupload.GalleryBucketUtils;
+import com.seafile.seadroid2.util.Utils;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,6 +30,7 @@ import java.util.List;
 public class BucketsSelectionFragment extends Fragment {
 
     private List<GalleryBucketUtils.Bucket> buckets;
+    private List<GalleryBucketUtils.Bucket> tempBuckets;
     private Bitmap[] thumbnails;
     private boolean[] selectedBuckets;
     private ImageAdapter imageAdapter;
@@ -35,7 +43,39 @@ public class BucketsSelectionFragment extends Fragment {
 
         SettingsManager settingsManager = SettingsManager.instance();
         List<String> currentBucketList = settingsManager.getCameraUploadBucketList();
+        tempBuckets = new ArrayList<>();
+        for (int i = 0; i < buckets.size(); i++) {
+            if (i == 0) {
+                GalleryBucketUtils.Bucket bt = buckets.get(i);
+                if (bt.isImages.equals(GalleryBucketUtils.IMAGES)) {
+                    Uri image_uri = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, bt.imageId);
+                    bt.imageUri = image_uri;
+                } else {
+                    Uri video_uri = Uri.withAppendedPath(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, bt.videoId);
+                    String videoPath = Utils.getRealPathFromURI(SeadroidApplication.getAppContext(), video_uri, "video");
+                    bt.videoPath = videoPath;
+                }
+                tempBuckets.add(bt);
+            } else {
+                if (!buckets.get(i).name.equals(tempBuckets.get(tempBuckets.size() - 1).name)) {
 
+                    GalleryBucketUtils.Bucket bt = buckets.get(i);
+                    if (bt.isImages != null && bt.isImages.equals(GalleryBucketUtils.IMAGES)) {
+                        Uri image_uri = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, bt.imageId);
+                        bt.imageUri = image_uri;
+                    } else {
+                        Uri video_uri = Uri.withAppendedPath(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, bt.videoId);
+                        String videoPath = Utils.getRealPathFromURI(SeadroidApplication.getAppContext(), video_uri, "video");
+                        bt.videoPath = videoPath;
+                    }
+
+                    tempBuckets.add(buckets.get(i));
+                }
+            }
+        }
+        buckets.clear();
+        buckets.addAll(tempBuckets);
+        tempBuckets.clear();
         thumbnails = new Bitmap[buckets.size()];
         selectedBuckets = new boolean[buckets.size()];
         for (int i = 0; i < buckets.size(); i++) {
@@ -130,7 +170,13 @@ public class BucketsSelectionFragment extends Fragment {
                         holder.marking.setVisibility(View.INVISIBLE);
                 }
             });
-            holder.imageview.setImageBitmap(thumbnails[position]);
+//            holder.imageview.setImageBitmap(thumbnails[position]);
+            if (buckets.get(position).isImages != null && buckets.get(position).isImages.equals(GalleryBucketUtils.IMAGES)) {
+                Glide.with(getActivity()).load(buckets.get(position).imageUri).into(holder.imageview);
+            } else {
+                Glide.with(getActivity()).load(Uri.fromFile(new File(buckets.get(position).videoPath))).into(holder.imageview);
+            }
+
             if (selectedBuckets[position])
                 holder.marking.setVisibility(View.VISIBLE);
             else

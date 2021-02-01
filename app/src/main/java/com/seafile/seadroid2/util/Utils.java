@@ -956,10 +956,10 @@ public class Utils {
         return "";
     }
 
-    public static String getRealPathFromURI(Context context, Uri contentUri, String mediaId) {
+    public static String getRealPathFromURI(Context context, Uri contentUri, String media) {
         Cursor cursor = null;
         try {
-            if (MediaStore.Images.Media._ID.equals(mediaId)) {//image
+            if (media.equals("images")) {//image
                 String[] proj = {MediaStore.Images.Media.DATA};
                 cursor = context.getContentResolver().query(contentUri, proj, null, null, null);
                 int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
@@ -985,8 +985,8 @@ public class Utils {
 
     public static void utilsLogInfo(boolean b, String info) {
         if (b) {
-//            Log.d(DEBUG_TAG, info);
-            SeafileLog.d(DEBUG_TAG, info);
+            Log.d(DEBUG_TAG, info);
+//            SeafileLog.d(DEBUG_TAG, info);
         }
     }
 }
