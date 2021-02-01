@@ -415,7 +415,6 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
             if (cursor.getCount() > 0) {
                 // create directories for media buckets
                 createDirectories(dataManager);
-
                 iterateCursor(syncResult, dataManager, cursor, "images");
 
                 if (isCancelled())
@@ -474,7 +473,6 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
             if (cursor.getCount() > 0) {
                 // create directories for media buckets
                 createDirectories(dataManager);
-
                 iterateCursor(syncResult, dataManager, cursor, "video");
 
                 if (isCancelled())
