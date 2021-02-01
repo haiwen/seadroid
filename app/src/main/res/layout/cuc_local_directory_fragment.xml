@@ -36,7 +36,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/rb_margin_top"
-                android:visibility="gone"
                 android:text="@string/settings_cuc_pick_albums"
                 android:textSize="@dimen/tv_subtitle_txt_size"/>
     </RadioGroup>
