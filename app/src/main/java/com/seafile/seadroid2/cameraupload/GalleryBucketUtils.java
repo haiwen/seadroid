@@ -31,7 +31,7 @@ public class GalleryBucketUtils {
         public String videoId;
         public String isImages;
         public String videoPath;
-        public Uri imageUri;
+        public String imagePath;
         public int image_id = -1;
         public boolean isCameraBucket;
     }

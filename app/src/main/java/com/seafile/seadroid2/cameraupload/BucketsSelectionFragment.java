@@ -1,7 +1,6 @@
 package com.seafile.seadroid2.cameraupload;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -31,7 +30,7 @@ public class BucketsSelectionFragment extends Fragment {
 
     private List<GalleryBucketUtils.Bucket> buckets;
     private List<GalleryBucketUtils.Bucket> tempBuckets;
-    private Bitmap[] thumbnails;
+//    private Bitmap[] thumbnails;
     private boolean[] selectedBuckets;
     private ImageAdapter imageAdapter;
 
@@ -39,51 +38,45 @@ public class BucketsSelectionFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         View rootView = getActivity().getLayoutInflater().inflate(R.layout.cuc_bucket_selection_layout, null);
-        buckets = GalleryBucketUtils.getMediaBuckets(getActivity().getApplicationContext());
-
+        tempBuckets = GalleryBucketUtils.getMediaBuckets(getActivity().getApplicationContext());
         SettingsManager settingsManager = SettingsManager.instance();
         List<String> currentBucketList = settingsManager.getCameraUploadBucketList();
-        tempBuckets = new ArrayList<>();
-        for (int i = 0; i < buckets.size(); i++) {
-            if (i == 0) {
-                GalleryBucketUtils.Bucket bt = buckets.get(i);
-                if (bt.isImages.equals(GalleryBucketUtils.IMAGES)) {
-                    Uri image_uri = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, bt.imageId);
-                    bt.imageUri = image_uri;
-                } else {
-                    Uri video_uri = Uri.withAppendedPath(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, bt.videoId);
-                    String videoPath = Utils.getRealPathFromURI(SeadroidApplication.getAppContext(), video_uri, "video");
-                    bt.videoPath = videoPath;
-                }
-                tempBuckets.add(bt);
+        buckets = new ArrayList<>();
+
+        for (int i = 0; i < tempBuckets.size(); i++) {
+            if (buckets.size() == 0) {
+                buckets.add(tempBuckets.get(i));
+                tempBuckets.remove(tempBuckets.get(i));
+                i = i - 1;
             } else {
-                if (!buckets.get(i).name.equals(tempBuckets.get(tempBuckets.size() - 1).name)) {
-
-                    GalleryBucketUtils.Bucket bt = buckets.get(i);
-                    if (bt.isImages != null && bt.isImages.equals(GalleryBucketUtils.IMAGES)) {
-                        Uri image_uri = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, bt.imageId);
-                        bt.imageUri = image_uri;
+                for (int j = 0; j < buckets.size(); j++) {
+                    if (buckets.get(j).name.equals(tempBuckets.get(i).name)) {
+                        tempBuckets.remove(tempBuckets.get(i));
+                        i = i - 1;
+                        break;
                     } else {
-                        Uri video_uri = Uri.withAppendedPath(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, bt.videoId);
-                        String videoPath = Utils.getRealPathFromURI(SeadroidApplication.getAppContext(), video_uri, "video");
-                        bt.videoPath = videoPath;
+                        if (j == (buckets.size() - 1)) {
+                            buckets.add(tempBuckets.get(i));
+                            tempBuckets.remove(tempBuckets.get(i));
+                            i = i - 1;
+                            break;
+                        }
                     }
-
-                    tempBuckets.add(buckets.get(i));
                 }
             }
+
         }
-        buckets.clear();
-        buckets.addAll(tempBuckets);
-        tempBuckets.clear();
-        thumbnails = new Bitmap[buckets.size()];
         selectedBuckets = new boolean[buckets.size()];
         for (int i = 0; i < buckets.size(); i++) {
             GalleryBucketUtils.Bucket b = buckets.get(i);
-            if (b.image_id > 0) {
-                thumbnails[i] = MediaStore.Images.Thumbnails.getThumbnail(
-                        getActivity().getApplicationContext().getContentResolver(), b.image_id,
-                        MediaStore.Images.Thumbnails.MINI_KIND, null);
+            if (b.isImages != null && b.isImages.equals(GalleryBucketUtils.IMAGES)) {
+                Uri image_uri = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, b.imageId);
+                String image_path = Utils.getRealPathFromURI(SeadroidApplication.getAppContext(), image_uri, "images");
+                b.imagePath = image_path;
+            } else {
+                Uri video_uri = Uri.withAppendedPath(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, b.videoId);
+                String videoPath = Utils.getRealPathFromURI(SeadroidApplication.getAppContext(), video_uri, "video");
+                b.videoPath = videoPath;
             }
 
             // if the user has previously selected buckets, mark these.
@@ -170,9 +163,8 @@ public class BucketsSelectionFragment extends Fragment {
                         holder.marking.setVisibility(View.INVISIBLE);
                 }
             });
-//            holder.imageview.setImageBitmap(thumbnails[position]);
             if (buckets.get(position).isImages != null && buckets.get(position).isImages.equals(GalleryBucketUtils.IMAGES)) {
-                Glide.with(getActivity()).load(buckets.get(position).imageUri).into(holder.imageview);
+                Glide.with(getActivity()).load(Uri.fromFile(new File(buckets.get(position).imagePath))).into(holder.imageview);
             } else {
                 Glide.with(getActivity()).load(Uri.fromFile(new File(buckets.get(position).videoPath))).into(holder.imageview);
             }
