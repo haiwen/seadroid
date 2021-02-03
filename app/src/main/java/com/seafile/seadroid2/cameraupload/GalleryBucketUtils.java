@@ -34,6 +34,22 @@ public class GalleryBucketUtils {
         public String imagePath;
         public int image_id = -1;
         public boolean isCameraBucket;
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null || (obj.getClass() != this.getClass()))
+                return false;
+
+            Bucket a = (Bucket) obj;
+            return a.name.equals(this.name);
+        }
+
+        @Override
+        public int hashCode() {
+            return name.hashCode();
+        }
     }
 
     /**

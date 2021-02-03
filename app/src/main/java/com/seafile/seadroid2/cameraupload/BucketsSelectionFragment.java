@@ -21,6 +21,8 @@ import com.seafile.seadroid2.util.Utils;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 /**
@@ -30,7 +32,6 @@ public class BucketsSelectionFragment extends Fragment {
 
     private List<GalleryBucketUtils.Bucket> buckets;
     private List<GalleryBucketUtils.Bucket> tempBuckets;
-//    private Bitmap[] thumbnails;
     private boolean[] selectedBuckets;
     private ImageAdapter imageAdapter;
 
@@ -41,30 +42,13 @@ public class BucketsSelectionFragment extends Fragment {
         tempBuckets = GalleryBucketUtils.getMediaBuckets(getActivity().getApplicationContext());
         SettingsManager settingsManager = SettingsManager.instance();
         List<String> currentBucketList = settingsManager.getCameraUploadBucketList();
-        buckets = new ArrayList<>();
-
-        for (int i = 0; i < tempBuckets.size(); i++) {
-            if (buckets.size() == 0) {
-                buckets.add(tempBuckets.get(i));
-                tempBuckets.remove(tempBuckets.get(i));
-                i = i - 1;
-            } else {
-                for (int j = 0; j < buckets.size(); j++) {
-                    if (buckets.get(j).name.equals(tempBuckets.get(i).name)) {
-                        tempBuckets.remove(tempBuckets.get(i));
-                        i = i - 1;
-                        break;
-                    } else {
-                        if (j == (buckets.size() - 1)) {
-                            buckets.add(tempBuckets.get(i));
-                            tempBuckets.remove(tempBuckets.get(i));
-                            i = i - 1;
-                            break;
-                        }
-                    }
-                }
-            }
-
+        LinkedHashSet<GalleryBucketUtils.Bucket> bucketsSet = new LinkedHashSet<>(tempBuckets.size());
+        bucketsSet.addAll(tempBuckets);
+        buckets = new ArrayList<>(bucketsSet.size());
+        Iterator iterator = bucketsSet.iterator();
+        while (iterator.hasNext()) {
+            GalleryBucketUtils.Bucket bucket = (GalleryBucketUtils.Bucket) iterator.next();
+            buckets.add(bucket);
         }
         selectedBuckets = new boolean[buckets.size()];
         for (int i = 0; i < buckets.size(); i++) {
@@ -158,9 +142,9 @@ public class BucketsSelectionFragment extends Fragment {
                     int id = v.getId();
                     selectedBuckets[id] = !selectedBuckets[id];
                     if (selectedBuckets[id])
-                        holder.marking.setVisibility(View.VISIBLE);
+                        holder.marking.setBackgroundResource(R.drawable.checkbox_checked);
                     else
-                        holder.marking.setVisibility(View.INVISIBLE);
+                        holder.marking.setBackgroundResource(R.drawable.checkbox_unchecked);
                 }
             });
             if (buckets.get(position).isImages != null && buckets.get(position).isImages.equals(GalleryBucketUtils.IMAGES)) {
@@ -170,9 +154,9 @@ public class BucketsSelectionFragment extends Fragment {
             }
 
             if (selectedBuckets[position])
-                holder.marking.setVisibility(View.VISIBLE);
+                holder.marking.setBackgroundResource(R.drawable.checkbox_checked);
             else
-                holder.marking.setVisibility(View.INVISIBLE);
+                holder.marking.setBackgroundResource(R.drawable.checkbox_unchecked);
             holder.id = position;
             return convertView;
         }
