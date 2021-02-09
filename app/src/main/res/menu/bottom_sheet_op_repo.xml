@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
+        android:id="@+id/share_repo"
+        android:icon="@drawable/action_share"
+        android:title="@string/file_action_share" />
+    <item
+        android:id="@+id/share_encrypt_repo"
+        android:icon="@drawable/action_share_password"
+        android:title="@string/file_action_share_encrypt" />
+    <item
         android:id="@+id/rename_repo"
         android:icon="@drawable/action_rename"
         android:title="@string/repo_action_rename" />
@@ -8,4 +16,5 @@
         android:id="@+id/delete_repo"
         android:icon="@drawable/action_delete"
         android:title="@string/repo_action_delete" />
+
 </menu>
