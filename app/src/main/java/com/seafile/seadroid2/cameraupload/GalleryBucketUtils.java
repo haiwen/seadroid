@@ -22,12 +22,34 @@ public class GalleryBucketUtils {
      * - https://stackoverflow.com/questions/6248887/android-device-specific-camera-path-issue
      */
     public static final String[] CAMERA_BUCKET_NAMES = {"Camera", "100ANDRO", "100MEDIA"};
+    public static final String IMAGES = "IMAGES";
 
     public static class Bucket {
         public String id;
         public String name;
+        public String imageId;
+        public String videoId;
+        public String isImages;
+        public String videoPath;
+        public String imagePath;
         public int image_id = -1;
         public boolean isCameraBucket;
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null || (obj.getClass() != this.getClass()))
+                return false;
+
+            Bucket a = (Bucket) obj;
+            return a.name.equals(this.name);
+        }
+
+        @Override
+        public int hashCode() {
+            return name.hashCode();
+        }
     }
 
     /**
@@ -80,7 +102,8 @@ public class GalleryBucketUtils {
             Bucket b = new Bucket();
             b.id = cursor.getString(bucketIdColumnIndex);
             b.name = cursor.getString(bucketColumnIndex);
-
+            String video_id = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Video.Media._ID));
+            b.videoId = video_id;
             b.isCameraBucket = false;
             for (String name : CAMERA_BUCKET_NAMES) {
                 if (b.name != null && b.name.equalsIgnoreCase(name)) {
@@ -121,8 +144,10 @@ public class GalleryBucketUtils {
             Bucket b = new Bucket();
             b.id = cursor.getString(bucketIdColumnIndex);
             b.name = cursor.getString(bucketColumnIndex);
-
+            String image_id = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID));
+            b.imageId = image_id;
             b.isCameraBucket = false;
+            b.isImages = GalleryBucketUtils.IMAGES;
             for (String name : CAMERA_BUCKET_NAMES) {
                 if (b.name != null && b.name.equalsIgnoreCase(name)) {
                     b.isCameraBucket = true;

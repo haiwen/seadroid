@@ -4,6 +4,8 @@ import android.content.Context;
 import android.os.Environment;
 import android.util.Log;
 
+import com.seafile.seadroid2.SeadroidApplication;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -92,7 +94,9 @@ public class SeafileLog {
         Date nowtime = new Date();
         String needWriteFile = logfile.format(nowtime);
         String needWriteMessage = myLogSdf.format(nowtime) + "    " + mylogtype + "    " + tag + "    " + text;
-        File dirsFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Seafile/");
+//        File dirsFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Seafile/");
+        String rootPath = SeadroidApplication.getAppContext().getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath();
+        File dirsFile = new File(rootPath + "/Seafile/");
         if (!dirsFile.exists()) {
             dirsFile.mkdirs();
         }
@@ -121,7 +125,9 @@ public class SeafileLog {
      */
     public static void delFile() {
         String needDelFiel = logfile.format(getDateBefore());
-        File dirPath = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Seafile/");
+        String rootPath = SeadroidApplication.getAppContext().getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath();
+//        File dirPath = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Seafile/");
+        File dirPath = new File(rootPath + "/Seafile/");
         File file = new File(dirPath, needDelFiel + MYLOGFILENAME);// MYLOG_PATH_SDCARD_DIR
         if (file.exists()) {
             file.delete();

@@ -1,12 +1,5 @@
 package com.seafile.seadroid2.gallery;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-
 import android.content.ContentResolver;
 import android.database.Cursor;
 import android.net.Uri;
@@ -19,7 +12,15 @@ import android.provider.MediaStore.Images;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.util.Utils;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * ImageManager is used to retrieve and store images
@@ -129,7 +130,9 @@ public class ImageManager {
 
         List<String> pathList = Lists.newArrayList();
         for (String path : paths) {
-            String fullPath = Utils.pathJoin(Environment.getExternalStorageDirectory().getAbsolutePath(), path);
+            String rootPath = SeadroidApplication.getAppContext().getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath();
+//            String fullPath = Utils.pathJoin(Environment.getExternalStorageDirectory().getAbsolutePath(), path);
+            String fullPath = Utils.pathJoin(rootPath, path);
             pathList.add(fullPath);
         }
         return pathList;
