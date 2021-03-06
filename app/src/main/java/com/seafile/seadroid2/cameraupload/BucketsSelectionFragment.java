@@ -13,10 +13,10 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SettingsManager;
+import com.seafile.seadroid2.util.GlideApp;
 import com.seafile.seadroid2.util.Utils;
 
 import java.io.File;
@@ -148,9 +148,9 @@ public class BucketsSelectionFragment extends Fragment {
                 }
             });
             if (buckets.get(position).isImages != null && buckets.get(position).isImages.equals(GalleryBucketUtils.IMAGES)) {
-                Glide.with(getActivity()).load(Uri.fromFile(new File(buckets.get(position).imagePath))).into(holder.imageview);
+                GlideApp.with(getActivity()).load(buckets.get(position).imagePath).into(holder.imageview);
             } else {
-                Glide.with(getActivity()).load(Uri.fromFile(new File(buckets.get(position).videoPath))).into(holder.imageview);
+                GlideApp.with(getActivity()).load(Uri.fromFile(new File(buckets.get(position).videoPath))).into(holder.imageview);
             }
 
             if (selectedBuckets[position])

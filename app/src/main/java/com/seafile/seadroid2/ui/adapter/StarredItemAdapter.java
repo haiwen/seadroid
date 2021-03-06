@@ -10,7 +10,6 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.load.model.GlideUrl;
@@ -25,6 +24,7 @@ import com.seafile.seadroid2.data.SeafItem;
 import com.seafile.seadroid2.data.SeafStarredFile;
 import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
+import com.seafile.seadroid2.util.GlideApp;
 import com.seafile.seadroid2.util.Utils;
 
 import java.util.ArrayList;
@@ -166,7 +166,7 @@ public class StarredItemAdapter extends BaseAdapter {
                 RequestOptions opt = new RequestOptions()
                         .placeholder(R.drawable.file_image)
                         .override(WidgetUtils.getThumbnailWidth(), WidgetUtils.getThumbnailWidth());
-                Glide.with(mActivity)
+                GlideApp.with(mActivity)
                         .asBitmap()
                         .load(glideUrl)
                         .apply(opt)

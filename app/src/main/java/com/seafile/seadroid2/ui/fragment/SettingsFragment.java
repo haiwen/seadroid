@@ -14,6 +14,7 @@ import android.preference.PreferenceCategory;
 import android.preference.PreferenceScreen;
 import android.support.v7.app.AlertDialog;
 import android.text.Html;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -53,6 +54,8 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -73,8 +76,8 @@ public class SettingsFragment extends CustomPreferenceFragment {
     private PreferenceScreen cUploadAdvancedScreen;
     private PreferenceCategory cUploadAdvancedCategory;
     private Preference cUploadRepoPref;
-//    private CheckBoxPreference cCustomDirectoriesPref;
-//    private Preference cLocalDirectoriesPref;
+    private CheckBoxPreference cCustomDirectoriesPref;
+    private Preference cLocalDirectoriesPref;
     // privacy
     private PreferenceCategory cPrivacyCategory;
     private Preference clientEncPref;
@@ -367,38 +370,38 @@ public class SettingsFragment extends CustomPreferenceFragment {
 //            }
 //        });
         // change local folder CheckBoxPreference
-//        cCustomDirectoriesPref = (CheckBoxPreference) findPreference(SettingsManager.CAMERA_UPLOAD_CUSTOM_BUCKETS_KEY);
-//        cCustomDirectoriesPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-//            @Override
-//            public boolean onPreferenceChange(Preference preference, Object newValue) {
-//                if (newValue instanceof Boolean) {
-//                    boolean isCustom = (Boolean) newValue;
-//                    if (!isCustom) {
-//                        cUploadAdvancedCategory.removePreference(cLocalDirectoriesPref);
-//                        scanCustomDirs(false);
-//                    } else {
-//                        cUploadAdvancedCategory.addPreference(cLocalDirectoriesPref);
-//                        scanCustomDirs(true);
-//                    }
-//                    return true;
-//                }
-//
-//                return false;
-//            }
-//        });
+        cCustomDirectoriesPref = (CheckBoxPreference) findPreference(SettingsManager.CAMERA_UPLOAD_CUSTOM_BUCKETS_KEY);
+        cCustomDirectoriesPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                if (newValue instanceof Boolean) {
+                    boolean isCustom = (Boolean) newValue;
+                    if (!isCustom) {
+                        cUploadAdvancedCategory.removePreference(cLocalDirectoriesPref);
+                        scanCustomDirs(false);
+                    } else {
+                        cUploadAdvancedCategory.addPreference(cLocalDirectoriesPref);
+                        scanCustomDirs(true);
+                    }
+                    return true;
+                }
+
+                return false;
+            }
+        });
 
         // change local folder Preference
-//        cLocalDirectoriesPref = findPreference(SettingsManager.CAMERA_UPLOAD_BUCKETS_KEY);
-//        cLocalDirectoriesPref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-//            @Override
-//            public boolean onPreferenceClick(Preference preference) {
-//
-//                // choose media buckets
-//                scanCustomDirs(true);
-//
-//                return true;
-//            }
-//        });
+        cLocalDirectoriesPref = findPreference(SettingsManager.CAMERA_UPLOAD_BUCKETS_KEY);
+        cLocalDirectoriesPref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+
+                // choose media buckets
+                scanCustomDirs(true);
+
+                return true;
+            }
+        });
 
         refreshCameraUploadView();
 //        refreshContactsView();
@@ -626,21 +629,30 @@ public class SettingsFragment extends CustomPreferenceFragment {
 
         List<String> bucketNames = new ArrayList<>();
         List<String> bucketIds = settingsMgr.getCameraUploadBucketList();
-        List<GalleryBucketUtils.Bucket> allBuckets = GalleryBucketUtils.getMediaBuckets(getActivity().getApplicationContext());
+        List<GalleryBucketUtils.Bucket> tempBuckets = GalleryBucketUtils.getMediaBuckets(getActivity().getApplicationContext());
+        LinkedHashSet<GalleryBucketUtils.Bucket> bucketsSet = new LinkedHashSet<>(tempBuckets.size());
+        bucketsSet.addAll(tempBuckets);
+        List<GalleryBucketUtils.Bucket> allBuckets = new ArrayList<>(bucketsSet.size());
+        Iterator iterator = bucketsSet.iterator();
+        while (iterator.hasNext()) {
+            GalleryBucketUtils.Bucket bucket = (GalleryBucketUtils.Bucket) iterator.next();
+            allBuckets.add(bucket);
+        }
+
         for (GalleryBucketUtils.Bucket bucket: allBuckets) {
             if (bucketIds.contains(bucket.id)) {
                 bucketNames.add(bucket.name);
             }
         }
 
-//        if (bucketNames.isEmpty()) {
-//            cUploadAdvancedCategory.removePreference(cLocalDirectoriesPref);
-//            cCustomDirectoriesPref.setChecked(false);
-//        } else {
-//            cCustomDirectoriesPref.setChecked(true);
-//            cLocalDirectoriesPref.setSummary(TextUtils.join(", ", bucketNames));
-//            cUploadAdvancedCategory.addPreference(cLocalDirectoriesPref);
-//        }
+        if (bucketNames.isEmpty()) {
+            cUploadAdvancedCategory.removePreference(cLocalDirectoriesPref);
+            cCustomDirectoriesPref.setChecked(false);
+        } else {
+            cCustomDirectoriesPref.setChecked(true);
+            cLocalDirectoriesPref.setSummary(TextUtils.join(", ", bucketNames));
+            cUploadAdvancedCategory.addPreference(cLocalDirectoriesPref);
+        }
 
     }
 
