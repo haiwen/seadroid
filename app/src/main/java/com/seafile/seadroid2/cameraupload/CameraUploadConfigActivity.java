@@ -166,16 +166,16 @@ public class CameraUploadConfigActivity extends BaseActivity {
                 return position == 0 ? new CloudLibraryFragment() : null;
             }
 
-//            if (isChooseDirPage) {
-//                switch (position) {
-//                    case 0:
-//                        mBucketsFragment = new BucketsFragment();
-//                        return mBucketsFragment;
-//                    default:
-//                        return null;
-//                }
-//
-//            }
+            if (isChooseDirPage) {
+                switch (position) {
+                    case 0:
+                        mBucketsFragment = new BucketsFragment();
+                        return mBucketsFragment;
+                    default:
+                        return null;
+                }
+
+            }
 
             // Assign the appropriate screen to the fragment object, based on which screen is displayed.
             switch (position) {

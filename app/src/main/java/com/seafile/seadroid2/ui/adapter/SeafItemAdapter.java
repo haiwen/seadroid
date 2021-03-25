@@ -12,7 +12,6 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.load.model.GlideUrl;
@@ -34,6 +33,7 @@ import com.seafile.seadroid2.transfer.DownloadTaskInfo;
 import com.seafile.seadroid2.ui.NavContext;
 import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
+import com.seafile.seadroid2.util.GlideApp;
 import com.seafile.seadroid2.util.Utils;
 
 import java.io.File;
@@ -440,7 +440,7 @@ public class SeafItemAdapter extends BaseAdapter {
                         .placeholder(R.drawable.file_image)
                         .signature(new ObjectKey(dirent.size + ""))
                         .override(WidgetUtils.getThumbnailWidth(), WidgetUtils.getThumbnailWidth());
-                Glide.with(mActivity)
+                GlideApp.with(mActivity)
                         .asBitmap()
                         .load(glideUrl)
                         .apply(opt)

@@ -9,7 +9,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 
-import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.engine.GlideException;
@@ -23,6 +22,7 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafPhoto;
 import com.seafile.seadroid2.ui.activity.GalleryActivity;
+import com.seafile.seadroid2.util.GlideApp;
 import com.seafile.seadroid2.util.Utils;
 
 import java.io.File;
@@ -83,7 +83,7 @@ public class GalleryAdapter extends PagerAdapter {
                 seafPhoto.getName());
         final File file = dm.getLocalRepoFile(repoName, repoID, filePath);
         if (file.exists()) {
-            Glide.with(mActivity).load("file://" + file.getAbsolutePath().toString()).into(photoView);
+            GlideApp.with(mActivity).load("file://" + file.getAbsolutePath().toString()).into(photoView);
             seafPhoto.setDownloaded(true);
         } else {
             String urlicon = dm.getThumbnailLink(repoName, repoID, filePath, Utils.getThumbnailWidth());
@@ -95,7 +95,7 @@ public class GalleryAdapter extends PagerAdapter {
                     .skipMemoryCache(true)
                     .override(displayMetrics.widthPixels, displayMetrics.heightPixels)
                     .diskCacheStrategy(DiskCacheStrategy.NONE);
-            Glide.with(mActivity)
+            GlideApp.with(mActivity)
                     .asBitmap()
                     .load(glideUrl)
                     .apply(opt)
@@ -139,7 +139,7 @@ public class GalleryAdapter extends PagerAdapter {
 
     @Override
     public void destroyItem(ViewGroup container, int position, Object object) {
-        Glide.with(mActivity).clear((View) object);
+        GlideApp.with(mActivity).clear((View) object);
         container.removeView((View) object);
     }
 

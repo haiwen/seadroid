@@ -70,9 +70,9 @@ public final class SettingsManager {
     public static final String CAMERA_UPLOAD_ADVANCED_CATEGORY_KEY = "category_camera_upload_advanced_key";
     public static final String CAMERA_UPLOAD_ALLOW_DATA_PLAN_SWITCH_KEY = "allow_data_plan_switch_key";
     public static final String CAMERA_UPLOAD_ALLOW_VIDEOS_SWITCH_KEY = "allow_videos_upload_switch_key";
-//    public static final String CAMERA_UPLOAD_BUCKETS_KEY = "camera_upload_buckets_key";
+    public static final String CAMERA_UPLOAD_BUCKETS_KEY = "camera_upload_buckets_key";
     public static final String CAMERA_UPLOAD_CATEGORY_KEY = "category_camera_upload_key";
-//    public static final String CAMERA_UPLOAD_CUSTOM_BUCKETS_KEY = "camera_upload_buckets_switch_key";
+    public static final String CAMERA_UPLOAD_CUSTOM_BUCKETS_KEY = "camera_upload_buckets_switch_key";
     public static final String SHARED_PREF_CAMERA_UPLOAD_BUCKETS = PKG + ".camera.buckets";
     //contacts
     public static final String CONTACTS_UPLOAD_CATEGORY_KEY = "category_contacts_upload_key";
