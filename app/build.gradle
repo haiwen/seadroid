@@ -7,8 +7,8 @@ android {
         applicationId 'com.seafile.seadroid2'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 109
-        versionName "2.2.34"
+        versionCode 110
+        versionName "2.2.35"
         multiDexEnabled true
         resValue "string", "authorities", applicationId + '.cameraupload.provider'
         resValue "string", "account_type", "com.seafile.seadroid2.account.api2"
@@ -75,7 +75,7 @@ android {
         }
         release {
             signingConfig signingConfigs.release
-            minifyEnabled true
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
             applicationVariants.all { variant ->
                 variant.outputs.all { output ->
@@ -110,8 +110,8 @@ android {
         testImplementation 'org.robolectric:robolectric:3.0'
         implementation 'com.madgag.spongycastle:core:1.54.0.0'
         implementation 'com.madgag.spongycastle:prov:1.54.0.0'
-        implementation 'com.shuyu:gsyVideoPlayer-java:2.1.0'
-        implementation 'com.shuyu:gsyVideoPlayer-ex_so:2.1.0'
+        implementation 'com.shuyu:gsyVideoPlayer-java:3.0.0'
+        implementation 'com.shuyu:gsyVideoPlayer-ex_so:3.0.0'
         implementation 'com.squareup.okhttp3:okhttp:3.9.1'
 
         implementation 'com.yydcdut:markdown-processor:0.1.3'
