@@ -130,7 +130,9 @@ public class ImageManager {
 
         List<String> pathList = Lists.newArrayList();
         for (String path : paths) {
-            String rootPath = SeadroidApplication.getAppContext().getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath();
+            File[] externalMediaDirs = SeadroidApplication.getAppContext().getExternalMediaDirs();
+            String rootPath = externalMediaDirs[0].getAbsolutePath();
+//            String rootPath = SeadroidApplication.getAppContext().getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath();
 //            String fullPath = Utils.pathJoin(Environment.getExternalStorageDirectory().getAbsolutePath(), path);
             String fullPath = Utils.pathJoin(rootPath, path);
             pathList.add(fullPath);
