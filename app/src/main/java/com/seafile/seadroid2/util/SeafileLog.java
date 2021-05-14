@@ -147,4 +147,17 @@ public class SeafileLog {
         now.set(Calendar.DATE, now.get(Calendar.DATE) - SDCARD_LOG_FILE_SAVE_DAYS);
         return now.getTime();
     }
+
+    public static String getDeviceBrand() {
+        return android.os.Build.BRAND;
+    }
+
+    public static String getSystemModel() {
+        return android.os.Build.MODEL;
+    }
+
+    public static String getSystemVersion() {
+        return android.os.Build.VERSION.RELEASE;
+    }
+
 }

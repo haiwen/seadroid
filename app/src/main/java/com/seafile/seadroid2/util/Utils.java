@@ -983,10 +983,14 @@ public class Utils {
         }
     }
 
+    public static void phoneModelInfo() {
+        SeafileLog.d(DEBUG_TAG, "phoneModelInfo-------" + SeafileLog.getDeviceBrand() + "/" + SeafileLog.getSystemModel() + "/" + SeafileLog.getSystemVersion());
+    }
+
     public static void utilsLogInfo(boolean b, String info) {
         if (b) {
-            Log.d(DEBUG_TAG, info);
-//            SeafileLog.d(DEBUG_TAG, info);
+//            Log.d(DEBUG_TAG, info);
+            SeafileLog.d(DEBUG_TAG, info);
         }
     }
 }
