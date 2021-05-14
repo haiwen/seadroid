@@ -983,7 +983,7 @@ public class Utils {
         }
     }
 
-    public static void phoneModelInfo() {
+    public static void logPhoneModelInfo() {
         SeafileLog.d(DEBUG_TAG, "phoneModelInfo-------" + SeafileLog.getDeviceBrand() + "/" + SeafileLog.getSystemModel() + "/" + SeafileLog.getSystemVersion());
     }
 

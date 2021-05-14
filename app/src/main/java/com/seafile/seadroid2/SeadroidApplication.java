@@ -41,7 +41,7 @@ public class SeadroidApplication extends Application {
             initNotificationChannel();
         }
 
-        Utils.phoneModelInfo();
+        Utils.logPhoneModelInfo();
     }
 
     @Override
