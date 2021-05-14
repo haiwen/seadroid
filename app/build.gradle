@@ -7,8 +7,8 @@ android {
         applicationId 'com.seafile.seadroid2'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 110
-        versionName "2.2.35"
+        versionCode 111
+        versionName "2.2.36"
         multiDexEnabled true
         resValue "string", "authorities", applicationId + '.cameraupload.provider'
         resValue "string", "account_type", "com.seafile.seadroid2.account.api2"
@@ -75,7 +75,7 @@ android {
         }
         release {
             signingConfig signingConfigs.release
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
             applicationVariants.all { variant ->
                 variant.outputs.all { output ->

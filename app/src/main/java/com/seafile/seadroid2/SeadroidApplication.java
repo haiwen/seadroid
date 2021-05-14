@@ -18,6 +18,7 @@ import com.seafile.seadroid2.avatar.AuthImageDownloader;
 import com.seafile.seadroid2.data.StorageManager;
 import com.seafile.seadroid2.gesturelock.AppLockManager;
 import com.seafile.seadroid2.ui.CustomNotificationBuilder;
+import com.seafile.seadroid2.util.Utils;
 
 import java.io.File;
 
@@ -39,6 +40,8 @@ public class SeadroidApplication extends Application {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             initNotificationChannel();
         }
+
+        Utils.logPhoneModelInfo();
     }
 
     @Override

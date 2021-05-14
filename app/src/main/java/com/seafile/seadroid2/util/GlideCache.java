@@ -1,7 +1,6 @@
 package com.seafile.seadroid2.util;
 
 import android.content.Context;
-import android.os.Environment;
 import android.support.annotation.NonNull;
 
 import com.bumptech.glide.GlideBuilder;
@@ -17,7 +16,9 @@ public class GlideCache extends AppGlideModule {
     @Override
     public void applyOptions(@NonNull Context context, @NonNull GlideBuilder builder) {
         super.applyOptions(context, builder);
-        String rootPath = SeadroidApplication.getAppContext().getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath();
+//        String rootPath = SeadroidApplication.getAppContext().getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath();
+        File[] externalMediaDirs = SeadroidApplication.getAppContext().getExternalMediaDirs();
+        String rootPath = externalMediaDirs[0].getAbsolutePath();
         File dirPath = new File(rootPath + "/GlideCache/");
         builder.setDiskCache(new DiskLruCacheFactory(dirPath.getAbsolutePath(), 1024 * 1024 * 50));
     }
