@@ -42,9 +42,9 @@ public class SeadroidApplication extends Application {
         }
 
         Utils.logPhoneModelInfo();
-        int firstStart = SettingsManager.instance().getFirstStart();
-        if (firstStart == 0) {
-            SettingsManager.instance().saveFirstStart(1);
+        int privacyPolicyConfirmed = SettingsManager.instance().getPrivacyPolicyConfirmed();
+        if (privacyPolicyConfirmed == 0) {
+            SettingsManager.instance().savePrivacyPolicyConfirmed(1);
         }
 
     }

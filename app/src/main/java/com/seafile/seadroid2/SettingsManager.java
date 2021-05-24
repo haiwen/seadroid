@@ -303,11 +303,11 @@ public final class SettingsManager {
         return sharedPref.getString(SettingsManager.UPLOAD_COMPLETED_TIME, null);
     }
 
-    public void saveFirstStart(int type) {
+    public void savePrivacyPolicyConfirmed(int type) {
         editor.putInt(PRIVACY_POLICY_CONFIRMED, type).commit();
     }
 
-    public int getFirstStart() {
+    public int getPrivacyPolicyConfirmed() {
         return sharedPref.getInt(PRIVACY_POLICY_CONFIRMED, 0);
     }
 }
