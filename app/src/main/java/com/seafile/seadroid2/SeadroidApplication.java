@@ -42,6 +42,11 @@ public class SeadroidApplication extends Application {
         }
 
         Utils.logPhoneModelInfo();
+        int firstStart = SettingsManager.instance().getFirstStart();
+        if (firstStart == 0) {
+            SettingsManager.instance().saveFirstStart(1);
+        }
+
     }
 
     @Override

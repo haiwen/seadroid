@@ -27,6 +27,7 @@ import com.google.common.collect.Lists;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafConnection;
 import com.seafile.seadroid2.SeafException;
+import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.account.Authenticator;
@@ -35,11 +36,13 @@ import com.seafile.seadroid2.avatar.AvatarManager;
 import com.seafile.seadroid2.monitor.FileMonitorService;
 import com.seafile.seadroid2.ui.adapter.AccountAdapter;
 import com.seafile.seadroid2.ui.adapter.SeafAccountAdapter;
+import com.seafile.seadroid2.ui.dialog.PolicyDialog;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.util.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 
 public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItemClickListener{
@@ -84,7 +87,6 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
         Log.d(DEBUG_TAG, "AccountsActivity.onCreate is called");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.start);
-
         mAccountManager = android.accounts.AccountManager.get(this);
         accountsView = (ListView) findViewById(R.id.account_list_view);
         accountManager = new AccountManager(this);
@@ -140,6 +142,13 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
         }
 
         getSupportActionBar().setTitle(R.string.accounts);
+
+        String country = Locale.getDefault().getCountry();
+        String language = Locale.getDefault().getLanguage();
+        int firstStart = SettingsManager.instance().getFirstStart();
+        if (country.equals("CN") && language.equals("zh") && (firstStart == 1)) {
+            showDialog();
+        }
     }
 
     @Override
@@ -417,4 +426,22 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
         }
     }
 
+    private void showDialog() {
+        PolicyDialog mDialog = new PolicyDialog(AccountsActivity.this, R.style.PolicyDialog,
+                new PolicyDialog.OncloseListener() {
+                    @Override
+                    public void onClick(boolean confirm) {
+                        if (confirm) {
+                            // TODO:
+                            SettingsManager.instance().saveFirstStart(2);
+                        } else {
+                            // TODO:
+                            System.exit(0);
+                        }
+                    }
+                });
+        mDialog.show();
+        mDialog.setCancelable(false);
+
+    }
 }

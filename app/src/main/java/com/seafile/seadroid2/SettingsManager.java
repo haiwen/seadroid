@@ -79,6 +79,7 @@ public final class SettingsManager {
     public static final String CONTACTS_UPLOAD_SWITCH_KEY = "contacts_upload_switch_key";
     public static final String SETTINGS_ABOUT_VERSION_KEY = "settings_about_version_key";
     public static final String SETTINGS_ABOUT_AUTHOR_KEY = "settings_about_author_key";
+    public static final String SETTINGS_PRIVACY_POLICY_KEY = "settings_privacy_policy_key";
     public static final String CONTACTS_UPLOAD_REPO_KEY = "contacts_upload_repo_key";
     public static final String CONTACTS_UPLOAD_REPO_TIME_KEY = "contacts_upload_repo_time_key";
     public static final String CONTACTS_UPLOAD_REPO_BACKUP_KEY = "contacts_upload_repo_backup_key";
@@ -103,6 +104,8 @@ public final class SettingsManager {
 
     public static long lock_timestamp = 0;
     public static final long LOCK_EXPIRATION_MSECS = 5 * 60 * 1000;
+
+    public static final String RECORD_FIRST_START = "record_first_start";
 
     public static SettingsManager instance() {
         if (instance == null) {
@@ -300,4 +303,11 @@ public final class SettingsManager {
         return sharedPref.getString(SettingsManager.UPLOAD_COMPLETED_TIME, null);
     }
 
+    public void saveFirstStart(int type) {
+        editor.putInt(RECORD_FIRST_START, type).commit();
+    }
+
+    public int getFirstStart() {
+        return sharedPref.getInt(RECORD_FIRST_START, 0);
+    }
 }
