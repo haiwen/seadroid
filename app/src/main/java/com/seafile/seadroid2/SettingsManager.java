@@ -105,7 +105,7 @@ public final class SettingsManager {
     public static long lock_timestamp = 0;
     public static final long LOCK_EXPIRATION_MSECS = 5 * 60 * 1000;
 
-    public static final String RECORD_FIRST_START = "record_first_start";
+    public static final String PRIVACY_POLICY_CONFIRMED = "privacy_policy_confirmed";
 
     public static SettingsManager instance() {
         if (instance == null) {
@@ -304,10 +304,10 @@ public final class SettingsManager {
     }
 
     public void saveFirstStart(int type) {
-        editor.putInt(RECORD_FIRST_START, type).commit();
+        editor.putInt(PRIVACY_POLICY_CONFIRMED, type).commit();
     }
 
     public int getFirstStart() {
-        return sharedPref.getInt(RECORD_FIRST_START, 0);
+        return sharedPref.getInt(PRIVACY_POLICY_CONFIRMED, 0);
     }
 }
