@@ -429,10 +429,12 @@ public class SeafConnection {
             }
 
             if (dirID.equals(cachedDirID)) {
+                Utils.utilsLogInfo(true, "====local cache is valid");
                 // local cache is valid
                 // Log.d(DEBUG_TAG, String.format("dir %s is cached", path));
                 content = null;
             } else {
+                Utils.utilsLogInfo(true, "====local cache is invalid");
                 /*Log.d(DEBUG_TAG,
                       String.format("dir %s will be downloaded from server, latest %s, local cache %s",
                                     path, dirID, cachedDirID != null ? cachedDirID : "null"));*/
