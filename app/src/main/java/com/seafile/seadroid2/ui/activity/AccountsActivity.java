@@ -146,7 +146,7 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
         String country = Locale.getDefault().getCountry();
         String language = Locale.getDefault().getLanguage();
         int privacyPolicyConfirmed = SettingsManager.instance().getPrivacyPolicyConfirmed();
-        if (country.equals("CN") && language.equals("zh") && (privacyPolicyConfirmed == 1)) {
+        if (country.equals("CN") && language.equals("zh") && (privacyPolicyConfirmed == 0)) {
             showDialog();
         }
     }
@@ -433,7 +433,7 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
                     public void onClick(boolean confirm) {
                         if (confirm) {
                             // TODO:
-                            SettingsManager.instance().savePrivacyPolicyConfirmed(2);
+                            SettingsManager.instance().savePrivacyPolicyConfirmed(1);
                         } else {
                             // TODO:
                             System.exit(0);

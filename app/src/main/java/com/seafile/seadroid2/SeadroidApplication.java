@@ -42,11 +42,6 @@ public class SeadroidApplication extends Application {
         }
 
         Utils.logPhoneModelInfo();
-        int privacyPolicyConfirmed = SettingsManager.instance().getPrivacyPolicyConfirmed();
-        if (privacyPolicyConfirmed == 0) {
-            SettingsManager.instance().savePrivacyPolicyConfirmed(1);
-        }
-
     }
 
     @Override
