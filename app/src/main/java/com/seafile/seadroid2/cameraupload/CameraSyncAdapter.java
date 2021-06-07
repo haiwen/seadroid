@@ -282,7 +282,6 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
 
         try {
             // Log.d(DEBUG_TAG, "Validating target repository...");
-            Utils.utilsLogInfo(true, "========Validating target repository.");
             // make sure the repo exists
             if (!validateRepository(dataManager)) {
                 /**
@@ -293,6 +292,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
                  * instead we should display an error
                  */
                 Log.e(DEBUG_TAG, "Sync aborted because the target repository does not exist");
+                Utils.utilsLogInfo(true, "========Sync aborted because the target repository does not exist.");
                 syncResult.databaseError = true;
                 showNotificationRepoError();
                 return;
@@ -306,7 +306,6 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
             int timeout = 1000; // wait up to a second
             while (!isCancelled() && timeout > 0 && txService == null) {
                 // Log.d(DEBUG_TAG, "waiting for transfer service");
-                Utils.utilsLogInfo(true, "========waiting for transfer service.");
                 Thread.sleep(100);
                 timeout -= 100;
             }
@@ -348,6 +347,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
                     syncResult.stats.numAuthExceptions++;
                     // Log.i(DEBUG_TAG, "sync aborted because of authentication error.", e);
                     showNotificationAuthError();
+                    Utils.utilsLogInfo(true, "======sync aborted because of authentication error---" + e);
                     break;
                 default:
                     syncResult.stats.numIoExceptions++;
@@ -366,7 +366,6 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
                 txService.cancelUploadTasksByIds(tasksInProgress);
 
                 // Log.d(DEBUG_TAG, "disconnecting from TransferService");
-                Utils.utilsLogInfo(true, "======disconnecting from TransferService");
                 getContext().unbindService(mConnection);
                 txService = null;
             }
@@ -429,7 +428,10 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
                     return;
 
             }
-        } finally {
+        } catch (Exception e){
+            Utils.utilsLogInfo(true,"===createDirectories--iterateCursor==Exception"+e);
+        }
+            finally {
             if (cursor != null)
                 cursor.close();
         }

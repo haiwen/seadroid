@@ -636,7 +636,6 @@ public class DataManager {
         } else {
             content = cachedContent;
         }
-        Utils.utilsLogInfo(true, "====createDirectories==getDirentsFromServer==cachedDirID--" + cachedDirID + "===cacheFile--" + cacheFile.length());
         return parseDirents(content);
     }
 
