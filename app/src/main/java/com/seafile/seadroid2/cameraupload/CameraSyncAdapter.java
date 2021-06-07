@@ -429,7 +429,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
 
             }
         } catch (Exception e){
-            Utils.utilsLogInfo(true,"===createDirectories--iterateCursor==Exception"+e);
+            Utils.utilsLogInfo(true, "===createDirectories--iterateCursor==Exception" + e);
         }
             finally {
             if (cursor != null)
