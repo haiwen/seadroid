@@ -433,6 +433,7 @@ public class DataManager {
             Utils.writeFile(cache, content);
         } catch (IOException e) {
             Log.e(DEBUG_TAG, "Could not write dirent cache to disk.", e);
+            Utils.utilsLogInfo(true, "====createDirectories==getDirentsFromServer==saveDirentContent==Could not write dirent cache to disk" + e);
         }
     }
 
@@ -553,6 +554,7 @@ public class DataManager {
             return dirents;
         } catch (JSONException e) {
             Log.e(DEBUG_TAG, "Could not parse cached dirent", e);
+            Utils.utilsLogInfo(true, "====createDirectories==getDirentsFromServer==parseDirents==Could not parse cached dirent" + e);
             return null;
         }
     }
@@ -634,7 +636,6 @@ public class DataManager {
         } else {
             content = cachedContent;
         }
-
         return parseDirents(content);
     }
 

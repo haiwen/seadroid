@@ -175,6 +175,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
 
         // create base directory
         forceCreateDirectory(dataManager, "/", BASE_DIR);
+        Utils.utilsLogInfo(true, "========createDirectories====buckets.size()---" + buckets.size());
         for (GalleryBucketUtils.Bucket bucket : buckets) {
 
             // the user has selected specific buckets: only create directories for these
@@ -281,7 +282,6 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
 
         try {
             // Log.d(DEBUG_TAG, "Validating target repository...");
-
             // make sure the repo exists
             if (!validateRepository(dataManager)) {
                 /**
@@ -292,6 +292,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
                  * instead we should display an error
                  */
                 Log.e(DEBUG_TAG, "Sync aborted because the target repository does not exist");
+                Utils.utilsLogInfo(true, "========Sync aborted because the target repository does not exist.");
                 syncResult.databaseError = true;
                 showNotificationRepoError();
                 return;
@@ -311,6 +312,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
 
             if (txService == null) {
                 Log.e(DEBUG_TAG, "TransferService did not come up in time, aborting sync");
+                Utils.utilsLogInfo(true, "========TransferService did not come up in time, aborting sync.");
                 syncResult.delayUntil = 60;
                 return;
             }
@@ -323,8 +325,10 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
 
             if (isCancelled()) {
                 // Log.i(DEBUG_TAG, "sync was cancelled.");
+                Utils.utilsLogInfo(true, "========sync was cancelled.");
             } else {
                 // Log.i(DEBUG_TAG, "sync finished successfully.");
+                Utils.utilsLogInfo(true, "========sync finished successfully.");
             }
             // Log.d(DEBUG_TAG, "syncResult: " + syncResult);
 
@@ -343,14 +347,17 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
                     syncResult.stats.numAuthExceptions++;
                     // Log.i(DEBUG_TAG, "sync aborted because of authentication error.", e);
                     showNotificationAuthError();
+                    Utils.utilsLogInfo(true, "======sync aborted because of authentication error---" + e);
                     break;
                 default:
                     syncResult.stats.numIoExceptions++;
                     // Log.i(DEBUG_TAG, "sync aborted because of IO or server-side error.", e);
+                    Utils.utilsLogInfo(true, "========sync aborted because of IO or server-side error---" + e);
                     break;
             }
         } catch (Exception e) {
             Log.e(DEBUG_TAG, "sync aborted because an unknown error", e);
+            Utils.utilsLogInfo(true, "======sync aborted because an unknown error---" + e);
             syncResult.stats.numParseExceptions++;
         } finally {
             if (txService != null) {
@@ -421,7 +428,10 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
                     return;
 
             }
-        } finally {
+        } catch (Exception e){
+            Utils.utilsLogInfo(true, "===createDirectories--iterateCursor==Exception" + e);
+        }
+            finally {
             if (cursor != null)
                 cursor.close();
         }
@@ -515,6 +525,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
                         continue;
                     }
                     file = new File(Utils.getRealPathFromURI(SeadroidApplication.getAppContext(), image_uri, media));
+                    Utils.utilsLogInfo(true, "======iterateCursor---Version >= android Q---image===file.length()---" + file.length());
                 } else {
                     String video_id = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Video.Media._ID));
                     Uri video_uri = Uri.withAppendedPath(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, video_id);
@@ -523,6 +534,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
                         continue;
                     }
                     file = new File(Utils.getRealPathFromURI(SeadroidApplication.getAppContext(), video_uri, media));
+                    Utils.utilsLogInfo(true, "======iterateCursor===Version >= android Q===video===file.length()---" + file.length());
                 }
             } else {
                 int dataColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA);
@@ -531,6 +543,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
                     continue;
                 }
                 file = new File(cursor.getString(dataColumn));
+                Utils.utilsLogInfo(true, "======iterateCursor===Version < android Q===media===file.length()---" + file.length());
 
             }
 //            Utils.utilsLogInfo(true,"======iterateCursor");
