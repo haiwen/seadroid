@@ -39,6 +39,7 @@ import com.seafile.seadroid2.data.StorageManager;
 import com.seafile.seadroid2.gesturelock.LockPatternUtils;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
 import com.seafile.seadroid2.ui.activity.CreateGesturePasswordActivity;
+import com.seafile.seadroid2.ui.activity.PrivacyPolicyActivity;
 import com.seafile.seadroid2.ui.activity.SeafilePathChooserActivity;
 import com.seafile.seadroid2.ui.activity.SettingsActivity;
 import com.seafile.seadroid2.ui.dialog.ClearCacheTaskDialog;
@@ -424,6 +425,16 @@ public class SettingsFragment extends CustomPreferenceFragment {
                 // builder.setIcon(R.drawable.icon);
                 builder.setMessage(Html.fromHtml(getString(R.string.settings_about_author_info, appVersion)));
                 builder.show();
+                return true;
+            }
+        });
+
+        findPreference(SettingsManager.SETTINGS_PRIVACY_POLICY_KEY).setOnPreferenceClickListener(new OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+
+                Intent intent = new Intent(mActivity, PrivacyPolicyActivity.class);
+                mActivity.startActivity(intent);
                 return true;
             }
         });
