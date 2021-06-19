@@ -554,7 +554,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
 
             if (dbHelper.isUploaded(file)) {
                 // Log.d(DEBUG_TAG, "Skipping media " + file + " because we have uploaded it in the past.");
-//                Utils.utilsLogInfo(true, "=====Skipping media " + file + " because we have uploaded it in the past.");
+                Utils.utilsLogInfo(true, "=====Skipping media " + file + " because we have uploaded it in the past.");
                 continue;
             }
 
