@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
+import android.text.TextUtils;
 
 import com.seafile.seadroid2.data.StorageManager;
 
@@ -116,10 +117,12 @@ public class GalleryBucketUtils {
             Bucket b = new Bucket();
             b.id = cursor.getString(bucketIdColumnIndex);
             b.name = cursor.getString(bucketColumnIndex);
-
             b.isCameraBucket = false;
+            if (TextUtils.isEmpty(b.name)) {
+                continue;
+            }
             for (String name : CAMERA_BUCKET_NAMES) {
-                if (b.name != null && b.name.equalsIgnoreCase(name)) {
+                if (b.name.equalsIgnoreCase(name)) {
                     b.isCameraBucket = true;
                 }
             }
@@ -167,10 +170,12 @@ public class GalleryBucketUtils {
             b.id = cursor.getString(bucketIdColumnIndex);
             b.name = cursor.getString(bucketColumnIndex);
             b.image_id = cursor.getInt(idColumnIndex);
-
             b.isCameraBucket = false;
+            if (TextUtils.isEmpty(b.name)) {
+                continue;
+            }
             for (String name : CAMERA_BUCKET_NAMES) {
-                if (b.name != null && b.name.equalsIgnoreCase(name)) {
+                if (b.name.equalsIgnoreCase(name)) {
                     b.isCameraBucket = true;
                 }
             }
@@ -214,8 +219,11 @@ public class GalleryBucketUtils {
             String video_id = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Video.Media._ID));
             b.videoId = video_id;
             b.isCameraBucket = false;
+            if (TextUtils.isEmpty(b.name)) {
+                continue;
+            }
             for (String name : CAMERA_BUCKET_NAMES) {
-                if (b.name != null && b.name.equalsIgnoreCase(name)) {
+                if (b.name.equalsIgnoreCase(name)) {
                     b.isCameraBucket = true;
                 }
             }
@@ -257,8 +265,11 @@ public class GalleryBucketUtils {
             b.imageId = image_id;
             b.isCameraBucket = false;
             b.isImages = GalleryBucketUtils.IMAGES;
+            if (TextUtils.isEmpty(b.name)) {
+                continue;
+            }
             for (String name : CAMERA_BUCKET_NAMES) {
-                if (b.name != null && b.name.equalsIgnoreCase(name)) {
+                if (b.name.equalsIgnoreCase(name)) {
                     b.isCameraBucket = true;
                 }
             }

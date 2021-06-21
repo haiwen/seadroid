@@ -23,8 +23,6 @@ import com.seafile.seadroid2.util.Utils;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
 
 /**
@@ -33,7 +31,6 @@ import java.util.List;
 public class BucketsSelectionFragment extends Fragment {
 
     private List<GalleryBucketUtils.Bucket> buckets;
-    private List<GalleryBucketUtils.Bucket> tempBuckets;
     private boolean[] selectedBuckets;
     private ImageAdapter imageAdapter;
     private Bitmap[] thumbnails;
@@ -61,18 +58,11 @@ public class BucketsSelectionFragment extends Fragment {
                     selectedBuckets[i] = b.isCameraBucket;
             }
         } else {
-            tempBuckets = GalleryBucketUtils.getMediaBuckets(getActivity().getApplicationContext());
-            LinkedHashSet<GalleryBucketUtils.Bucket> bucketsSet = new LinkedHashSet<>(tempBuckets.size());
-            bucketsSet.addAll(tempBuckets);
-            buckets = new ArrayList<>(bucketsSet.size());
-            Iterator iterator = bucketsSet.iterator();
-            while (iterator.hasNext()) {
-                GalleryBucketUtils.Bucket bucket = (GalleryBucketUtils.Bucket) iterator.next();
-                buckets.add(bucket);
-            }
-            selectedBuckets = new boolean[buckets.size()];
-            for (int i = 0; i < buckets.size(); i++) {
-                GalleryBucketUtils.Bucket b = buckets.get(i);
+            List<GalleryBucketUtils.Bucket> tempBuckets = Utils.utilsBucketClassify(getActivity().getApplicationContext());
+            this.buckets = tempBuckets;
+            selectedBuckets = new boolean[this.buckets.size()];
+            for (int i = 0; i < this.buckets.size(); i++) {
+                GalleryBucketUtils.Bucket b = this.buckets.get(i);
                 if (b.isImages != null && b.isImages.equals(GalleryBucketUtils.IMAGES)) {
                     Uri image_uri = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, b.imageId);
                     String image_path = Utils.getRealPathFromURI(SeadroidApplication.getAppContext(), image_uri, "images");
