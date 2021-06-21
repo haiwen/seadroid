@@ -381,8 +381,10 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
         } else {
             List<GalleryBucketUtils.Bucket> allBuckets = GalleryBucketUtils.getMediaBuckets(getContext());
             for (GalleryBucketUtils.Bucket bucket: allBuckets) {
-                if (bucket.isCameraBucket)
+                if (bucket.isCameraBucket) {
                     selectedBuckets.add(bucket.id);
+                    break;
+                }
             }
         }
 
@@ -440,8 +442,10 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
         } else {
             List<GalleryBucketUtils.Bucket> allBuckets = GalleryBucketUtils.getMediaBuckets(getContext());
             for (GalleryBucketUtils.Bucket bucket: allBuckets) {
-                if (bucket.isCameraBucket)
+                if (bucket.isCameraBucket) {
                     selectedBuckets.add(bucket.id);
+                    break;
+                }
             }
         }
 
