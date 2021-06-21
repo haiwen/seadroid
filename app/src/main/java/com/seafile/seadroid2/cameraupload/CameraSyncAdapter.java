@@ -540,7 +540,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
             // local file does not exist. some inconsistency in the Media Provider? Ignore and continue
             if (!file.exists()) {
                 // Log.d(DEBUG_TAG, "Skipping media "+file+" because it doesn't exist");
-                Utils.utilsLogInfo(true, "=====Skipping media " + file + " because it doesn't exist");
+//                Utils.utilsLogInfo(true, "=====Skipping media " + file + " because it doesn't exist");
                 syncResult.stats.numSkippedEntries++;
                 continue;
             }
