@@ -84,9 +84,9 @@ public class GalleryBucketUtils {
                 MediaStore.Video.Media.BUCKET_DISPLAY_NAME,
         };
         Cursor cursor = context.getContentResolver().query(images,
-                projection,            // Which columns to return
+                projection, // Which columns to return
                 null,       // Which rows to return (all rows)
-                null,                  // Selection arguments (none)
+                null,       // Selection arguments (none)
                 null        // Ordering
         );
 
@@ -102,11 +102,15 @@ public class GalleryBucketUtils {
             Bucket b = new Bucket();
             b.id = cursor.getString(bucketIdColumnIndex);
             b.name = cursor.getString(bucketColumnIndex);
-            String video_id = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Video.Media._ID));
-            b.videoId = video_id;
+            b.videoId = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Video.Media._ID));
+
+            if (b.name == null) {
+                continue;
+            }
+            
             b.isCameraBucket = false;
             for (String name : CAMERA_BUCKET_NAMES) {
-                if (b.name != null && b.name.equalsIgnoreCase(name)) {
+                if (b.name.equalsIgnoreCase(name)) {
                     b.isCameraBucket = true;
                 }
             }
@@ -126,9 +130,9 @@ public class GalleryBucketUtils {
         };
 
         Cursor cursor = context.getContentResolver().query(images,
-                projection,            // Which columns to return
+                projection, // Which columns to return
                 null,       // Which rows to return (all rows)
-                null,                  // Selection arguments (none)
+                null,       // Selection arguments (none)
                 null        // Ordering
         );
 
@@ -144,12 +148,16 @@ public class GalleryBucketUtils {
             Bucket b = new Bucket();
             b.id = cursor.getString(bucketIdColumnIndex);
             b.name = cursor.getString(bucketColumnIndex);
-            String image_id = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID));
-            b.imageId = image_id;
+            b.imageId = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID));
+           
+            if (b.name == null) {
+                continue;
+            }
+
             b.isCameraBucket = false;
             b.isImages = GalleryBucketUtils.IMAGES;
             for (String name : CAMERA_BUCKET_NAMES) {
-                if (b.name != null && b.name.equalsIgnoreCase(name)) {
+                if (b.name.equalsIgnoreCase(name)) {
                     b.isCameraBucket = true;
                 }
             }
