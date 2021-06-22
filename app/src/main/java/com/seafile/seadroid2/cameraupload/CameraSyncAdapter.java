@@ -379,24 +379,10 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
         if (bucketList.size() > 0) {
             selectedBuckets = bucketList;
         } else {
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-                List<GalleryBucketUtils.Bucket> allBuckets = GalleryBucketUtils.getMediaBuckets(SeadroidApplication.getAppContext());
-                for (GalleryBucketUtils.Bucket bucket: allBuckets) {
-                    Utils.utilsLogInfo(false,"===Images====="+bucket.isCameraBucket+"======bucket.id======="+bucket.id+"====--=="+bucket.name+"======"+allBuckets.size());
-                    if (bucket.isCameraBucket) {
-                        selectedBuckets.add(bucket.id);
-                    }
-                }
-
-
-            }else {
-                List<GalleryBucketUtils.Bucket> allBuckets = Utils.utilsBucketClassify(SeadroidApplication.getAppContext());
-                for (GalleryBucketUtils.Bucket bucket: allBuckets) {
-                    Utils.utilsLogInfo(false,"===Images====="+bucket.isCameraBucket+"======bucket.id======="+bucket.id+"====--=="+bucket.name+"======"+allBuckets.size());
-                    if (bucket.isCameraBucket) {
-                        selectedBuckets.add(bucket.id);
-                    }
-                }
+            List<GalleryBucketUtils.Bucket> allBuckets = GalleryBucketUtils.getMediaBuckets(SeadroidApplication.getAppContext());
+            for (GalleryBucketUtils.Bucket bucket : allBuckets) {
+                if (bucket.isCameraBucket)
+                    selectedBuckets.add(bucket.id);
             }
         }
 
@@ -452,24 +438,11 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
         if (bucketList.size() > 0) {
             selectedBuckets = bucketList;
         } else {
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-                List<GalleryBucketUtils.Bucket> allBuckets = GalleryBucketUtils.getMediaBuckets(SeadroidApplication.getAppContext());
-                for (GalleryBucketUtils.Bucket bucket : allBuckets) {
-                    Utils.utilsLogInfo(false, "===Videos=====" + bucket.isCameraBucket + "======bucket.id=======" + bucket.id + "====--==" + bucket.name + "======" + allBuckets.size());
-                    if (bucket.isCameraBucket)
-                        selectedBuckets.add(bucket.id);
+            List<GalleryBucketUtils.Bucket> allBuckets = GalleryBucketUtils.getMediaBuckets(SeadroidApplication.getAppContext());
+            for (GalleryBucketUtils.Bucket bucket : allBuckets) {
+                if (bucket.isCameraBucket)
+                    selectedBuckets.add(bucket.id);
 
-                }
-
-
-            } else {
-                List<GalleryBucketUtils.Bucket> allBuckets = Utils.utilsBucketClassify(SeadroidApplication.getAppContext());
-                for (GalleryBucketUtils.Bucket bucket : allBuckets) {
-                    Utils.utilsLogInfo(false, "===Videos=====" + bucket.isCameraBucket + "======bucket.id=======" + bucket.id + "====--==" + bucket.name + "======" + allBuckets.size());
-                    if (bucket.isCameraBucket)
-                        selectedBuckets.add(bucket.id);
-
-                }
             }
         }
 

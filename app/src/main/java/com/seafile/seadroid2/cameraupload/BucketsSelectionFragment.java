@@ -41,10 +41,10 @@ public class BucketsSelectionFragment extends Fragment {
         View rootView = getActivity().getLayoutInflater().inflate(R.layout.cuc_bucket_selection_layout, null);
         SettingsManager settingsManager = SettingsManager.instance();
         List<String> currentBucketList = settingsManager.getCameraUploadBucketList();
+        buckets = GalleryBucketUtils.getMediaBuckets(getActivity().getApplicationContext());
+        selectedBuckets = new boolean[buckets.size()];
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-            buckets = GalleryBucketUtils.getMediaBuckets(getActivity().getApplicationContext());
             thumbnails = new Bitmap[buckets.size()];
-            selectedBuckets = new boolean[buckets.size()];
             for (int i = 0; i < buckets.size(); i++) {
                 GalleryBucketUtils.Bucket b = buckets.get(i);
                 if (b.image_id > 0) {
@@ -58,9 +58,6 @@ public class BucketsSelectionFragment extends Fragment {
                     selectedBuckets[i] = b.isCameraBucket;
             }
         } else {
-            List<GalleryBucketUtils.Bucket> tempBuckets = Utils.utilsBucketClassify(getActivity().getApplicationContext());
-            this.buckets = tempBuckets;
-            selectedBuckets = new boolean[this.buckets.size()];
             for (int i = 0; i < this.buckets.size(); i++) {
                 GalleryBucketUtils.Bucket b = this.buckets.get(i);
                 if (b.isImages != null && b.isImages.equals(GalleryBucketUtils.IMAGES)) {

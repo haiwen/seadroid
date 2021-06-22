@@ -37,7 +37,6 @@ import com.google.common.collect.Maps;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SettingsManager;
-import com.seafile.seadroid2.cameraupload.GalleryBucketUtils;
 import com.seafile.seadroid2.cameraupload.MediaSchedulerService;
 import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.fileschooser.SelectableFile;
@@ -79,7 +78,6 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.TreeMap;
@@ -995,19 +993,6 @@ public class Utils {
         } else {
             Log.d(DEBUG_TAG, info);
         }
-    }
-
-    public static List<GalleryBucketUtils.Bucket> utilsBucketClassify(Context context) {
-        List<GalleryBucketUtils.Bucket> tempBuckets = GalleryBucketUtils.getMediaBuckets(context);
-        LinkedHashSet<GalleryBucketUtils.Bucket> bucketsSet = new LinkedHashSet<>(tempBuckets.size());
-        bucketsSet.addAll(tempBuckets);
-        List<GalleryBucketUtils.Bucket> buckets = new ArrayList<>(bucketsSet.size());
-        Iterator iterator = bucketsSet.iterator();
-        while (iterator.hasNext()) {
-            GalleryBucketUtils.Bucket bucket = (GalleryBucketUtils.Bucket) iterator.next();
-            buckets.add(bucket);
-        }
-        return buckets;
     }
 }
 
