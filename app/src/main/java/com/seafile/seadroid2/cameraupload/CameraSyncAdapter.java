@@ -379,8 +379,8 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
         if (bucketList.size() > 0) {
             selectedBuckets = bucketList;
         } else {
-            List<GalleryBucketUtils.Bucket> allBuckets = GalleryBucketUtils.getMediaBuckets(getContext());
-            for (GalleryBucketUtils.Bucket bucket: allBuckets) {
+            List<GalleryBucketUtils.Bucket> allBuckets = GalleryBucketUtils.getMediaBuckets(SeadroidApplication.getAppContext());
+            for (GalleryBucketUtils.Bucket bucket : allBuckets) {
                 if (bucket.isCameraBucket)
                     selectedBuckets.add(bucket.id);
             }
@@ -438,10 +438,11 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
         if (bucketList.size() > 0) {
             selectedBuckets = bucketList;
         } else {
-            List<GalleryBucketUtils.Bucket> allBuckets = GalleryBucketUtils.getMediaBuckets(getContext());
-            for (GalleryBucketUtils.Bucket bucket: allBuckets) {
+            List<GalleryBucketUtils.Bucket> allBuckets = GalleryBucketUtils.getMediaBuckets(SeadroidApplication.getAppContext());
+            for (GalleryBucketUtils.Bucket bucket : allBuckets) {
                 if (bucket.isCameraBucket)
                     selectedBuckets.add(bucket.id);
+
             }
         }
 
@@ -540,7 +541,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
             // local file does not exist. some inconsistency in the Media Provider? Ignore and continue
             if (!file.exists()) {
                 // Log.d(DEBUG_TAG, "Skipping media "+file+" because it doesn't exist");
-                Utils.utilsLogInfo(true, "=====Skipping media " + file + " because it doesn't exist");
+//                Utils.utilsLogInfo(true, "=====Skipping media " + file + " because it doesn't exist");
                 syncResult.stats.numSkippedEntries++;
                 continue;
             }
@@ -554,7 +555,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
 
             if (dbHelper.isUploaded(file)) {
                 // Log.d(DEBUG_TAG, "Skipping media " + file + " because we have uploaded it in the past.");
-//                Utils.utilsLogInfo(true, "=====Skipping media " + file + " because we have uploaded it in the past.");
+                Utils.utilsLogInfo(true, "=====Skipping media " + file + " because we have uploaded it in the past.");
                 continue;
             }
 

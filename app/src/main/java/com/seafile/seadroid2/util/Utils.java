@@ -989,8 +989,9 @@ public class Utils {
 
     public static void utilsLogInfo(boolean b, String info) {
         if (b) {
-//            Log.d(DEBUG_TAG, info);
             SeafileLog.d(DEBUG_TAG, info);
+        } else {
+            Log.d(DEBUG_TAG, info);
         }
     }
 }
