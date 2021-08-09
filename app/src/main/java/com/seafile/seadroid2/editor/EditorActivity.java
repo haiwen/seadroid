@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
+import com.seafile.seadroid2.data.CheckUploadServiceEvent;
 import com.seafile.seadroid2.editor.widget.HorizontalEditScrollView;
 import com.seafile.seadroid2.ui.activity.BaseActivity;
 import com.seafile.seadroid2.ui.dialog.FileSaveTaskDialog;
@@ -20,6 +21,8 @@ import com.yydcdut.markdown.MarkdownConfiguration;
 import com.yydcdut.markdown.MarkdownEditText;
 import com.yydcdut.markdown.MarkdownProcessor;
 import com.yydcdut.markdown.syntax.edit.EditFactory;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
 import java.io.FileReader;
@@ -175,6 +178,7 @@ public class EditorActivity extends BaseActivity implements Toolbar.OnMenuItemCl
             public void onTaskSuccess() {
                 // save file success
                 isSave = true;
+                EventBus.getDefault().post(new CheckUploadServiceEvent("saveEditFile", path));
                 Toast.makeText(EditorActivity.this, getString(R.string.editor_file_save_success), Toast.LENGTH_SHORT).show();
                 finish();
             }

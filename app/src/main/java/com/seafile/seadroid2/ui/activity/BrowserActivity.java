@@ -2439,13 +2439,13 @@ public class BrowserActivity extends BaseActivity
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(CheckUploadServiceEvent result) {
-        if (!Utils.isServiceRunning(BrowserActivity.this, "com.seafile.seadroid2.cameraupload.MediaObserverService")) {
-            mediaObserver = new Intent(this, MediaObserverService.class);
-            startService(mediaObserver);
-            syncCamera();
-            Log.d(DEBUG_TAG, "onEvent============false ");
-        } else {
-            Log.d(DEBUG_TAG, "onEvent============true ");
+        if (result.getState().equals("saveEditFile")) {
+            addUpdateTask(navContext.getRepoID(), navContext.getRepoName(), navContext.getDirPath(), result.getLogInfo());
+            if (!Utils.isServiceRunning(BrowserActivity.this, "com.seafile.seadroid2.cameraupload.MediaObserverService")) {
+                mediaObserver = new Intent(this, MediaObserverService.class);
+                startService(mediaObserver);
+                syncCamera();
+            }
         }
     }
 }
