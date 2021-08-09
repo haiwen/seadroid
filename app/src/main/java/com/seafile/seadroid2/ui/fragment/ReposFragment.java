@@ -1200,5 +1200,4 @@ public class ReposFragment extends ListFragment {
             mListView.setAdapter(adapter);
         }
     }
-
 }
