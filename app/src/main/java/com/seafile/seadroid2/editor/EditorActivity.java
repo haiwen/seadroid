@@ -13,9 +13,11 @@ import android.widget.Toast;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.editor.widget.HorizontalEditScrollView;
+import com.seafile.seadroid2.monitor.FileMonitorService;
 import com.seafile.seadroid2.ui.activity.BaseActivity;
 import com.seafile.seadroid2.ui.dialog.FileSaveTaskDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog;
+import com.seafile.seadroid2.util.Utils;
 import com.yydcdut.markdown.MarkdownConfiguration;
 import com.yydcdut.markdown.MarkdownEditText;
 import com.yydcdut.markdown.MarkdownProcessor;
@@ -185,5 +187,15 @@ public class EditorActivity extends BaseActivity implements Toolbar.OnMenuItemCl
             }
         });
         dialog.show(getSupportFragmentManager(), "FileSaveTaskDialog");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (!com.seafile.seadroid2.util.Utils.isServiceRunning(EditorActivity.this, "com.seafile.seadroid2.monitor.FileMonitorService")) {
+            Intent monitorIntent = new Intent(EditorActivity.this, FileMonitorService.class);
+            EditorActivity.this.startService(monitorIntent);
+            Utils.utilsLogInfo(true, "---------FileMonitorService is not running, start it in EditorActivity");
+        }
     }
 }
