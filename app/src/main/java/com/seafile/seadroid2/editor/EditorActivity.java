@@ -195,9 +195,7 @@ public class EditorActivity extends BaseActivity implements Toolbar.OnMenuItemCl
         if (!com.seafile.seadroid2.util.Utils.isServiceRunning(EditorActivity.this, "com.seafile.seadroid2.monitor.FileMonitorService")) {
             Intent monitorIntent = new Intent(EditorActivity.this, FileMonitorService.class);
             EditorActivity.this.startService(monitorIntent);
-            Utils.utilsLogInfo(true, "---------FileMonitorService-----true---");
-        } else {
-            Utils.utilsLogInfo(true, "---------FileMonitorService-----false--------");
+            Utils.utilsLogInfo(true, "---------FileMonitorService is not running, start it in EditorActivity");
         }
     }
 }
