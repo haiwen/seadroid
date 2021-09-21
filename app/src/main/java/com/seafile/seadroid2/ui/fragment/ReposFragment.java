@@ -46,7 +46,6 @@ import com.seafile.seadroid2.ui.dialog.TaskDialog;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.util.Utils;
 
-import java.io.File;
 import java.net.HttpURLConnection;
 import java.util.List;
 import java.util.Map;
@@ -950,20 +949,14 @@ public class ReposFragment extends ListFragment {
             myPath = params[2];
             try {
                 List<SeafDirent> dirents = dataManager.getDirentsFromServer(myRepoID, myPath);
+                String repoName = getNavContext().getRepoName();
+                String repoID = getNavContext().getRepoID();
                 for (SeafDirent sd : dirents) {
                     if (!sd.isDir()) {
-                        String repoName = getNavContext().getRepoName();
-                        String repoID = getNavContext().getRepoID();
                         String path = Utils.pathJoin(getNavContext().getDirPath(), sd.name);
-                        File localfile = dataManager.getLocalRepoFile(repoName, repoID, path);
-                        if (localfile != null) {
-                            long localfileSize = localfile.length();
-                            if (localfileSize != sd.getFileSize()) {
-                                SeafCachedFile scf = dataManager.getCachedFile(repoName, repoID, path);
-                                if (scf != null) {
-                                    dataManager.removeCachedFile(scf);
-                                }
-                            }
+                        SeafCachedFile scf = dataManager.getCachedFile(repoName, repoID, path);
+                        if (scf != null && scf.getSize() != sd.getFileSize()) {
+                            dataManager.removeCachedFile(scf);
                         }
                     }
                 }

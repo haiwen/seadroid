@@ -503,7 +503,7 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
                     nav.setDirPermission(item.permission);
                     nav.setDir("/", item.root);
                     chooseDir();
-                    mStep = STEP_CHOOSE_REPO;
+//                    mStep = STEP_CHOOSE_REPO;
                     break;
                 }
                 if (!isContains) {

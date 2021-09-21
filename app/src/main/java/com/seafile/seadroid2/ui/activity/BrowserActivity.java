@@ -2254,7 +2254,7 @@ public class BrowserActivity extends BaseActivity
         Intent intent = new Intent(this, SeafilePathChooserActivity.class);
         intent.putExtra(SeafilePathChooserActivity.DATA_ACCOUNT, account);
         SeafRepo repo = getDataManager().getCachedRepoByID(repoID);
-        boolean isShowEncryptDir = false;
+        boolean isShowEncryptDir = true;
         if (repo.encrypted) {
             intent.putExtra(SeafilePathChooserActivity.ENCRYPTED_REPO_ID, repoID);
         }
