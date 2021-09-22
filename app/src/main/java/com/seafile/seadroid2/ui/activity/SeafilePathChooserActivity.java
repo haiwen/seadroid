@@ -91,7 +91,9 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
     public static final String ONLY_SHOW_WRITABLE_REPOS = "onlyShowWritableRepos";
     public static final String SHOW_ENCRYPTED_REPOS = "showEncryptedRepos";
     public static final String ENCRYPTED_REPO_ID = "encryptedRepoId";
+    public static final String REPO_ENCRYPTED = "repo_encrypted";
     private boolean showEncryptedRepos;
+    private boolean isShowEncryptedRepos;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -106,6 +108,7 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
         onlyShowWritableRepos = intent.getBooleanExtra(ONLY_SHOW_WRITABLE_REPOS, true);
         showEncryptedRepos = intent.getBooleanExtra(SHOW_ENCRYPTED_REPOS, true);
         encryptedRepoId = intent.getStringExtra(ENCRYPTED_REPO_ID);
+        isShowEncryptedRepos = intent.getBooleanExtra(REPO_ENCRYPTED,true);
 
         mOkButton = (Button) findViewById(R.id.ok);
         mNewFolder = (Button) findViewById(R.id.new_folder);
@@ -491,7 +494,8 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
                     continue;
                 }
 
-                if (item.encrypted && !showEncryptedRepos) {
+//                if (item.encrypted && !showEncryptedRepos) {
+                if (item.encrypted && !isShowEncryptedRepos) {
                     // encrypted dir need not show in list
                     continue;
                 }

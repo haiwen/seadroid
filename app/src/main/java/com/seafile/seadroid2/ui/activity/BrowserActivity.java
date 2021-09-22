@@ -2258,6 +2258,7 @@ public class BrowserActivity extends BaseActivity
         if (repo.encrypted) {
             intent.putExtra(SeafilePathChooserActivity.ENCRYPTED_REPO_ID, repoID);
         }
+        intent.putExtra(SeafilePathChooserActivity.REPO_ENCRYPTED, repo.encrypted);
         intent.putExtra(SeafilePathChooserActivity.SHOW_ENCRYPTED_REPOS, isShowEncryptDir);
         startActivityForResult(intent, BrowserActivity.CHOOSE_COPY_MOVE_DEST_REQUEST);
     }
