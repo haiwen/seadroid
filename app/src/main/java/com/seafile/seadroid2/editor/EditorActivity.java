@@ -16,8 +16,6 @@ import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.editor.widget.HorizontalEditScrollView;
 import com.seafile.seadroid2.monitor.FileMonitorService;
 import com.seafile.seadroid2.ui.activity.BaseActivity;
-import com.seafile.seadroid2.ui.dialog.FileSaveTaskDialog;
-import com.seafile.seadroid2.ui.dialog.TaskDialog;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.util.Utils;
 import com.yydcdut.markdown.MarkdownConfiguration;
@@ -170,27 +168,6 @@ public class EditorActivity extends BaseActivity implements Toolbar.OnMenuItemCl
 //            showSaveDialog();
             saveFile();
         }
-    }
-
-
-    private void showSaveDialog() {
-        FileSaveTaskDialog dialog = new FileSaveTaskDialog();
-        dialog.init(path, mMarkdownEditText);
-        dialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
-            @Override
-            public void onTaskSuccess() {
-                // save file success
-                isSave = true;
-                Toast.makeText(EditorActivity.this, getString(R.string.editor_file_save_success), Toast.LENGTH_SHORT).show();
-                finish();
-            }
-
-            @Override
-            public void onTaskFailed(SeafException e) {
-                Toast.makeText(EditorActivity.this, getString(R.string.editor_file_save_failed), Toast.LENGTH_SHORT).show();
-            }
-        });
-        dialog.show(getSupportFragmentManager(), "FileSaveTaskDialog");
     }
 
     @Override
