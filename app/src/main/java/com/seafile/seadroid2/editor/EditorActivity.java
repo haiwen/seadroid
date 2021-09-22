@@ -1,6 +1,7 @@
 package com.seafile.seadroid2.editor;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
@@ -15,8 +16,7 @@ import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.editor.widget.HorizontalEditScrollView;
 import com.seafile.seadroid2.monitor.FileMonitorService;
 import com.seafile.seadroid2.ui.activity.BaseActivity;
-import com.seafile.seadroid2.ui.dialog.FileSaveTaskDialog;
-import com.seafile.seadroid2.ui.dialog.TaskDialog;
+import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.util.Utils;
 import com.yydcdut.markdown.MarkdownConfiguration;
 import com.yydcdut.markdown.MarkdownEditText;
@@ -148,7 +148,8 @@ public class EditorActivity extends BaseActivity implements Toolbar.OnMenuItemCl
                 mPerformEdit.redo();
                 break;
             case R.id.edit_save:
-                showSaveDialog();
+//                showSaveDialog();
+                saveFile();
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -164,29 +165,9 @@ public class EditorActivity extends BaseActivity implements Toolbar.OnMenuItemCl
         if (isSave) {
             super.onBackPressed();
         } else {
-            showSaveDialog();
+//            showSaveDialog();
+            saveFile();
         }
-    }
-
-
-    private void showSaveDialog() {
-        FileSaveTaskDialog dialog = new FileSaveTaskDialog();
-        dialog.init(path, mMarkdownEditText);
-        dialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
-            @Override
-            public void onTaskSuccess() {
-                // save file success
-                isSave = true;
-                Toast.makeText(EditorActivity.this, getString(R.string.editor_file_save_success), Toast.LENGTH_SHORT).show();
-                finish();
-            }
-
-            @Override
-            public void onTaskFailed(SeafException e) {
-                Toast.makeText(EditorActivity.this, getString(R.string.editor_file_save_failed), Toast.LENGTH_SHORT).show();
-            }
-        });
-        dialog.show(getSupportFragmentManager(), "FileSaveTaskDialog");
     }
 
     @Override
@@ -196,6 +177,41 @@ public class EditorActivity extends BaseActivity implements Toolbar.OnMenuItemCl
             Intent monitorIntent = new Intent(EditorActivity.this, FileMonitorService.class);
             EditorActivity.this.startService(monitorIntent);
             Utils.utilsLogInfo(true, "---------FileMonitorService is not running, start it in EditorActivity");
+        }
+    }
+
+    private void saveFile() {
+        Task task = new Task();
+        ConcurrentAsyncTask.execute(task);
+    }
+
+
+    public class Task extends AsyncTask<Void, Long, Void> {
+        private SeafException err;
+
+        protected void setTaskException(SeafException e) {
+            err = e;
+        }
+
+        @Override
+        public Void doInBackground(Void... params) {
+            try {
+                Utils.writeFile(new File(path), mMarkdownEditText.getText().toString());
+            } catch (IOException e) {
+                setTaskException(new SeafException(SeafException.OTHER_EXCEPTION, "File save failed"));
+            }
+            return null;
+        }
+
+        @Override
+        public void onPostExecute(Void result) {
+            if (err != null) {
+                Toast.makeText(EditorActivity.this, getString(R.string.editor_file_save_failed), Toast.LENGTH_SHORT).show();
+            } else {
+                isSave = true;
+                Toast.makeText(EditorActivity.this, getString(R.string.editor_file_save_success), Toast.LENGTH_SHORT).show();
+                finish();
+            }
         }
     }
 }
