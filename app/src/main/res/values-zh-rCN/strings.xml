@@ -538,4 +538,7 @@
   <string name="is_scanning">扫描中</string>
   <string name="is_uploading">上传中</string>
   <string name="network_unavailable">网络不可用</string>
+  <string name="required_password">需要密码</string>
+  <string name="weak_password">密码太弱</string>
+  <string name="generating_link_failed">链接生成失败</string>
 </resources>
