@@ -340,7 +340,6 @@ public abstract class TaskDialog extends DialogFragment {
         errorText.startAnimation(AnimationUtils.loadAnimation(
                 getActivity(), android.R.anim.fade_in));
         errorText.setVisibility(View.VISIBLE);
-        getDialog().setTitle(R.string.generating_link_failed);
     }
 
     protected void hideError() {

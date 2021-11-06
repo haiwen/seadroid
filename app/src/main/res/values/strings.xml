@@ -569,5 +569,4 @@
 
   <string name="required_password">Password is required.</string>
   <string name="weak_password">Password is too weak.</string>
-  <string name="generating_link_failed">Link generation failed.</string>
 </resources>
