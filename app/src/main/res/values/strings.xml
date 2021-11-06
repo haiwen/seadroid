@@ -566,4 +566,8 @@
   <string name="is_scanning">Scanning</string>
   <string name="is_uploading">Uploading</string>
   <string name="network_unavailable">Network unavailable</string>
+
+  <string name="required_password">Password is required.</string>
+  <string name="weak_password">Password is too weak.</string>
+  <string name="generating_link_failed">Link generation failed.</string>
 </resources>

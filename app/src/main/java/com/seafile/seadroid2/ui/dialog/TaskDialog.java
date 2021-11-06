@@ -329,10 +329,18 @@ public abstract class TaskDialog extends DialogFragment {
     }
 
     protected void showError(String error) {
-        errorText.setText(error);
+
+        if (error.equals("Password is required.")) {
+            errorText.setText(R.string.required_password);
+        } else if (error.equals("Password is too weak.")) {
+            errorText.setText(R.string.weak_password);
+        } else {
+            errorText.setText(error);
+        }
         errorText.startAnimation(AnimationUtils.loadAnimation(
                 getActivity(), android.R.anim.fade_in));
         errorText.setVisibility(View.VISIBLE);
+        getDialog().setTitle(R.string.generating_link_failed);
     }
 
     protected void hideError() {
