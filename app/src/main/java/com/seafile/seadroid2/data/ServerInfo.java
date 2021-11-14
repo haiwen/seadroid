@@ -67,14 +67,11 @@ public class ServerInfo implements Parcelable{
     }
 
     public boolean canLocalDecrypt() {
-        if (TextUtils.isEmpty(version)
-                || version.length() != 5)
+        if (TextUtils.isEmpty(version))
             return false;
 
-        final String realVersion = version.replaceAll("[.]", "");
-        final int versionCode = Integer.parseInt(realVersion);
-
-        return versionCode >= 510;
+        // version code >= "5.1.0"
+        return version.compareTo("5.1.0") >= 0;
     }
 
     public String getUrl() {
