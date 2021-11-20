@@ -140,7 +140,7 @@
     <dimen name="dialog_msg_title_txt_size">16sp</dimen>
     <dimen name="dialog_msg_txt_size">20sp</dimen>
     <dimen name="dialog_msg_progressbar_height">30dp</dimen>
-    <dimen name="dialog_error_txt_size">12sp</dimen>
+    <dimen name="dialog_error_txt_size">14sp</dimen>
     <dimen name="dialog_btn_txt_size">14sp</dimen>
     <dimen name="dialog_et_txt_size">16sp</dimen>
 

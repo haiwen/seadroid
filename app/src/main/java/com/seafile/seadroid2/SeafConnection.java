@@ -1516,7 +1516,19 @@ public class SeafConnection {
                     throw new SeafException(req.code(), req.message());
                 }
             } else {
-                throw new SeafException(req.code(), req.message());
+                try {
+                    String result = new String(req.bytes(), "UTF-8");
+                    if (result != null && Utils.parseJsonObject(result) != null) {
+                        JSONObject json = Utils.parseJsonObject(result);
+                        throw new SeafException(req.code(), json.optString("error_msg"));
+                    } else {
+                        throw new SeafException(req.code(), req.message());
+                    }
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                    throw new SeafException(req.code(), req.message());
+                }
+
             }
         } else {
             // Log.v(DEBUG_TAG, "HTTP request ok : " + req.url());
