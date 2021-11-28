@@ -30,8 +30,10 @@ import com.seafile.seadroid2.util.Utils;
 
 import org.apache.commons.io.IOUtils;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -56,10 +58,36 @@ public class ShareToSeafileActivity extends BaseActivity {
         Bundle extras = intent.getExtras();
         if (extras != null) {
             Object extraStream = extras.get(Intent.EXTRA_STREAM);
-            if(localPathList == null) localPathList = Lists.newArrayList();
-            loadSharedFiles(extraStream);
+            if (extraStream == null) {
+                localPathList = Lists.newArrayList();
+                loadSharedFiles(saveClipData(extras));
+            } else {
+                if(localPathList == null) localPathList = Lists.newArrayList();
+                loadSharedFiles(extraStream);
+            }
         }
-        
+    }
+
+    private Uri saveClipData(Bundle message) {
+
+        try {
+            File tempDir = DataManager.createTempDir();
+            File tempFile = new File(tempDir, "ClipData");
+
+            if (!tempFile.createNewFile()) {
+                throw new RuntimeException("could not create temporary file");
+            }
+            BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
+            writer.append(message.getString("android.intent.extra.TEXT"));
+            writer.flush();
+            writer.close();
+
+            return Uri.fromFile(tempFile);
+
+        } catch (IOException | RuntimeException e) {
+            Log.e(DEBUG_TAG, "Could not open requested document", e);
+        }
+        return null;
     }
 
     private void loadSharedFiles(Object extraStream) {
