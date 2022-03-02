@@ -7,8 +7,12 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import com.seafile.seadroid2.SeadroidApplication;
+import com.seafile.seadroid2.data.SeafDirent;
+import com.seafile.seadroid2.util.Utils;
 
 import java.io.File;
+import java.util.List;
+import java.util.regex.Pattern;
 
 public class CameraUploadDBHelper extends SQLiteOpenHelper {
     private static final String DEBUG_TAG = "CameraUploadDBHelper";
@@ -38,6 +42,26 @@ public class CameraUploadDBHelper extends SQLiteOpenHelper {
             PHOTOCACHE_COLUMN_DATE_ADDED
     };
 
+    // RepositoryCache table
+    private static final String REPOCACHE_TABLE_NAME = "RepositoryCache";
+    private static final String REPOCACHE_COLUMN_ID = "id";
+    private static final String REPOCACHE_COLUMN_BUCKET = "bucket";
+    private static final String REPOCACHE_COLUMN_FILE = "file";
+    private static final String REPOCACHE_COLUMN_FILE_SIZE = "file_size";
+
+    private static final String SQL_CREATE_REPOCACHE_TABLE =
+            "CREATE TABLE " + REPOCACHE_TABLE_NAME + " ("
+                    + REPOCACHE_COLUMN_ID + " INTEGER PRIMARY KEY, "
+                    + REPOCACHE_COLUMN_BUCKET + " TEXT NOT NULL, "
+                    + REPOCACHE_COLUMN_FILE + " TEXT NOT NULL, "
+                    + REPOCACHE_COLUMN_FILE_SIZE + " BIGINT NOT NULL);";
+    private static final String[] repo_projection = {
+            REPOCACHE_COLUMN_ID,
+            REPOCACHE_COLUMN_BUCKET,
+            REPOCACHE_COLUMN_FILE,
+            REPOCACHE_COLUMN_FILE_SIZE
+    };
+
     public static synchronized CameraUploadDBHelper getInstance() {
         if (dbHelper == null) {
             dbHelper = new CameraUploadDBHelper(SeadroidApplication.getAppContext());
@@ -54,6 +78,7 @@ public class CameraUploadDBHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         createPhotoCacheTable(db);
+        createRepoCacheTable(db);
     }
 
     private void createPhotoCacheTable(SQLiteDatabase db) {
@@ -64,9 +89,20 @@ public class CameraUploadDBHelper extends SQLiteOpenHelper {
                 + " (" + PHOTOCACHE_COLUMN_DATE_ADDED + ");");
     }
 
+    private void createRepoCacheTable(SQLiteDatabase db){
+        db.execSQL(SQL_CREATE_REPOCACHE_TABLE);
+        db.execSQL("CREATE INDEX repo_bucket_index ON " + REPOCACHE_TABLE_NAME
+                + " (" + REPOCACHE_COLUMN_BUCKET + ");");
+        db.execSQL("CREATE INDEX repo_file_index ON " + REPOCACHE_TABLE_NAME
+                + " (" + REPOCACHE_COLUMN_FILE + ");");
+        db.execSQL("CREATE INDEX repo_file_size_index ON " + REPOCACHE_TABLE_NAME
+                + " (" + REPOCACHE_COLUMN_FILE_SIZE + ");");
+    }
+
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS " + PHOTOCACHE_TABLE_NAME + ";");
+        db.execSQL("DROP TABLE IF EXISTS " + REPOCACHE_TABLE_NAME + ";");
         onCreate(db);
     }
 
@@ -79,6 +115,10 @@ public class CameraUploadDBHelper extends SQLiteOpenHelper {
         String path = file.getAbsolutePath();
         long modified = file.lastModified();
 
+        return isUploaded(path, modified);
+    }
+
+    public boolean isUploaded(String path, long modified) {
         Cursor c = database.query(
                 PHOTOCACHE_TABLE_NAME,
                 projection,
@@ -98,6 +138,11 @@ public class CameraUploadDBHelper extends SQLiteOpenHelper {
         String path = file.getAbsolutePath();
         long modified = file.lastModified();
 
+        markAsUploaded(path, modified);
+    }
+
+    public void markAsUploaded(String path, long modified) {
+
         ContentValues values = new ContentValues();
         values.put(PHOTOCACHE_COLUMN_FILE, path);
         values.put(PHOTOCACHE_COLUMN_DATE_ADDED, modified);
@@ -105,7 +150,78 @@ public class CameraUploadDBHelper extends SQLiteOpenHelper {
         database.insert(PHOTOCACHE_TABLE_NAME, null, values);
     }
 
+    public void cleanCache() {
+        cleanPhotoCache();
+        cleanRepoCache();
+    }
+
     public void cleanPhotoCache() {
         database.delete(PHOTOCACHE_TABLE_NAME, null, null);
+    }
+
+    public void cleanRepoCache() {
+        database.delete(REPOCACHE_TABLE_NAME, null, null);
+    }
+    public void saveRepoList(String bucketName, List<SeafDirent> list){
+        for (SeafDirent dirent : list) {
+            ContentValues values = new ContentValues();
+            values.put(REPOCACHE_COLUMN_BUCKET, bucketName);
+            values.put(REPOCACHE_COLUMN_FILE, dirent.name);
+            values.put(REPOCACHE_COLUMN_FILE_SIZE, dirent.size);
+            database.insert(REPOCACHE_TABLE_NAME, null, values);
+        }
+    }
+
+    public boolean isInRepo(File file){
+        String filename = file.getName();
+        long filelength = file.length();
+        String bucketName = file.getParent();
+        bucketName = bucketName.substring(bucketName.lastIndexOf("/")+1);
+        return isInRepo(bucketName, filename, filelength);
+    }
+
+    public boolean isInRepo(String bucketName, String filename, long filelength){
+        String prefix = filename.substring(0, filename.lastIndexOf("."));
+        String suffix = filename.substring(filename.lastIndexOf("."));
+//        Cursor c = database.query(
+//                REPOCACHE_TABLE_NAME,
+//                repo_projection,
+//                REPOCACHE_COLUMN_BUCKET + " = ? and " + REPOCACHE_COLUMN_FILE + " REGEXP ? and " + REPOCACHE_COLUMN_FILE_SIZE + " = ?",
+//                new String[] { bucketName, Pattern.quote(prefix) + "( \\(\\d+\\))?" + Pattern.quote(suffix), Long.toString(filelength) },
+//                null,   // don't group the rows
+//                null,   // don't filter by row groups
+//                null    // The sort order
+//        );
+
+        Cursor c = database.query(
+                REPOCACHE_TABLE_NAME,
+                repo_projection,
+                REPOCACHE_COLUMN_BUCKET + " = ? and " + REPOCACHE_COLUMN_FILE + " = ? and " + REPOCACHE_COLUMN_FILE_SIZE + " = ?",
+                new String[] { bucketName, filename, Long.toString(filelength) },
+                null,   // don't group the rows
+                null,   // don't filter by row groups
+                null    // The sort order
+        );
+
+        int count = c.getCount();
+        c.close();
+        return count > 0;
+    }
+
+    public boolean existRepo(String bucketName){
+        String[] bucket_projection = new String[]{REPOCACHE_COLUMN_BUCKET};
+        Cursor c = database.query(
+                REPOCACHE_TABLE_NAME,
+                bucket_projection,
+                REPOCACHE_COLUMN_BUCKET + " = ? ",
+                new String[] { bucketName },
+                null,   // don't group the rows
+                null,   // don't filter by row groups
+                null    // The sort order
+        );
+
+        int count = c.getCount();
+        c.close();
+        return count > 0;
     }
 }
