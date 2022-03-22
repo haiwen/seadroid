@@ -569,4 +569,12 @@
 
   <string name="required_password">Password is required.</string>
   <string name="weak_password">Password is too weak.</string>
+
+  <!--Player-->
+  <string name="tips_not_wifi">You are currently using a mobile network, continuing to play will consume data </string>
+  <string name="tips_not_wifi_confirm">Continuous play</string>
+  <string name="no_net">No network currently found</string>
+  <string name="tips_not_wifi_cancel">Stop playing</string>
+  <string name="no_url">Invalid playback address</string>
+  <string name="jump_ad">Skip</string>
 </resources>

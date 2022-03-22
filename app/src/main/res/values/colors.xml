@@ -32,4 +32,8 @@
     <color name="blue_bg">#FF303030</color>
     <color name="pale_yellow">#DFA788</color>
 
+    <!--player-->
+    <color name="style_color">#005fff</color>
+    <color name="bottom_container_bg">#99000000</color>
+
 </resources>

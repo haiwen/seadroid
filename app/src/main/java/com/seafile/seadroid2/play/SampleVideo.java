@@ -2,8 +2,8 @@ package com.seafile.seadroid2.play;
 
 import android.content.Context;
 import android.graphics.Matrix;
-import android.graphics.SurfaceTexture;
 import android.util.AttributeSet;
+import android.view.Surface;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -89,12 +89,23 @@ public class SampleVideo extends StandardGSYVideoPlayer {
     /**
      * It needs to be reprocessed when the size changes
      */
+
     @Override
-    public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
-        super.onSurfaceTextureSizeChanged(surface, width, height);
+    public void onSurfaceSizeChanged(Surface surface, int width, int height) {
+        super.onSurfaceSizeChanged(surface, width, height);
         resolveTransform();
     }
 
+    /**
+     * Processing display
+     */
+
+    @Override
+    public void onSurfaceAvailable(Surface surface) {
+        super.onSurfaceAvailable(surface);
+        resolveRotateUI();
+        resolveTransform();
+    }
 
     /**
      * Processing mirror rotation
@@ -206,15 +217,7 @@ public class SampleVideo extends StandardGSYVideoPlayer {
         }
     }
 
-    /**
-     *  Processing display
-     */
-    @Override
-    public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
-        super.onSurfaceTextureAvailable(surface, width, height);
-        resolveRotateUI();
-        resolveTransform();
-    }
+
 
     /**
      * Rotation
