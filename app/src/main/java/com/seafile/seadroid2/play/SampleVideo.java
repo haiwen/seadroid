@@ -245,13 +245,13 @@ public class SampleVideo extends StandardGSYVideoPlayer {
             mMoreScale.setText("4:3");
             GSYVideoType.setShowType(GSYVideoType.SCREEN_TYPE_4_3);
         } else if (mType == 3) {
-            mMoreScale.setText("全屏");
+            mMoreScale.setText(R.string.player_full_screen);
             GSYVideoType.setShowType(GSYVideoType.SCREEN_TYPE_FULL);
         } else if (mType == 4) {
-            mMoreScale.setText("拉伸全屏");
+            mMoreScale.setText(R.string.player_stretch_full_screen);
             GSYVideoType.setShowType(GSYVideoType.SCREEN_MATCH_FULL);
         } else if (mType == 0) {
-            mMoreScale.setText("默认比例");
+            mMoreScale.setText(R.string.player_default_scale);
             GSYVideoType.setShowType(GSYVideoType.SCREEN_TYPE_DEFAULT);
         }
         changeTextureViewShowType();

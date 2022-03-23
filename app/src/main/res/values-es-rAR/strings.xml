@@ -547,4 +547,7 @@
   <string name="is_scanning">Escaneando</string>
   <string name="is_uploading">Subiendo</string>
   <string name="network_unavailable">Red no disponible</string>
+  <string name="required_password">Se requiere contraseña.</string>
+  <string name="weak_password">La contraseña es demasiado débil.</string>
+  <!--Player-->
 </resources>

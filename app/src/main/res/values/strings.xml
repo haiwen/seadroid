@@ -577,4 +577,8 @@
   <string name="tips_not_wifi_cancel">Stop playing</string>
   <string name="no_url">Invalid playback address</string>
   <string name="jump_ad">Skip</string>
+  <string name="player_full_screen">full screen</string>
+  <string name="player_stretch_full_screen">stretch full screen</string>
+  <string name="player_default_scale">default scale</string>
+
 </resources>

@@ -565,4 +565,7 @@
   <string name="is_scanning">Сканирование</string>
   <string name="is_uploading">Загрузка</string>
   <string name="network_unavailable">Сеть недоступна</string>
+  <string name="required_password">Необходим пароль.</string>
+  <string name="weak_password">Пароль слишком слабый.</string>
+  <!--Player-->
 </resources>
