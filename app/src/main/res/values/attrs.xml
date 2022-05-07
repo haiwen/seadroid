@@ -66,5 +66,4 @@
     <attr name="border_width" format="dimension" />
     <attr name="border_color" format="color" />
   </declare-styleable>
-  
 </resources>

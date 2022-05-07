@@ -568,4 +568,8 @@
   <string name="required_password">Необходим пароль.</string>
   <string name="weak_password">Пароль слишком слабый.</string>
   <!--Player-->
+  <string name="jump_ad">Пропустить</string>
+  <string name="player_full_screen">на весь экран</string>
+  <string name="player_stretch_full_screen">растянуть на весь экран</string>
+  <string name="player_default_scale">масштаб по умолчанию</string>
 </resources>
