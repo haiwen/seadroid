@@ -569,4 +569,11 @@
 
   <string name="required_password">Password is required.</string>
   <string name="weak_password">Password is too weak.</string>
+
+  <!--Player-->
+  <string name="jump_ad">Skip</string>
+  <string name="player_full_screen">full screen</string>
+  <string name="player_stretch_full_screen">stretch full screen</string>
+  <string name="player_default_scale">default scale</string>
+
 </resources>

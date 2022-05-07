@@ -548,4 +548,11 @@ E-Mail: support@seafile.com<br>
   <string name="is_scanning">Scannen</string>
   <string name="is_uploading">Hochladen</string>
   <string name="network_unavailable">Netzwerk nicht verfügbar</string>
+  <string name="required_password">Passwort erforderlich.</string>
+  <string name="weak_password">Passwort ist zu schwach.</string>
+  <!--Player-->
+  <string name="jump_ad">Überspringen</string>
+  <string name="player_full_screen">Vollbild</string>
+  <string name="player_stretch_full_screen">Gestrecktes Bildformat</string>
+  <string name="player_default_scale">Normales Bildformat</string>
 </resources>
