@@ -165,6 +165,7 @@ public class BrowserActivity extends BaseActivity
     private Account account;
 
     private Intent mediaObserver;
+    private Intent monitorIntent;
 
     public DataManager getDataManager() {
         return dataManager;
@@ -387,7 +388,7 @@ public class BrowserActivity extends BaseActivity
         bindService(bIntent, mConnection, Context.BIND_AUTO_CREATE);
         Log.d(DEBUG_TAG, "try bind TransferService");
 
-        Intent monitorIntent = new Intent(this, FileMonitorService.class);
+        monitorIntent = new Intent(this, FileMonitorService.class);
         startService(monitorIntent);
 
         requestServerInfo();
@@ -2448,5 +2449,11 @@ public class BrowserActivity extends BaseActivity
         } else {
             Log.d(DEBUG_TAG, "onEvent============true ");
         }
+        if (!Utils.isServiceRunning(BrowserActivity.this, "com.seafile.seadroid2.monitor.FileMonitorService")) {
+            monitorIntent = new Intent(this, FileMonitorService.class);
+            startService(monitorIntent);
+            Log.d(DEBUG_TAG, "FileMonitorService============false ");
+        }
+
     }
 }
