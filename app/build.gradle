@@ -124,6 +124,8 @@ android {
         implementation 'com.shuyu:gsyVideoPlayer-java:3.0.0'
         implementation 'com.shuyu:gsyVideoPlayer-ex_so:3.0.0'
         implementation 'com.squareup.okhttp3:okhttp:3.9.1'
+//        implementation 'com.github.maxiaoping.GSYVideoPlayer:gsyVideoPlayer-java:6.0.1-seafile'
+//        implementation 'com.github.maxiaoping.GSYVideoPlayer:GSYVideoPlayer:6.0.1-seafile'
 
         implementation 'com.yydcdut:markdown-processor:0.1.3'
         implementation 'ren.qinc.edit:lib:0.0.5'//editor undo redo

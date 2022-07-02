@@ -17,7 +17,6 @@ import com.seafile.seadroid2.ui.activity.BaseActivity;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.util.Utils;
 import com.shuyu.gsyvideoplayer.utils.OrientationUtils;
-import com.shuyu.gsyvideoplayer.video.base.GSYVideoPlayer;
 
 import java.io.File;
 
@@ -72,7 +71,6 @@ public class PlayActivity extends BaseActivity implements VideoLinkStateListener
                 orientationUtils.resolveByClick();
             }
         });
-
         videoPlayer.setUp(mFileLink, true, new File(getCacheDir().toString()), "");
 
         // videoPlayer.getFullscreenButton().setVisibility(View.GONE);
@@ -130,8 +128,8 @@ public class PlayActivity extends BaseActivity implements VideoLinkStateListener
             return;
         }
         //Release resources
-        videoPlayer.setStandardVideoAllCallBack(null);
-        GSYVideoPlayer.releaseAllVideos();
+//        videoPlayer.setStandardVideoAllCallBack(null);
+//        GSYVideoPlayer.releaseAllVideos();
         if (isTransition && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             super.onBackPressed();
         } else {
@@ -161,7 +159,7 @@ public class PlayActivity extends BaseActivity implements VideoLinkStateListener
     private void initTransition() {
         if (isTransition && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             postponeEnterTransition();
-            ViewCompat.setTransitionName(videoPlayer, "IMG_TRANSITION");
+                ViewCompat.setTransitionName(videoPlayer, "IMG_TRANSITION");
             addTransitionListener();
             startPostponedEnterTransition();
         } else {

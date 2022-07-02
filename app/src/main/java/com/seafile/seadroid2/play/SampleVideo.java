@@ -2,7 +2,6 @@ package com.seafile.seadroid2.play;
 
 import android.content.Context;
 import android.graphics.Matrix;
-import android.graphics.SurfaceTexture;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
@@ -89,11 +88,11 @@ public class SampleVideo extends StandardGSYVideoPlayer {
     /**
      * It needs to be reprocessed when the size changes
      */
-    @Override
-    public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
-        super.onSurfaceTextureSizeChanged(surface, width, height);
-        resolveTransform();
-    }
+//    @Override
+//    public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
+//        super.onSurfaceTextureSizeChanged(surface, width, height);
+//        resolveTransform();
+//    }
 
 
     /**
@@ -209,12 +208,12 @@ public class SampleVideo extends StandardGSYVideoPlayer {
     /**
      *  Processing display
      */
-    @Override
-    public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
-        super.onSurfaceTextureAvailable(surface, width, height);
-        resolveRotateUI();
-        resolveTransform();
-    }
+//    @Override
+//    public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
+//        super.onSurfaceTextureAvailable(surface, width, height);
+//        resolveRotateUI();
+//        resolveTransform();
+//    }
 
     /**
      * Rotation
