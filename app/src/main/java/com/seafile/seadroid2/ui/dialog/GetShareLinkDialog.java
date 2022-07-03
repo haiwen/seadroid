@@ -36,19 +36,19 @@ class GetShareLinkTask extends TaskDialog.Task {
 
     @Override
     protected void runTask() {
-
-        // If you has  Shared links to delete Shared links
         DataManager dataManager = new DataManager(account);
+        //get share link
         ArrayList<SeafLink> shareLinks = dataManager.getShareLink(repoID, path);
-        for (SeafLink shareLink : shareLinks) {
-            //delete link
-            dataManager.deleteShareLink(shareLink.getToken());
-        }
-        //create new link
-        try {
-            link = conn.getShareLink(repoID, path, password, days);
-        } catch (SeafException e) {
-            setTaskException(e);
+        if (shareLinks.size() == 0) {
+            try {
+                //creating a Share link
+                link = conn.getShareLink(repoID, path, password, days);
+            } catch (SeafException e) {
+                setTaskException(e);
+            }
+        } else {
+            //return to existing link
+            link = shareLinks.get(0).getLink();
         }
     }
 
