@@ -17,6 +17,7 @@ import com.seafile.seadroid2.ui.activity.BaseActivity;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.util.Utils;
 import com.shuyu.gsyvideoplayer.utils.OrientationUtils;
+import com.shuyu.gsyvideoplayer.video.base.GSYVideoPlayer;
 
 import java.io.File;
 
@@ -32,6 +33,7 @@ public class PlayActivity extends BaseActivity implements VideoLinkStateListener
 
 
     private SampleVideo videoPlayer;
+//    private StandardGSYVideoPlayer videoPlayer;
 
     private Account mAccount;
     private String fileName;
@@ -61,7 +63,7 @@ public class PlayActivity extends BaseActivity implements VideoLinkStateListener
 
     private void init() {
         videoPlayer = (SampleVideo) findViewById(R.id.video_player);
-
+//        videoPlayer = (StandardGSYVideoPlayer) findViewById(R.id.video_player);
         //Set the rotation
         orientationUtils = new OrientationUtils(this, videoPlayer);
         //Set the full screen button function, which use the screen instead of the full screen
@@ -128,8 +130,8 @@ public class PlayActivity extends BaseActivity implements VideoLinkStateListener
             return;
         }
         //Release resources
-//        videoPlayer.setStandardVideoAllCallBack(null);
-//        GSYVideoPlayer.releaseAllVideos();
+        videoPlayer.setStandardVideoAllCallBack(null);
+        GSYVideoPlayer.releaseAllVideos();
         if (isTransition && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             super.onBackPressed();
         } else {
