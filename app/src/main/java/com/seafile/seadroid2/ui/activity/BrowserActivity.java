@@ -57,10 +57,10 @@ import com.seafile.seadroid2.data.SeafStarredFile;
 import com.seafile.seadroid2.data.ServerInfo;
 import com.seafile.seadroid2.data.StorageManager;
 import com.seafile.seadroid2.fileschooser.MultiFileChooserActivity;
+import com.seafile.seadroid2.ijkplay.IjkPlayActivity;
 import com.seafile.seadroid2.monitor.FileMonitorService;
 import com.seafile.seadroid2.notification.DownloadNotificationProvider;
 import com.seafile.seadroid2.notification.UploadNotificationProvider;
-import com.seafile.seadroid2.play.PlayActivity;
 import com.seafile.seadroid2.transfer.DownloadTaskInfo;
 import com.seafile.seadroid2.transfer.DownloadTaskManager;
 import com.seafile.seadroid2.transfer.PendingUploadInfo;
@@ -1736,7 +1736,8 @@ public class BrowserActivity extends BaseActivity
     }
 
     private void startPlayActivity(String fileName, String repoID, String filePath) {
-        Intent intent = new Intent(this, PlayActivity.class);
+        Intent intent = new Intent(this, IjkPlayActivity.class);
+//        Intent intent = new Intent(this, PlayActivity.class);
         intent.putExtra("fileName", fileName);
         intent.putExtra("repoID", repoID);
         intent.putExtra("filePath", filePath);
