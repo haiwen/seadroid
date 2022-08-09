@@ -757,7 +757,7 @@ public class Utils {
                 "el", "go", "groovy", "h", "htm", "html", "java", "js", "json", "less", "log", "make",
                 "markdown", "md", "org", "patch", "pde", "php", "pl", "properties", "py", "rb", "rst",
                 "sc", "scala", "scd", "schelp", "script", "sh", "sql", "text", "tex", "txt", "vi", "vim",
-                "xhtml", "xml", "yml"};
+                "xhtml", "xml", "yml", "adoc"};
         boolean flag = Arrays.asList(array).contains(suffix);
         return flag;
     }
