@@ -39,7 +39,6 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
 
-
     <application
         android:allowBackup="true"
         android:name="com.seafile.seadroid2.SeadroidApplication"
@@ -243,4 +242,9 @@
             </intent-filter>
         </receiver>
     </application>
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+        </intent>
+    </queries>
 </manifest>
