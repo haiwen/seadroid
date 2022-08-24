@@ -24,6 +24,12 @@
             android:title="@string/gesture_lock" >
         </com.seafile.seadroid2.ui.SwitchPreferenceCompat>
 
+        <com.seafile.seadroid2.ui.SwitchPreferenceCompat
+                android:defaultValue="true"
+                android:key="gesture_lock_visible_pattern"
+                android:title="@string/gesture_lock_visible_pattern" >
+        </com.seafile.seadroid2.ui.SwitchPreferenceCompat>
+
         <Preference
                 android:key="account_sign_out_key"
                 android:title="@string/settings_account_sign_out_title"
