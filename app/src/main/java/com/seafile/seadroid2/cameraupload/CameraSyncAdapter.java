@@ -645,8 +645,6 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
                 }
                 dbHelper.saveRepoList(bucketName, list);
             }
-            bucketKey = bucketName+"-"+media;
-            bucketMeidaNum.put(bucketKey, bucketMeidaNum.getOrDefault(bucketKey, 0)+1);
 
             // Ignore all media by Seafile. We don't want to upload our own cached files.
             if (filePath.startsWith(StorageManager.getInstance().getMediaDir().getAbsolutePath())) {
@@ -656,6 +654,8 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
             }
 
             if(dbHelper.isInRepo(bucketName, fileName, fileSize)){
+                bucketKey = bucketName+"-"+media;
+                bucketMeidaNum.put(bucketKey, bucketMeidaNum.getOrDefault(bucketKey, 0)+1);
                 if(dbHelper.isUploaded(filePath, fileModified)){
                     Log.d(DEBUG_TAG, "Skipping media " + filePath + " because we have uploaded it in the past.");
 //                 Utils.utilsLogInfo(true, "=====Skipping media " + filePath + " because we have uploaded it in the past.");
