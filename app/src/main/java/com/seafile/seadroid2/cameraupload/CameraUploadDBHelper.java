@@ -34,7 +34,7 @@ public class CameraUploadDBHelper extends SQLiteOpenHelper {
             "CREATE TABLE " + PHOTOCACHE_TABLE_NAME + " ("
                     + PHOTOCACHE_COLUMN_ID + " INTEGER PRIMARY KEY, "
                     + PHOTOCACHE_COLUMN_FILE + " TEXT NOT NULL, "
-                    + PHOTOCACHE_COLUMN_DATE_ADDED + " BIGINT NOT NULL);";
+                    + PHOTOCACHE_COLUMN_DATE_ADDED + " BIGINT NOT NULL)";
 
     private static final String[] projection = {
             PHOTOCACHE_COLUMN_ID,
@@ -83,9 +83,9 @@ public class CameraUploadDBHelper extends SQLiteOpenHelper {
 
     private void createPhotoCacheTable(SQLiteDatabase db) {
         db.execSQL(SQL_CREATE_PHOTOCACHE_TABLE);
-        db.execSQL("CREATE INDEX photo_repoid_index ON " + PHOTOCACHE_TABLE_NAME
+        db.execSQL("CREATE INDEX photo_file_index ON " + PHOTOCACHE_TABLE_NAME
                 + " (" + PHOTOCACHE_COLUMN_FILE + ");");
-        db.execSQL("CREATE INDEX photo_account_index ON " + PHOTOCACHE_TABLE_NAME
+        db.execSQL("CREATE INDEX photo_date_index ON " + PHOTOCACHE_TABLE_NAME
                 + " (" + PHOTOCACHE_COLUMN_DATE_ADDED + ");");
     }
 
@@ -142,7 +142,6 @@ public class CameraUploadDBHelper extends SQLiteOpenHelper {
     }
 
     public void markAsUploaded(String path, long modified) {
-
         ContentValues values = new ContentValues();
         values.put(PHOTOCACHE_COLUMN_FILE, path);
         values.put(PHOTOCACHE_COLUMN_DATE_ADDED, modified);
@@ -181,8 +180,8 @@ public class CameraUploadDBHelper extends SQLiteOpenHelper {
     }
 
     public boolean isInRepo(String bucketName, String filename, long filelength){
-        String prefix = filename.substring(0, filename.lastIndexOf("."));
-        String suffix = filename.substring(filename.lastIndexOf("."));
+//        String prefix = filename.substring(0, filename.lastIndexOf("."));
+//        String suffix = filename.substring(filename.lastIndexOf("."));
 //        Cursor c = database.query(
 //                REPOCACHE_TABLE_NAME,
 //                repo_projection,

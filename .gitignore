@@ -49,6 +49,8 @@ debugkey.properties
 # Misc
 .DS_Store
 app/seed.txt
+app/map.txt
+app/release
 out/
 
 *.store

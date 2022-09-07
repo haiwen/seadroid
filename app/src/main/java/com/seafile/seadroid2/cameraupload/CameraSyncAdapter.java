@@ -16,6 +16,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.MediaStore;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
@@ -47,6 +48,7 @@ import java.net.HttpURLConnection;
 import java.text.FieldPosition;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -65,7 +67,10 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
     private com.seafile.seadroid2.account.AccountManager manager;
     private CameraUploadDBHelper dbHelper;
 
-    private Cursor image_cursor = null, video_cursor = null;
+    private Cursor imageCursor = null, videoCursor = null;
+    private final int leaveImages = 2000;
+    private final int leaveVideos = 50;
+    private HashMap<String, Integer> bucketMeidaNum = new HashMap<String, Integer>();
 
     private String targetRepoId;
     private String targetRepoName;
@@ -223,6 +228,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
             dataManager.createNewDir(targetRepoId, Utils.pathJoin("/", parent), dir);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public void onPerformSync(android.accounts.Account account,
                               Bundle extras, String authority,
@@ -232,7 +238,19 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
         synchronized (this) {
             cancelled = false;
         }
-        dbHelper.cleanRepoCache();
+        if(imageCursor != null && videoCursor != null){
+            Log.e(DEBUG_TAG, "Mixing uploading images and videos.");
+            Utils.utilsLogInfo(true,"[Error] Mixing uploading images and videos.");
+            imageCursor = null;
+            videoCursor = null;
+        }
+        if(imageCursor == null && videoCursor == null) {
+            bucketMeidaNum.clear();
+            Log.i(DEBUG_TAG, "Cleaning cache.");
+            Utils.utilsLogInfo(true,"====Cleaning cache.");
+            dbHelper.cleanRepoCache();
+            dbHelper.cleanPhotoCache();
+        }
         SeadroidApplication.getInstance().setScanUploadStatus(CameraSyncStatus.SCANNING);
         EventBus.getDefault().post(new CameraSyncEvent("start"));
         /*Log.i(DEBUG_TAG, "Syncing images and video to " + account);
@@ -319,16 +337,18 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
                 return;
             }
 
-            uploadImages(syncResult, dataManager);
+            if(videoCursor == null) {
+                uploadImages(syncResult, dataManager);
+            }
 
-            if (settingsMgr.isVideosUploadAllowed()) {
+            if (settingsMgr.isVideosUploadAllowed() && imageCursor == null) {
                 uploadVideos(syncResult, dataManager);
             }
 
             if (isCancelled()) {
-                // Log.i(DEBUG_TAG, "sync was cancelled.");
+                 Log.i(DEBUG_TAG, "sync was cancelled.");
             } else {
-                // Log.i(DEBUG_TAG, "sync finished successfully.");
+                 Log.i(DEBUG_TAG, "sync finished successfully.");
             }
             // Log.d(DEBUG_TAG, "syncResult: " + syncResult);
 
@@ -372,6 +392,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
         EventBus.getDefault().post(new CameraSyncEvent("end"));
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     private void uploadImages(SyncResult syncResult, DataManager dataManager) throws SeafException, InterruptedException {
         Utils.utilsLogInfo(true, "========Starting to upload images...");
         // Log.d(DEBUG_TAG, "Starting to upload images...");
@@ -396,14 +417,12 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
         // Log.d(DEBUG_TAG, "ContentResolver selection='"+selection+"' selectionArgs='"+Arrays.deepToString(selectionArgs)+"'");
 
         // fetch all new images from the ContentProvider since our last sync
-        Cursor cursor = null;
-        if (image_cursor != null){
+        if (imageCursor != null){
             Utils.utilsLogInfo(true,"====Used previous image query cursor!");
-            cursor = image_cursor;
         }
         else {
             Utils.utilsLogInfo(true,"====Used new image query cursor!");
-            cursor = contentResolver.query(
+            imageCursor = contentResolver.query(
                     MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                     new String[]{
                             MediaStore.Images.Media._ID,
@@ -419,17 +438,17 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
             );
         }
         try {
-            if (cursor == null) {
+            if (imageCursor == null) {
                 Log.e(DEBUG_TAG, "ContentResolver query failed!");
                 Utils.utilsLogInfo(true,"===ContentResolver query failed!");
                 return;
             }
             // Log.d(DEBUG_TAG, "i see " + cursor.getCount() + " new images.");
-            Utils.utilsLogInfo(true, "===i see " + cursor.getCount() + " images.");
-            if (cursor.getCount() > 0) {
+            Utils.utilsLogInfo(true, "===i see " + imageCursor.getCount() + " images.");
+            if (imageCursor.getCount() > 0) {
                 // create directories for media buckets
                 createDirectories(dataManager);
-                image_cursor = iterateCursor(syncResult, dataManager, cursor, "images");
+                imageCursor = iterateCursor(syncResult, dataManager, imageCursor, "images");
                 if (isCancelled())
                 {
                     Utils.utilsLogInfo(true,"Images Upload is cancelled.");
@@ -438,13 +457,14 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
             }
         }
         finally {
-            if (image_cursor.isAfterLast()) {
-                image_cursor.close();
-                image_cursor = null;
+            if (imageCursor.isAfterLast()) {
+                imageCursor.close();
+                imageCursor = null;
             }
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     private void uploadVideos(SyncResult syncResult, DataManager dataManager) throws SeafException, InterruptedException {
         Utils.utilsLogInfo(true, "Starting to upload videos...");
         // Log.d(DEBUG_TAG, "Starting to upload videos...");
@@ -469,14 +489,12 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
 
         // Log.d(DEBUG_TAG, "ContentResolver selection='"+selection+"' selectionArgs='"+Arrays.deepToString(selectionArgs)+"'");
         // fetch all new videos from the ContentProvider since our last sync
-        Cursor cursor = null;
-        if (video_cursor != null){
+        if (videoCursor != null){
             Utils.utilsLogInfo(true,"====Used previous video query cursor!");
-            cursor = video_cursor;
         }
         else{
             Utils.utilsLogInfo(true,"====Used new video query cursor!");
-            cursor = contentResolver.query(
+            videoCursor = contentResolver.query(
                     MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
                     new String[]{
                             MediaStore.Video.Media._ID,
@@ -492,17 +510,17 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
             );
         }
         try {
-            if (cursor == null) {
+            if (videoCursor == null) {
                 Log.e(DEBUG_TAG, "ContentResolver query failed!");
                 Utils.utilsLogInfo(true,"====ContentResolver query failed!");
                 return;
             }
             // Log.d(DEBUG_TAG, "i see " + cursor.getCount() + " new videos.");
-            Utils.utilsLogInfo(true,"=====i see " + cursor.getCount() + " videos.");
-            if (cursor.getCount() > 0) {
+            Utils.utilsLogInfo(true,"=====i see " + videoCursor.getCount() + " videos.");
+            if (videoCursor.getCount() > 0) {
                 // create directories for media buckets
                 createDirectories(dataManager);
-                video_cursor = iterateCursor(syncResult, dataManager, cursor, "video");
+                videoCursor = iterateCursor(syncResult, dataManager, videoCursor, "video");
 
                 if (isCancelled())
                 {
@@ -512,9 +530,9 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
 
             }
         } finally {
-            if (video_cursor.isAfterLast()) {
-                video_cursor.close();
-                video_cursor = null;
+            if (videoCursor.isAfterLast()) {
+                videoCursor.close();
+                videoCursor = null;
             }
         }
 
@@ -534,75 +552,89 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
      * @param cursor
      * @throws SeafException
      */
+    @RequiresApi(api = Build.VERSION_CODES.N)
     private Cursor iterateCursor(SyncResult syncResult, DataManager dataManager, Cursor cursor, String media) throws SeafException, InterruptedException {
 
         tasksInProgress.clear();
         File file;
-        String file_name;
-        String file_path;
-        int file_modified;
-        int file_size;
-        int time_out = 10000;
+        String fileName;
+        String filePath;
+        String bucketName;
+        String bucketKey;
+        int fileModified;
+        int fileSize;
+        int timeOut = 10000;
+        int leaveMedia = Math.max(leaveImages, leaveVideos);
         // upload them one by one
-        int file_num = cursor.getCount();
-        int file_iter = cursor.getPosition();
+        int fileIter = cursor.getPosition();
+        int fileNum = cursor.getCount();
         while (!isCancelled() && cursor.moveToNext()) {
-            file_iter += 1;
-//            Utils.utilsLogInfo(true,"=======Processing File ["+ Integer.toString(file_iter) + "/" + Integer.toString(file_num) + "]=======");
-            Log.d(DEBUG_TAG,"=======Processing File ["+ Integer.toString(file_iter) + "/" + Integer.toString(file_num) + "]=======");
+            fileIter += 1;
+//            Utils.utilsLogInfo(true,"=======Processing File ["+ Integer.toString(fileIter) + "/" + Integer.toString(fileNum) + "]=======");
+            Log.d(DEBUG_TAG,"=======Processing File ["+ Integer.toString(fileIter) + "/" + Integer.toString(fileNum) + "]=======");
+            Uri uri = Uri.EMPTY;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 if (media.equals("images")) {
+                    leaveMedia = leaveImages;
                     int image_column_index = cursor.getColumnIndex(MediaStore.Images.Media._ID);
-                    file_name = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DISPLAY_NAME));
-                    file_modified = cursor.getInt(cursor.getColumnIndex(MediaStore.Images.Media.DATE_MODIFIED));
-                    file_size = cursor.getInt(cursor.getColumnIndex(MediaStore.Images.Media.SIZE));
+                    fileName = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DISPLAY_NAME));
+                    fileModified = cursor.getInt(cursor.getColumnIndex(MediaStore.Images.Media.DATE_MODIFIED));
+                    fileSize = cursor.getInt(cursor.getColumnIndex(MediaStore.Images.Media.SIZE));
                     String image_id = cursor.getString(image_column_index);
                     Uri image_uri = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, image_id);
-                    file_path = Utils.getRealPathFromURI(SeadroidApplication.getAppContext(), image_uri, media);
+                    filePath = Utils.getRealPathFromURI(SeadroidApplication.getAppContext(), image_uri, media);
+                    bucketName = cursor.getString(cursor.getColumnIndex(MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME));
+//                    bucketID = cursor.getInt(cursor.getColumnIndex(MediaStore.Images.ImageColumns.BUCKET_ID));
                     if (image_uri == null) {
                         syncResult.stats.numSkippedEntries++;
                         continue;
                     }
+                    uri = image_uri;
 //                    file = new File(Utils.getRealPathFromURI(SeadroidApplication.getAppContext(), image_uri, media));
                 } else {
+                    leaveMedia = leaveVideos;
                     int video_column_index = cursor.getColumnIndex(MediaStore.Video.Media._ID);
-                    file_name = cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.DISPLAY_NAME));
-                    file_modified = cursor.getInt(cursor.getColumnIndex(MediaStore.Video.Media.DATE_MODIFIED));
-                    file_size = cursor.getInt(cursor.getColumnIndex(MediaStore.Video.Media.SIZE));
+                    fileName = cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.DISPLAY_NAME));
+                    fileModified = cursor.getInt(cursor.getColumnIndex(MediaStore.Video.Media.DATE_MODIFIED));
+                    fileSize = cursor.getInt(cursor.getColumnIndex(MediaStore.Video.Media.SIZE));
                     String video_id = cursor.getString(video_column_index);
                     Uri video_uri = Uri.withAppendedPath(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, video_id);
-                    file_path = Utils.getRealPathFromURI(SeadroidApplication.getAppContext(), video_uri, media);
+                    filePath = Utils.getRealPathFromURI(SeadroidApplication.getAppContext(), video_uri, media);
+                    bucketName = cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.BUCKET_DISPLAY_NAME));
+//                    bucketID = cursor.getInt(cursor.getColumnIndex(MediaStore.Video.Media.BUCKET_ID));
                     if (video_uri == null) {
                         syncResult.stats.numSkippedEntries++;
                         continue;
                     }
+                    uri = video_uri;
 //                    file = new File(Utils.getRealPathFromURI(SeadroidApplication.getAppContext(), video_uri, media));
                 }
             } else {
+                leaveMedia = Math.max(leaveImages, leaveVideos);
                 int dataColumn = cursor.getColumnIndex(MediaStore.MediaColumns.DATA);
-                file_name = cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME));
-                file_modified = cursor.getInt(cursor.getColumnIndex(MediaStore.MediaColumns.DATE_MODIFIED));
-                file_size = cursor.getInt(cursor.getColumnIndex(MediaStore.MediaColumns.SIZE));
+                fileName = cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME));
+                fileModified = cursor.getInt(cursor.getColumnIndex(MediaStore.MediaColumns.DATE_MODIFIED));
+                fileSize = cursor.getInt(cursor.getColumnIndex(MediaStore.MediaColumns.SIZE));
+                bucketName = cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.BUCKET_DISPLAY_NAME));
+//                bucketID = cursor.getInt(cursor.getColumnIndex(MediaStore.MediaColumns.BUCKET_ID));
                 if (cursor.getString(dataColumn) == null) {
                     syncResult.stats.numSkippedEntries++;
                     continue;
                 }
-                file_path = cursor.getString(dataColumn);
+                filePath = cursor.getString(dataColumn);
             }
             //            Utils.utilsLogInfo(true,"======iterateCursor");
-            int bucketColumn = cursor.getColumnIndex(MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME);
-            String bucketName = cursor.getString(bucketColumn);
 
             if (!dbHelper.existRepo(bucketName)) {
                 String serverPath = Utils.pathJoin(BASE_DIR, bucketName);
                 Utils.utilsLogInfo(true, "=======savingRepo===");
                 List<SeafDirent> list = dataManager.getCachedDirents(targetRepoId, serverPath);
-                time_out = 10000; // wait up to a second
-                while (list == null && time_out > 0) {
+                timeOut = 10000; // wait up to a second
+                while (list == null && timeOut > 0) {
                     // Log.d(DEBUG_TAG, "waiting for transfer service");
                     Thread.sleep(100);
                     list = dataManager.getCachedDirents(targetRepoId, serverPath);
-                    time_out -= 100;
+                    timeOut -= 100;
                 }
                 if (list == null) {
                     Log.e(DEBUG_TAG, "Seadroid dirent cache is empty in uploadFile. Should not happen, aborting.");
@@ -613,27 +645,36 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
                 }
                 dbHelper.saveRepoList(bucketName, list);
             }
-
+            bucketKey = bucketName+"-"+media;
+            bucketMeidaNum.put(bucketKey, bucketMeidaNum.getOrDefault(bucketKey, 0)+1);
 
             // Ignore all media by Seafile. We don't want to upload our own cached files.
-            if (file_path.startsWith(StorageManager.getInstance().getMediaDir().getAbsolutePath())) {
-                 Log.d(DEBUG_TAG, "Skipping media "+ file_path +" because it's part of the Seadroid cache");
-//                 Utils.utilsLogInfo(true, "======Skipping media " + file_path + " because it's part of the Seadroid cache");
+            if (filePath.startsWith(StorageManager.getInstance().getMediaDir().getAbsolutePath())) {
+                 Log.d(DEBUG_TAG, "Skipping media "+ filePath +" because it's part of the Seadroid cache");
+//                 Utils.utilsLogInfo(true, "======Skipping media " + filePath + " because it's part of the Seadroid cache");
                 continue;
             }
 
-            if (dbHelper.isUploaded(file_path, file_modified) && dbHelper.isInRepo(bucketName, file_name, file_size)) {
-                 Log.d(DEBUG_TAG, "Skipping media " + file_path + " because we have uploaded it in the past.");
-//                 Utils.utilsLogInfo(true, "=====Skipping media " + file_path + " because we have uploaded it in the past.");
+            if(dbHelper.isInRepo(bucketName, fileName, fileSize)){
+                if(dbHelper.isUploaded(filePath, fileModified)){
+                    Log.d(DEBUG_TAG, "Skipping media " + filePath + " because we have uploaded it in the past.");
+//                 Utils.utilsLogInfo(true, "=====Skipping media " + filePath + " because we have uploaded it in the past.");
+                }else{
+                    Log.d(DEBUG_TAG, "====File " + fileName + " in bucket " + bucketName + " already exists on the server. Skipping.");
+//                Utils.utilsLogInfo(true, "====File " + fileName + " in bucket " + bucketName + " already exists on the server. Skipping.");
+                    dbHelper.markAsUploaded(filePath, fileModified);
+                }
+                if(uri != Uri.EMPTY) {
+                    if(bucketMeidaNum.getOrDefault(bucketKey, 0) > leaveMedia) {
+                        contentResolver.delete(uri, null, null);
+                        Log.d(DEBUG_TAG, "====File " + fileName + " in bucket " + bucketName + " is deleted because it exists on the server. Skipping.");
+                        Utils.utilsLogInfo(true, "====File " + fileName + " in bucket " + bucketName + " is deleted because it exists on the server. Skipping.");
+                    }
+                }
                 continue;
             }
-            if (dbHelper.isInRepo(bucketName, file_name, file_size)) {
-                Log.d(DEBUG_TAG, "====File " + file_name + " in bucket " + bucketName + " already exists on the server. Skipping.");
-//                Utils.utilsLogInfo(true, "====File " + file_name + " in bucket " + bucketName + " already exists on the server. Skipping.");
-                dbHelper.markAsUploaded(file_path, file_modified);
-                continue;
-            }
-            file = new File(file_path);
+
+            file = new File(filePath);
             // local file does not exist. some inconsistency in the Media Provider? Ignore and continue
             if (!file.exists()) {
                 Log.d(DEBUG_TAG, "Skipping media "+file+" because it doesn't exist");
@@ -643,7 +684,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
             }
             uploadFile(dataManager, file, bucketName);
         }
-        Utils.utilsLogInfo(true,"=======Have checked ["+Integer.toString(file_iter)+"/"+Integer.toString(file_num)+"] images.===");
+        Utils.utilsLogInfo(true,"=======Have checked ["+Integer.toString(fileIter)+"/"+Integer.toString(fileNum)+"] images.===");
         Utils.utilsLogInfo(true,"=======waitForUploads===");
         waitForUploads();
         checkUploadResult(syncResult);
@@ -805,7 +846,6 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
 
         mNotificationManager.notify(0, mBuilder.build());
     }
-
 }
 
 
