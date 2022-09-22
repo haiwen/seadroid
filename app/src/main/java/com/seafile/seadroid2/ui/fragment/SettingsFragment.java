@@ -42,6 +42,7 @@ import com.seafile.seadroid2.ui.activity.CreateGesturePasswordActivity;
 import com.seafile.seadroid2.ui.activity.PrivacyPolicyActivity;
 import com.seafile.seadroid2.ui.activity.SeafilePathChooserActivity;
 import com.seafile.seadroid2.ui.activity.SettingsActivity;
+import com.seafile.seadroid2.ui.activity.SynDirectoryActivity;
 import com.seafile.seadroid2.ui.dialog.ClearCacheTaskDialog;
 import com.seafile.seadroid2.ui.dialog.ClearPasswordTaskDialog;
 import com.seafile.seadroid2.ui.dialog.SwitchStorageTaskDialog;
@@ -274,6 +275,24 @@ public class SettingsFragment extends CustomPreferenceFragment {
         cUploadAdvancedScreen = (PreferenceScreen) findPreference(SettingsManager.CAMERA_UPLOAD_ADVANCED_SCREEN_KEY);
         cUploadAdvancedCategory = (PreferenceCategory) findPreference(SettingsManager.CAMERA_UPLOAD_ADVANCED_CATEGORY_KEY);
 
+        findPreference(SettingsManager.DIRECTORY_UPLOAD_SWITCH_KEY).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+
+                if (newValue instanceof Boolean) {
+                    boolean isChecked = (Boolean) newValue;
+                    if (!isChecked) {
+
+                    } else {
+                        Intent intent = new Intent(mActivity, SynDirectoryActivity.class);
+                        intent.putExtra(CAMERA_UPLOAD_BOTH_PAGES, true);
+                        startActivityForResult(intent, CHOOSE_CAMERA_UPLOAD_REQUEST);
+                    }
+                    return true;
+                }
+                return false;
+            }
+        });
         findPreference(SettingsManager.CAMERA_UPLOAD_SWITCH_KEY).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {

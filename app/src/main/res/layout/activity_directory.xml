@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <Button
+            android:id="@+id/bt_choice"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:text="@string/file_directory_ot"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:id="@+id/linl_main_layout_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@id/bt_choice"
+            android:layout_alignParentTop="true"
+            android:orientation="vertical">
+
+            <FrameLayout
+                android:id="@+id/frameLayout_toolbar_area"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <LinearLayout
+                android:id="@+id/linl_path_statusbar"
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:background="@color/fancy_orange"
+                android:orientation="horizontal">
+
+                <ImageButton
+                    android:id="@+id/imb_select_sdcard"
+                    android:layout_width="18dp"
+                    android:layout_height="36dp"
+                    android:layout_gravity="center"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/ic_launcher"
+                    android:tint="@color/blue_500" />
+
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/rcv_tabbar_files_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+            </LinearLayout>
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/rcv_files_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </LinearLayout>
+    </RelativeLayout> <!-- placeholder, empty except on L -->
+    <include layout="@layout/toolbar_actionbar" />
+
+</LinearLayout>
+

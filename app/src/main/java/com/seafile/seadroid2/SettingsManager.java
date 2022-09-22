@@ -65,6 +65,7 @@ public final class SettingsManager {
     public static final String SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_SERVER = PKG + ".camera.account.server";
     public static final String SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_TOKEN = PKG + ".camera.account.token";
     public static final String CAMERA_UPLOAD_SWITCH_KEY = "camera_upload_switch_key";
+    public static final String DIRECTORY_UPLOAD_SWITCH_KEY = "directory_upload_switch_key";
     public static final String CAMERA_UPLOAD_REPO_KEY = "camera_upload_repo_key";
     public static final String CAMERA_UPLOAD_ADVANCED_SCREEN_KEY = "screen_camera_upload_advanced_feature";
     public static final String CAMERA_UPLOAD_ADVANCED_CATEGORY_KEY = "category_camera_upload_advanced_key";

@@ -569,4 +569,12 @@
 
   <string name="required_password">Password is required.</string>
   <string name="weak_password">Password is too weak.</string>
+  <!--Sync directory Preference-->
+  <string name="settings_directory_upload_info_title">Upload directory</string>
+  <string name="settings_directory_upload_turn_on">Turn on Directory Upload</string>
+  <string name="settings_directory_upload_service_started">Upload service started</string>
+  <string name="settings_directory_upload_service_stopped">Upload service stopped</string>
+  <string name="file_directory">File directory</string>
+  <string name="file_directory_ot">OK</string>
+
 </resources>
