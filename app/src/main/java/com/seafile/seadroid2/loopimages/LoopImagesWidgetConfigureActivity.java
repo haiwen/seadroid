@@ -9,27 +9,14 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
-import android.view.View;
-import android.widget.Button;
-import android.widget.ListView;
 
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
-import com.seafile.seadroid2.cameraupload.BucketsFragment;
-import com.seafile.seadroid2.cameraupload.CameraUploadConfigActivity;
-import com.seafile.seadroid2.cameraupload.CloudLibraryFragment;
-import com.seafile.seadroid2.cameraupload.ConfigWelcomeFragment;
-import com.seafile.seadroid2.cameraupload.HowToUploadFragment;
-import com.seafile.seadroid2.cameraupload.ReadyToScanFragment;
-import com.seafile.seadroid2.cameraupload.WhatToUploadFragment;
 import com.seafile.seadroid2.ui.activity.BaseActivity;
-import com.seafile.seadroid2.ui.activity.SeafilePathChooserActivity;
-import com.seafile.seadroid2.ui.fragment.SettingsFragment;
 import com.viewpagerindicator.LinePageIndicator;
 
 import java.util.ArrayList;
@@ -37,7 +24,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * The configuration screen for the {@link LoopImagesWidget LoopImagesWidget} AppWidget.
@@ -283,11 +269,17 @@ public class LoopImagesWidgetConfigureActivity extends BaseActivity {
                     if(hasImage) {
                         return new ShowImageFragment();
                     }else{
-                        return new ChosenLibraryFragment();
+                        return new HowToDownloadFragment();
                     }
                 case 1:
                     if(hasImage){
 //                        mIndicator.setVisibility(View.VISIBLE);
+                        return new HowToDownloadFragment();
+                    }else{
+                        return new ChosenLibraryFragment();
+                    }
+                case 2:
+                    if(hasImage){
                         return new ChosenLibraryFragment();
                     }else{
                         return null;
@@ -300,9 +292,9 @@ public class LoopImagesWidgetConfigureActivity extends BaseActivity {
         @Override
         public int getCount() {
             if(hasImage){
-                return 2;
+                return 3;
             }
-            return 1;
+            return 2;
         }
 
     }

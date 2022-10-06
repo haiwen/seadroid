@@ -434,7 +434,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
                     },
                     selection,
                     selectionArgs,
-                    MediaStore.Images.ImageColumns.DATE_ADDED + " DESC"
+                    MediaStore.Images.ImageColumns.DISPLAY_NAME + " ASC"
             );
         }
         try {

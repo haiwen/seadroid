@@ -15,7 +15,7 @@ import com.seafile.seadroid2.SettingsManager;
 /**
  * How to upload fragment
  */
-public class HowToUploadFragment extends Fragment {
+public class HowToDownloadFragment extends Fragment {
 
     private RadioButton mDataPlanRadioBtn;
     private RadioGroup mRadioGroup;
@@ -26,7 +26,7 @@ public class HowToUploadFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mActivity = (LoopImagesWidgetConfigureActivity) getActivity();
 
-        View rootView = mActivity.getLayoutInflater().inflate(R.layout.loop_images_how_to_upload_fragment, null);
+        View rootView = mActivity.getLayoutInflater().inflate(R.layout.loop_images_how_to_download_fragment, null);
 
         mRadioGroup = (RadioGroup) rootView.findViewById(R.id.loopimages_wifi_radio_group);
         mDataPlanRadioBtn = (RadioButton) rootView.findViewById(R.id.loopimages_wifi_or_data_plan_rb);
@@ -40,11 +40,11 @@ public class HowToUploadFragment extends Fragment {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 switch (checkedId) {
-                    case R.id.cuc_wifi_only_rb:
+                    case R.id.loopimages_wifi_only_rb:
                         // WiFi only
                         mActivity.saveDataPlanAllowed(false);
                         break;
-                    case R.id.cuc_wifi_or_data_plan_rb:
+                    case R.id.loopimages_wifi_or_data_plan_rb:
                         // WiFi and data plan
                         mActivity.saveDataPlanAllowed(true);
                         break;

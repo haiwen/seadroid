@@ -576,4 +576,5 @@
     <string name="loopimages_widget_configure_have_chosen_title">Chosen Libraries</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="settings_loopimages_network_title">How to download</string>
 </resources>

@@ -365,7 +365,8 @@ public class LoopImagesWidgetService extends Service {
                     appWidgetManager.updateAppWidget(appWidgetId, views);
                     continue;
                 }
-                if (Utils.isNetworkOn() && tasksInProgress.size() < ONCE_UPLOAD_IMAGE_NUM * 2) {
+                boolean enableDownload = Utils.isWiFiOn() || LoopImagesWidgetConfigureActivity.getDataPlanAllowed(appWidgetId);
+                if (Utils.isNetworkOn() && enableDownload && tasksInProgress.size() < ONCE_UPLOAD_IMAGE_NUM * 2) {
                     if (queues.get(appWidgetId).getCount() < LEFT_FOLLOW_UP_MIN_IMAGES_NUM) {
                         shouldDownloads.put(appWidgetId, true);
                     }
@@ -379,6 +380,8 @@ public class LoopImagesWidgetService extends Service {
                     }
                 }
                 if (queues.get(appWidgetId).isEmpty()) {
+                    RemoteViews views = getDefalutRemoteViews(appWidgetId);
+                    appWidgetManager.updateAppWidget(appWidgetId, views);
                     continue;
                 }
                 boolean flag = false;

@@ -107,7 +107,7 @@ public final class SettingsManager {
     public static final String UPLOAD_COMPLETED_TIME = "upload_completed_time";
 
     // Loop Images Widget
-    public static final String LOOPIMAGES_REMOTE_LIBRARY_DATAPLAN = PKG + ".loopimages.remote_library_dir_info_";
+    public static final String LOOPIMAGES_REMOTE_LIBRARY_DATAPLAN = PKG + ".loopimages.remote_library_data_plan_";
     public static final String LOOPIMAGES_REMOTE_LIBRARY_DIRINFO = PKG + ".loopimages.remote_library_dir_info_";
 
     public static long lock_timestamp = 0;

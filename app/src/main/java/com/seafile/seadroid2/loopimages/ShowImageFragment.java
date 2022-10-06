@@ -191,15 +191,15 @@ public class ShowImageFragment extends Fragment {
     private void deleteFile(DirInfo dirInfo, String fileName) {
         String path = Utils.pathJoin(dirInfo.getDirPath(), fileName);
         File file = dataMgr.getLocalRepoFile(dirInfo.getRepoName(), dirInfo.getRepoId(), path);
-        if(file != null || file.exists()){
-            file.delete();
-        }
         final DeleteFileDialog dialog = new DeleteFileDialog();
         dialog.init(dirInfo.getRepoId(), path, false, mAccount);
         dialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
             @Override
             public void onTaskSuccess() {
                 showShortToast(mActivity, R.string.delete_successful);
+                if(file != null || file.exists()){
+                    file.delete();
+                }
                 mActivity.finish();
             }
         });
