@@ -14,6 +14,7 @@ import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
+import com.seafile.seadroid2.util.Utils;
 
 import org.apache.commons.io.FileUtils;
 
@@ -94,12 +95,15 @@ public abstract class StorageManager implements MediaScannerConnection.OnScanCom
     private Location buildClassicLocation() {
         Location classic = new Location();
         classic.id = -1; // Android IDs start at 0. so "-1" is safe for us
-        File[] externalMediaDirs = SeadroidApplication.getAppContext().getExternalMediaDirs();
-        String rootPath = externalMediaDirs[0].getAbsolutePath();
+        File[] externalMediaDirs = SeadroidApplication.getAppContext().getExternalFilesDirs(Environment.DIRECTORY_DOWNLOADS);
+        String mediaPath = externalMediaDirs[0].getAbsolutePath();
+
+        externalMediaDirs = SeadroidApplication.getAppContext().getExternalMediaDirs();
+        String cachePath = Utils.pathJoin(externalMediaDirs[0].getAbsolutePath(), "/Seafile/");
 //        String rootPath = SeadroidApplication.getAppContext().getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath();
 //        classic.mediaPath = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Seafile/");
-        classic.mediaPath = new File(rootPath + "/Seafile/");
-        classic.cachePath = new File(classic.mediaPath, "cache");
+        classic.mediaPath = new File(mediaPath + "/Seafile/");
+        classic.cachePath = new File(cachePath, "cache");
         fillLocationInfo(classic);
         return classic;
     }

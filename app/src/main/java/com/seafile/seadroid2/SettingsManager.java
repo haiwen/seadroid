@@ -7,10 +7,14 @@ import android.text.TextUtils;
 
 import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.gesturelock.LockPatternUtils;
+import com.seafile.seadroid2.loopimages.DirInfo;
 import com.seafile.seadroid2.util.Utils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Access the app settings
@@ -101,6 +105,10 @@ public final class SettingsManager {
     public static final String TOTAL_UPLOAD_NUMBER = "total_upload_number";
     public static final String PIC_CHECK_START = "pic_check_start";
     public static final String UPLOAD_COMPLETED_TIME = "upload_completed_time";
+
+    // Loop Images Widget
+    public static final String LOOPIMAGES_REMOTE_LIBRARY_DATAPLAN = PKG + ".loopimages.remote_library_dir_info_";
+    public static final String LOOPIMAGES_REMOTE_LIBRARY_DIRINFO = PKG + ".loopimages.remote_library_dir_info_";
 
     public static long lock_timestamp = 0;
     public static final long LOCK_EXPIRATION_MSECS = 5 * 60 * 1000;
@@ -228,6 +236,31 @@ public final class SettingsManager {
         }
         // Wi-Fi or 2G/3G/4G connections available
         return true;
+    }
+
+    public void saveLoopImagesWidgetDataPlanAllowed(int appWidgetId, boolean isAllowed){
+        settingsSharedPref.edit().putBoolean(LOOPIMAGES_REMOTE_LIBRARY_DATAPLAN + appWidgetId, isAllowed).commit();
+    }
+
+    public boolean getLoopImagesWidgetDataPlanAllowed(int appWidgetId){
+        return settingsSharedPref.getBoolean(LOOPIMAGES_REMOTE_LIBRARY_DATAPLAN + appWidgetId, false);
+    }
+
+    public void setLoopImagesWidgetDirInfo(int appWidgetId, List<String> info) {
+        String dirInfo = TextUtils.join(";", info);
+        settingsSharedPref.edit().putString(LOOPIMAGES_REMOTE_LIBRARY_DIRINFO + appWidgetId, dirInfo).commit();
+    }
+
+    public List<String> getLoopImagesWidgetDirInfo(int appWidgetId){
+        String dirInfoStr = settingsSharedPref.getString(LOOPIMAGES_REMOTE_LIBRARY_DIRINFO + appWidgetId, "");
+        List<String> res = Arrays.asList(TextUtils.split(dirInfoStr, ";"));
+        return res;
+    }
+
+    public void deleteLoopImagesWidgetInfo(int appWidgetId) {
+        if(settingsSharedPref.contains(LOOPIMAGES_REMOTE_LIBRARY_DIRINFO)){
+            settingsSharedPref.edit().remove(LOOPIMAGES_REMOTE_LIBRARY_DIRINFO + appWidgetId).commit();
+        }
     }
 
     public boolean isDataPlanAllowed() {

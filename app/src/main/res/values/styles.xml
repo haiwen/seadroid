@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2012 Jake Wharton
+<?xml version="1.0" encoding="utf-8"?><!-- Copyright (C) 2012 Jake Wharton
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -35,9 +34,12 @@
         <item name="android:homeAsUpIndicator">@drawable/home_up_btn</item>
         <item name="homeAsUpIndicator">@drawable/home_up_btn</item>
         <item name="android:textColorHighlight">@color/fancy_gray</item>
-        <item name="android:textSelectHandleLeft">@drawable/fancy_orange_text_select_handle_left</item>
-        <item name="android:textSelectHandleRight">@drawable/fancy_orange_text_select_handle_right</item>
-        <item name="android:textSelectHandle">@drawable/fancy_orange_text_select_handle_middle</item>
+        <item name="android:textSelectHandleLeft">@drawable/fancy_orange_text_select_handle_left
+        </item>
+        <item name="android:textSelectHandleRight">@drawable/fancy_orange_text_select_handle_right
+        </item>
+        <item name="android:textSelectHandle">@drawable/fancy_orange_text_select_handle_middle
+        </item>
         <item name="android:colorButtonNormal">@color/fancy_orange</item>
         <item name="colorButtonNormal">@color/fancy_orange</item>
         <item name="alertDialogTheme">@style/AppCompatAlertDialogStyle</item>
@@ -126,6 +128,7 @@
         <!-- <item name="android:colorPressedHighlight">@color/black</item> -->
         <!-- <item name="android:colorLongPressedHighlight">@color/black</item> -->
     </style>
+
     <style name="CustomCheckboxTheme" parent="@android:style/Widget.CompoundButton.CheckBox">
         <item name="android:button">@drawable/checkbox_btn_holo_light</item>
     </style>
@@ -139,14 +142,13 @@
     </style>
 
     <!-- Notifications -->
-    <style name="NotificationTitle"
-           parent="@android:style/TextAppearance">
+    <style name="NotificationTitle" parent="@android:style/TextAppearance">
         <item name="android:textColor">#ff000000</item>
         <item name="android:textSize">18sp</item>
         <item name="android:textStyle">bold</item>
     </style>
-    <style name="NotificationContent"
-           parent="@android:style/TextAppearance">
+
+    <style name="NotificationContent" parent="@android:style/TextAppearance">
         <item name="android:textColor">#ff000000</item>
         <item name="android:textSize">14sp</item>
     </style>
@@ -168,5 +170,15 @@
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:backgroundDimEnabled">true</item>
         <item name="android:backgroundDimAmount">0.4</item>
+    </style>
+
+    <style name="Widget.Seadroid.AppWidget.Container" parent="android:Widget">
+        <item name="android:id">@android:id/background</item>
+        <item name="android:background">?android:attr/colorBackground</item>
+    </style>
+
+    <style name="Widget.Seadroid.AppWidget.InnerView" parent="android:Widget">
+        <item name="android:background">?android:attr/colorBackground</item>
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
     </style>
 </resources>

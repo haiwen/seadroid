@@ -56,8 +56,8 @@ public class SeafConnection {
     public static final int HTTP_STATUS_REPO_PASSWORD_REQUIRED = 440;
 
     private static final String DEBUG_TAG = "SeafConnection";
-    private static final int CONNECTION_TIMEOUT = 15000;
-    private static final int READ_TIMEOUT = 30000;
+    private static final int CONNECTION_TIMEOUT = 5000000;
+    private static final int READ_TIMEOUT = 5000000;
 
     private Account account;
 

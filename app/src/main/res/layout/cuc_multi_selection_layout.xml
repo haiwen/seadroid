@@ -54,13 +54,14 @@
                   android:layout_marginTop="5dp"
                   android:layout_below="@+id/cuc_multi_selection_current_directory_txt"
                   android:orientation="vertical">
+
         <TextView
-                android:id="@+id/cuc_multi_selection_error_msg"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                android:textSize="18sp"
-                android:visibility="gone"/>
+            android:id="@+id/cuc_multi_selection_error_msg"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:textSize="18sp"
+            android:visibility="gone" />
         <TextView
                 android:id="@+id/cuc_multi_selection_empty_msg"
                 android:layout_width="match_parent"

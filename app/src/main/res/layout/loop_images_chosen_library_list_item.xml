@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.mcxtzhang.swipemenulib.SwipeMenuLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/lv_item_height"
+    android:clickable="true"
+    android:background="?android:selectableItemBackground">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/loopimages_list_item_icon"
+            android:layout_width="@dimen/lv_icon_width"
+            android:layout_height="@dimen/lv_icon_height"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="@dimen/margin_normal" />
+
+        <ImageView
+            android:id="@+id/loopimages_list_item_space"
+            android:layout_width="@dimen/lv_space_width"
+            android:layout_height="fill_parent"
+            android:layout_toRightOf="@id/loopimages_list_item_icon" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@id/loopimages_list_item_space"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/loopimages_list_item_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:lines="1"
+                android:singleLine="true"
+                android:textColor="@color/fancy_dark_black"
+                android:textSize="@dimen/lv_title_txt_size" />
+
+            <TextView
+                android:id="@+id/loopimages_list_item_subtitle"
+                android:lines="1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/fancy_black"
+                android:textSize="@dimen/lv_subtitle_txt_size" />
+        </LinearLayout>
+
+    </RelativeLayout>
+
+    <Button
+        android:id="@+id/loopimages_list_item_action"
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:background="@color/red"
+        android:text="@string/delete"
+        android:textSize="@dimen/lv_subtitle_txt_size"
+        android:visibility="visible" />
+
+</com.mcxtzhang.swipemenulib.SwipeMenuLayout>

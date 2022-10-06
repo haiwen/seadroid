@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <TextView
+        android:id="@+id/loopimages_chosen_library_title_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="@dimen/tv_title_margin_left"
+        android:layout_marginTop="@dimen/tv_title_margin_top"
+        android:text="@string/loopimages_widget_configure_have_chosen_title"
+        android:textColor="@color/fancy_orange"
+        android:textSize="@dimen/tv_title_txt_size"/>
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="@dimen/section_margin_top"
+        android:layout_marginBottom="5dp"
+        android:layout_above="@+id/loopimages_chosen_library_done_btn"
+        android:layout_below="@+id/loopimages_chosen_library_title_tv"
+        android:orientation="vertical">
+
+        <LinearLayout android:id="@+id/loopimages_chosen_library_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_alignParentTop="true"
+            android:layout_above="@+id/loopimages_chosen_library_add_btn">
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/lv_divider_inset"/>
+
+            <ListView
+                android:id="@+id/loopimages_chosen_library_lv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:divider="@drawable/lv_divider_inset"
+                android:dividerHeight="@dimen/lv_divider_height"
+                android:drawSelectorOnTop="true" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/lv_divider_inset"/>
+
+        </LinearLayout>
+
+
+        <Button
+            android:id="@+id/loopimages_chosen_library_add_btn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_marginTop="10dp"
+            android:background="@color/color_primary"
+            android:text="+"
+            android:textSize="25dp" />
+    </RelativeLayout>
+
+
+    <Button android:id="@+id/loopimages_chosen_library_done_btn"
+        android:layout_marginTop="@dimen/long_btn_padding_top"
+        android:layout_marginBottom="@dimen/long_btn_padding_bottom"
+        android:layout_marginLeft="@dimen/long_btn_margin_left"
+        android:layout_marginRight="@dimen/long_btn_margin_right"
+        android:text="@string/confirm"
+        android:visibility="gone"
+        android:textSize="@dimen/long_btn_txt_size"
+        android:textColor="@color/white"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/long_btn_height"
+        android:layout_alignParentBottom="true"/>
+
+</RelativeLayout>

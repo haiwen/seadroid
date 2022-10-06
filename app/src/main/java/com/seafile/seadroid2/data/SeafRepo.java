@@ -31,7 +31,7 @@ public class SeafRepo implements SeafItem {
     public long    size;
     public String  root; // the id of root directory
 
-    static SeafRepo fromJson(JSONObject obj) throws JSONException{
+    public static SeafRepo fromJson(JSONObject obj) throws JSONException{
         SeafRepo repo = new SeafRepo();
         repo.id = obj.getString("id");
         repo.name = obj.getString("name");
@@ -47,6 +47,30 @@ public class SeafRepo implements SeafItem {
         repo.magic = obj.optString("magic");
         repo.encKey = obj.optString("random_key");
         return repo;
+    }
+
+    public JSONObject toJson() throws JSONException{
+        JSONObject json = new JSONObject();
+        json.put("id", this.id);
+        json.put("name", this.name);
+        json.put("owner", this.owner);
+        json.put("permission", this.permission);
+        json.put("mtime", this.mtime);
+        json.put("encrypted", this.encrypted);
+        json.put("root", this.root);
+        json.put("size", this.size);
+        if(this.isGroupRepo){
+            json.put("type", "grepo");
+        }else if(this.isPersonalRepo){
+            json.put("type", "repo");
+        }else if(this.isSharedRepo){
+            json.put("type", "srepo");
+        }else{
+            json.put("type", "");
+        }
+        json.put("magic", this.magic);
+        json.put("random_key", this.encKey);
+        return json;
     }
 
     public SeafRepo() {

@@ -1,6 +1,7 @@
 package com.seafile.seadroid2.ui.fragment;
 
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -28,6 +29,7 @@ import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountInfo;
 import com.seafile.seadroid2.account.AccountManager;
+import com.seafile.seadroid2.cameraupload.CameraSyncService;
 import com.seafile.seadroid2.cameraupload.CameraUploadConfigActivity;
 import com.seafile.seadroid2.cameraupload.CameraUploadManager;
 import com.seafile.seadroid2.cameraupload.GalleryBucketUtils;
@@ -312,6 +314,22 @@ public class SettingsFragment extends CustomPreferenceFragment {
 
         cUploadRepoState = findPreference(SettingsManager.CAMERA_UPLOAD_STATE);
         cUploadRepoState.setSummary(Utils.getUploadStateShow(getActivity()));
+        cUploadRepoState.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                CameraUploadManager cameraUploadManager = new CameraUploadManager(getContext());
+                Account account = cameraUploadManager.getCameraAccount();
+                if(account != null) {
+                    Bundle settingsBundle = new Bundle();
+                    settingsBundle.putBoolean(
+                            ContentResolver.SYNC_EXTRAS_MANUAL, true);
+                    settingsBundle.putBoolean(
+                            ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
+                    ContentResolver.requestSync(account.getAndroidAccount(), CameraUploadManager.AUTHORITY, settingsBundle);
+                }
+                return true;
+            }
+        });
 
         // Contacts Upload
 //        cContactsCategory = (PreferenceCategory) findPreference(SettingsManager.CONTACTS_UPLOAD_CATEGORY_KEY);

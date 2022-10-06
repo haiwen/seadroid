@@ -1,6 +1,7 @@
 package com.seafile.seadroid2.ui.activity;
 
 import android.Manifest;
+import android.appwidget.AppWidgetManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -57,6 +58,9 @@ import com.seafile.seadroid2.data.SeafStarredFile;
 import com.seafile.seadroid2.data.ServerInfo;
 import com.seafile.seadroid2.data.StorageManager;
 import com.seafile.seadroid2.fileschooser.MultiFileChooserActivity;
+import com.seafile.seadroid2.loopimages.LoopImagesWidget;
+import com.seafile.seadroid2.loopimages.LoopImagesWidgetConfigureActivity;
+import com.seafile.seadroid2.loopimages.LoopImagesWidgetService;
 import com.seafile.seadroid2.monitor.FileMonitorService;
 import com.seafile.seadroid2.notification.DownloadNotificationProvider;
 import com.seafile.seadroid2.notification.UploadNotificationProvider;
@@ -395,6 +399,7 @@ public class BrowserActivity extends BaseActivity
         requestReadExternalStoragePermission();
         Utils.startCameraSyncJob(this);
         syncCamera();
+        startLoopImagesWidget();
     }
 
     public FrameLayout getContainer() {
@@ -2435,6 +2440,20 @@ public class BrowserActivity extends BaseActivity
         CameraUploadManager cameraManager = new CameraUploadManager(getApplicationContext());
         if (cameraManager.isCameraUploadEnabled() && settingsManager.isVideosUploadAllowed()) {
             cameraManager.performFullSync();
+        }
+    }
+
+    private void startLoopImagesWidget(){
+        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(getApplicationContext());
+        if(appWidgetManager.getAppWidgetIds(new ComponentName(getApplicationContext(), LoopImagesWidget.class)).length > 0) {
+            LoopImagesWidgetConfigureActivity.init(getApplicationContext());
+            Intent intent = new Intent(getApplicationContext(), LoopImagesWidgetService.class);
+            intent.putExtra(LoopImagesWidgetService.UPDATE_IMAGE_INFO_SIGNAL, LoopImagesWidgetService.UPDATE_ALL_WIDGETS);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                getApplicationContext().startForegroundService(intent);
+            } else {
+                getApplicationContext().startService(intent);
+            }
         }
     }
 

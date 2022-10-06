@@ -3,206 +3,224 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.seafile.seadroid2">
 
-    <uses-sdk
-        tools:overrideLibrary="us.feras.mdv" />
+    <uses-sdk tools:overrideLibrary="us.feras.mdv" />
 
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-
-    <!-- to start monitor services during boot -->
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
-
-    <!-- to modify Seadroid's own account sync settings -->
-    <uses-permission android:name="android.permission.READ_SYNC_SETTINGS"/>
-    <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS"/>
-
-    <!-- get list of Seadroid accounts -->
-    <uses-permission android:name="android.permission.GET_ACCOUNTS"
-        android:maxSdkVersion="22"/>
-
-    <!--Set/Get the auth token from the account manager -->
-    <uses-permission android:name="android.permission.USE_CREDENTIALS"
-        android:maxSdkVersion="22"/>
-    <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS"
-        android:maxSdkVersion="22"/>
-
-    <!-- Add/Remove/Update Seafile accounts -->
-    <uses-permission android:name="android.permission.MANAGE_ACCOUNTS"
-        android:maxSdkVersion="22"/>
-
-    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
-    <!--<uses-permission android:name="android.permission.READ_CONTACTS"/>-->
-    <!--<uses-permission android:name="android.permission.WRITE_CONTACTS"/>-->
-
-    <!--android 9.0  FOREGROUND_SERVICE -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /> <!-- to start monitor services during boot -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" /> <!-- to modify Seadroid's own account sync settings -->
+    <uses-permission android:name="android.permission.READ_SYNC_SETTINGS" />
+    <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" /> <!-- get list of Seadroid accounts -->
+    <uses-permission
+        android:name="android.permission.GET_ACCOUNTS"
+        android:maxSdkVersion="22" /> <!-- Set/Get the auth token from the account manager -->
+    <uses-permission
+        android:name="android.permission.USE_CREDENTIALS"
+        android:maxSdkVersion="22" />
+    <uses-permission
+        android:name="android.permission.AUTHENTICATE_ACCOUNTS"
+        android:maxSdkVersion="22" /> <!-- Add/Remove/Update Seafile accounts -->
+    <uses-permission
+        android:name="android.permission.MANAGE_ACCOUNTS"
+        android:maxSdkVersion="22" />
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" /> <!-- <uses-permission android:name="android.permission.READ_CONTACTS"/> -->
+    <!-- <uses-permission android:name="android.permission.WRITE_CONTACTS"/> -->
+    <!-- android 9.0  FOREGROUND_SERVICE -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
-
-
     <application
-        android:allowBackup="true"
         android:name="com.seafile.seadroid2.SeadroidApplication"
-        android:label="@string/app_name"
-        android:theme="@style/AppTheme"
-        android:requestLegacyExternalStorage="true"
+        android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
-        android:networkSecurityConfig="@xml/network_security_config">
-
-        <meta-data
-            android:name="com.seafile.seadroid2.util.GlideCache"
-            android:value="AppGlideModule"></meta-data>
-
-        <activity android:name="com.seafile.seadroid2.ui.activity.AccountsActivity"
-                  android:launchMode="singleTop"
-                  android:label="@string/app_name">
-        </activity>
-
-        <activity android:name=".account.ui.SingleSignOnActivity"
-                  android:label="@string/app_name">
-        </activity>
-
-        <activity android:name=".account.ui.SingleSignOnAuthorizeActivity"
-                  android:label="@string/app_name">
-        </activity>
-
-        <activity android:name="com.seafile.seadroid2.ui.activity.SettingsActivity"
-                  android:label="@string/app_name">
-        </activity>
-
-        <activity android:name="com.seafile.seadroid2.ui.activity.PrivacyPolicyActivity"
-                  android:label="@string/app_name">
-        </activity>
-
-        <activity android:name="com.seafile.seadroid2.ui.activity.BrowserActivity"
-                  android:label="@string/app_name"
-                  android:configChanges="orientation"
-                  android:launchMode="singleTop">
+        android:label="@string/app_name"
+        android:networkSecurityConfig="@xml/network_security_config"
+        android:requestLegacyExternalStorage="true"
+        android:theme="@style/AppTheme">
+        <receiver
+            android:name=".loopimages.LoopImagesWidget"
+            android:exported="false">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/loop_images_widget_info" />
+        </receiver>
+
+        <activity
+            android:name=".loopimages.LoopImagesWidgetConfigureActivity"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
             </intent-filter>
         </activity>
 
         <activity
-            android:name="com.seafile.seadroid2.ui.activity.UnlockGesturePasswordActivity"
-            android:screenOrientation="portrait"
-            android:label="@string/app_name" />
+            android:name=".loopimages.RemoteLibrarySelectionActivity"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
 
+        <service android:name=".loopimages.LoopImagesWidgetService"
+            android:exported="true"
+            android:enabled="true"
+            android:persistent="true">
+            <intent-filter>
+                <action android:name="android.content.SyncAdapter" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.content.SyncAdapter"
+                android:resource="@xml/loop_images_widget_info" />
+        </service>
+
+        <meta-data
+            android:name="com.seafile.seadroid2.util.GlideCache"
+            android:value="AppGlideModule" />
+
+        <activity
+            android:name="com.seafile.seadroid2.ui.activity.AccountsActivity"
+            android:label="@string/app_name"
+            android:launchMode="singleTop"></activity>
+        <activity
+            android:name=".account.ui.SingleSignOnActivity"
+            android:label="@string/app_name"></activity>
+        <activity
+            android:name=".account.ui.SingleSignOnAuthorizeActivity"
+            android:label="@string/app_name"></activity>
+        <activity
+            android:name="com.seafile.seadroid2.ui.activity.SettingsActivity"
+            android:label="@string/app_name"></activity>
+        <activity
+            android:name="com.seafile.seadroid2.ui.activity.PrivacyPolicyActivity"
+            android:label="@string/app_name"></activity>
+        <activity
+            android:name="com.seafile.seadroid2.ui.activity.BrowserActivity"
+            android:configChanges="orientation"
+            android:label="@string/app_name"
+            android:launchMode="singleTop">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.seafile.seadroid2.ui.activity.UnlockGesturePasswordActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait" />
         <activity
             android:name="com.seafile.seadroid2.ui.activity.CreateGesturePasswordActivity"
             android:label="@string/app_name"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
-
-        <activity android:name="com.seafile.seadroid2.ui.activity.MarkdownActivity"
-                  android:label="@string/app_name">
-        </activity>
-
-        <activity android:name=".account.ui.AccountDetailActivity"
-                  android:parentActivityName=".ui.activity.AccountsActivity"
-                  android:label="@string/app_name">
-        </activity>
-
-        <!-- MultipleImageSelectionActivity uses the default theme, instead of
-             ActionBarSherlock -->
-        <activity android:name="com.seafile.seadroid2.gallery.MultipleImageSelectionActivity"
-                  android:theme="@style/AppTheme.Multiple"
-                  android:label="@string/app_name">
-        </activity>
-
-        <activity android:name="com.seafile.seadroid2.ui.activity.ShareToSeafileActivity"
-                  android:excludeFromRecents="true"
-                  android:label="@string/app_name">
+        <activity
+            android:name="com.seafile.seadroid2.ui.activity.MarkdownActivity"
+            android:label="@string/app_name"></activity>
+        <activity
+            android:name=".account.ui.AccountDetailActivity"
+            android:label="@string/app_name"
+            android:parentActivityName=".ui.activity.AccountsActivity"></activity>
+        <!--
+ MultipleImageSelectionActivity uses the default theme, instead of
+             ActionBarSherlock
+        -->
+        <activity
+            android:name="com.seafile.seadroid2.gallery.MultipleImageSelectionActivity"
+            android:label="@string/app_name"
+            android:theme="@style/AppTheme.Multiple"></activity>
+        <activity
+            android:name="com.seafile.seadroid2.ui.activity.ShareToSeafileActivity"
+            android:excludeFromRecents="true"
+            android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
+
                 <category android:name="android.intent.category.DEFAULT" />
+
                 <data android:mimeType="*/*" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.SEND_MULTIPLE" />
+
                 <category android:name="android.intent.category.DEFAULT" />
+
                 <data android:mimeType="*/*" />
             </intent-filter>
         </activity>
-
-        <activity android:name="com.seafile.seadroid2.ui.activity.SeafilePathChooserActivity"
-                  android:label="@string/app_name">
-        </activity>
-
-        <activity android:name="com.seafile.seadroid2.ui.activity.FileActivity"
-                  android:label="@string/app_name">
-        </activity>
-
-        <activity android:name=".account.ui.SeafileAuthenticatorActivity"
-                  android:parentActivityName=".ui.activity.AccountsActivity"
-                  android:label="@string/app_name">
+        <activity
+            android:name="com.seafile.seadroid2.ui.activity.SeafilePathChooserActivity"
+            android:label="@string/app_name"></activity>
+        <activity
+            android:name="com.seafile.seadroid2.ui.activity.FileActivity"
+            android:label="@string/app_name"></activity>
+        <activity
+            android:name=".account.ui.SeafileAuthenticatorActivity"
+            android:label="@string/app_name"
+            android:parentActivityName=".ui.activity.AccountsActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.activity.AccountsActivity" />
         </activity>
-
-        <activity android:name="com.seafile.seadroid2.fileschooser.MultiFileChooserActivity"
-                  android:label="@string/app_name">
-        </activity>
-
-        <activity android:name="com.seafile.seadroid2.ui.activity.TransferActivity"
-                  android:label="@string/app_name">
-        </activity>
-
-        <activity android:name="com.seafile.seadroid2.ui.activity.SearchActivity"
-                  android:label="@string/app_name">
+        <activity
+            android:name="com.seafile.seadroid2.fileschooser.MultiFileChooserActivity"
+            android:label="@string/app_name"></activity>
+        <activity
+            android:name="com.seafile.seadroid2.ui.activity.TransferActivity"
+            android:label="@string/app_name"></activity>
+        <activity
+            android:name="com.seafile.seadroid2.ui.activity.SearchActivity"
+            android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
             </intent-filter>
         </activity>
-
-        <activity android:name="com.seafile.seadroid2.cameraupload.CameraUploadConfigActivity"
-                  android:label="@string/app_name">
-        </activity>
-        <!--<activity android:name="com.seafile.seadroid2.cameraupload.ContactsUploadConfigActivity"-->
-                  <!--android:label="@string/app_name">-->
-        <!--</activity>-->
-
-        <activity android:name=".ui.activity.GalleryActivity"
-                  android:label="@string/app_name">
-        </activity>
+        <activity
+            android:name="com.seafile.seadroid2.cameraupload.CameraUploadConfigActivity"
+            android:label="@string/app_name"></activity> <!-- <activity android:name="com.seafile.seadroid2.cameraupload.ContactsUploadConfigActivity" -->
+        <!-- android:label="@string/app_name"> -->
+        <!-- </activity> -->
+        <activity
+            android:name=".ui.activity.GalleryActivity"
+            android:label="@string/app_name"></activity>
         <activity
             android:name=".play.PlayActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/app_name"
             android:screenOrientation="sensor"
-            android:theme="@style/Theme.Fullscreen"
-            android:label="@string/app_name">
-        </activity>
+            android:theme="@style/Theme.Fullscreen"></activity>
         <activity
             android:name=".editor.EditorActivity"
+            android:label="@string/app_name"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.Editor"
-            android:label="@string/app_name">
-        </activity>
+            android:theme="@style/AppTheme.Editor"></activity>
 
         <provider
             android:name="com.seafile.seadroid2.provider.SeafileProvider"
             android:authorities="${applicationId}.documents"
+            android:enabled="@bool/atLeastKitKat"
             android:exported="true"
             android:grantUriPermissions="true"
-            android:permission="android.permission.MANAGE_DOCUMENTS"
-            android:enabled="@bool/atLeastKitKat">
+            android:permission="android.permission.MANAGE_DOCUMENTS">
             <intent-filter>
                 <action android:name="android.content.action.DOCUMENTS_PROVIDER" />
             </intent-filter>
         </provider>
-        <service android:name="com.seafile.seadroid2.transfer.TransferService" > </service>
-        <service android:name="com.seafile.seadroid2.monitor.FileMonitorService" > </service>
+
+        <service android:name="com.seafile.seadroid2.transfer.TransferService"></service>
+        <service android:name="com.seafile.seadroid2.monitor.FileMonitorService"></service>
         <service android:name=".cameraupload.MediaObserverService" />
 
         <provider
             android:name=".cameraupload.StubContentProvider"
             android:authorities="${applicationId}.cameraupload.provider"
-            android:label="@string/sync_provider_camera_upload"
             android:exported="false"
-            android:syncable="true"/>
-
+            android:label="@string/sync_provider_camera_upload"
+            android:syncable="true" />
         <provider
             android:name="android.support.v4.content.FileProvider"
             android:authorities="${applicationId}"
@@ -210,29 +228,32 @@
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/file_paths"/>
+                android:resource="@xml/file_paths" />
         </provider>
 
-        <service android:name=".account.AuthenticatorService" >
+        <service android:name=".account.AuthenticatorService">
             <intent-filter>
                 <action android:name="android.accounts.AccountAuthenticator" />
             </intent-filter>
-            <meta-data android:name="android.accounts.AccountAuthenticator" android:resource="@xml/authenticator" />
-        </service>
 
+            <meta-data
+                android:name="android.accounts.AccountAuthenticator"
+                android:resource="@xml/authenticator" />
+        </service>
         <service
             android:name=".cameraupload.CameraSyncService"
             android:exported="true">
             <intent-filter>
-                <action android:name="android.content.SyncAdapter"/>
+                <action android:name="android.content.SyncAdapter" />
             </intent-filter>
-            <meta-data android:name="android.content.SyncAdapter"
-                       android:resource="@xml/cameraadapter" />
-        </service>
 
+            <meta-data
+                android:name="android.content.SyncAdapter"
+                android:resource="@xml/cameraadapter" />
+        </service>
         <service
             android:name=".cameraupload.MediaSchedulerService"
-            android:permission="android.permission.BIND_JOB_SERVICE"/>
+            android:permission="android.permission.BIND_JOB_SERVICE" />
 
         <receiver android:name="com.seafile.seadroid2.BootAutostart">
             <intent-filter>
@@ -243,4 +264,5 @@
             </intent-filter>
         </receiver>
     </application>
+
 </manifest>
