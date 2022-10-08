@@ -182,9 +182,9 @@ public class DataManager {
         return new File(storageManager.getJsonCacheDir(), filename);
     }
 
-    private String getDirentCacheName(String dirID) {
-        String filename = "dirent-" + dirID;
-        return filename;
+    private File getFileForDirentCache(String dirID) {
+        String filename = "dirent-" + dirID + ".dat";
+        return new File(storageManager.getJsonCacheDir() + "/" + filename);
     }
 
     private File getFileForBlockCache(String blockId) {
@@ -429,8 +429,8 @@ public class DataManager {
         dbHelper.saveDirents(repoID, parentDir, dirID);
 
         try {
-            String name = getDirentCacheName(dirID);
-            DirentCache cache = new DirentCache(name, parseDirents(content));
+            File cache = getFileForDirentCache(dirID);
+            Utils.writeFile(cache, content);
         } catch (IOException e) {
             Log.e(DEBUG_TAG, "Could not write dirent cache to disk.", e);
         }
@@ -448,13 +448,8 @@ public class DataManager {
         // identical directory content results in same dirID. So check if whether
         // the dirID is referenced multiple times before deleting it.
         if (dirID != null && dbHelper.getCachedDirentUsage(dirID) <= 1) {
-            String name = getDirentCacheName(dirID);
-            try {
-                DirentCache cache = new DirentCache(name);
-                cache.delete();
-            }catch (IOException e) {
-                Log.e(DEBUG_TAG, "Could not delete dirent cache from disk.", e);
-            }
+            File file = getFileForDirentCache(dirID);
+            file.delete();
         }
         // and finally delete the entry in the SQL table
         dbHelper.removeCachedDirents(repoID, dir);
@@ -487,7 +482,7 @@ public class DataManager {
     }
 
     public synchronized File getFileByBlocks(String repoName, String repoID, String path, long fileSize,
-                        ProgressMonitor monitor) throws SeafException, IOException, JSONException, NoSuchAlgorithmException {
+                                             ProgressMonitor monitor) throws SeafException, IOException, JSONException, NoSuchAlgorithmException {
 
         String cachedFileID = null;
         SeafCachedFile cf = getCachedFile(repoName, repoID, path);
@@ -590,7 +585,7 @@ public class DataManager {
             return null;
         }
 
-        File cache = new File(DirentCache.getDataFilePath(getDirentCacheName(dirID)));
+        File cache = getFileForDirentCache(dirID);
         if (!cache.exists()) {
             return null;
         }
@@ -601,25 +596,6 @@ public class DataManager {
         }
 
         return parseDirents(json);
-    }
-
-    public DirentCache getDirentCache(String repoID, String path) {
-        String dirID = dbHelper.getCachedDirents(repoID, path);
-        if (dirID == null) {
-            return null;
-        }
-        return getDirentCache(dirID);
-    }
-
-    public DirentCache getDirentCache(String dirID) {
-        DirentCache cache = null;
-        try{
-            cache = new DirentCache(getDirentCacheName(dirID));
-        }catch (IOException e){
-            Log.e(DEBUG_TAG, "Could not parse cached dirent", e);
-            return null;
-        }
-        return cache;
     }
 
     /**
@@ -637,7 +613,7 @@ public class DataManager {
         // first fetch our cached dirent and read it
         String cachedDirID = dbHelper.getCachedDirents(repoID, path);
         String cachedContent = null;
-        File cacheFile = new File(DirentCache.getDataFilePath(getDirentCacheName(cachedDirID)));
+        File cacheFile = getFileForDirentCache(cachedDirID);
         if (cacheFile.exists()) {
             cachedContent = Utils.readFile(cacheFile);
         }
@@ -651,7 +627,6 @@ public class DataManager {
         Pair<String, String> ret = sc.getDirents(repoID, path, cachedDirID);
 
         String content;
-        List<SeafDirent> res;
         if (ret.second != null) {
             String dirID = ret.first;
             content = ret.second;
@@ -661,6 +636,10 @@ public class DataManager {
         }
 
         return parseDirents(content);
+    }
+
+    public String getDirID(String repoID, String path){
+        return dbHelper.getCachedDirents(repoID, path);
     }
 
     public List<SeafStarredFile> getStarredFiles() throws SeafException {

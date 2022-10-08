@@ -64,7 +64,7 @@ public class ShowImageFragment extends Fragment {
                 case R.id.loopimages_star_photo:
                     starFile(dirInfo.getRepoId(), dirInfo.getDirPath(), fileName);
                     break;
-                case R.id.gallery_share_photo:
+                case R.id.loopimages_share_photo:
                     shareFile(dirInfo.getRepoId(), false, Utils.pathJoin(dirInfo.getDirPath(), fileName));
                     break;
             }

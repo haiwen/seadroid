@@ -1,6 +1,7 @@
 package com.seafile.seadroid2.ui.activity;
 
 import android.Manifest;
+import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -39,6 +40,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.widget.FrameLayout;
+import android.widget.RemoteViews;
 
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.R;
@@ -2445,10 +2447,11 @@ public class BrowserActivity extends BaseActivity
 
     private void startLoopImagesWidget(){
         AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(getApplicationContext());
-        if(appWidgetManager.getAppWidgetIds(new ComponentName(getApplicationContext(), LoopImagesWidget.class)).length > 0) {
+        int appWidgetIds[] = appWidgetManager.getAppWidgetIds(new ComponentName(getApplicationContext(), LoopImagesWidget.class));
+        if(appWidgetIds.length > 0) {
             LoopImagesWidgetConfigureActivity.init(getApplicationContext());
             Intent intent = new Intent(getApplicationContext(), LoopImagesWidgetService.class);
-            intent.putExtra(LoopImagesWidgetService.UPDATE_IMAGE_INFO_SIGNAL, LoopImagesWidgetService.UPDATE_ALL_WIDGETS);
+            intent.putExtra(LoopImagesWidgetService.DELAY_UPDATE_ALL_SIGNAL, true);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 getApplicationContext().startForegroundService(intent);
             } else {

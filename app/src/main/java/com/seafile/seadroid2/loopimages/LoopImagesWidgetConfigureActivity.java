@@ -16,6 +16,7 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
+import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.ui.activity.BaseActivity;
 import com.viewpagerindicator.LinePageIndicator;
 
@@ -37,6 +38,7 @@ public class LoopImagesWidgetConfigureActivity extends BaseActivity {
     public static SettingsManager settingsMgr = null;
     private static AccountManager accountManager = null;
     private static List<Account> accountList = null;
+    private static Map<String, DataManager> dataManagerMap = null;
     private static Map<String, Account> signatureAccount = null;
 
     private ViewPager mViewPager;
@@ -165,6 +167,20 @@ public class LoopImagesWidgetConfigureActivity extends BaseActivity {
                 signatureAccount.put(taccount.getSignature(), taccount);
             }
         }
+
+        if(dataManagerMap == null){
+            dataManagerMap = new HashMap<String, DataManager>();
+        }
+    }
+
+    public static DataManager getDataManager(Account account){
+        if(dataManagerMap == null){
+            dataManagerMap = new HashMap<String, DataManager>();
+        }
+        if(!dataManagerMap.containsKey(account.getSignature())){
+            dataManagerMap.put(account.getSignature(), new DataManager(account));
+        }
+        return dataManagerMap.get(account.getSignature());
     }
 
     public LinePageIndicator getIndicator(){

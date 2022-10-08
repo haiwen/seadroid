@@ -82,6 +82,10 @@ public class DirInfo {
         return this.dirId;
     }
 
+    public void setDirId(String dirId){
+        this.dirId = dirId;
+    }
+
     public String getDirPath(){
         return this.dirPath;
     }
