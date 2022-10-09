@@ -49,6 +49,7 @@ import com.seafile.seadroid2.transfer.DownloadTaskManager;
 import com.seafile.seadroid2.transfer.TaskState;
 import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.transfer.UploadTaskInfo;
+import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.util.Utils;
 
 import java.io.File;
@@ -170,7 +171,7 @@ public class LoopImagesWidgetService extends Service {
         synchronized (updatingInfoLock){
             if(!isUpdatingInfo) {
                 isUpdatingInfo = true;
-                new UpdateImageInfoTask().execute(updateSignal, deleteSignal);
+                ConcurrentAsyncTask.execute(new UpdateImageInfoTask(updateSignal, deleteSignal));
             }
         }
     }
@@ -712,7 +713,7 @@ public class LoopImagesWidgetService extends Service {
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case UPDATE_MESSAGE:
-                    new UpdateWdigetTask().execute();
+                    ConcurrentAsyncTask.execute(new UpdateWdigetTask());
                     break;
                 default:
                     break;
@@ -755,6 +756,14 @@ public class LoopImagesWidgetService extends Service {
     }
 
     protected class UpdateImageInfoTask extends AsyncTask<Integer,Integer,Integer>{
+        private int updateSignal;
+        private int deleteSignal;
+
+        public UpdateImageInfoTask(int updateSignal, int deleteSignal){
+            this.updateSignal = updateSignal;
+            this.deleteSignal = deleteSignal;
+        }
+
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
@@ -762,11 +771,6 @@ public class LoopImagesWidgetService extends Service {
 
         @Override
         protected Integer doInBackground(Integer... integers) {
-            if(integers.length != 2){
-                return -1;
-            }
-            int updateSignal = integers[0];
-            int deleteSignal = integers[1];
             if(updateSignal != UPDATE_NONE_WIDGETS){
                 updateImageInfo(updateSignal);
             }
