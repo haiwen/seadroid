@@ -37,6 +37,18 @@ public abstract class CacheItem<T> {
         return Utils.pathJoin(storageManager.getJsonCacheDir().getAbsolutePath(), name+FILE_SUFFIX);
     }
 
+    public static boolean cacheFileExists(String name){
+        File configFile = new File(getConfigFilePath(name));
+        if(!configFile.exists()){
+            return false;
+        }
+        File dataFile = new File(getDataFilePath(name));
+        if(!dataFile.exists()){
+            return false;
+        }
+        return true;
+    }
+
     public CacheItem(String name) throws IOException{
         this.name = name;
         readContents(name);

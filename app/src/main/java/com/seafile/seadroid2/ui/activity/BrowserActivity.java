@@ -2,6 +2,7 @@ package com.seafile.seadroid2.ui.activity;
 
 import android.Manifest;
 import android.app.PendingIntent;
+import android.app.RecoverableSecurityException;
 import android.appwidget.AppWidgetManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -9,6 +10,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.IntentSender;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -2452,11 +2454,12 @@ public class BrowserActivity extends BaseActivity
             LoopImagesWidgetConfigureActivity.init(getApplicationContext());
             Intent intent = new Intent(getApplicationContext(), LoopImagesWidgetService.class);
             intent.putExtra(LoopImagesWidgetService.DELAY_UPDATE_ALL_SIGNAL, true);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                getApplicationContext().startForegroundService(intent);
-            } else {
-                getApplicationContext().startService(intent);
-            }
+            getApplicationContext().startService(intent);
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//                getApplicationContext().startForegroundService(intent);
+//            } else {
+//                getApplicationContext().startService(intent);
+//            }
         }
     }
 

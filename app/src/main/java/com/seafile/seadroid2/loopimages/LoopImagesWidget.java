@@ -39,11 +39,12 @@ public class LoopImagesWidget extends AppWidgetProvider {
 //        appWidgetManager.updateAppWidget(appWidgetId, views);
         Intent intent = new Intent(context, LoopImagesWidgetService.class);
         intent.putExtra(LoopImagesWidgetService.UPDATE_IMAGE_INFO_SIGNAL, appWidgetId);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            context.startForegroundService(intent);
-        }else{
-            context.startService(intent);
-        }
+        context.startService(intent);
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//            context.startForegroundService(intent);
+//        }else{
+//            context.startService(intent);
+//        }
     }
 
     @Override
@@ -54,11 +55,12 @@ public class LoopImagesWidget extends AppWidgetProvider {
 //        }
         Intent intent = new Intent(context, LoopImagesWidgetService.class);
         intent.putExtra(LoopImagesWidgetService.UPDATE_IMAGE_INFO_SIGNAL, LoopImagesWidgetService.UPDATE_ALL_WIDGETS);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            context.startForegroundService(intent);
-        }else{
-            context.startService(intent);
-        }
+        context.startService(intent);
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//            context.startForegroundService(intent);
+//        }else{
+//            context.startService(intent);
+//        }
     }
 
     @Override
@@ -68,11 +70,12 @@ public class LoopImagesWidget extends AppWidgetProvider {
             LoopImagesWidgetConfigureActivity.deleteDirInfo(appWidgetId);
             Intent intent = new Intent(context, LoopImagesWidgetService.class);
             intent.putExtra(LoopImagesWidgetService.DELETE_IMAGE_INFO_SIGNAL, appWidgetId);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                context.startForegroundService(intent);
-            }else{
-                context.startService(intent);
-            }
+            context.startService(intent);
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//                context.startForegroundService(intent);
+//            }else{
+//                context.startService(intent);
+//            }
         }
     }
 
