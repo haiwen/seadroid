@@ -16,10 +16,6 @@ public class TabbarFileBean {
     private Boolean useUri;
     private DocumentFile documentFile;//documentFile
 
-    public TabbarFileBean(String filePath) {
-        this(filePath, false);
-    }
-
     public TabbarFileBean(String filePath, Boolean useUri) {
         this(filePath, useUri, null);
     }
@@ -78,13 +74,6 @@ public class TabbarFileBean {
         this.filePath = filePath;
     }
 
-    public void setUseUri(Boolean useUri) {
-        this.useUri = useUri;
-    }
-
-    public void setDocumentFile(DocumentFile documentFile) {
-        this.documentFile = documentFile;
-    }
 
     public String getFilePath() {
         return filePath;
@@ -94,23 +83,9 @@ public class TabbarFileBean {
         return fileName;
     }
 
-    public String getFileNameNoExtension() {
-        return fileNameNoExtension;
-    }
 
     public String getParentPath() {
         return parentPath;
     }
 
-    public String getParentName() {
-        return parentName;
-    }
-
-    public Boolean isUseUri() {
-        return useUri;
-    }
-
-    public DocumentFile getDocumentFile() {
-        return documentFile;
-    }
 }

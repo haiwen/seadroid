@@ -6,9 +6,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Constants {
-    public static final int BUILD_ACTIVITY = 0;
-    public static final int BUILD_FRAGMENT = 1;
-    public static final int BUILD_DIALOG = 2;
     public static String DEFAULT_ROOTPATH;
     public static String PATH_ANRROID_DATA;
     public static String PATH_ANRROID_OBB;
@@ -26,13 +23,7 @@ public class Constants {
     public static final int SORT_SIZE_ASC = 4;
     public static final int SORT_SIZE_DESC = 5;
 
-    public static final String TAG_FRAGMENT_PATHSELECT = "PathSelectFragment_mlh";
-    public static final String TAG_FRAGMENT_TOOLBAR = "ToolbarFragment_mlh";
-    public static final String TAG_FRAGMENT_MORECHOOSE = "MoreChooseFragment_mlh";
-    public static final String TAG_DIALOG_FRAGMENT = "PathSelectDialogFragment_mlh";
-    public static final String CALLBACK_DATA_ARRAYLIST_STRING = "callback_data_arraylist_string_mlh";
     public static final int TYPE_CUSTOM_VIEW_NULL = -1;
-    public static final int TYPE_CUSTOM_VIEW_TOOLBAR = 0;
 
     public static Map<String, String> mimeTypeMap = null;
 

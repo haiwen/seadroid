@@ -1,31 +1,25 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <Button
-            android:id="@+id/bt_choice"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:text="@string/file_directory_ot"
-            android:visibility="gone" />
-
+    android:layout_height="match_parent">
         <LinearLayout
             android:id="@+id/linl_main_layout_view"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_above="@id/bt_choice"
-            android:layout_alignParentTop="true"
+            android:layout_height="match_parent"
             android:orientation="vertical">
-
+            <TextView
+                android:id="@+id/cuc_local_library_header_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginLeft="@dimen/tv_title_margin_left"
+                android:layout_marginTop="@dimen/tv_title_margin_top"
+                android:text="@string/settings_select_local_dir_title"
+                android:textColor="@color/fancy_orange"
+                android:textSize="@dimen/tv_title_txt_size"/>
             <FrameLayout
                 android:id="@+id/frameLayout_toolbar_area"
+                android:layout_marginTop="@dimen/tv_title_margin_top"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 
@@ -43,8 +37,8 @@
                     android:layout_gravity="center"
                     android:background="?android:attr/selectableItemBackground"
                     android:scaleType="centerInside"
-                    android:src="@drawable/ic_launcher"
-                    android:tint="@color/blue_500" />
+                    android:tint="@color/blue_500"
+                    />
 
                 <android.support.v7.widget.RecyclerView
                     android:id="@+id/rcv_tabbar_files_list"
@@ -57,8 +51,5 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
         </LinearLayout>
-    </RelativeLayout> <!-- placeholder, empty except on L -->
-    <include layout="@layout/toolbar_actionbar" />
 
-</LinearLayout>
-
+</RelativeLayout>

@@ -31,6 +31,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -46,6 +47,8 @@ import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
+import com.seafile.seadroid2.backupdirectory.FileDirService;
+import com.seafile.seadroid2.backupdirectory.FileDirService.FileDirBinder;
 import com.seafile.seadroid2.cameraupload.CameraUploadManager;
 import com.seafile.seadroid2.cameraupload.MediaObserverService;
 import com.seafile.seadroid2.data.CheckUploadServiceEvent;
@@ -158,6 +161,7 @@ public class BrowserActivity extends BaseActivity
 
     private DataManager dataManager = null;
     private TransferService txService = null;
+    private FileDirService dirService = null;
     private TransferReceiver mTransferReceiver;
     private AccountManager accountManager;
     private int currentPosition = 0;
@@ -233,6 +237,14 @@ public class BrowserActivity extends BaseActivity
         // restart service should it have been stopped for some reason
         Intent mediaObserver = new Intent(this, MediaObserverService.class);
         startService(mediaObserver);
+
+        Intent dIntent = new Intent(this, FileDirService.class);
+        startService(dIntent);
+        Log.d(DEBUG_TAG, "----start FileDirService");
+
+        Intent dirIntent = new Intent(this, FileDirService.class);
+        bindService(dirIntent, dirConnection, Context.BIND_AUTO_CREATE);
+        Log.d(DEBUG_TAG, "----try bind FileDirService");
 
         if (!isTaskRoot()) {
             final Intent intent = getIntent();
@@ -811,6 +823,31 @@ public class BrowserActivity extends BaseActivity
             txService = null;
         }
     };
+    private String directoryFilePath;
+    ServiceConnection dirConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            FileDirBinder binder = (FileDirBinder) service;
+            dirService = binder.getService();
+            Log.d(DEBUG_TAG, "-----bind FileDirService");
+            boolean dirAutomaticUpload = SettingsManager.instance().isDirAutomaticUpload();
+            if(dirAutomaticUpload){
+                directoryFilePath = SettingsManager.instance().getDirectoryFilePath();
+                if (dirService != null && !TextUtils.isEmpty(directoryFilePath)) {
+                    Utils.utilsLogInfo(false, "--dirService-------Data-");
+                    dirService.uploadFile(getAccount(),directoryFilePath);
+                }
+            }
+
+
+
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            dirService = null;
+        }
+    };
 
     @Override
     public void onStart() {
@@ -888,6 +925,10 @@ public class BrowserActivity extends BaseActivity
         if (txService != null) {
             unbindService(mConnection);
             txService = null;
+        }
+        if (dirService != null) {
+            unbindService(dirConnection);
+            dirService = null;
         }
         super.onDestroy();
     }
@@ -2453,6 +2494,12 @@ public class BrowserActivity extends BaseActivity
             monitorIntent = new Intent(this, FileMonitorService.class);
             startService(monitorIntent);
             Log.d(DEBUG_TAG, "FileMonitorService============false ");
+        }
+
+        if (!Utils.isServiceRunning(BrowserActivity.this, "com.seafile.seadroid2.backupdirectory.FileDirService")) {
+            monitorIntent = new Intent(this, FileDirService.class);
+            startService(monitorIntent);
+            Log.d(DEBUG_TAG, "FileDirService============false ");
         }
 
     }

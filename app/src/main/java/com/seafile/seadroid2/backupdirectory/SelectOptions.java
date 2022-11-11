@@ -150,8 +150,4 @@ public class SelectOptions {
 
         boolean onLongFileItemClick(View view, String currentPath, List<FileBean> fileBeanList, List<String> callBackData, TabbarFileListAdapter tabbarAdapter, FileListAdapter fileAdapter, FileBean fileBean);
     }
-
-    public void release() {
-        mSelectOptions = null;
-    }
 }

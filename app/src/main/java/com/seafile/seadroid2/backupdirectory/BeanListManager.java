@@ -1,6 +1,9 @@
 package com.seafile.seadroid2.backupdirectory;
 
 
+import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.SeadroidApplication;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,18 +25,6 @@ public class BeanListManager {
     public static final int TypeDelTabbar = 1;
     public static final int TypeInitTabbar = 2;
 
-    public static void clearList(List list) {
-        if (list != null && list.size() != 0) {
-            list.clear();
-        }
-    }
-
-    public static void setCheckList(List<FileBean> list, boolean var) {
-        for (int i = 0; i < list.size(); i++) {
-            list.get(i).setChecked(var);
-        }
-    }
-
     public static void upDataFileBeanListByAsyn(List<FileBean> fileBeanList, FileListAdapter fileListAdapter, String path, List<String> fileTypes, int sortType) {
 
         if (fileBeanList == null) {
@@ -53,9 +44,7 @@ public class BeanListManager {
                         if (files != null) {
                             for (int i = 0; i < files.length; i++) {
                                 fileBean = new FileBean(files[i].getAbsolutePath(), false);
-                                if (fileTypes == null || fileTypes.size() == 0 || fileBean.isDir() || fileTypes.contains(fileBean.getFileExtension())) {
-                                    fileBeanList.add(fileBean);
-                                }
+                                fileBeanList.add(fileBean);
                             }
                         }
                         sortFileBeanList(fileBeanList, sortType);
@@ -75,9 +64,6 @@ public class BeanListManager {
                         if (fileListAdapter != null) {
                             fileListAdapter.updateListData(fileBeanList);
                             fileListAdapter.notifyDataSetChanged();
-                            if (fileBeanList.size() == 0) {
-//                                fileListAdapter.setEmptyView(R.layout.account_detail);
-                            }
                         }
                     }
 
@@ -152,11 +138,11 @@ public class BeanListManager {
         if (SdCardList.contains(path)) {
             int i = SdCardList.indexOf(path);
             if (i == 0) {
-                tabbarList.add(0, new TabbarFileBean(path, "内部存储", false, null));
+                tabbarList.add(0, new TabbarFileBean(path, SeadroidApplication.getAppContext().getString(R.string.internal_storage), false, null));
             } else if (i > 0) {
                 tabbarList.add(0, new TabbarFileBean(path, String.format("SD%d", i), false, null));
             } else {
-                tabbarList.add(0, new TabbarFileBean(path, "错误163", false, null));
+                tabbarList.add(0, new TabbarFileBean(path, SeadroidApplication.getAppContext().getString(R.string.internal_storage_err), false, null));
             }
             return;
         }
@@ -164,68 +150,6 @@ public class BeanListManager {
         getTabbarFileBeanList(tabbarList, FileTools.getParentPath(path), SdCardList);
     }
 
-    public static void upDataTabbarFileBeanListByAsyn(List<TabbarFileBean> tabbarList, TabbarFileListAdapter tabbarAdapter, String path, int type, List<String> SdCardList) {
-
-        Observable
-                .just(tabbarList)
-                .map(new Function<List<TabbarFileBean>, List<TabbarFileBean>>() {
-                    @Override
-                    public List<TabbarFileBean> apply(List<TabbarFileBean> tabbarLists) throws Throwable {
-                        switch (type) {
-                            case TypeAddTabbar:
-                                tabbarLists.add(new TabbarFileBean(path, false));
-                                break;
-                            case TypeDelTabbar:
-                                for (int i = tabbarLists.size() - 1; i >= 0; i--) {
-                                    if (tabbarLists.get(i).getFilePath().length() > path.length()) {
-                                        tabbarLists.remove(i);
-                                    } else {
-                                        break;
-                                    }
-                                }
-                                break;
-                            case TypeInitTabbar:
-                                if (tabbarLists == null) {
-                                    tabbarLists = new ArrayList<>();
-                                    getTabbarFileBeanList(tabbarLists, path, SdCardList);
-                                } else {
-                                    tabbarLists.clear();
-                                    getTabbarFileBeanList(tabbarLists, path, SdCardList);
-                                }
-                                break;
-                        }
-
-                        return null;
-                    }
-                })
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<List<TabbarFileBean>>() {
-                    @Override
-                    public void onSubscribe(@NonNull Disposable d) {
-
-                    }
-
-                    @Override
-                    public void onNext(@NonNull List<TabbarFileBean> tabbarFileBeanList) {
-                        if (tabbarAdapter != null) {
-                            tabbarAdapter.updateListData(tabbarFileBeanList);
-                            tabbarAdapter.notifyDataSetChanged();
-                        }
-                    }
-
-                    @Override
-                    public void onError(@NonNull Throwable e) {
-
-                    }
-
-                    @Override
-                    public void onComplete() {
-
-                    }
-                });
-
-    }
 
     public static List<TabbarFileBean> upDataTabbarFileBeanList(List<TabbarFileBean> tabbarList, TabbarFileListAdapter tabbarAdapter, String path, int type, List<String> SdCardList) {
         switch (type) {
@@ -234,7 +158,7 @@ public class BeanListManager {
                 break;
             case TypeDelTabbar:
                 for (int i = tabbarList.size() - 1; i >= 0; i--) {
-                    if (tabbarList.get(i).getFilePath().length() > path.length()) {//移除比当前路径还长的数据
+                    if (tabbarList.get(i).getFilePath().length() > path.length()) {
                         tabbarList.remove(i);
                     } else {
                         break;
@@ -258,52 +182,6 @@ public class BeanListManager {
 
         return tabbarList;
     }
-
-    public static List<String> getCallBackData(List<FileBean> fileBeanList) {
-        if (fileBeanList == null) {
-            return null;
-        }
-        List<String> data = new ArrayList<>();
-        for (int i = 0; i < fileBeanList.size(); i++) {
-            if (fileBeanList.get(i).isChecked()) {
-                data.add(fileBeanList.get(i).getFilePath());
-            }
-        }
-        return data;
-    }
-
-    public static List<FileBean> getCallBackFileBeanList(List<FileBean> fileBeanList) {
-        if (fileBeanList == null) {
-            return null;
-        }
-        List<FileBean> data = new ArrayList<>();
-        for (int i = 0; i < fileBeanList.size(); i++) {
-            if (fileBeanList.get(i).isChecked()) {
-                data.add(fileBeanList.get(i));
-            }
-        }
-        return data;
-    }
-
-    public static void setCheckBoxVisible(List<FileBean> fileBeanList, FileListAdapter fileListAdapter, boolean state) {
-        if (fileBeanList == null || fileListAdapter == null) {
-            return;
-        }
-        if (state) {
-            for (int i = 0; i < fileBeanList.size(); i++) {
-                fileBeanList.get(i).setVisible(true);
-            }
-        } else {
-            for (int i = 0; i < fileBeanList.size(); i++) {
-                fileBeanList.get(i).setVisible(false);
-                fileBeanList.get(i).setChecked(false);
-            }
-        }
-
-        fileListAdapter.updateListData(fileBeanList);
-        fileListAdapter.notifyDataSetChanged();
-    }
-
 
 }
 

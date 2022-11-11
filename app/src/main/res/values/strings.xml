@@ -355,6 +355,7 @@
   <!--Camera Upload Configuration View-->
   <string name="settings_cuc_title">Configuration Helper</string>
   <string name="settings_cuc_welcome_text">Thanks for using the camera upload configuration helper. \nTo help you get started with the camera upload service, you\'ll be guided through a few initial steps.</string>
+  <string name="settings_dir_welcome_text">Thanks for using the directory upload configuration helper. \nTo help you get started with the camera upload service, you\'ll be guided through a few initial steps.</string>
   <string name="settings_cuc_network_title">How to upload</string>
   <string name="settings_cuc_network_wifi">Wi-Fi only</string>
   <string name="settings_cuc_network_data_plan">Wi-Fi or data plan</string>
@@ -570,11 +571,23 @@
   <string name="required_password">Password is required.</string>
   <string name="weak_password">Password is too weak.</string>
   <!--Sync directory Preference-->
-  <string name="settings_directory_upload_info_title">Upload directory</string>
-  <string name="settings_directory_upload_turn_on">Turn on Directory Upload</string>
-  <string name="settings_directory_upload_service_started">Upload service started</string>
-  <string name="settings_directory_upload_service_stopped">Upload service stopped</string>
+  <string name="settings_directory_upload_info_title">Backup folder</string>
+  <string name="settings_directory_upload_turn_on">Turn on Folder Backup</string>
+  <string name="settings_directory_upload_service_started">Backup service started</string>
+  <string name="settings_directory_upload_service_stopped">Backup service stopped</string>
+  <string name="settings_select_local_dir_title">Select directory</string>
   <string name="file_directory">File directory</string>
   <string name="file_directory_ot">OK</string>
+  <string name="folder_file_size">Size</string>
+  <string name="folder_file_item_size">Size %s</string>
+  <string name="folder_file_item_describe">file %s | folder %s</string>
+  <string name="internal_storage">Internal storage</string>
+  <string name="internal_storage_err">Error 163</string>
+  <string name="selection_file_type">Selection type does not match</string>
+  <string name="select_backup_folder">Select a backup folder</string>
+  <string name="select_backup_libraries">Select a backup libraries</string>
+  <string name="folder_backup_completed">The folder is backed up</string>
+  <string name="get_storage_permission_failed">Failed to get storage permission</string>
+  <string name="authorization_storage_permission">Authorization denied permanently, please grant storage permission manually.</string>
 
 </resources>

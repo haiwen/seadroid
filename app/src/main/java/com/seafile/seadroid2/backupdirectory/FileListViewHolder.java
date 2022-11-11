@@ -11,18 +11,17 @@ import com.seafile.seadroid2.R;
 
 
 public class FileListViewHolder extends RecyclerView.ViewHolder {
-    protected ImageView imgvFiletype,imgvEnter;
-    protected TextView tvFileName,tvFileDetail;
+    protected ImageView imgvFiletype;
+    protected TextView tvFileName, tvFileDetail;
     protected CheckBox checkBoxFile;
     protected RelativeLayout layoutRoot;
+
     public FileListViewHolder(View itemView) {
         super(itemView);
-
-         layoutRoot = (RelativeLayout) itemView.findViewById(R.id.ll_root);
-         imgvFiletype = (ImageView) itemView.findViewById(R.id.iv_file_type_fileitem);
-         imgvEnter = (ImageView) itemView.findViewById(R.id.iv_file_enter_fileitem);
-         tvFileName = (TextView) itemView.findViewById(R.id.tv_file_name_fileitem);
-         tvFileDetail = (TextView) itemView.findViewById(R.id.tv_file_detail_fileitem);
-         checkBoxFile = (CheckBox) itemView.findViewById(R.id.checkbox_file_fileitem);
+        layoutRoot = (RelativeLayout) itemView.findViewById(R.id.ll_root);
+        imgvFiletype = (ImageView) itemView.findViewById(R.id.iv_file_type_fileitem);
+        tvFileName = (TextView) itemView.findViewById(R.id.tv_file_name_fileitem);
+        tvFileDetail = (TextView) itemView.findViewById(R.id.tv_file_detail_fileitem);
+        checkBoxFile = (CheckBox) itemView.findViewById(R.id.checkbox_file_fileitem);
     }
 }

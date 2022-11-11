@@ -7,9 +7,10 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.util.Utils;
 
 import java.io.File;
+import java.io.Serializable;
 
 
-public class FileBean {
+public class FileBean implements Serializable {
     private String filePath;
     private boolean dir;
     private boolean file;
@@ -26,15 +27,11 @@ public class FileBean {
     private boolean checked;
 
     private boolean useUri;
-    private DocumentFile documentFile;//documentFile
+    private DocumentFile documentFile;
 
     private long modifyTime;
     private long simpleSize;
 
-
-    public FileBean(String filePath) {
-        this(filePath, false);
-    }
 
     public FileBean(String filePath, Boolean useUri) {
         this(filePath, useUri, null);
@@ -90,7 +87,7 @@ public class FileBean {
             childrenDirNumber = FileTools.getChildrenNumber(filePath)[1];
 
             modifyTime = FileTools.getFileLastModified(filePath);
-            if (file) {//非常耗时
+            if (file) {
                 size = FileTools.getSize(filePath);
                 simpleSize = FileTools.getSimpleSize(filePath);
             }

@@ -17,6 +17,9 @@ import android.text.TextUtils;
 import android.util.Log;
 
 
+import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.SeadroidApplication;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -31,13 +34,13 @@ import java.util.Map;
 
 
 public class UriTools {
-    //根目录 :一般是/storage/emulated/0
+    //storage/emulated/0
     public static final String URI_ROOT = "content://com.android.externalstorage.documents/tree/primary%3AAndroid%2Fdata/document/primary";
-    //Android/data目录
+    //Android/data
     public static final String URI_ANRROID_DATA = "content://com.android.externalstorage.documents/tree/primary%3AAndroid%2Fdata/document/primary%3AAndroid%2Fdata";
-    //uri路径分割符
+    //uri_path
     public static final String URI_SEPARATOR = "%2F";
-    //SDcard有通配符%s匹配sd卡名
+    //SD card
     public static final String URI_SDCARD_ROOT_FRONT = "content://com.android.externalstorage.documents/tree/";
     public static final String URI_SDCARD_ROOT_LAST = "%3A";
 
@@ -83,11 +86,11 @@ public class UriTools {
         if (SdCardList.contains(path)) {
             int i = SdCardList.indexOf(path);
             if (i == 0) {
-                tabbarList.add(0, new TabbarFileBean(path, "内部存储", true, uri2DocumentFile(Commons.getApplicationByReflect().getBaseContext(), path)));
+                tabbarList.add(0, new TabbarFileBean(path, SeadroidApplication.getAppContext().getString(R.string.internal_storage), true, uri2DocumentFile(Commons.getApplicationByReflect().getBaseContext(), path)));
             } else if (i > 0) {
                 tabbarList.add(0, new TabbarFileBean(path, String.format("SD%d", i), true, uri2DocumentFile(Commons.getApplicationByReflect().getBaseContext(), path)));
             } else {
-                tabbarList.add(0, new TabbarFileBean(path, "错误163", true, uri2DocumentFile(Commons.getApplicationByReflect().getBaseContext(), path)));
+                tabbarList.add(0, new TabbarFileBean(path, SeadroidApplication.getAppContext().getString(R.string.internal_storage_err), true, uri2DocumentFile(Commons.getApplicationByReflect().getBaseContext(), path)));
             }
             return;
         }
@@ -103,7 +106,7 @@ public class UriTools {
                 break;
             case BeanListManager.TypeDelTabbar:
                 for (int i = tabbarList.size() - 1; i >= 0; i--) {
-                    if (tabbarList.get(i).getFilePath().length() > path.length()) {//移除比当前路径还长的数据
+                    if (tabbarList.get(i).getFilePath().length() > path.length()) {
                         tabbarList.remove(i);
                     } else {
                         break;
@@ -153,11 +156,6 @@ public class UriTools {
         BeanListManager.sortFileBeanList(fileBeanList, sortType);
         if (fileListAdapter != null) {
             fileListAdapter.notifyDataSetChanged();
-            if (fileBeanList.size() == 0) {
-
-//                fileListAdapter.setEmptyView(R.layout.fragment_empty_files_list_mlh);
-
-            }
         }
 
         return fileBeanList;

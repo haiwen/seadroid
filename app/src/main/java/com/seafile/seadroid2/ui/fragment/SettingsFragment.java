@@ -21,6 +21,8 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.google.common.collect.Maps;
+import com.hjq.permissions.OnPermissionCallback;
+import com.hjq.permissions.XXPermissions;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SeafException;
@@ -28,6 +30,7 @@ import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountInfo;
 import com.seafile.seadroid2.account.AccountManager;
+import com.seafile.seadroid2.backupdirectory.DirectoryUploadConfigActivity;
 import com.seafile.seadroid2.cameraupload.CameraUploadConfigActivity;
 import com.seafile.seadroid2.cameraupload.CameraUploadManager;
 import com.seafile.seadroid2.cameraupload.GalleryBucketUtils;
@@ -42,11 +45,11 @@ import com.seafile.seadroid2.ui.activity.CreateGesturePasswordActivity;
 import com.seafile.seadroid2.ui.activity.PrivacyPolicyActivity;
 import com.seafile.seadroid2.ui.activity.SeafilePathChooserActivity;
 import com.seafile.seadroid2.ui.activity.SettingsActivity;
-import com.seafile.seadroid2.ui.activity.SynDirectoryActivity;
 import com.seafile.seadroid2.ui.dialog.ClearCacheTaskDialog;
 import com.seafile.seadroid2.ui.dialog.ClearPasswordTaskDialog;
 import com.seafile.seadroid2.ui.dialog.SwitchStorageTaskDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog.TaskDialogListener;
+import com.seafile.seadroid2.util.CameraSyncStatus;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.util.Utils;
 
@@ -282,11 +285,31 @@ public class SettingsFragment extends CustomPreferenceFragment {
                 if (newValue instanceof Boolean) {
                     boolean isChecked = (Boolean) newValue;
                     if (!isChecked) {
-
+                        SettingsManager.instance().saveDirectoryFilePath("");
+                        SettingsManager.instance().saveDirAutomaticUpload(false);
                     } else {
-                        Intent intent = new Intent(mActivity, SynDirectoryActivity.class);
-                        intent.putExtra(CAMERA_UPLOAD_BOTH_PAGES, true);
-                        startActivityForResult(intent, CHOOSE_CAMERA_UPLOAD_REQUEST);
+                        XXPermissions.with(getActivity()).permission("android.permission.MANAGE_EXTERNAL_STORAGE").request(new OnPermissionCallback() {
+
+                            @Override
+                            public void onGranted(List<String> permissions, boolean all) {
+                                if (all) {
+                                    Intent intent = new Intent(mActivity, DirectoryUploadConfigActivity.class);
+                                    intent.putExtra(CAMERA_UPLOAD_BOTH_PAGES, true);
+                                    startActivityForResult(intent, CHOOSE_CAMERA_UPLOAD_REQUEST);
+                                }
+                            }
+
+                            @Override
+                            public void onDenied(List<String> permissions, boolean never) {
+                                if (never) {
+                                    Toast.makeText(getActivity(), mActivity.getString(R.string.authorization_storage_permission), Toast.LENGTH_LONG).show();
+                                    XXPermissions.startPermissionActivity(getActivity(), permissions);
+                                } else {
+                                    Toast.makeText(getActivity(), mActivity.getString(R.string.get_storage_permission_failed), Toast.LENGTH_LONG).show();
+                                }
+                            }
+                        });
+
                     }
                     return true;
                 }
@@ -638,6 +661,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
         }
 
         ((CheckBoxPreference) findPreference(SettingsManager.CAMERA_UPLOAD_SWITCH_KEY)).setChecked(cameraManager.isCameraUploadEnabled());
+        ((CheckBoxPreference) findPreference(SettingsManager.DIRECTORY_UPLOAD_SWITCH_KEY)).setChecked(SettingsManager.instance().isDirAutomaticUpload());
 
         if (cameraManager.isCameraUploadEnabled()) {
             cUploadCategory.addPreference(cUploadRepoPref);
@@ -886,8 +910,13 @@ public class SettingsFragment extends CustomPreferenceFragment {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(CameraSyncEvent result) {
-
-        cUploadRepoState.setSummary(Utils.getUploadStateShow(getActivity()));
+        int scanUploadStatus = SeadroidApplication.getInstance().getScanUploadStatus();
+        if (cameraManager.isCameraUploadEnabled() && scanUploadStatus > 0) {
+            if (scanUploadStatus == CameraSyncStatus.SCAN_END) {
+                SeadroidApplication.getInstance().setScanUploadStatus(CameraSyncStatus.NORMAL);
+            }
+            cUploadRepoState.setSummary(Utils.getUploadStateShow(getActivity()));
+        }
 
         Log.d(DEBUG_TAG, "==========" + result.getLogInfo());
         Utils.utilsLogInfo(true,"==========" + result.getLogInfo());
