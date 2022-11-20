@@ -59,11 +59,11 @@
 
             <com.google.android.exoplayer2.ui.DefaultTimeBar
                 android:id="@id/exo_progress"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 app:unplayed_color="@android:color/black"
                 app:buffered_color="@android:color/darker_gray"
-                android:layout_weight="1"
-                android:layout_height="26dp"/>
+                android:layout_height="wrap_content"
+                />
 
             <TextView android:id="@id/exo_duration"
                 android:layout_width="wrap_content"

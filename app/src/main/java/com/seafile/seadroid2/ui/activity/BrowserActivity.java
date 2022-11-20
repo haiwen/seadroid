@@ -1736,6 +1736,7 @@ public class BrowserActivity extends BaseActivity
     }
 
     private void startPlayActivity(String fileName, String repoID, String filePath) {
+//        Intent intent = new Intent(this, ExoPlayActivity.class);
         Intent intent = new Intent(this, IjkPlayActivity.class);
 //        Intent intent = new Intent(this, PlayActivity.class);
         intent.putExtra("fileName", fileName);
