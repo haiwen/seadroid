@@ -122,7 +122,16 @@
             android:key="directory_upload_switch_key"
             android:summaryOff="@string/settings_directory_upload_service_stopped"
             android:summaryOn="@string/settings_directory_upload_service_started"
-            android:title="@string/settings_directory_upload_turn_on"></com.seafile.seadroid2.ui.SwitchPreferenceCompat>
+            android:title="@string/settings_directory_upload_turn_on">
+        </com.seafile.seadroid2.ui.SwitchPreferenceCompat>
+        <Preference
+            android:key="folder_upload_key"
+            android:summary="@string/settings_folder_upload_repo_hint"
+            android:title="@string/settings_folder_upload_change_dir_title" />
+        <Preference
+            android:key="folder_upload_state"
+            android:summary="@string/folder_waiting_state"
+            android:title="@string/folder_upload_state" />
     </PreferenceCategory>
     <!--<PreferenceCategory-->
         <!--android:key="category_contacts_upload_key"-->

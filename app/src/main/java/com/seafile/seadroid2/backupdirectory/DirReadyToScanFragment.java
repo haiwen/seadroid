@@ -10,9 +10,8 @@ import android.widget.Toast;
 
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SettingsManager;
-import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.data.SeafRepo;
-import com.seafile.seadroid2.util.Utils;
+
+import java.util.List;
 
 public class DirReadyToScanFragment extends Fragment {
 
@@ -28,8 +27,8 @@ public class DirReadyToScanFragment extends Fragment {
         continueBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FileBean fileBean = mActivity.getFileBean();
-                if (fileBean == null) {
+                List<String> selectFilePath = mActivity.getSelectFilePath();
+                if (selectFilePath == null || selectFilePath.size() == 0) {
                     Toast.makeText(getActivity(), getActivity().getString(R.string.select_backup_folder), Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -37,21 +36,6 @@ public class DirReadyToScanFragment extends Fragment {
                     Toast.makeText(getActivity(), getActivity().getString(R.string.select_backup_libraries), Toast.LENGTH_SHORT).show();
                     return;
                 }
-                Account account = mActivity.getAccount();
-                UploadDirectoryDBHelper databaseHelper = mActivity.getDatabaseHelper();
-                UploadDirConfig dirConfig = databaseHelper.getDirConfig(account, fileBean.getFilePath());
-                SeafRepo repo = mActivity.getSeafRepo();
-                if (dirConfig != null && dirConfig.filePath.equals(fileBean.getFilePath())) {
-                    Toast.makeText(getActivity(), getActivity().getString(R.string.folder_backup_completed), Toast.LENGTH_SHORT).show();
-                    if (!mActivity.getSeafRepo().id.equals(dirConfig.repoID)) {
-                        //the repo different and the backup path is the same. Updating the database
-                        Utils.utilsLogInfo(false, "-------old---"+dirConfig.repoName+"====new===="+repo.name);
-                        databaseHelper.updateDirConfig(account, dirConfig.repoID, repo.id, repo.name, fileBean.getFileName(), fileBean.getFilePath());
-                    }
-                } else {
-                    databaseHelper.saveDirUploadConfig(account, repo.id, repo.name, fileBean.getFileName(), fileBean.getFilePath());
-                }
-                SettingsManager.instance().saveDirectoryFilePath(fileBean.getFilePath());
                 SettingsManager.instance().saveDirAutomaticUpload(true);
                 mActivity.saveSettings();
                 mActivity.finish();

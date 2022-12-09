@@ -102,7 +102,7 @@ public class CameraUploadConfigActivity extends BaseActivity {
         if (isChooseBothPages || isChooseDirPage) {
 
             SettingsManager settingsManager = SettingsManager.instance();
-            List<String> selectedBuckets = mBucketsFragment.getSelectionFragment().getSelectedBuckets();
+            List<String> selectedBuckets = mBucketsFragment.getSelectedBuckets();
             if (mBucketsFragment.isAutoScanSelected()) {
                 selectedBuckets.clear();
             }

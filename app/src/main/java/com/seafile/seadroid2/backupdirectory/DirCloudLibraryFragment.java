@@ -30,8 +30,6 @@ public class DirCloudLibraryFragment extends Fragment {
 
         mDoneBtn = (Button) rootView.findViewById(R.id.cuc_remote_library_btn);
         mDoneBtn.setOnClickListener(onClickListener);
-        if (mActivity.isChooseLibPage())
-            mDoneBtn.setVisibility(View.VISIBLE);
 
         return rootView;
     }
