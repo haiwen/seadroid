@@ -7,8 +7,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.1.0'
-
+        classpath 'com.android.tools.build:gradle:7.2.2'
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
@@ -24,9 +23,9 @@ allprojects {
 }
 
 ext {
-    compileSdkVersion = 29
+    compileSdkVersion = 30
     supportLibVersion = '27.1.1'  // variable that can be referenced to keep support libs consistent
-    minSdkVersion = 21
+    minSdkVersion = 24
     targetSdkVersion = 30
     buildToolsVersion = '27.0.3'
 }

@@ -7,8 +7,12 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import com.seafile.seadroid2.SeadroidApplication;
+import com.seafile.seadroid2.data.SeafDirent;
+import com.seafile.seadroid2.util.Utils;
 
 import java.io.File;
+import java.util.List;
+import java.util.regex.Pattern;
 
 public class CameraUploadDBHelper extends SQLiteOpenHelper {
     private static final String DEBUG_TAG = "CameraUploadDBHelper";
@@ -30,7 +34,7 @@ public class CameraUploadDBHelper extends SQLiteOpenHelper {
             "CREATE TABLE " + PHOTOCACHE_TABLE_NAME + " ("
                     + PHOTOCACHE_COLUMN_ID + " INTEGER PRIMARY KEY, "
                     + PHOTOCACHE_COLUMN_FILE + " TEXT NOT NULL, "
-                    + PHOTOCACHE_COLUMN_DATE_ADDED + " BIGINT NOT NULL);";
+                    + PHOTOCACHE_COLUMN_DATE_ADDED + " BIGINT NOT NULL)";
 
     private static final String[] projection = {
             PHOTOCACHE_COLUMN_ID,
@@ -58,11 +62,12 @@ public class CameraUploadDBHelper extends SQLiteOpenHelper {
 
     private void createPhotoCacheTable(SQLiteDatabase db) {
         db.execSQL(SQL_CREATE_PHOTOCACHE_TABLE);
-        db.execSQL("CREATE INDEX photo_repoid_index ON " + PHOTOCACHE_TABLE_NAME
+        db.execSQL("CREATE INDEX photo_file_index ON " + PHOTOCACHE_TABLE_NAME
                 + " (" + PHOTOCACHE_COLUMN_FILE + ");");
-        db.execSQL("CREATE INDEX photo_account_index ON " + PHOTOCACHE_TABLE_NAME
+        db.execSQL("CREATE INDEX photo_date_index ON " + PHOTOCACHE_TABLE_NAME
                 + " (" + PHOTOCACHE_COLUMN_DATE_ADDED + ");");
     }
+
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -75,10 +80,8 @@ public class CameraUploadDBHelper extends SQLiteOpenHelper {
         onUpgrade(db, oldVersion, newVersion);
     }
 
-    public boolean isUploaded(File file) {
-        String path = file.getAbsolutePath();
-        long modified = file.lastModified();
 
+    public boolean isUploaded(String path, long modified) {
         Cursor c = database.query(
                 PHOTOCACHE_TABLE_NAME,
                 projection,
@@ -98,6 +101,10 @@ public class CameraUploadDBHelper extends SQLiteOpenHelper {
         String path = file.getAbsolutePath();
         long modified = file.lastModified();
 
+        markAsUploaded(path, modified);
+    }
+
+    public void markAsUploaded(String path, long modified) {
         ContentValues values = new ContentValues();
         values.put(PHOTOCACHE_COLUMN_FILE, path);
         values.put(PHOTOCACHE_COLUMN_DATE_ADDED, modified);

@@ -1,12 +1,16 @@
 package com.seafile.seadroid2.ui.activity;
 
 import android.Manifest;
+import android.app.PendingIntent;
+import android.app.RecoverableSecurityException;
+import android.appwidget.AppWidgetManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.IntentSender;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -38,6 +42,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.widget.FrameLayout;
+import android.widget.RemoteViews;
 
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.R;
@@ -57,6 +62,9 @@ import com.seafile.seadroid2.data.SeafStarredFile;
 import com.seafile.seadroid2.data.ServerInfo;
 import com.seafile.seadroid2.data.StorageManager;
 import com.seafile.seadroid2.fileschooser.MultiFileChooserActivity;
+import com.seafile.seadroid2.loopimages.LoopImagesWidget;
+import com.seafile.seadroid2.loopimages.LoopImagesWidgetConfigureActivity;
+import com.seafile.seadroid2.loopimages.LoopImagesWidgetService;
 import com.seafile.seadroid2.monitor.FileMonitorService;
 import com.seafile.seadroid2.notification.DownloadNotificationProvider;
 import com.seafile.seadroid2.notification.UploadNotificationProvider;
@@ -396,6 +404,7 @@ public class BrowserActivity extends BaseActivity
         requestReadExternalStoragePermission();
         Utils.startCameraSyncJob(this);
         syncCamera();
+        startLoopImagesWidget();
     }
 
     public FrameLayout getContainer() {
@@ -2436,6 +2445,22 @@ public class BrowserActivity extends BaseActivity
         CameraUploadManager cameraManager = new CameraUploadManager(getApplicationContext());
         if (cameraManager.isCameraUploadEnabled() && settingsManager.isVideosUploadAllowed()) {
             cameraManager.performFullSync();
+        }
+    }
+
+    private void startLoopImagesWidget(){
+        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(getApplicationContext());
+        int appWidgetIds[] = appWidgetManager.getAppWidgetIds(new ComponentName(getApplicationContext(), LoopImagesWidget.class));
+        if(appWidgetIds.length > 0) {
+            LoopImagesWidgetConfigureActivity.init(getApplicationContext());
+            Intent intent = new Intent(getApplicationContext(), LoopImagesWidgetService.class);
+            intent.putExtra(LoopImagesWidgetService.DELAY_UPDATE_ALL_SIGNAL, true);
+            getApplicationContext().startService(intent);
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//                getApplicationContext().startForegroundService(intent);
+//            } else {
+//                getApplicationContext().startService(intent);
+//            }
         }
     }
 

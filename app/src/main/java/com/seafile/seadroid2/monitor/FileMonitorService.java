@@ -61,8 +61,10 @@ public class FileMonitorService extends Service {
     public void onCreate() {
         Log.d(DEBUG_TAG, "onCreate");
 
-        Intent bindIntent = new Intent(this, TransferService.class);
-        bindService(bindIntent, mTransferConnection, Context.BIND_AUTO_CREATE);
+        if(mTransferConnection != null) {
+            Intent bindIntent = new Intent(this, TransferService.class);
+            bindService(bindIntent, mTransferConnection, Context.BIND_AUTO_CREATE);
+        }
 
         LocalBroadcastManager.getInstance(this).registerReceiver(transferReceiver,
                 new IntentFilter(TransferManager.BROADCAST_ACTION));

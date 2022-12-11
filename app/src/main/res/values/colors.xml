@@ -17,9 +17,11 @@
     <color name="fancy_white">#f4f5f6</color> <!-- theme color -->
     <color name="fancy_light_white">#fcfcfc</color>
     <color name="fancy_black">#888888</color>
-    <color name="fancy_light_black">#a9a9a9</color> <!-- color for slide expandable list item background -->
+    <color name="fancy_light_black">#a9a9a9
+    </color> <!-- color for slide expandable list item background -->
     <color name="fancy_dark_black">#282828</color>
-    <color name="fancy_deep_black">#989898</color> <!-- color for dividers inside of slide expandable list item -->
+    <color name="fancy_deep_black">#989898
+    </color> <!-- color for dividers inside of slide expandable list item -->
     <color name="fancy_gray">#969696</color>
     <color name="fancy_dark_gray">#e1e2e3</color>
     <color name="fancy_orange">#ea8201</color> <!-- theme color -->
@@ -31,5 +33,9 @@
     <color name="blue_700">#FF1976D2</color>
     <color name="blue_bg">#FF303030</color>
     <color name="pale_yellow">#DFA788</color>
+    <color name="light_blue_50">#FFE1F5FE</color>
+    <color name="light_blue_200">#FF81D4FA</color>
+    <color name="light_blue_600">#FF039BE5</color>
+    <color name="light_blue_900">#FF01579B</color>
 
 </resources>

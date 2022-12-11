@@ -1,394 +1,394 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-  <string name="app_name" translatable="false">Seafile</string>
-  <string name="app_url" translatable="false">http://seafile.com</string>
-  <string name="welcome_to_seafile">Welcome to Seafile</string>
-  <string name="select_account">Choose an account to start</string>
-  <string name="edit_account">Edit</string>
-  <string name="delete_account">Delete</string>
-  <string name="delete">Delete</string>
-  <string name="delete_repo">Are you sure you want to delete this library?</string>
-  <string name="delete_file">Are you sure you want to delete this file or folder?</string>
-  <string name="delete_successful">Successfully deleted</string>
-  <string name="delete_repo_title">Delete library</string>
-  <string name="delete_file_f">Delete file</string>
-  <string name="recover_library">Recover library</string>
-  <string name="recover_file">Recover file</string>
-  <string name="move_file">Move file</string>
-  <string name="update_file">Update file</string>
-  <string name="recover_folder">Recover folder</string>
-  <string name="move_folder">Move folder</string>
-  <string name="delete_dir">Delete folder</string>
-  <string name="name_hint">Name</string>
-  <string name="server_hint">Server address</string>
-  <string name="email_hint">Email or Username</string>
-  <string name="passwd_hint">Password</string>
-  <string name="passwd_min_len_limit_hint">Password (at least %d characters)</string>
-  <string name="passwd_confirmation_hint">Password again</string>
-  <string name="login">Log In</string>
-  <string name="open_file">Open</string>
-  <string name="download_file">Download</string>
-  <string name="redownload_file">Download again</string>
-  <string name="cancel_download">Cancel</string>
-  <string name="unknown_file_type">Unknown file-type</string>
-  <string name="activity_not_found">Can\`t find App to open this file</string>
-  <string name="refresh">Refresh</string>
-  <string name="add_account">Add Account</string>
-  <string name="personal">Personal</string>
-  <string name="shared">Shared</string>
-  <string name="libraries">Libraries</string>
-  <string name="cached">Cached</string>
-  <string name="activities">Activities</string>
-  <string name="pick_upload_type">Upload</string>
-  <string name="accounts_https_hint" translatable="false">https</string>
-  <string name="transfer_tasks">Transfer List</string>
-  <string name="accounts">Accounts</string>
-  <string name="settings">Settings</string>
-  <string-array name="pick_upload_array">
-    <item>File</item>
-    <item>Photos/Videos</item>
-    <item>Other</item>
-  </string-array>
-  <string name="choose_server">Choose a Seafile Server</string>
-  <string-array name="choose_server_array">
-    <item>Single Sign-On</item>
-    <item>Other Seafile Server</item>
-  </string-array>
-  <string name="server_name_top" translatable="false">cloud.seafile.com</string>
-  <string name="server_url_seacloud" translatable="false">https://cloud.seafile.com</string>
-  <string name="network_down">No network connection</string>
-  <string name="unknow_error">Unknown error</string>
-  <string name="invalid_server_address">Invalid server address</string>
-  <string name="err_server_andress_empty">Server address can\`t be empty</string>
-  <string name="err_email_empty">Email can\`t be empty</string>
-  <string name="err_passwd_empty">Password can\`t be empty</string>
-  <string name="err_passwd_too_short">Password is too short</string>
-  <string name="err_passwd_mismatch">The passwords don\`t match</string>
-  <string name="err_login_failed">Login failed</string>
-  <string name="err_wrong_user_or_passwd">Email or password error</string>
-  <string name="err_token_expired">Authentication expired, please login again</string>
-  <string name="upload">Upload</string>
-  <string name="uploaded">Uploaded</string>
-  <string name="updated">Updated</string>
-  <string name="download_failed">Download failed</string>
-  <string name="download_waiting">Download waiting</string>
-  <string name="download_finished">Download finished</string>
-  <string name="download_cancelled">Download cancelled</string>
-  <string name="task_cancel">Cancel</string>
-  <string name="task_retry">Retry</string>
-  <string name="task_remove">Remove</string>
-  <string name="task_remove_all_cancelled">Remove all cancelled tasks</string>
-  <string name="task_remove_all_finished">Remove all finished tasks </string>
-  <string name="repo_action_delete">Delete</string>
-  <string name="repo_action_rename">Rename</string>
-  <string name="file_action_star">Star</string>
-  <string name="file_action_download">Download</string>
-  <string name="file_action_update">Upload</string>
-  <string name="file_share">Share</string>
-  <string name="file_action_share_wechat">Share to WeChat</string>
-  <string name="file_action_share_link">Share link</string>
-  <string name="file_action_share_encrypt">Share link with password</string>
-  <string name="file_action_export">Export</string>
-  <string name="file_action_open">Open with</string>
-  <string name="file_action_delete">Delete</string>
-  <string name="file_action_rename">Rename</string>
-  <string name="file_action_copy">Copy</string>
-  <string name="file_action_move">Move</string>
-  <string name="file_action_open_as">Open as</string>
-  <string name="file_action_more">More</string>
-  <string name="file_action_more_title">Choose your preferred option</string>
-  <string-array name="file_action_more_array">
-    <item>Export</item>
-    <item>Copy</item>
-    <item>Move</item>
-    <item>Star</item>
-  </string-array>
-  <string-array name="file_type_array">
-    <item>Text</item>
-    <item>Audio</item>
-    <item>Video</item>
-    <item>Image</item>
-    <item>Other</item>
-  </string-array>
-  <string-array name="file_action_share_array_zh" translatable="false">
-    <item>@string/file_action_share_wechat</item>
-    <item>@string/file_action_share_link</item>
-    <item>@string/file_action_share_encrypt</item>
-  </string-array>
-  <string-array name="file_action_share_array" translatable="false">
-    <item>@string/file_action_share_link</item>
-    <item>@string/file_action_share_encrypt</item>
-  </string-array>
-  <string name="wait">Wait</string>
-  <string name="image_gallery_NoImageView_text">No image found</string>
-  <string name="pick_photo_video_title">Choose photos/videos to upload</string>
-  <string name="select_upload_items">Select items to upload</string>
-  <plurals name="n_upload_items_selected">
-    <item quantity="one">%1$d item selected</item>
-    <item quantity="other">%1$d items selected</item>
-  </plurals>
-  <string name="repo_name_empty">Please enter the name of the library</string>
-  <string name="dir_name_empty">Please enter the name of the folder</string>
-  <string name="file_name_empty">Please enter the name of the file</string>
-  <string name="password_empty">Please enter the password</string>
-  <string name="wrong_password">wrong password</string>
-  <string name="library_read_only">This library is read-only</string>
-  <string name="error_when_load_dirents">Error when loading the folder.\n Tap to refresh</string>
-  <string name="error_when_load_repos">Error when loading libraries.\n Tap to refresh</string>
-  <string name="error_when_load_activities">Error when loading activities.\n Tap to refresh</string>
-  <string name="error_when_load_starred">Error when loading starred files.\n Tap to refresh</string>
-  <string name="dir_empty">This folder is empty</string>
-  <string name="no_repo">You have no libraries yet</string>
-  <string name="no_app_available">No app can be found</string>
-  <string name="add_to_seafile">Add to Seafile</string>
-  <string name="ok">OK</string>
-  <string name="no_account">Please set up an account in Seafile first</string>
-  <string name="choose_an_account">Choose an account</string>
-  <string name="choose_a_library">Choose a library</string>
-  <string name="choose_a_folder">Choose a folder</string>
-  <string name="load_accounts_fail">Failed to load Seafile accounts</string>
-  <string name="load_libraries_fail">Failed to load libraries</string>
-  <string name="load_dir_fail">Failed to load contents of this folder</string>
-  <string name="not_supported_share">This type of share is not supported</string>
-  <string name="edit">Edit</string>
-  <string name="create_draft">Create draft</string>
-  <string name="rename_draft">Rename draft</string>
-  <string name="del_draft">Delete draft</string>
-  <string name="update_draft">Update draft</string>
-  <string name="release_draft">Release draft</string>
-  <string name="encrypt">Encrypt</string>
-  <string name="download_folder">Download folder</string>
-  <string name="download_folder_title">Choose your preferred option</string>
-  <string-array name="download_folder_options_array">
-    <item>Download folder</item>
-    <item>Download folder and subfolders</item>
-  </string-array>
-  <string name="add_repo">New Library</string>
-  <string name="add_file">Add</string>
-  <string-array name="add_file_options_array">
-    <item>Create file</item>
-    <item>Create folder</item>
-    <item>Upload file</item>
-    <item>Take a photo</item>
-  </string-array>
-  <string-array name="video_download_array">
-    <item>play</item>
-    <item>download</item>
-  </string-array>
-  <string name="create_new_repo">Create a new library</string>
-  <string name="create_new_repo_success">Successfully created library %s</string>
-  <string name="create_new_folder_success">Successfully created folder %s</string>
-  <string name="create_new_file_success">Successfully created file %s</string>
-  <string name="create_new_file">Create a new file</string>
-  <string name="create_files">Create files</string>
-  <string name="create_new_dir">Create a new folder</string>
-  <string name="camera">Take a photo here</string>
-  <string name="download">Download</string>
-  <string name="open">Open</string>
-  <string name="last_modified">last modified</string>
-  <string name="file_modified">modified</string>
-  <string name="file_size">file size</string>
-  <string name="library_not_found">The library has been deleted.</string>
-  <string name="file_not_found">The file \"%s\" has been deleted</string>
-  <string name="export_file">Export this file</string>
-  <string name="no_upload_tasks">No upload tasks yet</string>
-  <string name="no_download_tasks">No download tasks yet</string>
-  <string name="seahub_url_hint">Note: Server address should contain the port. For example, www.example.com:8000</string>
-  <string name="copy_link">Copy link</string>
-  <string name="share_file_link">Share a link to this file</string>
-  <string name="share_dir_link">Share a link to this folder</string>
-  <string name="share_input_password">input share password</string>
-  <string name="generating_link">Generating link…</string>
-  <string name="link_ready_to_be_pasted">The link is ready to be pasted.</string>
-  <string name="rename_repo">Rename library</string>
-  <string name="rename_file">Rename file</string>
-  <string name="rename_dir">Rename folder</string>
-  <string name="rename_successful">Renamed successfully.</string>
-  <string-array name="nav_array">
-    <item>Files</item>
-    <item>Uploads</item>
-    <item>Accounts</item>
-    <item>Backup Photos</item>
-  </string-array>
-  <string name="no_starred_file">No starred file yet</string>
-  <string name="added_to_upload_tasks">Uploading started</string>
-  <string name="added_photo_to_upload_tasks">Photo uploading started</string>
-  <string name="take_photo_successfully">Take photo successfully</string>
-  <string name="tabs_library">Libraries</string>
-  <string name="tabs_activity">Activities</string>
-  <string name="tabs_starred">Starred</string>
-  <string name="provide_password">Provide the password for library \"%s\"</string>
-  <string name="upload_waiting">Upload waiting</string>
-  <string name="upload_finished">Upload finished</string>
-  <string name="upload_cancelled">Upload cancelled</string>
-  <string name="upload_failed">Upload failed</string>
-  <string name="upload_file_exist">File already exists</string>
-  <string name="upload_duplicate_found">An item named \"%s\" already exist in this location.\n Do you want to replace it with the one you\`re uploading?</string>
-  <string name="upload_replace_all">Replace All</string>
-  <string name="upload_keep_both">Keep Both</string>
-  <string name="upload_replace">Replace</string>
-  <string name="days_ago">%d days ago</string>
-  <string name="hours_ago">%d hours ago</string>
-  <string name="minutes_ago">%d minutes ago</string>
-  <string name="seconds_ago">%d seconds ago</string>
-  <string name="just_now">Just now</string>
-  <string name="open_as">Open as</string>
-  <string name="select_upload_files">Select files to upload</string>
-  <string name="storage_removed">Storage was removed</string>
-  <string name="storage_space_insufficient">Insufficient storage space</string>
-  <string name="error_selecting_file">Error when selecting file</string>
-  <plurals name="n_upload_files_selected">
-    <item quantity="one">%1$d file selected</item>
-    <item quantity="other">%1$d files selected</item>
-  </plurals>
-  <string name="empty_folder">Empty folder</string>
-  <string name="choose_file">Choose a file</string>
-  <string name="ssl_error">Security check failed</string>
-  <string name="ssl_confirm">The security certificate of %s is not trusted. Do you want to continue?</string>
-  <string name="ssl_confirm_cert_changed">%s uses an invalid security certificate. The connection is not secure. Continue anyway?</string>
-  <string name="ssl_confirm_title">Untrusted Connection</string>
-  <string name="issued_to">Issued To</string>
-  <string name="finger_prints">Fingerprints</string>
-  <string name="period_of_validity">Period of Validity</string>
-  <string name="sha256" translatable="false">SHA-256 %s</string>
-  <string name="sha1">SHA-1 %s</string>
-  <string name="md5">MD5 %s</string>
-  <string name="not_available">not available</string>
-  <string name="serial_number">Serial number %s</string>
-  <string name="not_before">Valid from %s</string>
-  <string name="not_after">Valid until %s</string>
-  <string name="yes">Yes</string>
-  <string name="no">No</string>
-  <string name="remember_my_choice">Remember my choice</string>
-  <string name="copied_successfully">Copied successfully</string>
-  <string name="moved_successfully">Moved successfully</string>
-  <string name="internal_server_error">Internal Server Error</string>
-  <string name="copy_file_ing">Copying file</string>
-  <string name="move_file_ing">Moving file</string>
-  <string name="copy_file_from">Copying from %1$s \n To %2$s</string>
-  <string name="move_file_from">Moving from %1$s \n To %2$s</string>
-  <string name="copy_folder_ing">Copying folder</string>
-  <string name="move_folder_ing">Moving folder</string>
-  <string name="upload_started">Upload is started</string>
-  <string name="cannot_copy_folder_to_subfolder">You can\'t copy a folder to its subfolder</string>
-  <string name="cannot_move_folder_to_subfolder">You can\'t move a folder to its subfolder</string>
-  <string name="cancel">Cancel</string>
-  <string name="confirm">Confirm</string>
-  <string name="repo_not_found">Couldn\'t find this library. It may be deleted or encrypted</string>
-  <string name="settings_account">Account</string>
-  <string name="settings_account_info_title">User info</string>
-  <string name="settings_account_info_load_data">loading…</string>
-  <string name="settings_account_space_title">Space used</string>
-  <string name="settings_account_sign_out_title">Sign out</string>
-  <string name="settings_account_sign_out_hint">Click to sign out</string>
-  <string name="settings_account_sign_out_confirm">Do you want to sign out?</string>
-  <string name="security">Security</string>
-  <string name="gesture_lock">Gesture Lock</string>
-  <string name="gesture_lock_on">Gesture lock on</string>
-  <string name="gesture_lock_off">Gesture lock off</string>
-  <string name="lockscreen_access_pattern_hint">Please draw Gesture Lock Pattern</string>
-  <string name="lockscreen_access_pattern_start">Start to draw</string>
-  <string name="lockscreen_access_pattern_cleared">Pattern cleared</string>
-  <string name="lockscreen_access_pattern_cell_added">Pattern cell added</string>
-  <string name="lockscreen_access_pattern_detected">Pattern detected</string>
-  <string name="lockscreen_access_pattern_passwd_forget">Forgot password</string>
-  <string name="lockscreen_access_pattern_failure">Failed 5 times, please wait 30 seconds before trying again</string>
-  <plurals name="lockscreen_access_pattern_failure_left_try_seconds">
-    <item quantity="one">You can retry %1$d second later</item>
-    <item quantity="other">You can retry %1$d seconds later</item>
-  </plurals>
-  <plurals name="lockscreen_access_pattern_failure_left_try_times">
-    <item quantity="one">Incorrect pattern, you can try another %1$d time</item>
-    <item quantity="other">Incorrect pattern, you can try another %1$d times</item>
-  </plurals>
-  <string name="lockscreen_access_pattern_failure_not_long_enough">Linking points not long enough, pelase try again</string>
-  <string name="lockpattern_retry_button_text">Retry</string>
-  <string name="lockpattern_continue_button_text">Next</string>
-  <string name="lockpattern_confirm_button_text">OK</string>
-  <string name="lockpattern_recording_intro_header">Please draw Gesture Lock Pattern</string>
-  <string name="lockpattern_settings_help_how_to_record">Learn how to draw Gesture Lock Pattern</string>
-  <string name="lockpattern_recording_incorrect_too_short">Swipe across at least 4 points, try again!</string>
-  <string name="lockpattern_pattern_entered_header">Pattern saved</string>
-  <string name="lockpattern_need_to_draw">Please draw Gesture Lock pattern</string>
-  <string name="lockpattern_need_to_confirm">Please confirm your pattern</string>
-  <string name="lockpattern_need_to_unlock_wrong">Pattern didn\'t match. Try again.</string>
-  <string name="lockpattern_pattern_confirmed_header">Tap OK to save your pattern</string>
-  <string name="lockpattern_recording_inprogress">Release finger when finished drawing</string>
-  <string name="lockpattern_pattern_toast_saved">Gesture Lock Pattern successfully saved</string>
-  <!--Strings for possible PreferenceActivity Back/Next buttons-->
-  <string name="back_button_label">Back</string>
-  <string name="next_button_label">Next</string>
-  <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
-  <string name="skip_button_label">Skip</string>
-  <!--contacts  upload-->
-  <string name="settings_contacts_upload_info_title">Contacts backup</string>
-  <string name="settings_contacts_upload_turn_on">Enable contacts backup</string>
-  <string name="settings_contacts_upload_service_started">Contacts backup enabled</string>
-  <string name="settings_contacts_upload_service_stopped">Contacts backup disabled</string>
-  <string name="settings_contacts_upload_repo_hint">Please select a library for contacts backup</string>
-  <string name="settings_contacts_upload_change_repo_title">Change the library for contacts backup</string>
-  <string name="settings_contacts_upload_repo_time">Last backup time</string>
-  <string name="settings_contacts_upload_repo_history">No backup record</string>
-  <string name="settings_contacts_upload_start_backup">Backup</string>
-  <string name="settings_contacts_upload_start_backup_hint">Click to start contacts backup</string>
-  <!--Camera Upload Preference-->
-  <string name="settings_camera_upload_info_title">Camera Photo Upload</string>
-  <string name="settings_camera_upload_service_started">Upload service started</string>
-  <string name="settings_camera_upload_service_stopped">Upload service stopped</string>
-  <string name="settings_camera_upload_allow_data_plan">Allow Data Plan</string>
-  <string name="settings_camera_upload_allow_videos">Allow Videos to Upload</string>
-  <string name="settings_camera_upload_default_wifi">Use Wi-Fi only by default</string>
-  <string name="settings_camera_upload_data_plan_allowed">Data plan allowed</string>
-  <string name="settings_camera_upload_default_photos">Upload photos only by default</string>
-  <string name="settings_camera_upload_videos_allowed">Videos included</string>
-  <string name="settings_camera_upload_change_repo_title">Change Upload Library</string>
-  <string name="settings_camera_upload_repo_hint">Please choose a library first</string>
-  <string name="settings_camera_upload_turn_on">Turn on Camera Upload</string>
-  <string name="settings_camera_upload_choose_dir">Change albums</string>
-  <string name="settings_camera_upload_dir_auto_scan">Auto scan photos by default</string>
-  <string name="settings_camera_upload_lib_not_found">The selected library does not exist</string>
-  <string name="settings_camera_upload_advanced_feature_title">Advanced Options</string>
-  <string name="settings_camera_upload_advanced_feature_subtitle">Custom upload options</string>
-  <string name="settings_camera_upload_advanced_custom_directories">Custom Upload Albums</string>
-  <string name="settings_camera_upload_advanced_custom_directories_on">Pick photo albums</string>
-  <string name="settings_camera_upload_advanced_custom_directories_off">Auto scan device</string>
-  <!--Camera Upload Configuration View-->
-  <string name="settings_cuc_title">Configuration Helper</string>
-  <string name="settings_cuc_welcome_text">Thanks for using the camera upload configuration helper. \nTo help you get started with the camera upload service, you\'ll be guided through a few initial steps.</string>
-  <string name="settings_cuc_network_title">How to upload</string>
-  <string name="settings_cuc_network_wifi">Wi-Fi only</string>
-  <string name="settings_cuc_network_data_plan">Wi-Fi or data plan</string>
-  <string name="settings_cuc_option_hint">Choose your preferred option. \nYou can change these options later in Settings.</string>
-  <string name="settings_cuc_type_title">What to upload</string>
-  <string name="settings_cuc_type_photo">Photos only</string>
-  <string name="settings_cuc_type_video">Photos and videos</string>
-  <string name="settings_cuc_local_dir_title">Select albums</string>
-  <plurals name="settings_cuc_local_dir_items">
-    <item quantity="one">%1$d item</item>
-    <item quantity="other">%1$d items</item>
-  </plurals>
-  <string name="settings_cuc_remote_lib_title">Select Remote Library</string>
-  <string name="settings_cuc_remote_lib_account">Choose an account</string>
-  <string name="settings_cuc_remote_lib_repo">%s was selected</string>
-  <string name="settings_cuc_upload_to_parent_folder">Up to Parent Folder</string>
-  <string name="settings_cuc_auto_scan">Automatically guess camera albums</string>
-  <string name="settings_cuc_pick_albums">Let me pick my photo albums</string>
-  <string name="settings_cuc_remote_lib_hint">Choose your preferred account and library. \nYou can change these options later in the Settings.</string>
-  <string name="settings_cuc_finish_title">Finish</string>
-  <string name="settings_cuc_ready">Seafile will begin uploading files from your selected folders after you confirm below.\nFeel free to close the app during this process.</string>
-  <string name="settings_cuc_swipe_left">Swipe left to continue.</string>
-  <string name="settings_cuc_click_btn">Click to close the configuration helper.</string>
-  <string name="settings_cuc_loading">loading…</string>
-  <!--Camera Sync-->
-  <string name="sync_provider_camera_upload">Camera photos and videos</string>
-  <string name="camera_sync_notification_title_failed">Camera upload failed</string>
-  <string name="camera_sync_notification_repo_missing_failed">Server repository is missing.</string>
-  <string name="camera_sync_notification_auth_error_failed">Authentication error.</string>
-  <string name="camera_sync_rename_file">%s (renamed by Seafile)</string>
-  <string name="settings_about_title">ABOUT</string>
-  <string name="settings_about_version_title">App Version</string>
-  <string name="settings_about_author_title">About the author</string>
-  <string name="settings_about_author_info">
+    <string name="app_name" translatable="false">Seafile</string>
+    <string name="app_url" translatable="false">http://seafile.com</string>
+    <string name="welcome_to_seafile">Welcome to Seafile</string>
+    <string name="select_account">Choose an account to start</string>
+    <string name="edit_account">Edit</string>
+    <string name="delete_account">Delete</string>
+    <string name="delete">Delete</string>
+    <string name="delete_repo">Are you sure you want to delete this library?</string>
+    <string name="delete_file">Are you sure you want to delete this file or folder?</string>
+    <string name="delete_successful">Successfully deleted</string>
+    <string name="delete_repo_title">Delete library</string>
+    <string name="delete_file_f">Delete file</string>
+    <string name="recover_library">Recover library</string>
+    <string name="recover_file">Recover file</string>
+    <string name="move_file">Move file</string>
+    <string name="update_file">Update file</string>
+    <string name="recover_folder">Recover folder</string>
+    <string name="move_folder">Move folder</string>
+    <string name="delete_dir">Delete folder</string>
+    <string name="name_hint">Name</string>
+    <string name="server_hint">Server address</string>
+    <string name="email_hint">Email or Username</string>
+    <string name="passwd_hint">Password</string>
+    <string name="passwd_min_len_limit_hint">Password (at least %d characters)</string>
+    <string name="passwd_confirmation_hint">Password again</string>
+    <string name="login">Log In</string>
+    <string name="open_file">Open</string>
+    <string name="download_file">Download</string>
+    <string name="redownload_file">Download again</string>
+    <string name="cancel_download">Cancel</string>
+    <string name="unknown_file_type">Unknown file-type</string>
+    <string name="activity_not_found">Can\`t find App to open this file</string>
+    <string name="refresh">Refresh</string>
+    <string name="add_account">Add Account</string>
+    <string name="personal">Personal</string>
+    <string name="shared">Shared</string>
+    <string name="libraries">Libraries</string>
+    <string name="cached">Cached</string>
+    <string name="activities">Activities</string>
+    <string name="pick_upload_type">Upload</string>
+    <string name="accounts_https_hint" translatable="false">https</string>
+    <string name="transfer_tasks">Transfer List</string>
+    <string name="accounts">Accounts</string>
+    <string name="settings">Settings</string>
+    <string-array name="pick_upload_array">
+        <item>File</item>
+        <item>Photos/Videos</item>
+        <item>Other</item>
+    </string-array>
+    <string name="choose_server">Choose a Seafile Server</string>
+    <string-array name="choose_server_array">
+        <item>Single Sign-On</item>
+        <item>Other Seafile Server</item>
+    </string-array>
+    <string name="server_name_top" translatable="false">cloud.seafile.com</string>
+    <string name="server_url_seacloud" translatable="false">https://cloud.seafile.com</string>
+    <string name="network_down">No network connection</string>
+    <string name="unknow_error">Unknown error</string>
+    <string name="invalid_server_address">Invalid server address</string>
+    <string name="err_server_andress_empty">Server address can\`t be empty</string>
+    <string name="err_email_empty">Email can\`t be empty</string>
+    <string name="err_passwd_empty">Password can\`t be empty</string>
+    <string name="err_passwd_too_short">Password is too short</string>
+    <string name="err_passwd_mismatch">The passwords don\`t match</string>
+    <string name="err_login_failed">Login failed</string>
+    <string name="err_wrong_user_or_passwd">Email or password error</string>
+    <string name="err_token_expired">Authentication expired, please login again</string>
+    <string name="upload">Upload</string>
+    <string name="uploaded">Uploaded</string>
+    <string name="updated">Updated</string>
+    <string name="download_failed">Download failed</string>
+    <string name="download_waiting">Download waiting</string>
+    <string name="download_finished">Download finished</string>
+    <string name="download_cancelled">Download cancelled</string>
+    <string name="task_cancel">Cancel</string>
+    <string name="task_retry">Retry</string>
+    <string name="task_remove">Remove</string>
+    <string name="task_remove_all_cancelled">Remove all cancelled tasks</string>
+    <string name="task_remove_all_finished">Remove all finished tasks </string>
+    <string name="repo_action_delete">Delete</string>
+    <string name="repo_action_rename">Rename</string>
+    <string name="file_action_star">Star</string>
+    <string name="file_action_download">Download</string>
+    <string name="file_action_update">Upload</string>
+    <string name="file_share">Share</string>
+    <string name="file_action_share_wechat">Share to WeChat</string>
+    <string name="file_action_share_link">Share link</string>
+    <string name="file_action_share_encrypt">Share link with password</string>
+    <string name="file_action_export">Export</string>
+    <string name="file_action_open">Open with</string>
+    <string name="file_action_delete">Delete</string>
+    <string name="file_action_rename">Rename</string>
+    <string name="file_action_copy">Copy</string>
+    <string name="file_action_move">Move</string>
+    <string name="file_action_open_as">Open as</string>
+    <string name="file_action_more">More</string>
+    <string name="file_action_more_title">Choose your preferred option</string>
+    <string-array name="file_action_more_array">
+        <item>Export</item>
+        <item>Copy</item>
+        <item>Move</item>
+        <item>Star</item>
+    </string-array>
+    <string-array name="file_type_array">
+        <item>Text</item>
+        <item>Audio</item>
+        <item>Video</item>
+        <item>Image</item>
+        <item>Other</item>
+    </string-array>
+    <string-array name="file_action_share_array_zh" translatable="false">
+        <item>@string/file_action_share_wechat</item>
+        <item>@string/file_action_share_link</item>
+        <item>@string/file_action_share_encrypt</item>
+    </string-array>
+    <string-array name="file_action_share_array" translatable="false">
+        <item>@string/file_action_share_link</item>
+        <item>@string/file_action_share_encrypt</item>
+    </string-array>
+    <string name="wait">Wait</string>
+    <string name="image_gallery_NoImageView_text">No image found</string>
+    <string name="pick_photo_video_title">Choose photos/videos to upload</string>
+    <string name="select_upload_items">Select items to upload</string>
+    <plurals name="n_upload_items_selected">
+        <item quantity="one">%1$d item selected</item>
+        <item quantity="other">%1$d items selected</item>
+    </plurals>
+    <string name="repo_name_empty">Please enter the name of the library</string>
+    <string name="dir_name_empty">Please enter the name of the folder</string>
+    <string name="file_name_empty">Please enter the name of the file</string>
+    <string name="password_empty">Please enter the password</string>
+    <string name="wrong_password">wrong password</string>
+    <string name="library_read_only">This library is read-only</string>
+    <string name="error_when_load_dirents">Error when loading the folder.\n Tap to refresh</string>
+    <string name="error_when_load_repos">Error when loading libraries.\n Tap to refresh</string>
+    <string name="error_when_load_activities">Error when loading activities.\n Tap to refresh</string>
+    <string name="error_when_load_starred">Error when loading starred files.\n Tap to refresh</string>
+    <string name="dir_empty">This folder is empty</string>
+    <string name="no_repo">You have no libraries yet</string>
+    <string name="no_app_available">No app can be found</string>
+    <string name="add_to_seafile">Add to Seafile</string>
+    <string name="ok">OK</string>
+    <string name="no_account">Please set up an account in Seafile first</string>
+    <string name="choose_an_account">Choose an account</string>
+    <string name="choose_a_library">Choose a library</string>
+    <string name="choose_a_folder">Choose a folder</string>
+    <string name="load_accounts_fail">Failed to load Seafile accounts</string>
+    <string name="load_libraries_fail">Failed to load libraries</string>
+    <string name="load_dir_fail">Failed to load contents of this folder</string>
+    <string name="not_supported_share">This type of share is not supported</string>
+    <string name="edit">Edit</string>
+    <string name="create_draft">Create draft</string>
+    <string name="rename_draft">Rename draft</string>
+    <string name="del_draft">Delete draft</string>
+    <string name="update_draft">Update draft</string>
+    <string name="release_draft">Release draft</string>
+    <string name="encrypt">Encrypt</string>
+    <string name="download_folder">Download folder</string>
+    <string name="download_folder_title">Choose your preferred option</string>
+    <string-array name="download_folder_options_array">
+        <item>Download folder</item>
+        <item>Download folder and subfolders</item>
+    </string-array>
+    <string name="add_repo">New Library</string>
+    <string name="add_file">Add</string>
+    <string-array name="add_file_options_array">
+        <item>Create file</item>
+        <item>Create folder</item>
+        <item>Upload file</item>
+        <item>Take a photo</item>
+    </string-array>
+    <string-array name="video_download_array">
+        <item>play</item>
+        <item>download</item>
+    </string-array>
+    <string name="create_new_repo">Create a new library</string>
+    <string name="create_new_repo_success">Successfully created library %s</string>
+    <string name="create_new_folder_success">Successfully created folder %s</string>
+    <string name="create_new_file_success">Successfully created file %s</string>
+    <string name="create_new_file">Create a new file</string>
+    <string name="create_files">Create files</string>
+    <string name="create_new_dir">Create a new folder</string>
+    <string name="camera">Take a photo here</string>
+    <string name="download">Download</string>
+    <string name="open">Open</string>
+    <string name="last_modified">last modified</string>
+    <string name="file_modified">modified</string>
+    <string name="file_size">file size</string>
+    <string name="library_not_found">The library has been deleted.</string>
+    <string name="file_not_found">The file \"%s\" has been deleted</string>
+    <string name="export_file">Export this file</string>
+    <string name="no_upload_tasks">No upload tasks yet</string>
+    <string name="no_download_tasks">No download tasks yet</string>
+    <string name="seahub_url_hint">Note: Server address should contain the port. For example, www.example.com:8000</string>
+    <string name="copy_link">Copy link</string>
+    <string name="share_file_link">Share a link to this file</string>
+    <string name="share_dir_link">Share a link to this folder</string>
+    <string name="share_input_password">input share password</string>
+    <string name="generating_link">Generating link…</string>
+    <string name="link_ready_to_be_pasted">The link is ready to be pasted.</string>
+    <string name="rename_repo">Rename library</string>
+    <string name="rename_file">Rename file</string>
+    <string name="rename_dir">Rename folder</string>
+    <string name="rename_successful">Renamed successfully.</string>
+    <string-array name="nav_array">
+        <item>Files</item>
+        <item>Uploads</item>
+        <item>Accounts</item>
+        <item>Backup Photos</item>
+    </string-array>
+    <string name="no_starred_file">No starred file yet</string>
+    <string name="added_to_upload_tasks">Uploading started</string>
+    <string name="added_photo_to_upload_tasks">Photo uploading started</string>
+    <string name="take_photo_successfully">Take photo successfully</string>
+    <string name="tabs_library">Libraries</string>
+    <string name="tabs_activity">Activities</string>
+    <string name="tabs_starred">Starred</string>
+    <string name="provide_password">Provide the password for library \"%s\"</string>
+    <string name="upload_waiting">Upload waiting</string>
+    <string name="upload_finished">Upload finished</string>
+    <string name="upload_cancelled">Upload cancelled</string>
+    <string name="upload_failed">Upload failed</string>
+    <string name="upload_file_exist">File already exists</string>
+    <string name="upload_duplicate_found">An item named \"%s\" already exist in this location.\n Do you want to replace it with the one you\`re uploading?</string>
+    <string name="upload_replace_all">Replace All</string>
+    <string name="upload_keep_both">Keep Both</string>
+    <string name="upload_replace">Replace</string>
+    <string name="days_ago">%d days ago</string>
+    <string name="hours_ago">%d hours ago</string>
+    <string name="minutes_ago">%d minutes ago</string>
+    <string name="seconds_ago">%d seconds ago</string>
+    <string name="just_now">Just now</string>
+    <string name="open_as">Open as</string>
+    <string name="select_upload_files">Select files to upload</string>
+    <string name="storage_removed">Storage was removed</string>
+    <string name="storage_space_insufficient">Insufficient storage space</string>
+    <string name="error_selecting_file">Error when selecting file</string>
+    <plurals name="n_upload_files_selected">
+        <item quantity="one">%1$d file selected</item>
+        <item quantity="other">%1$d files selected</item>
+    </plurals>
+    <string name="empty_folder">Empty folder</string>
+    <string name="choose_file">Choose a file</string>
+    <string name="ssl_error">Security check failed</string>
+    <string name="ssl_confirm">The security certificate of %s is not trusted. Do you want to continue?</string>
+    <string name="ssl_confirm_cert_changed">%s uses an invalid security certificate. The connection is not secure. Continue anyway?</string>
+    <string name="ssl_confirm_title">Untrusted Connection</string>
+    <string name="issued_to">Issued To</string>
+    <string name="finger_prints">Fingerprints</string>
+    <string name="period_of_validity">Period of Validity</string>
+    <string name="sha256" translatable="false">SHA-256 %s</string>
+    <string name="sha1">SHA-1 %s</string>
+    <string name="md5">MD5 %s</string>
+    <string name="not_available">not available</string>
+    <string name="serial_number">Serial number %s</string>
+    <string name="not_before">Valid from %s</string>
+    <string name="not_after">Valid until %s</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="remember_my_choice">Remember my choice</string>
+    <string name="copied_successfully">Copied successfully</string>
+    <string name="moved_successfully">Moved successfully</string>
+    <string name="internal_server_error">Internal Server Error</string>
+    <string name="copy_file_ing">Copying file</string>
+    <string name="move_file_ing">Moving file</string>
+    <string name="copy_file_from">Copying from %1$s \n To %2$s</string>
+    <string name="move_file_from">Moving from %1$s \n To %2$s</string>
+    <string name="copy_folder_ing">Copying folder</string>
+    <string name="move_folder_ing">Moving folder</string>
+    <string name="upload_started">Upload is started</string>
+    <string name="cannot_copy_folder_to_subfolder">You can\'t copy a folder to its subfolder</string>
+    <string name="cannot_move_folder_to_subfolder">You can\'t move a folder to its subfolder</string>
+    <string name="cancel">Cancel</string>
+    <string name="confirm">Confirm</string>
+    <string name="repo_not_found">Couldn\'t find this library. It may be deleted or encrypted</string>
+    <string name="settings_account">Account</string>
+    <string name="settings_account_info_title">User info</string>
+    <string name="settings_account_info_load_data">loading…</string>
+    <string name="settings_account_space_title">Space used</string>
+    <string name="settings_account_sign_out_title">Sign out</string>
+    <string name="settings_account_sign_out_hint">Click to sign out</string>
+    <string name="settings_account_sign_out_confirm">Do you want to sign out?</string>
+    <string name="security">Security</string>
+    <string name="gesture_lock">Gesture Lock</string>
+    <string name="gesture_lock_on">Gesture lock on</string>
+    <string name="gesture_lock_off">Gesture lock off</string>
+    <string name="lockscreen_access_pattern_hint">Please draw Gesture Lock Pattern</string>
+    <string name="lockscreen_access_pattern_start">Start to draw</string>
+    <string name="lockscreen_access_pattern_cleared">Pattern cleared</string>
+    <string name="lockscreen_access_pattern_cell_added">Pattern cell added</string>
+    <string name="lockscreen_access_pattern_detected">Pattern detected</string>
+    <string name="lockscreen_access_pattern_passwd_forget">Forgot password</string>
+    <string name="lockscreen_access_pattern_failure">Failed 5 times, please wait 30 seconds before trying again</string>
+    <plurals name="lockscreen_access_pattern_failure_left_try_seconds">
+        <item quantity="one">You can retry %1$d second later</item>
+        <item quantity="other">You can retry %1$d seconds later</item>
+    </plurals>
+    <plurals name="lockscreen_access_pattern_failure_left_try_times">
+        <item quantity="one">Incorrect pattern, you can try another %1$d time</item>
+        <item quantity="other">Incorrect pattern, you can try another %1$d times</item>
+    </plurals>
+    <string name="lockscreen_access_pattern_failure_not_long_enough">Linking points not long enough, pelase try again</string>
+    <string name="lockpattern_retry_button_text">Retry</string>
+    <string name="lockpattern_continue_button_text">Next</string>
+    <string name="lockpattern_confirm_button_text">OK</string>
+    <string name="lockpattern_recording_intro_header">Please draw Gesture Lock Pattern</string>
+    <string name="lockpattern_settings_help_how_to_record">Learn how to draw Gesture Lock Pattern</string>
+    <string name="lockpattern_recording_incorrect_too_short">Swipe across at least 4 points, try again!</string>
+    <string name="lockpattern_pattern_entered_header">Pattern saved</string>
+    <string name="lockpattern_need_to_draw">Please draw Gesture Lock pattern</string>
+    <string name="lockpattern_need_to_confirm">Please confirm your pattern</string>
+    <string name="lockpattern_need_to_unlock_wrong">Pattern didn\'t match. Try again.</string>
+    <string name="lockpattern_pattern_confirmed_header">Tap OK to save your pattern</string>
+    <string name="lockpattern_recording_inprogress">Release finger when finished drawing</string>
+    <string name="lockpattern_pattern_toast_saved">Gesture Lock Pattern successfully saved</string>
+    <!--Strings for possible PreferenceActivity Back/Next buttons-->
+    <string name="back_button_label">Back</string>
+    <string name="next_button_label">Next</string>
+    <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
+    <string name="skip_button_label">Skip</string>
+    <!--contacts  upload-->
+    <string name="settings_contacts_upload_info_title">Contacts backup</string>
+    <string name="settings_contacts_upload_turn_on">Enable contacts backup</string>
+    <string name="settings_contacts_upload_service_started">Contacts backup enabled</string>
+    <string name="settings_contacts_upload_service_stopped">Contacts backup disabled</string>
+    <string name="settings_contacts_upload_repo_hint">Please select a library for contacts backup</string>
+    <string name="settings_contacts_upload_change_repo_title">Change the library for contacts backup</string>
+    <string name="settings_contacts_upload_repo_time">Last backup time</string>
+    <string name="settings_contacts_upload_repo_history">No backup record</string>
+    <string name="settings_contacts_upload_start_backup">Backup</string>
+    <string name="settings_contacts_upload_start_backup_hint">Click to start contacts backup</string>
+    <!--Camera Upload Preference-->
+    <string name="settings_camera_upload_info_title">Camera Photo Upload</string>
+    <string name="settings_camera_upload_service_started">Upload service started</string>
+    <string name="settings_camera_upload_service_stopped">Upload service stopped</string>
+    <string name="settings_camera_upload_allow_data_plan">Allow Data Plan</string>
+    <string name="settings_camera_upload_allow_videos">Allow Videos to Upload</string>
+    <string name="settings_camera_upload_default_wifi">Use Wi-Fi only by default</string>
+    <string name="settings_camera_upload_data_plan_allowed">Data plan allowed</string>
+    <string name="settings_camera_upload_default_photos">Upload photos only by default</string>
+    <string name="settings_camera_upload_videos_allowed">Videos included</string>
+    <string name="settings_camera_upload_change_repo_title">Change Upload Library</string>
+    <string name="settings_camera_upload_repo_hint">Please choose a library first</string>
+    <string name="settings_camera_upload_turn_on">Turn on Camera Upload</string>
+    <string name="settings_camera_upload_choose_dir">Change albums</string>
+    <string name="settings_camera_upload_dir_auto_scan">Auto scan photos by default</string>
+    <string name="settings_camera_upload_lib_not_found">The selected library does not exist</string>
+    <string name="settings_camera_upload_advanced_feature_title">Advanced Options</string>
+    <string name="settings_camera_upload_advanced_feature_subtitle">Custom upload options</string>
+    <string name="settings_camera_upload_advanced_custom_directories">Custom Upload Albums</string>
+    <string name="settings_camera_upload_advanced_custom_directories_on">Pick photo albums</string>
+    <string name="settings_camera_upload_advanced_custom_directories_off">Auto scan device</string>
+    <!--Camera Upload Configuration View-->
+    <string name="settings_cuc_title">Configuration Helper</string>
+    <string name="settings_cuc_welcome_text">Thanks for using the camera upload configuration helper. \nTo help you get started with the camera upload service, you\'ll be guided through a few initial steps.</string>
+    <string name="settings_cuc_network_title">How to upload</string>
+    <string name="settings_cuc_network_wifi">Wi-Fi only</string>
+    <string name="settings_cuc_network_data_plan">Wi-Fi or data plan</string>
+    <string name="settings_cuc_option_hint">Choose your preferred option. \nYou can change these options later in Settings.</string>
+    <string name="settings_cuc_type_title">What to upload</string>
+    <string name="settings_cuc_type_photo">Photos only</string>
+    <string name="settings_cuc_type_video">Photos and videos</string>
+    <string name="settings_cuc_local_dir_title">Select albums</string>
+    <plurals name="settings_cuc_local_dir_items">
+        <item quantity="one">%1$d item</item>
+        <item quantity="other">%1$d items</item>
+    </plurals>
+    <string name="settings_cuc_remote_lib_title">Select Remote Library</string>
+    <string name="settings_cuc_remote_lib_account">Choose an account</string>
+    <string name="settings_cuc_remote_lib_repo">%s was selected</string>
+    <string name="settings_cuc_upload_to_parent_folder">Up to Parent Folder</string>
+    <string name="settings_cuc_auto_scan">Automatically guess camera albums</string>
+    <string name="settings_cuc_pick_albums">Let me pick my photo albums</string>
+    <string name="settings_cuc_remote_lib_hint">Choose your preferred account and library. \nYou can change these options later in the Settings.</string>
+    <string name="settings_cuc_finish_title">Finish</string>
+    <string name="settings_cuc_ready">Seafile will begin uploading files from your selected folders after you confirm below.\nFeel free to close the app during this process.</string>
+    <string name="settings_cuc_swipe_left">Swipe left to continue.</string>
+    <string name="settings_cuc_click_btn">Click to close the configuration helper.</string>
+    <string name="settings_cuc_loading">loading…</string>
+    <!--Camera Sync-->
+    <string name="sync_provider_camera_upload">Camera photos and videos</string>
+    <string name="camera_sync_notification_title_failed">Camera upload failed</string>
+    <string name="camera_sync_notification_repo_missing_failed">Server repository is missing.</string>
+    <string name="camera_sync_notification_auth_error_failed">Authentication error.</string>
+    <string name="camera_sync_rename_file">%s (renamed by Seafile)</string>
+    <string name="settings_about_title">ABOUT</string>
+    <string name="settings_about_version_title">App Version</string>
+    <string name="settings_about_author_title">About the author</string>
+    <string name="settings_about_author_info">
         <![CDATA[
         <h5>Seafile Android Client</h5>
         <p>%s</p>
@@ -402,171 +402,179 @@
         <h5>Copyright ©2013-2018 Seafile Ltd.</h5>
         ]]>
     </string>
-  <string name="settings_advance_feature_title">ADVANCED FEATURES</string>
-  <string name="settings_storage_title">CACHE STORAGE</string>
-  <string name="settings_cache_title">Cache size</string>
-  <string name="settings_clear_cache_title">Clear cache</string>
-  <string name="settings_clear_cache_hint">Do you want to clear cache?</string>
-  <string name="settings_clear_cache_success">Cache cleared successfully</string>
-  <string name="settings_clear_cache_failed">Cache cleared failed</string>
-  <string name="settings_cache_empty">0 KB</string>
-  <string name="settings_cache_location_title">Cache storage location</string>
-  <string name="dialog_switch_storage_info_text">Existing files will be moved to the new storage. This might take a while.</string>
-  <string name="storage_manager_primary_storage">Primary storage</string>
-  <string name="storage_manager_secondary_storage">Secondary storage</string>
-  <string name="storage_manager_storage_description">%1$s (%2$s free/%3$s total)</string>
-  <string name="storage_manager_storage_description_not_available">%1$s (unavailable)</string>
-  <!--pull to refresh-->
-  <string name="pull_to_refresh_pull_label">Pull to refresh…</string>
-  <string name="pull_to_refresh_release_label">Release to refresh…</string>
-  <string name="pull_to_refresh_refreshing_label">Loading…</string>
-  <string name="pull_to_refresh_last_update">Last update: </string>
-  <string name="pull_to_refresh_last_update_seconds_ago">%d seconds ago</string>
-  <string name="pull_to_refresh_last_update_minutes_ago">%d minutes ago</string>
-  <string name="pull_to_refresh_last_update_hours_ago">%d hours ago</string>
-  <!--storage access framework-->
-  <string name="saf_open_file_exception">Couldn\'t open file %s.</string>
-  <string name="saf_open_directory_exception">Can\`t open directory.</string>
-  <string name="saf_file_not_cached_exception">File %s not cached.</string>
-  <string name="saf_thumbnail_not_found_exception">Couldn\'t find/open thumbnail %s.</string>
-  <string name="saf_file_not_downloaded_exception">Couldn\'t download file %s from server.</string>
-  <string name="saf_write_diretory_exception">Can\`t open directory for reading/writing.</string>
-  <string name="saf_account_not_found_exception">Couldn\'t find Seafile account.</string>
-  <string name="saf_upload_path_not_available">Unable to upload, no path available</string>
-  <string name="saf_failed_to_create_directory">Could not create directory %s</string>
-  <string name="saf_file_exist">That file already exists</string>
-  <string name="saf_bad_mime_type">Bad request type</string>
-  <!--Single Sign-On  SSO-->
-  <string name="shib_server_url_empty">Server is empty!</string>
-  <string name="shib_server_incorrect_prefix">Server needs to start with https://</string>
-  <string name="shib_load_page_error">Error: </string>
-  <string name="shib_login_title">Single Sign-On</string>
-  <string name="shib_loading">loading…</string>
-  <!--Transfer List-->
-  <string name="transfer_list_network_error">Network connection error, please try again later!</string>
-  <string name="transfer_list_cancel_all">Cancel all tasks</string>
-  <string name="transfer_list_restart_all">Restart</string>
-  <string name="transfer_list_retry_failed_tasks">Retry failed tasks</string>
-  <string name="transfer_list_restart_cancelled_tasks">Restart cancelled tasks</string>
-  <string name="transfer_list_clear_failed_tasks">Clear failed tasks</string>
-  <string name="transfer_list_clear_all_tasks">Clear all tasks</string>
-  <string name="transfer_list_clear_finished_tasks">Clear finished tasks</string>
-  <string name="transfer_tabs_downloads">Download List</string>
-  <string name="transfer_tabs_uploads">Upload List</string>
-  <string name="transfer_download_no_task">All files have been downloaded</string>
-  <plurals name="transfer_download_started">
-    <item quantity="one">Starting to download %1$d file</item>
-    <item quantity="other">Starting to download %1$d files</item>
-  </plurals>
-  <string name="transfer_list_select_all">Select all</string>
-  <string name="transfer_list_deselect_all">Deselect all</string>
-  <plurals name="transfer_list_items_selected">
-    <item quantity="one">%d item selected</item>
-    <item quantity="other">%d items selected</item>
-  </plurals>
-  <!--Sort-->
-  <string name="sort_menu_item">Sort</string>
-  <string name="sort_files">Sort By</string>
-  <string-array name="sort_files_options_array">
-    <item>Name</item>
-    <item>Name (Desc)</item>
-    <item>Last Modified Time</item>
-    <item>Last Modified Time (Desc)</item>
-  </string-array>
-  <!--Search-->
-  <string name="search_menu_item">Search</string>
-  <string name="search_bar_hint">Searching…</string>
-  <string name="search_txt_empty">Please input keywords</string>
-  <string name="search_content_empty">Nothing was found</string>
-  <string name="search_server_not_support">Oops, search was not supported on this server!</string>
-  <string name="search_library_not_found">Couldn\'t find this library. It may be deleted</string>
-  <!--star a file-->
-  <string name="star_file_succeed">File starred successfully</string>
-  <string name="star_file_failed">File starred failed</string>
-  <!--unstar a file-->
-  <string name="unstar_file_failed">Unstarring the file failed</string>
-  <string name="unstar">Unstar</string>
-  <!--notification bar-->
-  <string name="notification_upload_started_title">Uploading files…</string>
-  <string name="notification_download_started_title">Downloading files…</string>
-  <string name="notification_upload_completed">Upload completed</string>
-  <plurals name="notification_upload_info">
-    <item quantity="one">Uploading %1$d file (%2$d%%)</item>
-    <item quantity="other">Uploading %1$d files (%2$d%%)</item>
-  </plurals>
-  <plurals name="notification_download_info">
-    <item quantity="one">Downloading %1$d file (%2$d%%)</item>
-    <item quantity="other">Downloading %1$d files (%2$d%%)</item>
-  </plurals>
-  <string name="notification_download_completed">Download completed</string>
-  <!--Gallery-->
-  <string name="gallery_load_photos_error">Load photos error</string>
-  <string name="gallery_encrypted_repo_not_supported">Encrypted library was not supported</string>
-  <!--Overwrite existing files-->
-  <string name="overwrite_existing_file_title">Replace existing file</string>
-  <string name="overwrite_existing_file_msg">The file already exists, do you want to replace it?</string>
-  <string name="overwrite_existing_file_exist">The file already exists</string>
-  <!--Action Mode-->
-  <string name="action_mode_no_items_selected">No items were selected</string>
-  <!--Accessibility description for navigation drawer-->
-  <string name="navdrawer_description_a11y" translatable="false">Navigation Drawer used to switch between major
+    <string name="settings_advance_feature_title">ADVANCED FEATURES</string>
+    <string name="settings_storage_title">CACHE STORAGE</string>
+    <string name="settings_cache_title">Cache size</string>
+    <string name="settings_clear_cache_title">Clear cache</string>
+    <string name="settings_clear_cache_hint">Do you want to clear cache?</string>
+    <string name="settings_clear_cache_success">Cache cleared successfully</string>
+    <string name="settings_clear_cache_failed">Cache cleared failed</string>
+    <string name="settings_cache_empty">0 KB</string>
+    <string name="settings_cache_location_title">Cache storage location</string>
+    <string name="dialog_switch_storage_info_text">Existing files will be moved to the new storage. This might take a while.</string>
+    <string name="storage_manager_primary_storage">Primary storage</string>
+    <string name="storage_manager_secondary_storage">Secondary storage</string>
+    <string name="storage_manager_storage_description">%1$s (%2$s free/%3$s total)</string>
+    <string name="storage_manager_storage_description_not_available">%1$s (unavailable)</string>
+    <!--pull to refresh-->
+    <string name="pull_to_refresh_pull_label">Pull to refresh…</string>
+    <string name="pull_to_refresh_release_label">Release to refresh…</string>
+    <string name="pull_to_refresh_refreshing_label">Loading…</string>
+    <string name="pull_to_refresh_last_update">Last update: </string>
+    <string name="pull_to_refresh_last_update_seconds_ago">%d seconds ago</string>
+    <string name="pull_to_refresh_last_update_minutes_ago">%d minutes ago</string>
+    <string name="pull_to_refresh_last_update_hours_ago">%d hours ago</string>
+    <!--storage access framework-->
+    <string name="saf_open_file_exception">Couldn\'t open file %s.</string>
+    <string name="saf_open_directory_exception">Can\`t open directory.</string>
+    <string name="saf_file_not_cached_exception">File %s not cached.</string>
+    <string name="saf_thumbnail_not_found_exception">Couldn\'t find/open thumbnail %s.</string>
+    <string name="saf_file_not_downloaded_exception">Couldn\'t download file %s from server.</string>
+    <string name="saf_write_diretory_exception">Can\`t open directory for reading/writing.</string>
+    <string name="saf_account_not_found_exception">Couldn\'t find Seafile account.</string>
+    <string name="saf_upload_path_not_available">Unable to upload, no path available</string>
+    <string name="saf_failed_to_create_directory">Could not create directory %s</string>
+    <string name="saf_file_exist">That file already exists</string>
+    <string name="saf_bad_mime_type">Bad request type</string>
+    <!--Single Sign-On  SSO-->
+    <string name="shib_server_url_empty">Server is empty!</string>
+    <string name="shib_server_incorrect_prefix">Server needs to start with https://</string>
+    <string name="shib_load_page_error">Error: </string>
+    <string name="shib_login_title">Single Sign-On</string>
+    <string name="shib_loading">loading…</string>
+    <!--Transfer List-->
+    <string name="transfer_list_network_error">Network connection error, please try again later!</string>
+    <string name="transfer_list_cancel_all">Cancel all tasks</string>
+    <string name="transfer_list_restart_all">Restart</string>
+    <string name="transfer_list_retry_failed_tasks">Retry failed tasks</string>
+    <string name="transfer_list_restart_cancelled_tasks">Restart cancelled tasks</string>
+    <string name="transfer_list_clear_failed_tasks">Clear failed tasks</string>
+    <string name="transfer_list_clear_all_tasks">Clear all tasks</string>
+    <string name="transfer_list_clear_finished_tasks">Clear finished tasks</string>
+    <string name="transfer_tabs_downloads">Download List</string>
+    <string name="transfer_tabs_uploads">Upload List</string>
+    <string name="transfer_download_no_task">All files have been downloaded</string>
+    <plurals name="transfer_download_started">
+        <item quantity="one">Starting to download %1$d file</item>
+        <item quantity="other">Starting to download %1$d files</item>
+    </plurals>
+    <string name="transfer_list_select_all">Select all</string>
+    <string name="transfer_list_deselect_all">Deselect all</string>
+    <plurals name="transfer_list_items_selected">
+        <item quantity="one">%d item selected</item>
+        <item quantity="other">%d items selected</item>
+    </plurals>
+    <!--Sort-->
+    <string name="sort_menu_item">Sort</string>
+    <string name="sort_files">Sort By</string>
+    <string-array name="sort_files_options_array">
+        <item>Name</item>
+        <item>Name (Desc)</item>
+        <item>Last Modified Time</item>
+        <item>Last Modified Time (Desc)</item>
+    </string-array>
+    <!--Search-->
+    <string name="search_menu_item">Search</string>
+    <string name="search_bar_hint">Searching…</string>
+    <string name="search_txt_empty">Please input keywords</string>
+    <string name="search_content_empty">Nothing was found</string>
+    <string name="search_server_not_support">Oops, search was not supported on this server!</string>
+    <string name="search_library_not_found">Couldn\'t find this library. It may be deleted</string>
+    <!--star a file-->
+    <string name="star_file_succeed">File starred successfully</string>
+    <string name="star_file_failed">File starred failed</string>
+    <!--unstar a file-->
+    <string name="unstar_file_failed">Unstarring the file failed</string>
+    <string name="unstar">Unstar</string>
+    <!--notification bar-->
+    <string name="notification_upload_started_title">Uploading files…</string>
+    <string name="notification_download_started_title">Downloading files…</string>
+    <string name="notification_upload_completed">Upload completed</string>
+    <plurals name="notification_upload_info">
+        <item quantity="one">Uploading %1$d file (%2$d%%)</item>
+        <item quantity="other">Uploading %1$d files (%2$d%%)</item>
+    </plurals>
+    <plurals name="notification_download_info">
+        <item quantity="one">Downloading %1$d file (%2$d%%)</item>
+        <item quantity="other">Downloading %1$d files (%2$d%%)</item>
+    </plurals>
+    <string name="notification_download_completed">Download completed</string>
+    <!--Gallery-->
+    <string name="gallery_load_photos_error">Load photos error</string>
+    <string name="gallery_encrypted_repo_not_supported">Encrypted library was not supported</string>
+    <!--Overwrite existing files-->
+    <string name="overwrite_existing_file_title">Replace existing file</string>
+    <string name="overwrite_existing_file_msg">The file already exists, do you want to replace it?</string>
+    <string name="overwrite_existing_file_exist">The file already exists</string>
+    <!--Action Mode-->
+    <string name="action_mode_no_items_selected">No items were selected</string>
+    <!--Accessibility description for navigation drawer-->
+    <string name="navdrawer_description_a11y" translatable="false">Navigation Drawer used to switch between major
         features of the application</string>
-  <!--permission-->
-  <string name="permission_read_exteral_storage_rationale">To process files, allow storage permission to access them.</string>
-  <string name="permission_read_contacts_storage_rationale">To process contacts, allow contacts permission to access them.</string>
-  <string name="permission_not_granted">Permission was not granted</string>
-  <string name="history_change_title">Modification Details</string>
-  <string name="no_more_activities">No more activities</string>
-  <!--client side encryption and decryption-->
-  <string name="enc_on">Decrypt data locally</string>
-  <string name="enc_off">Decrypt data on server side</string>
-  <string name="enc_title">Encrypted library data decryption mode</string>
-  <!--clear password-->
-  <string name="clear_password_title">Clear library password</string>
-  <string name="clear_password_hint">Click to clear password</string>
-  <string name="clear_password_successful">Clear password successful</string>
-  <string name="clear_password_failed">Clear password failed</string>
-  <string name="clear_password_warning">Do you want to clear password?</string>
-  <string name="clear_password_auto">Auto clear passwords</string>
-  <!--Two factor auth-->
-  <string name="two_factor_auth_error">authentication token is required</string>
-  <string name="two_factor_auth_invalid">authentication token is invalid</string>
-  <string name="two_factor_auth_token">Two-factor Authentication token</string>
-  <string name="two_factor_auth_token_empty">Authentication token can\`t be empty</string>
-  <string name="two_factor_auth_remember_phone">Remember that device</string>
-  <!--Operation Exceptions-->
-  <string name="op_exception_folder_deleted">The folder \"%s\" was deleted</string>
-  <string name="op_exception_suitable_app_not_found">Could not find suitable app for mime type %s</string>
-  <string name="op_exception_failed_to_download_file">Failed to download file %s</string>
-  <!--Home list title-->
-  <string name="shared_with_all">Shared with all</string>
-  <string name="add_password_protection">Add password protection</string>
-  <string name="expiration_dates">expiration dates</string>
-  <string name="add_auto_expiration">Add auto expiration</string>
-  <string name="input_auto_expiration">Please enter the expiration dates</string>
-  <!--editor-->
-  <string name="editor_lines_error">Unable to operate multiple lines</string>
-  <string name="editor_file_save">Do you want to save and quit?</string>
-  <string name="editor_file_save_success">File save successfully</string>
-  <string name="editor_file_save_failed">Cache cleared failed</string>
-  <string name="editor_file_save_title">File save</string>
-  <string name="description">Description</string>
-  <string name="undo">undo</string>
-  <string name="redo">redo</string>
-  <string name="link">Link</string>
-  <string name="channel_name_error">Error Alerts</string>
-  <string name="channel_name_upload">File Uploading Info</string>
-  <string name="channel_name_download">File Downloading Info</string>
+    <!--permission-->
+    <string name="permission_read_exteral_storage_rationale">To process files, allow storage permission to access them.</string>
+    <string name="permission_read_contacts_storage_rationale">To process contacts, allow contacts permission to access them.</string>
+    <string name="permission_not_granted">Permission was not granted</string>
+    <string name="history_change_title">Modification Details</string>
+    <string name="no_more_activities">No more activities</string>
+    <!--client side encryption and decryption-->
+    <string name="enc_on">Decrypt data locally</string>
+    <string name="enc_off">Decrypt data on server side</string>
+    <string name="enc_title">Encrypted library data decryption mode</string>
+    <!--clear password-->
+    <string name="clear_password_title">Clear library password</string>
+    <string name="clear_password_hint">Click to clear password</string>
+    <string name="clear_password_successful">Clear password successful</string>
+    <string name="clear_password_failed">Clear password failed</string>
+    <string name="clear_password_warning">Do you want to clear password?</string>
+    <string name="clear_password_auto">Auto clear passwords</string>
+    <!--Two factor auth-->
+    <string name="two_factor_auth_error">authentication token is required</string>
+    <string name="two_factor_auth_invalid">authentication token is invalid</string>
+    <string name="two_factor_auth_token">Two-factor Authentication token</string>
+    <string name="two_factor_auth_token_empty">Authentication token can\`t be empty</string>
+    <string name="two_factor_auth_remember_phone">Remember that device</string>
+    <!--Operation Exceptions-->
+    <string name="op_exception_folder_deleted">The folder \"%s\" was deleted</string>
+    <string name="op_exception_suitable_app_not_found">Could not find suitable app for mime type %s</string>
+    <string name="op_exception_failed_to_download_file">Failed to download file %s</string>
+    <!--Home list title-->
+    <string name="shared_with_all">Shared with all</string>
+    <string name="add_password_protection">Add password protection</string>
+    <string name="expiration_dates">expiration dates</string>
+    <string name="add_auto_expiration">Add auto expiration</string>
+    <string name="input_auto_expiration">Please enter the expiration dates</string>
+    <!--editor-->
+    <string name="editor_lines_error">Unable to operate multiple lines</string>
+    <string name="editor_file_save">Do you want to save and quit?</string>
+    <string name="editor_file_save_success">File save successfully</string>
+    <string name="editor_file_save_failed">Cache cleared failed</string>
+    <string name="editor_file_save_title">File save</string>
+    <string name="description">Description</string>
+    <string name="undo">undo</string>
+    <string name="redo">redo</string>
+    <string name="link">Link</string>
+    <string name="channel_name_error">Error Alerts</string>
+    <string name="channel_name_upload">File Uploading Info</string>
+    <string name="channel_name_download">File Downloading Info</string>
 
-  <string name="above_quota">Above Quota</string>
-  <string name="camera_upload_state">Upload Info</string>
-  <string name="waiting_state">Upload waiting</string>
-  <string name="Upload_completed">Last sync finished at</string>
+    <string name="above_quota">Above Quota</string>
+    <string name="camera_upload_state">Upload Info</string>
+    <string name="waiting_state">Upload waiting</string>
+    <string name="Upload_completed">Last sync finished at</string>
 
-  <string name="is_scanning">Scanning</string>
-  <string name="is_uploading">Uploading</string>
-  <string name="network_unavailable">Network unavailable</string>
+    <string name="is_scanning">Scanning</string>
+    <string name="is_uploading">Uploading</string>
+    <string name="network_unavailable">Network unavailable</string>
 
-  <string name="required_password">Password is required.</string>
-  <string name="weak_password">Password is too weak.</string>
+    <string name="required_password">Password is required.</string>
+    <string name="weak_password">Password is too weak.</string>
+    <string name="appwidget_text">EXAMPLE</string>
+    <string name="configure">Configure</string>
+    <string name="add_widget">Add widget</string>
+    <string name="loopimages_widget_description">LoopImages widget</string>
+    <string name="loopimages_widget_configure_have_chosen_title">Chosen Libraries</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="settings_loopimages_network_title">How to download</string>
 </resources>

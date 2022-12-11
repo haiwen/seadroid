@@ -482,7 +482,7 @@ public class DataManager {
     }
 
     public synchronized File getFileByBlocks(String repoName, String repoID, String path, long fileSize,
-                        ProgressMonitor monitor) throws SeafException, IOException, JSONException, NoSuchAlgorithmException {
+                                             ProgressMonitor monitor) throws SeafException, IOException, JSONException, NoSuchAlgorithmException {
 
         String cachedFileID = null;
         SeafCachedFile cf = getCachedFile(repoName, repoID, path);
@@ -636,6 +636,10 @@ public class DataManager {
         }
 
         return parseDirents(content);
+    }
+
+    public String getDirID(String repoID, String path){
+        return dbHelper.getCachedDirents(repoID, path);
     }
 
     public List<SeafStarredFile> getStarredFiles() throws SeafException {

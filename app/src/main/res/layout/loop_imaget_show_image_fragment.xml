@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:layout_above="@+id/loopimages_show_image">
+
+    <ImageView
+        android:id="@+id/loopimages_show_image_image_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/black"/>
+
+    <LinearLayout
+        android:fitsSystemWindows="true"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_gravity="left|bottom"
+        android:layout_marginLeft="8dp"
+        android:layout_marginBottom="@dimen/index_text_margin_bottom"
+        android:gravity="bottom"
+        android:orientation="horizontal"
+        android:baselineAligned="true">
+
+        <TextView
+            android:id="@+id/loopimages_image_info"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:shadowColor="@color/dark_gray"
+            android:visibility="gone"
+            android:shadowDy="1"
+            android:shadowRadius="1"
+            android:textColor="@color/white"
+            android:textSize="14sp"/>
+
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/loopimages_tool_bar"
+        android:fitsSystemWindows="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="visible"
+        android:background="@color/transparent">
+
+        <LinearLayout
+            android:id="@+id/loopimages_image_options_layout"
+            android:layout_alignParentRight="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="@dimen/gallery_padding"
+            android:gravity="top|right"
+            android:background="@color/transparent">
+            <ImageView android:id="@+id/loopimages_delete_photo"
+                android:layout_width="@dimen/gallery_icon_width"
+                android:layout_height="@dimen/gallery_icon_height"
+                android:layout_marginRight="@dimen/gallery_icon_margin_right"
+                android:scaleType="centerInside"
+                android:src="@drawable/action_delete"/>
+            <ImageView android:id="@+id/loopimages_star_photo"
+                android:layout_width="@dimen/gallery_icon_width"
+                android:layout_height="@dimen/gallery_icon_height"
+                android:layout_marginRight="@dimen/gallery_icon_margin_right"
+                android:scaleType="centerInside"
+                android:src="@drawable/action_star"/>
+            <ImageView android:id="@+id/loopimages_share_photo"
+                android:layout_width="@dimen/gallery_icon_width"
+                android:layout_height="@dimen/gallery_icon_height"
+                android:scaleType="centerInside"
+                android:src="@drawable/action_share"/>
+
+        </LinearLayout>
+    </RelativeLayout>
+
+</FrameLayout>

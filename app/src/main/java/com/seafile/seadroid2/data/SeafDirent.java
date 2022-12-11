@@ -24,7 +24,7 @@ public class SeafDirent implements SeafItem, Serializable {
     public long size;    // size of file, 0 if type is dir
     public long mtime;   // last modified timestamp
 
-    static SeafDirent fromJson(JSONObject obj) {
+    public static SeafDirent fromJson(JSONObject obj) {
         SeafDirent dirent = new SeafDirent();
         try {
             dirent.id = obj.getString("id");
@@ -38,6 +38,26 @@ public class SeafDirent implements SeafItem, Serializable {
             } else
                 dirent.type = DirentType.DIR;
             return dirent;
+        } catch (JSONException e) {
+            Log.d(DEBUG_TAG, e.getMessage());
+            return null;
+        }
+    }
+
+    public JSONObject toJson(){
+        try {
+            JSONObject json = new JSONObject();
+            json.put("id", this.id);
+            json.put("name", this.name);
+            json.put("mtime", this.mtime);
+            json.put("permission", this.permission);
+            if(this.type == DirentType.FILE){
+                json.put("type", "file");
+            }else{
+                json.put("type", "dir");
+            }
+            json.put("size", this.size);
+            return json;
         } catch (JSONException e) {
             Log.d(DEBUG_TAG, e.getMessage());
             return null;
