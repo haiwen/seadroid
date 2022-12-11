@@ -53,6 +53,7 @@ import java.net.HttpURLConnection;
 import java.text.FieldPosition;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -78,6 +79,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
 
     private MediaCursor previous = null;
     private LinkedList<String> leftBuckets;
+    private int synNum = 0;
 
     private final int leaveMeida = 2000;
     private HashMap<String, Integer> bucketMeidaNum = new HashMap<String, Integer>();
@@ -139,6 +141,10 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
         contentResolver = context.getContentResolver();
         manager = new AccountManager(context);
         dbHelper = CameraUploadDBHelper.getInstance();
+
+        if(Math.random() < 0.01){
+            synNum = 30;
+        }
     }
 
     private synchronized void startTransferService() {
@@ -296,7 +302,6 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
 
         Account seafileAccount = manager.getSeafileAccount(account);
         DataManager dataManager = new DataManager(seafileAccount);
-
         /**
          * this should never occur, as camera upload is supposed to be disabled once the camera upload
          * account signs out.
@@ -351,7 +356,9 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
                 syncResult.delayUntil = 60;
                 return;
             }
+            createDirectories(dataManager);
             uploadBuckets(syncResult, dataManager);
+
             if (isCancelled()) {
                  Log.i(DEBUG_TAG, "sync was cancelled.");
             } else {
@@ -382,6 +389,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
             }
         } catch (Exception e) {
             Log.e(DEBUG_TAG, "sync aborted because an unknown error", e);
+            Utils.utilsLogInfo(true, "sync aborted because an unknown error: " + e.getMessage());
             syncResult.stats.numParseExceptions++;
         } finally {
             if (txService != null) {
@@ -402,20 +410,28 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
     private void uploadBuckets(SyncResult syncResult, DataManager dataManager) throws SeafException, InterruptedException{
         Utils.utilsLogInfo(true, "========Starting to upload buckets...");
         if((leftBuckets == null || leftBuckets.size() == 0) && previous == null){
-            dbHelper.cleanPhotoCache();
-            Utils.utilsLogInfo(true, "========Clear photo cache...");
+            if(synNum > 30) {
+                Utils.utilsLogInfo(true, "========Clear photo cache...");
+                dbHelper.cleanPhotoCache();
+                synNum = 0;
+            }else {
+                ++synNum;
+            }
         }
 
-        if (isCancelled())
+        if (isCancelled()){
+            Utils.utilsLogInfo(true, "========Cancel uploading========");
             return;
+        }
 
         List<String> selectedBuckets = new ArrayList<>();
         if(leftBuckets != null && leftBuckets.size() > 0){
             selectedBuckets = leftBuckets;
-        }else if (bucketList.size() > 0) {
+        }else if (bucketList != null && bucketList.size() > 0) {
             selectedBuckets = bucketList;
         }
 
+        Utils.utilsLogInfo(true, "========Traversal all phone buckets========");
         List<GalleryBucketUtils.Bucket> allBuckets = GalleryBucketUtils.getMediaBuckets(SeadroidApplication.getAppContext());
         Map<String, String> bucketNames = new HashMap<String, String>();
         for (GalleryBucketUtils.Bucket bucket : allBuckets) {
@@ -425,17 +441,24 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
             bucketNames.put(bucket.id, bucket.name);
         }
         if(previous != null){
+            Utils.utilsLogInfo(true, "========Continue uploading previous cursor========");
             previous = iterateCursor(syncResult, dataManager, previous);
             if(isCancelled()){
+                Utils.utilsLogInfo(true, "========Cancel uploading========");
                 return;
             }
         }
-        leftBuckets = Lists.newLinkedList(selectedBuckets);
+
+        Utils.utilsLogInfo(true, "========Copy select buckets========");
+        leftBuckets = Lists.newLinkedList();
+        leftBuckets.addAll(selectedBuckets);
+
+        Utils.utilsLogInfo(true, "========Start traversal selected buckets========");
         for(String bucketID: selectedBuckets) {
             leftBuckets.removeFirst();
             String bucketName = bucketNames.get(bucketID);
             if(bucketName == null || bucketName.length() == 0){
-                Utils.utilsLogInfo(true, "========Bucket "+ bucketName + "does not exist.");
+                Utils.utilsLogInfo(true, "========Bucket "+ bucketName + " does not exist.");
                 continue;
             }else{
                 Utils.utilsLogInfo(true, "========Uploading "+ bucketName+"...");
@@ -501,58 +524,71 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
         String bucketName = cursor.getBucketName();
         int fileIter = cursor.getPosition();
         int fileNum = cursor.getCount();
-        int uploadedNum = 0;
 
         Utils.utilsLogInfo(true, "========Found ["+ fileIter+"/"+fileNum+"] images in bucket "+bucketName+"========");
         try {
             DirentCache cache = getCache(targetRepoId, bucketName, dataManager);
-            int n = cache.getCount();
-            boolean done = false;
-            for(int i=0;i<n;++i){
-                if(cursor.isAfterLast()){
-                    break;
-                }
-                SeafDirent item = cache.get(i);
-                while(cursor.getFileName().compareTo(item.name) <= 0){
-                    if(cursor.getFileName().compareTo(item.name) < 0 || item.size != cursor.getFileSize()) {
-                        File file = cursor.getFile();
-                        if (file != null && file.exists() && dbHelper.isUploaded(file.getPath(), file.lastModified())) {
-                            Log.d(DEBUG_TAG, "Skipping media " + file.getPath() + " because we have uploaded it in the past.");
-                        } else {
-                            if (file == null || !file.exists()) {
-                                Log.d(DEBUG_TAG, "Skipping media " + file + " because it doesn't exist");
-                                syncResult.stats.numSkippedEntries++;
+            if(cache != null) {
+                int n = cache.getCount();
+                boolean done = false;
+                for (int i = 0; i < n; ++i) {
+                    if (cursor.isAfterLast()) {
+                        break;
+                    }
+                    SeafDirent item = cache.get(i);
+                    while (cursor.getFileName().compareTo(item.name) <= 0) {
+                        if (cursor.getFileName().compareTo(item.name) < 0 || item.size < cursor.getFileSize() && item.mtime < cursor.getFileModified()) {
+                            File file = cursor.getFile();
+                            if (file != null && file.exists() && dbHelper.isUploaded(file.getPath(), file.lastModified())) {
+                                Log.d(DEBUG_TAG, "Skipping media " + file.getPath() + " because we have uploaded it in the past.");
                             } else {
-                                uploadFile(dataManager, file, bucketName);
+                                if (file == null || !file.exists()) {
+                                    Log.d(DEBUG_TAG, "Skipping media " + file + " because it doesn't exist");
+                                    syncResult.stats.numSkippedEntries++;
+                                } else {
+                                    uploadFile(dataManager, file, bucketName);
+                                }
                             }
-                        }
-                    }else{
+                        } else {
 //                        ++uploadedNum;
 //                        if(uploadedNum > leaveMeida){
 //                            if(cursor.deleteFile()){
 //                                Utils.utilsLogInfo(true, "====File " + cursor.getFileName() + " in bucket " + bucketName + " is deleted because it exists on the server. Skipping.");
 //                            }
 //                        }
-                        Log.d(DEBUG_TAG, "====File " + cursor.getFilePath() + " in bucket " + bucketName + " already exists on the server. Skipping.");
-                        dbHelper.markAsUploaded(cursor.getFilePath(), cursor.getFileModified());
+                            Log.d(DEBUG_TAG, "====File " + cursor.getFilePath() + " in bucket " + bucketName + " already exists on the server. Skipping.");
+                            dbHelper.markAsUploaded(cursor.getFilePath(), cursor.getFileModified());
+                        }
+                        ++fileIter;
+                        if (!cursor.moveToNext()) {
+                            break;
+                        }
                     }
-                    ++fileIter;
-                    if(!cursor.moveToNext()){
+                    if (i == n - 1) {
+                        done = true;
+                    }
+                    if (isCancelled()) {
                         break;
                     }
+
                 }
-                if(isCancelled()){
-                    break;
-                }
-                if(i == n-1){
-                    done = true;
+                if(done){
+                    cache.delete();
                 }
             }
-            if(done){
-                cache.delete();
+            while (!cursor.isAfterLast() && !isCancelled()) {
+                File file = cursor.getFile();
+                uploadFile(dataManager, file, bucketName);
+                ++fileIter;
+                if(!cursor.moveToNext()){
+                    break;
+                }
             }
         }catch (IOException e){
             Log.e(DEBUG_TAG, "Failed to get cache file.", e);
+            Utils.utilsLogInfo(true, "Failed to get cache file: "+ e.toString());
+        }catch (Exception e){
+            Utils.utilsLogInfo(true, e.toString());
         }
         Utils.utilsLogInfo(true,"=======Have checked ["+Integer.toString(fileIter)+"/"+Integer.toString(fileNum)+"] images in "+bucketName+".===");
         Utils.utilsLogInfo(true,"=======waitForUploads===");
@@ -930,10 +966,14 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
             timeOut -= 100;
         }
         if (seafDirents == null) {
-            Log.e(DEBUG_TAG, "Seadroid dirent cache is empty in uploadFile. Should not happen, aborting.");
-            throw SeafException.unknownException;
+            return null;
         }
-        return new DirentCache(name, seafDirents);
+        return new DirentCache(name, seafDirents, new Comparator<SeafDirent>() {
+            @Override
+            public int compare(SeafDirent o1, SeafDirent o2) {
+                return o1.name.compareTo(o2.name);
+            }
+        });
     }
 }
 

@@ -20,6 +20,10 @@ public class DirentCache extends CacheItem<SeafDirent>{
         super(name, caches, new SeafDirent.DirentNameComparator());
     }
 
+    public DirentCache(String name, List<SeafDirent> caches, Comparator<SeafDirent> comp) throws IOException{
+        super(name, caches, comp);
+    }
+
     protected byte[] toBytes(SeafDirent item){
         JSONObject json = item.toJson();
         String content = json.toString();

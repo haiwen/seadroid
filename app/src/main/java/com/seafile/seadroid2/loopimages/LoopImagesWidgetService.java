@@ -73,16 +73,16 @@ import java.util.Set;
 public class LoopImagesWidgetService extends Service {
 
     private static final int ALARM_DURATION = 1 * 60 * 1000;
-    private static final int UPDATE_DURATION = 10 * 1000;
+    private static final int UPDATE_DURATION = 5 * 1000;
     private static final int UPDATE_MESSAGE = 1000;
     private static final int CHECKT_DOWNLOAD_STATE = 1001;
     private static final int CHECKT_DOWNLOAD_STATE_DURATION = 5*1000;
     private static final int UPDATE_IMAGE_DELAY = 60 * 60 * 1000;
     private static final int ONCE_UPLOAD_IMAGE_NUM = 3;
-    private static final int LEFT_PREVIOUS_IMAGES_NUM = 500;
-    private static final int LEFT_FOLLOW_UP_ULTIMATE_MIN_IMAGES_NUM = 100;
-    private static final int LEFT_FOLLOW_UP_MIN_IMAGES_NUM = 500;
-    private static final int LEFT_FOLLOW_UP_MAX_IMAGES_NUM = 2000;
+    private static final int ONCE_REMOVE_IMAGE_NUM = 3*ONCE_UPLOAD_IMAGE_NUM;
+    private static final int LEFT_PREVIOUS_MAX_IMAGES_NUM = 100;
+    private static final int LEFT_FOLLOW_UP_MAX_IMAGES_NUM = 1000;
+    private static final int STOP_DOWNLOAD_TIMES = 3*LEFT_FOLLOW_UP_MAX_IMAGES_NUM;
     public static final String UPDATE_WIDGETS_KEY = "update_widgets_key";
     public static final int UPDATE_ALL_WIDGETS = -1;
     public static final int UPDATE_NONE_WIDGETS = -2;
@@ -98,7 +98,7 @@ public class LoopImagesWidgetService extends Service {
     private Map<Integer, List<ImageInfo>> imageInfos;
     private Map<Integer, LazyQueue> queues;
     private LinkedList<TaskInfo> tasksInProgress = Lists.newLinkedList();
-    private Map<Integer, Boolean> shouldDownloads;
+    private Map<Integer, Integer> shouldDownloads;
     private Map<String, AutoCleanDirentCache> caches;
     private Random rand = new Random();
 
@@ -304,8 +304,10 @@ public class LoopImagesWidgetService extends Service {
     }
 
     private void removeLeftImages(int appWidgetId){
-        while (queues.get(appWidgetId).getRemoveCount() >= LEFT_PREVIOUS_IMAGES_NUM) {
-            ImageInfo deleteItem = queues.get(appWidgetId).pop();
+        int removeNum = ONCE_REMOVE_IMAGE_NUM;
+        while (removeNum > 0 && queues.get(appWidgetId).getRemoveCount() > LEFT_PREVIOUS_MAX_IMAGES_NUM) {
+            --removeNum;
+            ImageInfo deleteItem = queues.get(appWidgetId).popRemoveItem();
             if(deleteItem == null) {
                 continue;
             }
@@ -313,7 +315,7 @@ public class LoopImagesWidgetService extends Service {
             String filePath = deleteItem.getFilePath();
             if (filePath != null) {
                 Log.d(DEBUG_TAG, "Delete file that exceed storage space: " + filePath + "!!!");
-                Utils.utilsLogInfo(true, "Delete file that exceed storage space: " + filePath + "!!!");
+//                Utils.utilsLogInfo(true, "Delete file that exceed storage space: " + filePath + "!!!");
             }
         }
     }
@@ -323,8 +325,13 @@ public class LoopImagesWidgetService extends Service {
         int removeNum = 0;
         for (TaskInfo taskInfo: tasksInProgress) {
             DownloadTaskInfo info = txService.getDownloadTaskInfo(taskInfo.taskID);
+            if(info == null){
+                ++removeNum;
+                continue;
+            }
             ImageInfo item = taskInfo.imageInfo;
             if (info.err != null) {
+                txService.removeDownloadTask(taskInfo.taskID);
                 ++removeNum;
                 item.deleteStorage();
                 Utils.utilsLogInfo(true, "=======Task " + Integer.toString(taskInfo.taskID) + " failed to download " + info.localFilePath + "!!!");
@@ -342,12 +349,13 @@ public class LoopImagesWidgetService extends Service {
                     == seafDirent.getFileSize();
             if (info.state == TaskState.FINISHED && haveSameSize) {
                 queues.get(taskInfo.appWidgetId).push(taskInfo.imageInfo);
-                if (queues.get(taskInfo.appWidgetId).getCount() >= LEFT_FOLLOW_UP_MAX_IMAGES_NUM) {
-                    shouldDownloads.put(taskInfo.appWidgetId, false);
-                }
+//                if (queues.get(taskInfo.appWidgetId).getCount() >= LEFT_FOLLOW_UP_MAX_IMAGES_NUM) {
+//                    shouldDownloads.put(taskInfo.appWidgetId, false);
+//                }
             } else {
                 item.deleteStorage();
             }
+            txService.removeDownloadTask(taskInfo.taskID);
         }
         while(removeNum > 0 && !tasksInProgress.isEmpty()){
             --removeNum;
@@ -378,7 +386,7 @@ public class LoopImagesWidgetService extends Service {
         Map<Integer, RemoteViews> results = new HashMap<Integer, RemoteViews>();
         synchronized (imageInfosLock) {
             checkDownloadTasks();
-            Utils.utilsLogInfo(true, "=======Update Widget.");
+//            Utils.utilsLogInfo(true, "=======Update Widget.");
             Context context = getApplicationContext();
             AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
             int appWidgetIds[] = appWidgetManager.getAppWidgetIds(new ComponentName(context, LoopImagesWidget.class));
@@ -406,15 +414,18 @@ public class LoopImagesWidgetService extends Service {
                 }
                 boolean enableDownload = Utils.isWiFiOn() || LoopImagesWidgetConfigureActivity.getDataPlanAllowed(appWidgetId);
                 if (Utils.isNetworkOn() && enableDownload && tasksInProgress.size() < ONCE_UPLOAD_IMAGE_NUM * 2 * n) {
-                    if (queues.get(appWidgetId).getCount() < LEFT_FOLLOW_UP_MIN_IMAGES_NUM) {
-                        shouldDownloads.put(appWidgetId, true);
-                    }
-                    if (queues.get(appWidgetId).getCount() < LEFT_FOLLOW_UP_MAX_IMAGES_NUM && shouldDownloads.get(appWidgetId)) {
+                    if (queues.get(appWidgetId).getCount() < LEFT_FOLLOW_UP_MAX_IMAGES_NUM && shouldDownloads.get(appWidgetId) == 0) {
                         Log.d(DEBUG_TAG, "Download new images.");
                         int addTaskNum = ONCE_UPLOAD_IMAGE_NUM;
                         while (addTaskNum > 0) {
                             downloadImages(appWidgetId, imageInfo.get(rand.nextInt(m)));
                             --addTaskNum;
+                        }
+                    }
+                    if(queues.get(appWidgetId).getCount() >= LEFT_FOLLOW_UP_MAX_IMAGES_NUM || shouldDownloads.get(appWidgetId) != 0){
+                        shouldDownloads.put(appWidgetId, (shouldDownloads.get(appWidgetId)+1)%STOP_DOWNLOAD_TIMES);
+                        if(shouldDownloads.get(appWidgetId) == 0){
+                            queues.get(appWidgetId).removeAll();
                         }
                     }
                 }
@@ -428,12 +439,12 @@ public class LoopImagesWidgetService extends Service {
                 while (!queues.get(appWidgetId).isEmpty()) {
                     ImageInfo item = queues.get(appWidgetId).next();
                     if(item == null){
-                        queues.get(appWidgetId).removeLast();
+                        queues.get(appWidgetId).removePreviousItem();
                     }
                     Bitmap image = item.getBitMap();
                     if (image == null) {
                         item.deleteStorage();
-                        queues.get(appWidgetId).removeLast();
+                        queues.get(appWidgetId).removePreviousItem();
                         continue;
                     }
                     Log.d(DEBUG_TAG, "Set new images.");
@@ -484,7 +495,7 @@ public class LoopImagesWidgetService extends Service {
             if (imageInfos == null || shouldDownloads == null) {
                 updateWidgetSignal = UPDATE_ALL_WIDGETS;
                 imageInfos = new HashMap<Integer, List<ImageInfo>>();
-                shouldDownloads = new HashMap<Integer, Boolean>();
+                shouldDownloads = new HashMap<Integer, Integer>();
             }
 
             Map<String, Boolean> notUsedDir = new HashMap<String, Boolean>();
@@ -566,7 +577,7 @@ public class LoopImagesWidgetService extends Service {
                     continue;
                 }
                 imageInfos.put(appWidgetId, nImageInfo);
-                shouldDownloads.put(appWidgetId, true);
+                shouldDownloads.put(appWidgetId, 0);
                 if(haveUpdated){
                     List<String> dirInfoStrs = new ArrayList<String>();
                     for(DirInfo dirInfo: dirInfos){
@@ -626,68 +637,72 @@ public class LoopImagesWidgetService extends Service {
 
     protected class LazyQueue{
         private LinkedList<ImageInfo> data;
+        private LinkedList<ImageInfo> reserve;
         private LinkedList<ImageInfo> remove;
-        private Set<String> store;
 
         public LazyQueue() {
-            store = new HashSet<String>();
             data = Lists.newLinkedList();
+            reserve = Lists.newLinkedList();
             remove = Lists.newLinkedList();
         }
 
         public void push(ImageInfo info){
-            if(!store.contains(info.getFilePath())) {
-                store.add(info.getFilePath());
-                data.add(info);
-            }
+            data.add(info);
         }
 
-        public ImageInfo pop(){
-            return removeFirst();
-        }
-
-        public ImageInfo removeFirst(){
-            if(remove.size() > 0){
-                ImageInfo item = remove.removeFirst();
-                store.remove(item.getFilePath());
-                return item;
+        public ImageInfo popRemoveItem(){
+            if(remove.size() <= 0){
+                return null;
             }
-            return null;
-        }
-
-        public ImageInfo removeLast(){
-            if(remove.size() > 0){
-                ImageInfo item = remove.removeLast();
-                store.remove(item.getFilePath());
-                return item;
-            }
-            return null;
+            return remove.pop();
         }
 
         public int getCount(){
-            return data.size();
+            return data.size() + reserve.size();
         }
 
         public int getRemoveCount(){
             return remove.size();
         }
 
+        public int getTotalCount(){
+            return getCount() + getRemoveCount();
+        }
+
         public boolean isEmpty(){
-            return data.isEmpty() && remove.isEmpty();
+            return data.isEmpty() && reserve.isEmpty() && remove.isEmpty();
         }
 
         public ImageInfo next(){
-            if(data.size() <= 0 && remove.size() <= 0){
+            if(data.size() <= 0 && reserve.size() <= 0 && remove.size() <= 0){
                 return null;
             }
-            if(data.size() <= 0){
+            if(data.size() <= 0 && reserve.size() > 0){
+                ImageInfo res = reserve.pop();
+                reserve.add(res);
+                return res;
+            }
+            if(data.size() <= 0 && reserve.size() <= 0){
                 ImageInfo res = remove.pop();
                 remove.add(res);
                 return res;
             }
             ImageInfo res = data.pop();
-            remove.add(res);
+            reserve.add(res);
             return res;
+        }
+
+        public void removePreviousItem(){
+            if(reserve.size() > 0){
+                remove.add(reserve.removeLast());
+            }
+        }
+
+        public void removeAll(){
+            remove.addAll(data);
+            remove.addAll(reserve);
+            data.clear();
+            reserve.clear();
         }
 
         public ImageInfo back(){
@@ -696,14 +711,6 @@ public class LoopImagesWidgetService extends Service {
             }
             return data.getLast();
         }
-
-        public void recoverAll(){
-            for(int i = (int)remove.size()-1; i>=0; --i){
-                data.add(remove.get(i));
-            }
-            remove.clear();
-        }
-
     }
 
     protected final class UpdateHandler extends Handler {

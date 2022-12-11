@@ -50,9 +50,6 @@ public class CameraUploadDBHelper extends SQLiteOpenHelper {
 
         return dbHelper;
     }
-    
-    // RepositoryCache table
-    private static final String REPOCACHE_TABLE_NAME = "RepositoryCache";
 
     private CameraUploadDBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -116,7 +113,6 @@ public class CameraUploadDBHelper extends SQLiteOpenHelper {
     }
 
     public void cleanPhotoCache() {
-        database.execSQL("DROP TABLE IF EXISTS " + REPOCACHE_TABLE_NAME + ";");
         database.delete(PHOTOCACHE_TABLE_NAME, null, null);
     }
 }
