@@ -29,7 +29,7 @@
     <!-- android 9.0  FOREGROUND_SERVICE -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
-    <application
+<application
         android:name="com.seafile.seadroid2.SeadroidApplication"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
@@ -265,4 +265,9 @@
         </receiver>
     </application>
 
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+        </intent>
+    </queries>
 </manifest>

@@ -34,6 +34,7 @@ public class SeafileObserver implements FileAlterationListener {
         this.listener = listener;
         alterationObserver = new FileAlterationObserver(getAccountDir());
         alterationObserver.addListener(this);
+        startWatching();
         watchAllCachedFiles();
     }
 
@@ -82,6 +83,9 @@ public class SeafileObserver implements FileAlterationListener {
     public void startWatching() {
         try {
             alterationObserver.initialize();
+            FileAlterationObserverRunner fileAlterationObserverRunner = new FileAlterationObserverRunner(alterationObserver);
+            Thread observer = new Thread(fileAlterationObserverRunner);
+            observer.start();
         } catch (Exception e) {
 
         }
@@ -93,6 +97,26 @@ public class SeafileObserver implements FileAlterationListener {
             alterationObserver.destroy();
         } catch (Exception e) {
 
+        }
+    }
+
+    public class FileAlterationObserverRunner implements Runnable {
+        private final FileAlterationObserver fileAlterationObserver;
+
+        public FileAlterationObserverRunner(FileAlterationObserver fileAlterationObserver) {
+            this.fileAlterationObserver = fileAlterationObserver;
+        }
+
+        @Override
+        public void run() {
+            while (true) {
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                fileAlterationObserver.checkAndNotify();
+            }
         }
     }
 

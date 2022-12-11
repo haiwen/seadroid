@@ -1,0 +1,608 @@
+[33mcommit 27bd612d62b85acbcc39a2cddea029d6581585fa[m[33m ([m[1;36mHEAD -> [m[1;32msolving_incomplete_camera_upload[m[33m)[m
+Author: lingzerol <ling_zero_l@163.com>
+Date:   Sun Dec 11 12:31:27 2022 +0800
+
+    fix some error of camera sync
+
+[33mcommit f1428b47d714d960660aa3e3f7a6f5374a945b94[m[33m ([m[1;31morigin/solving_incomplete_camera_upload[m[33m)[m
+Author: lingzerol <ling_zero_l@163.com>
+Date:   Sun Oct 9 20:34:32 2022 +0800
+
+    add update widget tasks to ConcurrentAsyncTask
+
+[33mcommit 42c97f1053e041fc3833cb5e10166285bb5a7ecb[m
+Author: lingzerol <ling_zero_l@163.com>
+Date:   Sun Oct 9 16:25:37 2022 +0800
+
+    add async task for updating widget
+
+[33mcommit 4bad98f28b32dfba331981a7821db06631377757[m
+Author: lingzerol <ling_zero_l@163.com>
+Date:   Sat Oct 8 10:48:59 2022 +0800
+
+    change the loopimage service logic
+
+[33mcommit 0f5eb1626f12897397c52ddc8f7685d8c605d3d0[m
+Author: lingzerol <ling_zero_l@163.com>
+Date:   Thu Oct 6 20:22:40 2022 +0800
+
+    add data plan fragment
+
+[33mcommit eea4382c961fcd7e36bbda952ca9d26a6293a905[m
+Author: lingzerol <ling_zero_l@163.com>
+Date:   Thu Oct 6 13:32:40 2022 +0800
+
+    add loopimage widget
+
+[33mcommit 0c44b6b4f9ce6de99a270135fe6de1241ccc2fad[m
+Author: lingzerol <ling_zero_l@163.com>
+Date:   Wed Sep 7 11:05:12 2022 +0800
+
+    only calculate the uploaded images
+
+[33mcommit 3302cf87fbeb0839d5e248b2ca6858669eb3c10f[m
+Author: lingzerol <ling_zero_l@163.com>
+Date:   Wed Sep 7 11:03:23 2022 +0800
+
+    auto delete uploaded images
+
+[33mcommit 490f24c2d5d356be65576d3d0fa8e57e42e25288[m
+Author: lingzerol <ling_zero_l@163.com>
+Date:   Wed Mar 2 14:30:15 2022 +0800
+
+    solving incomplete camera upload
+
+[33mcommit b85eb857a97ef0a1a6ba41192376511ea150a503[m[33m ([m[1;33mtag: 2.2.42[m[33m, [m[1;31morigin/master[m[33m, [m[1;32mmain[m[33m)[m
+Author: Louis Royer <55180044+louisroyer@users.noreply.github.com>
+Date:   Sat Nov 20 09:45:12 2021 +0100
+
+    Fix travis pipeline (#912)
+
+[33mcommit a2f4d2a0214582530672ec1413c90cd29c79a6d3[m
+Author: maxiaoping <634115572@qq.com>
+Date:   Sat Nov 20 16:43:44 2021 +0800
+
+    ModifySharingLinkErr (#916)
+    
+    * Modify the failed message for generating share links
+    
+    * 1，Update sharing and generating link prompt information
+    2，Update translation
+    
+    * 1，Modify the title of the share Generate link dialog
+    2，Update the translation
+    
+    * Update the translation
+
+[33mcommit 45dad57995a500b566c702d5c6b7174cd9d33fee[m[33m ([m[1;33mtag: 2.2.41[m[33m)[m
+Author: maxiaoping <634115572@qq.com>
+Date:   Wed Sep 22 15:48:41 2021 +0800
+
+    SaveEditFile (#910)
+    
+    * Save the edit file
+    
+    * 1，Modify movement and copy of encrypted files
+    2，Fixed the problem of slow loading of list data in database
+    
+    * Modify mobile repo encryption file list display
+    
+    * delete FileSaveTaskDialog.java
+    
+    * delete showSaveDialog method
+
+[33mcommit 9fadabb0d3e02533e997ca69f91154f2525cb334[m
+Author: maxiaoping <634115572@qq.com>
+Date:   Wed Sep 22 14:25:37 2021 +0800
+
+    UpdateEditFile (#905)
+    
+    * Upload the edited and saved file
+    
+    * update edit save file
+    
+    * update to upload the edited file
+    
+    * Update the logic for uploading edited files
+    
+    * Update upload retrieval FileMonitorService
+    
+    * Restart the upload service after editing the file
+    
+    * modify the upload service logic after editing the file
+    
+    * FileMonitorService is not running, start it in EditorActivity
+
+[33mcommit 034ced81276227eca3b3dc492d8b67622e7c6aee[m[33m ([m[1;33mtag: 2.2.40[m[33m)[m
+Author: maxiaoping <634115572@qq.com>
+Date:   Mon Aug 23 13:49:51 2021 +0800
+
+    FileMonitorService is not running, start it in EditorActivity (#908)
+
+[33mcommit 4ea33de096c6012188a113d441b945cb765702f2[m
+Author: fakuivan <fakuivan@gmail.com>
+Date:   Sun Aug 22 22:55:25 2021 -0300
+
+    Add CHACHA20_POLY1305 to the ssl cipher list (#904)
+
+[33mcommit da6bc0cc96a2fd081439bf2ad32565b422160b6c[m[33m ([m[1;33mtag: 2.2.39[m[33m)[m
+Author: maxiaoping <634115572@qq.com>
+Date:   Tue Jun 22 14:56:46 2021 +0800
+
+    DistinguishAlbumQueries (#897)
+    
+    * distinguish album queries smaller than the Android 10 version
+    
+    * remove skipping media log
+    
+    * update the upload query logic
+    
+    * Modify the category query for uploaded albums
+    
+    * update album query classification service
+
+[33mcommit d653dee0e375634573b2ca18021339e32ca28d08[m
+Author: Fabian Zaremba <fabian@youremail.eu>
+Date:   Mon Jun 21 10:33:39 2021 +0200
+
+    Do not use GalleryBucket if name is null (#894)
+    
+    Fixes #874
+    
+    cursor.getString returning a null name caused the application to crash in the hashCode override function:
+    E AndroidRuntime: java.lang.NullPointerException: Attempt to invoke virtual method 'int java.lang.String.hashCode()' on a null object reference
+    E AndroidRuntime:       at com.seafile.seadroid2.cameraupload.GalleryBucketUtils$Bucket.hashCode(GalleryBucketUtils.java:51)
+    
+    Reproduced and fix tested on Android 11
+
+[33mcommit ab4c0af36c6d33f20eb2b2931fa5f5852d800a69[m
+Author: maxiaoping <634115572@qq.com>
+Date:   Mon Jun 7 15:53:03 2021 +0800
+
+    AddPrivacyPolicy (#895)
+    
+    * Adding a Privacy Policy
+    
+    * Record first startup displays privacy policy statement
+    
+    * Prompt for first startup to display privacy policy statement
+    
+    * Added privacy policy in Chinese version
+
+[33mcommit 6fc5e3f6a0a8505a0755cf88e8e170acee90a88c[m[33m ([m[1;33mtag: 2.2.36[m[33m)[m
+Author: maxiaoping <634115572@qq.com>
+Date:   Fri May 14 12:13:21 2021 +0800
+
+    ModifyCachePath (#891)
+    
+    * Modify the local cache path
+    
+    * Add mobile information collection
+    
+    * Modify the log path and add the device log collection
+
+[33mcommit d96507182cda2fefca21e5c2c4eec4ba019233e1[m[33m ([m[1;33mtag: 2.2.35[m[33m)[m
+Author: maxiaoping <634115572@qq.com>
+Date:   Sun Apr 25 17:45:25 2021 +0800
+
+    update gradle version (#888)
+
+[33mcommit 7b22eba7b0ca09a28c6a1bb413f95b5b6dfef8c3[m[33m ([m[1;33mtag: 2.2.34[m[33m)[m
+Author: maxiaoping <634115572@qq.com>
+Date:   Thu Mar 25 16:36:34 2021 +0800
+
+    Advanced options to modify upload Settings (#882)
+
+[33mcommit fede1a06c75d90421efaf507176e91f318cd0e63[m[33m ([m[1;33mtag: 2.2.33[m[33m)[m
+Author: maxiaoping <634115572@qq.com>
+Date:   Sat Feb 20 17:03:50 2021 +0800
+
+    albumClassification (#880)
+    
+    * update androidQ
+    
+    * android10 debug log
+    
+    * update log
+    
+    * update log path
+    
+    * update loginfo
+    
+    * update log format
+    
+    * update local log
+    
+    * Photo album classification
+    
+    * album classification
+    
+    * Update album classification
+    
+    * Classification of photo album
+    
+    * Changed album selection style
+
+[33mcommit dffdefd1572e7d78436a9d4a08051d7189f406d2[m[33m ([m[1;33mtag: 2.2.32[m[33m)[m
+Author: maxiaoping <634115572@qq.com>
+Date:   Mon Jan 18 11:32:43 2021 +0800
+
+    androidQ (#876)
+    
+    * google store targetSdkVersion
+    
+    * update androidQ
+    
+    * android10 debug log
+    
+    * update log
+    
+    * update log path
+    
+    * update loginfo
+    
+    * update log format
+    
+    * update local log
+
+[33mcommit 023f049377ee47eaf5bd472b8423b11c30d4a727[m
+Author: maxiaoping <634115572@qq.com>
+Date:   Mon Dec 7 17:31:12 2020 +0800
+
+    google store targetSdkVersion (#872)
+
+[33mcommit ff3cc6e9f67c3f78baf258db1dc030497458edeb[m[33m ([m[1;33mtag: 2.2.31[m[33m)[m
+Author: maxiaoping <634115572@qq.com>
+Date:   Mon Nov 23 15:10:15 2020 +0800
+
+    hide new folder  PathChooser (#871)
+
+[33mcommit c2ec7d453995f39d7a33cb49ebdfa3fdce3ec8b3[m
+Author: maxiaoping <634115572@qq.com>
+Date:   Mon Nov 23 13:51:58 2020 +0800
+
+    addLoading (#870)
+    
+    * Gallery add Loading
+    
+    * update
+
+[33mcommit f6ba277f0f8fc015be632f82d6fa2b21f505cf34[m[33m ([m[1;33mtag: 2.2.30[m[33m)[m
+Author: maxiaoping <634115572@qq.com>
+Date:   Mon Nov 9 17:05:43 2020 +0800
+
+    reposIconErr (#867)
+    
+    * update repos icon
+    
+    * repos list icon disorder
+    
+    * format code
+    
+    * list item icon update
+    
+    * Local image cache modification
+    
+    * List icon disorder
+    
+    * Photo Cache and list icon disorder
+    
+    * Photo Cache and list icon disorder format code
+    
+    * Change the database save keyword
+    
+    * code format
+    
+    * remove imageloader
+    
+    * Glide signature update
+    
+    * restore imageloader
+    
+    * Glide signature replace imageDatabase
+    
+    * update
+
+[33mcommit a9d7c2a2b11aa39150acfcdd421a9e612cb936f7[m
+Merge: 69415603 f5545c63
+Author: maxiaoping <634115572@qq.com>
+Date:   Mon Aug 31 17:53:39 2020 +0800
+
+    Merge pull request #863 from haiwen/createNewFolder
+    
+    shareSaveFile
+
+[33mcommit f5545c63cbe7a7cedc0cc2ccba053eb35e2961aa[m[33m ([m[1;31mupstream/createNewFolder[m[33m, [m[1;31morigin/createNewFolder[m[33m)[m
+Merge: 66cc2934 69415603
+Author: maxiaoping <634115572@qq.com>
+Date:   Mon Aug 31 17:53:09 2020 +0800
+
+    Merge branch 'master' into createNewFolder
+
+[33mcommit 694156038efeabec50cd68b33a4d75968bff0914[m
+Author: maxiaoping <634115572@qq.com>
+Date:   Mon Aug 31 17:47:11 2020 +0800
+
+    TreeDocumentFile (#859)
+    
+    * DocumentsProvider Match
+    
+    * Adapt  TreeDocumentFile
+    
+    * update TreeDocumentFile
+
+[33mcommit 0ea48cfd84f3d636b97a621551ffa0cb7ab647a7[m
+Author: maxiaoping <634115572@qq.com>
+Date:   Mon Aug 31 17:45:12 2020 +0800
+
+    addFileMime flv (#862)
+
+[33mcommit 66cc2934d400bc2edd9866a682b0464ebc1a0e93[m
+Author: maxiaoping <634115572@qq.com>
+Date:   Mon Aug 17 17:21:39 2020 +0800
+
+     "new folder" option missing when sharing via other app
+
+[33mcommit af01e6f889e8f143aa74e751a13347ecdbf86c97[m[33m ([m[1;33mtag: 2.2.28[m[33m)[m
+Author: maxiaoping <634115572@qq.com>
+Date:   Mon Jun 8 15:59:26 2020 +0800
+
+    addfileformat (#857)
+    
+    * open file format
+    
+    * Add open format
+
+[33mcommit 6b5bc6301f21c9909ef8f8225315a78b77c72d9e[m[33m ([m[1;33mtag: 2.2.27[m[33m)[m
+Author: maxiaoping <634115572@qq.com>
+Date:   Sat May 23 15:14:10 2020 +0800
+
+    deleteLocalcache (#856)
+    
+    * Update the translation
+    
+    * delete cache files
+    
+    * judge isDir
+    
+    * judge list exists show
+    
+    * Modify the cache judgment logic
+
+[33mcommit 5a5a7085dfd74944fa9c6799f4e232da93cc0f4d[m[33m ([m[1;33mtag: 2.2.26[m[33m)[m
+Author: maxiaoping <634115572@qq.com>
+Date:   Sat May 9 10:33:25 2020 +0800
+
+    showStarRepos (#852)
+    
+    * Update the translation
+    
+    * show star repos
+    
+    * star repos icon
+    
+    * update repo thumbnail
+    
+    * parseISODateTime
+
+[33mcommit 0bbe79589fabeb0a1e4de796f7c0c5c7ca655c4b[m[33m ([m[1;33mtag: 2.2.25[m[33m)[m
+Author: maxiaoping <634115572@qq.com>
+Date:   Wed Jan 8 13:54:29 2020 +0800
+
+    RepeatedUploads (#847)
+
+[33mcommit 56754002bfc11437bb14f76b09341968da83c80b[m[33m ([m[1;33mtag: 2.2.24[m[33m)[m
+Author: maxiaoping <634115572@qq.com>
+Date:   Mon Jan 6 18:03:33 2020 +0800
+
+    ServerUpdate (#846)
+    
+    * Server update
+    
+    * update
+    
+    * URLEncoded
+    
+    * amend URLEncoded
+
+[33mcommit 9308e279009c6a4983e705ecc684d542275226a6[m[33m ([m[1;33mtag: 2.2.23[m[33m)[m
+Author: maxiaoping <634115572@qq.com>
+Date:   Sat Dec 28 11:50:09 2019 +0800
+
+    TranslationVersion (#845)
+    
+    * Update the translation
+    
+    * Updated translation version
+
+[33mcommit e8e9a28ece185d21685d96048c5eb8f50efdc160[m
+Author: maxiaoping <634115572@qq.com>
+Date:   Sat Dec 28 11:22:22 2019 +0800
+
+    Update the translation (#844)
+
+[33mcommit 2d904bd5f843913d3275fe182783bb9bcda6ee98[m[33m ([m[1;33mtag: 2.2.22[m[33m)[m
+Author: maxiaoping <634115572@qq.com>
+Date:   Sat Dec 14 20:39:16 2019 +0800
+
+    PictureScanUpload (#843)
+    
+    * Picture scan upload
+    
+    * formatting and Add upload tag
+    
+    * revise Android minSdkVersion and jobservice
+    
+    * setting upload display
+    
+    * formatting code
+    
+    * upload display check
+    
+    * Modify upload save
+    
+    * amend UploadCompletedTime
+    
+    * Data save modification
+    
+    * saveSyncCompletedTime
+    
+    * Modify save time
+    
+    * Change the variable
+    
+    * update
+    
+    * add Check upload service
+    
+    * update Check upload service
+    
+    * Update the upload
+    
+    * Upload update display
+    
+    * Upload update display
+    
+    * To upload display
+    
+    * Modify the save completion time
+    
+    * Context modification
+
+[33mcommit b3fafb9c125df007da256f3c8d32aadcc52aa986[m[33m ([m[1;33mtag: 2.2.21[m[33m)[m
+Author: maxiaoping <634115572@qq.com>
+Date:   Sat Nov 16 17:24:12 2019 +0800
+
+    FOREGROUND_SERVICE (#842)
+
+[33mcommit 0966dfeaee5d8da59ed2bd7908fb91563ce4d1b2[m[33m ([m[1;33mtag: 2.2.20[m[33m)[m
+Author: maxiaoping <634115572@qq.com>
+Date:   Sat Nov 9 16:23:51 2019 +0800
+
+    addplay64-bit (#839)
+    
+    * add x86_64
+    
+    * amend armeabi
+
+[33mcommit 0999f6598af20e7c51024dbfdd115526dc22e211[m
+Author: maxiaoping <634115572@qq.com>
+Date:   Wed Nov 6 22:33:56 2019 +0800
+
+    addarm64 (#838)
+    
+    * amend targetSdkVersion
+    
+    * arm64
+
+[33mcommit 0d97ee7d154592a7276b92c30fec60408f0a22b7[m
+Author: maxiaoping <634115572@qq.com>
+Date:   Wed Nov 6 09:38:27 2019 +0800
+
+    amend targetSdkVersion (#837)
+
+[33mcommit c7942e905e6ecf410668128946fdeb452da1c767[m[33m ([m[1;33mtag: 2.2.19[m[33m)[m
+Author: maxiaoping <634115572@qq.com>
+Date:   Sat Sep 21 15:25:12 2019 +0800
+
+    Displays big image (#835)
+    
+    * Gallery Download image
+    
+    * format
+    
+    * update download pic
+    
+    * add ProgressDialog
+    
+    * formatting
+
+[33mcommit 6b2cc413d91b42fb56bdde4689c4cba30f036f42[m[33m ([m[1;33mtag: 2.2.18[m[33m)[m
+Author: maxiaoping <634115572@qq.com>
+Date:   Fri Aug 23 11:38:09 2019 +0800
+
+    Update build.gradle
+
+[33mcommit 5bf563e1cc1164608ff12aecd19a1496f5768d4d[m
+Author: maxiaoping <634115572@qq.com>
+Date:   Tue Jul 30 08:33:49 2019 +0800
+
+    Updateserver (#828)
+
+[33mcommit c912789c481a94ab84d6a3f6b7323955ff7cc0e2[m
+Author: maxiaoping <634115572@qq.com>
+Date:   Thu Jul 25 13:56:09 2019 +0800
+
+    Activities list text color (#827)
+
+[33mcommit 316e2a48de9189a57be86844eb573f037630efe2[m
+Author: maxiaoping <634115572@qq.com>
+Date:   Mon Jul 15 17:59:04 2019 +0800
+
+    File changed list and account show (#821)
+
+[33mcommit 8f7a061f210426f7fb4115ceb3f4d92fedb925db[m
+Author: maxiaoping <634115572@qq.com>
+Date:   Sat Jun 29 11:56:05 2019 +0800
+
+    handle single sign on certificate expiration (#826)
+
+[33mcommit 1ec3a1cf97263f7aa16f7c2582d9467437ab0e21[m
+Merge: 09adcc60 b788290a
+Author: Daniel Pan <freeplant@gmail.com>
+Date:   Tue Jun 25 10:31:02 2019 +0800
+
+    Merge pull request #795 from nsvir/fixed_travis_pipeline
+    
+    Fixed travis pipeline
+
+[33mcommit 09adcc60efc9d1a2f4c104e1746db555809723f1[m[33m ([m[1;33mtag: 2.2.17[m[33m)[m
+Merge: 49e077be 90586898
+Author: Daniel Pan <freeplant@gmail.com>
+Date:   Tue Jun 18 09:29:13 2019 +0800
+
+    Merge pull request #822 from haiwen/SignLogin
+    
+    SingleLogin
+
+[33mcommit 905868987029aa1ba9d6d9a5d0ac56818238f23d[m
+Author: maxiaoping <634115572@qq.com>
+Date:   Mon Jun 17 22:16:35 2019 +0800
+
+    SINGLE_SIGN_ON_LOGIN
+
+[33mcommit 49e077be394ac692791f329b578fdd0d57e19eb4[m
+Merge: 620a2b9f bef527c2
+Author: Daniel Pan <freeplant@gmail.com>
+Date:   Sun Jun 16 08:14:59 2019 +0800
+
+    Merge pull request #820 from alexislefebvre/patch-1
+    
+    README: Update “Get it on Google Play” image URL
+
+[33mcommit bef527c2336517b6f3c3f4a7dcef3214e500b1ca[m
+Author: Alexis Lefebvre <alexislefebvre@users.noreply.github.com>
+Date:   Sat Jun 15 22:11:54 2019 +0200
+
+    README: Update “Get it on Google Play” image URL
+
+[33mcommit 620a2b9fa780af25ffac820a27a678400bb3c012[m
+Author: Daniel Pan <freeplant@gmail.com>
+Date:   Wed Jun 5 17:04:23 2019 +0800
+
+    Update THIRD_PARTY_LICENSE.md
+
+[33mcommit 01c5bd52ab1dad4d1e64daad1d35bbbbdd0b0a5a[m[33m ([m[1;33mtag: 2.2.16[m[33m)[m
+Merge: 21c22eed 036b8de4
+Author: Daniel Pan <freeplant@gmail.com>
+Date:   Sat May 18 11:09:46 2019 +0800
+
+    Merge pull request #817 from haiwen/AccountDisplayUpdated
+    
+    Account display updated and Open the synchronization
+
+[33mcommit 036b8de4404d0588ffecb9c8f935c6c7793c0d8c[m
+Author: maxiaoping <634115572@qq.com>
+Date:   Sat May 18 11:01:03 2019 +0800
+
+    Open the synchronization

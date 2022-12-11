@@ -224,12 +224,13 @@ public class WidgetUtils {
         } else {
             open.setDataAndType((Uri.fromFile(file)), mime);
         }
-
-        if (activity.getPackageManager().resolveActivity(open, 0) == null) {
-            String message = String.format(activity.getString(R.string.op_exception_suitable_app_not_found), mime);
-            activity.showShortToast(activity, message);
-            mime = "*/*";
-            open.setType(mime);
+        if (android.os.Build.VERSION.SDK_INT < 30) {
+            if (activity.getPackageManager().resolveActivity(open, 0) == null) {
+                String message = String.format(activity.getString(R.string.op_exception_suitable_app_not_found), mime);
+                activity.showShortToast(activity, message);
+                mime = "*/*";
+                open.setType(mime);
+            }
         }
 
         try {
