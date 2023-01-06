@@ -65,10 +65,12 @@ public final class SettingsManager {
     public static final String SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_SERVER = PKG + ".camera.account.server";
     public static final String SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_TOKEN = PKG + ".camera.account.token";
     public static final String CAMERA_UPLOAD_SWITCH_KEY = "camera_upload_switch_key";
+    public static final String DIRECTORY_UPLOAD_SWITCH_KEY = "directory_upload_switch_key";
     public static final String CAMERA_UPLOAD_REPO_KEY = "camera_upload_repo_key";
     public static final String CAMERA_UPLOAD_ADVANCED_SCREEN_KEY = "screen_camera_upload_advanced_feature";
     public static final String CAMERA_UPLOAD_ADVANCED_CATEGORY_KEY = "category_camera_upload_advanced_key";
     public static final String CAMERA_UPLOAD_ALLOW_DATA_PLAN_SWITCH_KEY = "allow_data_plan_switch_key";
+
     public static final String CAMERA_UPLOAD_ALLOW_VIDEOS_SWITCH_KEY = "allow_videos_upload_switch_key";
     public static final String CAMERA_UPLOAD_BUCKETS_KEY = "camera_upload_buckets_key";
     public static final String CAMERA_UPLOAD_CATEGORY_KEY = "category_camera_upload_key";
@@ -101,6 +103,16 @@ public final class SettingsManager {
     public static final String TOTAL_UPLOAD_NUMBER = "total_upload_number";
     public static final String PIC_CHECK_START = "pic_check_start";
     public static final String UPLOAD_COMPLETED_TIME = "upload_completed_time";
+
+    //DirSyncStatus
+    public static final String DIR_UPLOAD_ALLOW_DATA_PLAN_SWITCH_KEY = "dir_allow_data_plan_switch_key";
+    public static final String DIR_AUTOMATIC_UPLOAD_SWITCH_KEY = "dir_automatic_upload_switch_key";
+    public static final String SAVE_BACKUP_ACCOUNT_EMAIL = "save_backup_account_email";
+    public static final String FOLDER_UPLOAD_CATEGORY_KEY = "file_directory_upload_key";
+    public static final String FOLDER_BACKUP_MODE = "folder_backup_mode";
+    public static final String FOLDER_BACKUP_LIBRARY = "folder_backup_library";
+    public static final String FOLDER_BACKUP_KEY = "folder_backup_key";
+    public static final String FOLDER_BACKUP_STATE = "folder_backup_state";
 
     public static long lock_timestamp = 0;
     public static final long LOCK_EXPIRATION_MSECS = 5 * 60 * 1000;
@@ -233,6 +245,9 @@ public final class SettingsManager {
     public boolean isDataPlanAllowed() {
         return settingsSharedPref.getBoolean(CAMERA_UPLOAD_ALLOW_DATA_PLAN_SWITCH_KEY, false);
     }
+    public boolean isDirDataPlanAllowed() {
+        return settingsSharedPref.getBoolean(DIR_UPLOAD_ALLOW_DATA_PLAN_SWITCH_KEY, false);
+    }
 
     public boolean isVideosUploadAllowed() {
         return settingsSharedPref.getBoolean(CAMERA_UPLOAD_ALLOW_VIDEOS_SWITCH_KEY, false);
@@ -240,6 +255,16 @@ public final class SettingsManager {
 
     public void saveDataPlanAllowed(boolean isAllowed) {
         settingsSharedPref.edit().putBoolean(CAMERA_UPLOAD_ALLOW_DATA_PLAN_SWITCH_KEY, isAllowed).commit();
+    }
+    public void saveDirDataPlanAllowed(boolean isAllowed) {
+        settingsSharedPref.edit().putBoolean(DIR_UPLOAD_ALLOW_DATA_PLAN_SWITCH_KEY, isAllowed).commit();
+    }
+
+    public void saveDirAutomaticUpload(boolean isAllowed) {
+        settingsSharedPref.edit().putBoolean(DIR_AUTOMATIC_UPLOAD_SWITCH_KEY, isAllowed).commit();
+    }
+    public boolean isDirAutomaticUpload() {
+        return settingsSharedPref.getBoolean(DIR_AUTOMATIC_UPLOAD_SWITCH_KEY, false);
     }
 
     public void saveVideosAllowed(boolean isVideosUploadAllowed) {
@@ -301,6 +326,14 @@ public final class SettingsManager {
 
     public String getUploadCompletedTime() {
         return sharedPref.getString(SettingsManager.UPLOAD_COMPLETED_TIME, null);
+    }
+    public void saveBackupEmail(String path) {
+        editor.putString(SAVE_BACKUP_ACCOUNT_EMAIL, path);
+        editor.commit();
+    }
+
+    public String getBackupEmail() {
+        return sharedPref.getString(SettingsManager.SAVE_BACKUP_ACCOUNT_EMAIL, null);
     }
 
     public void savePrivacyPolicyConfirmed(int type) {

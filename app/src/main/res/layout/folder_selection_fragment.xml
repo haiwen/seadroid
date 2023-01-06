@@ -1,0 +1,69 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+        <LinearLayout
+            android:id="@+id/linl_main_layout_view"
+            android:layout_above="@+id/bt_dir_click_to_finish"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+            <TextView
+                android:id="@+id/cuc_local_library_header_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginLeft="@dimen/tv_title_margin_left"
+                android:layout_marginTop="@dimen/tv_title_margin_top"
+                android:text="@string/settings_select_local_dir_title"
+                android:textColor="@color/fancy_orange"
+                android:textSize="@dimen/tv_title_txt_size"/>
+            <FrameLayout
+                android:id="@+id/frameLayout_toolbar_area"
+                android:layout_marginTop="@dimen/tv_title_margin_top"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <LinearLayout
+                android:id="@+id/linl_path_statusbar"
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:background="@color/fancy_orange"
+                android:orientation="horizontal">
+
+                <ImageButton
+                    android:id="@+id/imb_select_sdcard"
+                    android:layout_width="18dp"
+                    android:layout_height="36dp"
+                    android:layout_gravity="center"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:scaleType="centerInside"
+                    android:tint="@color/blue_500"
+                    />
+
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/rcv_tabbar_files_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+            </LinearLayout>
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/rcv_files_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+        </LinearLayout>
+        <Button
+            android:id="@+id/bt_dir_click_to_finish"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="@dimen/margin_normal"
+            android:layout_marginLeft="@dimen/long_btn_margin_left"
+            android:layout_marginRight="@dimen/long_btn_margin_right"
+            android:text="@string/confirm"
+            android:textSize="@dimen/long_btn_txt_size"
+            android:textColor="@color/white"
+            android:layout_width="match_parent"
+            android:visibility="gone"
+            android:layout_height="@dimen/long_btn_height"/>
+
+</RelativeLayout>

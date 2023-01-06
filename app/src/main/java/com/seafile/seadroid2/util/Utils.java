@@ -300,6 +300,23 @@ public class Utils {
         return getResIdforMimetype(mime);
     }
 
+    public static int getFileIconSuffix(String suffix) {
+        if (suffix.length() == 0) {
+            return R.drawable.file;
+        }
+
+        HashMap<String, Integer> map = getSuffixIconMap();
+        Integer i = map.get(suffix);
+        if (i != null)
+            return i;
+
+        if (suffix.equals("flv")) {
+            return R.drawable.file_video;
+        }
+        String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(suffix);
+        return getResIdforMimetype(mime);
+    }
+
     public static boolean isViewableImage(String name) {
         String suffix = name.substring(name.lastIndexOf('.') + 1).toLowerCase();
         if (suffix.length() == 0)
@@ -486,6 +503,9 @@ public class Utils {
     }
 
     public static void copyFile(File src, File dst) throws IOException {
+        if (src == null || dst == null) {
+            return;
+        }
         InputStream in = new BufferedInputStream(new FileInputStream(src));
         OutputStream out = new BufferedOutputStream(new FileOutputStream(dst));
 
