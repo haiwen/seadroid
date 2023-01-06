@@ -2,7 +2,6 @@ package com.seafile.seadroid2.backupdirectory;
 
 import android.annotation.SuppressLint;
 import android.app.Application;
-import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
 import android.database.Cursor;
@@ -12,239 +11,18 @@ import android.os.Environment;
 import android.os.storage.StorageManager;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
-import android.support.v4.provider.DocumentFile;
 import android.text.TextUtils;
 import android.util.Log;
 
-
-import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.SeadroidApplication;
-
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 
 public class UriTools {
-    //storage/emulated/0
-    public static final String URI_ROOT = "content://com.android.externalstorage.documents/tree/primary%3AAndroid%2Fdata/document/primary";
-    //Android/data
-    public static final String URI_ANRROID_DATA = "content://com.android.externalstorage.documents/tree/primary%3AAndroid%2Fdata/document/primary%3AAndroid%2Fdata";
-    //uri_path
-    public static final String URI_SEPARATOR = "%2F";
-    //SD card
-    public static final String URI_SDCARD_ROOT_FRONT = "content://com.android.externalstorage.documents/tree/";
-    public static final String URI_SDCARD_ROOT_LAST = "%3A";
-
-    public static String getSdcardRootUriByPath(String path) {
-        int last = path.lastIndexOf("/");
-        String SDName = path.substring(last + 1);
-        return URI_SDCARD_ROOT_FRONT + SDName;
-    }
-
-    public static List data2UriMimeTypeData(List<String> data) {
-        List<String> backData = null;
-        if (data != null) {
-            backData = new ArrayList<>();
-            Map<String, String> map = Constants.mimeTypeMap;
-
-            for (String s : data) {
-                if (map.containsKey(s)) {
-                    if (!backData.contains(map.get(s))) {
-                        backData.add(map.get(s));
-                    }
-
-                }
-            }
-
-        }
-        return backData;
-    }
-
-    public static DocumentFile uri2DocumentFile(Context context, Uri uri) {
-        DocumentFile documentFile = DocumentFile.fromSingleUri(context, uri);
-        return documentFile;
-    }
-
-    public static DocumentFile uri2DocumentFile(Context context, String path) {
-        return uri2DocumentFile(context, file2Uri(path));
-    }
-
-    public static DocumentFile uri2DocumentFile(Context context, File file) {
-        return uri2DocumentFile(context, file2Uri(file.getAbsolutePath()));
-    }
-
-    public static void getTabbarFileBeanList(List<TabbarFileBean> tabbarList, String path, List<String> SdCardList) {
-        if (SdCardList.contains(path)) {
-            int i = SdCardList.indexOf(path);
-            if (i == 0) {
-                tabbarList.add(0, new TabbarFileBean(path, SeadroidApplication.getAppContext().getString(R.string.internal_storage), true, uri2DocumentFile(Commons.getApplicationByReflect().getBaseContext(), path)));
-            } else if (i > 0) {
-                tabbarList.add(0, new TabbarFileBean(path, String.format("SD%d", i), true, uri2DocumentFile(Commons.getApplicationByReflect().getBaseContext(), path)));
-            } else {
-                tabbarList.add(0, new TabbarFileBean(path, SeadroidApplication.getAppContext().getString(R.string.internal_storage_err), true, uri2DocumentFile(Commons.getApplicationByReflect().getBaseContext(), path)));
-            }
-            return;
-        }
-        tabbarList.add(0, new TabbarFileBean(path, true, uri2DocumentFile(Commons.getApplicationByReflect().getBaseContext(), path)));
-        getTabbarFileBeanList(tabbarList, FileTools.getParentPath(path), SdCardList);
-    }
-
-    public static List<TabbarFileBean> upDataTabbarFileBeanListByUri(List<TabbarFileBean> tabbarList, TabbarFileListAdapter tabbarAdapter, String path, int type, List<String> SdCardList) {
-
-        switch (type) {
-            case BeanListManager.TypeAddTabbar:
-                tabbarList.add(new TabbarFileBean(path, true, uri2DocumentFile(Commons.getApplicationByReflect().getBaseContext(), path)));
-                break;
-            case BeanListManager.TypeDelTabbar:
-                for (int i = tabbarList.size() - 1; i >= 0; i--) {
-                    if (tabbarList.get(i).getFilePath().length() > path.length()) {
-                        tabbarList.remove(i);
-                    } else {
-                        break;
-                    }
-                }
-                break;
-            case BeanListManager.TypeInitTabbar:
-                if (tabbarList == null) {
-                    tabbarList = new ArrayList<>();
-                } else {
-                    tabbarList.clear();
-                }
-                getTabbarFileBeanList(tabbarList, path, SdCardList);
-                break;
-        }
-
-        if (tabbarAdapter != null) {
-            tabbarAdapter.updateListData(tabbarList);
-            tabbarAdapter.notifyDataSetChanged();
-        }
-
-        return tabbarList;
-    }
-
-    public static List<FileBean> upDataFileBeanListByUri(Context context, Uri uri, List<FileBean> fileBeanList, FileListAdapter fileListAdapter, List<String> fileTypes, int sortType) {
-
-        if (fileBeanList == null) {
-            fileBeanList = new ArrayList<>();
-        } else if (fileBeanList.size() != 0) {
-            fileBeanList.clear();
-        }
-        FileBean fileBean;
-
-        if (context == null || uri == null) return null;
-        DocumentFile rootDocumentFile = DocumentFile.fromSingleUri(context, uri);
-        if (rootDocumentFile == null) return null;
-
-
-        DocumentFile pickedDir = rootDocumentFile.fromTreeUri(context, uri);
-        if (pickedDir == null) return null;
-        for (DocumentFile i : pickedDir.listFiles()) {
-            fileBean = new FileBean(UriTools.uri2File(i.getUri()), true, i);
-            if (fileTypes == null || fileTypes.size() == 0 || fileBean.isDir() || fileTypes.contains(fileBean.getFileExtension())) {
-                fileBeanList.add(fileBean);
-            }
-        }
-        BeanListManager.sortFileBeanList(fileBeanList, sortType);
-        if (fileListAdapter != null) {
-            fileListAdapter.notifyDataSetChanged();
-        }
-
-        return fileBeanList;
-
-    }
-
-    public static void handleDirSubfileByUri(ContentResolver contentResolver, Context context, Uri uri, int handleType, List<String> filerType) {
-        if (context == null || uri == null) return;
-        DocumentFile rootDocumentFile = DocumentFile.fromSingleUri(context, uri);
-        if (rootDocumentFile == null) return;
-        DocumentFile pickedDir = rootDocumentFile.fromTreeUri(context, uri);
-        if (pickedDir == null) return;
-        for (DocumentFile i : pickedDir.listFiles()) {
-            if (i.isDirectory()) {
-                handleDirSubfileByUri(contentResolver, context, i.getUri(), handleType, filerType);
-            } else {
-
-                if (filerType != null && !filerType.contains(i.getType())) {
-                    continue;
-                }
-
-                switch (handleType) {
-                    case 0:
-                        copyFileByUri(contentResolver, i.getUri(), "/storage/emulated/0/" + i.getName());
-                        break;
-                    default:
-                }
-            }
-        }
-    }
-
-    public static void handleDirSubfileByUri(ContentResolver contentResolver, Context context, Uri uri, int handleType) {
-        handleDirSubfileByUri(contentResolver, context, uri, handleType, null);
-    }
-
-    private static boolean copyFileByUri(ContentResolver contentResolver, Uri sourceUri, String filePath) {
-        InputStream in = null;
-        OutputStream out = null;
-        try {
-            in = contentResolver.openInputStream(sourceUri);
-
-            File destFile = new File(filePath);
-            out = new FileOutputStream(destFile);
-
-            if (out == null) {
-                return false;
-            }
-
-            byte[] flush = new byte[1024];
-            int len = -1;
-            while ((len = in.read(flush)) != -1) {
-                out.write(flush, 0, len);
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                in.close();
-                out.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-                return false;
-            }
-        }
-        return true;
-    }
-
-    public static Uri file2Uri(String path) {
-        if (path.matches(Constants.PATH_ANRROID_DATA + "(.*)")) {
-            String lastPart = path.replace(Constants.PATH_ANRROID_DATA, "").replace(File.separator, URI_SEPARATOR);
-            return Uri.parse(URI_ANRROID_DATA + lastPart);
-        }
-        return null;
-    }
-
-    public static Uri file2Uri(File file) {
-        return file2Uri(file.getAbsolutePath());
-    }
-
-    public static String uri2File(Uri uri) {
-        String s = uri.toString();
-        if (s.matches(URI_ANRROID_DATA + "(.*)")) {
-            String lastPart = s.replace(URI_ANRROID_DATA, "").replace(URI_SEPARATOR, File.separator);
-            return Constants.PATH_ANRROID_DATA + lastPart;
-        }
-        return null;
-    }
-
     public static File uri2File(Uri uri, Context context, Application app) {
 
         if (uri == null) {

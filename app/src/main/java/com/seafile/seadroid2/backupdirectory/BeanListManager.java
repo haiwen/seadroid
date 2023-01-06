@@ -1,6 +1,9 @@
 package com.seafile.seadroid2.backupdirectory;
 
 
+import android.app.Activity;
+import android.app.ProgressDialog;
+
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.util.Utils;
@@ -26,7 +29,7 @@ public class BeanListManager {
     public static final int TypeDelTabbar = 1;
     public static final int TypeInitTabbar = 2;
 
-    public static void upDataFileBeanListByAsyn(List<String> selectFilePath, List<FileBean> fileBeanList, FileListAdapter fileListAdapter, String path, List<String> fileTypes, int sortType) {
+    public static void upDataFileBeanListByAsyn(Activity at, List<String> selectFilePath, List<FileBean> fileBeanList, FileListAdapter fileListAdapter, String path, List<String> fileTypes, int sortType) {
 
         if (fileBeanList == null) {
             fileBeanList = new ArrayList<>();
@@ -45,13 +48,13 @@ public class BeanListManager {
                         if (files != null) {
                             for (int i = 0; i < files.length; i++) {
                                 fileBean = new FileBean(files[i].getAbsolutePath(), false);
-                                for (String str : selectFilePath) {
-                                    if (fileBean.getFilePath().equals(str)) {
-                                        Utils.utilsLogInfo(false, fileBean.getFilePath() + "----------------" + str);
-                                        fileBean.setChecked(true);
+                                if (selectFilePath != null && selectFilePath.size() > 0) {
+                                    for (String str : selectFilePath) {
+                                        if (fileBean.getFilePath().equals(str)) {
+                                            fileBean.setChecked(true);
+                                        }
                                     }
                                 }
-
                                 fileBeanList.add(fileBean);
                             }
                         }
@@ -62,8 +65,12 @@ public class BeanListManager {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<List<FileBean>>() {
+                    public ProgressDialog pg;
+
                     @Override
                     public void onSubscribe(@NonNull Disposable d) {
+                        pg = new ProgressDialog(at);
+                        pg.show();
 
                     }
 
@@ -77,12 +84,12 @@ public class BeanListManager {
 
                     @Override
                     public void onError(@NonNull Throwable e) {
-
+                        pg.dismiss();
                     }
 
                     @Override
                     public void onComplete() {
-
+                        pg.dismiss();
                     }
                 });
 

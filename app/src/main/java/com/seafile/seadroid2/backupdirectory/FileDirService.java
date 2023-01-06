@@ -11,14 +11,17 @@ import android.os.IBinder;
 import android.text.TextUtils;
 
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SeafConnection;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.data.CameraSyncEvent;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.transfer.TransferService;
+import com.seafile.seadroid2.util.CameraSyncStatus;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.util.Utils;
 
@@ -26,7 +29,6 @@ import org.apache.commons.io.monitor.FileAlterationListener;
 import org.apache.commons.io.monitor.FileAlterationMonitor;
 import org.apache.commons.io.monitor.FileAlterationObserver;
 import org.greenrobot.eventbus.EventBus;
-import org.litepal.LitePal;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -37,8 +39,12 @@ public class FileDirService extends Service {
     private final IBinder mBinder = new FileDirBinder();
     TransferService txService = null;
     private DataManager dataManager;
-    private Account currentAccount;
     private UploadDirectoryDBHelper databaseHelper;
+    private AccountManager accountManager;
+    private Account currentAccount;
+    private RepoInfo repoConfig;
+    private PathsInfo pathsConfig;
+    private List<String> pathList;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -62,23 +68,30 @@ public class FileDirService extends Service {
         super.onCreate();
         databaseHelper = UploadDirectoryDBHelper.getDatabaseHelper();
         Intent bIntent = new Intent(this, TransferService.class);
+        accountManager = new AccountManager(this);
         bindService(bIntent, mConnection, Context.BIND_AUTO_CREATE);
     }
 
-    private FolderBean mFolderPath;
+    public void uploadFile(String email) {
+        if (databaseHelper == null) {
+            databaseHelper = UploadDirectoryDBHelper.getDatabaseHelper();
+        }
+        repoConfig = databaseHelper.getRepoConfig(email);
+        pathsConfig = databaseHelper.getPathsConfig(email);
 
-    public void uploadFile(Account account, FolderBean folderPath) {
-        this.currentAccount = account;
-        this.mFolderPath = folderPath;
-        if (folderPath == null || TextUtils.isEmpty(folderPath.getRepoID()) || TextUtils.isEmpty(folderPath.getName())) {
+        if (repoConfig == null || pathsConfig == null) {
             return;
         }
-
-        Utils.utilsLogInfo(false, folderPath.getRepoID() + "---------------" + folderPath.getRepoName() + "-------" + folderPath.getEmail());
-        dataManager = new DataManager(account);
-
-
-        for (String str : folderPath.getSelectFolder()) {
+        if (accountManager == null) {
+            accountManager = new AccountManager(this);
+        }
+        currentAccount = accountManager.getCurrentAccount();
+        String paths = pathsConfig.getPaths();
+        if (!TextUtils.isEmpty(paths)) {
+            pathList = StringTools.getDataList(paths);
+        }
+        dataManager = new DataManager(currentAccount);
+        for (String str : pathList) {
             FileDirectoryMonitor fileDirectoryMonitor = new FileDirectoryMonitor();
             FileAlterationObserver fileDirObserver = new FileAlterationObserver(str);
             fileDirObserver.addListener(fileDirectoryMonitor);
@@ -90,10 +103,12 @@ public class FileDirService extends Service {
                 e.printStackTrace();
             }
         }
-
-        if ((!SettingsManager.instance().isDirDataPlanAllowed() && Utils.isWiFiOn()) || SettingsManager.instance().isDirDataPlanAllowed()) {
-            ConcurrentAsyncTask.execute(new uploadDirTask());
+        if (!StringTools.checkFolderUploadNetworkAvailable()) {
+            // treat dataPlan abort the same way as a network connection error
+            SeadroidApplication.getInstance().setScanUploadStatus(CameraSyncStatus.NETWORK_UNAVAILABLE);
+            return;
         }
+        ConcurrentAsyncTask.execute(new uploadDirTask());
 
     }
 
@@ -102,7 +117,7 @@ public class FileDirService extends Service {
         @Override
         protected String doInBackground(Void... params) {
             SeafConnection sc = new SeafConnection(currentAccount);
-            for (String str : mFolderPath.getSelectFolder()) {
+            for (String str : pathList) {
                 String[] split = str.split("/");
                 try {
                     Utils.utilsLogInfo(false, str + "------------------" + split[split.length - 1]);
@@ -126,8 +141,8 @@ public class FileDirService extends Service {
 
     private void forceCreateDirectory(DataManager dataManager, String parent, String dir) throws SeafException {
         List<SeafDirent> dirs = null;
-        if (mFolderPath != null && !TextUtils.isEmpty(mFolderPath.getRepoID()) && !TextUtils.isEmpty(parent)) {
-            dirs = dataManager.getDirentsFromServer(mFolderPath.getRepoID(), parent);
+        if (repoConfig != null && !TextUtils.isEmpty(repoConfig.getRepoID()) && !TextUtils.isEmpty(parent)) {
+            dirs = dataManager.getDirentsFromServer(repoConfig.getRepoID(), parent);
         }
         boolean found = false;
         if (dirs == null) return;
@@ -137,14 +152,14 @@ public class FileDirService extends Service {
             } else if (dirent.name.equals(dir) && !dirent.isDir()) {
                 // there is already a file. move it away.
                 String newFilename = getString(R.string.camera_sync_rename_file, dirent.name);
-                dataManager.rename(mFolderPath.getRepoID(),
+                dataManager.rename(repoConfig.getRepoID(),
                         Utils.pathJoin(Utils.pathJoin("/", parent), dirent.name),
                         newFilename,
                         false);
             }
         }
         if (!found)
-            dataManager.createNewDir(mFolderPath.getRepoID(), Utils.pathJoin("/", parent), dir);
+            dataManager.createNewDir(repoConfig.getRepoID(), Utils.pathJoin("/", parent), dir);
 
     }
 
@@ -172,27 +187,25 @@ public class FileDirService extends Service {
                 isFolder(parentPath + "/" + fb.getFileName(), fb.getFilePath());
             } else {
 
-                UploadDirInfo fileInfo = databaseHelper.getUploadFileInfo(currentAccount, mFolderPath.getRepoID(), fb.getFilePath(), fb.getSimpleSize() + "");
+                UploadDirInfo fileInfo = databaseHelper.getUploadFileInfo(currentAccount, repoConfig.getRepoID(), fb.getFilePath(), fb.getSimpleSize() + "");
                 if (fileInfo != null && !TextUtils.isEmpty(fileInfo.filePath)) {
                     Utils.utilsLogInfo(false, "-----------" + fileInfo.filePath);
                 } else {
                     int num = txService.addTaskToUploadQue(currentAccount,
-                            mFolderPath.getRepoID(),
-                            mFolderPath.getRepoName(),
+                            repoConfig.getRepoID(),
+                            repoConfig.getRepoName(),
                             parentPath,
                             fb.getFilePath(),
                             false,
                             true);
                     if (num != 0) {
-                        Utils.utilsLogInfo(false, "-------folder---------" + num);
-                        EventBus.getDefault().post(new CameraSyncEvent("folder", num));
-                        databaseHelper.saveDirUploadInfo(new UploadDirInfo(currentAccount, mFolderPath.getRepoID(), mFolderPath.getRepoName(), parentPath, fb.getFileName(), fb.getFilePath(), fb.getSimpleSize() + ""));
+                        EventBus.getDefault().post(new CameraSyncEvent("backupFolder", num));
+                        databaseHelper.saveDirUploadInfo(new UploadDirInfo(currentAccount, repoConfig.getRepoID(), repoConfig.getRepoName(), parentPath, fb.getFileName(), fb.getFilePath(), fb.getSimpleSize() + ""));
                     }
                 }
 
             }
         }
-
 
     }
 
@@ -239,7 +252,6 @@ public class FileDirService extends Service {
         @Override
         public void onDirectoryCreate(File directory) {
             uploadFile();
-            Utils.utilsLogInfo(false, directory.getName() + "--11111-----onDirectoryCreate---" + directory.getAbsolutePath() + "----" + directory.getParent());
 
         }
 
@@ -256,7 +268,6 @@ public class FileDirService extends Service {
         @Override
         public void onFileCreate(File file) {
             uploadFile();
-            Utils.utilsLogInfo(false, file.getName() + "---11111----onFileCreate-------" + file.getPath() + "====" + file.getParent());
         }
 
         @Override
@@ -276,16 +287,10 @@ public class FileDirService extends Service {
     }
 
     public void uploadFile() {
-        Account account = dataManager.getAccount();
-        List<FolderBean> paths = LitePal.findAll(FolderBean.class);
-        if (paths != null) {
-            for (FolderBean fp : paths) {
-                if (fp.getEmail().equals(account.email)) {
-                    uploadFile(account, fp);
-                }
-            }
+        String backupEmail = SettingsManager.instance().getBackupEmail();
+        if (backupEmail != null) {
+            uploadFile(backupEmail);
         }
-
     }
 
 }

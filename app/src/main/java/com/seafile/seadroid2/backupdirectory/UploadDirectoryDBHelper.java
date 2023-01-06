@@ -27,24 +27,34 @@ public class UploadDirectoryDBHelper extends SQLiteOpenHelper {
     private static final String AUTO_UPDATE_DIR_COLUMN_FILE_PATH = "file_path";
     private static final String AUTO_UPDATE_DIR_COLUMN_FILE_SIZE = "file_size";
 
-    // UploadDir config table
-    private static final String DIR_CONFIG_INFO_TABLE_NAME = "UploadDirConfig";
-    private static final String DIR_CONFIG_INFO_COLUMN_ID = "id";
-    private static final String DIR_CONFIG_INFO_ACCOUNT = "account";
-    private static final String DIR_CONFIG_INFO_REPO_ID = "repo_id";
-    private static final String DIR_CONFIG_INFO_REPO_NAME = "repo_name";
-    private static final String DIR_CONFIG_INFO_DIR_NAME = "dir_name";
-    private static final String DIR_CONFIG_INFO_DIR_PATH = "dir_path";
+    // repo config table
+    private static final String REPO_CONFIG_TABLE_NAME = "RepoConfig";
+    private static final String REPO_CONFIG_COLUMN_ID = "id";
+    private static final String REPO_CONFIG_MAIL = "mail";
+    private static final String REPO_CONFIG_REPO_ID = "repo_id";
+    private static final String REPO_CONFIG_REPO_NAME = "repo_name";
 
 
-    private static final String SQL_CREATE_DIR_CONFIG_TABLE =
-            "CREATE TABLE " + DIR_CONFIG_INFO_TABLE_NAME + " ("
-                    + DIR_CONFIG_INFO_COLUMN_ID + " INTEGER PRIMARY KEY, "
-                    + DIR_CONFIG_INFO_ACCOUNT + " TEXT NOT NULL, "
-                    + DIR_CONFIG_INFO_REPO_ID + " TEXT NOT NULL, "
-                    + DIR_CONFIG_INFO_REPO_NAME + " TEXT NOT NULL, "
-                    + DIR_CONFIG_INFO_DIR_NAME + " TEXT NOT NULL, "
-                    + DIR_CONFIG_INFO_DIR_PATH + " TEXT NOT NULL);";
+    // paths config table
+    private static final String PATH_CONFIG_TABLE_NAME = "PathConfig";
+    private static final String PATH_CONFIG_COLUMN_ID = "id";
+    private static final String PATH_CONFIG_MAIL = "mail";
+    private static final String PATH_CONFIG_DIR_PATHS = "dirPaths";
+
+
+    private static final String SQL_CREATE_REPO_CONFIG_TABLE =
+            "CREATE TABLE " + REPO_CONFIG_TABLE_NAME + " ("
+                    + REPO_CONFIG_COLUMN_ID + " INTEGER PRIMARY KEY, "
+                    + REPO_CONFIG_MAIL + " TEXT NOT NULL, "
+                    + REPO_CONFIG_REPO_ID + " TEXT NOT NULL, "
+                    + REPO_CONFIG_REPO_NAME + " TEXT NOT NULL);";
+
+    private static final String SQL_CREATE_PATH_CONFIG_TABLE =
+            "CREATE TABLE " + PATH_CONFIG_TABLE_NAME + " ("
+                    + PATH_CONFIG_COLUMN_ID + " INTEGER PRIMARY KEY, "
+                    + PATH_CONFIG_MAIL + " TEXT NOT NULL, "
+                    + PATH_CONFIG_DIR_PATHS + " TEXT NOT NULL);";
+
 
     private static final String SQL_CREATE_AUTO_UPDATE_DIR_TABLE = "CREATE TABLE "
             + AUTO_UPDATE_DIR_TABLE_NAME
@@ -90,13 +100,15 @@ public class UploadDirectoryDBHelper extends SQLiteOpenHelper {
 
     private void createUploadDirTable(SQLiteDatabase db) {
         db.execSQL(SQL_CREATE_AUTO_UPDATE_DIR_TABLE);
-        db.execSQL(SQL_CREATE_DIR_CONFIG_TABLE);
+        db.execSQL(SQL_CREATE_REPO_CONFIG_TABLE);
+        db.execSQL(SQL_CREATE_PATH_CONFIG_TABLE);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS " + AUTO_UPDATE_DIR_TABLE_NAME + ";");
-        db.execSQL("DROP TABLE IF EXISTS " + DIR_CONFIG_INFO_TABLE_NAME + ";");
+        db.execSQL("DROP TABLE IF EXISTS " + SQL_CREATE_REPO_CONFIG_TABLE + ";");
+        db.execSQL("DROP TABLE IF EXISTS " + SQL_CREATE_PATH_CONFIG_TABLE + ";");
         onCreate(db);
     }
 
@@ -117,35 +129,40 @@ public class UploadDirectoryDBHelper extends SQLiteOpenHelper {
 
         database.insert(AUTO_UPDATE_DIR_TABLE_NAME, null, values);
     }
-    public void saveDirUploadConfig(Account account, String repoID, String repoName,String fileName,String filePath) {
+    public void saveRepoConfig(String email, String repoID, String repoName) {
         ContentValues values = new ContentValues();
-        values.put(DIR_CONFIG_INFO_ACCOUNT, account.getSignature());
-        values.put(DIR_CONFIG_INFO_REPO_ID, repoID);
-        values.put(DIR_CONFIG_INFO_REPO_NAME, repoName);
-        values.put(DIR_CONFIG_INFO_DIR_NAME, fileName);
-        values.put(DIR_CONFIG_INFO_DIR_PATH, filePath);
-        database.insert(DIR_CONFIG_INFO_TABLE_NAME, null, values);
+        values.put(REPO_CONFIG_MAIL, email);
+        values.put(REPO_CONFIG_REPO_ID, repoID);
+        values.put(REPO_CONFIG_REPO_NAME, repoName);
+        database.insert(REPO_CONFIG_TABLE_NAME, null, values);
+    }
+    public void savePathsConfig(String email, String filePaths) {
+        ContentValues values = new ContentValues();
+        values.put(PATH_CONFIG_MAIL, email);
+        values.put(PATH_CONFIG_DIR_PATHS, filePaths);
+        database.insert(PATH_CONFIG_TABLE_NAME, null, values);
     }
 
-    public void updateDirConfig(Account account,String oldRepoID, String repoID, String repoName,String fileName,String filePath) {
-        removeDirConfigInfo(account,oldRepoID,filePath);
-        saveDirUploadConfig(account,repoID,repoName,fileName,filePath);
+    public void updateRepoConfig(String email, String repoID, String repoName) {
+        removeRepoConfig(email);
+        saveRepoConfig(email, repoID, repoName);
     }
-    public UploadDirConfig getDirConfig(Account account, String filePath) {
+    public void updatePathsConfig(String email, String filePaths) {
+        removePathsConfig(email);
+        savePathsConfig(email,filePaths);
+    }
+    public RepoInfo getRepoConfig(String email) {
         String[] projection = {
-                DIR_CONFIG_INFO_REPO_ID,
-                DIR_CONFIG_INFO_REPO_NAME,
-                DIR_CONFIG_INFO_DIR_NAME,
-                DIR_CONFIG_INFO_DIR_PATH
+                REPO_CONFIG_REPO_ID,
+                REPO_CONFIG_REPO_NAME
         };
-        String selectClause = String.format("%s = ? and %s = ? ",
-                DIR_CONFIG_INFO_ACCOUNT,
-                DIR_CONFIG_INFO_DIR_PATH);
-        String[] selectArgs = {account.getSignature(), filePath};
+        String selectClause = String.format("%s = ? ",
+                REPO_CONFIG_MAIL);
+        String[] selectArgs = {email};
 
 
         Cursor c = database.query(
-                DIR_CONFIG_INFO_TABLE_NAME,
+                REPO_CONFIG_TABLE_NAME,
                 projection,
                 selectClause,
                 selectArgs,
@@ -156,7 +173,32 @@ public class UploadDirectoryDBHelper extends SQLiteOpenHelper {
             c.close();
             return null;
         }
-        UploadDirConfig item = cursorToDirConfigInfo(c, account);
+        RepoInfo item = cursorToRepoConfigInfo(c,email);
+        c.close();
+        return item;
+    }
+    public PathsInfo getPathsConfig(String email) {
+        String[] projection = {
+                PATH_CONFIG_DIR_PATHS
+        };
+        String selectClause = String.format("%s = ? ",
+                PATH_CONFIG_MAIL);
+        String[] selectArgs = {email};
+
+
+        Cursor c = database.query(
+                PATH_CONFIG_TABLE_NAME,
+                projection,
+                selectClause,
+                selectArgs,
+                null,
+                null,
+                null);
+        if (!c.moveToFirst()) {
+            c.close();
+            return null;
+        }
+        PathsInfo item = cursorToPathsConfigInfo(c,email);
         c.close();
         return item;
     }
@@ -195,26 +237,15 @@ public class UploadDirectoryDBHelper extends SQLiteOpenHelper {
         return item;
     }
 
-    public void removeDirUploadInfo(UploadDirInfo info) {
-        String whereClause = String.format(
-                "%s = ? and %s = ? and %s = ? and %s = ? and %s = ? and %s = ?",
-                AUTO_UPDATE_DIR_COLUMN_ACCOUNT,
-                AUTO_UPDATE_DIR_COLUMN_REPO_ID,
-                AUTO_UPDATE_DIR_COLUMN_REPO_NAME,
-                AUTO_UPDATE_DIR_COLUMN_PARENT_DIR,
-                AUTO_UPDATE_DIR_COLUMN_FILE_NAME,
-                AUTO_UPDATE_DIR_COLUMN_FILE_PATH,
-                AUTO_UPDATE_DIR_COLUMN_FILE_SIZE);
-        String[] params = {info.account.getSignature(), info.repoID, info.repoName,
-                info.parentDir, info.filePath,};
-        database.delete(AUTO_UPDATE_DIR_TABLE_NAME, whereClause, params);
+    public void removeRepoConfig(String email) {
+        String whereClause = String.format("%s = ?", REPO_CONFIG_MAIL);
+        String[] params = {email};
+        database.delete(REPO_CONFIG_TABLE_NAME, whereClause, params);
     }
 
-    public void removeDirConfigInfo(Account account, String repoID, String filePath) {
-        String whereClause = String.format("%s = ? and %s = ? and %s = ?",
-                DIR_CONFIG_INFO_ACCOUNT, DIR_CONFIG_INFO_REPO_ID, DIR_CONFIG_INFO_DIR_PATH);
-
-        database.delete(DIR_CONFIG_INFO_TABLE_NAME, whereClause, new String[] { account.getSignature(), repoID, filePath });
+    public void removePathsConfig(String email) {
+        String whereClause = String.format("%s = ?", PATH_CONFIG_MAIL);
+        database.delete(PATH_CONFIG_TABLE_NAME, whereClause, new String[]{email});
     }
 
 
@@ -233,17 +264,15 @@ public class UploadDirectoryDBHelper extends SQLiteOpenHelper {
         UploadDirInfo info = new UploadDirInfo(account, repoID, repoName, parentDir, fileName, filePath, fileSize);
         return info;
     }
-    private UploadDirConfig cursorToDirConfigInfo(Cursor c, Account account) {
+    private RepoInfo cursorToRepoConfigInfo(Cursor c,String email) {
         String repoID = c.getString(0);
         String repoName = c.getString(1);
-        String fileName = c.getString(2);
-        String filePath = c.getString(3);
-
-        if (!new File(filePath).exists()) {
-            filePath = null;
-        }
-
-        UploadDirConfig info = new UploadDirConfig(account, repoID, repoName, fileName, filePath);
+        RepoInfo info = new RepoInfo(repoID, repoName, email);
+        return info;
+    }
+    private PathsInfo cursorToPathsConfigInfo(Cursor c, String email) {
+        String filePaths = c.getString(0);
+        PathsInfo info = new PathsInfo(filePaths,email);
         return info;
     }
 }

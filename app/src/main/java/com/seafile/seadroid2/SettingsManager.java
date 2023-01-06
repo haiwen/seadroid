@@ -67,7 +67,6 @@ public final class SettingsManager {
     public static final String CAMERA_UPLOAD_SWITCH_KEY = "camera_upload_switch_key";
     public static final String DIRECTORY_UPLOAD_SWITCH_KEY = "directory_upload_switch_key";
     public static final String CAMERA_UPLOAD_REPO_KEY = "camera_upload_repo_key";
-    public static final String FOLDER_UPLOAD_KEY = "folder_upload_key";
     public static final String CAMERA_UPLOAD_ADVANCED_SCREEN_KEY = "screen_camera_upload_advanced_feature";
     public static final String CAMERA_UPLOAD_ADVANCED_CATEGORY_KEY = "category_camera_upload_advanced_key";
     public static final String CAMERA_UPLOAD_ALLOW_DATA_PLAN_SWITCH_KEY = "allow_data_plan_switch_key";
@@ -94,7 +93,6 @@ public final class SettingsManager {
     public static final String SETTINGS_CLEAR_CACHE_KEY = "settings_clear_cache_key";
     public static final String SETTINGS_CACHE_DIR_KEY = "settings_cache_location_key";
     public static final String CAMERA_UPLOAD_STATE = "camera_upload_state";
-    public static final String FOLDER_UPLOAD_STATE = "folder_upload_state";
 
     // Sort files
     public static final String SORT_FILES_TYPE = "sort_files_type";
@@ -109,8 +107,12 @@ public final class SettingsManager {
     //DirSyncStatus
     public static final String DIR_UPLOAD_ALLOW_DATA_PLAN_SWITCH_KEY = "dir_allow_data_plan_switch_key";
     public static final String DIR_AUTOMATIC_UPLOAD_SWITCH_KEY = "dir_automatic_upload_switch_key";
-    public static final String SAVE_DIRECTORY_FILE_PATH = "save_directory_file_path";
+    public static final String SAVE_BACKUP_ACCOUNT_EMAIL = "save_backup_account_email";
     public static final String FOLDER_UPLOAD_CATEGORY_KEY = "file_directory_upload_key";
+    public static final String FOLDER_BACKUP_MODE = "folder_backup_mode";
+    public static final String FOLDER_BACKUP_LIBRARY = "folder_backup_library";
+    public static final String FOLDER_BACKUP_KEY = "folder_backup_key";
+    public static final String FOLDER_BACKUP_STATE = "folder_backup_state";
 
     public static long lock_timestamp = 0;
     public static final long LOCK_EXPIRATION_MSECS = 5 * 60 * 1000;
@@ -325,13 +327,13 @@ public final class SettingsManager {
     public String getUploadCompletedTime() {
         return sharedPref.getString(SettingsManager.UPLOAD_COMPLETED_TIME, null);
     }
-    public void saveDirectoryFilePath(String path) {
-        editor.putString(SAVE_DIRECTORY_FILE_PATH, path);
+    public void saveBackupEmail(String path) {
+        editor.putString(SAVE_BACKUP_ACCOUNT_EMAIL, path);
         editor.commit();
     }
 
-    public String getDirectoryFilePath() {
-        return sharedPref.getString(SettingsManager.SAVE_DIRECTORY_FILE_PATH, null);
+    public String getBackupEmail() {
+        return sharedPref.getString(SettingsManager.SAVE_BACKUP_ACCOUNT_EMAIL, null);
     }
 
     public void savePrivacyPolicyConfirmed(int type) {

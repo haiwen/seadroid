@@ -20,7 +20,6 @@ import com.seafile.seadroid2.gesturelock.AppLockManager;
 import com.seafile.seadroid2.ui.CustomNotificationBuilder;
 import com.seafile.seadroid2.util.Utils;
 
-import org.litepal.LitePal;
 
 import java.io.File;
 
@@ -42,7 +41,6 @@ public class SeadroidApplication extends Application {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             initNotificationChannel();
         }
-        LitePal.initialize(this);
         Utils.logPhoneModelInfo();
     }
 

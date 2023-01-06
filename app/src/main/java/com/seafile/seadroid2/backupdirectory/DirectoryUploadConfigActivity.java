@@ -1,5 +1,6 @@
 package com.seafile.seadroid2.backupdirectory;
 
+import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -10,85 +11,74 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v4.view.ViewPager.OnPageChangeListener;
-import android.view.View;
+import android.text.TextUtils;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
-import com.seafile.seadroid2.data.CameraSyncEvent;
 import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.ui.activity.BaseActivity;
+import com.seafile.seadroid2.ui.activity.SeafilePathChooserActivity;
 import com.seafile.seadroid2.ui.fragment.SettingsFragment;
-import com.viewpagerindicator.LinePageIndicator;
 
-import org.greenrobot.eventbus.EventBus;
-import org.litepal.LitePal;
-
+import java.util.ArrayList;
 import java.util.List;
 
 
-/**
- * dir upload configuration helper
- */
 public class DirectoryUploadConfigActivity extends BaseActivity {
     public String DEBUG_TAG = "DirectoryUploadConfigActivity";
-
+    public static final String BACKUP_SELECT_REPO = "backup_select_repo";
+    public static final String BACKUP_SELECT_PATHS = "backup_select_paths";
+    public static final String BACKUP_SELECT_PATHS_ON = "backup_select_paths_on";
     private ViewPager mViewPager;
-    private LinePageIndicator mIndicator;
     private DirectorySelectionFragment mBucketsFragment;
     private DirCloudLibraryFragment mCloudLibFragment;
-    private SettingsManager sm;
     private SeafRepo mSeafRepo;
     private Account mAccount;
-    /**
-     * handling data from local directory page
-     */
     private boolean isChooseDirPage;
+    private boolean isChooseLibPage;
     private int mCurrentPosition;
     private UploadDirectoryDBHelper databaseHelper;
     private FileDirService fileDirService;
-    private List<String> selectFolderPath;
     private AccountManager accountMgr;
     private Account currentAccount;
-    private List<FolderBean> litePalSelectPath;
-    private FolderBean mFolderBean;
+    private List<String> dbPaths;
+    private Activity mActivity;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-        setContentView(R.layout.cuc_activity_layout);
+        setContentView(R.layout.folder_activity_layout);
         if (getSupportActionBar() != null)
             getSupportActionBar().hide();
 
 
         isChooseDirPage = getIntent().getBooleanExtra(SettingsFragment.FOLDER_UPLOAD_REMOTE_DIR, false);
+        isChooseLibPage = getIntent().getBooleanExtra(SettingsFragment.FOLDER_UPLOAD_REMOTE_LIBRARY, false);
         mViewPager = (ViewPager) findViewById(R.id.cuc_pager);
         FragmentManager fm = getSupportFragmentManager();
         mViewPager.setAdapter(new CameraUploadConfigAdapter(fm));
-        mViewPager.setOffscreenPageLimit(5);
-        mIndicator = (LinePageIndicator) findViewById(R.id.cuc_indicator);
-        mIndicator.setViewPager(mViewPager);
-        mIndicator.setOnPageChangeListener(pageChangeListener);
-        sm = SettingsManager.instance();
+        mViewPager.setOffscreenPageLimit(2);
         accountMgr = new AccountManager(this);
         currentAccount = accountMgr.getCurrentAccount();
         databaseHelper = UploadDirectoryDBHelper.getDatabaseHelper();
         Intent bindIntent = new Intent(this, FileDirService.class);
         bindService(bindIntent, mDirConnection, Context.BIND_AUTO_CREATE);
+        mActivity=this;
+        String backupEmail = SettingsManager.instance().getBackupEmail();
+        if (isChooseDirPage && !TextUtils.isEmpty(backupEmail)) {
+            PathsInfo pathsConfig = databaseHelper.getPathsConfig(backupEmail);
+            if (pathsConfig != null) {
+                String paths = pathsConfig.getPaths();
+                dbPaths = StringTools.getDataList(paths);
 
-        LitePal.getDatabase();
-        litePalSelectPath = LitePal.findAll(FolderBean.class);
-        for (FolderBean fb : litePalSelectPath) {
-            if (fb.getEmail().equals(currentAccount.email)) {
-                mFolderBean = fb;
             }
         }
-        if (isChooseDirPage) {
-            mIndicator.setVisibility(View.GONE);
-        }
+
 
     }
 
@@ -107,32 +97,10 @@ public class DirectoryUploadConfigActivity extends BaseActivity {
 
     };
 
-    /**
-     * Page scroll listener.
-     */
-    private OnPageChangeListener pageChangeListener = new OnPageChangeListener() {
-
-        @Override
-        public void onPageScrollStateChanged(int scrollState) {
-        }
-
-        @Override
-        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-            mCurrentPosition = position;
-        }
-
-        @Override
-        public void onPageSelected(int page) {
-        }
-    };
 
     public void saveDirUploadInfo(Account account, SeafRepo seafRepo) {
         mSeafRepo = seafRepo;
         mAccount = account;
-    }
-
-    public SeafRepo getSeafRepo() {
-        return mSeafRepo;
     }
 
 
@@ -141,128 +109,65 @@ public class DirectoryUploadConfigActivity extends BaseActivity {
     }
 
 
-    public FolderBean getLitePalFolder() {
-        return mFolderBean;
-    }
 
-    public void setFileList(List<String> selectFileList) {
-        this.selectFolderPath = selectFileList;
+    public void setFilePathList(List<String> selectFileList) {
+        this.dbPaths = selectFileList;
 
     }
 
     public List<String> getSelectFilePath() {
-        return selectFolderPath;
+        return dbPaths;
     }
 
     public void saveSettings() {
-        FolderBean folderBean;
 
-        if (litePalSelectPath == null) {
-            folderBean = new FolderBean();
-            folderBean.setName("folderBean");
-            folderBean.setEmail(mAccount.email);
-            folderBean.setRepoID(mSeafRepo.id);
-            folderBean.setRepoName(mSeafRepo.name);
-            folderBean.setSelectFolder(selectFolderPath);
-            folderBean.save();
-        } else {
-
-            if (mFolderBean == null) {
-                folderBean = new FolderBean();
-                folderBean.setName("folderBean");
-                folderBean.setEmail(mAccount.email);
-                folderBean.setRepoID(mSeafRepo.id);
-                folderBean.setRepoName(mSeafRepo.name);
-                folderBean.setSelectFolder(selectFolderPath);
-                folderBean.save();
-            } else {
-                if (currentAccount.getEmail().equals(mAccount.email)) {
-                    if (mFolderBean.getRepoID().equals(mSeafRepo.id)) {
-                        Toast.makeText(this, "更新已有备份目录", Toast.LENGTH_SHORT).show();
-                        folderBean = new FolderBean();
-                    } else {
-                        Toast.makeText(this, "更新已有备份资料库和目录", Toast.LENGTH_SHORT).show();
-                        folderBean = new FolderBean();
-                        folderBean.setRepoID(mSeafRepo.id);
-                        folderBean.setRepoName(mSeafRepo.name);
-                    }
-                    folderBean.setSelectFolder(selectFolderPath);
-                    folderBean.updateAll("name = ?", "folderBean");
-                } else {
-                    FolderBean folderBean1 = null;
-                    for (FolderBean fb : litePalSelectPath) {
-                        if (fb.getEmail().equals(mAccount.getEmail())) {
-                            folderBean1 = fb;
-                        }
-                    }
-                    if (folderBean1 != null) {
-                        if (folderBean1.getRepoID().equals(mSeafRepo.getID())) {
-                            Toast.makeText(this, "更新已有备份账户和目录", Toast.LENGTH_SHORT).show();
-                            folderBean = new FolderBean();
-                            folderBean.setEmail(mAccount.email);
-
-                        } else {
-                            Toast.makeText(this, "更新已有备份账户、资料库和目录", Toast.LENGTH_SHORT).show();
-                            folderBean = new FolderBean();
-                            folderBean.setEmail(mAccount.email);
-                            folderBean.setRepoID(mSeafRepo.id);
-                            folderBean.setRepoName(mSeafRepo.name);
-                        }
-                        folderBean.setSelectFolder(selectFolderPath);
-                        folderBean.updateAll("name = ?", "folderBean");
-                    } else {
-                        folderBean = new FolderBean();
-                        folderBean.setName("folderBean");
-                        folderBean.setEmail(mAccount.email);
-                        folderBean.setRepoID(mSeafRepo.id);
-                        folderBean.setRepoName(mSeafRepo.name);
-                        folderBean.setSelectFolder(selectFolderPath);
-                        folderBean.save();
-                    }
-
-                }
+        if(isChooseLibPage){
+            Intent intent = new Intent();
+            // update cloud library data
+            if (mSeafRepo != null && mAccount != null) {
+                intent.putExtra(SeafilePathChooserActivity.DATA_REPO_NAME, mSeafRepo.name);
+                intent.putExtra(SeafilePathChooserActivity.DATA_REPO_ID, mSeafRepo.id);
+                intent.putExtra(SeafilePathChooserActivity.DATA_ACCOUNT, mAccount);
+                intent.putExtra(BACKUP_SELECT_REPO, true);
+                SettingsManager.instance().saveBackupEmail(mAccount.getEmail());
             }
 
-        }
-
-        List<FolderBean> allData = LitePal.findAll(FolderBean.class);
-        for (FolderBean fb : allData) {
-            if (fb.getEmail().equals(currentAccount.email)) {
-                if (fileDirService != null) {
-                    fileDirService.uploadFile(mAccount, fb);
-                }
+            setResult(RESULT_OK, intent);
+            boolean dirAutomaticUpload = SettingsManager.instance().isDirAutomaticUpload();
+            if (dirAutomaticUpload && fileDirService != null) {
+                fileDirService.uploadFile(mAccount.getEmail());
             }
         }
 
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        if (selectFolderPath != null) {
-            EventBus.getDefault().post(new CameraSyncEvent("saveSet", selectFolderPath.size()));
-        }
     }
 
     public void saveUpdateFolder() {
+        if(isChooseDirPage){
+            String backupEmail = SettingsManager.instance().getBackupEmail();
+            if(TextUtils.isEmpty(backupEmail)){
+                Toast.makeText(mActivity, mActivity.getString(R.string.folder_backup_select_repo_hint), Toast.LENGTH_LONG).show();
+                return;
+            }
+            PathsInfo pathsConfig = databaseHelper.getPathsConfig(backupEmail);
+            String strJsonPath = new Gson().toJson(dbPaths);
+            if(pathsConfig==null){
+                databaseHelper.savePathsConfig(backupEmail,strJsonPath);
+            }else {
+                databaseHelper.updatePathsConfig(backupEmail,strJsonPath);
+            }
+            Intent intent = new Intent();
+            // update cloud library data
+            if (dbPaths != null ) {
+                intent.putStringArrayListExtra(BACKUP_SELECT_PATHS, (ArrayList<String>) dbPaths);
+                intent.putExtra(BACKUP_SELECT_PATHS_ON, true);
+            }
 
-        FolderBean folderBean = null;
-        if (mFolderBean != null) {
-            folderBean = new FolderBean();
-            folderBean.setSelectFolder(selectFolderPath);
-            folderBean.updateAll("name = ?", "folderBean");
-        }
-
-
-        List<FolderBean> all = LitePal.findAll(FolderBean.class);
-        for (FolderBean fb : all) {
-            if (fb.getEmail().equals(currentAccount.email)) {
-                if (fileDirService != null) {
-                    fileDirService.uploadFile(currentAccount, fb);
-                }
+            setResult(RESULT_OK, intent);
+            boolean dirAutomaticUpload = SettingsManager.instance().isDirAutomaticUpload();
+            if (dirAutomaticUpload && fileDirService != null) {
+                fileDirService.uploadFile(backupEmail);
             }
         }
-
 
     }
 
@@ -271,10 +176,6 @@ public class DirectoryUploadConfigActivity extends BaseActivity {
         if (mCurrentPosition == 0) {
             setResult(RESULT_CANCELED);
             super.onBackPressed();
-        } else {
-            // navigate to previous page when press back button
-            mCurrentPosition -= 1;
-            mIndicator.setCurrentItem(mCurrentPosition);
         }
     }
 
@@ -283,9 +184,7 @@ public class DirectoryUploadConfigActivity extends BaseActivity {
         return isChooseDirPage;
     }
 
-    public void saveDirDataPlanAllowed(boolean isAllowed) {
-        sm.saveDirDataPlanAllowed(isAllowed);
-    }
+
 
     class CameraUploadConfigAdapter extends FragmentStatePagerAdapter {
 
@@ -296,6 +195,10 @@ public class DirectoryUploadConfigActivity extends BaseActivity {
         // This method controls which fragment should be shown on a specific screen.
         @Override
         public Fragment getItem(int position) {
+
+            if (isChooseLibPage) {
+                return position == 0 ? new DirCloudLibraryFragment() : null;
+            }
 
             if (isChooseDirPage) {
                 switch (position) {
@@ -308,33 +211,27 @@ public class DirectoryUploadConfigActivity extends BaseActivity {
 
             }
 
+
             switch (position) {
                 case 0:
-                    return new DirConfigWelcomeFragment();
-                case 1:
-                    return new DirHowToUploadFragment();
-                case 2:
-                    mBucketsFragment = new DirectorySelectionFragment();
-                    return mBucketsFragment;
-                case 3:
                     mCloudLibFragment = new DirCloudLibraryFragment();
                     return mCloudLibFragment;
-                case 4:
-                    return new DirReadyToScanFragment();
+                case 1:
+                    mBucketsFragment = new DirectorySelectionFragment();
+                    return mBucketsFragment;
                 default:
                     return null;
             }
         }
-
-        @Override
-        public int getCount() {
-            if (isChooseDirPage)
-                return 1;
-            else
-                return 5;
+            @Override
+            public int getCount () {
+                if (isChooseLibPage || isChooseDirPage)
+                    return 1;
+                else
+                    return 2;
+            }
         }
 
-    }
 
     @Override
     protected void onDestroy() {

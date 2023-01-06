@@ -503,6 +503,9 @@ public class Utils {
     }
 
     public static void copyFile(File src, File dst) throws IOException {
+        if (src == null || dst == null) {
+            return;
+        }
         InputStream in = new BufferedInputStream(new FileInputStream(src));
         OutputStream out = new BufferedOutputStream(new FileOutputStream(dst));
 

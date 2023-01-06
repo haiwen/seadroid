@@ -13,10 +13,6 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.SettingsManager;
-import com.seafile.seadroid2.data.CameraSyncEvent;
-
-import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,9 +32,9 @@ public class DirectorySelectionFragment extends Fragment {
     private FileListAdapter mFileListAdapter;
     private TabbarFileListAdapter mTabbarFileListAdapter;
     private DirectoryUploadConfigActivity mActivity;
-    private String directoryFilePath;
     private boolean chooseDirPage;
     private Button mButton;
+    private List<String> dbPaths;
 
 
     @Override
@@ -49,9 +45,8 @@ public class DirectorySelectionFragment extends Fragment {
         mFileRecyclerView = (RecyclerView) rootView.findViewById(R.id.rcv_files_list);
         imbChangeSdCard = (ImageButton) rootView.findViewById(R.id.imb_select_sdcard);
         mButton = (Button) rootView.findViewById(R.id.bt_dir_click_to_finish);
-        directoryFilePath = SettingsManager.instance().getDirectoryFilePath();
         mFileRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
-        mFileListAdapter = new FileListAdapter(getActivity(), mFileList,directoryFilePath);
+        mFileListAdapter = new FileListAdapter(getActivity(), mFileList);
         mFileRecyclerView.setAdapter(mFileListAdapter);
         mTabbarFileRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false));
         mTabbarFileListAdapter = new TabbarFileListAdapter(getActivity(), mTabbarFileList);
@@ -61,29 +56,21 @@ public class DirectorySelectionFragment extends Fragment {
         initData();
         return rootView;
     }
-    private List<String> litePalPath;
+
     private void init() {
         if (chooseDirPage) {
             mButton.setVisibility(View.VISIBLE);
         } else {
             mButton.setVisibility(View.GONE);
         }
-        FolderBean mLitePalFolder = mActivity.getLitePalFolder();
-        if (mLitePalFolder == null) {
-            litePalPath = new ArrayList<>();
-        } else {
-            litePalPath = mLitePalFolder.getSelectFolder();
-            if (litePalPath == null) {
-                litePalPath = new ArrayList<>();
-            }
+        dbPaths = mActivity.getSelectFilePath();
+        if (dbPaths == null) {
+            dbPaths = new ArrayList<>();
         }
 
         mButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (litePalPath != null) {
-                    EventBus.getDefault().post(new CameraSyncEvent("saveSet", litePalPath.size()));
-                }
                 mActivity.saveUpdateFolder();
                 mActivity.finish();
             }
@@ -106,18 +93,19 @@ public class DirectorySelectionFragment extends Fragment {
                 for (FileBean fb : mFileList) {
                     if (item.equals(fb)) {
                         if (fb.isChecked()) {
-                            for (String str : litePalPath) {
-                                if (item.getFilePath().equals(str)) {
-                                    litePalPath.remove(str);
+                            for (int i = 0; i < dbPaths.size(); i++) {
+                                if (item.getFilePath().equals(dbPaths.get(i))) {
+                                    dbPaths.remove(i);
+                                    i--;
                                 }
                             }
                             fb.setChecked(false);
 
                         } else {
-                            litePalPath.add(item.getFilePath());
+                            dbPaths.add(item.getFilePath());
                             fb.setChecked(true);
                         }
-                        mActivity.setFileList(litePalPath);
+                        mActivity.setFilePathList(dbPaths);
                     }
                 }
 
@@ -196,7 +184,7 @@ public class DirectorySelectionFragment extends Fragment {
     }
 
     private void refreshFileAndTabbar(int tabbarType) {
-        BeanListManager.upDataFileBeanListByAsyn(litePalPath, mFileList, mFileListAdapter, mCurrentPath, mShowFileTypes, mSortType);
+        BeanListManager.upDataFileBeanListByAsyn(getActivity(), dbPaths, mFileList, mFileListAdapter, mCurrentPath, mShowFileTypes, mSortType);
         BeanListManager.upDataTabbarFileBeanList(mTabbarFileList, mTabbarFileListAdapter, mCurrentPath, tabbarType, mSdCardList);
     }
 

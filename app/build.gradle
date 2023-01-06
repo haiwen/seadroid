@@ -7,8 +7,8 @@ android {
         applicationId 'com.seafile.seadroid2'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 124
-        versionName "2.2.49"
+        versionCode 125
+        versionName "2.2.50"
         multiDexEnabled true
         resValue "string", "authorities", applicationId + '.cameraupload.provider'
         resValue "string", "account_type", "com.seafile.seadroid2.account.api2"
@@ -126,8 +126,8 @@ android {
         implementation 'com.squareup.okhttp3:okhttp:3.9.1'
         implementation 'com.github.getActivity:XXPermissions:16.2'
         implementation 'io.reactivex.rxjava3:rxjava:3.1.5'
-        implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
-        implementation 'org.litepal.guolindev:core:3.2.3'
+        implementation 'io.reactivex.rxjava3:rxandroid:3.0.2'
+        implementation 'com.google.code.gson:gson:2.10'
 
 
 

@@ -125,11 +125,19 @@
             android:title="@string/settings_directory_upload_turn_on">
         </com.seafile.seadroid2.ui.SwitchPreferenceCompat>
         <Preference
-            android:key="folder_upload_key"
+            android:key="folder_backup_mode"
+            android:summary="@string/settings_folder_upload_traffic_hint"
+            android:title="@string/settings_folder_upload_traffic" />
+        <Preference
+            android:key="folder_backup_library"
+            android:summary="@string/folder_backup_select_repo_hint"
+            android:title="@string/settings_folder_upload_library" />
+        <Preference
+            android:key="folder_backup_key"
             android:summary="@string/settings_folder_upload_repo_hint"
             android:title="@string/settings_folder_upload_change_dir_title" />
         <Preference
-            android:key="folder_upload_state"
+            android:key="folder_backup_state"
             android:summary="@string/folder_waiting_state"
             android:title="@string/folder_upload_state" />
     </PreferenceCategory>
