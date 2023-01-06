@@ -736,9 +736,9 @@ public class SettingsFragment extends CustomPreferenceFragment {
             cFolderUploadCategory.addPreference(cUploadFolderPref);
             cFolderUploadCategory.addPreference(cUploadFolderState);
             if (dbSelectPaths == null) {
-                cUploadFolderPref.setSummary("0 个");
+                cUploadFolderPref.setSummary("0");
             } else {
-                cUploadFolderPref.setSummary(dbSelectPaths.size() + " 个");
+                cUploadFolderPref.setSummary(dbSelectPaths.size() + "");
             }
             if (backupEmail != null) {
                 selectRepoConfig = databaseHelper.getRepoConfig(backupEmail);

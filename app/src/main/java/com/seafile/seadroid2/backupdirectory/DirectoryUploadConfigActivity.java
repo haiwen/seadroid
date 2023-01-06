@@ -44,7 +44,6 @@ public class DirectoryUploadConfigActivity extends BaseActivity {
     private UploadDirectoryDBHelper databaseHelper;
     private FileDirService fileDirService;
     private AccountManager accountMgr;
-    private Account currentAccount;
     private List<String> dbPaths;
     private Activity mActivity;
 
@@ -64,7 +63,6 @@ public class DirectoryUploadConfigActivity extends BaseActivity {
         mViewPager.setAdapter(new CameraUploadConfigAdapter(fm));
         mViewPager.setOffscreenPageLimit(2);
         accountMgr = new AccountManager(this);
-        currentAccount = accountMgr.getCurrentAccount();
         databaseHelper = UploadDirectoryDBHelper.getDatabaseHelper();
         Intent bindIntent = new Intent(this, FileDirService.class);
         bindService(bindIntent, mDirConnection, Context.BIND_AUTO_CREATE);
