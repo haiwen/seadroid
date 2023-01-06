@@ -23,12 +23,7 @@ public class TabbarFileBean {
     public TabbarFileBean(String filePath, Boolean useUri, DocumentFile documentFile) {
         this.filePath = filePath;
         this.useUri = useUri;
-
-        if (PermissionsTools.isAndroid11()) {
-            this.useUri = useUri;
-        } else {
-            this.useUri = false;
-        }
+        this.useUri = false;
 
         if (this.useUri) {
             this.documentFile = documentFile;

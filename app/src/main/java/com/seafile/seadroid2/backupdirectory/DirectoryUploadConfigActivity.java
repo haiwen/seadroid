@@ -154,7 +154,6 @@ public class DirectoryUploadConfigActivity extends BaseActivity {
                 databaseHelper.updatePathsConfig(backupEmail,strJsonPath);
             }
             Intent intent = new Intent();
-            // update cloud library data
             if (dbPaths != null ) {
                 intent.putStringArrayListExtra(BACKUP_SELECT_PATHS, (ArrayList<String>) dbPaths);
                 intent.putExtra(BACKUP_SELECT_PATHS_ON, true);
@@ -190,7 +189,6 @@ public class DirectoryUploadConfigActivity extends BaseActivity {
             super(fm);
         }
 
-        // This method controls which fragment should be shown on a specific screen.
         @Override
         public Fragment getItem(int position) {
 

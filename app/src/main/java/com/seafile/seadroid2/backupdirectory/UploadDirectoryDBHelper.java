@@ -16,7 +16,7 @@ public class UploadDirectoryDBHelper extends SQLiteOpenHelper {
     public static final int DATABASE_VERSION = 1;
     public static final String DATABASE_NAME = "directory.db";
 
-    // UploadDir table
+    // UploadFilePath table
     private static final String AUTO_UPDATE_DIR_TABLE_NAME = "UploadDirInfo";
     private static final String AUTO_UPDATE_DIR_COLUMN_ID = "id";
     private static final String AUTO_UPDATE_DIR_COLUMN_ACCOUNT = "account";
@@ -129,6 +129,7 @@ public class UploadDirectoryDBHelper extends SQLiteOpenHelper {
 
         database.insert(AUTO_UPDATE_DIR_TABLE_NAME, null, values);
     }
+
     public void saveRepoConfig(String email, String repoID, String repoName) {
         ContentValues values = new ContentValues();
         values.put(REPO_CONFIG_MAIL, email);
@@ -136,6 +137,7 @@ public class UploadDirectoryDBHelper extends SQLiteOpenHelper {
         values.put(REPO_CONFIG_REPO_NAME, repoName);
         database.insert(REPO_CONFIG_TABLE_NAME, null, values);
     }
+
     public void savePathsConfig(String email, String filePaths) {
         ContentValues values = new ContentValues();
         values.put(PATH_CONFIG_MAIL, email);
@@ -147,10 +149,12 @@ public class UploadDirectoryDBHelper extends SQLiteOpenHelper {
         removeRepoConfig(email);
         saveRepoConfig(email, repoID, repoName);
     }
+
     public void updatePathsConfig(String email, String filePaths) {
         removePathsConfig(email);
-        savePathsConfig(email,filePaths);
+        savePathsConfig(email, filePaths);
     }
+
     public RepoInfo getRepoConfig(String email) {
         String[] projection = {
                 REPO_CONFIG_REPO_ID,
@@ -173,10 +177,11 @@ public class UploadDirectoryDBHelper extends SQLiteOpenHelper {
             c.close();
             return null;
         }
-        RepoInfo item = cursorToRepoConfigInfo(c,email);
+        RepoInfo item = cursorToRepoConfigInfo(c, email);
         c.close();
         return item;
     }
+
     public PathsInfo getPathsConfig(String email) {
         String[] projection = {
                 PATH_CONFIG_DIR_PATHS
@@ -198,7 +203,7 @@ public class UploadDirectoryDBHelper extends SQLiteOpenHelper {
             c.close();
             return null;
         }
-        PathsInfo item = cursorToPathsConfigInfo(c,email);
+        PathsInfo item = cursorToPathsConfigInfo(c, email);
         c.close();
         return item;
     }
@@ -264,15 +269,17 @@ public class UploadDirectoryDBHelper extends SQLiteOpenHelper {
         UploadDirInfo info = new UploadDirInfo(account, repoID, repoName, parentDir, fileName, filePath, fileSize);
         return info;
     }
-    private RepoInfo cursorToRepoConfigInfo(Cursor c,String email) {
+
+    private RepoInfo cursorToRepoConfigInfo(Cursor c, String email) {
         String repoID = c.getString(0);
         String repoName = c.getString(1);
         RepoInfo info = new RepoInfo(repoID, repoName, email);
         return info;
     }
+
     private PathsInfo cursorToPathsConfigInfo(Cursor c, String email) {
         String filePaths = c.getString(0);
-        PathsInfo info = new PathsInfo(filePaths,email);
+        PathsInfo info = new PathsInfo(filePaths, email);
         return info;
     }
 }

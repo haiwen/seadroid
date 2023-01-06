@@ -35,11 +35,7 @@ public class SelectOptions {
     public boolean[] toolbarViewNeedCallBack;
     public boolean[] moreChooseItemNeedCallBack;
 
-    public onToolbarOptionsListener[] optionListeners;
     public onToolbarListener[] toolbarListeners;
-    public onMoreChooseItemsListener[] moreChooseItemListeners;
-    public onFileItemListener fileItemListener;
-
     public String rootPath;
 
     //toolbar
@@ -116,10 +112,7 @@ public class SelectOptions {
         optionsNeedCallBack = null;
         toolbarViewNeedCallBack = null;
         moreChooseItemNeedCallBack = null;
-        optionListeners = null;
         toolbarListeners = null;
-        moreChooseItemListeners = null;
-        fileItemListener = null;
         rootPath = null;
         toolbarMainTitle = "";
         toolbarSubtitleTitle = null;
@@ -133,21 +126,7 @@ public class SelectOptions {
         typeLoadCustomView = Constants.TYPE_CUSTOM_VIEW_NULL;
     }
 
-    public interface onToolbarOptionsListener {
-        void onOptionClick(View view, String currentPath, List<FileBean> fileBeanList, List<String> callBackData, TabbarFileListAdapter tabbarAdapter, FileListAdapter fileAdapter, List<FileBean> callBackFileBeanList);
-    }
-
     public interface onToolbarListener {
         void onClick(View view, String currentPath, List<FileBean> fileBeanList, List<String> callBackData, TabbarFileListAdapter tabbarAdapter, FileListAdapter fileAdapter, List<FileBean> callBackFileBeanList);
-    }
-
-    public interface onMoreChooseItemsListener {
-        void onItemsClick(View view, String currentPath, List<FileBean> fileBeanList, List<String> callBackData, TabbarFileListAdapter tabbarAdapter, FileListAdapter fileAdapter, List<FileBean> callBackFileBeanList);
-    }
-
-    public interface onFileItemListener {
-        boolean onFileItemClick(View view, String currentPath, List<FileBean> fileBeanList, List<String> callBackData, TabbarFileListAdapter tabbarAdapter, FileListAdapter fileAdapter, FileBean fileBean);
-
-        boolean onLongFileItemClick(View view, String currentPath, List<FileBean> fileBeanList, List<String> callBackData, TabbarFileListAdapter tabbarAdapter, FileListAdapter fileAdapter, FileBean fileBean);
     }
 }

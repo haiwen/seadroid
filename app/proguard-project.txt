@@ -25,9 +25,6 @@
 -dontoptimize
 -dontpreverify
 
--keep class org.litepal.** {*;}
--keep class * extends org.litepal.crud.LitePalSupport {*;}
-
 -keepattributes *Annotation*
 -keep public class com.google.vending.licensing.ILicensingService
 -keep public class com.android.vending.licensing.ILicensingService

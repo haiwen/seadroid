@@ -65,7 +65,6 @@ public final class SettingsManager {
     public static final String SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_SERVER = PKG + ".camera.account.server";
     public static final String SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_TOKEN = PKG + ".camera.account.token";
     public static final String CAMERA_UPLOAD_SWITCH_KEY = "camera_upload_switch_key";
-    public static final String DIRECTORY_UPLOAD_SWITCH_KEY = "directory_upload_switch_key";
     public static final String CAMERA_UPLOAD_REPO_KEY = "camera_upload_repo_key";
     public static final String CAMERA_UPLOAD_ADVANCED_SCREEN_KEY = "screen_camera_upload_advanced_feature";
     public static final String CAMERA_UPLOAD_ADVANCED_CATEGORY_KEY = "category_camera_upload_advanced_key";
@@ -105,6 +104,7 @@ public final class SettingsManager {
     public static final String UPLOAD_COMPLETED_TIME = "upload_completed_time";
 
     //DirSyncStatus
+    public static final String DIRECTORY_UPLOAD_SWITCH_KEY = "directory_upload_switch_key";
     public static final String DIR_UPLOAD_ALLOW_DATA_PLAN_SWITCH_KEY = "dir_allow_data_plan_switch_key";
     public static final String DIR_AUTOMATIC_UPLOAD_SWITCH_KEY = "dir_automatic_upload_switch_key";
     public static final String SAVE_BACKUP_ACCOUNT_EMAIL = "save_backup_account_email";
