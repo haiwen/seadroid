@@ -6,7 +6,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.transition.Transition;
 import android.view.View;
-import android.widget.ImageView;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ProgressBar;
 
 import com.google.android.exoplayer2.DefaultLoadControl;
@@ -28,8 +29,7 @@ import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
-import com.google.android.exoplayer2.ui.DefaultTimeBar;
-import com.google.android.exoplayer2.ui.PlayerView;
+import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
@@ -42,7 +42,6 @@ import com.seafile.seadroid2.play.VideoLinkStateListener;
 import com.seafile.seadroid2.play.VideoLinkTask;
 import com.seafile.seadroid2.ui.activity.BaseActivity;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
-import com.seafile.seadroid2.util.Utils;
 import com.songwenju.androidtools.util.LogUtil;
 
 import java.util.Formatter;
@@ -58,37 +57,20 @@ public class ExoPlayActivity extends BaseActivity implements VideoLinkStateListe
     private String mFileLink;
     private boolean isTransition;
     private Transition transition;
-
-
-    private static final String TAG = "TAG";
-    private PlayerView mPlayerView;
-//    private SimpleExoPlayer player;
-
-    private DataSource.Factory mediaDataSourceFactory;
-    private DefaultTrackSelector trackSelector;
-    private BandwidthMeter bandwidthMeter;
-    ProgressBar loadingProgressBar;//加载中进度
-    private ImageView playIcon;//暂停按钮
-    private static final DefaultBandwidthMeter BANDWIDTH_METER = new DefaultBandwidthMeter();
-    private DefaultTimeBar mTimeSeekBar;//时间进度条
-
-
-
-
-    private PlayerView mExoPlayerView;
-    private SimpleExoPlayer mSimpleExoPlayer;
     private Context mContext;
-    //    Uri playerUri = Uri.parse("https://storage.googleapis.com/android-tv/Sample%20videos/Demo%20Slam/Google%20Demo%20Slam_%20Hangin'%20with%20the%20Google%20Search%20Bar.mp4");
-//    Uri playerUri = Uri.parse("https://sdvideos.s3.cn-north-1.amazonaws.com.cn/allnew2/%E6%9D%8E%E5%A2%9E%E7%83%88%2B%E6%85%A2%E6%80%A7%E8%85%B9%E6%B3%BB%E4%B8%8E%E2%80%9C%E7%BB%93%E8%82%A0%E7%82%8E.mp4");
-
     private ProgressBar mProgressBar;
+
+    private SimpleExoPlayerView mExoPlayerView;
+    private SimpleExoPlayer mSimpleExoPlayer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Utils.hideSystemNavigationBar(this);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.exo_play_activity);
         mContext = this;
-        mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
 
         Intent intent = getIntent();
         mAccount = intent.getParcelableExtra("account");
@@ -99,10 +81,11 @@ public class ExoPlayActivity extends BaseActivity implements VideoLinkStateListe
         ConcurrentAsyncTask.execute(task);
         isTransition = getIntent().getBooleanExtra("TRANSITION", false);
 
+        mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
         initPlayer();
 
-    }
 
+    }
 
     /**
      * 初始化player
@@ -110,38 +93,33 @@ public class ExoPlayActivity extends BaseActivity implements VideoLinkStateListe
     private void initPlayer() {
         //1. 创建一个默认的 TrackSelector
         BandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
-        TrackSelection.Factory videoTackSelectionFactory = new AdaptiveTrackSelection.Factory(bandwidthMeter);
-        TrackSelector trackSelector = new DefaultTrackSelector(videoTackSelectionFactory);
+        TrackSelection.Factory videoTackSelectionFactory =
+                new AdaptiveTrackSelection.Factory(bandwidthMeter);
+        TrackSelector trackSelector =
+                new DefaultTrackSelector(videoTackSelectionFactory);
         LoadControl loadControl = new DefaultLoadControl();
         //2.创建ExoPlayer
-        mSimpleExoPlayer = ExoPlayerFactory.newSimpleInstance(this,trackSelector,loadControl);
+        mSimpleExoPlayer = ExoPlayerFactory.newSimpleInstance(this, trackSelector, loadControl);
         //3.创建SimpleExoPlayerView
-        mExoPlayerView = (PlayerView) findViewById(R.id.exoView);
+        mExoPlayerView = (SimpleExoPlayerView) findViewById(R.id.exoView);
         //4.为SimpleExoPlayer设置播放器
         mExoPlayerView.setPlayer(mSimpleExoPlayer);
-
-
-
-
     }
 
-
-    private void playVideo() {
+    private void playVideo(String url) {
         //测量播放过程中的带宽。 如果不需要，可以为null。
         DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
         // 生成加载媒体数据的DataSource实例。
         DataSource.Factory dataSourceFactory
                 = new DefaultDataSourceFactory(ExoPlayActivity.this,
-                Util.getUserAgent(ExoPlayActivity.this,"useExoplayer"),bandwidthMeter);
+                Util.getUserAgent(ExoPlayActivity.this, "useExoplayer"), bandwidthMeter);
         // 生成用于解析媒体数据的Extractor实例。
         ExtractorsFactory extractorsFactory = new DefaultExtractorsFactory();
 
-
+        Uri playerUri = Uri.parse(url);
         // MediaSource代表要播放的媒体。
-        MediaSource videoSource = new ExtractorMediaSource(Uri.parse(mFileLink),dataSourceFactory,extractorsFactory,
-                null,null);
-
-
+        MediaSource videoSource = new ExtractorMediaSource(playerUri, dataSourceFactory, extractorsFactory,
+                null, null);
         //Prepare the player with the source.
         mSimpleExoPlayer.prepare(videoSource);
         //添加监听的listener
@@ -156,20 +134,20 @@ public class ExoPlayActivity extends BaseActivity implements VideoLinkStateListe
     TextRenderer.Output mOutput = new TextRenderer.Output() {
         @Override
         public void onCues(List<Cue> cues) {
-            LogUtil.i(this,"MainActivity.onCues.");
+            LogUtil.i(this, "MainActivity.onCues.");
         }
     };
 
     private SimpleExoPlayer.VideoListener mVideoListener = new SimpleExoPlayer.VideoListener() {
         @Override
         public void onVideoSizeChanged(int width, int height, int unappliedRotationDegrees, float pixelWidthHeightRatio) {
-            LogUtil.i(this,"MainActivity.onVideoSizeChanged.width:"+width+", height:"+height);
+            LogUtil.i(this, "MainActivity.onVideoSizeChanged.width:" + width + ", height:" + height);
 
         }
 
         @Override
         public void onRenderedFirstFrame() {
-            LogUtil.i(this,"MainActivity.onRenderedFirstFrame.");
+            LogUtil.i(this, "MainActivity.onRenderedFirstFrame.");
         }
     };
 
@@ -178,58 +156,59 @@ public class ExoPlayActivity extends BaseActivity implements VideoLinkStateListe
 
         @Override
         public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
-            LogUtil.i(this,"onTracksChanged");
+            LogUtil.i(this, "onTracksChanged");
         }
 
         @Override
         public void onLoadingChanged(boolean isLoading) {
-            LogUtil.i(this,"onLoadingChanged");
+            LogUtil.i(this, "onLoadingChanged");
         }
 
         @Override
         public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-            LogUtil.i(this,"onPlayerStateChanged: playWhenReady = "+String.valueOf(playWhenReady)
-                    +" playbackState = "+playbackState);
-            switch (playbackState){
+            LogUtil.i(this, "onPlayerStateChanged: playWhenReady = " + String.valueOf(playWhenReady)
+                    + " playbackState = " + playbackState);
+            switch (playbackState) {
                 case ExoPlayer.STATE_ENDED:
-                    LogUtil.i(this,"Playback ended!");
+                    LogUtil.i(this, "Playback ended!");
                     //Stop playback and return to start position
                     setPlayPause(false);
                     mSimpleExoPlayer.seekTo(0);
                     break;
                 case ExoPlayer.STATE_READY:
                     mProgressBar.setVisibility(View.GONE);
-                    LogUtil.i(this,"ExoPlayer ready! pos: "+mSimpleExoPlayer.getCurrentPosition()
-                            +" max: "+stringForTime((int)mSimpleExoPlayer.getDuration()));
+                    LogUtil.i(this, "ExoPlayer ready! pos: " + mSimpleExoPlayer.getCurrentPosition()
+                            + " max: " + stringForTime((int) mSimpleExoPlayer.getDuration()));
                     setProgress(0);
                     break;
                 case ExoPlayer.STATE_BUFFERING:
-                    LogUtil.i(this,"Playback buffering!");
+                    LogUtil.i(this, "Playback buffering!");
                     mProgressBar.setVisibility(View.VISIBLE);
                     break;
                 case ExoPlayer.STATE_IDLE:
-                    LogUtil.i(this,"ExoPlayer idle!");
+                    LogUtil.i(this, "ExoPlayer idle!");
                     break;
             }
         }
 
         @Override
         public void onPlayerError(ExoPlaybackException error) {
-            LogUtil.i(this,"onPlaybackError: "+error.getMessage());
+            LogUtil.i(this, "onPlaybackError: " + error.getMessage());
         }
 
 
         @Override
         public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
-            LogUtil.i(this,"MainActivity.onPlaybackParametersChanged."+playbackParameters.toString());
+            LogUtil.i(this, "MainActivity.onPlaybackParametersChanged." + playbackParameters.toString());
         }
     };
 
     /**
      * Starts or stops playback. Also takes care of the Play/Pause button toggling
+     *
      * @param play True if playback should be started
      */
-    private void setPlayPause(boolean play){
+    private void setPlayPause(boolean play) {
         mSimpleExoPlayer.setPlayWhenReady(play);
     }
 
@@ -238,11 +217,11 @@ public class ExoPlayActivity extends BaseActivity implements VideoLinkStateListe
         Formatter mFormatter;
         mFormatBuilder = new StringBuilder();
         mFormatter = new Formatter(mFormatBuilder, Locale.getDefault());
-        int totalSeconds =  timeMs / 1000;
+        int totalSeconds = timeMs / 1000;
 
         int seconds = totalSeconds % 60;
         int minutes = (totalSeconds / 60) % 60;
-        int hours   = totalSeconds / 3600;
+        int hours = totalSeconds / 3600;
 
         mFormatBuilder.setLength(0);
         if (hours > 0) {
@@ -253,15 +232,16 @@ public class ExoPlayActivity extends BaseActivity implements VideoLinkStateListe
     }
 
 
-
     @Override
     protected void onPause() {
+        LogUtil.i(this, "MainActivity.onPause.");
         super.onPause();
         mSimpleExoPlayer.stop();
     }
 
     @Override
     protected void onStop() {
+        LogUtil.i(this, "MainActivity.onStop.");
         super.onStop();
         mSimpleExoPlayer.release();
     }
@@ -269,7 +249,7 @@ public class ExoPlayActivity extends BaseActivity implements VideoLinkStateListe
     @Override
     public void onSuccess(String fileLink) {
         mFileLink = fileLink;
-        playVideo();
+        playVideo(fileLink);
     }
 
     @Override

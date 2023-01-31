@@ -7,8 +7,8 @@ android {
         applicationId 'com.seafile.seadroid2'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 123
-        versionName "2.2.48"
+        versionCode 125
+        versionName "2.2.50"
         multiDexEnabled true
         resValue "string", "authorities", applicationId + '.cameraupload.provider'
         resValue "string", "account_type", "com.seafile.seadroid2.account.api2"
@@ -126,6 +126,7 @@ android {
         implementation 'com.squareup.okhttp3:okhttp:3.9.1'
 
         implementation 'com.google.android.exoplayer:exoplayer:2.9.6'
+        implementation 'com.songwenju.tools:androidtools:1.1.1'
 
 
         implementation 'com.yydcdut:markdown-processor:0.1.3'
