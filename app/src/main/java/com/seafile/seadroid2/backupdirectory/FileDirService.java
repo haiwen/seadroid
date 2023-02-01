@@ -87,6 +87,7 @@ public class FileDirService extends Service{
 
 
     public void uploadFile(String email) {
+        fileUploaded.clear();
         if (databaseHelper == null) {
             databaseHelper = UploadDirectoryDBHelper.getDatabaseHelper();
         }
