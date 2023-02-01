@@ -12,7 +12,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.seafile.seadroid2.R;
@@ -66,15 +65,10 @@ public class DirectoryUploadConfigActivity extends BaseActivity {
         databaseHelper = UploadDirectoryDBHelper.getDatabaseHelper();
         Intent bindIntent = new Intent(this, FileDirService.class);
         bindService(bindIntent, mDirConnection, Context.BIND_AUTO_CREATE);
-        mActivity=this;
-        String backupEmail = SettingsManager.instance().getBackupEmail();
-        if (isChooseDirPage && !TextUtils.isEmpty(backupEmail)) {
-            PathsInfo pathsConfig = databaseHelper.getPathsConfig(backupEmail);
-            if (pathsConfig != null) {
-                String paths = pathsConfig.getPaths();
-                dbPaths = StringTools.getDataList(paths);
-
-            }
+        mActivity = this;
+        String backupPaths = SettingsManager.instance().getBackupPaths();
+        if (isChooseDirPage && !TextUtils.isEmpty(backupPaths)) {
+            dbPaths = StringTools.getDataList(backupPaths);
         }
 
 
@@ -107,7 +101,6 @@ public class DirectoryUploadConfigActivity extends BaseActivity {
     }
 
 
-
     public void setFilePathList(List<String> selectFileList) {
         this.dbPaths = selectFileList;
 
@@ -119,7 +112,7 @@ public class DirectoryUploadConfigActivity extends BaseActivity {
 
     public void saveSettings() {
 
-        if(isChooseLibPage){
+        if (isChooseLibPage) {
             Intent intent = new Intent();
             // update cloud library data
             if (mSeafRepo != null && mAccount != null) {
@@ -140,21 +133,12 @@ public class DirectoryUploadConfigActivity extends BaseActivity {
     }
 
     public void saveUpdateFolder() {
-        if(isChooseDirPage){
+        if (isChooseDirPage) {
             String backupEmail = SettingsManager.instance().getBackupEmail();
-            if(TextUtils.isEmpty(backupEmail)){
-                Toast.makeText(mActivity, mActivity.getString(R.string.folder_backup_select_repo_hint), Toast.LENGTH_LONG).show();
-                return;
-            }
-            PathsInfo pathsConfig = databaseHelper.getPathsConfig(backupEmail);
             String strJsonPath = new Gson().toJson(dbPaths);
-            if(pathsConfig==null){
-                databaseHelper.savePathsConfig(backupEmail,strJsonPath);
-            }else {
-                databaseHelper.updatePathsConfig(backupEmail,strJsonPath);
-            }
+            SettingsManager.instance().saveBackupPaths(strJsonPath);
             Intent intent = new Intent();
-            if (dbPaths != null ) {
+            if (dbPaths != null) {
                 intent.putStringArrayListExtra(BACKUP_SELECT_PATHS, (ArrayList<String>) dbPaths);
                 intent.putExtra(BACKUP_SELECT_PATHS_ON, true);
             }
@@ -180,7 +164,6 @@ public class DirectoryUploadConfigActivity extends BaseActivity {
     public boolean isChooseDirPage() {
         return isChooseDirPage;
     }
-
 
 
     class CameraUploadConfigAdapter extends FragmentStatePagerAdapter {
@@ -219,14 +202,15 @@ public class DirectoryUploadConfigActivity extends BaseActivity {
                     return null;
             }
         }
-            @Override
-            public int getCount () {
-                if (isChooseLibPage || isChooseDirPage)
-                    return 1;
-                else
-                    return 2;
-            }
+
+        @Override
+        public int getCount() {
+            if (isChooseLibPage || isChooseDirPage)
+                return 1;
+            else
+                return 2;
         }
+    }
 
 
     @Override

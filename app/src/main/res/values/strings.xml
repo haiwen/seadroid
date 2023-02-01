@@ -589,7 +589,7 @@
   <string name="get_storage_permission_failed">Failed to get storage permission</string>
   <string name="authorization_storage_permission">Authorization denied permanently, please grant storage permission manually.</string>
   <string name="settings_folder_upload_repo_hint">0</string>
-  <string name="settings_folder_upload_change_dir_title">The selected backup directory</string>
+  <string name="settings_folder_upload_change_dir_title">Selected backup folders</string>
   <string name="settings_folder_upload_traffic">Backup mode</string>
   <string name="settings_folder_upload_traffic_hint">wifi</string>
   <string name="settings_folder_upload_library">Library backup to</string>
@@ -597,7 +597,7 @@
   <string name="folder_upload_state">Folder backup info</string>
   <string name="folder_backup_mode">WIFI or mobile traffic</string>
   <string name="folder_backup_mode_title">Choose a mode</string>
-  <string name="folder_backup_select_repo_hint">Please select</string>
+  <string name="folder_backup_select_repo_hint">Select a library</string>
   <string name="folder_backup_select_repo_update">Update backup library</string>
 
 </resources>

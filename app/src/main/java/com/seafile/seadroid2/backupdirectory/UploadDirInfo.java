@@ -2,12 +2,10 @@ package com.seafile.seadroid2.backupdirectory;
 
 import com.google.common.base.Objects;
 import com.seafile.seadroid2.SettingsManager;
-import com.seafile.seadroid2.account.Account;
 
 import java.io.Serializable;
 
 public class UploadDirInfo implements Serializable {
-    public Account account;
     public String repoID;
     public String repoName;
     public String parentDir;
@@ -15,10 +13,9 @@ public class UploadDirInfo implements Serializable {
     public String fileName;
     public String fileSize;
 
-    public UploadDirInfo(Account account, String repoID, String repoName, String parentDir,
+    public UploadDirInfo(String repoID, String repoName, String parentDir,
                          String fileName, String filePath, String fileSize) {
 
-        this.account = account;
         this.repoID = repoID;
         this.repoName = repoName;
         this.parentDir = parentDir;
@@ -39,11 +36,11 @@ public class UploadDirInfo implements Serializable {
             return false;
 
         UploadDirInfo that = (UploadDirInfo) obj;
-        if(that.account == null || that.repoID == null || that.repoName == null || that.parentDir == null || that.filePath == null) {
+        if(that.repoID == null || that.repoName == null || that.parentDir == null || that.filePath == null) {
             return false;
         }
 
-        return that.account.equals(this.account) && that.repoID.equals(this.repoID) &&
+        return that.repoID.equals(this.repoID) &&
                 that.repoName.equals(this.repoName) && that.parentDir.equals(this.parentDir) &&
                 that.filePath.equals(this.filePath);
     }
@@ -53,7 +50,7 @@ public class UploadDirInfo implements Serializable {
     @Override
     public int hashCode() {
         if (hashCode == 0) {
-            hashCode = Objects.hashCode(account, repoID, repoName, parentDir, filePath);
+            hashCode = Objects.hashCode(repoID, repoName, parentDir, filePath);
         }
 
         return hashCode;

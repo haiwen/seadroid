@@ -113,6 +113,7 @@ public final class SettingsManager {
     public static final String FOLDER_BACKUP_LIBRARY = "folder_backup_library";
     public static final String FOLDER_BACKUP_KEY = "folder_backup_key";
     public static final String FOLDER_BACKUP_STATE = "folder_backup_state";
+    public static final String SAVE_FOLDER_BACKUP_PATHS = "save_folder_backup_paths";
 
     public static long lock_timestamp = 0;
     public static final long LOCK_EXPIRATION_MSECS = 5 * 60 * 1000;
@@ -342,5 +343,14 @@ public final class SettingsManager {
 
     public int getPrivacyPolicyConfirmed() {
         return sharedPref.getInt(PRIVACY_POLICY_CONFIRMED, 0);
+    }
+
+    public void saveBackupPaths(String path) {
+        editor.putString(SAVE_FOLDER_BACKUP_PATHS, path);
+        editor.commit();
+    }
+
+    public String getBackupPaths() {
+        return sharedPref.getString(SettingsManager.SAVE_FOLDER_BACKUP_PATHS, null);
     }
 }

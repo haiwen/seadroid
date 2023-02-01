@@ -146,14 +146,12 @@ public class SettingsFragment extends CustomPreferenceFragment {
             mActivity.showShortToast(mActivity, R.string.network_down);
             return;
         }
-        String backupEmail = SettingsManager.instance().getBackupEmail();
-        if(databaseHelper!=null && !TextUtils.isEmpty(backupEmail)){
-            PathsInfo pathsConfig = databaseHelper.getPathsConfig(backupEmail);
-            if(pathsConfig!=null){
-                String paths = pathsConfig.getPaths();
-                dbSelectPaths = StringTools.getDataList(paths);
-            }
+        String backupPaths = SettingsManager.instance().getBackupPaths();
+        if (!TextUtils.isEmpty(backupPaths)) {
+            dbSelectPaths = StringTools.getDataList(backupPaths);
         }
+
+
         ConcurrentAsyncTask.execute(new RequestAccountInfoTask(), account);
 
     }
@@ -324,10 +322,8 @@ public class SettingsFragment extends CustomPreferenceFragment {
                             public void onGranted(List<String> permissions, boolean all) {
                                 if (all) {
                                     SettingsManager.instance().saveDirAutomaticUpload(true);
-                                    cFolderUploadCategory.addPreference(cUploadFolderMode);
-                                    cFolderUploadCategory.addPreference(cUploadFolderRepo);
-                                    cFolderUploadCategory.addPreference(cUploadFolderPref);
-                                    cFolderUploadCategory.addPreference(cUploadFolderState);
+                                    refreshCameraUploadView();
+
                                 }
                             }
 
@@ -745,7 +741,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
             }
 
             if (selectRepoConfig != null) {
-                cUploadFolderRepo.setSummary(act.getEmail() + "/" + selectRepoConfig.getRepoName());
+                cUploadFolderRepo.setSummary(backupEmail + "/" + selectRepoConfig.getRepoName());
             } else {
                 cUploadFolderRepo.setSummary(getActivity().getString(R.string.folder_backup_select_repo_hint));
             }
@@ -884,7 +880,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
                                 dbSelectPaths.clear();
                             }
                             dbSelectPaths.addAll(pathListExtra);
-                            cUploadFolderPref.setSummary(pathListExtra.size() + " 个");
+                            cUploadFolderPref.setSummary(pathListExtra.size() + "");
                         }
                     }
 
@@ -1072,7 +1068,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
             cUploadRepoState.setSummary(Utils.getUploadStateShow(getActivity()));
         }
         if (result.getLogInfo().equals("backupFolder")) {
-            cUploadFolderState.setSummary(getActivity().getString(R.string.uploaded) + " "+ result.getNum() );
+            cUploadFolderState.setSummary(getActivity().getString(R.string.uploaded) + " " + result.getNum());
         }
     }
 

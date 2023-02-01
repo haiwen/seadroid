@@ -19,7 +19,6 @@ public class UploadDirectoryDBHelper extends SQLiteOpenHelper {
     // UploadFilePath table
     private static final String AUTO_UPDATE_DIR_TABLE_NAME = "UploadDirInfo";
     private static final String AUTO_UPDATE_DIR_COLUMN_ID = "id";
-    private static final String AUTO_UPDATE_DIR_COLUMN_ACCOUNT = "account";
     private static final String AUTO_UPDATE_DIR_COLUMN_REPO_ID = "repo_id";
     private static final String AUTO_UPDATE_DIR_COLUMN_REPO_NAME = "repo_name";
     private static final String AUTO_UPDATE_DIR_COLUMN_PARENT_DIR = "parent_dir";
@@ -61,8 +60,6 @@ public class UploadDirectoryDBHelper extends SQLiteOpenHelper {
             + " ("
             + AUTO_UPDATE_DIR_COLUMN_ID
             + " INTEGER PRIMARY KEY, "
-            + AUTO_UPDATE_DIR_COLUMN_ACCOUNT
-            + " TEXT NOT NULL, "
             + AUTO_UPDATE_DIR_COLUMN_REPO_ID
             + " TEXT NOT NULL, "
             + AUTO_UPDATE_DIR_COLUMN_REPO_NAME
@@ -119,7 +116,6 @@ public class UploadDirectoryDBHelper extends SQLiteOpenHelper {
 
     public void saveDirUploadInfo(UploadDirInfo info) {
         ContentValues values = new ContentValues();
-        values.put(AUTO_UPDATE_DIR_COLUMN_ACCOUNT, info.account.getSignature());
         values.put(AUTO_UPDATE_DIR_COLUMN_REPO_ID, info.repoID);
         values.put(AUTO_UPDATE_DIR_COLUMN_REPO_NAME, info.repoName);
         values.put(AUTO_UPDATE_DIR_COLUMN_PARENT_DIR, info.parentDir);
@@ -208,7 +204,7 @@ public class UploadDirectoryDBHelper extends SQLiteOpenHelper {
         return item;
     }
 
-    public UploadDirInfo getUploadFileInfo(Account account, String repoID, String filePath, String fileSize) {
+    public UploadDirInfo getUploadFileInfo(String repoID, String filePath, String fileSize) {
         String[] projection = {
                 AUTO_UPDATE_DIR_COLUMN_REPO_ID,
                 AUTO_UPDATE_DIR_COLUMN_REPO_NAME,
@@ -217,12 +213,11 @@ public class UploadDirectoryDBHelper extends SQLiteOpenHelper {
                 AUTO_UPDATE_DIR_COLUMN_FILE_PATH,
                 AUTO_UPDATE_DIR_COLUMN_FILE_SIZE
         };
-        String selectClause = String.format("%s = ? and %s = ? and %s = ? and %s = ?",
-                AUTO_UPDATE_DIR_COLUMN_ACCOUNT,
+        String selectClause = String.format("%s = ? and %s = ? and %s = ?",
                 AUTO_UPDATE_DIR_COLUMN_REPO_ID,
                 AUTO_UPDATE_DIR_COLUMN_FILE_PATH,
                 AUTO_UPDATE_DIR_COLUMN_FILE_SIZE);
-        String[] selectArgs = {account.getSignature(), repoID, filePath, fileSize};
+        String[] selectArgs = {repoID, filePath, fileSize};
 
 
         Cursor c = database.query(
@@ -237,7 +232,7 @@ public class UploadDirectoryDBHelper extends SQLiteOpenHelper {
             c.close();
             return null;
         }
-        UploadDirInfo item = cursorToDirUpdateInfo(c, account);
+        UploadDirInfo item = cursorToDirUpdateInfo(c);
         c.close();
         return item;
     }
@@ -254,7 +249,7 @@ public class UploadDirectoryDBHelper extends SQLiteOpenHelper {
     }
 
 
-    private UploadDirInfo cursorToDirUpdateInfo(Cursor c, Account account) {
+    private UploadDirInfo cursorToDirUpdateInfo(Cursor c) {
         String repoID = c.getString(0);
         String repoName = c.getString(1);
         String parentDir = c.getString(2);
@@ -266,7 +261,7 @@ public class UploadDirectoryDBHelper extends SQLiteOpenHelper {
             filePath = null;
         }
 
-        UploadDirInfo info = new UploadDirInfo(account, repoID, repoName, parentDir, fileName, filePath, fileSize);
+        UploadDirInfo info = new UploadDirInfo(repoID, repoName, parentDir, fileName, filePath, fileSize);
         return info;
     }
 
