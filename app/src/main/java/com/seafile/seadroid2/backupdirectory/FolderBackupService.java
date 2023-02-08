@@ -42,7 +42,7 @@ import java.util.List;
 import java.util.Map;
 
 
-public class FileDirService extends Service{
+public class FolderBackupService extends Service{
     private final IBinder mBinder = new FileDirBinder();
     TransferService txService = null;
     private DataManager dataManager;
@@ -59,8 +59,8 @@ public class FileDirService extends Service{
     }
 
     public class FileDirBinder extends Binder {
-        public FileDirService getService() {
-            return FileDirService.this;
+        public FolderBackupService getService() {
+            return FolderBackupService.this;
         }
     }
 
@@ -92,7 +92,12 @@ public class FileDirService extends Service{
             databaseHelper = UploadDirectoryDBHelper.getDatabaseHelper();
         }
         if (!TextUtils.isEmpty(email)) {
-            repoConfig = databaseHelper.getRepoConfig(email);
+            try {
+                repoConfig = databaseHelper.getRepoConfig(email);
+            } catch (Exception e) {
+                // ignore
+            }
+
         }
         String backupPaths = SettingsManager.instance().getBackupPaths();
         if (repoConfig == null || TextUtils.isEmpty(backupPaths)) {
@@ -190,7 +195,6 @@ public class FileDirService extends Service{
         if (fileBeanList == null || fileBeanList.size() == 0) return;
 
         for (FileBean fb : fileBeanList) {
-
             if (fb.isDir()) {
                 try {
                     forceCreateDirectory(dataManager, parentPath + "/", fb.getFileName());
@@ -199,7 +203,6 @@ public class FileDirService extends Service{
                 }
                 isFolder(parentPath + "/" + fb.getFileName(), fb.getFilePath());
             } else {
-
                 UploadDirInfo fileInfo = databaseHelper.getUploadFileInfo(repoConfig.getRepoID(), fb.getFilePath(), fb.getSimpleSize() + "");
                 if (fileInfo != null && !TextUtils.isEmpty(fileInfo.filePath)) {
                     Utils.utilsLogInfo(false, "===============" + fileInfo.filePath);
@@ -339,7 +342,9 @@ public class FileDirService extends Service{
             if (databaseHelper == null) {
                 databaseHelper = UploadDirectoryDBHelper.getDatabaseHelper();
             }
-            databaseHelper.saveDirUploadInfo(dirInfo);
+            if (dirInfo != null) {
+                databaseHelper.saveDirUploadInfo(dirInfo);
+            }
         }
 
     }

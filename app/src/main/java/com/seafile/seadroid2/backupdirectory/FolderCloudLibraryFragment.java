@@ -42,10 +42,10 @@ import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DirCloudLibraryFragment extends Fragment {
-    public static final String DEBUG_TAG = "DirCloudLibraryFragment";
+public class FolderCloudLibraryFragment extends Fragment {
+    public static final String DEBUG_TAG = "FolderCloudLibraryFragment";
 
-    private DirectoryUploadConfigActivity mActivity;
+    private FolderUploadConfigActivity mActivity;
     private Button mDoneBtn;
 
     public static final String PASSWORD_DIALOG_FRAGMENT_TAG = "passwordDialogFragmentTag";
@@ -86,7 +86,7 @@ public class DirCloudLibraryFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        mActivity = (DirectoryUploadConfigActivity) getActivity();
+        mActivity = (FolderUploadConfigActivity) getActivity();
         View rootView = mActivity.getLayoutInflater().inflate(R.layout.folder_remote_library_fragment, null);
 
         Intent intent = mActivity.getIntent();
@@ -114,7 +114,7 @@ public class DirCloudLibraryFragment extends Fragment {
         mDoneBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mActivity.saveSettings();
+                mActivity.saveRepoConfig();
                 mActivity.finish();
             }
         });

@@ -30,8 +30,7 @@ import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountInfo;
 import com.seafile.seadroid2.account.AccountManager;
-import com.seafile.seadroid2.backupdirectory.DirectoryUploadConfigActivity;
-import com.seafile.seadroid2.backupdirectory.PathsInfo;
+import com.seafile.seadroid2.backupdirectory.FolderUploadConfigActivity;
 import com.seafile.seadroid2.backupdirectory.RepoInfo;
 import com.seafile.seadroid2.backupdirectory.StringTools;
 import com.seafile.seadroid2.backupdirectory.UploadDirectoryDBHelper;
@@ -396,7 +395,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
             public boolean onPreferenceClick(Preference preference) {
 
                 // choose remote library
-                Intent intent = new Intent(mActivity, DirectoryUploadConfigActivity.class);
+                Intent intent = new Intent(mActivity, FolderUploadConfigActivity.class);
                 intent.putExtra(FOLDER_UPLOAD_REMOTE_LIBRARY, true);
                 startActivityForResult(intent, CHOOSE_BACKUP_UPLOAD_REQUEST);
                 return true;
@@ -407,7 +406,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
             public boolean onPreferenceClick(Preference preference) {
 
                 // choose remote library
-                Intent intent = new Intent(mActivity, DirectoryUploadConfigActivity.class);
+                Intent intent = new Intent(mActivity, FolderUploadConfigActivity.class);
                 intent.putExtra(FOLDER_UPLOAD_REMOTE_DIR, true);
                 startActivityForResult(intent, CHOOSE_BACKUP_UPLOAD_REQUEST);
                 return true;
@@ -736,11 +735,16 @@ public class SettingsFragment extends CustomPreferenceFragment {
             } else {
                 cUploadFolderPref.setSummary(dbSelectPaths.size() + "");
             }
-            if (backupEmail != null) {
-                selectRepoConfig = databaseHelper.getRepoConfig(backupEmail);
-            }
+            Utils.utilsLogInfo(true, "=refreshCameraUploadView=======================" + backupEmail);
+            if (!TextUtils.isEmpty(backupEmail)) {
+                try {
+                    selectRepoConfig = databaseHelper.getRepoConfig(backupEmail);
+                } catch (Exception e) {
+                    Utils.utilsLogInfo(true, "=refreshCameraUploadView=======================" + e.toString());
+                }
 
-            if (selectRepoConfig != null) {
+            }
+            if (selectRepoConfig != null && !TextUtils.isEmpty(selectRepoConfig.getRepoName())) {
                 cUploadFolderRepo.setSummary(backupEmail + "/" + selectRepoConfig.getRepoName());
             } else {
                 cUploadFolderRepo.setSummary(getActivity().getString(R.string.folder_backup_select_repo_hint));
@@ -852,36 +856,20 @@ public class SettingsFragment extends CustomPreferenceFragment {
                 refreshCameraUploadView();
                 break;
             case CHOOSE_BACKUP_UPLOAD_REQUEST:
-
                 if (resultCode == Activity.RESULT_OK) {
                     if (data == null) {
                         return;
                     }
-                    final String repoName = data.getStringExtra(SeafilePathChooserActivity.DATA_REPO_NAME);
-                    final String repoId = data.getStringExtra(SeafilePathChooserActivity.DATA_REPO_ID);
-                    final boolean booleanExtra = data.getBooleanExtra(DirectoryUploadConfigActivity.BACKUP_SELECT_REPO, false);
-                    final boolean pathOn = data.getBooleanExtra(DirectoryUploadConfigActivity.BACKUP_SELECT_PATHS_ON, false);
-                    final ArrayList<String> pathListExtra = data.getStringArrayListExtra(DirectoryUploadConfigActivity.BACKUP_SELECT_PATHS);
-                    final String backupEmail = SettingsManager.instance().getBackupEmail();
-                    if (repoName != null && repoId != null && databaseHelper != null && booleanExtra && !pathOn) {
-                        RepoInfo repoConfig = databaseHelper.getRepoConfig(backupEmail);
-                        if (repoConfig != null) {
-                            databaseHelper.updateRepoConfig(backupEmail, repoId, repoName);
+                    final boolean pathOn = data.getBooleanExtra(FolderUploadConfigActivity.BACKUP_SELECT_PATHS_ON, false);
+                    final ArrayList<String> pathListExtra = data.getStringArrayListExtra(FolderUploadConfigActivity.BACKUP_SELECT_PATHS);
+                    if (pathOn && pathListExtra != null) {
+                        if (dbSelectPaths == null) {
+                            dbSelectPaths = new ArrayList<>();
                         } else {
-                            databaseHelper.saveRepoConfig(backupEmail, repoId, repoName);
+                            dbSelectPaths.clear();
                         }
-                        Toast.makeText(getActivity(), getActivity().getString(R.string.folder_backup_select_repo_update), Toast.LENGTH_SHORT).show();
-
-                    } else {
-                        if (pathOn && pathListExtra != null) {
-                            if (dbSelectPaths == null) {
-                                dbSelectPaths = new ArrayList<>();
-                            } else {
-                                dbSelectPaths.clear();
-                            }
-                            dbSelectPaths.addAll(pathListExtra);
-                            cUploadFolderPref.setSummary(pathListExtra.size() + "");
-                        }
+                        dbSelectPaths.addAll(pathListExtra);
+                        cUploadFolderPref.setSummary(pathListExtra.size() + "");
                     }
 
                 }

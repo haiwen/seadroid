@@ -47,8 +47,8 @@ import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
-import com.seafile.seadroid2.backupdirectory.FileDirService;
-import com.seafile.seadroid2.backupdirectory.FileDirService.FileDirBinder;
+import com.seafile.seadroid2.backupdirectory.FolderBackupService;
+import com.seafile.seadroid2.backupdirectory.FolderBackupService.FileDirBinder;
 import com.seafile.seadroid2.cameraupload.CameraUploadManager;
 import com.seafile.seadroid2.cameraupload.MediaObserverService;
 import com.seafile.seadroid2.data.CheckUploadServiceEvent;
@@ -161,7 +161,7 @@ public class BrowserActivity extends BaseActivity
 
     private DataManager dataManager = null;
     private TransferService txService = null;
-    private FileDirService dirService = null;
+    private FolderBackupService dirService = null;
     private TransferReceiver mTransferReceiver;
     private AccountManager accountManager;
     private int currentPosition = 0;
@@ -238,13 +238,13 @@ public class BrowserActivity extends BaseActivity
         Intent mediaObserver = new Intent(this, MediaObserverService.class);
         startService(mediaObserver);
 
-        Intent dIntent = new Intent(this, FileDirService.class);
+        Intent dIntent = new Intent(this, FolderBackupService.class);
         startService(dIntent);
-        Log.d(DEBUG_TAG, "----start FileDirService");
+        Log.d(DEBUG_TAG, "----start FolderBackupService");
 
-        Intent dirIntent = new Intent(this, FileDirService.class);
+        Intent dirIntent = new Intent(this, FolderBackupService.class);
         bindService(dirIntent, dirConnection, Context.BIND_AUTO_CREATE);
-        Log.d(DEBUG_TAG, "----try bind FileDirService");
+        Log.d(DEBUG_TAG, "----try bind FolderBackupService");
 
         if (!isTaskRoot()) {
             final Intent intent = getIntent();
@@ -829,7 +829,7 @@ public class BrowserActivity extends BaseActivity
         public void onServiceConnected(ComponentName className, IBinder service) {
             FileDirBinder binder = (FileDirBinder) service;
             dirService = binder.getService();
-            Log.d(DEBUG_TAG, "-----bind FileDirService");
+            Log.d(DEBUG_TAG, "-----bind FolderBackupService");
             boolean dirAutomaticUpload = SettingsManager.instance().isDirAutomaticUpload();
             String backupEmail = SettingsManager.instance().getBackupEmail();
             if (dirAutomaticUpload && dirService != null && !TextUtils.isEmpty(backupEmail)) {
@@ -2490,10 +2490,10 @@ public class BrowserActivity extends BaseActivity
             Log.d(DEBUG_TAG, "FileMonitorService============false ");
         }
 
-        if (!Utils.isServiceRunning(BrowserActivity.this, "com.seafile.seadroid2.backupdirectory.FileDirService")) {
-            monitorIntent = new Intent(this, FileDirService.class);
+        if (!Utils.isServiceRunning(BrowserActivity.this, "com.seafile.seadroid2.backupdirectory.FolderBackupService")) {
+            monitorIntent = new Intent(this, FolderBackupService.class);
             startService(monitorIntent);
-            Log.d(DEBUG_TAG, "FileDirService============false ");
+            Log.d(DEBUG_TAG, "FolderBackupService============false ");
         }
 
     }

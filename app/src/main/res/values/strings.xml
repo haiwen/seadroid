@@ -599,5 +599,6 @@
   <string name="folder_backup_mode_title">Choose a mode</string>
   <string name="folder_backup_select_repo_hint">Select a library</string>
   <string name="folder_backup_select_repo_update">Update backup library</string>
+  <string name="UncaughtExceptionHandler_err">The application stopped running</string>
 
 </resources>

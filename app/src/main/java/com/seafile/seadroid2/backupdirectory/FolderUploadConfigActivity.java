@@ -12,6 +12,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.seafile.seadroid2.R;
@@ -22,28 +23,29 @@ import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.ui.activity.BaseActivity;
 import com.seafile.seadroid2.ui.activity.SeafilePathChooserActivity;
 import com.seafile.seadroid2.ui.fragment.SettingsFragment;
+import com.seafile.seadroid2.util.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
 
 
-public class DirectoryUploadConfigActivity extends BaseActivity {
-    public String DEBUG_TAG = "DirectoryUploadConfigActivity";
+public class FolderUploadConfigActivity extends BaseActivity {
+    public String DEBUG_TAG = "FolderUploadConfigActivity";
     public static final String BACKUP_SELECT_REPO = "backup_select_repo";
     public static final String BACKUP_SELECT_PATHS = "backup_select_paths";
     public static final String BACKUP_SELECT_PATHS_ON = "backup_select_paths_on";
     private ViewPager mViewPager;
-    private DirectorySelectionFragment mBucketsFragment;
-    private DirCloudLibraryFragment mCloudLibFragment;
+    private FolderSelectionFragment mBucketsFragment;
+    private FolderCloudLibraryFragment mCloudLibFragment;
     private SeafRepo mSeafRepo;
     private Account mAccount;
     private boolean isChooseDirPage;
     private boolean isChooseLibPage;
     private int mCurrentPosition;
     private UploadDirectoryDBHelper databaseHelper;
-    private FileDirService fileDirService;
+    private FolderBackupService fileDirService;
     private AccountManager accountMgr;
-    private List<String> dbPaths;
+    private List<String> selectFilePaths;
     private Activity mActivity;
 
     @Override
@@ -63,12 +65,12 @@ public class DirectoryUploadConfigActivity extends BaseActivity {
         mViewPager.setOffscreenPageLimit(2);
         accountMgr = new AccountManager(this);
         databaseHelper = UploadDirectoryDBHelper.getDatabaseHelper();
-        Intent bindIntent = new Intent(this, FileDirService.class);
+        Intent bindIntent = new Intent(this, FolderBackupService.class);
         bindService(bindIntent, mDirConnection, Context.BIND_AUTO_CREATE);
         mActivity = this;
         String backupPaths = SettingsManager.instance().getBackupPaths();
         if (isChooseDirPage && !TextUtils.isEmpty(backupPaths)) {
-            dbPaths = StringTools.getDataList(backupPaths);
+            selectFilePaths = StringTools.getDataList(backupPaths);
         }
 
 
@@ -78,7 +80,7 @@ public class DirectoryUploadConfigActivity extends BaseActivity {
 
         @Override
         public void onServiceConnected(ComponentName className, IBinder binder) {
-            FileDirService.FileDirBinder fileDirBinder = (FileDirService.FileDirBinder) binder;
+            FolderBackupService.FileDirBinder fileDirBinder = (FolderBackupService.FileDirBinder) binder;
             fileDirService = fileDirBinder.getService();
         }
 
@@ -102,16 +104,15 @@ public class DirectoryUploadConfigActivity extends BaseActivity {
 
 
     public void setFilePathList(List<String> selectFileList) {
-        this.dbPaths = selectFileList;
+        this.selectFilePaths = selectFileList;
 
     }
 
     public List<String> getSelectFilePath() {
-        return dbPaths;
+        return selectFilePaths;
     }
 
-    public void saveSettings() {
-
+    public void saveRepoConfig() {
         if (isChooseLibPage) {
             Intent intent = new Intent();
             // update cloud library data
@@ -121,8 +122,19 @@ public class DirectoryUploadConfigActivity extends BaseActivity {
                 intent.putExtra(SeafilePathChooserActivity.DATA_ACCOUNT, mAccount);
                 intent.putExtra(BACKUP_SELECT_REPO, true);
                 SettingsManager.instance().saveBackupEmail(mAccount.getEmail());
-            }
+                try {
+                    RepoInfo repoConfig = databaseHelper.getRepoConfig(mAccount.getEmail());
+                    if (repoConfig != null) {
+                        databaseHelper.updateRepoConfig(mAccount.getEmail(), mSeafRepo.getID(), mSeafRepo.getName());
+                    } else {
+                        databaseHelper.saveRepoConfig(mAccount.getEmail(), mSeafRepo.getID(), mSeafRepo.getName());
+                    }
+                    Toast.makeText(mActivity, mActivity.getString(R.string.folder_backup_select_repo_update), Toast.LENGTH_SHORT).show();
+                } catch (Exception e) {
+                    Utils.utilsLogInfo(true, "=saveRepoConfig=======================" + e.toString());
+                }
 
+            }
             setResult(RESULT_OK, intent);
             boolean dirAutomaticUpload = SettingsManager.instance().isDirAutomaticUpload();
             if (dirAutomaticUpload && fileDirService != null) {
@@ -132,14 +144,14 @@ public class DirectoryUploadConfigActivity extends BaseActivity {
 
     }
 
-    public void saveUpdateFolder() {
+    public void saveFolderConfig() {
         if (isChooseDirPage) {
             String backupEmail = SettingsManager.instance().getBackupEmail();
-            String strJsonPath = new Gson().toJson(dbPaths);
+            String strJsonPath = new Gson().toJson(selectFilePaths);
             SettingsManager.instance().saveBackupPaths(strJsonPath);
             Intent intent = new Intent();
-            if (dbPaths != null) {
-                intent.putStringArrayListExtra(BACKUP_SELECT_PATHS, (ArrayList<String>) dbPaths);
+            if (selectFilePaths != null) {
+                intent.putStringArrayListExtra(BACKUP_SELECT_PATHS, (ArrayList<String>) selectFilePaths);
                 intent.putExtra(BACKUP_SELECT_PATHS_ON, true);
             }
 
@@ -176,13 +188,13 @@ public class DirectoryUploadConfigActivity extends BaseActivity {
         public Fragment getItem(int position) {
 
             if (isChooseLibPage) {
-                return position == 0 ? new DirCloudLibraryFragment() : null;
+                return position == 0 ? new FolderCloudLibraryFragment() : null;
             }
 
             if (isChooseDirPage) {
                 switch (position) {
                     case 0:
-                        mBucketsFragment = new DirectorySelectionFragment();
+                        mBucketsFragment = new FolderSelectionFragment();
                         return mBucketsFragment;
                     default:
                         return null;
@@ -193,10 +205,10 @@ public class DirectoryUploadConfigActivity extends BaseActivity {
 
             switch (position) {
                 case 0:
-                    mCloudLibFragment = new DirCloudLibraryFragment();
+                    mCloudLibFragment = new FolderCloudLibraryFragment();
                     return mCloudLibFragment;
                 case 1:
-                    mBucketsFragment = new DirectorySelectionFragment();
+                    mBucketsFragment = new FolderSelectionFragment();
                     return mBucketsFragment;
                 default:
                     return null;

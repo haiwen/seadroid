@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class DirectorySelectionFragment extends Fragment {
+public class FolderSelectionFragment extends Fragment {
 
     private RecyclerView mTabbarFileRecyclerView, mFileRecyclerView;
     private ImageButton imbChangeSdCard;
@@ -31,7 +31,7 @@ public class DirectorySelectionFragment extends Fragment {
     private String mCurrentPath;
     private FileListAdapter mFileListAdapter;
     private TabbarFileListAdapter mTabbarFileListAdapter;
-    private DirectoryUploadConfigActivity mActivity;
+    private FolderUploadConfigActivity mActivity;
     private boolean chooseDirPage;
     private Button mButton;
     private List<String> dbPaths;
@@ -39,7 +39,7 @@ public class DirectorySelectionFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mActivity = (DirectoryUploadConfigActivity) getActivity();
+        mActivity = (FolderUploadConfigActivity) getActivity();
         View rootView = getActivity().getLayoutInflater().inflate(R.layout.folder_selection_fragment, null);
         mTabbarFileRecyclerView = (RecyclerView) rootView.findViewById(R.id.rcv_tabbar_files_list);
         mFileRecyclerView = (RecyclerView) rootView.findViewById(R.id.rcv_files_list);
@@ -71,7 +71,7 @@ public class DirectorySelectionFragment extends Fragment {
         mButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mActivity.saveUpdateFolder();
+                mActivity.saveFolderConfig();
                 mActivity.finish();
             }
         });

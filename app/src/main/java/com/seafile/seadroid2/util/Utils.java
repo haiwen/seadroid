@@ -1014,5 +1014,6 @@ public class Utils {
             Log.d(DEBUG_TAG, info);
         }
     }
+    public static final String EXCEPTION_TYPE_CRASH = "crash_exception";
 }
 
