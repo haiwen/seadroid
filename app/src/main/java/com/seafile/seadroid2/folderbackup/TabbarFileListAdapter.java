@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.backupdirectory;
+package com.seafile.seadroid2.folderbackup;
 
 import android.app.Activity;
 import android.content.Context;
@@ -8,7 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.util.Utils;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.backupdirectory;
+package com.seafile.seadroid2.folderbackup;
 
 
 import android.annotation.SuppressLint;
@@ -12,11 +12,11 @@ import android.view.ViewGroup;
 import com.seafile.seadroid2.R;
 
 import java.util.List;
+
 public class FileListAdapter extends RecyclerView.Adapter<FileListViewHolder> {
     private List<FileBean> mListData;
     private Context mContext;
     private OnFileItemClickListener onItemClickListener;
-
 
     public void setOnItemClickListener(OnFileItemClickListener onItemClickListener) {
         this.onItemClickListener = onItemClickListener;
@@ -44,7 +44,8 @@ public class FileListAdapter extends RecyclerView.Adapter<FileListViewHolder> {
         if (isFile) {
             holder.tvFileDetail.setText(String.format(mContext.getString(R.string.folder_file_item_size), fileBean.getSize()));
         } else {
-            holder.tvFileDetail.setText(String.format(mContext.getString(R.string.folder_file_item_describe), fileBean.getChildrenFileNumber(), fileBean.getChildrenDirNumber()));
+            holder.tvFileDetail.setText(String.format(mContext.getString(R.string.folder_file_item_describe),
+                    fileBean.getChildrenFileNumber(), fileBean.getChildrenDirNumber()));
         }
         if (!isFile) {
             holder.checkBoxFile.setVisibility(View.VISIBLE);

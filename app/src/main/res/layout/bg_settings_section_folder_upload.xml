@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center_vertical"
-        android:text="@string/settings_directory_upload_info_title"
+        android:text="@string/settings_folder_upload_info_title"
         android:textAllCaps="true"
         android:textColor="@color/fancy_orange" />
 </LinearLayout>

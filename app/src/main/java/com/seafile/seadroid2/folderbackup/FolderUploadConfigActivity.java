@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.backupdirectory;
+package com.seafile.seadroid2.folderbackup;
 
 import android.app.Activity;
 import android.content.ComponentName;
@@ -42,7 +42,7 @@ public class FolderUploadConfigActivity extends BaseActivity {
     private boolean isChooseDirPage;
     private boolean isChooseLibPage;
     private int mCurrentPosition;
-    private UploadDirectoryDBHelper databaseHelper;
+    private FolderUploadDBHelper databaseHelper;
     private FolderBackupService fileDirService;
     private AccountManager accountMgr;
     private List<String> selectFilePaths;
@@ -64,7 +64,7 @@ public class FolderUploadConfigActivity extends BaseActivity {
         mViewPager.setAdapter(new CameraUploadConfigAdapter(fm));
         mViewPager.setOffscreenPageLimit(2);
         accountMgr = new AccountManager(this);
-        databaseHelper = UploadDirectoryDBHelper.getDatabaseHelper();
+        databaseHelper = FolderUploadDBHelper.getDatabaseHelper();
         Intent bindIntent = new Intent(this, FolderBackupService.class);
         bindService(bindIntent, mDirConnection, Context.BIND_AUTO_CREATE);
         mActivity = this;
@@ -98,7 +98,7 @@ public class FolderUploadConfigActivity extends BaseActivity {
     }
 
 
-    public UploadDirectoryDBHelper getDatabaseHelper() {
+    public FolderUploadDBHelper getDatabaseHelper() {
         return databaseHelper;
     }
 

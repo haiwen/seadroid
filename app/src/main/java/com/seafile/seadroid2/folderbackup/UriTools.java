@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.backupdirectory;
+package com.seafile.seadroid2.folderbackup;
 
 import android.annotation.SuppressLint;
 import android.app.Application;
@@ -24,7 +24,6 @@ import java.lang.reflect.Method;
 
 public class UriTools {
     public static File uri2File(Uri uri, Context context, Application app) {
-
         if (uri == null) {
             return null;
         } else {
@@ -76,7 +75,8 @@ public class UriTools {
             for (int var8 = 0; var8 < var7; ++var8) {
                 String external = var6[var8];
                 if (path.startsWith(external)) {
-                    file = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + path.replace(external, "/"));
+                    file = new File(Environment.getExternalStorageDirectory().getAbsolutePath() +
+                            path.replace(external, "/"));
                     if (file.exists()) {
                         Log.d("UriUtils", uri.toString() + " -> " + external);
                         return file;
@@ -86,13 +86,17 @@ public class UriTools {
 
             file = null;
             if (path.startsWith("/files_path/")) {
-                file = new File(context.getFilesDir().getAbsolutePath() + path.replace("/files_path/", "/"));
+                file = new File(context.getFilesDir().getAbsolutePath() +
+                        path.replace("/files_path/", "/"));
             } else if (path.startsWith("/cache_path/")) {
-                file = new File(context.getCacheDir().getAbsolutePath() + path.replace("/cache_path/", "/"));
+                file = new File(context.getCacheDir().getAbsolutePath() +
+                        path.replace("/cache_path/", "/"));
             } else if (path.startsWith("/external_files_path/")) {
-                file = new File(context.getExternalFilesDir((String) null).getAbsolutePath() + path.replace("/external_files_path/", "/"));
+                file = new File(context.getExternalFilesDir((String) null).getAbsolutePath() +
+                        path.replace("/external_files_path/", "/"));
             } else if (path.startsWith("/external_cache_path/")) {
-                file = new File(context.getExternalCacheDir().getAbsolutePath() + path.replace("/external_cache_path/", "/"));
+                file = new File(context.getExternalCacheDir().getAbsolutePath() +
+                        path.replace("/external_cache_path/", "/"));
             }
 
             if (file != null && file.exists()) {
@@ -119,7 +123,8 @@ public class UriTools {
                 if ("primary".equalsIgnoreCase(type)) {
                     return new File(Environment.getExternalStorageDirectory() + "/" + split[1]);
                 } else {
-                    @SuppressLint("WrongConstant") StorageManager mStorageManager = (StorageManager) app.getSystemService("storage");
+                    @SuppressLint("WrongConstant")
+                    StorageManager mStorageManager = (StorageManager) app.getSystemService("storage");
 
                     try {
                         Class<?> storageVolumeClazz = Class.forName("android.os.storage.StorageVolume");
@@ -134,8 +139,10 @@ public class UriTools {
 
                         for (int i = 0; i < length; ++i) {
                             Object storageVolumeElement = Array.get(result, i);
-                            boolean mounted = "mounted".equals(getState.invoke(storageVolumeElement)) || "mounted_ro".equals(getState.invoke(storageVolumeElement));
-                            if (mounted && (!(Boolean) isPrimary.invoke(storageVolumeElement) || !(Boolean) isEmulated.invoke(storageVolumeElement))) {
+                            boolean mounted = "mounted".equals(getState.invoke(storageVolumeElement)) ||
+                                    "mounted_ro".equals(getState.invoke(storageVolumeElement));
+                            if (mounted && (!(Boolean) isPrimary.invoke(storageVolumeElement) ||
+                                    !(Boolean) isEmulated.invoke(storageVolumeElement))) {
                                 String uuid = (String) getUuid.invoke(storageVolumeElement);
                                 if (uuid != null && uuid.equals(type)) {
                                     return new File(getPath.invoke(storageVolumeElement) + "/" + split[1]);
@@ -197,7 +204,8 @@ public class UriTools {
                         return null;
                     }
 
-                    String[] contentUriPrefixesToTry = new String[]{"content://downloads/public_downloads", "content://downloads/all_downloads", "content://downloads/my_downloads"};
+                    String[] contentUriPrefixesToTry = new String[]{"content://downloads/public_downloads",
+                            "content://downloads/all_downloads", "content://downloads/my_downloads"};
                     String[] var30 = contentUriPrefixesToTry;
                     int var34 = contentUriPrefixesToTry.length;
 
@@ -231,7 +239,8 @@ public class UriTools {
         return getFileFromUri(uri, (String) null, (String[]) null, code, app);
     }
 
-    private static File getFileFromUri(Uri uri, String selection, String[] selectionArgs, String code, Application app) {
+    private static File getFileFromUri(Uri uri, String selection,
+                                       String[] selectionArgs, String code, Application app) {
         File fileDir;
         if ("com.google.android.apps.photos.content".equals(uri.getAuthority())) {
             if (!TextUtils.isEmpty(uri.getLastPathSegment())) {
@@ -253,7 +262,8 @@ public class UriTools {
             }
         }
 
-        Cursor cursor = app.getContentResolver().query(uri, new String[]{"_data"}, selection, selectionArgs, (String) null);
+        Cursor cursor = app.getContentResolver().query(uri, new String[]{"_data"},
+                selection, selectionArgs, (String) null);
         if (cursor == null) {
             Log.d("UriUtils", uri.toString() + " parse failed(cursor is null). -> " + code);
             return null;
@@ -268,7 +278,8 @@ public class UriTools {
 
                 int columnIndex = cursor.getColumnIndex("_data");
                 if (columnIndex <= -1) {
-                    Log.d("UriUtils", uri.toString() + " parse failed(columnIndex: " + columnIndex + " is wrong). -> " + code);
+                    Log.d("UriUtils", uri.toString() + " parse failed(columnIndex: " +
+                            columnIndex + " is wrong). -> " + code);
                     var6 = null;
                     return var6;
                 }

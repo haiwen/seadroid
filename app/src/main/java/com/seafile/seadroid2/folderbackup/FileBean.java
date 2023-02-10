@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.backupdirectory;
+package com.seafile.seadroid2.folderbackup;
 
 
 import android.support.v4.provider.DocumentFile;
@@ -25,10 +25,8 @@ public class FileBean implements Serializable {
     private String size;
     private boolean visible;
     private boolean checked;
-
     private boolean useUri;
     private DocumentFile documentFile;
-
     private long modifyTime;
     private long simpleSize;
 
@@ -45,7 +43,9 @@ public class FileBean implements Serializable {
 
         if (this.useUri) {
             this.documentFile = documentFile;
-            File uriFile = UriTools.uri2File(documentFile.getUri(), Commons.getApplicationByReflect().getBaseContext(), Commons.getApplicationByReflect());
+            File uriFile = UriTools.uri2File(documentFile.getUri(),
+                    Commons.getApplicationByReflect().getBaseContext(),
+                    Commons.getApplicationByReflect());
 
             if (documentFile.isFile()) {
                 file = true;
@@ -62,14 +62,12 @@ public class FileBean implements Serializable {
             parentName = FileTools.getDirName(uriFile);
             childrenFileNumber = 0;
             childrenDirNumber = 0;
-
             modifyTime = documentFile.lastModified();
             if (file) {
                 size = FileTools.getSize(uriFile);
                 simpleSize = FileTools.getSimpleSize(uriFile);
             }
         } else {
-
             if (FileTools.isFile(filePath)) {
                 file = true;
                 dir = false;
@@ -85,7 +83,6 @@ public class FileBean implements Serializable {
             parentName = FileTools.getDirName(filePath);
             childrenFileNumber = FileTools.getChildrenNumber(filePath)[0];
             childrenDirNumber = FileTools.getChildrenNumber(filePath)[1];
-
             modifyTime = FileTools.getFileLastModified(filePath);
             if (file) {
                 size = FileTools.getSize(filePath);

@@ -47,8 +47,8 @@ import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
-import com.seafile.seadroid2.backupdirectory.FolderBackupService;
-import com.seafile.seadroid2.backupdirectory.FolderBackupService.FileDirBinder;
+import com.seafile.seadroid2.folderbackup.FolderBackupService;
+import com.seafile.seadroid2.folderbackup.FolderBackupService.FileDirBinder;
 import com.seafile.seadroid2.cameraupload.CameraUploadManager;
 import com.seafile.seadroid2.cameraupload.MediaObserverService;
 import com.seafile.seadroid2.data.CheckUploadServiceEvent;
@@ -2490,7 +2490,7 @@ public class BrowserActivity extends BaseActivity
             Log.d(DEBUG_TAG, "FileMonitorService============false ");
         }
 
-        if (!Utils.isServiceRunning(BrowserActivity.this, "com.seafile.seadroid2.backupdirectory.FolderBackupService")) {
+        if (!Utils.isServiceRunning(BrowserActivity.this, "com.seafile.seadroid2.folderbackup.FolderBackupService")) {
             monitorIntent = new Intent(this, FolderBackupService.class);
             startService(monitorIntent);
             Log.d(DEBUG_TAG, "FolderBackupService============false ");

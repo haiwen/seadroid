@@ -114,15 +114,15 @@
             android:title="@string/camera_upload_state" />
     </PreferenceCategory>
     <PreferenceCategory
-        android:key="file_directory_upload_key"
-        android:layout="@layout/bg_settings_section_directory_upload"
-        android:title="@string/settings_directory_upload_info_title">
+        android:key="file_folder_upload_key"
+        android:layout="@layout/bg_settings_section_folder_upload"
+        android:title="@string/settings_folder_upload_info_title">
         <com.seafile.seadroid2.ui.SwitchPreferenceCompat
             android:defaultValue="false"
-            android:key="directory_upload_switch_key"
-            android:summaryOff="@string/settings_directory_upload_service_stopped"
-            android:summaryOn="@string/settings_directory_upload_service_started"
-            android:title="@string/settings_directory_upload_turn_on">
+            android:key="folder_upload_switch_key"
+            android:summaryOff="@string/settings_folder_upload_service_stopped"
+            android:summaryOn="@string/settings_folder_upload_service_started"
+            android:title="@string/settings_folder_upload_turn_on">
         </com.seafile.seadroid2.ui.SwitchPreferenceCompat>
         <Preference
             android:key="folder_backup_mode"

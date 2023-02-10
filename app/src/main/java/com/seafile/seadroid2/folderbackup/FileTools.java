@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.backupdirectory;
+package com.seafile.seadroid2.folderbackup;
 
 import android.content.Context;
 import android.os.storage.StorageManager;
@@ -17,23 +17,6 @@ import java.util.List;
 public class FileTools {
     public static File getFileByPath(String path) {
         return StringTools.isEmpty(path) ? null : new File(path);
-    }
-
-    public static boolean isFileExists(File file) {
-        if (file == null) {
-            return false;
-        } else {
-            return file.exists() ? true : isFileExists(file.getAbsolutePath());
-        }
-    }
-
-    public static boolean isFileExists(String filePath) {
-        File file = getFileByPath(filePath);
-        if (file == null) {
-            return false;
-        } else {
-            return file.exists() ? true : false;
-        }
     }
 
     public static boolean rename(String filePath, String newName) {
@@ -334,20 +317,6 @@ public class FileTools {
             Log.e("FileIOUtils", "create file <" + file + "> failed.");
             return false;
         }
-    }
-
-    /**
-     * /storage/emulated/0/Android/data
-     *
-     * @param path
-     * @return
-     */
-    public static boolean isAndroidDataPath(String path) {
-        return path.matches(Constants.PATH_ANRROID_DATA + "(.*)") ? true : false;
-    }
-
-    public static boolean isAndroidObbPath(String path) {
-        return path.matches(Constants.PATH_ANRROID_OBB + "(.*)") ? true : false;
     }
 
     public static List<String> getAllSdPaths(Context context) {

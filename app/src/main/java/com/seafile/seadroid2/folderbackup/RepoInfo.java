@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.backupdirectory;
+package com.seafile.seadroid2.folderbackup;
 
 import com.google.common.base.Objects;
 import com.seafile.seadroid2.SettingsManager;

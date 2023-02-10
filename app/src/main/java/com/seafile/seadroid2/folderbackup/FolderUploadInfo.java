@@ -1,24 +1,24 @@
-package com.seafile.seadroid2.backupdirectory;
+package com.seafile.seadroid2.folderbackup;
 
 import com.google.common.base.Objects;
 import com.seafile.seadroid2.SettingsManager;
 
 import java.io.Serializable;
 
-public class UploadDirInfo implements Serializable {
+public class FolderUploadInfo implements Serializable {
     public String repoID;
     public String repoName;
-    public String parentDir;
+    public String parentFolder;
     public String filePath;
     public String fileName;
     public String fileSize;
 
-    public UploadDirInfo(String repoID, String repoName, String parentDir,
-                         String fileName, String filePath, String fileSize) {
+    public FolderUploadInfo(String repoID, String repoName, String parentPath,
+                            String fileName, String filePath, String fileSize) {
 
         this.repoID = repoID;
         this.repoName = repoName;
-        this.parentDir = parentDir;
+        this.parentFolder = parentPath;
         this.fileName = fileName;
         this.filePath = filePath;
         this.fileSize = fileSize;
@@ -35,13 +35,15 @@ public class UploadDirInfo implements Serializable {
         if (obj == null || (obj.getClass() != this.getClass()))
             return false;
 
-        UploadDirInfo that = (UploadDirInfo) obj;
-        if(that.repoID == null || that.repoName == null || that.parentDir == null || that.filePath == null) {
+        FolderUploadInfo that = (FolderUploadInfo) obj;
+        if (that.repoID == null || that.repoName == null ||
+                that.parentFolder == null || that.filePath == null) {
             return false;
         }
 
         return that.repoID.equals(this.repoID) &&
-                that.repoName.equals(this.repoName) && that.parentDir.equals(this.parentDir) &&
+                that.repoName.equals(this.repoName) &&
+                that.parentFolder.equals(this.parentFolder) &&
                 that.filePath.equals(this.filePath);
     }
 
@@ -50,7 +52,7 @@ public class UploadDirInfo implements Serializable {
     @Override
     public int hashCode() {
         if (hashCode == 0) {
-            hashCode = Objects.hashCode(repoID, repoName, parentDir, filePath);
+            hashCode = Objects.hashCode(repoID, repoName, parentFolder, filePath);
         }
 
         return hashCode;

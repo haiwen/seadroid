@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.backupdirectory;
+package com.seafile.seadroid2.folderbackup;
 
 import android.text.TextUtils;
 
@@ -43,7 +43,7 @@ public class StringTools {
             return false;
         }
         // user does not allow mobile connections
-        if (!Utils.isWiFiOn() && !SettingsManager.instance().isDirDataPlanAllowed()) {
+        if (!Utils.isWiFiOn() && !SettingsManager.instance().isFolderDataPlanAllowed()) {
             return false;
         }
         // Wi-Fi or 2G/3G/4G connections available

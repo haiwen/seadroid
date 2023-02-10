@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.backupdirectory;
+package com.seafile.seadroid2.folderbackup;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -34,7 +34,7 @@ public class FolderSelectionFragment extends Fragment {
     private FolderUploadConfigActivity mActivity;
     private boolean chooseDirPage;
     private Button mButton;
-    private List<String> dbPaths;
+    private List<String> selectPaths;
 
 
     @Override
@@ -45,10 +45,12 @@ public class FolderSelectionFragment extends Fragment {
         mFileRecyclerView = (RecyclerView) rootView.findViewById(R.id.rcv_files_list);
         imbChangeSdCard = (ImageButton) rootView.findViewById(R.id.imb_select_sdcard);
         mButton = (Button) rootView.findViewById(R.id.bt_dir_click_to_finish);
-        mFileRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
+        mFileRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity(),
+                LinearLayoutManager.VERTICAL, false));
         mFileListAdapter = new FileListAdapter(getActivity(), mFileList);
         mFileRecyclerView.setAdapter(mFileListAdapter);
-        mTabbarFileRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false));
+        mTabbarFileRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity(),
+                LinearLayoutManager.HORIZONTAL, false));
         mTabbarFileListAdapter = new TabbarFileListAdapter(getActivity(), mTabbarFileList);
         mTabbarFileRecyclerView.setAdapter(mTabbarFileListAdapter);
         chooseDirPage = mActivity.isChooseDirPage();
@@ -63,9 +65,9 @@ public class FolderSelectionFragment extends Fragment {
         } else {
             mButton.setVisibility(View.GONE);
         }
-        dbPaths = mActivity.getSelectFilePath();
-        if (dbPaths == null) {
-            dbPaths = new ArrayList<>();
+        selectPaths = mActivity.getSelectFilePath();
+        if (selectPaths == null) {
+            selectPaths = new ArrayList<>();
         }
 
         mButton.setOnClickListener(new View.OnClickListener() {
@@ -93,23 +95,21 @@ public class FolderSelectionFragment extends Fragment {
                 for (FileBean fb : mFileList) {
                     if (item.equals(fb)) {
                         if (fb.isChecked()) {
-                            for (int i = 0; i < dbPaths.size(); i++) {
-                                if (item.getFilePath().equals(dbPaths.get(i))) {
-                                    dbPaths.remove(i);
+                            for (int i = 0; i < selectPaths.size(); i++) {
+                                if (item.getFilePath().equals(selectPaths.get(i))) {
+                                    selectPaths.remove(i);
                                     i--;
                                 }
                             }
                             fb.setChecked(false);
 
                         } else {
-                            dbPaths.add(item.getFilePath());
+                            selectPaths.add(item.getFilePath());
                             fb.setChecked(true);
                         }
-                        mActivity.setFilePathList(dbPaths);
+                        mActivity.setFilePathList(selectPaths);
                     }
                 }
-
-
                 view.post(new Runnable() {
                     @Override
                     public void run() {
@@ -184,8 +184,10 @@ public class FolderSelectionFragment extends Fragment {
     }
 
     private void refreshFileAndTabbar(int tabbarType) {
-        BeanListManager.upDataFileBeanListByAsyn(getActivity(), dbPaths, mFileList, mFileListAdapter, mCurrentPath, mShowFileTypes, mSortType);
-        BeanListManager.upDataTabbarFileBeanList(mTabbarFileList, mTabbarFileListAdapter, mCurrentPath, tabbarType, mSdCardList);
+        BeanListManager.upDataFileBeanListByAsyn(getActivity(), selectPaths, mFileList, mFileListAdapter,
+                mCurrentPath, mShowFileTypes, mSortType);
+        BeanListManager.upDataTabbarFileBeanList(mTabbarFileList, mTabbarFileListAdapter,
+                mCurrentPath, tabbarType, mSdCardList);
     }
 
 

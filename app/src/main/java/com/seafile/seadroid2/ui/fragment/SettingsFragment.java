@@ -30,10 +30,10 @@ import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountInfo;
 import com.seafile.seadroid2.account.AccountManager;
-import com.seafile.seadroid2.backupdirectory.FolderUploadConfigActivity;
-import com.seafile.seadroid2.backupdirectory.RepoInfo;
-import com.seafile.seadroid2.backupdirectory.StringTools;
-import com.seafile.seadroid2.backupdirectory.UploadDirectoryDBHelper;
+import com.seafile.seadroid2.folderbackup.FolderUploadConfigActivity;
+import com.seafile.seadroid2.folderbackup.RepoInfo;
+import com.seafile.seadroid2.folderbackup.StringTools;
+import com.seafile.seadroid2.folderbackup.FolderUploadDBHelper;
 import com.seafile.seadroid2.cameraupload.CameraUploadConfigActivity;
 import com.seafile.seadroid2.cameraupload.CameraUploadManager;
 import com.seafile.seadroid2.cameraupload.GalleryBucketUtils;
@@ -116,7 +116,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
     private Preference cUploadFolderState;
     private Account act;
     private List<String> dbSelectPaths;
-    private UploadDirectoryDBHelper databaseHelper;
+    private FolderUploadDBHelper databaseHelper;
     private RepoInfo selectRepoConfig;
 
     @Override
@@ -132,7 +132,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
 //        contactsManager = new ContactsUploadManager(mActivity.getApplicationContext());
         act = accountMgr.getCurrentAccount();
         dataMgr = new DataManager(act);
-        databaseHelper = UploadDirectoryDBHelper.getDatabaseHelper();
+        databaseHelper = FolderUploadDBHelper.getDatabaseHelper();
     }
 
     public void onCreate(Bundle savedInstanceState) {
@@ -302,7 +302,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
         cUploadAdvancedScreen = (PreferenceScreen) findPreference(SettingsManager.CAMERA_UPLOAD_ADVANCED_SCREEN_KEY);
         cUploadAdvancedCategory = (PreferenceCategory) findPreference(SettingsManager.CAMERA_UPLOAD_ADVANCED_CATEGORY_KEY);
 
-        findPreference(SettingsManager.DIRECTORY_UPLOAD_SWITCH_KEY).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+        findPreference(SettingsManager.FOLDER_UPLOAD_SWITCH_KEY).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
 
@@ -333,7 +333,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
                                     XXPermissions.startPermissionActivity(getActivity(), permissions);
                                 } else {
                                     Toast.makeText(getActivity(), mActivity.getString(R.string.get_storage_permission_failed), Toast.LENGTH_LONG).show();
-                                    ((CheckBoxPreference) findPreference(SettingsManager.DIRECTORY_UPLOAD_SWITCH_KEY)).setChecked(false);
+                                    ((CheckBoxPreference) findPreference(SettingsManager.FOLDER_UPLOAD_SWITCH_KEY)).setChecked(false);
                                 }
                             }
                         });
@@ -723,7 +723,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
         }
 
         ((CheckBoxPreference) findPreference(SettingsManager.CAMERA_UPLOAD_SWITCH_KEY)).setChecked(cameraManager.isCameraUploadEnabled());
-        ((CheckBoxPreference) findPreference(SettingsManager.DIRECTORY_UPLOAD_SWITCH_KEY)).setChecked(SettingsManager.instance().isDirAutomaticUpload());
+        ((CheckBoxPreference) findPreference(SettingsManager.FOLDER_UPLOAD_SWITCH_KEY)).setChecked(SettingsManager.instance().isDirAutomaticUpload());
 
         if (SettingsManager.instance().isDirAutomaticUpload()) {
             cFolderUploadCategory.addPreference(cUploadFolderMode);

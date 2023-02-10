@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.backupdirectory;
+package com.seafile.seadroid2.folderbackup;
 
 
 import android.app.Activity;
@@ -6,7 +6,6 @@ import android.app.ProgressDialog;
 
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
-import com.seafile.seadroid2.util.Utils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -24,12 +23,13 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 
 
 public class BeanListManager {
-
     public static final int TypeAddTabbar = 0;
     public static final int TypeDelTabbar = 1;
     public static final int TypeInitTabbar = 2;
 
-    public static void upDataFileBeanListByAsyn(Activity at, List<String> selectFilePath, List<FileBean> fileBeanList, FileListAdapter fileListAdapter, String path, List<String> fileTypes, int sortType) {
+    public static void upDataFileBeanListByAsyn(Activity at, List<String> selectFilePath,
+                                                List<FileBean> fileBeanList, FileListAdapter fileListAdapter,
+                                                String path, List<String> fileTypes, int sortType) {
 
         if (fileBeanList == null) {
             fileBeanList = new ArrayList<>();
@@ -37,34 +37,30 @@ public class BeanListManager {
             fileBeanList.clear();
         }
 
-        Observable
-                .just(fileBeanList)
-                .map(new Function<List<FileBean>, List<FileBean>>() {
-                    @Override
-                    public List<FileBean> apply(List<FileBean> fileBeanList) throws Throwable {
-                        FileBean fileBean;
-                        File file = FileTools.getFileByPath(path);
-                        File[] files = file.listFiles();
-                        if (files != null) {
-                            for (int i = 0; i < files.length; i++) {
-                                fileBean = new FileBean(files[i].getAbsolutePath(), false);
-                                if (selectFilePath != null && selectFilePath.size() > 0) {
-                                    for (String str : selectFilePath) {
-                                        if (fileBean.getFilePath().equals(str)) {
-                                            fileBean.setChecked(true);
-                                        }
-                                    }
+        Observable.just(fileBeanList).map(new Function<List<FileBean>, List<FileBean>>() {
+            @Override
+            public List<FileBean> apply(List<FileBean> fileBeanList) throws Throwable {
+                FileBean fileBean;
+                File file = FileTools.getFileByPath(path);
+                File[] files = file.listFiles();
+                if (files != null) {
+                    for (int i = 0; i < files.length; i++) {
+                        fileBean = new FileBean(files[i].getAbsolutePath(), false);
+                        if (selectFilePath != null && selectFilePath.size() > 0) {
+                            for (String str : selectFilePath) {
+                                if (fileBean.getFilePath().equals(str)) {
+                                    fileBean.setChecked(true);
                                 }
-                                fileBeanList.add(fileBean);
                             }
                         }
-                        sortFileBeanList(fileBeanList, sortType);
-                        return fileBeanList;
+                        fileBeanList.add(fileBean);
                     }
-                })
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<List<FileBean>>() {
+                }
+                sortFileBeanList(fileBeanList, sortType);
+                return fileBeanList;
+            }
+        }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(
+                new Observer<List<FileBean>>() {
                     public ProgressDialog pg;
 
                     @Override
@@ -149,7 +145,8 @@ public class BeanListManager {
         });
     }
 
-    public static void getTabbarFileBeanList(List<TabbarFileBean> tabbarList, String path, List<String> SdCardList) {
+    public static void getTabbarFileBeanList(List<TabbarFileBean> tabbarList,
+                                             String path, List<String> SdCardList) {
         if (SdCardList.contains(path)) {
             int i = SdCardList.indexOf(path);
             if (i == 0) {
@@ -166,7 +163,9 @@ public class BeanListManager {
     }
 
 
-    public static List<TabbarFileBean> upDataTabbarFileBeanList(List<TabbarFileBean> tabbarList, TabbarFileListAdapter tabbarAdapter, String path, int type, List<String> SdCardList) {
+    public static List<TabbarFileBean> upDataTabbarFileBeanList(List<TabbarFileBean> tabbarList,
+                                                                TabbarFileListAdapter tabbarAdapter,
+                                                                String path, int type, List<String> SdCardList) {
         switch (type) {
             case TypeAddTabbar:
                 tabbarList.add(new TabbarFileBean(path, false));

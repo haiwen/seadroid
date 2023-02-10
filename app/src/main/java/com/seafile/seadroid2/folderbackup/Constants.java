@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.backupdirectory;
+package com.seafile.seadroid2.folderbackup;
 
 import android.os.Environment;
 
@@ -9,23 +9,20 @@ public class Constants {
     public static String DEFAULT_ROOTPATH;
     public static String PATH_ANRROID_DATA;
     public static String PATH_ANRROID_OBB;
-
-    static {
-        DEFAULT_ROOTPATH = Environment.getExternalStorageDirectory().getAbsolutePath();
-        PATH_ANRROID_DATA = DEFAULT_ROOTPATH + "/Android/data";
-        PATH_ANRROID_OBB = DEFAULT_ROOTPATH + "/Android/obb";
-    }
-
     public static final int SORT_NAME_ASC = 0;
     public static final int SORT_NAME_DESC = 1;
     public static final int SORT_TIME_ASC = 2;
     public static final int SORT_TIME_DESC = 3;
     public static final int SORT_SIZE_ASC = 4;
     public static final int SORT_SIZE_DESC = 5;
-
     public static final int TYPE_CUSTOM_VIEW_NULL = -1;
-
     public static Map<String, String> mimeTypeMap = null;
+
+    static {
+        DEFAULT_ROOTPATH = Environment.getExternalStorageDirectory().getAbsolutePath();
+        PATH_ANRROID_DATA = DEFAULT_ROOTPATH + "/Android/data";
+        PATH_ANRROID_OBB = DEFAULT_ROOTPATH + "/Android/obb";
+    }
 
     static {
         mimeTypeMap = new HashMap<>();
@@ -95,9 +92,5 @@ public class Constants {
         mimeTypeMap.put("zip", "application/x-zip-compressed");
         mimeTypeMap.put("", "*/*");
     }
-
-
-
-
 
 }

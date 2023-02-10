@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.backupdirectory;
+package com.seafile.seadroid2.folderbackup;
 
 
 import android.support.v4.provider.DocumentFile;
@@ -27,7 +27,9 @@ public class TabbarFileBean {
 
         if (this.useUri) {
             this.documentFile = documentFile;
-            File uriFile = UriTools.uri2File(documentFile.getUri(), Commons.getApplicationByReflect().getBaseContext(), Commons.getApplicationByReflect());
+            File uriFile = UriTools.uri2File(documentFile.getUri(),
+                    Commons.getApplicationByReflect().getBaseContext(),
+                    Commons.getApplicationByReflect());
             fileName = FileTools.getFileName(uriFile);
             fileNameNoExtension = FileTools.getFileNameNoExtension(uriFile);
             parentPath = null;
@@ -44,14 +46,17 @@ public class TabbarFileBean {
     }
 
 
-    public TabbarFileBean(String filePath, String fileName, Boolean useUri, DocumentFile documentFile) {
+    public TabbarFileBean(String filePath, String fileName,
+                          Boolean useUri, DocumentFile documentFile) {
         this.filePath = filePath;
         this.useUri = useUri;
         this.fileName = fileName;
 
         if (this.useUri) {
             this.documentFile = documentFile;
-            File uriFile = UriTools.uri2File(documentFile.getUri(), Commons.getApplicationByReflect().getBaseContext(), Commons.getApplicationByReflect());
+            File uriFile = UriTools.uri2File(documentFile.getUri(),
+                    Commons.getApplicationByReflect().getBaseContext(),
+                    Commons.getApplicationByReflect());
             fileNameNoExtension = FileTools.getFileNameNoExtension(uriFile);
             parentPath = null;
             parentName = FileTools.getDirName(uriFile);
@@ -65,6 +70,7 @@ public class TabbarFileBean {
         }
 
     }
+
     public void setFilePath(String filePath) {
         this.filePath = filePath;
     }

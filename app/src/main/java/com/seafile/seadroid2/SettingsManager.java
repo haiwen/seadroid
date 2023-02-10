@@ -103,12 +103,12 @@ public final class SettingsManager {
     public static final String PIC_CHECK_START = "pic_check_start";
     public static final String UPLOAD_COMPLETED_TIME = "upload_completed_time";
 
-    //DirSyncStatus
-    public static final String DIRECTORY_UPLOAD_SWITCH_KEY = "directory_upload_switch_key";
-    public static final String DIR_UPLOAD_ALLOW_DATA_PLAN_SWITCH_KEY = "dir_allow_data_plan_switch_key";
-    public static final String DIR_AUTOMATIC_UPLOAD_SWITCH_KEY = "dir_automatic_upload_switch_key";
+    //FolderSyncStatus
+    public static final String FOLDER_UPLOAD_SWITCH_KEY = "folder_upload_switch_key";
+    public static final String FOLDER_UPLOAD_ALLOW_DATA_PLAN_SWITCH_KEY = "folder_allow_data_plan_switch_key";
+    public static final String FOLDER_AUTOMATIC_UPLOAD_SWITCH_KEY = "folder_automatic_upload_switch_key";
     public static final String SAVE_BACKUP_ACCOUNT_EMAIL = "save_backup_account_email";
-    public static final String FOLDER_UPLOAD_CATEGORY_KEY = "file_directory_upload_key";
+    public static final String FOLDER_UPLOAD_CATEGORY_KEY = "file_folder_upload_key";
     public static final String FOLDER_BACKUP_MODE = "folder_backup_mode";
     public static final String FOLDER_BACKUP_LIBRARY = "folder_backup_library";
     public static final String FOLDER_BACKUP_KEY = "folder_backup_key";
@@ -246,8 +246,8 @@ public final class SettingsManager {
     public boolean isDataPlanAllowed() {
         return settingsSharedPref.getBoolean(CAMERA_UPLOAD_ALLOW_DATA_PLAN_SWITCH_KEY, false);
     }
-    public boolean isDirDataPlanAllowed() {
-        return settingsSharedPref.getBoolean(DIR_UPLOAD_ALLOW_DATA_PLAN_SWITCH_KEY, false);
+    public boolean isFolderDataPlanAllowed() {
+        return settingsSharedPref.getBoolean(FOLDER_UPLOAD_ALLOW_DATA_PLAN_SWITCH_KEY, false);
     }
 
     public boolean isVideosUploadAllowed() {
@@ -258,14 +258,14 @@ public final class SettingsManager {
         settingsSharedPref.edit().putBoolean(CAMERA_UPLOAD_ALLOW_DATA_PLAN_SWITCH_KEY, isAllowed).commit();
     }
     public void saveDirDataPlanAllowed(boolean isAllowed) {
-        settingsSharedPref.edit().putBoolean(DIR_UPLOAD_ALLOW_DATA_PLAN_SWITCH_KEY, isAllowed).commit();
+        settingsSharedPref.edit().putBoolean(FOLDER_UPLOAD_ALLOW_DATA_PLAN_SWITCH_KEY, isAllowed).commit();
     }
 
     public void saveDirAutomaticUpload(boolean isAllowed) {
-        settingsSharedPref.edit().putBoolean(DIR_AUTOMATIC_UPLOAD_SWITCH_KEY, isAllowed).commit();
+        settingsSharedPref.edit().putBoolean(FOLDER_AUTOMATIC_UPLOAD_SWITCH_KEY, isAllowed).commit();
     }
     public boolean isDirAutomaticUpload() {
-        return settingsSharedPref.getBoolean(DIR_AUTOMATIC_UPLOAD_SWITCH_KEY, false);
+        return settingsSharedPref.getBoolean(FOLDER_AUTOMATIC_UPLOAD_SWITCH_KEY, false);
     }
 
     public void saveVideosAllowed(boolean isVideosUploadAllowed) {

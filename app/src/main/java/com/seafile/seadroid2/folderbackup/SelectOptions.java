@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.backupdirectory;
+package com.seafile.seadroid2.folderbackup;
 
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -17,7 +17,6 @@ public class SelectOptions {
     public Integer requestCode;
     public Integer frameLayoutID;
     private Context mContext;
-
     public String[] mShowFileTypes;
     public String[] mSelectFileTypes;
     public Integer mSortType;
@@ -34,7 +33,6 @@ public class SelectOptions {
     public boolean[] optionsNeedCallBack;
     public boolean[] toolbarViewNeedCallBack;
     public boolean[] moreChooseItemNeedCallBack;
-
     public onToolbarListener[] toolbarListeners;
     public String rootPath;
 
@@ -127,6 +125,8 @@ public class SelectOptions {
     }
 
     public interface onToolbarListener {
-        void onClick(View view, String currentPath, List<FileBean> fileBeanList, List<String> callBackData, TabbarFileListAdapter tabbarAdapter, FileListAdapter fileAdapter, List<FileBean> callBackFileBeanList);
+        void onClick(View view, String currentPath, List<FileBean> fileBeanList,
+                     List<String> callBackData, TabbarFileListAdapter tabbarAdapter,
+                     FileListAdapter fileAdapter, List<FileBean> callBackFileBeanList);
     }
 }

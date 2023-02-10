@@ -15,7 +15,7 @@
                 android:layout_alignParentTop="true"
                 android:layout_marginLeft="@dimen/tv_title_margin_left"
                 android:layout_marginTop="@dimen/tv_title_margin_top"
-                android:text="@string/settings_select_local_dir_title"
+                android:text="@string/settings_select_local_folder_title"
                 android:textColor="@color/fancy_orange"
                 android:textSize="@dimen/tv_title_txt_size"/>
             <FrameLayout

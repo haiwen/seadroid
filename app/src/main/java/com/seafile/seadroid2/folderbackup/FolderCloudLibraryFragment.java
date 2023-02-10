@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.backupdirectory;
+package com.seafile.seadroid2.folderbackup;
 
 import android.content.Intent;
 import android.database.Cursor;
@@ -44,10 +44,8 @@ import java.util.List;
 
 public class FolderCloudLibraryFragment extends Fragment {
     public static final String DEBUG_TAG = "FolderCloudLibraryFragment";
-
     private FolderUploadConfigActivity mActivity;
     private Button mDoneBtn;
-
     public static final String PASSWORD_DIALOG_FRAGMENT_TAG = "passwordDialogFragmentTag";
     public static final String ONLY_SHOW_WRITABLE_REPOS = "onlyShowWritableRepos";
     public static final String ENCRYPTED_REPO_ID = "encryptedRepoId";
@@ -55,7 +53,6 @@ public class FolderCloudLibraryFragment extends Fragment {
     private static final int STEP_CHOOSE_REPO = 2;
     private static final int STEP_CHOOSE_DIR = 3;
     private int mStep = 1;
-
     private CloudLibraryAccountAdapter mAccountAdapter;
     private CloudLibraryAdapter mReposAdapter;
     private DirentsAdapter mDirentsAdapter;
@@ -67,7 +64,6 @@ public class FolderCloudLibraryFragment extends Fragment {
     private LoadReposTask mLoadReposTask;
     private LoadDirTask mLoadDirTask;
     private AvatarManager avatarManager;
-
     private RelativeLayout mUpLayout;
     private TextView mCurrentFolderText;
     private TextView mEmptyText, mErrorText;
@@ -76,11 +72,9 @@ public class FolderCloudLibraryFragment extends Fragment {
     private ListView mFoldersListView;
     private Cursor mCursor;
     private String mCurrentDir;
-
     private boolean canChooseAccount;
     private boolean onlyShowWritableRepos;
     private String encryptedRepoId;
-
     private boolean isOnlyChooseRepo;
 
     @Override
@@ -100,7 +94,6 @@ public class FolderCloudLibraryFragment extends Fragment {
         onlyShowWritableRepos = intent.getBooleanExtra(ONLY_SHOW_WRITABLE_REPOS, true);
         encryptedRepoId = intent.getStringExtra(ENCRYPTED_REPO_ID);
         isOnlyChooseRepo = true;
-
         mFoldersListView = (ListView) rootView.findViewById(R.id.cuc_multi_selection_lv);
         mFoldersListView.setFastScrollEnabled(true);
         mUpLayout = (RelativeLayout) rootView.findViewById(R.id.cuc_multi_selection_up_layout);
