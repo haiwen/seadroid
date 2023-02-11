@@ -15,7 +15,6 @@ import android.text.TextUtils;
 
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
-import com.seafile.seadroid2.SeafConnection;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
@@ -43,10 +42,10 @@ import java.util.Map;
 
 
 public class FolderBackupService extends Service {
-    private final IBinder mBinder = new FileDirBinder();
+    private final IBinder mBinder = new FileBackupBinder();
     private TransferService txService = null;
     private DataManager dataManager;
-    private FolderUploadDBHelper databaseHelper;
+    private FolderBackupDBHelper databaseHelper;
     private AccountManager accountManager;
     private Account currentAccount;
     private RepoInfo repoConfig;
@@ -58,7 +57,7 @@ public class FolderBackupService extends Service {
         return mBinder;
     }
 
-    public class FileDirBinder extends Binder {
+    public class FileBackupBinder extends Binder {
         public FolderBackupService getService() {
             return FolderBackupService.this;
         }
@@ -73,7 +72,7 @@ public class FolderBackupService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        databaseHelper = FolderUploadDBHelper.getDatabaseHelper();
+        databaseHelper = FolderBackupDBHelper.getDatabaseHelper();
         Intent bIntent = new Intent(this, TransferService.class);
         accountManager = new AccountManager(this);
         bindService(bIntent, mConnection, Context.BIND_AUTO_CREATE);
@@ -85,10 +84,10 @@ public class FolderBackupService extends Service {
     }
 
 
-    public void uploadFile(String email) {
+    public void folderBackup(String email) {
         fileUploaded.clear();
         if (databaseHelper == null) {
-            databaseHelper = FolderUploadDBHelper.getDatabaseHelper();
+            databaseHelper = FolderBackupDBHelper.getDatabaseHelper();
         }
         if (!TextUtils.isEmpty(email)) {
             try {
@@ -109,13 +108,13 @@ public class FolderBackupService extends Service {
         backupPathsList = StringTools.getDataList(backupPaths);
         dataManager = new DataManager(currentAccount);
         for (String str : backupPathsList) {
-            FileDirectoryMonitor fileDirectoryMonitor = new FileDirectoryMonitor();
-            FileAlterationObserver fileDirObserver = new FileAlterationObserver(str);
-            fileDirObserver.addListener(fileDirectoryMonitor);
+            FolderFileMonitor folderFileMonitor = new FolderFileMonitor();
+            FileAlterationObserver folderFileObserver = new FileAlterationObserver(str);
+            folderFileObserver.addListener(folderFileMonitor);
             try {
-                FileAlterationMonitor fileDirMonitor = new FileAlterationMonitor(1000l);
-                fileDirMonitor.addObserver(fileDirObserver);
-                fileDirMonitor.start();
+                FileAlterationMonitor fileMonitor = new FileAlterationMonitor(1000l);
+                fileMonitor.addObserver(folderFileObserver);
+                fileMonitor.start();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -124,15 +123,14 @@ public class FolderBackupService extends Service {
             SeadroidApplication.getInstance().setScanUploadStatus(CameraSyncStatus.NETWORK_UNAVAILABLE);
             return;
         }
-        ConcurrentAsyncTask.execute(new uploadDirTask());
+        ConcurrentAsyncTask.execute(new backupFolderTask());
 
     }
 
-    class uploadDirTask extends AsyncTask<Void, Void, String> {
+    class backupFolderTask extends AsyncTask<Void, Void, String> {
 
         @Override
         protected String doInBackground(Void... params) {
-            SeafConnection sc = new SeafConnection(currentAccount);
             for (String str : backupPathsList) {
                 String[] split = str.split("/");
                 try {
@@ -199,7 +197,7 @@ public class FolderBackupService extends Service {
                 }
                 isFolder(parentPath + "/" + fb.getFileName(), fb.getFilePath());
             } else {
-                FolderUploadInfo fileInfo = databaseHelper.getUploadFileInfo(repoConfig.getRepoID(),
+                FolderBackupInfo fileInfo = databaseHelper.getBackupFileInfo(repoConfig.getRepoID(),
                         fb.getFilePath(), fb.getSimpleSize() + "");
                 if (fileInfo != null && !TextUtils.isEmpty(fileInfo.filePath)) {
                     Utils.utilsLogInfo(false, "===============" + fileInfo.filePath);
@@ -209,7 +207,7 @@ public class FolderBackupService extends Service {
                     if (taskID != 0) {
                         EventBus.getDefault().post(new CameraSyncEvent("backupFolder", taskID));
                         Utils.utilsLogInfo(false, "isFolder===============" + taskID);
-                        FolderUploadInfo dirInfo = new FolderUploadInfo(repoConfig.getRepoID(), repoConfig.getRepoName(),
+                        FolderBackupInfo dirInfo = new FolderBackupInfo(repoConfig.getRepoID(), repoConfig.getRepoName(),
                                 parentPath, fb.getFileName(), fb.getFilePath(), fb.getSimpleSize() + "");
                         fileUploaded.put(taskID + "", dirInfo);
                     }
@@ -220,7 +218,7 @@ public class FolderBackupService extends Service {
 
     }
 
-    Map<String, FolderUploadInfo> fileUploaded = new HashMap<>();
+    Map<String, FolderBackupInfo> fileUploaded = new HashMap<>();
 
     ServiceConnection mConnection = new ServiceConnection() {
         @Override
@@ -253,10 +251,10 @@ public class FolderBackupService extends Service {
 
     }
 
-    class FileDirectoryMonitor implements FileAlterationListener {
+    class FolderFileMonitor implements FileAlterationListener {
 
 
-        public FileDirectoryMonitor() {
+        public FolderFileMonitor() {
 
         }
 
@@ -267,7 +265,7 @@ public class FolderBackupService extends Service {
 
         @Override
         public void onDirectoryCreate(File directory) {
-            uploadFile();
+            backupFile();
 
         }
 
@@ -283,7 +281,7 @@ public class FolderBackupService extends Service {
 
         @Override
         public void onFileCreate(File file) {
-            uploadFile();
+            backupFile();
         }
 
         @Override
@@ -302,10 +300,10 @@ public class FolderBackupService extends Service {
         }
     }
 
-    public void uploadFile() {
+    public void backupFile() {
         String backupEmail = SettingsManager.instance().getBackupEmail();
         if (backupEmail != null) {
-            uploadFile(backupEmail);
+            folderBackup(backupEmail);
         }
     }
 
@@ -319,31 +317,24 @@ public class FolderBackupService extends Service {
             String type = intent.getStringExtra("type");
             if (type.equals(UploadTaskManager.BROADCAST_FILE_UPLOAD_SUCCESS)) {
                 int taskID = intent.getIntExtra("taskID", 0);
-                onFileUploaded(taskID);
-            } else if (type.equals(UploadTaskManager.BROADCAST_FILE_UPLOAD_FAILED)) {
-                int taskID = intent.getIntExtra("taskID", 0);
-                onFileUploadFailed(taskID);
+                onFileBackedUp(taskID);
             }
         }
 
     }
 
-    private void onFileUploaded(int taskID) {
+    private void onFileBackedUp(int taskID) {
         Utils.utilsLogInfo(false, "onFileUploaded===============" + taskID);
         if (fileUploaded != null) {
-            FolderUploadInfo uploadInfo = fileUploaded.get(taskID + "");
+            FolderBackupInfo uploadInfo = fileUploaded.get(taskID + "");
             if (databaseHelper == null) {
-                databaseHelper = FolderUploadDBHelper.getDatabaseHelper();
+                databaseHelper = FolderBackupDBHelper.getDatabaseHelper();
             }
             if (uploadInfo != null) {
-                databaseHelper.saveFileUploadInfo(uploadInfo);
+                databaseHelper.saveFileBackupInfo(uploadInfo);
             }
         }
 
-    }
-
-    private void onFileUploadFailed(int num) {
-        Utils.utilsLogInfo(false, "onFileUploadFailed===============" + num);
     }
 
 }

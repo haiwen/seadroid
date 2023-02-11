@@ -30,10 +30,10 @@ import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountInfo;
 import com.seafile.seadroid2.account.AccountManager;
-import com.seafile.seadroid2.folderbackup.FolderUploadConfigActivity;
+import com.seafile.seadroid2.folderbackup.FolderBackupConfigActivity;
 import com.seafile.seadroid2.folderbackup.RepoInfo;
 import com.seafile.seadroid2.folderbackup.StringTools;
-import com.seafile.seadroid2.folderbackup.FolderUploadDBHelper;
+import com.seafile.seadroid2.folderbackup.FolderBackupDBHelper;
 import com.seafile.seadroid2.cameraupload.CameraUploadConfigActivity;
 import com.seafile.seadroid2.cameraupload.CameraUploadManager;
 import com.seafile.seadroid2.cameraupload.GalleryBucketUtils;
@@ -72,10 +72,10 @@ public class SettingsFragment extends CustomPreferenceFragment {
 
     public static final String CAMERA_UPLOAD_BOTH_PAGES = "com.seafile.seadroid2.camera.upload";
     public static final String CAMERA_UPLOAD_REMOTE_LIBRARY = "com.seafile.seadroid2.camera.upload.library";
-    public static final String FOLDER_UPLOAD_REMOTE_DIR = "com.seafile.seadroid2.folder.upload.dir";
+    public static final String FOLDER_BACKUP_REMOTE_PATH = "com.seafile.seadroid2.folder.backup.path";
     public static final String CAMERA_UPLOAD_LOCAL_DIRECTORIES = "com.seafile.seadroid2.camera.upload.directories";
     public static final String CONTACTS_UPLOAD_REMOTE_LIBRARY = "com.seafile.seadroid2.contacts.upload.library";
-    public static final String FOLDER_UPLOAD_REMOTE_LIBRARY = "com.seafile.seadroid2.folder.upload.library";
+    public static final String FOLDER_BACKUP_REMOTE_LIBRARY = "com.seafile.seadroid2.folder.backup.library";
     public static final int CHOOSE_CAMERA_UPLOAD_REQUEST = 2;
     public static final int CHOOSE_BACKUP_UPLOAD_REQUEST = 5;
 //    public static final int CHOOSE_CONTACTS_UPLOAD_REQUEST = 3;
@@ -108,15 +108,15 @@ public class SettingsFragment extends CustomPreferenceFragment {
 //    private Preference cContactsRepoRecovery;
     private long mMtime;
 
-    private PreferenceCategory cFolderUploadCategory;
-    private Preference cUploadRepoState;
-    private Preference cUploadFolderMode;
-    private Preference cUploadFolderRepo;
-    private Preference cUploadFolderPref;
-    private Preference cUploadFolderState;
+    private PreferenceCategory cFolderBackupCategory;
+    private Preference cBackupRepoState;
+    private Preference cBackupFolderMode;
+    private Preference cBackupFolderRepo;
+    private Preference cBackupFolderPref;
+    private Preference cBackupFolderState;
     private Account act;
-    private List<String> dbSelectPaths;
-    private FolderUploadDBHelper databaseHelper;
+    private List<String> backupSelectPaths;
+    private FolderBackupDBHelper databaseHelper;
     private RepoInfo selectRepoConfig;
 
     @Override
@@ -132,7 +132,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
 //        contactsManager = new ContactsUploadManager(mActivity.getApplicationContext());
         act = accountMgr.getCurrentAccount();
         dataMgr = new DataManager(act);
-        databaseHelper = FolderUploadDBHelper.getDatabaseHelper();
+        databaseHelper = FolderBackupDBHelper.getDatabaseHelper();
     }
 
     public void onCreate(Bundle savedInstanceState) {
@@ -147,10 +147,8 @@ public class SettingsFragment extends CustomPreferenceFragment {
         }
         String backupPaths = SettingsManager.instance().getBackupPaths();
         if (!TextUtils.isEmpty(backupPaths)) {
-            dbSelectPaths = StringTools.getDataList(backupPaths);
+            backupSelectPaths = StringTools.getDataList(backupPaths);
         }
-
-
         ConcurrentAsyncTask.execute(new RequestAccountInfoTask(), account);
 
     }
@@ -296,31 +294,31 @@ public class SettingsFragment extends CustomPreferenceFragment {
             }
         }
 
-        cFolderUploadCategory = (PreferenceCategory) findPreference(SettingsManager.FOLDER_UPLOAD_CATEGORY_KEY);
+        cFolderBackupCategory = (PreferenceCategory) findPreference(SettingsManager.FOLDER_BACKUP_CATEGORY_KEY);
         // Camera Upload
         cUploadCategory = (PreferenceCategory) findPreference(SettingsManager.CAMERA_UPLOAD_CATEGORY_KEY);
         cUploadAdvancedScreen = (PreferenceScreen) findPreference(SettingsManager.CAMERA_UPLOAD_ADVANCED_SCREEN_KEY);
         cUploadAdvancedCategory = (PreferenceCategory) findPreference(SettingsManager.CAMERA_UPLOAD_ADVANCED_CATEGORY_KEY);
 
-        findPreference(SettingsManager.FOLDER_UPLOAD_SWITCH_KEY).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+        findPreference(SettingsManager.FOLDER_BACKUP_SWITCH_KEY).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
 
                 if (newValue instanceof Boolean) {
                     boolean isChecked = (Boolean) newValue;
                     if (!isChecked) {
-                        cFolderUploadCategory.removePreference(cUploadFolderMode);
-                        cFolderUploadCategory.removePreference(cUploadFolderRepo);
-                        cFolderUploadCategory.removePreference(cUploadFolderPref);
-                        cFolderUploadCategory.removePreference(cUploadFolderState);
-                        SettingsManager.instance().saveDirAutomaticUpload(false);
+                        cFolderBackupCategory.removePreference(cBackupFolderMode);
+                        cFolderBackupCategory.removePreference(cBackupFolderRepo);
+                        cFolderBackupCategory.removePreference(cBackupFolderPref);
+                        cFolderBackupCategory.removePreference(cBackupFolderState);
+                        SettingsManager.instance().saveFolderAutomaticBackup(false);
                     } else {
                         XXPermissions.with(getActivity()).permission("android.permission.MANAGE_EXTERNAL_STORAGE").request(new OnPermissionCallback() {
 
                             @Override
                             public void onGranted(List<String> permissions, boolean all) {
                                 if (all) {
-                                    SettingsManager.instance().saveDirAutomaticUpload(true);
+                                    SettingsManager.instance().saveFolderAutomaticBackup(true);
                                     refreshCameraUploadView();
 
                                 }
@@ -333,7 +331,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
                                     XXPermissions.startPermissionActivity(getActivity(), permissions);
                                 } else {
                                     Toast.makeText(getActivity(), mActivity.getString(R.string.get_storage_permission_failed), Toast.LENGTH_LONG).show();
-                                    ((CheckBoxPreference) findPreference(SettingsManager.FOLDER_UPLOAD_SWITCH_KEY)).setChecked(false);
+                                    ((CheckBoxPreference) findPreference(SettingsManager.FOLDER_BACKUP_SWITCH_KEY)).setChecked(false);
                                 }
                             }
                         });
@@ -378,43 +376,43 @@ public class SettingsFragment extends CustomPreferenceFragment {
                 return true;
             }
         });
-        // Change upload folder
-        cUploadFolderMode = findPreference(SettingsManager.FOLDER_BACKUP_MODE);
-        cUploadFolderRepo = findPreference(SettingsManager.FOLDER_BACKUP_LIBRARY);
-        cUploadFolderPref = findPreference(SettingsManager.FOLDER_BACKUP_KEY);
-        cUploadFolderState = findPreference(SettingsManager.FOLDER_BACKUP_STATE);
-        cUploadFolderMode.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+        // Change backup folder
+        cBackupFolderMode = findPreference(SettingsManager.FOLDER_BACKUP_MODE);
+        cBackupFolderRepo = findPreference(SettingsManager.FOLDER_BACKUP_LIBRARY);
+        cBackupFolderPref = findPreference(SettingsManager.FOLDER_BACKUP_KEY);
+        cBackupFolderState = findPreference(SettingsManager.FOLDER_BACKUP_STATE);
+        cBackupFolderMode.setOnPreferenceClickListener(new OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 showWifiDialog();
                 return true;
             }
         });
-        cUploadFolderRepo.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+        cBackupFolderRepo.setOnPreferenceClickListener(new OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
 
                 // choose remote library
-                Intent intent = new Intent(mActivity, FolderUploadConfigActivity.class);
-                intent.putExtra(FOLDER_UPLOAD_REMOTE_LIBRARY, true);
+                Intent intent = new Intent(mActivity, FolderBackupConfigActivity.class);
+                intent.putExtra(FOLDER_BACKUP_REMOTE_LIBRARY, true);
                 startActivityForResult(intent, CHOOSE_BACKUP_UPLOAD_REQUEST);
                 return true;
             }
         });
-        cUploadFolderPref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+        cBackupFolderPref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
 
-                // choose remote library
-                Intent intent = new Intent(mActivity, FolderUploadConfigActivity.class);
-                intent.putExtra(FOLDER_UPLOAD_REMOTE_DIR, true);
+                // choose remote folder path
+                Intent intent = new Intent(mActivity, FolderBackupConfigActivity.class);
+                intent.putExtra(FOLDER_BACKUP_REMOTE_PATH, true);
                 startActivityForResult(intent, CHOOSE_BACKUP_UPLOAD_REQUEST);
                 return true;
             }
         });
 
-        cUploadRepoState = findPreference(SettingsManager.CAMERA_UPLOAD_STATE);
-        cUploadRepoState.setSummary(Utils.getUploadStateShow(getActivity()));
+        cBackupRepoState = findPreference(SettingsManager.CAMERA_UPLOAD_STATE);
+        cBackupRepoState.setSummary(Utils.getUploadStateShow(getActivity()));
 
         // Contacts Upload
 //        cContactsCategory = (PreferenceCategory) findPreference(SettingsManager.CONTACTS_UPLOAD_CATEGORY_KEY);
@@ -723,17 +721,17 @@ public class SettingsFragment extends CustomPreferenceFragment {
         }
 
         ((CheckBoxPreference) findPreference(SettingsManager.CAMERA_UPLOAD_SWITCH_KEY)).setChecked(cameraManager.isCameraUploadEnabled());
-        ((CheckBoxPreference) findPreference(SettingsManager.FOLDER_UPLOAD_SWITCH_KEY)).setChecked(SettingsManager.instance().isDirAutomaticUpload());
+        ((CheckBoxPreference) findPreference(SettingsManager.FOLDER_BACKUP_SWITCH_KEY)).setChecked(SettingsManager.instance().isFolderAutomaticBackup());
 
-        if (SettingsManager.instance().isDirAutomaticUpload()) {
-            cFolderUploadCategory.addPreference(cUploadFolderMode);
-            cFolderUploadCategory.addPreference(cUploadFolderRepo);
-            cFolderUploadCategory.addPreference(cUploadFolderPref);
-            cFolderUploadCategory.addPreference(cUploadFolderState);
-            if (dbSelectPaths == null) {
-                cUploadFolderPref.setSummary("0");
+        if (SettingsManager.instance().isFolderAutomaticBackup()) {
+            cFolderBackupCategory.addPreference(cBackupFolderMode);
+            cFolderBackupCategory.addPreference(cBackupFolderRepo);
+            cFolderBackupCategory.addPreference(cBackupFolderPref);
+            cFolderBackupCategory.addPreference(cBackupFolderState);
+            if (backupSelectPaths == null || backupSelectPaths.size() == 0) {
+                cBackupFolderPref.setSummary("0");
             } else {
-                cUploadFolderPref.setSummary(dbSelectPaths.size() + "");
+                cBackupFolderPref.setSummary(backupSelectPaths.size() + "");
             }
             Utils.utilsLogInfo(true, "=refreshCameraUploadView=======================" + backupEmail);
             if (!TextUtils.isEmpty(backupEmail)) {
@@ -745,16 +743,16 @@ public class SettingsFragment extends CustomPreferenceFragment {
 
             }
             if (selectRepoConfig != null && !TextUtils.isEmpty(selectRepoConfig.getRepoName())) {
-                cUploadFolderRepo.setSummary(backupEmail + "/" + selectRepoConfig.getRepoName());
+                cBackupFolderRepo.setSummary(backupEmail + "/" + selectRepoConfig.getRepoName());
             } else {
-                cUploadFolderRepo.setSummary(getActivity().getString(R.string.folder_backup_select_repo_hint));
+                cBackupFolderRepo.setSummary(getActivity().getString(R.string.folder_backup_select_repo_hint));
             }
 
         } else {
-            cFolderUploadCategory.removePreference(cUploadFolderMode);
-            cFolderUploadCategory.removePreference(cUploadFolderRepo);
-            cFolderUploadCategory.removePreference(cUploadFolderPref);
-            cFolderUploadCategory.removePreference(cUploadFolderState);
+            cFolderBackupCategory.removePreference(cBackupFolderMode);
+            cFolderBackupCategory.removePreference(cBackupFolderRepo);
+            cFolderBackupCategory.removePreference(cBackupFolderPref);
+            cFolderBackupCategory.removePreference(cBackupFolderState);
         }
 
         if (cameraManager.isCameraUploadEnabled()) {
@@ -860,16 +858,16 @@ public class SettingsFragment extends CustomPreferenceFragment {
                     if (data == null) {
                         return;
                     }
-                    final boolean pathOn = data.getBooleanExtra(FolderUploadConfigActivity.BACKUP_SELECT_PATHS_ON, false);
-                    final ArrayList<String> pathListExtra = data.getStringArrayListExtra(FolderUploadConfigActivity.BACKUP_SELECT_PATHS);
+                    final boolean pathOn = data.getBooleanExtra(FolderBackupConfigActivity.BACKUP_SELECT_PATHS_SWITCH, false);
+                    final ArrayList<String> pathListExtra = data.getStringArrayListExtra(FolderBackupConfigActivity.BACKUP_SELECT_PATHS);
                     if (pathOn && pathListExtra != null) {
-                        if (dbSelectPaths == null) {
-                            dbSelectPaths = new ArrayList<>();
+                        if (backupSelectPaths == null) {
+                            backupSelectPaths = new ArrayList<>();
                         } else {
-                            dbSelectPaths.clear();
+                            backupSelectPaths.clear();
                         }
-                        dbSelectPaths.addAll(pathListExtra);
-                        cUploadFolderPref.setSummary(pathListExtra.size() + "");
+                        backupSelectPaths.addAll(pathListExtra);
+                        cBackupFolderPref.setSummary(pathListExtra.size() + "");
                     }
 
                 }
@@ -1035,9 +1033,9 @@ public class SettingsFragment extends CustomPreferenceFragment {
 
                         Toast.makeText(getActivity(), colors[i], Toast.LENGTH_SHORT).show();
                         if (i == 0) {
-                            SettingsManager.instance().saveDirDataPlanAllowed(false);
+                            SettingsManager.instance().saveFolderBackupDataPlanAllowed(false);
                         } else {
-                            SettingsManager.instance().saveDirDataPlanAllowed(true);
+                            SettingsManager.instance().saveFolderBackupDataPlanAllowed(true);
                         }
                     }
                 })
@@ -1053,10 +1051,10 @@ public class SettingsFragment extends CustomPreferenceFragment {
             if (scanUploadStatus == CameraSyncStatus.SCAN_END) {
                 SeadroidApplication.getInstance().setScanUploadStatus(CameraSyncStatus.NORMAL);
             }
-            cUploadRepoState.setSummary(Utils.getUploadStateShow(getActivity()));
+            cBackupRepoState.setSummary(Utils.getUploadStateShow(getActivity()));
         }
         if (result.getLogInfo().equals("backupFolder")) {
-            cUploadFolderState.setSummary(getActivity().getString(R.string.uploaded) + " " + result.getNum());
+            cBackupFolderState.setSummary(getActivity().getString(R.string.uploaded) + " " + result.getNum());
         }
     }
 

@@ -48,7 +48,7 @@ import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.folderbackup.FolderBackupService;
-import com.seafile.seadroid2.folderbackup.FolderBackupService.FileDirBinder;
+import com.seafile.seadroid2.folderbackup.FolderBackupService.FileBackupBinder;
 import com.seafile.seadroid2.cameraupload.CameraUploadManager;
 import com.seafile.seadroid2.cameraupload.MediaObserverService;
 import com.seafile.seadroid2.data.CheckUploadServiceEvent;
@@ -161,7 +161,7 @@ public class BrowserActivity extends BaseActivity
 
     private DataManager dataManager = null;
     private TransferService txService = null;
-    private FolderBackupService dirService = null;
+    private FolderBackupService mFolderBackupService = null;
     private TransferReceiver mTransferReceiver;
     private AccountManager accountManager;
     private int currentPosition = 0;
@@ -243,7 +243,7 @@ public class BrowserActivity extends BaseActivity
         Log.d(DEBUG_TAG, "----start FolderBackupService");
 
         Intent dirIntent = new Intent(this, FolderBackupService.class);
-        bindService(dirIntent, dirConnection, Context.BIND_AUTO_CREATE);
+        bindService(dirIntent, folderBackupConnection, Context.BIND_AUTO_CREATE);
         Log.d(DEBUG_TAG, "----try bind FolderBackupService");
 
         if (!isTaskRoot()) {
@@ -824,22 +824,22 @@ public class BrowserActivity extends BaseActivity
         }
     };
 
-    ServiceConnection dirConnection = new ServiceConnection() {
+    ServiceConnection folderBackupConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
-            FileDirBinder binder = (FileDirBinder) service;
-            dirService = binder.getService();
+            FileBackupBinder binder = (FileBackupBinder) service;
+            mFolderBackupService = binder.getService();
             Log.d(DEBUG_TAG, "-----bind FolderBackupService");
-            boolean dirAutomaticUpload = SettingsManager.instance().isDirAutomaticUpload();
+            boolean dirAutomaticUpload = SettingsManager.instance().isFolderAutomaticBackup();
             String backupEmail = SettingsManager.instance().getBackupEmail();
-            if (dirAutomaticUpload && dirService != null && !TextUtils.isEmpty(backupEmail)) {
-                dirService.uploadFile(backupEmail);
+            if (dirAutomaticUpload && mFolderBackupService != null && !TextUtils.isEmpty(backupEmail)) {
+                mFolderBackupService.folderBackup(backupEmail);
             }
         }
 
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
-            dirService = null;
+            mFolderBackupService = null;
         }
     };
 
@@ -920,9 +920,9 @@ public class BrowserActivity extends BaseActivity
             unbindService(mConnection);
             txService = null;
         }
-        if (dirService != null) {
-            unbindService(dirConnection);
-            dirService = null;
+        if (mFolderBackupService != null) {
+            unbindService(folderBackupConnection);
+            mFolderBackupService = null;
         }
         super.onDestroy();
     }

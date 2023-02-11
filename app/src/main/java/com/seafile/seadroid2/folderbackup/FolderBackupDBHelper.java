@@ -10,20 +10,20 @@ import com.seafile.seadroid2.SeadroidApplication;
 
 import java.io.File;
 
-public class FolderUploadDBHelper extends SQLiteOpenHelper {
+public class FolderBackupDBHelper extends SQLiteOpenHelper {
     // version.
     public static final int DATABASE_VERSION = 1;
-    public static final String DATABASE_NAME = "folder.db";
+    public static final String DATABASE_NAME = "folder_backup.db";
 
-    // Save the uploaded file table
-    private static final String AUTO_UPDATE_FOLDER_TABLE_NAME = "UploadFolderInfo";
-    private static final String AUTO_UPDATE_FOLDER_COLUMN_ID = "id";
-    private static final String AUTO_UPDATE_FOLDER_COLUMN_REPO_ID = "repo_id";
-    private static final String AUTO_UPDATE_FOLDER_COLUMN_REPO_NAME = "repo_name";
-    private static final String AUTO_UPDATE_FOLDER_COLUMN_PARENT_FOLDER = "parent_folder";
-    private static final String AUTO_UPDATE_FOLDER_COLUMN_FILE_NAME = "file_name";
-    private static final String AUTO_UPDATE_FOLDER_COLUMN_FILE_PATH = "file_path";
-    private static final String AUTO_UPDATE_FOLDER_COLUMN_FILE_SIZE = "file_size";
+    // Save the backup file table
+    private static final String SAVE_FOLDER_BACKUP_FILE_TABLE_NAME = "FolderBackupInfo";
+    private static final String FOLDER_BACKUP_COLUMN_ID = "id";
+    private static final String FOLDER_BACKUP_COLUMN_REPO_ID = "repo_id";
+    private static final String FOLDER_BACKUP_COLUMN_REPO_NAME = "repo_name";
+    private static final String FOLDER_BACKUP_COLUMN_PARENT_FOLDER = "parent_folder";
+    private static final String FOLDER_BACKUP_COLUMN_FILE_NAME = "file_name";
+    private static final String FOLDER_BACKUP_COLUMN_FILE_PATH = "file_path";
+    private static final String FOLDER_BACKUP_COLUMN_FILE_SIZE = "file_size";
 
     // save repo config table
     private static final String REPO_CONFIG_TABLE_NAME = "RepoConfig";
@@ -39,54 +39,54 @@ public class FolderUploadDBHelper extends SQLiteOpenHelper {
                     + REPO_CONFIG_REPO_ID + " TEXT NOT NULL, "
                     + REPO_CONFIG_REPO_NAME + " TEXT NOT NULL);";
 
-    private static final String SQL_CREATE_AUTO_UPDATE_FOLDER_TABLE = "CREATE TABLE "
-            + AUTO_UPDATE_FOLDER_TABLE_NAME
+    private static final String SQL_CREATE_AUTO_BACKUP_FOLDER_TABLE = "CREATE TABLE "
+            + SAVE_FOLDER_BACKUP_FILE_TABLE_NAME
             + " ("
-            + AUTO_UPDATE_FOLDER_COLUMN_ID
+            + FOLDER_BACKUP_COLUMN_ID
             + " INTEGER PRIMARY KEY, "
-            + AUTO_UPDATE_FOLDER_COLUMN_REPO_ID
+            + FOLDER_BACKUP_COLUMN_REPO_ID
             + " TEXT NOT NULL, "
-            + AUTO_UPDATE_FOLDER_COLUMN_REPO_NAME
+            + FOLDER_BACKUP_COLUMN_REPO_NAME
             + " TEXT NOT NULL, "
-            + AUTO_UPDATE_FOLDER_COLUMN_PARENT_FOLDER
+            + FOLDER_BACKUP_COLUMN_PARENT_FOLDER
             + " TEXT NOT NULL, "
-            + AUTO_UPDATE_FOLDER_COLUMN_FILE_NAME
+            + FOLDER_BACKUP_COLUMN_FILE_NAME
             + " TEXT NOT NULL, "
-            + AUTO_UPDATE_FOLDER_COLUMN_FILE_PATH
+            + FOLDER_BACKUP_COLUMN_FILE_PATH
             + " TEXT NOT NULL, "
-            + AUTO_UPDATE_FOLDER_COLUMN_FILE_SIZE
+            + FOLDER_BACKUP_COLUMN_FILE_SIZE
             + " TEXT NOT NULL);";
 
 
     private SQLiteDatabase database = null;
-    private static FolderUploadDBHelper dbHelper = null;
+    private static FolderBackupDBHelper dbHelper = null;
 
-    public static synchronized FolderUploadDBHelper getDatabaseHelper() {
+    public static synchronized FolderBackupDBHelper getDatabaseHelper() {
         if (dbHelper != null)
             return dbHelper;
-        dbHelper = new FolderUploadDBHelper(SeadroidApplication.getAppContext());
+        dbHelper = new FolderBackupDBHelper(SeadroidApplication.getAppContext());
         dbHelper.database = dbHelper.getWritableDatabase();
         return dbHelper;
     }
 
-    private FolderUploadDBHelper(Context context) {
+    private FolderBackupDBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        createUploadDirTable(db);
+        createFolderBackupTable(db);
     }
 
-    private void createUploadDirTable(SQLiteDatabase db) {
-        db.execSQL(SQL_CREATE_AUTO_UPDATE_FOLDER_TABLE);
+    private void createFolderBackupTable(SQLiteDatabase db) {
+        db.execSQL(SQL_CREATE_AUTO_BACKUP_FOLDER_TABLE);
         db.execSQL(SQL_CREATE_REPO_CONFIG_TABLE);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS " + AUTO_UPDATE_FOLDER_TABLE_NAME + ";");
+        db.execSQL("DROP TABLE IF EXISTS " + SAVE_FOLDER_BACKUP_FILE_TABLE_NAME + ";");
         db.execSQL("DROP TABLE IF EXISTS " + SQL_CREATE_REPO_CONFIG_TABLE + ";");
         onCreate(db);
     }
@@ -96,16 +96,16 @@ public class FolderUploadDBHelper extends SQLiteOpenHelper {
         onUpgrade(db, oldVersion, newVersion);
     }
 
-    public void saveFileUploadInfo(FolderUploadInfo info) {
+    public void saveFileBackupInfo(FolderBackupInfo info) {
         ContentValues values = new ContentValues();
-        values.put(AUTO_UPDATE_FOLDER_COLUMN_REPO_ID, info.repoID);
-        values.put(AUTO_UPDATE_FOLDER_COLUMN_REPO_NAME, info.repoName);
-        values.put(AUTO_UPDATE_FOLDER_COLUMN_PARENT_FOLDER, info.parentFolder);
-        values.put(AUTO_UPDATE_FOLDER_COLUMN_FILE_NAME, info.fileName);
-        values.put(AUTO_UPDATE_FOLDER_COLUMN_FILE_PATH, info.filePath);
-        values.put(AUTO_UPDATE_FOLDER_COLUMN_FILE_SIZE, info.fileSize);
+        values.put(FOLDER_BACKUP_COLUMN_REPO_ID, info.repoID);
+        values.put(FOLDER_BACKUP_COLUMN_REPO_NAME, info.repoName);
+        values.put(FOLDER_BACKUP_COLUMN_PARENT_FOLDER, info.parentFolder);
+        values.put(FOLDER_BACKUP_COLUMN_FILE_NAME, info.fileName);
+        values.put(FOLDER_BACKUP_COLUMN_FILE_PATH, info.filePath);
+        values.put(FOLDER_BACKUP_COLUMN_FILE_SIZE, info.fileSize);
 
-        database.insert(AUTO_UPDATE_FOLDER_TABLE_NAME, null, values);
+        database.insert(SAVE_FOLDER_BACKUP_FILE_TABLE_NAME, null, values);
     }
 
     public void saveRepoConfig(String email, String repoID, String repoName) {
@@ -149,24 +149,24 @@ public class FolderUploadDBHelper extends SQLiteOpenHelper {
         return item;
     }
 
-    public FolderUploadInfo getUploadFileInfo(String repoID, String filePath, String fileSize) {
+    public FolderBackupInfo getBackupFileInfo(String repoID, String filePath, String fileSize) {
         String[] projection = {
-                AUTO_UPDATE_FOLDER_COLUMN_REPO_ID,
-                AUTO_UPDATE_FOLDER_COLUMN_REPO_NAME,
-                AUTO_UPDATE_FOLDER_COLUMN_PARENT_FOLDER,
-                AUTO_UPDATE_FOLDER_COLUMN_FILE_NAME,
-                AUTO_UPDATE_FOLDER_COLUMN_FILE_PATH,
-                AUTO_UPDATE_FOLDER_COLUMN_FILE_SIZE
+                FOLDER_BACKUP_COLUMN_REPO_ID,
+                FOLDER_BACKUP_COLUMN_REPO_NAME,
+                FOLDER_BACKUP_COLUMN_PARENT_FOLDER,
+                FOLDER_BACKUP_COLUMN_FILE_NAME,
+                FOLDER_BACKUP_COLUMN_FILE_PATH,
+                FOLDER_BACKUP_COLUMN_FILE_SIZE
         };
         String selectClause = String.format("%s = ? and %s = ? and %s = ?",
-                AUTO_UPDATE_FOLDER_COLUMN_REPO_ID,
-                AUTO_UPDATE_FOLDER_COLUMN_FILE_PATH,
-                AUTO_UPDATE_FOLDER_COLUMN_FILE_SIZE);
+                FOLDER_BACKUP_COLUMN_REPO_ID,
+                FOLDER_BACKUP_COLUMN_FILE_PATH,
+                FOLDER_BACKUP_COLUMN_FILE_SIZE);
         String[] selectArgs = {repoID, filePath, fileSize};
 
 
         Cursor c = database.query(
-                AUTO_UPDATE_FOLDER_TABLE_NAME,
+                SAVE_FOLDER_BACKUP_FILE_TABLE_NAME,
                 projection,
                 selectClause,
                 selectArgs,
@@ -177,7 +177,7 @@ public class FolderUploadDBHelper extends SQLiteOpenHelper {
             c.close();
             return null;
         }
-        FolderUploadInfo item = cursorToDirUpdateInfo(c);
+        FolderBackupInfo item = cursorToBackupUpdateInfo(c);
         c.close();
         return item;
     }
@@ -189,7 +189,7 @@ public class FolderUploadDBHelper extends SQLiteOpenHelper {
     }
 
 
-    private FolderUploadInfo cursorToDirUpdateInfo(Cursor c) {
+    private FolderBackupInfo cursorToBackupUpdateInfo(Cursor c) {
         String repoID = c.getString(0);
         String repoName = c.getString(1);
         String parentDir = c.getString(2);
@@ -201,7 +201,7 @@ public class FolderUploadDBHelper extends SQLiteOpenHelper {
             filePath = null;
         }
 
-        FolderUploadInfo info = new FolderUploadInfo(repoID, repoName,
+        FolderBackupInfo info = new FolderBackupInfo(repoID, repoName,
                 parentDir, fileName, filePath, fileSize);
         return info;
     }

@@ -31,7 +31,7 @@ public class FolderSelectionFragment extends Fragment {
     private String mCurrentPath;
     private FileListAdapter mFileListAdapter;
     private TabbarFileListAdapter mTabbarFileListAdapter;
-    private FolderUploadConfigActivity mActivity;
+    private FolderBackupConfigActivity mActivity;
     private boolean chooseDirPage;
     private Button mButton;
     private List<String> selectPaths;
@@ -39,7 +39,7 @@ public class FolderSelectionFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mActivity = (FolderUploadConfigActivity) getActivity();
+        mActivity = (FolderBackupConfigActivity) getActivity();
         View rootView = getActivity().getLayoutInflater().inflate(R.layout.folder_selection_fragment, null);
         mTabbarFileRecyclerView = (RecyclerView) rootView.findViewById(R.id.rcv_tabbar_files_list);
         mFileRecyclerView = (RecyclerView) rootView.findViewById(R.id.rcv_files_list);
@@ -65,7 +65,7 @@ public class FolderSelectionFragment extends Fragment {
         } else {
             mButton.setVisibility(View.GONE);
         }
-        selectPaths = mActivity.getSelectFilePath();
+        selectPaths = mActivity.getSelectFolderPath();
         if (selectPaths == null) {
             selectPaths = new ArrayList<>();
         }
@@ -107,7 +107,7 @@ public class FolderSelectionFragment extends Fragment {
                             selectPaths.add(item.getFilePath());
                             fb.setChecked(true);
                         }
-                        mActivity.setFilePathList(selectPaths);
+                        mActivity.setFolderPathList(selectPaths);
                     }
                 }
                 view.post(new Runnable() {

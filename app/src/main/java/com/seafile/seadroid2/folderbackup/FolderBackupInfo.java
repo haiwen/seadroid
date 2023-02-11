@@ -5,7 +5,7 @@ import com.seafile.seadroid2.SettingsManager;
 
 import java.io.Serializable;
 
-public class FolderUploadInfo implements Serializable {
+public class FolderBackupInfo implements Serializable {
     public String repoID;
     public String repoName;
     public String parentFolder;
@@ -13,7 +13,7 @@ public class FolderUploadInfo implements Serializable {
     public String fileName;
     public String fileSize;
 
-    public FolderUploadInfo(String repoID, String repoName, String parentPath,
+    public FolderBackupInfo(String repoID, String repoName, String parentPath,
                             String fileName, String filePath, String fileSize) {
 
         this.repoID = repoID;
@@ -35,7 +35,7 @@ public class FolderUploadInfo implements Serializable {
         if (obj == null || (obj.getClass() != this.getClass()))
             return false;
 
-        FolderUploadInfo that = (FolderUploadInfo) obj;
+        FolderBackupInfo that = (FolderBackupInfo) obj;
         if (that.repoID == null || that.repoName == null ||
                 that.parentFolder == null || that.filePath == null) {
             return false;

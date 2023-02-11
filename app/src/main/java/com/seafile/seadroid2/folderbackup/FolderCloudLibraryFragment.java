@@ -44,7 +44,7 @@ import java.util.List;
 
 public class FolderCloudLibraryFragment extends Fragment {
     public static final String DEBUG_TAG = "FolderCloudLibraryFragment";
-    private FolderUploadConfigActivity mActivity;
+    private FolderBackupConfigActivity mActivity;
     private Button mDoneBtn;
     public static final String PASSWORD_DIALOG_FRAGMENT_TAG = "passwordDialogFragmentTag";
     public static final String ONLY_SHOW_WRITABLE_REPOS = "onlyShowWritableRepos";
@@ -62,7 +62,7 @@ public class FolderCloudLibraryFragment extends Fragment {
     private Account mAccount;
     private LoadAccountsTask mLoadAccountsTask;
     private LoadReposTask mLoadReposTask;
-    private LoadDirTask mLoadDirTask;
+    private LoadFolderTask mLoadFolderTask;
     private AvatarManager avatarManager;
     private RelativeLayout mUpLayout;
     private TextView mCurrentFolderText;
@@ -80,8 +80,8 @@ public class FolderCloudLibraryFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        mActivity = (FolderUploadConfigActivity) getActivity();
-        View rootView = mActivity.getLayoutInflater().inflate(R.layout.folder_remote_library_fragment, null);
+        mActivity = (FolderBackupConfigActivity) getActivity();
+        View rootView = mActivity.getLayoutInflater().inflate(R.layout.folder_backup_remote_library_fragment, null);
 
         Intent intent = mActivity.getIntent();
         avatarManager = new AvatarManager();
@@ -97,7 +97,7 @@ public class FolderCloudLibraryFragment extends Fragment {
         mFoldersListView = (ListView) rootView.findViewById(R.id.cuc_multi_selection_lv);
         mFoldersListView.setFastScrollEnabled(true);
         mUpLayout = (RelativeLayout) rootView.findViewById(R.id.cuc_multi_selection_up_layout);
-        mCurrentFolderText = (TextView) rootView.findViewById(R.id.cuc_multi_selection_current_directory_txt);
+        mCurrentFolderText = (TextView) rootView.findViewById(R.id.cuc_multi_selection_current_folder_txt);
         mEmptyText = (TextView) rootView.findViewById(R.id.cuc_multi_selection_empty_msg);
         mErrorText = (TextView) rootView.findViewById(R.id.cuc_multi_selection_error_msg);
         mRefreshBtn = (ImageView) rootView.findViewById(R.id.cuc_multi_selection_refresh_iv);
@@ -170,7 +170,7 @@ public class FolderCloudLibraryFragment extends Fragment {
                     break;
                 }
             case STEP_CHOOSE_DIR:
-                if (mLoadDirTask != null && mLoadDirTask.getStatus() != AsyncTask.Status.FINISHED) {
+                if (mLoadFolderTask != null && mLoadFolderTask.getStatus() != AsyncTask.Status.FINISHED) {
                     return;
                 } else {
                     SeafRepo repo = getDataManager().getCachedRepoByID(getNavContext().getRepoID());
@@ -245,13 +245,13 @@ public class FolderCloudLibraryFragment extends Fragment {
                 }
 
                 nav.setDir(Utils.pathJoin(nav.getDirPath(), dirent.name), dirent.id);
-                refreshDir();
+                refreshFolder();
                 break;
         }
     }
 
     private void onRepoSelected(Account account, SeafRepo seafRepo) {
-        mActivity.saveDirUploadInfo(account, seafRepo);
+        mActivity.saveBackupLibrary(account, seafRepo);
         getReposAdapter().setSelectedRepo(seafRepo);
         getReposAdapter().notifyDataSetChanged();
     }
@@ -287,7 +287,7 @@ public class FolderCloudLibraryFragment extends Fragment {
                     mCurrentDir = getNavContext().getRepoName() + Utils.getParentPath(path);
                     setCurrentDirText(mCurrentDir);
                     getNavContext().setDir(Utils.getParentPath(path), null);
-                    refreshDir();
+                    refreshFolder();
                 }
                 break;
         }
@@ -301,7 +301,7 @@ public class FolderCloudLibraryFragment extends Fragment {
         showPasswordDialog(repoName, repoID, new TaskDialog.TaskDialogListener() {
             @Override
             public void onTaskSuccess() {
-                refreshDir();
+                refreshFolder();
             }
         }, null);
     }
@@ -327,7 +327,7 @@ public class FolderCloudLibraryFragment extends Fragment {
         mEmptyText.setText(R.string.dir_empty);
 
         setListAdapter(getDirentsAdapter());
-        refreshDir(forceRefresh);
+        refreshFolder(forceRefresh);
     }
 
     private void chooseAccount() {
@@ -379,11 +379,11 @@ public class FolderCloudLibraryFragment extends Fragment {
         ConcurrentAsyncTask.execute(mLoadReposTask);
     }
 
-    private void refreshDir() {
-        refreshDir(false);
+    private void refreshFolder() {
+        refreshFolder(false);
     }
 
-    private void refreshDir(boolean forceRefresh) {
+    private void refreshFolder(boolean forceRefresh) {
         String repoID = getNavContext().getRepoID();
         String dirPath = getNavContext().getDirPath();
 
@@ -396,8 +396,8 @@ public class FolderCloudLibraryFragment extends Fragment {
             }
         }
 
-        mLoadDirTask = new LoadDirTask(repoID, dirPath, getDataManager());
-        ConcurrentAsyncTask.execute(mLoadDirTask);
+        mLoadFolderTask = new LoadFolderTask(repoID, dirPath, getDataManager());
+        ConcurrentAsyncTask.execute(mLoadFolderTask);
     }
 
     private void updateAdapterWithDirents(List<SeafDirent> dirents) {
@@ -610,13 +610,13 @@ public class FolderCloudLibraryFragment extends Fragment {
         }
     }
 
-    private class LoadDirTask extends AsyncTask<Void, Void, Void> {
+    private class LoadFolderTask extends AsyncTask<Void, Void, Void> {
         private String repoID, dirPath;
         private SeafException err;
         private DataManager dataManager;
         private List<SeafDirent> dirents;
 
-        public LoadDirTask(String repoID, String dirPath, DataManager dataManager) {
+        public LoadFolderTask(String repoID, String dirPath, DataManager dataManager) {
             this.repoID = repoID;
             this.dirPath = dirPath;
             this.dataManager = dataManager;
