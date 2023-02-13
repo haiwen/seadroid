@@ -3,13 +3,16 @@ package com.seafile.seadroid2.notification;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Intent;
+import android.util.Log;
 
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
+import com.seafile.seadroid2.transfer.DownloadTask;
 import com.seafile.seadroid2.transfer.DownloadTaskInfo;
 import com.seafile.seadroid2.transfer.DownloadTaskManager;
 import com.seafile.seadroid2.transfer.TaskState;
 import com.seafile.seadroid2.transfer.TransferService;
+import com.seafile.seadroid2.transfer.UploadTaskInfo;
 import com.seafile.seadroid2.ui.CustomNotificationBuilder;
 import com.seafile.seadroid2.ui.activity.TransferActivity;
 
@@ -124,23 +127,24 @@ public class DownloadNotificationProvider extends BaseNotificationProvider {
 
     @Override
     protected int getProgress() {
-        long downloadedSize = 0l;
-        long totalSize = 0l;
         if (txService == null)
             return 0;
 
+        int total = 0;
+        int finished = 0;
+
         List<DownloadTaskInfo> infos = txService.getAllDownloadTaskInfos();
+
         for (DownloadTaskInfo info : infos) {
             if (info == null)
                 continue;
-            downloadedSize += info.finished;
-            totalSize += info.fileSize;
+
+            total++;
+            if(info.state.equals(TaskState.FINISHED))
+                finished++;
         }
 
-        // avoid ArithmeticException
-        if (totalSize == 0l)
-            return 0;
-        return (int) (downloadedSize * 100 / totalSize);
+        return (int)(finished * 100 / total);
     }
 
 }
