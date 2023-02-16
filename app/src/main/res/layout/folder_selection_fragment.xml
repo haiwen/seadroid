@@ -31,16 +31,6 @@
                 android:background="@color/fancy_orange"
                 android:orientation="horizontal">
 
-                <ImageButton
-                    android:id="@+id/imb_select_sdcard"
-                    android:layout_width="18dp"
-                    android:layout_height="36dp"
-                    android:layout_gravity="center"
-                    android:background="?android:attr/selectableItemBackground"
-                    android:scaleType="centerInside"
-                    android:tint="@color/blue_500"
-                    />
-
                 <android.support.v7.widget.RecyclerView
                     android:id="@+id/rcv_tabbar_files_list"
                     android:layout_width="match_parent"

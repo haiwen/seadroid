@@ -22,6 +22,9 @@ import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.data.CameraSyncEvent;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafDirent;
+import com.seafile.seadroid2.folderbackup.selectfolder.FileBean;
+import com.seafile.seadroid2.folderbackup.selectfolder.FileTools;
+import com.seafile.seadroid2.folderbackup.selectfolder.StringTools;
 import com.seafile.seadroid2.transfer.TransferManager;
 import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.transfer.UploadTaskManager;
@@ -48,7 +51,7 @@ public class FolderBackupService extends Service {
     private FolderBackupDBHelper databaseHelper;
     private AccountManager accountManager;
     private Account currentAccount;
-    private RepoInfo repoConfig;
+    private RepoConfig repoConfig;
     private List<String> backupPathsList;
     private FolderReceiver mFolderReceiver;
 
@@ -181,7 +184,7 @@ public class FolderBackupService extends Service {
         File[] files = file.listFiles();
         if (files != null) {
             for (int i = 0; i < files.length; i++) {
-                fileBean = new FileBean(files[i].getAbsolutePath(), false);
+                fileBean = new FileBean(files[i].getAbsolutePath());
                 fileBeanList.add(fileBean);
             }
         }

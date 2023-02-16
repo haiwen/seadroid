@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.folderbackup;
+package com.seafile.seadroid2.folderbackup.selectfolder;
 
 
 import android.app.Activity;
@@ -45,7 +45,7 @@ public class BeanListManager {
                 File[] files = file.listFiles();
                 if (files != null) {
                     for (int i = 0; i < files.length; i++) {
-                        fileBean = new FileBean(files[i].getAbsolutePath(), false);
+                        fileBean = new FileBean(files[i].getAbsolutePath());
                         if (selectFilePath != null && selectFilePath.size() > 0) {
                             for (String str : selectFilePath) {
                                 if (fileBean.getFilePath().equals(str)) {
@@ -148,18 +148,9 @@ public class BeanListManager {
     public static void getTabbarFileBeanList(List<TabbarFileBean> tabbarList,
                                              String path, List<String> SdCardList) {
         if (SdCardList.contains(path)) {
-            int i = SdCardList.indexOf(path);
-            if (i == 0) {
-                tabbarList.add(0, new TabbarFileBean(path, SeadroidApplication.getAppContext().getString(R.string.internal_storage), false, null));
-            } else if (i > 0) {
-                tabbarList.add(0, new TabbarFileBean(path, String.format("SD%d", i), false, null));
-            } else {
-                tabbarList.add(0, new TabbarFileBean(path, SeadroidApplication.getAppContext().getString(R.string.internal_storage_err), false, null));
-            }
+            tabbarList.add(0, new TabbarFileBean(path, SeadroidApplication.getAppContext().getString(R.string.internal_storage)));
             return;
         }
-        tabbarList.add(0, new TabbarFileBean(path, false));
-        getTabbarFileBeanList(tabbarList, FileTools.getParentPath(path), SdCardList);
     }
 
 
@@ -168,7 +159,7 @@ public class BeanListManager {
                                                                 String path, int type, List<String> SdCardList) {
         switch (type) {
             case TypeAddTabbar:
-                tabbarList.add(new TabbarFileBean(path, false));
+                tabbarList.add(new TabbarFileBean(path));
                 break;
             case TypeDelTabbar:
                 for (int i = tabbarList.size() - 1; i >= 0; i--) {

@@ -19,6 +19,8 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.SeafRepo;
+import com.seafile.seadroid2.folderbackup.selectfolder.FolderSelectionFragment;
+import com.seafile.seadroid2.folderbackup.selectfolder.StringTools;
 import com.seafile.seadroid2.ui.activity.BaseActivity;
 import com.seafile.seadroid2.ui.activity.SeafilePathChooserActivity;
 import com.seafile.seadroid2.ui.fragment.SettingsFragment;
@@ -40,7 +42,6 @@ public class FolderBackupConfigActivity extends BaseActivity {
     private Account mAccount;
     private boolean isChooseFolderPage;
     private boolean isChooseLibPage;
-    private int mCurrentPosition;
     private FolderBackupDBHelper databaseHelper;
     private FolderBackupService mBackupService;
     private List<String> selectFolderPaths;
@@ -120,7 +121,7 @@ public class FolderBackupConfigActivity extends BaseActivity {
                 intent.putExtra(BACKUP_SELECT_REPO, true);
                 SettingsManager.instance().saveBackupEmail(mAccount.getEmail());
                 try {
-                    RepoInfo repoConfig = databaseHelper.getRepoConfig(mAccount.getEmail());
+                    RepoConfig repoConfig = databaseHelper.getRepoConfig(mAccount.getEmail());
                     if (repoConfig != null) {
                         databaseHelper.updateRepoConfig(mAccount.getEmail(), mSeafRepo.getID(), mSeafRepo.getName());
                     } else {
@@ -163,10 +164,11 @@ public class FolderBackupConfigActivity extends BaseActivity {
 
     @Override
     public void onBackPressed() {
-        if (mCurrentPosition == 0) {
-            setResult(RESULT_CANCELED);
-            super.onBackPressed();
+        if (mBucketsFragment != null && mBucketsFragment.onBackPressed()) {
+            return;
         }
+        setResult(RESULT_CANCELED);
+        super.onBackPressed();
     }
 
 

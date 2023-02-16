@@ -122,7 +122,7 @@ public class FolderBackupDBHelper extends SQLiteOpenHelper {
         saveRepoConfig(email, repoID, repoName);
     }
 
-    public RepoInfo getRepoConfig(String email) {
+    public RepoConfig getRepoConfig(String email) {
         String[] projection = {
                 REPO_CONFIG_REPO_ID,
                 REPO_CONFIG_REPO_NAME
@@ -144,7 +144,7 @@ public class FolderBackupDBHelper extends SQLiteOpenHelper {
             c.close();
             return null;
         }
-        RepoInfo item = cursorToRepoConfigInfo(c, email);
+        RepoConfig item = cursorToRepoConfigInfo(c, email);
         c.close();
         return item;
     }
@@ -206,10 +206,10 @@ public class FolderBackupDBHelper extends SQLiteOpenHelper {
         return info;
     }
 
-    private RepoInfo cursorToRepoConfigInfo(Cursor c, String email) {
+    private RepoConfig cursorToRepoConfigInfo(Cursor c, String email) {
         String repoID = c.getString(0);
         String repoName = c.getString(1);
-        RepoInfo info = new RepoInfo(repoID, repoName, email);
+        RepoConfig info = new RepoConfig(repoID, repoName, email);
         return info;
     }
 }

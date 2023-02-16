@@ -31,8 +31,8 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountInfo;
 import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.folderbackup.FolderBackupConfigActivity;
-import com.seafile.seadroid2.folderbackup.RepoInfo;
-import com.seafile.seadroid2.folderbackup.StringTools;
+import com.seafile.seadroid2.folderbackup.RepoConfig;
+import com.seafile.seadroid2.folderbackup.selectfolder.StringTools;
 import com.seafile.seadroid2.folderbackup.FolderBackupDBHelper;
 import com.seafile.seadroid2.cameraupload.CameraUploadConfigActivity;
 import com.seafile.seadroid2.cameraupload.CameraUploadManager;
@@ -117,7 +117,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
     private Account act;
     private List<String> backupSelectPaths;
     private FolderBackupDBHelper databaseHelper;
-    private RepoInfo selectRepoConfig;
+    private RepoConfig selectRepoConfig;
 
     @Override
     public void onAttach(Activity activity) {

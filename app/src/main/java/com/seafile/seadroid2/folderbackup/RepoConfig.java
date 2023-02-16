@@ -5,14 +5,14 @@ import com.seafile.seadroid2.SettingsManager;
 
 import java.io.Serializable;
 
-public class RepoInfo implements Serializable {
+public class RepoConfig implements Serializable {
     private String email;
 
     private String repoID;
 
     private String repoName;
 
-    public RepoInfo(String repoID, String repoName, String email) {
+    public RepoConfig(String repoID, String repoName, String email) {
         this.repoID=repoID;
         this.repoName=repoName;
         this.email=email;
@@ -54,7 +54,7 @@ public class RepoInfo implements Serializable {
         if (obj == null || (obj.getClass() != this.getClass()))
             return false;
 
-        RepoInfo that = (RepoInfo) obj;
+        RepoConfig that = (RepoConfig) obj;
         if(that.repoID == null || that.repoName == null || that.email == null) {
             return false;
         }

@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.folderbackup;
+package com.seafile.seadroid2.folderbackup.selectfolder;
 
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -36,7 +36,6 @@ public class SelectOptions {
     public onToolbarListener[] toolbarListeners;
     public String rootPath;
 
-    //toolbar
     public String toolbarMainTitle;
     public String toolbarSubtitleTitle;
     public Integer toolbarBG;

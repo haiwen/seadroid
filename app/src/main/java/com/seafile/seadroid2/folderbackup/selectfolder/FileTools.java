@@ -1,14 +1,9 @@
-package com.seafile.seadroid2.folderbackup;
+package com.seafile.seadroid2.folderbackup.selectfolder;
 
 import android.content.Context;
 import android.os.storage.StorageManager;
-import android.util.Log;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -73,9 +68,6 @@ public class FileTools {
         return file != null && file.exists() && file.isFile();
     }
 
-    public static String getDirName(File file) {
-        return file == null ? "" : getDirName(file.getAbsolutePath());
-    }
 
     public static String getDirName(String filePath) {
         if (StringTools.isEmpty(filePath)) {
@@ -104,9 +96,6 @@ public class FileTools {
         }
     }
 
-    public static String getFileName(File file) {
-        return file == null ? "" : getFileName(file.getAbsolutePath());
-    }
 
     public static String getFileName(String filePath) {
         if (StringTools.isEmpty(filePath)) {
@@ -117,9 +106,6 @@ public class FileTools {
         }
     }
 
-    public static String getFileNameNoExtension(File file) {
-        return file == null ? "" : getFileNameNoExtension(file.getPath());
-    }
 
     public static String getFileNameNoExtension(String filePath) {
         if (StringTools.isEmpty(filePath)) {
@@ -133,10 +119,6 @@ public class FileTools {
                 return lastPoi != -1 && lastSep <= lastPoi ? filePath.substring(lastSep + 1, lastPoi) : filePath.substring(lastSep + 1);
             }
         }
-    }
-
-    public static String getFileExtension(File file) {
-        return file == null ? "" : getFileExtension(file.getPath());
     }
 
     public static String getFileExtension(String filePath) {
@@ -227,95 +209,6 @@ public class FileTools {
             return String.format("%." + precision + "fKB", (double) byteSize / 1024.0D);
         } else {
             return byteSize < 1073741824L ? String.format("%." + precision + "fMB", (double) byteSize / 1048576.0D) : String.format("%." + precision + "fGB", (double) byteSize / 1.073741824E9D);
-        }
-    }
-
-    public static boolean createOrExistsDir(File file) {
-        boolean var10000;
-        label25:
-        {
-            if (file != null) {
-                if (file.exists()) {
-                    if (file.isDirectory()) {
-                        break label25;
-                    }
-                } else if (file.mkdirs()) {
-                    break label25;
-                }
-            }
-
-            var10000 = false;
-            return var10000;
-        }
-
-        var10000 = true;
-        return var10000;
-    }
-
-    public static boolean createOrExistsFile(File file) {
-        if (file == null) {
-            return false;
-        } else if (file.exists()) {
-            return file.isFile();
-        } else if (!createOrExistsDir(file.getParentFile())) {
-            return false;
-        } else {
-            try {
-                return file.createNewFile();
-            } catch (IOException var2) {
-                var2.printStackTrace();
-                return false;
-            }
-        }
-    }
-
-    private static int sBufferSize = 524288;
-
-    public static boolean writeFileFromIS(File file, InputStream is, boolean append) {
-        if (is != null && createOrExistsFile(file)) {
-            BufferedOutputStream os = null;
-
-            boolean var6;
-            try {
-                os = new BufferedOutputStream(new FileOutputStream(file, append), sBufferSize);
-
-                double totalSize = (double) is.available();
-                int curSize = 0;
-                byte[] data = new byte[sBufferSize];
-
-                int len;
-                while ((len = is.read(data)) != -1) {
-                    os.write(data, 0, len);
-                    curSize += len;
-
-                }
-
-                boolean var25 = true;
-                return var25;
-            } catch (IOException var22) {
-                var22.printStackTrace();
-                var6 = false;
-            } finally {
-                try {
-                    is.close();
-                } catch (IOException var21) {
-                    var21.printStackTrace();
-                }
-
-                try {
-                    if (os != null) {
-                        os.close();
-                    }
-                } catch (IOException var20) {
-                    var20.printStackTrace();
-                }
-
-            }
-
-            return var6;
-        } else {
-            Log.e("FileIOUtils", "create file <" + file + "> failed.");
-            return false;
         }
     }
 

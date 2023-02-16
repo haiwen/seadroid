@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.folderbackup;
+package com.seafile.seadroid2.folderbackup.selectfolder;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -9,10 +9,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.folderbackup.FolderBackupConfigActivity;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,7 +21,6 @@ import java.util.List;
 public class FolderSelectionFragment extends Fragment {
 
     private RecyclerView mTabbarFileRecyclerView, mFileRecyclerView;
-    private ImageButton imbChangeSdCard;
     private SelectOptions mSelectOptions;
     private List<String> mSdCardList;
     private List<String> mShowFileTypes;
@@ -35,6 +34,7 @@ public class FolderSelectionFragment extends Fragment {
     private boolean chooseDirPage;
     private Button mButton;
     private List<String> selectPaths;
+    private String initialPath;
 
 
     @Override
@@ -43,7 +43,6 @@ public class FolderSelectionFragment extends Fragment {
         View rootView = getActivity().getLayoutInflater().inflate(R.layout.folder_selection_fragment, null);
         mTabbarFileRecyclerView = (RecyclerView) rootView.findViewById(R.id.rcv_tabbar_files_list);
         mFileRecyclerView = (RecyclerView) rootView.findViewById(R.id.rcv_files_list);
-        imbChangeSdCard = (ImageButton) rootView.findViewById(R.id.imb_select_sdcard);
         mButton = (Button) rootView.findViewById(R.id.bt_dir_click_to_finish);
         mFileRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity(),
                 LinearLayoutManager.VERTICAL, false));
@@ -157,7 +156,7 @@ public class FolderSelectionFragment extends Fragment {
 
     private void initData() {
         mSelectOptions = SelectOptions.getResetInstance(getActivity());
-        mSdCardList = initRootPath(getActivity(), imbChangeSdCard);
+        mSdCardList = initRootPath(getActivity());
         mShowFileTypes = Arrays.asList(mSelectOptions.getShowFileTypes());
         mSortType = mSelectOptions.getSortType();
         mFileList = new ArrayList<>();
@@ -165,7 +164,7 @@ public class FolderSelectionFragment extends Fragment {
         refreshFileAndTabbar(BeanListManager.TypeInitTabbar);
     }
 
-    private List<String> initRootPath(Activity activity, ImageButton imb) {
+    private List<String> initRootPath(Activity activity) {
         List<String> SdCardList = FileTools.getAllSdPaths(activity);
         mCurrentPath = mSelectOptions.rootPath;
         if (mCurrentPath == null) {
@@ -175,11 +174,7 @@ public class FolderSelectionFragment extends Fragment {
                 mCurrentPath = SdCardList.get(0);
             }
         }
-        if (!SdCardList.isEmpty() && SdCardList.size() > 1) {
-            imb.setVisibility(View.VISIBLE);
-        } else {
-            imb.setVisibility(View.INVISIBLE);
-        }
+        initialPath =mCurrentPath;
         return SdCardList;
     }
 
@@ -188,6 +183,16 @@ public class FolderSelectionFragment extends Fragment {
                 mCurrentPath, mShowFileTypes, mSortType);
         BeanListManager.upDataTabbarFileBeanList(mTabbarFileList, mTabbarFileListAdapter,
                 mCurrentPath, tabbarType, mSdCardList);
+    }
+
+    public boolean onBackPressed() {
+        if (mCurrentPath.equals(initialPath)||mSdCardList.contains(mCurrentPath)){
+            return false;
+        }else {
+            mCurrentPath=FileTools.getParentPath(mCurrentPath);
+            refreshFileAndTabbar(BeanListManager.TypeDelTabbar);
+            return true;
+        }
     }
 
 

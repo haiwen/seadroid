@@ -1,12 +1,9 @@
-package com.seafile.seadroid2.folderbackup;
+package com.seafile.seadroid2.folderbackup.selectfolder;
 
-
-import android.support.v4.provider.DocumentFile;
 
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.util.Utils;
 
-import java.io.File;
 import java.io.Serializable;
 
 
@@ -25,69 +22,33 @@ public class FileBean implements Serializable {
     private String size;
     private boolean visible;
     private boolean checked;
-    private boolean useUri;
-    private DocumentFile documentFile;
     private long modifyTime;
     private long simpleSize;
 
 
-    public FileBean(String filePath, Boolean useUri) {
-        this(filePath, useUri, null);
-    }
-
-    public FileBean(String filePath, Boolean useUri, DocumentFile documentFile) {
+    public FileBean(String filePath) {
         this.filePath = filePath;
-        this.useUri = useUri;
         visible = false;
         checked = false;
-
-        if (this.useUri) {
-            this.documentFile = documentFile;
-            File uriFile = UriTools.uri2File(documentFile.getUri(),
-                    Commons.getApplicationByReflect().getBaseContext(),
-                    Commons.getApplicationByReflect());
-
-            if (documentFile.isFile()) {
-                file = true;
-                dir = false;
-            } else {
-                file = false;
-                dir = true;
-            }
-            fileName = FileTools.getFileName(uriFile);
-            fileNameNoExtension = FileTools.getFileNameNoExtension(uriFile);
-            fileExtension = FileTools.getFileExtension(uriFile);
-            fileImgType = setImageResourceByExtension(fileExtension);
-            parentPath = null;
-            parentName = FileTools.getDirName(uriFile);
-            childrenFileNumber = 0;
-            childrenDirNumber = 0;
-            modifyTime = documentFile.lastModified();
-            if (file) {
-                size = FileTools.getSize(uriFile);
-                simpleSize = FileTools.getSimpleSize(uriFile);
-            }
+        if (FileTools.isFile(filePath)) {
+            file = true;
+            dir = false;
         } else {
-            if (FileTools.isFile(filePath)) {
-                file = true;
-                dir = false;
-            } else {
-                file = false;
-                dir = true;
-            }
-            fileName = FileTools.getFileName(filePath);
-            fileNameNoExtension = FileTools.getFileNameNoExtension(filePath);
-            fileExtension = FileTools.getFileExtension(filePath);
-            fileImgType = setImageResourceByExtension(fileExtension);
-            parentPath = FileTools.getParentPath(filePath);
-            parentName = FileTools.getDirName(filePath);
-            childrenFileNumber = FileTools.getChildrenNumber(filePath)[0];
-            childrenDirNumber = FileTools.getChildrenNumber(filePath)[1];
-            modifyTime = FileTools.getFileLastModified(filePath);
-            if (file) {
-                size = FileTools.getSize(filePath);
-                simpleSize = FileTools.getSimpleSize(filePath);
-            }
+            file = false;
+            dir = true;
+        }
+        fileName = FileTools.getFileName(filePath);
+        fileNameNoExtension = FileTools.getFileNameNoExtension(filePath);
+        fileExtension = FileTools.getFileExtension(filePath);
+        fileImgType = setImageResourceByExtension(fileExtension);
+        parentPath = FileTools.getParentPath(filePath);
+        parentName = FileTools.getDirName(filePath);
+        childrenFileNumber = FileTools.getChildrenNumber(filePath)[0];
+        childrenDirNumber = FileTools.getChildrenNumber(filePath)[1];
+        modifyTime = FileTools.getFileLastModified(filePath);
+        if (file) {
+            size = FileTools.getSize(filePath);
+            simpleSize = FileTools.getSimpleSize(filePath);
 
         }
 
@@ -119,13 +80,6 @@ public class FileBean implements Serializable {
         this.checked = checked;
     }
 
-    public void setUseUri(boolean useUri) {
-        this.useUri = useUri;
-    }
-
-    public void setDocumentFile(DocumentFile documentFile) {
-        this.documentFile = documentFile;
-    }
 
     public String getFilePath() {
         return filePath;
@@ -183,13 +137,6 @@ public class FileBean implements Serializable {
         return checked;
     }
 
-    public boolean isUseUri() {
-        return useUri;
-    }
-
-    public DocumentFile getDocumentFile() {
-        return documentFile;
-    }
 
     public long getModifyTime() {
         return modifyTime;

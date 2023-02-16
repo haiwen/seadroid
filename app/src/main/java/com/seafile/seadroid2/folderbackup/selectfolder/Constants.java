@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.folderbackup;
+package com.seafile.seadroid2.folderbackup.selectfolder;
 
 import android.os.Environment;
 
