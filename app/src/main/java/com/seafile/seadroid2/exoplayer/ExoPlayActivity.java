@@ -236,14 +236,26 @@ public class ExoPlayActivity extends BaseActivity implements VideoLinkStateListe
     protected void onPause() {
         LogUtil.i(this, "MainActivity.onPause.");
         super.onPause();
-        mSimpleExoPlayer.stop();
+        mSimpleExoPlayer.setPlayWhenReady(false);
     }
 
     @Override
     protected void onStop() {
         LogUtil.i(this, "MainActivity.onStop.");
         super.onStop();
-        mSimpleExoPlayer.release();
+    }
+
+    @Override
+    protected void onResume() {
+        LogUtil.i(this, "MainActivity.onResume.");
+        super.onResume();
+        mSimpleExoPlayer.setPlayWhenReady(true);
+    }
+
+    @Override
+    protected void onStart() {
+        LogUtil.i(this, "MainActivity.onStart.");
+        super.onStart();
     }
 
     @Override

@@ -396,6 +396,8 @@ public class IjkPlayActivity extends BaseActivity implements VideoLinkStateListe
 
     }
 
+
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
