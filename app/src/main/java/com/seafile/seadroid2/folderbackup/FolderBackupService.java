@@ -45,6 +45,7 @@ import java.util.Map;
 
 
 public class FolderBackupService extends Service {
+    private Map<String, FolderBackupInfo> fileUploaded = new HashMap<>();
     private final IBinder mBinder = new FileBackupBinder();
     private TransferService txService = null;
     private DataManager dataManager;
@@ -68,7 +69,6 @@ public class FolderBackupService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-
         return START_STICKY;
     }
 
@@ -85,7 +85,6 @@ public class FolderBackupService extends Service {
         IntentFilter filter = new IntentFilter(TransferManager.BROADCAST_ACTION);
         LocalBroadcastManager.getInstance(this).registerReceiver(mFolderReceiver, filter);
     }
-
 
     public void folderBackup(String email) {
         fileUploaded.clear();
@@ -108,7 +107,7 @@ public class FolderBackupService extends Service {
             accountManager = new AccountManager(this);
         }
         currentAccount = accountManager.getCurrentAccount();
-        backupPathsList = StringTools.getDataList(backupPaths);
+        backupPathsList = StringTools.getJsonToList(backupPaths);
         dataManager = new DataManager(currentAccount);
         for (String str : backupPathsList) {
             FolderFileMonitor folderFileMonitor = new FolderFileMonitor();
@@ -143,15 +142,12 @@ public class FolderBackupService extends Service {
                 }
                 isFolder("/" + split[split.length - 1], str);
             }
-
-
             return null;
         }
 
         @Override
         protected void onPostExecute(String FilePath) {
             Utils.utilsLogInfo(false, "----------" + FilePath);
-
         }
     }
 
@@ -188,9 +184,7 @@ public class FolderBackupService extends Service {
                 fileBeanList.add(fileBean);
             }
         }
-
         if (fileBeanList == null || fileBeanList.size() == 0) return;
-
         for (FileBean fb : fileBeanList) {
             if (fb.isDir()) {
                 try {
@@ -220,8 +214,6 @@ public class FolderBackupService extends Service {
         }
 
     }
-
-    Map<String, FolderBackupInfo> fileUploaded = new HashMap<>();
 
     ServiceConnection mConnection = new ServiceConnection() {
         @Override
@@ -255,7 +247,6 @@ public class FolderBackupService extends Service {
     }
 
     class FolderFileMonitor implements FileAlterationListener {
-
 
         public FolderFileMonitor() {
 
@@ -310,7 +301,6 @@ public class FolderBackupService extends Service {
         }
     }
 
-
     private class FolderReceiver extends BroadcastReceiver {
 
         private FolderReceiver() {
@@ -327,7 +317,6 @@ public class FolderBackupService extends Service {
     }
 
     private void onFileBackedUp(int taskID) {
-        Utils.utilsLogInfo(false, "onFileUploaded===============" + taskID);
         if (fileUploaded != null) {
             FolderBackupInfo uploadInfo = fileUploaded.get(taskID + "");
             if (databaseHelper == null) {

@@ -12,6 +12,7 @@ import com.seafile.seadroid2.R;
 import java.util.List;
 
 public class TabbarFileListAdapter extends RecyclerView.Adapter<TabbarFileViewHolder> {
+
     private List<TabbarFileBean> mListData;
     private Context mContext;
     private OnFileItemClickListener onItemClickListener;
@@ -34,13 +35,13 @@ public class TabbarFileListAdapter extends RecyclerView.Adapter<TabbarFileViewHo
     @Override
     public void onBindViewHolder(final TabbarFileViewHolder holder, int positon) {
         final TabbarFileBean entity = mListData.get(positon);
-        String fileName=entity.getFileName().replaceAll("[^\\p{Print}]","");
+        String fileName = entity.getFileName().replaceAll("[^\\p{Print}]", "");
         holder.tvName.setText(fileName);
         holder.llRoot.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (onItemClickListener != null) {
-                    onItemClickListener.click(holder.getAdapterPosition());
+                    onItemClickListener.itemClick(holder.getAdapterPosition());
                 }
             }
         });

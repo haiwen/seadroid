@@ -42,8 +42,9 @@ import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FolderCloudLibraryFragment extends Fragment {
-    public static final String DEBUG_TAG = "FolderCloudLibraryFragment";
+public class CloudLibraryChooserFragment extends Fragment {
+
+    public static final String DEBUG_TAG = "CloudLibraryChooserFragment";
     private FolderBackupConfigActivity mActivity;
     private Button mDoneBtn;
     public static final String PASSWORD_DIALOG_FRAGMENT_TAG = "passwordDialogFragmentTag";
@@ -82,7 +83,6 @@ public class FolderCloudLibraryFragment extends Fragment {
 
         mActivity = (FolderBackupConfigActivity) getActivity();
         View rootView = mActivity.getLayoutInflater().inflate(R.layout.folder_backup_remote_library_fragment, null);
-
         Intent intent = mActivity.getIntent();
         avatarManager = new AvatarManager();
         Account account = intent.getParcelableExtra("account");
@@ -104,6 +104,7 @@ public class FolderCloudLibraryFragment extends Fragment {
         mProgressContainer = rootView.findViewById(R.id.cuc_multi_selection_progress_container);
         mListContainer = rootView.findViewById(R.id.cuc_multi_selection_list_container);
         mDoneBtn = (Button) rootView.findViewById(R.id.cuc_remote_library_btn);
+
         mDoneBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -128,7 +129,6 @@ public class FolderCloudLibraryFragment extends Fragment {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-
             }
 
         });
@@ -139,6 +139,7 @@ public class FolderCloudLibraryFragment extends Fragment {
                 onListItemClick(parent, position, id);
             }
         });
+
         if (canChooseAccount) {
             chooseAccount();
         } else {
@@ -193,13 +194,11 @@ public class FolderCloudLibraryFragment extends Fragment {
     public void onListItemClick(final View v, final int position, final long id) {
         NavContext nav = getNavContext();
         SeafRepo repo = null;
-
         if (mStep == STEP_CHOOSE_REPO) {
             repo = getReposAdapter().getItem(position);
             //mCurrentFolderText.setText(nav.getRepoName());
         } else if (mStep == STEP_CHOOSE_DIR) {
             repo = getDataManager().getCachedRepoByID(nav.getRepoID());
-
         }
 
         if (repo != null) {
@@ -325,7 +324,6 @@ public class FolderCloudLibraryFragment extends Fragment {
         mStep = STEP_CHOOSE_DIR;
         mUpLayout.setVisibility(View.VISIBLE);
         mEmptyText.setText(R.string.dir_empty);
-
         setListAdapter(getDirentsAdapter());
         refreshFolder(forceRefresh);
     }
@@ -343,9 +341,7 @@ public class FolderCloudLibraryFragment extends Fragment {
         mEmptyText.setText(R.string.no_account);
         mCurrentDir = getString(R.string.settings_cuc_remote_lib_account);
         setCurrentDirText(mCurrentDir);
-
         mLoadAccountsTask = new LoadAccountsTask(getAccountManager(), forwardIfOnlyOneAccount);
-
         ConcurrentAsyncTask.execute(mLoadAccountsTask);
         setListAdapter(getAccountAdapter());
     }
@@ -362,9 +358,7 @@ public class FolderCloudLibraryFragment extends Fragment {
         mUpLayout.setVisibility(View.VISIBLE);
         mCurrentDir = mAccount.getDisplayName();
         setCurrentDirText(mCurrentDir);
-
         setListAdapter(getReposAdapter());
-
         getNavContext().setRepoID(null);
 
         if (!Utils.isNetworkOn() || !forceRefresh) {
@@ -374,7 +368,6 @@ public class FolderCloudLibraryFragment extends Fragment {
                 return;
             }
         }
-
         mLoadReposTask = new LoadReposTask(getDataManager());
         ConcurrentAsyncTask.execute(mLoadReposTask);
     }
@@ -386,7 +379,6 @@ public class FolderCloudLibraryFragment extends Fragment {
     private void refreshFolder(boolean forceRefresh) {
         String repoID = getNavContext().getRepoID();
         String dirPath = getNavContext().getDirPath();
-
         if (!Utils.isNetworkOn() || !forceRefresh) {
             List<SeafDirent> dirents = getDataManager().getCachedDirents(
                     getNavContext().getRepoID(), getNavContext().getDirPath());
@@ -395,7 +387,6 @@ public class FolderCloudLibraryFragment extends Fragment {
                 return;
             }
         }
-
         mLoadFolderTask = new LoadFolderTask(repoID, dirPath, getDataManager());
         ConcurrentAsyncTask.execute(mLoadFolderTask);
     }
@@ -420,7 +411,6 @@ public class FolderCloudLibraryFragment extends Fragment {
         if (mAccountAdapter == null) {
             mAccountAdapter = new CloudLibraryAccountAdapter(mActivity);
         }
-
         return mAccountAdapter;
     }
 
@@ -428,7 +418,6 @@ public class FolderCloudLibraryFragment extends Fragment {
         if (mReposAdapter == null) {
             mReposAdapter = new CloudLibraryAdapter(onlyShowWritableRepos, encryptedRepoId);
         }
-
         return mReposAdapter;
     }
 
@@ -436,7 +425,6 @@ public class FolderCloudLibraryFragment extends Fragment {
         if (mDirentsAdapter == null) {
             mDirentsAdapter = new DirentsAdapter();
         }
-
         return mDirentsAdapter;
     }
 
@@ -458,7 +446,6 @@ public class FolderCloudLibraryFragment extends Fragment {
         if (mDataManager == null) {
             mDataManager = new DataManager(mAccount);
         }
-
         return mDataManager;
     }
 
@@ -471,7 +458,6 @@ public class FolderCloudLibraryFragment extends Fragment {
         if (mAccountManager == null) {
             mAccountManager = new AccountManager(getActivity());
         }
-
         return mAccountManager;
     }
 
@@ -479,7 +465,6 @@ public class FolderCloudLibraryFragment extends Fragment {
         if (mNavContext == null) {
             mNavContext = new NavContext();
         }
-
         return mNavContext;
     }
 
@@ -505,12 +490,10 @@ public class FolderCloudLibraryFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-
         if (isRemoving()) {
             mCursor.close();
             mCursor = null;
         }
-
     }
 
     private class LoadAccountsTask extends AsyncTask<Void, Void, Void> {
@@ -536,7 +519,6 @@ public class FolderCloudLibraryFragment extends Fragment {
             } catch (Exception e) {
                 err = e;
             }
-
             return null;
         }
 
@@ -584,7 +566,6 @@ public class FolderCloudLibraryFragment extends Fragment {
             } catch (SeafException e) {
                 err = e;
             }
-
             return null;
         }
 
@@ -598,14 +579,12 @@ public class FolderCloudLibraryFragment extends Fragment {
             if (mStep != STEP_CHOOSE_REPO) {
                 return;
             }
-
             showLoading(false);
             if (err != null || repos == null) {
                 setErrorMessage(R.string.load_libraries_fail);
                 Log.d(DEBUG_TAG, "failed to load repos: " + (err != null ? err.getMessage() : " no error present"));
                 return;
             }
-
             updateAdapterWithRepos(repos);
         }
     }
@@ -634,7 +613,6 @@ public class FolderCloudLibraryFragment extends Fragment {
             } catch (SeafException e) {
                 err = e;
             }
-
             return null;
         }
 
@@ -643,7 +621,6 @@ public class FolderCloudLibraryFragment extends Fragment {
             if (mStep != STEP_CHOOSE_DIR) {
                 return;
             }
-
             getDirentsAdapter().clearDirents();
             showLoading(false);
             if (err != null) {
@@ -666,37 +643,23 @@ public class FolderCloudLibraryFragment extends Fragment {
                 setErrorMessage(R.string.load_dir_fail);
                 return;
             }
-
             updateAdapterWithDirents(dirents);
         }
     }
 
     public void loadAvatarUrls(int avatarSize) {
         List<Avatar> avatars;
-
         if (!Utils.isNetworkOn() || !avatarManager.isNeedToLoadNewAvatars()) {
-            // Toast.makeText(AccountsActivity.this, getString(R.string.network_down), Toast.LENGTH_SHORT).show();
-
-            // use cached avatars
             avatars = avatarManager.getAvatarList();
-
             if (avatars == null) {
                 return;
             }
-
-            // set avatars url to adapter
             mAccountAdapter.setAvatars((ArrayList<Avatar>) avatars);
-
-            // notify adapter data changed
             mAccountAdapter.notifyDataSetChanged();
-
             return;
         }
-
         LoadAvatarUrlsTask task = new LoadAvatarUrlsTask(avatarSize);
-
         ConcurrentAsyncTask.execute(task);
-
     }
 
     private class LoadAvatarUrlsTask extends AsyncTask<Void, Void, List<Avatar>> {
@@ -712,19 +675,11 @@ public class FolderCloudLibraryFragment extends Fragment {
 
         @Override
         protected List<Avatar> doInBackground(Void... params) {
-            // reuse cached avatars
             avatars = avatarManager.getAvatarList();
-
-            // contains accounts who don`t have avatars yet
             List<Account> acts = avatarManager.getAccountsWithoutAvatars();
-
-            // contains new avatars in order to persist them to database
             List<Avatar> newAvatars = new ArrayList<Avatar>(acts.size());
-
-            // load avatars from server
             for (Account account : acts) {
                 httpConnection = new SeafConnection(account);
-
                 String avatarRawData = null;
                 try {
                     avatarRawData = httpConnection.getAvatar(account.getEmail(), avatarSize);
@@ -732,21 +687,15 @@ public class FolderCloudLibraryFragment extends Fragment {
                     e.printStackTrace();
                     return avatars;
                 }
-
                 Avatar avatar = avatarManager.parseAvatar(avatarRawData);
                 if (avatar == null)
                     continue;
 
                 avatar.setSignature(account.getSignature());
-
                 avatars.add(avatar);
-
                 newAvatars.add(avatar);
             }
-
-            // save new added avatars to database
             avatarManager.saveAvatarList(newAvatars);
-
             return avatars;
         }
 
@@ -755,24 +704,18 @@ public class FolderCloudLibraryFragment extends Fragment {
             if (avatars == null) {
                 return;
             }
-
-            // set avatars url to adapter
             mAccountAdapter.setAvatars((ArrayList<Avatar>) avatars);
-
-            // notify adapter data changed
             mAccountAdapter.notifyDataSetChanged();
         }
     }
 
     private void setErrorMessage(int resID) {
-        //mContentArea.setVisibility(View.GONE);
         mErrorText.setVisibility(View.VISIBLE);
         mErrorText.setText(getString(resID));
     }
 
     private void clearError() {
         mErrorText.setVisibility(View.GONE);
-        //mContentArea.setVisibility(View.VISIBLE);
     }
 
     private void showLoading(boolean loading) {
@@ -782,7 +725,6 @@ public class FolderCloudLibraryFragment extends Fragment {
                     mActivity, android.R.anim.fade_in));
             mListContainer.startAnimation(AnimationUtils.loadAnimation(
                     mActivity, android.R.anim.fade_out));
-
             mProgressContainer.setVisibility(View.VISIBLE);
             mListContainer.setVisibility(View.INVISIBLE);
         } else {
@@ -790,11 +732,9 @@ public class FolderCloudLibraryFragment extends Fragment {
                     mActivity, android.R.anim.fade_out));
             mListContainer.startAnimation(AnimationUtils.loadAnimation(
                     mActivity, android.R.anim.fade_in));
-
             mProgressContainer.setVisibility(View.GONE);
             mListContainer.setVisibility(View.VISIBLE);
         }
     }
-
 }
 

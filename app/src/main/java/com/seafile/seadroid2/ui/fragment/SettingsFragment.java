@@ -147,7 +147,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
         }
         String backupPaths = SettingsManager.instance().getBackupPaths();
         if (!TextUtils.isEmpty(backupPaths)) {
-            backupSelectPaths = StringTools.getDataList(backupPaths);
+            backupSelectPaths = StringTools.getJsonToList(backupPaths);
         }
         ConcurrentAsyncTask.execute(new RequestAccountInfoTask(), account);
 
@@ -378,8 +378,8 @@ public class SettingsFragment extends CustomPreferenceFragment {
         });
         // Change backup folder
         cBackupFolderMode = findPreference(SettingsManager.FOLDER_BACKUP_MODE);
-        cBackupFolderRepo = findPreference(SettingsManager.FOLDER_BACKUP_LIBRARY);
-        cBackupFolderPref = findPreference(SettingsManager.FOLDER_BACKUP_KEY);
+        cBackupFolderRepo = findPreference(SettingsManager.FOLDER_BACKUP_LIBRARY_KEY);
+        cBackupFolderPref = findPreference(SettingsManager.SELECT_FOLDER_BACKUP_KEY);
         cBackupFolderState = findPreference(SettingsManager.FOLDER_BACKUP_STATE);
         cBackupFolderMode.setOnPreferenceClickListener(new OnPreferenceClickListener() {
             @Override

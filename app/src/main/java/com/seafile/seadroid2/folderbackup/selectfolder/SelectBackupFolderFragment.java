@@ -18,11 +18,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class FolderSelectionFragment extends Fragment {
+public class SelectBackupFolderFragment extends Fragment {
 
     private RecyclerView mTabbarFileRecyclerView, mFileRecyclerView;
     private SelectOptions mSelectOptions;
-    private List<String> mSdCardList;
+    private List<String> allPathsList;
     private List<String> mShowFileTypes;
     private int mSortType;
     private List<FileBean> mFileList;
@@ -35,7 +35,6 @@ public class FolderSelectionFragment extends Fragment {
     private Button mButton;
     private List<String> selectPaths;
     private String initialPath;
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -76,9 +75,10 @@ public class FolderSelectionFragment extends Fragment {
                 mActivity.finish();
             }
         });
+
         mFileListAdapter.setOnItemClickListener(new OnFileItemClickListener() {
             @Override
-            public void click(int position) {
+            public void itemClick(int position) {
                 FileBean item = mFileList.get(position);
                 if (item.isFile()) {
                     Toast.makeText(getActivity(), getActivity().getString(R.string.selection_file_type), Toast.LENGTH_SHORT).show();
@@ -116,14 +116,12 @@ public class FolderSelectionFragment extends Fragment {
                         mFileListAdapter.notifyDataSetChanged();
                     }
                 });
-
-
             }
         });
 
         mTabbarFileListAdapter.setOnItemClickListener(new OnFileItemClickListener() {
             @Override
-            public void click(int position) {
+            public void itemClick(int position) {
                 TabbarFileBean item = mTabbarFileList.get(position);
                 mCurrentPath = item.getFilePath();
 
@@ -137,9 +135,6 @@ public class FolderSelectionFragment extends Fragment {
 
             }
         });
-
-
-
     }
 
     @Override
@@ -156,7 +151,7 @@ public class FolderSelectionFragment extends Fragment {
 
     private void initData() {
         mSelectOptions = SelectOptions.getResetInstance(getActivity());
-        mSdCardList = initRootPath(getActivity());
+        allPathsList= initRootPath(getActivity());
         mShowFileTypes = Arrays.asList(mSelectOptions.getShowFileTypes());
         mSortType = mSelectOptions.getSortType();
         mFileList = new ArrayList<>();
@@ -165,28 +160,28 @@ public class FolderSelectionFragment extends Fragment {
     }
 
     private List<String> initRootPath(Activity activity) {
-        List<String> SdCardList = FileTools.getAllSdPaths(activity);
+        List<String> allPaths = FileTools.getAllPaths(activity);
         mCurrentPath = mSelectOptions.rootPath;
         if (mCurrentPath == null) {
-            if (SdCardList.isEmpty()) {
+            if (allPaths.isEmpty()) {
                 mCurrentPath = Constants.DEFAULT_ROOTPATH;
             } else {
-                mCurrentPath = SdCardList.get(0);
+                mCurrentPath = allPaths.get(0);
             }
         }
         initialPath =mCurrentPath;
-        return SdCardList;
+        return allPaths;
     }
 
     private void refreshFileAndTabbar(int tabbarType) {
         BeanListManager.upDataFileBeanListByAsyn(getActivity(), selectPaths, mFileList, mFileListAdapter,
                 mCurrentPath, mShowFileTypes, mSortType);
         BeanListManager.upDataTabbarFileBeanList(mTabbarFileList, mTabbarFileListAdapter,
-                mCurrentPath, tabbarType, mSdCardList);
+                mCurrentPath, tabbarType, allPathsList);
     }
 
     public boolean onBackPressed() {
-        if (mCurrentPath.equals(initialPath)||mSdCardList.contains(mCurrentPath)){
+        if (mCurrentPath.equals(initialPath)||allPathsList.contains(mCurrentPath)){
             return false;
         }else {
             mCurrentPath=FileTools.getParentPath(mCurrentPath);
@@ -194,7 +189,6 @@ public class FolderSelectionFragment extends Fragment {
             return true;
         }
     }
-
 
 }
 

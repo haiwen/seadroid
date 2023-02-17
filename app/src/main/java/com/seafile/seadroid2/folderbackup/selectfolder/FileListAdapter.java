@@ -38,7 +38,8 @@ public class FileListAdapter extends RecyclerView.Adapter<FileListViewHolder> {
     @Override
     public void onBindViewHolder(final FileListViewHolder holder, int positon) {
         final FileBean fileBean = mListData.get(positon);
-
+        holder.checkBoxFile.setChecked(fileBean.isChecked());
+        holder.tvFileName.setText(fileBean.getFileName());
         holder.imgvFiletype.setImageResource(fileBean.getFileImgType());
         boolean isFile = fileBean.isFile();
         if (isFile) {
@@ -61,13 +62,12 @@ public class FileListAdapter extends RecyclerView.Adapter<FileListViewHolder> {
                 }
             }
         });
-        holder.checkBoxFile.setChecked(fileBean.isChecked());
-        holder.tvFileName.setText(fileBean.getFileName());
+
         holder.layoutRoot.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (onItemClickListener != null) {
-                    onItemClickListener.click(holder.getAdapterPosition());
+                    onItemClickListener.itemClick(holder.getAdapterPosition());
                 }
             }
         });

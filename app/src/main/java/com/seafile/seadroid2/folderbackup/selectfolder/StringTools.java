@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class StringTools {
+
     public static boolean isEmpty(String s) {
         return s == null || s.trim().isEmpty() ? true : false;
     }
@@ -27,8 +28,8 @@ public class StringTools {
         return Long.valueOf(temp);
     }
 
-    public static <T> List<T> getDataList(String strJson) {
-        List<T> list=new ArrayList<T>();
+    public static <T> List<T> getJsonToList(String strJson) {
+        List<T> list = new ArrayList<T>();
         if (TextUtils.isEmpty(strJson)) {
             return list;
         }
@@ -38,6 +39,7 @@ public class StringTools {
         return list;
 
     }
+
     public static boolean checkFolderUploadNetworkAvailable() {
         if (!Utils.isNetworkOn()) {
             return false;

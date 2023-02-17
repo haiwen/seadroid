@@ -11,11 +11,13 @@ import com.seafile.seadroid2.SeadroidApplication;
 import java.io.File;
 
 public class FolderBackupDBHelper extends SQLiteOpenHelper {
+
+    private SQLiteDatabase database = null;
+    private static FolderBackupDBHelper dbHelper = null;
     // version.
     public static final int DATABASE_VERSION = 1;
     public static final String DATABASE_NAME = "folder_backup.db";
-
-    // Save the backup file table
+    // backup file table
     private static final String SAVE_FOLDER_BACKUP_FILE_TABLE_NAME = "FolderBackupInfo";
     private static final String FOLDER_BACKUP_COLUMN_ID = "id";
     private static final String FOLDER_BACKUP_COLUMN_REPO_ID = "repo_id";
@@ -24,8 +26,7 @@ public class FolderBackupDBHelper extends SQLiteOpenHelper {
     private static final String FOLDER_BACKUP_COLUMN_FILE_NAME = "file_name";
     private static final String FOLDER_BACKUP_COLUMN_FILE_PATH = "file_path";
     private static final String FOLDER_BACKUP_COLUMN_FILE_SIZE = "file_size";
-
-    // save repo config table
+    // repo config table
     private static final String REPO_CONFIG_TABLE_NAME = "RepoConfig";
     private static final String REPO_CONFIG_COLUMN_ID = "id";
     private static final String REPO_CONFIG_MAIL = "mail";
@@ -57,10 +58,6 @@ public class FolderBackupDBHelper extends SQLiteOpenHelper {
             + FOLDER_BACKUP_COLUMN_FILE_SIZE
             + " TEXT NOT NULL);";
 
-
-    private SQLiteDatabase database = null;
-    private static FolderBackupDBHelper dbHelper = null;
-
     public static synchronized FolderBackupDBHelper getDatabaseHelper() {
         if (dbHelper != null)
             return dbHelper;
@@ -72,7 +69,6 @@ public class FolderBackupDBHelper extends SQLiteOpenHelper {
     private FolderBackupDBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
-
 
     @Override
     public void onCreate(SQLiteDatabase db) {
@@ -104,7 +100,6 @@ public class FolderBackupDBHelper extends SQLiteOpenHelper {
         values.put(FOLDER_BACKUP_COLUMN_FILE_NAME, info.fileName);
         values.put(FOLDER_BACKUP_COLUMN_FILE_PATH, info.filePath);
         values.put(FOLDER_BACKUP_COLUMN_FILE_SIZE, info.fileSize);
-
         database.insert(SAVE_FOLDER_BACKUP_FILE_TABLE_NAME, null, values);
     }
 
@@ -115,7 +110,6 @@ public class FolderBackupDBHelper extends SQLiteOpenHelper {
         values.put(REPO_CONFIG_REPO_NAME, repoName);
         database.insert(REPO_CONFIG_TABLE_NAME, null, values);
     }
-
 
     public void updateRepoConfig(String email, String repoID, String repoName) {
         removeRepoConfig(email);
@@ -130,8 +124,6 @@ public class FolderBackupDBHelper extends SQLiteOpenHelper {
         String selectClause = String.format("%s = ? ",
                 REPO_CONFIG_MAIL);
         String[] selectArgs = {email};
-
-
         Cursor c = database.query(
                 REPO_CONFIG_TABLE_NAME,
                 projection,
@@ -163,8 +155,6 @@ public class FolderBackupDBHelper extends SQLiteOpenHelper {
                 FOLDER_BACKUP_COLUMN_FILE_PATH,
                 FOLDER_BACKUP_COLUMN_FILE_SIZE);
         String[] selectArgs = {repoID, filePath, fileSize};
-
-
         Cursor c = database.query(
                 SAVE_FOLDER_BACKUP_FILE_TABLE_NAME,
                 projection,
@@ -188,7 +178,6 @@ public class FolderBackupDBHelper extends SQLiteOpenHelper {
         database.delete(REPO_CONFIG_TABLE_NAME, whereClause, params);
     }
 
-
     private FolderBackupInfo cursorToBackupUpdateInfo(Cursor c) {
         String repoID = c.getString(0);
         String repoName = c.getString(1);
@@ -196,11 +185,9 @@ public class FolderBackupDBHelper extends SQLiteOpenHelper {
         String fileName = c.getString(3);
         String filePath = c.getString(4);
         String fileSize = c.getString(5);
-
         if (!new File(filePath).exists()) {
             filePath = null;
         }
-
         FolderBackupInfo info = new FolderBackupInfo(repoID, repoName,
                 parentDir, fileName, filePath, fileSize);
         return info;

@@ -107,13 +107,13 @@ public final class SettingsManager {
     public static final String FOLDER_BACKUP_SWITCH_KEY = "folder_backup_switch_key";
     public static final String FOLDER_BACKUP_ALLOW_DATA_PLAN_SWITCH_KEY = "folder_backup_allow_data_plan_switch_key";
     public static final String FOLDER_AUTOMATIC_BACKUP_SWITCH_KEY = "folder_automatic_backup_switch_key";
-    public static final String SAVE_BACKUP_ACCOUNT_EMAIL = "save_backup_account_email";
-    public static final String FOLDER_BACKUP_CATEGORY_KEY = "file_folder_backup_key";
+    public static final String FOLDER_BACKUP_ACCOUNT_EMAIL = "folder_backup_account_email";
+    public static final String FOLDER_BACKUP_CATEGORY_KEY = "folder_backup_category_key";
     public static final String FOLDER_BACKUP_MODE = "folder_backup_mode";
-    public static final String FOLDER_BACKUP_LIBRARY = "folder_backup_library";
-    public static final String FOLDER_BACKUP_KEY = "folder_backup_key";
+    public static final String FOLDER_BACKUP_LIBRARY_KEY = "folder_backup_library_key";
+    public static final String SELECT_FOLDER_BACKUP_KEY = "select_folder_backup_key";
     public static final String FOLDER_BACKUP_STATE = "folder_backup_state";
-    public static final String SAVE_FOLDER_BACKUP_PATHS = "save_folder_backup_paths";
+    public static final String FOLDER_BACKUP_PATHS = "folder_backup_paths";
 
     public static long lock_timestamp = 0;
     public static final long LOCK_EXPIRATION_MSECS = 5 * 60 * 1000;
@@ -328,14 +328,6 @@ public final class SettingsManager {
     public String getUploadCompletedTime() {
         return sharedPref.getString(SettingsManager.UPLOAD_COMPLETED_TIME, null);
     }
-    public void saveBackupEmail(String path) {
-        editor.putString(SAVE_BACKUP_ACCOUNT_EMAIL, path);
-        editor.commit();
-    }
-
-    public String getBackupEmail() {
-        return sharedPref.getString(SettingsManager.SAVE_BACKUP_ACCOUNT_EMAIL, null);
-    }
 
     public void savePrivacyPolicyConfirmed(int type) {
         editor.putInt(PRIVACY_POLICY_CONFIRMED, type).commit();
@@ -346,11 +338,20 @@ public final class SettingsManager {
     }
 
     public void saveBackupPaths(String path) {
-        editor.putString(SAVE_FOLDER_BACKUP_PATHS, path);
+        editor.putString(FOLDER_BACKUP_PATHS, path);
         editor.commit();
     }
 
     public String getBackupPaths() {
-        return sharedPref.getString(SettingsManager.SAVE_FOLDER_BACKUP_PATHS, null);
+        return sharedPref.getString(SettingsManager.FOLDER_BACKUP_PATHS, null);
+    }
+
+    public void saveBackupEmail(String path) {
+        editor.putString(FOLDER_BACKUP_ACCOUNT_EMAIL, path);
+        editor.commit();
+    }
+
+    public String getBackupEmail() {
+        return sharedPref.getString(SettingsManager.FOLDER_BACKUP_ACCOUNT_EMAIL, null);
     }
 }

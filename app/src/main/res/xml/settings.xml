@@ -114,32 +114,32 @@
             android:title="@string/camera_upload_state" />
     </PreferenceCategory>
     <PreferenceCategory
-        android:key="file_folder_backup_key"
-        android:layout="@layout/bg_settings_section_folder_upload"
-        android:title="@string/settings_folder_upload_info_title">
+        android:key="folder_backup_category_key"
+        android:layout="@layout/bg_settings_section_folder_backup"
+        android:title="@string/settings_folder_backup_info_title">
         <com.seafile.seadroid2.ui.SwitchPreferenceCompat
             android:defaultValue="false"
             android:key="folder_backup_switch_key"
-            android:summaryOff="@string/settings_folder_upload_service_stopped"
-            android:summaryOn="@string/settings_folder_upload_service_started"
-            android:title="@string/settings_folder_upload_turn_on">
+            android:summaryOff="@string/settings_folder_backup_service_stopped"
+            android:summaryOn="@string/settings_folder_backup_service_started"
+            android:title="@string/settings_folder_backup_switch_title">
         </com.seafile.seadroid2.ui.SwitchPreferenceCompat>
         <Preference
             android:key="folder_backup_mode"
-            android:summary="@string/settings_folder_upload_traffic_hint"
-            android:title="@string/settings_folder_upload_traffic" />
+            android:summary="@string/settings_folder_backup_traffic_hint"
+            android:title="@string/settings_folder_backup_traffic" />
         <Preference
-            android:key="folder_backup_library"
+            android:key="folder_backup_library_key"
             android:summary="@string/folder_backup_select_repo_hint"
-            android:title="@string/settings_folder_upload_library" />
+            android:title="@string/settings_folder_backup_library" />
         <Preference
-            android:key="folder_backup_key"
-            android:summary="@string/settings_folder_upload_repo_hint"
-            android:title="@string/settings_folder_upload_change_dir_title" />
+            android:key="select_folder_backup_key"
+            android:summary="@string/settings_folder_backup_select_hint"
+            android:title="@string/settings_folder_backup_select_title" />
         <Preference
             android:key="folder_backup_state"
-            android:summary="@string/folder_waiting_state"
-            android:title="@string/folder_upload_state" />
+            android:summary="@string/folder_backup_waiting_state"
+            android:title="@string/folder_backup_state" />
     </PreferenceCategory>
     <!--<PreferenceCategory-->
         <!--android:key="category_contacts_upload_key"-->

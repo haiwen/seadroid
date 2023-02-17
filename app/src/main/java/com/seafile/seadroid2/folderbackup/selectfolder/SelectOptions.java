@@ -35,7 +35,6 @@ public class SelectOptions {
     public boolean[] moreChooseItemNeedCallBack;
     public onToolbarListener[] toolbarListeners;
     public String rootPath;
-
     public String toolbarMainTitle;
     public String toolbarSubtitleTitle;
     public Integer toolbarBG;
@@ -43,11 +42,8 @@ public class SelectOptions {
     public Integer toolbarSubtitleColor;
     public Integer toolbarOptionColor;
     public Integer toolbarOptionSize;
-
     public FragmentManager fragmentManager;
-
     public Boolean showToolBarFragment;
-
     public Integer typeLoadCustomView;
 
     public static SelectOptions getInstance() {
@@ -56,7 +52,6 @@ public class SelectOptions {
         }
         return mSelectOptions;
     }
-
 
     public static SelectOptions getResetInstance(Context context) {
         mSelectOptions = getInstance();
@@ -74,13 +69,6 @@ public class SelectOptions {
             return new String[]{};
         }
         return mShowFileTypes;
-    }
-
-    public String[] getSelectFileTypes() {
-        if (mSelectFileTypes == null) {
-            return new String[]{};
-        }
-        return mSelectFileTypes;
     }
 
     public int getSortType() {

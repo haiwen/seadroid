@@ -6,6 +6,7 @@ import com.seafile.seadroid2.SettingsManager;
 import java.io.Serializable;
 
 public class FolderBackupInfo implements Serializable {
+    private volatile int hashCode = 0;
     public String repoID;
     public String repoName;
     public String parentFolder;
@@ -15,7 +16,6 @@ public class FolderBackupInfo implements Serializable {
 
     public FolderBackupInfo(String repoID, String repoName, String parentPath,
                             String fileName, String filePath, String fileSize) {
-
         this.repoID = repoID;
         this.repoName = repoName;
         this.parentFolder = parentPath;
@@ -40,21 +40,17 @@ public class FolderBackupInfo implements Serializable {
                 that.parentFolder == null || that.filePath == null) {
             return false;
         }
-
         return that.repoID.equals(this.repoID) &&
                 that.repoName.equals(this.repoName) &&
                 that.parentFolder.equals(this.parentFolder) &&
                 that.filePath.equals(this.filePath);
     }
 
-    private volatile int hashCode = 0;
-
     @Override
     public int hashCode() {
         if (hashCode == 0) {
             hashCode = Objects.hashCode(repoID, repoName, parentFolder, filePath);
         }
-
         return hashCode;
     }
 }

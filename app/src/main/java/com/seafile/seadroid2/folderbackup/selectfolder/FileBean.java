@@ -12,7 +12,6 @@ public class FileBean implements Serializable {
     private boolean dir;
     private boolean file;
     private String fileName;
-    private String fileNameNoExtension;
     private String fileExtension;
     private int fileImgType;
     private String parentPath;
@@ -24,7 +23,6 @@ public class FileBean implements Serializable {
     private boolean checked;
     private long modifyTime;
     private long simpleSize;
-
 
     public FileBean(String filePath) {
         this.filePath = filePath;
@@ -38,7 +36,6 @@ public class FileBean implements Serializable {
             dir = true;
         }
         fileName = FileTools.getFileName(filePath);
-        fileNameNoExtension = FileTools.getFileNameNoExtension(filePath);
         fileExtension = FileTools.getFileExtension(filePath);
         fileImgType = setImageResourceByExtension(fileExtension);
         parentPath = FileTools.getParentPath(filePath);
@@ -49,9 +46,7 @@ public class FileBean implements Serializable {
         if (file) {
             size = FileTools.getSize(filePath);
             simpleSize = FileTools.getSimpleSize(filePath);
-
         }
-
     }
 
     public int setImageResourceByExtension(String extension) {
@@ -80,7 +75,6 @@ public class FileBean implements Serializable {
         this.checked = checked;
     }
 
-
     public String getFilePath() {
         return filePath;
     }
@@ -95,10 +89,6 @@ public class FileBean implements Serializable {
 
     public String getFileName() {
         return fileName;
-    }
-
-    public String getFileNameNoExtension() {
-        return fileNameNoExtension;
     }
 
     public String getFileExtension() {
@@ -136,7 +126,6 @@ public class FileBean implements Serializable {
     public boolean isChecked() {
         return checked;
     }
-
 
     public long getModifyTime() {
         return modifyTime;

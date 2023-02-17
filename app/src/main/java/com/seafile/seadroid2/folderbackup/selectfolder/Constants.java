@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Constants {
+
     public static String DEFAULT_ROOTPATH;
     public static String PATH_ANRROID_DATA;
     public static String PATH_ANRROID_OBB;
@@ -92,5 +93,4 @@ public class Constants {
         mimeTypeMap.put("zip", "application/x-zip-compressed");
         mimeTypeMap.put("", "*/*");
     }
-
 }

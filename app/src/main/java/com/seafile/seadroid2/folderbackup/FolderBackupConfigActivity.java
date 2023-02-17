@@ -13,31 +13,29 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
 import android.widget.Toast;
-
 import com.google.gson.Gson;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.SeafRepo;
-import com.seafile.seadroid2.folderbackup.selectfolder.FolderSelectionFragment;
+import com.seafile.seadroid2.folderbackup.selectfolder.SelectBackupFolderFragment;
 import com.seafile.seadroid2.folderbackup.selectfolder.StringTools;
 import com.seafile.seadroid2.ui.activity.BaseActivity;
 import com.seafile.seadroid2.ui.activity.SeafilePathChooserActivity;
 import com.seafile.seadroid2.ui.fragment.SettingsFragment;
 import com.seafile.seadroid2.util.Utils;
-
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class FolderBackupConfigActivity extends BaseActivity {
+
     public String DEBUG_TAG = "FolderBackupConfigActivity";
     public static final String BACKUP_SELECT_REPO = "backup_select_repo";
     public static final String BACKUP_SELECT_PATHS = "backup_select_paths";
     public static final String BACKUP_SELECT_PATHS_SWITCH = "backup_select_paths_switch";
     private ViewPager mViewPager;
-    private FolderSelectionFragment mBucketsFragment;
-    private FolderCloudLibraryFragment mCloudLibFragment;
+    private SelectBackupFolderFragment mBucketsFragment;
+    private CloudLibraryChooserFragment mCloudLibFragment;
     private SeafRepo mSeafRepo;
     private Account mAccount;
     private boolean isChooseFolderPage;
@@ -55,7 +53,6 @@ public class FolderBackupConfigActivity extends BaseActivity {
         if (getSupportActionBar() != null)
             getSupportActionBar().hide();
 
-
         isChooseFolderPage = getIntent().getBooleanExtra(SettingsFragment.FOLDER_BACKUP_REMOTE_PATH, false);
         isChooseLibPage = getIntent().getBooleanExtra(SettingsFragment.FOLDER_BACKUP_REMOTE_LIBRARY, false);
         mViewPager = (ViewPager) findViewById(R.id.cuc_pager);
@@ -67,11 +64,10 @@ public class FolderBackupConfigActivity extends BaseActivity {
         bindService(bindIntent, mBackupConnection, Context.BIND_AUTO_CREATE);
         mActivity = this;
         String backupPaths = SettingsManager.instance().getBackupPaths();
+
         if (isChooseFolderPage && !TextUtils.isEmpty(backupPaths)) {
-            selectFolderPaths = StringTools.getDataList(backupPaths);
+            selectFolderPaths = StringTools.getJsonToList(backupPaths);
         }
-
-
     }
 
     private ServiceConnection mBackupConnection = new ServiceConnection() {
@@ -89,21 +85,17 @@ public class FolderBackupConfigActivity extends BaseActivity {
 
     };
 
-
     public void saveBackupLibrary(Account account, SeafRepo seafRepo) {
         mSeafRepo = seafRepo;
         mAccount = account;
     }
 
-
     public FolderBackupDBHelper getDatabaseHelper() {
         return databaseHelper;
     }
 
-
     public void setFolderPathList(List<String> selectFileList) {
         this.selectFolderPaths = selectFileList;
-
     }
 
     public List<String> getSelectFolderPath() {
@@ -139,7 +131,6 @@ public class FolderBackupConfigActivity extends BaseActivity {
                 mBackupService.folderBackup(mAccount.getEmail());
             }
         }
-
     }
 
     public void saveFolderConfig() {
@@ -152,7 +143,6 @@ public class FolderBackupConfigActivity extends BaseActivity {
                 intent.putStringArrayListExtra(BACKUP_SELECT_PATHS, (ArrayList<String>) selectFolderPaths);
                 intent.putExtra(BACKUP_SELECT_PATHS_SWITCH, true);
             }
-
             setResult(RESULT_OK, intent);
             boolean folderAutomaticBackup = SettingsManager.instance().isFolderAutomaticBackup();
             if (folderAutomaticBackup && mBackupService != null) {
@@ -171,11 +161,9 @@ public class FolderBackupConfigActivity extends BaseActivity {
         super.onBackPressed();
     }
 
-
     public boolean isChooseDirPage() {
         return isChooseFolderPage;
     }
-
 
     class FolderBackupConfigAdapter extends FragmentStatePagerAdapter {
 
@@ -187,27 +175,24 @@ public class FolderBackupConfigActivity extends BaseActivity {
         public Fragment getItem(int position) {
 
             if (isChooseLibPage) {
-                return position == 0 ? new FolderCloudLibraryFragment() : null;
+                return position == 0 ? new CloudLibraryChooserFragment() : null;
             }
-
             if (isChooseFolderPage) {
                 switch (position) {
                     case 0:
-                        mBucketsFragment = new FolderSelectionFragment();
+                        mBucketsFragment = new SelectBackupFolderFragment();
                         return mBucketsFragment;
                     default:
                         return null;
                 }
 
             }
-
-
             switch (position) {
                 case 0:
-                    mCloudLibFragment = new FolderCloudLibraryFragment();
+                    mCloudLibFragment = new CloudLibraryChooserFragment();
                     return mCloudLibFragment;
                 case 1:
-                    mBucketsFragment = new FolderSelectionFragment();
+                    mBucketsFragment = new SelectBackupFolderFragment();
                     return mBucketsFragment;
                 default:
                     return null;
@@ -222,7 +207,6 @@ public class FolderBackupConfigActivity extends BaseActivity {
                 return 2;
         }
     }
-
 
     @Override
     protected void onDestroy() {

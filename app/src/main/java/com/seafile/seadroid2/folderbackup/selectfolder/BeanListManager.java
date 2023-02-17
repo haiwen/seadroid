@@ -1,6 +1,5 @@
 package com.seafile.seadroid2.folderbackup.selectfolder;
 
-
 import android.app.Activity;
 import android.app.ProgressDialog;
 
@@ -20,7 +19,6 @@ import io.reactivex.rxjava3.core.Observer;
 import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.functions.Function;
 import io.reactivex.rxjava3.schedulers.Schedulers;
-
 
 public class BeanListManager {
     public static final int TypeAddTabbar = 0;
@@ -59,55 +57,52 @@ public class BeanListManager {
                 sortFileBeanList(fileBeanList, sortType);
                 return fileBeanList;
             }
-        }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(
-                new Observer<List<FileBean>>() {
-                    public ProgressDialog pg;
+        }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Observer<List<FileBean>>() {
+            public ProgressDialog pg;
 
-                    @Override
-                    public void onSubscribe(@NonNull Disposable d) {
-                        pg = new ProgressDialog(at);
-                        pg.show();
+            @Override
+            public void onSubscribe(@NonNull Disposable d) {
+                pg = new ProgressDialog(at);
+                pg.show();
+            }
 
-                    }
+            @Override
+            public void onNext(@NonNull List<FileBean> fileBeans) {
+                if (fileListAdapter != null) {
+                    fileListAdapter.updateListData(fileBeans);
+                    fileListAdapter.notifyDataSetChanged();
+                }
+            }
 
-                    @Override
-                    public void onNext(@NonNull List<FileBean> fileBeanList) {
-                        if (fileListAdapter != null) {
-                            fileListAdapter.updateListData(fileBeanList);
-                            fileListAdapter.notifyDataSetChanged();
-                        }
-                    }
+            @Override
+            public void onError(@NonNull Throwable e) {
+                pg.dismiss();
+            }
 
-                    @Override
-                    public void onError(@NonNull Throwable e) {
-                        pg.dismiss();
-                    }
-
-                    @Override
-                    public void onComplete() {
-                        pg.dismiss();
-                    }
-                });
-
+            @Override
+            public void onComplete() {
+                pg.dismiss();
+            }
+        });
     }
 
     public static void sortFileBeanList(List<FileBean> fileBeanList, int sortType) {
         Collections.sort(fileBeanList, new Comparator<FileBean>() {
             @Override
-            public int compare(FileBean o1, FileBean o2) {
+            public int compare(FileBean file1, FileBean file2) {
 
-                if (o1.isDir() && o2.isFile())
+                if (file1.isDir() && file2.isFile())
                     return -1;
-                if (o1.isFile() && o2.isDir())
+                if (file1.isFile() && file2.isDir())
                     return 1;
 
                 switch (sortType) {
                     case Constants.SORT_NAME_ASC:
-                        return o1.getFileName().compareToIgnoreCase(o2.getFileName());
+                        return file1.getFileName().compareToIgnoreCase(file2.getFileName());
                     case Constants.SORT_NAME_DESC:
-                        return o2.getFileName().compareToIgnoreCase(o1.getFileName());
+                        return file2.getFileName().compareToIgnoreCase(file1.getFileName());
                     case Constants.SORT_TIME_ASC:
-                        long diff = o1.getModifyTime() - o2.getModifyTime();
+                        long diff = file1.getModifyTime() - file2.getModifyTime();
                         if (diff > 0)
                             return 1;
                         else if (diff == 0)
@@ -115,7 +110,7 @@ public class BeanListManager {
                         else
                             return -1;
                     case Constants.SORT_TIME_DESC:
-                        diff = o2.getModifyTime() - o1.getModifyTime();
+                        diff = file2.getModifyTime() - file1.getModifyTime();
                         if (diff > 0)
                             return 1;
                         else if (diff == 0)
@@ -123,7 +118,7 @@ public class BeanListManager {
                         else
                             return -1;
                     case Constants.SORT_SIZE_ASC:
-                        diff = o1.getSimpleSize() - o2.getSimpleSize();
+                        diff = file1.getSimpleSize() - file2.getSimpleSize();
                         if (diff > 0)
                             return 1;
                         else if (diff == 0)
@@ -131,7 +126,7 @@ public class BeanListManager {
                         else
                             return -1;
                     case Constants.SORT_SIZE_DESC:
-                        diff = o2.getSimpleSize() - o1.getSimpleSize();
+                        diff = file2.getSimpleSize() - file1.getSimpleSize();
                         if (diff > 0)
                             return 1;
                         else if (diff == 0)
@@ -146,17 +141,17 @@ public class BeanListManager {
     }
 
     public static void getTabbarFileBeanList(List<TabbarFileBean> tabbarList,
-                                             String path, List<String> SdCardList) {
-        if (SdCardList.contains(path)) {
-            tabbarList.add(0, new TabbarFileBean(path, SeadroidApplication.getAppContext().getString(R.string.internal_storage)));
+                                             String path, List<String> allPathsList) {
+        if (allPathsList.contains(path)) {
+            tabbarList.add(0, new TabbarFileBean(path,
+                    SeadroidApplication.getAppContext().getString(R.string.internal_storage)));
             return;
         }
     }
 
-
     public static List<TabbarFileBean> upDataTabbarFileBeanList(List<TabbarFileBean> tabbarList,
                                                                 TabbarFileListAdapter tabbarAdapter,
-                                                                String path, int type, List<String> SdCardList) {
+                                                                String path, int type, List<String> allPathsList) {
         switch (type) {
             case TypeAddTabbar:
                 tabbarList.add(new TabbarFileBean(path));
@@ -176,17 +171,14 @@ public class BeanListManager {
                 } else {
                     tabbarList.clear();
                 }
-                getTabbarFileBeanList(tabbarList, path, SdCardList);
+                getTabbarFileBeanList(tabbarList, path, allPathsList);
                 break;
         }
-
         if (tabbarAdapter != null) {
             tabbarAdapter.updateListData(tabbarList);
             tabbarAdapter.notifyDataSetChanged();
         }
-
         return tabbarList;
     }
-
 }
 

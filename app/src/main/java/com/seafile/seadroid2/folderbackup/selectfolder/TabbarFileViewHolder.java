@@ -9,6 +9,7 @@ import com.seafile.seadroid2.R;
 
 
 public class TabbarFileViewHolder extends RecyclerView.ViewHolder {
+
     protected TextView tvName;
     protected LinearLayout llRoot;
 

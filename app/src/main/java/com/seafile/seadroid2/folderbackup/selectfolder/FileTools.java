@@ -68,7 +68,6 @@ public class FileTools {
         return file != null && file.exists() && file.isFile();
     }
 
-
     public static String getDirName(String filePath) {
         if (StringTools.isEmpty(filePath)) {
             return "";
@@ -96,7 +95,6 @@ public class FileTools {
         }
     }
 
-
     public static String getFileName(String filePath) {
         if (StringTools.isEmpty(filePath)) {
             return "";
@@ -105,7 +103,6 @@ public class FileTools {
             return lastSep == -1 ? filePath : filePath.substring(lastSep + 1);
         }
     }
-
 
     public static String getFileNameNoExtension(String filePath) {
         if (StringTools.isEmpty(filePath)) {
@@ -193,7 +190,6 @@ public class FileTools {
                     }
                 }
             }
-
             return len;
         }
     }
@@ -212,7 +208,7 @@ public class FileTools {
         }
     }
 
-    public static List<String> getAllSdPaths(Context context) {
+    public static List<String> getAllPaths(Context context) {
         Method mMethodGetPaths = null;
         String[] paths = null;
         StorageManager mStorageManager = (StorageManager) context

@@ -7,17 +7,14 @@ import java.io.Serializable;
 
 public class RepoConfig implements Serializable {
     private String email;
-
     private String repoID;
-
     private String repoName;
 
     public RepoConfig(String repoID, String repoName, String email) {
-        this.repoID=repoID;
-        this.repoName=repoName;
-        this.email=email;
+        this.repoID = repoID;
+        this.repoName = repoName;
+        this.email = email;
     }
-
 
     public void setEmail(String email) {
         this.email = email;
@@ -55,12 +52,12 @@ public class RepoConfig implements Serializable {
             return false;
 
         RepoConfig that = (RepoConfig) obj;
-        if(that.repoID == null || that.repoName == null || that.email == null) {
+        if (that.repoID == null || that.repoName == null || that.email == null) {
             return false;
         }
 
         return that.email.equals(this.email) && that.repoID.equals(this.repoID) &&
-                that.repoName.equals(this.repoName) ;
+                that.repoName.equals(this.repoName);
     }
 
     private volatile int hashCode = 0;
@@ -70,7 +67,6 @@ public class RepoConfig implements Serializable {
         if (hashCode == 0) {
             hashCode = Objects.hashCode(email, repoID, repoName);
         }
-
         return hashCode;
     }
 }
