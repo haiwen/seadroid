@@ -111,7 +111,7 @@ public final class SettingsManager {
     public static final String FOLDER_BACKUP_CATEGORY_KEY = "folder_backup_category_key";
     public static final String FOLDER_BACKUP_MODE = "folder_backup_mode";
     public static final String FOLDER_BACKUP_LIBRARY_KEY = "folder_backup_library_key";
-    public static final String SELECT_FOLDER_BACKUP_KEY = "select_folder_backup_key";
+    public static final String SELECTED_BACKUP_FOLDERS_KEY = "selected_backup_folders_key";
     public static final String FOLDER_BACKUP_STATE = "folder_backup_state";
     public static final String FOLDER_BACKUP_PATHS = "folder_backup_paths";
 

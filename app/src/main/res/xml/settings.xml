@@ -133,7 +133,7 @@
             android:summary="@string/folder_backup_select_repo_hint"
             android:title="@string/settings_folder_backup_library" />
         <Preference
-            android:key="select_folder_backup_key"
+            android:key="selected_backup_folders_key"
             android:summary="@string/settings_folder_backup_select_hint"
             android:title="@string/settings_folder_backup_select_title" />
         <Preference

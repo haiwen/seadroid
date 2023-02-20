@@ -233,7 +233,7 @@ public class BrowserActivity extends BaseActivity
         super.onCreate(savedInstanceState);
 
         accountManager = new AccountManager(this);
-        EventBus.getDefault().register(this);
+
         // restart service should it have been stopped for some reason
         Intent mediaObserver = new Intent(this, MediaObserverService.class);
         startService(mediaObserver);
@@ -847,6 +847,8 @@ public class BrowserActivity extends BaseActivity
     public void onStart() {
         Log.d(DEBUG_TAG, "onStart");
         super.onStart();
+        EventBus.getDefault().register(this);
+
         if (android.os.Build.VERSION.SDK_INT < 14
                 && SettingsManager.instance().isGestureLockRequired()) {
             Intent intent = new Intent(this, UnlockGesturePasswordActivity.class);
@@ -906,6 +908,7 @@ public class BrowserActivity extends BaseActivity
     protected void onStop() {
         Log.d(DEBUG_TAG, "onStop");
         super.onStop();
+        EventBus.getDefault().unregister(this);
 
         if (mTransferReceiver != null) {
             LocalBroadcastManager.getInstance(this).unregisterReceiver(mTransferReceiver);
@@ -915,7 +918,7 @@ public class BrowserActivity extends BaseActivity
     @Override
     protected void onDestroy() {
         Log.d(DEBUG_TAG, "onDestroy is called");
-        EventBus.getDefault().unregister(this);
+
         if (txService != null) {
             unbindService(mConnection);
             txService = null;

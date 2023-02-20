@@ -19,7 +19,6 @@ import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
-import com.seafile.seadroid2.data.CameraSyncEvent;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.folderbackup.selectfolder.FileBean;
@@ -202,8 +201,7 @@ public class FolderBackupService extends Service {
                     int taskID = txService.addTaskToUploadQue(currentAccount, repoConfig.getRepoID(),
                             repoConfig.getRepoName(), parentPath, fb.getFilePath(), false, true);
                     if (taskID != 0) {
-                        EventBus.getDefault().post(new CameraSyncEvent("backupFolder", taskID));
-                        Utils.utilsLogInfo(false, "isFolder===============" + taskID);
+                        EventBus.getDefault().post(new FolderBackupEvent(taskID + ""));
                         FolderBackupInfo dirInfo = new FolderBackupInfo(repoConfig.getRepoID(), repoConfig.getRepoName(),
                                 parentPath, fb.getFileName(), fb.getFilePath(), fb.getSimpleSize() + "");
                         fileUploaded.put(taskID + "", dirInfo);

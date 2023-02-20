@@ -30,10 +30,6 @@ import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountInfo;
 import com.seafile.seadroid2.account.AccountManager;
-import com.seafile.seadroid2.folderbackup.FolderBackupConfigActivity;
-import com.seafile.seadroid2.folderbackup.RepoConfig;
-import com.seafile.seadroid2.folderbackup.selectfolder.StringTools;
-import com.seafile.seadroid2.folderbackup.FolderBackupDBHelper;
 import com.seafile.seadroid2.cameraupload.CameraUploadConfigActivity;
 import com.seafile.seadroid2.cameraupload.CameraUploadManager;
 import com.seafile.seadroid2.cameraupload.GalleryBucketUtils;
@@ -42,6 +38,11 @@ import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.DatabaseHelper;
 import com.seafile.seadroid2.data.ServerInfo;
 import com.seafile.seadroid2.data.StorageManager;
+import com.seafile.seadroid2.folderbackup.FolderBackupConfigActivity;
+import com.seafile.seadroid2.folderbackup.FolderBackupDBHelper;
+import com.seafile.seadroid2.folderbackup.FolderBackupEvent;
+import com.seafile.seadroid2.folderbackup.RepoConfig;
+import com.seafile.seadroid2.folderbackup.selectfolder.StringTools;
 import com.seafile.seadroid2.gesturelock.LockPatternUtils;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
 import com.seafile.seadroid2.ui.activity.CreateGesturePasswordActivity;
@@ -138,7 +139,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
     public void onCreate(Bundle savedInstanceState) {
         Log.d(DEBUG_TAG, "onCreate");
         super.onCreate(savedInstanceState);
-        EventBus.getDefault().register(this);
+
         settingsMgr.registerSharedPreferencesListener(settingsListener);
         Account account = accountMgr.getCurrentAccount();
         if (!Utils.isNetworkOn()) {
@@ -156,7 +157,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        EventBus.getDefault().unregister(this);
+
         Log.d(DEBUG_TAG, "onDestroy()");
         settingsMgr.unregisterSharedPreferencesListener(settingsListener);
     }
@@ -379,7 +380,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
         // Change backup folder
         cBackupFolderMode = findPreference(SettingsManager.FOLDER_BACKUP_MODE);
         cBackupFolderRepo = findPreference(SettingsManager.FOLDER_BACKUP_LIBRARY_KEY);
-        cBackupFolderPref = findPreference(SettingsManager.SELECT_FOLDER_BACKUP_KEY);
+        cBackupFolderPref = findPreference(SettingsManager.SELECTED_BACKUP_FOLDERS_KEY);
         cBackupFolderState = findPreference(SettingsManager.FOLDER_BACKUP_STATE);
         cBackupFolderMode.setOnPreferenceClickListener(new OnPreferenceClickListener() {
             @Override
@@ -1021,17 +1022,17 @@ public class SettingsFragment extends CustomPreferenceFragment {
 
     private void showWifiDialog() {
 
-        String[]colors={"WIFI",getActivity().getString(R.string.folder_backup_mode)};
+        String[]buckModes={"WIFI",getActivity().getString(R.string.folder_backup_mode)};
         new AlertDialog.Builder(getActivity())
                 .setCancelable(false)
                 .setTitle(getActivity().getString(R.string.folder_backup_mode_title))
                 .setPositiveButton(getActivity().getString(R.string.ok), null)
-                .setSingleChoiceItems(colors, 0, new DialogInterface.OnClickListener() {
+                .setSingleChoiceItems(buckModes, 0, new DialogInterface.OnClickListener() {
 
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
 
-                        Toast.makeText(getActivity(), colors[i], Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), buckModes[i], Toast.LENGTH_SHORT).show();
                         if (i == 0) {
                             SettingsManager.instance().saveFolderBackupDataPlanAllowed(false);
                         } else {
@@ -1043,6 +1044,17 @@ public class SettingsFragment extends CustomPreferenceFragment {
 
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        EventBus.getDefault().unregister(this);
+    }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(CameraSyncEvent result) {
@@ -1053,9 +1065,12 @@ public class SettingsFragment extends CustomPreferenceFragment {
             }
             cBackupRepoState.setSummary(Utils.getUploadStateShow(getActivity()));
         }
-        if (result.getLogInfo().equals("backupFolder")) {
-            cBackupFolderState.setSummary(getActivity().getString(R.string.uploaded) + " " + result.getNum());
-        }
+
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(FolderBackupEvent result) {
+        cBackupFolderState.setSummary(getActivity().getString(R.string.uploaded) + " " + result.getBackupInfo());
     }
 
 }
