@@ -198,10 +198,9 @@ public class FolderBackupService extends Service {
                 if (fileInfo != null && !TextUtils.isEmpty(fileInfo.filePath)) {
                     Utils.utilsLogInfo(false, "===============" + fileInfo.filePath);
                 } else {
-                    int taskID = txService.addTaskToUploadQue(currentAccount, repoConfig.getRepoID(),
+                    int taskID = txService.addFolderBackupTaskToQue("FolderBackup", currentAccount, repoConfig.getRepoID(),
                             repoConfig.getRepoName(), parentPath, fb.getFilePath(), false, true);
                     if (taskID != 0) {
-                        EventBus.getDefault().post(new FolderBackupEvent(taskID + ""));
                         FolderBackupInfo dirInfo = new FolderBackupInfo(repoConfig.getRepoID(), repoConfig.getRepoName(),
                                 parentPath, fb.getFileName(), fb.getFilePath(), fb.getSimpleSize() + "");
                         fileUploaded.put(taskID + "", dirInfo);
@@ -323,6 +322,7 @@ public class FolderBackupService extends Service {
             if (uploadInfo != null) {
                 databaseHelper.saveFileBackupInfo(uploadInfo);
             }
+            EventBus.getDefault().post(new FolderBackupEvent("folderBackup"));
         }
 
     }

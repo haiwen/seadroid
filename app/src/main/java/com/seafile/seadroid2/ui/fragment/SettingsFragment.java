@@ -1070,7 +1070,9 @@ public class SettingsFragment extends CustomPreferenceFragment {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(FolderBackupEvent result) {
-        cBackupFolderState.setSummary(getActivity().getString(R.string.uploaded) + " " + result.getBackupInfo());
+        int totalBackup = SeadroidApplication.getInstance().getTotalBackup();
+        int waitingBackup = SeadroidApplication.getInstance().getWaitingBackup();
+        cBackupFolderState.setSummary(getActivity().getString(R.string.uploaded) + " " + (totalBackup - waitingBackup) + " / " + totalBackup);
     }
 
 }

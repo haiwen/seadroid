@@ -29,6 +29,8 @@ public class SeadroidApplication extends Application {
     private int totalNumber;
     private int scanUploadStatus;
     private static SeadroidApplication instance;
+    private int totalBackup;
+    private int waitingBackup;
 
     public void onCreate() {
         super.onCreate();
@@ -127,4 +129,16 @@ public class SeadroidApplication extends Application {
         return scanUploadStatus;
     }
 
+    public int getTotalBackup() {
+        return totalBackup;
+    }
+
+    public int getWaitingBackup() {
+        return waitingBackup;
+    }
+
+    public void setFolderBackupNumber(int totalBackup, int waitingBackup) {
+        this.totalBackup = totalBackup;
+        this.waitingBackup = waitingBackup;
+    }
 }
