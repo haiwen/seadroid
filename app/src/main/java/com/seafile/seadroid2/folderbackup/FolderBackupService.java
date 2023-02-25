@@ -109,7 +109,7 @@ public class FolderBackupService extends Service {
         backupPathsList = StringTools.getJsonToList(backupPaths);
         dataManager = new DataManager(currentAccount);
         for (String str : backupPathsList) {
-            FolderFileMonitor folderFileMonitor = new FolderFileMonitor();
+            FolderMonitor folderFileMonitor = new FolderMonitor();
             FileAlterationObserver folderFileObserver = new FileAlterationObserver(str);
             folderFileObserver.addListener(folderFileMonitor);
             try {
@@ -243,9 +243,9 @@ public class FolderBackupService extends Service {
 
     }
 
-    class FolderFileMonitor implements FileAlterationListener {
+    class FolderMonitor implements FileAlterationListener {
 
-        public FolderFileMonitor() {
+        public FolderMonitor() {
 
         }
 
@@ -256,8 +256,7 @@ public class FolderBackupService extends Service {
 
         @Override
         public void onDirectoryCreate(File directory) {
-            backupFile();
-
+            backupFolders();
         }
 
         @Override
@@ -272,7 +271,7 @@ public class FolderBackupService extends Service {
 
         @Override
         public void onFileCreate(File file) {
-            backupFile();
+            backupFolders();
         }
 
         @Override
@@ -291,7 +290,7 @@ public class FolderBackupService extends Service {
         }
     }
 
-    public void backupFile() {
+    public void backupFolders() {
         String backupEmail = SettingsManager.instance().getBackupEmail();
         if (backupEmail != null) {
             folderBackup(backupEmail);

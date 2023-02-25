@@ -1022,7 +1022,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
 
     private void showWifiDialog() {
 
-        String[]buckModes={"WIFI",getActivity().getString(R.string.folder_backup_mode)};
+        String[] buckModes = {"WIFI", getActivity().getString(R.string.folder_backup_mode)};
         new AlertDialog.Builder(getActivity())
                 .setCancelable(false)
                 .setTitle(getActivity().getString(R.string.folder_backup_mode_title))
