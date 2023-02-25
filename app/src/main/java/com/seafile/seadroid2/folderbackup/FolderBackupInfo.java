@@ -1,7 +1,6 @@
 package com.seafile.seadroid2.folderbackup;
 
 import com.google.common.base.Objects;
-import com.seafile.seadroid2.SettingsManager;
 
 import java.io.Serializable;
 
@@ -22,10 +21,6 @@ public class FolderBackupInfo implements Serializable {
         this.fileName = fileName;
         this.filePath = filePath;
         this.fileSize = fileSize;
-    }
-
-    public boolean canLocalDecrypt() {
-        return SettingsManager.instance().isEncryptEnabled();
     }
 
     @Override
