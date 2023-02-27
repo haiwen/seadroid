@@ -108,18 +108,24 @@ public class FolderBackupService extends Service {
         currentAccount = accountManager.getCurrentAccount();
         backupPathsList = StringTools.getJsonToList(backupPaths);
         dataManager = new DataManager(currentAccount);
+        List<FileAlterationObserver> fileAlterationObserverList = new ArrayList<>();
         for (String str : backupPathsList) {
             FolderMonitor folderFileMonitor = new FolderMonitor();
             FileAlterationObserver folderFileObserver = new FileAlterationObserver(str);
             folderFileObserver.addListener(folderFileMonitor);
             try {
-                FileAlterationMonitor fileMonitor = new FileAlterationMonitor(1000l);
-                fileMonitor.addObserver(folderFileObserver);
-                fileMonitor.start();
+                fileAlterationObserverList.add(folderFileObserver);
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
+        FileAlterationMonitor fileMonitor = new FileAlterationMonitor(1000l, fileAlterationObserverList);
+        try {
+            fileMonitor.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         if (!StringTools.checkFolderUploadNetworkAvailable()) {
             SeadroidApplication.getInstance().setScanUploadStatus(CameraSyncStatus.NETWORK_UNAVAILABLE);
             return;
