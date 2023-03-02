@@ -135,9 +135,9 @@ public class TransferService extends Service {
         return addTaskToUploadQue(account, repoID, repoName, dir, filePath, isUpdate, isCopyToLocal);
     }
 
-    public int addCameraUploadTask(String source, Account account, String repoID, String repoName, String dir,
+    public int addCameraUploadTask(Account account, String repoID, String repoName, String dir,
             String filePath, boolean isUpdate, boolean isCopyToLocal) {
-        return addTaskToSourceQue(source, account, repoID, repoName, dir, filePath, isUpdate, isCopyToLocal);
+        return addTaskToSourceQue("CameraUpload", account, repoID, repoName, dir, filePath, isUpdate, isCopyToLocal);
     }
 
     public UploadTaskInfo getUploadTaskInfo(int taskID) {
