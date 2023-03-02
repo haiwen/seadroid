@@ -44,6 +44,7 @@ public class FolderBackupConfigActivity extends BaseActivity {
     private FolderBackupService mBackupService;
     private List<String> selectFolderPaths;
     private Activity mActivity;
+    private String originalBackupPaths;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -63,10 +64,10 @@ public class FolderBackupConfigActivity extends BaseActivity {
         Intent bindIntent = new Intent(this, FolderBackupService.class);
         bindService(bindIntent, mBackupConnection, Context.BIND_AUTO_CREATE);
         mActivity = this;
-        String backupPaths = SettingsManager.instance().getBackupPaths();
+        originalBackupPaths = SettingsManager.instance().getBackupPaths();
 
-        if (isChooseFolderPage && !TextUtils.isEmpty(backupPaths)) {
-            selectFolderPaths = StringTools.getJsonToList(backupPaths);
+        if (isChooseFolderPage && !TextUtils.isEmpty(originalBackupPaths)) {
+            selectFolderPaths = StringTools.getJsonToList(originalBackupPaths);
         }
     }
 
@@ -137,6 +138,15 @@ public class FolderBackupConfigActivity extends BaseActivity {
         if (isChooseFolderPage) {
             String backupEmail = SettingsManager.instance().getBackupEmail();
             String strJsonPath = new Gson().toJson(selectFolderPaths);
+
+            if ((TextUtils.isEmpty(originalBackupPaths) && !TextUtils.isEmpty(strJsonPath)) ||
+                    !originalBackupPaths.equals(strJsonPath)) {
+                mBackupService.FolderMonitor(selectFolderPaths);
+                Utils.utilsLogInfo(false, "----------Restart monitoring FolderMonitor");
+            }
+            if (!TextUtils.isEmpty(originalBackupPaths) && TextUtils.isEmpty(strJsonPath)) {
+                mBackupService.stopFolderMonitor();
+            }
             SettingsManager.instance().saveBackupPaths(strJsonPath);
             Intent intent = new Intent();
             if (selectFolderPaths != null) {

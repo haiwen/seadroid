@@ -12,6 +12,7 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
@@ -44,6 +45,7 @@ import java.util.Map;
 
 
 public class FolderBackupService extends Service {
+    private static final String DEBUG_TAG = "FolderBackupService";
     private Map<String, FolderBackupInfo> fileUploaded = new HashMap<>();
     private final IBinder mBinder = new FileBackupBinder();
     private TransferService txService = null;
@@ -54,6 +56,7 @@ public class FolderBackupService extends Service {
     private RepoConfig repoConfig;
     private List<String> backupPathsList;
     private FolderReceiver mFolderReceiver;
+    private FileAlterationMonitor fileMonitor;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -74,6 +77,7 @@ public class FolderBackupService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+
         databaseHelper = FolderBackupDBHelper.getDatabaseHelper();
         Intent bIntent = new Intent(this, TransferService.class);
         accountManager = new AccountManager(this);
@@ -83,6 +87,41 @@ public class FolderBackupService extends Service {
         }
         IntentFilter filter = new IntentFilter(TransferManager.BROADCAST_ACTION);
         LocalBroadcastManager.getInstance(this).registerReceiver(mFolderReceiver, filter);
+        String backupPaths = SettingsManager.instance().getBackupPaths();
+        if (!TextUtils.isEmpty(backupPaths)) {
+            List<String> pathsList = StringTools.getJsonToList(backupPaths);
+            if (pathsList != null) {
+                FolderMonitor(pathsList);
+            }
+        }
+    }
+
+    public void FolderMonitor(List<String> backupPaths) {
+        List<FileAlterationObserver> fileAlterationObserverList = new ArrayList<>();
+        for (String str : backupPaths) {
+            FolderMonitor folderFileMonitor = new FolderMonitor();
+            FileAlterationObserver folderFileObserver = new FileAlterationObserver(str);
+            folderFileObserver.addListener(folderFileMonitor);
+            fileAlterationObserverList.add(folderFileObserver);
+        }
+        fileMonitor = new FileAlterationMonitor(1000l, fileAlterationObserverList);
+        try {
+            fileMonitor.start();
+        } catch (Exception e) {
+            Log.w(DEBUG_TAG, "failed to start file monitor");
+            throw new RuntimeException("failed to start file monitor");
+        }
+    }
+
+    public void stopFolderMonitor() {
+        if (fileMonitor != null) {
+            try {
+                fileMonitor.stop();
+            } catch (Exception e) {
+                Log.w(DEBUG_TAG, "failed to stop file monitor");
+                throw new RuntimeException("failed to stop file monitor");
+            }
+        }
     }
 
     public void folderBackup(String email) {
@@ -96,7 +135,6 @@ public class FolderBackupService extends Service {
             } catch (Exception e) {
                 repoConfig = null;
             }
-
         }
         String backupPaths = SettingsManager.instance().getBackupPaths();
         if (repoConfig == null || TextUtils.isEmpty(backupPaths)) {
@@ -108,24 +146,6 @@ public class FolderBackupService extends Service {
         currentAccount = accountManager.getCurrentAccount();
         backupPathsList = StringTools.getJsonToList(backupPaths);
         dataManager = new DataManager(currentAccount);
-        List<FileAlterationObserver> fileAlterationObserverList = new ArrayList<>();
-        for (String str : backupPathsList) {
-            FolderMonitor folderFileMonitor = new FolderMonitor();
-            FileAlterationObserver folderFileObserver = new FileAlterationObserver(str);
-            folderFileObserver.addListener(folderFileMonitor);
-            try {
-                fileAlterationObserverList.add(folderFileObserver);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        FileAlterationMonitor fileMonitor = new FileAlterationMonitor(1000l, fileAlterationObserverList);
-        try {
-            fileMonitor.start();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
         if (!StringTools.checkFolderUploadNetworkAvailable()) {
             SeadroidApplication.getInstance().setScanUploadStatus(CameraSyncStatus.NETWORK_UNAVAILABLE);
             return;
@@ -245,8 +265,8 @@ public class FolderBackupService extends Service {
         if (mFolderReceiver != null) {
             LocalBroadcastManager.getInstance(this).unregisterReceiver(mFolderReceiver);
         }
+        stopFolderMonitor();
         super.onDestroy();
-
     }
 
     class FolderMonitor implements FileAlterationListener {
