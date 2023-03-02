@@ -413,7 +413,9 @@ public class SettingsFragment extends CustomPreferenceFragment {
         });
 
         cBackupRepoState = findPreference(SettingsManager.CAMERA_UPLOAD_STATE);
-        cBackupRepoState.setSummary(Utils.getUploadStateShow(getActivity()));
+        if (cameraManager.isCameraUploadEnabled()) {
+            cBackupRepoState.setSummary(Utils.getUploadStateShow(getActivity()));
+        }
 
         // Contacts Upload
 //        cContactsCategory = (PreferenceCategory) findPreference(SettingsManager.CONTACTS_UPLOAD_CATEGORY_KEY);

@@ -38,7 +38,6 @@ public abstract class TransferManager {
      * contains all transfer tasks, including failed, cancelled, finished, transferring, waiting tasks.
      */
     protected Map<Integer, TransferTask> allTaskList = new HashMap<>();
-    protected Map<Integer, TransferTask> allFolderBackupList = new HashMap<>();
     /**
      * contains currently transferring tasks
      */
@@ -47,7 +46,11 @@ public abstract class TransferManager {
      * contains waiting tasks
      */
     protected List<TransferTask> waitingList = Lists.newArrayList();
-    protected List<TransferTask> waitingFolderBackupList = Lists.newArrayList();
+
+    private int folderBackupWaitingNumber;
+    private int folderBackupTotalNumber;
+    private int cameraUploadWaitingNumber;
+    private int cameraUploadTotalNumber;
 
     protected synchronized TransferTask getTask(int taskID) {
        return allTaskList.get(taskID);
@@ -100,32 +103,49 @@ public abstract class TransferManager {
 
             TransferTask task = waitingList.remove(0);
             transferringList.add(task);
-
-            waitingFolderBackupList.clear();
-            for (TransferTask waitTask : waitingList) {
-                if (waitTask.getSource().equals("FolderBackup")) {
-                    waitingFolderBackupList.add(waitTask);
-                }
-            }
-            allFolderBackupList.clear();
-            for (TransferTask allTask : allTaskList.values()) {
-                if (allTask.getSource().equals("FolderBackup")) {
-                    allFolderBackupList.put(allTask.getTaskID(), allTask);
-                }
-            }
             int scanUploadStatus = SeadroidApplication.getInstance().getScanUploadStatus();
+            getWaitingNumber();
+            getTotalNumber();
             if (scanUploadStatus > 0) {
-                SeadroidApplication.getInstance().setCameraUploadNumber(waitingList.size() - waitingFolderBackupList.size(),
-                        allTaskList.size() - allFolderBackupList.size());
+                SeadroidApplication.getInstance().setCameraUploadNumber(cameraUploadWaitingNumber, cameraUploadTotalNumber);
                 SeadroidApplication.getInstance().setScanUploadStatus(CameraSyncStatus.UPLOADING);
                 EventBus.getDefault().post(new CameraSyncEvent("upload"));
             }
-            if (SettingsManager.instance().isFolderAutomaticBackup() && allFolderBackupList.size() > 0) {
-                SeadroidApplication.getInstance().setFolderBackupNumber(allFolderBackupList.size(), waitingFolderBackupList.size());
+            if (SettingsManager.instance().isFolderAutomaticBackup()) {
+                SeadroidApplication.getInstance().setFolderBackupNumber(folderBackupTotalNumber, folderBackupWaitingNumber);
             }
 
 
             ConcurrentAsyncTask.execute(task);
+        }
+    }
+
+    public void getWaitingNumber() {
+        cameraUploadWaitingNumber = 0;
+        folderBackupWaitingNumber = 0;
+
+        for (TransferTask waitTask : waitingList) {
+            if (waitTask.getSource().equals("CameraUpload")) {
+                cameraUploadWaitingNumber++;
+            }
+            if (waitTask.getSource().equals("FolderBackup")) {
+                folderBackupWaitingNumber++;
+            }
+        }
+    }
+
+    public void getTotalNumber() {
+        cameraUploadTotalNumber = 0;
+        folderBackupTotalNumber = 0;
+
+        for (TransferTask allTask : allTaskList.values()) {
+            if (allTask.getSource().equals("CameraUpload")) {
+                cameraUploadTotalNumber++;
+            }
+            if (allTask.getSource().equals("FolderBackup")) {
+                folderBackupTotalNumber++;
+            }
+
         }
     }
 
