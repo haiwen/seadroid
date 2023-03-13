@@ -18,6 +18,7 @@ import com.seafile.seadroid2.data.BlockInfoBean;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.FileBlocks;
 import com.seafile.seadroid2.data.ProgressMonitor;
+import com.seafile.seadroid2.folderbackup.FolderBackupConfigActivity;
 import com.seafile.seadroid2.httputils.RequestManager;
 import com.seafile.seadroid2.ssl.SSLTrustManager;
 import com.seafile.seadroid2.util.Utils;
@@ -878,17 +879,22 @@ public class SeafConnection {
      * @return
      * @throws SeafException
      */
-    public String uploadFile(String repoID, String dir, String filePath, ProgressMonitor monitor, boolean update)
+    public String uploadFile(String source, String repoID, String dir, String filePath, ProgressMonitor monitor, boolean update)
             throws SeafException, IOException {
-            String url = getUploadLink(repoID, update, dir);
-            return uploadFileCommon(url, repoID, dir, filePath, monitor, update);
+        String url;
+        if (source.equals(FolderBackupConfigActivity.FOLDER_BACKUP_SOURCE)) {
+            url = getUploadLink(repoID, update, "/");
+        } else {
+            url = getUploadLink(repoID, update, dir);
+        }
+        return uploadFileCommon(source, url, repoID, dir, filePath, monitor, update);
     }
 
 
     /**
      * Upload a file to seafile httpserver
      */
-    private String uploadFileCommon(String link, String repoID, String dir,
+    private String uploadFileCommon(String source, String link, String repoID, String dir,
                                     String filePath, ProgressMonitor monitor, boolean update)
             throws SeafException, IOException {
         File file = new File(filePath);
@@ -903,7 +909,12 @@ public class SeafConnection {
             String targetFilePath = Utils.pathJoin(dir, file.getName());
             builder.addFormDataPart("target_file", targetFilePath);
         } else {
-            builder.addFormDataPart("parent_dir", dir);
+            if (source.equals(FolderBackupConfigActivity.FOLDER_BACKUP_SOURCE)) {
+                builder.addFormDataPart("parent_dir", "/");
+                builder.addFormDataPart("relative_path", dir);
+            } else {
+                builder.addFormDataPart("parent_dir", dir);
+            }
         }
 
         builder.addFormDataPart("file", file.getName(), RequestManager.getInstance(account).createProgressRequestBody(monitor, file));

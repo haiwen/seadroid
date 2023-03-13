@@ -5,7 +5,9 @@ import android.util.Log;
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SettingsManager;
+import com.seafile.seadroid2.cameraupload.CameraUploadConfigActivity;
 import com.seafile.seadroid2.data.CameraSyncEvent;
+import com.seafile.seadroid2.folderbackup.FolderBackupConfigActivity;
 import com.seafile.seadroid2.util.CameraSyncStatus;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 
@@ -125,10 +127,10 @@ public abstract class TransferManager {
         folderBackupWaitingNumber = 0;
 
         for (TransferTask waitTask : waitingList) {
-            if (waitTask.getSource().equals("CameraUpload")) {
+            if (waitTask.getSource().equals(CameraUploadConfigActivity.CAMERA_UPLOAD_SOURCE)) {
                 cameraUploadWaitingNumber++;
             }
-            if (waitTask.getSource().equals("FolderBackup")) {
+            if (waitTask.getSource().equals(FolderBackupConfigActivity.FOLDER_BACKUP_SOURCE)) {
                 folderBackupWaitingNumber++;
             }
         }
@@ -139,10 +141,10 @@ public abstract class TransferManager {
         folderBackupTotalNumber = 0;
 
         for (TransferTask allTask : allTaskList.values()) {
-            if (allTask.getSource().equals("CameraUpload")) {
+            if (allTask.getSource().equals(CameraUploadConfigActivity.CAMERA_UPLOAD_SOURCE)) {
                 cameraUploadTotalNumber++;
             }
-            if (allTask.getSource().equals("FolderBackup")) {
+            if (allTask.getSource().equals(FolderBackupConfigActivity.FOLDER_BACKUP_SOURCE)) {
                 folderBackupTotalNumber++;
             }
 

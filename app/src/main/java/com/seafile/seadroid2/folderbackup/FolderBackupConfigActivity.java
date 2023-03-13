@@ -33,6 +33,7 @@ public class FolderBackupConfigActivity extends BaseActivity {
     public static final String BACKUP_SELECT_REPO = "backup_select_repo";
     public static final String BACKUP_SELECT_PATHS = "backup_select_paths";
     public static final String BACKUP_SELECT_PATHS_SWITCH = "backup_select_paths_switch";
+    public static final String FOLDER_BACKUP_SOURCE = "folder_backup";
     private ViewPager mViewPager;
     private SelectBackupFolderFragment mBucketsFragment;
     private CloudLibraryChooserFragment mCloudLibFragment;

@@ -27,6 +27,7 @@ import java.util.List;
  */
 public class CameraUploadConfigActivity extends BaseActivity {
     public  String DEBUG_TAG = "CameraUploadConfigActivity";
+    public static final String CAMERA_UPLOAD_SOURCE = "camera_upload";
 
     private ViewPager mViewPager;
     private LinePageIndicator mIndicator;

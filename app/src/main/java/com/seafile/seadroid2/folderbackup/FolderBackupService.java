@@ -14,14 +14,11 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
-import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.data.DataManager;
-import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.folderbackup.selectfolder.FileBean;
 import com.seafile.seadroid2.folderbackup.selectfolder.FileTools;
 import com.seafile.seadroid2.folderbackup.selectfolder.StringTools;
@@ -160,12 +157,7 @@ public class FolderBackupService extends Service {
         protected String doInBackground(Void... params) {
             for (String str : backupPathsList) {
                 String[] split = str.split("/");
-                try {
-                    forceCreateDirectory(dataManager, "/", split[split.length - 1]);
-                } catch (SeafException e) {
-                    e.printStackTrace();
-                }
-                isFolder("/" + split[split.length - 1], str);
+                isFolder(split[split.length - 1] + "/", str);
             }
             return null;
         }
@@ -174,28 +166,6 @@ public class FolderBackupService extends Service {
         protected void onPostExecute(String FilePath) {
             Utils.utilsLogInfo(false, "----------" + FilePath);
         }
-    }
-
-    private void forceCreateDirectory(DataManager dataManager, String parent, String dir) throws SeafException {
-        List<SeafDirent> dirs = null;
-        if (repoConfig != null && !TextUtils.isEmpty(repoConfig.getRepoID()) && !TextUtils.isEmpty(parent)) {
-            dirs = dataManager.getDirentsFromServer(repoConfig.getRepoID(), parent);
-        }
-        boolean found = false;
-        if (dirs == null) return;
-        for (SeafDirent dirent : dirs) {
-            if (dirent.name.equals(dir) && dirent.isDir()) {
-                found = true;
-            } else if (dirent.name.equals(dir) && !dirent.isDir()) {
-                // there is already a file. move it away.
-                String newFilename = getString(R.string.camera_sync_rename_file, dirent.name);
-                dataManager.rename(repoConfig.getRepoID(),
-                        Utils.pathJoin(Utils.pathJoin("/", parent), dirent.name), newFilename, false);
-            }
-        }
-        if (!found)
-            dataManager.createNewDir(repoConfig.getRepoID(), Utils.pathJoin("/", parent), dir);
-
     }
 
     private void isFolder(String parentPath, String filePath) {
@@ -212,19 +182,17 @@ public class FolderBackupService extends Service {
         if (fileBeanList == null || fileBeanList.size() == 0) return;
         for (FileBean fb : fileBeanList) {
             if (fb.isDir()) {
-                try {
-                    forceCreateDirectory(dataManager, parentPath + "/", fb.getFileName());
-                } catch (SeafException e) {
-                    e.printStackTrace();
-                }
-                isFolder(parentPath + "/" + fb.getFileName(), fb.getFilePath());
+                isFolder(parentPath + fb.getFileName() + "/", fb.getFilePath());
             } else {
+                Utils.utilsLogInfo(false, "=relative_path==============" + parentPath + "--------" + fb.getFilePath());
+
                 FolderBackupInfo fileInfo = databaseHelper.getBackupFileInfo(repoConfig.getRepoID(),
                         fb.getFilePath(), fb.getSimpleSize() + "");
                 if (fileInfo != null && !TextUtils.isEmpty(fileInfo.filePath)) {
                     Utils.utilsLogInfo(false, "===============" + fileInfo.filePath);
                 } else {
-                    int taskID = txService.addTaskToSourceQue("FolderBackup", currentAccount, repoConfig.getRepoID(),
+
+                    int taskID = txService.addTaskToSourceQue(FolderBackupConfigActivity.FOLDER_BACKUP_SOURCE, currentAccount, repoConfig.getRepoID(),
                             repoConfig.getRepoName(), parentPath, fb.getFilePath(), false, true);
                     if (taskID != 0) {
                         FolderBackupInfo dirInfo = new FolderBackupInfo(repoConfig.getRepoID(), repoConfig.getRepoName(),
