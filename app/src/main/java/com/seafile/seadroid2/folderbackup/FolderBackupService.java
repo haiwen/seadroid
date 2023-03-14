@@ -88,16 +88,18 @@ public class FolderBackupService extends Service {
         if (!TextUtils.isEmpty(backupPaths)) {
             List<String> pathsList = StringTools.getJsonToList(backupPaths);
             if (pathsList != null) {
-                FolderMonitor(pathsList);
+                startFolderMonitor(pathsList);
             }
         }
     }
 
-    public void FolderMonitor(List<String> backupPaths) {
+    public void startFolderMonitor(List<String> backupPaths) {
         List<FileAlterationObserver> fileAlterationObserverList = new ArrayList<>();
+        FolderMonitor folderFileMonitor;
+        FileAlterationObserver folderFileObserver;
         for (String str : backupPaths) {
-            FolderMonitor folderFileMonitor = new FolderMonitor();
-            FileAlterationObserver folderFileObserver = new FileAlterationObserver(str);
+            folderFileMonitor = new FolderMonitor();
+            folderFileObserver = new FileAlterationObserver(str);
             folderFileObserver.addListener(folderFileMonitor);
             fileAlterationObserverList.add(folderFileObserver);
         }

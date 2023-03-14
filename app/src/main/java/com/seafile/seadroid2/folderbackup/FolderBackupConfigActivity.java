@@ -142,7 +142,7 @@ public class FolderBackupConfigActivity extends BaseActivity {
 
             if ((TextUtils.isEmpty(originalBackupPaths) && !TextUtils.isEmpty(strJsonPath)) ||
                     !originalBackupPaths.equals(strJsonPath)) {
-                mBackupService.FolderMonitor(selectFolderPaths);
+                mBackupService.startFolderMonitor(selectFolderPaths);
                 Utils.utilsLogInfo(false, "----------Restart monitoring FolderMonitor");
             }
             if (!TextUtils.isEmpty(originalBackupPaths) && TextUtils.isEmpty(strJsonPath)) {
