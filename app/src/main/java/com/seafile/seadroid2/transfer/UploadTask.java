@@ -10,7 +10,6 @@ import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.ProgressMonitor;
-import com.seafile.seadroid2.folderbackup.FolderBackupConfigActivity;
 import com.seafile.seadroid2.util.Utils;
 
 import java.io.File;
@@ -95,11 +94,7 @@ public class UploadTask extends TransferTask {
             if (byBlock) {
                 dataManager.uploadByBlocks(repoName, repoID, dir, path, monitor, isUpdate, isCopyToLocal);
             } else {
-                if (source.equals(FolderBackupConfigActivity.FOLDER_BACKUP_SOURCE)) {
-                    dataManager.backupFolder(source, repoName, repoID, dir, path, monitor, isUpdate, isCopyToLocal);
-                } else {
-                    dataManager.uploadFile(repoName, repoID, dir, path, monitor, isUpdate, isCopyToLocal);
-                }
+                dataManager.uploadFile(repoName, repoID, dir, path, monitor, isUpdate, isCopyToLocal);
             }
 
         } catch (SeafException e) {

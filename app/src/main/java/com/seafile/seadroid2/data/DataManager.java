@@ -705,18 +705,13 @@ public class DataManager {
 
     public void uploadFile(String repoName, String repoID, String dir, String filePath,
                            ProgressMonitor monitor, boolean isUpdate, boolean isCopyToLocal) throws SeafException, IOException {
-        uploadFileCommon("", repoName, repoID, dir, filePath, monitor, isUpdate, isCopyToLocal);
+        uploadFileCommon(repoName, repoID, dir, filePath, monitor, isUpdate, isCopyToLocal);
     }
 
-    public void backupFolder(String source, String repoName, String repoID, String dir, String filePath,
-                             ProgressMonitor monitor, boolean isUpdate, boolean isCopyToLocal) throws SeafException, IOException {
-        uploadFileCommon(source, repoName, repoID, dir, filePath, monitor, isUpdate, isCopyToLocal);
-    }
-
-    private void uploadFileCommon(String source, String repoName, String repoID, String dir,
+    private void uploadFileCommon(String repoName, String repoID, String dir,
                                   String filePath, ProgressMonitor monitor,
                                   boolean isUpdate, boolean isCopyToLocal) throws SeafException, IOException {
-        String newFileID  = sc.uploadFile(source, repoID, dir, filePath, monitor,isUpdate);
+        String newFileID  = sc.uploadFile(repoID, dir, filePath, monitor,isUpdate);
         if (newFileID == null || newFileID.length() == 0) {
             return;
         }
