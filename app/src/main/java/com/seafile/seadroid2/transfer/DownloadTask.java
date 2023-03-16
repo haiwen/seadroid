@@ -25,7 +25,7 @@ public class DownloadTask extends TransferTask {
 
     public DownloadTask(int taskID, Account account, String repoName, String repoID, String path,
                         DownloadStateListener downloadStateListener) {
-        super(taskID, account, repoName, repoID, path);
+        super("", taskID, account, repoName, repoID, path);
         this.downloadStateListener = downloadStateListener;
     }
 

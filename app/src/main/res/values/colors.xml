@@ -32,4 +32,8 @@
     <color name="blue_bg">#FF303030</color>
     <color name="pale_yellow">#DFA788</color>
 
+    <color name="file_bottom_line">#ECECEC</color>
+    <color name="file_picker_title">#4A4A4A</color>
+    <color name="file_picker_des">#86848B</color>
+
 </resources>

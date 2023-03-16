@@ -286,6 +286,9 @@ public class DataManager {
      * @param path
      */
     public File getLocalRepoFile(String repoName, String repoID, String path) throws RuntimeException {
+        if (TextUtils.isEmpty(repoID)) {
+            return null;
+        }
         String repoDir = getRepoDir(repoName, repoID);
         if (TextUtils.isEmpty(repoDir)) {
             return null;

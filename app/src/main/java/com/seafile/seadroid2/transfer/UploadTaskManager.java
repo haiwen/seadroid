@@ -25,12 +25,12 @@ public class UploadTaskManager extends TransferManager implements UploadStateLis
     private static UploadNotificationProvider mNotifyProvider;
 
 
-    public int addTaskToQue(Account account, String repoID, String repoName, String dir, String filePath, boolean isUpdate, boolean isCopyToLocal, boolean byBlock) {
+    public int addTaskToQue(String source, Account account, String repoID, String repoName, String dir, String filePath, boolean isUpdate, boolean isCopyToLocal, boolean byBlock) {
         if (repoID == null || repoName == null)
             return 0;
 
         // create a new one to avoid IllegalStateException
-        UploadTask task = new UploadTask(++notificationID, account, repoID, repoName, dir, filePath, isUpdate, isCopyToLocal, byBlock, this);
+        UploadTask task = new UploadTask(source, ++notificationID, account, repoID, repoName, dir, filePath, isUpdate, isCopyToLocal, byBlock, this);
         addTaskToQue(task);
         return task.getTaskID();
     }
@@ -54,7 +54,7 @@ public class UploadTaskManager extends TransferManager implements UploadStateLis
         UploadTask task = (UploadTask) getTask(taskID);
         if (task == null || !task.canRetry())
             return;
-        addTaskToQue(task.getAccount(), task.getRepoID(), task.getRepoName(), task.getDir(), task.getPath(), task.isUpdate(), task.isCopyToLocal(),false);
+        addTaskToQue(task.getSource(), task.getAccount(), task.getRepoID(), task.getRepoName(), task.getDir(), task.getPath(), task.isUpdate(), task.isCopyToLocal(),false);
     }
 
     private void notifyProgress(int taskID) {

@@ -4,9 +4,11 @@ import android.util.Log;
 
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.SeadroidApplication;
+import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.data.CameraSyncEvent;
 import com.seafile.seadroid2.util.CameraSyncStatus;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
+import com.seafile.seadroid2.util.Utils;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -45,6 +47,11 @@ public abstract class TransferManager {
      * contains waiting tasks
      */
     protected List<TransferTask> waitingList = Lists.newArrayList();
+
+    private int folderBackupWaitingNumber;
+    private int folderBackupTotalNumber;
+    private int cameraUploadWaitingNumber;
+    private int cameraUploadTotalNumber;
 
     protected synchronized TransferTask getTask(int taskID) {
        return allTaskList.get(taskID);
@@ -97,10 +104,49 @@ public abstract class TransferManager {
 
             TransferTask task = waitingList.remove(0);
             transferringList.add(task);
-            SeadroidApplication.getInstance().setCameraUploadNumber(waitingList.size(), allTaskList.size());
-            SeadroidApplication.getInstance().setScanUploadStatus(CameraSyncStatus.UPLOADING);
-            EventBus.getDefault().post(new CameraSyncEvent("upload"));
+            int scanUploadStatus = SeadroidApplication.getInstance().getScanUploadStatus();
+            getWaitingNumber();
+            getTotalNumber();
+            if (scanUploadStatus > 0) {
+                SeadroidApplication.getInstance().setCameraUploadNumber(cameraUploadWaitingNumber, cameraUploadTotalNumber);
+                SeadroidApplication.getInstance().setScanUploadStatus(CameraSyncStatus.UPLOADING);
+                EventBus.getDefault().post(new CameraSyncEvent("upload"));
+            }
+            if (SettingsManager.instance().isFolderAutomaticBackup()) {
+                SeadroidApplication.getInstance().setFolderBackupNumber(folderBackupTotalNumber, folderBackupWaitingNumber);
+            }
+
+
             ConcurrentAsyncTask.execute(task);
+        }
+    }
+
+    public void getWaitingNumber() {
+        cameraUploadWaitingNumber = 0;
+        folderBackupWaitingNumber = 0;
+
+        for (TransferTask waitTask : waitingList) {
+            if (waitTask.getSource().equals(Utils.TRANSFER_PHOTO_TAG)) {
+                cameraUploadWaitingNumber++;
+            }
+            if (waitTask.getSource().equals(Utils.TRANSFER_FOLDER_TAG)) {
+                folderBackupWaitingNumber++;
+            }
+        }
+    }
+
+    public void getTotalNumber() {
+        cameraUploadTotalNumber = 0;
+        folderBackupTotalNumber = 0;
+
+        for (TransferTask allTask : allTaskList.values()) {
+            if (allTask.getSource().equals(Utils.TRANSFER_PHOTO_TAG)) {
+                cameraUploadTotalNumber++;
+            }
+            if (allTask.getSource().equals(Utils.TRANSFER_FOLDER_TAG)) {
+                folderBackupTotalNumber++;
+            }
+
         }
     }
 

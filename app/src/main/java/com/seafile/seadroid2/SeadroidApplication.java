@@ -18,6 +18,7 @@ import com.seafile.seadroid2.avatar.AuthImageDownloader;
 import com.seafile.seadroid2.data.StorageManager;
 import com.seafile.seadroid2.gesturelock.AppLockManager;
 import com.seafile.seadroid2.ui.CustomNotificationBuilder;
+import com.seafile.seadroid2.util.CrashHandler;
 import com.seafile.seadroid2.util.Utils;
 
 import java.io.File;
@@ -28,6 +29,8 @@ public class SeadroidApplication extends Application {
     private int totalNumber;
     private int scanUploadStatus;
     private static SeadroidApplication instance;
+    private int totalBackup;
+    private int waitingBackup;
 
     public void onCreate() {
         super.onCreate();
@@ -40,7 +43,8 @@ public class SeadroidApplication extends Application {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             initNotificationChannel();
         }
-
+        CrashHandler crashHandler = CrashHandler.getInstance();
+        crashHandler.init(this);
         Utils.logPhoneModelInfo();
     }
 
@@ -125,4 +129,16 @@ public class SeadroidApplication extends Application {
         return scanUploadStatus;
     }
 
+    public int getTotalBackup() {
+        return totalBackup;
+    }
+
+    public int getWaitingBackup() {
+        return waitingBackup;
+    }
+
+    public void setFolderBackupNumber(int totalBackup, int waitingBackup) {
+        this.totalBackup = totalBackup;
+        this.waitingBackup = waitingBackup;
+    }
 }

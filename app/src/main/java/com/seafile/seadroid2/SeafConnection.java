@@ -880,8 +880,8 @@ public class SeafConnection {
      */
     public String uploadFile(String repoID, String dir, String filePath, ProgressMonitor monitor, boolean update)
             throws SeafException, IOException {
-            String url = getUploadLink(repoID, update, dir);
-            return uploadFileCommon(url, repoID, dir, filePath, monitor, update);
+        String url = getUploadLink(repoID, update, "/");
+        return uploadFileCommon(url, repoID, dir, filePath, monitor, update);
     }
 
 
@@ -903,7 +903,12 @@ public class SeafConnection {
             String targetFilePath = Utils.pathJoin(dir, file.getName());
             builder.addFormDataPart("target_file", targetFilePath);
         } else {
-            builder.addFormDataPart("parent_dir", dir);
+            builder.addFormDataPart("parent_dir", "/");
+            if (dir.charAt(0) == '/') {
+                dir = dir.substring(1);
+                dir = dir + "/";
+            }
+            builder.addFormDataPart("relative_path", dir);
         }
 
         builder.addFormDataPart("file", file.getName(), RequestManager.getInstance(account).createProgressRequestBody(monitor, file));

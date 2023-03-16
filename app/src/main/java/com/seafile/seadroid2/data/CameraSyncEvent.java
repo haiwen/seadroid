@@ -7,7 +7,6 @@ public class CameraSyncEvent {
         this.logInfo = logInfo;
     }
 
-
     public String getLogInfo() {
         return logInfo;
     }

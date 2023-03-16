@@ -31,6 +31,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -46,6 +47,8 @@ import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
+import com.seafile.seadroid2.folderbackup.FolderBackupService;
+import com.seafile.seadroid2.folderbackup.FolderBackupService.FileBackupBinder;
 import com.seafile.seadroid2.cameraupload.CameraUploadManager;
 import com.seafile.seadroid2.cameraupload.MediaObserverService;
 import com.seafile.seadroid2.data.CheckUploadServiceEvent;
@@ -158,6 +161,7 @@ public class BrowserActivity extends BaseActivity
 
     private DataManager dataManager = null;
     private TransferService txService = null;
+    private FolderBackupService mFolderBackupService = null;
     private TransferReceiver mTransferReceiver;
     private AccountManager accountManager;
     private int currentPosition = 0;
@@ -229,10 +233,18 @@ public class BrowserActivity extends BaseActivity
         super.onCreate(savedInstanceState);
 
         accountManager = new AccountManager(this);
-        EventBus.getDefault().register(this);
+
         // restart service should it have been stopped for some reason
         Intent mediaObserver = new Intent(this, MediaObserverService.class);
         startService(mediaObserver);
+
+        Intent dIntent = new Intent(this, FolderBackupService.class);
+        startService(dIntent);
+        Log.d(DEBUG_TAG, "----start FolderBackupService");
+
+        Intent dirIntent = new Intent(this, FolderBackupService.class);
+        bindService(dirIntent, folderBackupConnection, Context.BIND_AUTO_CREATE);
+        Log.d(DEBUG_TAG, "----try bind FolderBackupService");
 
         if (!isTaskRoot()) {
             final Intent intent = getIntent();
@@ -812,10 +824,31 @@ public class BrowserActivity extends BaseActivity
         }
     };
 
+    ServiceConnection folderBackupConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            FileBackupBinder binder = (FileBackupBinder) service;
+            mFolderBackupService = binder.getService();
+            Log.d(DEBUG_TAG, "-----bind FolderBackupService");
+            boolean dirAutomaticUpload = SettingsManager.instance().isFolderAutomaticBackup();
+            String backupEmail = SettingsManager.instance().getBackupEmail();
+            if (dirAutomaticUpload && mFolderBackupService != null && !TextUtils.isEmpty(backupEmail)) {
+                mFolderBackupService.folderBackup(backupEmail);
+            }
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            mFolderBackupService = null;
+        }
+    };
+
     @Override
     public void onStart() {
         Log.d(DEBUG_TAG, "onStart");
         super.onStart();
+        EventBus.getDefault().register(this);
+
         if (android.os.Build.VERSION.SDK_INT < 14
                 && SettingsManager.instance().isGestureLockRequired()) {
             Intent intent = new Intent(this, UnlockGesturePasswordActivity.class);
@@ -875,6 +908,7 @@ public class BrowserActivity extends BaseActivity
     protected void onStop() {
         Log.d(DEBUG_TAG, "onStop");
         super.onStop();
+        EventBus.getDefault().unregister(this);
 
         if (mTransferReceiver != null) {
             LocalBroadcastManager.getInstance(this).unregisterReceiver(mTransferReceiver);
@@ -884,10 +918,14 @@ public class BrowserActivity extends BaseActivity
     @Override
     protected void onDestroy() {
         Log.d(DEBUG_TAG, "onDestroy is called");
-        EventBus.getDefault().unregister(this);
+
         if (txService != null) {
             unbindService(mConnection);
             txService = null;
+        }
+        if (mFolderBackupService != null) {
+            unbindService(folderBackupConnection);
+            mFolderBackupService = null;
         }
         super.onDestroy();
     }
@@ -2453,6 +2491,12 @@ public class BrowserActivity extends BaseActivity
             monitorIntent = new Intent(this, FileMonitorService.class);
             startService(monitorIntent);
             Log.d(DEBUG_TAG, "FileMonitorService============false ");
+        }
+
+        if (!Utils.isServiceRunning(BrowserActivity.this, "com.seafile.seadroid2.folderbackup.FolderBackupService")) {
+            monitorIntent = new Intent(this, FolderBackupService.class);
+            startService(monitorIntent);
+            Log.d(DEBUG_TAG, "FolderBackupService============false ");
         }
 
     }

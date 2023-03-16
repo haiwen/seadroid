@@ -28,14 +28,15 @@ public class UploadTask extends TransferTask {
     private boolean isCopyToLocal; // false to turn off copy operation
     private boolean byBlock;
     private UploadStateListener uploadStateListener;
+    private String source;
 
     private DataManager dataManager;
     public static final int HTTP_ABOVE_QUOTA = 443;
 
-    public UploadTask(int taskID, Account account, String repoID, String repoName,
+    public UploadTask(String source, int taskID, Account account, String repoID, String repoName,
                       String dir, String filePath, boolean isUpdate, boolean isCopyToLocal, boolean byBlock,
                       UploadStateListener uploadStateListener) {
-        super(taskID, account, repoName, repoID, filePath);
+        super(source, taskID, account, repoName, repoID, filePath);
         this.dir = dir;
         this.isUpdate = isUpdate;
         this.isCopyToLocal = isCopyToLocal;
@@ -44,6 +45,7 @@ public class UploadTask extends TransferTask {
         this.totalSize = new File(filePath).length();
         this.finished = 0;
         this.dataManager = new DataManager(account);
+        this.source = source;
     }
 
     public UploadTaskInfo getTaskInfo() {
