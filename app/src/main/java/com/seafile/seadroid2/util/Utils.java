@@ -89,6 +89,8 @@ public class Utils {
     // public static final String NOGROUP = "$nogroup";
     public static final String PERSONAL_REPO = "personal_repo";
     public static final String SHARED_REPO = "shared_repo";
+    public static final String TRANSFER_PHOTO_TAG = "camera_upload";
+    public static final String TRANSFER_FOLDER_TAG = "folder_backup";
     private static final String DEBUG_TAG = "Utils";
     private static final String HIDDEN_PREFIX = ".";
     private static HashMap<String, Integer> suffixIconMap = null;

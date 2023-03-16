@@ -5,10 +5,11 @@ import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
+
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.cameraupload.CameraUploadConfigActivity;
 import com.seafile.seadroid2.notification.DownloadNotificationProvider;
 import com.seafile.seadroid2.notification.UploadNotificationProvider;
+import com.seafile.seadroid2.util.Utils;
 
 import java.util.List;
 
@@ -138,7 +139,7 @@ public class TransferService extends Service {
 
     public int addCameraUploadTask(Account account, String repoID, String repoName, String dir,
             String filePath, boolean isUpdate, boolean isCopyToLocal) {
-        return addTaskToSourceQue(CameraUploadConfigActivity.CAMERA_UPLOAD_SOURCE, account, repoID, repoName, dir, filePath, isUpdate, isCopyToLocal);
+        return addTaskToSourceQue(Utils.TRANSFER_PHOTO_TAG, account, repoID, repoName, dir, filePath, isUpdate, isCopyToLocal);
     }
 
     public UploadTaskInfo getUploadTaskInfo(int taskID) {

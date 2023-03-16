@@ -194,7 +194,7 @@ public class FolderBackupService extends Service {
                     Utils.utilsLogInfo(false, "===============" + fileInfo.filePath);
                 } else {
 
-                    int taskID = txService.addTaskToSourceQue(FolderBackupConfigActivity.FOLDER_BACKUP_SOURCE, currentAccount, repoConfig.getRepoID(),
+                    int taskID = txService.addTaskToSourceQue(Utils.TRANSFER_FOLDER_TAG, currentAccount, repoConfig.getRepoID(),
                             repoConfig.getRepoName(), parentPath, fb.getFilePath(), false, true);
                     if (taskID != 0) {
                         FolderBackupInfo dirInfo = new FolderBackupInfo(repoConfig.getRepoID(), repoConfig.getRepoName(),
