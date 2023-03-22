@@ -52,7 +52,7 @@ public class FolderBackupService extends Service {
     private Account currentAccount;
     private RepoConfig repoConfig;
     private List<String> backupPathsList;
-    private FolderReceiver mFolderReceiver;
+    private FolderBackupReceiver mFolderBackupReceiver;
     private FileAlterationMonitor fileMonitor;
 
     @Override
@@ -77,13 +77,17 @@ public class FolderBackupService extends Service {
 
         databaseHelper = FolderBackupDBHelper.getDatabaseHelper();
         Intent bIntent = new Intent(this, TransferService.class);
+
         accountManager = new AccountManager(this);
         bindService(bIntent, mConnection, Context.BIND_AUTO_CREATE);
-        if (mFolderReceiver == null) {
-            mFolderReceiver = new FolderReceiver();
+
+        if (mFolderBackupReceiver == null) {
+            mFolderBackupReceiver = new FolderBackupReceiver();
         }
+
         IntentFilter filter = new IntentFilter(TransferManager.BROADCAST_ACTION);
-        LocalBroadcastManager.getInstance(this).registerReceiver(mFolderReceiver, filter);
+        LocalBroadcastManager.getInstance(this).registerReceiver(mFolderBackupReceiver, filter);
+
         String backupPaths = SettingsManager.instance().getBackupPaths();
         if (!TextUtils.isEmpty(backupPaths)) {
             List<String> pathsList = StringTools.getJsonToList(backupPaths);
@@ -95,15 +99,14 @@ public class FolderBackupService extends Service {
 
     public void startFolderMonitor(List<String> backupPaths) {
         List<FileAlterationObserver> fileAlterationObserverList = new ArrayList<>();
-        FolderMonitor folderFileMonitor;
-        FileAlterationObserver folderFileObserver;
+
         for (String str : backupPaths) {
-            folderFileMonitor = new FolderMonitor();
-            folderFileObserver = new FileAlterationObserver(str);
-            folderFileObserver.addListener(folderFileMonitor);
+            FileAlterationObserver folderFileObserver = new FileAlterationObserver(str);
+            folderFileObserver.addListener(new FolderMonitor());
             fileAlterationObserverList.add(folderFileObserver);
         }
-        fileMonitor = new FileAlterationMonitor(1000l, fileAlterationObserverList);
+
+        fileMonitor = new FileAlterationMonitor(1000L, fileAlterationObserverList);
         try {
             fileMonitor.start();
         } catch (Exception e) {
@@ -123,11 +126,12 @@ public class FolderBackupService extends Service {
         }
     }
 
-    public void folderBackup(String email) {
+    public void backupFolder(String email) {
         fileUploaded.clear();
         if (databaseHelper == null) {
             databaseHelper = FolderBackupDBHelper.getDatabaseHelper();
         }
+
         if (!TextUtils.isEmpty(email)) {
             try {
                 repoConfig = databaseHelper.getRepoConfig(email);
@@ -135,6 +139,7 @@ public class FolderBackupService extends Service {
                 repoConfig = null;
             }
         }
+
         String backupPaths = SettingsManager.instance().getBackupPaths();
         if (repoConfig == null || TextUtils.isEmpty(backupPaths)) {
             return;
@@ -149,17 +154,17 @@ public class FolderBackupService extends Service {
             SeadroidApplication.getInstance().setScanUploadStatus(CameraSyncStatus.NETWORK_UNAVAILABLE);
             return;
         }
-        ConcurrentAsyncTask.execute(new backupFolderTask());
+        ConcurrentAsyncTask.execute(new FolderBackupTask());
 
     }
 
-    class backupFolderTask extends AsyncTask<Void, Void, String> {
+    private class FolderBackupTask extends AsyncTask<Void, Void, String> {
 
         @Override
         protected String doInBackground(Void... params) {
             for (String str : backupPathsList) {
                 String[] split = str.split("/");
-                isFolder(split[split.length - 1] + "/", str);
+                startBackupFolder(split[split.length - 1] + "/", str);
             }
             return null;
         }
@@ -170,21 +175,21 @@ public class FolderBackupService extends Service {
         }
     }
 
-    private void isFolder(String parentPath, String filePath) {
+    private void startBackupFolder(String parentPath, String filePath) {
         List<FileBean> fileBeanList = new ArrayList<>();
         FileBean fileBean;
         File file = FileTools.getFileByPath(filePath);
         File[] files = file.listFiles();
         if (files != null) {
-            for (int i = 0; i < files.length; i++) {
-                fileBean = new FileBean(files[i].getAbsolutePath());
+            for (File value : files) {
+                fileBean = new FileBean(value.getAbsolutePath());
                 fileBeanList.add(fileBean);
             }
         }
-        if (fileBeanList == null || fileBeanList.size() == 0) return;
+        if (fileBeanList.size() == 0) return;
         for (FileBean fb : fileBeanList) {
             if (fb.isDir()) {
-                isFolder(parentPath + fb.getFileName() + "/", fb.getFilePath());
+                startBackupFolder(parentPath + fb.getFileName() + "/", fb.getFilePath());
             } else {
                 Utils.utilsLogInfo(false, "=relative_path==============" + parentPath + "--------" + fb.getFilePath());
 
@@ -208,7 +213,7 @@ public class FolderBackupService extends Service {
 
     }
 
-    ServiceConnection mConnection = new ServiceConnection() {
+    private final ServiceConnection mConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
             TransferService.TransferBinder binder = (TransferService.TransferBinder) service;
@@ -225,15 +230,14 @@ public class FolderBackupService extends Service {
         }
     };
 
-
     @Override
     public void onDestroy() {
         if (txService != null) {
             unbindService(mConnection);
             txService = null;
         }
-        if (mFolderReceiver != null) {
-            LocalBroadcastManager.getInstance(this).unregisterReceiver(mFolderReceiver);
+        if (mFolderBackupReceiver != null) {
+            LocalBroadcastManager.getInstance(this).unregisterReceiver(mFolderBackupReceiver);
         }
         stopFolderMonitor();
         super.onDestroy();
@@ -257,7 +261,7 @@ public class FolderBackupService extends Service {
 
         @Override
         public void onDirectoryChange(File directory) {
-
+            backupFolders();
         }
 
         @Override
@@ -272,7 +276,7 @@ public class FolderBackupService extends Service {
 
         @Override
         public void onFileChange(File file) {
-
+            backupFolders();
         }
 
         @Override
@@ -289,23 +293,22 @@ public class FolderBackupService extends Service {
     public void backupFolders() {
         String backupEmail = SettingsManager.instance().getBackupEmail();
         if (backupEmail != null) {
-            folderBackup(backupEmail);
+            backupFolder(backupEmail);
         }
     }
 
-    private class FolderReceiver extends BroadcastReceiver {
+    private class FolderBackupReceiver extends BroadcastReceiver {
 
-        private FolderReceiver() {
+        private FolderBackupReceiver() {
         }
 
         public void onReceive(Context context, Intent intent) {
             String type = intent.getStringExtra("type");
-            if (type.equals(UploadTaskManager.BROADCAST_FILE_UPLOAD_SUCCESS)) {
+            if (TextUtils.equals(UploadTaskManager.BROADCAST_FILE_UPLOAD_SUCCESS, type)) {
                 int taskID = intent.getIntExtra("taskID", 0);
                 onFileBackedUp(taskID);
             }
         }
-
     }
 
     private void onFileBackedUp(int taskID) {
@@ -319,7 +322,6 @@ public class FolderBackupService extends Service {
             }
             EventBus.getDefault().post(new FolderBackupEvent("folderBackup"));
         }
-
     }
 
 }

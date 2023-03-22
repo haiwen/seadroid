@@ -1,7 +1,7 @@
 package com.seafile.seadroid2.folderbackup.selectfolder;
 
 
-public class TabbarFileBean {
+public class TabBarFileBean {
 
     private String filePath;
     private String fileName;
@@ -9,7 +9,7 @@ public class TabbarFileBean {
     private String parentPath;
     private String parentName;
 
-    public TabbarFileBean(String filePath) {
+    public TabBarFileBean(String filePath) {
         this.filePath = filePath;
         fileName = FileTools.getFileName(filePath);
         fileNameNoExtension = FileTools.getFileNameNoExtension(filePath);
@@ -17,7 +17,7 @@ public class TabbarFileBean {
         parentName = FileTools.getDirName(filePath);
     }
 
-    public TabbarFileBean(String filePath, String fileName) {
+    public TabBarFileBean(String filePath, String fileName) {
         this.filePath = filePath;
         this.fileName = fileName;
         fileNameNoExtension = fileName;

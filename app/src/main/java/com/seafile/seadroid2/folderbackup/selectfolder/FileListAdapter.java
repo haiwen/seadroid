@@ -58,7 +58,7 @@ public class FileListAdapter extends RecyclerView.Adapter<FileListViewHolder> {
             @Override
             public void onClick(View v) {
                 if (onItemClickListener != null) {
-                    onItemClickListener.checkBoxClick(holder.checkBoxFile, holder.getAdapterPosition());
+                    onItemClickListener.onCheckBoxClick(holder.checkBoxFile, holder.getAdapterPosition());
                 }
             }
         });
@@ -67,7 +67,7 @@ public class FileListAdapter extends RecyclerView.Adapter<FileListViewHolder> {
             @Override
             public void onClick(View v) {
                 if (onItemClickListener != null) {
-                    onItemClickListener.itemClick(holder.getAdapterPosition());
+                    onItemClickListener.onItemClick(holder.getAdapterPosition());
                 }
             }
         });

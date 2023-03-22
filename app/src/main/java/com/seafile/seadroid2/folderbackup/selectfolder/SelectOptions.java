@@ -113,7 +113,7 @@ public class SelectOptions {
 
     public interface onToolbarListener {
         void onClick(View view, String currentPath, List<FileBean> fileBeanList,
-                     List<String> callBackData, TabbarFileListAdapter tabbarAdapter,
+                     List<String> callBackData, TabBarFileListAdapter tabbarAdapter,
                      FileListAdapter fileAdapter, List<FileBean> callBackFileBeanList);
     }
 }

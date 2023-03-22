@@ -833,7 +833,7 @@ public class BrowserActivity extends BaseActivity
             boolean dirAutomaticUpload = SettingsManager.instance().isFolderAutomaticBackup();
             String backupEmail = SettingsManager.instance().getBackupEmail();
             if (dirAutomaticUpload && mFolderBackupService != null && !TextUtils.isEmpty(backupEmail)) {
-                mFolderBackupService.folderBackup(backupEmail);
+                mFolderBackupService.backupFolder(backupEmail);
             }
         }
 

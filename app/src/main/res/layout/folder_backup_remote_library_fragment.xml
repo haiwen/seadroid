@@ -1,37 +1,38 @@
-<RelativeLayout android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                xmlns:android="http://schemas.android.com/apk/res/android">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
 
     <TextView
-            android:id="@+id/cuc_remote_library_title_tv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentTop="true"
-            android:layout_marginLeft="@dimen/tv_title_margin_left"
-            android:layout_marginTop="@dimen/tv_title_margin_top"
-            android:text="@string/settings_cuc_remote_lib_title"
-            android:textColor="@color/fancy_orange"
-            android:textSize="@dimen/tv_title_txt_size"/>
+        android:id="@+id/cuc_remote_library_title_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="@dimen/tv_title_margin_left"
+        android:layout_marginTop="@dimen/tv_title_margin_top"
+        android:text="@string/settings_cuc_remote_lib_title"
+        android:textColor="@color/fancy_orange"
+        android:textSize="@dimen/tv_title_txt_size" />
 
     <RelativeLayout
-            android:id="@+id/cuc_remote_library_list_container"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentRight="true"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"
-            android:layout_marginTop="@dimen/section_margin_top"
-            android:layout_marginBottom="5dp"
-            android:layout_above="@+id/cuc_remote_library_btn"
-            android:layout_below="@+id/cuc_remote_library_title_tv">
+        android:id="@+id/cuc_remote_library_list_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/cuc_remote_library_btn"
+        android:layout_below="@+id/cuc_remote_library_title_tv"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="@dimen/section_margin_top"
+        android:layout_marginRight="20dp"
+        android:layout_marginBottom="5dp">
+
         <RelativeLayout
             android:id="@+id/cuc_multi_selection_up_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="?android:selectableItemBackground"
-            android:layout_alignParentTop="true">
+            android:layout_alignParentTop="true"
+            android:background="?android:selectableItemBackground">
 
             <ImageView
                 android:id="@+id/cuc_multi_selection_up_icon"
@@ -40,17 +41,17 @@
                 android:layout_alignParentLeft="true"
                 android:layout_centerVertical="true"
                 android:paddingLeft="10dp"
-                android:src="@drawable/up"/>
+                android:src="@drawable/up" />
 
             <TextView
                 android:id="@+id/cuc_multi_selection_up_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/settings_cuc_upload_to_parent_folder"
-                android:textSize="@dimen/tv_subtitle_txt_size"
-                android:textColor="@color/fancy_gray"
                 android:layout_centerVertical="true"
-                android:layout_toRightOf="@+id/cuc_multi_selection_up_icon"/>
+                android:layout_toRightOf="@+id/cuc_multi_selection_up_icon"
+                android:text="@string/settings_cuc_upload_to_parent_folder"
+                android:textColor="@color/fancy_gray"
+                android:textSize="@dimen/tv_subtitle_txt_size" />
 
         </RelativeLayout>
 
@@ -58,49 +59,54 @@
             android:id="@+id/cuc_multi_selection_current_folder_txt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/choose_a_library"
-            android:textSize="@dimen/tv_txt_size"
+            android:layout_below="@+id/cuc_multi_selection_up_layout"
             android:padding="10dp"
-            android:layout_below="@+id/cuc_multi_selection_up_layout"/>
+            android:text="@string/choose_a_library"
+            android:textSize="@dimen/tv_txt_size" />
 
         <ImageView
             android:id="@+id/cuc_multi_selection_refresh_iv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingRight="20dp"
-            android:src="@drawable/refresh"
-            android:layout_alignParentRight="true"
+            android:layout_below="@+id/cuc_multi_selection_up_layout"
             android:layout_alignTop="@id/cuc_multi_selection_current_folder_txt"
-            android:layout_below="@+id/cuc_multi_selection_up_layout"/>
+            android:layout_alignParentRight="true"
+            android:paddingRight="20dp"
+            android:src="@drawable/refresh" />
 
-        <LinearLayout android:layout_width="match_parent"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
             android:layout_below="@+id/cuc_multi_selection_current_folder_txt"
+            android:layout_marginTop="5dp"
             android:orientation="vertical">
+
             <TextView
                 android:id="@+id/cuc_multi_selection_error_msg"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:gravity="center"
                 android:textSize="18sp"
-                android:visibility="gone"/>
+                android:visibility="gone" />
+
             <TextView
                 android:id="@+id/cuc_multi_selection_empty_msg"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:gravity="center"
-                android:visibility="gone"
-                android:textAppearance="?android:attr/textAppearanceLarge"/>
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:visibility="gone" />
 
-            <LinearLayout android:id="@+id/cuc_multi_selection_list_container"
+            <LinearLayout
+                android:id="@+id/cuc_multi_selection_list_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
+
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:background="@drawable/lv_divider_inset"/>
+                    android:background="@drawable/lv_divider_inset" />
 
                 <ListView
                     android:id="@+id/cuc_multi_selection_lv"
@@ -109,51 +115,53 @@
                     android:layout_centerHorizontal="true"
                     android:divider="@drawable/lv_divider_inset"
                     android:dividerHeight="@dimen/lv_divider_height"
-                    android:drawSelectorOnTop="true"/>
+                    android:drawSelectorOnTop="true" />
 
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:background="@drawable/lv_divider_inset"/>
+                    android:background="@drawable/lv_divider_inset" />
 
             </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/cuc_multi_selection_progress_container"
-                android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:visibility="gone"
-                android:gravity="center">
+                android:gravity="center"
+                android:orientation="vertical"
+                android:visibility="gone">
 
                 <ProgressBar
                     style="?android:attr/progressBarStyle"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content" />
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:text="@string/settings_cuc_loading"
                     android:paddingTop="4dip"
-                    android:singleLine="true"/>
+                    android:singleLine="true"
+                    android:text="@string/settings_cuc_loading"
+                    android:textAppearance="?android:attr/textAppearanceSmall" />
 
             </LinearLayout>
 
         </LinearLayout>
     </RelativeLayout>
 
-    <Button android:id="@+id/cuc_remote_library_btn"
-            android:layout_marginTop="@dimen/long_btn_padding_top"
-            android:layout_marginBottom="@dimen/long_btn_padding_bottom"
-            android:layout_marginLeft="@dimen/long_btn_margin_left"
-            android:layout_marginRight="@dimen/long_btn_margin_right"
-            android:text="@string/confirm"
-            android:visibility="visible"
-            android:textSize="@dimen/long_btn_txt_size"
-            android:textColor="@color/white"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/long_btn_height"
-            android:layout_alignParentBottom="true"/>
+    <Button
+        android:id="@+id/cuc_remote_library_btn"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/long_btn_height"
+        android:layout_alignParentBottom="true"
+        android:layout_marginLeft="@dimen/long_btn_margin_left"
+        android:layout_marginTop="@dimen/long_btn_padding_top"
+        android:layout_marginRight="@dimen/long_btn_margin_right"
+        android:layout_marginBottom="@dimen/long_btn_padding_bottom"
+        android:text="@string/confirm"
+        android:textColor="@color/white"
+        android:textSize="@dimen/long_btn_txt_size"
+        android:visibility="visible" />
 
 </RelativeLayout>

@@ -24,9 +24,9 @@
             android:layout_width="@dimen/lv_icon_width"
             android:layout_height="@dimen/lv_icon_height"
             android:layout_centerVertical="true"
-            android:src="@drawable/repo_encrypted"
             android:layout_toRightOf="@id/list_item_multi_select_btn"
-            android:paddingLeft="@dimen/lv_item_padding_left" />
+            android:paddingLeft="@dimen/lv_item_padding_left"
+            android:src="@drawable/repo_encrypted" />
 
         <ImageView
             android:id="@+id/list_item_space"
@@ -56,8 +56,8 @@
                 android:id="@+id/list_item_subtitle_group"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignLeft="@id/list_item_title"
-                android:layout_below="@id/list_item_title">
+                android:layout_below="@id/list_item_title"
+                android:layout_alignLeft="@id/list_item_title">
 
                 <ImageView
                     android:id="@+id/list_item_download_status_icon"
@@ -65,8 +65,8 @@
                     android:layout_height="@dimen/lv_download_icon_height"
                     android:layout_alignParentLeft="true"
                     android:layout_marginLeft="@dimen/lv_download_icon_margin_left"
-                    android:layout_marginRight="@dimen/lv_download_icon_margin_right"
                     android:layout_marginTop="@dimen/lv_download_icon_margin_top"
+                    android:layout_marginRight="@dimen/lv_download_icon_margin_right"
                     android:contentDescription="@null"
                     android:src="@drawable/list_item_download_finished"
                     android:visibility="gone" />
@@ -77,8 +77,8 @@
                     android:layout_height="@dimen/lv_download_icon_height"
                     android:layout_alignParentLeft="true"
                     android:layout_marginLeft="@dimen/lv_download_icon_margin_left"
-                    android:layout_marginRight="@dimen/lv_download_icon_margin_right"
                     android:layout_marginTop="@dimen/lv_download_icon_margin_top"
+                    android:layout_marginRight="@dimen/lv_download_icon_margin_right"
                     android:layout_toRightOf="@id/list_item_download_status_icon"
                     android:visibility="gone" />
 
@@ -105,8 +105,8 @@
             <ImageView
                 android:layout_width="20dp"
                 android:layout_height="20dp"
-                android:layout_alignParentBottom="true"
                 android:layout_alignParentRight="true"
+                android:layout_alignParentBottom="true"
                 android:layout_marginBottom="@dimen/lv_item_padding"
                 android:src="@drawable/spinner_disabled_holo_light" />
         </RelativeLayout>

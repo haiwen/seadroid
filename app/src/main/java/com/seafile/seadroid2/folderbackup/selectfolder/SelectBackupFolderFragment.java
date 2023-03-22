@@ -20,16 +20,16 @@ import java.util.List;
 
 public class SelectBackupFolderFragment extends Fragment {
 
-    private RecyclerView mTabbarFileRecyclerView, mFileRecyclerView;
+    private RecyclerView mTabBarFileRecyclerView, mFileRecyclerView;
     private SelectOptions mSelectOptions;
     private List<String> allPathsList;
     private List<String> mShowFileTypes;
     private int mSortType;
     private List<FileBean> mFileList;
-    private List<TabbarFileBean> mTabbarFileList;
+    private List<TabBarFileBean> mTabbarFileList;
     private String mCurrentPath;
     private FileListAdapter mFileListAdapter;
-    private TabbarFileListAdapter mTabbarFileListAdapter;
+    private TabBarFileListAdapter mTabBarFileListAdapter;
     private FolderBackupConfigActivity mActivity;
     private boolean chooseDirPage;
     private Button mButton;
@@ -40,18 +40,20 @@ public class SelectBackupFolderFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mActivity = (FolderBackupConfigActivity) getActivity();
         View rootView = getActivity().getLayoutInflater().inflate(R.layout.folder_selection_fragment, null);
-        mTabbarFileRecyclerView = (RecyclerView) rootView.findViewById(R.id.rcv_tabbar_files_list);
-        mFileRecyclerView = (RecyclerView) rootView.findViewById(R.id.rcv_files_list);
         mButton = (Button) rootView.findViewById(R.id.bt_dir_click_to_finish);
-        mFileRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity(),
-                LinearLayoutManager.VERTICAL, false));
+
+        mFileRecyclerView = (RecyclerView) rootView.findViewById(R.id.rcv_files_list);
+        mFileRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
         mFileListAdapter = new FileListAdapter(getActivity(), mFileList);
         mFileRecyclerView.setAdapter(mFileListAdapter);
-        mTabbarFileRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity(),
-                LinearLayoutManager.HORIZONTAL, false));
-        mTabbarFileListAdapter = new TabbarFileListAdapter(getActivity(), mTabbarFileList);
-        mTabbarFileRecyclerView.setAdapter(mTabbarFileListAdapter);
+
+        mTabBarFileRecyclerView = (RecyclerView) rootView.findViewById(R.id.rcv_tabbar_files_list);
+        mTabBarFileRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false));
+        mTabBarFileListAdapter = new TabBarFileListAdapter(getActivity(), mTabbarFileList);
+        mTabBarFileRecyclerView.setAdapter(mTabBarFileListAdapter);
+
         chooseDirPage = mActivity.isChooseDirPage();
+
         init();
         initData();
         return rootView;
@@ -78,18 +80,18 @@ public class SelectBackupFolderFragment extends Fragment {
 
         mFileListAdapter.setOnItemClickListener(new OnFileItemClickListener() {
             @Override
-            public void itemClick(int position) {
+            public void onItemClick(int position) {
                 FileBean item = mFileList.get(position);
                 if (item.isFile()) {
                     Toast.makeText(getActivity(), getActivity().getString(R.string.selection_file_type), Toast.LENGTH_SHORT).show();
                 } else {
                     mCurrentPath = item.getFilePath();
-                    refreshFileAndTabbar(BeanListManager.TypeAddTabbar);
+                    refreshFileAndTabbar(BeanListManager.TYPE_ADD_TAB_BAR);
                 }
             }
 
             @Override
-            public void checkBoxClick(View view, int position) {
+            public void onCheckBoxClick(View view, int position) {
                 FileBean item = mFileList.get(position);
                 for (FileBean fb : mFileList) {
                     if (item.equals(fb)) {
@@ -119,19 +121,19 @@ public class SelectBackupFolderFragment extends Fragment {
             }
         });
 
-        mTabbarFileListAdapter.setOnItemClickListener(new OnFileItemClickListener() {
+        mTabBarFileListAdapter.setOnItemClickListener(new OnFileItemClickListener() {
             @Override
-            public void itemClick(int position) {
-                TabbarFileBean item = mTabbarFileList.get(position);
+            public void onItemClick(int position) {
+                TabBarFileBean item = mTabbarFileList.get(position);
                 mCurrentPath = item.getFilePath();
 
                 if (mTabbarFileList.size() > 1) {
-                    refreshFileAndTabbar(BeanListManager.TypeDelTabbar);
+                    refreshFileAndTabbar(BeanListManager.TYPE_DEL_TAB_BAR);
                 }
             }
 
             @Override
-            public void checkBoxClick(View view, int position) {
+            public void onCheckBoxClick(View view, int position) {
 
             }
         });
@@ -151,12 +153,12 @@ public class SelectBackupFolderFragment extends Fragment {
 
     private void initData() {
         mSelectOptions = SelectOptions.getResetInstance(getActivity());
-        allPathsList= initRootPath(getActivity());
+        allPathsList = initRootPath(getActivity());
         mShowFileTypes = Arrays.asList(mSelectOptions.getShowFileTypes());
         mSortType = mSelectOptions.getSortType();
         mFileList = new ArrayList<>();
         mTabbarFileList = new ArrayList<>();
-        refreshFileAndTabbar(BeanListManager.TypeInitTabbar);
+        refreshFileAndTabbar(BeanListManager.TYPE_INIT_TAB_BAR);
     }
 
     private List<String> initRootPath(Activity activity) {
@@ -169,23 +171,23 @@ public class SelectBackupFolderFragment extends Fragment {
                 mCurrentPath = allPaths.get(0);
             }
         }
-        initialPath =mCurrentPath;
+        initialPath = mCurrentPath;
         return allPaths;
     }
 
     private void refreshFileAndTabbar(int tabbarType) {
         BeanListManager.upDataFileBeanListByAsyn(getActivity(), selectPaths, mFileList, mFileListAdapter,
                 mCurrentPath, mShowFileTypes, mSortType);
-        BeanListManager.upDataTabbarFileBeanList(mTabbarFileList, mTabbarFileListAdapter,
+        BeanListManager.upDataTabbarFileBeanList(mTabbarFileList, mTabBarFileListAdapter,
                 mCurrentPath, tabbarType, allPathsList);
     }
 
     public boolean onBackPressed() {
-        if (mCurrentPath.equals(initialPath)||allPathsList.contains(mCurrentPath)){
+        if (mCurrentPath.equals(initialPath) || allPathsList.contains(mCurrentPath)) {
             return false;
-        }else {
-            mCurrentPath=FileTools.getParentPath(mCurrentPath);
-            refreshFileAndTabbar(BeanListManager.TypeDelTabbar);
+        } else {
+            mCurrentPath = FileTools.getParentPath(mCurrentPath);
+            refreshFileAndTabbar(BeanListManager.TYPE_DEL_TAB_BAR);
             return true;
         }
     }

@@ -50,6 +50,7 @@ import okhttp3.Response;
 
 /**
  * SeafConnection encapsulates Seafile Web API
+ *
  * @author plt
  */
 public class SeafConnection {
@@ -115,7 +116,9 @@ public class SeafConnection {
         return prepareHttpsCheck(req);
     }
 
-    /** Prepare a post request.
+    /**
+     * Prepare a post request.
+     *
      * @param apiPath   The path of the http request
      * @param withToken
      * @param params    The query param to be appended to the request url
@@ -126,7 +129,9 @@ public class SeafConnection {
         return prepareApiPostRequest(apiPath, withToken, params, false);
     }
 
-    /** Prepare a post request.
+    /**
+     * Prepare a post request.
+     *
      * @param apiPath   The path of the http request
      * @param withToken
      * @param params    The query param to be appended to the request url
@@ -159,6 +164,7 @@ public class SeafConnection {
 
     /**
      * Login into the server
+     *
      * @return true if login success, false otherwise
      * @throws SeafException
      */
@@ -358,6 +364,7 @@ public class SeafConnection {
             throw SeafException.networkException;
         }
     }
+
     public String getAvatar(String email, int size) throws SeafException {
         try {
             String apiPath = String.format("api2/avatars/user/%s/resized/%d", email, size);
@@ -404,6 +411,7 @@ public class SeafConnection {
 
     /**
      * Get the contents of a directory.
+     *
      * @param repoID
      * @param path
      * @param cachedDirID The local cached dirID.
@@ -456,7 +464,7 @@ public class SeafConnection {
         }
     }
 
-    public Pair<String, String> getDownloadLink(String repoID, String path ,boolean isReUsed) throws SeafException {
+    public Pair<String, String> getDownloadLink(String repoID, String path, boolean isReUsed) throws SeafException {
         try {
             String apiPath = String.format("api2/repos/%s/file/", repoID);
             Map<String, Object> params = Maps.newHashMap();
@@ -533,6 +541,7 @@ public class SeafConnection {
 
     /**
      * Get the latest version of the file from server
+     *
      * @param repoID
      * @param fileBlocks
      * @param blockId
@@ -704,6 +713,7 @@ public class SeafConnection {
 
     /**
      * Get the latest version of the file from server
+     *
      * @param repoID
      * @param path
      * @param localPath
@@ -739,7 +749,7 @@ public class SeafConnection {
     }
 
     // get encrypted repo info
-    public String  getEncryptRepo(String repoID) throws SeafException {
+    public String getEncryptRepo(String repoID) throws SeafException {
         Response response = null;
         try {
             String url = account.server + "api2/repos/" + repoID;
@@ -906,7 +916,8 @@ public class SeafConnection {
             builder.addFormDataPart("parent_dir", "/");
             if (dir.charAt(0) == '/') {
                 dir = dir.substring(1);
-                dir = dir + "/";
+                //Fix an issue: When select the root of the repo, the file upload fails
+//                dir = dir + "/";
             }
             builder.addFormDataPart("relative_path", dir);
         }

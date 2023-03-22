@@ -44,7 +44,7 @@ import java.util.List;
 
 public class CloudLibraryChooserFragment extends Fragment {
 
-    public static final String DEBUG_TAG = "CloudLibraryChooserFragment";
+    public static final String DEBUG_TAG = CloudLibraryChooserFragment.class.getSimpleName();
     private FolderBackupConfigActivity mActivity;
     private Button mDoneBtn;
     public static final String PASSWORD_DIALOG_FRAGMENT_TAG = "passwordDialogFragmentTag";
@@ -94,6 +94,7 @@ public class CloudLibraryChooserFragment extends Fragment {
         onlyShowWritableRepos = intent.getBooleanExtra(ONLY_SHOW_WRITABLE_REPOS, true);
         encryptedRepoId = intent.getStringExtra(ENCRYPTED_REPO_ID);
         isOnlyChooseRepo = true;
+
         mFoldersListView = (ListView) rootView.findViewById(R.id.cuc_multi_selection_lv);
         mFoldersListView.setFastScrollEnabled(true);
         mUpLayout = (RelativeLayout) rootView.findViewById(R.id.cuc_multi_selection_up_layout);
@@ -121,7 +122,6 @@ public class CloudLibraryChooserFragment extends Fragment {
         });
 
         mUpLayout.setOnClickListener(new View.OnClickListener() {
-
             @Override
             public void onClick(View v) {
                 try {
@@ -130,7 +130,6 @@ public class CloudLibraryChooserFragment extends Fragment {
                     e.printStackTrace();
                 }
             }
-
         });
 
         mFoldersListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -305,8 +304,7 @@ public class CloudLibraryChooserFragment extends Fragment {
         }, null);
     }
 
-    public void showPasswordDialog(String repoName, String repoID,
-                                   TaskDialog.TaskDialogListener listener, String password) {
+    public void showPasswordDialog(String repoName, String repoID, TaskDialog.TaskDialogListener listener, String password) {
         PasswordDialog passwordDialog = new PasswordDialog();
         passwordDialog.setRepo(repoName, repoID, mAccount);
         if (password != null) {
@@ -721,17 +719,13 @@ public class CloudLibraryChooserFragment extends Fragment {
     private void showLoading(boolean loading) {
         clearError();
         if (loading) {
-            mProgressContainer.startAnimation(AnimationUtils.loadAnimation(
-                    mActivity, android.R.anim.fade_in));
-            mListContainer.startAnimation(AnimationUtils.loadAnimation(
-                    mActivity, android.R.anim.fade_out));
+            mProgressContainer.startAnimation(AnimationUtils.loadAnimation(mActivity, android.R.anim.fade_in));
+            mListContainer.startAnimation(AnimationUtils.loadAnimation(mActivity, android.R.anim.fade_out));
             mProgressContainer.setVisibility(View.VISIBLE);
             mListContainer.setVisibility(View.INVISIBLE);
         } else {
-            mProgressContainer.startAnimation(AnimationUtils.loadAnimation(
-                    mActivity, android.R.anim.fade_out));
-            mListContainer.startAnimation(AnimationUtils.loadAnimation(
-                    mActivity, android.R.anim.fade_in));
+            mProgressContainer.startAnimation(AnimationUtils.loadAnimation(mActivity, android.R.anim.fade_out));
+            mListContainer.startAnimation(AnimationUtils.loadAnimation(mActivity, android.R.anim.fade_in));
             mProgressContainer.setVisibility(View.GONE);
             mListContainer.setVisibility(View.VISIBLE);
         }

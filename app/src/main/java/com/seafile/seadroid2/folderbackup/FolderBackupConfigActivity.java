@@ -13,6 +13,7 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
 import android.widget.Toast;
+
 import com.google.gson.Gson;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SettingsManager;
@@ -24,12 +25,13 @@ import com.seafile.seadroid2.ui.activity.BaseActivity;
 import com.seafile.seadroid2.ui.activity.SeafilePathChooserActivity;
 import com.seafile.seadroid2.ui.fragment.SettingsFragment;
 import com.seafile.seadroid2.util.Utils;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class FolderBackupConfigActivity extends BaseActivity {
 
-    public String DEBUG_TAG = "FolderBackupConfigActivity";
+    public String DEBUG_TAG = FolderBackupConfigActivity.class.getSimpleName();
     public static final String BACKUP_SELECT_REPO = "backup_select_repo";
     public static final String BACKUP_SELECT_PATHS = "backup_select_paths";
     public static final String BACKUP_SELECT_PATHS_SWITCH = "backup_select_paths_switch";
@@ -56,14 +58,20 @@ public class FolderBackupConfigActivity extends BaseActivity {
 
         isChooseFolderPage = getIntent().getBooleanExtra(SettingsFragment.FOLDER_BACKUP_REMOTE_PATH, false);
         isChooseLibPage = getIntent().getBooleanExtra(SettingsFragment.FOLDER_BACKUP_REMOTE_LIBRARY, false);
+
         mViewPager = (ViewPager) findViewById(R.id.cuc_pager);
         FragmentManager fm = getSupportFragmentManager();
         mViewPager.setAdapter(new FolderBackupConfigAdapter(fm));
         mViewPager.setOffscreenPageLimit(2);
+
         databaseHelper = FolderBackupDBHelper.getDatabaseHelper();
+
+        //bind service
         Intent bindIntent = new Intent(this, FolderBackupService.class);
-        bindService(bindIntent, mBackupConnection, Context.BIND_AUTO_CREATE);
+        bindService(bindIntent, mFolderBackupConnection, Context.BIND_AUTO_CREATE);
+
         mActivity = this;
+
         originalBackupPaths = SettingsManager.instance().getBackupPaths();
 
         if (isChooseFolderPage && !TextUtils.isEmpty(originalBackupPaths)) {
@@ -71,20 +79,6 @@ public class FolderBackupConfigActivity extends BaseActivity {
         }
     }
 
-    private ServiceConnection mBackupConnection = new ServiceConnection() {
-
-        @Override
-        public void onServiceConnected(ComponentName className, IBinder binder) {
-            FolderBackupService.FileBackupBinder fileBackupBinder = (FolderBackupService.FileBackupBinder) binder;
-            mBackupService = fileBackupBinder.getService();
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName className) {
-            mBackupService = null;
-        }
-
-    };
 
     public void saveBackupLibrary(Account account, SeafRepo seafRepo) {
         mSeafRepo = seafRepo;
@@ -104,60 +98,64 @@ public class FolderBackupConfigActivity extends BaseActivity {
     }
 
     public void saveRepoConfig() {
-        if (isChooseLibPage) {
-            Intent intent = new Intent();
-            // update cloud library data
-            if (mSeafRepo != null && mAccount != null) {
-                intent.putExtra(SeafilePathChooserActivity.DATA_REPO_NAME, mSeafRepo.name);
-                intent.putExtra(SeafilePathChooserActivity.DATA_REPO_ID, mSeafRepo.id);
-                intent.putExtra(SeafilePathChooserActivity.DATA_ACCOUNT, mAccount);
-                intent.putExtra(BACKUP_SELECT_REPO, true);
-                SettingsManager.instance().saveBackupEmail(mAccount.getEmail());
-                try {
-                    RepoConfig repoConfig = databaseHelper.getRepoConfig(mAccount.getEmail());
-                    if (repoConfig != null) {
-                        databaseHelper.updateRepoConfig(mAccount.getEmail(), mSeafRepo.getID(), mSeafRepo.getName());
-                    } else {
-                        databaseHelper.saveRepoConfig(mAccount.getEmail(), mSeafRepo.getID(), mSeafRepo.getName());
-                    }
-                    Toast.makeText(mActivity, mActivity.getString(R.string.folder_backup_select_repo_update), Toast.LENGTH_SHORT).show();
-                } catch (Exception e) {
-                    Utils.utilsLogInfo(true, "=saveRepoConfig=======================" + e.toString());
-                }
+        if (!isChooseLibPage) {
+            return;
+        }
 
+        Intent intent = new Intent();
+        // update cloud library data
+        if (mSeafRepo != null && mAccount != null) {
+            intent.putExtra(SeafilePathChooserActivity.DATA_REPO_NAME, mSeafRepo.name);
+            intent.putExtra(SeafilePathChooserActivity.DATA_REPO_ID, mSeafRepo.id);
+            intent.putExtra(SeafilePathChooserActivity.DATA_ACCOUNT, mAccount);
+            intent.putExtra(BACKUP_SELECT_REPO, true);
+            SettingsManager.instance().saveBackupEmail(mAccount.getEmail());
+            try {
+                RepoConfig repoConfig = databaseHelper.getRepoConfig(mAccount.getEmail());
+                if (repoConfig != null) {
+                    databaseHelper.updateRepoConfig(mAccount.getEmail(), mSeafRepo.getID(), mSeafRepo.getName());
+                } else {
+                    databaseHelper.saveRepoConfig(mAccount.getEmail(), mSeafRepo.getID(), mSeafRepo.getName());
+                }
+                Toast.makeText(mActivity, mActivity.getString(R.string.folder_backup_select_repo_update), Toast.LENGTH_SHORT).show();
+            } catch (Exception e) {
+                Utils.utilsLogInfo(true, "=saveRepoConfig=======================" + e.toString());
             }
-            setResult(RESULT_OK, intent);
-            boolean automaticBackup = SettingsManager.instance().isFolderAutomaticBackup();
-            if (automaticBackup && mBackupService != null) {
-                mBackupService.folderBackup(mAccount.getEmail());
-            }
+
+        }
+        setResult(RESULT_OK, intent);
+        boolean automaticBackup = SettingsManager.instance().isFolderAutomaticBackup();
+        if (automaticBackup && mBackupService != null) {
+            mBackupService.backupFolder(mAccount.getEmail());
         }
     }
 
     public void saveFolderConfig() {
-        if (isChooseFolderPage) {
-            String backupEmail = SettingsManager.instance().getBackupEmail();
-            String strJsonPath = new Gson().toJson(selectFolderPaths);
+        if (!isChooseFolderPage) {
+            return;
+        }
 
-            if ((TextUtils.isEmpty(originalBackupPaths) && !TextUtils.isEmpty(strJsonPath)) ||
-                    !originalBackupPaths.equals(strJsonPath)) {
-                mBackupService.startFolderMonitor(selectFolderPaths);
-                Utils.utilsLogInfo(false, "----------Restart monitoring FolderMonitor");
-            }
-            if (!TextUtils.isEmpty(originalBackupPaths) && TextUtils.isEmpty(strJsonPath)) {
-                mBackupService.stopFolderMonitor();
-            }
-            SettingsManager.instance().saveBackupPaths(strJsonPath);
-            Intent intent = new Intent();
-            if (selectFolderPaths != null) {
-                intent.putStringArrayListExtra(BACKUP_SELECT_PATHS, (ArrayList<String>) selectFolderPaths);
-                intent.putExtra(BACKUP_SELECT_PATHS_SWITCH, true);
-            }
-            setResult(RESULT_OK, intent);
-            boolean folderAutomaticBackup = SettingsManager.instance().isFolderAutomaticBackup();
-            if (folderAutomaticBackup && mBackupService != null) {
-                mBackupService.folderBackup(backupEmail);
-            }
+        String backupEmail = SettingsManager.instance().getBackupEmail();
+        String strJsonPath = new Gson().toJson(selectFolderPaths);
+
+        if ((TextUtils.isEmpty(originalBackupPaths) && !TextUtils.isEmpty(strJsonPath)) ||
+                !originalBackupPaths.equals(strJsonPath)) {
+            mBackupService.startFolderMonitor(selectFolderPaths);
+            Utils.utilsLogInfo(false, "----------Restart monitoring FolderMonitor");
+        }
+        if (!TextUtils.isEmpty(originalBackupPaths) && TextUtils.isEmpty(strJsonPath)) {
+            mBackupService.stopFolderMonitor();
+        }
+        SettingsManager.instance().saveBackupPaths(strJsonPath);
+        Intent intent = new Intent();
+        if (selectFolderPaths != null) {
+            intent.putStringArrayListExtra(BACKUP_SELECT_PATHS, (ArrayList<String>) selectFolderPaths);
+            intent.putExtra(BACKUP_SELECT_PATHS_SWITCH, true);
+        }
+        setResult(RESULT_OK, intent);
+        boolean folderAutomaticBackup = SettingsManager.instance().isFolderAutomaticBackup();
+        if (folderAutomaticBackup && mBackupService != null) {
+            mBackupService.backupFolder(backupEmail);
         }
 
     }
@@ -174,6 +172,30 @@ public class FolderBackupConfigActivity extends BaseActivity {
     public boolean isChooseDirPage() {
         return isChooseFolderPage;
     }
+
+
+    @Override
+    protected void onDestroy() {
+        if (mBackupService != null) {
+            unbindService(mFolderBackupConnection);
+            mBackupService = null;
+        }
+        super.onDestroy();
+    }
+
+    private final ServiceConnection mFolderBackupConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName className, IBinder binder) {
+            FolderBackupService.FileBackupBinder fileBackupBinder = (FolderBackupService.FileBackupBinder) binder;
+            mBackupService = fileBackupBinder.getService();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName className) {
+            mBackupService = null;
+        }
+
+    };
 
     class FolderBackupConfigAdapter extends FragmentStatePagerAdapter {
 
@@ -216,14 +238,5 @@ public class FolderBackupConfigActivity extends BaseActivity {
             else
                 return 2;
         }
-    }
-
-    @Override
-    protected void onDestroy() {
-        if (mBackupService != null) {
-            unbindService(mBackupConnection);
-            mBackupService = null;
-        }
-        super.onDestroy();
     }
 }

@@ -21,9 +21,9 @@ import io.reactivex.rxjava3.functions.Function;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class BeanListManager {
-    public static final int TypeAddTabbar = 0;
-    public static final int TypeDelTabbar = 1;
-    public static final int TypeInitTabbar = 2;
+    public static final int TYPE_ADD_TAB_BAR = 0;
+    public static final int TYPE_DEL_TAB_BAR = 1;
+    public static final int TYPE_INIT_TAB_BAR = 2;
 
     public static void upDataFileBeanListByAsyn(Activity at, List<String> selectFilePath,
                                                 List<FileBean> fileBeanList, FileListAdapter fileListAdapter,
@@ -36,54 +36,60 @@ public class BeanListManager {
         }
 
         Observable.just(fileBeanList).map(new Function<List<FileBean>, List<FileBean>>() {
-            @Override
-            public List<FileBean> apply(List<FileBean> fileBeanList) throws Throwable {
-                FileBean fileBean;
-                File file = FileTools.getFileByPath(path);
-                File[] files = file.listFiles();
-                if (files != null) {
-                    for (int i = 0; i < files.length; i++) {
-                        fileBean = new FileBean(files[i].getAbsolutePath());
-                        if (selectFilePath != null && selectFilePath.size() > 0) {
-                            for (String str : selectFilePath) {
-                                if (fileBean.getFilePath().equals(str)) {
-                                    fileBean.setChecked(true);
+                    @Override
+                    public List<FileBean> apply(List<FileBean> fileBeanList) throws Throwable {
+                        FileBean fileBean;
+                        File file = FileTools.getFileByPath(path);
+                        File[] files = file.listFiles();
+                        if (files != null) {
+                            for (File value : files) {
+                                fileBean = new FileBean(value.getAbsolutePath());
+                                if (selectFilePath != null && selectFilePath.size() > 0) {
+                                    if (selectFilePath.contains(fileBean.getFilePath())) {
+                                        fileBean.setChecked(true);
+                                    }
+//                            for (String str : selectFilePath) {
+//                                if (fileBean.getFilePath().equals(str)) {
+//                                    fileBean.setChecked(true);
+//                                }
+//                            }
                                 }
+                                fileBeanList.add(fileBean);
                             }
                         }
-                        fileBeanList.add(fileBean);
+                        sortFileBeanList(fileBeanList, sortType);
+                        return fileBeanList;
                     }
-                }
-                sortFileBeanList(fileBeanList, sortType);
-                return fileBeanList;
-            }
-        }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Observer<List<FileBean>>() {
-            public ProgressDialog pg;
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<List<FileBean>>() {
+                    public ProgressDialog pg;
 
-            @Override
-            public void onSubscribe(@NonNull Disposable d) {
-                pg = new ProgressDialog(at);
-                pg.show();
-            }
+                    @Override
+                    public void onSubscribe(@NonNull Disposable d) {
+                        pg = new ProgressDialog(at);
+                        pg.show();
+                    }
 
-            @Override
-            public void onNext(@NonNull List<FileBean> fileBeans) {
-                if (fileListAdapter != null) {
-                    fileListAdapter.updateListData(fileBeans);
-                    fileListAdapter.notifyDataSetChanged();
-                }
-            }
+                    @Override
+                    public void onNext(@NonNull List<FileBean> fileBeans) {
+                        if (fileListAdapter != null) {
+                            fileListAdapter.updateListData(fileBeans);
+                            fileListAdapter.notifyDataSetChanged();
+                        }
+                    }
 
-            @Override
-            public void onError(@NonNull Throwable e) {
-                pg.dismiss();
-            }
+                    @Override
+                    public void onError(@NonNull Throwable e) {
+                        pg.dismiss();
+                    }
 
-            @Override
-            public void onComplete() {
-                pg.dismiss();
-            }
-        });
+                    @Override
+                    public void onComplete() {
+                        pg.dismiss();
+                    }
+                });
     }
 
     public static void sortFileBeanList(List<FileBean> fileBeanList, int sortType) {
@@ -140,23 +146,23 @@ public class BeanListManager {
         });
     }
 
-    public static void getTabbarFileBeanList(List<TabbarFileBean> tabbarList,
+    public static void getTabbarFileBeanList(List<TabBarFileBean> tabbarList,
                                              String path, List<String> allPathsList) {
         if (allPathsList.contains(path)) {
-            tabbarList.add(0, new TabbarFileBean(path,
+            tabbarList.add(0, new TabBarFileBean(path,
                     SeadroidApplication.getAppContext().getString(R.string.internal_storage)));
             return;
         }
     }
 
-    public static List<TabbarFileBean> upDataTabbarFileBeanList(List<TabbarFileBean> tabbarList,
-                                                                TabbarFileListAdapter tabbarAdapter,
+    public static List<TabBarFileBean> upDataTabbarFileBeanList(List<TabBarFileBean> tabbarList,
+                                                                TabBarFileListAdapter tabbarAdapter,
                                                                 String path, int type, List<String> allPathsList) {
         switch (type) {
-            case TypeAddTabbar:
-                tabbarList.add(new TabbarFileBean(path));
+            case TYPE_ADD_TAB_BAR:
+                tabbarList.add(new TabBarFileBean(path));
                 break;
-            case TypeDelTabbar:
+            case TYPE_DEL_TAB_BAR:
                 for (int i = tabbarList.size() - 1; i >= 0; i--) {
                     if (tabbarList.get(i).getFilePath().length() > path.length()) {
                         tabbarList.remove(i);
@@ -165,7 +171,7 @@ public class BeanListManager {
                     }
                 }
                 break;
-            case TypeInitTabbar:
+            case TYPE_INIT_TAB_BAR:
                 if (tabbarList == null) {
                     tabbarList = new ArrayList<>();
                 } else {
