@@ -96,7 +96,7 @@ public class FileMonitorService extends Service {
             monitor.stopMonitorFilesForAccount(account);
     }
 
-    private ServiceConnection mTransferConnection = new ServiceConnection() {
+    private final ServiceConnection mTransferConnection = new ServiceConnection() {
 
         @Override
         public void onServiceConnected(ComponentName className, IBinder binder) {
@@ -112,7 +112,7 @@ public class FileMonitorService extends Service {
 
     };
 
-    private BroadcastReceiver transferReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver transferReceiver = new BroadcastReceiver() {
 
         @Override
         public void onReceive(Context context, Intent intent) {

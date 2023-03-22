@@ -35,9 +35,9 @@ public class FolderBackupConfigActivity extends BaseActivity {
     public static final String BACKUP_SELECT_REPO = "backup_select_repo";
     public static final String BACKUP_SELECT_PATHS = "backup_select_paths";
     public static final String BACKUP_SELECT_PATHS_SWITCH = "backup_select_paths_switch";
-    private ViewPager mViewPager;
     private SelectBackupFolderFragment mBucketsFragment;
     private CloudLibraryChooserFragment mCloudLibFragment;
+
     private SeafRepo mSeafRepo;
     private Account mAccount;
     private boolean isChooseFolderPage;
@@ -59,7 +59,7 @@ public class FolderBackupConfigActivity extends BaseActivity {
         isChooseFolderPage = getIntent().getBooleanExtra(SettingsFragment.FOLDER_BACKUP_REMOTE_PATH, false);
         isChooseLibPage = getIntent().getBooleanExtra(SettingsFragment.FOLDER_BACKUP_REMOTE_LIBRARY, false);
 
-        mViewPager = (ViewPager) findViewById(R.id.cuc_pager);
+        ViewPager mViewPager = (ViewPager) findViewById(R.id.cuc_pager);
         FragmentManager fm = getSupportFragmentManager();
         mViewPager.setAdapter(new FolderBackupConfigAdapter(fm));
         mViewPager.setOffscreenPageLimit(2);
@@ -78,7 +78,6 @@ public class FolderBackupConfigActivity extends BaseActivity {
             selectFolderPaths = StringTools.getJsonToList(originalBackupPaths);
         }
     }
-
 
     public void saveBackupLibrary(Account account, SeafRepo seafRepo) {
         mSeafRepo = seafRepo;

@@ -284,6 +284,7 @@ public class BrowserActivity extends BaseActivity
         pager = (ViewPager) findViewById(R.id.pager);
         adapter = new SeafileTabsAdapter(getSupportFragmentManager());
         pager.setAdapter(adapter);
+
         mTabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
         mTabLayout.setupWithViewPager(pager);
         mTabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
@@ -390,6 +391,7 @@ public class BrowserActivity extends BaseActivity
             navContext.setDir(path, dirID);
             navContext.setDirPermission(permission);
         }
+
 
         Intent txIntent = new Intent(this, TransferService.class);
         startService(txIntent);

@@ -102,7 +102,7 @@ public class FolderBackupService extends Service {
 
         for (String str : backupPaths) {
             FileAlterationObserver folderFileObserver = new FileAlterationObserver(str);
-            folderFileObserver.addListener(new FolderMonitor());
+            folderFileObserver.addListener(new FolderStateChangedListener());
             fileAlterationObserverList.add(folderFileObserver);
         }
 
@@ -243,9 +243,9 @@ public class FolderBackupService extends Service {
         super.onDestroy();
     }
 
-    class FolderMonitor implements FileAlterationListener {
+    private class FolderStateChangedListener implements FileAlterationListener {
 
-        public FolderMonitor() {
+        public FolderStateChangedListener() {
 
         }
 
@@ -323,5 +323,4 @@ public class FolderBackupService extends Service {
             EventBus.getDefault().post(new FolderBackupEvent("folderBackup"));
         }
     }
-
 }

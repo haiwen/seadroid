@@ -10,14 +10,11 @@ import android.app.Application;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+
 import com.google.common.collect.MapMaker;
-import com.google.common.collect.Maps;
 import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.ui.activity.UnlockGesturePasswordActivity;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
 /**
@@ -28,9 +25,11 @@ public class DefaultAppLock extends AbstractAppLock {
 
     private Application currentApp; //Keep a reference to the app that invoked the locker
     private SettingsManager settingsMgr;
-    /** by default, the returned map uses equality comparisons (the equals method) to determine equality for keys or values.
+    /**
+     * by default, the returned map uses equality comparisons (the equals method) to determine equality for keys or values.
      * However, if weakKeys() was specified, the map uses identity (==) comparisons instead for keys.
-     * Likewise, if weakValues() or softValues() was specified, the map uses identity (==) comparisons for values. */
+     * Likewise, if weakValues() or softValues() was specified, the map uses identity (==) comparisons for values.
+     */
     private static ConcurrentMap<Object, Long> mCheckedActivities = new MapMaker()
             .weakKeys()
             .makeMap();
@@ -63,13 +62,13 @@ public class DefaultAppLock extends AbstractAppLock {
         if (activity.getClass() == UnlockGesturePasswordActivity.class)
             return;
 
-        if (!isActiviyBeingChecked(activity)) {
+        if (!isActivityBeingChecked(activity)) {
             settingsMgr.saveGestureLockTimeStamp();
 
         }
     }
 
-    private boolean isActiviyBeingChecked(Activity activity) {
+    private boolean isActivityBeingChecked(Activity activity) {
         if (!mCheckedActivities.containsKey(activity)) {
             return false;
         }

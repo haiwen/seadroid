@@ -86,7 +86,7 @@ public class SelectBackupFolderFragment extends Fragment {
                     Toast.makeText(getActivity(), getActivity().getString(R.string.selection_file_type), Toast.LENGTH_SHORT).show();
                 } else {
                     mCurrentPath = item.getFilePath();
-                    refreshFileAndTabbar(BeanListManager.TYPE_ADD_TAB_BAR);
+                    refreshFileAndTabBar(BeanListManager.TYPE_ADD_TAB_BAR);
                 }
             }
 
@@ -128,7 +128,7 @@ public class SelectBackupFolderFragment extends Fragment {
                 mCurrentPath = item.getFilePath();
 
                 if (mTabbarFileList.size() > 1) {
-                    refreshFileAndTabbar(BeanListManager.TYPE_DEL_TAB_BAR);
+                    refreshFileAndTabBar(BeanListManager.TYPE_DEL_TAB_BAR);
                 }
             }
 
@@ -158,7 +158,7 @@ public class SelectBackupFolderFragment extends Fragment {
         mSortType = mSelectOptions.getSortType();
         mFileList = new ArrayList<>();
         mTabbarFileList = new ArrayList<>();
-        refreshFileAndTabbar(BeanListManager.TYPE_INIT_TAB_BAR);
+        refreshFileAndTabBar(BeanListManager.TYPE_INIT_TAB_BAR);
     }
 
     private List<String> initRootPath(Activity activity) {
@@ -175,7 +175,7 @@ public class SelectBackupFolderFragment extends Fragment {
         return allPaths;
     }
 
-    private void refreshFileAndTabbar(int tabbarType) {
+    private void refreshFileAndTabBar(int tabbarType) {
         BeanListManager.upDataFileBeanListByAsyn(getActivity(), selectPaths, mFileList, mFileListAdapter,
                 mCurrentPath, mShowFileTypes, mSortType);
         BeanListManager.upDataTabbarFileBeanList(mTabbarFileList, mTabBarFileListAdapter,
@@ -187,7 +187,7 @@ public class SelectBackupFolderFragment extends Fragment {
             return false;
         } else {
             mCurrentPath = FileTools.getParentPath(mCurrentPath);
-            refreshFileAndTabbar(BeanListManager.TYPE_DEL_TAB_BAR);
+            refreshFileAndTabBar(BeanListManager.TYPE_DEL_TAB_BAR);
             return true;
         }
     }
