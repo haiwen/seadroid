@@ -17,7 +17,7 @@ import com.seafile.seadroid2.ui.activity.BaseActivity;
  * <p/>
  */
 public class SingleSignOnActivity extends BaseActivity implements Toolbar.OnMenuItemClickListener {
-    public static final String DEBUG_TAG = "SingleSignOnActivity";
+    public static final String DEBUG_TAG = SingleSignOnActivity.class.getSimpleName();
 
     public static final String SINGLE_SIGN_ON_SERVER_URL = "single sign on server url";
     public static final String SINGLE_SIGN_ON_HTTPS_PREFIX = "https://";

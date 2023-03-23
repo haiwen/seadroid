@@ -44,7 +44,7 @@ public class MultipleImageSelectionActivity extends NoSearchActivity implements
     private static final String STATE_SCROLL_POSITION = "scroll_position";
     private static final String STATE_SELECTED_INDEX = "first_index";
 
-    private static final String TAG = "MultipleImageSelectionActivity";
+    private static final String TAG = MultipleImageSelectionActivity.class.getSimpleName();
     private static final float INVALID_POSITION = -1f;
     private ImageManager.ImageListParam mParam;
     private IImageList mAllImages;
@@ -88,11 +88,10 @@ public class MultipleImageSelectionActivity extends NoSearchActivity implements
 
         setContentView(R.layout.multiple_image_selection);
 
-        getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE,
-                R.layout.custom_gallery_title);
+        getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.custom_gallery_title);
 
         mNoImagesView = findViewById(R.id.no_images);
-        mSelectionStatus = (TextView)findViewById(R.id.upload_selection_status);
+        mSelectionStatus = (TextView) findViewById(R.id.upload_selection_status);
         mSelectionFooterView = findViewById(R.id.selection_footer);
 
         mGvs = (GridViewSpecial) findViewById(R.id.image_grid);
@@ -106,8 +105,7 @@ public class MultipleImageSelectionActivity extends NoSearchActivity implements
 
         initializeButtons();
 
-        mVideoSizeLimit = getIntent().getLongExtra(
-                MediaStore.EXTRA_SIZE_LIMIT, Long.MAX_VALUE);
+        mVideoSizeLimit = getIntent().getLongExtra(MediaStore.EXTRA_SIZE_LIMIT, Long.MAX_VALUE);
 
         setupTitle();
 
@@ -426,8 +424,7 @@ public class MultipleImageSelectionActivity extends NoSearchActivity implements
     @Override
     protected void onRestoreInstanceState(Bundle state) {
         super.onRestoreInstanceState(state);
-        mScrollPosition = state.getFloat(
-                STATE_SCROLL_POSITION, INVALID_POSITION);
+        mScrollPosition = state.getFloat(STATE_SCROLL_POSITION, INVALID_POSITION);
         mSelectedIndex = state.getInt(STATE_SELECTED_INDEX, 0);
     }
 
@@ -435,8 +432,7 @@ public class MultipleImageSelectionActivity extends NoSearchActivity implements
     public void onResume() {
         super.onResume();
 
-        mGvs.setSizeChoice(Integer.parseInt(
-                mPrefs.getString("pref_gallery_size_key", "1")));
+        mGvs.setSizeChoice(Integer.parseInt(mPrefs.getString("pref_gallery_size_key", "1")));
         mGvs.requestFocus();
 
         String sortOrder = mPrefs.getString("pref_gallery_sort_key", null);
@@ -447,8 +443,7 @@ public class MultipleImageSelectionActivity extends NoSearchActivity implements
         mPausing = false;
 
         // install an intent filter to receive SD card related events.
-        IntentFilter intentFilter =
-                new IntentFilter(Intent.ACTION_MEDIA_MOUNTED);
+        IntentFilter intentFilter = new IntentFilter(Intent.ACTION_MEDIA_MOUNTED);
         intentFilter.addAction(Intent.ACTION_MEDIA_UNMOUNTED);
         intentFilter.addAction(Intent.ACTION_MEDIA_SCANNER_STARTED);
         intentFilter.addAction(Intent.ACTION_MEDIA_SCANNER_FINISHED);
@@ -468,8 +463,7 @@ public class MultipleImageSelectionActivity extends NoSearchActivity implements
                     rebake(true, false);
                 } else if (action.equals(Intent.ACTION_MEDIA_SCANNER_STARTED)) {
                     rebake(false, true);
-                } else if (action.equals(
-                        Intent.ACTION_MEDIA_SCANNER_FINISHED)) {
+                } else if (action.equals(Intent.ACTION_MEDIA_SCANNER_FINISHED)) {
                     rebake(false, false);
                 } else if (action.equals(Intent.ACTION_MEDIA_EJECT)) {
                     rebake(true, false);
@@ -572,8 +566,8 @@ public class MultipleImageSelectionActivity extends NoSearchActivity implements
                     ImageManager.DataLocation.EXTERNAL,
                     mInclusion,
                     mSortAscending
-                    ? ImageManager.SORT_ASCENDING
-                    : ImageManager.SORT_DESCENDING,
+                            ? ImageManager.SORT_ASCENDING
+                            : ImageManager.SORT_DESCENDING,
                     ImageManager.CAMERA_IMAGE_BUCKET_ID);
 
         }
@@ -751,8 +745,7 @@ public class MultipleImageSelectionActivity extends NoSearchActivity implements
 
     private final Paint mPaint = new Paint(Paint.FILTER_BITMAP_FLAG);
 
-    public void drawImage(Canvas canvas, IImage image,
-            Bitmap b, int xPos, int yPos, int w, int h) {
+    public void drawImage(Canvas canvas, IImage image, Bitmap b, int xPos, int yPos, int w, int h) {
         if (b != null) {
             // if the image is close to the target size then crop,
             // otherwise scale both the bitmap and the view should be
@@ -765,7 +758,7 @@ public class MultipleImageSelectionActivity extends NoSearchActivity implements
             int deltaH = bh - h;
 
             if (deltaW >= 0 && deltaW < 10 &&
-                deltaH >= 0 && deltaH < 10) {
+                    deltaH >= 0 && deltaH < 10) {
                 int halfDeltaW = deltaW / 2;
                 int halfDeltaH = deltaH / 2;
                 mSrcRect.set(0 + halfDeltaW, 0 + halfDeltaH,
@@ -819,8 +812,7 @@ public class MultipleImageSelectionActivity extends NoSearchActivity implements
         }
     }
 
-    public void drawDecoration(Canvas canvas, IImage image,
-            int xPos, int yPos, int w, int h) {
+    public void drawDecoration(Canvas canvas, IImage image, int xPos, int yPos, int w, int h) {
 
         initializeMultiSelectDrawables();
 
@@ -838,12 +830,10 @@ public class MultipleImageSelectionActivity extends NoSearchActivity implements
 
     private void initializeMultiSelectDrawables() {
         if (mMultiSelectTrue == null) {
-            mMultiSelectTrue = getResources()
-                    .getDrawable(R.drawable.btn_check_buttonless_on);
+            mMultiSelectTrue = getResources().getDrawable(R.drawable.btn_check_buttonless_on);
         }
         if (mMultiSelectFalse == null) {
-            mMultiSelectFalse = getResources()
-                    .getDrawable(R.drawable.btn_check_buttonless_off);
+            mMultiSelectFalse = getResources().getDrawable(R.drawable.btn_check_buttonless_off);
         }
     }
 

@@ -97,6 +97,13 @@ public class FolderBackupService extends Service {
         }
     }
 
+    /**
+     * TODO and FIXME:
+     * <p>
+     * On Android 5.0, API 21 - Android 7.1, API 25, this feature is not available and needs to be refactored
+     * <p>
+     * Because Apache Commons IO requires a specified JDK version (>=1.8) and other reasons.
+     */
     public void startFolderMonitor(List<String> backupPaths) {
         List<FileAlterationObserver> fileAlterationObserverList = new ArrayList<>();
 

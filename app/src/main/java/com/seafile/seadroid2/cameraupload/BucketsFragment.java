@@ -154,9 +154,7 @@ public class BucketsFragment extends Fragment {
                     mActivity.saveSettings();
                     break;
             }
-
         }
-
     };
 
     public boolean isAutoScanSelected() {
