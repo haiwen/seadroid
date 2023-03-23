@@ -1,81 +1,77 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <PreferenceCategory android:title="@string/settings_account"
-        android:layout="@layout/bg_settings_section_account">
+    <PreferenceCategory
+        android:layout="@layout/bg_settings_section_account"
+        android:title="@string/settings_account">
         <Preference
-                android:key="account_info_user_key"
-                android:summary="@string/settings_account_info_load_data"
-                android:enabled="false"
-                android:title="@string/settings_account_info_title" >
-        </Preference>
+            android:enabled="false"
+            android:key="account_info_user_key"
+            android:summary="@string/settings_account_info_load_data"
+            android:title="@string/settings_account_info_title" />
         <Preference
-                android:key="account_info_space_key"
-                android:summary="@string/settings_account_info_load_data"
-                android:enabled="false"
-                android:title="@string/settings_account_space_title" >
-        </Preference>
+            android:enabled="false"
+            android:key="account_info_space_key"
+            android:summary="@string/settings_account_info_load_data"
+            android:title="@string/settings_account_space_title" />
 
         <com.seafile.seadroid2.ui.SwitchPreferenceCompat
             android:defaultValue="false"
             android:key="gesture_lock_switch_key"
             android:summaryOff="@string/gesture_lock_off"
             android:summaryOn="@string/gesture_lock_on"
-            android:title="@string/gesture_lock" >
-        </com.seafile.seadroid2.ui.SwitchPreferenceCompat>
+            android:title="@string/gesture_lock" />
 
         <Preference
-                android:key="account_sign_out_key"
-                android:title="@string/settings_account_sign_out_title"
-                android:summary="@string/settings_account_sign_out_hint">
-        </Preference>
+            android:key="account_sign_out_key"
+            android:summary="@string/settings_account_sign_out_hint"
+            android:title="@string/settings_account_sign_out_title" />
     </PreferenceCategory>
-    <PreferenceCategory android:title="@string/security"
+    <PreferenceCategory
         android:key="category_privacy_key"
-        android:layout="@layout/bg_settings_section_security">
+        android:layout="@layout/bg_settings_section_security"
+        android:title="@string/security">
         <Preference
             android:key="clear_password_switch_key"
             android:summary="@string/clear_password_hint"
-            android:title="@string/clear_password_title" >
-        </Preference>
+            android:title="@string/clear_password_title" />
 
         <com.seafile.seadroid2.ui.SwitchPreferenceCompat
             android:defaultValue="false"
             android:key="auto_clear_password_switch_key"
-            android:title="@string/clear_password_auto" >
-        </com.seafile.seadroid2.ui.SwitchPreferenceCompat>
+            android:title="@string/clear_password_auto" />
 
         <com.seafile.seadroid2.ui.SwitchPreferenceCompat
             android:defaultValue="false"
             android:key="client_encrypt_switch_key"
             android:summaryOff="@string/enc_off"
             android:summaryOn="@string/enc_on"
-            android:title="@string/enc_title" >
-        </com.seafile.seadroid2.ui.SwitchPreferenceCompat>
+            android:title="@string/enc_title" />
 
     </PreferenceCategory>
     <PreferenceCategory
-            android:layout="@layout/bg_settings_section_camera_upload"
         android:key="category_camera_upload_key"
-            android:title="@string/settings_camera_upload_info_title" >
+        android:layout="@layout/bg_settings_section_camera_upload"
+        android:title="@string/settings_camera_upload_info_title">
         <com.seafile.seadroid2.ui.SwitchPreferenceCompat
             android:defaultValue="false"
             android:key="camera_upload_switch_key"
             android:summaryOff="@string/settings_camera_upload_service_stopped"
             android:summaryOn="@string/settings_camera_upload_service_started"
-            android:title="@string/settings_camera_upload_turn_on" >
-        </com.seafile.seadroid2.ui.SwitchPreferenceCompat>
+            android:title="@string/settings_camera_upload_turn_on" />
 
         <Preference
             android:key="camera_upload_repo_key"
             android:summary="@string/settings_camera_upload_repo_hint"
             android:title="@string/settings_camera_upload_change_repo_title" />
 
-        <PreferenceScreen android:key="screen_camera_upload_advanced_feature"
-                          android:title="@string/settings_camera_upload_advanced_feature_title"
-                          android:summary="@string/settings_camera_upload_advanced_feature_subtitle">
+        <PreferenceScreen
+            android:key="screen_camera_upload_advanced_feature"
+            android:summary="@string/settings_camera_upload_advanced_feature_subtitle"
+            android:title="@string/settings_camera_upload_advanced_feature_title">
 
-            <PreferenceCategory android:key="category_camera_upload_advanced_key"
+            <PreferenceCategory
+                android:key="category_camera_upload_advanced_key"
                 android:title="@string/settings_advance_feature_title">
 
                 <CheckBoxPreference
@@ -83,29 +79,23 @@
                     android:key="allow_data_plan_switch_key"
                     android:summaryOff="@string/settings_camera_upload_default_wifi"
                     android:summaryOn="@string/settings_camera_upload_data_plan_allowed"
-                    android:title="@string/settings_camera_upload_allow_data_plan"
-                    >
-                </CheckBoxPreference>
+                    android:title="@string/settings_camera_upload_allow_data_plan" />
                 <CheckBoxPreference
                     android:defaultValue="false"
                     android:key="allow_videos_upload_switch_key"
                     android:summaryOff="@string/settings_camera_upload_default_photos"
                     android:summaryOn="@string/settings_camera_upload_videos_allowed"
-                    android:title="@string/settings_camera_upload_allow_videos">
-                </CheckBoxPreference>
+                    android:title="@string/settings_camera_upload_allow_videos" />
                 <com.seafile.seadroid2.ui.SwitchPreferenceCompat
                     android:defaultValue="false"
                     android:key="camera_upload_buckets_switch_key"
                     android:summaryOff="@string/settings_camera_upload_advanced_custom_directories_off"
                     android:summaryOn="@string/settings_camera_upload_advanced_custom_directories_on"
-                    android:title="@string/settings_camera_upload_advanced_custom_directories"
-                    >
-                </com.seafile.seadroid2.ui.SwitchPreferenceCompat>
+                    android:title="@string/settings_camera_upload_advanced_custom_directories" />
                 <Preference
                     android:key="camera_upload_buckets_key"
                     android:summary="@string/settings_camera_upload_dir_auto_scan"
-                        android:title="@string/settings_camera_upload_choose_dir" >
-                </Preference>
+                    android:title="@string/settings_camera_upload_choose_dir" />
             </PreferenceCategory>
         </PreferenceScreen>
         <Preference
@@ -122,8 +112,7 @@
             android:key="folder_backup_switch_key"
             android:summaryOff="@string/settings_folder_backup_service_stopped"
             android:summaryOn="@string/settings_folder_backup_service_started"
-            android:title="@string/settings_folder_backup_switch_title">
-        </com.seafile.seadroid2.ui.SwitchPreferenceCompat>
+            android:title="@string/settings_folder_backup_switch_title" />
         <Preference
             android:key="folder_backup_mode"
             android:summary="@string/settings_folder_backup_traffic_hint"
@@ -142,60 +131,62 @@
             android:title="@string/folder_backup_state" />
     </PreferenceCategory>
     <!--<PreferenceCategory-->
-        <!--android:key="category_contacts_upload_key"-->
-        <!--android:layout="@layout/bg_settings_section_contacts_upload"-->
-        <!--android:title="@string/settings_contacts_upload_info_title">-->
-        <!--<com.seafile.seadroid2.ui.SwitchPreferenceCompat-->
-            <!--android:defaultValue="false"-->
-            <!--android:key="contacts_upload_switch_key"-->
-            <!--android:summaryOff="@string/settings_contacts_upload_service_stopped"-->
-            <!--android:summaryOn="@string/settings_contacts_upload_service_started"-->
-            <!--android:title="@string/settings_contacts_upload_turn_on">-->
-        <!--</com.seafile.seadroid2.ui.SwitchPreferenceCompat>-->
-        <!--<Preference-->
-            <!--android:id="@+id/preference"-->
-            <!--android:key="contacts_upload_repo_key"-->
-            <!--android:summary="@string/settings_contacts_upload_repo_hint"-->
-            <!--android:title="@string/settings_contacts_upload_change_repo_title"/>-->
-        <!--<Preference-->
-            <!--android:key="contacts_upload_repo_time_key"-->
-            <!--android:summary="@string/settings_contacts_upload_repo_history"-->
-            <!--android:title="@string/settings_contacts_upload_repo_time"/>-->
-        <!--<Preference-->
-            <!--android:key="contacts_upload_repo_backup_key"-->
-            <!--android:summary="@string/settings_contacts_upload_start_backup_hint"-->
-            <!--android:title="@string/settings_contacts_upload_start_backup"/>-->
-        <!--<Preference-->
-            <!--android:key="contacts_upload_repo_recovery_key"-->
-            <!--android:summary="@string/settings_contacts_upload_start_recovery_hint"-->
-            <!--android:title="@string/settings_contacts_upload_start_recovery"/>-->
+    <!--android:key="category_contacts_upload_key"-->
+    <!--android:layout="@layout/bg_settings_section_contacts_upload"-->
+    <!--android:title="@string/settings_contacts_upload_info_title">-->
+    <!--<com.seafile.seadroid2.ui.SwitchPreferenceCompat-->
+    <!--android:defaultValue="false"-->
+    <!--android:key="contacts_upload_switch_key"-->
+    <!--android:summaryOff="@string/settings_contacts_upload_service_stopped"-->
+    <!--android:summaryOn="@string/settings_contacts_upload_service_started"-->
+    <!--android:title="@string/settings_contacts_upload_turn_on">-->
+    <!--</com.seafile.seadroid2.ui.SwitchPreferenceCompat>-->
+    <!--<Preference-->
+    <!--android:id="@+id/preference"-->
+    <!--android:key="contacts_upload_repo_key"-->
+    <!--android:summary="@string/settings_contacts_upload_repo_hint"-->
+    <!--android:title="@string/settings_contacts_upload_change_repo_title"/>-->
+    <!--<Preference-->
+    <!--android:key="contacts_upload_repo_time_key"-->
+    <!--android:summary="@string/settings_contacts_upload_repo_history"-->
+    <!--android:title="@string/settings_contacts_upload_repo_time"/>-->
+    <!--<Preference-->
+    <!--android:key="contacts_upload_repo_backup_key"-->
+    <!--android:summary="@string/settings_contacts_upload_start_backup_hint"-->
+    <!--android:title="@string/settings_contacts_upload_start_backup"/>-->
+    <!--<Preference-->
+    <!--android:key="contacts_upload_repo_recovery_key"-->
+    <!--android:summary="@string/settings_contacts_upload_start_recovery_hint"-->
+    <!--android:title="@string/settings_contacts_upload_start_recovery"/>-->
     <!--</PreferenceCategory>-->
-    <PreferenceCategory android:title="@string/settings_storage_title"
+    <PreferenceCategory
         android:key="settings_cache_key"
-        android:layout="@layout/bg_settings_section_cache">
+        android:layout="@layout/bg_settings_section_cache"
+        android:title="@string/settings_storage_title">
         <Preference
-            android:key="settings_cache_info_key"
             android:enabled="false"
+            android:key="settings_cache_info_key"
             android:title="@string/settings_cache_title" />
         <Preference
             android:key="settings_cache_location_key"
-            android:title="@string/settings_cache_location_title"/>
+            android:title="@string/settings_cache_location_title" />
         <Preference
             android:key="settings_clear_cache_key"
             android:title="@string/settings_clear_cache_title" />
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="@string/settings_about_title"
-        android:layout="@layout/bg_settings_section_about">
+    <PreferenceCategory
+        android:layout="@layout/bg_settings_section_about"
+        android:title="@string/settings_about_title">
         <Preference
-            android:key="settings_about_version_key"
             android:enabled="false"
+            android:key="settings_about_version_key"
             android:title="@string/settings_about_version_title" />
         <Preference
             android:key="settings_privacy_policy_key"
             android:title="隐私政策" />
         <Preference
             android:key="settings_about_author_key"
-                android:title="@string/settings_about_author_title" />
+            android:title="@string/settings_about_author_title" />
     </PreferenceCategory>
 </PreferenceScreen>

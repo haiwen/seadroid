@@ -23,8 +23,7 @@ public class FileFooterFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.file_list_footer, container, false);
         statusView = (TextView)root.findViewById(R.id.upload_selection_status);
         cancelButton = (Button)root.findViewById(R.id.button_cancel_upload);
@@ -45,7 +44,6 @@ public class FileFooterFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 ((MultiFileChooserActivity)getActivity()).onConfirmButtonClicked();
-
             }
         });
 

@@ -14,6 +14,7 @@ import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
 import android.widget.Toast;
 
+import com.google.common.collect.Collections2;
 import com.google.gson.Gson;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SettingsManager;
@@ -27,6 +28,8 @@ import com.seafile.seadroid2.ui.fragment.SettingsFragment;
 import com.seafile.seadroid2.util.Utils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class FolderBackupConfigActivity extends BaseActivity {
@@ -35,6 +38,7 @@ public class FolderBackupConfigActivity extends BaseActivity {
     public static final String BACKUP_SELECT_REPO = "backup_select_repo";
     public static final String BACKUP_SELECT_PATHS = "backup_select_paths";
     public static final String BACKUP_SELECT_PATHS_SWITCH = "backup_select_paths_switch";
+
     private SelectBackupFolderFragment mBucketsFragment;
     private CloudLibraryChooserFragment mCloudLibFragment;
 
@@ -101,7 +105,14 @@ public class FolderBackupConfigActivity extends BaseActivity {
             return;
         }
 
+        //FIX an issue: When no folder or library is selected, a crash occurs
+        if (null == mSeafRepo || null == mAccount) {
+            Utils.utilsLogInfo(false, "----------No repo is selected");
+            return;
+        }
+
         Intent intent = new Intent();
+
         // update cloud library data
         if (mSeafRepo != null && mAccount != null) {
             intent.putExtra(SeafilePathChooserActivity.DATA_REPO_NAME, mSeafRepo.name);
@@ -120,9 +131,10 @@ public class FolderBackupConfigActivity extends BaseActivity {
             } catch (Exception e) {
                 Utils.utilsLogInfo(true, "=saveRepoConfig=======================" + e.toString());
             }
-
         }
+
         setResult(RESULT_OK, intent);
+
         boolean automaticBackup = SettingsManager.instance().isFolderAutomaticBackup();
         if (automaticBackup && mBackupService != null) {
             mBackupService.backupFolder(mAccount.getEmail());
@@ -134,29 +146,37 @@ public class FolderBackupConfigActivity extends BaseActivity {
             return;
         }
 
+        //FIX an issue: When no folder or library is selected, a crash occurs
+        if (selectFolderPaths == null || selectFolderPaths.isEmpty()) {
+            Utils.utilsLogInfo(false, "----------No folder is selected");
+            return;
+        }
+
         String backupEmail = SettingsManager.instance().getBackupEmail();
         String strJsonPath = new Gson().toJson(selectFolderPaths);
 
-        if ((TextUtils.isEmpty(originalBackupPaths) && !TextUtils.isEmpty(strJsonPath)) ||
-                !originalBackupPaths.equals(strJsonPath)) {
+        if ((TextUtils.isEmpty(originalBackupPaths) && !TextUtils.isEmpty(strJsonPath)) || !originalBackupPaths.equals(strJsonPath)) {
             mBackupService.startFolderMonitor(selectFolderPaths);
             Utils.utilsLogInfo(false, "----------Restart monitoring FolderMonitor");
         }
+
         if (!TextUtils.isEmpty(originalBackupPaths) && TextUtils.isEmpty(strJsonPath)) {
             mBackupService.stopFolderMonitor();
         }
+
         SettingsManager.instance().saveBackupPaths(strJsonPath);
         Intent intent = new Intent();
         if (selectFolderPaths != null) {
             intent.putStringArrayListExtra(BACKUP_SELECT_PATHS, (ArrayList<String>) selectFolderPaths);
             intent.putExtra(BACKUP_SELECT_PATHS_SWITCH, true);
         }
+
         setResult(RESULT_OK, intent);
+
         boolean folderAutomaticBackup = SettingsManager.instance().isFolderAutomaticBackup();
         if (folderAutomaticBackup && mBackupService != null) {
             mBackupService.backupFolder(backupEmail);
         }
-
     }
 
     @Override
@@ -171,7 +191,6 @@ public class FolderBackupConfigActivity extends BaseActivity {
     public boolean isChooseDirPage() {
         return isChooseFolderPage;
     }
-
 
     @Override
     protected void onDestroy() {
@@ -196,7 +215,7 @@ public class FolderBackupConfigActivity extends BaseActivity {
 
     };
 
-    class FolderBackupConfigAdapter extends FragmentStatePagerAdapter {
+    private class FolderBackupConfigAdapter extends FragmentStatePagerAdapter {
 
         public FolderBackupConfigAdapter(FragmentManager fm) {
             super(fm);

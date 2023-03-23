@@ -389,6 +389,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
                 return true;
             }
         });
+
         cBackupFolderRepo.setOnPreferenceClickListener(new OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
@@ -400,6 +401,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
                 return true;
             }
         });
+
         cBackupFolderPref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
