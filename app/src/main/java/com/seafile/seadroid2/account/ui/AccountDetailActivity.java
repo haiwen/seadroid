@@ -73,7 +73,9 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
     private CheckBox mRemDeviceCheckBox;
     private String mSessionKey;
 
-    /** Called when the activity is first created. */
+    /**
+     * Called when the activity is first created.
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -328,7 +330,7 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
     }
 
     private void setupServerText() {
-        mServerEt.setOnFocusChangeListener(new View.OnFocusChangeListener () {
+        mServerEt.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 Log.d(DEBUG_TAG, "serverText has focus: " + (hasFocus ? "yes" : "no"));
@@ -338,13 +340,13 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
 
         mServerEt.addTextChangedListener(new TextWatcher() {
             private String old;
+
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
             }
 
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count,
-                                          int after) {
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
                 old = mServerEt.getText().toString();
             }
 
@@ -363,14 +365,15 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
         });
     }
 
-    /** Called when the user clicks the Login button */
+    /**
+     * Called when the user clicks the Login button
+     */
     public void login(View view) {
         String serverURL = mServerEt.getText().toString().trim();
         String email = mEmailEt.getText().toString().trim();
         String passwd = mPasswdEt.getText().toString();
 
-        ConnectivityManager connMgr = (ConnectivityManager)
-                getSystemService(Context.CONNECTIVITY_SERVICE);
+        ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 
         if (networkInfo != null && networkInfo.isConnected()) {
@@ -412,7 +415,7 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
 
             // force the keyboard to be hidden in all situations
             if (getCurrentFocus() != null) {
-                InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
             }
 
@@ -421,7 +424,7 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
             mProgressDialog = new ProgressDialog(this);
             mProgressDialog.setMessage(getString(R.string.settings_cuc_loading));
             mProgressDialog.setCancelable(false);
-            ConcurrentAsyncTask.execute(new LoginTask(tmpAccount, passwd, authToken,rememberDevice));
+            ConcurrentAsyncTask.execute(new LoginTask(tmpAccount, passwd, authToken, rememberDevice));
 
         } else {
             mStatusTv.setText(R.string.network_down);
@@ -536,7 +539,7 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
 
                 // replace email address/username given by the user with the address known by the server.
 //                loginAccount = new Account(loginAccount.server, accountInfo.getEmail(), loginAccount.token, false, loginAccount.sessionKey);
-                loginAccount = new Account(accountInfo.getName(),loginAccount.server, accountInfo.getEmail(), loginAccount.token, false, loginAccount.sessionKey);
+                loginAccount = new Account(accountInfo.getName(), loginAccount.server, accountInfo.getEmail(), loginAccount.token, false, loginAccount.sessionKey);
 
                 return "Success";
 

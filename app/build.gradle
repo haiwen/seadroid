@@ -107,6 +107,9 @@ android {
     }
     dependencies {
         implementation fileTree(include: ['*.jar'], dir: 'libs')
+
+        debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.10'
+
         implementation "com.android.support:appcompat-v7:${rootProject.ext.supportLibVersion}"
         implementation "com.android.support:design:${rootProject.ext.supportLibVersion}"
         implementation 'com.github.JakeWharton:ViewPagerIndicator:2.4.1'
@@ -128,7 +131,6 @@ android {
         implementation 'io.reactivex.rxjava3:rxjava:3.1.5'
         implementation 'io.reactivex.rxjava3:rxandroid:3.0.2'
         implementation 'com.google.code.gson:gson:2.10'
-
 
 
         implementation 'com.yydcdut:markdown-processor:0.1.3'

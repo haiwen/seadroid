@@ -149,6 +149,13 @@ public class FolderBackupConfigActivity extends BaseActivity {
         //FIX an issue: When no folder or library is selected, a crash occurs
         if (selectFolderPaths == null || selectFolderPaths.isEmpty()) {
             Utils.utilsLogInfo(false, "----------No folder is selected");
+
+            //clear local storage
+            SettingsManager.instance().saveBackupPaths("");
+
+            Intent intent = new Intent();
+            intent.putExtra(BACKUP_SELECT_PATHS_SWITCH, true);
+            setResult(RESULT_OK, intent);
             return;
         }
 

@@ -266,7 +266,7 @@ public class ActivitiesFragment extends Fragment {
             return;
         }
 
-        final FrameLayout container = mActivity.getContainer();
+        final FrameLayout container = mActivity.getmContainer();
         if (!boolShown) {
             container.removeView(ppwContainerView);
             container.addView(ppwContainerView);

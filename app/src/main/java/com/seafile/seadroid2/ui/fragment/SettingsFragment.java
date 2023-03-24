@@ -79,7 +79,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
     public static final String FOLDER_BACKUP_REMOTE_LIBRARY = "com.seafile.seadroid2.folder.backup.library";
     public static final int CHOOSE_CAMERA_UPLOAD_REQUEST = 2;
     public static final int CHOOSE_BACKUP_UPLOAD_REQUEST = 5;
-//    public static final int CHOOSE_CONTACTS_UPLOAD_REQUEST = 3;
+    //    public static final int CHOOSE_CONTACTS_UPLOAD_REQUEST = 3;
     // Account Info
     private static Map<String, AccountInfo> accountInfoMap = Maps.newHashMap();
 
@@ -98,11 +98,11 @@ public class SettingsFragment extends CustomPreferenceFragment {
     private String appVersion;
     public SettingsManager settingsMgr;
     private CameraUploadManager cameraManager;
-//    public ContactsUploadManager contactsManager;
+    //    public ContactsUploadManager contactsManager;
     private AccountManager accountMgr;
     private DataManager dataMgr;
     private StorageManager storageManager = StorageManager.getInstance();
-//    private PreferenceCategory cContactsCategory;
+    //    private PreferenceCategory cContactsCategory;
 //    private Preference cContactsRepoPref;
 //    private Preference cContactsRepoTime;
 //    private Preference cContactsRepoBackUp;
@@ -270,6 +270,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
                 return false;
             }
         });
+
         if (currentAccount != null) {
             final ServerInfo serverInfo = accountMgr.getServerInfo(currentAccount);
 
@@ -568,7 +569,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
                 }
             });
         } else {
-            PreferenceCategory cCacheCategory = (PreferenceCategory)findPreference(SettingsManager.SETTINGS_CACHE_CATEGORY_KEY);
+            PreferenceCategory cCacheCategory = (PreferenceCategory) findPreference(SettingsManager.SETTINGS_CACHE_CATEGORY_KEY);
             cCacheCategory.removePreference(findPreference(SettingsManager.SETTINGS_CACHE_DIR_KEY));
         }
 
@@ -721,8 +722,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
         Account camAccount = cameraManager.getCameraAccount();
         String backupEmail = SettingsManager.instance().getBackupEmail();
         if (camAccount != null && settingsMgr.getCameraUploadRepoName() != null) {
-            cUploadRepoPref.setSummary(camAccount.getSignature()
-                    + "/" + settingsMgr.getCameraUploadRepoName());
+            cUploadRepoPref.setSummary(camAccount.getSignature() + "/" + settingsMgr.getCameraUploadRepoName());
         }
 
         ((CheckBoxPreference) findPreference(SettingsManager.CAMERA_UPLOAD_SWITCH_KEY)).setChecked(cameraManager.isCameraUploadEnabled());
@@ -738,6 +738,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
             } else {
                 cBackupFolderPref.setSummary(backupSelectPaths.size() + "");
             }
+
             Utils.utilsLogInfo(true, "=refreshCameraUploadView=======================" + backupEmail);
             if (!TextUtils.isEmpty(backupEmail)) {
                 try {
@@ -745,8 +746,8 @@ public class SettingsFragment extends CustomPreferenceFragment {
                 } catch (Exception e) {
                     Utils.utilsLogInfo(true, "=refreshCameraUploadView=======================" + e.toString());
                 }
-
             }
+
             if (selectRepoConfig != null && !TextUtils.isEmpty(selectRepoConfig.getRepoName())) {
                 cBackupFolderRepo.setSummary(backupEmail + "/" + selectRepoConfig.getRepoName());
             } else {
@@ -774,7 +775,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
             cbDataPlan.setChecked(settingsMgr.isDataPlanAllowed());
 
         // videos
-        CheckBoxPreference cbVideoAllowed = ((CheckBoxPreference)findPreference(SettingsManager.CAMERA_UPLOAD_ALLOW_VIDEOS_SWITCH_KEY));
+        CheckBoxPreference cbVideoAllowed = ((CheckBoxPreference) findPreference(SettingsManager.CAMERA_UPLOAD_ALLOW_VIDEOS_SWITCH_KEY));
         if (cbVideoAllowed != null)
             cbVideoAllowed.setChecked(settingsMgr.isVideosUploadAllowed());
 
@@ -790,7 +791,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
             allBuckets.add(bucket);
         }
 
-        for (GalleryBucketUtils.Bucket bucket: allBuckets) {
+        for (GalleryBucketUtils.Bucket bucket : allBuckets) {
             if (bucketIds.contains(bucket.id)) {
                 bucketNames.add(bucket.name);
             }
@@ -863,6 +864,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
                     if (data == null) {
                         return;
                     }
+
                     final boolean pathOn = data.getBooleanExtra(FolderBackupConfigActivity.BACKUP_SELECT_PATHS_SWITCH, false);
                     final ArrayList<String> pathListExtra = data.getStringArrayListExtra(FolderBackupConfigActivity.BACKUP_SELECT_PATHS);
                     if (pathOn && pathListExtra != null) {
@@ -873,8 +875,12 @@ public class SettingsFragment extends CustomPreferenceFragment {
                         }
                         backupSelectPaths.addAll(pathListExtra);
                         cBackupFolderPref.setSummary(pathListExtra.size() + "");
+                    } else if (pathListExtra == null) {
+                        if (backupSelectPaths != null) {
+                            backupSelectPaths.clear();
+                        }
+                        cBackupFolderPref.setSummary("0");
                     }
-
                 }
                 refreshCameraUploadView();
                 break;
@@ -918,7 +924,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
     /**
      * automatically update Account info, like space usage, total space size, from background.
      */
-    class RequestAccountInfoTask extends AsyncTask<Account, Void, AccountInfo> {
+    private class RequestAccountInfoTask extends AsyncTask<Account, Void, AccountInfo> {
 
         @Override
         protected void onPreExecute() {
@@ -981,7 +987,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
         ConcurrentAsyncTask.execute(new CalculateCacheTask());
     }
 
-    class CalculateCacheTask extends AsyncTask<String, Void, Long> {
+    private class CalculateCacheTask extends AsyncTask<String, Void, Long> {
 
         @Override
         protected Long doInBackground(String... params) {
@@ -996,7 +1002,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
 
     }
 
-    class UpdateStorageSLocationSummaryTask extends AsyncTask<Void, Void, Void> {
+    private class UpdateStorageLocationSummaryTask extends AsyncTask<Void, Void, Void> {
 
         @Override
         protected Void doInBackground(Void... params) {
@@ -1010,22 +1016,15 @@ public class SettingsFragment extends CustomPreferenceFragment {
 
     }
 
-    private SharedPreferences.OnSharedPreferenceChangeListener settingsListener =
-            new SharedPreferences.OnSharedPreferenceChangeListener() {
-
-                @Override
-                public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-
-                    switch (key) {
-                        case SettingsManager.SHARED_PREF_STORAGE_DIR:
-                            ConcurrentAsyncTask.execute(new UpdateStorageSLocationSummaryTask());
-                            break;
-                    }
-                }
-            };
+    private final SharedPreferences.OnSharedPreferenceChangeListener settingsListener = (sharedPreferences, key) -> {
+        switch (key) {
+            case SettingsManager.SHARED_PREF_STORAGE_DIR:
+                ConcurrentAsyncTask.execute(new UpdateStorageLocationSummaryTask());
+                break;
+        }
+    };
 
     private void showWifiDialog() {
-
         String[] buckModes = {"WIFI", getActivity().getString(R.string.folder_backup_mode)};
         new AlertDialog.Builder(getActivity())
                 .setCancelable(false)
@@ -1035,13 +1034,8 @@ public class SettingsFragment extends CustomPreferenceFragment {
 
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-
                         Toast.makeText(getActivity(), buckModes[i], Toast.LENGTH_SHORT).show();
-                        if (i == 0) {
-                            SettingsManager.instance().saveFolderBackupDataPlanAllowed(false);
-                        } else {
-                            SettingsManager.instance().saveFolderBackupDataPlanAllowed(true);
-                        }
+                        SettingsManager.instance().saveFolderBackupDataPlanAllowed(i != 0);
                     }
                 })
                 .show();

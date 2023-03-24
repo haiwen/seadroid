@@ -45,7 +45,7 @@ import java.util.List;
 import java.util.Locale;
 
 
-public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItemClickListener{
+public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItemClickListener {
     private static final String DEBUG_TAG = "AccountsActivity";
 
     public static final int DETAIL_ACTIVITY_REQUEST = 1;
@@ -60,18 +60,18 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
     private FileMonitorService mMonitorService;
     private Account currentDefaultAccount;
 
-    private OnAccountsUpdateListener accountsUpdateListener = new OnAccountsUpdateListener() {
+    private final OnAccountsUpdateListener accountsUpdateListener = new OnAccountsUpdateListener() {
         @Override
         public void onAccountsUpdated(android.accounts.Account[] accounts) {
             refreshView();
         }
     };
 
-    private ServiceConnection mMonitorConnection = new ServiceConnection() {
+    private final ServiceConnection mMonitorConnection = new ServiceConnection() {
 
         @Override
         public void onServiceConnected(ComponentName className, IBinder binder) {
-            FileMonitorService.MonitorBinder monitorBinder = (FileMonitorService.MonitorBinder)binder;
+            FileMonitorService.MonitorBinder monitorBinder = (FileMonitorService.MonitorBinder) binder;
             mMonitorService = monitorBinder.getService();
         }
 
@@ -100,9 +100,9 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
         addAccount.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View btn) {
-                 mAccountManager.addAccount(Account.ACCOUNT_TYPE,
-                         Authenticator.AUTHTOKEN_TYPE, null, null,
-                         AccountsActivity.this, accountCallback, null);
+                mAccountManager.addAccount(Account.ACCOUNT_TYPE,
+                        Authenticator.AUTHTOKEN_TYPE, null, null,
+                        AccountsActivity.this, accountCallback, null);
             }
         });
         accountsView.addFooterView(footerView, null, true);
@@ -110,8 +110,7 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
         adapter = new SeafAccountAdapter(this);
         accountsView.setAdapter(adapter);
         accountsView.setOnItemClickListener(new OnItemClickListener() {
-            public void onItemClick(AdapterView<?> parent, View view, int position,
-                    long id) {
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
                 Account account = accounts.get(position);
                 if (!account.hasValidToken()) {
@@ -193,7 +192,7 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-         switch (item.getItemId()) {
+        switch (item.getItemId()) {
             case android.R.id.home:
                 // if the current account sign out and no account was to logged in,
                 // then always goes to AccountsActivity
@@ -241,7 +240,7 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
         finish();
     }
 
-    AccountManagerCallback<Bundle> accountCallback = new AccountManagerCallback<Bundle>() {
+    private final AccountManagerCallback<Bundle> accountCallback = new AccountManagerCallback<Bundle>() {
 
         @Override
         public void run(AccountManagerFuture<Bundle> future) {
@@ -281,8 +280,7 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
     }
 
     @Override
-    public void onCreateContextMenu(ContextMenu menu, View v,
-            ContextMenuInfo menuInfo) {
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
         android.view.MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.account_menu, menu);
@@ -293,25 +291,22 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
         AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
         Account account;
         switch (item.getItemId()) {
-        case R.id.edit:
-            account = adapter.getItem((int)info.id);
-            startEditAccountActivity(account);
-            return true;
-        case R.id.delete:
-            account = adapter.getItem((int)info.id);
+            case R.id.edit:
+                account = adapter.getItem((int) info.id);
+                startEditAccountActivity(account);
+                return true;
+            case R.id.delete:
+                account = adapter.getItem((int) info.id);
 
-            Log.d(DEBUG_TAG, "removing account "+account);
-            mAccountManager.removeAccount(account.getAndroidAccount(), null, null);
+                Log.d(DEBUG_TAG, "removing account " + account);
+                mAccountManager.removeAccount(account.getAndroidAccount(), null, null);
 
-            if (mMonitorService != null) {
-                mMonitorService.removeAccount(account);
-            }
-
-
-
-            return true;
-        default:
-            return super.onContextItemSelected(item);
+                if (mMonitorService != null) {
+                    mMonitorService.removeAccount(account);
+                }
+                return true;
+            default:
+                return super.onContextItemSelected(item);
         }
     }
 

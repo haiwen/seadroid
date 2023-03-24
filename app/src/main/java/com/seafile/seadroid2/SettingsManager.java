@@ -154,8 +154,7 @@ public final class SettingsManager {
      * Client side encryption only support for encrypted library
      */
     public void setupEncrypt(boolean enable) {
-        settingsSharedPref.edit().putBoolean(CLIENT_ENC_SWITCH_KEY, enable)
-                .commit();
+        settingsSharedPref.edit().putBoolean(CLIENT_ENC_SWITCH_KEY, enable).commit();
     }
 
     /**
@@ -169,8 +168,7 @@ public final class SettingsManager {
      * Auto clear password
      */
     public void setupPasswordAutoClear(boolean enable) {
-        settingsSharedPref.edit().putBoolean(AUTO_CLEAR_PASSOWR_SWITCH_KEY, enable)
-                .commit();
+        settingsSharedPref.edit().putBoolean(AUTO_CLEAR_PASSOWR_SWITCH_KEY, enable).commit();
     }
 
     /**
@@ -181,8 +179,7 @@ public final class SettingsManager {
     }
 
     public void setupGestureLock() {
-        settingsSharedPref.edit().putBoolean(GESTURE_LOCK_SWITCH_KEY, true)
-                .commit();
+        settingsSharedPref.edit().putBoolean(GESTURE_LOCK_SWITCH_KEY, true).commit();
         saveGestureLockTimeStamp();
     }
 
@@ -201,10 +198,12 @@ public final class SettingsManager {
         if (!isGestureLockEnabled()) {
             return false;
         }
+
         LockPatternUtils mLockPatternUtils = new LockPatternUtils(SeadroidApplication.getAppContext());
         if (!mLockPatternUtils.savedPatternExists()) {
             return false;
         }
+
         long now = System.currentTimeMillis();
         if (now < lock_timestamp + LOCK_EXPIRATION_MSECS) {
             return false;
