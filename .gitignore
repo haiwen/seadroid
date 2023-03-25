@@ -49,7 +49,15 @@ debugkey.properties
 # Misc
 .DS_Store
 app/seed.txt
+app/map.txt
 out/
 
 *.store
 *.jks
+
+# keystore
+.keystore
+.store
+seadroid-key
+
+/build
