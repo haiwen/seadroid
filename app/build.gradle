@@ -108,8 +108,6 @@ android {
     dependencies {
         implementation fileTree(include: ['*.jar'], dir: 'libs')
 
-        debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.10'
-
         implementation "com.android.support:appcompat-v7:${rootProject.ext.supportLibVersion}"
         implementation "com.android.support:design:${rootProject.ext.supportLibVersion}"
         implementation 'com.github.JakeWharton:ViewPagerIndicator:2.4.1'
