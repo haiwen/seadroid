@@ -560,7 +560,7 @@
 
   <string name="above_quota">Above Quota</string>
   <string name="camera_upload_state">Upload Info</string>
-  <string name="waiting_state">Upload waiting</string>
+  <string name="waiting_state">Done</string>
   <string name="Upload_completed">Last sync finished at</string>
 
   <string name="is_scanning">Scanning</string>
@@ -590,7 +590,7 @@
   <string name="settings_folder_backup_traffic">Backup mode</string>
   <string name="settings_folder_backup_traffic_hint">wifi</string>
   <string name="settings_folder_backup_library">Library backup to</string>
-  <string name="folder_backup_waiting_state">Folder backup waiting</string>
+  <string name="folder_backup_waiting_state">Done</string>
   <string name="folder_backup_state">Folder backup info</string>
   <string name="folder_backup_mode">WIFI or mobile traffic</string>
   <string name="folder_backup_mode_title">Choose a mode</string>
