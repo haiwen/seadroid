@@ -76,9 +76,7 @@ public class SeafileMonitor {
      * Watch cached files for all accounts
      */
     public synchronized void monitorAllAccounts() {
-        List<Account> accounts =
-                new AccountManager(SeadroidApplication.getAppContext()).getAccountList();
-
+        List<Account> accounts = new AccountManager(SeadroidApplication.getAppContext()).getAccountList();
         for (Account account : accounts) {
             monitorFilesForAccount(account);
         }

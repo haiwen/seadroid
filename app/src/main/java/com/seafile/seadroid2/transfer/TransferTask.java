@@ -22,8 +22,9 @@ public abstract class TransferTask extends AsyncTask<Void, Long, File> {
     protected long totalSize, finished;
     protected TaskState state;
     protected SeafException err;
+    protected String source;
 
-    public TransferTask(int taskID, Account account, String repoName, String repoID, String path) {
+    public TransferTask(String source, int taskID, Account account, String repoName, String repoID, String path) {
         this.account = account;
         this.repoName = repoName;
         this.repoID = repoID;
@@ -33,6 +34,7 @@ public abstract class TransferTask extends AsyncTask<Void, Long, File> {
         // The size of the file would be known in the first progress update
         this.totalSize = -1;
         this.taskID = taskID;
+        this.source = source;
     }
 
     protected void cancel() {
@@ -51,6 +53,10 @@ public abstract class TransferTask extends AsyncTask<Void, Long, File> {
 
     public int getTaskID() {
         return taskID;
+    }
+
+    public String getSource() {
+        return source;
     }
 
     public TaskState getState() {

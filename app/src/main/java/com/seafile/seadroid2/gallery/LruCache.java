@@ -11,8 +11,7 @@ import com.google.common.collect.Maps;
 public class LruCache<K, V> {
 
     private final HashMap<K, V> mLruMap;
-    private final HashMap<K, Entry<K, V>> mWeakMap =
-            Maps.newHashMap();
+    private final HashMap<K, Entry<K, V>> mWeakMap = Maps.newHashMap();
     private ReferenceQueue<V> mQueue = new ReferenceQueue<V>();
 
     @SuppressWarnings("serial")
@@ -46,8 +45,7 @@ public class LruCache<K, V> {
     public synchronized V put(K key, V value) {
         cleanUpWeakMap();
         mLruMap.put(key, value);
-        Entry<K, V> entry = mWeakMap.put(
-                key, new Entry<K, V>(key, value, mQueue));
+        Entry<K, V> entry = mWeakMap.put(key, new Entry<K, V>(key, value, mQueue));
         return entry == null ? null : entry.get();
     }
 

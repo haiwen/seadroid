@@ -646,7 +646,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
 
         // Log.d(DEBUG_TAG, "uploading file " + file.getName() + " to " + serverPath);
         Utils.utilsLogInfo(true,"====uploading file " + file.getName() + " to " + serverPath);
-        int taskID = txService.addUploadTask(dataManager.getAccount(), targetRepoId, targetRepoName,
+        int taskID = txService.addCameraUploadTask(dataManager.getAccount(), targetRepoId, targetRepoName,
                 serverPath, file.getAbsolutePath(), false, false);
         tasksInProgress.add(taskID);
     }

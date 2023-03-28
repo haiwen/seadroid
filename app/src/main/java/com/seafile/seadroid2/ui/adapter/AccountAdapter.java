@@ -1,7 +1,6 @@
 package com.seafile.seadroid2.ui.adapter;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,20 +9,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.common.collect.Lists;
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.assist.ImageScaleType;
-import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
-import com.nostra13.universalimageloader.core.display.RoundedBitmapDisplayer;
-import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
-import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
-import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.avatar.Avatar;
+import com.seafile.seadroid2.config.GlideLoadConfig;
+import com.seafile.seadroid2.util.GlideApp;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -32,8 +23,8 @@ import java.util.List;
 public abstract class AccountAdapter extends BaseAdapter {
     private static final String DEBUG_TAG = "AccountAdapter";
 
-    private ImageLoadingListener animateFirstListener = new AnimateFirstDisplayListener();
-    private DisplayImageOptions options;
+//    private ImageLoadingListener animateFirstListener = new AnimateFirstDisplayListener();
+//    private DisplayImageOptions options;
     private ArrayList<Account> items;
     private ArrayList<Avatar> avatars;
     private Context context;
@@ -86,7 +77,7 @@ public abstract class AccountAdapter extends BaseAdapter {
         items.clear();
     }
 
-    private Viewholder viewHolder;
+    private ViewHolder viewHolder;
 
     protected abstract int getChildLayout();
 
@@ -104,34 +95,21 @@ public abstract class AccountAdapter extends BaseAdapter {
             TextView title = (TextView) view.findViewById(getChildTitleId());
             TextView subtitle = (TextView) view.findViewById(getChildSubTitleId());
             ImageView icon = (ImageView) view.findViewById(getChildIconId());
-            viewHolder = new Viewholder(title, subtitle, icon);
+            viewHolder = new ViewHolder(title, subtitle, icon);
             view.setTag(viewHolder);
         } else {
-            viewHolder = (Viewholder) convertView.getTag();
+            viewHolder = (ViewHolder) convertView.getTag();
         }
         Account account = items.get(position);
         viewHolder.title.setText(account.getServerHost());
 //        viewHolder.subtitle.setText(account.getEmail());
         viewHolder.subtitle.setText(account.getName());
         if (getAvatarUrl(account) != null) {
-            options = new DisplayImageOptions.Builder()
-                    .extraForDownloader(account)
-                    .showStubImage(R.drawable.default_account)
-                    // .delayBeforeLoading(1000)
-                    .showImageOnLoading(R.drawable.default_account)
-                    .showImageForEmptyUri(R.drawable.default_account)
-                    .showImageOnFail(R.drawable.default_account)
-                    .resetViewBeforeLoading()
-                    .cacheInMemory(true)
-                    .cacheOnDisk(true)
-                    .considerExifParams(true)
-                    .imageScaleType(ImageScaleType.NONE)
-                    .bitmapConfig(Bitmap.Config.RGB_565)
-                    .displayer(new RoundedBitmapDisplayer(1000))
-                    .build();
-            ImageLoader.getInstance().displayImage(getAvatarUrl(account), viewHolder.icon, options, animateFirstListener);
+            GlideApp.with(viewHolder.icon)
+                    .load(GlideLoadConfig.getGlideUrl(getAvatarUrl(account)))
+                    .apply(GlideLoadConfig.getOptions())
+                    .into(viewHolder.icon);
         }
-        ImageLoader.getInstance().handleSlowNetwork(true);
 
         return view;
     }
@@ -149,28 +127,28 @@ public abstract class AccountAdapter extends BaseAdapter {
         return null;
     }
 
-    private static class AnimateFirstDisplayListener extends SimpleImageLoadingListener {
+//    private static class AnimateFirstDisplayListener extends SimpleImageLoadingListener {
+//
+//        static final List<String> displayedImages = Collections.synchronizedList(new LinkedList<String>());
+//
+//        @Override
+//        public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+//            if (loadedImage != null) {
+//                ImageView imageView = (ImageView) view;
+//                boolean firstDisplay = !displayedImages.contains(imageUri);
+//                if (firstDisplay) {
+//                    FadeInBitmapDisplayer.animate(imageView, 500);
+//                    displayedImages.add(imageUri);
+//                }
+//            }
+//        }
+//    }
 
-        static final List<String> displayedImages = Collections.synchronizedList(new LinkedList<String>());
-
-        @Override
-        public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-            if (loadedImage != null) {
-                ImageView imageView = (ImageView) view;
-                boolean firstDisplay = !displayedImages.contains(imageUri);
-                if (firstDisplay) {
-                    FadeInBitmapDisplayer.animate(imageView, 500);
-                    displayedImages.add(imageUri);
-                }
-            }
-        }
-    }
-
-    private class Viewholder {
+    private static class ViewHolder {
         TextView title, subtitle;
         ImageView icon;
 
-        public Viewholder(TextView title, TextView subtitle, ImageView icon) {
+        public ViewHolder(TextView title, TextView subtitle, ImageView icon) {
             super();
             this.icon = icon;
             this.title = title;

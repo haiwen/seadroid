@@ -40,20 +40,24 @@
                 android:textSize="@dimen/tv_subtitle_txt_size"/>
     </RadioGroup>
 
-    <RelativeLayout
-            android:id="@+id/cuc_local_directory_list_container"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentRight="true"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"
-            android:layout_marginTop="@dimen/section_margin_top"
-            android:layout_marginBottom="5dp"
-            android:layout_above="@+id/cuc_local_directory_btn"
-            android:layout_below="@+id/cuc_local_directory_radio_group">
-
-    </RelativeLayout>
+    <GridView
+        android:id="@+id/cuc_bucket_selection_grid"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:columnWidth="150dp"
+        android:gravity="center"
+        android:horizontalSpacing="10dp"
+        android:numColumns="auto_fit"
+        android:stretchMode="columnWidth"
+        android:verticalSpacing="10dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="@dimen/section_margin_top"
+        android:layout_marginBottom="5dp"
+        android:layout_above="@+id/cuc_local_directory_btn"
+        android:layout_below="@+id/cuc_local_directory_radio_group"/>
 
     <Button android:id="@+id/cuc_local_directory_btn"
             android:layout_marginTop="@dimen/long_btn_padding_top"

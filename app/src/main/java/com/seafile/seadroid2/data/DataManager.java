@@ -89,7 +89,7 @@ public class DataManager {
      */
     public static File createTempDir() throws IOException {
         String dirName = "dir-" + UUID.randomUUID();
-        File dir = new File (storageManager.getTempDir(), dirName);
+        File dir = new File(storageManager.getTempDir(), dirName);
         if (dir.mkdir()) {
             return dir;
         } else {
@@ -194,24 +194,24 @@ public class DataManager {
 
     /**
      * The account directory structure of Seafile is like this:
-     *
+     * <p>
      * StorageManager.getMediaDir()
-     *            |__ foo@gmail.com (cloud.seafile.com)
-     *                      |__ Photos
-     *                      |__ Musics
-     *                      |__ ...
-     *            |__ foo@mycompany.com (seafile.mycompany.com)
-     *                      |__ Documents
-     *                      |__ Manuals
-     *                      |__ ...
-     *            |__ ...
-     *
+     * |__ foo@gmail.com (cloud.seafile.com)
+     * |__ Photos
+     * |__ Musics
+     * |__ ...
+     * |__ foo@mycompany.com (seafile.mycompany.com)
+     * |__ Documents
+     * |__ Manuals
+     * |__ ...
+     * |__ ...
+     * <p>
      * In the above directory, the user has used two accounts.
-     *
+     * <p>
      * 1. One account has email "foo@gmail.com" and server
      * "cloud.seafile.com". Two repos, "Photos" and "Musics", has been
      * viewed.
-     *
+     * <p>
      * 2. Another account has email "foo@mycompany.com", and server
      * "seafile.mycompany.com". Two repos, "Documents" and "Manuals", has
      * been viewed.
@@ -281,11 +281,15 @@ public class DataManager {
     /**
      * Each repo is placed under [account-dir]/[repo-name]. When a
      * file is downloaded, it's placed in its repo, with its full path.
+     *
      * @param repoName
      * @param repoID
      * @param path
      */
     public File getLocalRepoFile(String repoName, String repoID, String path) throws RuntimeException {
+        if (TextUtils.isEmpty(repoID)) {
+            return null;
+        }
         String repoDir = getRepoDir(repoName, repoID);
         if (TextUtils.isEmpty(repoDir)) {
             return null;
@@ -351,7 +355,7 @@ public class DataManager {
             return null;
         }
 
-        for (SeafRepo repo: cachedRepos) {
+        for (SeafRepo repo : cachedRepos) {
             if (repo.getID().equals(id)) {
                 return repo;
             }
@@ -482,7 +486,7 @@ public class DataManager {
     }
 
     public synchronized File getFileByBlocks(String repoName, String repoID, String path, long fileSize,
-                        ProgressMonitor monitor) throws SeafException, IOException, JSONException, NoSuchAlgorithmException {
+                                             ProgressMonitor monitor) throws SeafException, IOException, JSONException, NoSuchAlgorithmException {
 
         String cachedFileID = null;
         SeafCachedFile cf = getCachedFile(repoName, repoID, path);
@@ -600,12 +604,12 @@ public class DataManager {
 
     /**
      * In four cases we need to visit the server for dirents
-     *
+     * <p>
      * 1. No cached dirents
      * 2. User clicks "refresh" button.
      * 3. Download all dirents within a folder
      * 4. View starred or searched files in gallery without available local cache
-     *
+     * <p>
      * In the second case, the local cache may still be valid.
      */
     public List<SeafDirent> getDirentsFromServer(String repoID, String path) throws SeafException {
@@ -708,7 +712,7 @@ public class DataManager {
     private void uploadFileCommon(String repoName, String repoID, String dir,
                                   String filePath, ProgressMonitor monitor,
                                   boolean isUpdate, boolean isCopyToLocal) throws SeafException, IOException {
-        String newFileID  = sc.uploadFile(repoID, dir, filePath, monitor,isUpdate);
+        String newFileID = sc.uploadFile(repoID, dir, filePath, monitor, isUpdate);
         if (newFileID == null || newFileID.length() == 0) {
             return;
         }
@@ -830,7 +834,7 @@ public class DataManager {
             return sc.deleteShareLink(token);
         } catch (SeafException e) {
             e.printStackTrace();
-            return  false;
+            return false;
         }
     }
 
@@ -855,9 +859,9 @@ public class DataManager {
     }
 
 
-    public void delete(String repoID, String path, boolean isdir) throws SeafException{
+    public void delete(String repoID, String path, boolean isdir) throws SeafException {
         Pair<String, String> ret = sc.delete(repoID, path, isdir);
-        if (ret == null){
+        if (ret == null) {
             return;
         }
 
@@ -1147,10 +1151,8 @@ public class DataManager {
      * search on server
      *
      * @param query query text
-     * @param page pass 0 to disable page loading
-     *
+     * @param page  pass 0 to disable page loading
      * @return json format strings of searched result
-     *
      * @throws SeafException
      */
     public String search(String query, int page) throws SeafException {

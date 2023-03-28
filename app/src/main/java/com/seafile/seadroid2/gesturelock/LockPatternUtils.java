@@ -17,9 +17,8 @@ import android.util.Log;
 
 /**
  * Gesture Lock encrypt, decrypt utility
- * 
+ *
  * @author way
- * 
  */
 public class LockPatternUtils {
     private static final String TAG = "LockPatternUtils";
@@ -47,8 +46,7 @@ public class LockPatternUtils {
     public static final long FAILED_ATTEMPT_TIMEOUT_MS = 30000L;
 
     private static File sLockPatternFilename;
-    private static final AtomicBoolean sHaveNonZeroPatternFile = new AtomicBoolean(
-            false);
+    private static final AtomicBoolean sHaveNonZeroPatternFile = new AtomicBoolean(false);
     private static FileObserver sPasswordObserver;
 
     private static class LockPatternFileObserver extends FileObserver {
@@ -68,23 +66,20 @@ public class LockPatternUtils {
 
     public LockPatternUtils(Context context) {
         if (sLockPatternFilename == null) {
-            String dataSystemDirectory = context.getFilesDir()
-                    .getAbsolutePath();
-            sLockPatternFilename = new File(dataSystemDirectory,
-                    LOCK_PATTERN_FILE);
+            String dataSystemDirectory = context.getFilesDir().getAbsolutePath();
+            sLockPatternFilename = new File(dataSystemDirectory, LOCK_PATTERN_FILE);
             sHaveNonZeroPatternFile.set(sLockPatternFilename.length() > 0);
             int fileObserverMask = FileObserver.CLOSE_WRITE
                     | FileObserver.DELETE | FileObserver.MOVED_TO
                     | FileObserver.CREATE;
-            sPasswordObserver = new LockPatternFileObserver(
-                    dataSystemDirectory, fileObserverMask);
+            sPasswordObserver = new LockPatternFileObserver(dataSystemDirectory, fileObserverMask);
             sPasswordObserver.startWatching();
         }
     }
 
     /**
      * Check to see if the user has stored a lock pattern.
-     * 
+     *
      * @return Whether a saved pattern exists.
      */
     public boolean savedPatternExists() {
@@ -97,9 +92,8 @@ public class LockPatternUtils {
 
     /**
      * Deserialize a pattern.
-     * 
-     * @param string
-     *            The pattern serialized with {@link #patternToString}
+     *
+     * @param string The pattern serialized with {@link #patternToString}
      * @return The pattern.
      */
     public static List<LockPatternView.Cell> stringToPattern(String string) {
@@ -114,10 +108,9 @@ public class LockPatternUtils {
     }
 
     /**
-     * Serialize a pattern. 
-     * 
-     * @param pattern
-     *            The pattern.
+     * Serialize a pattern.
+     *
+     * @param pattern The pattern.
      * @return The pattern in string form.
      */
     public static String patternToString(List<LockPatternView.Cell> pattern) {
@@ -136,11 +129,9 @@ public class LockPatternUtils {
 
     /**
      * Save a lock pattern.
-     * 
-     * @param pattern
-     *            The new pattern to save.
-     * @param isFallback
-     *            Specifies if this is a fallback to biometric weak
+     *
+     * @param pattern    The new pattern to save.
+     * @param isFallback Specifies if this is a fallback to biometric weak
      */
     public void saveLockPattern(List<LockPatternView.Cell> pattern) {
         // Compute the hash
@@ -170,9 +161,9 @@ public class LockPatternUtils {
      * Generate an SHA-1 hash for the pattern. Not the most secure, but it is at
      * least a second level of protection. First level is that the file is in a
      * location only readable by the system process.
-     * 
+     *
      * @param pattern the gesture pattern.
-     * 
+     *
      * @return the hash of the pattern in a byte array.
      */
     private static byte[] patternToHash(List<LockPatternView.Cell> pattern) {
@@ -198,16 +189,14 @@ public class LockPatternUtils {
     /**
      * Check to see if a pattern matches the saved pattern. If no pattern
      * exists, always returns true.
-     * 
-     * @param pattern
-     *            The pattern to check.
+     *
+     * @param pattern The pattern to check.
      * @return Whether the pattern matches the stored one.
      */
     public boolean checkPattern(List<LockPatternView.Cell> pattern) {
         try {
             // Read all the bytes from the file
-            RandomAccessFile raf = new RandomAccessFile(sLockPatternFilename,
-                    "r");
+            RandomAccessFile raf = new RandomAccessFile(sLockPatternFilename, "r");
             final byte[] stored = new byte[(int) raf.length()];
             int got = raf.read(stored, 0, stored.length);
             raf.close();

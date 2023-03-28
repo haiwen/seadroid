@@ -13,13 +13,13 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.google.common.collect.Lists;
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.nostra13.universalimageloader.core.ImageLoader;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.config.GlideLoadConfig;
 import com.seafile.seadroid2.data.SeafEvent;
 import com.seafile.seadroid2.data.SeafItem;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
 import com.seafile.seadroid2.ui.widget.CircleImageView;
+import com.seafile.seadroid2.util.GlideApp;
 import com.seafile.seadroid2.util.SystemSwitchUtils;
 import com.seafile.seadroid2.util.Utils;
 
@@ -41,25 +41,12 @@ public class ActivitiesItemAdapter extends BaseAdapter {
 
     private ArrayList<SeafEvent> items;
     private BrowserActivity mActivity;
-    private ImageLoader loader;
-    private DisplayImageOptions options;
+
     private boolean useNewActivity;
 
     public ActivitiesItemAdapter(BrowserActivity activity) {
         this.mActivity = activity;
         items = Lists.newArrayList();
-        loader = ImageLoader.getInstance();
-        options = new DisplayImageOptions.Builder()
-                .extraForDownloader(mActivity.getAccount())
-                .showStubImage(R.drawable.default_avatar)
-                .showImageOnLoading(R.drawable.default_avatar)
-                .showImageForEmptyUri(R.drawable.default_avatar)
-                .showImageOnFail(R.drawable.default_avatar)
-                .resetViewBeforeLoading()
-                .cacheInMemory(true)
-                .cacheOnDisk(true)
-                .considerExifParams(true)
-                .build();
     }
 
     @Override
@@ -144,21 +131,21 @@ public class ActivitiesItemAdapter extends BaseAdapter {
         final ViewHolder viewHolder;
 
         view = LayoutInflater.from(mActivity).inflate(R.layout.list_item_activities, null);
-        RelativeLayout rl_old = (RelativeLayout) view.findViewById(R.id.rl_activities_old);
+        RelativeLayout rl_old = view.findViewById(R.id.rl_activities_old);
 
-        TextView title = (TextView) view.findViewById(R.id.tv_activities_mod_desc);
-        TextView nick = (TextView) view.findViewById(R.id.tv_activities_nick);
-        TextView date = (TextView) view.findViewById(R.id.tv_activities_date);
-        TextView repoName = (TextView) view.findViewById(R.id.tv_activities_repo_name);
-        CircleImageView icon = (CircleImageView) view.findViewById(R.id.iv_activities_avatar);
+        TextView title = view.findViewById(R.id.tv_activities_mod_desc);
+        TextView nick = view.findViewById(R.id.tv_activities_nick);
+        TextView date = view.findViewById(R.id.tv_activities_date);
+        TextView repoName = view.findViewById(R.id.tv_activities_repo_name);
+        CircleImageView icon = view.findViewById(R.id.iv_activities_avatar);
 
-        RelativeLayout rl_new = (RelativeLayout) view.findViewById(R.id.rl_activities_new);
-        CircleImageView icon_url = (CircleImageView) view.findViewById(R.id.iv_activities_avatar_url);
-        TextView tv_name = (TextView) view.findViewById(R.id.tv_activities_name);
-        TextView tv_state = (TextView) view.findViewById(R.id.tv_activities_state);
-        TextView tv_desc = (TextView) view.findViewById(R.id.tv_activities_desc);
-        TextView tv_time = (TextView) view.findViewById(R.id.tv_activities_time);
-        TextView tv_mod = (TextView) view.findViewById(R.id.tv_activities_mod);
+        View rl_new = view.findViewById(R.id.rl_activities_new);
+        CircleImageView icon_url = view.findViewById(R.id.iv_activities_avatar_url);
+        TextView tv_name = view.findViewById(R.id.tv_activities_name);
+        TextView tv_state = view.findViewById(R.id.tv_activities_state);
+        TextView tv_desc = view.findViewById(R.id.tv_activities_desc);
+        TextView tv_time = view.findViewById(R.id.tv_activities_time);
+        TextView tv_mod = view.findViewById(R.id.tv_activities_mod);
         viewHolder = new ViewHolder(title, nick, date, repoName, icon, tv_name, tv_state, tv_desc, tv_time, tv_mod, icon_url, rl_old, rl_new);
         view.setTag(viewHolder);
         if (useNewActivity) {
@@ -166,22 +153,28 @@ public class ActivitiesItemAdapter extends BaseAdapter {
             rl_new.setVisibility(View.VISIBLE);
             item.setAvatar(item.getAvatar_url());
             viewHolder.tv_name.setText(item.getAuthor_name());
-            loader.displayImage(item.getAvatar_url(), viewHolder.icon_url, options);
             viewHolder.tv_time.setText(SystemSwitchUtils.parseDateTime(item.getV_time()));
             viewHolder.tv_mod.setText(item.getRepo_name());
             viewHolder.tv_desc.setText(item.getPath());
             viewHolder.tv_state.setText(SystemSwitchUtils.obj_type(mActivity, item.getObj_type(), item.getOp_type()));
+            //
+            GlideApp.with(viewHolder.icon_url)
+                    .load(GlideLoadConfig.getGlideUrl(item.getAvatar_url()))
+                    .apply(GlideLoadConfig.getDefaultAvatarOptions())
+                    .into(viewHolder.icon_url);
 
         } else {
             rl_old.setVisibility(View.VISIBLE);
             rl_new.setVisibility(View.GONE);
         }
+
         if (!TextUtils.isEmpty(item.getAvatar())) {
             final String avatar = parseAvatar(item.getAvatar());
-            loader.displayImage(avatar, viewHolder.icon, options);
-        } else {
-            // show a place holder indicating the error
-            loader.displayImage(item.getAvatar(), viewHolder.icon, options);
+
+            GlideApp.with(viewHolder.icon)
+                    .load(GlideLoadConfig.getGlideUrl(avatar))
+                    .apply(GlideLoadConfig.getDefaultAvatarOptions())
+                    .into(viewHolder.icon);
         }
 
         viewHolder.title.setText(item.getDesc());
@@ -221,13 +214,14 @@ public class ActivitiesItemAdapter extends BaseAdapter {
         } else return relativeTime;
     }
 
-    private class ViewHolder {
+    private static class ViewHolder {
         TextView title, nick, date, repoName;
         ImageView icon, icon_url;
         TextView tv_name, tv_state, tv_desc, tv_mod, tv_time;
-        RelativeLayout rl_old, rl_new;
+        View rl_old, rl_new;
+
         public ViewHolder(TextView title, TextView nick, TextView date, TextView repoName, ImageView icon, TextView tv_name,
-                          TextView tv_state, TextView tv_desc, TextView tv_time, TextView tv_mod, ImageView icon_url, RelativeLayout rl_old, RelativeLayout rl_new) {
+                          TextView tv_state, TextView tv_desc, TextView tv_time, TextView tv_mod, ImageView icon_url, RelativeLayout rl_old, View rl_new) {
             super();
             this.icon = icon;
             this.title = title;

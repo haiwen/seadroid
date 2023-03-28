@@ -5,9 +5,11 @@ import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
+
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.notification.DownloadNotificationProvider;
 import com.seafile.seadroid2.notification.UploadNotificationProvider;
+import com.seafile.seadroid2.util.Utils;
 
 import java.util.List;
 
@@ -90,7 +92,11 @@ public class TransferService extends Service {
      * @return
      */
     public int addTaskToUploadQue(Account account, String repoID, String repoName, String dir, String filePath, boolean isUpdate, boolean isCopyToLocal) {
-        return uploadTaskManager.addTaskToQue(account, repoID, repoName, dir, filePath, isUpdate, isCopyToLocal,false);
+        return uploadTaskManager.addTaskToQue("", account, repoID, repoName, dir, filePath, isUpdate, isCopyToLocal, false);
+    }
+
+    public int addTaskToSourceQue(String source, Account account, String repoID, String repoName, String dir, String filePath, boolean isUpdate, boolean isCopyToLocal) {
+        return uploadTaskManager.addTaskToQue(source, account, repoID, repoName, dir, filePath, isUpdate, isCopyToLocal, false);
     }
 
     /**
@@ -110,7 +116,7 @@ public class TransferService extends Service {
      */
     public int addTaskToUploadQueBlock(Account account, String repoID, String repoName, String dir,
                                        String filePath, boolean isUpdate, boolean isCopyToLocal) {
-        return uploadTaskManager.addTaskToQue(account, repoID, repoName, dir, filePath, isUpdate, isCopyToLocal, true);
+        return uploadTaskManager.addTaskToQue("", account, repoID, repoName, dir, filePath, isUpdate, isCopyToLocal, true);
     }
 
     /**
@@ -129,6 +135,11 @@ public class TransferService extends Service {
     public int addUploadTask(Account account, String repoID, String repoName, String dir,
             String filePath, boolean isUpdate, boolean isCopyToLocal) {
         return addTaskToUploadQue(account, repoID, repoName, dir, filePath, isUpdate, isCopyToLocal);
+    }
+
+    public int addCameraUploadTask(Account account, String repoID, String repoName, String dir,
+            String filePath, boolean isUpdate, boolean isCopyToLocal) {
+        return addTaskToSourceQue(Utils.TRANSFER_PHOTO_TAG, account, repoID, repoName, dir, filePath, isUpdate, isCopyToLocal);
     }
 
     public UploadTaskInfo getUploadTaskInfo(int taskID) {

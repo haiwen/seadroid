@@ -1,7 +1,5 @@
 package com.seafile.seadroid2.ui.adapter;
 
-import android.graphics.Bitmap;
-import android.support.annotation.Nullable;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,15 +8,9 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.load.DataSource;
-import com.bumptech.glide.load.engine.GlideException;
-import com.bumptech.glide.load.model.GlideUrl;
-import com.bumptech.glide.load.model.LazyHeaders;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.RequestOptions;
-import com.bumptech.glide.request.target.Target;
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.config.GlideLoadConfig;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafItem;
 import com.seafile.seadroid2.data.SeafStarredFile;
@@ -135,19 +127,19 @@ public class StarredItemAdapter extends BaseAdapter {
     public View getView(final int position, View convertView, ViewGroup parent) {
         final SeafItem item = items.get(position);
         View view = convertView;
-        final Viewholder viewHolder;
+        final ViewHolder viewHolder;
 
         if (convertView == null) {
             view = LayoutInflater.from(mActivity).inflate(R.layout.starred_list_item, null);
-            ImageView multiSelect = (ImageView) view.findViewById(R.id.list_item_multi_select_btn);
-            TextView title = (TextView) view.findViewById(R.id.starred_list_item_title);
-            TextView subtitle = (TextView) view.findViewById(R.id.starred_list_item_subtitle);
-            ImageView icon = (ImageView) view.findViewById(R.id.starred_list_item_icon);
-            ImageView action = (ImageView) view.findViewById(R.id.starred_list_item_action);
-            viewHolder = new Viewholder(title, subtitle, multiSelect, icon, action);
+            ImageView multiSelect = view.findViewById(R.id.list_item_multi_select_btn);
+            TextView title = view.findViewById(R.id.starred_list_item_title);
+            TextView subtitle = view.findViewById(R.id.starred_list_item_subtitle);
+            ImageView icon = view.findViewById(R.id.starred_list_item_icon);
+            ImageView action = view.findViewById(R.id.starred_list_item_action);
+            viewHolder = new ViewHolder(title, subtitle, multiSelect, icon, action);
             view.setTag(viewHolder);
         } else {
-            viewHolder = (Viewholder) convertView.getTag();
+            viewHolder = (ViewHolder) convertView.getTag();
         }
         viewHolder.title.setText(item.getTitle());
         viewHolder.subtitle.setText(item.getSubtitle());
@@ -160,38 +152,13 @@ public class StarredItemAdapter extends BaseAdapter {
             if (url == null) {
                 judgeRepo(item, viewHolder);
             } else {
-                GlideUrl glideUrl = new GlideUrl(url, new LazyHeaders.Builder()
-                        .addHeader("Authorization", "Token " + mActivity.getAccount().token)
-                        .build());
-                RequestOptions opt = new RequestOptions()
-                        .placeholder(R.drawable.file_image)
-                        .override(WidgetUtils.getThumbnailWidth(), WidgetUtils.getThumbnailWidth());
-                GlideApp.with(mActivity)
-                        .asBitmap()
-                        .load(glideUrl)
-                        .apply(opt)
-                        .listener(new RequestListener<Bitmap>() {
-                            @Override
-                            public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Bitmap> target, boolean isFirstResource) {
-                                return false;
-                            }
-
-                            @Override
-                            public boolean onResourceReady(Bitmap resource, Object model, Target<Bitmap> target, DataSource dataSource, boolean isFirstResource) {
-                                String tag = (String) viewHolder.icon.getTag(R.id.imageloader_uri);
-                                if (tag.equals(item.getTitle())) {
-                                    viewHolder.icon.setImageBitmap(resource);
-                                    return false;
-                                }
-                                return true;
-                            }
-                        })
+                GlideApp.with(viewHolder.icon)
+                        .load(GlideLoadConfig.getGlideUrl(url))
+                        .apply(GlideLoadConfig.getOptions())
                         .into(viewHolder.icon);
             }
         } else {
-
             judgeRepo(item, viewHolder);
-
         }
 
         if (actionModeOn) {
@@ -225,7 +192,7 @@ public class StarredItemAdapter extends BaseAdapter {
         return view;
     }
 
-    private void judgeRepo(SeafItem item, Viewholder viewHolder) {
+    private void judgeRepo(SeafItem item, ViewHolder viewHolder) {
         if (((SeafStarredFile) item).isRepo_encrypted() && ((SeafStarredFile) item).isDir() && ((SeafStarredFile) item).getPath().equals("/")) {
             viewHolder.icon.setImageResource(R.drawable.repo_encrypted);
 
@@ -238,11 +205,11 @@ public class StarredItemAdapter extends BaseAdapter {
         }
     }
 
-    private class Viewholder {
+    private static class ViewHolder {
         TextView title, subtitle;
         ImageView multiSelect, icon, action;
 
-        public Viewholder(TextView title, TextView subtitle, ImageView multiSelect, ImageView icon, ImageView action) {
+        public ViewHolder(TextView title, TextView subtitle, ImageView multiSelect, ImageView icon, ImageView action) {
             super();
             this.multiSelect = multiSelect;
             this.icon = icon;

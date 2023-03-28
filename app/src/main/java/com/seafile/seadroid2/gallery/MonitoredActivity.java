@@ -8,14 +8,16 @@ import android.os.Bundle;
 
 public class MonitoredActivity extends NoSearchActivity {
 
-    private final ArrayList<LifeCycleListener> mListeners =
-            Lists.newArrayList();
+    private final ArrayList<LifeCycleListener> mListeners = Lists.newArrayList();
 
-    public static interface LifeCycleListener {
-        public void onActivityCreated(MonitoredActivity activity);
-        public void onActivityDestroyed(MonitoredActivity activity);
-        public void onActivityStarted(MonitoredActivity activity);
-        public void onActivityStopped(MonitoredActivity activity);
+    public interface LifeCycleListener {
+        void onActivityCreated(MonitoredActivity activity);
+
+        void onActivityDestroyed(MonitoredActivity activity);
+
+        void onActivityStarted(MonitoredActivity activity);
+
+        void onActivityStopped(MonitoredActivity activity);
     }
 
     public static class LifeCycleAdapter implements LifeCycleListener {

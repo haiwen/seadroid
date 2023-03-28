@@ -22,11 +22,9 @@ import android.support.v4.app.FragmentManager.BackStackEntry;
 import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
 import android.widget.Toast;
 
-public class MultiFileChooserActivity extends FragmentActivity implements
-OnBackStackChangedListener {
+public class MultiFileChooserActivity extends FragmentActivity implements OnBackStackChangedListener {
 
-    public static final String EXTERNAL_BASE_PATH = Environment
-            .getExternalStorageDirectory().getAbsolutePath();
+    public static final String EXTERNAL_BASE_PATH = Environment.getExternalStorageDirectory().getAbsolutePath();
     public static final String PATH = "path";
     public static final String MULTI_FILES_PATHS = "com.seafile.seadroid2.fileschooser.paths";
 
@@ -35,7 +33,7 @@ OnBackStackChangedListener {
     private FileFooterFragment mFooterFragment;
     private List<File> mSelectedFiles;
 
-    private BroadcastReceiver mStorageListener = new BroadcastReceiver() {
+    private final BroadcastReceiver mStorageListener = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             Toast.makeText(context, R.string.storage_removed, Toast.LENGTH_LONG).show();
@@ -58,8 +56,7 @@ OnBackStackChangedListener {
         }
 
         mFooterFragment = new FileFooterFragment();
-        mFragmentManager.beginTransaction()
-        .add(R.id.footer_fragment, mFooterFragment).commit();
+        mFragmentManager.beginTransaction().add(R.id.footer_fragment, mFooterFragment).commit();
 
         setTitle(mPath);
         mSelectedFiles = Lists.newArrayList();
@@ -86,8 +83,7 @@ OnBackStackChangedListener {
 
     private void addFragment(String path) {
         FileListFragment explorerFragment = FileListFragment.newInstance(mPath);
-        mFragmentManager.beginTransaction()
-                .add(R.id.explorer_fragment, explorerFragment).commit();
+        mFragmentManager.beginTransaction().add(R.id.explorer_fragment, explorerFragment).commit();
     }
 
     @Override
@@ -102,7 +98,6 @@ OnBackStackChangedListener {
         }
 
         setTitle(mPath);
-
     }
 
     public void onCancelButtonClicked() {
@@ -126,7 +121,6 @@ OnBackStackChangedListener {
                 e.printStackTrace();
                 return;
             }
-
         }
 
         Intent intent = new Intent();
@@ -148,11 +142,7 @@ OnBackStackChangedListener {
 
     private void updateUploadButtonStatus() {
         int nSelected = mSelectedFiles.size();
-        if (nSelected == 0) {
-            mFooterFragment.getConfirmButton().setEnabled(false);
-        } else {
-            mFooterFragment.getConfirmButton().setEnabled(true);
-        }
+        mFooterFragment.getConfirmButton().setEnabled(nSelected != 0);
     }
 
     private void updateSelectedFileList(SelectableFile file) {

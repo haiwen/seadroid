@@ -54,7 +54,7 @@ public class FileActivity extends BaseActivity implements Toolbar.OnMenuItemClic
     private int mTaskID = -1;
     private TransferService mTransferService;
     private boolean timerStarted;
-    private ServiceConnection mConnection = new ServiceConnection() {
+    private final ServiceConnection mConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
             Log.d(DEBUG_TAG, "TransferService connected");

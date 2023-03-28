@@ -38,27 +38,22 @@ public class LockPasswordUtils {
         public void onEvent(int event, String path) {
             if (LOCK_PASSWORD_FILE.equals(path)) {
                 Log.d(TAG, "lock password file changed");
-                sHaveNonZeroPasswordFile
-                        .set(sLockPasswordFilename.length() > 0);
+                sHaveNonZeroPasswordFile.set(sLockPasswordFilename.length() > 0);
             }
         }
     }
 
     public LockPasswordUtils(Context context) {
-        mSharedPreferences = context.getSharedPreferences(
-                LOCK_PASSWORD_SALT_FILE, Context.MODE_PRIVATE);
+        mSharedPreferences = context.getSharedPreferences(LOCK_PASSWORD_SALT_FILE, Context.MODE_PRIVATE);
         mEditor = mSharedPreferences.edit();
         if (sLockPasswordFilename == null) {
-            String dataSystemDirectory = context.getCacheDir()
-                    .getAbsolutePath();
-            sLockPasswordFilename = new File(dataSystemDirectory,
-                    LOCK_PASSWORD_FILE);
+            String dataSystemDirectory = context.getCacheDir().getAbsolutePath();
+            sLockPasswordFilename = new File(dataSystemDirectory, LOCK_PASSWORD_FILE);
             sHaveNonZeroPasswordFile.set(sLockPasswordFilename.length() > 0);
             int fileObserverMask = FileObserver.CLOSE_WRITE
                     | FileObserver.DELETE | FileObserver.MOVED_TO
                     | FileObserver.CREATE;
-            sPasswordObserver = new PasswordFileObserver(dataSystemDirectory,
-                    fileObserverMask);
+            sPasswordObserver = new PasswordFileObserver(dataSystemDirectory, fileObserverMask);
             sPasswordObserver.startWatching();
         }
     }

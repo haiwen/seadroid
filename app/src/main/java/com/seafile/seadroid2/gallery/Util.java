@@ -335,8 +335,7 @@ public class Util {
         return a == b || a.equals(b);
     }
 
-    private static class BackgroundJob
-            extends MonitoredActivity.LifeCycleAdapter implements Runnable {
+    private static class BackgroundJob extends MonitoredActivity.LifeCycleAdapter implements Runnable {
 
         private final MonitoredActivity mActivity;
         private final ProgressDialog mDialog;
@@ -349,8 +348,7 @@ public class Util {
             }
         };
 
-        public BackgroundJob(MonitoredActivity activity, Runnable job,
-                ProgressDialog dialog, Handler handler) {
+        public BackgroundJob(MonitoredActivity activity, Runnable job, ProgressDialog dialog, Handler handler) {
             mActivity = activity;
             mDialog = dialog;
             mJob = job;
@@ -386,12 +384,10 @@ public class Util {
         }
     }
 
-    public static void startBackgroundJob(MonitoredActivity activity,
-            String title, String message, Runnable job, Handler handler) {
+    public static void startBackgroundJob(MonitoredActivity activity, String title, String message, Runnable job, Handler handler) {
         // Make the progress dialog uncancelable, so that we can gurantee
         // the thread will be done before the activity getting destroyed.
-        ProgressDialog dialog = ProgressDialog.show(
-                activity, title, message, true, false);
+        ProgressDialog dialog = ProgressDialog.show(activity, title, message, true, false);
         new Thread(new BackgroundJob(activity, job, dialog, handler)).start();
     }
 

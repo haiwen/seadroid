@@ -89,6 +89,8 @@ public class Utils {
     // public static final String NOGROUP = "$nogroup";
     public static final String PERSONAL_REPO = "personal_repo";
     public static final String SHARED_REPO = "shared_repo";
+    public static final String TRANSFER_PHOTO_TAG = "camera_upload";
+    public static final String TRANSFER_FOLDER_TAG = "folder_backup";
     private static final String DEBUG_TAG = "Utils";
     private static final String HIDDEN_PREFIX = ".";
     private static HashMap<String, Integer> suffixIconMap = null;
@@ -300,6 +302,23 @@ public class Utils {
         return getResIdforMimetype(mime);
     }
 
+    public static int getFileIconSuffix(String suffix) {
+        if (suffix.length() == 0) {
+            return R.drawable.file;
+        }
+
+        HashMap<String, Integer> map = getSuffixIconMap();
+        Integer i = map.get(suffix);
+        if (i != null)
+            return i;
+
+        if (suffix.equals("flv")) {
+            return R.drawable.file_video;
+        }
+        String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(suffix);
+        return getResIdforMimetype(mime);
+    }
+
     public static boolean isViewableImage(String name) {
         String suffix = name.substring(name.lastIndexOf('.') + 1).toLowerCase();
         if (suffix.length() == 0)
@@ -346,9 +365,7 @@ public class Utils {
     }
 
     public static boolean isNetworkOn() {
-        ConnectivityManager connMgr = (ConnectivityManager)
-                SeadroidApplication.getAppContext().getSystemService(
-                        Context.CONNECTIVITY_SERVICE);
+        ConnectivityManager connMgr = (ConnectivityManager) SeadroidApplication.getAppContext().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
         if (networkInfo == null) {
             return false;
@@ -366,16 +383,11 @@ public class Utils {
     }
 
     public static boolean isWiFiOn() {
-        ConnectivityManager connMgr = (ConnectivityManager)
-                SeadroidApplication.getAppContext().getSystemService(
-                        Context.CONNECTIVITY_SERVICE);
-
+        ConnectivityManager connMgr = (ConnectivityManager) SeadroidApplication.getAppContext().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo wifi = connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-        if(wifi != null && wifi.isAvailable()
-                && wifi.getDetailedState() == DetailedState.CONNECTED) {
+        if(wifi != null && wifi.isAvailable() && wifi.getDetailedState() == DetailedState.CONNECTED) {
             return true;
         }
-
         return false;
     }
     public static String pathJoin (String first, String... rest) {
@@ -486,6 +498,9 @@ public class Utils {
     }
 
     public static void copyFile(File src, File dst) throws IOException {
+        if (src == null || dst == null) {
+            return;
+        }
         InputStream in = new BufferedInputStream(new FileInputStream(src));
         OutputStream out = new BufferedOutputStream(new FileOutputStream(dst));
 
@@ -873,8 +888,7 @@ public class Utils {
             view.setSystemUiVisibility(View.GONE);
         } else if (Build.VERSION.SDK_INT >= 19) {
             View decorView = activity.getWindow().getDecorView();
-            int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                    | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_FULLSCREEN;
+            int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_FULLSCREEN;
             decorView.setSystemUiVisibility(uiOptions);
         }
     }
@@ -900,11 +914,9 @@ public class Utils {
         return false;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public static void startCameraSyncJob(Context context) {
         JobScheduler mJobScheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
-        JobInfo.Builder builder = new JobInfo.Builder(JOB_ID, new ComponentName(context.getPackageName(),
-                MediaSchedulerService.class.getName()));
+        JobInfo.Builder builder = new JobInfo.Builder(JOB_ID, new ComponentName(context.getPackageName(), MediaSchedulerService.class.getName()));
         builder.setMinimumLatency(15 * 60 * 1000);// Set to execute after at least 15 minutes delay
         builder.setOverrideDeadline(20 * 60 * 1000);// The setting is delayed by 20 minutes,
         builder.setPersisted(true);
@@ -994,5 +1006,6 @@ public class Utils {
             Log.d(DEBUG_TAG, info);
         }
     }
+    public static final String EXCEPTION_TYPE_CRASH = "crash_exception";
 }
 

@@ -64,9 +64,7 @@ public class DirentsAdapter extends BaseAdapter {
 
     public void setDirents(List<SeafDirent> dirents) {
         clearDirents();
-        for (SeafDirent dirent : dirents) {
-            this.dirents.add(dirent);
-        }
+        this.dirents.addAll(dirents);
         notifyDataSetChanged();
     }
 
@@ -87,16 +85,16 @@ public class DirentsAdapter extends BaseAdapter {
         // sort SeafDirents
         if (type == SORT_BY_NAME) {
             // sort by name, in ascending order
-            Collections.sort(folders, new SeafDirent.DirentNameComparator());
-            Collections.sort(files, new SeafDirent.DirentNameComparator());
+            folders.sort(new SeafDirent.DirentNameComparator());
+            files.sort(new SeafDirent.DirentNameComparator());
             if (order == SORT_ORDER_DESCENDING) {
                 Collections.reverse(folders);
                 Collections.reverse(files);
             }
         } else if (type == SORT_BY_LAST_MODIFIED_TIME) {
             // sort by last modified time, in ascending order
-            Collections.sort(folders, new SeafDirent.DirentLastMTimeComparator());
-            Collections.sort(files, new SeafDirent.DirentLastMTimeComparator());
+            folders.sort(new SeafDirent.DirentLastMTimeComparator());
+            files.sort(new SeafDirent.DirentLastMTimeComparator());
             if (order == SORT_ORDER_DESCENDING) {
                 Collections.reverse(folders);
                 Collections.reverse(files);
@@ -110,19 +108,18 @@ public class DirentsAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View view = convertView;
-        Viewholder viewHolder;
+        ViewHolder viewHolder;
         SeafDirent dirent = dirents.get(position);
 
         if (convertView == null) {
-            view = LayoutInflater.from(SeadroidApplication.getAppContext()).
-                    inflate(R.layout.list_item_entry, null);
-            TextView title = (TextView) view.findViewById(R.id.list_item_title);
-            TextView subtitle = (TextView) view.findViewById(R.id.list_item_subtitle);
-            ImageView icon = (ImageView) view.findViewById(R.id.list_item_icon);
-            viewHolder = new Viewholder(title, subtitle, icon);
+            view = LayoutInflater.from(SeadroidApplication.getAppContext()).inflate(R.layout.list_item_entry, null);
+            TextView title = view.findViewById(R.id.list_item_title);
+            TextView subtitle = view.findViewById(R.id.list_item_subtitle);
+            ImageView icon = view.findViewById(R.id.list_item_icon);
+            viewHolder = new ViewHolder(title, subtitle, icon);
             view.setTag(viewHolder);
         } else {
-            viewHolder = (Viewholder) convertView.getTag();
+            viewHolder = (ViewHolder) convertView.getTag();
         }
 
         viewHolder.title.setText(dirent.getTitle());
@@ -139,20 +136,19 @@ public class DirentsAdapter extends BaseAdapter {
             alpha = 75;
             titleColor = Color.GRAY;
         }
+
         viewHolder.title.setTextColor(titleColor);
         viewHolder.subtitle.setTextColor(Color.GRAY);
-        if (android.os.Build.VERSION.SDK_INT >= 11) {
-            viewHolder.icon.setAlpha(alpha);
-        }
+        viewHolder.icon.setImageResource(alpha);
 
         return view;
     }
 
-    private class Viewholder {
+    private static class ViewHolder {
         TextView title, subtitle;
         ImageView icon;
 
-        public Viewholder(TextView title, TextView subtitle, ImageView icon) {
+        public ViewHolder(TextView title, TextView subtitle, ImageView icon) {
             super();
             this.icon = icon;
             this.title = title;

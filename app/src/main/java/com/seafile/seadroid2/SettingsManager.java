@@ -6,6 +6,7 @@ import android.preference.PreferenceManager;
 import android.text.TextUtils;
 
 import com.seafile.seadroid2.account.AccountManager;
+import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.gesturelock.LockPatternUtils;
 import com.seafile.seadroid2.util.Utils;
 
@@ -26,7 +27,7 @@ public final class SettingsManager {
     private SettingsManager() {
         if (SeadroidApplication.getAppContext() != null) {
             settingsSharedPref = PreferenceManager.getDefaultSharedPreferences(SeadroidApplication.getAppContext());
-            sharedPref = SeadroidApplication.getAppContext().getSharedPreferences(AccountManager.SHARED_PREF_NAME, Context.MODE_PRIVATE);
+            sharedPref = SeadroidApplication.getAppContext().getSharedPreferences(SupportAccountManager.SHARED_PREF_NAME, Context.MODE_PRIVATE);
             editor = sharedPref.edit();
         }
     }
@@ -69,6 +70,7 @@ public final class SettingsManager {
     public static final String CAMERA_UPLOAD_ADVANCED_SCREEN_KEY = "screen_camera_upload_advanced_feature";
     public static final String CAMERA_UPLOAD_ADVANCED_CATEGORY_KEY = "category_camera_upload_advanced_key";
     public static final String CAMERA_UPLOAD_ALLOW_DATA_PLAN_SWITCH_KEY = "allow_data_plan_switch_key";
+
     public static final String CAMERA_UPLOAD_ALLOW_VIDEOS_SWITCH_KEY = "allow_videos_upload_switch_key";
     public static final String CAMERA_UPLOAD_BUCKETS_KEY = "camera_upload_buckets_key";
     public static final String CAMERA_UPLOAD_CATEGORY_KEY = "category_camera_upload_key";
@@ -102,6 +104,18 @@ public final class SettingsManager {
     public static final String PIC_CHECK_START = "pic_check_start";
     public static final String UPLOAD_COMPLETED_TIME = "upload_completed_time";
 
+    //FolderBackupStatus
+    public static final String FOLDER_BACKUP_SWITCH_KEY = "folder_backup_switch_key";
+    public static final String FOLDER_BACKUP_ALLOW_DATA_PLAN_SWITCH_KEY = "folder_backup_allow_data_plan_switch_key";
+    public static final String FOLDER_AUTOMATIC_BACKUP_SWITCH_KEY = "folder_automatic_backup_switch_key";
+    public static final String FOLDER_BACKUP_ACCOUNT_EMAIL = "folder_backup_account_email";
+    public static final String FOLDER_BACKUP_CATEGORY_KEY = "folder_backup_category_key";
+    public static final String FOLDER_BACKUP_MODE = "folder_backup_mode";
+    public static final String FOLDER_BACKUP_LIBRARY_KEY = "folder_backup_library_key";
+    public static final String SELECTED_BACKUP_FOLDERS_KEY = "selected_backup_folders_key";
+    public static final String FOLDER_BACKUP_STATE = "folder_backup_state";
+    public static final String FOLDER_BACKUP_PATHS = "folder_backup_paths";
+
     public static long lock_timestamp = 0;
     public static final long LOCK_EXPIRATION_MSECS = 5 * 60 * 1000;
 
@@ -120,7 +134,7 @@ public final class SettingsManager {
             settingsSharedPref = PreferenceManager.getDefaultSharedPreferences(SeadroidApplication.getAppContext());
         }
         if (sharedPref == null) {
-            sharedPref = SeadroidApplication.getAppContext().getSharedPreferences(AccountManager.SHARED_PREF_NAME, Context.MODE_PRIVATE);
+            sharedPref = SeadroidApplication.getAppContext().getSharedPreferences(SupportAccountManager.SHARED_PREF_NAME, Context.MODE_PRIVATE);
             editor = sharedPref.edit();
         }
         return instance;
@@ -141,8 +155,7 @@ public final class SettingsManager {
      * Client side encryption only support for encrypted library
      */
     public void setupEncrypt(boolean enable) {
-        settingsSharedPref.edit().putBoolean(CLIENT_ENC_SWITCH_KEY, enable)
-                .commit();
+        settingsSharedPref.edit().putBoolean(CLIENT_ENC_SWITCH_KEY, enable).commit();
     }
 
     /**
@@ -156,8 +169,7 @@ public final class SettingsManager {
      * Auto clear password
      */
     public void setupPasswordAutoClear(boolean enable) {
-        settingsSharedPref.edit().putBoolean(AUTO_CLEAR_PASSOWR_SWITCH_KEY, enable)
-                .commit();
+        settingsSharedPref.edit().putBoolean(AUTO_CLEAR_PASSOWR_SWITCH_KEY, enable).commit();
     }
 
     /**
@@ -168,8 +180,7 @@ public final class SettingsManager {
     }
 
     public void setupGestureLock() {
-        settingsSharedPref.edit().putBoolean(GESTURE_LOCK_SWITCH_KEY, true)
-                .commit();
+        settingsSharedPref.edit().putBoolean(GESTURE_LOCK_SWITCH_KEY, true).commit();
         saveGestureLockTimeStamp();
     }
 
@@ -188,10 +199,12 @@ public final class SettingsManager {
         if (!isGestureLockEnabled()) {
             return false;
         }
+
         LockPatternUtils mLockPatternUtils = new LockPatternUtils(SeadroidApplication.getAppContext());
         if (!mLockPatternUtils.savedPatternExists()) {
             return false;
         }
+
         long now = System.currentTimeMillis();
         if (now < lock_timestamp + LOCK_EXPIRATION_MSECS) {
             return false;
@@ -233,6 +246,9 @@ public final class SettingsManager {
     public boolean isDataPlanAllowed() {
         return settingsSharedPref.getBoolean(CAMERA_UPLOAD_ALLOW_DATA_PLAN_SWITCH_KEY, false);
     }
+    public boolean isFolderBackupDataPlanAllowed() {
+        return settingsSharedPref.getBoolean(FOLDER_BACKUP_ALLOW_DATA_PLAN_SWITCH_KEY, false);
+    }
 
     public boolean isVideosUploadAllowed() {
         return settingsSharedPref.getBoolean(CAMERA_UPLOAD_ALLOW_VIDEOS_SWITCH_KEY, false);
@@ -240,6 +256,17 @@ public final class SettingsManager {
 
     public void saveDataPlanAllowed(boolean isAllowed) {
         settingsSharedPref.edit().putBoolean(CAMERA_UPLOAD_ALLOW_DATA_PLAN_SWITCH_KEY, isAllowed).commit();
+    }
+    public void saveFolderBackupDataPlanAllowed(boolean isAllowed) {
+        settingsSharedPref.edit().putBoolean(FOLDER_BACKUP_ALLOW_DATA_PLAN_SWITCH_KEY, isAllowed).commit();
+    }
+
+    public void saveFolderAutomaticBackup(boolean isAllowed) {
+        settingsSharedPref.edit().putBoolean(FOLDER_AUTOMATIC_BACKUP_SWITCH_KEY, isAllowed).commit();
+    }
+
+    public boolean isFolderAutomaticBackup() {
+        return settingsSharedPref.getBoolean(FOLDER_AUTOMATIC_BACKUP_SWITCH_KEY, false);
     }
 
     public void saveVideosAllowed(boolean isVideosUploadAllowed) {
@@ -309,5 +336,23 @@ public final class SettingsManager {
 
     public int getPrivacyPolicyConfirmed() {
         return sharedPref.getInt(PRIVACY_POLICY_CONFIRMED, 0);
+    }
+
+    public void saveBackupPaths(String path) {
+        editor.putString(FOLDER_BACKUP_PATHS, path);
+        editor.commit();
+    }
+
+    public String getBackupPaths() {
+        return sharedPref.getString(SettingsManager.FOLDER_BACKUP_PATHS, null);
+    }
+
+    public void saveBackupEmail(String path) {
+        editor.putString(FOLDER_BACKUP_ACCOUNT_EMAIL, path);
+        editor.commit();
+    }
+
+    public String getBackupEmail() {
+        return sharedPref.getString(SettingsManager.FOLDER_BACKUP_ACCOUNT_EMAIL, null);
     }
 }

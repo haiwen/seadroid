@@ -13,8 +13,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
 
-public class FileListFragment extends ListFragment implements
-LoaderManager.LoaderCallbacks<List<SelectableFile>> {
+public class FileListFragment extends ListFragment implements LoaderManager.LoaderCallbacks<List<SelectableFile>> {
 
     private static final String LOG_TAG = "FileListFragment";
     private static final int LOADER_ID = 0;
@@ -59,7 +58,7 @@ LoaderManager.LoaderCallbacks<List<SelectableFile>> {
             mPath = file.getAbsolutePath();
             file.toggleSelected();
             if (file.isFile()) {
-                FileListAdapter.Viewholder viewHolder = (FileListAdapter.Viewholder)v.getTag();
+                FileListAdapter.Viewholder viewHolder = (FileListAdapter.Viewholder) v.getTag();
                 viewHolder.checkBox.setChecked(file.isSelected());
             }
             ((MultiFileChooserActivity) getActivity()).onFileChecked(file);
@@ -67,7 +66,7 @@ LoaderManager.LoaderCallbacks<List<SelectableFile>> {
     }
 
     @Override
-    public void onPause () {
+    public void onPause() {
         Log.d(LOG_TAG, "onPause");
         super.onPause();
     }

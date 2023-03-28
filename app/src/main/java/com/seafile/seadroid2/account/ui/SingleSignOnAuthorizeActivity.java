@@ -47,7 +47,7 @@ import java.security.cert.X509Certificate;
  * <p/>
  */
 public class SingleSignOnAuthorizeActivity extends BaseActivity implements Toolbar.OnMenuItemClickListener {
-    public static final String DEBUG_TAG = "SingleSignOnAuthorizeActivity";
+    public static final String DEBUG_TAG = SingleSignOnAuthorizeActivity.class.getSimpleName();
 
     public static final String SEAHUB_SHIB_COOKIE_NAME = "seahub_auth";
     private WebView mWebview;
@@ -79,7 +79,6 @@ public class SingleSignOnAuthorizeActivity extends BaseActivity implements Toolb
         openAuthorizePage(url);
     }
 
-    @SuppressLint("LongLogTag")
     private void openAuthorizePage(String url) {
         Log.d(DEBUG_TAG, "server url is " + url);
 
@@ -90,14 +89,12 @@ public class SingleSignOnAuthorizeActivity extends BaseActivity implements Toolb
             return;
         }
 
-        String deviceId = Settings.Secure.getString(this.getContentResolver(),
-                Settings.Secure.ANDROID_ID);
+        String deviceId = Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID);
 
         String appVersion = "";
         Context context = SeadroidApplication.getAppContext();
         try {
-            PackageInfo pInfo = context.getPackageManager().
-                    getPackageInfo(context.getPackageName(), 0);
+            PackageInfo pInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
             appVersion = pInfo.versionName;
         } catch (PackageManager.NameNotFoundException e) {
             // ignore
@@ -177,7 +174,7 @@ public class SingleSignOnAuthorizeActivity extends BaseActivity implements Toolb
             showPageLoading(false);
         }
 
-        @SuppressLint("LongLogTag")
+
         @Override
         public void onReceivedSslError(WebView view, final SslErrorHandler handler, SslError error) {
             Log.d(DEBUG_TAG, "onReceivedSslError " + error.getCertificate().toString());
@@ -208,11 +205,8 @@ public class SingleSignOnAuthorizeActivity extends BaseActivity implements Toolb
                         });
                 dialog.show(getSupportFragmentManager(), SslConfirmDialog.FRAGMENT_TAG);
             }
-            return;
-
         }
 
-        @SuppressLint("LongLogTag")
         @Override
         public void onPageFinished(WebView webView, String url) {
             Log.d(DEBUG_TAG, "onPageFinished " + serverUrl);
@@ -239,7 +233,7 @@ public class SingleSignOnAuthorizeActivity extends BaseActivity implements Toolb
      * The cookie value is like seahub_shib="foo@test.com@bd8cc1138", where
      * foo@test.com is username and bd8cc1138 is api token"
      */
-    @SuppressLint("LongLogTag")
+
     private Account parseAccount(String url, String cookie) {
         if (url == null || cookie.isEmpty())
             return null;
@@ -276,7 +270,7 @@ public class SingleSignOnAuthorizeActivity extends BaseActivity implements Toolb
 
         @Override
         protected String doInBackground(Void... params) {
-            return getinfo();
+            return getAccountInfo();
         }
 
         @Override
@@ -317,7 +311,7 @@ public class SingleSignOnAuthorizeActivity extends BaseActivity implements Toolb
             finish();
         }
 
-        private String getinfo() {
+        private String getAccountInfo() {
             try {
                 DataManager manager = new DataManager(loginAccount);
                 AccountInfo accountInfo = manager.getAccountInfo();
@@ -341,7 +335,7 @@ public class SingleSignOnAuthorizeActivity extends BaseActivity implements Toolb
         }
     }
 
-    @SuppressLint("LongLogTag")
+
     public String getCookie(String url, String key) {
         String CookieValue = "";
 

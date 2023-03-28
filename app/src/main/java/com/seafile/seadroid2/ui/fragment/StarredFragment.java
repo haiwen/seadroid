@@ -1,8 +1,8 @@
 package com.seafile.seadroid2.ui.fragment;
 
 import android.app.Activity;
-import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v4.app.ListFragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.view.ActionMode;
@@ -23,6 +23,7 @@ import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.data.SeafStarredFile;
+import com.seafile.seadroid2.folderbackup.selectfolder.FileTools;
 import com.seafile.seadroid2.ui.NavContext;
 import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
@@ -30,8 +31,10 @@ import com.seafile.seadroid2.ui.adapter.StarredItemAdapter;
 import com.seafile.seadroid2.ui.dialog.PasswordDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
+import com.seafile.seadroid2.util.SupportAsyncTask;
 import com.seafile.seadroid2.util.Utils;
 
+import java.io.File;
 import java.util.List;
 
 
@@ -69,18 +72,18 @@ public class StarredFragment extends ListFragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        mActivity = (BrowserActivity)activity;
+        mActivity = (BrowserActivity) activity;
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+                             Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.starred_fragment, container, false);
         refreshLayout = (SwipeRefreshLayout) root.findViewById(R.id.swiperefresh);
         mListView = (ListView) root.findViewById(android.R.id.list);
         mNoStarredView = (TextView) root.findViewById(android.R.id.empty);
-        mListContainer =  root.findViewById(R.id.listContainer);
-        mErrorText = (TextView)root.findViewById(R.id.error_message);
+        mListContainer = root.findViewById(R.id.listContainer);
+        mErrorText = (TextView) root.findViewById(R.id.error_message);
         mProgressContainer = root.findViewById(R.id.progressContainer);
 
         mListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
@@ -146,7 +149,7 @@ public class StarredFragment extends ListFragment {
         mRefreshType = REFRESH_ON_OVERFLOW_MENU;
         refreshView();
     }
-    
+
     public void refreshView() {
 
         if (mActivity == null)
@@ -160,10 +163,8 @@ public class StarredFragment extends ListFragment {
         }
         List<SeafStarredFile> starredFiles = getDataManager().getCachedStarredFiles();
         boolean refreshTimeout = getDataManager().isStarredFilesRefreshTimeout();
-        if (mRefreshType == REFRESH_ON_PULL
-                || mRefreshType == REFRESH_ON_OVERFLOW_MENU
-                || starredFiles == null
-                || refreshTimeout)  {
+        if (mRefreshType == REFRESH_ON_PULL || mRefreshType == REFRESH_ON_OVERFLOW_MENU
+                || starredFiles == null || refreshTimeout) {
             ConcurrentAsyncTask.execute(new LoadStarredFilesTask(getDataManager()));
         } else {
             updateAdapterWithStarredFiles(starredFiles);
@@ -244,8 +245,7 @@ public class StarredFragment extends ListFragment {
         }
     }
 
-    public PasswordDialog showPasswordDialog(String repoName, String repoID,
-                                             TaskDialog.TaskDialogListener listener, String password) {
+    public void showPasswordDialog(String repoName, String repoID, TaskDialog.TaskDialogListener listener, String password) {
         PasswordDialog passwordDialog = new PasswordDialog();
         passwordDialog.setRepo(repoName, repoID, mActivity.getAccount());
         if (password != null) {
@@ -253,7 +253,6 @@ public class StarredFragment extends ListFragment {
         }
         passwordDialog.setTaskDialogLisenter(listener);
         passwordDialog.show(mActivity.getSupportFragmentManager(), PASSWORD_DIALOG_STARREDFRAGMENT_TAG);
-        return passwordDialog;
     }
 
     public void onStarredDirSelected(SeafStarredFile searchedFile) {
@@ -310,13 +309,14 @@ public class StarredFragment extends ListFragment {
         ConcurrentAsyncTask.execute(new StarFileTask(repoID, p));
     }
 
-    private class LoadStarredFilesTask extends AsyncTask<Void, Void, List<SeafStarredFile> > {
+    private class LoadStarredFilesTask extends SupportAsyncTask<BrowserActivity, Void, Void, List<SeafStarredFile>> {
 
         SeafException err = null;
 
         DataManager dataManager;
 
         public LoadStarredFilesTask(DataManager dataManager) {
+            super(mActivity);
             this.dataManager = dataManager;
         }
 
@@ -331,6 +331,19 @@ public class StarredFragment extends ListFragment {
 
             try {
                 List<SeafStarredFile> starredFiles = dataManager.getStarredFiles();
+//                //TODO Data needs to be fetched from the server
+//                if (starredFiles != null && !starredFiles.isEmpty()) {
+//                    for (int i = 0; i < starredFiles.size(); i++) {
+//                        if (!starredFiles.get(i).isDir()) {
+//                            String root = Environment.getExternalStorageDirectory().getAbsolutePath();
+//                            File file = new File(root + "" + starredFiles.get(i).getPath());
+//                            if (file.exists()){
+//                                long l = FileTools.getSimpleSize(root + "" + starredFiles.get(i).getPath());
+//                                starredFiles.get(i).setSize(l);
+//                            }
+//                        }
+//                    }
+//                }
                 return starredFiles;
             } catch (SeafException e) {
                 err = e;
@@ -342,11 +355,11 @@ public class StarredFragment extends ListFragment {
         // onPostExecute displays the results of the AsyncTask.
         @Override
         protected void onPostExecute(List<SeafStarredFile> starredFiles) {
-            if (mActivity == null)
+            if (getContextParam() == null)
                 // this occurs if user navigation to another activity
                 return;
 
-            if (mRefreshType == REFRESH_ON_RESUME || mRefreshType == REFRESH_ON_OVERFLOW_MENU){
+            if (mRefreshType == REFRESH_ON_RESUME || mRefreshType == REFRESH_ON_OVERFLOW_MENU) {
                 showLoading(false);
             } else if (mRefreshType == REFRESH_ON_PULL) {
                 // Call onRefreshComplete when the list has been refreshed.
@@ -358,7 +371,9 @@ public class StarredFragment extends ListFragment {
 
             if (err != null) {
                 if (err == SeafException.remoteWipedException) {
-                    mActivity.completeRemoteWipe();
+                    if (getContextParam() != null) {
+                        getContextParam().completeRemoteWipe();
+                    }
                 } else {
                     showError(getString(R.string.error_when_load_starred));
                     return;
@@ -374,21 +389,23 @@ public class StarredFragment extends ListFragment {
         }
     }
 
-    class StarFileTask extends AsyncTask<Void, Void, Void> {
+    private class StarFileTask extends SupportAsyncTask<BrowserActivity, Void, Void, Void> {
         private String repoId;
         private String path;
         private SeafException err;
 
         public StarFileTask(String repoId, String path) {
+            super(mActivity);
             this.repoId = repoId;
             this.path = path;
         }
 
         @Override
         protected Void doInBackground(Void... params) {
-
             try {
-                mActivity.getDataManager().star(repoId, path);
+                if (getContextParam() != null) {
+                    getContextParam().getDataManager().star(repoId, path);
+                }
             } catch (SeafException e) {
                 err = e;
             }
@@ -399,20 +416,24 @@ public class StarredFragment extends ListFragment {
         @Override
         protected void onPostExecute(Void v) {
             if (err != null) {
-                mActivity.showShortToast(mActivity, R.string.star_file_failed);
+                if (getContextParam() != null) {
+                    getContextParam().showShortToast(getContextParam(), R.string.star_file_failed);
+                }
                 return;
             }
-
-            mActivity.showShortToast(mActivity, R.string.star_file_succeed);
+            if (getContextParam() != null) {
+                getContextParam().showShortToast(getContextParam(), R.string.star_file_succeed);
+            }
         }
     }
 
-    class UnStarFileTask extends AsyncTask<Void, Void, Void> {
+    private class UnStarFileTask extends SupportAsyncTask<BrowserActivity, Void, Void, Void> {
         private String repoId;
         private String path;
         private SeafException err;
 
         public UnStarFileTask(String repoId, String path) {
+            super(mActivity);
             this.repoId = repoId;
             this.path = path;
         }
@@ -421,7 +442,9 @@ public class StarredFragment extends ListFragment {
         protected Void doInBackground(Void... params) {
 
             try {
-                mActivity.getDataManager().unstar(repoId, path);
+                if (getContextParam() != null) {
+                    getContextParam().getDataManager().unstar(repoId, path);
+                }
             } catch (SeafException e) {
                 err = e;
             }
@@ -432,7 +455,9 @@ public class StarredFragment extends ListFragment {
         @Override
         protected void onPostExecute(Void v) {
             if (err != null) {
-                mActivity.showShortToast(mActivity, R.string.unstar_file_failed);
+                if (getContextParam() != null) {
+                    getContextParam().showShortToast(getContextParam(), R.string.unstar_file_failed);
+                }
                 return;
             }
 
@@ -451,14 +476,14 @@ public class StarredFragment extends ListFragment {
      * When a user enables this mode by selecting an item,
      * a contextual action bar appears at the top of the screen
      * to present actions the user can perform on the currently selected item(s).
-     *
+     * <p>
      * While this mode is enabled,
      * the user can select multiple items (if you allow it), deselect items,
      * and continue to navigate within the activity (as much as you're willing to allow).
-     *
+     * <p>
      * The action mode is disabled and the contextual action bar disappears
      * when the user deselects all items, presses the BACK button, or selects the Done action on the left side of the bar.
-     *
+     * <p>
      * see http://developer.android.com/guide/topics/ui/menus.html#CAB
      */
     public void startContextualActionMode(int position) {
@@ -480,7 +505,7 @@ public class StarredFragment extends ListFragment {
     }
 
     /**
-     *  update state of contextual action bar (CAB)
+     * update state of contextual action bar (CAB)
      */
     public void updateContextualActionBar() {
 
