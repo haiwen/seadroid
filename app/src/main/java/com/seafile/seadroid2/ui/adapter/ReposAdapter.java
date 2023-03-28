@@ -70,21 +70,20 @@ public abstract class ReposAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View view = convertView;
-        Viewholder viewHolder;
+        ViewHolder viewHolder;
 
         SeafRepo repo = getChildSeafRepo(position);
 
         if (convertView == null) {
-            view = LayoutInflater.from(SeadroidApplication.getAppContext())
-                    .inflate(getChildLayout(), null);
-            TextView title = (TextView) view.findViewById(getChildTitleId());
-            TextView subtitle = (TextView) view.findViewById(getChildSubTitleId());
-            ImageView icon = (ImageView) view.findViewById(getChildIconId());
-            ImageView action = (ImageView) view.findViewById(getChildActionId());
-            viewHolder = new Viewholder(title, subtitle, icon, action);
+            view = LayoutInflater.from(SeadroidApplication.getAppContext()).inflate(getChildLayout(), null);
+            TextView title = view.findViewById(getChildTitleId());
+            TextView subtitle = view.findViewById(getChildSubTitleId());
+            ImageView icon = view.findViewById(getChildIconId());
+            ImageView action = view.findViewById(getChildActionId());
+            viewHolder = new ViewHolder(title, subtitle, icon, action);
             view.setTag(viewHolder);
         } else {
-            viewHolder = (Viewholder) convertView.getTag();
+            viewHolder = (ViewHolder) convertView.getTag();
         }
 
         viewHolder.title.setText(repo.getTitle());
@@ -96,11 +95,11 @@ public abstract class ReposAdapter extends BaseAdapter {
         return view;
     }
 
-    private class Viewholder {
+    private static class ViewHolder {
         TextView title, subtitle;
         ImageView icon, action;
 
-        public Viewholder(TextView title, TextView subtitle, ImageView icon, ImageView action) {
+        public ViewHolder(TextView title, TextView subtitle, ImageView icon, ImageView action) {
             super();
             this.icon = icon;
             this.action = action;

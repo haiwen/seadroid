@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -222,7 +223,7 @@ public class SeafItemAdapter extends BaseAdapter {
             TextView subtitle = (TextView) view.findViewById(R.id.list_item_subtitle);
             ImageView multiSelect = (ImageView) view.findViewById(R.id.list_item_multi_select_btn);
             ImageView icon = (ImageView) view.findViewById(R.id.list_item_icon);
-            RelativeLayout action = (RelativeLayout) view.findViewById(R.id.expandable_toggle_button);
+            View action = view.findViewById(R.id.expandable_toggle_button);
             ImageView downloadStatusIcon = (ImageView) view.findViewById(R.id.list_item_download_status_icon);
             ProgressBar progressBar = (ProgressBar) view.findViewById(R.id.list_item_download_status_progressbar);
             viewHolder = new ViewHolder(title, subtitle, multiSelect, icon, action, downloadStatusIcon, progressBar);
@@ -273,7 +274,7 @@ public class SeafItemAdapter extends BaseAdapter {
             TextView subtitle = (TextView) view.findViewById(R.id.list_item_subtitle);
             ImageView icon = (ImageView) view.findViewById(R.id.list_item_icon);
             ImageView multiSelect = (ImageView) view.findViewById(R.id.list_item_multi_select_btn);
-            RelativeLayout action = (RelativeLayout) view.findViewById(R.id.expandable_toggle_button);
+            View action = view.findViewById(R.id.expandable_toggle_button);
             ImageView downloadStatusIcon = (ImageView) view.findViewById(R.id.list_item_download_status_icon);
             ProgressBar progressBar = (ProgressBar) view.findViewById(R.id.list_item_download_status_progressbar);
             viewHolder = new ViewHolder(title, subtitle, multiSelect, icon, action, downloadStatusIcon, progressBar);
@@ -480,7 +481,7 @@ public class SeafItemAdapter extends BaseAdapter {
             TextView subtitle = (TextView) view.findViewById(R.id.list_item_subtitle);
             ImageView multiSelect = (ImageView) view.findViewById(R.id.list_item_multi_select_btn);
             ImageView icon = (ImageView) view.findViewById(R.id.list_item_icon);
-            RelativeLayout action = (RelativeLayout) view.findViewById(R.id.expandable_toggle_button);
+            View action = view.findViewById(R.id.expandable_toggle_button);
             ImageView downloadStatusIcon = (ImageView) view.findViewById(R.id.list_item_download_status_icon);
             ProgressBar progressBar = (ProgressBar) view.findViewById(R.id.list_item_download_status_progressbar);
             viewHolder = new ViewHolder(title, subtitle, multiSelect, icon, action, downloadStatusIcon, progressBar);
@@ -546,13 +547,13 @@ public class SeafItemAdapter extends BaseAdapter {
         ImageView icon, multiSelect, downloadStatusIcon; // downloadStatusIcon used to show file downloading status, it is invisible by
         // default
         ProgressBar progressBar;
-        RelativeLayout action;
+        View action;
 
         public ViewHolder(TextView title,
                           TextView subtitle,
                           ImageView multiSelect,
                           ImageView icon,
-                          RelativeLayout action,
+                          View action,
                           ImageView downloadStatusIcon,
                           ProgressBar progressBar
         ) {

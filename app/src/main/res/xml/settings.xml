@@ -184,7 +184,7 @@
             android:title="@string/settings_about_version_title" />
         <Preference
             android:key="settings_privacy_policy_key"
-            android:title="隐私政策" />
+            android:title="@string/settings_about_privacy_policy" />
         <Preference
             android:key="settings_about_author_key"
             android:title="@string/settings_about_author_title" />

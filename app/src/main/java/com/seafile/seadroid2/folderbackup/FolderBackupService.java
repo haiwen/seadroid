@@ -157,12 +157,14 @@ public class FolderBackupService extends Service {
         currentAccount = accountManager.getCurrentAccount();
         backupPathsList = StringTools.getJsonToList(backupPaths);
         dataManager = new DataManager(currentAccount);
+
         if (!StringTools.checkFolderUploadNetworkAvailable()) {
-            SeadroidApplication.getInstance().setScanUploadStatus(CameraSyncStatus.NETWORK_UNAVAILABLE);
+//            SeadroidApplication.getInstance().setScanUploadStatus(CameraSyncStatus.NETWORK_UNAVAILABLE);
             return;
         }
-        ConcurrentAsyncTask.execute(new FolderBackupTask());
 
+        //start backup
+        ConcurrentAsyncTask.execute(new FolderBackupTask());
     }
 
     private class FolderBackupTask extends AsyncTask<Void, Void, String> {

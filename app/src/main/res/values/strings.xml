@@ -386,6 +386,7 @@
   <string name="camera_sync_notification_auth_error_failed">Authentication error.</string>
   <string name="camera_sync_rename_file">%s (renamed by Seafile)</string>
   <string name="settings_about_title">ABOUT</string>
+  <string name="settings_about_privacy_policy">Privacy Policy</string>
   <string name="settings_about_version_title">App Version</string>
   <string name="settings_about_author_title">About the author</string>
   <string name="settings_about_author_info">
@@ -399,7 +400,7 @@
         </p>
         <h5>Contributions</h5>
         <p>https://github.com/haiwen/seadroid.git</P>
-        <h5>Copyright ©2013-2018 Seafile Ltd.</h5>
+        <h5>Copyright ©2013-2023 Seafile Ltd.</h5>
         ]]>
     </string>
   <string name="settings_advance_feature_title">ADVANCED FEATURES</string>
@@ -569,13 +570,13 @@
 
   <string name="required_password">Password is required.</string>
   <string name="weak_password">Password is too weak.</string>
+
   <!--Folder backup Preference-->
   <string name="settings_folder_backup_info_title">Backup folder</string>
   <string name="settings_folder_backup_switch_title">Turn on Folder Backup</string>
   <string name="settings_folder_backup_service_started">Backup service started</string>
   <string name="settings_folder_backup_service_stopped">Backup service stopped</string>
   <string name="settings_select_backup_folder_title">Select folder</string>
-  <string name="folder_file_size">Size</string>
   <string name="folder_file_item_size">Size %s</string>
   <string name="folder_file_item_describe">file \%s\ | folder \%s\</string>
   <string name="internal_storage">Internal storage</string>
@@ -588,9 +589,9 @@
   <string name="settings_folder_backup_select_hint">0</string>
   <string name="settings_folder_backup_select_title">Selected backup folders</string>
   <string name="settings_folder_backup_traffic">Backup mode</string>
-  <string name="settings_folder_backup_traffic_hint">wifi</string>
+  <string name="settings_folder_backup_traffic_hint">WIFI</string>
   <string name="settings_folder_backup_library">Library backup to</string>
-  <string name="folder_backup_waiting_state">Folder backup waiting</string>
+  <string name="folder_backup_waiting_state">Done</string>
   <string name="folder_backup_state">Folder backup info</string>
   <string name="folder_backup_mode">WIFI or mobile traffic</string>
   <string name="folder_backup_mode_title">Choose a mode</string>

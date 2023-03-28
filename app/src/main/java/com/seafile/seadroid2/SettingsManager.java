@@ -6,6 +6,7 @@ import android.preference.PreferenceManager;
 import android.text.TextUtils;
 
 import com.seafile.seadroid2.account.AccountManager;
+import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.gesturelock.LockPatternUtils;
 import com.seafile.seadroid2.util.Utils;
 
@@ -26,7 +27,7 @@ public final class SettingsManager {
     private SettingsManager() {
         if (SeadroidApplication.getAppContext() != null) {
             settingsSharedPref = PreferenceManager.getDefaultSharedPreferences(SeadroidApplication.getAppContext());
-            sharedPref = SeadroidApplication.getAppContext().getSharedPreferences(AccountManager.SHARED_PREF_NAME, Context.MODE_PRIVATE);
+            sharedPref = SeadroidApplication.getAppContext().getSharedPreferences(SupportAccountManager.SHARED_PREF_NAME, Context.MODE_PRIVATE);
             editor = sharedPref.edit();
         }
     }
@@ -133,7 +134,7 @@ public final class SettingsManager {
             settingsSharedPref = PreferenceManager.getDefaultSharedPreferences(SeadroidApplication.getAppContext());
         }
         if (sharedPref == null) {
-            sharedPref = SeadroidApplication.getAppContext().getSharedPreferences(AccountManager.SHARED_PREF_NAME, Context.MODE_PRIVATE);
+            sharedPref = SeadroidApplication.getAppContext().getSharedPreferences(SupportAccountManager.SHARED_PREF_NAME, Context.MODE_PRIVATE);
             editor = sharedPref.edit();
         }
         return instance;
@@ -263,6 +264,7 @@ public final class SettingsManager {
     public void saveFolderAutomaticBackup(boolean isAllowed) {
         settingsSharedPref.edit().putBoolean(FOLDER_AUTOMATIC_BACKUP_SWITCH_KEY, isAllowed).commit();
     }
+
     public boolean isFolderAutomaticBackup() {
         return settingsSharedPref.getBoolean(FOLDER_AUTOMATIC_BACKUP_SWITCH_KEY, false);
     }

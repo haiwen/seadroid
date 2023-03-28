@@ -165,6 +165,7 @@ public class BrowserActivity extends BaseActivity implements ReposFragment.OnFil
     private FolderBackupService mFolderBackupService = null;
     private TransferReceiver mTransferReceiver;
     private AccountManager accountManager;
+
     private int currentPosition = 0;
     private Intent copyMoveIntent;
     private Account account;

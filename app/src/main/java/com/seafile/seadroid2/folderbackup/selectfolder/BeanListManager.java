@@ -48,11 +48,6 @@ public class BeanListManager {
                                     if (selectFilePath.contains(fileBean.getFilePath())) {
                                         fileBean.setChecked(true);
                                     }
-//                            for (String str : selectFilePath) {
-//                                if (fileBean.getFilePath().equals(str)) {
-//                                    fileBean.setChecked(true);
-//                                }
-//                            }
                                 }
                                 fileBeanList.add(fileBean);
                             }

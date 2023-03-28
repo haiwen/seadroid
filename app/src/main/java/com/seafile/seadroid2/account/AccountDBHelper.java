@@ -144,7 +144,7 @@ public class AccountDBHelper extends SQLiteOpenHelper {
 
         Log.i(DEBUG_TAG, "Migrating seafile accounts into Android account store (upgrade)");
 
-        SharedPreferences sharedPref = context.getSharedPreferences(AccountManager.SHARED_PREF_NAME, Context.MODE_PRIVATE);
+        SharedPreferences sharedPref = context.getSharedPreferences(SupportAccountManager.SHARED_PREF_NAME, Context.MODE_PRIVATE);
         SharedPreferences settingsSharedPref = PreferenceManager.getDefaultSharedPreferences(context);
 
         Account cameraAccount = null;

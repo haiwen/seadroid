@@ -446,8 +446,7 @@ public class ReposFragment extends ListFragment {
 
         forceRefresh = forceRefresh || isDirentsRefreshTimeOut(nav.getRepoID(), nav.getDirPath());
         if (!Utils.isNetworkOn() || !forceRefresh) {
-            List<SeafDirent> dirents = dataManager.getCachedDirents(
-                    nav.getRepoID(), nav.getDirPath());
+            List<SeafDirent> dirents = dataManager.getCachedDirents(nav.getRepoID(), nav.getDirPath());
             if (dirents != null) {
                 if (mRefreshType == REFRESH_ON_PULL) {
                     refreshLayout.setRefreshing(false);

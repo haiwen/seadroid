@@ -1,147 +1,172 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    >
+    android:orientation="vertical">
+
     <RelativeLayout
         android:id="@+id/rl_activities_old"
-        android:visibility="visible"
-        android:padding="@dimen/padding_normal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-
-
-    <com.seafile.seadroid2.ui.widget.CircleImageView
-        android:id="@+id/iv_activities_avatar"
-        android:layout_width="@dimen/lv_act_icon_width"
-        android:layout_height="@dimen/lv_act_icon_height"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:src="@drawable/account"/>
-
-    <LinearLayout
-        android:id="@+id/ll_activities_content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/margin_normal"
-        android:layout_marginStart="@dimen/margin_normal"
-        android:layout_marginRight="@dimen/margin_small"
-        android:layout_marginEnd="@dimen/margin_small"
-        android:layout_toRightOf="@id/iv_activities_avatar"
-        android:layout_toEndOf="@id/iv_activities_avatar"
-        android:layout_toLeftOf="@+id/tv_activities_repo_name"
-        android:layout_toStartOf="@+id/tv_activities_repo_name"
-        android:orientation="vertical">
+        android:padding="@dimen/padding_normal"
+        android:visibility="visible">
 
-        <TextView
-            android:id="@+id/tv_activities_mod_desc"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="desc"/>
+        <com.seafile.seadroid2.ui.widget.CircleImageView
+            android:id="@+id/iv_activities_avatar"
+            android:layout_width="@dimen/lv_act_icon_width"
+            android:layout_height="@dimen/lv_act_icon_height"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true"
+            android:src="@drawable/account" />
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:id="@+id/ll_activities_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/margin_small"
-            android:orientation="horizontal">
+            android:layout_marginStart="@dimen/margin_normal"
+            android:layout_marginLeft="@dimen/margin_normal"
+            android:layout_marginEnd="@dimen/margin_small"
+            android:layout_marginRight="@dimen/margin_small"
+            android:layout_toStartOf="@+id/tv_activities_repo_name"
+            android:layout_toLeftOf="@+id/tv_activities_repo_name"
+            android:layout_toEndOf="@id/iv_activities_avatar"
+            android:layout_toRightOf="@id/iv_activities_avatar"
+            android:orientation="vertical">
 
             <TextView
-                android:id="@+id/tv_activities_nick"
+                android:id="@+id/tv_activities_mod_desc"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="nick"
-                android:textColor="@color/fancy_orange"/>
+                android:text="desc" />
 
-            <TextView
-                android:id="@+id/tv_activities_date"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:maxLines="1"
-                android:text="date"
-                android:layout_marginStart="@dimen/margin_small"
-                android:layout_marginLeft="@dimen/margin_small"/>
+                android:layout_marginTop="@dimen/margin_small"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tv_activities_nick"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="nick"
+                    android:textColor="@color/fancy_orange" />
+
+                <TextView
+                    android:id="@+id/tv_activities_date"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/margin_small"
+                    android:layout_marginLeft="@dimen/margin_small"
+                    android:maxLines="1"
+                    android:text="date" />
+            </LinearLayout>
+
         </LinearLayout>
 
-    </LinearLayout>
-
-    <TextView
-        android:id="@+id/tv_activities_repo_name"
-        android:layout_width="@dimen/item_repo_name"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:text="repo_name"
-        android:gravity="end"
-        android:textColor="@color/fancy_orange" />
+        <TextView
+            android:id="@+id/tv_activities_repo_name"
+            android:layout_width="@dimen/item_repo_name"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:gravity="end"
+            android:text="repo_name"
+            android:textColor="@color/fancy_orange" />
     </RelativeLayout>
-    <RelativeLayout
+
+    <android.support.constraint.ConstraintLayout
         android:id="@+id/rl_activities_new"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+
         <com.seafile.seadroid2.ui.widget.CircleImageView
             android:id="@+id/iv_activities_avatar_url"
-            android:layout_marginTop="@dimen/padding_normal"
-            android:layout_marginBottom="@dimen/padding_normal"
-            android:layout_marginLeft="@dimen/padding_normal"
             android:layout_width="@dimen/lv_act_icon_width"
             android:layout_height="@dimen/lv_act_icon_height"
-            android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
-            android:src="@drawable/account"/>
+            android:layout_marginStart="@dimen/padding_normal"
+            android:layout_marginTop="@dimen/padding_normal"
+            android:layout_marginBottom="@dimen/padding_normal"
+            android:src="@drawable/default_avatar"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <TextView
             android:id="@+id/tv_activities_name"
-            android:textColor="@color/fancy_orange"
-            android:layout_toRightOf="@+id/iv_activities_avatar_url"
-            android:layout_alignTop="@+id/iv_activities_avatar_url"
-            android:layout_marginLeft="@dimen/padding_normal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="@dimen/font_size_big"
-            android:text="desc"/>
+            android:layout_alignTop="@+id/iv_activities_avatar_url"
+            android:layout_marginStart="@dimen/padding_normal"
+            android:layout_toEndOf="@+id/iv_activities_avatar_url"
+            android:text="@string/app_name"
+            android:textColor="@color/fancy_orange"
+            android:textSize="@dimen/font_size_bigger"
+            app:layout_constraintBottom_toTopOf="@+id/tv_activities_desc"
+            app:layout_constraintStart_toEndOf="@+id/iv_activities_avatar_url"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/tv_activities_state"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignTop="@+id/iv_activities_avatar_url"
-            android:layout_marginLeft="@dimen/padding_small"
-            android:layout_toRightOf="@+id/tv_activities_name"
+            android:layout_alignBaseline="@+id/tv_activities_name"
+            android:layout_marginStart="@dimen/padding_small"
+            android:layout_toEndOf="@+id/tv_activities_name"
             android:background="@drawable/activities_text_bg"
             android:paddingLeft="@dimen/padding_small"
             android:paddingRight="@dimen/padding_small"
-            android:text="desc"
-            android:textColor="@color/white"/>
+            android:text="@string/app_name"
+            android:textColor="@color/white"
+            android:textSize="@dimen/font_size_small"
+            app:layout_constraintBottom_toBottomOf="@+id/tv_activities_name"
+            app:layout_constraintStart_toEndOf="@+id/tv_activities_name"
+            app:layout_constraintTop_toTopOf="@+id/tv_activities_name" />
 
         <TextView
             android:id="@+id/tv_activities_desc"
-            android:layout_alignBottom="@+id/iv_activities_avatar_url"
-            android:layout_toRightOf="@+id/iv_activities_avatar_url"
-            android:layout_marginLeft="@dimen/padding_normal"
-            android:layout_toLeftOf="@+id/tv_activities_mod"
-            android:layout_marginRight="@dimen/padding_normal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:maxLines="1"
+            android:layout_alignBottom="@+id/iv_activities_avatar_url"
+            android:layout_marginStart="@dimen/padding_normal"
+            android:layout_marginBottom="@dimen/padding_normal"
+            android:layout_toStartOf="@+id/tv_activities_mod"
+            android:layout_toEndOf="@+id/iv_activities_avatar_url"
             android:ellipsize="end"
-            android:text="desc"/>
+            android:maxLines="1"
+            android:text="@string/app_name"
+            app:layout_constrainedWidth="true"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/tv_activities_mod"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintStart_toEndOf="@+id/iv_activities_avatar_url" />
+
         <TextView
             android:id="@+id/tv_activities_time"
-            android:layout_alignParentRight="true"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginRight="@dimen/padding_normal"
             android:layout_alignTop="@+id/iv_activities_avatar_url"
-            android:text="desc"/>
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="@dimen/padding_normal"
+            android:layout_marginEnd="@dimen/padding_normal"
+            android:text="@string/app_name"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <TextView
             android:id="@+id/tv_activities_mod"
-            android:layout_alignParentRight="true"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginRight="@dimen/padding_normal"
             android:layout_alignBottom="@+id/iv_activities_avatar_url"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="@dimen/padding_normal"
+            android:text="@string/app_name"
             android:textColor="@color/fancy_orange"
-            android:text="desc"/>
-    </RelativeLayout>
+            app:layout_constraintBottom_toBottomOf="@+id/tv_activities_desc"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/tv_activities_desc" />
+    </android.support.constraint.ConstraintLayout>
 </LinearLayout>

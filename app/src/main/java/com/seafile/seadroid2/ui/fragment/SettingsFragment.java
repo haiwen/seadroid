@@ -733,13 +733,15 @@ public class SettingsFragment extends CustomPreferenceFragment {
             cFolderBackupCategory.addPreference(cBackupFolderRepo);
             cFolderBackupCategory.addPreference(cBackupFolderPref);
             cFolderBackupCategory.addPreference(cBackupFolderState);
+
+            cBackupFolderMode.setSummary(SettingsManager.instance().isFolderBackupDataPlanAllowed() ? getActivity().getString(R.string.folder_backup_mode) : "WIFI");
+
             if (backupSelectPaths == null || backupSelectPaths.size() == 0) {
                 cBackupFolderPref.setSummary("0");
             } else {
                 cBackupFolderPref.setSummary(backupSelectPaths.size() + "");
             }
 
-            Utils.utilsLogInfo(true, "=refreshCameraUploadView=======================" + backupEmail);
             if (!TextUtils.isEmpty(backupEmail)) {
                 try {
                     selectRepoConfig = databaseHelper.getRepoConfig(backupEmail);
@@ -1026,16 +1028,18 @@ public class SettingsFragment extends CustomPreferenceFragment {
 
     private void showWifiDialog() {
         String[] buckModes = {"WIFI", getActivity().getString(R.string.folder_backup_mode)};
+        boolean selectState = SettingsManager.instance().isFolderBackupDataPlanAllowed();
         new AlertDialog.Builder(getActivity())
                 .setCancelable(false)
                 .setTitle(getActivity().getString(R.string.folder_backup_mode_title))
                 .setPositiveButton(getActivity().getString(R.string.ok), null)
-                .setSingleChoiceItems(buckModes, 0, new DialogInterface.OnClickListener() {
+                .setSingleChoiceItems(buckModes, selectState ? 1 : 0, new DialogInterface.OnClickListener() {
 
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        Toast.makeText(getActivity(), buckModes[i], Toast.LENGTH_SHORT).show();
+//                        Toast.makeText(getActivity(), buckModes[i], Toast.LENGTH_SHORT).show();
                         SettingsManager.instance().saveFolderBackupDataPlanAllowed(i != 0);
+                        cBackupFolderMode.setSummary(buckModes[i]);
                     }
                 })
                 .show();

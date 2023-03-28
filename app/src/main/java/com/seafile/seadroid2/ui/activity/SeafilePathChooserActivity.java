@@ -99,7 +99,7 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
         super.onCreate(savedInstanceState);
         setContentView(R.layout.seafile_path_chooser);
         Intent intent = getIntent();
-        Account account = (Account)intent.getParcelableExtra("account");
+        Account account = (Account) intent.getParcelableExtra("account");
         if (account == null) {
             canChooseAccount = true;
         } else {
@@ -108,7 +108,7 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
         onlyShowWritableRepos = intent.getBooleanExtra(ONLY_SHOW_WRITABLE_REPOS, true);
         showEncryptedRepos = intent.getBooleanExtra(SHOW_ENCRYPTED_REPOS, true);
         encryptedRepoId = intent.getStringExtra(ENCRYPTED_REPO_ID);
-        isShowEncryptedRepos = intent.getBooleanExtra(REPO_ENCRYPTED,true);
+        isShowEncryptedRepos = intent.getBooleanExtra(REPO_ENCRYPTED, true);
 
         mOkButton = (Button) findViewById(R.id.ok);
         mNewFolder = (Button) findViewById(R.id.new_folder);
@@ -179,8 +179,7 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
     @Override
     protected void onStart() {
         super.onStart();
-        if (android.os.Build.VERSION.SDK_INT < 14
-                && SettingsManager.instance().isGestureLockRequired()) {
+        if (SettingsManager.instance().isGestureLockRequired()) {
             Intent newIntent = new Intent(this, UnlockGesturePasswordActivity.class);
             startActivity(newIntent);
         }
@@ -191,18 +190,15 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
     protected void onDestroy() {
         Log.d(DEBUG_TAG, "onDestroy is called");
 
-        if (mLoadReposTask != null
-            && mLoadReposTask.getStatus() != AsyncTask.Status.FINISHED) {
+        if (mLoadReposTask != null && mLoadReposTask.getStatus() != AsyncTask.Status.FINISHED) {
             mLoadReposTask.cancel(true);
         }
 
-        if (mLoadDirTask != null
-            && mLoadDirTask.getStatus() != AsyncTask.Status.FINISHED) {
+        if (mLoadDirTask != null && mLoadDirTask.getStatus() != AsyncTask.Status.FINISHED) {
             mLoadDirTask.cancel(true);
         }
 
-        if (mLoadAccountsTask != null
-            && mLoadAccountsTask.getStatus() != AsyncTask.Status.FINISHED) {
+        if (mLoadAccountsTask != null && mLoadAccountsTask.getStatus() != AsyncTask.Status.FINISHED) {
             mLoadAccountsTask.cancel(true);
         }
 
@@ -230,42 +226,42 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
                             }
                         }, password);
 
-            return;
+                return;
             }
         }
 
         switch (mStep) {
-        case STEP_CHOOSE_ACCOUNT:
-            setAccount(getAccountAdapter().getItem(position));
-            chooseRepo();
-            break;
-        case STEP_CHOOSE_REPO:
-            if (!isOnlyChooseRepo) {
-                nav.setRepoName(repo.name);
-                nav.setRepoID(repo.id);
-                nav.setDirPermission(repo.permission);
-                nav.setDir("/", repo.root);
-                chooseDir();
-            } else {
-                Intent intent = new Intent();
-                intent.putExtra(DATA_REPO_NAME, repo.name);
-                intent.putExtra(DATA_REPO_ID, repo.id);
-                intent.putExtra(DATA_REPO_PERMISSION, repo.permission);
-                intent.putExtra(DATA_DIR, repo.root);
-                intent.putExtra(DATA_ACCOUNT, mAccount);
-                setResult(RESULT_OK, intent);
-                finish();
-            }
-            break;
-        case STEP_CHOOSE_DIR:
-            SeafDirent dirent = getDirentsAdapter().getItem(position);
-            if (dirent.type == SeafDirent.DirentType.FILE) {
-                return;
-            }
+            case STEP_CHOOSE_ACCOUNT:
+                setAccount(getAccountAdapter().getItem(position));
+                chooseRepo();
+                break;
+            case STEP_CHOOSE_REPO:
+                if (!isOnlyChooseRepo) {
+                    nav.setRepoName(repo.name);
+                    nav.setRepoID(repo.id);
+                    nav.setDirPermission(repo.permission);
+                    nav.setDir("/", repo.root);
+                    chooseDir();
+                } else {
+                    Intent intent = new Intent();
+                    intent.putExtra(DATA_REPO_NAME, repo.name);
+                    intent.putExtra(DATA_REPO_ID, repo.id);
+                    intent.putExtra(DATA_REPO_PERMISSION, repo.permission);
+                    intent.putExtra(DATA_DIR, repo.root);
+                    intent.putExtra(DATA_ACCOUNT, mAccount);
+                    setResult(RESULT_OK, intent);
+                    finish();
+                }
+                break;
+            case STEP_CHOOSE_DIR:
+                SeafDirent dirent = getDirentsAdapter().getItem(position);
+                if (dirent.type == SeafDirent.DirentType.FILE) {
+                    return;
+                }
 
-            nav.setDir(Utils.pathJoin(nav.getDirPath(), dirent.name), dirent.id);
-            refreshDir();
-            break;
+                nav.setDir(Utils.pathJoin(nav.getDirPath(), dirent.name), dirent.id);
+                refreshDir();
+                break;
         }
     }
 
@@ -311,38 +307,38 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
 
     private void refreshList(final boolean forceRefresh) {
         switch (mStep) {
-        case STEP_CHOOSE_ACCOUNT:
-            if (mLoadAccountsTask != null && mLoadAccountsTask.getStatus() != AsyncTask.Status.FINISHED) {
-                return;
-            } else {
-                chooseAccount(false);
-                break;
-            }
-        case STEP_CHOOSE_REPO:
-            if (mLoadReposTask != null && mLoadReposTask.getStatus() != AsyncTask.Status.FINISHED) {
-                return;
-            } else {
-                chooseRepo(forceRefresh);
-                break;
-            }
-        case STEP_CHOOSE_DIR:
-            if (mLoadDirTask != null && mLoadDirTask.getStatus() != AsyncTask.Status.FINISHED) {
-                return;
-            } else {
-                SeafRepo repo = getDataManager().getCachedRepoByID(getNavContext().getRepoID());
-                if (repo.encrypted && !mDataManager.getRepoPasswordSet(repo.id)) {
-                    String password = mDataManager.getRepoPassword(repo.id);
-                    showPasswordDialog(repo.name, repo.id,
-                            new TaskDialog.TaskDialogListener() {
-                                @Override
-                                public void onTaskSuccess() {
-                                    chooseRepo(forceRefresh);
-                                }
-                            } , password);
+            case STEP_CHOOSE_ACCOUNT:
+                if (mLoadAccountsTask != null && mLoadAccountsTask.getStatus() != AsyncTask.Status.FINISHED) {
+                    return;
+                } else {
+                    chooseAccount(false);
+                    break;
                 }
-                chooseDir(forceRefresh);
-                break;
-            }
+            case STEP_CHOOSE_REPO:
+                if (mLoadReposTask != null && mLoadReposTask.getStatus() != AsyncTask.Status.FINISHED) {
+                    return;
+                } else {
+                    chooseRepo(forceRefresh);
+                    break;
+                }
+            case STEP_CHOOSE_DIR:
+                if (mLoadDirTask != null && mLoadDirTask.getStatus() != AsyncTask.Status.FINISHED) {
+                    return;
+                } else {
+                    SeafRepo repo = getDataManager().getCachedRepoByID(getNavContext().getRepoID());
+                    if (repo.encrypted && !mDataManager.getRepoPasswordSet(repo.id)) {
+                        String password = mDataManager.getRepoPassword(repo.id);
+                        showPasswordDialog(repo.name, repo.id,
+                                new TaskDialog.TaskDialogListener() {
+                                    @Override
+                                    public void onTaskSuccess() {
+                                        chooseRepo(forceRefresh);
+                                    }
+                                }, password);
+                    }
+                    chooseDir(forceRefresh);
+                    break;
+                }
         }
     }
 
@@ -352,27 +348,27 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
 
     private void stepBack(boolean cancelIfFirstStep) {
         switch (mStep) {
-        case STEP_CHOOSE_ACCOUNT:
-            if (cancelIfFirstStep) {
-                finish();
-            }
-            break;
-        case STEP_CHOOSE_REPO:
-            if (canChooseAccount) {
-                chooseAccount(false);
-            } else if (cancelIfFirstStep) {
-                finish();
-            }
-            break;
-        case STEP_CHOOSE_DIR:
-            if (getNavContext().isRepoRoot()) {
-                chooseRepo();
-            } else {
-                String path = getNavContext().getDirPath();
-                getNavContext().setDir(Utils.getParentPath(path), null);
-                refreshDir();
-            }
-            break;
+            case STEP_CHOOSE_ACCOUNT:
+                if (cancelIfFirstStep) {
+                    finish();
+                }
+                break;
+            case STEP_CHOOSE_REPO:
+                if (canChooseAccount) {
+                    chooseAccount(false);
+                } else if (cancelIfFirstStep) {
+                    finish();
+                }
+                break;
+            case STEP_CHOOSE_DIR:
+                if (getNavContext().isRepoRoot()) {
+                    chooseRepo();
+                } else {
+                    String path = getNavContext().getDirPath();
+                    getNavContext().setDir(Utils.getParentPath(path), null);
+                    refreshDir();
+                }
+                break;
         }
     }
 
@@ -463,7 +459,7 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
     }
 
     private void updateAdapterWithDirents(List<SeafDirent> dirents) {
-        DirentsAdapter adapter=getDirentsAdapter();
+        DirentsAdapter adapter = getDirentsAdapter();
         if (dirents.size() > 0) {
             adapter.clearDirents();
             for (SeafDirent dirent : dirents) {
@@ -528,7 +524,7 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
 
         if (!Utils.isNetworkOn() || !forceRefresh) {
             List<SeafDirent> dirents = getDataManager().getCachedDirents(
-                getNavContext().getRepoID(), getNavContext().getDirPath());
+                    getNavContext().getRepoID(), getNavContext().getDirPath());
             if (dirents != null) {
                 updateAdapterWithDirents(dirents);
                 // update action bar
@@ -585,9 +581,9 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
             mListContainer.setVisibility(View.INVISIBLE);
         } else {
             mProgressContainer.startAnimation(AnimationUtils.loadAnimation(
-                        this, android.R.anim.fade_out));
-                mListContainer.startAnimation(AnimationUtils.loadAnimation(
-                        this, android.R.anim.fade_in));
+                    this, android.R.anim.fade_out));
+            mListContainer.startAnimation(AnimationUtils.loadAnimation(
+                    this, android.R.anim.fade_in));
 
             mProgressContainer.setVisibility(View.GONE);
             mListContainer.setVisibility(View.VISIBLE);
@@ -711,7 +707,7 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
 
             AccountAdapter adapter = getAccountAdapter();
             adapter.clear();
-            for (Account account: accounts) {
+            for (Account account : accounts) {
                 adapter.add(account);
             }
             adapter.notifyDataSetChanged();

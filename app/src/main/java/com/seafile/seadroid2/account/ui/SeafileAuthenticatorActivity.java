@@ -187,7 +187,6 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
         }
 
         // set sync settings
-
         ContentResolver.setIsSyncable(newAccount, CameraUploadManager.AUTHORITY, cameraIsSyncable);
         ContentResolver.setSyncAutomatically(newAccount, CameraUploadManager.AUTHORITY, cameraSyncAutomatically);
 

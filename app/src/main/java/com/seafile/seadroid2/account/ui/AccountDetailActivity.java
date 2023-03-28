@@ -372,63 +372,64 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
         String serverURL = mServerEt.getText().toString().trim();
         String email = mEmailEt.getText().toString().trim();
         String passwd = mPasswdEt.getText().toString();
-
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 
-        if (networkInfo != null && networkInfo.isConnected()) {
-            if (serverURL.length() == 0) {
-                mStatusTv.setText(R.string.err_server_andress_empty);
-                return;
-            }
-
-            if (email.length() == 0) {
-                mEmailEt.setError(getResources().getString(R.string.err_email_empty));
-                return;
-            }
-
-            if (passwd.length() == 0) {
-                mPasswdEt.setError(getResources().getString(R.string.err_passwd_empty));
-                return;
-            }
-
-            String authToken = null;
-            if (mAuthTokenInputLayout.getVisibility() == View.VISIBLE) {
-                authToken = mAuthTokenEt.getText().toString().trim();
-                if (TextUtils.isEmpty(authToken)) {
-                    mAuthTokenEt.setError(getResources().getString(R.string.two_factor_auth_token_empty));
-                    return;
-                }
-            }
-
-            boolean rememberDevice = false;
-            if (mRemDeviceCheckBox.getVisibility() == View.VISIBLE) {
-                rememberDevice = mRemDeviceCheckBox.isChecked();
-            }
-            try {
-                serverURL = Utils.cleanServerURL(serverURL);
-            } catch (MalformedURLException e) {
-                mStatusTv.setText(R.string.invalid_server_address);
-                Log.d(DEBUG_TAG, "Invalid URL " + serverURL);
-                return;
-            }
-
-            // force the keyboard to be hidden in all situations
-            if (getCurrentFocus() != null) {
-                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
-            }
-
-            mLoginBtn.setEnabled(false);
-            Account tmpAccount = new Account(null, serverURL, email, null, false, mSessionKey);
-            mProgressDialog = new ProgressDialog(this);
-            mProgressDialog.setMessage(getString(R.string.settings_cuc_loading));
-            mProgressDialog.setCancelable(false);
-            ConcurrentAsyncTask.execute(new LoginTask(tmpAccount, passwd, authToken, rememberDevice));
-
-        } else {
+        if (networkInfo == null || !networkInfo.isConnected()) {
+//        if (!NetworkUtils.isConnected()) {
             mStatusTv.setText(R.string.network_down);
+            return;
         }
+
+        if (serverURL.length() == 0) {
+            mStatusTv.setText(R.string.err_server_andress_empty);
+            return;
+        }
+
+        if (email.length() == 0) {
+            mEmailEt.setError(getResources().getString(R.string.err_email_empty));
+            return;
+        }
+
+        if (passwd.length() == 0) {
+            mPasswdEt.setError(getResources().getString(R.string.err_passwd_empty));
+            return;
+        }
+
+        String authToken = null;
+        if (mAuthTokenInputLayout.getVisibility() == View.VISIBLE) {
+            authToken = mAuthTokenEt.getText().toString().trim();
+            if (TextUtils.isEmpty(authToken)) {
+                mAuthTokenEt.setError(getResources().getString(R.string.two_factor_auth_token_empty));
+                return;
+            }
+        }
+
+        boolean rememberDevice = false;
+        if (mRemDeviceCheckBox.getVisibility() == View.VISIBLE) {
+            rememberDevice = mRemDeviceCheckBox.isChecked();
+        }
+        try {
+            serverURL = Utils.cleanServerURL(serverURL);
+        } catch (MalformedURLException e) {
+            mStatusTv.setText(R.string.invalid_server_address);
+            Log.d(DEBUG_TAG, "Invalid URL " + serverURL);
+            return;
+        }
+
+        // force the keyboard to be hidden in all situations
+        if (getCurrentFocus() != null) {
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+        }
+
+        mLoginBtn.setEnabled(false);
+        Account tmpAccount = new Account(null, serverURL, email, null, false, mSessionKey);
+        mProgressDialog = new ProgressDialog(this);
+        mProgressDialog.setMessage(getString(R.string.settings_cuc_loading));
+        mProgressDialog.setCancelable(false);
+        ConcurrentAsyncTask.execute(new LoginTask(tmpAccount, passwd, authToken, rememberDevice));
+
     }
 
     private class LoginTask extends AsyncTask<Void, Void, String> {
@@ -503,7 +504,6 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
             }
 
             if (result != null && result.equals("Success")) {
-
                 Intent retData = new Intent();
                 retData.putExtras(getIntent());
                 retData.putExtra(android.accounts.AccountManager.KEY_ACCOUNT_NAME, loginAccount.getSignature());

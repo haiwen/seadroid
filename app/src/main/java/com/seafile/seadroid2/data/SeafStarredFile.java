@@ -9,7 +9,9 @@ import com.seafile.seadroid2.util.Utils;
 import org.json.JSONObject;
 
 public class SeafStarredFile implements SeafItem {
-    public enum FileType { DIR, FILE };
+    public enum FileType {DIR, FILE}
+
+    ;
     private static final String DEBUG_TAG = "SeafStarredFile";
 
     private String repoID;
@@ -85,12 +87,18 @@ public class SeafStarredFile implements SeafItem {
         return getObj_name();
     }
 
+    public void setSize(long size) {
+        this.size = size;
+    }
+
     @Override
     public String getSubtitle() {
         String timestamp = Utils.translateCommitTime(mtime * 1000);
-        if (isDir())
-            return timestamp;
-        return Utils.readableFileSize(size) + ", " + timestamp;
+        return timestamp;
+
+//        if (isDir())
+//            return timestamp;
+//        return Utils.readableFileSize(size) + ", " + timestamp;
     }
 
     @Override

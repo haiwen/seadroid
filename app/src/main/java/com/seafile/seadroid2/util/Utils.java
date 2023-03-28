@@ -365,9 +365,7 @@ public class Utils {
     }
 
     public static boolean isNetworkOn() {
-        ConnectivityManager connMgr = (ConnectivityManager)
-                SeadroidApplication.getAppContext().getSystemService(
-                        Context.CONNECTIVITY_SERVICE);
+        ConnectivityManager connMgr = (ConnectivityManager) SeadroidApplication.getAppContext().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
         if (networkInfo == null) {
             return false;
@@ -385,16 +383,11 @@ public class Utils {
     }
 
     public static boolean isWiFiOn() {
-        ConnectivityManager connMgr = (ConnectivityManager)
-                SeadroidApplication.getAppContext().getSystemService(
-                        Context.CONNECTIVITY_SERVICE);
-
+        ConnectivityManager connMgr = (ConnectivityManager) SeadroidApplication.getAppContext().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo wifi = connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-        if(wifi != null && wifi.isAvailable()
-                && wifi.getDetailedState() == DetailedState.CONNECTED) {
+        if(wifi != null && wifi.isAvailable() && wifi.getDetailedState() == DetailedState.CONNECTED) {
             return true;
         }
-
         return false;
     }
     public static String pathJoin (String first, String... rest) {

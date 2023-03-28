@@ -211,8 +211,7 @@ public class FileTools {
     public static List<String> getAllPaths(Context context) {
         Method mMethodGetPaths = null;
         String[] paths = null;
-        StorageManager mStorageManager = (StorageManager) context
-                .getSystemService(context.STORAGE_SERVICE);//storage
+        StorageManager mStorageManager = (StorageManager) context.getSystemService(context.STORAGE_SERVICE);//storage
         try {
             mMethodGetPaths = mStorageManager.getClass().getMethod("getVolumePaths");
             paths = (String[]) mMethodGetPaths.invoke(mStorageManager);
