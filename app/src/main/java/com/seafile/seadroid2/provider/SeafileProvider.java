@@ -78,7 +78,6 @@ import java.util.concurrent.Future;
  * This Provider gives access to other Apps to browse, read and write all files
  * contained in Seafile repositories.
  */
-@TargetApi(Build.VERSION_CODES.LOLLIPOP)
 public class SeafileProvider extends DocumentsProvider {
     public static final String DEBUG_TAG = "SeafileProvider";
 
@@ -116,7 +115,7 @@ public class SeafileProvider extends DocumentsProvider {
 
     public static final Uri NOTIFICATION_URI = DocumentsContract.buildRootsUri(BuildConfig.APPLICATION_ID);
 
-    private OnAccountsUpdateListener accountListener = new OnAccountsUpdateListener() {
+    private final OnAccountsUpdateListener accountListener = new OnAccountsUpdateListener() {
         @Override
         public void onAccountsUpdated(android.accounts.Account[] accounts) {
             Context c = SeadroidApplication.getAppContext();
@@ -156,15 +155,11 @@ public class SeafileProvider extends DocumentsProvider {
     }
 
     @Override
-    public Cursor queryChildDocuments(String parentDocumentId,
-                                      String[] projection,
-                                      String sortOrder)
-            throws FileNotFoundException {
+    public Cursor queryChildDocuments(String parentDocumentId, String[] projection, String sortOrder) throws FileNotFoundException {
 
         Log.d(DEBUG_TAG, "queryChildDocuments: " + parentDocumentId);
 
-        String[] netProjection =
-                netProjection(projection, SUPPORTED_DOCUMENT_PROJECTION);
+        String[] netProjection = netProjection(projection, SUPPORTED_DOCUMENT_PROJECTION);
 
         DataManager dm = createDataManager(parentDocumentId);
 

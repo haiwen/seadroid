@@ -368,20 +368,6 @@
   <string name="settings_about_title">정보</string>
   <string name="settings_about_version_title">앱 버전</string>
   <string name="settings_about_author_title">저작자 정보</string>
-  <string name="settings_about_author_info">
-        <![CDATA[
-        <h5>Seafile 안드로이드 클라이언트</h5>
-        <p>%s</p>
-        <h5>연락처</h5>
-        <p>
-            트 위 터: Seafile<br>
-            전자메일: support@seafile.com<br>
-        </p>
-        <h5>기여하기</h5>
-        <p>https://github.com/haiwen/seadroid.git</P>
-        <h5>Copyright ©2013-2023 Seafile Ltd.</h5>
-        ]]>
-    </string>
   <string name="settings_advance_feature_title">고급 기능</string>
   <string name="settings_storage_title">캐시 저장소</string>
   <string name="settings_cache_title">캐시 크기</string>
@@ -531,4 +517,14 @@
   <string name="channel_name_error">오류 경고</string>
   <string name="channel_name_upload">파일 업로드 정보</string>
   <string name="channel_name_download">파일 다운로드 정보</string>
+  <string name="above_quota">제한 용량 이상</string>
+  <string name="camera_upload_state">업로드 정보</string>
+  <string name="waiting_state">업로드 대기 중</string>
+  <string name="Upload_completed">최근 동기화 마감 일시</string>
+  <string name="is_scanning">탐색 중</string>
+  <string name="is_uploading">업로드 중</string>
+  <string name="network_unavailable">네트워크 연결이 없습니다</string>
+  <string name="required_password">암호가 필요합니다.</string>
+  <string name="weak_password">암호가 매우 단순합니다.</string>
+  <!--Folder backup Preference-->
 </resources>

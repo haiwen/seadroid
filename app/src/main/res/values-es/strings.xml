@@ -111,6 +111,7 @@
   <string name="select_upload_items">Seleccione items para subir</string>
   <plurals name="n_upload_items_selected">
     <item quantity="one">%1$d ítem seleccionado</item>
+    <item quantity="many">%1$d items seleccionados</item>
     <item quantity="other">%1$d items seleccionados</item>
   </plurals>
   <string name="repo_name_empty">Por favor ingrese el nombre de la biblioteca</string>
@@ -225,6 +226,7 @@
   <string name="error_selecting_file">Error al seleccionar archivo</string>
   <plurals name="n_upload_files_selected">
     <item quantity="one">%1$d archivo seleccionado</item>
+    <item quantity="many">%1$d archivos seleccionados</item>
     <item quantity="other">%1$d archivos seleccionados</item>
   </plurals>
   <string name="empty_folder">Carpeta vacía</string>
@@ -280,10 +282,12 @@
   <string name="lockscreen_access_pattern_failure">Falló 5 veces, por favor espere 30 segundos antes de intentar</string>
   <plurals name="lockscreen_access_pattern_failure_left_try_seconds">
     <item quantity="one">Puede reintentar en %1$d segundo</item>
+    <item quantity="many">Puede reintentar en %1$d segundos</item>
     <item quantity="other">Puede reintentar en %1$d segundos</item>
   </plurals>
   <plurals name="lockscreen_access_pattern_failure_left_try_times">
     <item quantity="one">Patrón incorrecto, puede intentar %1$d vez más</item>
+    <item quantity="many">Patrón incorrecto, puede intentar %1$d veces más</item>
     <item quantity="other">Patrón incorrecto, puede intentar %1$d veces más</item>
   </plurals>
   <string name="lockscreen_access_pattern_failure_not_long_enough">No enlazó suficientes puntos, por favor intente nuevamente</string>
@@ -350,6 +354,7 @@
   <string name="settings_cuc_local_dir_title">Seleccionar álbumes</string>
   <plurals name="settings_cuc_local_dir_items">
     <item quantity="one">%1$d ítem</item>
+    <item quantity="many">%1$d items</item>
     <item quantity="other">%1$d items</item>
   </plurals>
   <string name="settings_cuc_remote_lib_title">Seleccionar biblioteca remota</string>
@@ -373,20 +378,6 @@
   <string name="settings_about_title">ACERCA DE</string>
   <string name="settings_about_version_title">App Version</string>
   <string name="settings_about_author_title">Acerca del Autor</string>
-  <string name="settings_about_author_info">
-        <![CDATA[
-        <h5>Cliente Seafile para Android</h5>
-        <p>%s</p>
-        <h5>Contáctenos</h5>
-        <p>
-            Twitter: Seafile<br>
-            Email: support@seafile.com<br>
-        </p>
-        <h5>Contribuir</h5>
-        <p>https://github.com/haiwen/seadroid.git</P>
-        <h5>Copyright ©2013-2023 Seafile Ltd.</h5>
-        ]]>
-    </string>
   <string name="settings_advance_feature_title">FUNCIONES AVANZADAS</string>
   <string name="settings_storage_title">ALMACENAMIENTO DE CACHÉ</string>
   <string name="settings_cache_title">Tamaño del caché</string>
@@ -441,12 +432,14 @@
   <string name="transfer_download_no_task">Todos los archivos han sido descargados</string>
   <plurals name="transfer_download_started">
     <item quantity="one">Iniciando la descarga de %1$d archivo</item>
+    <item quantity="many">Iniciando la descarga de %1$d archivos</item>
     <item quantity="other">Iniciando la descarga de %1$d archivos</item>
   </plurals>
   <string name="transfer_list_select_all">Seleccionar todas</string>
   <string name="transfer_list_deselect_all">Desmarcar todo</string>
   <plurals name="transfer_list_items_selected">
     <item quantity="one">%d ítem seleccionado</item>
+    <item quantity="many">%d items seleccionados</item>
     <item quantity="other">%d items seleccionados</item>
   </plurals>
   <!--Sort-->
@@ -477,10 +470,12 @@
   <string name="notification_upload_completed">Subida finalizada</string>
   <plurals name="notification_upload_info">
     <item quantity="one">Subiendo %1$d archivo (%2$d%%)</item>
+    <item quantity="many">Subiendo %1$d archivos (%2$d%%)</item>
     <item quantity="other">Subiendo %1$d archivos (%2$d%%)</item>
   </plurals>
   <plurals name="notification_download_info">
     <item quantity="one">Descargando %1$d archivo (%2$d%%)</item>
+    <item quantity="many">Descargando %1$d archivos (%2$d%%)</item>
     <item quantity="other">Descargando %1$d archivos (%2$d%%)</item>
   </plurals>
   <string name="notification_download_completed">Descarga finalizada</string>
@@ -547,4 +542,7 @@
   <string name="is_scanning">Escaneando</string>
   <string name="is_uploading">Subiendo</string>
   <string name="network_unavailable">Red no disponible</string>
+  <string name="required_password">Se requiere contraseña.</string>
+  <string name="weak_password">La contraseña es demasiado débil.</string>
+  <!--Folder backup Preference-->
 </resources>
