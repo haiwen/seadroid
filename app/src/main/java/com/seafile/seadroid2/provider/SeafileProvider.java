@@ -159,7 +159,9 @@ public class SeafileProvider extends DocumentsProvider {
 
         Log.d(DEBUG_TAG, "queryChildDocuments: " + parentDocumentId);
 
+
         String[] netProjection = netProjection(projection, SUPPORTED_DOCUMENT_PROJECTION);
+
 
         DataManager dm = createDataManager(parentDocumentId);
 

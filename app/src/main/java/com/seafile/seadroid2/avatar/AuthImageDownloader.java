@@ -1,3 +1,4 @@
+
 package com.seafile.seadroid2.avatar;
 
 import android.content.Context;

@@ -383,6 +383,22 @@
   <string name="settings_about_title">О ПРИЛОЖЕНИИ</string>
   <string name="settings_about_version_title">Версия</string>
   <string name="settings_about_author_title">Об авторе</string>
+
+  <string name="settings_about_author_info">
+        <![CDATA[
+        <h5>Seafile Android Client</h5>
+        <p>%s</p>
+        <h5>Связь с нами</h5>
+        <p>
+            Twitter: Seafile<br>
+            Email: support@seafile.com<br>
+        </p>
+        <h5>Внести свой вклад</h5>
+        <p>https://github.com/haiwen/seadroid.git</P>
+        <h5>Copyright ©2013-2023 Seafile Ltd.</h5>
+        ]]>
+    </string>
+
   <string name="settings_advance_feature_title">ДОПОЛНИТЕЛЬНЫЕ ФУНКЦИИ</string>
   <string name="settings_storage_title">Кэш-хранилище</string>
   <string name="settings_cache_title">Размер кэша</string>

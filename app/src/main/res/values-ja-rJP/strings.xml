@@ -368,6 +368,22 @@
   <string name="settings_about_title">アプリについて</string>
   <string name="settings_about_version_title">アプリ バージョン</string>
   <string name="settings_about_author_title">作者について</string>
+
+  <string name="settings_about_author_info">
+        <![CDATA[
+        <h5>Seafile Android クライアント</h5>
+        <p>%s</p>
+        <h5>連絡先</h5>
+        <p>
+            Twitter: Seafile<br>
+            メール: support@seafile.com<br>
+        </p>
+        <h5>貢献</h5>
+        <p>https://github.com/haiwen/seadroid.git</P>
+        <h5>Copyright ©2013-2023 Seafile Ltd.</h5>
+        ]]>
+    </string>
+
   <string name="settings_advance_feature_title">高度な機能</string>
   <string name="settings_storage_title">キャッシュストレージ</string>
   <string name="settings_cache_title">キャッシュサイズ</string>

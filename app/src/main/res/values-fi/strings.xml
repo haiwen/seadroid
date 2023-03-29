@@ -360,6 +360,21 @@
   <string name="settings_about_title">TIETOA</string>
   <string name="settings_about_version_title">Sovellusversio</string>
   <string name="settings_about_author_title">Tietoa tekijästä</string>
+
+  <string name="settings_about_author_info">
+<![CDATA[
+<h5>Seafile Android Asiakasohjelma</h5>
+<p>%s</p>
+<h5>Ota Yhteyttä</h5>
+<p>
+Twitter: Seafile<br>
+Sähköposti: support@seafile.com<br>
+</p>
+<h5>Osallistumiset</h5>
+<p>https://github.com/haiwen/seadroid.git</P>
+<h5>Copyright ©2013-2023 Seafile Ltd</h5>
+]]></string>
+
   <string name="settings_advance_feature_title">EDISTYNEET OMINAISUUDET</string>
   <string name="settings_storage_title">VÄLIMUISTIN TALLENNUSTILA</string>
   <string name="settings_cache_title">Välimuistin koko</string>

@@ -378,6 +378,21 @@
   <string name="settings_about_title">À PROPOS</string>
   <string name="settings_about_version_title">Version</string>
   <string name="settings_about_author_title">À propos de l\'auteur</string>
+
+  <string name="settings_about_author_info">
+<![CDATA[
+<h5>Seafile client pour Android</h5>
+<p>%s</p>
+<h5>Contactez-nous</h5>
+<p>
+Twitter : Seafile<br>
+E-mail : support@seafile.com<br>
+</p>
+<h5>Contributions</h5>
+<p>https://github.com/haiwen/seadroid.git</P>
+<h5>Copyright ©2013-2023 Seafile Ltd.</h5>
+]]></string>
+
   <string name="settings_advance_feature_title">Fonctionnalités avancées</string>
   <string name="settings_storage_title">Stockage du cache</string>
   <string name="settings_cache_title">Taille du cache</string>

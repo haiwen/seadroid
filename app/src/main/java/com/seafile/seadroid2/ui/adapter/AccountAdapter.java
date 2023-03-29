@@ -24,6 +24,7 @@ public abstract class AccountAdapter extends BaseAdapter {
     private static final String DEBUG_TAG = "AccountAdapter";
 
     //    private ImageLoadingListener animateFirstListener = new AnimateFirstDisplayListener();
+
 //    private DisplayImageOptions options;
     private ArrayList<Account> items;
     private ArrayList<Avatar> avatars;

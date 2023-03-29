@@ -371,6 +371,22 @@
   <string name="settings_about_title">O PROGRAMIE</string>
   <string name="settings_about_version_title">Wersja aplikacji</string>
   <string name="settings_about_author_title">O autorze</string>
+
+  <string name="settings_about_author_info">
+        <![CDATA[
+        <h5>Klient Seafile dla Androida</h5>
+        <p>%s</p>
+        <h5>Kontakt</h5>
+        <p>
+            Twitter: Seafile<br>
+            Email: support@seafile.com<br>
+        </p>
+        <h5>Contributions</h5>
+        <p>https://github.com/haiwen/seadroid.git</P>
+        <h5>Copyright ©2013-2023 Seafile Ltd.</h5>
+        ]]>
+    </string>
+
   <string name="settings_advance_feature_title">ZAAWANSOWANE</string>
   <string name="settings_storage_title">PAMIĘĆ PODRĘCZNA</string>
   <string name="settings_cache_title">Pamięć podręczna</string>
