@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -84,12 +83,10 @@
 
         <com.seafile.seadroid2.ui.widget.CircleImageView
             android:id="@+id/iv_activities_avatar_url"
-            android:layout_width="@dimen/lv_act_icon_width"
-            android:layout_height="@dimen/lv_act_icon_height"
+            android:layout_width="@dimen/lv_act_icon_size"
+            android:layout_height="@dimen/lv_act_icon_size"
             android:layout_alignParentStart="true"
             android:layout_marginStart="@dimen/padding_normal"
-            android:layout_marginTop="@dimen/padding_normal"
-            android:layout_marginBottom="@dimen/padding_normal"
             android:src="@drawable/default_avatar"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -99,13 +96,11 @@
             android:id="@+id/tv_activities_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignTop="@+id/iv_activities_avatar_url"
             android:layout_marginStart="@dimen/padding_normal"
-            android:layout_toEndOf="@+id/iv_activities_avatar_url"
+            android:layout_marginTop="@dimen/padding_normal"
             android:text="@string/app_name"
             android:textColor="@color/fancy_orange"
             android:textSize="@dimen/font_size_bigger"
-            app:layout_constraintBottom_toTopOf="@+id/tv_activities_desc"
             app:layout_constraintStart_toEndOf="@+id/iv_activities_avatar_url"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -113,15 +108,13 @@
             android:id="@+id/tv_activities_state"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignBaseline="@+id/tv_activities_name"
             android:layout_marginStart="@dimen/padding_small"
-            android:layout_toEndOf="@+id/tv_activities_name"
             android:background="@drawable/activities_text_bg"
             android:paddingLeft="@dimen/padding_small"
             android:paddingRight="@dimen/padding_small"
             android:text="@string/app_name"
             android:textColor="@color/white"
-            android:textSize="@dimen/font_size_small"
+            android:textSize="12sp"
             app:layout_constraintBottom_toBottomOf="@+id/tv_activities_name"
             app:layout_constraintStart_toEndOf="@+id/tv_activities_name"
             app:layout_constraintTop_toTopOf="@+id/tv_activities_name" />
@@ -130,43 +123,42 @@
             android:id="@+id/tv_activities_desc"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignBottom="@+id/iv_activities_avatar_url"
             android:layout_marginStart="@dimen/padding_normal"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="8dp"
             android:layout_marginBottom="@dimen/padding_normal"
-            android:layout_toStartOf="@+id/tv_activities_mod"
-            android:layout_toEndOf="@+id/iv_activities_avatar_url"
             android:ellipsize="end"
             android:maxLines="1"
             android:text="@string/app_name"
+            android:textColor="@color/light_grey"
             app:layout_constrainedWidth="true"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/tv_activities_mod"
             app:layout_constraintHorizontal_bias="0"
-            app:layout_constraintStart_toEndOf="@+id/iv_activities_avatar_url" />
+            app:layout_constraintStart_toEndOf="@+id/iv_activities_avatar_url"
+            app:layout_constraintTop_toBottomOf="@+id/tv_activities_name" />
 
         <TextView
             android:id="@+id/tv_activities_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignTop="@+id/iv_activities_avatar_url"
             android:layout_alignParentEnd="true"
-            android:layout_marginTop="@dimen/padding_normal"
             android:layout_marginEnd="@dimen/padding_normal"
+            android:layout_marginBottom="@dimen/padding_normal"
             android:text="@string/app_name"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:textColor="@color/light_grey"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
         <TextView
             android:id="@+id/tv_activities_mod"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignBottom="@+id/iv_activities_avatar_url"
-            android:layout_alignParentEnd="true"
+            android:layout_marginTop="@dimen/padding_normal"
             android:layout_marginEnd="@dimen/padding_normal"
             android:text="@string/app_name"
             android:textColor="@color/fancy_orange"
-            app:layout_constraintBottom_toBottomOf="@+id/tv_activities_desc"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/tv_activities_desc" />
+            app:layout_constraintTop_toTopOf="parent" />
     </android.support.constraint.ConstraintLayout>
 </LinearLayout>

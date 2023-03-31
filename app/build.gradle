@@ -73,6 +73,7 @@ android {
                 }
             }
         }
+
         release {
             signingConfig signingConfigs.release
             minifyEnabled true
@@ -107,6 +108,9 @@ android {
     }
     dependencies {
         implementation fileTree(include: ['*.jar'], dir: 'libs')
+        
+        //DO NOT upgrade this lib, unless the APP upgrade to AndroidX
+        implementation 'com.blankj:utilcode:1.30.0'
 
         implementation "com.android.support:appcompat-v7:${rootProject.ext.supportLibVersion}"
         implementation "com.android.support:design:${rootProject.ext.supportLibVersion}"
