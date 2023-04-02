@@ -6,6 +6,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.data.SeafRepo;
@@ -17,7 +18,6 @@ import java.util.List;
 
 /**
  * Adapter for search list
- *
  */
 public class SearchAdapter extends BaseAdapter {
 
@@ -52,7 +52,7 @@ public class SearchAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         SearchedFile item = items.get(position);
         View view = convertView;
-        Viewholder viewHolder;
+        ViewHolder viewHolder;
 
         if (convertView == null) {
             view = LayoutInflater.from(mActivity).inflate(R.layout.search_list_item, null);
@@ -60,11 +60,10 @@ public class SearchAdapter extends BaseAdapter {
             TextView title = (TextView) view.findViewById(R.id.search_item_title);
             TextView subtitle = (TextView) view.findViewById(R.id.search_item_subtitle);
             ImageView icon = (ImageView) view.findViewById(R.id.search_item_icon);
-            ImageView action = (ImageView) view.findViewById(R.id.search_item_action);
-            viewHolder = new Viewholder(path, title, subtitle, icon, action);
+            viewHolder = new ViewHolder(path, title, subtitle, icon);
             view.setTag(viewHolder);
         } else {
-            viewHolder = (Viewholder) convertView.getTag();
+            viewHolder = (ViewHolder) convertView.getTag();
         }
 
         viewHolder.icon.setImageResource(item.getIcon());
@@ -88,14 +87,13 @@ public class SearchAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
-    private class Viewholder {
+    private static class ViewHolder {
         TextView path, title, subtitle;
-        ImageView icon, action;
+        ImageView icon;
 
-        public Viewholder(TextView path, TextView title, TextView subtitle, ImageView icon, ImageView action) {
+        public ViewHolder(TextView path, TextView title, TextView subtitle, ImageView icon) {
             super();
             this.icon = icon;
-            this.action = action;
             this.path = path;
             this.title = title;
             this.subtitle = subtitle;

@@ -49,7 +49,6 @@ import java.util.List;
 
 /**
  * Search Activity
- *
  */
 public class SearchActivity extends BaseActivity implements View.OnClickListener, Toolbar.OnMenuItemClickListener {
     private static final String DEBUG_TAG = "SearchActivity";
@@ -58,7 +57,7 @@ public class SearchActivity extends BaseActivity implements View.OnClickListener
     private String mSearchedRlt;
     private EditText mTextField;
     private View mSearchContent;
-    private ImageButton mTextClearBtn;
+    private ImageView mTextClearBtn;
     private View mSearchBtn;
     private ListView mListView;
     private LinearLayout mProgressContainer;
@@ -79,9 +78,10 @@ public class SearchActivity extends BaseActivity implements View.OnClickListener
         setContentView(R.layout.search);
         mSearchBtn = findViewById(R.id.btn_search);
         mSearchBtn.setOnClickListener(this);
-        mTextClearBtn = (ImageButton) findViewById(R.id.btn_clear);
+        mTextClearBtn = findViewById(R.id.btn_clear);
         mTextClearBtn.setOnClickListener(this);
-        mTextField = (EditText) findViewById(R.id.et_content);
+
+        mTextField = findViewById(R.id.et_content);
         mTextField.setOnClickListener(this);
         mTextField.setImeOptions(EditorInfo.IME_ACTION_SEARCH);
         mTextField.addTextChangedListener(new SearchTextWatcher());
@@ -130,7 +130,7 @@ public class SearchActivity extends BaseActivity implements View.OnClickListener
             mEmptyText.setVisibility(View.GONE);
             mErrorText.setVisibility(View.GONE);
             ArrayList<SearchedFile> files = dataManager.parseSearchResult(mSearchedRlt);
-            if(files != null) {
+            if (files != null) {
                 mAdapter.setItems(files);
                 mAdapter.notifyChanged();
             }
@@ -355,11 +355,11 @@ public class SearchActivity extends BaseActivity implements View.OnClickListener
     class SearchTextWatcher implements TextWatcher {
 
         @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
 
         @Override
-        public void onTextChanged(CharSequence s, int start, int before,
-                                  int count) {
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
             if (mTextField.getText().toString().length() > 0) {
                 mTextClearBtn.setVisibility(View.VISIBLE);
                 mSearchBtn.setVisibility(View.VISIBLE);
@@ -370,7 +370,8 @@ public class SearchActivity extends BaseActivity implements View.OnClickListener
         }
 
         @Override
-        public void afterTextChanged(Editable s) {}
+        public void afterTextChanged(Editable s) {
+        }
     }
 
     class EditorActionListener implements TextView.OnEditorActionListener {
@@ -453,7 +454,7 @@ public class SearchActivity extends BaseActivity implements View.OnClickListener
         intent.putExtra("filePath", filePath);
         intent.putExtra("account", account);
 //        DOWNLOAD_PLAY_REQUEST
-        startActivity(intent );
+        startActivity(intent);
     }
 
     ServiceConnection mConnection = new ServiceConnection() {
