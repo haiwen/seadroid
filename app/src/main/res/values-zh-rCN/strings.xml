@@ -572,4 +572,6 @@
   <string name="add">添加</string>
   <string name="modify">修改</string>
   <string name="update">更新</string>
+  <string name="clear">清除</string>
+  <string name="clear_all">清除所有</string>
 </resources>

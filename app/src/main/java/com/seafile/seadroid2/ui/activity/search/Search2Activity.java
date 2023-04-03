@@ -96,7 +96,7 @@ public class Search2Activity extends BaseActivity implements View.OnClickListene
                 onSearchedFileSelected(searchedFile);
             }
         });
-        
+
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this, RecyclerView.VERTICAL, false));
         View t = findViewById(R.id.ll_message_content);

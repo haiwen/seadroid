@@ -43,6 +43,7 @@ import com.seafile.seadroid2.data.StorageManager;
 import com.seafile.seadroid2.folderbackup.FolderBackupConfigActivity;
 import com.seafile.seadroid2.folderbackup.FolderBackupDBHelper;
 import com.seafile.seadroid2.folderbackup.FolderBackupEvent;
+import com.seafile.seadroid2.folderbackup.FolderBackupSelectedPathActivity;
 import com.seafile.seadroid2.folderbackup.RepoConfig;
 import com.seafile.seadroid2.folderbackup.selectfolder.StringTools;
 import com.seafile.seadroid2.gesturelock.LockPatternUtils;
@@ -407,15 +408,16 @@ public class SettingsFragment extends CustomPreferenceFragment {
         cBackupFolderPref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-
+                Intent intent = null;
                 if (CollectionUtils.isEmpty(backupSelectPaths)) {
                     // choose remote folder path
-                    Intent intent = new Intent(mActivity, FolderBackupConfigActivity.class);
-                    intent.putExtra(FOLDER_BACKUP_REMOTE_PATH, true);
-                    startActivityForResult(intent, CHOOSE_BACKUP_UPLOAD_REQUEST);
+                    intent = new Intent(mActivity, FolderBackupConfigActivity.class);
                 } else {
-                    showSelectedFolderDialog();
+                    intent = new Intent(mActivity, FolderBackupSelectedPathActivity.class);
+//                    showSelectedFolderDialog();
                 }
+                intent.putExtra(FOLDER_BACKUP_REMOTE_PATH, true);
+                startActivityForResult(intent, CHOOSE_BACKUP_UPLOAD_REQUEST);
                 return true;
             }
         });
@@ -1051,73 +1053,6 @@ public class SettingsFragment extends CustomPreferenceFragment {
 
     }
 
-    private void showSelectedFolderDialog() {
-        String[] buckModes = new String[backupSelectPaths.size()];
-        for (int i = 0; i < backupSelectPaths.size(); i++) {
-            buckModes[i] = backupSelectPaths.get(i);
-        }
-
-        boolean[] buckSelected = new boolean[buckModes.length];
-        for (int i = 0; i < buckModes.length; i++) {
-            buckSelected[i] = true;
-        }
-
-        new AlertDialog.Builder(getActivity())
-                .setCancelable(true)
-                .setTitle(R.string.settings_folder_backup_select_title)
-                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-
-                        if (CollectionUtils.isEmpty(backupSelectPaths)) {
-                            return;
-                        }
-
-                        List<String> temp = new ArrayList<>();
-                        for (int i = 0; i < buckSelected.length; i++) {
-                            if (buckSelected[i]) {
-                                temp.add(backupSelectPaths.get(i));
-                            }
-                        }
-                        backupSelectPaths = temp;
-
-                        if (CollectionUtils.isEmpty(backupSelectPaths)) {
-                            SettingsManager.instance().saveBackupPaths("");
-                        } else {
-                            String strJsonPath = new Gson().toJson(backupSelectPaths);
-                            SettingsManager.instance().saveBackupPaths(strJsonPath);
-                        }
-
-                        cBackupFolderPref.setSummary(backupSelectPaths.size()+"");
-
-                    }
-                })
-                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                })
-                .setNeutralButton(R.string.add, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                        // choose remote folder path
-                        Intent intent = new Intent(mActivity, FolderBackupConfigActivity.class);
-                        intent.putExtra(FOLDER_BACKUP_REMOTE_PATH, true);
-                        startActivityForResult(intent, CHOOSE_BACKUP_UPLOAD_REQUEST);
-                    }
-                })
-                .setMultiChoiceItems(buckModes, buckSelected, new DialogInterface.OnMultiChoiceClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-                        buckSelected[which] = isChecked;
-                    }
-                })
-                .show();
-
-    }
 
     @Override
     public void onStart() {
