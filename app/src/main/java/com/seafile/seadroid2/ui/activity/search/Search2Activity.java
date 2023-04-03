@@ -96,10 +96,12 @@ public class Search2Activity extends BaseActivity implements View.OnClickListene
                 onSearchedFileSelected(searchedFile);
             }
         });
+        
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this, RecyclerView.VERTICAL, false));
-        View t = getLayoutInflater().inflate(R.layout.search_empty, (ViewGroup) mRecyclerView.getParent(), false);
+        View t = findViewById(R.id.ll_message_content);
         mRecyclerView.setEmptyView(t);
+
         mRecyclerView.setLoadingMoreEnabled(true);
         mRecyclerView.setLoadingMoreProgressStyle(ProgressStyle.BallScaleMultiple);
         mRecyclerView.setPullRefreshEnabled(false);
