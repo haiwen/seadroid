@@ -377,14 +377,17 @@ public class SeafConnection {
         }
     }
 
-    public String searchLibraries(String query, int page) throws SeafException {
+    public String searchLibraries(String query, int page, int pageSize) throws SeafException {
 
         try {
             Map<String, Object> params = Maps.newHashMap();
             params.put("q", encodeUriComponent(query));
 
-            if (page > 0)
-                params.put("per_page", page);
+            if (pageSize < 0) {
+                page = 20;
+            }
+            params.put("per_page", pageSize);
+            params.put("page", page);
 
             HttpRequest req = prepareApiGetRequest("api2/search/", params);
             checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);

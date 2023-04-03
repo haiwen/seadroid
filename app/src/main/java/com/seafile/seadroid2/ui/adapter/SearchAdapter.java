@@ -5,24 +5,34 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.data.SearchedFile;
-import com.seafile.seadroid2.ui.activity.SearchActivity;
+import com.seafile.seadroid2.ui.activity.search.SearchActivity;
 import com.seafile.seadroid2.util.Utils;
 
 import java.util.List;
 
 /**
  * Adapter for search list
+ * <br>
+ * use SearchRecyclerViewAdapter
  */
+@Deprecated
 public class SearchAdapter extends BaseAdapter {
 
     private List<SearchedFile> items;
     private SearchActivity mActivity;
+
+    public static final int REFRESH_ON_NONE = 0;
+    public static final int REFRESH_ON_PULL_DOWN = 1;
+    public static final int REFRESH_ON_PULL_UP = 2;
+    private int state = REFRESH_ON_NONE;
 
     public SearchAdapter(SearchActivity activity) {
         this.mActivity = activity;
@@ -46,6 +56,28 @@ public class SearchAdapter extends BaseAdapter {
     @Override
     public long getItemId(int position) {
         return position;
+    }
+    private LinearLayout mFooterView;
+
+    public void setFooterViewLoading(boolean more) {
+        ProgressBar progress = (ProgressBar) mFooterView.findViewById(R.id.progressbar);
+        TextView text = (TextView) mFooterView.findViewById(R.id.text);
+        if (more) {
+            mFooterView.setVisibility(View.VISIBLE);
+            progress.setVisibility(View.VISIBLE);
+            text.setVisibility(View.VISIBLE);
+        } else {
+            progress.setVisibility(View.GONE);
+            mFooterView.setVisibility(View.GONE);
+            text.setVisibility(View.GONE);
+        }
+    }
+    public void setState(int state) {
+        this.state = state;
+    }
+
+    public View getFooterView() {
+        return this.mFooterView;
     }
 
     @Override

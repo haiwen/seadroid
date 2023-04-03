@@ -7,8 +7,8 @@ android {
         applicationId 'com.seafile.seadroid2'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 126
-        versionName "2.3.0"
+        versionCode 127
+        versionName "2.3.1"
         multiDexEnabled true
         resValue "string", "authorities", applicationId + '.cameraupload.provider'
         resValue "string", "account_type", "com.seafile.seadroid2.account.api2"
@@ -111,6 +111,7 @@ android {
         
         //DO NOT upgrade this lib, unless the APP upgrade to AndroidX
         implementation 'com.blankj:utilcode:1.30.0'
+        implementation 'com.jcodecraeer:xrecyclerview:1.6.0'
 
         implementation "com.android.support:appcompat-v7:${rootProject.ext.supportLibVersion}"
         implementation "com.android.support:design:${rootProject.ext.supportLibVersion}"

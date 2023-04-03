@@ -75,6 +75,7 @@ import com.seafile.seadroid2.transfer.UploadTaskManager;
 import com.seafile.seadroid2.ui.CopyMoveContext;
 import com.seafile.seadroid2.ui.NavContext;
 import com.seafile.seadroid2.ui.WidgetUtils;
+import com.seafile.seadroid2.ui.activity.search.Search2Activity;
 import com.seafile.seadroid2.ui.adapter.SeafItemAdapter;
 import com.seafile.seadroid2.ui.dialog.AppChoiceDialog;
 import com.seafile.seadroid2.ui.dialog.AppChoiceDialog.CustomAction;
@@ -509,7 +510,7 @@ public class BrowserActivity extends BaseActivity implements ReposFragment.OnFil
                 showSortFilesDialog();
                 return true;
             case R.id.search:
-                Intent searchIntent = new Intent(this, SearchActivity.class);
+                Intent searchIntent = new Intent(this, Search2Activity.class);
                 startActivity(searchIntent);
                 return true;
             case R.id.create_repo:

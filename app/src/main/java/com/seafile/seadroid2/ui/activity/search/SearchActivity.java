@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.ui.activity;
+package com.seafile.seadroid2.ui.activity.search;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -20,9 +20,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.EditorInfo;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -39,6 +39,8 @@ import com.seafile.seadroid2.data.SearchedFile;
 import com.seafile.seadroid2.play.PlayActivity;
 import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.ui.WidgetUtils;
+import com.seafile.seadroid2.ui.activity.BaseActivity;
+import com.seafile.seadroid2.ui.activity.FileActivity;
 import com.seafile.seadroid2.ui.adapter.SearchAdapter;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.util.Utils;
@@ -49,7 +51,10 @@ import java.util.List;
 
 /**
  * Search Activity
+ * <p>
+ * use Search2Activity
  */
+@Deprecated
 public class SearchActivity extends BaseActivity implements View.OnClickListener, Toolbar.OnMenuItemClickListener {
     private static final String DEBUG_TAG = "SearchActivity";
 
@@ -71,6 +76,7 @@ public class SearchActivity extends BaseActivity implements View.OnClickListener
     private Account account;
 
     public static final int DOWNLOAD_FILE_REQUEST = 0;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -216,9 +222,9 @@ public class SearchActivity extends BaseActivity implements View.OnClickListener
         }
     }
 
-    private void handleSearch(int page) {
+    private void handleSearch(int pageSize) {
         // TODO page loading instead of only display top 100 search result
-        page = 100;
+        pageSize = 100;
         if (!Utils.isNetworkOn()) {
             showShortToast(this, R.string.network_down);
             mMessageContainer.setVisibility(View.VISIBLE);
@@ -230,7 +236,7 @@ public class SearchActivity extends BaseActivity implements View.OnClickListener
         if (!TextUtils.isEmpty(searchText)) {
             // mSearchedFiles.clear();
 
-            search(searchText, page);
+            search(searchText, pageSize);
 
             Utils.hideSoftKeyboard(mTextField);
         } else {
@@ -238,16 +244,16 @@ public class SearchActivity extends BaseActivity implements View.OnClickListener
         }
     }
 
-    private void search(String content, int page) {
+    private void search(String content, int pageSize) {
         // start asynctask
-        ConcurrentAsyncTask.execute(new SearchLibrariesTask(dataManager, content, page));
+        ConcurrentAsyncTask.execute(new SearchLibrariesTask(dataManager, content, pageSize));
     }
 
     class SearchLibrariesTask extends AsyncTask<Void, Void, ArrayList<SearchedFile>> {
 
         private DataManager dataManager;
         private String query;
-        private int page;
+        private int pageSize;
         private SeafException seafException;
 
         @Override
@@ -258,16 +264,16 @@ public class SearchActivity extends BaseActivity implements View.OnClickListener
             mMessageContainer.setVisibility(View.GONE);
         }
 
-        public SearchLibrariesTask(DataManager dataManager, String query, int page) {
+        public SearchLibrariesTask(DataManager dataManager, String query, int pageSize) {
             this.dataManager = dataManager;
             this.query = query;
-            this.page = page;
+            this.pageSize = pageSize;
         }
 
         @Override
         protected ArrayList<SearchedFile> doInBackground(Void... params) {
             try {
-                mSearchedRlt = dataManager.search(query, page);
+                mSearchedRlt = dataManager.search(query, 1, pageSize);
                 return dataManager.parseSearchResult(mSearchedRlt);
             } catch (SeafException e) {
                 seafException = e;
