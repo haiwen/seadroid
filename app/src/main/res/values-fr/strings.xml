@@ -111,6 +111,7 @@
   <string name="select_upload_items">Sélection des éléments à transférer</string>
   <plurals name="n_upload_items_selected">
     <item quantity="one">%1$d éléments sélectionné</item>
+    <item quantity="many">%1$d éléments sélectionnés</item>
     <item quantity="other">%1$d éléments sélectionnés</item>
   </plurals>
   <string name="repo_name_empty">Veuillez introduire le nom de la bibliothèque</string>
@@ -225,6 +226,7 @@
   <string name="error_selecting_file">Erreur lors de la sélection du fichier</string>
   <plurals name="n_upload_files_selected">
     <item quantity="one">%1$d fichier séléctionné</item>
+    <item quantity="many">%1$d fichiers sélectionnés</item>
     <item quantity="other">%1$d fichiers sélectionnés</item>
   </plurals>
   <string name="empty_folder">Dossier vide</string>
@@ -280,10 +282,12 @@
   <string name="lockscreen_access_pattern_failure">Échoué 5 fois, veuillez patienter 30 secondes avant d\'essayer à nouveau.</string>
   <plurals name="lockscreen_access_pattern_failure_left_try_seconds">
     <item quantity="one">Réessayer dans %1$d seconde</item>
+    <item quantity="many">Vous pouvez réessayer dans %1$d secondes</item>
     <item quantity="other">Vous pouvez réessayer dans %1$d secondes</item>
   </plurals>
   <plurals name="lockscreen_access_pattern_failure_left_try_times">
     <item quantity="one">Modèle incorrect, essayer %1$d fois</item>
+    <item quantity="many">Modèle incorrect, vous pouvez encore essayer %1$d fois</item>
     <item quantity="other">Modèle incorrect, vous pouvez encore essayer %1$d fois</item>
   </plurals>
   <string name="lockscreen_access_pattern_failure_not_long_enough">Le nombre de points reliés n\'est pas suffisant, réessayer </string>
@@ -350,6 +354,7 @@
   <string name="settings_cuc_local_dir_title">Sélectionnez des albums</string>
   <plurals name="settings_cuc_local_dir_items">
     <item quantity="one">%1$d élément</item>
+    <item quantity="many">%1$d éléments</item>
     <item quantity="other">%1$d éléments</item>
   </plurals>
   <string name="settings_cuc_remote_lib_title">Sélectionner la bibliothèque distante</string>
@@ -373,6 +378,7 @@
   <string name="settings_about_title">À PROPOS</string>
   <string name="settings_about_version_title">Version</string>
   <string name="settings_about_author_title">À propos de l\'auteur</string>
+
   <string name="settings_about_author_info">
 <![CDATA[
 <h5>Seafile client pour Android</h5>
@@ -386,6 +392,7 @@ E-mail : support@seafile.com<br>
 <p>https://github.com/haiwen/seadroid.git</P>
 <h5>Copyright ©2013-2023 Seafile Ltd.</h5>
 ]]></string>
+
   <string name="settings_advance_feature_title">Fonctionnalités avancées</string>
   <string name="settings_storage_title">Stockage du cache</string>
   <string name="settings_cache_title">Taille du cache</string>
@@ -440,12 +447,14 @@ E-mail : support@seafile.com<br>
   <string name="transfer_download_no_task">Tous les fichiers ont été téléchargé</string>
   <plurals name="transfer_download_started">
     <item quantity="one">Téléchargement de %1$d fichier</item>
+    <item quantity="many">Téléchargement de %1$d fichiers</item>
     <item quantity="other">Téléchargement de %1$d fichiers</item>
   </plurals>
   <string name="transfer_list_select_all">Tout sélectionner</string>
   <string name="transfer_list_deselect_all">Tout désélectionner</string>
   <plurals name="transfer_list_items_selected">
     <item quantity="one">%d élément sélectionné</item>
+    <item quantity="many">%d éléments séléctionnés</item>
     <item quantity="other">%d éléments séléctionnés</item>
   </plurals>
   <!--Sort-->
@@ -476,10 +485,12 @@ E-mail : support@seafile.com<br>
   <string name="notification_upload_completed">Envoi terminé</string>
   <plurals name="notification_upload_info">
     <item quantity="one">Téléversement de %1$d fichier (%2$d%%)</item>
+    <item quantity="many">Envoi de %1$d fichiers (%2$d%%)</item>
     <item quantity="other">Envoi de %1$d fichiers (%2$d%%)</item>
   </plurals>
   <plurals name="notification_download_info">
     <item quantity="one">Téléchargement de %1$d fichier (%2$d%%)</item>
+    <item quantity="many">Téléchargement de %1$d fichiers (%2$d%%)</item>
     <item quantity="other">Téléchargement de %1$d fichiers (%2$d%%)</item>
   </plurals>
   <string name="notification_download_completed">Téléchargement terminé</string>
@@ -546,4 +557,7 @@ E-mail : support@seafile.com<br>
   <string name="is_scanning">Balayage</string>
   <string name="is_uploading">Envoi</string>
   <string name="network_unavailable">Réseau indisponible</string>
+  <string name="required_password">Un mot de passe est requis.</string>
+  <string name="weak_password">Le mot de passe est trop faible.</string>
+  <!--Folder backup Preference-->
 </resources>

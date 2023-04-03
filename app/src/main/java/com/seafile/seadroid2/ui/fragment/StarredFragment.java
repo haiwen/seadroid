@@ -37,7 +37,6 @@ import com.seafile.seadroid2.util.Utils;
 import java.io.File;
 import java.util.List;
 
-
 public class StarredFragment extends ListFragment {
     private StarredItemAdapter adapter;
     private BrowserActivity mActivity = null;
@@ -76,8 +75,7 @@ public class StarredFragment extends ListFragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.starred_fragment, container, false);
         refreshLayout = (SwipeRefreshLayout) root.findViewById(R.id.swiperefresh);
         mListView = (ListView) root.findViewById(android.R.id.list);
@@ -114,7 +112,6 @@ public class StarredFragment extends ListFragment {
         setListAdapter(adapter);
 
         getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-
     }
 
     @Override
@@ -192,18 +189,14 @@ public class StarredFragment extends ListFragment {
     private void showLoading(boolean show) {
         mErrorText.setVisibility(View.GONE);
         if (show) {
-            mProgressContainer.startAnimation(AnimationUtils.loadAnimation(
-                    mActivity, android.R.anim.fade_in));
-            mListContainer.startAnimation(AnimationUtils.loadAnimation(
-                    mActivity, android.R.anim.fade_out));
+            mProgressContainer.startAnimation(AnimationUtils.loadAnimation(mActivity, android.R.anim.fade_in));
+            mListContainer.startAnimation(AnimationUtils.loadAnimation(mActivity, android.R.anim.fade_out));
 
             mProgressContainer.setVisibility(View.VISIBLE);
             mListContainer.setVisibility(View.INVISIBLE);
         } else {
-            mProgressContainer.startAnimation(AnimationUtils.loadAnimation(
-                    mActivity, android.R.anim.fade_out));
-            mListContainer.startAnimation(AnimationUtils.loadAnimation(
-                    mActivity, android.R.anim.fade_in));
+            mProgressContainer.startAnimation(AnimationUtils.loadAnimation(mActivity, android.R.anim.fade_out));
+            mListContainer.startAnimation(AnimationUtils.loadAnimation(mActivity, android.R.anim.fade_in));
 
             mProgressContainer.setVisibility(View.GONE);
             mListContainer.setVisibility(View.VISIBLE);

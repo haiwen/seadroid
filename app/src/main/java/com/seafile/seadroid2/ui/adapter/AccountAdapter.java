@@ -23,12 +23,13 @@ import java.util.List;
 public abstract class AccountAdapter extends BaseAdapter {
     private static final String DEBUG_TAG = "AccountAdapter";
 
-//    private ImageLoadingListener animateFirstListener = new AnimateFirstDisplayListener();
+    //    private ImageLoadingListener animateFirstListener = new AnimateFirstDisplayListener();
+
 //    private DisplayImageOptions options;
     private ArrayList<Account> items;
     private ArrayList<Avatar> avatars;
     private Context context;
-    
+
     public AccountAdapter(Context context) {
         this.context = context;
         items = Lists.newArrayList();
@@ -61,7 +62,7 @@ public abstract class AccountAdapter extends BaseAdapter {
     public void setItems(List<Account> items) {
         this.items = (ArrayList<Account>) items;
         notifyDataSetChanged();
-        
+
     }
 
     public void setAvatars(ArrayList<Avatar> avatars) {

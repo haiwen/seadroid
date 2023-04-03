@@ -1852,10 +1852,7 @@ public class BrowserActivity extends BaseActivity implements ReposFragment.OnFil
             } else
                 super.onBackPressed();
         } else if (currentPosition == INDEX_ACTIVITIES_TAB) {
-            if (getActivitiesFragment().isBottomSheetShown()) {
-                getActivitiesFragment().hideBottomSheet();
-            } else
-                super.onBackPressed();
+            super.onBackPressed();
         } else
             super.onBackPressed();
     }

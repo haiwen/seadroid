@@ -17,10 +17,10 @@
     <ImageView
         android:id="@+id/list_item_icon"
         android:layout_width="@dimen/lv_icon_width"
-        android:layout_height="@dimen/lv_icon_height"
+        android:layout_height="@dimen/lv_icon_width"
         android:layout_centerVertical="true"
         android:layout_toEndOf="@id/list_item_multi_select_btn"
-        android:paddingStart="@dimen/lv_item_padding_left"
+        android:layout_marginStart="4dp"
         android:src="@drawable/repo_encrypted" />
 
     <ImageView
@@ -90,7 +90,7 @@
     <FrameLayout
         android:id="@+id/expandable_toggle_button"
         android:layout_width="@dimen/lv_iv_action_width"
-        android:layout_height="match_parent"
+        android:layout_height="@dimen/lv_item_height"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
         android:background="@drawable/toggle_btn_selector_holo_light"

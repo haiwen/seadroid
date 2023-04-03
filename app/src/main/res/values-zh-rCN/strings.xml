@@ -370,205 +370,205 @@
     <string name="settings_about_version_title">应用版本号</string>
     <string name="settings_about_author_title">关于我们</string>
     <string name="settings_about_author_info">
+
         <![CDATA[
-        <h5>Seafile安卓客户端</h5>
+        <h5>Seafile Android Client</h5>
         <p>%s</p>
         <h5>联系我们</h5>
         <p>
             Twitter: Seafile<br>
-            邮箱: support@seafile.com<br>
+            Email: support@seafile.com<br>
         </p>
-        <h5>贡献代码</h5>
+        贡献
         <p>https://github.com/haiwen/seadroid.git</P>
-        <h5>版权 ©2013-2023 Seafile Ltd.</h5>
+
+        <h5>Copyright ©2013-2023 Seafile Ltd.</h5>
         ]]>
     </string>
-    <string name="settings_advance_feature_title">高级特性</string>
-    <string name="settings_storage_title">缓存存储</string>
-    <string name="settings_cache_title">缓存大小</string>
-    <string name="settings_clear_cache_title">清空缓存</string>
-    <string name="settings_clear_cache_hint">你想清理缓存吗？</string>
-    <string name="settings_clear_cache_success">清理缓存成功</string>
-    <string name="settings_clear_cache_failed">清理缓存失败</string>
-    <string name="settings_cache_empty">0 KB</string>
-    <string name="settings_cache_location_title">缓存路径</string>
-    <string name="dialog_switch_storage_info_text">现有的缓存文件会被移动到新路径下，这可能需要一段时间。</string>
-    <string name="storage_manager_primary_storage">主存储</string>
-    <string name="storage_manager_secondary_storage">副存储</string>
-    <string name="storage_manager_storage_description">%1$s (%2$s可用/%3$s总共)</string>
-    <string name="storage_manager_storage_description_not_available">%1$s (不可用)</string>
-    <!--pull to refresh-->
-    <string name="pull_to_refresh_pull_label">下拉更新</string>
-    <string name="pull_to_refresh_release_label">释放更新</string>
-    <string name="pull_to_refresh_refreshing_label">加载中...</string>
-    <string name="pull_to_refresh_last_update">上次刷新：</string>
-    <string name="pull_to_refresh_last_update_seconds_ago">%d秒前</string>
-    <string name="pull_to_refresh_last_update_minutes_ago">%d分钟前</string>
-    <string name="pull_to_refresh_last_update_hours_ago">%d小时前</string>
-    <!--storage access framework-->
-    <string name="saf_open_file_exception">无法打开文件%s</string>
-    <string name="saf_open_directory_exception"> 无法打开目录</string>
-    <string name="saf_file_not_cached_exception">文件%s没有被缓存</string>
-    <string name="saf_thumbnail_not_found_exception">找不到（或）打不开缩略图%s</string>
-    <string name="saf_file_not_downloaded_exception">不能从服务器下载%s</string>
-    <string name="saf_write_diretory_exception">不能进入目录进行读取（或）写入</string>
-    <string name="saf_account_not_found_exception">无法找到Seafile账户</string>
-    <string name="saf_upload_path_not_available">无效路径，无法上传</string>
-    <string name="saf_failed_to_create_directory">无法创建目录%s</string>
-    <string name="saf_file_exist">该文件已存在</string>
-    <string name="saf_bad_mime_type">请求类型错误</string>
-    <!--Single Sign-On  SSO-->
-    <string name="shib_server_url_empty">地址栏为空</string>
-    <string name="shib_server_incorrect_prefix">服务器地址需要以 https:// 开头</string>
-    <string name="shib_load_page_error">错误：</string>
-    <string name="shib_login_title">统一登录</string>
-    <string name="shib_loading">加载中...</string>
-    <!--Transfer List-->
-    <string name="transfer_list_network_error">网络连接错误，请稍后重试！</string>
-    <string name="transfer_list_cancel_all">取消所有任务</string>
-    <string name="transfer_list_restart_all">重新开始</string>
-    <string name="transfer_list_retry_failed_tasks">重试失败的任务</string>
-    <string name="transfer_list_restart_cancelled_tasks">重试取消的任务</string>
-    <string name="transfer_list_clear_failed_tasks">清除失败的任务</string>
-    <string name="transfer_list_clear_all_tasks">清除所有任务</string>
-    <string name="transfer_list_clear_finished_tasks">清除完成的任务</string>
-    <string name="transfer_tabs_downloads">下载列表</string>
-    <string name="transfer_tabs_uploads">上传列表</string>
-    <string name="transfer_download_no_task">所有文件已下载完成</string>
-    <plurals name="transfer_download_started">
-        <item quantity="other">开始下载%1$d个文件</item>
-    </plurals>
-    <string name="transfer_list_select_all">全选</string>
-    <string name="transfer_list_deselect_all">取消全选</string>
-    <plurals name="transfer_list_items_selected">
-        <item quantity="other">选中%d个</item>
-    </plurals>
-    <!--Sort-->
-    <string name="sort_menu_item">排序</string>
-    <string name="sort_files">排序规则</string>
-    <string-array name="sort_files_options_array">
-        <item>名字</item>
-        <item>名字（降序）</item>
-        <item>最后修改时间</item>
-        <item>最后修改时间（降序）</item>
-    </string-array>
-    <!--Search-->
-    <string name="search_menu_item">搜索</string>
-    <string name="search_bar_hint">搜索...</string>
-    <string name="search_txt_empty">请输入您的关键词</string>
-    <string name="search_content_empty">没找到</string>
-    <string name="search_server_not_support">此服务器不支持搜索</string>
-    <string name="search_library_not_found">没找到资料库，它可能已被删除</string>
-    <!--star a file-->
-    <string name="star_file_succeed">星标添加成功</string>
-    <string name="star_file_failed">星标添加失败</string>
-    <!--unstar a file-->
-    <string name="unstar_file_failed">取消星标失败</string>
-    <string name="unstar">取消星标</string>
-    <!--notification bar-->
-    <string name="notification_upload_started_title">文件上传中...</string>
-    <string name="notification_download_started_title">文件下载中...</string>
-    <string name="notification_upload_completed">上传完成</string>
-    <plurals name="notification_upload_info">
-        <item quantity="other">正在上传%1$d个文件(%2$d%%)</item>
-    </plurals>
-    <plurals name="notification_download_info">
-        <item quantity="other">正在下载%1$d个文件(%2$d%%)</item>
-    </plurals>
-    <string name="notification_download_completed">下载完成</string>
-    <!--Gallery-->
-    <string name="gallery_load_photos_error">加载图片错误</string>
-    <string name="gallery_encrypted_repo_not_supported">不支持加密资料库</string>
-    <!--Overwrite existing files-->
-    <string name="overwrite_existing_file_title">替换文件</string>
-    <string name="overwrite_existing_file_msg">该文件已存在，要替换它吗？</string>
-    <string name="overwrite_existing_file_exist">该文件已经存在</string>
-    <!--Action Mode-->
-    <string name="action_mode_no_items_selected">未选中任何文件</string>
-    <!--Accessibility description for navigation drawer-->
-    <!--permission-->
-    <string name="permission_read_exteral_storage_rationale">在处理文件之前，请允许应用获取存储权限</string>
-    <string name="permission_read_contacts_storage_rationale">在处理通讯录之前，请允许本应用获取通讯录权限</string>
-    <string name="permission_not_granted">未获得权限</string>
-    <string name="history_change_title">修改详情</string>
-    <string name="no_more_activities">没有更多活动了</string>
-    <!--client side encryption and decryption-->
-    <string name="enc_on">数据在本地解密</string>
-    <string name="enc_off">数据在服务器端解密</string>
-    <string name="enc_title">加密资料库解密方式</string>
-    <!--clear password-->
-    <string name="clear_password_title">清除资料库密码</string>
-    <string name="clear_password_hint">点击清除密码</string>
-    <string name="clear_password_successful">清除密码成功</string>
-    <string name="clear_password_failed">清除密码失败</string>
-    <string name="clear_password_warning">你想清除密码吗？</string>
-    <string name="clear_password_auto">自动清除密码</string>
-    <!--Two factor auth-->
-    <string name="two_factor_auth_error">请输入验证码</string>
-    <string name="two_factor_auth_invalid">验证码无效</string>
-    <string name="two_factor_auth_token">两步验证码</string>
-    <string name="two_factor_auth_token_empty">验证码不能为空</string>
-    <string name="two_factor_auth_remember_phone">记住该设备</string>
-    <!--Operation Exceptions-->
-    <string name="op_exception_folder_deleted">此文件夹\"%s\"已被删除</string>
-    <string name="op_exception_suitable_app_not_found">找不到合适的应用打开该%s类型</string>
-    <string name="op_exception_failed_to_download_file">下载文件%s失败</string>
-    <!--Home list title-->
-    <string name="shared_with_all">公共</string>
-    <string name="add_password_protection">添加保护密码</string>
-    <string name="expiration_dates">输入过期天数</string>
-    <string name="add_auto_expiration">增加自动过期</string>
-    <string name="input_auto_expiration">请输入自动过期天数</string>
-    <!--editor-->
-    <string name="editor_lines_error">不支持多行操作</string>
-    <string name="editor_file_save">确定保存并退出吗？</string>
-    <string name="editor_file_save_success">保存成功</string>
-    <string name="editor_file_save_failed">缓存清理失败</string>
-    <string name="editor_file_save_title">保存文件</string>
-    <string name="description">描述</string>
-    <string name="undo">撤销</string>
-    <string name="redo">还原</string>
-    <string name="link">链接</string>
-    <string name="channel_name_error">错误信息</string>
-    <string name="channel_name_upload">文件上传</string>
-    <string name="channel_name_download">文件下载</string>
-    <string name="above_quota">空间超额</string>
-    <string name="camera_upload_state">上传信息显示</string>
-    <string name="waiting_state">上传等待中</string>
-    <string name="Upload_completed">最后同步完成于</string>
-    <string name="is_scanning">扫描中</string>
-    <string name="is_uploading">上传中</string>
-    <string name="network_unavailable">网络不可用</string>
-    <string name="required_password">需要密码</string>
-    <string name="weak_password">密码太弱</string>
-
-    <!--Folder backup Preference-->
-    <string name="settings_folder_backup_info_title">文件夹备份</string>
-    <string name="settings_folder_backup_switch_title">备份服务</string>
-    <string name="settings_folder_backup_service_started">备份服务已启动</string>
-    <string name="settings_folder_backup_service_stopped">备份服务已停止</string>
-    <string name="settings_select_backup_folder_title">选择文件夹</string>
-    <string name="folder_file_item_size">%s</string>
-    <string name="folder_file_item_describe">文件 \%s\ | 文件夹 \%s\</string>
-    <string name="internal_storage">内部存储</string>
-    <string name="selection_file_type">请选择一个文件夹</string>
-    <string name="select_backup_folder">选择一个备份文件夹</string>
-    <string name="select_backup_libraries">选择一个备份库</string>
-    <string name="folder_backup_completed">文件夹已备份</string>
-    <string name="get_storage_permission_failed">无法获取存储权限</string>
-    <string name="authorization_storage_permission">存储权限已永久拒绝授权，请手动授予权限。</string>
-    <string name="settings_folder_backup_select_hint">0</string>
-    <string name="settings_folder_backup_select_title">已选择备份文件夹</string>
-    <string name="settings_folder_backup_traffic">备份网络模式</string>
-    <string name="settings_folder_backup_traffic_hint">WIFI</string>
-    <string name="settings_folder_backup_library">备份到库</string>
-    <string name="folder_backup_waiting_state">完成</string>
-    <string name="folder_backup_state">备份状态</string>
-    <string name="folder_backup_mode">WIFI或者移动流量</string>
-    <string name="folder_backup_mode_title">选择模式</string>
-    <string name="folder_backup_select_repo_hint">选择一个库</string>
-    <string name="folder_backup_select_repo_update">备份库已更新</string>
-
-    <string name="UncaughtExceptionHandler_err">该应用已停止运行</string>
+  <string name="settings_advance_feature_title">高级特性</string>
+  <string name="settings_storage_title">缓存存储</string>
+  <string name="settings_cache_title">缓存大小</string>
+  <string name="settings_clear_cache_title">清空缓存</string>
+  <string name="settings_clear_cache_hint">你想清理缓存吗？</string>
+  <string name="settings_clear_cache_success">清理缓存成功</string>
+  <string name="settings_clear_cache_failed">清理缓存失败</string>
+  <string name="settings_cache_empty">0 KB</string>
+  <string name="settings_cache_location_title">缓存路径</string>
+  <string name="dialog_switch_storage_info_text">现有的缓存文件会被移动到新路径下，这可能需要一段时间。</string>
+  <string name="storage_manager_primary_storage">主存储</string>
+  <string name="storage_manager_secondary_storage">副存储</string>
+  <string name="storage_manager_storage_description">%1$s (%2$s可用/%3$s总共)</string>
+  <string name="storage_manager_storage_description_not_available">%1$s (不可用)</string>
+  <!--pull to refresh-->
+  <string name="pull_to_refresh_pull_label">下拉更新</string>
+  <string name="pull_to_refresh_release_label">释放更新</string>
+  <string name="pull_to_refresh_refreshing_label">加载中...</string>
+  <string name="pull_to_refresh_last_update">上次刷新：</string>
+  <string name="pull_to_refresh_last_update_seconds_ago">%d秒前</string>
+  <string name="pull_to_refresh_last_update_minutes_ago">%d分钟前</string>
+  <string name="pull_to_refresh_last_update_hours_ago">%d小时前</string>
+  <!--storage access framework-->
+  <string name="saf_open_file_exception">无法打开文件%s</string>
+  <string name="saf_open_directory_exception"> 无法打开目录</string>
+  <string name="saf_file_not_cached_exception">文件%s没有被缓存</string>
+  <string name="saf_thumbnail_not_found_exception">找不到（或）打不开缩略图%s</string>
+  <string name="saf_file_not_downloaded_exception">不能从服务器下载%s</string>
+  <string name="saf_write_diretory_exception">不能进入目录进行读取（或）写入</string>
+  <string name="saf_account_not_found_exception">无法找到Seafile账户</string>
+  <string name="saf_upload_path_not_available">无效路径，无法上传</string>
+  <string name="saf_failed_to_create_directory">无法创建目录%s</string>
+  <string name="saf_file_exist">该文件已存在</string>
+  <string name="saf_bad_mime_type">请求类型错误</string>
+  <!--Single Sign-On  SSO-->
+  <string name="shib_server_url_empty">地址栏为空</string>
+  <string name="shib_server_incorrect_prefix">服务器地址需要以 https:// 开头</string>
+  <string name="shib_load_page_error">错误：</string>
+  <string name="shib_login_title">统一登录</string>
+  <string name="shib_loading">加载中...</string>
+  <!--Transfer List-->
+  <string name="transfer_list_network_error">网络连接错误，请稍后重试！</string>
+  <string name="transfer_list_cancel_all">取消所有任务</string>
+  <string name="transfer_list_restart_all">重新开始</string>
+  <string name="transfer_list_retry_failed_tasks">重试失败的任务</string>
+  <string name="transfer_list_restart_cancelled_tasks">重试取消的任务</string>
+  <string name="transfer_list_clear_failed_tasks">清除失败的任务</string>
+  <string name="transfer_list_clear_all_tasks">清除所有任务</string>
+  <string name="transfer_list_clear_finished_tasks">清除完成的任务</string>
+  <string name="transfer_tabs_downloads">下载列表</string>
+  <string name="transfer_tabs_uploads">上传列表</string>
+  <string name="transfer_download_no_task">所有文件已下载完成</string>
+  <plurals name="transfer_download_started">
+    <item quantity="other">开始下载%1$d个文件</item>
+  </plurals>
+  <string name="transfer_list_select_all">全选</string>
+  <string name="transfer_list_deselect_all">取消全选</string>
+  <plurals name="transfer_list_items_selected">
+    <item quantity="other">选中%d个</item>
+  </plurals>
+  <!--Sort-->
+  <string name="sort_menu_item">排序</string>
+  <string name="sort_files">排序规则</string>
+  <string-array name="sort_files_options_array">
+    <item>名字</item>
+    <item>名字（降序）</item>
+    <item>最后修改时间</item>
+    <item>最后修改时间（降序）</item>
+  </string-array>
+  <!--Search-->
+  <string name="search_menu_item">搜索</string>
+  <string name="search_bar_hint">搜索...</string>
+  <string name="search_txt_empty">请输入您的关键词</string>
+  <string name="search_content_empty">没找到</string>
+  <string name="search_server_not_support">此服务器不支持搜索</string>
+  <string name="search_library_not_found">没找到资料库，它可能已被删除</string>
+  <!--star a file-->
+  <string name="star_file_succeed">星标添加成功</string>
+  <string name="star_file_failed">星标添加失败</string>
+  <!--unstar a file-->
+  <string name="unstar_file_failed">取消星标失败</string>
+  <string name="unstar">取消星标</string>
+  <!--notification bar-->
+  <string name="notification_upload_started_title">文件上传中...</string>
+  <string name="notification_download_started_title">文件下载中...</string>
+  <string name="notification_upload_completed">上传完成</string>
+  <plurals name="notification_upload_info">
+    <item quantity="other">正在上传%1$d个文件(%2$d%%)</item>
+  </plurals>
+  <plurals name="notification_download_info">
+    <item quantity="other">正在下载%1$d个文件(%2$d%%)</item>
+  </plurals>
+  <string name="notification_download_completed">下载完成</string>
+  <!--Gallery-->
+  <string name="gallery_load_photos_error">加载图片错误</string>
+  <string name="gallery_encrypted_repo_not_supported">不支持加密资料库</string>
+  <!--Overwrite existing files-->
+  <string name="overwrite_existing_file_title">替换文件</string>
+  <string name="overwrite_existing_file_msg">该文件已存在，要替换它吗？</string>
+  <string name="overwrite_existing_file_exist">该文件已经存在</string>
+  <!--Action Mode-->
+  <string name="action_mode_no_items_selected">未选中任何文件</string>
+  <!--Accessibility description for navigation drawer-->
+  <!--permission-->
+  <string name="permission_read_exteral_storage_rationale">在处理文件之前，请允许应用获取存储权限</string>
+  <string name="permission_read_contacts_storage_rationale">在处理通讯录之前，请允许本应用获取通讯录权限</string>
+  <string name="permission_not_granted">未获得权限</string>
+  <string name="history_change_title">修改详情</string>
+  <string name="no_more_activities">没有更多活动了</string>
+  <!--client side encryption and decryption-->
+  <string name="enc_on">数据在本地解密</string>
+  <string name="enc_off">数据在服务器端解密</string>
+  <string name="enc_title">加密资料库解密方式</string>
+  <!--clear password-->
+  <string name="clear_password_title">清除资料库密码</string>
+  <string name="clear_password_hint">点击清除密码</string>
+  <string name="clear_password_successful">清除密码成功</string>
+  <string name="clear_password_failed">清除密码失败</string>
+  <string name="clear_password_warning">你想清除密码吗？</string>
+  <string name="clear_password_auto">自动清除密码</string>
+  <!--Two factor auth-->
+  <string name="two_factor_auth_error">请输入验证码</string>
+  <string name="two_factor_auth_invalid">验证码无效</string>
+  <string name="two_factor_auth_token">两步验证码</string>
+  <string name="two_factor_auth_token_empty">验证码不能为空</string>
+  <string name="two_factor_auth_remember_phone">记住该设备</string>
+  <!--Operation Exceptions-->
+  <string name="op_exception_folder_deleted">此文件夹\"%s\"已被删除</string>
+  <string name="op_exception_suitable_app_not_found">找不到合适的应用打开该%s类型</string>
+  <string name="op_exception_failed_to_download_file">下载文件%s失败</string>
+  <!--Home list title-->
+  <string name="shared_with_all">公共</string>
+  <string name="add_password_protection">添加保护密码</string>
+  <string name="expiration_dates">输入过期天数</string>
+  <string name="add_auto_expiration">增加自动过期</string>
+  <string name="input_auto_expiration">请输入自动过期天数</string>
+  <!--editor-->
+  <string name="editor_lines_error">不支持多行操作</string>
+  <string name="editor_file_save">确定保存并退出吗？</string>
+  <string name="editor_file_save_success">保存成功</string>
+  <string name="editor_file_save_failed">缓存清理失败</string>
+  <string name="editor_file_save_title">保存文件</string>
+  <string name="description">描述</string>
+  <string name="undo">撤销</string>
+  <string name="redo">还原</string>
+  <string name="link">链接</string>
+  <string name="channel_name_error">错误信息</string>
+  <string name="channel_name_upload">文件上传</string>
+  <string name="channel_name_download">文件下载</string>
+  <string name="above_quota">空间超额</string>
+  <string name="camera_upload_state">上传信息显示</string>
+  <string name="waiting_state">上传等待中</string>
+  <string name="Upload_completed">最后同步完成于</string>
+  <string name="is_scanning">扫描中</string>
+  <string name="is_uploading">上传中</string>
+  <string name="network_unavailable">网络不可用</string>
+  <string name="required_password">需要密码</string>
+  <string name="weak_password">密码太弱</string>
+  <!--Folder backup Preference-->
+  <string name="settings_folder_backup_info_title">文件夹备份</string>
+  <string name="settings_folder_backup_switch_title">备份服务</string>
+  <string name="settings_folder_backup_service_started">备份服务已启动</string>
+  <string name="settings_folder_backup_service_stopped">备份服务已停止</string>
+  <string name="settings_select_backup_folder_title">选择文件夹</string>
+  <string name="folder_file_item_size">%s</string>
+  <string name="folder_file_item_describe">文件 \%s | 文件夹 \%s\</string>
+  <string name="internal_storage">内部存储</string>
+  <string name="selection_file_type">请选择文件夹</string>
+  <string name="select_backup_folder">选择备份文件夹</string>
+  <string name="select_backup_libraries">选择备份资料库</string>
+  <string name="folder_backup_completed">文件夹已备份</string>
+  <string name="get_storage_permission_failed">无法获取存储权限</string>
+  <string name="authorization_storage_permission">存储权限已永久拒绝授权，请手动授予权限。</string>
+  <string name="settings_folder_backup_select_hint">0</string>
+  <string name="settings_folder_backup_select_title">已选择备份文件夹</string>
+  <string name="settings_folder_backup_traffic">网络模式</string>
+  <string name="settings_folder_backup_traffic_hint">WIFI</string>
+  <string name="settings_folder_backup_library">备份到资料库</string>
+  <string name="folder_backup_waiting_state">完成</string>
+  <string name="folder_backup_state">备份状态</string>
+  <string name="folder_backup_mode">WIFI或者移动流量</string>
+  <string name="folder_backup_mode_title">选择模式</string>
+  <string name="folder_backup_select_repo_hint">选择资料库</string>
+  <string name="folder_backup_select_repo_update">已更新备份资料库</string>
+  <string name="UncaughtExceptionHandler_err">应用已停止运行</string>
 
 </resources>

@@ -334,6 +334,7 @@
   <string name="settings_about_title">關於</string>
   <string name="settings_about_version_title">應用版本號</string>
   <string name="settings_about_author_title">關於我們</string>
+
   <string name="settings_about_author_info">
         <![CDATA[
         <h5>Seafile安卓客戶端</h5>
@@ -348,6 +349,7 @@
         <h5>版權 ©2013-2023 Seafile Ltd.</h5>
         ]]>
     </string>
+
   <string name="settings_advance_feature_title">高級特性</string>
   <string name="settings_storage_title">緩存存儲</string>
   <string name="settings_cache_title">緩存大小</string>
@@ -492,4 +494,5 @@
   <string name="undo">撤銷</string>
   <string name="redo">還原</string>
   <string name="link">鏈接</string>
+  <!--Folder backup Preference-->
 </resources>

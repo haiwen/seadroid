@@ -24,6 +24,7 @@ import com.bumptech.glide.signature.ObjectKey;
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
+import com.seafile.seadroid2.config.GlideLoadConfig;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafCachedFile;
 import com.seafile.seadroid2.data.SeafDirent;
@@ -433,35 +434,10 @@ public class SeafItemAdapter extends BaseAdapter {
             if (url == null) {
                 viewHolder.icon.setImageResource(dirent.getIcon());
             } else {
-                GlideUrl glideUrl = new GlideUrl(url, new LazyHeaders.Builder()
-                        .addHeader("Authorization", "Token " + mActivity.getAccount().token)
-                        .build());
-                RequestOptions opt = new RequestOptions()
-                        .fallback(R.drawable.file_image)
-                        .placeholder(R.drawable.file_image)
-                        .signature(new ObjectKey(dirent.size + ""))
-                        .override(WidgetUtils.getThumbnailWidth(), WidgetUtils.getThumbnailWidth());
-                GlideApp.with(mActivity)
-                        .asBitmap()
-                        .load(glideUrl)
-                        .apply(opt)
+                GlideApp.with(viewHolder.action)
+                        .load(GlideLoadConfig.getGlideUrl(url))
+                        .apply(GlideLoadConfig.getOptions(dirent.size + ""))
                         .thumbnail(0.1f)
-                        .listener(new RequestListener<Bitmap>() {
-                            @Override
-                            public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Bitmap> target, boolean isFirstResource) {
-                                return false;
-                            }
-
-                            @Override
-                            public boolean onResourceReady(Bitmap resource, Object model, Target<Bitmap> target, DataSource dataSource, boolean isFirstResource) {
-                                String tag = (String) viewHolder.icon.getTag(R.id.imageloader_uri);
-                                if (tag.equals(dirent.getTitle())) {
-                                    viewHolder.icon.setImageBitmap(resource);
-                                    return false;
-                                }
-                                return true;
-                            }
-                        })
                         .into(viewHolder.icon);
 
             }

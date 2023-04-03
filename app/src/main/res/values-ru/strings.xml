@@ -383,6 +383,7 @@
   <string name="settings_about_title">О ПРИЛОЖЕНИИ</string>
   <string name="settings_about_version_title">Версия</string>
   <string name="settings_about_author_title">Об авторе</string>
+
   <string name="settings_about_author_info">
         <![CDATA[
         <h5>Seafile Android Client</h5>
@@ -397,6 +398,7 @@
         <h5>Copyright ©2013-2023 Seafile Ltd.</h5>
         ]]>
     </string>
+
   <string name="settings_advance_feature_title">ДОПОЛНИТЕЛЬНЫЕ ФУНКЦИИ</string>
   <string name="settings_storage_title">Кэш-хранилище</string>
   <string name="settings_cache_title">Размер кэша</string>
@@ -565,4 +567,7 @@
   <string name="is_scanning">Сканирование</string>
   <string name="is_uploading">Загрузка</string>
   <string name="network_unavailable">Сеть недоступна</string>
+  <string name="required_password">Необходим пароль.</string>
+  <string name="weak_password">Пароль слишком слабый.</string>
+  <!--Folder backup Preference-->
 </resources>
