@@ -18,7 +18,6 @@ import java.security.NoSuchAlgorithmException;
 
 /**
  * Upload task
- *
  */
 public class UploadTask extends TransferTask {
     public static final String DEBUG_TAG = "UploadTask";
@@ -31,7 +30,6 @@ public class UploadTask extends TransferTask {
     private String source;
 
     private DataManager dataManager;
-    public static final int HTTP_ABOVE_QUOTA = 443;
 
     public UploadTask(String source, int taskID, Account account, String repoID, String repoName,
                       String dir, String filePath, boolean isUpdate, boolean isCopyToLocal, boolean byBlock,
@@ -117,10 +115,8 @@ public class UploadTask extends TransferTask {
             if (err == null) {
                 SettingsManager.instance().saveUploadCompletedTime(Utils.getSyncCompletedTime());
                 uploadStateListener.onFileUploaded(taskID);
-            }
-            else {
-                if (err.getCode() == HTTP_ABOVE_QUOTA) {
-
+            } else {
+                if (err.getCode() == SeafException.HTTP_ABOVE_QUOTA) {
                     Toast.makeText(SeadroidApplication.getAppContext(), R.string.above_quota, Toast.LENGTH_SHORT).show();
                 }
                 uploadStateListener.onFileUploadFailed(taskID);

@@ -375,19 +375,6 @@ Zum Aktualisieren einmal antippen</string>
   <string name="settings_about_title">ÜBER</string>
   <string name="settings_about_version_title">App-Version</string>
   <string name="settings_about_author_title">Autor/innen</string>
-  <string name="settings_about_author_info">
-<![CDATA[
-<h5>Seafile Android-App</h5> 
-<p>%s</p>
-<h5>Kontakt</h5>
-<p>
-Twitter: Seafile<br> 
-E-Mail: support@seafile.com<br>
-</p>
-<h5>Beteiligte und selber Mitmachen</h5>
-<p>https://github.com/haiwen/seadroid.git</P>
-<h5>Copyright ©2013-2018 Seafile Ltd.</h5>
-]]></string>
   <string name="settings_advance_feature_title">ERWEITERTE FUNKTIONEN</string>
   <string name="settings_storage_title">ZWISCHENSPEICHER</string>
   <string name="settings_cache_title">Größe des Zwischenspeichers</string>
@@ -548,4 +535,7 @@ E-Mail: support@seafile.com<br>
   <string name="is_scanning">Scannen</string>
   <string name="is_uploading">Hochladen</string>
   <string name="network_unavailable">Netzwerk nicht verfügbar</string>
+  <string name="required_password">Passwort erforderlich.</string>
+  <string name="weak_password">Passwort ist zu schwach.</string>
+  <!--Folder backup Preference-->
 </resources>

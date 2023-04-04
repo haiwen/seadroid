@@ -33,7 +33,7 @@ public class CreateGesturePasswordActivity extends BaseActivity implements
     protected List<LockPatternView.Cell> mChosenPattern = null;
     private Toast mToast;
     private Stage mUiStage = Stage.Introduction;
-    private View mPreviewViews[][] = new View[3][3];
+    private View[][] mPreviewViews = new View[3][3];
     /**
      * The patten used during the help screen to show how to draw a pattern.
      */
@@ -57,17 +57,15 @@ public class CreateGesturePasswordActivity extends BaseActivity implements
      * The states of the left footer button.
      */
     enum LeftButtonMode {
-        Cancel(android.R.string.cancel, true), CancelDisabled(
-                android.R.string.cancel, false), Retry(
-                R.string.lockpattern_retry_button_text, true), RetryDisabled(
-                R.string.lockpattern_retry_button_text, false), Gone(
-                ID_EMPTY_MESSAGE, false);
+        Cancel(android.R.string.cancel, true),
+        CancelDisabled(android.R.string.cancel, false),
+        Retry(R.string.lockpattern_retry_button_text, true),
+        RetryDisabled(R.string.lockpattern_retry_button_text, false),
+        Gone(ID_EMPTY_MESSAGE, false);
 
         /**
-         * @param text
-         *            The displayed text for this mode.
-         * @param enabled
-         *            Whether the button should be enabled.
+         * @param text    The displayed text for this mode.
+         * @param enabled Whether the button should be enabled.
          */
         LeftButtonMode(int text, boolean enabled) {
             this.text = text;
@@ -82,17 +80,15 @@ public class CreateGesturePasswordActivity extends BaseActivity implements
      * The states of the right button.
      */
     enum RightButtonMode {
-        Continue(R.string.lockpattern_continue_button_text, true), ContinueDisabled(
-                R.string.lockpattern_continue_button_text, false), Confirm(
-                R.string.lockpattern_confirm_button_text, true), ConfirmDisabled(
-                R.string.lockpattern_confirm_button_text, false), Ok(
-                android.R.string.ok, true);
+        Continue(R.string.lockpattern_continue_button_text, true),
+        ContinueDisabled(R.string.lockpattern_continue_button_text, false),
+        Confirm(R.string.lockpattern_confirm_button_text, true),
+        ConfirmDisabled(R.string.lockpattern_confirm_button_text, false),
+        Ok(android.R.string.ok, true);
 
         /**
-         * @param text
-         *            The displayed text for this mode.
-         * @param enabled
-         *            Whether the button should be enabled.
+         * @param text    The displayed text for this mode.
+         * @param enabled Whether the button should be enabled.
          */
         RightButtonMode(int text, boolean enabled) {
             this.text = text;
@@ -107,43 +103,37 @@ public class CreateGesturePasswordActivity extends BaseActivity implements
      * Keep track internally of where the user is in choosing a pattern.
      */
     protected enum Stage {
-        
-        Introduction(R.string.lockpattern_recording_intro_header,
-                LeftButtonMode.Cancel, RightButtonMode.ContinueDisabled,
-                ID_EMPTY_MESSAGE, true), HelpScreen(
-                R.string.lockpattern_settings_help_how_to_record,
-                LeftButtonMode.Gone, RightButtonMode.Ok, ID_EMPTY_MESSAGE,
-                false), ChoiceTooShort(
-                R.string.lockpattern_recording_incorrect_too_short,
-                LeftButtonMode.Retry, RightButtonMode.ContinueDisabled,
-                ID_EMPTY_MESSAGE, true), FirstChoiceValid(
-                R.string.lockpattern_pattern_entered_header,
-                LeftButtonMode.Retry, RightButtonMode.Continue,
-                ID_EMPTY_MESSAGE, false), NeedToConfirm(
+
+        Introduction(R.string.lockpattern_recording_intro_header, LeftButtonMode.Cancel,
+                RightButtonMode.ContinueDisabled, ID_EMPTY_MESSAGE, true),
+        HelpScreen(R.string.lockpattern_settings_help_how_to_record, LeftButtonMode.Gone,
+                RightButtonMode.Ok, ID_EMPTY_MESSAGE, false),
+        ChoiceTooShort(R.string.lockpattern_recording_incorrect_too_short, LeftButtonMode.Retry,
+                RightButtonMode.ContinueDisabled, ID_EMPTY_MESSAGE, true),
+        FirstChoiceValid(R.string.lockpattern_pattern_entered_header, LeftButtonMode.Retry,
+                RightButtonMode.Continue, ID_EMPTY_MESSAGE, false),
+        NeedToConfirm(
                 R.string.lockpattern_need_to_confirm, LeftButtonMode.Cancel,
-                RightButtonMode.ConfirmDisabled, ID_EMPTY_MESSAGE, true), ConfirmWrong(
+                RightButtonMode.ConfirmDisabled, ID_EMPTY_MESSAGE, true),
+        ConfirmWrong(
                 R.string.lockpattern_need_to_unlock_wrong,
                 LeftButtonMode.Cancel, RightButtonMode.ConfirmDisabled,
-                ID_EMPTY_MESSAGE, true), ChoiceConfirmed(
+                ID_EMPTY_MESSAGE, true),
+        ChoiceConfirmed(
                 R.string.lockpattern_pattern_confirmed_header,
                 LeftButtonMode.Cancel, RightButtonMode.Confirm,
                 ID_EMPTY_MESSAGE, false);
 
         /**
-         * @param headerMessage
-         *            The message displayed at the top.
-         * @param leftMode
-         *            The mode of the left button.
-         * @param rightMode
-         *            The mode of the right button.
-         * @param footerMessage
-         *            The footer message.
-         * @param patternEnabled
-         *            Whether the pattern widget is enabled.
+         * @param headerMessage  The message displayed at the top.
+         * @param leftMode       The mode of the left button.
+         * @param rightMode      The mode of the right button.
+         * @param footerMessage  The footer message.
+         * @param patternEnabled Whether the pattern widget is enabled.
          */
         Stage(int headerMessage, LeftButtonMode leftMode,
-                RightButtonMode rightMode, int footerMessage,
-                boolean patternEnabled) {
+              RightButtonMode rightMode, int footerMessage,
+              boolean patternEnabled) {
             this.headerMessage = headerMessage;
             this.leftMode = leftMode;
             this.rightMode = rightMode;
@@ -157,8 +147,9 @@ public class CreateGesturePasswordActivity extends BaseActivity implements
         final int footerMessage;
         final boolean patternEnabled;
     }
+
     SettingsManager settingsMgr = SettingsManager.instance();
-    
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -170,17 +161,17 @@ public class CreateGesturePasswordActivity extends BaseActivity implements
         mAnimatePattern.add(LockPatternView.Cell.of(2, 1));
         mAnimatePattern.add(LockPatternView.Cell.of(2, 2));
 
-        mLockPatternView = (LockPatternView) this
-                .findViewById(R.id.gesturepwd_create_lockview);
-        mHeaderText = (TextView) findViewById(R.id.gesturepwd_create_text);
+        mLockPatternView = findViewById(R.id.gesturepwd_create_lockview);
         mLockPatternView.setOnPatternListener(mChooseNewLockPatternListener);
         mLockPatternView.setTactileFeedbackEnabled(true);
 
+        mHeaderText = (TextView) findViewById(R.id.gesturepwd_create_text);
         mFooterRightButton = (Button) this.findViewById(R.id.right_btn);
         mFooterLeftButton = (Button) this.findViewById(R.id.reset_btn);
         mFooterRightButton.setOnClickListener(this);
         mFooterLeftButton.setOnClickListener(this);
         initPreviewViews();
+
         if (savedInstanceState == null) {
             updateStage(Stage.Introduction);
             updateStage(Stage.HelpScreen);
@@ -323,7 +314,7 @@ public class CreateGesturePasswordActivity extends BaseActivity implements
             mFooterLeftButton.setVisibility(View.GONE);
         } else {
             mFooterLeftButton.setVisibility(View.VISIBLE);
-            mFooterLeftButton.setText(stage.leftMode.text); 
+            mFooterLeftButton.setText(stage.leftMode.text);
             mFooterLeftButton.setEnabled(stage.leftMode.enabled);
         }
 
@@ -340,28 +331,28 @@ public class CreateGesturePasswordActivity extends BaseActivity implements
         mLockPatternView.setDisplayMode(DisplayMode.Correct);
 
         switch (mUiStage) {
-        case Introduction:
-            mLockPatternView.clearPattern();
-            break;
-        case HelpScreen:
-            mLockPatternView.setPattern(DisplayMode.Animate, mAnimatePattern);
-            break;
-        case ChoiceTooShort:
-            mLockPatternView.setDisplayMode(DisplayMode.Wrong);
-            postClearPatternRunnable();
-            break;
-        case FirstChoiceValid:
-            break;
-        case NeedToConfirm:
-            mLockPatternView.clearPattern();
-            updatePreviewViews();
-            break;
-        case ConfirmWrong:
-            mLockPatternView.setDisplayMode(DisplayMode.Wrong);
-            postClearPatternRunnable();
-            break;
-        case ChoiceConfirmed:
-            break;
+            case Introduction:
+                mLockPatternView.clearPattern();
+                break;
+            case HelpScreen:
+                mLockPatternView.setPattern(DisplayMode.Animate, mAnimatePattern);
+                break;
+            case ChoiceTooShort:
+                mLockPatternView.setDisplayMode(DisplayMode.Wrong);
+                postClearPatternRunnable();
+                break;
+            case FirstChoiceValid:
+                break;
+            case NeedToConfirm:
+                mLockPatternView.clearPattern();
+                updatePreviewViews();
+                break;
+            case ConfirmWrong:
+                mLockPatternView.setDisplayMode(DisplayMode.Wrong);
+                postClearPatternRunnable();
+                break;
+            case ChoiceConfirmed:
+                break;
         }
 
     }
@@ -376,48 +367,48 @@ public class CreateGesturePasswordActivity extends BaseActivity implements
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-        case R.id.reset_btn:
-            if (mUiStage.leftMode == LeftButtonMode.Retry) {
-                mChosenPattern = null;
-                mLockPatternView.clearPattern();
-                updateStage(Stage.Introduction);
-            } else if (mUiStage.leftMode == LeftButtonMode.Cancel) {
-                // They are canceling the entire wizard
-                setResult(RESULT_CANCELED);
-                finish();
-            } else {
-                throw new IllegalStateException(
-                        "left footer button pressed, but stage of " + mUiStage
-                                + " doesn't make sense");
-            }
-
-            break;
-        case R.id.right_btn:
-            if (mUiStage.rightMode == RightButtonMode.Continue) {
-                if (mUiStage != Stage.FirstChoiceValid) {
-                    throw new IllegalStateException("expected ui stage "
-                            + Stage.FirstChoiceValid + " when button is "
-                            + RightButtonMode.Continue);
-                }
-                updateStage(Stage.NeedToConfirm);
-            } else if (mUiStage.rightMode == RightButtonMode.Confirm) {
-                if (mUiStage != Stage.ChoiceConfirmed) {
-                    throw new IllegalStateException("expected ui stage "
-                            + Stage.ChoiceConfirmed + " when button is "
-                            + RightButtonMode.Confirm);
-                }
-                saveChosenPatternAndFinish();
-            } else if (mUiStage.rightMode == RightButtonMode.Ok) {
-                if (mUiStage != Stage.HelpScreen) {
+            case R.id.reset_btn:
+                if (mUiStage.leftMode == LeftButtonMode.Retry) {
+                    mChosenPattern = null;
+                    mLockPatternView.clearPattern();
+                    updateStage(Stage.Introduction);
+                } else if (mUiStage.leftMode == LeftButtonMode.Cancel) {
+                    // They are canceling the entire wizard
+                    setResult(RESULT_CANCELED);
+                    finish();
+                } else {
                     throw new IllegalStateException(
-                            "Help screen is only mode with ok button, but "
-                                    + "stage is " + mUiStage);
+                            "left footer button pressed, but stage of " + mUiStage
+                                    + " doesn't make sense");
                 }
-                mLockPatternView.clearPattern();
-                mLockPatternView.setDisplayMode(DisplayMode.Correct);
-                updateStage(Stage.Introduction);
-            }
-            break;
+
+                break;
+            case R.id.right_btn:
+                if (mUiStage.rightMode == RightButtonMode.Continue) {
+                    if (mUiStage != Stage.FirstChoiceValid) {
+                        throw new IllegalStateException("expected ui stage "
+                                + Stage.FirstChoiceValid + " when button is "
+                                + RightButtonMode.Continue);
+                    }
+                    updateStage(Stage.NeedToConfirm);
+                } else if (mUiStage.rightMode == RightButtonMode.Confirm) {
+                    if (mUiStage != Stage.ChoiceConfirmed) {
+                        throw new IllegalStateException("expected ui stage "
+                                + Stage.ChoiceConfirmed + " when button is "
+                                + RightButtonMode.Confirm);
+                    }
+                    saveChosenPatternAndFinish();
+                } else if (mUiStage.rightMode == RightButtonMode.Ok) {
+                    if (mUiStage != Stage.HelpScreen) {
+                        throw new IllegalStateException(
+                                "Help screen is only mode with ok button, but "
+                                        + "stage is " + mUiStage);
+                    }
+                    mLockPatternView.clearPattern();
+                    mLockPatternView.setDisplayMode(DisplayMode.Correct);
+                    updateStage(Stage.Introduction);
+                }
+                break;
         }
     }
 

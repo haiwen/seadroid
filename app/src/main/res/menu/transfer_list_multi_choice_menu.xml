@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item android:id="@+id/action_mode_restart"
           android:title="@string/transfer_list_restart_all"
-          android:icon="@drawable/ic_am_download"
+          android:icon="@drawable/refresh"
           app:showAsAction="always"/>
     <item android:id="@+id/action_mode_delete"
           android:title="@string/file_action_delete"

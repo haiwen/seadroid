@@ -348,6 +348,7 @@
   <string name="settings_about_title">Névjegy</string>
   <string name="settings_about_version_title">Alkalmazás verzió</string>
   <string name="settings_about_author_title">Névjegy</string>
+
   <string name="settings_about_author_info">
 <![CDATA[
 <h5>Seafile Android Kliens</h5>
@@ -361,6 +362,7 @@ Email: support@seafile.com<br>
 <p>https://github.com/haiwen/seadroid.git</P>
 <h5>Copyright ©2013-2023 Seafile Ltd.</h5>
 ]]></string>
+
   <string name="settings_advance_feature_title">HALADÓ BEÁLLÍTÁSOK</string>
   <string name="settings_storage_title">GYORSÍTÓTÁR</string>
   <string name="settings_cache_title">Gyorsítótár mérete</string>
@@ -499,4 +501,5 @@ Email: support@seafile.com<br>
   <string name="add_auto_expiration">Automatikus lejárat hozzáadása</string>
   <string name="input_auto_expiration">Adja meg a lejárati időt</string>
   <!--editor-->
+  <!--Folder backup Preference-->
 </resources>

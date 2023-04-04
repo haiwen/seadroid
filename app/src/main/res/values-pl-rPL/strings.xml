@@ -371,6 +371,7 @@
   <string name="settings_about_title">O PROGRAMIE</string>
   <string name="settings_about_version_title">Wersja aplikacji</string>
   <string name="settings_about_author_title">O autorze</string>
+
   <string name="settings_about_author_info">
         <![CDATA[
         <h5>Klient Seafile dla Androida</h5>
@@ -385,6 +386,7 @@
         <h5>Copyright ©2013-2023 Seafile Ltd.</h5>
         ]]>
     </string>
+
   <string name="settings_advance_feature_title">ZAAWANSOWANE</string>
   <string name="settings_storage_title">PAMIĘĆ PODRĘCZNA</string>
   <string name="settings_cache_title">Pamięć podręczna</string>
@@ -543,4 +545,5 @@
   <string name="undo">cofnij</string>
   <string name="redo">powtórz</string>
   <string name="link">Link</string>
+  <!--Folder backup Preference-->
 </resources>

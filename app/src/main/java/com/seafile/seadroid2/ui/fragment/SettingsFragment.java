@@ -19,8 +19,10 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.blankj.utilcode.util.CollectionUtils;
 import com.bumptech.glide.Glide;
 import com.google.common.collect.Maps;
+import com.google.gson.Gson;
 import com.hjq.permissions.OnPermissionCallback;
 import com.hjq.permissions.XXPermissions;
 import com.seafile.seadroid2.R;
@@ -41,6 +43,7 @@ import com.seafile.seadroid2.data.StorageManager;
 import com.seafile.seadroid2.folderbackup.FolderBackupConfigActivity;
 import com.seafile.seadroid2.folderbackup.FolderBackupDBHelper;
 import com.seafile.seadroid2.folderbackup.FolderBackupEvent;
+import com.seafile.seadroid2.folderbackup.FolderBackupSelectedPathActivity;
 import com.seafile.seadroid2.folderbackup.RepoConfig;
 import com.seafile.seadroid2.folderbackup.selectfolder.StringTools;
 import com.seafile.seadroid2.gesturelock.LockPatternUtils;
@@ -394,7 +397,6 @@ public class SettingsFragment extends CustomPreferenceFragment {
         cBackupFolderRepo.setOnPreferenceClickListener(new OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-
                 // choose remote library
                 Intent intent = new Intent(mActivity, FolderBackupConfigActivity.class);
                 intent.putExtra(FOLDER_BACKUP_REMOTE_LIBRARY, true);
@@ -406,9 +408,14 @@ public class SettingsFragment extends CustomPreferenceFragment {
         cBackupFolderPref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-
-                // choose remote folder path
-                Intent intent = new Intent(mActivity, FolderBackupConfigActivity.class);
+                Intent intent = null;
+                if (CollectionUtils.isEmpty(backupSelectPaths)) {
+                    // choose remote folder path
+                    intent = new Intent(mActivity, FolderBackupConfigActivity.class);
+                } else {
+                    intent = new Intent(mActivity, FolderBackupSelectedPathActivity.class);
+//                    showSelectedFolderDialog();
+                }
                 intent.putExtra(FOLDER_BACKUP_REMOTE_PATH, true);
                 startActivityForResult(intent, CHOOSE_BACKUP_UPLOAD_REQUEST);
                 return true;
@@ -1045,6 +1052,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
                 .show();
 
     }
+
 
     @Override
     public void onStart() {

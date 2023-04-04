@@ -1,29 +1,18 @@
 package com.seafile.seadroid2.ui.adapter;
 
-import android.graphics.Bitmap;
-import android.support.annotation.Nullable;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.bumptech.glide.load.DataSource;
-import com.bumptech.glide.load.engine.GlideException;
-import com.bumptech.glide.load.model.GlideUrl;
-import com.bumptech.glide.load.model.LazyHeaders;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.RequestOptions;
-import com.bumptech.glide.request.target.Target;
-import com.bumptech.glide.signature.ObjectKey;
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
+import com.seafile.seadroid2.config.GlideLoadConfig;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafCachedFile;
 import com.seafile.seadroid2.data.SeafDirent;
@@ -32,7 +21,6 @@ import com.seafile.seadroid2.data.SeafItem;
 import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.transfer.DownloadTaskInfo;
 import com.seafile.seadroid2.ui.NavContext;
-import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
 import com.seafile.seadroid2.util.GlideApp;
 import com.seafile.seadroid2.util.Utils;
@@ -433,35 +421,10 @@ public class SeafItemAdapter extends BaseAdapter {
             if (url == null) {
                 viewHolder.icon.setImageResource(dirent.getIcon());
             } else {
-                GlideUrl glideUrl = new GlideUrl(url, new LazyHeaders.Builder()
-                        .addHeader("Authorization", "Token " + mActivity.getAccount().token)
-                        .build());
-                RequestOptions opt = new RequestOptions()
-                        .fallback(R.drawable.file_image)
-                        .placeholder(R.drawable.file_image)
-                        .signature(new ObjectKey(dirent.size + ""))
-                        .override(WidgetUtils.getThumbnailWidth(), WidgetUtils.getThumbnailWidth());
-                GlideApp.with(mActivity)
-                        .asBitmap()
-                        .load(glideUrl)
-                        .apply(opt)
+                GlideApp.with(viewHolder.action)
+                        .load(GlideLoadConfig.getGlideUrl(url))
+                        .apply(GlideLoadConfig.getOptions(dirent.size + ""))
                         .thumbnail(0.1f)
-                        .listener(new RequestListener<Bitmap>() {
-                            @Override
-                            public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Bitmap> target, boolean isFirstResource) {
-                                return false;
-                            }
-
-                            @Override
-                            public boolean onResourceReady(Bitmap resource, Object model, Target<Bitmap> target, DataSource dataSource, boolean isFirstResource) {
-                                String tag = (String) viewHolder.icon.getTag(R.id.imageloader_uri);
-                                if (tag.equals(dirent.getTitle())) {
-                                    viewHolder.icon.setImageBitmap(resource);
-                                    return false;
-                                }
-                                return true;
-                            }
-                        })
                         .into(viewHolder.icon);
 
             }

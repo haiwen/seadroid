@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <include layout="@layout/toolbar_actionbar" /> <!-- placeholder, empty except on L -->
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="?actionBarSize"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="8dp">
+
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/shape_stroke_radius_solid_gray"
+            android:orientation="horizontal"
+            android:paddingHorizontal="@dimen/margin_normal">
+
+            <EditText
+                android:id="@+id/et_content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:background="@null"
+                android:drawableStart="@drawable/search"
+                android:drawablePadding="4dp"
+                android:ems="10"
+                android:hint="@string/search_bar_hint"
+                android:importantForAutofill="no"
+                android:inputType="textEmailAddress"
+                android:textSize="14sp"
+                tools:ignore="LabelFor" />
+
+            <ImageView
+                android:id="@+id/btn_clear"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_gravity="end|center_vertical"
+                android:padding="6dp"
+                android:src="@drawable/clear_text" />
+        </FrameLayout>
+
+        <ImageButton
+            android:id="@+id/btn_search"
+            android:layout_width="?actionBarSize"
+            android:layout_height="40dp"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/shape_radius_solid_orange"
+            android:foreground="?selectableItemBackground"
+            android:src="@drawable/search"
+            android:tint="@color/white"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <com.seafile.seadroid2.ui.widget.SupportRecyclerView
+        android:id="@+id/lv_search"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <include
+        layout="@layout/search_empty"
+        android:visibility="gone" />
+</LinearLayout>

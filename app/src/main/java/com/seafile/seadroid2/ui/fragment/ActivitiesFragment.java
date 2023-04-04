@@ -15,11 +15,8 @@ import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.google.common.collect.Lists;
@@ -40,6 +37,7 @@ import com.seafile.seadroid2.ui.activity.BrowserActivity;
 import com.seafile.seadroid2.ui.activity.FileActivity;
 import com.seafile.seadroid2.ui.adapter.ActivitiesItemAdapter;
 import com.seafile.seadroid2.ui.adapter.BottomSheetAdapter;
+import com.seafile.seadroid2.ui.bottomsheet.BottomSheetListFragment;
 import com.seafile.seadroid2.ui.dialog.TaskDialog;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.util.Utils;
@@ -66,22 +64,11 @@ public class ActivitiesFragment extends Fragment {
     private View mProgressContainer;
     private View mListContainer;
     private TextView mErrorText;
-
-    private RelativeLayout ppwContainerView;
-    private RelativeLayout ppw;
-    private View underLine, maskView;
-
     private List<SeafEvent> events;
-    private boolean boolShown = false;
     private int offset;
-
+    private BottomSheetListFragment sheetFragment;
     private Account account;
     private AccountManager accountManager;
-
-    public boolean isBottomSheetShown() {
-        return boolShown;
-    }
-
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
@@ -96,8 +83,7 @@ public class ActivitiesFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.activities_fragment, container, false);
     }
 
@@ -107,8 +93,8 @@ public class ActivitiesFragment extends Fragment {
         refreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swiperefresh);
         listView = (ListView) view.findViewById(R.id.activities_listview);
         mEmptyView = (ImageView) view.findViewById(R.id.empty);
-        mListContainer =  view.findViewById(R.id.fl_activities_list_container);
-        mErrorText = (TextView)view.findViewById(R.id.error_message);
+        mListContainer = view.findViewById(R.id.fl_activities_list_container);
+        mErrorText = (TextView) view.findViewById(R.id.error_message);
         mProgressContainer = view.findViewById(R.id.progressContainer);
 
         events = Lists.newArrayList();
@@ -173,7 +159,8 @@ public class ActivitiesFragment extends Fragment {
                 }
                 boolean scrollEnd = false;
                 try {
-                    if (view.getPositionForView(adapter.getFooterView()) == view.getLastVisiblePosition()) scrollEnd = true;
+                    if (view.getPositionForView(adapter.getFooterView()) == view.getLastVisiblePosition())
+                        scrollEnd = true;
                 } catch (Exception e) {
                     scrollEnd = false;
                 }
@@ -190,7 +177,8 @@ public class ActivitiesFragment extends Fragment {
             }
 
             @Override
-            public void onScroll(AbsListView absListView, int i, int i1, int i2) {}
+            public void onScroll(AbsListView absListView, int i, int i1, int i2) {
+            }
         });
 
         mRefreshType = REFRESH_ON_PULL_DOWN_RESUME;
@@ -256,85 +244,6 @@ public class ActivitiesFragment extends Fragment {
         }
     }
 
-    public void hideBottomSheet() {
-        switchMenu();
-    }
-
-    public void switchMenu() {
-        if (mActivity == null || ppw == null || ppwContainerView == null || maskView == null || underLine == null) {
-            boolShown = false;
-            return;
-        }
-
-        final FrameLayout container = mActivity.getmContainer();
-        if (!boolShown) {
-            container.removeView(ppwContainerView);
-            container.addView(ppwContainerView);
-            ppw.setVisibility(View.VISIBLE);
-            ppw.setAnimation(AnimationUtils.loadAnimation(getContext(), R.anim.menu_in));
-            underLine.setVisibility(View.VISIBLE);
-            maskView.setVisibility(View.VISIBLE);
-            maskView.setAnimation(AnimationUtils.loadAnimation(getContext(), R.anim.mask_in));
-        } else {
-            ppw.setVisibility(View.GONE);
-            ppw.setAnimation(AnimationUtils.loadAnimation(getContext(), R.anim.menu_out));
-            underLine.setVisibility(View.GONE);
-            container.removeView(underLine);
-            maskView.setVisibility(View.GONE);
-            maskView.setAnimation(AnimationUtils.loadAnimation(getContext(), R.anim.mask_out));
-        }
-
-        boolShown = !boolShown;
-    }
-
-    private void showChangesDialog(final List<EventDetailsFileItem> items) {
-        int maskColor = 0x88888888;
-
-        if (boolShown && ppwContainerView != null) {
-            switchMenu();
-            return;
-        }
-
-        ppwContainerView = new RelativeLayout(mActivity);
-        ppwContainerView.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
-
-        underLine = new View(getContext());
-        underLine.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Utils.dip2px(mActivity, 1.0f)));
-        underLine.setBackgroundColor(getResources().getColor(R.color.divider_color));
-        underLine.setVisibility(View.GONE);
-        ppwContainerView.addView(underLine, 0);
-
-        ppw = (RelativeLayout) View.inflate(mActivity, R.layout.ppw_history_changes, null);
-
-        maskView = new View(getContext());
-        maskView.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
-        maskView.setBackgroundColor(maskColor);
-        maskView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                switchMenu();
-            }
-        });
-        maskView.setVisibility(View.GONE);
-        ppwContainerView.addView(maskView, 1);
-        ListView listView = (ListView) ppw.findViewById(R.id.lv_history_changes);
-        final BottomSheetAdapter adapter = new BottomSheetAdapter(mActivity, items);
-        listView.setAdapter(adapter);
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                final EventDetailsFileItem fileItem = items.get(position);
-                onItemClicked(fileItem);
-                switchMenu();
-            }
-        });
-
-        ppw.setVisibility(View.GONE);
-        ppwContainerView.addView(ppw, 2);
-
-        switchMenu();
-    }
-
     private void onItemClicked(EventDetailsFileItem fileItem) {
         if (fileItem == null) {
             return;
@@ -353,7 +262,7 @@ public class ActivitiesFragment extends Fragment {
         }
     }
 
-    class LoadEventsTask extends AsyncTask<Void, Void, SeafActivities> {
+    private class LoadEventsTask extends AsyncTask<Void, Void, SeafActivities> {
         SeafException err;
 
         @Override
@@ -436,7 +345,7 @@ public class ActivitiesFragment extends Fragment {
         }
     }
 
-    class LoadHistoryChangesTask extends AsyncTask<String, Void, CommitDetails> {
+    private class LoadHistoryChangesTask extends AsyncTask<String, Void, CommitDetails> {
         private SeafException err;
         private SeafEvent event;
 
@@ -447,6 +356,7 @@ public class ActivitiesFragment extends Fragment {
         @Override
         protected CommitDetails doInBackground(String... params) {
             try {
+
                 final String ret = mActivity.getDataManager().getHistoryChanges(event.getRepo_id(), event.getCommit_id());
                 return CommitDetails.fromJson(ret);
             } catch (SeafException e) {
@@ -462,6 +372,7 @@ public class ActivitiesFragment extends Fragment {
         @Override
         protected void onPostExecute(CommitDetails ret) {
             super.onPostExecute(ret);
+
             if (ret == null) {
                 if (err != null) {
                     Log.e(DEBUG_TAG, err.getCode() + err.getMessage());
@@ -473,8 +384,26 @@ public class ActivitiesFragment extends Fragment {
             final EventDetailsTree tree = new EventDetailsTree(event);
             final List<EventDetailsFileItem> items = tree.setCommitDetails(ret);
 
-            showChangesDialog(items);
+            showChangesDialog2(items);
         }
+    }
+
+    private void showChangesDialog2(final List<EventDetailsFileItem> items) {
+        if (sheetFragment == null) {
+            sheetFragment = new BottomSheetListFragment();
+        }
+
+        sheetFragment.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                final EventDetailsFileItem fileItem = items.get(position);
+                onItemClicked(fileItem);
+            }
+        });
+
+        BottomSheetAdapter adapter = new BottomSheetAdapter(mActivity, items);
+        sheetFragment.setAdapter(adapter);
+        sheetFragment.show(getChildFragmentManager(), BottomSheetListFragment.class.getSimpleName());
     }
 
     private void viewRepo(final String repoID, final String path) {

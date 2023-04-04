@@ -377,14 +377,17 @@ public class SeafConnection {
         }
     }
 
-    public String searchLibraries(String query, int page) throws SeafException {
+    public String searchLibraries(String query, int page, int pageSize) throws SeafException {
 
         try {
             Map<String, Object> params = Maps.newHashMap();
             params.put("q", encodeUriComponent(query));
 
-            if (page > 0)
-                params.put("per_page", page);
+            if (pageSize < 0) {
+                page = 20;
+            }
+            params.put("per_page", pageSize);
+            params.put("page", page);
 
             HttpRequest req = prepareApiGetRequest("api2/search/", params);
             checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
@@ -879,8 +882,7 @@ public class SeafConnection {
      * @return
      * @throws SeafException
      */
-    public String uploadFile(String repoID, String dir, String filePath, ProgressMonitor monitor, boolean update)
-            throws SeafException, IOException {
+    public String uploadFile(String repoID, String dir, String filePath, ProgressMonitor monitor, boolean update) throws SeafException, IOException {
         String url = getUploadLink(repoID, update, "/");
         return uploadFileCommon(url, repoID, dir, filePath, monitor, update);
     }
@@ -889,8 +891,7 @@ public class SeafConnection {
     /**
      * Upload a file to seafile httpserver
      */
-    private String uploadFileCommon(String link, String repoID, String dir, String filePath, ProgressMonitor monitor, boolean update)
-            throws SeafException, IOException {
+    private String uploadFileCommon(String link, String repoID, String dir, String filePath, ProgressMonitor monitor, boolean update) throws SeafException, IOException {
         File file = new File(filePath);
         if (!file.exists()) {
             throw new SeafException(SeafException.OTHER_EXCEPTION, "File not exists");
@@ -923,8 +924,14 @@ public class SeafConnection {
             if (!TextUtils.isEmpty(str)) {
                 return str.replace("\"", "");
             }
+        } else {
+            String b = response.body() != null ? response.body().string() : null;//[text={"error": "Out of quota.\n"}]
+            if (!TextUtils.isEmpty(b) && b.toLowerCase().contains("out of quota")) {
+                throw SeafException.OutOfQuota;
+            }
         }
         throw new SeafException(SeafException.OTHER_EXCEPTION, "File upload failed");
+
     }
 
     /**
