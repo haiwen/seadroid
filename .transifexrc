@@ -1,0 +1,7 @@
+[https://www.transifex.com]
+api_hostname  = https://api.transifex.com
+hostname      = https://www.transifex.com
+username      = api
+password      = 1/50477a34fbe0223afaf5e2a9b601847896451679
+rest_hostname = https://rest.api.transifex.com
+token         = 1/50477a34fbe0223afaf5e2a9b601847896451679
