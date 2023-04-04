@@ -704,8 +704,7 @@ public class DataManager {
         }
     }
 
-    public void uploadFile(String repoName, String repoID, String dir, String filePath,
-                           ProgressMonitor monitor, boolean isUpdate, boolean isCopyToLocal) throws SeafException, IOException {
+    public void uploadFile(String repoName, String repoID, String dir, String filePath, ProgressMonitor monitor, boolean isUpdate, boolean isCopyToLocal) throws SeafException, IOException {
         uploadFileCommon(repoName, repoID, dir, filePath, monitor, isUpdate, isCopyToLocal);
     }
 

@@ -882,8 +882,7 @@ public class SeafConnection {
      * @return
      * @throws SeafException
      */
-    public String uploadFile(String repoID, String dir, String filePath, ProgressMonitor monitor, boolean update)
-            throws SeafException, IOException {
+    public String uploadFile(String repoID, String dir, String filePath, ProgressMonitor monitor, boolean update) throws SeafException, IOException {
         String url = getUploadLink(repoID, update, "/");
         return uploadFileCommon(url, repoID, dir, filePath, monitor, update);
     }
@@ -892,8 +891,7 @@ public class SeafConnection {
     /**
      * Upload a file to seafile httpserver
      */
-    private String uploadFileCommon(String link, String repoID, String dir, String filePath, ProgressMonitor monitor, boolean update)
-            throws SeafException, IOException {
+    private String uploadFileCommon(String link, String repoID, String dir, String filePath, ProgressMonitor monitor, boolean update) throws SeafException, IOException {
         File file = new File(filePath);
         if (!file.exists()) {
             throw new SeafException(SeafException.OTHER_EXCEPTION, "File not exists");
@@ -926,8 +924,14 @@ public class SeafConnection {
             if (!TextUtils.isEmpty(str)) {
                 return str.replace("\"", "");
             }
+        } else {
+            String b = response.body() != null ? response.body().string() : null;//[text={"error": "Out of quota.\n"}]
+            if (!TextUtils.isEmpty(b) && b.toLowerCase().contains("out of quota")) {
+                throw SeafException.OutOfQuota;
+            }
         }
         throw new SeafException(SeafException.OTHER_EXCEPTION, "File upload failed");
+
     }
 
     /**
