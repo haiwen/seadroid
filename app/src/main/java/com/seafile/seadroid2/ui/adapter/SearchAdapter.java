@@ -21,7 +21,7 @@ import java.util.List;
 /**
  * Adapter for search list
  * <br>
- * use SearchRecyclerViewAdapter
+ * Deprecated, use SearchRecyclerViewAdapter
  */
 @Deprecated
 public class SearchAdapter extends BaseAdapter {

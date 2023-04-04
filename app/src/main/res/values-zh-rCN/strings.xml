@@ -568,6 +568,7 @@
   <string name="folder_backup_select_repo_hint">选择资料库</string>
   <string name="folder_backup_select_repo_update">已更新备份资料库</string>
   <string name="UncaughtExceptionHandler_err">应用已停止运行</string>
+
   <!--action-->
   <string name="add">添加</string>
   <string name="modify">修改</string>

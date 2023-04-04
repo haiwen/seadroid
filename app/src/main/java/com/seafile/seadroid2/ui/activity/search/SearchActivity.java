@@ -52,7 +52,7 @@ import java.util.List;
 /**
  * Search Activity
  * <p>
- * use Search2Activity
+ * Deprecated, use Search2Activity
  */
 @Deprecated
 public class SearchActivity extends BaseActivity implements View.OnClickListener, Toolbar.OnMenuItemClickListener {
