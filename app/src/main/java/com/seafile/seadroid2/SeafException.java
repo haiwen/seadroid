@@ -1,11 +1,13 @@
 package com.seafile.seadroid2;
 
 import com.google.common.base.Objects;
+import com.seafile.seadroid2.transfer.UploadTask;
 
 public class SeafException extends Exception {
     private static final long serialVersionUID = 1L;
 
     public static final int OTHER_EXCEPTION = 599;
+    public static final int HTTP_ABOVE_QUOTA = 443;
 
     private int code;
 
@@ -23,6 +25,8 @@ public class SeafException extends Exception {
     public static final SeafException remoteWipedException = new SeafException(12, "Remote Wiped Error");
     public static final SeafException twoFactorAuthTokenMissing = new SeafException(13, "Two factor auth token is missing");
     public static final SeafException twoFactorAuthTokenInvalid = new SeafException(14, "Two factor auth token is invalid");
+
+    public static final SeafException OutOfQuota = new SeafException(HTTP_ABOVE_QUOTA, "out of quota");
 
     public SeafException(int code, String msg) {
         super(msg);

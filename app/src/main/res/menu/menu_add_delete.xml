@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/transfer_overflow_menu"
+        android:icon="@drawable/ic_action_overflow"
+        android:title="@string/settings_folder_backup_select_title"
+        app:showAsAction="always">
+        <menu>
+            <item
+                android:id="@+id/add"
+                android:title="@string/add"
+                android:visible="true"
+                app:showAsAction="ifRoom" />
+            <item
+                android:id="@+id/clear_all"
+                android:title="@string/clear_all"
+                android:visible="true"
+                app:showAsAction="ifRoom" />
+        </menu>
+    </item>
+</menu>

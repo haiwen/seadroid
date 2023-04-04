@@ -704,8 +704,7 @@ public class DataManager {
         }
     }
 
-    public void uploadFile(String repoName, String repoID, String dir, String filePath,
-                           ProgressMonitor monitor, boolean isUpdate, boolean isCopyToLocal) throws SeafException, IOException {
+    public void uploadFile(String repoName, String repoID, String dir, String filePath, ProgressMonitor monitor, boolean isUpdate, boolean isCopyToLocal) throws SeafException, IOException {
         uploadFileCommon(repoName, repoID, dir, filePath, monitor, isUpdate, isCopyToLocal);
     }
 
@@ -1155,8 +1154,8 @@ public class DataManager {
      * @return json format strings of searched result
      * @throws SeafException
      */
-    public String search(String query, int page) throws SeafException {
-        String json = sc.searchLibraries(query, page);
+    public String search(String query,int page, int pageSize) throws SeafException {
+        String json = sc.searchLibraries(query, page,pageSize);
         return json;
     }
 
