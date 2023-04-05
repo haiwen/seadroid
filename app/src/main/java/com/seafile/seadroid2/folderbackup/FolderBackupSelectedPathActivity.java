@@ -19,8 +19,14 @@ import com.blankj.utilcode.util.CollectionUtils;
 import com.cocosw.bottomsheet.BottomSheet;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SettingsManager;
+import com.seafile.seadroid2.data.EventDetailsFileItem;
+import com.seafile.seadroid2.data.SearchedFile;
 import com.seafile.seadroid2.folderbackup.selectfolder.StringTools;
+import com.seafile.seadroid2.listener.OnItemClickListener;
 import com.seafile.seadroid2.ui.activity.BaseActivity;
+import com.seafile.seadroid2.ui.adapter.BottomSheetAdapter;
+import com.seafile.seadroid2.ui.bottomsheet.BottomSheetListFragment;
+import com.seafile.seadroid2.ui.bottomsheet.BottomSheetTextFragment;
 import com.seafile.seadroid2.ui.widget.SupportRecyclerView;
 
 import java.util.ArrayList;
@@ -37,6 +43,12 @@ public class FolderBackupSelectedPathActivity extends BaseActivity implements To
 
         mRecyclerView = findViewById(R.id.lv_search);
         mAdapter = new FolderBackSelectedPatRecyclerViewAdapter(this);
+        mAdapter.setOnItemClickListener(new OnItemClickListener<String>() {
+            @Override
+            public void onItemClick(String text, int position) {
+                showBottomDialog(text);
+            }
+        });
 
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this, RecyclerView.VERTICAL, false));
@@ -64,6 +76,10 @@ public class FolderBackupSelectedPathActivity extends BaseActivity implements To
             List<String> backupSelectPaths = StringTools.getJsonToList(backupPaths);
             mAdapter.notifyDataChanged(backupSelectPaths);
         }
+    }
+
+    private void showBottomDialog(String text) {
+        BottomSheetTextFragment.newInstance(text).show(getSupportFragmentManager(), BottomSheetTextFragment.class.getSimpleName());
     }
 
     @Override

@@ -54,22 +54,22 @@ public class BottomSheetListFragment extends BaseBottomSheetDialogFragment {
             listView.setAdapter(adapter);
         }
 
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (onItemClickListener != null) {
+        if (onItemClickListener != null){
+            listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                     onItemClickListener.onItemClick(parent, view, position, id);
-                }
-            }
-        });
 
-        if (getDialog() != null) {
+                }
+            });
+        }
+
+
+        if (getDialog() != null && onDismissListener != null) {
             getDialog().setOnDismissListener(new DialogInterface.OnDismissListener() {
                 @Override
                 public void onDismiss(DialogInterface dialog) {
-                    if (onDismissListener != null) {
-                        onDismissListener.onDismiss(dialog);
-                    }
+                    onDismissListener.onDismiss(dialog);
                 }
             });
         }

@@ -30,7 +30,7 @@ import java.util.List;
 
 public class FolderBackSelectedPatRecyclerViewAdapter extends RecyclerView.Adapter<FolderBackSelectedPatRecyclerViewAdapter.SearchItemViewHolder> {
     private final List<String> mItemList = new ArrayList<>();
-    private OnItemClickListener<SearchedFile> onItemClickListener;
+    private OnItemClickListener<String> onItemClickListener;
 
     private final WeakReference<Context> contextWeakReference;
 
@@ -38,7 +38,7 @@ public class FolderBackSelectedPatRecyclerViewAdapter extends RecyclerView.Adapt
         this.contextWeakReference = new WeakReference<>(context);
     }
 
-    public void setOnItemClickListener(OnItemClickListener<SearchedFile> onItemClickListener) {
+    public void setOnItemClickListener(OnItemClickListener<String> onItemClickListener) {
         this.onItemClickListener = onItemClickListener;
     }
 
@@ -59,6 +59,15 @@ public class FolderBackSelectedPatRecyclerViewAdapter extends RecyclerView.Adapt
             @Override
             public void onClick(View v) {
                 showRepoBottomSheet(p);
+            }
+        });
+
+        viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (onItemClickListener != null) {
+                    onItemClickListener.onItemClick(mItemList.get(p), p);
+                }
             }
         });
     }

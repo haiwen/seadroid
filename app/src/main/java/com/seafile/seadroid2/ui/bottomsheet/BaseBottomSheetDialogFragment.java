@@ -77,7 +77,6 @@ public abstract class BaseBottomSheetDialogFragment extends BottomSheetDialogFra
     }
 
     private int getHeight() {
-
         int height = ScreenUtils.getScreenHeight();
         if (BarUtils.isNavBarVisible(getActivity().getWindow())) {
             height -= BarUtils.getNavBarHeight();
