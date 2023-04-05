@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:foreground="?selectableItemBackground"
     android:background="@drawable/shape_divider"
     android:orientation="horizontal">
 
@@ -12,7 +13,7 @@
         android:layout_marginStart="16dp"
         android:layout_weight="1"
         android:singleLine="true"
-        android:ellipsize="marquee"
+        android:ellipsize="middle"
         android:marqueeRepeatLimit="marquee_forever"
         android:scrollHorizontally="true"
         android:gravity="center_vertical"

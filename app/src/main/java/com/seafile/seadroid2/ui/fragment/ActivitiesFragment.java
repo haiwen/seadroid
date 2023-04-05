@@ -66,9 +66,9 @@ public class ActivitiesFragment extends Fragment {
     private TextView mErrorText;
     private List<SeafEvent> events;
     private int offset;
-    private BottomSheetListFragment sheetFragment;
     private Account account;
     private AccountManager accountManager;
+
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
@@ -389,16 +389,10 @@ public class ActivitiesFragment extends Fragment {
     }
 
     private void showChangesDialog2(final List<EventDetailsFileItem> items) {
-        if (sheetFragment == null) {
-            sheetFragment = new BottomSheetListFragment();
-        }
-
-        sheetFragment.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                final EventDetailsFileItem fileItem = items.get(position);
-                onItemClicked(fileItem);
-            }
+        BottomSheetListFragment sheetFragment = new BottomSheetListFragment();
+        sheetFragment.setOnItemClickListener((parent, view, position, id) -> {
+            final EventDetailsFileItem fileItem = items.get(position);
+            onItemClicked(fileItem);
         });
 
         BottomSheetAdapter adapter = new BottomSheetAdapter(mActivity, items);
