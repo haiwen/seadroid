@@ -42,14 +42,16 @@ public abstract class BaseBottomSheetDialogFragment extends BottomSheetDialogFra
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mRootView = inflater.inflate(getLayoutId(), container, false);
         initView();
-        if (getCancelId() != 0) {
+        if (getCancelId() != View.NO_ID) {
             View cancelView = mRootView.findViewById(getCancelId());
-            cancelView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    dismiss();
-                }
-            });
+            if (cancelView != null) {
+                cancelView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        dismiss();
+                    }
+                });
+            }
         }
         return mRootView;
     }
