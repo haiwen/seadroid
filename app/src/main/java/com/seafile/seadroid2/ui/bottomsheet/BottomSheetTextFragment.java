@@ -2,6 +2,7 @@ package com.seafile.seadroid2.ui.bottomsheet;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.view.View;
 import android.widget.TextView;
 
 import com.seafile.seadroid2.R;
@@ -36,15 +37,14 @@ public class BottomSheetTextFragment extends BaseBottomSheetDialogFragment {
 
     @Override
     protected int getCancelId() {
-        return 0;
+        return View.NO_ID;
     }
 
     @Override
     protected void initView() {
         textView = getRootView().findViewById(R.id.text);
     }
-
-    @Nullable
+    
     public TextView getTextView() {
         return textView;
     }

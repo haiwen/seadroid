@@ -18,7 +18,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/margin_normal"
         android:layout_marginEnd="@dimen/margin_big"
-        android:ellipsize="end"
+        android:ellipsize="middle"
         android:maxLines="1"
         android:tooltipText="@string/app_name" />
 </LinearLayout>
