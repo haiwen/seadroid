@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/white"
     android:orientation="vertical">
 
     <include layout="@layout/toolbar_actionbar" /> <!-- placeholder, empty except on L -->
@@ -15,4 +16,18 @@
     <include
         layout="@layout/search_empty"
         android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/add_backup_folder"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:foreground="?selectableItemBackground"
+        android:background="@drawable/shape_divider_top"
+        android:drawableStart="@drawable/baseline_add_24"
+        android:drawablePadding="8dp"
+        android:drawableTint="@color/light_black"
+        android:padding="16dp"
+        android:text="@string/folder_backup_add"
+        android:textColor="@color/light_black"
+        android:textSize="16sp" />
 </LinearLayout>

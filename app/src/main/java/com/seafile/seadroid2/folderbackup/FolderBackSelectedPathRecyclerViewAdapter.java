@@ -5,11 +5,9 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.blankj.utilcode.util.CollectionUtils;
@@ -17,24 +15,19 @@ import com.cocosw.bottomsheet.BottomSheet;
 import com.google.gson.Gson;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SettingsManager;
-import com.seafile.seadroid2.data.SeafRepo;
-import com.seafile.seadroid2.data.SearchedFile;
-import com.seafile.seadroid2.folderbackup.selectfolder.StringTools;
 import com.seafile.seadroid2.listener.OnItemClickListener;
-import com.seafile.seadroid2.ui.activity.search.Search2Activity;
-import com.seafile.seadroid2.util.Utils;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FolderBackSelectedPatRecyclerViewAdapter extends RecyclerView.Adapter<FolderBackSelectedPatRecyclerViewAdapter.SearchItemViewHolder> {
+public class FolderBackSelectedPathRecyclerViewAdapter extends RecyclerView.Adapter<FolderBackSelectedPathRecyclerViewAdapter.SearchItemViewHolder> {
     private final List<String> mItemList = new ArrayList<>();
     private OnItemClickListener<String> onItemClickListener;
 
     private final WeakReference<Context> contextWeakReference;
 
-    public FolderBackSelectedPatRecyclerViewAdapter(Context context) {
+    public FolderBackSelectedPathRecyclerViewAdapter(Context context) {
         this.contextWeakReference = new WeakReference<>(context);
     }
 
@@ -50,7 +43,7 @@ public class FolderBackSelectedPatRecyclerViewAdapter extends RecyclerView.Adapt
     }
 
     @Override
-    public void onBindViewHolder(@NonNull FolderBackSelectedPatRecyclerViewAdapter.SearchItemViewHolder viewHolder, int position) {
+    public void onBindViewHolder(@NonNull FolderBackSelectedPathRecyclerViewAdapter.SearchItemViewHolder viewHolder, int position) {
         final int p = position;
         viewHolder.title.setText(mItemList.get(p));
         viewHolder.title.setSelected(true);
@@ -109,8 +102,8 @@ public class FolderBackSelectedPatRecyclerViewAdapter extends RecyclerView.Adapt
     }
 
     private void showRepoBottomSheet(int position) {
-        final BottomSheet.Builder builder = new BottomSheet.Builder((Activity) contextWeakReference.get());
-        builder.sheet(R.menu.bottom_sheet_delete).listener(new DialogInterface.OnClickListener() {
+        BottomSheet.Builder builder = new BottomSheet.Builder((Activity) contextWeakReference.get());
+        builder.sheet(R.menu.folder_backup_bottom_sheet_delete).listener(new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 if (which == R.id.delete) {

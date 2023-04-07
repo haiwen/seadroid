@@ -591,6 +591,8 @@
     <string name="settings_folder_backup_traffic">Backup mode</string>
     <string name="settings_folder_backup_traffic_hint">WIFI</string>
     <string name="settings_folder_backup_library">Library backup to</string>
+    <string name="folder_backup_add">Add a backup folder</string>
+    <string name="folder_backup_cancel">Cancel backup</string>
     <string name="folder_backup_waiting_state">Done</string>
     <string name="folder_backup_state">Folder backup info</string>
     <string name="folder_backup_mode">WIFI or mobile traffic</string>
