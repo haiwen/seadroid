@@ -561,6 +561,8 @@
   <string name="settings_folder_backup_traffic">网络模式</string>
   <string name="settings_folder_backup_traffic_hint">WIFI</string>
   <string name="settings_folder_backup_library">备份到资料库</string>
+  <string name="folder_backup_add">增加备份文件夹</string>
+  <string name="folder_backup_cancel">取消备份</string>
   <string name="folder_backup_waiting_state">完成</string>
   <string name="folder_backup_state">备份状态</string>
   <string name="folder_backup_mode">WIFI或者移动流量</string>
@@ -568,12 +570,10 @@
   <string name="folder_backup_select_repo_hint">选择资料库</string>
   <string name="folder_backup_select_repo_update">已更新备份资料库</string>
   <string name="UncaughtExceptionHandler_err">应用已停止运行</string>
-
   <!--action-->
   <string name="add">添加</string>
   <string name="modify">修改</string>
   <string name="update">更新</string>
   <string name="clear">清除</string>
   <string name="clear_all">清除所有</string>
-
 </resources>
