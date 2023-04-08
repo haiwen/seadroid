@@ -79,7 +79,7 @@ public class BottomSheetAdapter extends BaseAdapter {
         return contentView;
     }
 
-    static class ViewHolder{
+    static class ViewHolder {
         public TextView file;
         public IconTextView icon;
     }

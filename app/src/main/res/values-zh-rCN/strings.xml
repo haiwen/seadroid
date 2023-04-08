@@ -1,376 +1,375 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="welcome_to_seafile">欢迎使用Seafile</string>
-    <string name="select_account">请选择一个账户开始使用</string>
-    <string name="edit_account">编辑帐户</string>
-    <string name="delete_account">删除帐户</string>
-    <string name="delete">删除</string>
-    <string name="delete_repo">确定要删除该资料库吗？</string>
-    <string name="delete_file">确定要删除文件或文件夹吗？</string>
-    <string name="delete_successful">删除成功</string>
-    <string name="delete_repo_title">删除资料库</string>
-    <string name="delete_file_f">删除文件</string>
-    <string name="recover_library">恢复资料库</string>
-    <string name="recover_file">恢复文件</string>
-    <string name="move_file">移动文件</string>
-    <string name="update_file">更新文件</string>
-    <string name="recover_folder">恢复文件夹</string>
-    <string name="move_folder">移动文件夹</string>
-    <string name="delete_dir">删除文件夹</string>
-    <string name="name_hint">名称</string>
-    <string name="server_hint">云盘网址</string>
-    <string name="email_hint">邮箱或用户名</string>
-    <string name="passwd_hint">密码</string>
-    <string name="passwd_min_len_limit_hint">密码(至少%d个字符)</string>
-    <string name="passwd_confirmation_hint">请再次输入密码</string>
-    <string name="login">登录</string>
-    <string name="open_file">打开</string>
-    <string name="download_file">下载</string>
-    <string name="redownload_file">重新下载</string>
-    <string name="cancel_download">取消下载</string>
-    <string name="unknown_file_type">未知文件类型</string>
-    <string name="activity_not_found">找不到相关应用打开此类文件</string>
-    <string name="refresh">刷新</string>
-    <string name="add_account">添加账户</string>
-    <string name="personal">个人</string>
-    <string name="shared">共享给我的</string>
-    <string name="libraries">资料库</string>
-    <string name="cached">已缓存</string>
-    <string name="activities">事件</string>
-    <string name="pick_upload_type">上传</string>
-    <string name="transfer_tasks">传输列表</string>
-    <string name="accounts">帐号</string>
-    <string name="settings">设置</string>
-    <string-array name="pick_upload_array">
-        <item>文件</item>
-        <item>图片/视频</item>
-        <item>其他</item>
-    </string-array>
-    <string name="choose_server">请选择一个Seafile服务器</string>
-    <string-array name="choose_server_array">
-        <item>统一登录</item>
-        <item>其他Seafile服务器</item>
-    </string-array>
-    <string name="network_down">无网络连接</string>
-    <string name="unknow_error">未知错误</string>
-    <string name="invalid_server_address">无效的服务器地址</string>
-    <string name="err_server_andress_empty">服务器地址不能是空的</string>
-    <string name="err_email_empty">邮箱不能是空的</string>
-    <string name="err_passwd_empty">密码不能是空的</string>
-    <string name="err_passwd_too_short">密码太短</string>
-    <string name="err_passwd_mismatch">两次输入的密码不一致</string>
-    <string name="err_login_failed">登录失败</string>
-    <string name="err_wrong_user_or_passwd">邮箱或密码错误</string>
-    <string name="err_token_expired">授权已过期，请重新登录</string>
-    <string name="upload">上传</string>
-    <string name="uploaded">已上传</string>
-    <string name="updated">已更新</string>
-    <string name="download_failed">下载失败</string>
-    <string name="download_waiting">等待下载</string>
-    <string name="download_finished">下载完成</string>
-    <string name="download_cancelled">下载取消</string>
-    <string name="task_cancel">取消</string>
-    <string name="task_retry">重新上传</string>
-    <string name="task_remove">移除</string>
-    <string name="task_remove_all_cancelled">移除所有取消任务</string>
-    <string name="task_remove_all_finished">移除所有已完成任务</string>
-    <string name="repo_action_delete">删除</string>
-    <string name="repo_action_rename">重命名</string>
-    <string name="file_action_star">星标</string>
-    <string name="file_action_download">下载</string>
-    <string name="file_action_update">上传</string>
-    <string name="file_share">分享</string>
-    <string name="file_action_share_wechat">分享到微信</string>
-    <string name="file_action_share_link">分享链接</string>
-    <string name="file_action_share_encrypt">分享高级链接</string>
-    <string name="file_action_export">导出</string>
-    <string name="file_action_open">打开方式</string>
-    <string name="file_action_delete">删除</string>
-    <string name="file_action_rename">重命名</string>
-    <string name="file_action_copy">复制</string>
-    <string name="file_action_move">移动</string>
-    <string name="file_action_open_as">打开为</string>
-    <string name="file_action_more">更多</string>
-    <string name="file_action_more_title">选择你喜欢的选项</string>
-    <string-array name="file_action_more_array">
-        <item>导出</item>
-        <item>复制</item>
-        <item>移动</item>
-        <item>星标</item>
-    </string-array>
-    <string-array name="file_type_array">
-        <item>文本</item>
-        <item>音频</item>
-        <item>视频</item>
-        <item>图像</item>
-        <item>其他</item>
-    </string-array>
-    <string name="wait">等待</string>
-    <string name="image_gallery_NoImageView_text">没有找到图片</string>
-    <string name="pick_photo_video_title">请选择要上传的图片/视频</string>
-    <string name="select_upload_items">请选择要上传的文件</string>
-    <plurals name="n_upload_items_selected">
-        <item quantity="other">选择了%1$d个文件</item>
-    </plurals>
-    <string name="repo_name_empty">请输入资料库名称</string>
-    <string name="dir_name_empty">请输入文件夹名</string>
-    <string name="file_name_empty">请输入文件名</string>
-    <string name="password_empty">请输入您的密码</string>
-    <string name="wrong_password">密码错误</string>
-    <string name="library_read_only">这个资料库是只读的</string>
-    <string name="error_when_load_dirents">文件夹数据加载出错.\n 点击刷新</string>
-    <string name="error_when_load_repos">资料库数据加载出错.\n 点击刷新</string>
-    <string name="error_when_load_activities">活动数据加载出错.\n 点击刷新</string>
-    <string name="error_when_load_starred">星标文件加载出错.\n 点击刷新</string>
-    <string name="dir_empty">此文件夹是空的</string>
-    <string name="no_repo">无资料库</string>
-    <string name="no_app_available">没有找到应用</string>
-    <string name="add_to_seafile">添加到Seafile中</string>
-    <string name="ok">确定</string>
-    <string name="no_account">首先请在Seafile上创建一个账户</string>
-    <string name="choose_an_account">请选择一个账户</string>
-    <string name="choose_a_library">请选择一个资料库</string>
-    <string name="choose_a_folder">请选择一个文件夹</string>
-    <string name="load_accounts_fail">加载Seafile账户失败</string>
-    <string name="load_libraries_fail">加载资料库失败</string>
-    <string name="load_dir_fail">加载此文件夹的内容失败</string>
-    <string name="not_supported_share">不支持此类分享</string>
-    <string name="edit">编辑</string>
-    <string name="create_draft">创建草稿</string>
-    <string name="rename_draft">重命名草稿</string>
-    <string name="del_draft">删除草稿</string>
-    <string name="update_draft">更新草稿</string>
-    <string name="release_draft">发布草稿</string>
-    <string name="encrypt">加密</string>
-    <string name="download_folder">下载该文件夹</string>
-    <string name="download_folder_title">选择你喜欢的选项</string>
-    <string-array name="download_folder_options_array">
-        <item>下载文件夹</item>
-        <item>下载文件夹及其子文件夹</item>
-    </string-array>
-    <string name="add_repo">新建资料库</string>
-    <string name="add_file">添加</string>
-    <string-array name="add_file_options_array">
-        <item>新建文件</item>
-        <item>新建文件夹</item>
-        <item>上传文件</item>
-        <item>拍照上传</item>
-    </string-array>
-    <string-array name="video_download_array">
-        <item>播放</item>
-        <item>下载</item>
-    </string-array>
-    <string name="create_new_repo">新建资料库</string>
-    <string name="create_new_repo_success">新建资料库%s成功</string>
-    <string name="create_new_folder_success">文件夹%s创建成功</string>
-    <string name="create_new_file_success">文件%s创建成功</string>
-    <string name="create_new_file">创建新文件</string>
-    <string name="create_files">创建多个文件</string>
-    <string name="create_new_dir">创建新文件夹</string>
-    <string name="camera">拍照上传</string>
-    <string name="download">下载</string>
-    <string name="open">打开</string>
-    <string name="last_modified">最后更改</string>
-    <string name="file_modified">已更改</string>
-    <string name="file_size">文件大小</string>
-    <string name="library_not_found">此资料库已被删除</string>
-    <string name="file_not_found">此文件\"%s\"已被删除</string>
-    <string name="export_file">导出此文件</string>
-    <string name="no_upload_tasks">无上传任务</string>
-    <string name="no_download_tasks">无下载任务</string>
-    <string name="seahub_url_hint">注意：服务器地址应该包含端口号。比如www.example.com:8000</string>
-    <string name="copy_link">复制链接</string>
-    <string name="share_file_link">分享此文件的链接</string>
-    <string name="share_dir_link">分享此文件夹的链接</string>
-    <string name="share_input_password">请输入分享密码</string>
-    <string name="generating_link">生成链接中. . .</string>
-    <string name="link_ready_to_be_pasted">此链接已被复制到剪贴板。</string>
-    <string name="rename_repo">重命名资料库</string>
-    <string name="rename_file">重命名文件</string>
-    <string name="rename_dir">重命名文件夹</string>
-    <string name="rename_successful">重命名成功。</string>
-    <string-array name="nav_array">
-        <item>文件</item>
-        <item>上传任务</item>
-        <item>账户</item>
-        <item>相册备份</item>
-    </string-array>
-    <string name="no_starred_file">无星标文件</string>
-    <string name="added_to_upload_tasks">开始上传</string>
-    <string name="added_photo_to_upload_tasks">图片开始上传</string>
-    <string name="take_photo_successfully">拍照成功</string>
-    <string name="tabs_library">资料库</string>
-    <string name="tabs_activity">最近修改</string>
-    <string name="tabs_starred">星标文件</string>
-    <string name="provide_password">请提供资料库\"%s\"的密码</string>
-    <string name="upload_waiting">等待上传</string>
-    <string name="upload_finished">上传完成</string>
-    <string name="upload_cancelled">上传取消</string>
-    <string name="upload_failed">上传失败</string>
-    <string name="upload_file_exist">文件已存在</string>
-    <string name="upload_duplicate_found">名字为\"%s\"的文件在此位置已存在.\n 你想用上传的文件替换它吗?</string>
-    <string name="upload_replace_all">全部替换</string>
-    <string name="upload_keep_both">保留两者</string>
-    <string name="upload_replace">替换</string>
-    <string name="days_ago">%d天前</string>
-    <string name="hours_ago">%d小时前</string>
-    <string name="minutes_ago">%d分钟前</string>
-    <string name="seconds_ago">%d秒前</string>
-    <string name="just_now">刚刚更新</string>
-    <string name="open_as">打开为</string>
-    <string name="select_upload_files">请选择要上传的文件</string>
-    <string name="storage_removed">存储卡已被移出</string>
-    <string name="storage_space_insufficient">存储空间不足</string>
-    <string name="error_selecting_file">选择文件时出错</string>
-    <plurals name="n_upload_files_selected">
-        <item quantity="other">已经选择%1$d个文件</item>
-    </plurals>
-    <string name="empty_folder">此文件夹是空的</string>
-    <string name="choose_file">请选择一个文件</string>
-    <string name="ssl_error">安全验证失败</string>
-    <string name="ssl_confirm">%s的安全证书不受信任,是否继续？</string>
-    <string name="ssl_confirm_cert_changed">%s使用了非法的安全证书，这意味着该连接不安全，是否继续?</string>
-    <string name="ssl_confirm_title">连接不受信任</string>
-    <string name="issued_to">签发给</string>
-    <string name="finger_prints">指纹</string>
-    <string name="period_of_validity">有效期</string>
-    <string name="sha1">SHA-1算法  %s</string>
-    <string name="md5">MD5算法  %s</string>
-    <string name="not_available">不可用</string>
-    <string name="serial_number">序列号%s</string>
-    <string name="not_before">生效日期%s</string>
-    <string name="not_after">过期日期%s</string>
-    <string name="yes">是</string>
-    <string name="no">否</string>
-    <string name="remember_my_choice">记住我的选择</string>
-    <string name="copied_successfully">复制成功</string>
-    <string name="moved_successfully">移动成功</string>
-    <string name="internal_server_error">服务器出错了</string>
-    <string name="copy_file_ing">正在复制文件</string>
-    <string name="move_file_ing">正在移动文件</string>
-    <string name="copy_file_from">正在从 %1$s \n 复制到 %2$s</string>
-    <string name="move_file_from">正在从 %1$s \n 移动到 %2$s</string>
-    <string name="copy_folder_ing">正在复制文件夹</string>
-    <string name="move_folder_ing">正在移动文件夹</string>
-    <string name="upload_started">开始上传</string>
-    <string name="cannot_copy_folder_to_subfolder">不能把一个文件夹复制到它的子文件夹里面去</string>
-    <string name="cannot_move_folder_to_subfolder">不能把一个文件夹移动到它的子文件夹里面去</string>
-    <string name="cancel">取消</string>
-    <string name="confirm">确定</string>
-    <string name="repo_not_found">找不到该资料库，它可能是加密资料库或已被删除</string>
-    <string name="settings_account">账户</string>
-    <string name="settings_account_info_title">账户信息</string>
-    <string name="settings_account_info_load_data">加载中...</string>
-    <string name="settings_account_space_title">已使用空间</string>
-    <string name="settings_account_sign_out_title">退出登录</string>
-    <string name="settings_account_sign_out_hint">点击退出</string>
-    <string name="settings_account_sign_out_confirm">你想退出登录吗？</string>
-    <string name="security">安全性</string>
-    <string name="gesture_lock">手势密码锁</string>
-    <string name="gesture_lock_on">手势锁开启</string>
-    <string name="gesture_lock_off">手势锁关闭</string>
-    <string name="lockscreen_access_pattern_hint">请绘制手势密码</string>
-    <string name="lockscreen_access_pattern_start">开始绘制图案</string>
-    <string name="lockscreen_access_pattern_cleared">图案已清除</string>
-    <string name="lockscreen_access_pattern_cell_added">已添加单元格</string>
-    <string name="lockscreen_access_pattern_detected">图案绘制完成</string>
-    <string name="lockscreen_access_pattern_passwd_forget">忘记密码</string>
-    <string name="lockscreen_access_pattern_failure">您已5次输错密码，请30秒后再试</string>
-    <plurals name="lockscreen_access_pattern_failure_left_try_seconds">
-        <item quantity="other">%1$d秒后重试</item>
-    </plurals>
-    <plurals name="lockscreen_access_pattern_failure_left_try_times">
-        <item quantity="other">密码错误，还可以再输入%1$d次</item>
-    </plurals>
-    <string name="lockscreen_access_pattern_failure_not_long_enough">输入长度不够，请重试</string>
-    <string name="lockpattern_retry_button_text">重绘</string>
-    <string name="lockpattern_continue_button_text">继续</string>
-    <string name="lockpattern_confirm_button_text">保存</string>
-    <string name="lockpattern_recording_intro_header">绘制解锁图案</string>
-    <string name="lockpattern_settings_help_how_to_record">如何绘制解锁图案</string>
-    <string name="lockpattern_recording_incorrect_too_short">至少连接4个点，请重试</string>
-    <string name="lockpattern_pattern_entered_header">图案已记录</string>
-    <string name="lockpattern_need_to_draw">请绘制解锁图案</string>
-    <string name="lockpattern_need_to_confirm">请再次绘制解锁图案</string>
-    <string name="lockpattern_need_to_unlock_wrong">与上次输入不一致，请重试</string>
-    <string name="lockpattern_pattern_confirmed_header">点击保存解锁图案</string>
-    <string name="lockpattern_recording_inprogress">完成后松开手指</string>
-    <string name="lockpattern_pattern_toast_saved">密码设置成功</string>
-    <!--Strings for possible PreferenceActivity Back/Next buttons-->
-    <string name="back_button_label">Back</string>
-    <string name="next_button_label">Next</string>
-    <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
-    <string name="skip_button_label">Skip</string>
-    <!--contacts  upload-->
-    <string name="settings_contacts_upload_info_title">通讯录备份</string>
-    <string name="settings_contacts_upload_turn_on">启用通讯录备份</string>
-    <string name="settings_contacts_upload_service_started">通讯录备份已启用</string>
-    <string name="settings_contacts_upload_service_stopped">通讯录备份已禁用</string>
-    <string name="settings_contacts_upload_repo_hint">请选择一个资料库来备份通讯录</string>
-    <string name="settings_contacts_upload_change_repo_title">使用另一个资料库来备份通讯录</string>
-    <string name="settings_contacts_upload_repo_time">上次备份时间</string>
-    <string name="settings_contacts_upload_repo_history">没有备份记录</string>
-    <string name="settings_contacts_upload_start_backup">备份</string>
-    <string name="settings_contacts_upload_start_backup_hint">点击开始备份通讯录</string>
-    <!--Camera Upload Preference-->
-    <string name="settings_camera_upload_info_title">上传照片</string>
-    <string name="settings_camera_upload_service_started">上传服务已启动</string>
-    <string name="settings_camera_upload_service_stopped">上传服务已关闭</string>
-    <string name="settings_camera_upload_allow_data_plan">允许使用移动流量套餐</string>
-    <string name="settings_camera_upload_allow_videos">允许上传视频</string>
-    <string name="settings_camera_upload_default_wifi">默认使用WiFi上传</string>
-    <string name="settings_camera_upload_data_plan_allowed">支持移动流量套餐上传</string>
-    <string name="settings_camera_upload_default_photos">默认只上传图片</string>
-    <string name="settings_camera_upload_videos_allowed">支持视频上传</string>
-    <string name="settings_camera_upload_change_repo_title">更改上传资料库</string>
-    <string name="settings_camera_upload_repo_hint">请先选择一个资料库来上传照片</string>
-    <string name="settings_camera_upload_turn_on">打开照片上传</string>
-    <string name="settings_camera_upload_choose_dir">更改相册</string>
-    <string name="settings_camera_upload_dir_auto_scan">默认自动扫描照片</string>
-    <string name="settings_camera_upload_lib_not_found">资料库不存在</string>
-    <string name="settings_camera_upload_advanced_feature_title">高级选项</string>
-    <string name="settings_camera_upload_advanced_feature_subtitle">更改上传设置</string>
-    <string name="settings_camera_upload_advanced_custom_directories">选择上传相册</string>
-    <string name="settings_camera_upload_advanced_custom_directories_on">选择备份相册</string>
-    <string name="settings_camera_upload_advanced_custom_directories_off">自动扫描设备</string>
-    <!--Camera Upload Configuration View-->
-    <string name="settings_cuc_title">配置助手</string>
-    <string name="settings_cuc_welcome_text">感谢使用照片上传配置助手，\n在开始使用上传服务之前，将会引导你如何进行配置。</string>
-    <string name="settings_cuc_network_title">上传方式</string>
-    <string name="settings_cuc_network_wifi">仅限于Wi-Fi</string>
-    <string name="settings_cuc_network_data_plan">Wi-Fi或者移动流量套餐</string>
-    <string name="settings_cuc_option_hint">选择你要配置的账户和资料库，这些设置以后可以在设置菜单里修改。</string>
-    <string name="settings_cuc_type_title">上传内容</string>
-    <string name="settings_cuc_type_photo">仅上传图片</string>
-    <string name="settings_cuc_type_video">上传图片和视频</string>
-    <string name="settings_cuc_local_dir_title">选择相册</string>
-    <plurals name="settings_cuc_local_dir_items">
-        <item quantity="other">%1$d个文件</item>
-    </plurals>
-    <string name="settings_cuc_remote_lib_title">选择云端资料库</string>
-    <string name="settings_cuc_remote_lib_account">请选择一个账户</string>
-    <string name="settings_cuc_remote_lib_repo">%s被选中</string>
-    <string name="settings_cuc_upload_to_parent_folder">上一级</string>
-    <string name="settings_cuc_auto_scan">自动备份默认相册</string>
-    <string name="settings_cuc_pick_albums">选择备份相册</string>
-    <string name="settings_cuc_remote_lib_hint">选择你要配置的选项，这些设置以后可以在设置菜单里修改。</string>
-    <string name="settings_cuc_finish_title">完成</string>
-    <string name="settings_cuc_ready">Seafile将会从你指定的文件夹上传文件，在这个过程中你可以随时关闭该应用</string>
-    <string name="settings_cuc_swipe_left">向左滑进入下一步</string>
-    <string name="settings_cuc_click_btn">点击按钮关闭配置助手</string>
-    <string name="settings_cuc_loading">加载中...</string>
-    <!--Camera Sync-->
-    <string name="sync_provider_camera_upload">照片和视频</string>
-    <string name="camera_sync_notification_title_failed">照片上传失败</string>
-    <string name="camera_sync_notification_repo_missing_failed">服务器上不存在该资料库</string>
-    <string name="camera_sync_notification_auth_error_failed">授权失败</string>
-    <string name="camera_sync_rename_file"> (由Seafile重命名为)%s</string>
-    <string name="settings_about_title">关于</string>
-    <string name="settings_about_privacy_policy">隐私政策</string>
-    <string name="settings_about_version_title">应用版本号</string>
-    <string name="settings_about_author_title">关于我们</string>
-    <string name="settings_about_author_info">
-
+  <string name="welcome_to_seafile">欢迎使用Seafile</string>
+  <string name="select_account">请选择一个账户开始使用</string>
+  <string name="edit_account">编辑帐户</string>
+  <string name="delete_account">删除帐户</string>
+  <string name="delete">删除</string>
+  <string name="delete_repo">确定要删除该资料库吗？</string>
+  <string name="delete_file">确定要删除文件或文件夹吗？</string>
+  <string name="delete_successful">删除成功</string>
+  <string name="delete_repo_title">删除资料库</string>
+  <string name="delete_file_f">删除文件</string>
+  <string name="recover_library">恢复资料库</string>
+  <string name="recover_file">恢复文件</string>
+  <string name="move_file">移动文件</string>
+  <string name="update_file">更新文件</string>
+  <string name="recover_folder">恢复文件夹</string>
+  <string name="move_folder">移动文件夹</string>
+  <string name="delete_dir">删除文件夹</string>
+  <string name="name_hint">名称</string>
+  <string name="server_hint">云盘网址</string>
+  <string name="email_hint">邮箱或用户名</string>
+  <string name="passwd_hint">密码</string>
+  <string name="passwd_min_len_limit_hint">密码(至少%d个字符)</string>
+  <string name="passwd_confirmation_hint">请再次输入密码</string>
+  <string name="login">登录</string>
+  <string name="open_file">打开</string>
+  <string name="download_file">下载</string>
+  <string name="redownload_file">重新下载</string>
+  <string name="cancel_download">取消下载</string>
+  <string name="unknown_file_type">未知文件类型</string>
+  <string name="activity_not_found">找不到相关应用打开此类文件</string>
+  <string name="refresh">刷新</string>
+  <string name="add_account">添加账户</string>
+  <string name="personal">个人</string>
+  <string name="shared">共享给我的</string>
+  <string name="libraries">资料库</string>
+  <string name="cached">已缓存</string>
+  <string name="activities">事件</string>
+  <string name="pick_upload_type">上传</string>
+  <string name="transfer_tasks">传输列表</string>
+  <string name="accounts">帐号</string>
+  <string name="settings">设置</string>
+  <string-array name="pick_upload_array">
+    <item>文件</item>
+    <item>图片/视频</item>
+    <item>其他</item>
+  </string-array>
+  <string name="choose_server">请选择一个Seafile服务器</string>
+  <string-array name="choose_server_array">
+    <item>统一登录</item>
+    <item>其他Seafile服务器</item>
+  </string-array>
+  <string name="network_down">无网络连接</string>
+  <string name="unknow_error">未知错误</string>
+  <string name="invalid_server_address">无效的服务器地址</string>
+  <string name="err_server_andress_empty">服务器地址不能是空的</string>
+  <string name="err_email_empty">邮箱不能是空的</string>
+  <string name="err_passwd_empty">密码不能是空的</string>
+  <string name="err_passwd_too_short">密码太短</string>
+  <string name="err_passwd_mismatch">两次输入的密码不一致</string>
+  <string name="err_login_failed">登录失败</string>
+  <string name="err_wrong_user_or_passwd">邮箱或密码错误</string>
+  <string name="err_token_expired">授权已过期，请重新登录</string>
+  <string name="upload">上传</string>
+  <string name="uploaded">已上传</string>
+  <string name="updated">已更新</string>
+  <string name="download_failed">下载失败</string>
+  <string name="download_waiting">等待下载</string>
+  <string name="download_finished">下载完成</string>
+  <string name="download_cancelled">下载取消</string>
+  <string name="task_cancel">取消</string>
+  <string name="task_retry">重新上传</string>
+  <string name="task_remove">移除</string>
+  <string name="task_remove_all_cancelled">移除所有取消任务</string>
+  <string name="task_remove_all_finished">移除所有已完成任务</string>
+  <string name="repo_action_delete">删除</string>
+  <string name="repo_action_rename">重命名</string>
+  <string name="file_action_star">星标</string>
+  <string name="file_action_download">下载</string>
+  <string name="file_action_update">上传</string>
+  <string name="file_share">分享</string>
+  <string name="file_action_share_wechat">分享到微信</string>
+  <string name="file_action_share_link">分享链接</string>
+  <string name="file_action_share_encrypt">分享高级链接</string>
+  <string name="file_action_export">导出</string>
+  <string name="file_action_open">打开方式</string>
+  <string name="file_action_delete">删除</string>
+  <string name="file_action_rename">重命名</string>
+  <string name="file_action_copy">复制</string>
+  <string name="file_action_move">移动</string>
+  <string name="file_action_open_as">打开为</string>
+  <string name="file_action_more">更多</string>
+  <string name="file_action_more_title">选择你喜欢的选项</string>
+  <string-array name="file_action_more_array">
+    <item>导出</item>
+    <item>复制</item>
+    <item>移动</item>
+    <item>星标</item>
+  </string-array>
+  <string-array name="file_type_array">
+    <item>文本</item>
+    <item>音频</item>
+    <item>视频</item>
+    <item>图像</item>
+    <item>其他</item>
+  </string-array>
+  <string name="wait">等待</string>
+  <string name="image_gallery_NoImageView_text">没有找到图片</string>
+  <string name="pick_photo_video_title">请选择要上传的图片/视频</string>
+  <string name="select_upload_items">请选择要上传的文件</string>
+  <plurals name="n_upload_items_selected">
+    <item quantity="other">选择了%1$d个文件</item>
+  </plurals>
+  <string name="repo_name_empty">请输入资料库名称</string>
+  <string name="dir_name_empty">请输入文件夹名</string>
+  <string name="file_name_empty">请输入文件名</string>
+  <string name="password_empty">请输入您的密码</string>
+  <string name="wrong_password">密码错误</string>
+  <string name="library_read_only">这个资料库是只读的</string>
+  <string name="error_when_load_dirents">文件夹数据加载出错.\n 点击刷新</string>
+  <string name="error_when_load_repos">资料库数据加载出错.\n 点击刷新</string>
+  <string name="error_when_load_activities">活动数据加载出错.\n 点击刷新</string>
+  <string name="error_when_load_starred">星标文件加载出错.\n 点击刷新</string>
+  <string name="dir_empty">此文件夹是空的</string>
+  <string name="no_repo">无资料库</string>
+  <string name="no_app_available">没有找到应用</string>
+  <string name="add_to_seafile">添加到Seafile中</string>
+  <string name="ok">确定</string>
+  <string name="no_account">首先请在Seafile上创建一个账户</string>
+  <string name="choose_an_account">请选择一个账户</string>
+  <string name="choose_a_library">请选择一个资料库</string>
+  <string name="choose_a_folder">请选择一个文件夹</string>
+  <string name="load_accounts_fail">加载Seafile账户失败</string>
+  <string name="load_libraries_fail">加载资料库失败</string>
+  <string name="load_dir_fail">加载此文件夹的内容失败</string>
+  <string name="not_supported_share">不支持此类分享</string>
+  <string name="edit">编辑</string>
+  <string name="create_draft">创建草稿</string>
+  <string name="rename_draft">重命名草稿</string>
+  <string name="del_draft">删除草稿</string>
+  <string name="update_draft">更新草稿</string>
+  <string name="release_draft">发布草稿</string>
+  <string name="encrypt">加密</string>
+  <string name="download_folder">下载该文件夹</string>
+  <string name="download_folder_title">选择你喜欢的选项</string>
+  <string-array name="download_folder_options_array">
+    <item>下载文件夹</item>
+    <item>下载文件夹及其子文件夹</item>
+  </string-array>
+  <string name="add_repo">新建资料库</string>
+  <string name="add_file">添加</string>
+  <string-array name="add_file_options_array">
+    <item>新建文件</item>
+    <item>新建文件夹</item>
+    <item>上传文件</item>
+    <item>拍照上传</item>
+  </string-array>
+  <string-array name="video_download_array">
+    <item>播放</item>
+    <item>下载</item>
+  </string-array>
+  <string name="create_new_repo">新建资料库</string>
+  <string name="create_new_repo_success">新建资料库%s成功</string>
+  <string name="create_new_folder_success">文件夹%s创建成功</string>
+  <string name="create_new_file_success">文件%s创建成功</string>
+  <string name="create_new_file">创建新文件</string>
+  <string name="create_files">创建多个文件</string>
+  <string name="create_new_dir">创建新文件夹</string>
+  <string name="camera">拍照上传</string>
+  <string name="download">下载</string>
+  <string name="open">打开</string>
+  <string name="last_modified">最后更改</string>
+  <string name="file_modified">已更改</string>
+  <string name="file_size">文件大小</string>
+  <string name="library_not_found">此资料库已被删除</string>
+  <string name="file_not_found">此文件\"%s\"已被删除</string>
+  <string name="export_file">导出此文件</string>
+  <string name="no_upload_tasks">无上传任务</string>
+  <string name="no_download_tasks">无下载任务</string>
+  <string name="seahub_url_hint">注意：服务器地址应该包含端口号。比如www.example.com:8000</string>
+  <string name="copy_link">复制链接</string>
+  <string name="share_file_link">分享此文件的链接</string>
+  <string name="share_dir_link">分享此文件夹的链接</string>
+  <string name="share_input_password">请输入分享密码</string>
+  <string name="generating_link">生成链接中. . .</string>
+  <string name="link_ready_to_be_pasted">此链接已被复制到剪贴板。</string>
+  <string name="rename_repo">重命名资料库</string>
+  <string name="rename_file">重命名文件</string>
+  <string name="rename_dir">重命名文件夹</string>
+  <string name="rename_successful">重命名成功。</string>
+  <string-array name="nav_array">
+    <item>文件</item>
+    <item>上传任务</item>
+    <item>账户</item>
+    <item>相册备份</item>
+  </string-array>
+  <string name="no_starred_file">无星标文件</string>
+  <string name="added_to_upload_tasks">开始上传</string>
+  <string name="added_photo_to_upload_tasks">图片开始上传</string>
+  <string name="take_photo_successfully">拍照成功</string>
+  <string name="tabs_library">资料库</string>
+  <string name="tabs_activity">最近修改</string>
+  <string name="tabs_starred">星标文件</string>
+  <string name="provide_password">请提供资料库\"%s\"的密码</string>
+  <string name="upload_waiting">等待上传</string>
+  <string name="upload_finished">上传完成</string>
+  <string name="upload_cancelled">上传取消</string>
+  <string name="upload_failed">上传失败</string>
+  <string name="upload_file_exist">文件已存在</string>
+  <string name="upload_duplicate_found">名字为\"%s\"的文件在此位置已存在.\n 你想用上传的文件替换它吗?</string>
+  <string name="upload_replace_all">全部替换</string>
+  <string name="upload_keep_both">保留两者</string>
+  <string name="upload_replace">替换</string>
+  <string name="days_ago">%d天前</string>
+  <string name="hours_ago">%d小时前</string>
+  <string name="minutes_ago">%d分钟前</string>
+  <string name="seconds_ago">%d秒前</string>
+  <string name="just_now">刚刚更新</string>
+  <string name="open_as">打开为</string>
+  <string name="select_upload_files">请选择要上传的文件</string>
+  <string name="storage_removed">存储卡已被移出</string>
+  <string name="storage_space_insufficient">存储空间不足</string>
+  <string name="error_selecting_file">选择文件时出错</string>
+  <plurals name="n_upload_files_selected">
+    <item quantity="other">已经选择%1$d个文件</item>
+  </plurals>
+  <string name="empty_folder">此文件夹是空的</string>
+  <string name="choose_file">请选择一个文件</string>
+  <string name="ssl_error">安全验证失败</string>
+  <string name="ssl_confirm">%s的安全证书不受信任,是否继续？</string>
+  <string name="ssl_confirm_cert_changed">%s使用了非法的安全证书，这意味着该连接不安全，是否继续?</string>
+  <string name="ssl_confirm_title">连接不受信任</string>
+  <string name="issued_to">签发给</string>
+  <string name="finger_prints">指纹</string>
+  <string name="period_of_validity">有效期</string>
+  <string name="sha1">SHA-1算法  %s</string>
+  <string name="md5">MD5算法  %s</string>
+  <string name="not_available">不可用</string>
+  <string name="serial_number">序列号%s</string>
+  <string name="not_before">生效日期%s</string>
+  <string name="not_after">过期日期%s</string>
+  <string name="yes">是</string>
+  <string name="no">否</string>
+  <string name="remember_my_choice">记住我的选择</string>
+  <string name="copied_successfully">复制成功</string>
+  <string name="moved_successfully">移动成功</string>
+  <string name="internal_server_error">服务器出错了</string>
+  <string name="copy_file_ing">正在复制文件</string>
+  <string name="move_file_ing">正在移动文件</string>
+  <string name="copy_file_from">正在从 %1$s \n 复制到 %2$s</string>
+  <string name="move_file_from">正在从 %1$s \n 移动到 %2$s</string>
+  <string name="copy_folder_ing">正在复制文件夹</string>
+  <string name="move_folder_ing">正在移动文件夹</string>
+  <string name="upload_started">开始上传</string>
+  <string name="cannot_copy_folder_to_subfolder">不能把一个文件夹复制到它的子文件夹里面去</string>
+  <string name="cannot_move_folder_to_subfolder">不能把一个文件夹移动到它的子文件夹里面去</string>
+  <string name="cancel">取消</string>
+  <string name="confirm">确定</string>
+  <string name="repo_not_found">找不到该资料库，它可能是加密资料库或已被删除</string>
+  <string name="settings_account">账户</string>
+  <string name="settings_account_info_title">账户信息</string>
+  <string name="settings_account_info_load_data">加载中...</string>
+  <string name="settings_account_space_title">已使用空间</string>
+  <string name="settings_account_sign_out_title">退出登录</string>
+  <string name="settings_account_sign_out_hint">点击退出</string>
+  <string name="settings_account_sign_out_confirm">你想退出登录吗？</string>
+  <string name="security">安全性</string>
+  <string name="gesture_lock">手势密码锁</string>
+  <string name="gesture_lock_on">手势锁开启</string>
+  <string name="gesture_lock_off">手势锁关闭</string>
+  <string name="lockscreen_access_pattern_hint">请绘制手势密码</string>
+  <string name="lockscreen_access_pattern_start">开始绘制图案</string>
+  <string name="lockscreen_access_pattern_cleared">图案已清除</string>
+  <string name="lockscreen_access_pattern_cell_added">已添加单元格</string>
+  <string name="lockscreen_access_pattern_detected">图案绘制完成</string>
+  <string name="lockscreen_access_pattern_passwd_forget">忘记密码</string>
+  <string name="lockscreen_access_pattern_failure">您已5次输错密码，请30秒后再试</string>
+  <plurals name="lockscreen_access_pattern_failure_left_try_seconds">
+    <item quantity="other">%1$d秒后重试</item>
+  </plurals>
+  <plurals name="lockscreen_access_pattern_failure_left_try_times">
+    <item quantity="other">密码错误，还可以再输入%1$d次</item>
+  </plurals>
+  <string name="lockscreen_access_pattern_failure_not_long_enough">输入长度不够，请重试</string>
+  <string name="lockpattern_retry_button_text">重绘</string>
+  <string name="lockpattern_continue_button_text">继续</string>
+  <string name="lockpattern_confirm_button_text">保存</string>
+  <string name="lockpattern_recording_intro_header">绘制解锁图案</string>
+  <string name="lockpattern_settings_help_how_to_record">如何绘制解锁图案</string>
+  <string name="lockpattern_recording_incorrect_too_short">至少连接4个点，请重试</string>
+  <string name="lockpattern_pattern_entered_header">图案已记录</string>
+  <string name="lockpattern_need_to_draw">请绘制解锁图案</string>
+  <string name="lockpattern_need_to_confirm">请再次绘制解锁图案</string>
+  <string name="lockpattern_need_to_unlock_wrong">与上次输入不一致，请重试</string>
+  <string name="lockpattern_pattern_confirmed_header">点击保存解锁图案</string>
+  <string name="lockpattern_recording_inprogress">完成后松开手指</string>
+  <string name="lockpattern_pattern_toast_saved">密码设置成功</string>
+  <!--Strings for possible PreferenceActivity Back/Next buttons-->
+  <string name="back_button_label">Back</string>
+  <string name="next_button_label">Next</string>
+  <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
+  <string name="skip_button_label">Skip</string>
+  <!--contacts  upload-->
+  <string name="settings_contacts_upload_info_title">通讯录备份</string>
+  <string name="settings_contacts_upload_turn_on">启用通讯录备份</string>
+  <string name="settings_contacts_upload_service_started">通讯录备份已启用</string>
+  <string name="settings_contacts_upload_service_stopped">通讯录备份已禁用</string>
+  <string name="settings_contacts_upload_repo_hint">请选择一个资料库来备份通讯录</string>
+  <string name="settings_contacts_upload_change_repo_title">使用另一个资料库来备份通讯录</string>
+  <string name="settings_contacts_upload_repo_time">上次备份时间</string>
+  <string name="settings_contacts_upload_repo_history">没有备份记录</string>
+  <string name="settings_contacts_upload_start_backup">备份</string>
+  <string name="settings_contacts_upload_start_backup_hint">点击开始备份通讯录</string>
+  <!--Camera Upload Preference-->
+  <string name="settings_camera_upload_info_title">上传照片</string>
+  <string name="settings_camera_upload_service_started">上传服务已启动</string>
+  <string name="settings_camera_upload_service_stopped">上传服务已关闭</string>
+  <string name="settings_camera_upload_allow_data_plan">允许使用移动流量套餐</string>
+  <string name="settings_camera_upload_allow_videos">允许上传视频</string>
+  <string name="settings_camera_upload_default_wifi">默认使用WiFi上传</string>
+  <string name="settings_camera_upload_data_plan_allowed">支持移动流量套餐上传</string>
+  <string name="settings_camera_upload_default_photos">默认只上传图片</string>
+  <string name="settings_camera_upload_videos_allowed">支持视频上传</string>
+  <string name="settings_camera_upload_change_repo_title">更改上传资料库</string>
+  <string name="settings_camera_upload_repo_hint">请先选择一个资料库来上传照片</string>
+  <string name="settings_camera_upload_turn_on">打开照片上传</string>
+  <string name="settings_camera_upload_choose_dir">更改相册</string>
+  <string name="settings_camera_upload_dir_auto_scan">默认自动扫描照片</string>
+  <string name="settings_camera_upload_lib_not_found">资料库不存在</string>
+  <string name="settings_camera_upload_advanced_feature_title">高级选项</string>
+  <string name="settings_camera_upload_advanced_feature_subtitle">更改上传设置</string>
+  <string name="settings_camera_upload_advanced_custom_directories">选择上传相册</string>
+  <string name="settings_camera_upload_advanced_custom_directories_on">选择备份相册</string>
+  <string name="settings_camera_upload_advanced_custom_directories_off">自动扫描设备</string>
+  <!--Camera Upload Configuration View-->
+  <string name="settings_cuc_title">配置助手</string>
+  <string name="settings_cuc_welcome_text">感谢使用照片上传配置助手，\n在开始使用上传服务之前，将会引导你如何进行配置。</string>
+  <string name="settings_cuc_network_title">上传方式</string>
+  <string name="settings_cuc_network_wifi">仅限于Wi-Fi</string>
+  <string name="settings_cuc_network_data_plan">Wi-Fi或者移动流量套餐</string>
+  <string name="settings_cuc_option_hint">选择你要配置的账户和资料库，这些设置以后可以在设置菜单里修改。</string>
+  <string name="settings_cuc_type_title">上传内容</string>
+  <string name="settings_cuc_type_photo">仅上传图片</string>
+  <string name="settings_cuc_type_video">上传图片和视频</string>
+  <string name="settings_cuc_local_dir_title">选择相册</string>
+  <plurals name="settings_cuc_local_dir_items">
+    <item quantity="other">%1$d个文件</item>
+  </plurals>
+  <string name="settings_cuc_remote_lib_title">选择云端资料库</string>
+  <string name="settings_cuc_remote_lib_account">请选择一个账户</string>
+  <string name="settings_cuc_remote_lib_repo">%s被选中</string>
+  <string name="settings_cuc_upload_to_parent_folder">上一级</string>
+  <string name="settings_cuc_auto_scan">自动备份默认相册</string>
+  <string name="settings_cuc_pick_albums">选择备份相册</string>
+  <string name="settings_cuc_remote_lib_hint">选择你要配置的选项，这些设置以后可以在设置菜单里修改。</string>
+  <string name="settings_cuc_finish_title">完成</string>
+  <string name="settings_cuc_ready">Seafile将会从你指定的文件夹上传文件，在这个过程中你可以随时关闭该应用</string>
+  <string name="settings_cuc_swipe_left">向左滑进入下一步</string>
+  <string name="settings_cuc_click_btn">点击按钮关闭配置助手</string>
+  <string name="settings_cuc_loading">加载中...</string>
+  <!--Camera Sync-->
+  <string name="sync_provider_camera_upload">照片和视频</string>
+  <string name="camera_sync_notification_title_failed">照片上传失败</string>
+  <string name="camera_sync_notification_repo_missing_failed">服务器上不存在该资料库</string>
+  <string name="camera_sync_notification_auth_error_failed">授权失败</string>
+  <string name="camera_sync_rename_file"> (由Seafile重命名为)%s</string>
+  <string name="settings_about_title">关于</string>
+  <string name="settings_about_privacy_policy">隐私政策</string>
+  <string name="settings_about_version_title">应用版本号</string>
+  <string name="settings_about_author_title">关于我们</string>
+  <string name="settings_about_author_info">
         <![CDATA[
         <h5>Seafile Android Client</h5>
         <p>%s</p>
@@ -381,7 +380,6 @@
         </p>
         贡献
         <p>https://github.com/haiwen/seadroid.git</P>
-
         <h5>Copyright ©2013-2023 Seafile Ltd.</h5>
         ]]>
     </string>
@@ -563,6 +561,8 @@
   <string name="settings_folder_backup_traffic">网络模式</string>
   <string name="settings_folder_backup_traffic_hint">WIFI</string>
   <string name="settings_folder_backup_library">备份到资料库</string>
+  <string name="folder_backup_add">增加备份文件夹</string>
+  <string name="folder_backup_cancel">取消备份</string>
   <string name="folder_backup_waiting_state">完成</string>
   <string name="folder_backup_state">备份状态</string>
   <string name="folder_backup_mode">WIFI或者移动流量</string>
@@ -570,5 +570,10 @@
   <string name="folder_backup_select_repo_hint">选择资料库</string>
   <string name="folder_backup_select_repo_update">已更新备份资料库</string>
   <string name="UncaughtExceptionHandler_err">应用已停止运行</string>
-
+  <!--action-->
+  <string name="add">添加</string>
+  <string name="modify">修改</string>
+  <string name="update">更新</string>
+  <string name="clear">清除</string>
+  <string name="clear_all">清除所有</string>
 </resources>

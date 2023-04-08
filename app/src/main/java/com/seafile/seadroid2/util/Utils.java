@@ -949,7 +949,7 @@ public class Utils {
                 results = context.getString(R.string.Upload_completed) + " " + SettingsManager.instance().getUploadCompletedTime();
                 break;
             default:
-                results = context.getString(R.string.waiting_state);
+                results = context.getString(R.string.folder_backup_waiting_state);
                 break;
         }
         return results;
