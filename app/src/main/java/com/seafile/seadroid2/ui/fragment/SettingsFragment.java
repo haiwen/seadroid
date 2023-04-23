@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
@@ -69,6 +70,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class SettingsFragment extends CustomPreferenceFragment {
@@ -521,6 +523,8 @@ public class SettingsFragment extends CustomPreferenceFragment {
         refreshCameraUploadView();
 //        refreshContactsView();
 
+        PreferenceCategory cAboutCategory = (PreferenceCategory) findPreference(SettingsManager.SETTINGS_ABOUT_CATEGORY_KEY);
+
         // App Version
         try {
             appVersion = mActivity.getPackageManager().getPackageInfo(mActivity.getPackageName(), 0).versionName;
@@ -543,15 +547,20 @@ public class SettingsFragment extends CustomPreferenceFragment {
             }
         });
 
-        findPreference(SettingsManager.SETTINGS_PRIVACY_POLICY_KEY).setOnPreferenceClickListener(new OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
+        String language = Locale.getDefault().getLanguage();
+        if (TextUtils.equals("zh", language)) {
+            findPreference(SettingsManager.SETTINGS_PRIVACY_POLICY_KEY).setOnPreferenceClickListener(new OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
 
-                Intent intent = new Intent(mActivity, PrivacyPolicyActivity.class);
-                mActivity.startActivity(intent);
-                return true;
-            }
-        });
+                    Intent intent = new Intent(mActivity, PrivacyPolicyActivity.class);
+                    mActivity.startActivity(intent);
+                    return true;
+                }
+            });
+        }else {
+            cAboutCategory.removePreference(findPreference(SettingsManager.SETTINGS_PRIVACY_POLICY_KEY));
+        }
 
         // Cache size
         calculateCacheSize();
