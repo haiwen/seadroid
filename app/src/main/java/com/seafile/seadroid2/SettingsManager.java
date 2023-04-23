@@ -79,6 +79,7 @@ public final class SettingsManager {
     //contacts
     public static final String CONTACTS_UPLOAD_CATEGORY_KEY = "category_contacts_upload_key";
     public static final String CONTACTS_UPLOAD_SWITCH_KEY = "contacts_upload_switch_key";
+    public static final String SETTINGS_ABOUT_CATEGORY_KEY = "settings_section_about_key";
     public static final String SETTINGS_ABOUT_VERSION_KEY = "settings_about_version_key";
     public static final String SETTINGS_ABOUT_AUTHOR_KEY = "settings_about_author_key";
     public static final String SETTINGS_PRIVACY_POLICY_KEY = "settings_privacy_policy_key";
@@ -246,6 +247,7 @@ public final class SettingsManager {
     public boolean isDataPlanAllowed() {
         return settingsSharedPref.getBoolean(CAMERA_UPLOAD_ALLOW_DATA_PLAN_SWITCH_KEY, false);
     }
+
     public boolean isFolderBackupDataPlanAllowed() {
         return settingsSharedPref.getBoolean(FOLDER_BACKUP_ALLOW_DATA_PLAN_SWITCH_KEY, false);
     }
@@ -257,6 +259,7 @@ public final class SettingsManager {
     public void saveDataPlanAllowed(boolean isAllowed) {
         settingsSharedPref.edit().putBoolean(CAMERA_UPLOAD_ALLOW_DATA_PLAN_SWITCH_KEY, isAllowed).commit();
     }
+
     public void saveFolderBackupDataPlanAllowed(boolean isAllowed) {
         settingsSharedPref.edit().putBoolean(FOLDER_BACKUP_ALLOW_DATA_PLAN_SWITCH_KEY, isAllowed).commit();
     }
