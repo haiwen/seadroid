@@ -102,7 +102,9 @@ public class SSLSeafileSocketFactory extends SSLSocketFactory {
 
     protected String[] getProtocolList() {
         // don't offer SSLv2 or SSLv3
-        if (Build.VERSION.SDK_INT >= 16) {
+        if (Build.VERSION.SDK_INT >= 29) {
+            return new String[]{ "TLSv1", "TLSv1.1", "TLSv1.2", "TLSv1.3" };
+        } else if (Build.VERSION.SDK_INT >= 16) {
             return new String[]{ "TLSv1", "TLSv1.1", "TLSv1.2" };
         } else {
             return new String[]{ "TLSv1" };
