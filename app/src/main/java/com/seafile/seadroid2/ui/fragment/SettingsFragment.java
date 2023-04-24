@@ -69,6 +69,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class SettingsFragment extends CustomPreferenceFragment {
@@ -543,15 +544,21 @@ public class SettingsFragment extends CustomPreferenceFragment {
             }
         });
 
-        findPreference(SettingsManager.SETTINGS_PRIVACY_POLICY_KEY).setOnPreferenceClickListener(new OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-
-                Intent intent = new Intent(mActivity, PrivacyPolicyActivity.class);
-                mActivity.startActivity(intent);
-                return true;
-            }
-        });
+        PreferenceCategory cAboutCategory = (PreferenceCategory) findPreference(SettingsManager.SETTINGS_ABOUT_CATEGORY_KEY);
+        String country = Locale.getDefault().getCountry();
+        String language = Locale.getDefault().getLanguage();
+        if (TextUtils.equals("CN", country) || TextUtils.equals("zh", language)) {
+            findPreference(SettingsManager.SETTINGS_PRIVACY_POLICY_KEY).setOnPreferenceClickListener(new OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    Intent intent = new Intent(mActivity, PrivacyPolicyActivity.class);
+                    mActivity.startActivity(intent);
+                    return true;
+                }
+            });
+        } else {
+            cAboutCategory.removePreference(findPreference(SettingsManager.SETTINGS_PRIVACY_POLICY_KEY));
+        }
 
         // Cache size
         calculateCacheSize();

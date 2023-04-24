@@ -423,7 +423,7 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
 
     private void showDialog() {
         PolicyDialog mDialog = new PolicyDialog(AccountsActivity.this, R.style.PolicyDialog,
-                new PolicyDialog.OncloseListener() {
+                new PolicyDialog.OnCloseListener() {
                     @Override
                     public void onClick(boolean confirm) {
                         if (confirm) {
