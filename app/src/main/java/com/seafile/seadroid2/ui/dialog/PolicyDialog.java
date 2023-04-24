@@ -25,7 +25,7 @@ public class PolicyDialog extends Dialog implements View.OnClickListener {
 
     private Context mContext;
     private String content;
-    private OncloseListener listener;
+    private OnCloseListener listener;
     private String positiveName;
     private String negativeName;
     private String title;
@@ -43,13 +43,13 @@ public class PolicyDialog extends Dialog implements View.OnClickListener {
         this.content = content;
     }
 
-    public PolicyDialog(@NonNull Context context, int themeResId, OncloseListener listener) {
+    public PolicyDialog(@NonNull Context context, int themeResId, OnCloseListener listener) {
         super(context, themeResId);
         this.mContext = context;
         this.listener = listener;
     }
 
-    public PolicyDialog(@NonNull Context context, int themeResId, String content, OncloseListener listener) {
+    public PolicyDialog(@NonNull Context context, int themeResId, String content, OnCloseListener listener) {
         super(context, themeResId);
         this.mContext = context;
         this.content = content;
@@ -143,7 +143,7 @@ public class PolicyDialog extends Dialog implements View.OnClickListener {
         }
     }
 
-    public interface OncloseListener {
+    public interface OnCloseListener {
         void onClick(boolean confirm);
     }
 }

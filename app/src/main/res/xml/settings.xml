@@ -176,6 +176,7 @@
     </PreferenceCategory>
 
     <PreferenceCategory
+        android:key="settings_section_about_key"
         android:layout="@layout/bg_settings_section_about"
         android:title="@string/settings_about_title">
         <Preference
