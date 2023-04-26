@@ -29,6 +29,12 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+        }
+    }
+
     signingConfigs {
         debug {
 //            def props = new Properties()
@@ -103,16 +109,13 @@ android {
 
     allprojects {
         repositories {
-            flatDir {
-                dirs 'libs/aars'
-            }
             maven { url 'https://jitpack.io' }
         }
     }
     dependencies {
         implementation fileTree(include: ['*.jar'], dir: 'libs')
-        implementation(name:'library-markdown', ext:'aar')
-        implementation(name:'library-emoji', ext:'aar')
+        implementation files('libs/library-markdown.aar')
+        implementation files('libs/library-emoji.aar')
 
         //DO NOT upgrade this lib, unless the APP upgrade to AndroidX
         implementation 'com.blankj:utilcode:1.30.0'
