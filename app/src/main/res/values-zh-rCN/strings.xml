@@ -180,6 +180,7 @@
   <string name="no_download_tasks">无下载任务</string>
   <string name="seahub_url_hint">注意：服务器地址应该包含端口号。比如www.example.com:8000</string>
   <string name="copy_link">复制链接</string>
+  <string name="share_link_no_permission">你没有权限进行此次操作</string>
   <string name="share_file_link">分享此文件的链接</string>
   <string name="share_dir_link">分享此文件夹的链接</string>
   <string name="share_input_password">请输入分享密码</string>

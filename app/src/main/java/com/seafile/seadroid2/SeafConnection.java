@@ -1525,6 +1525,9 @@ public class SeafConnection {
                     String result = new String(req.bytes(), "UTF-8");
                     if (result != null && Utils.parseJsonObject(result) != null) {
                         JSONObject json = Utils.parseJsonObject(result);
+                        if (json.has("detail")){
+                            throw new SeafException(req.code(), json.optString("detail"));
+                        }
                         throw new SeafException(req.code(), json.optString("error_msg"));
                     } else {
                         throw new SeafException(req.code(), req.message());

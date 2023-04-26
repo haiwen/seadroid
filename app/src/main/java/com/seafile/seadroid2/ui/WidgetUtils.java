@@ -13,6 +13,7 @@ import android.widget.Toast;
 
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
+import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.ui.activity.BaseActivity;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
@@ -25,6 +26,7 @@ import com.seafile.seadroid2.ui.dialog.TaskDialog;
 import com.seafile.seadroid2.util.Utils;
 
 import java.io.File;
+import java.net.HttpURLConnection;
 import java.util.List;
 
 /**
@@ -67,6 +69,17 @@ public class WidgetUtils {
                         // clipboard.setPrimaryClip(clip);
                         Toast.makeText(activity, R.string.link_ready_to_be_pasted, Toast.LENGTH_SHORT).show();
                     }
+
+                    @Override
+                    public void onTaskFailed(SeafException e) {
+                        super.onTaskFailed(e);
+                        gdialog.dismiss();
+                        if (e.getCode() == HttpURLConnection.HTTP_FORBIDDEN) {
+                            Toast.makeText(activity, R.string.share_link_no_permission, Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(activity, e.getMessage(), Toast.LENGTH_LONG).show();
+                        }
+                    }
                 });
                 gdialog.show(activity.getSupportFragmentManager(), "DialogFragment");
             }
@@ -78,7 +91,7 @@ public class WidgetUtils {
                 shareIntent.setClassName(packageName, className);
 
                 final GetShareLinkDialog gdialog = new GetShareLinkDialog();
-                gdialog.init(repoID, path, isdir, account,password, days);
+                gdialog.init(repoID, path, isdir, account, password, days);
                 gdialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
                     @Override
                     public void onTaskSuccess() {
@@ -97,17 +110,17 @@ public class WidgetUtils {
                                           final String repoID,
                                           final String path,
                                           final boolean isdir,
-                                          final Account account){
+                                          final Account account) {
         final GetShareLinkEncryptDialog dialog = new GetShareLinkEncryptDialog();
         dialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
             @Override
             public void onTaskSuccess() {
                 String password = dialog.getPassword();
                 String days = dialog.getDays();
-                chooseShareApp(activity,repoID,path,isdir,account,password,days);
+                chooseShareApp(activity, repoID, path, isdir, account, password, days);
             }
         });
-        dialog.show(activity.getSupportFragmentManager(),BrowserActivity.CHARE_LINK_PASSWORD_FRAGMENT_TAG);
+        dialog.show(activity.getSupportFragmentManager(), BrowserActivity.CHARE_LINK_PASSWORD_FRAGMENT_TAG);
 
     }
 
