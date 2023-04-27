@@ -47,8 +47,6 @@ import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
-import com.seafile.seadroid2.folderbackup.FolderBackupService;
-import com.seafile.seadroid2.folderbackup.FolderBackupService.FileBackupBinder;
 import com.seafile.seadroid2.cameraupload.CameraUploadManager;
 import com.seafile.seadroid2.cameraupload.MediaObserverService;
 import com.seafile.seadroid2.data.CheckUploadServiceEvent;
@@ -60,6 +58,8 @@ import com.seafile.seadroid2.data.SeafStarredFile;
 import com.seafile.seadroid2.data.ServerInfo;
 import com.seafile.seadroid2.data.StorageManager;
 import com.seafile.seadroid2.fileschooser.MultiFileChooserActivity;
+import com.seafile.seadroid2.folderbackup.FolderBackupService;
+import com.seafile.seadroid2.folderbackup.FolderBackupService.FileBackupBinder;
 import com.seafile.seadroid2.monitor.FileMonitorService;
 import com.seafile.seadroid2.notification.DownloadNotificationProvider;
 import com.seafile.seadroid2.notification.UploadNotificationProvider;
@@ -99,7 +99,6 @@ import com.seafile.seadroid2.ui.fragment.StarredFragment;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.util.Utils;
 import com.seafile.seadroid2.util.UtilsJellyBean;
-import com.viewpagerindicator.IconPagerAdapter;
 
 import org.apache.commons.io.IOUtils;
 import org.greenrobot.eventbus.EventBus;
@@ -697,7 +696,7 @@ public class BrowserActivity extends BaseActivity implements ReposFragment.OnFil
         return serverInfo.isSearchEnabled();
     }
 
-    private class SeafileTabsAdapter extends FragmentPagerAdapter implements IconPagerAdapter {
+    private class SeafileTabsAdapter extends FragmentPagerAdapter {
         public SeafileTabsAdapter(FragmentManager fm) {
             super(fm);
         }
@@ -754,10 +753,10 @@ public class BrowserActivity extends BaseActivity implements ReposFragment.OnFil
             }
         }
 
-        @Override
-        public int getIconResId(int index) {
-            return ICONS[index];
-        }
+//        @Override
+//        public int getIconResId(int index) {
+//            return ICONS[index];
+//        }
 
         @Override
         public int getCount() {

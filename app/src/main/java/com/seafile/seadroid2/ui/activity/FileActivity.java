@@ -76,7 +76,7 @@ public class FileActivity extends BaseActivity implements Toolbar.OnMenuItemClic
         super.onCreate(savedInstanceState);
         Intent intent = getIntent();
 
-        mAccount  = intent.getParcelableExtra("account");
+        mAccount = intent.getParcelableExtra("account");
         mRepoName = intent.getStringExtra("repoName");
         mRepoID = intent.getStringExtra("repoID");
         mFilePath = intent.getStringExtra("filePath");
@@ -117,11 +117,11 @@ public class FileActivity extends BaseActivity implements Toolbar.OnMenuItemClic
     }
 
     private void initWidgets() {
-        mFileNameText = (TextView)findViewById(R.id.file_name);
-        mFileIcon = (ImageView)findViewById(R.id.file_icon);
-        mButtonCancel = (Button)findViewById(R.id.op_cancel);
-        mProgressBar = (ProgressBar)findViewById(R.id.progress_bar);
-        mProgressText = (TextView)findViewById(R.id.progress_text);
+        mFileNameText = (TextView) findViewById(R.id.file_name);
+        mFileIcon = (ImageView) findViewById(R.id.file_icon);
+        mButtonCancel = (Button) findViewById(R.id.op_cancel);
+        mProgressBar = (ProgressBar) findViewById(R.id.progress_bar);
+        mProgressText = (TextView) findViewById(R.id.progress_text);
 
         String fileName = Utils.fileNameFromPath(mFilePath);
         mFileNameText.setText(fileName);
@@ -181,7 +181,7 @@ public class FileActivity extends BaseActivity implements Toolbar.OnMenuItemClic
         if (fileSize == 0) {
             percent = 100;
         } else {
-            percent = (int)(finished * 100 / fileSize);
+            percent = (int) (finished * 100 / fileSize);
         }
         mProgressBar.setProgress(percent);
 
@@ -211,8 +211,7 @@ public class FileActivity extends BaseActivity implements Toolbar.OnMenuItemClic
             result.putExtra("path", file.getAbsolutePath());
             result.putExtra("is_open_with", isOpenWith);
             setResult(RESULT_OK, result);
-        }
-        else {
+        } else {
             setResult(RESULT_CANCELED);
         }
         stopTimer();
@@ -292,7 +291,7 @@ public class FileActivity extends BaseActivity implements Toolbar.OnMenuItemClic
                 else if (downloadTaskInfo.state == TaskState.CANCELLED)
                     // do nothing when cancelled
 
-                Log.d(DEBUG_TAG, "timer post refresh signal " + System.currentTimeMillis());
+                    Log.d(DEBUG_TAG, "timer post refresh signal " + System.currentTimeMillis());
                 mTimer.postDelayed(this, 1 * 1000);
             }
         }, 1 * 1000);

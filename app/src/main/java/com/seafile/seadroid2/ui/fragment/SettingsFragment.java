@@ -24,6 +24,7 @@ import com.bumptech.glide.Glide;
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.hjq.permissions.OnPermissionCallback;
+import com.hjq.permissions.Permission;
 import com.hjq.permissions.XXPermissions;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
@@ -319,7 +320,8 @@ public class SettingsFragment extends CustomPreferenceFragment {
                         cFolderBackupCategory.removePreference(cBackupFolderState);
                         SettingsManager.instance().saveFolderAutomaticBackup(false);
                     } else {
-                        XXPermissions.with(getActivity()).permission("android.permission.MANAGE_EXTERNAL_STORAGE").request(new OnPermissionCallback() {
+
+                        XXPermissions.with(getActivity()).permission(Permission.MANAGE_EXTERNAL_STORAGE).request(new OnPermissionCallback() {
 
                             @Override
                             public void onGranted(List<String> permissions, boolean all) {
@@ -382,6 +384,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
                 return true;
             }
         });
+
         // Change backup folder
         cBackupFolderMode = findPreference(SettingsManager.FOLDER_BACKUP_MODE);
         cBackupFolderRepo = findPreference(SettingsManager.FOLDER_BACKUP_LIBRARY_KEY);

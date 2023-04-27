@@ -62,3 +62,7 @@ seadroid-key
 
 /build
 .transifexrc
+/app/release
+/app/seeds.txt
+/app/unused.txt
+/app/proguardMapping.txt
