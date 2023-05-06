@@ -1,5 +1,7 @@
 package com.seafile.seadroid2.notification;
 
+import static android.app.PendingIntent.FLAG_IMMUTABLE;
+
 import android.app.PendingIntent;
 import android.content.Intent;
 import com.seafile.seadroid2.R;
@@ -64,9 +66,7 @@ public class UploadNotificationProvider extends BaseNotificationProvider {
         dIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
         PendingIntent uPendingIntent = PendingIntent.getActivity(SeadroidApplication.getAppContext(),
-                (int) System.currentTimeMillis(),
-                dIntent,
-                0);
+                (int) System.currentTimeMillis(), dIntent, FLAG_IMMUTABLE);
         mNotifBuilder = CustomNotificationBuilder.getNotificationBuilder(SeadroidApplication.getAppContext(),
                 CustomNotificationBuilder.CHANNEL_ID_UPLOAD)
                 .setSmallIcon(R.drawable.icon)
