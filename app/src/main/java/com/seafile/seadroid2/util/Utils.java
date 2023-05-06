@@ -717,16 +717,13 @@ public class Utils {
     public static ResolveInfo getWeChatIntent(Intent intent) {
         PackageManager pm = SeadroidApplication.getAppContext().getPackageManager();
         List<ResolveInfo> infos = pm.queryIntentActivities(intent, 0);
-
-        ResolveInfo info = null;
-        Iterator<ResolveInfo> iter = infos.iterator();
-        while (iter.hasNext()) {
-            info = iter.next();
+        for (ResolveInfo info : infos) {
             if (info.activityInfo.packageName.equals("com.tencent.mm")) {
-                break;
+                return info;
             }
         }
-        return info;
+
+        return null;
     }
 
 
@@ -917,8 +914,11 @@ public class Utils {
     public static void startCameraSyncJob(Context context) {
         JobScheduler mJobScheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
         JobInfo.Builder builder = new JobInfo.Builder(JOB_ID, new ComponentName(context.getPackageName(), MediaSchedulerService.class.getName()));
-        builder.setMinimumLatency(15 * 60 * 1000);// Set to execute after at least 15 minutes delay
-        builder.setOverrideDeadline(20 * 60 * 1000);// The setting is delayed by 20 minutes,
+        builder.setMinimumLatency(5 * 1000);// Set to execute after at least 15 minutes delay
+        builder.setOverrideDeadline(60 * 60 * 1000);// The setting is delayed by 20 minutes,
+        builder.setRequiresCharging(false);
+        builder.setRequiresDeviceIdle(false);
+        builder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY);
         builder.setPersisted(true);
         mJobScheduler.schedule(builder.build());
     }

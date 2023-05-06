@@ -100,13 +100,8 @@ public class MarkdownActivity extends BaseActivity implements Toolbar.OnMenuItem
 
         // First try to find an activity who can handle markdown edit
         Intent editAsMarkDown = new Intent(Intent.ACTION_EDIT);
-        Uri uri;
-        if (android.os.Build.VERSION.SDK_INT > 23) {
-            uri = FileProvider.getUriForFile(this, getPackageName() , new File(path));
-            editAsMarkDown.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-        } else {
-            uri = Uri.parse(path);
-        }
+        Uri uri = FileProvider.getUriForFile(this, getPackageName(), new File(path));
+        editAsMarkDown.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
 
         String mime = FileMimeUtils.getMimeType(new File(path));
         editAsMarkDown.setDataAndType(uri, mime);

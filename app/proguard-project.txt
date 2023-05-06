@@ -32,9 +32,19 @@
 
 -dontusemixedcaseclassnames
 -dontskipnonpubliclibraryclasses
--verbose
 -dontoptimize
 -dontpreverify
+
+#
+-verbose
+-printmapping proguardMapping.txt
+#输出apk包内所有的class的内部结构
+-dump dump.txt
+#未混淆的类和成员
+-printseeds seeds.txt
+#列出从apk中删除的代码
+-printusage unused.txt
+
 
 -keepattributes *Annotation*
 -keep public class com.google.vending.licensing.ILicensingService
@@ -87,8 +97,7 @@
 
 -keepattributes SourceFile,LineNumberTable,*Annotation*
 
--printmapping map.txt
--printseeds seed.txt
+
 
 -keepnames class *
 

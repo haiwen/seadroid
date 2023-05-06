@@ -7,6 +7,7 @@ import android.database.ContentObserver;
 import android.net.Uri;
 import android.os.IBinder;
 import android.provider.MediaStore;
+import android.util.Log;
 
 import com.seafile.seadroid2.SettingsManager;
 
@@ -102,19 +103,19 @@ public class MediaObserverService extends Service {
         mediaObserver = new MediaObserver();
 
         getApplicationContext().getContentResolver().registerContentObserver(
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI, false, mediaObserver);
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI, true, mediaObserver);
 
-//        getApplicationContext().getContentResolver().registerContentObserver
-//                (MediaStore.Video.Media.EXTERNAL_CONTENT_URI, false, mediaObserver);
+        getApplicationContext().getContentResolver().registerContentObserver
+                (MediaStore.Video.Media.EXTERNAL_CONTENT_URI, true, mediaObserver);
 
-        // Log.i(DEBUG_TAG, "Started watchting for new media content.");
+         Log.i(DEBUG_TAG, "Started watchting for new media content.");
     }
 
     private void unregisterContentObservers() {
         this.getApplicationContext().getContentResolver()
                 .unregisterContentObserver(mediaObserver);
 
-        // Log.i(DEBUG_TAG, "Stopped watchting for new media content.");
+         Log.i(DEBUG_TAG, "Stopped watchting for new media content.");
     }
 
     private class MediaObserver extends ContentObserver {
@@ -131,7 +132,7 @@ public class MediaObserverService extends Service {
         public void onChange(boolean selfChange, Uri changeUri) {
 
             if (cameraManager.isCameraUploadEnabled()) {
-                // Log.d(DEBUG_TAG, "Noticed a change in the media provider, scheduling sync.");
+                 Log.d(DEBUG_TAG, "Noticed a change in the media provider, scheduling sync.");
                 cameraManager.performSync();
             }
         }

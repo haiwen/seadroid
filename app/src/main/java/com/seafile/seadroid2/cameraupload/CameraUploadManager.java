@@ -3,6 +3,7 @@ package com.seafile.seadroid2.cameraupload;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.seafile.seadroid2.BuildConfig;
 import com.seafile.seadroid2.account.Account;
@@ -67,6 +68,7 @@ public class CameraUploadManager {
     public void performFullSync() {
         Bundle b = new Bundle();
         b.putBoolean(ContentResolver.SYNC_EXTRAS_INITIALIZE, true);
+        Log.d(CameraUploadManager.class.getName(),"performFullSync()~");
 
         Account cameraAccount = getCameraAccount();
         if (cameraAccount != null)

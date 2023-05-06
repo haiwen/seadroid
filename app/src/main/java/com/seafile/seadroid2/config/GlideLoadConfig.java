@@ -11,6 +11,10 @@ import com.seafile.seadroid2.ui.WidgetUtils;
 public class GlideLoadConfig {
 
     public static GlideUrl getGlideUrl(String url) {
+        if (SupportAccountManager.getInstance().getCurrentAccount() == null) {
+            return new GlideUrl(url, new LazyHeaders.Builder().build());
+        }
+
         String token = SupportAccountManager.getInstance().getCurrentAccount().token;
 
         GlideUrl glideUrl = new GlideUrl(url, new LazyHeaders.Builder()

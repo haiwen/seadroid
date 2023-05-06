@@ -3,10 +3,16 @@ package com.seafile.seadroid2.cameraupload;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
+import android.util.Log;
+
+import com.blankj.utilcode.util.TimeUtils;
+
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Camera Sync Service.
- *
+ * <p>
  * This service is started and stopped by the Android System.
  */
 public class CameraSyncService extends Service {
@@ -16,6 +22,7 @@ public class CameraSyncService extends Service {
 
     @Override
     public void onCreate() {
+        Log.e(CameraSyncService.class.getName(), "CameraSyncService onCreate");
         synchronized (sSyncAdapterLock) {
             if (sSyncAdapter == null) {
                 sSyncAdapter = new CameraSyncAdapter(getApplicationContext());
@@ -24,8 +31,14 @@ public class CameraSyncService extends Service {
     }
 
     @Override
-    public IBinder onBind(Intent intent) {
-        return sSyncAdapter.getSyncAdapterBinder();
+    public void onDestroy() {
+        Log.e(CameraSyncService.class.getName(), "CameraSyncService onDestroy");
+        super.onDestroy();
     }
 
+    @Override
+    public IBinder onBind(Intent intent) {
+        Log.e(CameraSyncService.class.getName(), "CameraSyncService onBind");
+        return sSyncAdapter.getSyncAdapterBinder();
+    }
 }

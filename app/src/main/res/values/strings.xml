@@ -195,6 +195,7 @@
     <string name="no_download_tasks">No download tasks yet</string>
     <string name="seahub_url_hint">Note: Server address should contain the port. For example, www.example.com:8000</string>
     <string name="copy_link">Copy link</string>
+    <string name="share_link_no_permission">You do not have permission to perform this action.</string>
     <string name="share_file_link">Share a link to this file</string>
     <string name="share_dir_link">Share a link to this folder</string>
     <string name="share_input_password">input share password</string>

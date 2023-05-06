@@ -17,9 +17,10 @@ import com.seafile.seadroid2.ui.activity.BaseActivity;
 import com.seafile.seadroid2.ui.activity.SeafilePathChooserActivity;
 import com.seafile.seadroid2.ui.fragment.SettingsFragment;
 import com.seafile.seadroid2.util.SystemSwitchUtils;
-import com.viewpagerindicator.LinePageIndicator;
 
 import java.util.List;
+
+import me.relex.circleindicator.CircleIndicator;
 
 
 /**
@@ -29,7 +30,8 @@ public class CameraUploadConfigActivity extends BaseActivity {
     public  String DEBUG_TAG = "CameraUploadConfigActivity";
 
     private ViewPager mViewPager;
-    private LinePageIndicator mIndicator;
+
+    private CircleIndicator magicIndicator;
     private BucketsFragment mBucketsFragment;
     private CloudLibraryFragment mCloudLibFragment;
     private WhatToUploadFragment whatToUploadFragment;
@@ -63,15 +65,15 @@ public class CameraUploadConfigActivity extends BaseActivity {
         FragmentManager fm = getSupportFragmentManager();
         mViewPager.setAdapter(new CameraUploadConfigAdapter(fm));
         mViewPager.setOffscreenPageLimit(6);
+        mViewPager.addOnPageChangeListener(pageChangeListener);
 
-        mIndicator = (LinePageIndicator) findViewById(R.id.cuc_indicator);
-        mIndicator.setViewPager(mViewPager);
-        mIndicator.setOnPageChangeListener(pageChangeListener);
+        magicIndicator = findViewById(R.id.cuc_indicator);
+        magicIndicator.setViewPager(mViewPager);
 
         sm = SettingsManager.instance();
 
         if (isChooseLibPage || isChooseDirPage) {
-            mIndicator.setVisibility(View.GONE);
+            magicIndicator.setVisibility(View.GONE);
         }
     }
 
@@ -132,7 +134,7 @@ public class CameraUploadConfigActivity extends BaseActivity {
         } else {
             // navigate to previous page when press back button
             mCurrentPosition -= 1;
-            mIndicator.setCurrentItem(mCurrentPosition);
+            mViewPager.setCurrentItem(mCurrentPosition);
         }
     }
 

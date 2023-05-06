@@ -2,9 +2,11 @@
 
 buildscript {
     repositories {
-        jcenter()
         google()
         mavenCentral()
+        maven { url 'https://jitpack.io' }
+        maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+        maven { url "https://maven.aliyun.com/repository/public" }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:7.1.2'
@@ -17,9 +19,10 @@ buildscript {
 allprojects {
     repositories {
         google() // https://stackoverflow.com/a/50563942/5923915
-        jcenter()
         mavenCentral()
         maven { url 'https://jitpack.io' }
+        maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+        maven { url "https://maven.aliyun.com/repository/public" }
     }
 }
 
@@ -27,6 +30,6 @@ ext {
     compileSdkVersion = 29
     supportLibVersion = '27.1.1'  // variable that can be referenced to keep support libs consistent
     minSdkVersion = 26
-    targetSdkVersion = 30
+    targetSdkVersion = 31
     buildToolsVersion = '27.0.3'
 }

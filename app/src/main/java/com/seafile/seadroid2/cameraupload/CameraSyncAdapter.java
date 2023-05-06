@@ -1,5 +1,7 @@
 package com.seafile.seadroid2.cameraupload;
 
+import static android.app.PendingIntent.FLAG_IMMUTABLE;
+
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.AbstractThreadedSyncAdapter;
@@ -131,15 +133,6 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
         getContext().bindService(bIntent, mConnection, Context.BIND_AUTO_CREATE);
     }
 
-    @Override
-    public void onSyncCanceled() {
-        super.onSyncCanceled();
-        // Log.d(DEBUG_TAG, "onPerformSync will be cancelled ");
-        synchronized (this) {
-            cancelled = true;
-        }
-    }
-
     private boolean isCancelled() {
         synchronized (this) {
             return cancelled;
@@ -196,8 +189,8 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
      * Create a directory, rename a file away if necessary,
      *
      * @param dataManager
-     * @param parent parent dir
-     * @param dir directory to create
+     * @param parent      parent dir
+     * @param dir         directory to create
      * @throws SeafException
      */
     private void forceCreateDirectory(DataManager dataManager, String parent, String dir) throws SeafException {
@@ -205,7 +198,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
         List<SeafDirent> dirs = dataManager.getDirentsFromServer(targetRepoId, parent);
         boolean found = false;
         for (SeafDirent dirent : dirs) {
-           if (dirent.name.equals(dir) && dirent.isDir()) {
+            if (dirent.name.equals(dir) && dirent.isDir()) {
                 found = true;
             } else if (dirent.name.equals(dir) && !dirent.isDir()) {
                 // there is already a file. move it away.
@@ -221,10 +214,38 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
     }
 
     @Override
+    public void onSecurityException(android.accounts.Account account, Bundle extras, String authority, SyncResult syncResult) {
+        super.onSecurityException(account, extras, authority, syncResult);
+        Log.e(DEBUG_TAG, syncResult.toString());
+    }
+
+    @Override
+    public boolean onUnsyncableAccount() {
+        Log.e(DEBUG_TAG, "onUnsyncableAccount");
+        return super.onUnsyncableAccount();
+    }
+
+    @Override
+    public void onSyncCanceled(Thread thread) {
+        super.onSyncCanceled(thread);
+        Log.e(DEBUG_TAG, "onSyncCanceled ->" + thread.getName());
+    }
+
+    @Override
+    public void onSyncCanceled() {
+        super.onSyncCanceled();
+        Log.e(DEBUG_TAG, "onSyncCanceled");
+        synchronized (this) {
+            cancelled = true;
+        }
+    }
+
+    @Override
     public void onPerformSync(android.accounts.Account account,
                               Bundle extras, String authority,
                               ContentProviderClient provider,
                               SyncResult syncResult) {
+        Log.e(DEBUG_TAG, "onPerformSync!!!!!!!!!!");
 
         synchronized (this) {
             cancelled = false;
@@ -239,7 +260,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
 
         Log.d(DEBUG_TAG, "Media buckets available on this system: ");*/
 //        for (GalleryBucketUtils.Bucket bucket: GalleryBucketUtils.getMediaBuckets(getContext())) {
-            // Log.d(DEBUG_TAG, "Bucket id="+bucket.id+" name="+bucket.name);
+        // Log.d(DEBUG_TAG, "Bucket id="+bucket.id+" name="+bucket.name);
 //        }
 
         // resync all media
@@ -265,7 +286,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
          * account signs out.
          */
         if (!seafileAccount.hasValidToken()) {
-            // Log.d(DEBUG_TAG, "This account has no auth token. Disable camera upload.");
+            Log.d(DEBUG_TAG, "This account has no auth token. Disable camera upload.");
             syncResult.stats.numAuthExceptions++;
 
             // we're logged out on this account. disable camera upload.
@@ -407,7 +428,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
         try {
             if (cursor == null) {
                 Log.e(DEBUG_TAG, "ContentResolver query failed!");
-                Utils.utilsLogInfo(true,"===ContentResolver query failed!");
+                Utils.utilsLogInfo(true, "===ContentResolver query failed!");
                 return;
             }
             // Log.d(DEBUG_TAG, "i see " + cursor.getCount() + " new images.");
@@ -428,7 +449,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
     }
 
     private void uploadVideos(SyncResult syncResult, DataManager dataManager) throws SeafException, InterruptedException {
-        Utils.utilsLogInfo(true,"Starting to upload videos...");
+        Utils.utilsLogInfo(true, "Starting to upload videos...");
         // Log.d(DEBUG_TAG, "Starting to upload videos...");
 
         if (isCancelled())
@@ -466,11 +487,11 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
         try {
             if (cursor == null) {
                 Log.e(DEBUG_TAG, "ContentResolver query failed!");
-                Utils.utilsLogInfo(true,"====ContentResolver query failed!");
+                Utils.utilsLogInfo(true, "====ContentResolver query failed!");
                 return;
             }
             // Log.d(DEBUG_TAG, "i see " + cursor.getCount() + " new videos.");
-            Utils.utilsLogInfo(true,"=====i see " + cursor.getCount() + " videos.");
+            Utils.utilsLogInfo(true, "=====i see " + cursor.getCount() + " videos.");
             if (cursor.getCount() > 0) {
                 // create directories for media buckets
                 createDirectories(dataManager);
@@ -561,21 +582,22 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
 
             uploadFile(dataManager, file, bucketName);
         }
-        Utils.utilsLogInfo(true,"=======waitForUploads===");
+        Utils.utilsLogInfo(true, "=======waitForUploads===");
         waitForUploads();
         checkUploadResult(syncResult);
     }
 
     private void waitForUploads() throws InterruptedException {
         // Log.d(DEBUG_TAG, "wait for transfer service to finish our tasks");
-        WAITLOOP: while (!isCancelled()) {
+        WAITLOOP:
+        while (!isCancelled()) {
             Thread.sleep(100); // wait
 
-            for (int id: tasksInProgress) {
+            for (int id : tasksInProgress) {
                 UploadTaskInfo info = txService.getUploadTaskInfo(id);
                 if (info.state == TaskState.INIT || info.state == TaskState.TRANSFERRING) {
                     // there is still at least one task pending
-                    continue  WAITLOOP;
+                    continue WAITLOOP;
                 }
             }
             break;
@@ -589,7 +611,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
      * @throws SeafException
      */
     private void checkUploadResult(SyncResult syncResult) throws SeafException {
-        for (int id: tasksInProgress) {
+        for (int id : tasksInProgress) {
             UploadTaskInfo info = txService.getUploadTaskInfo(id);
             if (info.err != null) {
                 throw info.err;
@@ -615,11 +637,11 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
     private void uploadFile(DataManager dataManager, File file, String bucketName) throws SeafException {
 
         String serverPath = Utils.pathJoin(BASE_DIR, bucketName);
-        Utils.utilsLogInfo(true,"=======uploadFile===");
+        Utils.utilsLogInfo(true, "=======uploadFile===");
         List<SeafDirent> list = dataManager.getCachedDirents(targetRepoId, serverPath);
         if (list == null) {
             Log.e(DEBUG_TAG, "Seadroid dirent cache is empty in uploadFile. Should not happen, aborting.");
-            Utils.utilsLogInfo(true,"=======Seadroid dirent cache is empty in uploadFile. Should not happen, aborting.");
+            Utils.utilsLogInfo(true, "=======Seadroid dirent cache is empty in uploadFile. Should not happen, aborting.");
             // the dirents were supposed to be refreshed in createDirectories()
             // something changed, abort.
             throw SeafException.unknownException;
@@ -638,14 +660,14 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
         for (SeafDirent dirent : list) {
             if (pattern.matcher(dirent.name).matches() && dirent.size == file.length()) {
                 // Log.d(DEBUG_TAG, "File " + file.getName() + " in bucket " + bucketName + " already exists on the server. Skipping.");
-                Utils.utilsLogInfo(true,"====File " + file.getName() + " in bucket " + bucketName + " already exists on the server. Skipping.");
+                Utils.utilsLogInfo(true, "====File " + file.getName() + " in bucket " + bucketName + " already exists on the server. Skipping.");
                 dbHelper.markAsUploaded(file);
                 return;
             }
         }
 
         // Log.d(DEBUG_TAG, "uploading file " + file.getName() + " to " + serverPath);
-        Utils.utilsLogInfo(true,"====uploading file " + file.getName() + " to " + serverPath);
+        Utils.utilsLogInfo(true, "====uploading file " + file.getName() + " to " + serverPath);
         int taskID = txService.addCameraUploadTask(dataManager.getAccount(), targetRepoId, targetRepoName,
                 serverPath, file.getAbsolutePath(), false, false);
         tasksInProgress.add(taskID);
@@ -702,13 +724,10 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
         resultIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
         PendingIntent dPendingIntent = PendingIntent.getActivity(getContext(),
-                (int) System.currentTimeMillis(),
-                resultIntent,
-                0);
+                (int) System.currentTimeMillis(), resultIntent, FLAG_IMMUTABLE);
 
         mBuilder.setContentIntent(dPendingIntent);
-        NotificationManager mNotificationManager =
-                (NotificationManager) getContext().getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationManager mNotificationManager = (NotificationManager) getContext().getSystemService(Context.NOTIFICATION_SERVICE);
 
         mNotificationManager.notify(0, mBuilder.build());
     }
