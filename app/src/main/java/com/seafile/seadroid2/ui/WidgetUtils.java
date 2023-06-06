@@ -1,11 +1,24 @@
 package com.seafile.seadroid2.ui;
 
+import static android.app.PendingIntent.FLAG_IMMUTABLE;
+import static android.content.Context.NOTIFICATION_SERVICE;
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+
 import android.app.Activity;
+import android.app.DownloadManager;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
+import android.os.Build;
+import android.os.Environment;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.FileProvider;
 import android.text.ClipboardManager;
 import android.webkit.MimeTypeMap;
@@ -23,16 +36,21 @@ import com.seafile.seadroid2.ui.dialog.AppChoiceDialog;
 import com.seafile.seadroid2.ui.dialog.GetShareLinkDialog;
 import com.seafile.seadroid2.ui.dialog.GetShareLinkEncryptDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog;
+import com.seafile.seadroid2.util.FileExports;
 import com.seafile.seadroid2.util.Utils;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.security.SecureRandom;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Activity Utils
  */
 public class WidgetUtils {
+    public static final String MIME_ANDROID = "application/vnd.android.package-archive";
 
     public static void chooseShareApp(final BaseActivity activity,
                                       final String repoID,
@@ -226,17 +244,23 @@ public class WidgetUtils {
         } else if (mime == null) {
             mime = "*/*"; // forces app chooser dialog on unknown type//
         }
-        Intent open = new Intent(Intent.ACTION_VIEW);
-        open.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
-        if (android.os.Build.VERSION.SDK_INT > 23) {
+        if (MIME_ANDROID.equals(mime)) {
+//            showFileForAndroid(activity,file,name);
+            return;
+        }
+
+        Intent open = new Intent(Intent.ACTION_VIEW);
+        open.addFlags(FLAG_ACTIVITY_NEW_TASK);
+
+        if (Build.VERSION.SDK_INT > 23) {
             Uri photoURI = FileProvider.getUriForFile(activity, activity.getApplicationContext().getPackageName(), file);
             open.setDataAndType(photoURI, mime);
             open.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
         } else {
             open.setDataAndType((Uri.fromFile(file)), mime);
         }
-        if (android.os.Build.VERSION.SDK_INT < 30) {
+        if (Build.VERSION.SDK_INT < 30) {
             if (activity.getPackageManager().resolveActivity(open, 0) == null) {
                 String message = String.format(activity.getString(R.string.op_exception_suitable_app_not_found), mime);
                 activity.showShortToast(activity, message);
@@ -250,6 +274,39 @@ public class WidgetUtils {
         } catch (ActivityNotFoundException e) {
             e.printStackTrace();
         }
+    }
+
+    private static void showFileForAndroid(final BaseActivity activity, File file, String fileName) {
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                ContentResolver contentResolver = activity.getContentResolver();
+                FileExports.exportFileAndroid10AndAbove(fileName, MIME_ANDROID, contentResolver, file);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        int nId = new Random(10000).nextInt();
+        String channelName = "seadroid-downloader";
+
+        NotificationManager manager = (NotificationManager) activity.getSystemService(NOTIFICATION_SERVICE);
+        NotificationChannel channel = new NotificationChannel(channelName, channelName, NotificationManager.IMPORTANCE_HIGH);
+        manager.createNotificationChannel(channel);
+
+
+        Intent intent = new Intent(DownloadManager.ACTION_VIEW_DOWNLOADS);
+        intent.addFlags(FLAG_ACTIVITY_NEW_TASK);
+
+        PendingIntent pendingIntent = PendingIntent.getActivity(activity, nId, intent, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+
+        Notification notification = new NotificationCompat.Builder(activity, channelName)
+                .setContentTitle(fileName + " " + activity.getString(R.string.download_finished))
+                .setContentText(activity.getString(R.string.open))
+                .setSmallIcon(R.drawable.icon)
+                .setContentIntent(pendingIntent)
+                .setAutoCancel(true)
+                .build();
+        manager.notify(nId, notification);
     }
 
     public static void showRepo(Context context, String repoID, String repoName, String path, String dirID) {
