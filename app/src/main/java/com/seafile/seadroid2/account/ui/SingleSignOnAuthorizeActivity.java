@@ -32,6 +32,7 @@ import com.seafile.seadroid2.ssl.CertsManager;
 import com.seafile.seadroid2.ui.activity.BaseActivity;
 import com.seafile.seadroid2.ui.dialog.SslConfirmDialog;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
+import com.seafile.seadroid2.util.DeviceIdManager;
 import com.seafile.seadroid2.util.Utils;
 
 import org.json.JSONException;
@@ -89,8 +90,6 @@ public class SingleSignOnAuthorizeActivity extends BaseActivity implements Toolb
             return;
         }
 
-        String deviceId = Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID);
-
         String appVersion = "";
         Context context = SeadroidApplication.getAppContext();
         try {
@@ -105,17 +104,19 @@ public class SingleSignOnAuthorizeActivity extends BaseActivity implements Toolb
         } else
             url += "shib-login";
 
+        //local device id
+        String deviceId = DeviceIdManager.getInstance().getOrSet();
+
         try {
             url += String.format("?shib_platform_version=%s&shib_device_name=%s&shib_platform=%s&shib_device_id=%s&shib_client_version=%s",
                     URLEncoder.encode(Build.VERSION.RELEASE, "UTF-8"),
                     URLEncoder.encode(Build.MODEL, "UTF-8"),
                     "android",
-                    URLEncoder.encode(deviceId, "UTF-8"),
+                    deviceId,
                     appVersion);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-
 
         Log.d(DEBUG_TAG, "url " + url);
 
