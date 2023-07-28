@@ -157,62 +157,6 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
         return false;
     }
 
-    /**
-     * Create all the subdirectories on the server for the buckets that are about to be uploaded.
-     *
-     * @param dataManager
-     * @throws SeafException
-     */
-    private void createDirectories(DataManager dataManager) throws SeafException {
-        List<GalleryBucketUtils.Bucket> buckets = GalleryBucketUtils.getMediaBuckets(getContext());
-
-        // create base directory
-        forceCreateDirectory(dataManager, "/", BASE_DIR);
-        for (GalleryBucketUtils.Bucket bucket : buckets) {
-
-            // the user has selected specific buckets: only create directories for these
-            if (!bucketList.isEmpty() && !bucketList.contains(bucket.id)) {
-                continue;
-            }
-
-            // auto-guessing is on: create directories for camera buckets
-            if (bucketList.isEmpty() && !bucket.isCameraBucket)
-                continue;
-
-            forceCreateDirectory(dataManager, BASE_DIR, bucket.name);
-            // update our cache for that server. we will use it later
-            dataManager.getDirentsFromServer(targetRepoId, Utils.pathJoin(BASE_DIR, bucket.name));
-        }
-    }
-
-    /**
-     * Create a directory, rename a file away if necessary,
-     *
-     * @param dataManager
-     * @param parent      parent dir
-     * @param dir         directory to create
-     * @throws SeafException
-     */
-    private void forceCreateDirectory(DataManager dataManager, String parent, String dir) throws SeafException {
-
-        List<SeafDirent> dirs = dataManager.getDirentsFromServer(targetRepoId, parent);
-        boolean found = false;
-        for (SeafDirent dirent : dirs) {
-            if (dirent.name.equals(dir) && dirent.isDir()) {
-                found = true;
-            } else if (dirent.name.equals(dir) && !dirent.isDir()) {
-                // there is already a file. move it away.
-                String newFilename = getContext().getString(R.string.camera_sync_rename_file, dirent.name);
-                dataManager.rename(targetRepoId,
-                        Utils.pathJoin(Utils.pathJoin("/", parent), dirent.name),
-                        newFilename,
-                        false);
-            }
-        }
-        if (!found)
-            dataManager.createNewDir(targetRepoId, Utils.pathJoin("/", parent), dir);
-    }
-
     @Override
     public void onSecurityException(android.accounts.Account account, Bundle extras, String authority, SyncResult syncResult) {
         super.onSecurityException(account, extras, authority, syncResult);
@@ -245,7 +189,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
                               Bundle extras, String authority,
                               ContentProviderClient provider,
                               SyncResult syncResult) {
-        Log.e(DEBUG_TAG, "onPerformSync!!!!!!!!!!");
+        Log.e(DEBUG_TAG, "onPerformSync");
 
         synchronized (this) {
             cancelled = false;
@@ -402,8 +346,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
         } else {
             List<GalleryBucketUtils.Bucket> allBuckets = GalleryBucketUtils.getMediaBuckets(SeadroidApplication.getAppContext());
             for (GalleryBucketUtils.Bucket bucket : allBuckets) {
-                if (bucket.isCameraBucket)
-                    selectedBuckets.add(bucket.id);
+                selectedBuckets.add(bucket.id);
             }
         }
 
@@ -461,9 +404,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
         } else {
             List<GalleryBucketUtils.Bucket> allBuckets = GalleryBucketUtils.getMediaBuckets(SeadroidApplication.getAppContext());
             for (GalleryBucketUtils.Bucket bucket : allBuckets) {
-                if (bucket.isCameraBucket)
-                    selectedBuckets.add(bucket.id);
-
+                selectedBuckets.add(bucket.id);
             }
         }
 
@@ -512,6 +453,63 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
         String[] chars = new String[count];
         Arrays.fill(chars, "?");
         return "( " + Joiner.on(", ").join(chars) + " )";
+    }
+
+
+    /**
+     * Create all the subdirectories on the server for the buckets that are about to be uploaded.
+     *
+     * @param dataManager
+     * @throws SeafException
+     */
+    private void createDirectories(DataManager dataManager) throws SeafException {
+        List<GalleryBucketUtils.Bucket> buckets = GalleryBucketUtils.getMediaBuckets(getContext());
+
+        // create base directory
+        forceCreateDirectory(dataManager, "/", BASE_DIR);
+        for (GalleryBucketUtils.Bucket bucket : buckets) {
+
+            // the user has selected specific buckets: only create directories for these
+            if (!bucketList.isEmpty() && !bucketList.contains(bucket.id)) {
+                continue;
+            }
+
+//            // auto-guessing is on: create directories for camera buckets
+//            if (bucketList.isEmpty() && !bucket.isCameraBucket)
+//                continue;
+
+            forceCreateDirectory(dataManager, BASE_DIR, bucket.name);
+            // update our cache for that server. we will use it later
+            dataManager.getDirentsFromServer(targetRepoId, Utils.pathJoin(BASE_DIR, bucket.name));
+        }
+    }
+
+    /**
+     * Create a directory, rename a file away if necessary,
+     *
+     * @param dataManager
+     * @param parent      parent dir
+     * @param dir         directory to create
+     * @throws SeafException
+     */
+    private void forceCreateDirectory(DataManager dataManager, String parent, String dir) throws SeafException {
+
+        List<SeafDirent> dirs = dataManager.getDirentsFromServer(targetRepoId, parent);
+        boolean found = false;
+        for (SeafDirent dirent : dirs) {
+            if (dirent.name.equals(dir) && dirent.isDir()) {
+                found = true;
+            } else if (dirent.name.equals(dir) && !dirent.isDir()) {
+                // there is already a file. move it away.
+                String newFilename = getContext().getString(R.string.camera_sync_rename_file, dirent.name);
+                dataManager.rename(targetRepoId,
+                        Utils.pathJoin(Utils.pathJoin("/", parent), dirent.name),
+                        newFilename,
+                        false);
+            }
+        }
+        if (!found)
+            dataManager.createNewDir(targetRepoId, Utils.pathJoin("/", parent), dir);
     }
 
     /**

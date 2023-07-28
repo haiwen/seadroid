@@ -4,6 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 
 import org.json.JSONException;
@@ -110,7 +111,7 @@ public class ServerInfo implements Parcelable{
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
+        return MoreObjects.toStringHelper(this)
                 .add("url", url)
                 .add("version", version)
                 .add("features", features)

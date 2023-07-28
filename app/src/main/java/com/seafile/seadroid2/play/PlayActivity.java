@@ -30,8 +30,6 @@ import java.io.File;
  * @Version: [v1.0]
  */
 public class PlayActivity extends BaseActivity implements VideoLinkStateListener {
-
-
     private SampleVideo videoPlayer;
 
     private Account mAccount;

@@ -1,5 +1,6 @@
 package com.seafile.seadroid2;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import com.seafile.seadroid2.transfer.UploadTask;
 
@@ -38,7 +39,7 @@ public class SeafException extends Exception {
     }
 
     public String toString() {
-        return Objects.toStringHelper(this)
+        return MoreObjects.toStringHelper(this)
             .add("code", code)
             .add("msg", getMessage())
             .toString();
