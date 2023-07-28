@@ -4,6 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import com.seafile.seadroid2.BuildConfig;
 import com.seafile.seadroid2.util.Utils;
@@ -172,7 +173,7 @@ public class Account implements Parcelable, Comparable<Account> {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
+        return MoreObjects.toStringHelper(this)
                 .add("server", server)
                 .add("user", email)
                 .add("name", name)

@@ -99,7 +99,7 @@ public class BucketsFragment extends Fragment {
                 GalleryBucketUtils.Bucket b = buckets.get(i);
                 if (b.image_id > 0) {
                     thumbnails[i] = MediaStore.Images.Thumbnails.getThumbnail(
-                            getActivity().getApplicationContext().getContentResolver(), b.image_id,
+                            requireContext().getContentResolver(), b.image_id,
                             MediaStore.Images.Thumbnails.MINI_KIND, null);
                 }
                 if (currentBucketList.size() > 0)
@@ -138,7 +138,7 @@ public class BucketsFragment extends Fragment {
     /**
      * RadioButton selection listener.
      */
-    private OnCheckedChangeListener onCheckedChangeListener = new OnCheckedChangeListener() {
+    private final OnCheckedChangeListener onCheckedChangeListener = new OnCheckedChangeListener() {
 
         @Override
         public void onCheckedChanged(RadioGroup radioGroup, int radioButtonId) {
@@ -161,7 +161,7 @@ public class BucketsFragment extends Fragment {
         return mRadioGroup.getCheckedRadioButtonId() == R.id.cuc_local_directory_auto_scan_rb;
     }
 
-    private View.OnClickListener onClickListener = new View.OnClickListener() {
+    private final View.OnClickListener onClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             mActivity.saveSettings();
@@ -172,7 +172,7 @@ public class BucketsFragment extends Fragment {
     /**
      * Slide out animation listener.
      */
-    private AnimationListener slideOutListener = new AnimationListener() {
+    private final AnimationListener slideOutListener = new AnimationListener() {
 
         @Override
         public void onAnimationEnd(Animation arg0) {
@@ -192,7 +192,7 @@ public class BucketsFragment extends Fragment {
     /**
      * Slide in animation listener.
      */
-    private AnimationListener slideInListener = new AnimationListener() {
+    private final AnimationListener slideInListener = new AnimationListener() {
 
         @Override
         public void onAnimationEnd(Animation arg0) {

@@ -20,7 +20,6 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -37,7 +36,7 @@ import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.data.SearchedFile;
 import com.seafile.seadroid2.listener.OnItemClickListener;
-import com.seafile.seadroid2.play.PlayActivity;
+import com.seafile.seadroid2.play.exoplayer.ExoVideoPlayerActivity;
 import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.activity.BaseActivity;
@@ -438,7 +437,7 @@ public class Search2Activity extends BaseActivity implements View.OnClickListene
     }
 
     private void startPlayActivity(String fileName, String repoID, String filePath) {
-        Intent intent = new Intent(this, PlayActivity.class);
+        Intent intent = new Intent(this, ExoVideoPlayerActivity.class);
         intent.putExtra("fileName", fileName);
         intent.putExtra("repoID", repoID);
         intent.putExtra("filePath", filePath);

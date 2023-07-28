@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 
+import com.blankj.utilcode.util.NetworkUtils;
 import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.gesturelock.LockPatternUtils;
@@ -235,7 +236,7 @@ public final class SettingsManager {
     }
 
     public boolean checkCameraUploadNetworkAvailable() {
-        if (!Utils.isNetworkOn()) {
+        if (!NetworkUtils.isConnected()) {
             return false;
         }
         // user does not allow mobile connections

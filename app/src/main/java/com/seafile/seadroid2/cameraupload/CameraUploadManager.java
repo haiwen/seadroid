@@ -75,6 +75,13 @@ public class CameraUploadManager {
             ContentResolver.requestSync(cameraAccount.getAndroidAccount(), AUTHORITY, b);
     }
 
+    public void performFullSyncIfEnable() {
+        if (!isCameraUploadEnabled()){
+            return;
+        }
+        performFullSync();
+    }
+
     /**
      * Change the account currently responsible for camera upload.
      *

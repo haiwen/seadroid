@@ -209,7 +209,7 @@ public class FolderBackupService extends Service {
                 } else {
 
                     int taskID = txService.addTaskToSourceQue(Utils.TRANSFER_FOLDER_TAG, currentAccount, repoConfig.getRepoID(),
-                            repoConfig.getRepoName(), parentPath, fb.getFilePath(), false, true);
+                            repoConfig.getRepoName(), parentPath, fb.getFilePath(), false, false);
                     if (taskID != 0) {
                         FolderBackupInfo dirInfo = new FolderBackupInfo(repoConfig.getRepoID(), repoConfig.getRepoName(),
                                 parentPath, fb.getFileName(), fb.getFilePath(), fb.getSimpleSize() + "");

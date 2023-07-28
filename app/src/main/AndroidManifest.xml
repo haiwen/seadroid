@@ -152,6 +152,7 @@
             android:theme="@style/AppTheme.Editor" />
         <activity android:name=".ui.activity.search.Search2Activity" />
         <activity android:name=".folderbackup.FolderBackupSelectedPathActivity" />
+        <activity android:name=".play.exoplayer.ExoVideoPlayerActivity" />
 
         <provider
             android:name="com.seafile.seadroid2.provider.SeafileProvider"

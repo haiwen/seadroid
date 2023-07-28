@@ -19,7 +19,10 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.blankj.utilcode.util.AppUtils;
 import com.blankj.utilcode.util.CollectionUtils;
+import com.blankj.utilcode.util.DeviceUtils;
+import com.blankj.utilcode.util.PhoneUtils;
 import com.bumptech.glide.Glide;
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
@@ -100,7 +103,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
     private Preference clientEncPref;
 
     private SettingsActivity mActivity;
-    private String appVersion;
+
     public SettingsManager settingsMgr;
     private CameraUploadManager cameraManager;
     //    public ContactsUploadManager contactsManager;
@@ -359,9 +362,32 @@ public class SettingsFragment extends CustomPreferenceFragment {
                         cUploadCategory.removePreference(cUploadAdvancedScreen);
                         cameraManager.disableCameraUpload();
                     } else {
-                        Intent intent = new Intent(mActivity, CameraUploadConfigActivity.class);
-                        intent.putExtra(CAMERA_UPLOAD_BOTH_PAGES, true);
-                        startActivityForResult(intent, CHOOSE_CAMERA_UPLOAD_REQUEST);
+//                        Intent intent = new Intent(mActivity, CameraUploadConfigActivity.class);
+//                        intent.putExtra(CAMERA_UPLOAD_BOTH_PAGES, true);
+//                        startActivityForResult(intent, CHOOSE_CAMERA_UPLOAD_REQUEST);
+                        XXPermissions.with(getActivity()).permission(Permission.MANAGE_EXTERNAL_STORAGE).request(new OnPermissionCallback() {
+
+                            @Override
+                            public void onGranted(List<String> permissions, boolean all) {
+                                if (all) {
+                                    Intent intent = new Intent(mActivity, CameraUploadConfigActivity.class);
+                                    intent.putExtra(CAMERA_UPLOAD_BOTH_PAGES, true);
+                                    startActivityForResult(intent, CHOOSE_CAMERA_UPLOAD_REQUEST);
+                                }
+                            }
+
+                            @Override
+                            public void onDenied(List<String> permissions, boolean never) {
+                                if (never) {
+                                    Toast.makeText(getActivity(), mActivity.getString(R.string.authorization_storage_permission), Toast.LENGTH_LONG).show();
+                                    XXPermissions.startPermissionActivity(getActivity(), permissions);
+                                } else {
+                                    Toast.makeText(getActivity(), mActivity.getString(R.string.get_storage_permission_failed), Toast.LENGTH_LONG).show();
+                                    ((CheckBoxPreference) findPreference(SettingsManager.FOLDER_BACKUP_SWITCH_KEY)).setChecked(false);
+                                }
+                            }
+                        });
+
                     }
                     return true;
                 }
@@ -431,6 +457,14 @@ public class SettingsFragment extends CustomPreferenceFragment {
             cBackupRepoState.setSummary(Utils.getUploadStateShow(getActivity()));
         }
 
+//        cBackupRepoState.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+//            @Override
+//            public boolean onPreferenceClick(Preference preference) {
+//                cameraManager.performFullSyncIfEnable();
+//                return true;
+//            }
+//        });
+
         // Contacts Upload
 //        cContactsCategory = (PreferenceCategory) findPreference(SettingsManager.CONTACTS_UPLOAD_CATEGORY_KEY);
 //        findPreference(SettingsManager.CONTACTS_UPLOAD_SWITCH_KEY).setOnPreferenceChangeListener(new Preference
@@ -488,6 +522,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
 //                return false;
 //            }
 //        });
+
         // change local folder CheckBoxPreference
         cCustomDirectoriesPref = (CheckBoxPreference) findPreference(SettingsManager.CAMERA_UPLOAD_CUSTOM_BUCKETS_KEY);
         cCustomDirectoriesPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
@@ -526,12 +561,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
 //        refreshContactsView();
 
         // App Version
-        try {
-            appVersion = mActivity.getPackageManager().getPackageInfo(mActivity.getPackageName(), 0).versionName;
-        } catch (NameNotFoundException e) {
-            Log.e(DEBUG_TAG, "app version name not found exception");
-            appVersion = getString(R.string.not_available);
-        }
+        String appVersion = AppUtils.getAppVersionName();
         findPreference(SettingsManager.SETTINGS_ABOUT_VERSION_KEY).setSummary(appVersion);
 
         // About author

@@ -1,11 +1,8 @@
 package com.seafile.seadroid2.ui.activity;
 
-import static com.seafile.seadroid2.cameraupload.CameraUploadManager.AUTHORITY;
-
 import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -50,7 +47,6 @@ import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
-import com.seafile.seadroid2.cameraupload.CameraSyncService;
 import com.seafile.seadroid2.cameraupload.CameraUploadManager;
 import com.seafile.seadroid2.cameraupload.MediaObserverService;
 import com.seafile.seadroid2.data.CheckUploadServiceEvent;
@@ -67,7 +63,7 @@ import com.seafile.seadroid2.folderbackup.FolderBackupService.FileBackupBinder;
 import com.seafile.seadroid2.monitor.FileMonitorService;
 import com.seafile.seadroid2.notification.DownloadNotificationProvider;
 import com.seafile.seadroid2.notification.UploadNotificationProvider;
-import com.seafile.seadroid2.play.PlayActivity;
+import com.seafile.seadroid2.play.exoplayer.ExoVideoPlayerActivity;
 import com.seafile.seadroid2.transfer.DownloadTaskInfo;
 import com.seafile.seadroid2.transfer.DownloadTaskManager;
 import com.seafile.seadroid2.transfer.PendingUploadInfo;
@@ -1773,7 +1769,7 @@ public class BrowserActivity extends BaseActivity implements ReposFragment.OnFil
     }
 
     private void startPlayActivity(String fileName, String repoID, String filePath) {
-        Intent intent = new Intent(this, PlayActivity.class);
+        Intent intent = new Intent(this, ExoVideoPlayerActivity.class);
         intent.putExtra("fileName", fileName);
         intent.putExtra("repoID", repoID);
         intent.putExtra("filePath", filePath);
