@@ -20,14 +20,14 @@ https://github.com/android/platform_frameworks_base/blob/master/core/res/res/lay
 -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:id="@+id/parentPanel"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:layout_marginEnd="8dip"
-              android:layout_marginStart="8dip"
-              android:orientation="vertical">
+    android:id="@+id/parentPanel"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="8dip"
+    android:layout_marginEnd="8dip"
+    android:orientation="vertical">
 
-    <android.support.v4.widget.NestedScrollView
+    <androidx.core.widget.NestedScrollView
         android:id="@+id/contentPanel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -38,16 +38,16 @@ https://github.com/android/platform_frameworks_base/blob/master/core/res/res/lay
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="15dp"
-            android:layout_marginLeft="10dp"
             android:layout_marginStart="10dp"
-            android:paddingBottom="8dip"
-            android:paddingEnd="16dip"
+            android:layout_marginLeft="10dp"
+            android:layout_marginBottom="15dp"
             android:paddingStart="16dip"
             android:paddingTop="8dip"
+            android:paddingEnd="16dip"
+            android:paddingBottom="8dip"
             android:textSize="@dimen/dialog_msg_txt_size"
-            android:visibility="gone"/>
-    </android.support.v4.widget.NestedScrollView>
+            android:visibility="gone" />
+    </androidx.core.widget.NestedScrollView>
 
     <FrameLayout
         android:id="@+id/customPanel"
@@ -72,7 +72,7 @@ https://github.com/android/platform_frameworks_base/blob/master/core/res/res/lay
                 android:layout_width="wrap_content"
                 android:layout_height="@dimen/dialog_msg_progressbar_height"
                 android:gravity="center_horizontal"
-                android:visibility="gone"/>
+                android:visibility="gone" />
 
             <ProgressBar
                 android:id="@+id/loading_horizontal"
@@ -82,7 +82,7 @@ https://github.com/android/platform_frameworks_base/blob/master/core/res/res/lay
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="30dp"
                 android:max="100"
-                android:visibility="invisible"/>
+                android:visibility="invisible" />
 
             <TextView
                 android:id="@+id/error_message"
@@ -92,13 +92,13 @@ https://github.com/android/platform_frameworks_base/blob/master/core/res/res/lay
                 android:inputType="text"
                 android:textColor="@color/red"
                 android:textSize="@dimen/dialog_error_txt_size"
-                android:visibility="gone"/>
+                android:visibility="gone" />
 
         </FrameLayout>
 
     </LinearLayout>
 
-    <android.support.v4.widget.NestedScrollView
+    <androidx.core.widget.NestedScrollView
         android:id="@+id/scrollView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -110,11 +110,11 @@ https://github.com/android/platform_frameworks_base/blob/master/core/res/res/lay
             android:orientation="vertical">
 
         </LinearLayout>
-    </android.support.v4.widget.NestedScrollView>
+    </androidx.core.widget.NestedScrollView>
 
     <ListView
         android:id="@+id/listView"
         style="@style/SeafileListStyle"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content" />
 </LinearLayout>

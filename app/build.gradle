@@ -112,44 +112,58 @@ android {
     dependencies {
         implementation fileTree(include: ['*.jar'], dir: 'libs')
 
-        //DO NOT upgrade this lib, unless the APP upgrade to AndroidX
-        implementation 'com.blankj:utilcode:1.30.0'
-        implementation 'com.jcodecraeer:xrecyclerview:1.6.0'
-        implementation "com.google.android.exoplayer:exoplayer-core:2.8.1"
-        implementation "com.google.android.exoplayer:exoplayer-ui:2.8.1"
+        implementation 'com.blankj:utilcode:1.30.7'
+        implementation "io.github.cymchad:BaseRecyclerViewAdapterHelper:4.0.0-beta14"
 
+        //media3
+        final def media3_version = '1.1.0'
+        implementation "androidx.media3:media3-exoplayer:$media3_version"
+        implementation "androidx.media3:media3-ui:$media3_version"
 
-        implementation "com.android.support:appcompat-v7:${rootProject.ext.supportLibVersion}"
-        implementation "com.android.support:design:${rootProject.ext.supportLibVersion}"
-        implementation 'com.android.support.constraint:constraint-layout:1.1.3'
+        final def x_version = '1.5.0'
 
-        implementation 'me.relex:circleindicator:1.3.2'
+        implementation "androidx.appcompat:appcompat:$x_version"
+        implementation "androidx.activity:activity:$x_version"
+        implementation "com.google.android.material:material:$x_version"
+        implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+        implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
+
+        //https://github.com/ongakuer/CircleIndicator
+        implementation 'me.relex:circleindicator:2.1.6'
 
         implementation 'com.github.kevinsawicki:http-request:6.0'
         implementation 'commons-io:commons-io:2.11.0'
-        implementation 'com.google.guava:guava:23.0'
         implementation 'com.nostra13.universalimageloader:universal-image-loader:1.9.3'
-        implementation 'com.cocosw:bottomsheet:1.3.1'
-        implementation 'com.commit451:PhotoView:1.2.4'
+        implementation 'com.cocosw:bottomsheet:1.5.0'
+
+        //https://github.com/google/guava
+        implementation "com.google.guava:guava:31.1-android"
+
+        //https://github.com/Baseflow/PhotoView
+        implementation 'com.github.chrisbanes:PhotoView:2.0.0'
+//        implementation 'com.commit451:PhotoView:1.2.4' //need to update
+
+
         implementation 'com.joanzapata.iconify:android-iconify-material-community:2.2.1'
         testImplementation 'junit:junit:4.12'
         testImplementation 'org.robolectric:robolectric:3.0'
         implementation 'com.madgag.spongycastle:core:1.54.0.0'
         implementation 'com.madgag.spongycastle:prov:1.54.0.0'
-        implementation 'com.shuyu:gsyVideoPlayer-java:3.0.0'
-        implementation 'com.shuyu:gsyVideoPlayer-ex_so:3.0.0'
         implementation 'com.squareup.okhttp3:okhttp:3.9.1'
         implementation 'com.github.getActivity:XXPermissions:16.2'
         implementation 'io.reactivex.rxjava3:rxjava:3.1.5'
         implementation 'io.reactivex.rxjava3:rxandroid:3.0.2'
         implementation 'com.google.code.gson:gson:2.10'
 
-        implementation 'com.yydcdut:markdown-processor:0.1.3'
-        implementation 'ren.qinc.edit:lib:0.0.5'//editor undo redo
+//        implementation 'com.yydcdut:markdown-processor:0.1.3' //need to update
+        implementation 'com.github.yydcdut.RxMarkdown:markdown-processor:v0.1.3'
+//        implementation 'ren.qinc.edit:lib:0.0.5'//editor undo redo //need to update
         implementation 'org.greenrobot:eventbus:3.3.1'
-        //glide
-        implementation 'com.github.bumptech.glide:glide:4.9.0'
-        annotationProcessor 'com.github.bumptech.glide:compiler:4.9.0'
+
+        def glide_version = "4.14.2"
+        implementation "com.github.bumptech.glide:glide:$glide_version"
+        implementation "com.github.bumptech.glide:okhttp3-integration:$glide_version"
+        annotationProcessor "com.github.bumptech.glide:compiler:$glide_version"
 
         implementation 'com.github.haiwen:MarkdownView:0.19.1'
     }

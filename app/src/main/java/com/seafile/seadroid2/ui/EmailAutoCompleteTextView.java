@@ -3,7 +3,7 @@ package com.seafile.seadroid2.ui;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.content.Context;
-import android.support.v7.widget.AppCompatAutoCompleteTextView;
+import androidx.appcompat.widget.AppCompatAutoCompleteTextView;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Patterns;

@@ -18,7 +18,6 @@ package com.seafile.seadroid2.ui.fragment;
 
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.ui.CustomPreferenceManagerCompat;
-import com.seafile.seadroid2.ui.CustomPreferenceManagerCompat.OnPreferenceTreeClickListener;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -28,7 +27,7 @@ import android.preference.Preference;
 import android.preference.PreferenceGroup;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
-import android.support.v4.app.Fragment;
+import androidx.fragment.app.Fragment;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;

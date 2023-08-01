@@ -1,39 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             android:layout_width="fill_parent"
-             android:layout_height="fill_parent"
-             android:padding="1dip">
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:padding="1dip">
 
+    <com.github.chrisbanes.photoview.PhotoView
+        android:id="@+id/gallery_photoview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:adjustViewBounds="false" />
 
-    <uk.co.senab.photoview.PhotoView
-            android:id="@+id/gallery_photoview"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="center"
-            android:adjustViewBounds="false"
-            />
     <ImageView
         android:id="@+id/iv_see_originals"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="@dimen/margin_largest"
         android:layout_gravity="bottom|right"
-        android:visibility="gone"
+        android:padding="@dimen/margin_largest"
         android:src="@drawable/action_download"
-        />
+        android:visibility="gone" />
 
     <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center">
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:orientation="vertical">
 
-        <ProgressBar style="?android:attr/progressBarStyle"
-                     android:id="@+id/gallery_progress_bar"
-                     android:visibility="gone"
-                     android:layout_gravity="center_horizontal"
-                     android:layout_width="wrap_content"
-                     android:layout_height="wrap_content" />
+        <ProgressBar
+            android:id="@+id/gallery_progress_bar"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:visibility="gone" />
     </LinearLayout>
 
 </FrameLayout>

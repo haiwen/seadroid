@@ -7,7 +7,7 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
-import android.support.v7.widget.Toolbar;
+import androidx.appcompat.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -157,6 +157,7 @@ public class FileActivity extends BaseActivity implements Toolbar.OnMenuItemClic
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
         Log.d(DEBUG_TAG, "onSaveInstanceState");
         //super.onSaveInstanceState(outState);
     }

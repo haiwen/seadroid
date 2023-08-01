@@ -76,7 +76,7 @@
             android:textColor="@color/fancy_orange" />
     </RelativeLayout>
 
-    <android.support.constraint.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/rl_activities_new"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -160,5 +160,5 @@
             android:textColor="@color/fancy_orange"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
-    </android.support.constraint.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </LinearLayout>

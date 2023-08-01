@@ -22,7 +22,7 @@ public class CameraSyncService extends Service {
 
     @Override
     public void onCreate() {
-        Log.e(CameraSyncService.class.getName(), "CameraSyncService onCreate");
+//        Log.i(CameraSyncService.class.getName(), "CameraSyncService onCreate");
         synchronized (sSyncAdapterLock) {
             if (sSyncAdapter == null) {
                 sSyncAdapter = new CameraSyncAdapter(getApplicationContext());
@@ -32,13 +32,13 @@ public class CameraSyncService extends Service {
 
     @Override
     public void onDestroy() {
-        Log.e(CameraSyncService.class.getName(), "CameraSyncService onDestroy");
+//        Log.i(CameraSyncService.class.getName(), "CameraSyncService onDestroy");
         super.onDestroy();
     }
 
     @Override
     public IBinder onBind(Intent intent) {
-        Log.e(CameraSyncService.class.getName(), "CameraSyncService onBind");
+//        Log.i(CameraSyncService.class.getName(), "CameraSyncService onBind");
         return sSyncAdapter.getSyncAdapterBinder();
     }
 }

@@ -3,19 +3,19 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:paddingBottom="15dp"
     android:paddingLeft="10dp"
+    android:paddingTop="10dp"
     android:paddingRight="10dp"
-    android:paddingTop="10dp" >
+    android:paddingBottom="15dp">
 
     <EditText
         android:id="@+id/new_repo_name"
-        android:hint="@string/name_hint"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/edit_text_holo_light"
-        android:textSize="@dimen/dialog_msg_txt_size"
-        android:inputType="text" />
+        android:hint="@string/name_hint"
+        android:inputType="text"
+        android:textSize="@dimen/dialog_msg_txt_size" />
 
     <RelativeLayout
         android:layout_width="wrap_content"
@@ -23,7 +23,7 @@
         android:layout_marginTop="@dimen/margin_normal"
         android:layout_marginBottom="@dimen/margin_normal">
 
-        <android.support.v7.widget.SwitchCompat
+        <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/new_repo_encrypt_switch"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -32,22 +32,22 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:checked="false"
-            android:layout_toRightOf="@id/new_repo_encrypt_switch"
             android:layout_toEndOf="@id/new_repo_encrypt_switch"
-            android:paddingLeft="3dp"
-            android:paddingRight="3dp"
+            android:layout_toRightOf="@id/new_repo_encrypt_switch"
+            android:checked="false"
             android:paddingStart="3dp"
+            android:paddingLeft="3dp"
             android:paddingEnd="3dp"
-            android:textSize="@dimen/dialog_msg_txt_size"
-            android:text="@string/encrypt" />
+            android:paddingRight="3dp"
+            android:text="@string/encrypt"
+            android:textSize="@dimen/dialog_msg_txt_size" />
     </RelativeLayout>
 
-    <android.support.v4.widget.NestedScrollView
+    <androidx.core.widget.NestedScrollView
         android:id="@+id/nsv_new_repo_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="gone" >
+        android:visibility="gone">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -56,24 +56,24 @@
 
             <EditText
                 android:id="@+id/new_repo_password"
-                android:hint="@string/passwd_min_len_limit_hint"
-                android:fontFamily="sans-serif"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/edit_text_holo_light"
-                android:textSize="@dimen/dialog_msg_txt_size"
-                android:inputType="textPassword"/>
+                android:fontFamily="sans-serif"
+                android:hint="@string/passwd_min_len_limit_hint"
+                android:inputType="textPassword"
+                android:textSize="@dimen/dialog_msg_txt_size" />
 
             <EditText
                 android:id="@+id/new_repo_password_confirmation"
-                android:hint="@string/passwd_confirmation_hint"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/margin_normal"
-                android:fontFamily="sans-serif"
                 android:background="@drawable/edit_text_holo_light"
-                android:textSize="@dimen/dialog_msg_txt_size"
-                android:inputType="textPassword" />
+                android:fontFamily="sans-serif"
+                android:hint="@string/passwd_confirmation_hint"
+                android:inputType="textPassword"
+                android:textSize="@dimen/dialog_msg_txt_size" />
         </LinearLayout>
-    </android.support.v4.widget.NestedScrollView>
+    </androidx.core.widget.NestedScrollView>
 </LinearLayout>

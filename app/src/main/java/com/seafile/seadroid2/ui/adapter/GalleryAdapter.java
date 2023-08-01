@@ -1,12 +1,13 @@
 package com.seafile.seadroid2.ui.adapter;
 
 import android.graphics.Bitmap;
-import android.support.annotation.Nullable;
-import android.support.v4.view.PagerAdapter;
+import androidx.annotation.Nullable;
+import androidx.viewpager.widget.PagerAdapter;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 
 import com.bumptech.glide.load.DataSource;
@@ -17,6 +18,8 @@ import com.bumptech.glide.load.model.LazyHeaders;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.Target;
+import com.github.chrisbanes.photoview.OnPhotoTapListener;
+import com.github.chrisbanes.photoview.PhotoView;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
@@ -28,16 +31,15 @@ import com.seafile.seadroid2.util.Utils;
 import java.io.File;
 import java.util.List;
 
-import uk.co.senab.photoview.PhotoView;
-import uk.co.senab.photoview.PhotoViewAttacher;
-
 /**
  * Gallery Adapter
  */
 public class GalleryAdapter extends PagerAdapter {
     public static final String DEBUG_TAG = "GalleryAdapter";
 
-    /** unique task id */
+    /**
+     * unique task id
+     */
     public static int taskID;
 
     private GalleryActivity mActivity;
@@ -115,9 +117,9 @@ public class GalleryAdapter extends PagerAdapter {
                     .into(photoView);
         }
 
-        photoView.setOnPhotoTapListener(new PhotoViewAttacher.OnPhotoTapListener() {
+        photoView.setOnPhotoTapListener(new OnPhotoTapListener() {
             @Override
-            public void onPhotoTap(View view, float x, float y) {
+            public void onPhotoTap(ImageView view, float x, float y) {
                 mActivity.hideOrShowToolBar();
             }
         });

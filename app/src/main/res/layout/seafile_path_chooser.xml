@@ -1,120 +1,120 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
+
     <include layout="@layout/toolbar_actionbar" /> <!-- placeholder, empty except on L -->
-  <!-- Error message -->
-  <TextView
-      android:id="@+id/error_message"
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      android:gravity="center"
-      android:textSize="18sp"
-      android:visibility="gone" />
-
-  <RelativeLayout
-      android:id="@+id/main"
-      android:layout_width="match_parent"
-      android:layout_height="match_parent" >
-
-    <LinearLayout
-        android:id="@+id/content"
-        android:layout_above="@+id/buttonsContainer"
+    <!-- Error message -->
+    <TextView
+        android:id="@+id/error_message"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="horizontal">   
- 	
-      <LinearLayout
-          android:id="@+id/progressContainer"
-          android:orientation="vertical"
-          android:layout_width="match_parent"
-          android:layout_height="match_parent"
-          android:visibility="gone"
-          android:gravity="center">
+        android:gravity="center"
+        android:textSize="18sp"
+        android:visibility="gone" />
 
-        <ProgressBar
-            style="?android:attr/progressBarStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:text=""
-            android:paddingTop="4dip"
-            android:singleLine="true" />
-
-      </LinearLayout>
-
-      <FrameLayout
-          android:id="@+id/listContainer"
-          android:layout_width="match_parent"
-          android:layout_height="match_parent">
-
-        <ListView
-            android:id="@android:id/list"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:drawSelectorOnTop="false" />
-        <TextView
-            android:id="@android:id/empty"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:visibility="gone"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
-      </FrameLayout>
-      
-    </LinearLayout>
-    
-    <!-- buttons -->
-    <LinearLayout
-        android:id="@+id/buttonsContainer"
+    <RelativeLayout
+        android:id="@+id/main"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_horizontal"
-        android:layout_alignParentBottom="true">
-       <Button
-            android:id="@+id/cancel"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/btn_height"
-            android:layout_weight="0.4"
-            android:text="@string/cancel"
-            android:textSize="@dimen/btn_txt_size"
-            android:textColor="@color/light_black"
-            android:gravity="center"
-            android:theme="@style/NegativeButton"
-           />
+        android:layout_height="match_parent">
 
-      <Button
-          android:id="@+id/new_folder"
-          android:layout_width="match_parent"
-          android:layout_height="@dimen/btn_height"
-          android:layout_weight="0.4"
-          android:text="@string/create_new_dir"
-          android:textSize="@dimen/btn_txt_size"
-          android:textColor="@color/light_black"
-          android:gravity="center"
-          android:visibility="gone"
-          android:theme="@style/NegativeButton"
-          />
-
-        <Button
-            android:id="@+id/ok"
+        <LinearLayout
+            android:id="@+id/content"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/btn_height"
-            android:layout_weight="0.4"
-            android:text="@string/ok"
-            android:textColor="@color/white"
-            android:gravity="center"
-            android:textSize="@dimen/btn_txt_size"
-            />
-        
-    </LinearLayout>
-  </RelativeLayout>
+            android:layout_height="match_parent"
+            android:layout_above="@+id/buttonsContainer"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:id="@+id/progressContainer"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <ProgressBar
+                    style="?android:attr/progressBarStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="4dip"
+                    android:singleLine="true"
+                    android:text=""
+                    android:textAppearance="?android:attr/textAppearanceSmall" />
+
+            </LinearLayout>
+
+            <FrameLayout
+                android:id="@+id/listContainer"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <ListView
+                    android:id="@android:id/list"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:drawSelectorOnTop="false" />
+
+                <TextView
+                    android:id="@android:id/empty"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:visibility="gone" />
+            </FrameLayout>
+
+        </LinearLayout>
+
+        <!-- buttons -->
+        <LinearLayout
+            android:id="@+id/buttonsContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:gravity="center_horizontal"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/cancel"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/btn_height"
+                android:layout_weight="0.4"
+                android:gravity="center"
+                android:text="@string/cancel"
+                android:textColor="@color/light_black"
+                android:textSize="@dimen/btn_txt_size"
+                android:theme="@style/NegativeButton" />
+
+            <Button
+                android:id="@+id/new_folder"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/btn_height"
+                android:layout_weight="0.4"
+                android:gravity="center"
+                android:text="@string/create_new_dir"
+                android:textColor="@color/light_black"
+                android:textSize="@dimen/btn_txt_size"
+                android:theme="@style/NegativeButton"
+                android:visibility="gone" />
+
+            <Button
+                android:id="@+id/ok"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/btn_height"
+                android:layout_weight="0.4"
+                android:gravity="center"
+                android:text="@string/ok"
+                android:textColor="@color/white"
+                android:textSize="@dimen/btn_txt_size" />
+
+        </LinearLayout>
+    </RelativeLayout>
 
 </LinearLayout>
 

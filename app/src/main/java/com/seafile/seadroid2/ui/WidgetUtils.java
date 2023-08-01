@@ -1,6 +1,5 @@
 package com.seafile.seadroid2.ui;
 
-import static android.app.PendingIntent.FLAG_IMMUTABLE;
 import static android.content.Context.NOTIFICATION_SERVICE;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 
@@ -17,13 +16,15 @@ import android.content.Intent;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Environment;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.content.FileProvider;
+
+import androidx.core.app.NotificationCompat;
+import androidx.core.content.FileProvider;
+
 import android.text.ClipboardManager;
 import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
+import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SeafException;
@@ -42,7 +43,6 @@ import com.seafile.seadroid2.util.Utils;
 import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.security.SecureRandom;
 import java.util.List;
 import java.util.Random;
 
@@ -85,7 +85,7 @@ public class WidgetUtils {
                         clipboard.setText(gdialog.getLink());
                         // ClipData clip = ClipData.newPlainText("seafile shared link", gdialog.getLink());
                         // clipboard.setPrimaryClip(clip);
-                        Toast.makeText(activity, R.string.link_ready_to_be_pasted, Toast.LENGTH_SHORT).show();
+                        ToastUtils.showLong( R.string.link_ready_to_be_pasted);
                     }
 
                     @Override
@@ -93,9 +93,9 @@ public class WidgetUtils {
                         super.onTaskFailed(e);
                         gdialog.dismiss();
                         if (e.getCode() == HttpURLConnection.HTTP_FORBIDDEN) {
-                            Toast.makeText(activity, R.string.share_link_no_permission, Toast.LENGTH_LONG).show();
+                            ToastUtils.showLong(R.string.share_link_no_permission);
                         } else {
-                            Toast.makeText(activity, e.getMessage(), Toast.LENGTH_LONG).show();
+                            ToastUtils.showLong(e.getMessage());
                         }
                     }
                 });

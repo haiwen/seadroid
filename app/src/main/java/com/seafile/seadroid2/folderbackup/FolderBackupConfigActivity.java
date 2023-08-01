@@ -7,14 +7,13 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.view.ViewPager;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentStatePagerAdapter;
+import androidx.viewpager.widget.ViewPager;
 import android.text.TextUtils;
 import android.widget.Toast;
 
-import com.google.common.collect.Collections2;
 import com.google.gson.Gson;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SettingsManager;
@@ -28,8 +27,6 @@ import com.seafile.seadroid2.ui.fragment.SettingsFragment;
 import com.seafile.seadroid2.util.Utils;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 public class FolderBackupConfigActivity extends BaseActivity {

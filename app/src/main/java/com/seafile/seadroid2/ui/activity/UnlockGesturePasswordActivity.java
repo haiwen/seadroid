@@ -5,7 +5,9 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
-import android.support.v7.widget.Toolbar;
+
+import androidx.appcompat.widget.Toolbar;
+
 import android.view.MenuItem;
 import android.view.Window;
 import android.view.WindowManager;
@@ -31,23 +33,22 @@ public class UnlockGesturePasswordActivity extends BaseActivity implements Toolb
     private TextView mHeadTextView;
     private Animation mShakeAnim;
 
-    private Toast mToast;
-
     SettingsManager settingsMgr;
-    
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         super.onCreate(savedInstanceState);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
         setContentView(R.layout.gesturepassword_unlock);
-        mLockPatternView = (LockPatternView) this
-                .findViewById(R.id.gesturepwd_unlock_lockview);
+
+        mLockPatternView = (LockPatternView) this.findViewById(R.id.gesturepwd_unlock_lockview);
         mLockPatternView.setOnPatternListener(mChooseNewLockPatternListener);
         mLockPatternView.setTactileFeedbackEnabled(true);
         mHeadTextView = (TextView) findViewById(R.id.gesturepwd_unlock_text);
         mShakeAnim = AnimationUtils.loadAnimation(this, R.anim.shake_x);
+
         final Toolbar toolbar = getActionBarToolbar();
         toolbar.setOnMenuItemClickListener(this);
         setSupportActionBar(toolbar);
@@ -95,25 +96,21 @@ public class UnlockGesturePasswordActivity extends BaseActivity implements Toolb
                 return;
             LockPatternUtils mLockPatternUtils = new LockPatternUtils(getApplicationContext());
             if (mLockPatternUtils.checkPattern(pattern)) {
-                mLockPatternView
-                        .setDisplayMode(LockPatternView.DisplayMode.Correct);
+                mLockPatternView.setDisplayMode(LockPatternView.DisplayMode.Correct);
                 settingsMgr.setupGestureLock();
                 finish();
             } else {
-                mLockPatternView
-                        .setDisplayMode(LockPatternView.DisplayMode.Wrong);
+                mLockPatternView.setDisplayMode(LockPatternView.DisplayMode.Wrong);
                 if (pattern.size() >= LockPatternUtils.MIN_PATTERN_REGISTER_FAIL) {
                     mFailedPatternAttemptsSinceLastTimeout++;
-                    int retry = LockPatternUtils.FAILED_ATTEMPTS_BEFORE_TIMEOUT
-                            - mFailedPatternAttemptsSinceLastTimeout;
+                    int retry = LockPatternUtils.FAILED_ATTEMPTS_BEFORE_TIMEOUT - mFailedPatternAttemptsSinceLastTimeout;
                     if (retry >= 0) {
                         if (retry == 0)
-                        showShortToast(UnlockGesturePasswordActivity.this, getResources().getString(R.string.lockscreen_access_pattern_failure));
+                            showShortToast(UnlockGesturePasswordActivity.this, getResources().getString(R.string.lockscreen_access_pattern_failure));
                         mHeadTextView.setText(getResources().getQuantityString(R.plurals.lockscreen_access_pattern_failure_left_try_times, retry, retry));
                         mHeadTextView.setTextColor(Color.RED);
                         mHeadTextView.startAnimation(mShakeAnim);
                     }
-
                 } else {
                     showShortToast(UnlockGesturePasswordActivity.this, getResources().getString(R.string.lockscreen_access_pattern_failure_not_long_enough));
                 }
@@ -133,14 +130,14 @@ public class UnlockGesturePasswordActivity extends BaseActivity implements Toolb
         private void patternInProgress() {
         }
     };
-    Runnable attemptLockout = new Runnable() {
+
+    private final Runnable attemptLockout = new Runnable() {
 
         @Override
         public void run() {
             mLockPatternView.clearPattern();
             mLockPatternView.setEnabled(false);
-            mCountdownTimer = new CountDownTimer(
-                    LockPatternUtils.FAILED_ATTEMPT_TIMEOUT_MS + 1, 1000) {
+            mCountdownTimer = new CountDownTimer(LockPatternUtils.FAILED_ATTEMPT_TIMEOUT_MS + 1, 1000) {
 
                 @Override
                 public void onTick(long millisUntilFinished) {

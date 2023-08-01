@@ -1,96 +1,60 @@
 package com.seafile.seadroid2.ui.activity.search;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.blankj.utilcode.util.CollectionUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.data.SearchedFile;
-import com.seafile.seadroid2.listener.OnItemClickListener;
+import com.seafile.seadroid2.ui.base.adapter.BaseViewHolder;
+import com.seafile.seadroid2.ui.base.adapter.ParentAdapter;
 import com.seafile.seadroid2.util.Utils;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.List;
 
-public class SearchRecyclerViewAdapter extends RecyclerView.Adapter<SearchRecyclerViewAdapter.SearchItemViewHolder> {
-    private final List<SearchedFile> mItemList = new ArrayList<>();
-    private OnItemClickListener<SearchedFile> onItemClickListener;
-
-    private final WeakReference<Context> contextWeakReference;
+public class SearchRecyclerViewAdapter extends ParentAdapter<SearchedFile, SearchRecyclerViewAdapter.SearchItemViewHolder> {
+    private Context context;
 
     public SearchRecyclerViewAdapter(Context context) {
-        this.contextWeakReference = new WeakReference<>(context);
+        this.context = context;
     }
 
-    public void setOnItemClickListener(OnItemClickListener<SearchedFile> onItemClickListener) {
-        this.onItemClickListener = onItemClickListener;
-    }
-
-    @NonNull
     @Override
-    public SearchItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(contextWeakReference.get()).inflate(R.layout.search_list_item, parent, false);
+    protected void onBindViewHolder(@NotNull SearchItemViewHolder viewHolder, int i, @Nullable SearchedFile searchedFile) {
+        viewHolder.icon.setImageResource(searchedFile.getIcon());
+        viewHolder.path.setText(filePath(searchedFile));
+        viewHolder.title.setText(searchedFile.getTitle());
+        viewHolder.subtitle.setText(searchedFile.getSubtitle());
+    }
+
+    @NotNull
+    @Override
+    protected SearchItemViewHolder onCreateViewHolder(@NotNull Context context, @NotNull ViewGroup viewGroup, int i) {
+        View view = LayoutInflater.from(context).inflate(R.layout.search_list_item, viewGroup, false);
         return new SearchItemViewHolder(view);
-    }
-
-    @Override
-    public void onBindViewHolder(@NonNull SearchRecyclerViewAdapter.SearchItemViewHolder viewHolder, int position) {
-        viewHolder.icon.setImageResource(mItemList.get(position).getIcon());
-        viewHolder.path.setText(filePath(mItemList.get(position)));
-        viewHolder.title.setText(mItemList.get(position).getTitle());
-        viewHolder.subtitle.setText(mItemList.get(position).getSubtitle());
-
-        viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (onItemClickListener != null) {
-                    onItemClickListener.onItemClick(mItemList.get(position), position);
-                }
-            }
-        });
     }
 
     private String filePath(SearchedFile searchedFile) {
         String parentPath = Utils.getParentPath(searchedFile.getPath());
-        SeafRepo seafRepo = ((Search2Activity) contextWeakReference.get()).getDataManager().getCachedRepoByID(searchedFile.getRepoID());
+        SeafRepo seafRepo = ((Search2Activity) context).getDataManager().getCachedRepoByID(searchedFile.getRepoID());
         if (seafRepo != null)
             return Utils.pathJoin(seafRepo.getName(), parentPath);
         else
             return parentPath;
     }
 
-    public List<SearchedFile> getItemList() {
-        return mItemList;
-    }
-
-    @Override
-    public int getItemCount() {
-        return mItemList.size();
-    }
-
-    public void notifyDataClear() {
-        if (!CollectionUtils.isEmpty(mItemList)) {
-            mItemList.clear();
-            notifyDataSetChanged();
-        }
-    }
-
-    public void notifyDataChanged(List<SearchedFile> list) {
-        if (!CollectionUtils.isEmpty(list)) {
-            mItemList.addAll(list);
-            notifyDataSetChanged();
-        }
-    }
-
-    public static class SearchItemViewHolder extends RecyclerView.ViewHolder {
+    public static class SearchItemViewHolder extends BaseViewHolder {
         public TextView path;
         public TextView title;
         public TextView subtitle;

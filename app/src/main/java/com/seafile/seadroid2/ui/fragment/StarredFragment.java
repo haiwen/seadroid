@@ -2,10 +2,10 @@ package com.seafile.seadroid2.ui.fragment;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.os.Environment;
-import android.support.v4.app.ListFragment;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.view.ActionMode;
+
+import androidx.fragment.app.ListFragment;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.appcompat.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -23,7 +23,6 @@ import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.data.SeafStarredFile;
-import com.seafile.seadroid2.folderbackup.selectfolder.FileTools;
 import com.seafile.seadroid2.ui.NavContext;
 import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
@@ -34,7 +33,6 @@ import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.util.SupportAsyncTask;
 import com.seafile.seadroid2.util.Utils;
 
-import java.io.File;
 import java.util.List;
 
 public class StarredFragment extends ListFragment {

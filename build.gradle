@@ -2,14 +2,18 @@
 
 buildscript {
     repositories {
+
+        //List of trusted Maven
+        //https://f-droid.org/2022/07/22/maven-central.html
+
         google()
         mavenCentral()
         maven { url 'https://jitpack.io' }
         maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
-        maven { url "https://maven.aliyun.com/repository/public" }
+//        maven { url "https://maven.aliyun.com/repository/public" }  //do not use
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.1.2'
+        classpath 'com.android.tools.build:gradle:7.4.2'
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
@@ -18,16 +22,20 @@ buildscript {
 
 allprojects {
     repositories {
+
+        //List of trusted Maven
+        //https://f-droid.org/2022/07/22/maven-central.html
+
         google() // https://stackoverflow.com/a/50563942/5923915
         mavenCentral()
         maven { url 'https://jitpack.io' }
         maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
-        maven { url "https://maven.aliyun.com/repository/public" }
+//        maven { url "https://maven.aliyun.com/repository/public" } //do not use
     }
 }
 
 ext {
-    compileSdkVersion = 30 // 11.0 "R"
+    compileSdkVersion = 33 // 13.0 "Tiramisu"
     supportLibVersion = '27.1.1'  // variable that can be referenced to keep support libs consistent
     minSdkVersion = 26 //8.0 "Oreo"
     targetSdkVersion = 31 //12.0 "S"

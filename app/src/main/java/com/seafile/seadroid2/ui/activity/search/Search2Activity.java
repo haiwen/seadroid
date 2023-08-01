@@ -8,10 +8,6 @@ import android.content.ServiceConnection;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -25,9 +21,16 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.blankj.utilcode.util.CollectionUtils;
-import com.jcodecraeer.xrecyclerview.ProgressStyle;
-import com.jcodecraeer.xrecyclerview.XRecyclerView;
+import com.chad.library.adapter.base.BaseQuickAdapter;
+import com.chad.library.adapter.base.QuickAdapterHelper;
+import com.chad.library.adapter.base.loadState.LoadState;
+import com.chad.library.adapter.base.loadState.trailing.TrailingLoadStateAdapter;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
@@ -35,15 +38,16 @@ import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.data.SearchedFile;
-import com.seafile.seadroid2.listener.OnItemClickListener;
 import com.seafile.seadroid2.play.exoplayer.ExoVideoPlayerActivity;
 import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.activity.BaseActivity;
 import com.seafile.seadroid2.ui.activity.FileActivity;
-import com.seafile.seadroid2.ui.widget.SupportRecyclerView;
+import com.seafile.seadroid2.ui.base.adapter.CustomLoadMoreAdapter;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.util.Utils;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -59,15 +63,15 @@ public class Search2Activity extends BaseActivity implements View.OnClickListene
     private EditText mTextField;
     private ImageView mTextClearBtn;
     private View mSearchBtn;
-    private SupportRecyclerView mRecyclerView;
+    private RecyclerView mRecyclerView;
 
+    private QuickAdapterHelper helper;
     private SearchRecyclerViewAdapter mAdapter;
     private DataManager dataManager;
     private TransferService txService = null;
     private Account account;
 
     public static final int DOWNLOAD_FILE_REQUEST = 0;
-    private boolean hasMore = true;
     private int page = 1;
     private int PAGE_SIZE = 20;
 
@@ -87,43 +91,53 @@ public class Search2Activity extends BaseActivity implements View.OnClickListene
         mTextField.setOnEditorActionListener(new EditorActionListener());
         mTextField.requestFocus();
 
-        mRecyclerView = findViewById(R.id.lv_search);
-        mAdapter = new SearchRecyclerViewAdapter(this);
-        mAdapter.setOnItemClickListener(new OnItemClickListener<SearchedFile>() {
-            @Override
-            public void onItemClick(SearchedFile searchedFile, int position) {
-                onSearchedFileSelected(searchedFile);
-            }
-        });
-
-        mRecyclerView.setAdapter(mAdapter);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(this, RecyclerView.VERTICAL, false));
-        View t = findViewById(R.id.ll_message_content);
-        mRecyclerView.setEmptyView(t);
-
-        mRecyclerView.setLoadingMoreEnabled(true);
-        mRecyclerView.setLoadingMoreProgressStyle(ProgressStyle.BallScaleMultiple);
-        mRecyclerView.setPullRefreshEnabled(false);
-        mRecyclerView.setLoadingListener(new XRecyclerView.LoadingListener() {
-            @Override
-            public void onRefresh() {
-
-            }
-
-            @Override
-            public void onLoadMore() {
-                Log.d(DEBUG_TAG, "onLoadMore");
-
-                if (isHasMore()) {
-                    loadNext(false);
-                }
-            }
-        });
-
         setSupportActionBar(getActionBarToolbar());
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle(R.string.search_menu_item);
+
+        mRecyclerView = findViewById(R.id.lv_search);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this, RecyclerView.VERTICAL, false));
+
+        initAdapter();
+
         initData();
+    }
+
+    private void initAdapter() {
+        mAdapter = new SearchRecyclerViewAdapter(this);
+        View t = findViewById(R.id.ll_message_content);
+        mAdapter.setEmptyView(t);
+        mAdapter.setEmptyViewEnable(true);
+        mAdapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener<SearchedFile>() {
+            @Override
+            public void onClick(@NotNull BaseQuickAdapter<SearchedFile, ?> baseQuickAdapter, @NotNull View view, int i) {
+                onSearchedFileSelected(mAdapter.getItems().get(i));
+            }
+        });
+
+        CustomLoadMoreAdapter customLoadMoreAdapter = new CustomLoadMoreAdapter();
+        customLoadMoreAdapter.setOnLoadMoreListener(new TrailingLoadStateAdapter.OnTrailingListener() {
+            @Override
+            public void onLoad() {
+                loadNext(false);
+            }
+
+            @Override
+            public void onFailRetry() {
+                loadNext(false);
+            }
+
+            @Override
+            public boolean isAllowLoading() {
+                return true;
+            }
+        });
+
+
+        helper = new QuickAdapterHelper.Builder(mAdapter)
+                .setTrailingLoadStateAdapter(customLoadMoreAdapter)
+                .build();
+        mRecyclerView.setAdapter(helper.getAdapter());
     }
 
     @Override
@@ -147,8 +161,7 @@ public class Search2Activity extends BaseActivity implements View.OnClickListene
         if (dataManager != null) {
             ArrayList<SearchedFile> files = dataManager.parseSearchResult(mSearchedRlt);
             if (files != null) {
-                mAdapter.notifyDataClear();
-                mAdapter.notifyDataChanged(files);
+                mAdapter.submitList(files);
             }
         }
     }
@@ -209,6 +222,7 @@ public class Search2Activity extends BaseActivity implements View.OnClickListene
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
             case DOWNLOAD_FILE_REQUEST:
                 if (resultCode == RESULT_OK) {
@@ -218,18 +232,6 @@ public class Search2Activity extends BaseActivity implements View.OnClickListene
             default:
                 break;
         }
-    }
-
-    public boolean isHasMore() {
-        return hasMore;
-    }
-
-    public int getPageSize() {
-        return PAGE_SIZE;
-    }
-
-    public int getPage() {
-        return page;
     }
 
     public void increasePage() {
@@ -244,14 +246,12 @@ public class Search2Activity extends BaseActivity implements View.OnClickListene
 
         if (isRefresh) {
             page = 1;
-            mRecyclerView.setLoadingMoreEnabled(true);
-            mAdapter.notifyDataClear();
         }
 
         String searchText = mTextField.getText().toString().trim();
         if (!TextUtils.isEmpty(searchText)) {
 
-            search(searchText, getPage(), getPageSize());
+            search(searchText, page, PAGE_SIZE);
 
             Utils.hideSoftKeyboard(mTextField);
         } else {
@@ -302,16 +302,6 @@ public class Search2Activity extends BaseActivity implements View.OnClickListene
             // stop loading view
             mSearchBtn.setEnabled(true);
 
-            if (CollectionUtils.isEmpty(result) || result.size() < getPageSize()) {
-                hasMore = false;
-            }
-
-            mRecyclerView.loadMoreComplete();
-
-            if (!isHasMore()) {
-                mRecyclerView.setLoadingMoreEnabled(false);
-            }
-
             if (result == null) {
                 if (seafException != null) {
                     if (seafException.getCode() == 404)
@@ -325,12 +315,24 @@ public class Search2Activity extends BaseActivity implements View.OnClickListene
 
             if (result.size() == 0) {
                 showShortToast(Search2Activity.this, R.string.search_content_empty);
-                return;
+            }
+
+            if (page == 1) {
+                mAdapter.submitList(result);
+            } else {
+                mAdapter.addAll(result);
+            }
+
+            if (CollectionUtils.isEmpty(result) || result.size() < PAGE_SIZE) {
+                helper.setTrailingLoadState(new LoadState.NotLoading(true));
+                if (helper.getTrailingLoadStateAdapter() != null) {
+                    helper.getTrailingLoadStateAdapter().checkDisableLoadMoreIfNotFullPage();
+                }
+            } else {
+                helper.setTrailingLoadState(new LoadState.NotLoading(false));
             }
 
             increasePage();
-
-            mAdapter.notifyDataChanged(result);
         }
     }
 

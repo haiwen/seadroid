@@ -10,24 +10,25 @@
         android:id="@+id/dialog_title"
         android:layout_width="wrap_content"
         android:layout_height="40dp"
-        android:text="隐私政策"
-        android:gravity="center"
         android:layout_gravity="center"
-        android:textStyle="bold"
+        android:gravity="center"
+        android:text="隐私政策"
         android:textColor="#353535"
-        android:textSize="@dimen/dialog_title_txt_size" />
+        android:textSize="@dimen/dialog_title_txt_size"
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/tv_policy_statement"
-        android:layout_marginTop="15dp"
-        android:layout_marginLeft="15dp"
-        android:layout_marginRight="15dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="15dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginRight="15dp"
         android:gravity="left"
         android:text=""
-        android:textSize="@dimen/dialog_lv_txt_size"
-        android:textColor="#666666"/>
+        android:textColor="#666666"
+        android:textSize="@dimen/dialog_lv_txt_size" />
+
     <TextView
         android:id="@+id/tv_policy_details"
         android:layout_width="match_parent"
@@ -37,8 +38,8 @@
         android:layout_marginBottom="20dp"
         android:gravity="left"
         android:text=""
-        android:textSize="@dimen/dialog_lv_txt_size"
-        android:textColor="#666666"/>
+        android:textColor="#666666"
+        android:textSize="@dimen/dialog_lv_txt_size" />
 
     <View
         android:layout_width="match_parent"
@@ -55,13 +56,13 @@
             android:id="@+id/cancel"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:layout_gravity="center"
             android:layout_weight="1"
             android:gravity="center"
-            android:layout_gravity="center"
             android:text="暂不使用"
-            android:textStyle="bold"
             android:textColor="#666666"
-            android:textSize="@dimen/dialog_lv_txt_size" />
+            android:textSize="@dimen/dialog_lv_txt_size"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/confirm"
@@ -70,9 +71,9 @@
             android:layout_weight="1"
             android:gravity="center"
             android:text="同意"
-            android:textStyle="bold"
             android:textColor="@color/blue_700"
-            android:textSize="@dimen/dialog_lv_txt_size" />
+            android:textSize="@dimen/dialog_lv_txt_size"
+            android:textStyle="bold" />
     </LinearLayout>
 
 </LinearLayout>

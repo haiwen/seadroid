@@ -7,7 +7,7 @@ import android.os.Build;
 import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
-import android.support.annotation.RequiresApi;
+import androidx.annotation.RequiresApi;
 
 import com.blankj.utilcode.util.FileUtils;
 

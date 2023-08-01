@@ -5,7 +5,7 @@ import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
-import android.support.v4.os.EnvironmentCompat;
+import androidx.core.os.EnvironmentCompat;
 import android.text.format.Formatter;
 import android.util.Log;
 

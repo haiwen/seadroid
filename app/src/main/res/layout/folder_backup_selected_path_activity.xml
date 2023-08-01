@@ -7,7 +7,7 @@
 
     <include layout="@layout/toolbar_actionbar" /> <!-- placeholder, empty except on L -->
 
-    <com.seafile.seadroid2.ui.widget.SupportRecyclerView
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/lv_search"
         android:layout_width="match_parent"
         android:layout_height="0dp"

@@ -112,26 +112,33 @@ public class GalleryBucketUtils {
             return buckets;
         }
 
-        while (cursor.moveToNext()) {
-            Bucket b = new Bucket();
-            b.id = cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.BUCKET_ID));
-            b.name = cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.BUCKET_DISPLAY_NAME));
-            b.isCameraBucket = false;
-            if (b.name == null) {
-                continue;
-            }
-            for (String name : CAMERA_BUCKET_NAMES) {
-                if (b.name.equalsIgnoreCase(name)) {
-                    b.isCameraBucket = true;
-                }
-            }
+        try {
+            while (cursor.moveToNext()) {
+                Bucket b = new Bucket();
 
-            // ignore buckets created by Seadroid
-            String file = cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.DATA));
-            if (file == null || !file.startsWith(StorageManager.getInstance().getMediaDir().getAbsolutePath()))
-                buckets.add(b);
+                b.id = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.BUCKET_ID));
+                b.name = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.BUCKET_DISPLAY_NAME));
+                b.isCameraBucket = false;
+                if (b.name == null) {
+                    continue;
+                }
+                for (String name : CAMERA_BUCKET_NAMES) {
+                    if (b.name.equalsIgnoreCase(name)) {
+                        b.isCameraBucket = true;
+                        break;
+                    }
+                }
+
+                // ignore buckets created by Seadroid
+                String file = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATA));
+                if (file == null || !file.startsWith(StorageManager.getInstance().getMediaDir().getAbsolutePath()))
+                    buckets.add(b);
+            }
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        } finally {
+            cursor.close();
         }
-        cursor.close();
 
         return buckets;
     }
@@ -160,27 +167,32 @@ public class GalleryBucketUtils {
             return buckets;
         }
 
-        while (cursor.moveToNext()) {
-            Bucket b = new Bucket();
-            b.id = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.BUCKET_ID));
-            b.name = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.BUCKET_DISPLAY_NAME));
-            b.image_id = cursor.getInt(cursor.getColumnIndex(MediaStore.Images.Media._ID));
-            b.isCameraBucket = false;
-            if (b.name == null) {
-                continue;
-            }
-            for (String name : CAMERA_BUCKET_NAMES) {
-                if (b.name.equalsIgnoreCase(name)) {
-                    b.isCameraBucket = true;
+        try {
+            while (cursor.moveToNext()) {
+                Bucket b = new Bucket();
+                b.id = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.BUCKET_ID));
+                b.name = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.BUCKET_DISPLAY_NAME));
+                b.image_id = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID));
+                b.isCameraBucket = false;
+                if (b.name == null) {
+                    continue;
                 }
-            }
+                for (String name : CAMERA_BUCKET_NAMES) {
+                    if (b.name.equalsIgnoreCase(name)) {
+                        b.isCameraBucket = true;
+                    }
+                }
 
-            // ignore buckets created by Seadroid
-            String file = cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.DATA));
-            if (file == null || !file.startsWith(StorageManager.getInstance().getMediaDir().getAbsolutePath()))
-                buckets.add(b);
+                // ignore buckets created by Seadroid
+                String file = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATA));
+                if (file == null || !file.startsWith(StorageManager.getInstance().getMediaDir().getAbsolutePath()))
+                    buckets.add(b);
+            }
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        } finally {
+            cursor.close();
         }
-        cursor.close();
 
         return buckets;
     }
@@ -205,26 +217,31 @@ public class GalleryBucketUtils {
             return buckets;
         }
 
-        while (cursor.moveToNext()) {
-            Bucket b = new Bucket();
-            b.id = cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.BUCKET_ID));
-            b.name = cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.BUCKET_DISPLAY_NAME));
-            b.videoId = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Video.Media._ID));
+        try {
+            while (cursor.moveToNext()) {
+                Bucket b = new Bucket();
+                b.id = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.BUCKET_ID));
+                b.name = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.BUCKET_DISPLAY_NAME));
+                b.videoId = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Video.Media._ID));
 
-            if (b.name == null) {
-                continue;
-            }
-
-            b.isCameraBucket = false;
-            for (String name : CAMERA_BUCKET_NAMES) {
-                if (b.name.equalsIgnoreCase(name)) {
-                    b.isCameraBucket = true;
-                    break;
+                if (b.name == null) {
+                    continue;
                 }
+
+                b.isCameraBucket = false;
+                for (String name : CAMERA_BUCKET_NAMES) {
+                    if (b.name.equalsIgnoreCase(name)) {
+                        b.isCameraBucket = true;
+                        break;
+                    }
+                }
+                buckets.add(b);
             }
-            buckets.add(b);
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        } finally {
+            cursor.close();
         }
-        cursor.close();
 
         return buckets.stream().distinct().collect(Collectors.toList());
     }
@@ -249,29 +266,32 @@ public class GalleryBucketUtils {
         if (cursor == null) {
             return buckets;
         }
+        try {
+            while (cursor.moveToNext()) {
+                Bucket b = new Bucket();
+                b.id = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.BUCKET_ID));
+                b.name = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.BUCKET_DISPLAY_NAME));
+                b.imageId = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID));
 
-        while (cursor.moveToNext()) {
-            Bucket b = new Bucket();
-            b.id = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.BUCKET_ID));
-            b.name = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.BUCKET_DISPLAY_NAME));
-            b.imageId = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID));
-
-            if (b.name == null) {
-                continue;
-            }
-
-            b.isCameraBucket = false;
-            b.isImages = GalleryBucketUtils.IMAGES;
-            for (String name : CAMERA_BUCKET_NAMES) {
-                if (b.name.equalsIgnoreCase(name)) {
-                    b.isCameraBucket = true;
-                    break;
+                if (b.name == null) {
+                    continue;
                 }
-            }
-            buckets.add(b);
-        }
-        cursor.close();
 
+                b.isCameraBucket = false;
+                b.isImages = GalleryBucketUtils.IMAGES;
+                for (String name : CAMERA_BUCKET_NAMES) {
+                    if (b.name.equalsIgnoreCase(name)) {
+                        b.isCameraBucket = true;
+                        break;
+                    }
+                }
+                buckets.add(b);
+            }
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        } finally {
+            cursor.close();
+        }
         return buckets.stream().distinct().collect(Collectors.toList());
 
     }

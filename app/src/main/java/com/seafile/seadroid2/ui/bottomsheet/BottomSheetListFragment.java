@@ -1,12 +1,11 @@
 package com.seafile.seadroid2.ui.bottomsheet;
 
 import android.content.DialogInterface;
-import android.support.annotation.Nullable;
-import android.support.design.widget.CoordinatorLayout;
-import android.view.MotionEvent;
+import androidx.annotation.Nullable;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
+
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.BaseAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 

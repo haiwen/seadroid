@@ -1,40 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:gravity="center_horizontal"
-              android:orientation="vertical">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center_horizontal"
+    android:orientation="vertical">
 
-    <android.support.design.widget.TextInputLayout
+    <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="20dp"
+        android:layout_marginTop="5dp"
         android:layout_marginRight="20dp"
-        android:hint="@string/description"
-        android:layout_marginTop="5dp">
+        android:hint="@string/description">
 
         <EditText
             android:id="@+id/edit_description_link"
-            android:importantForAutofill="auto"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="@android:color/black"/>
-    </android.support.design.widget.TextInputLayout>
+            android:importantForAutofill="auto"
+            android:textColor="@android:color/black" />
+    </com.google.android.material.textfield.TextInputLayout>
 
-    <android.support.design.widget.TextInputLayout
+    <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="20dp"
+        android:layout_marginTop="5dp"
         android:layout_marginRight="20dp"
-        android:hint="@string/link"
-        android:layout_marginTop="5dp">
+        android:hint="@string/link">
 
         <EditText
             android:id="@+id/edit_link"
-            android:importantForAutofill="auto"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:importantForAutofill="auto"
             android:text="http://"
-            android:textColor="@android:color/black"/>
-    </android.support.design.widget.TextInputLayout>
+            android:textColor="@android:color/black" />
+    </com.google.android.material.textfield.TextInputLayout>
 </LinearLayout>

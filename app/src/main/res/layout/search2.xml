@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -54,14 +55,15 @@
             android:background="@drawable/shape_radius_solid_orange"
             android:foreground="?selectableItemBackground"
             android:src="@drawable/search"
-            android:tint="@color/white"
-            android:visibility="gone" />
+            android:visibility="gone"
+            app:tint="@color/white" />
     </LinearLayout>
 
-    <com.seafile.seadroid2.ui.widget.SupportRecyclerView
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/lv_search"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        tools:listitem="@layout/search_list_item"
         android:layout_weight="1" />
 
     <include

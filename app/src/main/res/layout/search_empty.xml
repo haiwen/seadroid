@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/ll_message_content"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -11,7 +12,7 @@
         android:layout_height="fill_parent"
         android:layout_gravity="center_horizontal"
         android:src="@drawable/empty_icon"
-        android:tint="@color/fancy_dark_gray" />
+        app:tint="@color/fancy_dark_gray" />
 
     <ImageView
         android:id="@+id/iv_error_txt"
