@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:layout_above="@+id/gallery_pager">
@@ -97,7 +98,7 @@
             android:layout_marginEnd="@dimen/gallery_icon_margin_right"
             android:scaleType="centerInside"
             android:src="@drawable/action_download"
-            android:tint="@color/light_grey" />
+            app:tint="@color/light_grey" />
 
         <ImageView
             android:id="@+id/gallery_delete_photo"
@@ -106,7 +107,7 @@
             android:layout_marginEnd="@dimen/gallery_icon_margin_right"
             android:scaleType="centerInside"
             android:src="@drawable/action_delete"
-            android:tint="@color/light_grey" />
+            app:tint="@color/light_grey" />
 
         <ImageView
             android:id="@+id/gallery_star_photo"
@@ -115,7 +116,7 @@
             android:layout_marginEnd="@dimen/gallery_icon_margin_right"
             android:scaleType="centerInside"
             android:src="@drawable/baseline_star_outline_24"
-            android:tint="@color/light_grey" />
+            app:tint="@color/light_grey" />
 
         <ImageView
             android:id="@+id/gallery_share_photo"
@@ -123,7 +124,7 @@
             android:layout_height="@dimen/gallery_icon_height"
             android:scaleType="centerInside"
             android:src="@drawable/action_share"
-            android:tint="@color/light_grey" />
+            app:tint="@color/light_grey" />
 
     </LinearLayout>
 

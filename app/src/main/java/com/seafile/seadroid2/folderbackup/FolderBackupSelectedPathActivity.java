@@ -4,45 +4,42 @@ import static com.seafile.seadroid2.folderbackup.FolderBackupConfigActivity.BACK
 import static com.seafile.seadroid2.folderbackup.FolderBackupConfigActivity.BACKUP_SELECT_PATHS_SWITCH;
 import static com.seafile.seadroid2.ui.fragment.SettingsFragment.FOLDER_BACKUP_REMOTE_PATH;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.blankj.utilcode.util.CollectionUtils;
+import com.chad.library.adapter.base.BaseQuickAdapter;
+import com.chad.library.adapter.base.QuickAdapterHelper;
+import com.cocosw.bottomsheet.BottomSheet;
+import com.google.gson.Gson;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.folderbackup.selectfolder.StringTools;
-import com.seafile.seadroid2.listener.OnItemClickListener;
 import com.seafile.seadroid2.ui.activity.BaseActivity;
 import com.seafile.seadroid2.ui.bottomsheet.BottomSheetTextFragment;
-import com.seafile.seadroid2.ui.widget.SupportRecyclerView;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class FolderBackupSelectedPathActivity extends BaseActivity {
-    private SupportRecyclerView mRecyclerView;
+    private RecyclerView mRecyclerView;
     private FolderBackSelectedPathRecyclerViewAdapter mAdapter;
+    private QuickAdapterHelper helper;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         setContentView(R.layout.folder_backup_selected_path_activity);
 
-        mRecyclerView = findViewById(R.id.lv_search);
-        mAdapter = new FolderBackSelectedPathRecyclerViewAdapter(this);
-        mAdapter.setOnItemClickListener(new OnItemClickListener<String>() {
-            @Override
-            public void onItemClick(String text, int position) {
-                showBottomDialog(text);
-            }
-        });
 
         findViewById(R.id.add_backup_folder).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -53,18 +50,15 @@ public class FolderBackupSelectedPathActivity extends BaseActivity {
             }
         });
 
-        mRecyclerView.setAdapter(mAdapter);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(this, RecyclerView.VERTICAL, false));
-        View t = findViewById(R.id.ll_message_content);
-        mRecyclerView.setEmptyView(t);
-
-        mRecyclerView.setLoadingMoreEnabled(false);
-        mRecyclerView.setPullRefreshEnabled(false);
 
         setSupportActionBar(getActionBarToolbar());
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle(R.string.settings_folder_backup_select_title);
 
+        mRecyclerView = findViewById(R.id.lv_search);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this, RecyclerView.VERTICAL, false));
+
+        initAdapter();
     }
 
     @Override
@@ -77,8 +71,44 @@ public class FolderBackupSelectedPathActivity extends BaseActivity {
         String backupPaths = SettingsManager.instance().getBackupPaths();
         if (!TextUtils.isEmpty(backupPaths)) {
             List<String> backupSelectPaths = StringTools.getJsonToList(backupPaths);
-            mAdapter.notifyDataChanged(backupSelectPaths);
+            mAdapter.submitList(backupSelectPaths);
         }
+    }
+
+    private void initAdapter() {
+        mAdapter = new FolderBackSelectedPathRecyclerViewAdapter();
+        View t = findViewById(R.id.ll_message_content);
+        mAdapter.setEmptyView(t);
+        mAdapter.setEmptyViewEnable(true);
+        mAdapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener<String>() {
+            @Override
+            public void onClick(@NotNull BaseQuickAdapter<String, ?> baseQuickAdapter, @NotNull View view, int i) {
+                showBottomDialog(mAdapter.getItems().get(i));
+            }
+        });
+        mAdapter.addOnItemChildClickListener(R.id.more, new BaseQuickAdapter.OnItemChildClickListener<String>() {
+            @Override
+            public void onItemClick(@NotNull BaseQuickAdapter<String, ?> baseQuickAdapter, @NotNull View view, int i) {
+                showRepoBottomSheet(i);
+            }
+        });
+
+        helper = new QuickAdapterHelper.Builder(mAdapter).build();
+        mRecyclerView.setAdapter(helper.getAdapter());
+    }
+
+    private void showRepoBottomSheet(int position) {
+        new BottomSheet.Builder(this).sheet(R.menu.folder_backup_bottom_sheet_delete).listener(new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (which == R.id.delete) {
+                    mAdapter.removeAt(position);
+
+                    String strJsonPath = new Gson().toJson(mAdapter.getItems());
+                    SettingsManager.instance().saveBackupPaths(strJsonPath);
+                }
+            }
+        }).show();
     }
 
     private void showBottomDialog(String text) {
@@ -105,8 +135,8 @@ public class FolderBackupSelectedPathActivity extends BaseActivity {
 
     public void setFinishPage() {
         Intent intent = new Intent();
-        if (!CollectionUtils.isEmpty(mAdapter.getItemList())) {
-            intent.putStringArrayListExtra(BACKUP_SELECT_PATHS, (ArrayList<String>) mAdapter.getItemList());
+        if (!CollectionUtils.isEmpty(mAdapter.getItems())) {
+            intent.putStringArrayListExtra(BACKUP_SELECT_PATHS, (ArrayList<String>) mAdapter.getItems());
             intent.putExtra(BACKUP_SELECT_PATHS_SWITCH, true);
         }
         setResult(RESULT_OK, intent);

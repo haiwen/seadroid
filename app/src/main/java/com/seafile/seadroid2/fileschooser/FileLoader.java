@@ -8,7 +8,7 @@ import com.seafile.seadroid2.util.Utils;
 
 import android.content.Context;
 import android.os.FileObserver;
-import android.support.v4.content.AsyncTaskLoader;
+import androidx.loader.content.AsyncTaskLoader;
 
 public class FileLoader extends AsyncTaskLoader<List<SelectableFile>> {
 

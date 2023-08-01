@@ -5,7 +5,7 @@ import android.accounts.AccountManager;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
+import androidx.appcompat.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -119,6 +119,7 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         Log.d(DEBUG_TAG, "onActivityResult");
 
         // The sign up activity returned that the user has successfully created an account

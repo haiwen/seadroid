@@ -1,11 +1,12 @@
 package com.seafile.seadroid2.editor.widget;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
+
+import androidx.annotation.NonNull;
 
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.editor.controller.BlockQuotesController;

@@ -3,7 +3,7 @@ package com.seafile.seadroid2.editor;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
+import androidx.appcompat.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Menu;
@@ -16,6 +16,7 @@ import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.editor.widget.HorizontalEditScrollView;
 import com.seafile.seadroid2.monitor.FileMonitorService;
 import com.seafile.seadroid2.ui.activity.BaseActivity;
+import com.seafile.seadroid2.ui.widget.PerformEdit;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.util.Utils;
 import com.yydcdut.markdown.MarkdownConfiguration;
@@ -26,8 +27,6 @@ import com.yydcdut.markdown.syntax.edit.EditFactory;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-
-import ren.qinc.edit.PerformEdit;
 
 public class EditorActivity extends BaseActivity implements Toolbar.OnMenuItemClickListener {
 

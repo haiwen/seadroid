@@ -18,9 +18,9 @@
         android:id="@+id/starred_list_item_icon"
         android:layout_width="@dimen/lv_icon_width"
         android:layout_height="@dimen/lv_icon_height"
-        android:scaleType="centerInside"
         android:layout_centerVertical="true"
-        android:layout_toRightOf="@id/list_item_multi_select_btn" />
+        android:layout_toRightOf="@id/list_item_multi_select_btn"
+        android:scaleType="centerInside" />
 
     <ImageView
         android:id="@+id/starred_list_item_space"

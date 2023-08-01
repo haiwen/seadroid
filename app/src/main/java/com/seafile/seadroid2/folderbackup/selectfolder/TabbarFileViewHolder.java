@@ -1,6 +1,6 @@
 package com.seafile.seadroid2.folderbackup.selectfolder;
 
-import android.support.v7.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;

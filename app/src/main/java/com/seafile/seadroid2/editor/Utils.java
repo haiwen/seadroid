@@ -1,6 +1,6 @@
 package com.seafile.seadroid2.editor;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.text.style.AlignmentSpan;
 import android.widget.EditText;
 

@@ -3,15 +3,15 @@ package com.seafile.seadroid2.ui;
 import android.app.Notification;
 import android.content.Context;
 import android.os.Build;
-import android.support.v4.app.NotificationCompat;
+import androidx.core.app.NotificationCompat;
 import android.view.View;
 import android.widget.RemoteViews;
 import com.seafile.seadroid2.R;
 
 /**
- * Extends the support class {@link android.support.v4.app.NotificationCompat.Builder} to grant that
+ * Extends the support class {@link androidx.core.app.NotificationCompat.Builder} to grant that
  * a progress bar is available in every Android version, because
- * {@link android.support.v4.app.NotificationCompat.Builder#setProgress(int, int, boolean)} has no
+ * {@link androidx.core.app.NotificationCompat.Builder#setProgress(int, int, boolean)} has no
  * real effect for Android < 4.0
  */
 public class CustomNotificationBuilder extends NotificationCompat.Builder {

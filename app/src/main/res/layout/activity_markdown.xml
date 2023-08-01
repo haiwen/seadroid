@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:app="http://schemas.android.com/apk/res-auto"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:orientation="vertical">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
-    <android.support.design.widget.AppBarLayout
+    <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:theme="@style/AppTheme">
-        <include layout="@layout/toolbar_actionbar"/> <!-- placeholder, empty except on L -->
-    </android.support.design.widget.AppBarLayout>
+
+        <include layout="@layout/toolbar_actionbar" /> <!-- placeholder, empty except on L -->
+    </com.google.android.material.appbar.AppBarLayout>
 
     <ScrollView
         android:layout_width="match_parent"
@@ -22,9 +23,9 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="left|top"
-            app:escapeHtml="false"
+            android:lineSpacingExtra="3dp"
             android:textColor="#333333"
-            android:lineSpacingExtra="3dp"/>
+            app:escapeHtml="false" />
     </ScrollView>
 
 </LinearLayout>

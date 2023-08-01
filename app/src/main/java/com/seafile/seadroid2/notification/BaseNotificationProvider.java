@@ -1,7 +1,7 @@
 package com.seafile.seadroid2.notification;
 
 import android.app.NotificationManager;
-import android.support.v4.app.NotificationCompat;
+import androidx.core.app.NotificationCompat;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.transfer.TransferManager;
