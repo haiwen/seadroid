@@ -121,7 +121,6 @@ android {
         implementation "androidx.media3:media3-ui:$media3_version"
 
         final def x_version = '1.5.0'
-
         implementation "androidx.appcompat:appcompat:$x_version"
         implementation "androidx.activity:activity:$x_version"
         implementation "com.google.android.material:material:$x_version"
@@ -140,24 +139,23 @@ android {
         implementation "com.google.guava:guava:31.1-android"
 
         //https://github.com/Baseflow/PhotoView
-        implementation 'com.github.chrisbanes:PhotoView:2.0.0'
-//        implementation 'com.commit451:PhotoView:1.2.4' //need to update
+        implementation 'com.github.Chrisbanes:PhotoView:2.3.0'
 
+        //https://jitpack.io/#zhwanng
+        implementation 'com.github.zhwanng:XXPermissions:1.0.2'
+        implementation 'com.github.zhwanng.android-iconify:android-iconify:3.0.1'
+        implementation 'com.github.zhwanng.android-iconify:android-iconify-material-community:3.0.1'
 
-        implementation 'com.joanzapata.iconify:android-iconify-material-community:2.2.1'
         testImplementation 'junit:junit:4.12'
         testImplementation 'org.robolectric:robolectric:3.0'
         implementation 'com.madgag.spongycastle:core:1.54.0.0'
         implementation 'com.madgag.spongycastle:prov:1.54.0.0'
         implementation 'com.squareup.okhttp3:okhttp:3.9.1'
-        implementation 'com.github.getActivity:XXPermissions:16.2'
         implementation 'io.reactivex.rxjava3:rxjava:3.1.5'
         implementation 'io.reactivex.rxjava3:rxandroid:3.0.2'
         implementation 'com.google.code.gson:gson:2.10'
 
-//        implementation 'com.yydcdut:markdown-processor:0.1.3' //need to update
         implementation 'com.github.yydcdut.RxMarkdown:markdown-processor:v0.1.3'
-//        implementation 'ren.qinc.edit:lib:0.0.5'//editor undo redo //need to update
         implementation 'org.greenrobot:eventbus:3.3.1'
 
         def glide_version = "4.14.2"
@@ -165,7 +163,7 @@ android {
         implementation "com.github.bumptech.glide:okhttp3-integration:$glide_version"
         annotationProcessor "com.github.bumptech.glide:compiler:$glide_version"
 
-        implementation 'com.github.haiwen:MarkdownView:0.19.1'
+        implementation 'com.github.haiwen:MarkdownView:v0.19.4'
     }
 }
 
