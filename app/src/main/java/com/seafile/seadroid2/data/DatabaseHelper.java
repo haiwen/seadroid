@@ -374,7 +374,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         String[] selectArgs = { account.getSignature() };
 
-
         Cursor cursor = database.query(
                 STARRED_FILECACHE_TABLE_NAME,
                 projection,

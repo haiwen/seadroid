@@ -6,9 +6,6 @@ import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import androidx.fragment.app.ListFragment;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-import androidx.appcompat.view.ActionMode;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -22,6 +19,13 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.view.ActionMode;
+import androidx.fragment.app.ListFragment;
+import androidx.lifecycle.Observer;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
 import com.cocosw.bottomsheet.BottomSheet;
 import com.google.common.collect.Maps;
 import com.seafile.seadroid2.R;
@@ -29,6 +33,7 @@ import com.seafile.seadroid2.SeafConnection;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafCachedFile;
 import com.seafile.seadroid2.data.SeafDirent;
@@ -641,8 +646,9 @@ public class ReposFragment extends ListFragment {
                 final SeafDirent dirent = (SeafDirent) adapter.getItem(position);
                 if (dirent.isDir()) {
                     String currentPath = nav.getDirPath();
-                    String newPath = currentPath.endsWith("/") ?
-                            currentPath + dirent.name : currentPath + "/" + dirent.name;
+                    String newPath = currentPath.endsWith("/")
+                            ? currentPath + dirent.name
+                            : currentPath + "/" + dirent.name;
                     nav.setDir(newPath, dirent.id);
                     nav.setDirPermission(dirent.permission);
                     saveDirentScrollPosition(repo.getID(), currentPath);
@@ -653,8 +659,7 @@ public class ReposFragment extends ListFragment {
                     saveDirentScrollPosition(repo.getID(), currentPath);
                     mActivity.onFileSelected(dirent);
                 }
-            } else
-                return;
+            }
         } else {
             nav.setDirPermission(repo.permission);
             nav.setRepoID(repo.id);

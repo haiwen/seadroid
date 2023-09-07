@@ -10,8 +10,6 @@ import com.joanzapata.iconify.fonts.MaterialCommunityModule;
 import com.seafile.seadroid2.gesturelock.AppLockManager;
 import com.seafile.seadroid2.ui.CustomNotificationBuilder;
 import com.seafile.seadroid2.util.CrashHandler;
-import com.seafile.seadroid2.util.DeviceIdManager;
-import com.seafile.seadroid2.util.SeafileLog;
 import com.seafile.seadroid2.util.Utils;
 
 public class SeadroidApplication extends Application {
@@ -33,7 +31,6 @@ public class SeadroidApplication extends Application {
         AppLockManager.getInstance().enableDefaultAppLockIfAvailable(this);
 
         initNotificationChannel();
-
         CrashHandler crashHandler = CrashHandler.getInstance();
         crashHandler.init(this);
         Utils.logPhoneModelInfo();

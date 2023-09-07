@@ -416,8 +416,7 @@ public class SeafConnection {
      * @return A non-null Pair of (dirID, content). If the local cache is up to date, the "content" is null.
      * @throws SeafException
      */
-    public Pair<String, String> getDirents(String repoID, String path, String cachedDirID)
-            throws SeafException {
+    public Pair<String, String> getDirents(String repoID, String path, String cachedDirID) throws SeafException {
         try {
             String apiPath = String.format("api2/repos/%s/dir/", repoID);
             Map<String, Object> params = Maps.newHashMap();
@@ -715,11 +714,7 @@ public class SeafConnection {
      * @param monitor
      * @return A two tuple of (fileID, file). If the local cached version is up to date, the returned file is null.
      */
-    public Pair<String, File> getFile(String repoID,
-                                      String path,
-                                      String localPath,
-                                      String cachedFileID,
-                                      ProgressMonitor monitor) throws SeafException {
+    public Pair<String, File> getFile(String repoID, String path, String localPath, String cachedFileID, ProgressMonitor monitor) throws SeafException {
         Pair<String, String> ret = getDownloadLink(repoID, path, false);
         String dlink = ret.first;
         String fileID = ret.second;
@@ -1525,7 +1520,7 @@ public class SeafConnection {
                     String result = new String(req.bytes(), "UTF-8");
                     if (result != null && Utils.parseJsonObject(result) != null) {
                         JSONObject json = Utils.parseJsonObject(result);
-                        if (json.has("detail")){
+                        if (json.has("detail")) {
                             throw new SeafException(req.code(), json.optString("detail"));
                         }
                         throw new SeafException(req.code(), json.optString("error_msg"));

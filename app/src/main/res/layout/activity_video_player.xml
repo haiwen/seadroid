@@ -11,9 +11,5 @@
         android:id="@+id/player_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_gravity="center"
-        app:show_next_button="false"
-        app:show_previous_button="false"
-        app:show_shuffle_button="true"
-        app:show_subtitle_button="true" />
+        android:layout_gravity="center" />
 </FrameLayout>

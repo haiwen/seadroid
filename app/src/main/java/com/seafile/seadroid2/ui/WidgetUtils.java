@@ -85,7 +85,7 @@ public class WidgetUtils {
                         clipboard.setText(gdialog.getLink());
                         // ClipData clip = ClipData.newPlainText("seafile shared link", gdialog.getLink());
                         // clipboard.setPrimaryClip(clip);
-                        ToastUtils.showLong( R.string.link_ready_to_be_pasted);
+                        ToastUtils.showLong(R.string.link_ready_to_be_pasted);
                     }
 
                     @Override

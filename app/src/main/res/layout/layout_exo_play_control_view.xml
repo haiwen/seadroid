@@ -1,34 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:layout_gravity="bottom"
-    android:background="#CC000000"
     android:orientation="vertical"
     android:paddingVertical="8dp">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:gravity="center"
         android:orientation="horizontal"
-        android:paddingTop="4dp">
+        android:padding="4dp">
 
-        <ImageButton
-            android:id="@id/exo_rew"
-            style="@style/ExoMediaButton.Rewind" />
-
-        <ImageButton
-            android:id="@id/exo_play"
-            style="@style/ExoMediaButton.Play" />
-
-        <ImageButton
-            android:id="@id/exo_pause"
-            style="@style/ExoMediaButton.Pause" />
-
-        <ImageButton
-            android:id="@id/exo_ffwd"
-            style="@style/ExoMediaButton.FastForward" />
+        <ImageView
+            android:id="@+id/player_play"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_play_fill" />
 
     </LinearLayout>
 
@@ -36,6 +26,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
+        android:background="#CC000000"
         android:gravity="center_vertical"
         android:orientation="horizontal">
 

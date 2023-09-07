@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.text.TextUtils;
 
+import androidx.annotation.Nullable;
+
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.cameraupload.CameraUploadManager;
@@ -72,6 +74,7 @@ public class SupportAccountManager {
         return list;
     }
 
+    @Nullable
     public Account getCurrentAccount() {
         String name = actMangeSharedPref.getString(SHARED_PREF_ACCOUNT_NAME, null);
 

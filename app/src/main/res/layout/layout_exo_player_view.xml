@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <FrameLayout
+        android:id="@+id/exo_content_frame"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintDimensionRatio="2:1"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/exo_error_message"
+        android:layout_width="wrap_content"
+        android:layout_height="32dp"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:text="刷新"
+        android:textColor="@color/white"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/exo_content_frame"
+        app:layout_constraintEnd_toEndOf="@id/exo_content_frame"
+        app:layout_constraintStart_toStartOf="@id/exo_content_frame"
+        app:layout_constraintTop_toTopOf="@id/exo_content_frame" />
+</androidx.constraintlayout.widget.ConstraintLayout>
+

@@ -183,6 +183,7 @@
   <string name="no_download_tasks">Пока нет задач на скачивание</string>
   <string name="seahub_url_hint">Примечание: Адрес сервера должен содержать порт. Например, www.example.com:8000</string>
   <string name="copy_link">Копировать ссылку</string>
+  <string name="share_link_no_permission">У вас нет разрешения на выполнение этого действия.</string>
   <string name="share_file_link">Поделиться ссылкой на этот файл</string>
   <string name="share_dir_link">Поделиться ссылкой на эту папку</string>
   <string name="share_input_password">пароль</string>
@@ -381,9 +382,9 @@
   <string name="camera_sync_notification_auth_error_failed">Ошибка аутентификации.</string>
   <string name="camera_sync_rename_file">%s (переименовано Seafile)</string>
   <string name="settings_about_title">О ПРИЛОЖЕНИИ</string>
+  <string name="settings_about_privacy_policy">Политика конфиденциальности</string>
   <string name="settings_about_version_title">Версия</string>
   <string name="settings_about_author_title">Об авторе</string>
-
   <string name="settings_about_author_info">
         <![CDATA[
         <h5>Seafile Android Client</h5>
@@ -398,7 +399,6 @@
         <h5>Copyright ©2013-2023 Seafile Ltd.</h5>
         ]]>
     </string>
-
   <string name="settings_advance_feature_title">ДОПОЛНИТЕЛЬНЫЕ ФУНКЦИИ</string>
   <string name="settings_storage_title">Кэш-хранилище</string>
   <string name="settings_cache_title">Размер кэша</string>
@@ -570,4 +570,38 @@
   <string name="required_password">Необходим пароль.</string>
   <string name="weak_password">Пароль слишком слабый.</string>
   <!--Folder backup Preference-->
+  <string name="settings_folder_backup_info_title">Папка резервного копирования</string>
+  <string name="settings_folder_backup_switch_title">Включить резервное копирование папки</string>
+  <string name="settings_folder_backup_service_started">Служба резервного копирования запущена</string>
+  <string name="settings_folder_backup_service_stopped">Служба резервного копирования остановлена</string>
+  <string name="settings_select_backup_folder_title">Выбрать папку</string>
+  <string name="folder_file_item_size">Размер %s</string>
+  <string name="folder_file_item_describe">файл \%s\ | папка \%s\</string>
+  <string name="internal_storage">Внутреннее хранилище</string>
+  <string name="selection_file_type">Выберите папку для резервного копирования</string>
+  <string name="select_backup_folder">Выбрать папку для резервного копирования</string>
+  <string name="select_backup_libraries">Выбрать библиотеку для резервных копий</string>
+  <string name="folder_backup_completed">Резервная копия папки создана</string>
+  <string name="get_storage_permission_failed">Не удалось получить разрешение на хранение</string>
+  <string name="authorization_storage_permission">В авторизации отказано навсегда, предоставьте разрешение на хранение вручную.</string>
+  <string name="settings_folder_backup_select_hint">0</string>
+  <string name="settings_folder_backup_select_title">Выбранные папки резервного копирования</string>
+  <string name="settings_folder_backup_traffic">Режим резервного копирования</string>
+  <string name="settings_folder_backup_traffic_hint">WIFI</string>
+  <string name="settings_folder_backup_library">Резервное копирование библиотеки на</string>
+  <string name="folder_backup_add">Добавить папку для резервного копирования</string>
+  <string name="folder_backup_cancel">Отменить резервное копирование</string>
+  <string name="folder_backup_waiting_state">Завершено</string>
+  <string name="folder_backup_state">Информация о резервной копии папки</string>
+  <string name="folder_backup_mode">WIFI или мобильный трафик</string>
+  <string name="folder_backup_mode_title">Выбрать режим</string>
+  <string name="folder_backup_select_repo_hint">Выбрать библиотеку</string>
+  <string name="folder_backup_select_repo_update">Обновить библиотеку для резервных копий</string>
+  <string name="UncaughtExceptionHandler_err">Приложение перестало работать</string>
+  <!--action-->
+  <string name="add">Добавить</string>
+  <string name="modify">Изменить</string>
+  <string name="update">Обновить</string>
+  <string name="clear">Очистить</string>
+  <string name="clear_all">Очистить все</string>
 </resources>

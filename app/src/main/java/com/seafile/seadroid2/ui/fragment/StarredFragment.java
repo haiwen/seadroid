@@ -6,6 +6,8 @@ import android.os.Bundle;
 import androidx.fragment.app.ListFragment;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.appcompat.view.ActionMode;
+
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -263,14 +265,12 @@ public class StarredFragment extends ListFragment {
                             }
                         }, password);
 
-                return;
             } else {
                 WidgetUtils.showStarredRepo(mActivity, repoID, repoName, filePath, null);
             }
         } else {
             WidgetUtils.showStarredRepo(mActivity, repoID, repoName, filePath, null);
         }
-        return;
     }
 
     private void unStarFiles(List<SeafStarredFile> starredFiles) {

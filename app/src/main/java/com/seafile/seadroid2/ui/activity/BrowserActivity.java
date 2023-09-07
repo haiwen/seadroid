@@ -17,20 +17,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.MediaStore;
-import com.google.android.material.snackbar.Snackbar;
-import com.google.android.material.tabs.TabLayout;
-import androidx.core.app.ActivityCompat;
-import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentPagerAdapter;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.core.content.ContextCompat;
-import androidx.core.content.FileProvider;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import androidx.viewpager.widget.ViewPager;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -40,6 +26,21 @@ import android.view.View;
 import android.view.Window;
 import android.widget.FrameLayout;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.viewpager.widget.ViewPager;
+
+import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.tabs.TabLayout;
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafConnection;
@@ -63,7 +64,7 @@ import com.seafile.seadroid2.folderbackup.FolderBackupService.FileBackupBinder;
 import com.seafile.seadroid2.monitor.FileMonitorService;
 import com.seafile.seadroid2.notification.DownloadNotificationProvider;
 import com.seafile.seadroid2.notification.UploadNotificationProvider;
-import com.seafile.seadroid2.play.exoplayer.ExoVideoPlayerActivity;
+import com.seafile.seadroid2.play.exoplayer.CustomExoVideoPlayerActivity;
 import com.seafile.seadroid2.transfer.DownloadTaskInfo;
 import com.seafile.seadroid2.transfer.DownloadTaskManager;
 import com.seafile.seadroid2.transfer.PendingUploadInfo;
@@ -898,6 +899,37 @@ public class BrowserActivity extends BaseActivity implements ReposFragment.OnFil
             Log.d(DEBUG_TAG, "Account switched, restarting activity.");
             finish();
             startActivity(intent);
+        } else {
+
+//            intent.putExtra("repoID", repoID);
+//            intent.putExtra("repoName", repoName);
+//            intent.putExtra("path", path);
+//            intent.putExtra("dirID", dirID);
+
+            String repoId = intent.getStringExtra("repoID");
+            String repoName = intent.getStringExtra("repoName");
+            String path = intent.getStringExtra("path");
+            String dirID = intent.getStringExtra("dirID");
+            navContext.setRepoID(repoId);
+            navContext.setRepoName(repoName);
+            navContext.setDir(path, dirID);
+            navContext.setDirID(dirID);
+
+//            if (navContext.isRepoRoot()) {
+//                navContext.setRepoID(null);
+//                getActionBarToolbar().setTitle(R.string.app_name);
+//            } else {
+//                String parentPath = Utils.getParentPath(navContext.getDirPath());
+//                navContext.setDir(parentPath, null);
+//                if (TextUtils.equals(ACTIONBAR_PARENT_PATH, parentPath)) {
+//                    getActionBarToolbar().setTitle(navContext.getRepoName());
+//                } else {
+//                    getActionBarToolbar().setTitle(parentPath.substring(parentPath.lastIndexOf(ACTIONBAR_PARENT_PATH) + 1));
+//                }
+//            }
+
+            getReposFragment().clearAdapterData();
+            getReposFragment().refreshView(true);
         }
     }
 
@@ -1772,7 +1804,7 @@ public class BrowserActivity extends BaseActivity implements ReposFragment.OnFil
     }
 
     private void startPlayActivity(String fileName, String repoID, String filePath) {
-        Intent intent = new Intent(this, ExoVideoPlayerActivity.class);
+        Intent intent = new Intent(this, CustomExoVideoPlayerActivity.class);
         intent.putExtra("fileName", fileName);
         intent.putExtra("repoID", repoID);
         intent.putExtra("filePath", filePath);
@@ -1834,30 +1866,25 @@ public class BrowserActivity extends BaseActivity implements ReposFragment.OnFil
             return;
         }
 
-        if (currentPosition == INDEX_LIBRARY_TAB) {
-            if (navContext.inRepo()) {
-                if (navContext.isRepoRoot()) {
-                    navContext.setRepoID(null);
-                    getActionBarToolbar().setTitle(R.string.app_name);
+        if (currentPosition == INDEX_LIBRARY_TAB && navContext.inRepo()) {
+            if (navContext.isRepoRoot()) {
+                navContext.setRepoID(null);
+                getActionBarToolbar().setTitle(R.string.app_name);
+            } else {
+                String parentPath = Utils.getParentPath(navContext.getDirPath());
+                navContext.setDir(parentPath, null);
+                if (TextUtils.equals(ACTIONBAR_PARENT_PATH, parentPath)) {
+                    getActionBarToolbar().setTitle(navContext.getRepoName());
                 } else {
-                    String parentPath = Utils.getParentPath(navContext
-                            .getDirPath());
-                    navContext.setDir(parentPath, null);
-                    if (parentPath.equals(ACTIONBAR_PARENT_PATH)) {
-                        getActionBarToolbar().setTitle(navContext.getRepoName());
-                    } else {
-                        getActionBarToolbar().setTitle(parentPath.substring(parentPath.lastIndexOf(ACTIONBAR_PARENT_PATH) + 1));
-                    }
+                    getActionBarToolbar().setTitle(parentPath.substring(parentPath.lastIndexOf(ACTIONBAR_PARENT_PATH) + 1));
                 }
-                getReposFragment().clearAdapterData();
-                getReposFragment().refreshView(true);
+            }
+            getReposFragment().clearAdapterData();
+            getReposFragment().refreshView(true);
 
-            } else
-                super.onBackPressed();
-        } else if (currentPosition == INDEX_ACTIVITIES_TAB) {
+        } else {
             super.onBackPressed();
-        } else
-            super.onBackPressed();
+        }
     }
 
     @Override
