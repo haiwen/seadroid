@@ -1,17 +1,22 @@
 package com.seafile.seadroid2.ui.fragment;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceScreen;
+
 import androidx.appcompat.app.AlertDialog;
+
 import android.text.Html;
 import android.text.TextUtils;
 import android.util.Log;
@@ -319,8 +324,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
                         cFolderBackupCategory.removePreference(cBackupFolderState);
                         SettingsManager.instance().saveFolderAutomaticBackup(false);
                     } else {
-
-                        XXPermissions.with(getActivity()).permission(Permission.MANAGE_EXTERNAL_STORAGE).request(new OnPermissionCallback() {
+                        XXPermissions.with(requireContext()).permission(Permission.MANAGE_EXTERNAL_STORAGE).request(new OnPermissionCallback() {
 
                             @Override
                             public void onGranted(List<String> permissions, boolean all) {
@@ -334,10 +338,10 @@ public class SettingsFragment extends CustomPreferenceFragment {
                             @Override
                             public void onDenied(List<String> permissions, boolean never) {
                                 if (never) {
-                                    Toast.makeText(getActivity(), mActivity.getString(R.string.authorization_storage_permission), Toast.LENGTH_LONG).show();
+                                    Toast.makeText(requireContext(), mActivity.getString(R.string.authorization_storage_permission), Toast.LENGTH_LONG).show();
                                     XXPermissions.startPermissionActivity(getActivity(), permissions);
                                 } else {
-                                    Toast.makeText(getActivity(), mActivity.getString(R.string.get_storage_permission_failed), Toast.LENGTH_LONG).show();
+                                    Toast.makeText(requireContext(), mActivity.getString(R.string.get_storage_permission_failed), Toast.LENGTH_LONG).show();
                                     ((CheckBoxPreference) findPreference(SettingsManager.FOLDER_BACKUP_SWITCH_KEY)).setChecked(false);
                                 }
                             }
@@ -358,11 +362,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
                         cUploadCategory.removePreference(cUploadAdvancedScreen);
                         cameraManager.disableCameraUpload();
                     } else {
-//                        Intent intent = new Intent(mActivity, CameraUploadConfigActivity.class);
-//                        intent.putExtra(CAMERA_UPLOAD_BOTH_PAGES, true);
-//                        startActivityForResult(intent, CHOOSE_CAMERA_UPLOAD_REQUEST);
-                        XXPermissions.with(getActivity()).permission(Permission.MANAGE_EXTERNAL_STORAGE).request(new OnPermissionCallback() {
-
+                        XXPermissions.with(requireContext()).permission(Permission.MANAGE_EXTERNAL_STORAGE).request(new OnPermissionCallback() {
                             @Override
                             public void onGranted(List<String> permissions, boolean all) {
                                 if (all) {
@@ -375,11 +375,11 @@ public class SettingsFragment extends CustomPreferenceFragment {
                             @Override
                             public void onDenied(List<String> permissions, boolean never) {
                                 if (never) {
-                                    Toast.makeText(getActivity(), mActivity.getString(R.string.authorization_storage_permission), Toast.LENGTH_LONG).show();
-                                    XXPermissions.startPermissionActivity(getActivity(), permissions);
+                                    Toast.makeText(requireContext(), mActivity.getString(R.string.authorization_storage_permission), Toast.LENGTH_LONG).show();
+                                    XXPermissions.startPermissionActivity(requireContext(), permissions);
                                 } else {
-                                    Toast.makeText(getActivity(), mActivity.getString(R.string.get_storage_permission_failed), Toast.LENGTH_LONG).show();
-                                    ((CheckBoxPreference) findPreference(SettingsManager.FOLDER_BACKUP_SWITCH_KEY)).setChecked(false);
+                                    Toast.makeText(requireContext(), mActivity.getString(R.string.get_storage_permission_failed), Toast.LENGTH_LONG).show();
+                                    ((CheckBoxPreference) findPreference(SettingsManager.CAMERA_UPLOAD_SWITCH_KEY)).setChecked(false);
                                 }
                             }
                         });

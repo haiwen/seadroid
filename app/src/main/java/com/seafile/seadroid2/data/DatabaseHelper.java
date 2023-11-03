@@ -217,8 +217,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         onUpgrade(db, oldVersion, newVersion);
     }
 
-    public SeafCachedFile getFileCacheItem(String repoID,
-                                           String path, DataManager dataManager) {
+    public SeafCachedFile getFileCacheItem(String repoID, String path, DataManager dataManager) {
         String[] projection = {
                 FILECACHE_COLUMN_ID,
                 FILECACHE_COLUMN_FILEID,
@@ -425,8 +424,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return exist;
     }
 
-    public void saveRepoDirMapping(Account account,
-                                   String repoID, String dir) {
+    public void saveRepoDirMapping(Account account, String repoID, String dir) {
         String log = String.format("Saving repo dir mapping: account = %s(%s) "
                         + "repoID = %s"
                         + "dir = %s",

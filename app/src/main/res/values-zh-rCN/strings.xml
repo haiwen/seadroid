@@ -371,19 +371,20 @@
   <string name="settings_about_version_title">应用版本号</string>
   <string name="settings_about_author_title">关于我们</string>
   <string name="settings_about_author_info">
-        <![CDATA[
-        <h5>Seafile Android Client</h5>
-        <p>%s</p>
-        <h5>联系我们</h5>
-        <p>
-            Twitter: Seafile<br>
-            Email: support@seafile.com<br>
-        </p>
-        贡献
-        <p>https://github.com/haiwen/seadroid.git</P>
-        <h5>Copyright ©2013-2023 Seafile Ltd.</h5>
-        ]]>
-    </string>
+<![CDATA[
+<h2>Seafile Android Client</h2>
+<p>%s</p>
+<h5>联系我们</h5>
+<p>
+Twitter: Seafile<br>
+Email: support@seafile.com<br>
+</p>
+<h5>贡献</h5>
+<p>https://github.com/haiwen/seadroid.git</P>
+<h5>备案编号</h5>
+<p>京ICP备12015883号-10A</p>
+<h5>Copyright ©2013-2023 Seafile Ltd.</h5>
+]]></string>
   <string name="settings_advance_feature_title">高级特性</string>
   <string name="settings_storage_title">缓存存储</string>
   <string name="settings_cache_title">缓存大小</string>
@@ -488,6 +489,7 @@
   <string name="action_mode_no_items_selected">未选中任何文件</string>
   <!--Accessibility description for navigation drawer-->
   <!--permission-->
+  <string name="permission_manage_exteral_storage_rationale">在处理文件之前，请允许应用获取管理外部存储所有文件权限</string>
   <string name="permission_read_exteral_storage_rationale">在处理文件之前，请允许应用获取存储权限</string>
   <string name="permission_read_contacts_storage_rationale">在处理通讯录之前，请允许本应用获取通讯录权限</string>
   <string name="permission_not_granted">未获得权限</string>

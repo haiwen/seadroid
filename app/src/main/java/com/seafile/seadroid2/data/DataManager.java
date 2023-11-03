@@ -290,11 +290,16 @@ public class DataManager {
         if (TextUtils.isEmpty(repoID)) {
             return null;
         }
+
         String repoDir = getRepoDir(repoName, repoID);
         if (TextUtils.isEmpty(repoDir)) {
             return null;
         }
         String localPath = Utils.pathJoin(repoDir, path);
+
+        //build valid file path and name
+        localPath = com.seafile.seadroid2.util.FileUtils.buildValidFilePathName(localPath);
+
         File parentDir = new File(Utils.getParentPath(localPath));
         if (!parentDir.exists()) {
             // TODO should check if the directory creation succeeds
@@ -459,8 +464,7 @@ public class DataManager {
         dbHelper.removeCachedDirents(repoID, dir);
     }
 
-    public synchronized File getFile(String repoName, String repoID, String path,
-                                     ProgressMonitor monitor) throws SeafException {
+    public synchronized File getFile(String repoName, String repoID, String path, ProgressMonitor monitor) throws SeafException {
 
         String cachedFileID = null;
         SeafCachedFile cf = getCachedFile(repoName, repoID, path);
@@ -485,9 +489,7 @@ public class DataManager {
         }
     }
 
-    public synchronized File getFileByBlocks(String repoName, String repoID, String path, long fileSize,
-                                             ProgressMonitor monitor) throws SeafException, IOException, JSONException, NoSuchAlgorithmException {
-
+    public synchronized File getFileByBlocks(String repoName, String repoID, String path, long fileSize, ProgressMonitor monitor) throws SeafException, IOException, JSONException, NoSuchAlgorithmException {
         String cachedFileID = null;
         SeafCachedFile cf = getCachedFile(repoName, repoID, path);
         File localFile = getLocalRepoFile(repoName, repoID, path);
@@ -1154,8 +1156,8 @@ public class DataManager {
      * @return json format strings of searched result
      * @throws SeafException
      */
-    public String search(String query,int page, int pageSize) throws SeafException {
-        String json = sc.searchLibraries(query, page,pageSize);
+    public String search(String query, int page, int pageSize) throws SeafException {
+        String json = sc.searchLibraries(query, page, pageSize);
         return json;
     }
 

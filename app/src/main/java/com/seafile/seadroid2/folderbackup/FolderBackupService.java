@@ -200,7 +200,7 @@ public class FolderBackupService extends Service {
             }
 
             Utils.utilsLogInfo(false, "parentPath ->" + parentPath);
-            Utils.utilsLogInfo(false, "filePath   ->" + fb.getFilePath());
+            Utils.utilsLogInfo(false, "localPath  ->" + fb.getFilePath());
 
             FolderBackupInfo fileInfo = databaseHelper.getBackupFileInfo(
                     repoConfig.getRepoID(),
@@ -208,9 +208,13 @@ public class FolderBackupService extends Service {
                     String.valueOf(fb.getSimpleSize()));
             //
             if (fileInfo != null && !TextUtils.isEmpty(fileInfo.filePath)) {
-                Utils.utilsLogInfo(false, "file not exists ->" + fileInfo.filePath);
+                Utils.utilsLogInfo(false, "db exists  ->" + fileInfo.filePath);
+                Utils.utilsLogInfo(false, "---------------");
                 continue;
             }
+
+            Utils.utilsLogInfo(false, "uploadFile ->" + fb.getFilePath());
+            Utils.utilsLogInfo(false, "---------------");
 
             int taskID = txService.addTaskToSourceQue(Utils.TRANSFER_FOLDER_TAG, currentAccount,
                     repoConfig.getRepoID(), repoConfig.getRepoName(), parentPath,

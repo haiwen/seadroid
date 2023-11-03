@@ -182,6 +182,7 @@
   <string name="no_download_tasks">Aucun téléchargement en cours</string>
   <string name="seahub_url_hint">Note : Le nom de serveur peut contenir un port. Par exemple, www.exemple.com:8000</string>
   <string name="copy_link">Copier le lien</string>
+  <string name="share_link_no_permission">Vous n\'êtes pas autorisé à effectuer cette action.</string>
   <string name="share_file_link">Partager un lien vers ce fichier</string>
   <string name="share_dir_link">Partager un lien vers ce dossier</string>
   <string name="share_input_password">Saisir le mot de passe partagé</string>
@@ -376,12 +377,12 @@
   <string name="camera_sync_notification_auth_error_failed">Erreur d\'authentification.</string>
   <string name="camera_sync_rename_file">%s (renommé par Seafile)</string>
   <string name="settings_about_title">À PROPOS</string>
+  <string name="settings_about_privacy_policy">Politique de confidentialité</string>
   <string name="settings_about_version_title">Version</string>
   <string name="settings_about_author_title">À propos de l\'auteur</string>
-
   <string name="settings_about_author_info">
 <![CDATA[
-<h5>Seafile client pour Android</h5>
+<h5>Client Seafile pour Android</h5>
 <p>%s</p>
 <h5>Contactez-nous</h5>
 <p>
@@ -391,8 +392,8 @@ E-mail : support@seafile.com<br>
 <h5>Contributions</h5>
 <p>https://github.com/haiwen/seadroid.git</P>
 <h5>Copyright ©2013-2023 Seafile Ltd.</h5>
-]]></string>
-
+]]>
+</string>
   <string name="settings_advance_feature_title">Fonctionnalités avancées</string>
   <string name="settings_storage_title">Stockage du cache</string>
   <string name="settings_cache_title">Taille du cache</string>
@@ -560,4 +561,38 @@ E-mail : support@seafile.com<br>
   <string name="required_password">Un mot de passe est requis.</string>
   <string name="weak_password">Le mot de passe est trop faible.</string>
   <!--Folder backup Preference-->
+  <string name="settings_folder_backup_info_title">Dossier de sauvegarde</string>
+  <string name="settings_folder_backup_switch_title">Activer le dossier de sauvegarde</string>
+  <string name="settings_folder_backup_service_started">Le service de sauvegarde est démarré</string>
+  <string name="settings_folder_backup_service_stopped">Le service de sauvegarde est arrêté</string>
+  <string name="settings_select_backup_folder_title">Sélectionner un dossier</string>
+  <string name="folder_file_item_size">Taille %s</string>
+  <string name="folder_file_item_describe">fichier\%s\ | dossier\%s\</string>
+  <string name="internal_storage">Stockage interne</string>
+  <string name="selection_file_type">Veuillez sélectionner un dossier de sauvegarde</string>
+  <string name="select_backup_folder">Sélectionner un dossier de sauvegarde</string>
+  <string name="select_backup_libraries">Sélectionner une bibliothèque de sauvegarde</string>
+  <string name="folder_backup_completed">Le dossier est sauvegardé</string>
+  <string name="get_storage_permission_failed">Échec de l\'obtention de l\'autorisation du stockage</string>
+  <string name="authorization_storage_permission">L\'autorisation est refusée de manière permanente, veuillez accorder manuellement l\'autorisation d\'accès au stockage.</string>
+  <string name="settings_folder_backup_select_hint">0</string>
+  <string name="settings_folder_backup_select_title">Sélectionner un dossier de sauvegarde</string>
+  <string name="settings_folder_backup_traffic">Mode de sauvegarde</string>
+  <string name="settings_folder_backup_traffic_hint">WIFI</string>
+  <string name="settings_folder_backup_library">Sauvegarde de la bibliothèque vers </string>
+  <string name="folder_backup_add">Ajouter un dossier de sauvegarde</string>
+  <string name="folder_backup_cancel">Annuler la sauvegarde</string>
+  <string name="folder_backup_waiting_state">Effectué</string>
+  <string name="folder_backup_state">Informations sur la sauvegarde des dossiers</string>
+  <string name="folder_backup_mode">WIFI ou données mobiles</string>
+  <string name="folder_backup_mode_title">Choisir un mode</string>
+  <string name="folder_backup_select_repo_hint">Sélectionner une bibliothèque</string>
+  <string name="folder_backup_select_repo_update">Mettre à jour la bibliothèque de sauvegarde</string>
+  <string name="UncaughtExceptionHandler_err">L\'application a cessé de fonctionner</string>
+  <!--action-->
+  <string name="add">Ajouter</string>
+  <string name="modify">Modifier</string>
+  <string name="update">Mise à jour</string>
+  <string name="clear">Nettoyer</string>
+  <string name="clear_all">Tout nettoyer</string>
 </resources>

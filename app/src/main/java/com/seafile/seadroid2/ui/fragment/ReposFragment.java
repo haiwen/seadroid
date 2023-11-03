@@ -444,7 +444,6 @@ public class ReposFragment extends ListFragment {
             if (nav.getDirPath().equals(BrowserActivity.ACTIONBAR_PARENT_PATH)) {
                 mActivity.setUpButtonTitle(nav.getRepoName());
             } else
-
                 mActivity.setUpButtonTitle(nav.getDirPath().substring(
                         nav.getDirPath().lastIndexOf(BrowserActivity.ACTIONBAR_PARENT_PATH) + 1));
         }
@@ -477,7 +476,6 @@ public class ReposFragment extends ListFragment {
         isTimerStarted = true;
         Log.d(DEBUG_TAG, "timer started");
         mTimer.postDelayed(new Runnable() {
-
             @Override
             public void run() {
                 if (mActivity == null) return;

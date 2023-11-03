@@ -15,8 +15,10 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.IBinder;
 import android.provider.MediaStore;
+import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -25,6 +27,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
@@ -39,6 +42,7 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.viewpager.widget.ViewPager;
 
+import com.blankj.utilcode.util.ToastUtils;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
 import com.google.common.collect.Lists;
@@ -406,13 +410,11 @@ public class BrowserActivity extends BaseActivity implements ReposFragment.OnFil
 
         requestServerInfo();
 
-        requestReadExternalStoragePermission();
+//        requestReadExternalStoragePermission();
+        checkAndRequestManageStoragePermission();
+
         Utils.startCameraSyncJob(this);
         syncCamera();
-    }
-
-    public FrameLayout getmContainer() {
-        return mContainer;
     }
 
     private void finishAndStartAccountsActivity() {
@@ -566,18 +568,49 @@ public class BrowserActivity extends BaseActivity implements ReposFragment.OnFil
         return super.onOptionsItemSelected(item);
     }
 
+    private void checkAndRequestManageStoragePermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            if (!Environment.isExternalStorageManager()) {
+                new AlertDialog.Builder(this)
+                        .setMessage(R.string.permission_manage_exteral_storage_rationale)
+                        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        })
+                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                                Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
+                                intent.setData(Uri.parse("package:" + BrowserActivity.this.getPackageName()));
+                                startActivity(intent);
+                            }
+                        })
+                        .show();
+            }
+
+        } else {
+            requestReadExternalStoragePermission();
+        }
+    }
+
     /**
-     * If the user is running Android 6.0 (API level 23) or later, the user has to grant your app its permissions while they are running the app
+     * <p>
+     * If the user is running Android 6.0 (API level 23) or later,
+     * the user has to grant your app its permissions while they are running the app.
+     * </p>
      * <p>
      * Requests the WRITE_EXTERNAL_STORAGE permission.
      * If the permission has been denied previously, a SnackBar will prompt the user to grant the
      * permission, otherwise it is requested directly.
+     * </p>
      */
     private void requestReadExternalStoragePermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             // Should we show an explanation?
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
 
                 Snackbar.make(mLayout,
                                 R.string.permission_read_exteral_storage_rationale,
@@ -602,6 +635,7 @@ public class BrowserActivity extends BaseActivity implements ReposFragment.OnFil
             }
         }
     }
+
 
     /**
      * Callback received when a permissions request has been completed.
@@ -1648,8 +1682,7 @@ public class BrowserActivity extends BaseActivity implements ReposFragment.OnFil
                 filePath);
 
         if (!txService.hasDownloadNotifProvider()) {
-            DownloadNotificationProvider provider = new DownloadNotificationProvider(txService.getDownloadTaskManager(),
-                    txService);
+            DownloadNotificationProvider provider = new DownloadNotificationProvider(txService.getDownloadTaskManager(), txService);
             txService.saveDownloadNotifProvider(provider);
         }
 

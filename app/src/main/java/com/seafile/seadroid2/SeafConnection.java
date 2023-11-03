@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Build;
+import android.os.FileUtils;
 import android.provider.Settings.Secure;
 import android.text.TextUtils;
 import android.util.Log;
@@ -633,7 +634,6 @@ public class SeafConnection {
                 return null;
             }
             return file;
-
         } catch (SeafException e) {
             throw e;
         } catch (UnsupportedEncodingException e) {
