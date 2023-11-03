@@ -11,18 +11,6 @@
         app:layout_constraintDimensionRatio="2:1"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/exo_error_message"
-        android:layout_width="wrap_content"
-        android:layout_height="32dp"
-        android:layout_gravity="center"
-        android:gravity="center"
-        android:text="刷新"
-        android:textColor="@color/white"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@id/exo_content_frame"
-        app:layout_constraintEnd_toEndOf="@id/exo_content_frame"
-        app:layout_constraintStart_toStartOf="@id/exo_content_frame"
-        app:layout_constraintTop_toTopOf="@id/exo_content_frame" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
 
