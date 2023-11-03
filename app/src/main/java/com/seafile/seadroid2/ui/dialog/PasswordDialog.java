@@ -3,11 +3,15 @@ package com.seafile.seadroid2.ui.dialog;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.text.method.HideReturnsTransformationMethod;
+import android.text.method.PasswordTransformationMethod;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
 
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
@@ -65,11 +69,16 @@ public class PasswordDialog extends TaskDialog {
     private static final String STATE_TASK_PASSWORD = "set_password_task.password";
     private static final String STATE_ACCOUNT = "set_password_task.account";
 
-    private EditText passwordText;
+    private EditText passwordEt;
+    private RelativeLayout eyeContainerRl;
+    private ImageView eyeClickIv;
     private String repoID, repoName;
     private DataManager dataManager;
     private Account account;
     private String password;
+
+    private boolean isPasswordVisible;
+
 
     public void setRepo(String repoName, String repoID, Account account) {
         this.repoName = repoName;
@@ -88,11 +97,13 @@ public class PasswordDialog extends TaskDialog {
     @Override
     protected View createDialogContentView(LayoutInflater inflater, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.dialog_password, null);
-        passwordText = (EditText) view.findViewById(R.id.password);
+        passwordEt = (EditText) view.findViewById(R.id.password);
+        eyeContainerRl = (RelativeLayout) view.findViewById(R.id.rl_layout_eye);
+        eyeClickIv = (ImageView) view.findViewById(R.id.iv_eye_click);
 
-        passwordText.setFocusable(true);
-        passwordText.setFocusableInTouchMode(true);
-        passwordText.requestFocus();
+        passwordEt.setFocusable(true);
+        passwordEt.setFocusableInTouchMode(true);
+        passwordEt.requestFocus();
         if (savedInstanceState != null) {
             repoName = savedInstanceState.getString(STATE_TASK_REPO_NAME);
             repoID = savedInstanceState.getString(STATE_TASK_REPO_ID);
@@ -100,7 +111,7 @@ public class PasswordDialog extends TaskDialog {
         }
 
         if (password != null) {
-            passwordText.setText(password);
+            passwordEt.setText(password);
         }
 
         return view;
@@ -110,6 +121,24 @@ public class PasswordDialog extends TaskDialog {
     protected void onDialogCreated(Dialog dialog) {
         dialog.setTitle(repoName);
         dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        eyeContainerRl.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!isPasswordVisible) {
+                    eyeClickIv.setImageResource(R.drawable.icon_eye_open);
+                    passwordEt.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+                } else {
+                    eyeClickIv.setImageResource(R.drawable.icon_eye_close);
+                    passwordEt.setTransformationMethod(PasswordTransformationMethod.getInstance());
+                }
+                isPasswordVisible = !isPasswordVisible;
+                passwordEt.postInvalidate();
+                String input = passwordEt.getText().toString().trim();
+                if (!TextUtils.isEmpty(input)) {
+                    passwordEt.setSelection(input.length());
+                }
+            }
+        });
     }
 
     @Override
@@ -121,7 +150,7 @@ public class PasswordDialog extends TaskDialog {
 
     @Override
     protected void onValidateUserInput() throws Exception {
-        String password = passwordText.getText().toString().trim();
+        String password = passwordEt.getText().toString().trim();
 
         if (password.length() == 0) {
             String err = getActivity().getResources().getString(R.string.password_empty);
@@ -132,18 +161,18 @@ public class PasswordDialog extends TaskDialog {
     @Override
     protected void disableInput() {
         super.disableInput();
-        passwordText.setEnabled(false);
+        passwordEt.setEnabled(false);
     }
 
     @Override
     protected void enableInput() {
         super.enableInput();
-        passwordText.setEnabled(true);
+        passwordEt.setEnabled(true);
     }
 
     @Override
     protected SetPasswordTask prepareTask() {
-        String password = passwordText.getText().toString().trim();
+        String password = passwordEt.getText().toString().trim();
         SetPasswordTask task = new SetPasswordTask(repoID, password, getDataManager());
         return task;
     }
@@ -182,7 +211,7 @@ public class PasswordDialog extends TaskDialog {
     @Override
     public void onTaskSuccess() {
         SeafRepoEncrypt repo = dataManager.getCachedRepoEncryptByID(repoID);
-        String password = passwordText.getText().toString().trim();
+        String password = passwordEt.getText().toString().trim();
         if (repo == null || !repo.canLocalDecrypt()) {
             dataManager.setRepoPasswordSet(repoID, password);
         } else {
