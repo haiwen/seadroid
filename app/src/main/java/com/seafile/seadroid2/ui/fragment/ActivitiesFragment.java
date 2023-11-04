@@ -4,9 +4,11 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -45,6 +47,7 @@ import com.seafile.seadroid2.util.Utils;
 import org.json.JSONException;
 
 import java.util.List;
+import java.util.Locale;
 
 public class ActivitiesFragment extends Fragment {
     private static final String DEBUG_TAG = "ActivitiesFragment";
@@ -121,6 +124,10 @@ public class ActivitiesFragment extends Fragment {
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
                 final SeafEvent seafEvent = (SeafEvent) adapterView.getItemAtPosition(position);
                 if (mActivity == null) return;
+
+                if (TextUtils.isEmpty(seafEvent.getCommit_id()) || TextUtils.equals("null", seafEvent.getCommit_id().toLowerCase(Locale.ROOT))) {
+                    return;
+                }
 
                 final String repoId = seafEvent.getRepo_id();
                 final String repoName = seafEvent.getRepo_name();
