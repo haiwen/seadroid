@@ -216,9 +216,9 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
         }
 
         if (repo != null) {
-            if (repo.encrypted && !mDataManager.getRepoPasswordSet(repo.id)) {
-                String password = mDataManager.getRepoPassword(repo.id);
-                showPasswordDialog(repo.name, repo.id,
+            if (repo.encrypted && !mDataManager.getRepoPasswordSet(repo.repo_id)) {
+                String password = mDataManager.getRepoPassword(repo.repo_id);
+                showPasswordDialog(repo.repo_name, repo.repo_id,
                         new TaskDialog.TaskDialogListener() {
                             @Override
                             public void onTaskSuccess() {
@@ -237,17 +237,18 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
                 break;
             case STEP_CHOOSE_REPO:
                 if (!isOnlyChooseRepo) {
-                    nav.setRepoName(repo.name);
-                    nav.setRepoID(repo.id);
+                    nav.setRepoName(repo.repo_name);
+                    nav.setRepoID(repo.repo_id);
                     nav.setDirPermission(repo.permission);
-                    nav.setDir("/", repo.root);
+                    nav.setDirPath("/");
                     chooseDir();
                 } else {
                     Intent intent = new Intent();
-                    intent.putExtra(DATA_REPO_NAME, repo.name);
-                    intent.putExtra(DATA_REPO_ID, repo.id);
+                    intent.putExtra(DATA_REPO_NAME, repo.repo_name);
+                    intent.putExtra(DATA_REPO_ID, repo.repo_id);
                     intent.putExtra(DATA_REPO_PERMISSION, repo.permission);
-                    intent.putExtra(DATA_DIR, repo.root);
+                    //TODO test it.
+                    intent.putExtra(DATA_DIR,"/");
                     intent.putExtra(DATA_ACCOUNT, mAccount);
                     setResult(RESULT_OK, intent);
                     finish();
@@ -259,7 +260,8 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
                     return;
                 }
 
-                nav.setDir(Utils.pathJoin(nav.getDirPath(), dirent.name), dirent.id);
+                String path = Utils.pathJoin(nav.getDirPath(), dirent.name);
+                nav.setDirPath(path);
                 refreshDir();
                 break;
         }
@@ -326,9 +328,9 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
                     return;
                 } else {
                     SeafRepo repo = getDataManager().getCachedRepoByID(getNavContext().getRepoID());
-                    if (repo.encrypted && !mDataManager.getRepoPasswordSet(repo.id)) {
-                        String password = mDataManager.getRepoPassword(repo.id);
-                        showPasswordDialog(repo.name, repo.id,
+                    if (repo.encrypted && !mDataManager.getRepoPasswordSet(repo.repo_id)) {
+                        String password = mDataManager.getRepoPassword(repo.repo_id);
+                        showPasswordDialog(repo.repo_name, repo.repo_id,
                                 new TaskDialog.TaskDialogListener() {
                                     @Override
                                     public void onTaskSuccess() {
@@ -365,7 +367,7 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
                     chooseRepo();
                 } else {
                     String path = getNavContext().getDirPath();
-                    getNavContext().setDir(Utils.getParentPath(path), null);
+                    getNavContext().setDirPath(Utils.getParentPath(path));
                     refreshDir();
                 }
                 break;
@@ -480,7 +482,7 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
             for (SeafRepo item : repos) {
                 boolean isContains = false;
                 for (SeafRepo data : adapter.getData()) {
-                    if (TextUtils.equals(data.getID(), item.getID())) {
+                    if (TextUtils.equals(data.getRepoId(), item.getRepoId())) {
                         isContains = true;
                         break;
                     }
@@ -496,12 +498,12 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
                     continue;
                 }
 
-                if (item.encrypted && TextUtils.equals(item.id, encryptedRepoId)) {
+                if (item.encrypted && TextUtils.equals(item.repo_id, encryptedRepoId)) {
                     NavContext nav = getNavContext();
-                    nav.setRepoName(item.name);
-                    nav.setRepoID(item.id);
+                    nav.setRepoName(item.repo_name);
+                    nav.setRepoID(item.repo_id);
                     nav.setDirPermission(item.permission);
-                    nav.setDir("/", item.root);
+                    nav.setDirPath("/");
                     chooseDir();
 //                    mStep = STEP_CHOOSE_REPO;
                     break;

@@ -3,7 +3,7 @@
     <item
         android:id="@+id/star_repo"
         android:icon="@drawable/star_normal"
-        android:title="@string/file_action_star" />
+        android:title="@string/unstar" />
     <item
         android:id="@+id/rename_repo"
         android:icon="@drawable/action_rename"

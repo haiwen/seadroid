@@ -7,7 +7,6 @@ import androidx.fragment.app.ListFragment;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.appcompat.view.ActionMode;
 
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -20,12 +19,14 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.blankj.utilcode.util.CollectionUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.data.SeafStarredFile;
-import com.seafile.seadroid2.ui.NavContext;
+import com.seafile.seadroid2.listener.OnCallback;
+import com.seafile.seadroid2.task.StarItemsTask;
 import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
 import com.seafile.seadroid2.ui.adapter.StarredItemAdapter;
@@ -248,28 +249,28 @@ public class StarredFragment extends ListFragment {
         passwordDialog.show(mActivity.getSupportFragmentManager(), PASSWORD_DIALOG_STARREDFRAGMENT_TAG);
     }
 
-    public void onStarredDirSelected(SeafStarredFile searchedFile) {
-        final String repoID = searchedFile.getRepoID();
+    public void onStarredDirSelected(SeafStarredFile starDirent) {
+        final String repoID = starDirent.getRepoID();
         final SeafRepo repo = getDataManager().getCachedRepoByID(repoID);
-        final String repoName = repo.getName();
-        final String filePath = searchedFile.getPath();
+        final String repoName = repo.getRepoName();
+        final String filePath = starDirent.getPath();
 
-        if (searchedFile.isRepo_encrypted()) {
-            if (repo.encrypted && !getDataManager().getRepoPasswordSet(repo.id)) {
-                String password = getDataManager().getRepoPassword(repo.id);
-                showPasswordDialog(repo.name, repo.id,
+        if (starDirent.isRepoEncrypted()) {
+            if (repo.encrypted && !getDataManager().getRepoPasswordSet(repo.repo_id)) {
+                String password = getDataManager().getRepoPassword(repo.repo_id);
+                showPasswordDialog(repo.repo_name, repo.repo_id,
                         new TaskDialog.TaskDialogListener() {
                             @Override
                             public void onTaskSuccess() {
-                                WidgetUtils.showStarredRepo(mActivity, repoID, repoName, filePath, null);
+                                WidgetUtils.showStarredRepo(mActivity, repoID, repoName, filePath);
                             }
                         }, password);
 
             } else {
-                WidgetUtils.showStarredRepo(mActivity, repoID, repoName, filePath, null);
+                WidgetUtils.showStarredRepo(mActivity, repoID, repoName, filePath);
             }
         } else {
-            WidgetUtils.showStarredRepo(mActivity, repoID, repoName, filePath, null);
+            WidgetUtils.showStarredRepo(mActivity, repoID, repoName, filePath);
         }
     }
 
@@ -285,19 +286,35 @@ public class StarredFragment extends ListFragment {
             return;
         }
 
-        ConcurrentAsyncTask.execute(new UnStarFileTask(repoID, path));
+        StarItemsTask task = new StarItemsTask(mActivity, repoID, path, true);
+        task.setOnCallback(new OnCallback() {
+            @Override
+            public void onFailed() {
 
+            }
+
+            @Override
+            public void onSuccess() {
+                mRefreshType = REFRESH_ON_RESUME;
+                refreshView();
+                adapter.deselectAllItems();
+                mActionMode.setTitle(getResources().
+                        getQuantityString(R.plurals.transfer_list_items_selected, 0, 0));
+            }
+        });
+        ConcurrentAsyncTask.execute(task);
     }
 
     public void doStarFile(String repoID, String path, String filename) {
-
         if (!Utils.isNetworkOn()) {
             mActivity.showShortToast(mActivity, R.string.network_down);
             return;
         }
 
         String p = Utils.pathJoin(path, filename);
-        ConcurrentAsyncTask.execute(new StarFileTask(repoID, p));
+
+        StarItemsTask task = new StarItemsTask(mActivity, repoID, p, false);
+        ConcurrentAsyncTask.execute(task);
     }
 
     private class LoadStarredFilesTask extends SupportAsyncTask<BrowserActivity, Void, Void, List<SeafStarredFile>> {
@@ -321,21 +338,7 @@ public class StarredFragment extends ListFragment {
         protected List<SeafStarredFile> doInBackground(Void... params) {
 
             try {
-                List<SeafStarredFile> starredFiles = dataManager.getStarredFiles();
-//                //TODO Data needs to be fetched from the server
-//                if (starredFiles != null && !starredFiles.isEmpty()) {
-//                    for (int i = 0; i < starredFiles.size(); i++) {
-//                        if (!starredFiles.get(i).isDir()) {
-//                            String root = Environment.getExternalStorageDirectory().getAbsolutePath();
-//                            File file = new File(root + "" + starredFiles.get(i).getPath());
-//                            if (file.exists()){
-//                                long l = FileTools.getSimpleSize(root + "" + starredFiles.get(i).getPath());
-//                                starredFiles.get(i).setSize(l);
-//                            }
-//                        }
-//                    }
-//                }
-                return starredFiles;
+                return dataManager.getStarredFiles();
             } catch (SeafException e) {
                 err = e;
                 return null;
@@ -380,86 +383,6 @@ public class StarredFragment extends ListFragment {
         }
     }
 
-    private class StarFileTask extends SupportAsyncTask<BrowserActivity, Void, Void, Void> {
-        private String repoId;
-        private String path;
-        private SeafException err;
-
-        public StarFileTask(String repoId, String path) {
-            super(mActivity);
-            this.repoId = repoId;
-            this.path = path;
-        }
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            try {
-                if (getContextParam() != null) {
-                    getContextParam().getDataManager().star(repoId, path);
-                }
-            } catch (SeafException e) {
-                err = e;
-            }
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void v) {
-            if (err != null) {
-                if (getContextParam() != null) {
-                    getContextParam().showShortToast(getContextParam(), R.string.star_file_failed);
-                }
-                return;
-            }
-            if (getContextParam() != null) {
-                getContextParam().showShortToast(getContextParam(), R.string.star_file_succeed);
-            }
-        }
-    }
-
-    private class UnStarFileTask extends SupportAsyncTask<BrowserActivity, Void, Void, Void> {
-        private String repoId;
-        private String path;
-        private SeafException err;
-
-        public UnStarFileTask(String repoId, String path) {
-            super(mActivity);
-            this.repoId = repoId;
-            this.path = path;
-        }
-
-        @Override
-        protected Void doInBackground(Void... params) {
-
-            try {
-                if (getContextParam() != null) {
-                    getContextParam().getDataManager().unstar(repoId, path);
-                }
-            } catch (SeafException e) {
-                err = e;
-            }
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void v) {
-            if (err != null) {
-                if (getContextParam() != null) {
-                    getContextParam().showShortToast(getContextParam(), R.string.unstar_file_failed);
-                }
-                return;
-            }
-
-            mRefreshType = REFRESH_ON_RESUME;
-            refreshView();
-            adapter.deselectAllItems();
-            mActionMode.setTitle(getResources().
-                    getQuantityString(R.plurals.transfer_list_items_selected, 0, 0));
-        }
-    }
-
     /**
      * Start action mode for selecting and process multiple files/folders.
      * The contextual action mode is a system implementation of ActionMode
@@ -484,7 +407,6 @@ public class StarredFragment extends ListFragment {
 
         adapter.toggleSelection(position);
         updateContextualActionBar();
-
     }
 
     public void startContextualActionMode() {
@@ -547,14 +469,8 @@ public class StarredFragment extends ListFragment {
         @Override
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
             // Respond to clicks on the actions in the contextual action bar (CAB)
-            NavContext nav = mActivity.getNavContext();
-            String repoID = nav.getRepoID();
-            String repoName = nav.getRepoName();
-            String dirPath = nav.getDirPath();
             final List<SeafStarredFile> starredFiles = adapter.getSelectedItemsValues();
-            if (starredFiles.size() == 0
-                    || repoID == null
-                    || dirPath == null) {
+            if (CollectionUtils.isEmpty(starredFiles)) {
                 if (item.getItemId() != R.id.action_mode_select_all) {
                     mActivity.showShortToast(mActivity, R.string.action_mode_no_items_selected);
                     return true;

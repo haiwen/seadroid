@@ -179,9 +179,9 @@ public class CloudLibrarySelectionFragment extends Fragment {
                     return;
                 } else {
                     SeafRepo repo = getDataManager().getCachedRepoByID(getNavContext().getRepoID());
-                    if (repo.encrypted && !getDataManager().getRepoPasswordSet(repo.id)) {
-                        String password = getDataManager().getRepoPassword(repo.id);
-                        showPasswordDialog(repo.name, repo.id,
+                    if (repo.encrypted && !getDataManager().getRepoPasswordSet(repo.repo_id)) {
+                        String password = getDataManager().getRepoPassword(repo.repo_id);
+                        showPasswordDialog(repo.repo_name, repo.repo_id,
                                 new TaskDialog.TaskDialogListener() {
                                     @Override
                                     public void onTaskSuccess() {
@@ -208,9 +208,9 @@ public class CloudLibrarySelectionFragment extends Fragment {
         }
 
         if (repo != null) {
-            if (repo.encrypted && !getDataManager().getRepoPasswordSet(repo.id)) {
-                String password = getDataManager().getRepoPassword(repo.id);
-                showPasswordDialog(repo.name, repo.id, new TaskDialog.TaskDialogListener() {
+            if (repo.encrypted && !getDataManager().getRepoPasswordSet(repo.repo_id)) {
+                String password = getDataManager().getRepoPassword(repo.repo_id);
+                showPasswordDialog(repo.repo_name, repo.repo_id, new TaskDialog.TaskDialogListener() {
                     @Override
                     public void onTaskSuccess() {
                         onListItemClick(v, position, id);
@@ -230,12 +230,12 @@ public class CloudLibrarySelectionFragment extends Fragment {
                 break;
             case STEP_CHOOSE_REPO:
                 if (!isOnlyChooseRepo) {
-                    nav.setRepoName(repo.name);
-                    nav.setRepoID(repo.id);
-                    nav.setDir("/", repo.root);
+                    nav.setRepoName(repo.repo_name);
+                    nav.setRepoID(repo.repo_id);
+                    nav.setDirPath("/");
                     chooseDir();
                 }
-                mCurrentDir = getString(R.string.settings_cuc_remote_lib_repo, repo.name);
+                mCurrentDir = getString(R.string.settings_cuc_remote_lib_repo, repo.repo_name);
                 setCurrentDirText(mCurrentDir);
                 SeafRepo seafRepo = getReposAdapter().getItem(position);
                 onRepoSelected(mAccount, seafRepo);
@@ -249,7 +249,8 @@ public class CloudLibrarySelectionFragment extends Fragment {
                     return;
                 }
 
-                nav.setDir(Utils.pathJoin(nav.getDirPath(), dirent.name), dirent.id);
+                String path = Utils.pathJoin(nav.getDirPath(), dirent.name);
+                nav.setDirPath(path);
                 refreshDir();
                 break;
         }
@@ -291,7 +292,7 @@ public class CloudLibrarySelectionFragment extends Fragment {
                     String path = getNavContext().getDirPath();
                     mCurrentDir = getNavContext().getRepoName() + Utils.getParentPath(path);
                     setCurrentDirText(mCurrentDir);
-                    getNavContext().setDir(Utils.getParentPath(path), null);
+                    getNavContext().setDirPath(Utils.getParentPath(path));
                     refreshDir();
                 }
                 break;

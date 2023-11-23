@@ -19,11 +19,8 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.view.ActionMode;
 import androidx.fragment.app.ListFragment;
-import androidx.lifecycle.Observer;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.cocosw.bottomsheet.BottomSheet;
@@ -33,14 +30,15 @@ import com.seafile.seadroid2.SeafConnection;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafCachedFile;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafGroup;
 import com.seafile.seadroid2.data.SeafItem;
 import com.seafile.seadroid2.data.SeafRepo;
+import com.seafile.seadroid2.listener.OnCallback;
 import com.seafile.seadroid2.ssl.CertsManager;
+import com.seafile.seadroid2.task.StarItemsTask;
 import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.ui.CopyMoveContext;
 import com.seafile.seadroid2.ui.NavContext;
@@ -75,7 +73,7 @@ public class ReposFragment extends ListFragment {
     private BrowserActivity mActivity = null;
     private ActionMode mActionMode;
     private CopyMoveContext copyMoveContext;
-    private Map<String, ScrollState> scrollPostions;
+    private Map<String, ScrollState> scrollPositions;
 
     public static final int FILE_ACTION_EXPORT = 0;
     public static final int FILE_ACTION_COPY = 1;
@@ -120,8 +118,7 @@ public class ReposFragment extends ListFragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.repos_fragment, container, false);
         refreshLayout = (SwipeRefreshLayout) root.findViewById(R.id.swiperefresh);
         mListView = (ListView) root.findViewById(android.R.id.list);
@@ -191,19 +188,26 @@ public class ReposFragment extends ListFragment {
 
     public void showRepoBottomSheet(final SeafRepo repo) {
         final BottomSheet.Builder builder = new BottomSheet.Builder(mActivity);
-        builder.title(repo.getName()).sheet(R.menu.bottom_sheet_op_repo).listener(new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                switch (which) {
-                    case R.id.rename_repo:
-                        mActivity.renameRepo(repo.getID(), repo.getName());
-                        break;
-                    case R.id.delete_repo:
-                        mActivity.deleteRepo(repo.getID());
-                        break;
-                }
-            }
-        }).show();
+        int rid = !repo.isStarred() ? R.menu.bottom_sheet_op_repo : R.menu.bottom_sheet_op_repo_with_unstar;
+        builder.title(repo.getRepoName())
+                .sheet(rid)
+                .listener(new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which) {
+                            case R.id.star_repo:
+                                // "/"：root path
+                                starRepoOrUnstar(repo);
+                                break;
+                            case R.id.rename_repo:
+                                mActivity.renameRepo(repo.getRepoId(), repo.getRepoName());
+                                break;
+                            case R.id.delete_repo:
+                                mActivity.deleteRepo(repo.getRepoId());
+                                break;
+                        }
+                    }
+                }).show();
     }
 
     public void showFileBottomSheet(String title, final SeafDirent dirent) {
@@ -283,10 +287,15 @@ public class ReposFragment extends ListFragment {
         final String path = Utils.pathJoin(dir, dirent.name);
         final String filename = dirent.name;
         final BottomSheet.Builder builder = new BottomSheet.Builder(mActivity);
-        builder.title(title).sheet(R.menu.bottom_sheet_op_dir).listener(new DialogInterface.OnClickListener() {
+
+        int rid = !dirent.isStarred() ? R.menu.bottom_sheet_op_dir : R.menu.bottom_sheet_op_dir_with_unstar;
+        builder.title(title).sheet(rid).listener(new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 switch (which) {
+                    case R.id.star:
+                        starDirOrUnstar(repoID, dirent);
+                        break;
                     case R.id.share:
                         mActivity.showShareDialog(repoID, path, true, dirent.size, dirent.name);
                         break;
@@ -308,6 +317,7 @@ public class ReposFragment extends ListFragment {
                 }
             }
         });
+
         Menu menu = builder.build().getMenu();
         if (!dirent.hasWritePermission()) {
             menu.findItem(R.id.rename).setVisible(false);
@@ -325,7 +335,7 @@ public class ReposFragment extends ListFragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         Log.d(DEBUG_TAG, "ReposFragment onActivityCreated");
-        scrollPostions = Maps.newHashMap();
+        scrollPositions = Maps.newHashMap();
         adapter = new SeafItemAdapter(mActivity);
 
         mListView.setAdapter(adapter);
@@ -422,7 +432,7 @@ public class ReposFragment extends ListFragment {
             }
         }
 
-        ConcurrentAsyncTask.execute(new LoadTask(getDataManager()));
+        ConcurrentAsyncTask.execute(new LoadRepoTask(getDataManager()));
     }
 
     public void navToDirectory(boolean forceRefresh, boolean restorePosition) {
@@ -613,7 +623,7 @@ public class ReposFragment extends ListFragment {
         final NavContext nav = getNavContext();
         if (nav.inRepo()) {
             repo = getDataManager().getCachedRepoByID(nav.getRepoID());
-            mActivity.setUpButtonTitle(repo.getName());
+            mActivity.setUpButtonTitle(repo.getRepoName());
         } else {
             SeafItem item = adapter.getItem(position);
             if (item instanceof SeafRepo) {
@@ -625,9 +635,9 @@ public class ReposFragment extends ListFragment {
             return;
         }
 
-        if (repo.encrypted && !getDataManager().getRepoPasswordSet(repo.id)) {
-            String password = getDataManager().getRepoPassword(repo.id);
-            mActivity.showPasswordDialog(repo.name, repo.id,
+        if (repo.encrypted && !getDataManager().getRepoPasswordSet(repo.repo_id)) {
+            String password = getDataManager().getRepoPassword(repo.repo_id);
+            mActivity.showPasswordDialog(repo.repo_name, repo.repo_id,
                     new TaskDialog.TaskDialogListener() {
                         @Override
                         public void onTaskSuccess() {
@@ -647,22 +657,22 @@ public class ReposFragment extends ListFragment {
                     String newPath = currentPath.endsWith("/")
                             ? currentPath + dirent.name
                             : currentPath + "/" + dirent.name;
-                    nav.setDir(newPath, dirent.id);
+                    nav.setDirPath(newPath);
                     nav.setDirPermission(dirent.permission);
-                    saveDirentScrollPosition(repo.getID(), currentPath);
+                    saveDirentScrollPosition(repo.getRepoId(), currentPath);
                     refreshView();
                     mActivity.setUpButtonTitle(dirent.name);
                 } else {
                     String currentPath = nav.getDirPath();
-                    saveDirentScrollPosition(repo.getID(), currentPath);
+                    saveDirentScrollPosition(repo.getRepoId(), currentPath);
                     mActivity.onFileSelected(dirent);
                 }
             }
         } else {
             nav.setDirPermission(repo.permission);
-            nav.setRepoID(repo.id);
-            nav.setRepoName(repo.getName());
-            nav.setDir("/", repo.root);
+            nav.setRepoID(repo.repo_id);
+            nav.setRepoName(repo.getRepoName());
+            nav.setDirPath("/");
             saveRepoScrollPosition();
             refreshView();
         }
@@ -684,7 +694,7 @@ public class ReposFragment extends ListFragment {
         final View v = mListView.getChildAt(0);
         final int top = (v == null) ? 0 : (v.getTop() - mListView.getPaddingTop());
         final ScrollState state = new ScrollState(index, top);
-        scrollPostions.put(pathJoin, state);
+        scrollPositions.put(pathJoin, state);
     }
 
     private void saveRepoScrollPosition() {
@@ -692,13 +702,13 @@ public class ReposFragment extends ListFragment {
         final View v = mListView.getChildAt(0);
         final int top = (v == null) ? 0 : (v.getTop() - mListView.getPaddingTop());
         final ScrollState state = new ScrollState(index, top);
-        scrollPostions.put(KEY_REPO_SCROLL_POSITION, state);
+        scrollPositions.put(KEY_REPO_SCROLL_POSITION, state);
     }
 
     private void restoreDirentScrollPosition(boolean restore, String repoId, String dirPath) {
         final String pathJoin = Utils.pathJoin(repoId, dirPath);
         if (restore) {
-            ScrollState state = scrollPostions.get(pathJoin);
+            ScrollState state = scrollPositions.get(pathJoin);
             if (state != null) {
                 mListView.setSelectionFromTop(state.index, state.top);
             } else {
@@ -711,7 +721,7 @@ public class ReposFragment extends ListFragment {
 
     private void restoreRepoScrollPosition(boolean restore) {
         if (restore) {
-            ScrollState state = scrollPostions.get(KEY_REPO_SCROLL_POSITION);
+            ScrollState state = scrollPositions.get(KEY_REPO_SCROLL_POSITION);
             if (state != null) {
                 mListView.setSelectionFromTop(state.index, state.top);
             } else {
@@ -755,11 +765,11 @@ public class ReposFragment extends ListFragment {
         }
     }
 
-    private class LoadTask extends AsyncTask<Void, Void, List<SeafRepo>> {
+    private class LoadRepoTask extends AsyncTask<Void, Void, List<SeafRepo>> {
         SeafException err = null;
         DataManager dataManager;
 
-        public LoadTask(DataManager dataManager) {
+        public LoadRepoTask(DataManager dataManager) {
             this.dataManager = dataManager;
         }
 
@@ -802,7 +812,7 @@ public class ReposFragment extends ListFragment {
             if (getNavContext().inRepo()) {
                 return;
             }
-            ConcurrentAsyncTask.execute(new LoadTask(dataManager));
+            ConcurrentAsyncTask.execute(new LoadRepoTask(dataManager));
         }
 
         // onPostExecute displays the results of the AsyncTask.
@@ -873,47 +883,6 @@ public class ReposFragment extends ListFragment {
         }
     }
 
-    private void showError(int strID) {
-        showError(mActivity.getResources().getString(strID));
-    }
-
-    private void showError(String msg) {
-        mProgressContainer.setVisibility(View.GONE);
-        mListContainer.setVisibility(View.GONE);
-
-        adapter.clear();
-        adapter.notifyChanged();
-
-        mErrorText.setText(msg);
-        mErrorText.setVisibility(View.VISIBLE);
-        mErrorText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                refresh();
-            }
-        });
-    }
-
-    public void showLoading(boolean show) {
-        mErrorText.setVisibility(View.GONE);
-        if (show) {
-            mProgressContainer.startAnimation(AnimationUtils.loadAnimation(
-                    mActivity, android.R.anim.fade_in));
-            mListContainer.startAnimation(AnimationUtils.loadAnimation(
-                    mActivity, android.R.anim.fade_out));
-
-            mProgressContainer.setVisibility(View.VISIBLE);
-            mListContainer.setVisibility(View.INVISIBLE);
-        } else {
-            mProgressContainer.startAnimation(AnimationUtils.loadAnimation(
-                    mActivity, android.R.anim.fade_out));
-            mListContainer.startAnimation(AnimationUtils.loadAnimation(
-                    mActivity, android.R.anim.fade_in));
-
-            mProgressContainer.setVisibility(View.GONE);
-            mListContainer.setVisibility(View.VISIBLE);
-        }
-    }
 
     private class LoadDirTask extends AsyncTask<String, Void, List<SeafDirent>> {
 
@@ -1065,6 +1034,48 @@ public class ReposFragment extends ListFragment {
         }
     }
 
+    private void showError(int strID) {
+        showError(mActivity.getResources().getString(strID));
+    }
+
+    private void showError(String msg) {
+        mProgressContainer.setVisibility(View.GONE);
+        mListContainer.setVisibility(View.GONE);
+
+        adapter.clear();
+        adapter.notifyChanged();
+
+        mErrorText.setText(msg);
+        mErrorText.setVisibility(View.VISIBLE);
+        mErrorText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                refresh();
+            }
+        });
+    }
+
+    public void showLoading(boolean show) {
+        mErrorText.setVisibility(View.GONE);
+        if (show) {
+            mProgressContainer.startAnimation(AnimationUtils.loadAnimation(
+                    mActivity, android.R.anim.fade_in));
+            mListContainer.startAnimation(AnimationUtils.loadAnimation(
+                    mActivity, android.R.anim.fade_out));
+
+            mProgressContainer.setVisibility(View.VISIBLE);
+            mListContainer.setVisibility(View.INVISIBLE);
+        } else {
+            mProgressContainer.startAnimation(AnimationUtils.loadAnimation(
+                    mActivity, android.R.anim.fade_out));
+            mListContainer.startAnimation(AnimationUtils.loadAnimation(
+                    mActivity, android.R.anim.fade_in));
+
+            mProgressContainer.setVisibility(View.GONE);
+            mListContainer.setVisibility(View.VISIBLE);
+        }
+    }
+
     private void showPasswordDialog() {
         NavContext nav = mActivity.getNavContext();
         String repoName = nav.getRepoName();
@@ -1194,5 +1205,39 @@ public class ReposFragment extends ListFragment {
             adapter.clear();
             mListView.setAdapter(adapter);
         }
+    }
+
+    private void starRepoOrUnstar(SeafRepo repo) {
+        // "/"：root path
+        StarItemsTask task = new StarItemsTask(mActivity, repo.repo_id, "/", repo.isStarred());
+        task.setOnCallback(new OnCallback() {
+            @Override
+            public void onFailed() {
+
+            }
+
+            @Override
+            public void onSuccess() {
+                repo.setStarred(!repo.isStarred());
+            }
+        });
+        ConcurrentAsyncTask.execute(task);
+    }
+
+    private void starDirOrUnstar(String repo_id, SeafDirent dirent) {
+        String path = Utils.pathJoin(getNavContext().getDirPath(), dirent.name);
+        StarItemsTask task = new StarItemsTask(mActivity, repo_id, path, dirent.isStarred());
+        task.setOnCallback(new OnCallback() {
+            @Override
+            public void onFailed() {
+
+            }
+
+            @Override
+            public void onSuccess() {
+                dirent.setStarred(!dirent.isStarred());
+            }
+        });
+        ConcurrentAsyncTask.execute(task);
     }
 }

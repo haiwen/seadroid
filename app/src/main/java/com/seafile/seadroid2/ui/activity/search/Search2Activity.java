@@ -384,7 +384,7 @@ public class Search2Activity extends BaseActivity implements View.OnClickListene
         final String repoID = searchedFile.getRepoID();
         final String fileName = searchedFile.getTitle();
         final SeafRepo repo = dataManager.getCachedRepoByID(repoID);
-        final String repoName = repo.getName();
+        final String repoName = repo.getRepoName();
         final String filePath = searchedFile.getPath();
 
         if (searchedFile.isDir()) {

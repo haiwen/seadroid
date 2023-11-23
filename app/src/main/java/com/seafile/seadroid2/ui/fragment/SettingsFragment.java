@@ -232,11 +232,6 @@ public class SettingsFragment extends CustomPreferenceFragment {
                         // sign out operations
                         accountMgr.signOutAccount(account);
 
-                        // password auto clear
-                        if (settingsMgr.isPasswordAutoClearEnabled()) {
-                            clearPasswordSilently();
-                        }
-
                         // restart BrowserActivity (will go to AccountsActivity)
                         Intent intent = new Intent(mActivity, BrowserActivity.class);
                         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -262,21 +257,6 @@ public class SettingsFragment extends CustomPreferenceFragment {
                 // clear password
                 clearPassword();
                 return true;
-            }
-        });
-
-        // auto clear passwords when logout
-        findPreference(SettingsManager.AUTO_CLEAR_PASSOWR_SWITCH_KEY).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-            @Override
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                if (newValue instanceof Boolean) {
-                    boolean isChecked = (Boolean) newValue;
-                    // inverse checked status
-                    settingsMgr.setupPasswordAutoClear(!isChecked);
-                    return true;
-                }
-
-                return false;
             }
         });
 
@@ -726,19 +706,6 @@ public class SettingsFragment extends CustomPreferenceFragment {
 //        }
 //    }
 
-
-    private void clearPasswordSilently() {
-        ConcurrentAsyncTask.submit(new Runnable() {
-            @Override
-            public void run() {
-                DataManager.clearPassword();
-
-                // clear cached data from database
-                DatabaseHelper dbHelper = DatabaseHelper.getDatabaseHelper();
-                dbHelper.clearEnckeys();
-            }
-        });
-    }
 
     private void clearPassword() {
         ClearPasswordTaskDialog dialog = new ClearPasswordTaskDialog();

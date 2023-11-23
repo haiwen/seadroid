@@ -75,11 +75,7 @@ public class ConcurrentAsyncTask {
     private static final ThreadPoolExecutor threadPoolExecutor = new SeadroidThreadPoolExecutor();
 
     public static <T> void execute(AsyncTask<T, ?, ?> task, T...args) {
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.HONEYCOMB_MR1) {
-            task.execute(args);
-        } else {
-            task.executeOnExecutor(threadPoolExecutor, args);
-        }
+        task.executeOnExecutor(threadPoolExecutor, args);
     }
 
     @NonNull

@@ -23,8 +23,10 @@ import android.os.Bundle;
 import android.os.LocaleList;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+
 import android.text.TextUtils;
 import android.text.format.DateFormat;
 import android.util.Log;
@@ -32,8 +34,11 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.MimeTypeMap;
 
+import com.blankj.utilcode.util.StringUtils;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.gson.JsonObject;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SettingsManager;
@@ -96,7 +101,8 @@ public class Utils {
     private static HashMap<String, Integer> suffixIconMap = null;
     private static final int JOB_ID = 0;
 
-    private Utils() {}
+    private Utils() {
+    }
 
     public static JSONObject parseJsonObject(String json) {
         if (json == null) {
@@ -172,6 +178,10 @@ public class Utils {
             return "/";
         }
 
+        if (path.endsWith("/")) {
+            path = path.substring(0,path.lastIndexOf("/"));
+        }
+
         String parent = path.substring(0, path.lastIndexOf("/"));
         if (parent.equals("")) {
             return "/";
@@ -190,10 +200,10 @@ public class Utils {
     }
 
     public static String readableFileSize(long size) {
-        if(size <= 0) return "0 KB";
-        final String[] units = new String[] { "B", "KB", "MB", "GB", "TB" };
-        int digitGroups = (int) (Math.log10(size)/Math.log10(1000));
-        return new DecimalFormat("#,##0.#").format(size/Math.pow(1000, digitGroups)) + " " + units[digitGroups];
+        if (size <= 0) return "0 KB";
+        final String[] units = new String[]{"B", "KB", "MB", "GB", "TB"};
+        int digitGroups = (int) (Math.log10(size) / Math.log10(1000));
+        return new DecimalFormat("#,##0.#").format(size / Math.pow(1000, digitGroups)) + " " + units[digitGroups];
     }
 
     public static void writeFile(File file, String content) throws IOException {
@@ -217,18 +227,16 @@ public class Utils {
         for (SeafRepo repo : repos) {
             List<SeafRepo> l;
             if (repo.isGroupRepo)
-                groupName = repo.owner;
+                groupName = repo.group_name;
             else if (repo.isPersonalRepo)
                 groupName = PERSONAL_REPO;
             else if (repo.isSharedRepo)
                 groupName = SHARED_REPO;
 
-            l = map.get(groupName);
-            if (l == null) {
-                l = Lists.newArrayList();
-                map.put(groupName, l);
+            if (!TextUtils.isEmpty(groupName)) {
+                l = map.computeIfAbsent(groupName, k -> Lists.newArrayList());
+                l.add(repo);
             }
-            l.add(repo);
         }
         return map;
     }
@@ -247,7 +255,8 @@ public class Utils {
             return R.drawable.file_audio;
         } else if (mimetype.contains("video")) {
             return R.drawable.file_video;
-        } if (mimetype.contains("pdf")) {
+        }
+        if (mimetype.contains("pdf")) {
             return R.drawable.file_pdf;
         } else if (mimetype.contains("msword") || mimetype.contains("ms-word")) {
             return R.drawable.file_ms_word;
@@ -385,14 +394,15 @@ public class Utils {
     public static boolean isWiFiOn() {
         ConnectivityManager connMgr = (ConnectivityManager) SeadroidApplication.getAppContext().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo wifi = connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-        if(wifi != null && wifi.isAvailable() && wifi.getDetailedState() == DetailedState.CONNECTED) {
+        if (wifi != null && wifi.isAvailable() && wifi.getDetailedState() == DetailedState.CONNECTED) {
             return true;
         }
         return false;
     }
-    public static String pathJoin (String first, String... rest) {
+
+    public static String pathJoin(String first, String... rest) {
         StringBuilder result = new StringBuilder(first);
-        for (String b: rest) {
+        for (String b : rest) {
             boolean resultEndsWithSlash = result.toString().endsWith("/");
             boolean bStartWithSlash = b.startsWith("/");
             if (resultEndsWithSlash && bStartWithSlash) {
@@ -417,6 +427,7 @@ public class Utils {
         } else
             return path;
     }
+
     /**
      * Strip leading and trailing slashes
      */
@@ -484,7 +495,7 @@ public class Utils {
         if (suffix.length() == 0) {
             return MIME_APPLICATION_OCTET_STREAM;
         } else {
-            String mime =  MimeTypeMap.getSingleton().getMimeTypeFromExtension(suffix);
+            String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(suffix);
             if (mime != null) {
                 return mime;
             } else {
@@ -592,7 +603,7 @@ public class Utils {
 
     public static String getFilenamefromUri(Context context, Uri uri) {
 
-        ContentResolver resolver =context.getContentResolver();
+        ContentResolver resolver = context.getContentResolver();
         Cursor cursor = resolver.query(uri, null, null, null, null);
         String displayName = null;
         if (cursor != null && cursor.moveToFirst()) {
@@ -610,7 +621,7 @@ public class Utils {
 
     public static String getPath(Context context, Uri uri) throws URISyntaxException {
         if ("content".equalsIgnoreCase(uri.getScheme())) {
-            String[] projection = { "_data" };
+            String[] projection = {"_data"};
             Cursor cursor = null;
 
             try {
@@ -623,8 +634,7 @@ public class Utils {
             } catch (Exception e) {
                 // Eat it
             }
-        }
-        else if ("file".equalsIgnoreCase(uri.getScheme())) {
+        } else if ("file".equalsIgnoreCase(uri.getScheme())) {
             return uri.getPath();
         }
 
@@ -738,8 +748,9 @@ public class Utils {
             locale = Locale.getDefault();
         }
         String language = locale.getCountry();
-        return TextUtils.equals("CN",language)||TextUtils.equals("TW",language);
+        return TextUtils.equals("CN", language) || TextUtils.equals("TW", language);
     }
+
     public static List<ResolveInfo> getAppsByIntent(Intent intent) {
         PackageManager pm = SeadroidApplication.getAppContext().getPackageManager();
         List<ResolveInfo> infos = pm.queryIntentActivities(intent, 0);
@@ -778,6 +789,7 @@ public class Utils {
 
     /**
      * check if click event is a fast tapping
+     *
      * @return
      */
     public static boolean isFastTapping() {
@@ -792,6 +804,7 @@ public class Utils {
     /**
      * SslCertificate class does not has a public getter for the underlying
      * X509Certificate, we can only do this by hack. This only works for andorid 4.0+
+     *
      * @see https://groups.google.com/forum/#!topic/android-developers/eAPJ6b7mrmg
      */
     public static X509Certificate getX509CertFromSslCertHack(SslCertificate sslCert) {
@@ -1006,6 +1019,7 @@ public class Utils {
             Log.d(DEBUG_TAG, info);
         }
     }
+
     public static final String EXCEPTION_TYPE_CRASH = "crash_exception";
 }
 

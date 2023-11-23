@@ -112,17 +112,17 @@ public class FolderBackupConfigActivity extends BaseActivity {
 
         // update cloud library data
         if (mSeafRepo != null && mAccount != null) {
-            intent.putExtra(SeafilePathChooserActivity.DATA_REPO_NAME, mSeafRepo.name);
-            intent.putExtra(SeafilePathChooserActivity.DATA_REPO_ID, mSeafRepo.id);
+            intent.putExtra(SeafilePathChooserActivity.DATA_REPO_NAME, mSeafRepo.repo_name);
+            intent.putExtra(SeafilePathChooserActivity.DATA_REPO_ID, mSeafRepo.repo_id);
             intent.putExtra(SeafilePathChooserActivity.DATA_ACCOUNT, mAccount);
             intent.putExtra(BACKUP_SELECT_REPO, true);
             SettingsManager.instance().saveBackupEmail(mAccount.getEmail());
             try {
                 RepoConfig repoConfig = databaseHelper.getRepoConfig(mAccount.getEmail());
                 if (repoConfig != null) {
-                    databaseHelper.updateRepoConfig(mAccount.getEmail(), mSeafRepo.getID(), mSeafRepo.getName());
+                    databaseHelper.updateRepoConfig(mAccount.getEmail(), mSeafRepo.getRepoId(), mSeafRepo.getRepoName());
                 } else {
-                    databaseHelper.saveRepoConfig(mAccount.getEmail(), mSeafRepo.getID(), mSeafRepo.getName());
+                    databaseHelper.saveRepoConfig(mAccount.getEmail(), mSeafRepo.getRepoId(), mSeafRepo.getRepoName());
                 }
                 Toast.makeText(mActivity, mActivity.getString(R.string.folder_backup_select_repo_update), Toast.LENGTH_SHORT).show();
             } catch (Exception e) {

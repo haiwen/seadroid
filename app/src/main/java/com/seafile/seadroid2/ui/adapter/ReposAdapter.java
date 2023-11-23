@@ -45,7 +45,7 @@ public abstract class ReposAdapter extends BaseAdapter {
             if (onlyShowWritableRepos && !repo.hasWritePermission()) {
                 continue;
             }
-            if (encryptedRepoId != null && !repo.id.equals(encryptedRepoId)) {
+            if (encryptedRepoId != null && !repo.repo_id.equals(encryptedRepoId)) {
                 continue;
             }
             repos.add(repo);

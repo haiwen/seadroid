@@ -38,11 +38,6 @@
 
         <com.seafile.seadroid2.ui.SwitchPreferenceCompat
             android:defaultValue="false"
-            android:key="auto_clear_password_switch_key"
-            android:title="@string/clear_password_auto" />
-
-        <com.seafile.seadroid2.ui.SwitchPreferenceCompat
-            android:defaultValue="false"
             android:key="client_encrypt_switch_key"
             android:summaryOff="@string/enc_off"
             android:summaryOn="@string/enc_on"

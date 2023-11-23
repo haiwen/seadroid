@@ -150,7 +150,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
         List<SeafRepo> repos = dataManager.getReposFromServer();
 
         for (SeafRepo repo : repos) {
-            if (repo.getID().equals(targetRepoId) && repo.getName().equals(targetRepoName))
+            if (repo.getRepoId().equals(targetRepoId) && repo.getRepoName().equals(targetRepoName))
                 return true;
         }
 

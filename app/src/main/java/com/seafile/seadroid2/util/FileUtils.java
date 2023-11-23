@@ -21,11 +21,9 @@ public class FileUtils {
      * <p>
      * /a_a/b_b/c_c/d_d/e_e/f_f/g_g/
      * </p>
-     * </code>
      * and so on.
      */
     public static String buildValidFilePathName(String fileName) {
-
         fileName = buildValidFatFilename(fileName);
         fileName = buildValidExtFilename(fileName);
         return fileName;

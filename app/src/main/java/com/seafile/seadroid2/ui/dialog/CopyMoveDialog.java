@@ -2,12 +2,10 @@ package com.seafile.seadroid2.ui.dialog;
 
 import android.app.Dialog;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.data.DataManager;
@@ -62,7 +60,7 @@ public class CopyMoveDialog extends TaskDialog {
         AccountManager manager = new AccountManager(this.getActivity());
         SeafRepo repo = new DataManager(manager.getCurrentAccount()).getCachedRepoByID(ctx.dstRepoId);
         if (repo != null) {
-            String dstPath = Utils.pathJoin(repo.name, ctx.dstDir);
+            String dstPath = Utils.pathJoin(repo.repo_name, ctx.dstDir);
             dstDirPath = Utils.removeLastPathSeperator(dstPath);
         }
 

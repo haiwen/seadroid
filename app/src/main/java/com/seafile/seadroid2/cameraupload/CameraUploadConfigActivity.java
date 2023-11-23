@@ -116,8 +116,8 @@ public class CameraUploadConfigActivity extends BaseActivity {
         Intent intent = new Intent();
         // update cloud library data
         if (mSeafRepo != null && mAccount != null) {
-            intent.putExtra(SeafilePathChooserActivity.DATA_REPO_NAME, mSeafRepo.name);
-            intent.putExtra(SeafilePathChooserActivity.DATA_REPO_ID, mSeafRepo.id);
+            intent.putExtra(SeafilePathChooserActivity.DATA_REPO_NAME, mSeafRepo.repo_name);
+            intent.putExtra(SeafilePathChooserActivity.DATA_REPO_ID, mSeafRepo.repo_id);
             intent.putExtra(SeafilePathChooserActivity.DATA_ACCOUNT, mAccount);
         }
 

@@ -1,10 +1,12 @@
 package com.seafile.seadroid2.ui;
 
+import com.seafile.seadroid2.ui.activity.BrowserActivity;
+
 public class NavContext {
     String repoID = null;
     String repoName = null;     // for display
     String dirPath = null;
-    String dirID = null;
+//    String dirID = null;
     String dirPermission = null;
 
     public NavContext() {
@@ -18,13 +20,13 @@ public class NavContext {
         this.repoName = repoName;
     }
 
-    public void setDir(String path, String dirID) {
-        this.dirPath = path;
-        this.dirID = dirID;
-    }
+//    public void setDir(String path, String dirID) {
+//        this.dirPath = path;
+////        this.dirID = dirID;
+//    }
 
-    public void setDirID(String dirID) {
-        this.dirID = dirID;
+    public void setDirPath(String path){
+        this.dirPath = path;
     }
 
     public boolean inRepo() {
@@ -47,8 +49,8 @@ public class NavContext {
         return dirPath;
     }
 
-    public String getDirID() {
-        return dirID;
+    public String getDirPathName() {
+        return dirPath.substring(dirPath.lastIndexOf(BrowserActivity.ACTIONBAR_PARENT_PATH) + 1);
     }
 
     public String getDirPermission() {
