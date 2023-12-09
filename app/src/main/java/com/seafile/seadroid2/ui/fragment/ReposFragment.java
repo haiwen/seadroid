@@ -190,12 +190,20 @@ public class ReposFragment extends ListFragment {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 switch (which) {
+                    case R.id.share_repo:
+                        mActivity.shareRepo(repo.getID(), false);
+                        break;
+                    case R.id.share_encrypt_repo:
+                        mActivity.shareRepo(repo.getID(), true);
+                        break;
                     case R.id.rename_repo:
                         mActivity.renameRepo(repo.getID(), repo.getName());
                         break;
                     case R.id.delete_repo:
                         mActivity.deleteRepo(repo.getID());
                         break;
+
+
                 }
             }
         }).show();

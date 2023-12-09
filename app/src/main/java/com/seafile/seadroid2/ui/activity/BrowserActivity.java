@@ -1949,6 +1949,14 @@ public class BrowserActivity extends BaseActivity implements ReposFragment.OnFil
         fetchFileDialog.show(getSupportFragmentManager(), OPEN_FILE_DIALOG_FRAGMENT_TAG);
     }
 
+    public void shareRepo(final String repoID, boolean isEncrypt) {
+        if (isEncrypt) {
+            WidgetUtils.inputSharePassword(this, repoID, "/", false, account);
+        } else {
+            WidgetUtils.chooseShareApp(this, repoID, "/", false, account, null, null);
+        }
+    }
+
     public void renameRepo(String repoID, String repoName) {
         final RenameRepoDialog dialog = new RenameRepoDialog();
         dialog.init(repoID, repoName, account);
