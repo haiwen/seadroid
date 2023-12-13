@@ -7,7 +7,7 @@
     <style name="AppTheme.Base" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">@color/color_primary</item>
         <item name="colorPrimaryDark">@color/color_primary</item>
-        <item name="colorAccent">@color/color_primary</item>
+        <item name="colorAccent">@color/fancy_orange</item>
         <item name="colorControlActivated">@color/fancy_orange</item>
         <item name="colorControlHighlight">@color/fancy_light_black</item>
         <item name="android:windowBackground">@color/fancy_light_white</item>

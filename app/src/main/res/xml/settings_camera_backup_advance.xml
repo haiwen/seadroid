@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:key="screen_camera_upload_advanced_feature"
+    android:summary="@string/settings_camera_upload_advanced_feature_subtitle"
+    android:title="@string/settings_camera_upload_advanced_feature_title">
+
+    <PreferenceCategory
+        android:key="category_camera_upload_advanced_key"
+        android:layout="@layout/bg_settings_section_camera_advance"
+        android:title="@string/settings_advance_feature_title">
+
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="allow_data_plan_switch_key"
+            android:summaryOff="@string/settings_camera_upload_default_wifi"
+            android:summaryOn="@string/settings_camera_upload_data_plan_allowed"
+            android:title="@string/settings_camera_upload_allow_data_plan"
+            app:iconSpaceReserved="false" />
+
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="allow_videos_upload_switch_key"
+            android:summaryOff="@string/settings_camera_upload_default_photos"
+            android:summaryOn="@string/settings_camera_upload_videos_allowed"
+            android:title="@string/settings_camera_upload_allow_videos"
+            app:iconSpaceReserved="false" />
+
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="camera_upload_buckets_switch_key"
+            android:summaryOff="@string/settings_camera_upload_advanced_custom_directories_off"
+            android:summaryOn="@string/settings_camera_upload_advanced_custom_directories_on"
+            android:title="@string/settings_camera_upload_advanced_custom_directories"
+            app:iconSpaceReserved="false" />
+
+        <Preference
+            app:isPreferenceVisible="false"
+            android:key="camera_upload_buckets_key"
+            android:summary="@string/settings_camera_upload_dir_auto_scan"
+            android:title="@string/settings_camera_upload_choose_dir"
+            app:iconSpaceReserved="false" />
+    </PreferenceCategory>
+</PreferenceScreen>

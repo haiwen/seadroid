@@ -125,7 +125,7 @@ public class ActivitiesFragment extends Fragment {
                 final SeafEvent seafEvent = (SeafEvent) adapterView.getItemAtPosition(position);
                 if (mActivity == null) return;
 
-                if (TextUtils.isEmpty(seafEvent.getCommit_id()) || TextUtils.equals("null", seafEvent.getCommit_id().toLowerCase(Locale.ROOT))) {
+                if (TextUtils.isEmpty(seafEvent.getCommit_id()) || TextUtils.equals("null", seafEvent.getCommit_id().toLowerCase(Locale.getDefault()))) {
                     return;
                 }
 

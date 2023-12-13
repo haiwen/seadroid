@@ -44,8 +44,10 @@ import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
+import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.cameraupload.CameraUploadManager;
 import com.seafile.seadroid2.cameraupload.MediaObserverService;
+import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.data.CheckUploadServiceEvent;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.DatabaseHelper;
@@ -73,6 +75,7 @@ import com.seafile.seadroid2.ui.CopyMoveContext;
 import com.seafile.seadroid2.ui.NavContext;
 import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.activity.search.Search2Activity;
+import com.seafile.seadroid2.ui.activity.webview.SeaWebViewActivity;
 import com.seafile.seadroid2.ui.adapter.SeafItemAdapter;
 import com.seafile.seadroid2.ui.dialog.AppChoiceDialog;
 import com.seafile.seadroid2.ui.dialog.AppChoiceDialog.CustomAction;
@@ -880,6 +883,11 @@ public class BrowserActivity extends BaseActivity implements ReposFragment.OnFil
             String repoId = intent.getStringExtra("repoID");
             String repoName = intent.getStringExtra("repoName");
             String path = intent.getStringExtra("path");
+
+            if (TextUtils.isEmpty(repoId) || TextUtils.isEmpty(path)){
+                return;
+            }
+
             navContext.setRepoID(repoId);
             navContext.setRepoName(repoName);
             navContext.setDirPath(path);
@@ -911,6 +919,7 @@ public class BrowserActivity extends BaseActivity implements ReposFragment.OnFil
                 if (TextUtils.equals(ACTIONBAR_PARENT_PATH, parentPath)) {
                     getActionBarToolbar().setTitle(navContext.getRepoName());
                 } else {
+                    //fixme parentPath is null
                     getActionBarToolbar().setTitle(parentPath.substring(parentPath.lastIndexOf(ACTIONBAR_PARENT_PATH) + 1));
                 }
             }
@@ -1561,9 +1570,14 @@ public class BrowserActivity extends BaseActivity implements ReposFragment.OnFil
 
         final File localFile = dataManager.getLocalCachedFile(repoName, repoID, filePath, dirent.id);
         if (localFile != null) {
-            WidgetUtils.showFile(this, localFile, isOpenWith);
-            return;
+            if (fileName.endsWith(Constants.Format.DOT_SDOC)) {
+//                SeaWebViewActivity.openThis(this,localFile.getAbsolutePath());
+            } else {
+                WidgetUtils.showFile(this, localFile, isOpenWith);
+                return;
+            }
         }
+
         boolean videoFile = Utils.isVideoFile(fileName);
         if (videoFile) { // is video file
             final AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -1573,12 +1587,12 @@ public class BrowserActivity extends BaseActivity implements ReposFragment.OnFil
                     if (which == 0) // create file
                         startPlayActivity(fileName, repoID, filePath);
                     else if (which == 1) // create folder
-                        startFileActivity(repoName, repoID, filePath, fileSize, isOpenWith);
+                        startFileActivityForDirent(repoName, repoID, dirent, isOpenWith);
                 }
             }).show();
             return;
         }
-        startFileActivity(repoName, repoID, filePath, fileSize, isOpenWith);
+        startFileActivityForDirent(repoName, repoID, dirent, isOpenWith);
     }
 
     @Override
@@ -1738,20 +1752,36 @@ public class BrowserActivity extends BaseActivity implements ReposFragment.OnFil
         }
     }
 
-    private void startFileActivity(String repoName, String repoID, String filePath, long fileSize) {
-        startFileActivity(repoName, repoID, filePath, fileSize);
+    private void startFileActivityForDirent(String repoName, String repoID, SeafDirent dirent, boolean isOpenWith) {
+        if (dirent.name.endsWith(Constants.Format.DOT_SDOC)) {
+            SeaWebViewActivity.openSdoc(this, repoName, repoID, dirent.parent_dir + dirent.name);
+            return;
+        }
+
+        final String filePath = Utils.pathJoin(navContext.getDirPath(), dirent.name);
+        startFileActivity(repoName, repoID, filePath, dirent.size, isOpenWith);
     }
 
-    private void startFileActivity(String repoName, String repoID, String filePath, long fileSize, boolean isOpenWith) {
+    private void startFileActivityForStarItems(String repoName, String repoID, SeafStarredFile starredFile, boolean isOpenWith) {
+        if (starredFile.getObjName().endsWith(Constants.Format.DOT_SDOC)) {
+            SeaWebViewActivity.openSdoc(this, repoName, repoID, starredFile.getPath());
+            return;
+        }
+
+        startFileActivity(repoName, repoID, starredFile.getPath(), starredFile.getSize(), isOpenWith);
+    }
+
+    private void startFileActivity(String repoName, String repoID, String path, long size, boolean isOpenWith) {
         // txService maybe null if layout orientation has changed
         if (txService == null) {
             return;
         }
-        int taskID = txService.addDownloadTask(account, repoName, repoID, filePath, fileSize);
+
+        int taskID = txService.addDownloadTask(account, repoName, repoID, path, size);
         Intent intent = new Intent(this, FileActivity.class);
         intent.putExtra("repoName", repoName);
         intent.putExtra("repoID", repoID);
-        intent.putExtra("filePath", filePath);
+        intent.putExtra("filePath", path);
         intent.putExtra("account", account);
         intent.putExtra("taskID", taskID);
         intent.putExtra("is_open_with", isOpenWith);
@@ -1805,7 +1835,8 @@ public class BrowserActivity extends BaseActivity implements ReposFragment.OnFil
             return;
         }
 
-        startFileActivity(repoName, repoID, filePath, fileSize, isOpenWith);
+//        startFileActivity(repoName, repoID, filePath, fileSize, isOpenWith);
+        startFileActivityForStarItems(repoName, repoID, starredFile, isOpenWith);
     }
 
     @Override

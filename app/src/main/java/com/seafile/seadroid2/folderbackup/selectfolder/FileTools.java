@@ -3,6 +3,8 @@ package com.seafile.seadroid2.folderbackup.selectfolder;
 import android.content.Context;
 import android.os.storage.StorageManager;
 
+import com.seafile.seadroid2.SettingsManager;
+
 import java.io.File;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -219,6 +221,8 @@ public class FileTools {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+
+
         if (paths != null) {
             return Arrays.asList(paths);
         }

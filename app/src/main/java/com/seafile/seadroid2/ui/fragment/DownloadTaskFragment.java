@@ -111,7 +111,7 @@ public class DownloadTaskFragment extends TransferTaskFragment {
      */
     public void cancelAllDownloadTasks() {
         if (txService != null) {
-            txService.cancellAllDownloadTasks();
+            txService.cancelAllDownloadTasks();
         }
     }
 
@@ -120,7 +120,7 @@ public class DownloadTaskFragment extends TransferTaskFragment {
      */
     public void cancelDownloadTasksByIds(List<Integer> ids) {
         if (txService != null) {
-            txService.cancellDownloadTasksByIds(ids);
+            txService.cancelDownloadTasksByIds(ids);
         }
     }
 

@@ -181,14 +181,26 @@ public class FolderBackupService extends Service {
 
     private void startBackupFolder(String parentPath, String filePath) {
         List<FileBean> fileBeanList = new ArrayList<>();
-        FileBean fileBean;
         File file = FileTools.getFileByPath(filePath);
         File[] files = file.listFiles();
 
+        boolean isJumpHiddenFile = SettingsManager.instance().isFolderBackupJumpHiddenFiles();
+
         if (files != null) {
             for (File value : files) {
-                fileBean = new FileBean(value.getAbsolutePath());
-                fileBeanList.add(fileBean);
+                FileBean fileBean = new FileBean(value.getAbsolutePath());
+
+                boolean isJump = false;
+                if (isJumpHiddenFile) {
+                    String fileName = fileBean.getFileName();
+                    if (!TextUtils.isEmpty(fileName) && fileName.startsWith(".")) {
+                        isJump = true;
+                    }
+                }
+
+                if (!isJump) {
+                    fileBeanList.add(fileBean);
+                }
             }
         }
 

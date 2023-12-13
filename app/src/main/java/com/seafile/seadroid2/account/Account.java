@@ -7,6 +7,7 @@ import android.text.TextUtils;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import com.seafile.seadroid2.BuildConfig;
+import com.seafile.seadroid2.util.URLs;
 import com.seafile.seadroid2.util.Utils;
 
 public class Account implements Parcelable, Comparable<Account> {
@@ -57,6 +58,13 @@ public class Account implements Parcelable, Comparable<Account> {
         if (dn.contains(":"))
             dn = dn.substring(0, dn.indexOf(':'));
         return dn;
+    }
+
+    /**
+     * https://dev.xxx.com/dev/ => https://dev.xxx.com
+     */
+    public String getProtocolHost() {
+       return URLs.getProtocolHost(server);
     }
 
     public String getEmail() {

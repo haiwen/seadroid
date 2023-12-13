@@ -83,6 +83,19 @@ public class CustomExoVideoPlayerActivity extends BaseActivity implements VideoL
         VideoLinkTask task = new VideoLinkTask(mAccount, mRepoID, mFilePath, this);
         ConcurrentAsyncTask.execute(task);
 
+        initUI();
+
+        if (savedInstanceState != null) {
+            startAutoPlay = savedInstanceState.getBoolean(KEY_AUTO_PLAY);
+            hasFullScreen = savedInstanceState.getBoolean(KEY_FULL_SCREEN);
+            startPosition = savedInstanceState.getLong(KEY_POSITION);
+            startItemIndex = savedInstanceState.getInt(KEY_ITEM_INDEX);
+        } else {
+            clearStartPosition();
+        }
+    }
+
+    private void initUI(){
         backView = findViewById(R.id.back);
         backContainer = findViewById(R.id.back_container);
         progressContainer = findViewById(R.id.progress_container);
@@ -182,15 +195,6 @@ public class CustomExoVideoPlayerActivity extends BaseActivity implements VideoL
                 }
             }
         });
-
-        if (savedInstanceState != null) {
-            startAutoPlay = savedInstanceState.getBoolean(KEY_AUTO_PLAY);
-            hasFullScreen = savedInstanceState.getBoolean(KEY_FULL_SCREEN);
-            startPosition = savedInstanceState.getLong(KEY_POSITION);
-            startItemIndex = savedInstanceState.getInt(KEY_ITEM_INDEX);
-        } else {
-            clearStartPosition();
-        }
     }
 
     @Override

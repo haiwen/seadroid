@@ -21,8 +21,7 @@ import java.util.List;
  */
 public class DownloadNotificationProvider extends BaseNotificationProvider {
 
-    public DownloadNotificationProvider(DownloadTaskManager downloadTaskManager,
-                                        TransferService transferService) {
+    public DownloadNotificationProvider(DownloadTaskManager downloadTaskManager, TransferService transferService) {
         super(downloadTaskManager, transferService);
     }
 
@@ -43,8 +42,7 @@ public class DownloadNotificationProvider extends BaseNotificationProvider {
             int downloadingCount = 0;
             List<DownloadTaskInfo> infos = txService.getAllDownloadTaskInfos();
             for (DownloadTaskInfo info : infos) {
-                if (info.state.equals(TaskState.INIT)
-                        || info.state.equals(TaskState.TRANSFERRING))
+                if (info.state.equals(TaskState.INIT) || info.state.equals(TaskState.TRANSFERRING))
                     downloadingCount++;
             }
             if (downloadingCount != 0)
@@ -111,9 +109,8 @@ public class DownloadNotificationProvider extends BaseNotificationProvider {
                 .setSmallIcon(R.drawable.icon)
                 .setOnlyAlertOnce(true)
                 .setDefaults(Notification.DEFAULT_VIBRATE)
-                .setContentTitle(SeadroidApplication.getAppContext().getString(R.string.notification_download_started_title))
+                .setContentTitle(getNotificationTitle())
                 .setOngoing(true)
-                .setContentText(SeadroidApplication.getAppContext().getString(R.string.notification_download_started_title))
                 .setContentIntent(dPendingIntent)
                 .setProgress(100, 0, false);
 

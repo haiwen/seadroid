@@ -1,7 +1,13 @@
 package com.seafile.seadroid2.notification;
 
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.content.Context;
+import android.os.Build;
+
 import androidx.core.app.NotificationCompat;
+
+import com.blankj.utilcode.util.AppUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.transfer.TransferManager;
@@ -17,17 +23,27 @@ import java.util.TimerTask;
  */
 public abstract class BaseNotificationProvider {
 
+    private String mProgressChannelId = AppUtils.getAppPackageName();
+
+    private String mProgressChannelName = AppUtils.getAppName();
+
     protected NotificationCompat.Builder mNotifBuilder;
 
     protected NotificationManager mNotifMgr = (NotificationManager) SeadroidApplication.getAppContext().
-            getSystemService(SeadroidApplication.getAppContext().NOTIFICATION_SERVICE);
+            getSystemService(Context.NOTIFICATION_SERVICE);
+
+    private NotificationChannel mNotificationChannel;
 
     public static final String NOTIFICATION_MESSAGE_KEY = "notification message key";
-    /** Creates an explicit flag for opening @{link com.seafile.seadroid2.ui.fragment.DownloadTaskFragment}
-     * in @{link com.seafile.seadroid2.ui.activity.TransferActivity} */
+    /**
+     * Creates an explicit flag for opening @{link com.seafile.seadroid2.ui.fragment.DownloadTaskFragment}
+     * in @{link com.seafile.seadroid2.ui.activity.TransferActivity}
+     */
     public static final String NOTIFICATION_OPEN_DOWNLOAD_TAB = "open download tab notification";
-    /** Creates an explicit flag for opening @{link com.seafile.seadroid2.ui.fragment.UploadTaskFragment}
-     * in @{link com.seafile.seadroid2.ui.activity.TransferActivity} */
+    /**
+     * Creates an explicit flag for opening @{link com.seafile.seadroid2.ui.fragment.UploadTaskFragment}
+     * in @{link com.seafile.seadroid2.ui.activity.TransferActivity}
+     */
     public static final String NOTIFICATION_OPEN_UPLOAD_TAB = "open upload tab notification";
 
     public static final int NOTIFICATION_ID_DOWNLOAD = 1;
@@ -37,8 +53,7 @@ public abstract class BaseNotificationProvider {
     protected TransferManager txMgr;
     protected TransferService txService;
 
-    public BaseNotificationProvider(TransferManager transferManager,
-                                    TransferService transferService) {
+    public BaseNotificationProvider(TransferManager transferManager, TransferService transferService) {
         this.txMgr = transferManager;
         this.txService = transferService;
     }
@@ -46,27 +61,24 @@ public abstract class BaseNotificationProvider {
     /**
      * calculate state
      *
-     * @return
-     *        {@code NotificationState.NOTIFICATION_STATE_FAILED}, when at least one task failed
-     *        {@code NotificationState.NOTIFICATION_STATE_CANCELLED}, when at least one task cancelled
-     *        {@code NotificationState.NOTIFICATION_STATE_PROGRESS}, when at least one task in progress
-     *        {@code NotificationState.NOTIFICATION_STATE_COMPLETED}, otherwise.
+     * @return {@code NotificationState.NOTIFICATION_STATE_FAILED}, when at least one task failed
+     * {@code NotificationState.NOTIFICATION_STATE_CANCELLED}, when at least one task cancelled
+     * {@code NotificationState.NOTIFICATION_STATE_PROGRESS}, when at least one task in progress
+     * {@code NotificationState.NOTIFICATION_STATE_COMPLETED}, otherwise.
      */
     protected abstract NotificationState getState();
 
     /**
      * get notification id
      *
-     * @return
-     *          notificationID
+     * @return notificationID
      */
     protected abstract int getNotificationID();
 
     /**
      * get notification title texts
      *
-     * @return
-     *          some descriptions shown in notification title
+     * @return some descriptions shown in notification title
      */
     protected abstract String getNotificationTitle();
 
@@ -83,40 +95,40 @@ public abstract class BaseNotificationProvider {
         int progress = getProgress();
 
         if (getState().equals(NotificationState.NOTIFICATION_STATE_PROGRESS)) {
-            notifyProgress(notifId, notifTitle, progressInfo, progress);
+            notifyProgress(notifId, progressInfo, progress);
         } else if (getState().equals(NotificationState.NOTIFICATION_STATE_COMPLETED_WITH_ERRORS)) {
             notifyCompletedWithErrors(notifId, notifTitle, progressInfo, progress);
         } else if (getState().equals(NotificationState.NOTIFICATION_STATE_COMPLETED)) {
-            notifyCompleted(notifId, notifTitle, progressInfo);
+            notifyCompleted(notifId, progressInfo);
         }
     }
 
     /**
      * start to show a notification
-     *
      */
     protected abstract void notifyStarted();
 
+    private NotificationChannel getNotificationChannel(){
+        if (mNotificationChannel == null){
+            mNotificationChannel = new NotificationChannel(mProgressChannelId, mProgressChannelName, NotificationManager.IMPORTANCE_DEFAULT);
+            mNotificationChannel.setShowBadge(false);
+        }
+        return mNotificationChannel;
+    }
     /**
      * update notification when downloading or uploading in progress
      *
-     * @param notificationID
-     *          use to update the notification later on
-     * @param title
-     *          some descriptions shown in notification title
-     * @param info
-     *          some descriptions to indicate the upload status
-     * @param progress
-     *          progress value to update build-in progressbar
-     *
+     * @param notificationID use to update the notification later on
+     * @param title          some descriptions shown in notification title
+     * @param info           some descriptions to indicate the upload status
+     * @param progress       progress value to update build-in progressbar
      */
-    private void notifyProgress(int notificationID,
-                                String title,
-                                String info,
-                                int progress) {
+    private void notifyProgress(int notificationID, String title, int progress) {
+
+        mNotifMgr.createNotificationChannel(getNotificationChannel());
+
         mNotifBuilder.setSmallIcon(R.drawable.icon);
         mNotifBuilder.setContentTitle(title);
-        mNotifBuilder.setContentText(info);
         mNotifBuilder.setProgress(100, progress, false);
         mNotifMgr.notify(notificationID, mNotifBuilder.build());
     }
@@ -124,16 +136,14 @@ public abstract class BaseNotificationProvider {
     /**
      * update notification when completed
      *
-     * @param notificationID
-     *          use to update the notification later on
-     * @param title
-     *          some descriptions shown in notification title
-     *
+     * @param notificationID use to update the notification later on
+     * @param title          some descriptions shown in notification title
      */
-    private void notifyCompleted(int notificationID, String title, String info) {
+    private void notifyCompleted(int notificationID, String title) {
+        mNotifMgr.createNotificationChannel(getNotificationChannel());
+
         mNotifBuilder.setSmallIcon(R.drawable.icon);
         mNotifBuilder.setContentTitle(title);
-        mNotifBuilder.setContentText(info);
         mNotifBuilder.setProgress(100, 100, false);
         mNotifBuilder.setAutoCancel(true);
         mNotifBuilder.setOngoing(false);
@@ -149,7 +159,7 @@ public abstract class BaseNotificationProvider {
      * @param delayInMillis
      */
     public static void cancelWithDelay(final TransferService transferService,
-            long delayInMillis) {
+                                       long delayInMillis) {
         new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
@@ -164,17 +174,16 @@ public abstract class BaseNotificationProvider {
     /**
      * update notification when failed or cancelled
      *
-     * @param notificationID
-     *          use to update the notification later on
-     * @param title
-     *          some descriptions shown in notification title
-     * @param info
-     *          some descriptions to indicate the upload status
-     * @param progress
-     *          progress value to update build-in progressbar
-     *
+     * @param notificationID use to update the notification later on
+     * @param title          some descriptions shown in notification title
+     * @param info           some descriptions to indicate the upload status
+     * @param progress       progress value to update build-in progressbar
      */
     protected void notifyCompletedWithErrors(int notificationID, String title, String info, int progress) {
+        //
+        mNotifMgr.createNotificationChannel(getNotificationChannel());
+
+        mNotifBuilder =
         mNotifBuilder.setSmallIcon(R.drawable.icon);
         mNotifBuilder.setContentTitle(title);
         mNotifBuilder.setContentText(info);
@@ -189,16 +198,14 @@ public abstract class BaseNotificationProvider {
     /**
      * get downloading or uploading status
      *
-     * @return
-     *         texts of downloading or uploading status
+     * @return texts of downloading or uploading status
      */
     protected abstract String getProgressInfo();
 
     /**
      * get progress of transferred files
      *
-     * @return
-     *          progress
+     * @return progress
      */
     protected abstract int getProgress();
 
