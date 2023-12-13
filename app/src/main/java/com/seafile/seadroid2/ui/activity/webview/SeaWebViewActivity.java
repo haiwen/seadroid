@@ -177,29 +177,18 @@ public class SeaWebViewActivity extends BaseActivity {
     }
 
     private void download() {
+        if (txService == null) {
+            startTransferService();
+            return;
+        }
 
-        CookieManager manager = CookieManager.getInstance();
+        Account account = SupportAccountManager.getInstance().getCurrentAccount();
+        txService.addDownloadTask(account, mRepoName, mRepoID, mFilePath);
 
-        manager.removeAllCookies(new ValueCallback<Boolean>() {
-            @Override
-            public void onReceiveValue(Boolean value) {
-
-            }
-        });
-
-//
-//        if (txService == null) {
-//            startTransferService();
-//            return;
-//        }
-//
-//        Account account = SupportAccountManager.getInstance().getCurrentAccount();
-//        txService.addDownloadTask(account, mRepoName, mRepoID, mFilePath);
-//
-//        if (!txService.hasDownloadNotifProvider()) {
-//            DownloadNotificationProvider provider = new DownloadNotificationProvider(txService.getDownloadTaskManager(), txService);
-//            txService.saveDownloadNotifProvider(provider);
-//        }
+        if (!txService.hasDownloadNotifProvider()) {
+            DownloadNotificationProvider provider = new DownloadNotificationProvider(txService.getDownloadTaskManager(), txService);
+            txService.saveDownloadNotifProvider(provider);
+        }
     }
 
     private final ServiceConnection mTransferServiceConnection = new ServiceConnection() {
@@ -262,13 +251,15 @@ public class SeaWebViewActivity extends BaseActivity {
             unbindService(mTransferServiceConnection);
             txService = null;
         }
+        destroyWebView();
 
-        if (mWebView != null) {
-            destroyWebView();
-        }
     }
 
     public void destroyWebView() {
+        if (mWebView == null) {
+            return;
+        }
+
         mContainer.removeView(mWebView);
 
         mWebView.loadUrl("about:blank");
