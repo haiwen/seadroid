@@ -8,9 +8,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
-import androidx.recyclerview.widget.RecyclerView;
 
-import com.blankj.utilcode.util.CollectionUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.data.SearchedFile;
@@ -19,9 +17,6 @@ import com.seafile.seadroid2.ui.base.adapter.ParentAdapter;
 import com.seafile.seadroid2.util.Utils;
 
 import org.jetbrains.annotations.NotNull;
-
-import java.lang.ref.WeakReference;
-import java.util.List;
 
 public class SearchRecyclerViewAdapter extends ParentAdapter<SearchedFile, SearchRecyclerViewAdapter.SearchItemViewHolder> {
     private Context context;
@@ -49,7 +44,7 @@ public class SearchRecyclerViewAdapter extends ParentAdapter<SearchedFile, Searc
         String parentPath = Utils.getParentPath(searchedFile.getPath());
         SeafRepo seafRepo = ((Search2Activity) context).getDataManager().getCachedRepoByID(searchedFile.getRepoID());
         if (seafRepo != null)
-            return Utils.pathJoin(seafRepo.getName(), parentPath);
+            return Utils.pathJoin(seafRepo.getRepoName(), parentPath);
         else
             return parentPath;
     }

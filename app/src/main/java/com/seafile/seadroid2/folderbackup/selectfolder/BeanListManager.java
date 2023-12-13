@@ -2,12 +2,15 @@ package com.seafile.seadroid2.folderbackup.selectfolder;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.text.TextUtils;
 
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
+import com.seafile.seadroid2.SettingsManager;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -37,19 +40,33 @@ public class BeanListManager {
 
         Observable.just(fileBeanList).map(new Function<List<FileBean>, List<FileBean>>() {
                     @Override
-                    public List<FileBean> apply(List<FileBean> fileBeanList) throws Throwable {
-                        FileBean fileBean;
+                    public List<FileBean> apply(List<FileBean> fileBeanList) {
+
+                        boolean isJumpHiddenFile = SettingsManager.instance().isFolderBackupJumpHiddenFiles();
+
+
                         File file = FileTools.getFileByPath(path);
                         File[] files = file.listFiles();
                         if (files != null) {
                             for (File value : files) {
-                                fileBean = new FileBean(value.getAbsolutePath());
-                                if (selectFilePath != null && selectFilePath.size() > 0) {
-                                    if (selectFilePath.contains(fileBean.getFilePath())) {
-                                        fileBean.setChecked(true);
+                                FileBean fileBean = new FileBean(value.getAbsolutePath());
+
+                                boolean isJump = false;
+                                if (isJumpHiddenFile) {
+                                    String fileName = fileBean.getFileName();
+                                    if (!TextUtils.isEmpty(fileName) && fileName.startsWith(".")) {
+                                        isJump = true;
                                     }
                                 }
-                                fileBeanList.add(fileBean);
+
+                                if (!isJump) {
+                                    if (selectFilePath != null && selectFilePath.size() > 0) {
+                                        if (selectFilePath.contains(fileBean.getFilePath())) {
+                                            fileBean.setChecked(true);
+                                        }
+                                    }
+                                    fileBeanList.add(fileBean);
+                                }
                             }
                         }
                         sortFileBeanList(fileBeanList, sortType);

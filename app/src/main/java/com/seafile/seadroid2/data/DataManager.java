@@ -4,6 +4,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
 
+import com.blankj.utilcode.util.EncryptUtils;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.seafile.seadroid2.R;
@@ -137,7 +138,7 @@ public class DataManager {
     public String getThumbnailLink(String repoID, String filePath, int size) {
         SeafRepo repo = getCachedRepoByID(repoID);
         if (repo != null)
-            return getThumbnailLink(repo.getName(), repoID, filePath, size);
+            return getThumbnailLink(repo.getRepoName(), repoID, filePath, size);
         else
             return null;
     }
@@ -290,11 +291,16 @@ public class DataManager {
         if (TextUtils.isEmpty(repoID)) {
             return null;
         }
+
         String repoDir = getRepoDir(repoName, repoID);
         if (TextUtils.isEmpty(repoDir)) {
             return null;
         }
         String localPath = Utils.pathJoin(repoDir, path);
+
+        //build valid file path and name
+        localPath = com.seafile.seadroid2.util.FileUtils.buildValidFilePathName(localPath);
+
         File parentDir = new File(Utils.getParentPath(localPath));
         if (!parentDir.exists()) {
             // TODO should check if the directory creation succeeds
@@ -306,8 +312,8 @@ public class DataManager {
 
     private List<SeafRepo> parseRepos(String json) {
         try {
-            // may throw ClassCastException
-            JSONArray array = Utils.parseJsonArray(json);
+            JSONObject j = new JSONObject(json);
+            JSONArray array = j.getJSONArray("repos");
             if (array.length() == 0)
                 return Lists.newArrayListWithCapacity(0);
 
@@ -356,7 +362,7 @@ public class DataManager {
         }
 
         for (SeafRepo repo : cachedRepos) {
-            if (repo.getID().equals(id)) {
+            if (repo.getRepoId().equals(id)) {
                 return repo;
             }
         }
@@ -459,8 +465,7 @@ public class DataManager {
         dbHelper.removeCachedDirents(repoID, dir);
     }
 
-    public synchronized File getFile(String repoName, String repoID, String path,
-                                     ProgressMonitor monitor) throws SeafException {
+    public synchronized File getFile(String repoName, String repoID, String path, ProgressMonitor monitor) throws SeafException {
 
         String cachedFileID = null;
         SeafCachedFile cf = getCachedFile(repoName, repoID, path);
@@ -485,9 +490,7 @@ public class DataManager {
         }
     }
 
-    public synchronized File getFileByBlocks(String repoName, String repoID, String path, long fileSize,
-                                             ProgressMonitor monitor) throws SeafException, IOException, JSONException, NoSuchAlgorithmException {
-
+    public synchronized File getFileByBlocks(String repoName, String repoID, String path, long fileSize, ProgressMonitor monitor) throws SeafException, IOException, JSONException, NoSuchAlgorithmException {
         String cachedFileID = null;
         SeafCachedFile cf = getCachedFile(repoName, repoID, path);
         File localFile = getLocalRepoFile(repoName, repoID, path);
@@ -541,25 +544,6 @@ public class DataManager {
         return localFile;
     }
 
-    private List<SeafDirent> parseDirents(String json) {
-        try {
-            JSONArray array = Utils.parseJsonArray(json);
-            if (array == null)
-                return null;
-
-            ArrayList<SeafDirent> dirents = Lists.newArrayList();
-            for (int i = 0; i < array.length(); i++) {
-                JSONObject obj = array.getJSONObject(i);
-                SeafDirent de = SeafDirent.fromJson(obj);
-                if (de != null)
-                    dirents.add(de);
-            }
-            return dirents;
-        } catch (JSONException e) {
-            Log.e(DEBUG_TAG, "Could not parse cached dirent", e);
-            return null;
-        }
-    }
 
     private List<SeafStarredFile> parseStarredFiles(String json) {
         try {
@@ -599,7 +583,12 @@ public class DataManager {
             return null;
         }
 
-        return parseDirents(json);
+        Pair<List<SeafDirent>, String> pair = parseDirents(json);
+        if (pair == null) {
+            return null;
+        }
+
+        return pair.first;
     }
 
     /**
@@ -613,33 +602,63 @@ public class DataManager {
      * In the second case, the local cache may still be valid.
      */
     public List<SeafDirent> getDirentsFromServer(String repoID, String path) throws SeafException {
-
-        // first fetch our cached dirent and read it
-        String cachedDirID = dbHelper.getCachedDirents(repoID, path);
-        String cachedContent = null;
-        File cacheFile = getFileForDirentCache(cachedDirID);
-        if (cacheFile.exists()) {
-            cachedContent = Utils.readFile(cacheFile);
+        String jsonData = null;
+        try {
+            jsonData = sc.getDirents(repoID, path);
+        } catch (SeafException e) {
+            throw e;
         }
 
-        // if that didn't work, then we have no cache.
-        if (cachedContent == null) {
-            cachedDirID = null;
+        boolean hasNetData = true;
+        if (TextUtils.isEmpty(jsonData)) {
+            hasNetData = false;
+
+            String cachedDirID = dbHelper.getCachedDirents(repoID, path);
+            String cachedContent = null;
+            File cacheFile = getFileForDirentCache(cachedDirID);
+            if (cacheFile.exists()) {
+                cachedContent = Utils.readFile(cacheFile);
+            }
+
+            if (TextUtils.isEmpty(cachedContent)) {
+                return null;
+            }
+
+            jsonData = cachedContent;
         }
 
-        // fetch new dirents. ret.second will be null if the cache is still valid
-        Pair<String, String> ret = sc.getDirents(repoID, path, cachedDirID);
-
-        String content;
-        if (ret.second != null) {
-            String dirID = ret.first;
-            content = ret.second;
-            saveDirentContent(repoID, path, dirID, content);
-        } else {
-            content = cachedContent;
+        Pair<List<SeafDirent>, String> pair = parseDirents(jsonData);
+        if (pair == null) {
+            return null;
         }
 
-        return parseDirents(content);
+        if (hasNetData) {
+            saveDirentContent(repoID, path, pair.second, jsonData);
+        }
+
+        return pair.first;
+    }
+
+    private Pair<List<SeafDirent>, String> parseDirents(String json) {
+        try {
+            JSONObject jsonObject = new JSONObject(json);
+            String user_permission = jsonObject.getString("user_perm");
+            String dir_id = jsonObject.getString("dir_id");
+            JSONArray array = jsonObject.getJSONArray("dirent_list");
+
+            ArrayList<SeafDirent> dirents = Lists.newArrayList();
+            for (int i = 0; i < array.length(); i++) {
+                JSONObject obj = array.getJSONObject(i);
+                SeafDirent de = SeafDirent.fromJson(dir_id, obj);
+                if (de != null)
+                    dirents.add(de);
+            }
+
+            return new Pair<>(dirents, dir_id);
+        } catch (JSONException e) {
+            Log.e(DEBUG_TAG, "Could not parse cached dirent", e);
+            return null;
+        }
     }
 
     public List<SeafStarredFile> getStarredFiles() throws SeafException {
@@ -802,8 +821,16 @@ public class DataManager {
         sc.star(repoID, path);
     }
 
+    public void starItems(String repoID, String path) throws SeafException {
+        sc.starItems(repoID, path);
+    }
+
     public void unstar(String repoID, String path) throws SeafException {
         sc.unstar(repoID, path);
+    }
+
+    public void unstarItems(String repoID, String path) throws SeafException {
+        sc.unstarItems(repoID, path);
     }
 
     public void rename(String repoID, String path, String newName, boolean isdir) throws SeafException {
@@ -859,26 +886,10 @@ public class DataManager {
 
 
     public void delete(String repoID, String path, boolean isdir) throws SeafException {
-        Pair<String, String> ret = sc.delete(repoID, path, isdir);
-        if (ret == null) {
-            return;
+        boolean success = sc.delete(repoID, path, isdir);
+        if (success) {
+            getDirentsFromServer(repoID, Utils.getParentPath(path));
         }
-
-        String newDirID = ret.first;
-        String response = ret.second;
-
-        // The response is the dirents of the parentDir after deleting the
-        // file/folder. We save it to avoid request it again
-        saveDirentContent(repoID, Utils.getParentPath(path), newDirID, response);
-
-        // TODO: isdir==true: recursively delete cached files, dirent cache, etc.
-        /*
-         * I think it is more simple and easier if we provide a "clear cache" button in Settings,
-         * just like what we have done with thumbnail caches.
-         * And hopefully it already exist.
-         * Users can manually clear them if they are boring with those temp files.
-         */
-
     }
 
     public void copy(String srcRepoId, String srcDir, String srcFn,
@@ -1154,8 +1165,8 @@ public class DataManager {
      * @return json format strings of searched result
      * @throws SeafException
      */
-    public String search(String query,int page, int pageSize) throws SeafException {
-        String json = sc.searchLibraries(query, page,pageSize);
+    public String search(String query, int page, int pageSize) throws SeafException {
+        String json = sc.searchLibraries(query, page, pageSize);
         return json;
     }
 

@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
+        android:id="@+id/star_repo"
+        android:icon="@drawable/star_normal"
+        android:title="@string/file_action_star" />
+    <item
         android:id="@+id/rename_repo"
         android:icon="@drawable/action_rename"
         android:title="@string/repo_action_rename" />

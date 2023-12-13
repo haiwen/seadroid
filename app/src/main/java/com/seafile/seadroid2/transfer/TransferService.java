@@ -300,12 +300,12 @@ public class TransferService extends Service {
         downloadTaskManager.doNext();
     }
 
-    public void cancellAllDownloadTasks() {
+    public void cancelAllDownloadTasks() {
         downloadTaskManager.cancelAll();
         downloadTaskManager.cancelAllDownloadNotification();
     }
 
-    public void cancellDownloadTasksByIds(List<Integer> ids) {
+    public void cancelDownloadTasksByIds(List<Integer> ids) {
         downloadTaskManager.cancelByIds(ids);
         downloadTaskManager.cancelAllDownloadNotification();
     }

@@ -1,6 +1,7 @@
 package com.seafile.seadroid2.transfer;
 
 import android.content.Intent;
+
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.common.collect.Lists;

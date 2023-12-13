@@ -85,7 +85,7 @@ public class WidgetUtils {
                         clipboard.setText(gdialog.getLink());
                         // ClipData clip = ClipData.newPlainText("seafile shared link", gdialog.getLink());
                         // clipboard.setPrimaryClip(clip);
-                        ToastUtils.showLong( R.string.link_ready_to_be_pasted);
+                        ToastUtils.showLong(R.string.link_ready_to_be_pasted);
                     }
 
                     @Override
@@ -318,12 +318,11 @@ public class WidgetUtils {
         context.startActivity(intent);
     }
 
-    public static void showStarredRepo(Activity activity, String repoID, String repoName, String path, String dirID) {
+    public static void showStarredRepo(Activity activity, String repoID, String repoName, String path) {
         Intent intent = new Intent(activity, BrowserActivity.class);
         intent.putExtra("repoID", repoID);
         intent.putExtra("repoName", repoName);
         intent.putExtra("path", path);
-        intent.putExtra("dirID", dirID);
         activity.startActivityForResult(intent, 0);
     }
 

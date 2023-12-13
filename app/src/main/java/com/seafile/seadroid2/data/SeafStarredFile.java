@@ -2,42 +2,62 @@ package com.seafile.seadroid2.data;
 
 import android.util.Log;
 
+import com.blankj.utilcode.util.TimeUtils;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.util.SystemSwitchUtils;
+import com.seafile.seadroid2.config.DateFormatType;
 import com.seafile.seadroid2.util.Utils;
 
 import org.json.JSONObject;
 
+import java.util.Date;
+
 public class SeafStarredFile implements SeafItem {
     public enum FileType {DIR, FILE}
 
-    ;
     private static final String DEBUG_TAG = "SeafStarredFile";
 
-    private String repoID;
+    private String repo_id;
+    private String repo_name;
+    private boolean repo_encrypted;
+    private boolean is_dir;
+
     private long mtime;
     private String path;
     private String obj_name;
-    private boolean repo_encrypted;
+    private String user_email;
+    private String user_name;
+    private String user_contact_email;
+    private String encoded_thumbnail_src;
+    private long size;
     private FileType type;
-    private long size;    // size of file, 0 if type is dir
-    private String repoName;
 
     static SeafStarredFile fromJson(JSONObject obj) {
         SeafStarredFile starredFile = new SeafStarredFile();
         try {
-            starredFile.repoID = obj.optString("repo_id");
-            starredFile.mtime = SystemSwitchUtils.parseISODateTime(obj.optString("mtime"));
-            starredFile.path = obj.optString("path");
-            starredFile.obj_name = obj.optString("obj_name");
+            starredFile.repo_id = obj.optString("repo_id");
+            starredFile.repo_name = obj.getString("repo_name");
+            starredFile.path = obj.getString("path");
+            starredFile.obj_name = obj.getString("obj_name");
+            starredFile.repo_encrypted = obj.getBoolean("repo_encrypted");
+            starredFile.user_email = obj.getString("user_email");
+            starredFile.user_name = obj.getString("user_name");
+            starredFile.user_contact_email = obj.getString("user_contact_email");
+
             starredFile.size = obj.optLong("size");
-            starredFile.repo_encrypted = obj.optBoolean("repo_encrypted");
+
+            String t = obj.getString("mtime");
+            starredFile.mtime = convertLastModified2Mtime(t);
+
+            if (obj.has("encoded_thumbnail_src")) {
+                starredFile.encoded_thumbnail_src = obj.getString("encoded_thumbnail_src");
+            }
+
             boolean type = obj.optBoolean("is_dir");
-            starredFile.repoName = obj.optString("repo_name");
             if (!type) {
                 starredFile.type = FileType.FILE;
-            } else
+            } else {
                 starredFile.type = FileType.DIR;
+            }
             return starredFile;
         } catch (Exception e) {
             Log.d(DEBUG_TAG, e.getMessage());
@@ -45,36 +65,41 @@ public class SeafStarredFile implements SeafItem {
         }
     }
 
+    private static long convertLastModified2Mtime(String t) {
+        Date date = TimeUtils.string2Date(t, DateFormatType.DATE_XXX);
+        return TimeUtils.date2Millis(date);
+    }
+
     public String getRepoName() {
-        return repoName;
+        return repo_name;
     }
 
     public void setRepoName(String repoName) {
-        this.repoName = repoName;
+        this.repo_name = repoName;
+    }
+
+    public long getMtime() {
+        return 0;
+    }
+
+    public String getObjName() {
+        return obj_name;
     }
 
     public long getSize() {
         return size;
     }
 
-    public long getMtime() {
-        return mtime;
-    }
-
-    public String getObj_name() {
-        return obj_name;
-    }
-
     public boolean isDir() {
         return (type == FileType.DIR);
     }
 
-    public boolean isRepo_encrypted() {
+    public boolean isRepoEncrypted() {
         return repo_encrypted;
     }
 
     public String getRepoID() {
-        return repoID;
+        return repo_id;
     }
 
     public String getPath() {
@@ -83,22 +108,12 @@ public class SeafStarredFile implements SeafItem {
 
     @Override
     public String getTitle() {
-//        return path.substring(path.lastIndexOf('/') + 1);
-        return getObj_name();
-    }
-
-    public void setSize(long size) {
-        this.size = size;
+        return getObjName();
     }
 
     @Override
     public String getSubtitle() {
-        String timestamp = Utils.translateCommitTime(mtime * 1000);
-        return timestamp;
-
-//        if (isDir())
-//            return timestamp;
-//        return Utils.readableFileSize(size) + ", " + timestamp;
+        return repo_name + " " + Utils.translateCommitTime(mtime);
     }
 
     @Override

@@ -16,25 +16,54 @@ import java.util.Comparator;
 public class SeafDirent implements SeafItem, Serializable {
     public static final long serialVersionUID = 0L;
     private static final String DEBUG_TAG = "SeafDirent";
+
     public enum DirentType {DIR, FILE}
+
     public String permission;
     public String id;
     public DirentType type;
     public String name;
     public long size;    // size of file, 0 if type is dir
     public long mtime;   // last modified timestamp
+    public boolean starred;
+    public String parent_dir;
+    public String dir_id;
 
-    static SeafDirent fromJson(JSONObject obj) {
+    //lock
+    public boolean is_locked;
+    public boolean locked_by_me;
+    public long lock_time;
+    public String lock_owner;
+    public String lock_owner_name;
+    public String lock_owner_contact_email;
+    public String modifier_email;
+    public String modifier_name;
+    public String modifier_contact_email;
+
+    static SeafDirent fromJson(String dir_id,JSONObject obj) {
         SeafDirent dirent = new SeafDirent();
         try {
-            dirent.id = obj.getString("id");
-            dirent.name = obj.getString("name");
-            dirent.mtime = obj.getLong("mtime");
-            dirent.permission = obj.getString("permission");
+            dirent.dir_id = dir_id;
+            dirent.id = obj.optString("id");
+            dirent.name = obj.optString("name");
+            dirent.mtime = obj.optLong("mtime");
+            dirent.permission = obj.optString("permission");
+            dirent.parent_dir = obj.optString("parent_dir");
+            dirent.starred = obj.optBoolean("starred");
+
             String type = obj.getString("type");
             if (type.equals("file")) {
                 dirent.type = DirentType.FILE;
-                dirent.size = obj.getLong("size");
+                dirent.size = obj.optLong("size");
+                dirent.modifier_contact_email = obj.optString("modifier_contact_email");
+                dirent.modifier_name = obj.optString("modifier_name");
+                dirent.modifier_email = obj.optString("modifier_email");
+                dirent.is_locked = obj.optBoolean("is_locked");
+                dirent.lock_time = obj.optLong("lock_time");
+                dirent.locked_by_me = obj.optBoolean("locked_by_me");
+                dirent.lock_owner = obj.optString("lock_owner");
+                dirent.lock_owner_contact_email = obj.optString("lock_owner_contact_email");
+                dirent.lock_owner_name = obj.optString("lock_owner_name");
             } else
                 dirent.type = DirentType.DIR;
             return dirent;
@@ -42,6 +71,14 @@ public class SeafDirent implements SeafItem, Serializable {
             Log.d(DEBUG_TAG, e.getMessage());
             return null;
         }
+    }
+
+    public boolean isStarred() {
+        return starred;
+    }
+
+    public void setStarred(boolean starred) {
+        this.starred = starred;
     }
 
     public boolean isDir() {

@@ -1,6 +1,8 @@
 package com.seafile.seadroid2.transfer;
 
 import android.os.AsyncTask;
+import android.os.FileUtils;
+
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 
@@ -28,6 +30,7 @@ public abstract class TransferTask extends AsyncTask<Void, Long, File> {
         this.account = account;
         this.repoName = repoName;
         this.repoID = repoID;
+        
         this.path = path;
         this.state = TaskState.INIT;
 

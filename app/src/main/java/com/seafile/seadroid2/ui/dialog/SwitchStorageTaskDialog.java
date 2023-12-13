@@ -60,7 +60,7 @@ class SwitchStorageTask extends TaskDialog.Task {
         if (txService != null) {
             Log.d(DEBUG_TAG, "Cancel all TransferService tasks");
             txService.cancelAllUploadTasks();
-            txService.cancellAllDownloadTasks();
+            txService.cancelAllDownloadTasks();
         } else {
             return;
         }

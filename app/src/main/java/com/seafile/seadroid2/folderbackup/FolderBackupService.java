@@ -10,10 +10,13 @@ import android.content.ServiceConnection;
 import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.IBinder;
+
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
@@ -24,6 +27,7 @@ import com.seafile.seadroid2.folderbackup.selectfolder.StringTools;
 import com.seafile.seadroid2.transfer.TransferManager;
 import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.transfer.UploadTaskManager;
+import com.seafile.seadroid2.util.CameraSyncStatus;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.util.Utils;
 
@@ -95,13 +99,6 @@ public class FolderBackupService extends Service {
         }
     }
 
-    /**
-     * TODO and FIXME:
-     * <p>
-     * On Android 5.0, API 21 - Android 7.1, API 25, this feature is not available and needs to be refactored
-     * <p>
-     * Because Apache Commons IO requires a specified JDK version (>=1.8) and other reasons.
-     */
     public void startFolderMonitor(List<String> backupPaths) {
         List<FileAlterationObserver> fileAlterationObserverList = new ArrayList<>();
 
@@ -156,10 +153,10 @@ public class FolderBackupService extends Service {
         backupPathsList = StringTools.getJsonToList(backupPaths);
         dataManager = new DataManager(currentAccount);
 
-        if (!StringTools.checkFolderUploadNetworkAvailable()) {
+//        if (!StringTools.checkFolderUploadNetworkAvailable()) {
 //            SeadroidApplication.getInstance().setScanUploadStatus(CameraSyncStatus.NETWORK_UNAVAILABLE);
-            return;
-        }
+//            return;
+//        }
 
         //start backup
         ConcurrentAsyncTask.execute(new FolderBackupTask());
@@ -184,40 +181,67 @@ public class FolderBackupService extends Service {
 
     private void startBackupFolder(String parentPath, String filePath) {
         List<FileBean> fileBeanList = new ArrayList<>();
-        FileBean fileBean;
         File file = FileTools.getFileByPath(filePath);
         File[] files = file.listFiles();
+
+        boolean isJumpHiddenFile = SettingsManager.instance().isFolderBackupJumpHiddenFiles();
+
         if (files != null) {
             for (File value : files) {
-                fileBean = new FileBean(value.getAbsolutePath());
-                fileBeanList.add(fileBean);
+                FileBean fileBean = new FileBean(value.getAbsolutePath());
+
+                boolean isJump = false;
+                if (isJumpHiddenFile) {
+                    String fileName = fileBean.getFileName();
+                    if (!TextUtils.isEmpty(fileName) && fileName.startsWith(".")) {
+                        isJump = true;
+                    }
+                }
+
+                if (!isJump) {
+                    fileBeanList.add(fileBean);
+                }
             }
         }
+
         if (fileBeanList.size() == 0) return;
         for (FileBean fb : fileBeanList) {
             if (fb.isDir()) {
                 startBackupFolder(parentPath + fb.getFileName() + "/", fb.getFilePath());
-            } else {
-                Utils.utilsLogInfo(false, "=relative_path==============" + parentPath + "--------" + fb.getFilePath());
+                continue;
+            }
 
-                FolderBackupInfo fileInfo = databaseHelper.getBackupFileInfo(repoConfig.getRepoID(),
-                        fb.getFilePath(), fb.getSimpleSize() + "");
-                if (fileInfo != null && !TextUtils.isEmpty(fileInfo.filePath)) {
-                    Utils.utilsLogInfo(false, "===============" + fileInfo.filePath);
-                } else {
+            Utils.utilsLogInfo(false, "parentPath ->" + parentPath);
+            Utils.utilsLogInfo(false, "localPath  ->" + fb.getFilePath());
 
-                    int taskID = txService.addTaskToSourceQue(Utils.TRANSFER_FOLDER_TAG, currentAccount, repoConfig.getRepoID(),
-                            repoConfig.getRepoName(), parentPath, fb.getFilePath(), false, false);
-                    if (taskID != 0) {
-                        FolderBackupInfo dirInfo = new FolderBackupInfo(repoConfig.getRepoID(), repoConfig.getRepoName(),
-                                parentPath, fb.getFileName(), fb.getFilePath(), fb.getSimpleSize() + "");
-                        fileUploaded.put(taskID + "", dirInfo);
-                    }
-                }
+            FolderBackupInfo fileInfo = databaseHelper.getBackupFileInfo(
+                    repoConfig.getRepoID(),
+                    fb.getFilePath(),
+                    String.valueOf(fb.getSimpleSize()));
+            //
+            if (fileInfo != null && !TextUtils.isEmpty(fileInfo.filePath)) {
+                Utils.utilsLogInfo(false, "db exists  ->" + fileInfo.filePath);
+                Utils.utilsLogInfo(false, "---------------");
+                continue;
+            }
 
+            Utils.utilsLogInfo(false, "uploadFile ->" + fb.getFilePath());
+            Utils.utilsLogInfo(false, "---------------");
+
+            int taskID = txService.addTaskToSourceQue(Utils.TRANSFER_FOLDER_TAG, currentAccount,
+                    repoConfig.getRepoID(), repoConfig.getRepoName(), parentPath,
+                    fb.getFilePath(), false, false);
+            if (taskID != 0) {
+                FolderBackupInfo dirInfo = new FolderBackupInfo(
+                        repoConfig.getRepoID(),
+                        repoConfig.getRepoName(),
+                        parentPath,
+                        fb.getFileName(),
+                        fb.getFilePath(),
+                        String.valueOf(fb.getSimpleSize()));
+                fileUploaded.put(taskID + "", dirInfo);
             }
         }
-
     }
 
     private final ServiceConnection mConnection = new ServiceConnection() {

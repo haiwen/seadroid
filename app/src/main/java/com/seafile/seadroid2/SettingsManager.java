@@ -6,7 +6,6 @@ import android.preference.PreferenceManager;
 import android.text.TextUtils;
 
 import com.blankj.utilcode.util.NetworkUtils;
-import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.gesturelock.LockPatternUtils;
 import com.seafile.seadroid2.util.Utils;
@@ -45,7 +44,6 @@ public final class SettingsManager {
     // Client side encryption
     public static final String CLIENT_ENC_SWITCH_KEY = "client_encrypt_switch_key";
     public static final String CLEAR_PASSOWR_SWITCH_KEY = "clear_password_switch_key";
-    public static final String AUTO_CLEAR_PASSOWR_SWITCH_KEY = "auto_clear_password_switch_key";
 
     // Gesture Lock
     public static final String GESTURE_LOCK_SWITCH_KEY = "gesture_lock_switch_key";
@@ -120,6 +118,11 @@ public final class SettingsManager {
     public static final String FOLDER_BACKUP_STATE = "folder_backup_state";
     public static final String FOLDER_BACKUP_PATHS = "folder_backup_paths";
 
+    /**
+     * Is it necessary to filter hidden files when the folder backup service is turned on
+     */
+    public static final String FOLDER_BACKUP_JUMP_HIDDEN_FILES = "folder_backup_filtering_hidden_files";
+
     public static long lock_timestamp = 0;
     public static final long LOCK_EXPIRATION_MSECS = 5 * 60 * 1000;
 
@@ -167,20 +170,6 @@ public final class SettingsManager {
      */
     public boolean isEncryptEnabled() {
         return settingsSharedPref.getBoolean(CLIENT_ENC_SWITCH_KEY, false);
-    }
-
-    /**
-     * Auto clear password
-     */
-    public void setupPasswordAutoClear(boolean enable) {
-        settingsSharedPref.edit().putBoolean(AUTO_CLEAR_PASSOWR_SWITCH_KEY, enable).commit();
-    }
-
-    /**
-     * Whether the user has enabled password auto clear when logout account
-     */
-    public boolean isPasswordAutoClearEnabled() {
-        return settingsSharedPref.getBoolean(AUTO_CLEAR_PASSOWR_SWITCH_KEY, false);
     }
 
     public void setupGestureLock() {
@@ -250,6 +239,7 @@ public final class SettingsManager {
     public boolean isDataPlanAllowed() {
         return settingsSharedPref.getBoolean(CAMERA_UPLOAD_ALLOW_DATA_PLAN_SWITCH_KEY, false);
     }
+
     public boolean isFolderBackupDataPlanAllowed() {
         return settingsSharedPref.getBoolean(FOLDER_BACKUP_ALLOW_DATA_PLAN_SWITCH_KEY, false);
     }
@@ -261,6 +251,7 @@ public final class SettingsManager {
     public void saveDataPlanAllowed(boolean isAllowed) {
         settingsSharedPref.edit().putBoolean(CAMERA_UPLOAD_ALLOW_DATA_PLAN_SWITCH_KEY, isAllowed).commit();
     }
+
     public void saveFolderBackupDataPlanAllowed(boolean isAllowed) {
         settingsSharedPref.edit().putBoolean(FOLDER_BACKUP_ALLOW_DATA_PLAN_SWITCH_KEY, isAllowed).commit();
     }
@@ -358,5 +349,22 @@ public final class SettingsManager {
 
     public String getBackupEmail() {
         return sharedPref.getString(SettingsManager.FOLDER_BACKUP_ACCOUNT_EMAIL, null);
+    }
+
+    public void setFolderBackupJumpHiddenFiles(boolean isJump) {
+        editor.putBoolean(FOLDER_BACKUP_JUMP_HIDDEN_FILES, isJump);
+        editor.commit();
+    }
+
+    /**
+     * Is it necessary to filter hidden files when the folder backup service is turned on
+     */
+    public boolean isFolderBackupJumpHiddenFiles() {
+        if (!sharedPref.contains(FOLDER_BACKUP_JUMP_HIDDEN_FILES)) {
+            setFolderBackupJumpHiddenFiles(true);
+            return true;
+        }
+
+        return sharedPref.getBoolean(SettingsManager.FOLDER_BACKUP_JUMP_HIDDEN_FILES, true);
     }
 }

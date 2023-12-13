@@ -10,13 +10,17 @@ import android.content.ServiceConnection;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
+
 import androidx.appcompat.widget.Toolbar;
+
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.webkit.CookieManager;
+import android.webkit.ValueCallback;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
@@ -232,12 +236,25 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
     }
 
     private void startFilesActivity() {
+
+        removeAllCookie();
+
         Intent intent = new Intent(this, BrowserActivity.class);
 
         // first finish this activity, so the BrowserActivity is again "on top"
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();
+    }
+
+    private void removeAllCookie() {
+        CookieManager cookieManager = CookieManager.getInstance();
+        cookieManager.removeAllCookies(new ValueCallback<Boolean>() {
+            @Override
+            public void onReceiveValue(Boolean value) {
+                Log.d(AccountsActivity.class.getSimpleName(), "removeAllCookie? " + value);
+            }
+        });
     }
 
     private final AccountManagerCallback<Bundle> accountCallback = new AccountManagerCallback<Bundle>() {

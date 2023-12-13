@@ -177,7 +177,7 @@
   <string name="added_photo_to_upload_tasks">圖片開始上傳</string>
   <string name="take_photo_successfully">拍照成功</string>
   <string name="tabs_library">資料庫</string>
-  <string name="tabs_activity">最近修改</string>
+  <string name="tabs_activity">文件活動</string>
   <string name="tabs_starred">星標文件</string>
   <string name="provide_password">請提供資料庫\"%s\"的密碼</string>
   <string name="upload_waiting">等待上傳</string>
@@ -334,22 +334,6 @@
   <string name="settings_about_title">關於</string>
   <string name="settings_about_version_title">應用版本號</string>
   <string name="settings_about_author_title">關於我們</string>
-
-  <string name="settings_about_author_info">
-        <![CDATA[
-        <h5>Seafile安卓客戶端</h5>
-        <p>%s</p>
-        <h5>聯繫我們</h5>
-        <p>
-            Twitter: Seafile<br>
-            郵箱: support@seafile.com<br>
-        </p>
-        <h5>貢獻代碼</h5>
-        <p>https://github.com/haiwen/seadroid.git</P>
-        <h5>版權 ©2013-2023 Seafile Ltd.</h5>
-        ]]>
-    </string>
-
   <string name="settings_advance_feature_title">高級特性</string>
   <string name="settings_storage_title">緩存存儲</string>
   <string name="settings_cache_title">緩存大小</string>
@@ -495,4 +479,5 @@
   <string name="redo">還原</string>
   <string name="link">鏈接</string>
   <!--Folder backup Preference-->
+  <!--action-->
 </resources>

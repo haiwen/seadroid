@@ -180,6 +180,7 @@
   <string name="no_download_tasks">다운로드 작업이 없습니다</string>
   <string name="seahub_url_hint">참고: 서버 주소에 포트를 적어야 합니다. 예, www.example.com:8000</string>
   <string name="copy_link">링크 복사</string>
+  <string name="share_link_no_permission">이 동작을 수행할 권한이 없습니다.</string>
   <string name="share_file_link">이 파일 링크 공유</string>
   <string name="share_dir_link">이 폴더 링크 공유</string>
   <string name="share_input_password">공유 암호를 입력하세요</string>
@@ -366,16 +367,16 @@
   <string name="camera_sync_notification_auth_error_failed">인증 오류.</string>
   <string name="camera_sync_rename_file">%s (Seafile에서 이름 바꿈)</string>
   <string name="settings_about_title">정보</string>
+  <string name="settings_about_privacy_policy">개인정보 보호 정책</string>
   <string name="settings_about_version_title">앱 버전</string>
   <string name="settings_about_author_title">저작자 정보</string>
-
   <string name="settings_about_author_info">
         <![CDATA[
         <h5>Seafile 안드로이드 클라이언트</h5>
         <p>%s</p>
         <h5>연락처</h5>
         <p>
-            트 위 터: Seafile<br>
+            트위터: Seafile<br>
             전자메일: support@seafile.com<br>
         </p>
         <h5>기여하기</h5>
@@ -383,7 +384,6 @@
         <h5>Copyright ©2013-2023 Seafile Ltd.</h5>
         ]]>
     </string>
-
   <string name="settings_advance_feature_title">고급 기능</string>
   <string name="settings_storage_title">캐시 저장소</string>
   <string name="settings_cache_title">캐시 크기</string>
@@ -543,4 +543,38 @@
   <string name="required_password">암호가 필요합니다.</string>
   <string name="weak_password">암호가 매우 단순합니다.</string>
   <!--Folder backup Preference-->
+  <string name="settings_folder_backup_info_title">백업 폴더</string>
+  <string name="settings_folder_backup_switch_title">폴더 백업 켜기</string>
+  <string name="settings_folder_backup_service_started">백업 서비스를 시작했습니다</string>
+  <string name="settings_folder_backup_service_stopped">백업 서비스를 멈추었습니다</string>
+  <string name="settings_select_backup_folder_title">폴더 선택</string>
+  <string name="folder_file_item_size">크기 %s</string>
+  <string name="folder_file_item_describe">파일 \%s\ | 폴더 \%s\</string>
+  <string name="internal_storage">내부 저장소</string>
+  <string name="selection_file_type">백업 폴더를 선택해주세요</string>
+  <string name="select_backup_folder">백업 폴더 선택</string>
+  <string name="select_backup_libraries">백업 라이브러리를 선택해주세요</string>
+  <string name="folder_backup_completed">폴더를 백업했습니다</string>
+  <string name="get_storage_permission_failed">저장소 권한 가져오기에 실패했습니다</string>
+  <string name="authorization_storage_permission">인증을 완전히 거부하고 있습니다. 저장소 권한을 직접 승인해주세요.</string>
+  <string name="settings_folder_backup_select_hint">0</string>
+  <string name="settings_folder_backup_select_title">선택한 백업 폴더</string>
+  <string name="settings_folder_backup_traffic">백업 모드</string>
+  <string name="settings_folder_backup_traffic_hint">무선랜</string>
+  <string name="settings_folder_backup_library">라이브러리 백업 위치</string>
+  <string name="folder_backup_add">백업 폴더 추가</string>
+  <string name="folder_backup_cancel">백업 취소</string>
+  <string name="folder_backup_waiting_state">완료</string>
+  <string name="folder_backup_state">폴더 백업 정보</string>
+  <string name="folder_backup_mode">무선랜 또는 광대역망 트래픽</string>
+  <string name="folder_backup_mode_title">모드를 선택해주세요</string>
+  <string name="folder_backup_select_repo_hint">라이브러리 선택</string>
+  <string name="folder_backup_select_repo_update">백업 라이브러리 업데이트</string>
+  <string name="UncaughtExceptionHandler_err">프로그램 실행을 멈추었습니다</string>
+  <!--action-->
+  <string name="add">추가</string>
+  <string name="modify">수정</string>
+  <string name="update">업데이트</string>
+  <string name="clear">지우기</string>
+  <string name="clear_all">모두 지우기</string>
 </resources>

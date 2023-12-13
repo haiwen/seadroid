@@ -185,18 +185,19 @@ public class FolderBackupDBHelper extends SQLiteOpenHelper {
         String fileName = c.getString(3);
         String filePath = c.getString(4);
         String fileSize = c.getString(5);
+
         if (!new File(filePath).exists()) {
             filePath = null;
         }
-        FolderBackupInfo info = new FolderBackupInfo(repoID, repoName,
-                parentDir, fileName, filePath, fileSize);
-        return info;
+
+        return new FolderBackupInfo(
+                repoID, repoName, parentDir,
+                fileName, filePath, fileSize);
     }
 
     private RepoConfig cursorToRepoConfigInfo(Cursor c, String email) {
         String repoID = c.getString(0);
         String repoName = c.getString(1);
-        RepoConfig info = new RepoConfig(repoID, repoName, email);
-        return info;
+        return new RepoConfig(repoID, repoName, email);
     }
 }

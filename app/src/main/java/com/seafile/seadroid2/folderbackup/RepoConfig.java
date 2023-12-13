@@ -40,10 +40,6 @@ public class RepoConfig implements Serializable {
         return repoName;
     }
 
-    public boolean canLocalDecrypt() {
-        return SettingsManager.instance().isEncryptEnabled();
-    }
-
     @Override
     public boolean equals(Object obj) {
         if (this == obj)

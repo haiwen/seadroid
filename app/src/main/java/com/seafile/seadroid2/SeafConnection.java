@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Build;
+import android.os.FileUtils;
 import android.provider.Settings.Secure;
 import android.text.TextUtils;
 import android.util.Log;
@@ -13,6 +14,7 @@ import com.github.kevinsawicki.http.HttpRequest;
 import com.github.kevinsawicki.http.HttpRequest.HttpRequestException;
 import com.google.common.collect.Maps;
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.config.ApiUrls;
 import com.seafile.seadroid2.data.Block;
 import com.seafile.seadroid2.data.BlockInfoBean;
 import com.seafile.seadroid2.data.DataManager;
@@ -282,7 +284,7 @@ public class SeafConnection {
     public String getRepos() throws SeafException {
         HttpRequest req = null;
         try {
-            req = prepareApiGetRequest("api2/repos/");
+            req = prepareApiGetRequest("api/v2.1/repos/");
             checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
 
             String result = new String(req.bytes(), "UTF-8");
@@ -346,8 +348,7 @@ public class SeafConnection {
 
     public String getStarredFiles() throws SeafException {
         try {
-//            HttpRequest req = prepareApiGetRequest("api2/starredfiles/");
-            HttpRequest req = prepareApiGetRequest("api/v2.1/starred-items/");
+            HttpRequest req = prepareApiGetRequest(ApiUrls.STAR_ITEMS);
             checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
 
             return new String(req.bytes(), "UTF-8");
@@ -416,43 +417,20 @@ public class SeafConnection {
      * @return A non-null Pair of (dirID, content). If the local cache is up to date, the "content" is null.
      * @throws SeafException
      */
-    public Pair<String, String> getDirents(String repoID, String path, String cachedDirID)
-            throws SeafException {
+    public String getDirents(String repoID, String path) throws SeafException {
         try {
-            String apiPath = String.format("api2/repos/%s/dir/", repoID);
+            String apiPath = String.format(ApiUrls.REPOS_DIR, repoID);
             Map<String, Object> params = Maps.newHashMap();
             params.put("p", encodeUriComponent(path));
-            if (cachedDirID != null) {
-                params.put("oid", cachedDirID);
-            }
+
             HttpRequest req = prepareApiGetRequest(apiPath, params);
             checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
 
-            String dirID = req.header("oid");
-            String content;
-            if (dirID == null) {
+            byte[] rawBytes = req.bytes();
+            if (rawBytes == null) {
                 throw SeafException.unknownException;
             }
-
-            if (dirID.equals(cachedDirID)) {
-                // local cache is valid
-                // Log.d(DEBUG_TAG, String.format("dir %s is cached", path));
-                content = null;
-            } else {
-                /*Log.d(DEBUG_TAG,
-                      String.format("dir %s will be downloaded from server, latest %s, local cache %s",
-                                    path, dirID, cachedDirID != null ? cachedDirID : "null"));*/
-                byte[] rawBytes = req.bytes();
-                if (rawBytes == null) {
-                    throw SeafException.unknownException;
-                }
-                content = new String(rawBytes, "UTF-8");
-            }
-
-            return new Pair<String, String>(dirID, content);
-
-        } catch (SeafException e) {
-            throw e;
+            return new String(rawBytes, "UTF-8");
         } catch (UnsupportedEncodingException e) {
             throw SeafException.encodingException;
         } catch (HttpRequestException e) {
@@ -634,7 +612,6 @@ public class SeafConnection {
                 return null;
             }
             return file;
-
         } catch (SeafException e) {
             throw e;
         } catch (UnsupportedEncodingException e) {
@@ -715,11 +692,7 @@ public class SeafConnection {
      * @param monitor
      * @return A two tuple of (fileID, file). If the local cached version is up to date, the returned file is null.
      */
-    public Pair<String, File> getFile(String repoID,
-                                      String path,
-                                      String localPath,
-                                      String cachedFileID,
-                                      ProgressMonitor monitor) throws SeafException {
+    public Pair<String, File> getFile(String repoID, String path, String localPath, String cachedFileID, ProgressMonitor monitor) throws SeafException {
         Pair<String, String> ret = getDownloadLink(repoID, path, false);
         String dlink = ret.first;
         String fileID = ret.second;
@@ -1306,6 +1279,7 @@ public class SeafConnection {
 
     public void star(String repoID, String path) throws SeafException {
         try {
+            //api/v2.1/starred-items/
             HttpRequest req = prepareApiPostRequest("api2/starredfiles/", true, null);
 
             req.form("repo_id", repoID);
@@ -1313,6 +1287,22 @@ public class SeafConnection {
 
             checkRequestResponseStatus(req, HttpURLConnection.HTTP_CREATED);
 
+        } catch (SeafException e) {
+            throw e;
+        } catch (HttpRequestException e) {
+            throw getSeafExceptionFromHttpRequestException(e);
+        }
+    }
+
+    public void starItems(String repoID, String path) throws SeafException {
+        try {
+            //api/v2.1/starred-items/
+            HttpRequest req = prepareApiPostRequest(ApiUrls.STAR_ITEMS, true, null);
+
+            req.form("repo_id", repoID);
+            req.form("path", path);
+
+            checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
         } catch (SeafException e) {
             throw e;
         } catch (HttpRequestException e) {
@@ -1336,8 +1326,23 @@ public class SeafConnection {
         }
     }
 
-    public Pair<String, String> rename(String repoID, String path,
-                                       String newName, boolean isdir) throws SeafException {
+    public void unstarItems(String repoID, String path) throws SeafException {
+        try {
+            Map<String, Object> params = Maps.newHashMap();
+            params.put("repo_id", repoID);
+            params.put("path", path);
+            HttpRequest req = prepareApiDeleteRequest(ApiUrls.STAR_ITEMS, params);
+
+            checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
+
+        } catch (SeafException e) {
+            throw e;
+        } catch (HttpRequestException e) {
+            throw getSeafExceptionFromHttpRequestException(e);
+        }
+    }
+
+    public Pair<String, String> rename(String repoID, String path, String newName, boolean isdir) throws SeafException {
         try {
             Map<String, Object> params = Maps.newHashMap();
             params.put("p", encodeUriComponent(path).replaceAll("\\+", "%20"));
@@ -1370,34 +1375,30 @@ public class SeafConnection {
         }
     }
 
-    public Pair<String, String> delete(String repoID, String path,
-                                       boolean isdir) throws SeafException {
+    public boolean delete(String repoID, String path, boolean isdir) throws SeafException {
         try {
             Map<String, Object> params = Maps.newHashMap();
             params.put("p", encodeUriComponent(path).replaceAll("\\+", "%20"));
-            params.put("reloaddir", "true");
             String suffix = isdir ? "/dir/" : "/file/";
-            HttpRequest req = prepareApiDeleteRequest("api2/repos/" + repoID + suffix, params);
+            HttpRequest req = prepareApiDeleteRequest(ApiUrls.DELETE_FILE_OR_DIR + repoID + suffix, params);
 
             checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
 
-            String newDirID = req.header("oid");
-            if (newDirID == null) {
-                return null;
-            }
-
             String content = new String(req.bytes(), "UTF-8");
             if (content.length() == 0) {
-                return null;
+                return false;
             }
 
-            return new Pair<String, String>(newDirID, content);
+            JSONObject jsonObject = new JSONObject(content);
+            return jsonObject.optBoolean("success");
         } catch (SeafException e) {
             throw e;
         } catch (UnsupportedEncodingException e) {
             throw SeafException.encodingException;
         } catch (HttpRequestException e) {
             throw getSeafExceptionFromHttpRequestException(e);
+        } catch (JSONException e) {
+            throw SeafException.illFormatException;
         }
     }
 
@@ -1525,7 +1526,7 @@ public class SeafConnection {
                     String result = new String(req.bytes(), "UTF-8");
                     if (result != null && Utils.parseJsonObject(result) != null) {
                         JSONObject json = Utils.parseJsonObject(result);
-                        if (json.has("detail")){
+                        if (json.has("detail")) {
                             throw new SeafException(req.code(), json.optString("detail"));
                         }
                         throw new SeafException(req.code(), json.optString("error_msg"));

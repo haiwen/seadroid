@@ -54,7 +54,7 @@ public abstract class TransferManager {
     private int cameraUploadTotalNumber;
 
     protected synchronized TransferTask getTask(int taskID) {
-       return allTaskList.get(taskID);
+        return allTaskList.get(taskID);
     }
 
     public TransferTaskInfo getTaskInfo(int taskID) {
@@ -86,7 +86,7 @@ public abstract class TransferManager {
                 allTaskList.remove(task);
 
                 // add new created task
-                allTaskList.put(task.getTaskID(),task);
+                allTaskList.put(task.getTaskID(), task);
 
                 // Log.d(DEBUG_TAG, "add Que  " + taskID + " " + repoName + path);
                 waitingList.add(task);
@@ -98,8 +98,7 @@ public abstract class TransferManager {
     }
 
     public synchronized void doNext() {
-        if (!waitingList.isEmpty()
-                && transferringList.size() < TRANSFER_MAX_COUNT) {
+        if (!waitingList.isEmpty() && transferringList.size() < TRANSFER_MAX_COUNT) {
             Log.d(DEBUG_TAG, "do next!");
 
             TransferTask task = waitingList.remove(0);
@@ -107,15 +106,17 @@ public abstract class TransferManager {
             int scanUploadStatus = SeadroidApplication.getInstance().getScanUploadStatus();
             getWaitingNumber();
             getTotalNumber();
+
+            //When the folder is being backed up？？？
             if (scanUploadStatus > 0) {
                 SeadroidApplication.getInstance().setCameraUploadNumber(cameraUploadWaitingNumber, cameraUploadTotalNumber);
                 SeadroidApplication.getInstance().setScanUploadStatus(CameraSyncStatus.UPLOADING);
                 EventBus.getDefault().post(new CameraSyncEvent("upload"));
             }
+
             if (SettingsManager.instance().isFolderAutomaticBackup()) {
                 SeadroidApplication.getInstance().setFolderBackupNumber(folderBackupTotalNumber, folderBackupWaitingNumber);
             }
-
 
             ConcurrentAsyncTask.execute(task);
         }
@@ -194,8 +195,7 @@ public abstract class TransferManager {
      * remove tasks from {@link #allTaskList} by comparing the taskState,
      * all tasks with the same taskState will be removed.
      *
-     * @param taskState
-     *          taskState
+     * @param taskState taskState
      */
     public synchronized void removeByState(TaskState taskState) {
         Iterator<Map.Entry<Integer, TransferTask>> iterator = allTaskList.entrySet().iterator();
@@ -211,8 +211,7 @@ public abstract class TransferManager {
     /**
      * remove tasks from {@link #allTaskList} by traversing the taskId list
      *
-     * @param ids
-     *          taskId list
+     * @param ids taskId list
      */
     public synchronized void removeByIds(List<Integer> ids) {
         for (int taskID : ids) {
@@ -224,7 +223,7 @@ public abstract class TransferManager {
      * check if there are tasks under transferring state
      *
      * @return true, if there are tasks whose {@link com.seafile.seadroid2.transfer.TaskState} is {@code TRANSFERRING}.
-     *          false, otherwise.
+     * false, otherwise.
      */
     public boolean isTransferring() {
         List<? extends TransferTaskInfo> transferTaskInfos = getAllTaskInfoList();

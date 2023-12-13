@@ -514,6 +514,7 @@
     <string name="navdrawer_description_a11y" translatable="false">Navigation Drawer used to switch between major
         features of the application</string>
     <!--permission-->
+    <string name="permission_manage_exteral_storage_rationale">To process files, allows management of all files on external storage</string>
     <string name="permission_read_exteral_storage_rationale">To process files, allow storage permission to access them.</string>
     <string name="permission_read_contacts_storage_rationale">To process contacts, allow contacts permission to access them.</string>
     <string name="permission_not_granted">Permission was not granted</string>

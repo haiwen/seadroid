@@ -7,8 +7,8 @@ android {
         applicationId 'com.seafile.seadroid2'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 138
-        versionName "2.3.5"
+        versionCode 139
+        versionName "2.3.6"
         multiDexEnabled true
         resValue "string", "authorities", applicationId + '.cameraupload.provider'
         resValue "string", "account_type", "com.seafile.seadroid2.account.api2"
@@ -126,6 +126,10 @@ android {
         implementation "com.google.android.material:material:$x_version"
         implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
         implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
+        implementation "androidx.preference:preference:1.2.1"
+
+        //live event bus
+//        implementation 'io.github.jeremyliao:live-event-bus-x:1.8.0'
 
         //https://github.com/ongakuer/CircleIndicator
         implementation 'me.relex:circleindicator:2.1.6'

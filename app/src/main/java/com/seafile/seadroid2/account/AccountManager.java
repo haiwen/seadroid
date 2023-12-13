@@ -5,6 +5,8 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
 
+import androidx.annotation.Nullable;
+
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.cameraupload.CameraUploadManager;
 import com.seafile.seadroid2.data.ServerInfo;
@@ -34,6 +36,7 @@ public class AccountManager {
         return SupportAccountManager.getInstance().getSignedInAccountList();
     }
 
+    @Nullable
     public Account getCurrentAccount() {
         return SupportAccountManager.getInstance().getCurrentAccount();
     }

@@ -20,7 +20,6 @@
 package com.seafile.seadroid2.provider;
 
 import android.accounts.OnAccountsUpdateListener;
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.database.Cursor;
@@ -28,7 +27,6 @@ import android.database.MatrixCursor;
 import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.CancellationSignal;
 import android.os.Handler;
@@ -290,7 +288,7 @@ public class SeafileProvider extends DocumentsProvider {
             // earlier.
 
             String parentPath = Utils.getParentPath(path);
-            List<SeafDirent> dirents = dm.getCachedDirents(repo.getID(), parentPath);
+            List<SeafDirent> dirents = dm.getCachedDirents(repo.getRepoId(), parentPath);
             List<SeafStarredFile> starredFiles = dm.getCachedStarredFiles();
 
             if (dirents != null) {
@@ -299,7 +297,7 @@ public class SeafileProvider extends DocumentsProvider {
                 // look for the requested file in the dirents of the parent dir
                 for (SeafDirent entry : dirents) {
                     if (entry.getTitle().equals(Utils.fileNameFromPath(path))) {
-                        includeDirent(result, dm, repo.getID(), parentPath, entry);
+                        includeDirent(result, dm, repo.getRepoId(), parentPath, entry);
                     }
                 }
             } else if (starredFiles != null) {
@@ -348,7 +346,7 @@ public class SeafileProvider extends DocumentsProvider {
 
                 // return the file to the client.
                 String parentPath = Utils.getParentPath(path);
-                return makeParcelFileDescriptor(dm, repo.getName(), repoId, parentPath, f, mode);
+                return makeParcelFileDescriptor(dm, repo.getRepoName(), repoId, parentPath, f, mode);
             }
         });
 
@@ -585,7 +583,7 @@ public class SeafileProvider extends DocumentsProvider {
 
         try {
             // fetch the file from the Seafile server.
-            File f = dm.getFile(repo.getName(), repo.getID(), path, new ProgressMonitor() {
+            File f = dm.getFile(repo.getRepoName(), repo.getRepoId(), path, new ProgressMonitor() {
                 @Override
                 public void onProgressNotify(long total, boolean updateTotal) {
                 }
@@ -664,7 +662,7 @@ public class SeafileProvider extends DocumentsProvider {
      * @param repo    the repo to add.
      */
     private void includeRepo(MatrixCursor result, Account account, SeafRepo repo) {
-        String docId = DocumentIdParser.buildId(account, repo.getID(), null);
+        String docId = DocumentIdParser.buildId(account, repo.getRepoId(), null);
 
         int flags = 0;
         if (repo.hasWritePermission()) {
@@ -782,7 +780,7 @@ public class SeafileProvider extends DocumentsProvider {
         final MatrixCursor.RowBuilder row = result.newRow();
         row.add(Document.COLUMN_DOCUMENT_ID, docId);
         row.add(Document.COLUMN_DISPLAY_NAME, entry.getTitle());
-        row.add(Document.COLUMN_SIZE, entry.getSize());
+//        row.add(Document.COLUMN_SIZE, entry.getSize());
         row.add(Document.COLUMN_SUMMARY, null);
         row.add(Document.COLUMN_LAST_MODIFIED, entry.getMtime() * 1000);
         row.add(Document.COLUMN_FLAGS, flags);

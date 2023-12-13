@@ -193,7 +193,7 @@ public class StarredItemAdapter extends BaseAdapter {
     }
 
     private void judgeRepo(SeafItem item, ViewHolder viewHolder) {
-        if (((SeafStarredFile) item).isRepo_encrypted() && ((SeafStarredFile) item).isDir() && ((SeafStarredFile) item).getPath().equals("/")) {
+        if (((SeafStarredFile) item).isRepoEncrypted() && ((SeafStarredFile) item).isDir() && ((SeafStarredFile) item).getPath().equals("/")) {
             viewHolder.icon.setImageResource(R.drawable.repo_encrypted);
 
         } else {

@@ -4,9 +4,11 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -45,6 +47,7 @@ import com.seafile.seadroid2.util.Utils;
 import org.json.JSONException;
 
 import java.util.List;
+import java.util.Locale;
 
 public class ActivitiesFragment extends Fragment {
     private static final String DEBUG_TAG = "ActivitiesFragment";
@@ -122,6 +125,10 @@ public class ActivitiesFragment extends Fragment {
                 final SeafEvent seafEvent = (SeafEvent) adapterView.getItemAtPosition(position);
                 if (mActivity == null) return;
 
+                if (TextUtils.isEmpty(seafEvent.getCommit_id()) || TextUtils.equals("null", seafEvent.getCommit_id().toLowerCase(Locale.getDefault()))) {
+                    return;
+                }
+
                 final String repoId = seafEvent.getRepo_id();
                 final String repoName = seafEvent.getRepo_name();
 
@@ -133,7 +140,7 @@ public class ActivitiesFragment extends Fragment {
                         return;
                     }
 
-                    if (!mActivity.getDataManager().getRepoPasswordSet(repo.id)) {
+                    if (!mActivity.getDataManager().getRepoPasswordSet(repo.repo_id)) {
                         String password = mActivity.getDataManager().getRepoPassword(repoId);
                         mActivity.showPasswordDialog(repoName, repoId,
                                 new TaskDialog.TaskDialogListener() {
@@ -408,17 +415,17 @@ public class ActivitiesFragment extends Fragment {
             return;
         }
 
-        if (repo.encrypted && !mActivity.getDataManager().getRepoPasswordSet(repo.id)) {
-            String password = mActivity.getDataManager().getRepoPassword(repo.id);
-            mActivity.showPasswordDialog(repo.name, repo.id,
+        if (repo.encrypted && !mActivity.getDataManager().getRepoPasswordSet(repo.repo_id)) {
+            String password = mActivity.getDataManager().getRepoPassword(repo.repo_id);
+            mActivity.showPasswordDialog(repo.repo_name, repo.repo_id,
                     new TaskDialog.TaskDialogListener() {
                         @Override
                         public void onTaskSuccess() {
-                            switchTab(repoID, repo.getName(), path, repo.getRootDirID());
+                            switchTab(repoID, repo.getRepoName(), path);
                         }
                     }, password);
 
-            switchTab(repoID, repo.getName(), path, repo.getRootDirID());
+            switchTab(repoID, repo.getRepoName(), path);
         }
     }
 
@@ -430,22 +437,22 @@ public class ActivitiesFragment extends Fragment {
             return;
         }
 
-        if (repo.encrypted && !mActivity.getDataManager().getRepoPasswordSet(repo.id)) {
-            String password = mActivity.getDataManager().getRepoPassword(repo.id);
-            mActivity.showPasswordDialog(repo.name, repo.id,
+        if (repo.encrypted && !mActivity.getDataManager().getRepoPasswordSet(repo.repo_id)) {
+            String password = mActivity.getDataManager().getRepoPassword(repo.repo_id);
+            mActivity.showPasswordDialog(repo.repo_name, repo.repo_id,
                     new TaskDialog.TaskDialogListener() {
                         @Override
                         public void onTaskSuccess() {
-                            openFile(repoID, repo.getName(), path);
+                            openFile(repoID, repo.getRepoName(), path);
                         }
                     }, password);
 
         } else {
-            openFile(repoID, repo.getName(), path);
+            openFile(repoID, repo.getRepoName(), path);
         }
     }
 
-    private void switchTab(String repoID, String repoName, String path, String rootDirID) {
+    private void switchTab(String repoID, String repoName, String path) {
         NavContext nav = mActivity.getNavContext();
         nav.setRepoID(repoID);
         nav.setRepoName(repoName);
@@ -457,7 +464,7 @@ public class ActivitiesFragment extends Fragment {
 
         path = Utils.getParentPath(path);
 
-        nav.setDir(path, null);
+        nav.setDirPath(path);
 
         // switch to LIBRARY TAB
         mActivity.setCurrentPosition(BrowserActivity.INDEX_LIBRARY_TAB);

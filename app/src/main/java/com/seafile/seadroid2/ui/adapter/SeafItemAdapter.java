@@ -318,8 +318,9 @@ public class SeafItemAdapter extends BaseAdapter {
 
             if (repoIsEncrypted) {
                 viewHolder.action.setVisibility(View.GONE);
-            } else
+            } else {
                 viewHolder.action.setVisibility(View.VISIBLE);
+            }
 
             viewHolder.icon.setImageResource(dirent.getIcon());
         } else {
