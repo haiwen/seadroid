@@ -5,7 +5,7 @@
     android:layout_height="fill_parent"
     android:layout_above="@+id/gallery_pager">
 
-    <com.seafile.seadroid2.ui.HackyViewPager
+    <com.seafile.seadroid2.view.HackyViewPager
         android:id="@+id/gallery_pager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

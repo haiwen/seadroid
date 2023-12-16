@@ -4,7 +4,7 @@ import android.view.View;
 import android.widget.ImageView;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.data.SeafRepo;
-import com.seafile.seadroid2.ui.adapter.ReposAdapter;
+import com.seafile.seadroid2.ui.repo.ReposAdapter;
 
 /**
  * Cloud library adapter

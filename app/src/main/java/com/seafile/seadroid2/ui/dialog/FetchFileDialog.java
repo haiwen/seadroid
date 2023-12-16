@@ -21,7 +21,7 @@ import com.seafile.seadroid2.SeafConnection;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.transfer.DownloadTaskInfo;
 import com.seafile.seadroid2.transfer.TransferService;
-import com.seafile.seadroid2.ui.activity.BrowserActivity;
+import com.seafile.seadroid2.ui.BrowserActivity;
 import com.seafile.seadroid2.util.Utils;
 
 /**

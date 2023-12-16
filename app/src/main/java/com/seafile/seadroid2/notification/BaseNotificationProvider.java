@@ -36,13 +36,13 @@ public abstract class BaseNotificationProvider {
 
     public static final String NOTIFICATION_MESSAGE_KEY = "notification message key";
     /**
-     * Creates an explicit flag for opening @{link com.seafile.seadroid2.ui.fragment.DownloadTaskFragment}
-     * in @{link com.seafile.seadroid2.ui.activity.TransferActivity}
+     * Creates an explicit flag for opening @{link com.seafile.seadroid2.ui.transfer.DownloadTaskFragment}
+     * in @{link com.seafile.seadroid2.ui.transfer.TransferActivity}
      */
     public static final String NOTIFICATION_OPEN_DOWNLOAD_TAB = "open download tab notification";
     /**
-     * Creates an explicit flag for opening @{link com.seafile.seadroid2.ui.fragment.UploadTaskFragment}
-     * in @{link com.seafile.seadroid2.ui.activity.TransferActivity}
+     * Creates an explicit flag for opening @{link com.seafile.seadroid2.ui.transfer.UploadTaskFragment}
+     * in @{link com.seafile.seadroid2.ui.transfer.TransferActivity}
      */
     public static final String NOTIFICATION_OPEN_UPLOAD_TAB = "open upload tab notification";
 

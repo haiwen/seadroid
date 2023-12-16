@@ -18,7 +18,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.MediaStore;
+
 import androidx.core.app.NotificationCompat;
+
 import android.util.Log;
 
 import com.google.common.base.Joiner;
@@ -37,9 +39,10 @@ import com.seafile.seadroid2.transfer.TaskState;
 import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.transfer.UploadTaskInfo;
 import com.seafile.seadroid2.ui.CustomNotificationBuilder;
-import com.seafile.seadroid2.ui.activity.AccountsActivity;
-import com.seafile.seadroid2.ui.activity.SettingsActivity;
+import com.seafile.seadroid2.ui.account.AccountsActivity;
+import com.seafile.seadroid2.ui.settings.SettingsActivity;
 import com.seafile.seadroid2.util.CameraSyncStatus;
+import com.seafile.seadroid2.util.SLogs;
 import com.seafile.seadroid2.util.Utils;
 
 import org.greenrobot.eventbus.EventBus;
@@ -334,7 +337,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
     }
 
     private void uploadImages(SyncResult syncResult, DataManager dataManager) throws SeafException, InterruptedException {
-        Utils.utilsLogInfo(true, "========Starting to upload images...");
+        SLogs.d("========Starting to upload images...");
         // Log.d(DEBUG_TAG, "Starting to upload images...");
 
         if (isCancelled())
@@ -370,12 +373,11 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
 
         try {
             if (cursor == null) {
-                Log.e(DEBUG_TAG, "ContentResolver query failed!");
-                Utils.utilsLogInfo(true, "===ContentResolver query failed!");
+                SLogs.e("ContentResolver query failed!");
                 return;
             }
             // Log.d(DEBUG_TAG, "i see " + cursor.getCount() + " new images.");
-            Utils.utilsLogInfo(true, "===i see " + cursor.getCount() + " images.");
+            SLogs.d("===i see " + cursor.getCount() + " images.");
             if (cursor.getCount() > 0) {
                 // create directories for media buckets
                 createDirectories(dataManager);
@@ -392,7 +394,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
     }
 
     private void uploadVideos(SyncResult syncResult, DataManager dataManager) throws SeafException, InterruptedException {
-        Utils.utilsLogInfo(true, "Starting to upload videos...");
+        SLogs.d("Starting to upload videos...");
         // Log.d(DEBUG_TAG, "Starting to upload videos...");
 
         if (isCancelled())
@@ -427,12 +429,11 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
 
         try {
             if (cursor == null) {
-                Log.e(DEBUG_TAG, "ContentResolver query failed!");
-                Utils.utilsLogInfo(true, "====ContentResolver query failed!");
+                SLogs.e("ContentResolver query failed!");
                 return;
             }
             // Log.d(DEBUG_TAG, "i see " + cursor.getCount() + " new videos.");
-            Utils.utilsLogInfo(true, "=====i see " + cursor.getCount() + " videos.");
+            SLogs.d("=====i see " + cursor.getCount() + " videos.");
             if (cursor.getCount() > 0) {
                 // create directories for media buckets
                 createDirectories(dataManager);
@@ -568,19 +569,19 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
             // Ignore all media by Seafile. We don't want to upload our own cached files.
             if (file.getAbsolutePath().startsWith(StorageManager.getInstance().getMediaDir().getAbsolutePath())) {
                 // Log.d(DEBUG_TAG, "Skipping media "+file+" because it's part of the Seadroid cache");
-                Utils.utilsLogInfo(true, "======Skipping media " + file + " because it's part of the Seadroid cache");
+                SLogs.d("======Skipping media " + file + " because it's part of the Seadroid cache");
                 continue;
             }
 
             if (dbHelper.isUploaded(file)) {
                 // Log.d(DEBUG_TAG, "Skipping media " + file + " because we have uploaded it in the past.");
-                Utils.utilsLogInfo(true, "=====Skipping media " + file + " because we have uploaded it in the past.");
+                SLogs.d("=====Skipping media " + file + " because we have uploaded it in the past.");
                 continue;
             }
 
             uploadFile(dataManager, file, bucketName);
         }
-        Utils.utilsLogInfo(true, "=======waitForUploads===");
+        SLogs.d("=======waitForUploads===");
         waitForUploads();
         checkUploadResult(syncResult);
     }
@@ -635,11 +636,10 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
     private void uploadFile(DataManager dataManager, File file, String bucketName) throws SeafException {
 
         String serverPath = Utils.pathJoin(BASE_DIR, bucketName);
-        Utils.utilsLogInfo(true, "=======uploadFile===");
+        SLogs.d("=======uploadFile===");
         List<SeafDirent> list = dataManager.getCachedDirents(targetRepoId, serverPath);
         if (list == null) {
-            Log.e(DEBUG_TAG, "Seadroid dirent cache is empty in uploadFile. Should not happen, aborting.");
-            Utils.utilsLogInfo(true, "=======Seadroid dirent cache is empty in uploadFile. Should not happen, aborting.");
+            SLogs.e("=======Seadroid dirent cache is empty in uploadFile. Should not happen, aborting.");
             // the dirents were supposed to be refreshed in createDirectories()
             // something changed, abort.
             throw SeafException.unknownException;
@@ -657,15 +657,13 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
         Pattern pattern = Pattern.compile(Pattern.quote(prefix) + "( \\(\\d+\\))?" + Pattern.quote(suffix));
         for (SeafDirent dirent : list) {
             if (pattern.matcher(dirent.name).matches() && dirent.size == file.length()) {
-                // Log.d(DEBUG_TAG, "File " + file.getName() + " in bucket " + bucketName + " already exists on the server. Skipping.");
-                Utils.utilsLogInfo(true, "====File " + file.getName() + " in bucket " + bucketName + " already exists on the server. Skipping.");
+                SLogs.d("====File " + file.getName() + " in bucket " + bucketName + " already exists on the server. Skipping.");
                 dbHelper.markAsUploaded(file);
                 return;
             }
         }
 
-        // Log.d(DEBUG_TAG, "uploading file " + file.getName() + " to " + serverPath);
-        Utils.utilsLogInfo(true, "====uploading file " + file.getName() + " to " + serverPath);
+        SLogs.d("====uploading file " + file.getName() + " to " + serverPath);
         int taskID = txService.addCameraUploadTask(dataManager.getAccount(), targetRepoId, targetRepoName,
                 serverPath, file.getAbsolutePath(), false, false);
         tasksInProgress.add(taskID);

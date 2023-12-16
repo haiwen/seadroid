@@ -3,7 +3,9 @@ package com.seafile.seadroid2.editor;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+
 import androidx.appcompat.widget.Toolbar;
+
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Menu;
@@ -15,9 +17,10 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.editor.widget.HorizontalEditScrollView;
 import com.seafile.seadroid2.monitor.FileMonitorService;
-import com.seafile.seadroid2.ui.activity.BaseActivity;
-import com.seafile.seadroid2.ui.widget.PerformEdit;
+import com.seafile.seadroid2.ui.BaseActivity;
+import com.seafile.seadroid2.view.PerformEdit;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
+import com.seafile.seadroid2.util.SLogs;
 import com.seafile.seadroid2.util.Utils;
 import com.yydcdut.markdown.MarkdownConfiguration;
 import com.yydcdut.markdown.MarkdownEditText;
@@ -175,7 +178,7 @@ public class EditorActivity extends BaseActivity implements Toolbar.OnMenuItemCl
         if (!com.seafile.seadroid2.util.Utils.isServiceRunning(EditorActivity.this, "com.seafile.seadroid2.monitor.FileMonitorService")) {
             Intent monitorIntent = new Intent(EditorActivity.this, FileMonitorService.class);
             EditorActivity.this.startService(monitorIntent);
-            Utils.utilsLogInfo(true, "---------FileMonitorService is not running, start it in EditorActivity");
+            SLogs.d("---------FileMonitorService is not running, start it in EditorActivity");
         }
     }
 
@@ -183,7 +186,6 @@ public class EditorActivity extends BaseActivity implements Toolbar.OnMenuItemCl
         Task task = new Task();
         ConcurrentAsyncTask.execute(task);
     }
-
 
     public class Task extends AsyncTask<Void, Long, Void> {
         private SeafException err;

@@ -1008,18 +1008,6 @@ public class Utils {
         }
     }
 
-    public static void logPhoneModelInfo() {
-        SeafileLog.d(DEBUG_TAG, "phoneModelInfo-------" + SeafileLog.getDeviceBrand() + "/" + SeafileLog.getSystemModel() + "/" + SeafileLog.getSystemVersion());
-    }
-
-    public static void utilsLogInfo(boolean b, String info) {
-        if (b) {
-            SeafileLog.d(DEBUG_TAG, info);
-        } else {
-            Log.d(DEBUG_TAG, info);
-        }
-    }
-
     public static final String EXCEPTION_TYPE_CRASH = "crash_exception";
 }
 

@@ -24,7 +24,6 @@ import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.exoplayer.source.ProgressiveMediaSource;
 import androidx.media3.ui.DefaultTimeBar;
-import androidx.media3.ui.PlayerView;
 import androidx.media3.ui.TimeBar;
 
 import com.blankj.utilcode.util.AppUtils;
@@ -33,7 +32,7 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.play.VideoLinkStateListener;
 import com.seafile.seadroid2.play.VideoLinkTask;
-import com.seafile.seadroid2.ui.activity.BaseActivity;
+import com.seafile.seadroid2.ui.BaseActivity;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.util.Utils;
 

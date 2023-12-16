@@ -11,7 +11,7 @@ import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.transfer.UploadTaskInfo;
 import com.seafile.seadroid2.transfer.UploadTaskManager;
 import com.seafile.seadroid2.ui.CustomNotificationBuilder;
-import com.seafile.seadroid2.ui.activity.TransferActivity;
+import com.seafile.seadroid2.ui.transfer.TransferActivity;
 
 import java.util.List;
 

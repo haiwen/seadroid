@@ -29,6 +29,7 @@ import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.transfer.UploadTaskManager;
 import com.seafile.seadroid2.util.CameraSyncStatus;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
+import com.seafile.seadroid2.util.SLogs;
 import com.seafile.seadroid2.util.Utils;
 
 import org.apache.commons.io.monitor.FileAlterationListener;
@@ -175,7 +176,7 @@ public class FolderBackupService extends Service {
 
         @Override
         protected void onPostExecute(String FilePath) {
-            Utils.utilsLogInfo(false, "----------" + FilePath);
+            SLogs.d("----------" + FilePath);
         }
     }
 
@@ -211,8 +212,8 @@ public class FolderBackupService extends Service {
                 continue;
             }
 
-            Utils.utilsLogInfo(false, "parentPath ->" + parentPath);
-            Utils.utilsLogInfo(false, "localPath  ->" + fb.getFilePath());
+            SLogs.d("parentPath ->" + parentPath);
+            SLogs.d("localPath  ->" + fb.getFilePath());
 
             FolderBackupInfo fileInfo = databaseHelper.getBackupFileInfo(
                     repoConfig.getRepoID(),
@@ -220,13 +221,13 @@ public class FolderBackupService extends Service {
                     String.valueOf(fb.getSimpleSize()));
             //
             if (fileInfo != null && !TextUtils.isEmpty(fileInfo.filePath)) {
-                Utils.utilsLogInfo(false, "db exists  ->" + fileInfo.filePath);
-                Utils.utilsLogInfo(false, "---------------");
+                SLogs.d("db exists  ->" + fileInfo.filePath);
+                SLogs.d("---------------");
                 continue;
             }
 
-            Utils.utilsLogInfo(false, "uploadFile ->" + fb.getFilePath());
-            Utils.utilsLogInfo(false, "---------------");
+            SLogs.d("uploadFile ->" + fb.getFilePath());
+            SLogs.d("---------------");
 
             int taskID = txService.addTaskToSourceQue(Utils.TRANSFER_FOLDER_TAG, currentAccount,
                     repoConfig.getRepoID(), repoConfig.getRepoName(), parentPath,

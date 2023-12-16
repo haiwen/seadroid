@@ -22,17 +22,14 @@ import androidx.core.content.FileProvider;
 
 import android.text.ClipboardManager;
 import android.webkit.MimeTypeMap;
-import android.widget.Toast;
 
 import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.ui.activity.BaseActivity;
-import com.seafile.seadroid2.ui.activity.BrowserActivity;
 import com.seafile.seadroid2.ui.activity.GalleryActivity;
-import com.seafile.seadroid2.ui.activity.MarkdownActivity;
+import com.seafile.seadroid2.ui.markdown.MarkdownActivity;
 import com.seafile.seadroid2.ui.dialog.AppChoiceDialog;
 import com.seafile.seadroid2.ui.dialog.GetShareLinkDialog;
 import com.seafile.seadroid2.ui.dialog.GetShareLinkEncryptDialog;

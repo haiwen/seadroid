@@ -19,13 +19,10 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.core.content.PackageManagerCompat;
 
 import com.blankj.utilcode.util.CollectionUtils;
-import com.blankj.utilcode.util.StringUtils;
 import com.google.android.material.snackbar.Snackbar;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.ui.activity.BrowserActivity;
 
 import java.util.Arrays;
 import java.util.List;

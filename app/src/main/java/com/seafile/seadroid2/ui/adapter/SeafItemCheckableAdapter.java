@@ -15,8 +15,8 @@ import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafCachedFile;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafItem;
-import com.seafile.seadroid2.ui.NavContext;
-import com.seafile.seadroid2.ui.activity.BrowserActivity;
+import com.seafile.seadroid2.context.NavContext;
+import com.seafile.seadroid2.ui.BrowserActivity;
 import com.seafile.seadroid2.util.Utils;
 
 import java.io.File;

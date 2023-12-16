@@ -10,7 +10,7 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafRepo;
-import com.seafile.seadroid2.ui.CopyMoveContext;
+import com.seafile.seadroid2.context.CopyMoveContext;
 import com.seafile.seadroid2.util.Utils;
 
 public class CopyMoveDialog extends TaskDialog {

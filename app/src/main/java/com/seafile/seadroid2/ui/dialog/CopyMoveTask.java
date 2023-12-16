@@ -3,7 +3,7 @@ package com.seafile.seadroid2.ui.dialog;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafDirent;
-import com.seafile.seadroid2.ui.CopyMoveContext;
+import com.seafile.seadroid2.context.CopyMoveContext;
 
 /**
  * AsyncTask for copying/moving files

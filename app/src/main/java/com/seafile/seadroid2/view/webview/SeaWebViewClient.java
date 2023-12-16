@@ -6,20 +6,12 @@ import android.content.Intent;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
-import android.webkit.CookieManager;
-import android.webkit.URLUtil;
 import android.webkit.WebResourceRequest;
-import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import androidx.annotation.Nullable;
-
-import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.account.SupportAccountManager;
-import com.seafile.seadroid2.util.SeafileLog;
 import com.seafile.seadroid2.util.Token2SessionConverts;
-import com.seafile.seadroid2.util.URLs;
 
 import java.util.HashMap;
 import java.util.Map;

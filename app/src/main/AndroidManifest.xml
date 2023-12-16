@@ -62,19 +62,19 @@
             android:value="AppGlideModule" />
 
         <activity
-            android:name="com.seafile.seadroid2.ui.activity.AccountsActivity"
+            android:name="com.seafile.seadroid2.ui.account.AccountsActivity"
             android:launchMode="singleTop" />
 
-        <activity android:name=".account.ui.SingleSignOnActivity" />
+        <activity android:name=".ui.account.SingleSignOnActivity" />
 
-        <activity android:name=".account.ui.SingleSignOnAuthorizeActivity" />
+        <activity android:name=".ui.account.SingleSignOnAuthorizeActivity" />
 
-        <activity android:name="com.seafile.seadroid2.ui.activity.SettingsActivity" />
+        <activity android:name="com.seafile.seadroid2.ui.settings.SettingsActivity" />
 
-        <activity android:name="com.seafile.seadroid2.ui.activity.PrivacyPolicyActivity" />
+        <activity android:name="com.seafile.seadroid2.ui.settings.PrivacyPolicyActivity" />
 
         <activity
-            android:name="com.seafile.seadroid2.ui.activity.BrowserActivity"
+            android:name="com.seafile.seadroid2.ui.BrowserActivity"
             android:configChanges="orientation"
             android:exported="true"
             android:launchMode="singleTop">
@@ -85,19 +85,19 @@
         </activity>
 
         <activity
-            android:name="com.seafile.seadroid2.ui.activity.UnlockGesturePasswordActivity"
+            android:name="com.seafile.seadroid2.ui.gesture.UnlockGesturePasswordActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.seafile.seadroid2.ui.activity.CreateGesturePasswordActivity"
+            android:name="com.seafile.seadroid2.ui.gesture.CreateGesturePasswordActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
 
-        <activity android:name="com.seafile.seadroid2.ui.activity.MarkdownActivity" />
+        <activity android:name="com.seafile.seadroid2.ui.markdown.MarkdownActivity" />
 
         <activity
-            android:name=".account.ui.AccountDetailActivity"
-            android:parentActivityName=".ui.activity.AccountsActivity" />
+            android:name=".ui.account.AccountDetailActivity"
+            android:parentActivityName=".ui.account.AccountsActivity" />
 
         <!-- MultipleImageSelectionActivity uses the default theme, instead of
              ActionBarSherlock -->
@@ -126,16 +126,16 @@
         <activity android:name="com.seafile.seadroid2.ui.activity.FileActivity" />
 
         <activity
-            android:name=".account.ui.SeafileAuthenticatorActivity"
-            android:parentActivityName=".ui.activity.AccountsActivity">
+            android:name=".ui.account.SeafileAuthenticatorActivity"
+            android:parentActivityName=".ui.account.AccountsActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ui.activity.AccountsActivity" />
+                android:value=".ui.account.AccountsActivity" />
         </activity>
 
         <activity android:name="com.seafile.seadroid2.fileschooser.MultiFileChooserActivity" />
 
-        <activity android:name="com.seafile.seadroid2.ui.activity.TransferActivity" />
+        <activity android:name="com.seafile.seadroid2.ui.transfer.TransferActivity" />
 
         <activity android:name="com.seafile.seadroid2.cameraupload.CameraUploadConfigActivity" />
         <activity android:name=".folderbackup.FolderBackupConfigActivity" />
@@ -150,7 +150,7 @@
             android:theme="@style/AppTheme.Editor" />
 
         <activity
-            android:name=".ui.activity.search.Search2Activity"
+            android:name=".ui.search.Search2Activity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
@@ -164,7 +164,7 @@
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:screenOrientation="sensor"
             android:theme="@style/Theme.Fullscreen" />
-        <activity android:name=".ui.activity.webview.SeaWebViewActivity" />
+        <activity android:name=".ui.webview.SeaWebViewActivity" />
 
         <provider
             android:name="com.seafile.seadroid2.provider.SeafileProvider"

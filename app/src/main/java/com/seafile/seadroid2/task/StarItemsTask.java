@@ -3,7 +3,7 @@ package com.seafile.seadroid2.task;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.listener.OnCallback;
-import com.seafile.seadroid2.ui.activity.BrowserActivity;
+import com.seafile.seadroid2.ui.BrowserActivity;
 import com.seafile.seadroid2.util.SupportAsyncTask;
 
 /**

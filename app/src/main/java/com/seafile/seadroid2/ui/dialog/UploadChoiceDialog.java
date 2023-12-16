@@ -12,7 +12,7 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.fileschooser.MultiFileChooserActivity;
 import com.seafile.seadroid2.gallery.MultipleImageSelectionActivity;
-import com.seafile.seadroid2.ui.activity.BrowserActivity;
+import com.seafile.seadroid2.ui.BrowserActivity;
 import com.seafile.seadroid2.util.Utils;
 
 public class UploadChoiceDialog extends DialogFragment {

@@ -2,7 +2,7 @@ package com.seafile.seadroid2.cameraupload;
 
 import android.content.Context;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.ui.adapter.AccountAdapter;
+import com.seafile.seadroid2.ui.account.adapter.AccountAdapter;
 
 /**
  * Adapter for choosing an cloud account

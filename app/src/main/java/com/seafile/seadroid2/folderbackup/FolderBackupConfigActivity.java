@@ -7,10 +7,12 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
+
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.viewpager.widget.ViewPager;
+
 import android.text.TextUtils;
 import android.widget.Toast;
 
@@ -21,10 +23,10 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.folderbackup.selectfolder.SelectBackupFolderFragment;
 import com.seafile.seadroid2.folderbackup.selectfolder.StringTools;
-import com.seafile.seadroid2.ui.activity.BaseActivity;
+import com.seafile.seadroid2.ui.BaseActivity;
 import com.seafile.seadroid2.ui.activity.SeafilePathChooserActivity;
-import com.seafile.seadroid2.ui.fragment.SettingsFragment;
-import com.seafile.seadroid2.util.Utils;
+import com.seafile.seadroid2.ui.settings.SettingsFragment;
+import com.seafile.seadroid2.util.SLogs;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -104,7 +106,7 @@ public class FolderBackupConfigActivity extends BaseActivity {
 
         //FIX an issue: When no folder or library is selected, a crash occurs
         if (null == mSeafRepo || null == mAccount) {
-            Utils.utilsLogInfo(false, "----------No repo is selected");
+            SLogs.d("----------No repo is selected");
             return;
         }
 
@@ -126,7 +128,7 @@ public class FolderBackupConfigActivity extends BaseActivity {
                 }
                 Toast.makeText(mActivity, mActivity.getString(R.string.folder_backup_select_repo_update), Toast.LENGTH_SHORT).show();
             } catch (Exception e) {
-                Utils.utilsLogInfo(true, "=saveRepoConfig=======================" + e.toString());
+                SLogs.d("=saveRepoConfig=======================" + e.toString());
             }
         }
 
@@ -145,7 +147,7 @@ public class FolderBackupConfigActivity extends BaseActivity {
 
         //FIX an issue: When no folder or library is selected, a crash occurs
         if (selectFolderPaths == null || selectFolderPaths.isEmpty()) {
-            Utils.utilsLogInfo(false, "----------No folder is selected");
+            SLogs.d("----------No folder is selected");
 
             //clear local storage
             SettingsManager.instance().saveBackupPaths("");
@@ -161,7 +163,7 @@ public class FolderBackupConfigActivity extends BaseActivity {
 
         if ((TextUtils.isEmpty(originalBackupPaths) && !TextUtils.isEmpty(strJsonPath)) || !originalBackupPaths.equals(strJsonPath)) {
             mBackupService.startFolderMonitor(selectFolderPaths);
-            Utils.utilsLogInfo(false, "----------Restart monitoring FolderMonitor");
+            SLogs.d("----------Restart monitoring FolderMonitor");
         }
 
         if (!TextUtils.isEmpty(originalBackupPaths) && TextUtils.isEmpty(strJsonPath)) {

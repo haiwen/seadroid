@@ -27,6 +27,7 @@ import com.seafile.seadroid2.transfer.DownloadTaskInfo;
 import com.seafile.seadroid2.transfer.TaskState;
 import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
+import com.seafile.seadroid2.ui.BaseActivity;
 import com.seafile.seadroid2.ui.dialog.PasswordDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog;
 import com.seafile.seadroid2.util.Utils;

@@ -2,7 +2,7 @@ package com.seafile.seadroid2.folderbackup;
 
 import static com.seafile.seadroid2.folderbackup.FolderBackupConfigActivity.BACKUP_SELECT_PATHS;
 import static com.seafile.seadroid2.folderbackup.FolderBackupConfigActivity.BACKUP_SELECT_PATHS_SWITCH;
-import static com.seafile.seadroid2.ui.fragment.SettingsFragment.FOLDER_BACKUP_REMOTE_PATH;
+import static com.seafile.seadroid2.ui.settings.SettingsFragment.FOLDER_BACKUP_REMOTE_PATH;
 
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -22,7 +22,7 @@ import com.google.gson.Gson;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.folderbackup.selectfolder.StringTools;
-import com.seafile.seadroid2.ui.activity.BaseActivity;
+import com.seafile.seadroid2.ui.BaseActivity;
 import com.seafile.seadroid2.ui.bottomsheet.BottomSheetTextFragment;
 
 import org.jetbrains.annotations.NotNull;

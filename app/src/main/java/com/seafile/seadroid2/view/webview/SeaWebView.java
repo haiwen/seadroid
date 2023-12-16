@@ -2,7 +2,6 @@ package com.seafile.seadroid2.view.webview;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.webkit.CookieManager;
 import android.webkit.WebSettings;
@@ -13,8 +12,6 @@ import androidx.annotation.Nullable;
 
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
-import com.seafile.seadroid2.util.SeafileLog;
-import com.seafile.seadroid2.util.Token2SessionConverts;
 
 public class SeaWebView extends WebView {
     public static final String PATH_ACCOUNT_LOGIN = "accounts/login/";

@@ -13,7 +13,7 @@ import android.util.Log;
 
 import com.google.common.collect.MapMaker;
 import com.seafile.seadroid2.SettingsManager;
-import com.seafile.seadroid2.ui.activity.UnlockGesturePasswordActivity;
+import com.seafile.seadroid2.ui.gesture.UnlockGesturePasswordActivity;
 
 import java.util.concurrent.ConcurrentMap;
 

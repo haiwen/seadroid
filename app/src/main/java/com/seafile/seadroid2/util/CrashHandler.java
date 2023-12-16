@@ -48,11 +48,11 @@ public class CrashHandler implements UncaughtExceptionHandler {
     @Override
     public void uncaughtException(Thread thread, Throwable ex) {
         if (myHandleException(ex) && mDefaultHandler != null) {
-            Utils.utilsLogInfo(false, "=============uncaughtException");
+            SLogs.e("=============uncaughtException");
             Toast.makeText(mContext, mContext.getString(R.string.UncaughtExceptionHandler_err), Toast.LENGTH_SHORT).show();
             mDefaultHandler.uncaughtException(thread, ex);
         } else {
-            Utils.utilsLogInfo(false, "===else==========uncaughtException");
+            SLogs.e("===else==========uncaughtException");
             try {
                 Thread.sleep(3000);
             } catch (InterruptedException e) {
@@ -81,7 +81,7 @@ public class CrashHandler implements UncaughtExceptionHandler {
                 String versionCode = pi.versionCode + "";
                 infos.put("versionName", versionName);
                 infos.put("versionCode", versionCode);
-                infos.put("phoneModelInfo", "phoneModelInfo-------" + SeafileLog.getDeviceBrand() + "/" + SeafileLog.getSystemModel() + "/" + SeafileLog.getSystemVersion());
+                infos.put("phoneModelInfo", "phoneModelInfo-------" + SLogs.getDeviceBrand() + "/" + SLogs.getSystemModel() + "/" + SLogs.getSystemVersion());
             }
         } catch (NameNotFoundException e) {
             Log.e(TAG, "an error occured when collect package info", e);

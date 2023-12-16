@@ -24,7 +24,7 @@
 //import com.seafile.seadroid2.data.DataManager;
 //import com.seafile.seadroid2.data.SeafDirent;
 //import com.seafile.seadroid2.data.ContactsData;
-//import com.seafile.seadroid2.ui.activity.SettingsActivity;
+//import com.seafile.seadroid2.ui.settings.SettingsActivity;
 //import com.seafile.seadroid2.ui.dialog.TaskDialog;
 //
 //import java.io.BufferedReader;

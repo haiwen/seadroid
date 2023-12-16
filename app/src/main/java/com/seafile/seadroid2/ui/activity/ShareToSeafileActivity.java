@@ -25,6 +25,7 @@ import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.notification.UploadNotificationProvider;
 import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
+import com.seafile.seadroid2.ui.BaseActivity;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.util.Utils;
 

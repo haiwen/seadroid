@@ -13,9 +13,9 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.SeafRepo;
-import com.seafile.seadroid2.ui.activity.BaseActivity;
+import com.seafile.seadroid2.ui.BaseActivity;
 import com.seafile.seadroid2.ui.activity.SeafilePathChooserActivity;
-import com.seafile.seadroid2.ui.fragment.SettingsFragment;
+import com.seafile.seadroid2.ui.settings.SettingsFragment;
 import com.seafile.seadroid2.util.SystemSwitchUtils;
 
 import java.util.List;

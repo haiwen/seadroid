@@ -20,13 +20,15 @@ import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafPhoto;
 import com.seafile.seadroid2.transfer.DownloadStateListener;
 import com.seafile.seadroid2.transfer.DownloadTask;
-import com.seafile.seadroid2.ui.HackyViewPager;
+import com.seafile.seadroid2.ui.BaseActivity;
+import com.seafile.seadroid2.view.HackyViewPager;
 import com.seafile.seadroid2.ui.WidgetUtils;
-import com.seafile.seadroid2.ui.ZoomOutPageTransformer;
+import com.seafile.seadroid2.view.ZoomOutPageTransformer;
 import com.seafile.seadroid2.ui.adapter.GalleryAdapter;
 import com.seafile.seadroid2.ui.adapter.SeafItemAdapter;
 import com.seafile.seadroid2.ui.dialog.DeleteFileDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog;
+import com.seafile.seadroid2.ui.repo.ReposFragment;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.util.Utils;
 
@@ -175,7 +177,7 @@ public class GalleryActivity extends BaseActivity {
      * If caches are not available, load them asynchronously.
      *
      * NOTE: When user browsing files in "LIBRARY" tab, he has to navigate into a repo in order to open gallery.
-     * Method which get called is {@link com.seafile.seadroid2.ui.fragment.ReposFragment#navToReposView(boolean)} or {@link com.seafile.seadroid2.ui.fragment.ReposFragment#navToDirectory(boolean)},
+     * Method which get called is {@link ReposFragment#navToReposView(boolean)} or {@link ReposFragment#navToDirectory(boolean)},
      * so seafDirents were already cached and it will always use them to calculate thumbnail urls for displaying photos in gallery.
      * But for browsing "STARRED" tab, caches of starred files may or may not cached, that is where the asynchronous loading code segment comes into use.
      * @param repoID

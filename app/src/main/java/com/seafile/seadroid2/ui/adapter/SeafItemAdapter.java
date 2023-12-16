@@ -20,8 +20,9 @@ import com.seafile.seadroid2.data.SeafGroup;
 import com.seafile.seadroid2.data.SeafItem;
 import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.transfer.DownloadTaskInfo;
-import com.seafile.seadroid2.ui.NavContext;
-import com.seafile.seadroid2.ui.activity.BrowserActivity;
+import com.seafile.seadroid2.context.NavContext;
+import com.seafile.seadroid2.ui.BrowserActivity;
+import com.seafile.seadroid2.ui.repo.ReposFragment;
 import com.seafile.seadroid2.util.GlideApp;
 import com.seafile.seadroid2.util.Utils;
 
@@ -85,7 +86,7 @@ public class SeafItemAdapter extends BaseAdapter {
     }
 
     /**
-     * To refresh downloading status of {@link com.seafile.seadroid2.ui.fragment.ReposFragment#mListView},
+     * To refresh downloading status of {@link ReposFragment#mListView},
      * use this method to update data set.
      * <p>
      * This method should be called after the "Download folder" menu was clicked.
@@ -334,7 +335,7 @@ public class SeafItemAdapter extends BaseAdapter {
     }
 
     /**
-     * use to refresh view of {@link com.seafile.seadroid2.ui.fragment.ReposFragment #mPullRefreshListView}
+     * use to refresh view of {@link ReposFragment #mPullRefreshListView}
      * <p>
      * <h5>when to show download status icons</h5>
      * if the dirent is a file and already cached, show cached icon.</br>

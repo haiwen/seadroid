@@ -16,7 +16,7 @@ import android.view.WindowManager;
 import android.widget.TextView;
 
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.ui.activity.PrivacyPolicyActivity;
+import com.seafile.seadroid2.ui.settings.PrivacyPolicyActivity;
 import com.seafile.seadroid2.util.Utils;
 
 public class PolicyDialog extends Dialog implements View.OnClickListener {

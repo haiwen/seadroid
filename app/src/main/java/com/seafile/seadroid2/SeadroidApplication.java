@@ -11,7 +11,7 @@ import com.seafile.seadroid2.gesturelock.AppLockManager;
 import com.seafile.seadroid2.monitor.ActivityMonitor;
 import com.seafile.seadroid2.ui.CustomNotificationBuilder;
 import com.seafile.seadroid2.util.CrashHandler;
-import com.seafile.seadroid2.util.Utils;
+import com.seafile.seadroid2.util.SLogs;
 
 public class SeadroidApplication extends Application {
     private static Context context;
@@ -28,13 +28,17 @@ public class SeadroidApplication extends Application {
         instance = this;
 //        initImageLoader(getApplicationContext());
 
+        //init slogs
+        SLogs.init();
+
         // set gesture lock if available
         AppLockManager.getInstance().enableDefaultAppLockIfAvailable(this);
 
         initNotificationChannel();
         CrashHandler crashHandler = CrashHandler.getInstance();
         crashHandler.init(this);
-        Utils.logPhoneModelInfo();
+
+        SLogs.printAppEnvInfo();
 
         //This feature can be extended
         registerActivityLifecycleCallbacks(new ActivityMonitor());
