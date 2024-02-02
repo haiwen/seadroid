@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.ui.BaseActivity;
 
@@ -72,12 +73,12 @@ public class SingleSignOnActivity extends BaseActivity implements Toolbar.OnMenu
 
     private boolean isServerUrlValid(String serverUrl) {
         if (serverUrl == null || serverUrl.isEmpty()) {
-            showShortToast(this, getString(R.string.shib_server_url_empty));
+            ToastUtils.showLong(R.string.shib_server_url_empty);
             return false;
         }
 
         if (!serverUrl.startsWith(SINGLE_SIGN_ON_HTTPS_PREFIX)) {
-            showShortToast(this, getString(R.string.shib_server_incorrect_prefix));
+            ToastUtils.showLong(getString(R.string.shib_server_incorrect_prefix));
             return false;
         }
 

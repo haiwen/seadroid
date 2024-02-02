@@ -5,7 +5,7 @@ import android.text.TextUtils;
 import com.blankj.utilcode.util.TimeUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
-import com.seafile.seadroid2.SettingsManager;
+import com.seafile.seadroid2.util.sp.SettingsManager;
 import com.seafile.seadroid2.config.DateFormatType;
 import com.seafile.seadroid2.util.PinyinUtils;
 import com.seafile.seadroid2.util.Utils;
@@ -15,7 +15,6 @@ import org.json.JSONObject;
 
 import java.util.Comparator;
 import java.util.Date;
-import java.util.Objects;
 
 /**
  * SeafRepo: A Seafile library
@@ -148,7 +147,7 @@ public class SeafRepo implements SeafItem {
     }
 
     public boolean canLocalDecrypt() {
-        return encrypted && SettingsManager.instance().isEncryptEnabled();
+        return encrypted && SettingsManager.getInstance().isEncryptEnabled();
     }
 
     public boolean hasWritePermission() {

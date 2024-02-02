@@ -7,7 +7,6 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
-import androidx.appcompat.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -16,6 +15,8 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.appcompat.widget.Toolbar;
 
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafConnection;
@@ -28,8 +29,9 @@ import com.seafile.seadroid2.transfer.TaskState;
 import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
 import com.seafile.seadroid2.ui.BaseActivity;
-import com.seafile.seadroid2.ui.dialog.PasswordDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog;
+import com.seafile.seadroid2.ui.dialog_fragment.PasswordDialogFragment;
+import com.seafile.seadroid2.ui.dialog_fragment.listener.OnRefreshDataListener;
 import com.seafile.seadroid2.util.Utils;
 
 import java.io.File;
@@ -239,23 +241,23 @@ public class FileActivity extends BaseActivity implements Toolbar.OnMenuItemClic
     }
 
     private void handlePassword() {
-        PasswordDialog passwordDialog = new PasswordDialog();
-        passwordDialog.setRepo(mRepoName, mRepoID, mAccount);
-        passwordDialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
+        PasswordDialogFragment dialogFragment = PasswordDialogFragment.newInstance();
+        dialogFragment.initData(mRepoID, mRepoName);
+        dialogFragment.setRefreshListener(new OnRefreshDataListener() {
             @Override
-            public void onTaskSuccess() {
-                mTaskID = mTransferService.addDownloadTask(mAccount,
-                        mRepoName,
-                        mRepoID,
-                        mFilePath);
-            }
-
-            @Override
-            public void onTaskCancelled() {
-                finish();
+            public void onActionStatus(boolean isDone) {
+                if (isDone) {
+                    mTaskID = mTransferService.addDownloadTask(mAccount,
+                            mRepoName,
+                            mRepoID,
+                            mFilePath);
+                } else {
+                    finish();
+                }
             }
         });
-        passwordDialog.show(getSupportFragmentManager(), "DialogFragment");
+
+        dialogFragment.show(getSupportFragmentManager(), PasswordDialogFragment.class.getSimpleName());
     }
 
     public void showToast(CharSequence msg) {

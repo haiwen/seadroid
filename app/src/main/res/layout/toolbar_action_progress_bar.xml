@@ -5,14 +5,12 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-    <androidx.appcompat.widget.Toolbar
+    <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar_actionbar"
         android:layout_width="match_parent"
         android:layout_height="?actionBarSize"
-        android:background="?attr/colorAccent"
         app:contentInsetStartWithNavigation="0dp"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-        app:theme="@style/ThemeOverlay.AppCompat.Light" />
+        app:theme="@style/ToolBarStyle" />
 
     <ProgressBar
         android:id="@+id/tool_progress_bar"
@@ -26,9 +24,9 @@
         android:progress="10"
         android:progressDrawable="@drawable/seekbar_for_webview_style" />
 
-    <View
+    <com.google.android.material.divider.MaterialDivider
         android:id="@+id/view_toolbar_bottom_line"
         android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/fancy_dark_gray" />
+        android:layout_height="wrap_content"
+        app:dividerColor="@color/toolbar_divider_color" />
 </LinearLayout>

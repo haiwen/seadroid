@@ -15,13 +15,14 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 
+import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.SettingsManager;
+import com.seafile.seadroid2.util.sp.SettingsManager;
 import com.seafile.seadroid2.gesturelock.LockPatternUtils;
 import com.seafile.seadroid2.gesturelock.LockPatternView;
 import com.seafile.seadroid2.gesturelock.LockPatternView.Cell;
 import com.seafile.seadroid2.ui.BaseActivity;
-import com.seafile.seadroid2.ui.BrowserActivity;
+import com.seafile.seadroid2.ui.main.MainActivity;
 
 import java.util.List;
 
@@ -55,7 +56,7 @@ public class UnlockGesturePasswordActivity extends BaseActivity implements Toolb
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         getSupportActionBar().setTitle(R.string.gesture_lock);
-        settingsMgr = SettingsManager.instance();
+        settingsMgr = SettingsManager.getInstance();
     }
 
     @Override
@@ -69,7 +70,7 @@ public class UnlockGesturePasswordActivity extends BaseActivity implements Toolb
     public void onBackPressed() {
         // stop default action (finishing the current activity) to be executed.
         // super.onBackPressed();
-        Intent i = new Intent(this, BrowserActivity.class);
+        Intent i = new Intent(this, MainActivity.class);
         i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(i);
         finish();
@@ -107,13 +108,13 @@ public class UnlockGesturePasswordActivity extends BaseActivity implements Toolb
                     int retry = LockPatternUtils.FAILED_ATTEMPTS_BEFORE_TIMEOUT - mFailedPatternAttemptsSinceLastTimeout;
                     if (retry >= 0) {
                         if (retry == 0)
-                            showShortToast(UnlockGesturePasswordActivity.this, getResources().getString(R.string.lockscreen_access_pattern_failure));
+                            ToastUtils.showLong(R.string.lockscreen_access_pattern_failure);
                         mHeadTextView.setText(getResources().getQuantityString(R.plurals.lockscreen_access_pattern_failure_left_try_times, retry, retry));
                         mHeadTextView.setTextColor(Color.RED);
                         mHeadTextView.startAnimation(mShakeAnim);
                     }
                 } else {
-                    showShortToast(UnlockGesturePasswordActivity.this, getResources().getString(R.string.lockscreen_access_pattern_failure_not_long_enough));
+                    ToastUtils.showLong(getResources().getString(R.string.lockscreen_access_pattern_failure_not_long_enough));
                 }
 
                 if (mFailedPatternAttemptsSinceLastTimeout >= LockPatternUtils.FAILED_ATTEMPTS_BEFORE_TIMEOUT) {

@@ -20,10 +20,11 @@ package com.seafile.seadroid2.provider;
 import android.content.Context;
 
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.account.AccountManager;
+import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.util.Utils;
 
 import java.io.FileNotFoundException;
+import java.util.List;
 
 /**
  * Helper class to create and parse DocumentIds for the DocumentProvider
@@ -44,11 +45,10 @@ public class DocumentIdParser {
     private static final String ROOT_REPO_ID = "root-magic-repo";
 
     Context context;
-    AccountManager manager;
+
 
     public DocumentIdParser(Context context) {
         this.context = context;
-        this.manager = new AccountManager(context);
     }
 
     /**
@@ -62,7 +62,10 @@ public class DocumentIdParser {
         String[] list = documentId.split(DOC_SEPERATOR, 2);
         if (list.length > 0) {
             String server = list[0];
-            for (Account a: manager.getAccountList()) {
+
+            //TODO test it.
+            List<Account> accounts = SupportAccountManager.getInstance().getAccountList();
+            for (Account a: accounts) {
                 if (a.getSignature().equals(server)) {
                     return a;
                 }

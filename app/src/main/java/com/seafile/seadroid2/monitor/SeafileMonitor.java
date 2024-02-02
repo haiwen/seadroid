@@ -1,16 +1,15 @@
 package com.seafile.seadroid2.monitor;
 
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.io.monitor.FileAlterationMonitor;
-
 import android.util.Log;
 
 import com.google.common.collect.Maps;
-import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.account.AccountManager;
+import com.seafile.seadroid2.account.SupportAccountManager;
+
+import org.apache.commons.io.monitor.FileAlterationMonitor;
+
+import java.util.List;
+import java.util.Map;
 
 public class SeafileMonitor {
     private static final String DEBUG_TAG = "SeafileMonitor";
@@ -54,7 +53,7 @@ public class SeafileMonitor {
     }
 
     public synchronized void onFileDownloaded(Account account, String repoID, String repoName,
-            String pathInRepo, String localPath) {
+                                              String pathInRepo, String localPath) {
         SeafileObserver observer = observers.get(account);
         if (observer == null)
             return;
@@ -76,7 +75,7 @@ public class SeafileMonitor {
      * Watch cached files for all accounts
      */
     public synchronized void monitorAllAccounts() {
-        List<Account> accounts = new AccountManager(SeadroidApplication.getAppContext()).getAccountList();
+        List<Account> accounts = SupportAccountManager.getInstance().getAccountList();
         for (Account account : accounts) {
             monitorFilesForAccount(account);
         }

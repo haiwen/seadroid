@@ -16,12 +16,12 @@ import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreferenceCompat;
 
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.cameraupload.CameraUploadConfigActivity;
-import com.seafile.seadroid2.cameraupload.CameraUploadManager;
-import com.seafile.seadroid2.cameraupload.GalleryBucketUtils;
-import com.seafile.seadroid2.ui.activity.SeafilePathChooserActivity;
+import com.seafile.seadroid2.ui.camera_upload.CameraUploadConfigActivity;
+import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
+import com.seafile.seadroid2.ui.camera_upload.GalleryBucketUtils;
+import com.seafile.seadroid2.ui.selector.ObjSelectorActivity;
+import com.seafile.seadroid2.util.sp.SettingsManager;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -34,7 +34,6 @@ public class SettingsCameraBackupAdvanceFragment extends PreferenceFragmentCompa
     private SwitchPreferenceCompat cbVideoAllowed;
     private Preference mCameraBackupLocalBucketPref;
 
-    private SettingsManager settingsMgr;
     private CameraUploadManager cameraUploaderManager;
 
     @Override
@@ -49,8 +48,7 @@ public class SettingsCameraBackupAdvanceFragment extends PreferenceFragmentCompa
     }
 
     private void init() {
-        settingsMgr = SettingsManager.instance();
-        cameraUploaderManager = new CameraUploadManager(requireContext());
+        cameraUploaderManager = new CameraUploadManager();
     }
 
     @Override
@@ -69,12 +67,11 @@ public class SettingsCameraBackupAdvanceFragment extends PreferenceFragmentCompa
         mCameraBackupLocalBucketPref = findPreference(SettingsManager.CAMERA_UPLOAD_BUCKETS_KEY);
 
         cbDataPlan = findPreference(SettingsManager.CAMERA_UPLOAD_ALLOW_DATA_PLAN_SWITCH_KEY);
-        cbDataPlan.setChecked(settingsMgr.isDataPlanAllowed());
-
+        cbDataPlan.setChecked(SettingsManager.getInstance().isDataPlanAllowed());
 
         // videos
         cbVideoAllowed = findPreference(SettingsManager.CAMERA_UPLOAD_ALLOW_VIDEOS_SWITCH_KEY);
-        cbVideoAllowed.setChecked(settingsMgr.isVideosUploadAllowed());
+        cbVideoAllowed.setChecked(SettingsManager.getInstance().isVideosUploadAllowed());
 
         mCameraBackupCustomBucketsSwitch.setOnPreferenceChangeListener((preference, newValue) -> {
             boolean isBool = newValue instanceof Boolean;
@@ -109,7 +106,7 @@ public class SettingsCameraBackupAdvanceFragment extends PreferenceFragmentCompa
             selectLocalDirLauncher.launch(intent);
         } else {
             List<String> selectedBuckets = new ArrayList<>();
-            settingsMgr.setCameraUploadBucketList(selectedBuckets);
+            SettingsManager.getInstance().setCameraUploadBucketList(selectedBuckets);
             refreshPreferenceView();
         }
     }
@@ -117,7 +114,7 @@ public class SettingsCameraBackupAdvanceFragment extends PreferenceFragmentCompa
     private void refreshPreferenceView() {
         List<String> bucketNames = new ArrayList<>();
 
-        List<String> bucketIds = settingsMgr.getCameraUploadBucketList();
+        List<String> bucketIds = SettingsManager.getInstance().getCameraUploadBucketList();
         List<GalleryBucketUtils.Bucket> tempBuckets = GalleryBucketUtils.getMediaBuckets(getActivity().getApplicationContext());
         LinkedHashSet<GalleryBucketUtils.Bucket> bucketsSet = new LinkedHashSet<>(tempBuckets.size());
         bucketsSet.addAll(tempBuckets);
@@ -148,12 +145,12 @@ public class SettingsCameraBackupAdvanceFragment extends PreferenceFragmentCompa
                 return;
             }
 
-            final String repoName = result.getData().getStringExtra(SeafilePathChooserActivity.DATA_REPO_NAME);
-            final String repoId = result.getData().getStringExtra(SeafilePathChooserActivity.DATA_REPO_ID);
-            final Account account = result.getData().getParcelableExtra(SeafilePathChooserActivity.DATA_ACCOUNT);
+            final String repoName = result.getData().getStringExtra(ObjSelectorActivity.DATA_REPO_NAME);
+            final String repoId = result.getData().getStringExtra(ObjSelectorActivity.DATA_REPO_ID);
+            final Account account = result.getData().getParcelableExtra(ObjSelectorActivity.DATA_ACCOUNT);
             if (repoName != null && repoId != null) {
                 cameraUploaderManager.setCameraAccount(account);
-                settingsMgr.saveCameraUploadRepoInfo(repoId, repoName);
+                SettingsManager.getInstance().saveCameraUploadRepoInfo(repoId, repoName);
             }
 
             refreshPreferenceView();

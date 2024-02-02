@@ -19,13 +19,11 @@
             android:layout_height="wrap_content"
             app:layout_scrollFlags="scroll|enterAlways"
             app:tabGravity="center"
-            app:tabMode="scrollable"
-            app:tabSelectedTextColor="@color/fancy_orange"
-            app:tabTextAppearance="@style/TabTextAppearancce" />
+            app:tabMode="scrollable" />
     </com.google.android.material.appbar.AppBarLayout>
 
-    <androidx.viewpager.widget.ViewPager
-        android:id="@+id/transfer_list_pager"
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/pager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />

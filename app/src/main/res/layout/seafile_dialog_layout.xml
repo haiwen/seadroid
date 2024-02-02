@@ -89,7 +89,6 @@ https://github.com/android/platform_frameworks_base/blob/master/core/res/res/lay
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="10dp"
-                android:inputType="text"
                 android:textColor="@color/red"
                 android:textSize="@dimen/dialog_error_txt_size"
                 android:visibility="gone" />

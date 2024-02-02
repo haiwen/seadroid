@@ -7,12 +7,8 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
-
-import androidx.appcompat.widget.Toolbar;
-
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -27,26 +23,22 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.ListView;
 
-import com.google.common.collect.Lists;
+import androidx.appcompat.widget.Toolbar;
+
+import com.blankj.utilcode.util.AppUtils;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.SeafConnection;
-import com.seafile.seadroid2.SeafException;
-import com.seafile.seadroid2.SettingsManager;
+import com.seafile.seadroid2.listener.OnCallback;
+import com.seafile.seadroid2.ui.dialog_fragment.PolicyDialogFragment;
+import com.seafile.seadroid2.util.sp.SettingsManager;
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.account.Authenticator;
-import com.seafile.seadroid2.avatar.Avatar;
-import com.seafile.seadroid2.avatar.AvatarManager;
+import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.monitor.FileMonitorService;
 import com.seafile.seadroid2.ui.BaseActivity;
-import com.seafile.seadroid2.ui.BrowserActivity;
 import com.seafile.seadroid2.ui.account.adapter.AccountAdapter;
-import com.seafile.seadroid2.ui.account.adapter.SeafAccountAdapter;
-import com.seafile.seadroid2.ui.dialog.PolicyDialog;
-import com.seafile.seadroid2.util.ConcurrentAsyncTask;
-import com.seafile.seadroid2.util.Utils;
+import com.seafile.seadroid2.ui.main.MainActivity;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -59,8 +51,6 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
     private ListView accountsView;
 
     private android.accounts.AccountManager mAccountManager;
-    private AccountManager accountManager;
-    private AvatarManager avatarManager;
     private AccountAdapter adapter;
     private List<Account> accounts;
     private FileMonitorService mMonitorService;
@@ -88,6 +78,28 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
 
     };
 
+    private final AccountManagerCallback<Bundle> accountCallback = new AccountManagerCallback<Bundle>() {
+
+        @Override
+        public void run(AccountManagerFuture<Bundle> future) {
+            if (future.isCancelled())
+                return;
+
+            try {
+                Bundle b = future.getResult();
+
+                if (b.getBoolean(android.accounts.AccountManager.KEY_BOOLEAN_RESULT)) {
+                    String accountName = b.getString(android.accounts.AccountManager.KEY_ACCOUNT_NAME);
+                    Log.d(DEBUG_TAG, "switching to account " + accountName);
+                    SupportAccountManager.getInstance().saveCurrentAccount(accountName);
+                    startFilesActivity();
+                }
+            } catch (Exception e) {
+                Log.e(DEBUG_TAG, "unexpected error: " + e);
+            }
+        }
+    };
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         Log.d(DEBUG_TAG, "AccountsActivity.onCreate is called");
@@ -95,25 +107,26 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
         setContentView(R.layout.start);
         mAccountManager = android.accounts.AccountManager.get(this);
         accountsView = (ListView) findViewById(R.id.account_list_view);
-        accountManager = new AccountManager(this);
-        avatarManager = new AvatarManager();
-        currentDefaultAccount = accountManager.getCurrentAccount();
+
+        currentDefaultAccount = SupportAccountManager.getInstance().getCurrentAccount();
 
         View footerView = ((LayoutInflater) this
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(
                 R.layout.account_list_footer, null, false);
+
         Button addAccount = (Button) footerView.findViewById(R.id.account_footer_btn);
         addAccount.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View btn) {
-                mAccountManager.addAccount(Account.ACCOUNT_TYPE,
+                mAccountManager.addAccount(Constants.Account.ACCOUNT_TYPE,
                         Authenticator.AUTHTOKEN_TYPE, null, null,
                         AccountsActivity.this, accountCallback, null);
             }
         });
+
         accountsView.addFooterView(footerView, null, true);
         accountsView.setFooterDividersEnabled(false);
-        adapter = new SeafAccountAdapter(this);
+        adapter = new AccountAdapter(this);
         accountsView.setAdapter(adapter);
         accountsView.setOnItemClickListener(new OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -124,7 +137,7 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
                     startEditAccountActivity(account);
                 } else {
                     // update current Account info from SharedPreference
-                    accountManager.saveCurrentAccount(account.getSignature());
+                    SupportAccountManager.getInstance().saveCurrentAccount(account.getSignature());
                     startFilesActivity();
                 }
             }
@@ -138,7 +151,7 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
         toolbar.setOnMenuItemClickListener(this);
         setSupportActionBar(toolbar);
 
-        accounts = accountManager.getAccountList();
+        accounts = SupportAccountManager.getInstance().getAccountList();
         // updates toolbar back button
         if (currentDefaultAccount == null || !currentDefaultAccount.hasValidToken()) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(false);
@@ -150,7 +163,7 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
 
         String country = Locale.getDefault().getCountry();
         String language = Locale.getDefault().getLanguage();
-        int privacyPolicyConfirmed = SettingsManager.instance().getPrivacyPolicyConfirmed();
+        int privacyPolicyConfirmed = SettingsManager.getInstance().getPrivacyPolicyConfirmed();
         if (country.equals("CN") && language.equals("zh") && (privacyPolicyConfirmed == 0)) {
             showDialog();
         }
@@ -202,8 +215,8 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
             case android.R.id.home:
                 // if the current account sign out and no account was to logged in,
                 // then always goes to AccountsActivity
-                if (accountManager.getCurrentAccount() == null) {
-                    Intent intent = new Intent(this, BrowserActivity.class);
+                if (SupportAccountManager.getInstance().getCurrentAccount() == null) {
+                    Intent intent = new Intent(this, MainActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     startActivity(intent);
                 }
@@ -216,13 +229,13 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
 
     private void refreshView() {
         Log.d(DEBUG_TAG, "refreshView");
-        accounts = accountManager.getAccountList();
+        accounts = SupportAccountManager.getInstance().getAccountList();
         adapter.clear();
         adapter.setItems(accounts);
 
         // if the user switched default account while we were in background,
         // switch to BrowserActivity
-        Account newCurrentAccount = accountManager.getCurrentAccount();
+        Account newCurrentAccount = SupportAccountManager.getInstance().getCurrentAccount();
         if (newCurrentAccount != null && !newCurrentAccount.equals(currentDefaultAccount)) {
             startFilesActivity();
         }
@@ -232,8 +245,6 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
             getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         }
 
-        loadAvatarUrls(160);
-
         adapter.notifyChanged();
     }
 
@@ -241,7 +252,7 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
 
         removeAllCookie();
 
-        Intent intent = new Intent(this, BrowserActivity.class);
+        Intent intent = new Intent(this, MainActivity.class);
 
         // first finish this activity, so the BrowserActivity is again "on top"
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -259,27 +270,6 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
         });
     }
 
-    private final AccountManagerCallback<Bundle> accountCallback = new AccountManagerCallback<Bundle>() {
-
-        @Override
-        public void run(AccountManagerFuture<Bundle> future) {
-            if (future.isCancelled())
-                return;
-
-            try {
-                Bundle b = future.getResult();
-
-                if (b.getBoolean(android.accounts.AccountManager.KEY_BOOLEAN_RESULT)) {
-                    String accountName = b.getString(android.accounts.AccountManager.KEY_ACCOUNT_NAME);
-                    Log.d(DEBUG_TAG, "switching to account " + accountName);
-                    accountManager.saveCurrentAccount(accountName);
-                    startFilesActivity();
-                }
-            } catch (Exception e) {
-                Log.e(DEBUG_TAG, "unexpected error: " + e);
-            }
-        }
-    };
 
     private void startEditAccountActivity(Account account) {
         mAccountManager.updateCredentials(account.getAndroidAccount(), Authenticator.AUTHTOKEN_TYPE, null, this, accountCallback, null);
@@ -332,10 +322,10 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
 
     @Override
     public void onBackPressed() {
-        Account account = accountManager.getCurrentAccount();
+        Account account = SupportAccountManager.getInstance().getCurrentAccount();
         if (account != null) {
             // force exit when current account was deleted
-            Intent i = new Intent(this, BrowserActivity.class);
+            Intent i = new Intent(this, MainActivity.class);
             i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(i);
             finish();
@@ -343,120 +333,20 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
             super.onBackPressed();
     }
 
-    /**
-     * asynchronously load avatars
-     *
-     * @param avatarSize set a avatar size in one of 24*24, 32*32, 48*48, 64*64, 72*72, 96*96
-     */
-    public void loadAvatarUrls(int avatarSize) {
-        List<Avatar> avatars;
-
-        if (!Utils.isNetworkOn() || !avatarManager.isNeedToLoadNewAvatars()) {
-            // Toast.makeText(AccountsActivity.this, getString(R.string.network_down), Toast.LENGTH_SHORT).show();
-
-            // use cached avatars
-            avatars = avatarManager.getAvatarList();
-
-            if (avatars == null) {
-                return;
-            }
-
-            // set avatars url to adapter
-            adapter.setAvatars((ArrayList<Avatar>) avatars);
-
-            // notify adapter data changed
-            adapter.notifyDataSetChanged();
-
-            return;
-        }
-
-        LoadAvatarUrlsTask task = new LoadAvatarUrlsTask(avatarSize);
-
-        ConcurrentAsyncTask.execute(task);
-
-    }
-
-    private class LoadAvatarUrlsTask extends AsyncTask<Void, Void, List<Avatar>> {
-
-        private List<Avatar> avatars;
-        private int avatarSize;
-        private SeafConnection httpConnection;
-
-        public LoadAvatarUrlsTask(int avatarSize) {
-            this.avatarSize = avatarSize;
-            this.avatars = Lists.newArrayList();
-        }
-
-        @Override
-        protected List<Avatar> doInBackground(Void... params) {
-            // reuse cached avatars
-            avatars = avatarManager.getAvatarList();
-
-            // contains accounts who don`t have avatars yet
-            List<Account> acts = avatarManager.getAccountsWithoutAvatars();
-
-            // contains new avatars in order to persist them to database
-            List<Avatar> newAvatars = new ArrayList<Avatar>(acts.size());
-
-            // load avatars from server
-            for (Account account : acts) {
-                httpConnection = new SeafConnection(account);
-
-                String avatarRawData = null;
-                try {
-                    avatarRawData = httpConnection.getAvatar(account.getEmail(), avatarSize);
-                } catch (SeafException e) {
-                    e.printStackTrace();
-                    return avatars;
-                }
-
-                Avatar avatar = avatarManager.parseAvatar(avatarRawData);
-                if (avatar == null)
-                    continue;
-
-                avatar.setSignature(account.getSignature());
-
-                avatars.add(avatar);
-
-                newAvatars.add(avatar);
-            }
-
-            // save new added avatars to database
-            avatarManager.saveAvatarList(newAvatars);
-
-            return avatars;
-        }
-
-        @Override
-        protected void onPostExecute(List<Avatar> avatars) {
-            if (avatars == null) {
-                return;
-            }
-
-            // set avatars url to adapter
-            adapter.setAvatars((ArrayList<Avatar>) avatars);
-
-            // notify adapter data changed
-            adapter.notifyDataSetChanged();
-        }
-    }
 
     private void showDialog() {
-        PolicyDialog mDialog = new PolicyDialog(AccountsActivity.this, R.style.PolicyDialog,
-                new PolicyDialog.OnCloseListener() {
-                    @Override
-                    public void onClick(boolean confirm) {
-                        if (confirm) {
-                            // TODO:
-                            SettingsManager.instance().savePrivacyPolicyConfirmed(1);
-                        } else {
-                            // TODO:
-                            System.exit(0);
-                        }
-                    }
-                });
-        mDialog.show();
-        mDialog.setCancelable(false);
+        PolicyDialogFragment dialogFragment = new PolicyDialogFragment();
+        dialogFragment.setOnCallback(new OnCallback() {
+            @Override
+            public void onFailed() {
+                AppUtils.exitApp();
+            }
 
+            @Override
+            public void onSuccess() {
+                SettingsManager.getInstance().savePrivacyPolicyConfirmed(1);
+            }
+        });
+        dialogFragment.show(getSupportFragmentManager(),PolicyDialogFragment.class.getSimpleName());
     }
 }

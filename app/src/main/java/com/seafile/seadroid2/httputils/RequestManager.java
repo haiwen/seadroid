@@ -23,7 +23,6 @@ import okio.BufferedSink;
 import okio.Okio;
 import okio.Source;
 
-
 public class RequestManager {
 
     private OkHttpClient client;
@@ -47,7 +46,6 @@ public class RequestManager {
     public OkHttpClient getClient() {
         return client;
     }
-
 
     public static RequestManager getInstance(Account account) {
         if (mRequestManager == null) {

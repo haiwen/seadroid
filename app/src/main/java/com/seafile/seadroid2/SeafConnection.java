@@ -22,6 +22,7 @@ import com.seafile.seadroid2.data.FileBlocks;
 import com.seafile.seadroid2.data.ProgressMonitor;
 import com.seafile.seadroid2.httputils.RequestManager;
 import com.seafile.seadroid2.ssl.SSLTrustManager;
+import com.seafile.seadroid2.util.DeviceIdManager;
 import com.seafile.seadroid2.util.Utils;
 
 import org.json.JSONArray;
@@ -197,7 +198,8 @@ public class SeafConnection {
                 // ignore
             }
 
-            String deviceId = Secure.getString(context.getContentResolver(), Secure.ANDROID_ID);
+            //TODO Secure.getString(context.getContentResolver(), Secure.ANDROID_ID); ?
+            String deviceId = DeviceIdManager.getInstance().getOrSet();
 
             req.form("platform", "android");
             req.form("device_id", deviceId);

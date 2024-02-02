@@ -7,6 +7,7 @@
     <string name="edit_account">Edit</string>
     <string name="delete_account">Delete</string>
     <string name="delete">Delete</string>
+    <string name="deleted">Deleted</string>
     <string name="delete_repo">Are you sure you want to delete this library?</string>
     <string name="delete_file">Are you sure you want to delete this file or folder?</string>
     <string name="delete_successful">Successfully deleted</string>
@@ -517,6 +518,8 @@
     <string name="permission_manage_exteral_storage_rationale">To process files, allows management of all files on external storage</string>
     <string name="permission_read_exteral_storage_rationale">To process files, allow storage permission to access them.</string>
     <string name="permission_read_contacts_storage_rationale">To process contacts, allow contacts permission to access them.</string>
+    <string name="permission_camera">To process media files, allow camera permission.</string>
+
     <string name="permission_not_granted">Permission was not granted</string>
     <string name="history_change_title">Modification Details</string>
     <string name="no_more_activities">No more activities</string>
@@ -609,5 +612,8 @@
     <string name="update">Update</string>
     <string name="clear">Clear</string>
     <string name="clear_all">Clear all</string>
+    <string name="done">Done</string>
+    <string name="success">Success</string>
+    <string name="failed">Failed</string>
 
 </resources>

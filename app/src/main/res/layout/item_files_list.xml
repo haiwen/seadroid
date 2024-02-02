@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/ll_root"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/lv_item_height"
-    android:background="@color/white">
-
-    <ImageView
-        android:id="@+id/iv_file_type_fileitem"
-        android:layout_width="@dimen/lv_icon_width"
-        android:layout_height="@dimen/lv_icon_width"
-        android:layout_alignParentLeft="true"
-        android:layout_centerVertical="true"
-        android:src="@drawable/empty_icon" />
+    android:layout_height="wrap_content"
+    android:background="@color/white"
+    android:gravity="center_vertical"
+    android:orientation="vertical"
+    android:paddingHorizontal="8dp">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginLeft="10dp"
-        android:layout_toRightOf="@+id/iv_file_type_fileitem"
-        android:layout_toLeftOf="@+id/checkbox_file_fileitem"
+        android:layout_height="wrap_content"
         android:gravity="center_vertical"
-        android:orientation="horizontal"
-        >
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/iv_file_type_fileitem"
+            android:layout_width="?actionBarSize"
+            android:layout_height="?actionBarSize"
+            android:padding="16dp"
+            android:src="@drawable/folders" />
+
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
@@ -36,7 +36,6 @@
                 android:ellipsize="end"
                 android:gravity="center_vertical"
                 android:maxLines="1"
-                android:text=""
                 android:textColor="@color/fancy_dark_black"
                 android:textSize="@dimen/lv_title_txt_size" />
 
@@ -47,31 +46,23 @@
                 android:ellipsize="end"
                 android:gravity="center_vertical"
                 android:maxLines="1"
-                android:text=""
                 android:textColor="@color/fancy_black"
                 android:textSize="@dimen/lv_subtitle_txt_size" />
+
         </LinearLayout>
 
+        <CheckBox
+            android:id="@+id/checkbox_file_fileitem"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="false"
+            android:gravity="center" />
+
     </LinearLayout>
-    <CheckBox
-        android:id="@+id/checkbox_file_fileitem"
-        android:paddingBottom="15dp"
-        android:paddingTop="15dp"
-        android:paddingLeft="10dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_centerVertical="true"
-        android:gravity="center"
-        android:checked="false"
-        />
 
-    <TextView
+    <com.google.android.material.divider.MaterialDivider
         android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_alignParentBottom="true"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:background="@color/fancy_dark_gray" />
-
-</RelativeLayout>
+        android:layout_height="wrap_content"
+        app:dividerColor="@color/divider_color"
+        app:dividerInsetStart="14dp" />
+</LinearLayout>

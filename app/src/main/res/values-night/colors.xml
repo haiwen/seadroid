@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="whitegrey">#FFF2F2F2</color>
+    <color name="grey">#6E6E6E</color>
+    <color name="red">#FF0000</color>
+    <color name="light_grey">#BDBDBD</color>
+    <color name="light_gray">#e9e9e9</color>
+    <color name="dark_gray">#1E2129</color>
+    <color name="light_black">#333333</color>
+    <color name="transparent">#00000000</color>
+    <color name="half_transparent">#80FFFFFF</color>
+    <color name="half_transparent_black">#80000000</color>
+
+    <!-- Theme V2 -->
+    <color name="fancy_white">#f4f5f6</color> <!-- theme color -->
+    <color name="fancy_light_white">#fcfcfc</color>
+    <color name="fancy_black">#888888</color>
+    <color name="fancy_light_black">#a9a9a9
+    </color> <!-- color for slide expandable list item background -->
+    <color name="fancy_dark_black">#282828</color>
+    <color name="fancy_deep_black">#989898
+    </color> <!-- color for dividers inside of slide expandable list item -->
+    <color name="fancy_gray">#969696</color>
+    <color name="fancy_dark_gray">#e1e2e3</color>
+    <color name="fancy_orange">#ea8201</color> <!-- theme color -->
+    <color name="fancy_orange_dark">#CF7300</color> <!-- theme color -->
+
+    <!-- Material Theme -->
+    <color name="md_theme_primary">@color/fancy_orange</color>
+    <color name="md_theme_onPrimary">#FFFFFF</color>
+
+    <color name="md_theme_secondary">#BDBDBD</color>
+    <color name="md_theme_onSecondary">#FFFFFF</color>
+
+    <color name="md_theme_error">#B3261E</color>
+    <color name="md_theme_onError">#FFFFFF</color>
+
+    <color name="md_theme_background">#FFFBFE</color>
+    <color name="md_theme_onBackground">#1C1B1F</color>
+    <color name="md_theme_surface">#FFFBFE</color>
+    <color name="md_theme_onSurface">#1C1B1F</color>
+
+
+    <!--editor-->
+    <color name="blue_200">#FF90CAF9</color>
+    <color name="blue_500">#FF2196F3</color>
+    <color name="blue_700">#FF1976D2</color>
+    <color name="blue_bg">#FF303030</color>
+    <color name="pale_yellow">#DFA788</color>
+
+    <color name="file_bottom_line">#ECECEC</color>
+    <color name="file_picker_title">#4A4A4A</color>
+    <color name="file_picker_des">#86848B</color>
+
+    <!-- view color -->
+    <color name="divider_color">#2c2c2c</color>
+    <color name="item_repo_title_color">#d3d3d3</color>
+    <color name="item_repo_subtitle_color">#5e5e5e</color>
+
+    <color name="toolbar_background_color">#191919</color>
+    <color name="toolbar_title_color">#f2f2f2</color>
+
+    <color name="alert_dialog_background_color">#191919</color>
+    <color name="alert_dialog_onsurface_color">#f2f2f2</color>
+
+</resources>

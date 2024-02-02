@@ -5,6 +5,7 @@ import android.widget.ImageView;
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.data.SeafRepo;
+import com.seafile.seadroid2.util.sp.Sorts;
 
 import java.util.Collections;
 import java.util.List;
@@ -18,13 +19,21 @@ public class SeafReposAdapter extends ReposAdapter {
         super(onlyShowWritableRepos, encryptedRepoId);
     }
 
-    /** sort files type */
+    /**
+     * sort files type
+     */
     public static final int SORT_BY_NAME = 9;
-    /** sort files type */
+    /**
+     * sort files type
+     */
     public static final int SORT_BY_LAST_MODIFIED_TIME = 10;
-    /** sort files order */
+    /**
+     * sort files order
+     */
     public static final int SORT_ORDER_ASCENDING = 11;
-    /** sort files order */
+    /**
+     * sort files order
+     */
     public static final int SORT_ORDER_DESCENDING = 12;
 
 
@@ -56,7 +65,7 @@ public class SeafReposAdapter extends ReposAdapter {
         repos.clear();
     }
 
-    public void sortFiles(int type, int order) {
+    public void sortFiles() {
         List<SeafRepo> folders = Lists.newArrayList();
 
         for (SeafRepo item : repos) {
@@ -64,19 +73,19 @@ public class SeafReposAdapter extends ReposAdapter {
         }
         repos.clear();
 
-        if (type == SORT_BY_NAME) {
-            // sort by name, in ascending order
+        int sortType = Sorts.getSortType();
+        if (sortType <= Sorts.SORT_BY_NAME_DESC) {
             Collections.sort(folders, new SeafRepo.RepoNameComparator());
-            if (order == SORT_ORDER_DESCENDING) {
+            if (sortType == Sorts.SORT_BY_NAME_DESC) {
                 Collections.reverse(folders);
             }
-        } else if (type == SORT_BY_LAST_MODIFIED_TIME) {
-            // sort by last modified time, in ascending order
+        } else {
             Collections.sort(folders, new SeafRepo.RepoLastMTimeComparator());
-            if (order == SORT_ORDER_DESCENDING) {
+            if (sortType == Sorts.SORT_BY_MODIFIED_TIME_DESC) {
                 Collections.reverse(folders);
             }
         }
+
         // Adds the objects in the specified collection to this ArrayList
         repos.addAll(folders);
     }

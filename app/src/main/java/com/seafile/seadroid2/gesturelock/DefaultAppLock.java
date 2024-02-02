@@ -12,7 +12,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.google.common.collect.MapMaker;
-import com.seafile.seadroid2.SettingsManager;
+import com.seafile.seadroid2.util.sp.SettingsManager;
 import com.seafile.seadroid2.ui.gesture.UnlockGesturePasswordActivity;
 
 import java.util.concurrent.ConcurrentMap;
@@ -24,7 +24,6 @@ public class DefaultAppLock extends AbstractAppLock {
     public static final String DEBUG_TAG = "DefaultAppLock";
 
     private Application currentApp; //Keep a reference to the app that invoked the locker
-    private SettingsManager settingsMgr;
     /**
      * by default, the returned map uses equality comparisons (the equals method) to determine equality for keys or values.
      * However, if weakKeys() was specified, the map uses identity (==) comparisons instead for keys.
@@ -37,7 +36,6 @@ public class DefaultAppLock extends AbstractAppLock {
     public DefaultAppLock(Application currentApp) {
         super();
         this.currentApp = currentApp;
-        this.settingsMgr = SettingsManager.instance();
     }
 
     public void enable() {
@@ -63,7 +61,7 @@ public class DefaultAppLock extends AbstractAppLock {
             return;
 
         if (!isActivityBeingChecked(activity)) {
-            settingsMgr.saveGestureLockTimeStamp();
+            SettingsManager.getInstance().saveGestureLockTimeStamp();
 
         }
     }
@@ -86,7 +84,7 @@ public class DefaultAppLock extends AbstractAppLock {
         if (activity.getClass() == UnlockGesturePasswordActivity.class)
             return;
 
-        if (settingsMgr.isGestureLockRequired()) {
+        if (SettingsManager.getInstance().isGestureLockRequired()) {
             mCheckedActivities.put(activity, System.currentTimeMillis());
             Intent i = new Intent(activity, UnlockGesturePasswordActivity.class);
             activity.startActivity(i);

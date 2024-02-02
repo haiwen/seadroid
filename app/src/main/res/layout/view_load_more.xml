@@ -25,7 +25,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
-            android:text="@string/brvah_loading"
+            android:text="@string/shib_loading"
             android:textColor="@android:color/darker_gray"
             android:textSize="14sp" />
     </LinearLayout>

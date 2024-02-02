@@ -5,12 +5,13 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
+
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.account.AccountManager;
+import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.context.CopyMoveContext;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafRepo;
-import com.seafile.seadroid2.context.CopyMoveContext;
 import com.seafile.seadroid2.util.Utils;
 
 public class CopyMoveDialog extends TaskDialog {
@@ -57,29 +58,30 @@ public class CopyMoveDialog extends TaskDialog {
         String srcDirPath = Utils.removeLastPathSeperator(srcDir);
 
         String dstDirPath = null;
-        AccountManager manager = new AccountManager(this.getActivity());
-        SeafRepo repo = new DataManager(manager.getCurrentAccount()).getCachedRepoByID(ctx.dstRepoId);
+
+
+        SeafRepo repo = new DataManager(SupportAccountManager.getInstance().getCurrentAccount()).getCachedRepoByID(ctx.dstRepoId);
         if (repo != null) {
             String dstPath = Utils.pathJoin(repo.repo_name, ctx.dstDir);
             dstDirPath = Utils.removeLastPathSeperator(dstPath);
         }
 
-        if (ctx.batch) {
-            dialog.setTitle(strTitle);
-            if (srcDirPath != null && dstDirPath != null) {
-                tvMessage.setText(String.format(strMsg, srcDirPath, dstDirPath));
-            } else {
-                tvMessage.setText(strTitle);
-            }
-        } else {
-            String srcFilePath = Utils.pathJoin(ctx.srcRepoName, ctx.srcDir, ctx.srcFn);
-            dialog.setTitle(strTitle);
-            if (srcFilePath != null && dstDirPath != null) {
-                tvMessage.setText(String.format(strMsg, srcFilePath, dstDirPath));
-            } else {
-                tvMessage.setText(Utils.pathJoin(strTitle, ctx.srcFn));
-            }
-        }
+//        if (ctx.batch) {
+//            dialog.setTitle(strTitle);
+//            if (srcDirPath != null && dstDirPath != null) {
+//                tvMessage.setText(String.format(strMsg, srcDirPath, dstDirPath));
+//            } else {
+//                tvMessage.setText(strTitle);
+//            }
+//        } else {
+//            String srcFilePath = Utils.pathJoin(ctx.srcRepoName, ctx.srcDir, ctx.srcFn);
+//            dialog.setTitle(strTitle);
+//            if (srcFilePath != null && dstDirPath != null) {
+//                tvMessage.setText(String.format(strMsg, srcFilePath, dstDirPath));
+//            } else {
+//                tvMessage.setText(Utils.pathJoin(strTitle, ctx.srcFn));
+//            }
+//        }
         // dialog.setTitle(str + " " + ctx.srcFn);
     }
 

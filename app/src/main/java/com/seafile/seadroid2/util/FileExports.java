@@ -7,6 +7,7 @@ import android.os.Build;
 import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
+
 import androidx.annotation.RequiresApi;
 
 import com.blankj.utilcode.util.FileUtils;
@@ -27,12 +28,30 @@ public class FileExports {
 
         Uri uri = contentResolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, cv);
         if (uri != null) {
-            ParcelFileDescriptor descriptor = contentResolver.openFileDescriptor(uri, "w");
-            if (descriptor != null) {
-                FileOutputStream fos = new FileOutputStream(descriptor.getFileDescriptor());
-                FileInputStream fis = new FileInputStream(file);
-                copyStream(fis, fos);
+            ParcelFileDescriptor descriptor = null;
+            FileOutputStream fos = null;
+            FileInputStream fis = null;
+            //TODO
+            try {
+                descriptor = contentResolver.openFileDescriptor(uri, "w");
+                if (descriptor != null) {
+                    fos = new FileOutputStream(descriptor.getFileDescriptor());
+                    fis = new FileInputStream(file);
+                    copyStream(fis, fos);
+                }
+
+            } finally {
+                if (fos != null) {
+                    fos.close();
+                }
+                if (fis != null) {
+                    fis.close();
+                }
+                if (descriptor != null) {
+                    descriptor.close();
+                }
             }
+
         } else {
             File downloadFolder = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
             //
@@ -41,6 +60,7 @@ public class FileExports {
                 FileUtils.copy(file, dest);
             }
         }
+
     }
 
     private static void copyStream(InputStream inputStream, FileOutputStream outputStream) throws IOException {

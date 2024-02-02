@@ -1,107 +1,30 @@
-<?xml version="1.0" encoding="utf-8"?><!-- Copyright (C) 2012 Jake Wharton
-
-     Licensed under the Apache License, Version 2.0 (the "License");
-     you may not use this file except in compliance with the License.
-     You may obtain a copy of the License at
-
-          http://www.apache.org/licenses/LICENSE-2.0
-
-     Unless required by applicable law or agreed to in writing, software
-     distributed under the License is distributed on an "AS IS" BASIS,
-     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-     See the License for the specific language governing permissions and
-     limitations under the License.
--->
-
+<?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="colorPrimary">@color/color_primary</item>
-        <item name="colorPrimaryDark">@color/color_primary_dark</item>
-        <item name="colorAccent">@color/fancy_light_black</item>
-        <item name="colorControlActivated">@color/fancy_orange</item>
-        <item name="colorControlHighlight">@color/fancy_light_black</item>
-        <item name="actionBarInsetStart">@dimen/keyline_2</item>
-        <item name="windowActionModeOverlay">true</item>
-        <item name="android:windowBackground">@color/fancy_light_white</item>
-        <item name="android:listViewStyle">@style/SeafileListStyle</item>
-        <item name="android:radioButtonStyle">@style/RadioButton</item>
-        <item name="android:actionBarStyle">@style/LightTheme.ActionBar</item>
-        <item name="actionBarStyle">@style/LightTheme.ActionBar</item>
-        <item name="android:actionModeStyle">@style/LightTheme.ActionMode</item>
-        <item name="actionModeStyle">@style/LightTheme.ActionMode</item>
-        <item name="android:homeAsUpIndicator">@drawable/home_up_btn</item>
-        <item name="homeAsUpIndicator">@drawable/home_up_btn</item>
-        <item name="android:textColorHighlight">@color/fancy_gray</item>
-        <item name="android:textSelectHandleLeft">@drawable/fancy_orange_text_select_handle_left
-        </item>
-        <item name="android:textSelectHandleRight">@drawable/fancy_orange_text_select_handle_right
-        </item>
-        <item name="android:textSelectHandle">@drawable/fancy_orange_text_select_handle_middle
-        </item>
-        <item name="android:colorButtonNormal">@color/fancy_orange</item>
-        <item name="colorButtonNormal">@color/fancy_orange</item>
-        <item name="alertDialogTheme">@style/AppCompatAlertDialogStyle</item>
+    <style name="ToolBarStyle" parent="">
+        <item name="popupTheme">@style/ThemeOverlay.Material3.Light</item>
+        <item name="theme">@style/ThemeOverlay.Material3.Light</item>
+        <item name="android:background">@color/toolbar_background_color</item>
+        <item name="titleTextColor">@color/toolbar_title_color</item>
+        <item name="colorSurface">@color/white</item>
+        <item name="navigationIcon">@drawable/baseline_arrow_back_24</item>
+        <item name="navigationIconTint">@color/toolbar_title_color</item>
     </style>
-
-    <style name="AppTheme.Multiple" parent="AppTheme">
-        <item name="android:windowNoTitle">false</item>
-        <item name="windowActionBar">true</item>
-    </style>
-
-    <style name="AppTheme.Editor" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="colorPrimary">@color/blue_500</item>
-        <item name="colorPrimaryDark">@color/blue_700</item>
-        <item name="colorAccent">@color/blue_500</item>
-        <item name="colorControlActivated">@color/blue_500</item>
-        <item name="android:textColorHighlight">@color/blue_500</item>
-        <item name="colorControlHighlight">@color/blue_200</item>
-        <item name="titleTextColor">@color/white</item>
-        <item name="actionMenuTextColor">@android:color/white</item>
-        <!--<item name="android:textColorPrimary">@android:color/white</item>-->
-        <item name="android:colorControlNormal">@android:color/white</item>
-        <item name="android:homeAsUpIndicator">@drawable/ic_white_back</item>
-        <item name="homeAsUpIndicator">@drawable/ic_white_back</item>
-        <item name="android:alertDialogTheme">@style/MainActivityTheme.AlertDialogTheme</item>
-    </style>
-
-    <style name="MainActivityTheme.AlertDialogTheme" parent="Theme.AppCompat.Dialog">
-        <item name="colorPrimary">@color/blue_500</item>
-        <item name="colorPrimaryDark">@color/blue_700</item>
-        <item name="colorAccent">@color/blue_500</item>
-    </style>
-
-    <style name="Theme.Fullscreen" parent="AppTheme">
-        <item name="android:windowTranslucentNavigation">true</item>
-        <item name="android:windowFullscreen">true</item>
-        <item name="android:windowLightStatusBar">true</item>
-    </style>
-
-    <style name="AppCompatAlertDialogStyle" parent="Theme.AppCompat.Light.Dialog.Alert">
-        <item name="colorAccent">@color/fancy_orange</item>
-        <item name="android:textColorPrimary">@color/fancy_dark_black</item>
-        <item name="android:background">@color/color_primary</item>
-    </style>
-
-    <!--BottomSheetStyle-->
-    <style name="BottomSheetStyle" parent="Theme.Design.Light.BottomSheetDialog">
-        <item name="android:windowFrame">@null</item>
-        <item name="android:windowIsFloating">true</item>
-        <item name="android:windowIsTranslucent">true</item>
-        <item name="bottomSheetStyle">@style/Widget.Catalog.BottomSheet.Modal.Scrollable</item>
-    </style>
-
-    <style name="Widget.Catalog.BottomSheet.Modal.Scrollable" parent="AppCompatAlertDialogStyle" />
 
     <style name="TabLayoutStyle" parent="Widget.Design.TabLayout">
         <item name="tabIndicatorColor">@color/fancy_orange</item>
-        <item name="android:background">@color/color_primary</item>
+        <item name="android:background">@drawable/tab_background_drawable</item>
         <item name="android:contentInsetStart">?actionBarInsetStart</item>
+        <item name="tabSelectedTextAppearance">@style/TabTextAppearancce</item>
+        <item name="tabSelectedTextColor">@color/fancy_orange</item>
     </style>
 
     <style name="TabTextAppearancce" parent="TextAppearance.Design.Tab">
         <item name="android:textColor">@color/fancy_dark_black</item>
+    </style>
+
+    <style name="PopStyle" parent="ThemeOverlay.Material3.Light">
+        <item name="colorPrimary">@color/white</item>
     </style>
 
     <style name="NegativeButton" parent="Base.Widget.AppCompat.Button">
@@ -109,26 +32,11 @@
         <item name="android:textColor">@color/light_black</item>
     </style>
 
-    <style name="LightTheme.ActionMode" parent="Widget.AppCompat.ActionMode">
-        <item name="android:background">@color/fancy_white</item>
-        <item name="background">@color/fancy_white</item>
+    <style name="LightTheme.ActionMode" parent="Widget.Material3.ActionMode">
+        <item name="android:background">@color/toolbar_background_color</item>
+        <item name="background">@color/toolbar_background_color</item>
     </style>
 
-    <style name="LightTheme.ActionBar" parent="Widget.AppCompat.Light.ActionBar">
-        <item name="android:background">@drawable/actionbar_background</item>
-        <item name="background">@drawable/actionbar_background</item>
-        <item name="android:height">@dimen/abs_actionbar_height</item>
-        <item name="height">@dimen/abs_actionbar_height</item>
-        <item name="android:titleTextStyle">@style/LightTheme.ActionBar.TitleTextStyle</item>
-        <item name="titleTextStyle">@style/LightTheme.ActionBar.TitleTextStyle</item>
-        <item name="android:logo">@drawable/actionbar_space_between_icon_and_title</item>
-        <item name="logo">@drawable/actionbar_space_between_icon_and_title</item>
-    </style>
-
-    <style name="LightTheme.ActionBar.TitleTextStyle" parent="TextAppearance.AppCompat.Widget.ActionBar.Title">
-        <item name="android:textColor">@color/fancy_black</item>
-        <item name="android:textSize">@dimen/tv_subtitle_txt_size</item>
-    </style>
 
     <style name="SeafileListStyle" parent="@android:style/Widget.ListView">
         <item name="android:background">@color/fancy_light_white</item>
@@ -139,16 +47,72 @@
         <!-- <item name="android:colorLongPressedHighlight">@color/black</item> -->
     </style>
 
-    <style name="CustomCheckboxTheme" parent="@android:style/Widget.CompoundButton.CheckBox">
-        <item name="android:button">@drawable/checkbox_btn_holo_light</item>
+    <style name="AppCompatAlertDialogStyle" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="alertDialogStyle">@style/MaterialAlertDialog.App</item>
+        <item name="materialAlertDialogTitleTextStyle">@style/AppCompatAlertDialog.TitleTextStyle
+        </item>
+        <item name="buttonBarPositiveButtonStyle">@style/AppCompatAlertDialog.ButtonStyle</item>
+        <item name="buttonBarNegativeButtonStyle">@style/AppCompatAlertDialog.ButtonStyle</item>
+
+        <item name="colorPrimary">@color/white</item>
+        <item name="colorSecondary">@color/md_theme_secondary</item>
+        <item name="colorSurface">@color/alert_dialog_background_color</item>
+        <item name="colorOnSurface">@color/md_theme_onSurface</item>
     </style>
 
-    <style name="loading_small" parent="@android:style/Widget.ProgressBar">
-        <item name="android:indeterminateDrawable">@anim/pull_to_refresh_header_loading</item>
+    <style name="AppCompatAlertDialog.TitleTextStyle" parent="MaterialAlertDialog.MaterialComponents.Title.Text">
+        <item name="android:textColor">#1E2129</item>
+        <item name="android:textSize">20sp</item>
     </style>
 
-    <style name="RadioButton" parent="@android:style/Widget.CompoundButton.RadioButton">
-        <item name="android:button">@drawable/btn_radio_holo_light</item>
+    <style name="AppCompatAlertDialog.ButtonStyle" parent="Widget.Material3.Button.TextButton.Dialog">
+        <item name="android:textColor">@color/fancy_orange</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <!--BottomSheetStyle-->
+    <style name="BottomSheetStyle" parent="Theme.Material3.Light.BottomSheetDialog">
+        <item name="android:windowFrame">@null</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="bottomSheetStyle">@style/Widget.Catalog.BottomSheet.Modal.Scrollable</item>
+    </style>
+
+    <style name="MaterialAlertDialog.App" parent="MaterialAlertDialog.Material3">
+        <item name="shapeAppearance">@style/ShapeAppearance.App.MediumComponent</item>
+        <item name="shapeAppearanceOverlay">@null</item>
+    </style>
+
+    <style name="ShapeAppearance.App.MediumComponent" parent="ShapeAppearance.Material3.MediumComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">16dp</item>
+    </style>
+
+    <style name="Widget.App.Button" parent="Widget.MaterialComponents.Button">
+        <item name="textAllCaps">false</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="materialThemeOverlay">@style/ThemeOverlay.App.Button</item>
+        <item name="backgroundColor">@color/md_theme_primary</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.App.SmallComponent</item>
+    </style>
+
+    <style name="Widget.App.TextInput" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+    </style>
+
+    <style name="ThemeOverlay.App.Button.TextButton" parent="">
+        <item name="colorPrimary">@color/md_theme_primary</item>
+    </style>
+
+    <style name="ThemeOverlay.App.Button" parent="">
+        <item name="colorPrimary">@color/md_theme_primary</item>
+        <item name="colorOnPrimary">@color/md_theme_onPrimary</item>
+    </style>
+
+    <!-- App Widget Shape -->
+    <style name="ShapeAppearance.App.SmallComponent" parent="ShapeAppearance.MaterialComponents.SmallComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">16dp</item>
     </style>
 
     <!-- Notifications -->
@@ -163,14 +127,6 @@
         <item name="android:textSize">14sp</item>
     </style>
 
-    <!-- loading more -->
-    <style name="loading">
-        <item name="android:indeterminate">true</item>
-        <item name="android:indeterminateDrawable">@drawable/progressloading</item>
-        <item name="android:indeterminateDuration">1000</item>
-        <item name="android:indeterminateOnly">true</item>
-    </style>
-
     <style name="PolicyDialog" parent="android:style/Theme.Dialog">
         <item name="android:windowFrame">@null</item>
         <item name="android:windowNoTitle">true</item>
@@ -180,5 +136,20 @@
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:backgroundDimEnabled">true</item>
         <item name="android:backgroundDimAmount">0.4</item>
+    </style>
+
+
+    <!--ShapeableImageView-->
+    <style name="ShapeCircleStyle">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
+
+    <style name="ThemeOverlay.Catalog.BottomSheetDialog.Scrollable" parent="Theme.Material3.DayNight.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/Widget.Catalog.BottomSheet.Modal.Scrollable</item>
+    </style>
+
+    <style name="Widget.Catalog.BottomSheet.Modal.Scrollable" parent="Widget.Material3.BottomSheet.Modal">
+        <item name="paddingBottomSystemWindowInsets">false</item>
     </style>
 </resources>

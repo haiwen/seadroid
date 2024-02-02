@@ -44,7 +44,7 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.account.AccountManager;
+import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.ProgressMonitor;
 import com.seafile.seadroid2.data.SeafDirent;
@@ -78,6 +78,7 @@ import java.util.concurrent.Future;
  */
 public class SeafileProvider extends DocumentsProvider {
     public static final String DEBUG_TAG = "SeafileProvider";
+    public static final String FILE_PROVIDER_AUTHORITY = BuildConfig.APPLICATION_ID+".fileprovider";
 
     private static final String[] SUPPORTED_ROOT_PROJECTION = new String[]{
             Root.COLUMN_ROOT_ID,
@@ -109,9 +110,8 @@ public class SeafileProvider extends DocumentsProvider {
     private Set<Account> reachableAccounts = new ConcurrentSkipListSet<Account>();
 
     private android.accounts.AccountManager androidAccountManager;
-    private AccountManager accountManager;
 
-    public static final Uri NOTIFICATION_URI = DocumentsContract.buildRootsUri(BuildConfig.APPLICATION_ID);
+    public static final Uri NOTIFICATION_URI = DocumentsContract.buildRootsUri(FILE_PROVIDER_AUTHORITY);
 
     private final OnAccountsUpdateListener accountListener = new OnAccountsUpdateListener() {
         @Override
@@ -125,7 +125,6 @@ public class SeafileProvider extends DocumentsProvider {
     public boolean onCreate() {
         docIdParser = new DocumentIdParser(getContext());
 
-        accountManager = new AccountManager(getContext());
         androidAccountManager = android.accounts.AccountManager.get(getContext());
 
         androidAccountManager.addOnAccountsUpdatedListener(accountListener, null, true);
@@ -142,7 +141,8 @@ public class SeafileProvider extends DocumentsProvider {
         Log.d(DEBUG_TAG, "queryRoots()");
 
         // add a Root for every signed in Seafile account we have.
-        for (Account a : accountManager.getAccountList()) {
+        List<Account> accounts = SupportAccountManager.getInstance().getAccountList();
+        for (Account a : accounts) {
             includeRoot(result, a);
         }
 

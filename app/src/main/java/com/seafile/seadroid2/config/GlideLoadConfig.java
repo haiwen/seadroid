@@ -23,6 +23,13 @@ public class GlideLoadConfig {
         return glideUrl;
     }
 
+    public static RequestOptions getAvatarOptions() {
+        return new RequestOptions()
+                .fallback(R.drawable.default_avatar)
+                .placeholder(R.drawable.default_avatar)
+                .override(WidgetUtils.getThumbnailWidth(), WidgetUtils.getThumbnailWidth());
+    }
+
     public static RequestOptions getOptions() {
         return new RequestOptions()
                 .fallback(R.drawable.file_image)

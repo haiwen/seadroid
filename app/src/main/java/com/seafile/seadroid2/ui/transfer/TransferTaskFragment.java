@@ -22,6 +22,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.blankj.utilcode.util.ToastUtils;
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.transfer.TransferService;
@@ -275,7 +276,7 @@ public abstract class TransferTaskFragment extends ListFragment {
             final List<Integer> selectedIds = adapter.getSelectedIds();
             if (selectedIds.isEmpty()) {
                 if (item.getItemId() != R.id.action_mode_select_all) {
-                    mActivity.showShortToast(mActivity, R.string.action_mode_no_items_selected);
+                    ToastUtils.showLong(R.string.action_mode_no_items_selected);
                     return true;
                 }
             }
@@ -285,7 +286,7 @@ public abstract class TransferTaskFragment extends ListFragment {
                     List<Integer> ids = adapter.getSelectedIds();
                     if (ids != null) {
                         if (ids.size() == 0) {
-                            mActivity.showShortToast(mActivity, R.string.action_mode_no_items_selected);
+                            ToastUtils.showLong(R.string.action_mode_no_items_selected);
                             return true;
                         }
 
@@ -297,7 +298,7 @@ public abstract class TransferTaskFragment extends ListFragment {
                     List<Integer> restartIds = adapter.getSelectedIds();
                     if (restartIds != null) {
                         if (restartIds.size() == 0) {
-                            mActivity.showShortToast(mActivity, R.string.action_mode_no_items_selected);
+                            ToastUtils.showLong(R.string.action_mode_no_items_selected);
                             return true;
                         }
 

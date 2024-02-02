@@ -10,15 +10,15 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.ui.base.adapter.BaseAdapter;
+import com.seafile.seadroid2.ui.base.viewholder.BaseViewHolder;
 import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.data.SearchedFile;
-import com.seafile.seadroid2.ui.base.adapter.BaseViewHolder;
-import com.seafile.seadroid2.ui.base.adapter.ParentAdapter;
 import com.seafile.seadroid2.util.Utils;
 
 import org.jetbrains.annotations.NotNull;
 
-public class SearchRecyclerViewAdapter extends ParentAdapter<SearchedFile, SearchRecyclerViewAdapter.SearchItemViewHolder> {
+public class SearchRecyclerViewAdapter extends BaseAdapter<SearchedFile, SearchRecyclerViewAdapter.SearchItemViewHolder> {
     private Context context;
 
     public SearchRecyclerViewAdapter(Context context) {

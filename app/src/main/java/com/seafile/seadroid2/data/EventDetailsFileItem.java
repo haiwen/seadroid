@@ -1,6 +1,8 @@
 package com.seafile.seadroid2.data;
 
-public class EventDetailsFileItem {
+import com.seafile.seadroid2.data.model.BaseModel;
+
+public class EventDetailsFileItem extends BaseModel {
 
     public enum EType {
         FILE_ADDED,

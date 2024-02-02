@@ -1,5 +1,6 @@
 package com.seafile.seadroid2.ui.activity;
 
+import android.app.Activity;
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -12,9 +13,17 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.MediaStore.Images;
+
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
+import androidx.preference.SwitchPreferenceCompat;
+
 import android.util.Log;
 
+import com.blankj.utilcode.util.ToastUtils;
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
@@ -26,8 +35,10 @@ import com.seafile.seadroid2.notification.UploadNotificationProvider;
 import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
 import com.seafile.seadroid2.ui.BaseActivity;
+import com.seafile.seadroid2.ui.selector.ObjSelectorActivity;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.util.Utils;
+import com.seafile.seadroid2.util.sp.SettingsManager;
 
 import org.apache.commons.io.IOUtils;
 
@@ -43,13 +54,13 @@ public class ShareToSeafileActivity extends BaseActivity {
     private static final String DEBUG_TAG = "ShareToSeafileActivity";
 
     public static final String PASSWORD_DIALOG_FRAGMENT_TAG = "password_dialog_fragment_tag";
-    private static final int CHOOSE_COPY_MOVE_DEST_REQUEST = 1;
 
     private TransferService mTxService;
     private ServiceConnection mConnection;
     private ArrayList<String> localPathList;
     private Intent dstData;
     private Boolean isFinishActivity = false;
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Intent intent = getIntent();
@@ -57,10 +68,10 @@ public class ShareToSeafileActivity extends BaseActivity {
         Bundle extras = intent.getExtras();
         if (extras != null) {
             Object extraStream = extras.get(Intent.EXTRA_STREAM);
-            if(localPathList == null) localPathList = Lists.newArrayList();
+            if (localPathList == null) localPathList = Lists.newArrayList();
             loadSharedFiles(extraStream);
         }
-        
+
     }
 
     private void loadSharedFiles(Object extraStream) {
@@ -87,7 +98,7 @@ public class ShareToSeafileActivity extends BaseActivity {
             if (cursor == null || !cursor.moveToFirst()) {
                 return null;
             }
-            String filePath = cursor.getString(cursor.getColumnIndex(Images.Media.DATA));
+            String filePath = cursor.getString(cursor.getColumnIndexOrThrow(Images.Media.DATA));
             return filePath;
         }
     }
@@ -100,7 +111,7 @@ public class ShareToSeafileActivity extends BaseActivity {
                 return null;
 
             List<File> fileList = new ArrayList<File>();
-            for (Uri uri: uriList) {
+            for (Uri uri : uriList) {
                 InputStream in = null;
                 OutputStream out = null;
 
@@ -132,23 +143,23 @@ public class ShareToSeafileActivity extends BaseActivity {
 
         @Override
         protected void onPostExecute(File... fileList) {
-            for (File file: fileList) {
+            for (File file : fileList) {
                 if (file == null) {
-                    showShortToast(ShareToSeafileActivity.this, R.string.saf_upload_path_not_available);
+                    ToastUtils.showLong(R.string.saf_upload_path_not_available);
                 } else {
                     localPathList.add(file.getAbsolutePath());
                 }
             }
 
             if (localPathList == null || localPathList.size() == 0) {
-                showShortToast(ShareToSeafileActivity.this, R.string.not_supported_share);
+                ToastUtils.showLong(R.string.not_supported_share);
                 finish();
                 return;
             }
 
             // Log.d(DEBUG_TAG, "share " + localPathList);
-            Intent chooserIntent = new Intent(ShareToSeafileActivity.this, SeafilePathChooserActivity.class);
-            startActivityForResult(chooserIntent, CHOOSE_COPY_MOVE_DEST_REQUEST);
+            Intent chooserIntent = new Intent(ShareToSeafileActivity.this, ObjSelectorActivity.class);
+            objSelectorLauncher.launch(chooserIntent);
         }
     }
 
@@ -197,13 +208,11 @@ public class ShareToSeafileActivity extends BaseActivity {
      * @param repoID
      * @param targetDir
      * @param localPaths
-     * @param update
-     *          update the file to avoid duplicates if true,
-     *          upload directly, otherwise.
-     *
+     * @param update     update the file to avoid duplicates if true,
+     *                   upload directly, otherwise.
      */
     private void bindTransferService(final Account account, final String repoName, final String repoID,
-                                        final String targetDir, final ArrayList<String> localPaths, final boolean update) {
+                                     final String targetDir, final ArrayList<String> localPaths, final boolean update) {
         // start transfer service
         Intent txIntent = new Intent(this, TransferService.class);
         startService(txIntent);
@@ -229,7 +238,7 @@ public class ShareToSeafileActivity extends BaseActivity {
                     }
                     Log.d(DEBUG_TAG, path + (update ? " updated" : " uploaded"));
                 }
-                showShortToast(ShareToSeafileActivity.this, R.string.upload_started);
+                ToastUtils.showLong(R.string.upload_started);
                 if (mTxService == null)
                     return;
 
@@ -251,33 +260,31 @@ public class ShareToSeafileActivity extends BaseActivity {
         Log.d(DEBUG_TAG, "try bind TransferService");
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode != CHOOSE_COPY_MOVE_DEST_REQUEST) {
-            return;
-        }
-
-        isFinishActivity = true;
-
-        if (resultCode == RESULT_OK) {
-            if (!Utils.isNetworkOn()) {
-                showShortToast(this, R.string.network_down);
+    private final ActivityResultLauncher<Intent> objSelectorLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+        @Override
+        public void onActivityResult(ActivityResult o) {
+            if (o.getResultCode() != Activity.RESULT_OK) {
+                finish();
                 return;
             }
-            dstData = data;
+
+            isFinishActivity = true;
+            if (!Utils.isNetworkOn()) {
+
+                ToastUtils.showLong(R.string.network_down);
+                return;
+            }
+
+            dstData = o.getData();
             String dstRepoId, dstRepoName, dstDir;
             Account account;
-            dstRepoName = dstData.getStringExtra(SeafilePathChooserActivity.DATA_REPO_NAME);
-            dstRepoId = dstData.getStringExtra(SeafilePathChooserActivity.DATA_REPO_ID);
-            dstDir = dstData.getStringExtra(SeafilePathChooserActivity.DATA_DIR);
-            account = dstData.getParcelableExtra(SeafilePathChooserActivity.DATA_ACCOUNT);
+            dstRepoName = dstData.getStringExtra(ObjSelectorActivity.DATA_REPO_NAME);
+            dstRepoId = dstData.getStringExtra(ObjSelectorActivity.DATA_REPO_ID);
+            dstDir = dstData.getStringExtra(ObjSelectorActivity.DATA_DIR);
+            account = dstData.getParcelableExtra(ObjSelectorActivity.DATA_ACCOUNT);
             notifyFileOverwriting(account, dstRepoName, dstRepoId, dstDir);
-            Log.i(DEBUG_TAG, "CHOOSE_COPY_MOVE_DEST_REQUEST returns");
-        } else {
-            finish();
         }
-    }
+    });
 
     @Override
     protected void onPostResume() {
@@ -339,7 +346,7 @@ public class ShareToSeafileActivity extends BaseActivity {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 addUpdateTask(account, repoName, repoID, targetDir, localPathList);
-                                if(isFinishActivity) {
+                                if (isFinishActivity) {
                                     Log.d(DEBUG_TAG, "finish!");
                                     finish();
                                 }
@@ -348,7 +355,7 @@ public class ShareToSeafileActivity extends BaseActivity {
                         .setNeutralButton(R.string.cancel, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                if(isFinishActivity) {
+                                if (isFinishActivity) {
                                     Log.d(DEBUG_TAG, "finish!");
                                     finish();
                                 }
@@ -368,7 +375,7 @@ public class ShareToSeafileActivity extends BaseActivity {
                 builder.show();
             } else {
                 if (!Utils.isNetworkOn()) {
-                    showShortToast(this, R.string.network_down);
+                    ToastUtils.showLong(R.string.network_down);
                     return;
                 }
 
@@ -438,7 +445,7 @@ public class ShareToSeafileActivity extends BaseActivity {
         @Override
         protected void onPostExecute(Void aVoid) {
             if (fileExistent)
-                showShortToast(ShareToSeafileActivity.this, R.string.overwrite_existing_file_exist);
+                ToastUtils.showLong(R.string.overwrite_existing_file_exist);
 
             finish();
         }

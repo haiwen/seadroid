@@ -27,23 +27,24 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.blankj.utilcode.util.CollectionUtils;
-import com.chad.library.adapter.base.BaseQuickAdapter;
-import com.chad.library.adapter.base.QuickAdapterHelper;
-import com.chad.library.adapter.base.loadState.LoadState;
-import com.chad.library.adapter.base.loadState.trailing.TrailingLoadStateAdapter;
+import com.blankj.utilcode.util.ToastUtils;
+import com.chad.library.adapter4.BaseQuickAdapter;
+import com.chad.library.adapter4.QuickAdapterHelper;
+import com.chad.library.adapter4.loadState.LoadState;
+import com.chad.library.adapter4.loadState.trailing.TrailingLoadStateAdapter;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.account.AccountManager;
+import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.ui.base.adapter.CustomLoadMoreAdapter;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.data.SearchedFile;
 import com.seafile.seadroid2.play.exoplayer.CustomExoVideoPlayerActivity;
 import com.seafile.seadroid2.transfer.TransferService;
-import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.BaseActivity;
+import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.activity.FileActivity;
-import com.seafile.seadroid2.ui.base.adapter.CustomLoadMoreAdapter;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.util.Utils;
 
@@ -106,8 +107,8 @@ public class Search2Activity extends BaseActivity implements View.OnClickListene
     private void initAdapter() {
         mAdapter = new SearchRecyclerViewAdapter(this);
         View t = findViewById(R.id.ll_message_content);
-        mAdapter.setEmptyView(t);
-        mAdapter.setEmptyViewEnable(true);
+        mAdapter.setStateView(t);
+        mAdapter.setStateViewEnable(true);
         mAdapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener<SearchedFile>() {
             @Override
             public void onClick(@NotNull BaseQuickAdapter<SearchedFile, ?> baseQuickAdapter, @NotNull View view, int i) {
@@ -178,8 +179,7 @@ public class Search2Activity extends BaseActivity implements View.OnClickListene
     }
 
     private void initData() {
-        AccountManager accountManager = new AccountManager(this);
-        account = accountManager.getCurrentAccount();
+        account = SupportAccountManager.getInstance().getCurrentAccount();
         dataManager = new DataManager(account);
 
         // bind transfer service
@@ -240,7 +240,7 @@ public class Search2Activity extends BaseActivity implements View.OnClickListene
 
     private void loadNext(boolean isRefresh) {
         if (!Utils.isNetworkOn()) {
-            showShortToast(this, R.string.network_down);
+            ToastUtils.showLong(R.string.network_down);
             return;
         }
 
@@ -255,7 +255,7 @@ public class Search2Activity extends BaseActivity implements View.OnClickListene
 
             Utils.hideSoftKeyboard(mTextField);
         } else {
-            showShortToast(this, R.string.search_txt_empty);
+            ToastUtils.showLong(R.string.search_txt_empty);
         }
     }
 
@@ -305,7 +305,7 @@ public class Search2Activity extends BaseActivity implements View.OnClickListene
             if (result == null) {
                 if (seafException != null) {
                     if (seafException.getCode() == 404)
-                        showShortToast(Search2Activity.this, R.string.search_server_not_support);
+                        ToastUtils.showLong(R.string.search_server_not_support);
 
                     Log.d(DEBUG_TAG, seafException.getMessage() + " code " + seafException.getCode());
                 }
@@ -314,7 +314,7 @@ public class Search2Activity extends BaseActivity implements View.OnClickListene
             }
 
             if (result.size() == 0) {
-                showShortToast(Search2Activity.this, R.string.search_content_empty);
+                ToastUtils.showLong(R.string.search_content_empty);
             }
 
             if (page == 1) {
@@ -338,8 +338,7 @@ public class Search2Activity extends BaseActivity implements View.OnClickListene
 
     public DataManager getDataManager() {
         if (dataManager == null) {
-            AccountManager accountManager = new AccountManager(this);
-            account = accountManager.getCurrentAccount();
+            account = SupportAccountManager.getInstance().getCurrentAccount();
             dataManager = new DataManager(account);
         }
         return dataManager;
@@ -389,7 +388,7 @@ public class Search2Activity extends BaseActivity implements View.OnClickListene
 
         if (searchedFile.isDir()) {
             if (repo == null) {
-                showShortToast(this, R.string.search_library_not_found);
+                ToastUtils.showLong(R.string.search_library_not_found);
                 return;
             }
             WidgetUtils.showRepo(this, repoID, repoName, filePath, null);
@@ -398,8 +397,7 @@ public class Search2Activity extends BaseActivity implements View.OnClickListene
 
         // Encrypted repo doesn\`t support gallery,
         // because pic thumbnail under encrypted repo was not supported at the server side
-        if (Utils.isViewableImage(searchedFile.getTitle())
-                && repo != null && !repo.encrypted) {
+        if (Utils.isViewableImage(searchedFile.getTitle()) && !repo.encrypted) {
             WidgetUtils.startGalleryActivity(this, repoName, repoID, Utils.getParentPath(filePath), searchedFile.getTitle(), account);
             return;
         }
@@ -409,6 +407,7 @@ public class Search2Activity extends BaseActivity implements View.OnClickListene
             WidgetUtils.showFile(this, localFile);
             return;
         }
+
         boolean videoFile = Utils.isVideoFile(fileName);
         if (videoFile) { // is video file
             final AlertDialog.Builder builder = new AlertDialog.Builder(this);

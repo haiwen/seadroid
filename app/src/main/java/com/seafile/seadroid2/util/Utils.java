@@ -25,7 +25,6 @@ import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 
 import android.text.TextUtils;
 import android.text.format.DateFormat;
@@ -34,17 +33,14 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.MimeTypeMap;
 
-import com.blankj.utilcode.util.StringUtils;
-import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.gson.JsonObject;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
-import com.seafile.seadroid2.SettingsManager;
-import com.seafile.seadroid2.cameraupload.MediaSchedulerService;
+import com.seafile.seadroid2.config.Constants;
+import com.seafile.seadroid2.util.sp.SettingsManager;
+import com.seafile.seadroid2.ui.camera_upload.MediaSchedulerService;
 import com.seafile.seadroid2.data.SeafRepo;
-import com.seafile.seadroid2.fileschooser.SelectableFile;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -79,7 +75,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -179,7 +174,7 @@ public class Utils {
         }
 
         if (path.endsWith("/")) {
-            path = path.substring(0,path.lastIndexOf("/"));
+            path = path.substring(0, path.lastIndexOf("/"));
         }
 
         String parent = path.substring(0, path.lastIndexOf("/"));
@@ -525,15 +520,6 @@ public class Utils {
         out.close();
     }
 
-    /************ MutiFileChooser ************/
-    private static Comparator<SelectableFile> mComparator = new Comparator<SelectableFile>() {
-        public int compare(SelectableFile f1, SelectableFile f2) {
-            // Sort alphabetically by lower case, which is much cleaner
-            return f1.getName().toLowerCase().compareTo(
-                    f2.getName().toLowerCase());
-        }
-    };
-
     private static FileFilter mFileFilter = new FileFilter() {
         public boolean accept(File file) {
             final String fileName = file.getName();
@@ -549,40 +535,6 @@ public class Utils {
             return file.isDirectory() && !fileName.startsWith(HIDDEN_PREFIX);
         }
     };
-
-    public static List<SelectableFile> getFileList(String path, List<File> selectedFile) {
-        ArrayList<SelectableFile> list = Lists.newArrayList();
-
-        // Current directory File instance
-        final SelectableFile pathDir = new SelectableFile(path);
-
-        // List file in this directory with the directory filter
-        final SelectableFile[] dirs = pathDir.listFiles(mDirFilter);
-        if (dirs != null) {
-            // Sort the folders alphabetically
-            Arrays.sort(dirs, mComparator);
-            // Add each folder to the File list for the list adapter
-            for (SelectableFile dir : dirs) list.add(dir);
-        }
-
-        // List file in this directory with the file filter
-        final SelectableFile[] files = pathDir.listFiles(mFileFilter);
-        if (files != null) {
-            // Sort the files alphabetically
-            Arrays.sort(files, mComparator);
-            // Add each file to the File list for the list adapter
-            for (SelectableFile file : files) {
-                if (selectedFile != null) {
-                    if (selectedFile.contains(file.getFile())) {
-                        file.setSelected(true);
-                    }
-                }
-                list.add(file);
-            }
-        }
-
-        return list;
-    }
 
     public static Intent createGetContentIntent() {
         // Implicitly allow the user to select a particular kind of data
@@ -694,9 +646,18 @@ public class Utils {
         if (TextUtils.isEmpty(name) || TextUtils.isEmpty(email) || TextUtils.isEmpty(server))
             return "";
 
+        if (server.startsWith(Constants.Protocol.HTTPS)) {
+            server = server.substring(8);
+        }
+
+        if (server.startsWith(Constants.Protocol.HTTP)) {
+            server = server.substring(7);
+        }
+
         // strip port, like :8000 in 192.168.1.116:8000
-        if (server.indexOf(":") != -1)
+        if (server.contains(":")) {
             server = server.substring(0, server.indexOf(':'));
+        }
 //        String info = String.format("%s (%s)", email, server);//settingFragmeng set account name
         String info = String.format("%s (%s)", name, server);
         info = info.replaceAll("[^\\w\\d\\.@\\(\\) ]", "_");
@@ -959,7 +920,7 @@ public class Utils {
                 results = context.getString(R.string.is_uploading) + " " + (totalNumber - waitingNumber) + " / " + totalNumber;
                 break;
             case CameraSyncStatus.SCAN_END:
-                results = context.getString(R.string.Upload_completed) + " " + SettingsManager.instance().getUploadCompletedTime();
+                results = context.getString(R.string.Upload_completed) + " " + SettingsManager.getInstance().getUploadCompletedTime();
                 break;
             default:
                 results = context.getString(R.string.folder_backup_waiting_state);

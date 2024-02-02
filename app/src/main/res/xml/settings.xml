@@ -81,7 +81,6 @@
             android:key="category_camera_upload_advanced_key"
             android:summary="@string/settings_camera_upload_advanced_feature_subtitle"
             android:title="@string/settings_camera_upload_advanced_feature_title"
-            app:fragment="com.seafile.seadroid2.ui.fragment.SettingsCameraBackupAdvanceFragment"
             app:iconSpaceReserved="false" />
 
         <Preference

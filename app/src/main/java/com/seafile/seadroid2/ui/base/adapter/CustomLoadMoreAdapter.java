@@ -7,8 +7,8 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.chad.library.adapter.base.loadState.LoadState;
-import com.chad.library.adapter.base.loadState.trailing.TrailingLoadStateAdapter;
+import com.chad.library.adapter4.loadState.LoadState;
+import com.chad.library.adapter4.loadState.trailing.TrailingLoadStateAdapter;
 import com.seafile.seadroid2.R;
 
 public class CustomLoadMoreAdapter extends TrailingLoadStateAdapter<CustomLoadMoreAdapter.CustomVH> {

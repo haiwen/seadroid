@@ -2,93 +2,98 @@ package com.seafile.seadroid2.ui.transfer;
 
 import android.content.Intent;
 import android.os.Bundle;
-import com.google.android.material.tabs.TabLayout;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentPagerAdapter;
-import androidx.viewpager.widget.ViewPager;
-import androidx.appcompat.view.ActionMode;
-import androidx.appcompat.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.view.ActionMode;
+import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
+import androidx.viewpager.widget.ViewPager;
+
+import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
+import com.google.android.material.textfield.TextInputLayout;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.databinding.TransferListLayoutBinding;
 import com.seafile.seadroid2.notification.BaseNotificationProvider;
 import com.seafile.seadroid2.notification.DownloadNotificationProvider;
 import com.seafile.seadroid2.ui.BaseActivity;
+import com.seafile.seadroid2.ui.adapter.ViewPager2Adapter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class TransferActivity extends BaseActivity implements Toolbar.OnMenuItemClickListener {
-    private static final String DEBUG_TAG = "TransferActivity";
+    private TransferListLayoutBinding binding;
+    private final List<Fragment> fragments = new ArrayList<>();
 
     private TransferTaskAdapter.TaskType whichTab = TransferTaskAdapter.TaskType.DOWNLOAD_TASK;
-    private TransferTabsAdapter tabsAdapter;
-    private ViewPager pager;
-    private TabLayout mTabLayout;
-
     private Menu overFlowMenu = null;
 
     @Override
     protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
         Bundle extras = intent.getExtras();
-        if (extras != null) {
-            if (extras.containsKey(BaseNotificationProvider.NOTIFICATION_MESSAGE_KEY)) {
-                // extract the extra-data in the Notification
-                String msg = extras.getString(BaseNotificationProvider.NOTIFICATION_MESSAGE_KEY);
-                if (msg.equals(DownloadNotificationProvider.NOTIFICATION_OPEN_DOWNLOAD_TAB)) {
-                    whichTab = TransferTaskAdapter.TaskType.DOWNLOAD_TASK;
-                    pager.setCurrentItem(0);
-                } else if (msg.equals(BaseNotificationProvider.NOTIFICATION_OPEN_UPLOAD_TAB)) {
-                    whichTab = TransferTaskAdapter.TaskType.UPLOAD_TASK;
-                    pager.setCurrentItem(1);
-                }
-            }
+        if (extras == null) {
+            return;
+        }
+
+        if (!extras.containsKey(BaseNotificationProvider.NOTIFICATION_MESSAGE_KEY)) {
+            return;
+        }
+
+        // extract the extra-data in the Notification
+        String msg = extras.getString(BaseNotificationProvider.NOTIFICATION_MESSAGE_KEY);
+        if (TextUtils.equals(msg, BaseNotificationProvider.NOTIFICATION_OPEN_DOWNLOAD_TAB)) {
+            whichTab = TransferTaskAdapter.TaskType.DOWNLOAD_TASK;
+            binding.pager.setCurrentItem(0);
+        } else if (TextUtils.equals(msg, BaseNotificationProvider.NOTIFICATION_OPEN_UPLOAD_TAB)) {
+            whichTab = TransferTaskAdapter.TaskType.UPLOAD_TASK;
+            binding.pager.setCurrentItem(1);
         }
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.transfer_list_layout);
+
+        binding = TransferListLayoutBinding.inflate(getLayoutInflater());
+
+        setContentView(binding.getRoot());
 
         findViewById(R.id.view_toolbar_bottom_line).setVisibility(View.GONE);
 
-        tabsAdapter = new TransferTabsAdapter(getSupportFragmentManager());
 
-        pager = (ViewPager) findViewById(R.id.transfer_list_pager);
-        pager.setAdapter(tabsAdapter);
-        mTabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
-        mTabLayout.setTabsFromPagerAdapter(tabsAdapter);
-        mTabLayout.setupWithViewPager(pager);
-        mTabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+        initTabLayout();
+        initViewPager();
+
+        Toolbar toolbar = getActionBarToolbar();
+        setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setTitle(R.string.transfer_tasks);
+        }
+
+        /** this is hacky to explicitly call onNewIntent()
+         * because it was never called when start the TransferActivity
+         * by notification bar */
+        onNewIntent(getIntent());
+    }
+
+    private void initTabLayout() {
+        binding.slidingTabs.setTabIndicatorAnimationMode(TabLayout.INDICATOR_ANIMATION_MODE_ELASTIC);
+        binding.slidingTabs.setSelectedTabIndicator(R.drawable.cat_tabs_rounded_line_indicator);
+        binding.slidingTabs.setTabIndicatorFullWidth(false);
+        binding.slidingTabs.setTabGravity(TabLayout.GRAVITY_CENTER);
+
+        binding.slidingTabs.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
-                // Log.d(DEBUG_TAG, "current tab index " + position);
-                whichTab = (tab.getPosition() == 0
-                        ? TransferTaskAdapter.TaskType.DOWNLOAD_TASK
-                        : TransferTaskAdapter.TaskType.UPLOAD_TASK);
-
-                ActionMode mode = null;
-                if (whichTab == TransferTaskAdapter.TaskType.DOWNLOAD_TASK
-                        && getUploadTaskFragment() != null) {
-                    // slide from Upload tab to Download tab,
-                    // so hide the CAB of UploadTaskFragment
-                    mode = getUploadTaskFragment().getActionMode();
-                    getUploadTaskFragment().deselectItems();
-                } else if (whichTab == TransferTaskAdapter.TaskType.UPLOAD_TASK
-                        && getDownloadTaskFragment() != null) {
-                    // slide from Download tab to Upload tab,
-                    // so hide the CAB of DownloadTaskFragment
-                    mode = getDownloadTaskFragment().getActionMode();
-                    getDownloadTaskFragment().deselectItems();
-                }
-
-                if (mode != null)
-                    mode.finish();
-
-                supportInvalidateOptionsMenu();
-                pager.setCurrentItem(tab.getPosition());
+                onTabLayoutSelected();
             }
 
             @Override
@@ -101,25 +106,65 @@ public class TransferActivity extends BaseActivity implements Toolbar.OnMenuItem
 
             }
         });
+    }
 
-        Toolbar toolbar = getActionBarToolbar();
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle(R.string.transfer_tasks);
+    private void onTabLayoutSelected() {
+        whichTab = (binding.slidingTabs.getSelectedTabPosition() == 0
+                ? TransferTaskAdapter.TaskType.DOWNLOAD_TASK
+                : TransferTaskAdapter.TaskType.UPLOAD_TASK);
 
-        /** this is hacky to explicitly call onNewIntent()
-         * because it was never called when start the TransferActivity
-         * by notification bar */
-        onNewIntent(getIntent());
+        ActionMode mode = null;
+        if (whichTab == TransferTaskAdapter.TaskType.DOWNLOAD_TASK
+                && getUploadTaskFragment() != null) {
+            // slide from Upload tab to Download tab,
+            // so hide the CAB of UploadTaskFragment
+            mode = getUploadTaskFragment().getActionMode();
+            getUploadTaskFragment().deselectItems();
+        } else if (whichTab == TransferTaskAdapter.TaskType.UPLOAD_TASK
+                && getDownloadTaskFragment() != null) {
+            // slide from Download tab to Upload tab,
+            // so hide the CAB of DownloadTaskFragment
+            mode = getDownloadTaskFragment().getActionMode();
+            getDownloadTaskFragment().deselectItems();
+        }
+
+        if (mode != null)
+            mode.finish();
+
+        supportInvalidateOptionsMenu();
+    }
+
+    private void initViewPager() {
+        fragments.clear();
+        fragments.add(new DownloadTaskFragment());
+        fragments.add(new UploadTaskFragment());
+
+        ViewPager2Adapter viewPager2Adapter = new ViewPager2Adapter(this);
+        viewPager2Adapter.addFragments(fragments);
+        binding.pager.setAdapter(viewPager2Adapter);
+
+        String downloadTabTitle = getString(R.string.transfer_tabs_downloads);
+        String uploadTabTitle = getString(R.string.transfer_tabs_uploads);
+
+        String[] tabArray = new String[]{
+                downloadTabTitle, uploadTabTitle
+        };
+
+        TabLayoutMediator mediator = new TabLayoutMediator(binding.slidingTabs, binding.pager, new TabLayoutMediator.TabConfigurationStrategy() {
+            @Override
+            public void onConfigureTab(@NonNull TabLayout.Tab tab, int position) {
+                tab.setText(tabArray[position]);
+            }
+        });
+
+        mediator.attach();
     }
 
     public void onItemSelected() {
         // update CAB title
-        if (whichTab == TransferTaskAdapter.TaskType.DOWNLOAD_TASK
-                && getDownloadTaskFragment() != null) {
+        if (whichTab == TransferTaskAdapter.TaskType.DOWNLOAD_TASK && getDownloadTaskFragment() != null) {
             getDownloadTaskFragment().updateContextualActionBar();
-        } else if (whichTab == TransferTaskAdapter.TaskType.UPLOAD_TASK
-                && getUploadTaskFragment() != null) {
+        } else if (whichTab == TransferTaskAdapter.TaskType.UPLOAD_TASK && getUploadTaskFragment() != null) {
             getUploadTaskFragment().updateContextualActionBar();
         }
     }
@@ -127,18 +172,21 @@ public class TransferActivity extends BaseActivity implements Toolbar.OnMenuItem
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
         switch (keyCode) {
-        case KeyEvent.KEYCODE_MENU:
-            if (overFlowMenu != null) {
-                overFlowMenu.performIdentifierAction(R.id.transfer_overflow_menu, 0);
-            }
+            case KeyEvent.KEYCODE_MENU:
+                if (overFlowMenu != null) {
+                    overFlowMenu.performIdentifierAction(R.id.transfer_overflow_menu, 0);
+                }
         }
         return super.onKeyUp(keyCode, event);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getActionBarToolbar().inflateMenu(R.menu.transfer_list_menu);
-        getActionBarToolbar().setOnMenuItemClickListener(this);
+
+        Toolbar toolbar = getActionBarToolbar();
+        toolbar.inflateMenu(R.menu.transfer_list_menu);
+        toolbar.setOnMenuItemClickListener(this);
+
         return true;
     }
 
@@ -180,74 +228,14 @@ public class TransferActivity extends BaseActivity implements Toolbar.OnMenuItem
     }
 
     public DownloadTaskFragment getDownloadTaskFragment() {
-        return (DownloadTaskFragment)getFragment(0);
+        return (DownloadTaskFragment) getFragment(0);
     }
 
     public UploadTaskFragment getUploadTaskFragment() {
-        return (UploadTaskFragment)getFragment(1);
+        return (UploadTaskFragment) getFragment(1);
     }
 
     public Fragment getFragment(int index) {
-        return getSupportFragmentManager().findFragmentByTag(makeFragmentName(index));
+        return fragments.get(index);
     }
-
-    private String makeFragmentName(int index) {
-        return "android:switcher:" + R.id.transfer_list_pager + ":" + index;
-    }
-
-    /**
-     * Adapter for {@link ViewPager} to bind DownloadTaskFragment and UploadTaskFragment
-     */
-    public class TransferTabsAdapter extends FragmentPagerAdapter {
-
-        private String downloadTabTitle;
-        private String uploadTabTitle;
-
-        public TransferTabsAdapter(FragmentManager fm) {
-            super(fm);
-            downloadTabTitle = getString(R.string.transfer_tabs_downloads);
-            uploadTabTitle = getString(R.string.transfer_tabs_uploads);
-        }
-
-        private DownloadTaskFragment downloadsFragment = null;
-        private UploadTaskFragment uploadsFragment = null;
-
-        @Override
-        public Fragment getItem(int position) {
-            switch (position) {
-            case 0:
-                if (downloadsFragment == null) {
-                    downloadsFragment = new DownloadTaskFragment();
-                }
-                return downloadsFragment;
-            case 1:
-                if (uploadsFragment == null) {
-                    uploadsFragment = new UploadTaskFragment();
-                }
-                return uploadsFragment;
-            default:
-                return new Fragment();
-            }
-        }
-
-        @Override
-        public CharSequence getPageTitle(int position) {
-            switch (position) {
-            case 0:
-                return downloadTabTitle;
-            case 1:
-                return uploadTabTitle;
-
-            default:
-                return null;
-            }
-        }
-
-        @Override
-        public int getCount() {
-            return 2;
-        }
-
-    }
-
 }

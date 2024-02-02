@@ -11,8 +11,9 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.SettingsManager;
+import com.seafile.seadroid2.util.sp.SettingsManager;
 import com.seafile.seadroid2.gesturelock.LockPatternUtils;
 import com.seafile.seadroid2.gesturelock.LockPatternView;
 import com.seafile.seadroid2.gesturelock.LockPatternView.Cell;
@@ -149,7 +150,7 @@ public class CreateGesturePasswordActivity extends BaseActivity implements
         final boolean patternEnabled;
     }
 
-    SettingsManager settingsMgr = SettingsManager.instance();
+    SettingsManager settingsMgr = SettingsManager.getInstance();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -417,7 +418,7 @@ public class CreateGesturePasswordActivity extends BaseActivity implements
         LockPatternUtils mLockPatternUtils = new LockPatternUtils(this);
         mLockPatternUtils.saveLockPattern(mChosenPattern);
         settingsMgr.setupGestureLock();
-        showShortToast(this, getResources().getString(R.string.lockpattern_pattern_toast_saved));
+        ToastUtils.showLong(R.string.lockpattern_pattern_toast_saved);
         setResult(RESULT_OK);
         finish();
     }

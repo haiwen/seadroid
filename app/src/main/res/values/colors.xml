@@ -12,7 +12,6 @@
     <color name="transparent">#00000000</color>
     <color name="half_transparent">#80FFFFFF</color>
     <color name="half_transparent_black">#80000000</color>
-    <color name="divider_color">#d2dcdc</color>
 
     <!-- Theme V2 -->
     <color name="fancy_white">#f4f5f6</color> <!-- theme color -->
@@ -27,8 +26,24 @@
     <color name="fancy_dark_gray">#e1e2e3</color>
     <color name="fancy_orange">#ea8201</color> <!-- theme color -->
     <color name="fancy_orange_dark">#CF7300</color> <!-- theme color -->
-    <color name="color_primary">#f4f4f4</color>
-    <color name="color_primary_dark">#969593</color>
+
+    <!-- Material Theme -->
+
+    <color name="md_theme_primary">@color/fancy_orange</color>
+    <color name="md_theme_onPrimary">#f2f2f2</color>
+
+    <color name="md_theme_secondary">#BDBDBD</color>
+    <color name="md_theme_onSecondary">#FFFFFF</color>
+
+    <color name="md_theme_error">#B3261E</color>
+    <color name="md_theme_onError">#FFFFFF</color>
+
+    <color name="md_theme_background">#FFFBFE</color>
+    <color name="md_theme_onBackground">#1C1B1F</color>
+    <color name="md_theme_surface">#FFFBFE</color>
+    <color name="md_theme_onSurface">#1C1B1F</color>
+
+
     <!--editor-->
     <color name="blue_200">#FF90CAF9</color>
     <color name="blue_500">#FF2196F3</color>
@@ -40,4 +55,15 @@
     <color name="file_picker_title">#4A4A4A</color>
     <color name="file_picker_des">#86848B</color>
 
+    <!-- view color -->
+    <color name="toolbar_divider_color">#E3E3E3</color>
+    <color name="divider_color">#E3E3E3</color>
+    <color name="item_repo_title_color">#333333</color>
+    <color name="item_repo_subtitle_color">#888888</color>
+
+    <color name="toolbar_background_color">#F2F2F2</color>
+    <color name="toolbar_title_color">#191919</color>
+
+    <color name="alert_dialog_background_color">#f2f2f2</color>
+    <color name="alert_dialog_onsurface_color">#191919</color>
 </resources>

@@ -12,6 +12,7 @@ import com.google.common.collect.Lists;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.data.SeafDirent;
+import com.seafile.seadroid2.util.sp.Sorts;
 
 import java.util.Collections;
 import java.util.List;
@@ -68,7 +69,7 @@ public class DirentsAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
-    public void sortFiles(int type, int order) {
+    public void sortFiles() {
         List<SeafDirent> folders = Lists.newArrayList();
         List<SeafDirent> files = Lists.newArrayList();
 
@@ -83,23 +84,25 @@ public class DirentsAdapter extends BaseAdapter {
         dirents.clear();
 
         // sort SeafDirents
-        if (type == SORT_BY_NAME) {
+
+        int sortType = Sorts.getSortType();
+        if (sortType <= Sorts.SORT_BY_NAME_DESC) {
             // sort by name, in ascending order
             folders.sort(new SeafDirent.DirentNameComparator());
             files.sort(new SeafDirent.DirentNameComparator());
-            if (order == SORT_ORDER_DESCENDING) {
+            if (sortType == Sorts.SORT_BY_NAME_DESC) {
                 Collections.reverse(folders);
                 Collections.reverse(files);
             }
-        } else if (type == SORT_BY_LAST_MODIFIED_TIME) {
-            // sort by last modified time, in ascending order
+        } else {
             folders.sort(new SeafDirent.DirentLastMTimeComparator());
             files.sort(new SeafDirent.DirentLastMTimeComparator());
-            if (order == SORT_ORDER_DESCENDING) {
+            if (sortType == Sorts.SORT_BY_MODIFIED_TIME_DESC) {
                 Collections.reverse(folders);
                 Collections.reverse(files);
             }
         }
+
         // Adds the objects in the specified collection to this ArrayList
         dirents.addAll(folders);
         dirents.addAll(files);

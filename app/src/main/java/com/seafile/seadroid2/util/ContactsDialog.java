@@ -18,7 +18,7 @@
 //import com.seafile.seadroid2.R;
 //import com.seafile.seadroid2.SeadroidApplication;
 //import com.seafile.seadroid2.SeafException;
-//import com.seafile.seadroid2.SettingsManager;
+//import com.seafile.seadroid2.util.sp.SettingsManager;
 //import com.seafile.seadroid2.account.Account;
 //import com.seafile.seadroid2.account.AccountManager;
 //import com.seafile.seadroid2.data.DataManager;

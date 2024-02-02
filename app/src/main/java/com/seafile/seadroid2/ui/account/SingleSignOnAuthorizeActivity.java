@@ -1,5 +1,6 @@
 package com.seafile.seadroid2.ui.account;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
@@ -11,6 +12,7 @@ import android.os.Build;
 import android.os.Bundle;
 
 import androidx.appcompat.widget.Toolbar;
+
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -21,6 +23,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.LinearLayout;
 
+import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SeafException;
@@ -54,6 +57,7 @@ public class SingleSignOnAuthorizeActivity extends BaseActivity implements Toolb
     private LinearLayout mloadingAnimation;
     public String serverUrl;
 
+    @SuppressLint("SetJavaScriptEnabled")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -85,7 +89,7 @@ public class SingleSignOnAuthorizeActivity extends BaseActivity implements Toolb
         serverUrl = url;
 
         if (!Utils.isNetworkOn()) {
-            showShortToast(this, getString(R.string.network_down));
+            ToastUtils.showLong(R.string.network_down);
             return;
         }
 
@@ -161,15 +165,14 @@ public class SingleSignOnAuthorizeActivity extends BaseActivity implements Toolb
 
     private void displaySSLError() {
         showPageLoading(false);
-        showShortToast(this, R.string.ssl_error);
+        ToastUtils.showLong(R.string.ssl_error);
     }
 
     class CustomWebviewClient extends WebViewClient {
         @Override
         public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
             // Display error messages
-            showShortToast(SingleSignOnAuthorizeActivity.this,
-                    String.format((R.string.shib_load_page_error) + description));
+            ToastUtils.showLong(String.format((R.string.shib_load_page_error) + description));
 
             showPageLoading(false);
         }
@@ -178,7 +181,7 @@ public class SingleSignOnAuthorizeActivity extends BaseActivity implements Toolb
         @Override
         public void onReceivedSslError(WebView view, final SslErrorHandler handler, SslError error) {
             Log.d(DEBUG_TAG, "onReceivedSslError " + error.getCertificate().toString());
-            final Account account = new Account(serverUrl, null, null, null, false);
+            final Account account = new Account(serverUrl, null, null, null, null, false);
             SslCertificate sslCert = error.getCertificate();
             X509Certificate savedCert = CertsManager.instance().getCertificate(account);
 
@@ -251,7 +254,7 @@ public class SingleSignOnAuthorizeActivity extends BaseActivity implements Toolb
         Log.d(DEBUG_TAG, "email: " + email);
         Log.d(DEBUG_TAG, "token: " + token);
 
-        return new Account(url, email, "", token, true);
+        return new Account(url, email, "", null, token, true);
     }
 
     private class AccountInfoTask extends AsyncTask<Void, Void, String> {
@@ -317,7 +320,7 @@ public class SingleSignOnAuthorizeActivity extends BaseActivity implements Toolb
                 AccountInfo accountInfo = manager.getAccountInfo();
                 if (accountInfo == null)
                     return "Unknown error";
-                loginAccount = new Account(accountInfo.getName(), loginAccount.server, accountInfo.getEmail(), loginAccount.token, loginAccount.is_shib, loginAccount.sessionKey);
+                loginAccount = new Account(accountInfo.getName(), loginAccount.server, accountInfo.getEmail(), accountInfo.getAvatarUrl(), loginAccount.token, loginAccount.is_shib, loginAccount.sessionKey);
                 return "Success";
 
             } catch (SeafException e) {
@@ -325,11 +328,11 @@ public class SingleSignOnAuthorizeActivity extends BaseActivity implements Toolb
                 if (e == SeafException.sslException) {
                     return getString(R.string.ssl_error);
                 } else {
-                    showShortToast(SingleSignOnAuthorizeActivity.this, e.getMessage());
+                    ToastUtils.showLong(e.getMessage());
                     return e.getMessage();
                 }
             } catch (JSONException e) {
-                showShortToast(SingleSignOnAuthorizeActivity.this, e.getMessage());
+                ToastUtils.showLong(e.getMessage());
                 return e.getMessage();
             }
         }

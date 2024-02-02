@@ -10,27 +10,27 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.blankj.utilcode.util.ToastUtils;
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
-import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafPhoto;
+import com.seafile.seadroid2.data.db.entities.DirentModel;
 import com.seafile.seadroid2.transfer.DownloadStateListener;
 import com.seafile.seadroid2.transfer.DownloadTask;
 import com.seafile.seadroid2.ui.BaseActivity;
-import com.seafile.seadroid2.view.HackyViewPager;
 import com.seafile.seadroid2.ui.WidgetUtils;
-import com.seafile.seadroid2.view.ZoomOutPageTransformer;
 import com.seafile.seadroid2.ui.adapter.GalleryAdapter;
-import com.seafile.seadroid2.ui.adapter.SeafItemAdapter;
-import com.seafile.seadroid2.ui.dialog.DeleteFileDialog;
-import com.seafile.seadroid2.ui.dialog.TaskDialog;
-import com.seafile.seadroid2.ui.repo.ReposFragment;
+import com.seafile.seadroid2.ui.dialog_fragment.DeleteFileDialogFragment;
+import com.seafile.seadroid2.ui.dialog_fragment.listener.OnRefreshDataListener;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
+import com.seafile.seadroid2.util.sp.Sorts;
 import com.seafile.seadroid2.util.Utils;
+import com.seafile.seadroid2.view.HackyViewPager;
+import com.seafile.seadroid2.view.ZoomOutPageTransformer;
 
 import java.util.Collections;
 import java.util.List;
@@ -65,10 +65,12 @@ public class GalleryActivity extends BaseActivity {
     private List<SeafPhoto> mPhotos = Lists.newArrayList();
     public static int taskID;
     private int count;
-    private  static int TALLY=3;
+    private static int TALLY = 3;
     private ProgressDialog progressDialog;
 
-    /** flag to mark if the tool bar was shown */
+    /**
+     * flag to mark if the tool bar was shown
+     */
     private boolean showToolBar = true;
     private View.OnClickListener onClickListener = new View.OnClickListener() {
         @Override
@@ -128,10 +130,12 @@ public class GalleryActivity extends BaseActivity {
             }
 
             @Override
-            public void onPageSelected(int position) {}
+            public void onPageSelected(int position) {
+            }
 
             @Override
-            public void onPageScrollStateChanged(int state) {}
+            public void onPageScrollStateChanged(int state) {
+            }
         });
 
         mPageIndexContainer = (LinearLayout) findViewById(R.id.page_index_container);
@@ -175,11 +179,12 @@ public class GalleryActivity extends BaseActivity {
      * Load thumbnail urls in order to display them in the gallery.
      * Prior to use caches to calculate those urls.
      * If caches are not available, load them asynchronously.
-     *
+     * <p>
      * NOTE: When user browsing files in "LIBRARY" tab, he has to navigate into a repo in order to open gallery.
      * Method which get called is {@link ReposFragment#navToReposView(boolean)} or {@link ReposFragment#navToDirectory(boolean)},
      * so seafDirents were already cached and it will always use them to calculate thumbnail urls for displaying photos in gallery.
      * But for browsing "STARRED" tab, caches of starred files may or may not cached, that is where the asynchronous loading code segment comes into use.
+     *
      * @param repoID
      * @param dirPath
      */
@@ -188,12 +193,9 @@ public class GalleryActivity extends BaseActivity {
         List<SeafDirent> seafDirents = dataMgr.getCachedDirents(repoID, dirPath);
         if (seafDirents != null) {
             // sort files by type and order
-            seafDirents = sortFiles(seafDirents,
-                    SettingsManager.instance().getSortFilesTypePref(),
-                    SettingsManager.instance().getSortFilesOrderPref());
+            seafDirents = sortFiles(seafDirents);
             for (SeafDirent seafDirent : seafDirents) {
-                if (!seafDirent.isDir()
-                        && Utils.isViewableImage(seafDirent.name)) {
+                if (!seafDirent.isDir() && Utils.isViewableImage(seafDirent.name)) {
                     mPhotos.add(new SeafPhoto(repoName, repoID, dirPath, seafDirent));
                 }
             }
@@ -207,7 +209,7 @@ public class GalleryActivity extends BaseActivity {
             navToSelectedPage();
         } else {
             if (!Utils.isNetworkOn()) {
-                showShortToast(this, R.string.network_down);
+                ToastUtils.showLong(R.string.network_down);
                 // data is not available
                 finish();
             }
@@ -247,12 +249,9 @@ public class GalleryActivity extends BaseActivity {
                 return null;
 
             // sort photos according to global sort settings
-            seafDirents = sortFiles(seafDirents,
-                    SettingsManager.instance().getSortFilesTypePref(),
-                    SettingsManager.instance().getSortFilesOrderPref());
+            seafDirents = sortFiles(seafDirents);
             for (SeafDirent seafDirent : seafDirents) {
-                if (!seafDirent.isDir()
-                        && Utils.isViewableImage(seafDirent.name)) {
+                if (!seafDirent.isDir() && Utils.isViewableImage(seafDirent.name)) {
                     photos.add(new SeafPhoto(repoName, repoID, dirPath, seafDirent));
                 }
             }
@@ -264,7 +263,7 @@ public class GalleryActivity extends BaseActivity {
             if (photos.isEmpty()
                     || fileName == null) {
                 if (err != null) {
-                    showShortToast(GalleryActivity.this, R.string.gallery_load_photos_error);
+                    ToastUtils.showLong(R.string.gallery_load_photos_error);
                     Log.e(DEBUG_TAG, "error message " + err.getMessage() + " error code " + err.getCode());
                 }
 
@@ -281,26 +280,24 @@ public class GalleryActivity extends BaseActivity {
 
     /**
      * Sorts the given list by type and order.
-     * Sorting type is one of {@link SeafItemAdapter#SORT_BY_NAME} or {@link SeafItemAdapter#SORT_BY_LAST_MODIFIED_TIME}.
-     * Sorting order is one of {@link SeafItemAdapter#SORT_ORDER_ASCENDING} or {@link SeafItemAdapter#SORT_ORDER_DESCENDING}.
      *
      * @param dirents
-     * @param type
-     * @param order
      * @return sorted file list
      */
-    public List<SeafDirent> sortFiles(List<SeafDirent> dirents, int type, int order) {
+    public List<SeafDirent> sortFiles(List<SeafDirent> dirents) {
         // sort SeafDirents
-        if (type == SeafItemAdapter.SORT_BY_NAME) {
+        int sortType = Sorts.getSortType();
+
+        if (sortType <= Sorts.SORT_BY_NAME_DESC) {
             // sort by name, in ascending order
             Collections.sort(dirents, new SeafDirent.DirentNameComparator());
-            if (order == SeafItemAdapter.SORT_ORDER_DESCENDING) {
+            if (sortType == Sorts.SORT_BY_NAME_DESC) {
                 Collections.reverse(dirents);
             }
-        } else if (type == SeafItemAdapter.SORT_BY_LAST_MODIFIED_TIME) {
+        } else {
             // sort by last modified time, in ascending order
-            Collections.sort(dirents,   new SeafDirent.DirentLastMTimeComparator());
-            if (order == SeafItemAdapter.SORT_ORDER_DESCENDING) {
+            Collections.sort(dirents, new SeafDirent.DirentLastMTimeComparator());
+            if (sortType == Sorts.SORT_BY_MODIFIED_TIME_DESC) {
                 Collections.reverse(dirents);
             }
         }
@@ -310,7 +307,6 @@ public class GalleryActivity extends BaseActivity {
     /**
      * Dynamically navigate to the starting page index selected by user
      * by default the starting page index is 0
-     *
      */
     private void navToSelectedPage() {
         int size = mPhotos.size();
@@ -356,21 +352,28 @@ public class GalleryActivity extends BaseActivity {
     }
 
     private void deleteFile(String repoID, String path) {
-        final DeleteFileDialog dialog = new DeleteFileDialog();
-        dialog.init(repoID, path, false, mAccount);
-        dialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
+        //TODO
+        DirentModel direntModel = new DirentModel();
+        direntModel.repo_id = repoID;
+        direntModel.full_path = path;
+
+        DeleteFileDialogFragment dialogFragment = DeleteFileDialogFragment.newInstance();
+        dialogFragment.initData(direntModel);
+        dialogFragment.setRefreshListener(new OnRefreshDataListener() {
             @Override
-            public void onTaskSuccess() {
-                showShortToast(GalleryActivity.this, R.string.delete_successful);
-                removePageAndRefreshView();
+            public void onActionStatus(boolean isDone) {
+                if (isDone) {
+                    ToastUtils.showLong(R.string.delete_successful);
+                    removePageAndRefreshView();
+                }
             }
         });
-        dialog.show(getSupportFragmentManager(), "DialogFragment");
+
     }
 
     private void starFile(String repoId, String dir, String fileName) {
         if (!Utils.isNetworkOn()) {
-            showShortToast(this, R.string.network_down);
+            ToastUtils.showLong(R.string.network_down);
             return;
         }
 
@@ -414,11 +417,11 @@ public class GalleryActivity extends BaseActivity {
         @Override
         protected void onPostExecute(Void v) {
             if (err != null) {
-                showShortToast(GalleryActivity.this, R.string.star_file_failed);
+                ToastUtils.showLong(R.string.star_file_failed);
                 return;
             }
 
-            showShortToast(GalleryActivity.this, R.string.star_file_succeed);
+            ToastUtils.showLong(R.string.star_file_succeed);
         }
     }
 
@@ -439,7 +442,7 @@ public class GalleryActivity extends BaseActivity {
             return;
         }
 
-        mPageIndex = mPageIndex > size - 1 ? size -1 : mPageIndex;
+        mPageIndex = mPageIndex > size - 1 ? size - 1 : mPageIndex;
         // page index starting from 1 instead of 0 in user interface, so plus one here
         mPageIndexTextView.setText(String.valueOf(mPageIndex + 1));
 

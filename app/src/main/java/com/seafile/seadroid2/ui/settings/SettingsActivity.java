@@ -6,24 +6,30 @@ import android.view.MenuItem;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
+import com.blankj.utilcode.util.FragmentUtils;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.databinding.SettingsActivityLayoutBinding;
 import com.seafile.seadroid2.ui.BaseActivity;
 import com.seafile.seadroid2.ui.settings.SettingsFragment;
 
 public class SettingsActivity extends BaseActivity implements Toolbar.OnMenuItemClickListener, PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
 
+    private SettingsActivityLayoutBinding binding;
+    private SettingsActivityViewModel viewModel;
+
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.settings_activity_layout);
+        binding = SettingsActivityLayoutBinding.inflate(getLayoutInflater());
 
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.settings_fragment_container, new SettingsFragment())
-                .commit();
+        setContentView(binding.getRoot());
+
+        FragmentUtils.add(getSupportFragmentManager(), SettingsFragment.newInstance(), R.id.settings_fragment_container);
 
         Toolbar toolbar = getActionBarToolbar();
         setSupportActionBar(toolbar);
@@ -33,6 +39,16 @@ public class SettingsActivity extends BaseActivity implements Toolbar.OnMenuItem
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setTitle(R.string.settings);
         }
+
+        binding.swipeRefreshLayout.setEnabled(false);
+
+        viewModel = new ViewModelProvider(this).get(SettingsActivityViewModel.class);
+        viewModel.getRefreshLiveData().observe(this, new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+                binding.swipeRefreshLayout.setRefreshing(aBoolean);
+            }
+        });
     }
 
 

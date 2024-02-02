@@ -18,14 +18,11 @@ import java.net.HttpURLConnection;
 
 /*
  * Seafile Authenticator.
- *
  */
 public class Authenticator extends AbstractAccountAuthenticator {
 
     private String DEBUG_TAG = "SeafileAuthenticator";
     private final Context context;
-
-    private com.seafile.seadroid2.account.AccountManager manager;
 
     /**
      * Type of the auth token used (there is only one type)
@@ -35,49 +32,51 @@ public class Authenticator extends AbstractAccountAuthenticator {
     /**
      * Key of Server URI in userData
      */
-    public final static String KEY_SERVER_URI = "server";
+    public static final String KEY_SERVER_URI = "server";
 
     /**
      * Key of email in userData
      */
-    public final static String KEY_EMAIL = "email";
+    public static final String KEY_EMAIL = "email";
     /**
      * Key of name in userData
      */
-    public final static String KEY_NAME = "name";
+    public static final String KEY_NAME = "name";
+    /**
+     * Key of avatar_url in userData
+     */
+    public static final String KEY_AVATAR_URL = "avatar_url";
 
     /**
      * Key of Server version in userData
      */
-    public final static String KEY_SERVER_VERSION = "version";
+    public static final String KEY_SERVER_VERSION = "version";
 
     /**
      * Key of Server Feature-list in userData
      */
-    public final static String KEY_SERVER_FEATURES = "features";
+    public static final String KEY_SERVER_FEATURES = "features";
 
     /**
      * Key of shib_setting in userData
      */
-    public final static String KEY_SHIB = "shib";
+    public static final String KEY_SHIB = "shib";
     /**
      * Two Factor Auth in  userData
      */
-    public final static String SESSION_KEY = "sessionKey";
+    public static final String SESSION_KEY = "sessionKey";
 
     public Authenticator(Context context) {
         super(context);
         Log.d(DEBUG_TAG, "SeafileAuthenticator created.");
         this.context = context;
-        this.manager = new com.seafile.seadroid2.account.AccountManager(context);
     }
 
     /**
      * We have no properties.
      */
     @Override
-    public Bundle editProperties(
-            AccountAuthenticatorResponse r, String s) {
+    public Bundle editProperties(AccountAuthenticatorResponse r, String s) {
         Log.d(DEBUG_TAG, "editProperties");
 
         throw new UnsupportedOperationException();
@@ -90,7 +89,7 @@ public class Authenticator extends AbstractAccountAuthenticator {
                              String[] requiredFeatures,
                              Bundle options) throws NetworkErrorException {
 
-        Log.d(DEBUG_TAG, "addAccount of type "+accountType);
+        Log.d(DEBUG_TAG, "addAccount of type " + accountType);
 
         if (authTokenType != null && !authTokenType.equals(Authenticator.AUTHTOKEN_TYPE)) {
             Bundle result = new Bundle();
@@ -116,7 +115,7 @@ public class Authenticator extends AbstractAccountAuthenticator {
             Bundle bundle) throws NetworkErrorException {
         Log.d(DEBUG_TAG, "confirmCredentials");
 
-        Account a = manager.getSeafileAccount(account);
+        Account a = SupportAccountManager.getInstance().getSeafileAccount(account);
         DataManager manager = new DataManager(a);
 
         try {
@@ -185,8 +184,8 @@ public class Authenticator extends AbstractAccountAuthenticator {
 
     @Override
     public Bundle updateCredentials(AccountAuthenticatorResponse response,
-            android.accounts.Account account,
-            String authTokenType, Bundle options) throws NetworkErrorException {
+                                    android.accounts.Account account,
+                                    String authTokenType, Bundle options) throws NetworkErrorException {
         Log.d(DEBUG_TAG, "updateCredentials");
 
         if (authTokenType != null && !authTokenType.equals(Authenticator.AUTHTOKEN_TYPE)) {
@@ -202,7 +201,7 @@ public class Authenticator extends AbstractAccountAuthenticator {
         intent.putExtra(SeafileAuthenticatorActivity.ARG_ACCOUNT_NAME, account.name); // will be overridden
         intent.putExtra(SeafileAuthenticatorActivity.ARG_EDIT_OLD_ACCOUNT_NAME, account.name);
         intent.putExtra(SeafileAuthenticatorActivity.ARG_IS_EDITING, true);
-        boolean is_shib = manager.getSeafileAccount(account).isShib();
+        boolean is_shib = SupportAccountManager.getInstance().getSeafileAccount(account).isShib();
         intent.putExtra(SeafileAuthenticatorActivity.ARG_SHIB, is_shib);
 
         final Bundle bundle = new Bundle();
@@ -212,7 +211,7 @@ public class Authenticator extends AbstractAccountAuthenticator {
 
     @Override
     public Bundle hasFeatures(AccountAuthenticatorResponse r,
-            android.accounts.Account account, String[] strings) throws NetworkErrorException {
+                              android.accounts.Account account, String[] strings) throws NetworkErrorException {
         Log.d(DEBUG_TAG, "hasFeatures");
 
         final Bundle result = new Bundle();

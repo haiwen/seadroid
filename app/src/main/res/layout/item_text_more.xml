@@ -10,7 +10,7 @@
         android:id="@+id/icon"
         android:layout_width="?actionBarSize"
         android:layout_height="?actionBarSize"
-        android:paddingVertical="14dp"
+        android:padding="16dp"
         android:src="@drawable/folders"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -25,7 +25,6 @@
         android:gravity="center_vertical"
         android:maxLines="1"
         android:scrollHorizontally="true"
-        android:singleLine="true"
         android:text="@string/app_name"
         android:textColor="@color/light_black"
         android:textSize="16sp"
@@ -40,19 +39,18 @@
         android:id="@+id/more"
         android:layout_width="?actionBarSize"
         android:layout_height="?actionBarSize"
-        android:padding="16dp"
-        android:paddingVertical="16dp"
-        android:rotation="90"
+        android:foreground="?selectableItemBackground"
+        android:padding="22dp"
         android:src="@drawable/baseline_more_vert_24"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:tint="@color/light_grey" />
 
-    <View
+    <com.google.android.material.divider.MaterialDivider
         android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginStart="16dp"
-        android:background="@color/whitegrey"
+        android:layout_height="wrap_content"
+        app:dividerColor="@color/divider_color"
+        app:dividerInsetStart="16dp"
         app:layout_constraintBottom_toBottomOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

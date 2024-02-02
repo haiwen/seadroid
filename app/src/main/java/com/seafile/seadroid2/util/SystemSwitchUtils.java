@@ -16,7 +16,7 @@ public class SystemSwitchUtils {
     private ConnectivityManager connManager;
     private static SystemSwitchUtils util;
 
-    public static SystemSwitchUtils getInstance(Context context){
+    public static SystemSwitchUtils getInstance(Context context) {
         if (util == null) {
             util = new SystemSwitchUtils(context);
         }
@@ -32,6 +32,7 @@ public class SystemSwitchUtils {
 
     /**
      * Open Sync
+     *
      * @return
      */
     @SuppressWarnings("deprecation")
@@ -98,6 +99,8 @@ public class SystemSwitchUtils {
                 return ct.getString(R.string.recover_library);
             } else if (op_type.equals("edit")) {
                 return ct.getString(R.string.edit);
+            } else if (op_type.equals("recover")) {
+                return ct.getString(R.string.recover_library);
             } else {
                 return "";
             }
@@ -114,6 +117,8 @@ public class SystemSwitchUtils {
                 return ct.getString(R.string.move_folder);
             } else if (op_type.equals("edit")) {
                 return ct.getString(R.string.edit);
+            } else if (op_type.equals("recover")) {
+                return ct.getString(R.string.recover_folder);
             } else {
                 return "";
             }
@@ -132,6 +137,8 @@ public class SystemSwitchUtils {
                 return ct.getString(R.string.update_file);
             } else if (op_type.equals("edit")) {
                 return ct.getString(R.string.edit);
+            } else if (op_type.equals("recover")) {
+                return ct.getString(R.string.recover_file);
             } else {
                 return "";
             }

@@ -4,7 +4,7 @@ import android.util.Log;
 
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.SeadroidApplication;
-import com.seafile.seadroid2.SettingsManager;
+import com.seafile.seadroid2.util.sp.SettingsManager;
 import com.seafile.seadroid2.data.CameraSyncEvent;
 import com.seafile.seadroid2.util.CameraSyncStatus;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
@@ -114,7 +114,7 @@ public abstract class TransferManager {
                 EventBus.getDefault().post(new CameraSyncEvent("upload"));
             }
 
-            if (SettingsManager.instance().isFolderAutomaticBackup()) {
+            if (SettingsManager.getInstance().isFolderAutomaticBackup()) {
                 SeadroidApplication.getInstance().setFolderBackupNumber(folderBackupTotalNumber, folderBackupWaitingNumber);
             }
 

@@ -19,7 +19,6 @@ import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.content.ContextCompat;
 
 import com.blankj.utilcode.util.ActivityUtils;
 import com.seafile.seadroid2.R;
@@ -53,9 +52,16 @@ public class SeaWebViewActivity extends BaseActivity {
         ActivityUtils.startActivity(intent);
     }
 
-    public static void openThis(Context context, String url) {
+    public static void openUrl(Context context, String url) {
         Intent intent = new Intent(context, SeaWebViewActivity.class);
         intent.putExtra("targetUrl", url);
+        ActivityUtils.startActivity(intent);
+    }
+
+    public static void openUrlDirectly(Context context, String url) {
+        Intent intent = new Intent(context, SeaWebViewActivity.class);
+        intent.putExtra("targetUrl", url);
+        intent.putExtra("isDirect", true);
         ActivityUtils.startActivity(intent);
     }
 
@@ -78,17 +84,26 @@ public class SeaWebViewActivity extends BaseActivity {
                 throw new IllegalArgumentException("repoId is null");
             }
 
-            targetUrl = buildSdocUrl();
+            Account account = SupportAccountManager.getInstance().getCurrentAccount();
+            if (account != null) {
+                targetUrl = buildSdocUrl(account.server);
+            } else {
+                throw new IllegalArgumentException("no login");
+            }
         }
 
         initUI();
 
         //let's go
-        mWebView.load(targetUrl);
+        if (intent.hasExtra("isDirect") && intent.getBooleanExtra("isDirect", false)) {
+            mWebView.loadDirectly(targetUrl);
+        } else {
+            mWebView.load(targetUrl);
+        }
     }
 
-    private String buildSdocUrl() {
-        return SupportAccountManager.getInstance().getCurrentAccount().server + "lib/" + mRepoID + "/file" + mFilePath;
+    private String buildSdocUrl(String server) {
+        return server + "lib/" + mRepoID + "/file" + mFilePath;
     }
 
     private void initUI() {
@@ -97,9 +112,7 @@ public class SeaWebViewActivity extends BaseActivity {
 
         toolbar = findViewById(R.id.toolbar_actionbar);
         toolbar.setTitle("");
-        toolbar.setBackgroundColor(ContextCompat.getColor(this, R.color.white));
         setSupportActionBar(toolbar);
-        toolbar.setNavigationIcon(R.drawable.baseline_arrow_back_24);
         toolbar.setNavigationOnClickListener(v -> {
             finish();
         });
@@ -155,19 +168,19 @@ public class SeaWebViewActivity extends BaseActivity {
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(@NonNull Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_sea_webview, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.download) {
-            download();
-        }
-        return super.onOptionsItemSelected(item);
-    }
+//    @Override
+//    public boolean onCreateOptionsMenu(@NonNull Menu menu) {
+//        getMenuInflater().inflate(R.menu.menu_sea_webview, menu);
+//        return true;
+//    }
+//
+//    @Override
+//    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+//        if (item.getItemId() == R.id.download) {
+//            download();
+//        }
+//        return super.onOptionsItemSelected(item);
+//    }
 
     private void download() {
         if (txService == null) {

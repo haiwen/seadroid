@@ -42,6 +42,10 @@ public class SeaWebView extends WebView {
     @SuppressLint("SetJavaScriptEnabled")
     private void init() {
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
+        if (account == null) {
+            return;
+        }
+
         URL_LOGIN = account.server + PATH_ACCOUNT_LOGIN;
 
         WebSettings webSettings = this.getSettings();
@@ -73,8 +77,10 @@ public class SeaWebView extends WebView {
     }
 
     public void load(String targetUrl) {
-        if (mWebViewClient != null) {
-            mWebViewClient.go(targetUrl, this);
-        }
+        mWebViewClient.go(targetUrl, this);
+    }
+
+    public void loadDirectly(String targetUrl) {
+        mWebViewClient.goDirectly(targetUrl, this);
     }
 }

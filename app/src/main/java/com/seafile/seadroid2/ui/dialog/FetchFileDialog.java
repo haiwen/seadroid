@@ -3,11 +3,14 @@ package com.seafile.seadroid2.ui.dialog;
 import java.net.HttpURLConnection;
 
 import androidx.appcompat.app.AlertDialog;
+
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
+
 import androidx.fragment.app.DialogFragment;
+
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,9 +22,12 @@ import android.widget.Toast;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafConnection;
 import com.seafile.seadroid2.SeafException;
+import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.transfer.DownloadTaskInfo;
 import com.seafile.seadroid2.transfer.TransferService;
-import com.seafile.seadroid2.ui.BrowserActivity;
+import com.seafile.seadroid2.ui.dialog_fragment.PasswordDialogFragment;
+import com.seafile.seadroid2.ui.dialog_fragment.listener.OnRefreshDataListener;
+import com.seafile.seadroid2.ui.main.MainActivity;
 import com.seafile.seadroid2.util.Utils;
 
 /**
@@ -48,12 +54,14 @@ public class FetchFileDialog extends DialogFragment {
 
     public interface FetchFileListener {
         void onDismiss();
+
         void onSuccess();
+
         void onFailure(SeafException e);
     }
 
-    private BrowserActivity getBrowserActivity() {
-        return (BrowserActivity)getActivity();
+    private MainActivity getBrowserActivity() {
+        return (MainActivity) getActivity();
     }
 
     public void init(String repoName, String repoID, String path, long fileSize, FetchFileListener listener) {
@@ -66,10 +74,10 @@ public class FetchFileDialog extends DialogFragment {
 
     // Get the latest version of the file
     private void startDownloadFile() {
-        BrowserActivity mActivity = getBrowserActivity();
+        MainActivity mActivity = getBrowserActivity();
 
-        taskID = mActivity.getTransferService().addDownloadTask(mActivity.getAccount(),
-                                                                repoName, repoID, path, fileSize);
+        taskID = mActivity.getTransferService().addDownloadTask(SupportAccountManager.getInstance().getCurrentAccount(),
+                repoName, repoID, path, fileSize);
     }
 
     @Override
@@ -112,40 +120,35 @@ public class FetchFileDialog extends DialogFragment {
             return;
         }
         switch (info.state) {
-        case INIT:
-            break;
-        case TRANSFERRING:
-            updateProgress(info.fileSize, info.finished);
-            break;
-        case CANCELLED:
-            break;
-        case FAILED:
-            onTaskFailed(info.err);
-            break;
-        case FINISHED:
-            onTaskFinished();
-            break;
+            case INIT:
+                break;
+            case TRANSFERRING:
+                updateProgress(info.fileSize, info.finished);
+                break;
+            case CANCELLED:
+                break;
+            case FAILED:
+                onTaskFailed(info.err);
+                break;
+            case FINISHED:
+                onTaskFinished();
+                break;
         }
     }
 
-    private TaskDialog.TaskDialogListener getPasswordDialogListener() {
-        return new TaskDialog.TaskDialogListener() {
+    private OnRefreshDataListener getPasswordDialogListener() {
+        return new OnRefreshDataListener() {
             @Override
-            public void onTaskSuccess() {
-                startDownloadFile();
-            }
-
-            @Override
-            public void onTaskCancelled() {
-                getDialog().dismiss();
+            public void onActionStatus(boolean isDone) {
+                if (isDone) {
+                    startDownloadFile();
+                } else {
+                    getDialog().dismiss();
+                }
             }
         };
     }
 
-    private void handlePassword() {
-        getBrowserActivity().showPasswordDialog(repoName, repoID,
-                                                getPasswordDialogListener());
-    }
 
     private void onTaskFailed(SeafException err) {
         String fileName = Utils.fileNameFromPath(path);
@@ -154,7 +157,7 @@ public class FetchFileDialog extends DialogFragment {
             final String message = String.format(getActivity().getString(R.string.file_not_found), fileName);
             Toast.makeText(getBrowserActivity(), message, Toast.LENGTH_SHORT).show();
         } else if (err.getCode() == SeafConnection.HTTP_STATUS_REPO_PASSWORD_REQUIRED) {
-            handlePassword();
+            showPasswordDialog(repoID, repoName);
         } else {
             getDialog().dismiss();
             final String message = String.format(getActivity().getString(R.string.op_exception_failed_to_download_file), fileName);
@@ -163,6 +166,13 @@ public class FetchFileDialog extends DialogFragment {
                 mListener.onFailure(err);
             }
         }
+    }
+
+    private void showPasswordDialog(String repoID, String repoName) {
+        PasswordDialogFragment dialogFragment = PasswordDialogFragment.newInstance();
+        dialogFragment.initData(repoID, repoName);
+        dialogFragment.setRefreshListener(getPasswordDialogListener());
+        dialogFragment.show(getChildFragmentManager(), PasswordDialogFragment.class.getSimpleName());
     }
 
     protected void onTaskFinished() {
@@ -191,7 +201,7 @@ public class FetchFileDialog extends DialogFragment {
         if (fileSize == 0) {
             percent = 100;
         } else {
-            percent = (int)(finished * 100 / fileSize);
+            percent = (int) (finished * 100 / fileSize);
         }
         progressBar.setProgress(percent);
 
@@ -221,10 +231,10 @@ public class FetchFileDialog extends DialogFragment {
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.dialog_open_file, null);
 
-        fileIcon = (ImageView)view.findViewById(R.id.file_icon);
-        fileNameText = (TextView)view.findViewById(R.id.file_name);
-        fileSizeText = (TextView)view.findViewById(R.id.file_size);
-        progressBar = (ProgressBar)view.findViewById(R.id.progress_bar);
+        fileIcon = (ImageView) view.findViewById(R.id.file_icon);
+        fileNameText = (TextView) view.findViewById(R.id.file_name);
+        fileSizeText = (TextView) view.findViewById(R.id.file_size);
+        progressBar = (ProgressBar) view.findViewById(R.id.progress_bar);
 
         if (savedInstanceState != null) {
             repoName = savedInstanceState.getString("repoName");

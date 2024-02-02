@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <include layout="@layout/toolbar_actionbar" />
+
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipe_refresh_layout"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <com.seafile.seadroid2.view.LinearRecyclerView
+            android:id="@+id/rv"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingBottom="32dp" />
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+    <!-- buttons -->
+    <LinearLayout
+        android:id="@+id/buttonsContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal"
+        android:paddingHorizontal="8dp">
+
+        <Button
+            android:id="@+id/cancel"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/long_btn_height"
+            android:layout_marginHorizontal="8dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/cancel"
+            android:textSize="@dimen/btn_txt_size"
+            android:theme="@style/NegativeButton" />
+
+        <Button
+            android:id="@+id/new_folder"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/long_btn_height"
+            android:layout_marginHorizontal="8dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/create_new_dir"
+            android:textSize="@dimen/btn_txt_size"
+            android:theme="@style/NegativeButton"
+            android:visibility="gone" />
+
+        <Button
+            android:id="@+id/ok"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/long_btn_height"
+            android:layout_marginHorizontal="8dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/ok"
+            android:textSize="@dimen/btn_txt_size" />
+
+    </LinearLayout>
+</LinearLayout>
+

@@ -4,12 +4,13 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.ExifInterface;
 import android.net.Uri;
 import android.provider.BaseColumns;
 import android.provider.MediaStore.Images;
 import android.provider.MediaStore.Images.ImageColumns;
 import android.util.Log;
+
+import androidx.exifinterface.media.ExifInterface;
 
 import java.io.IOException;
 
@@ -24,9 +25,9 @@ public class Image extends BaseImage implements IImage {
     private int mRotation;
 
     public Image(BaseImageList container, ContentResolver cr,
-            long id, int index, Uri uri, String dataPath,
-            String mimeType, long dateTaken, String title,
-            int rotation) {
+                 long id, int index, Uri uri, String dataPath,
+                 String mimeType, long dateTaken, String title,
+                 int rotation) {
         super(container, cr, id, index, uri, dataPath,
                 mimeType, dateTaken, title);
         mRotation = rotation;
@@ -59,6 +60,7 @@ public class Image extends BaseImage implements IImage {
 
     /**
      * Replaces the tag if already there. Otherwise, adds to the exif tags.
+     *
      * @param tag
      * @param value
      */
@@ -115,6 +117,7 @@ public class Image extends BaseImage implements IImage {
 
     /**
      * Save the rotated image by updating the Exif "Orientation" tag.
+     *
      * @param degrees
      */
     public boolean rotateImageBy(int degrees) {
@@ -125,8 +128,8 @@ public class Image extends BaseImage implements IImage {
         return true;
     }
 
-    private static final String[] THUMB_PROJECTION = new String[] {
-        BaseColumns._ID,
+    private static final String[] THUMB_PROJECTION = new String[]{
+            BaseColumns._ID,
     };
 
     public Bitmap thumbBitmap(boolean rotateAsNeeded) {

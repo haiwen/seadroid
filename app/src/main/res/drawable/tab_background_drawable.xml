@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:top="30dp">
+        <shape android:shape="rectangle">
+            <gradient
+                android:angle="270"
+                android:endColor="@color/toolbar_divider_color"
+                android:startColor="#000"
+                android:type="linear" />
+        </shape>
+    </item>
+
+    <item android:bottom="1dp">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/toolbar_background_color" />
+        </shape>
+    </item>
+</layer-list>

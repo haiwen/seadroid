@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?android:selectableItemBackground"
+    android:gravity="center"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingVertical="8dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/list_item_account_icon"
+            android:layout_width="@dimen/lv_act_icon_width"
+            android:layout_height="@dimen/lv_act_icon_height"
+            android:layout_marginEnd="@dimen/lv_act_icon_margin_right"
+            android:src="@drawable/default_avatar"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:shapeAppearance="@style/ShapeCircleStyle" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="@dimen/lv_act_title_group_height"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/list_item_account_title"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/lv_act_title_height"
+                android:layout_marginTop="@dimen/lv_act_title_margin_top"
+                android:lines="1"
+                android:singleLine="true"
+                android:textColor="@color/light_black"
+                android:textSize="@dimen/lv_act_title_txt_size" />
+
+            <TextView
+                android:id="@+id/list_item_account_subtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/lv_act_subtitle_height"
+                android:layout_marginTop="@dimen/lv_act_subtitle_margin_top"
+                android:layout_marginBottom="@dimen/lv_act_subtitle_margin_bottom"
+                android:lines="1"
+                android:textColor="@color/light_grey"
+                android:textSize="@dimen/lv_act_subtitle_txt_size" />
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/item_select_view"
+            android:layout_width="@dimen/lv_iv_action_width"
+            android:layout_height="@dimen/lv_iv_action_width"
+            android:padding="12dp"
+            android:src="@drawable/cuc_repo_selected"
+            android:visibility="invisible" />
+    </LinearLayout>
+
+
+    <com.google.android.material.divider.MaterialDivider
+        android:id="@+id/divider"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:dividerColor="@color/divider_color"
+        app:dividerInsetStart="16dp" />
+</LinearLayout>

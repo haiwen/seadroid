@@ -1,6 +1,7 @@
 package com.seafile.seadroid2.ui.account.adapter;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,8 +10,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.common.collect.Lists;
+import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.avatar.Avatar;
 import com.seafile.seadroid2.config.GlideLoadConfig;
 import com.seafile.seadroid2.util.GlideApp;
 
@@ -20,20 +21,14 @@ import java.util.List;
 /**
  * Base account adapter
  */
-public abstract class AccountAdapter extends BaseAdapter {
-    private static final String DEBUG_TAG = "AccountAdapter";
+public class AccountAdapter extends BaseAdapter {
 
-    //    private ImageLoadingListener animateFirstListener = new AnimateFirstDisplayListener();
-
-//    private DisplayImageOptions options;
     private ArrayList<Account> items;
-    private ArrayList<Avatar> avatars;
     private Context context;
 
     public AccountAdapter(Context context) {
         this.context = context;
         items = Lists.newArrayList();
-        avatars = Lists.newArrayList();
     }
 
     @Override
@@ -65,10 +60,6 @@ public abstract class AccountAdapter extends BaseAdapter {
 
     }
 
-    public void setAvatars(ArrayList<Avatar> avatars) {
-        this.avatars = avatars;
-    }
-
     @Override
     public long getItemId(int position) {
         return position;
@@ -80,34 +71,33 @@ public abstract class AccountAdapter extends BaseAdapter {
 
     private ViewHolder viewHolder;
 
-    protected abstract int getChildLayout();
-
-    protected abstract int getChildTitleId();
-
-    protected abstract int getChildSubTitleId();
-
-    protected abstract int getChildIconId();
-
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View view = convertView;
         if (convertView == null) {
-            view = LayoutInflater.from(context).inflate(getChildLayout(), null);
-            TextView title = (TextView) view.findViewById(getChildTitleId());
-            TextView subtitle = (TextView) view.findViewById(getChildSubTitleId());
-            ImageView icon = (ImageView) view.findViewById(getChildIconId());
-            viewHolder = new ViewHolder(title, subtitle, icon);
+            view = LayoutInflater.from(context).inflate(R.layout.list_item_account_entry, null);
+            TextView title = view.findViewById(R.id.list_item_account_title);
+            TextView subtitle = view.findViewById(R.id.list_item_account_subtitle);
+            ImageView icon = view.findViewById(R.id.list_item_account_icon);
+            ImageView selectView = view.findViewById(R.id.item_select_view);
+            viewHolder = new ViewHolder(title, subtitle, icon, selectView);
             view.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
         }
+
         Account account = items.get(position);
+        viewHolder.selectView.setVisibility(account.is_selected ? View.VISIBLE : View.INVISIBLE);
+
         viewHolder.title.setText(account.getServerHost());
 //        viewHolder.subtitle.setText(account.getEmail());
         viewHolder.subtitle.setText(account.getName());
-        if (getAvatarUrl(account) != null) {
+
+        if (TextUtils.isEmpty(account.avatar_url)) {
+            viewHolder.icon.setImageResource(com.seafile.seadroid2.R.drawable.default_avatar);
+        } else {
             GlideApp.with(viewHolder.icon)
-                    .load(GlideLoadConfig.getGlideUrl(getAvatarUrl(account)))
+                    .load(GlideLoadConfig.getGlideUrl(account.avatar_url))
                     .apply(GlideLoadConfig.getOptions())
                     .into(viewHolder.icon);
         }
@@ -115,45 +105,17 @@ public abstract class AccountAdapter extends BaseAdapter {
         return view;
     }
 
-    private String getAvatarUrl(Account account) {
-        if (avatars == null) {
-            return null;
-        }
-        for (Avatar avatar : avatars) {
-            if (avatar.getSignature().equals(account.getSignature())) {
-                return avatar.getUrl();
-            }
-        }
-
-        return null;
-    }
-
-//    private static class AnimateFirstDisplayListener extends SimpleImageLoadingListener {
-//
-//        static final List<String> displayedImages = Collections.synchronizedList(new LinkedList<String>());
-//
-//        @Override
-//        public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-//            if (loadedImage != null) {
-//                ImageView imageView = (ImageView) view;
-//                boolean firstDisplay = !displayedImages.contains(imageUri);
-//                if (firstDisplay) {
-//                    FadeInBitmapDisplayer.animate(imageView, 500);
-//                    displayedImages.add(imageUri);
-//                }
-//            }
-//        }
-//    }
 
     private static class ViewHolder {
         TextView title, subtitle;
-        ImageView icon;
+        ImageView icon, selectView;
 
-        public ViewHolder(TextView title, TextView subtitle, ImageView icon) {
+        public ViewHolder(TextView title, TextView subtitle, ImageView icon, ImageView selectView) {
             super();
             this.icon = icon;
             this.title = title;
             this.subtitle = subtitle;
+            this.selectView = selectView;
         }
     }
 }

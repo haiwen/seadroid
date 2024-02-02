@@ -16,24 +16,27 @@ import android.content.Intent;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Build;
-
-import androidx.core.app.NotificationCompat;
-import androidx.core.content.FileProvider;
-
 import android.text.ClipboardManager;
 import android.webkit.MimeTypeMap;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
+import androidx.core.content.FileProvider;
+
 import com.blankj.utilcode.util.ToastUtils;
+import com.seafile.seadroid2.BuildConfig;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.ui.activity.GalleryActivity;
-import com.seafile.seadroid2.ui.markdown.MarkdownActivity;
 import com.seafile.seadroid2.ui.dialog.AppChoiceDialog;
 import com.seafile.seadroid2.ui.dialog.GetShareLinkDialog;
-import com.seafile.seadroid2.ui.dialog.GetShareLinkEncryptDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog;
+import com.seafile.seadroid2.ui.dialog_fragment.GetShareLinkPasswordDialogFragment;
+import com.seafile.seadroid2.ui.dialog_fragment.listener.OnRefreshDataListener;
+import com.seafile.seadroid2.ui.main.MainActivity;
+import com.seafile.seadroid2.ui.markdown.MarkdownActivity;
 import com.seafile.seadroid2.util.FileExports;
 import com.seafile.seadroid2.util.Utils;
 
@@ -49,7 +52,7 @@ import java.util.Random;
 public class WidgetUtils {
     public static final String MIME_ANDROID = "application/vnd.android.package-archive";
 
-    public static void chooseShareApp(final BaseActivity activity,
+    public static void chooseShareApp(final AppCompatActivity activity,
                                       final String repoID,
                                       final String path,
                                       final boolean isdir,
@@ -118,25 +121,25 @@ public class WidgetUtils {
             }
 
         });
-        dialog.show(activity.getSupportFragmentManager(), BrowserActivity.CHOOSE_APP_DIALOG_FRAGMENT_TAG);
+        dialog.show(activity.getSupportFragmentManager(), AppChoiceDialog.class.getSimpleName());
     }
 
-    public static void inputSharePassword(final BaseActivity activity,
+    public static void inputSharePassword(final AppCompatActivity activity,
                                           final String repoID,
                                           final String path,
                                           final boolean isdir,
                                           final Account account) {
-        final GetShareLinkEncryptDialog dialog = new GetShareLinkEncryptDialog();
-        dialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
+
+        GetShareLinkPasswordDialogFragment dialogFragment = new GetShareLinkPasswordDialogFragment();
+        dialogFragment.setRefreshListener(new OnRefreshDataListener() {
             @Override
-            public void onTaskSuccess() {
-                String password = dialog.getPassword();
-                String days = dialog.getDays();
+            public void onActionStatus(boolean isDone) {
+                String password = dialogFragment.getPassword();
+                String days = dialogFragment.getDays();
                 chooseShareApp(activity, repoID, path, isdir, account, password, days);
             }
         });
-        dialog.show(activity.getSupportFragmentManager(), BrowserActivity.CHARE_LINK_PASSWORD_FRAGMENT_TAG);
-
+        dialogFragment.show(activity.getSupportFragmentManager(), GetShareLinkPasswordDialogFragment.class.getSimpleName());
     }
 
     /**
@@ -163,7 +166,7 @@ public class WidgetUtils {
             shareIntent.setType("text/plain");
             ResolveInfo weChatInfo = Utils.getWeChatIntent(shareIntent);
             if (weChatInfo == null) {
-                activity.showShortToast(activity, R.string.no_app_available);
+                ToastUtils.showLong(R.string.no_app_available);
                 return;
             }
             String className = weChatInfo.activityInfo.name;
@@ -180,35 +183,36 @@ public class WidgetUtils {
             });
             gdialog.show(activity.getSupportFragmentManager(), "DialogFragment");
         } else {//share  files
-            BrowserActivity browserActivity = ((BrowserActivity) activity);
-            String repoName = ((BrowserActivity) activity).getNavContext().getRepoName();
-            String dirPath = ((BrowserActivity) activity).getNavContext().getDirPath();
-
-            String fullPath = Utils.pathJoin(dirPath, fileName);
-            final File file = browserActivity.getDataManager().getLocalRepoFile(repoName, repoID, fullPath);
-            Uri uri = null;
-            if (android.os.Build.VERSION.SDK_INT > 23) {
-                uri = FileProvider.getUriForFile(activity, activity.getApplicationContext().getPackageName(), file);
-            } else {
-                uri = Uri.fromFile(file);
-            }
-            final Intent sendIntent = new Intent();
-            sendIntent.setAction(Intent.ACTION_SEND);
-            sendIntent.setType(Utils.getFileMimeType(file));
-            sendIntent.putExtra(Intent.EXTRA_STREAM, uri);
-            ResolveInfo weChatInfo = Utils.getWeChatIntent(sendIntent);
-            if (weChatInfo == null) {
-                activity.showShortToast(activity, R.string.no_app_available);
-                return;
-            }
-            String className = weChatInfo.activityInfo.name;
-            String packageName = weChatInfo.activityInfo.packageName;
-            sendIntent.setClassName(packageName, className);
-            if (!Utils.isNetworkOn() && file.exists()) {
-                activity.startActivity(sendIntent);
-                return;
-            }
-            browserActivity.fetchFileAndExport(weChatInfo, sendIntent, repoName, repoID, path, fileSize);
+            //TODO
+//            BrowserActivity browserActivity = ((BrowserActivity) activity);
+//            String repoName = ((BrowserActivity) activity).getNavContext().getRepoName();
+//            String dirPath = ((BrowserActivity) activity).getNavContext().getDirPath();
+//
+//            String fullPath = Utils.pathJoin(dirPath, fileName);
+//            final File file = browserActivity.getDataManager().getLocalRepoFile(repoName, repoID, fullPath);
+//            Uri uri = null;
+//            if (android.os.Build.VERSION.SDK_INT > 23) {
+//                uri = FileProvider.getUriForFile(activity, BuildConfig.FILE_PROVIDER_AUTHORITIES, file);
+//            } else {
+//                uri = Uri.fromFile(file);
+//            }
+//            final Intent sendIntent = new Intent();
+//            sendIntent.setAction(Intent.ACTION_SEND);
+//            sendIntent.setType(Utils.getFileMimeType(file));
+//            sendIntent.putExtra(Intent.EXTRA_STREAM, uri);
+//            ResolveInfo weChatInfo = Utils.getWeChatIntent(sendIntent);
+//            if (weChatInfo == null) {
+//                activity.showShortToast(activity, R.string.no_app_available);
+//                return;
+//            }
+//            String className = weChatInfo.activityInfo.name;
+//            String packageName = weChatInfo.activityInfo.packageName;
+//            sendIntent.setClassName(packageName, className);
+//            if (!Utils.isNetworkOn() && file.exists()) {
+//                activity.startActivity(sendIntent);
+//                return;
+//            }
+//            browserActivity.fetchFileAndExport(weChatInfo, sendIntent, repoName, repoID, path, fileSize);
 
         }
     }
@@ -222,7 +226,7 @@ public class WidgetUtils {
      *
      * @param file
      */
-    public static void showFile(final BaseActivity activity, File file, boolean isOpenWith) {
+    public static void showFile(final Activity activity, File file, boolean isOpenWith) {
 
         String name = file.getName();
         String suffix = name.substring(name.lastIndexOf('.') + 1).toLowerCase();
@@ -251,7 +255,7 @@ public class WidgetUtils {
         open.addFlags(FLAG_ACTIVITY_NEW_TASK);
 
         if (Build.VERSION.SDK_INT > 23) {
-            Uri photoURI = FileProvider.getUriForFile(activity, activity.getApplicationContext().getPackageName(), file);
+            Uri photoURI = FileProvider.getUriForFile(activity, BuildConfig.FILE_PROVIDER_AUTHORITIES, file);
             open.setDataAndType(photoURI, mime);
             open.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
         } else {
@@ -260,7 +264,7 @@ public class WidgetUtils {
         if (Build.VERSION.SDK_INT < 30) {
             if (activity.getPackageManager().resolveActivity(open, 0) == null) {
                 String message = String.format(activity.getString(R.string.op_exception_suitable_app_not_found), mime);
-                activity.showShortToast(activity, message);
+                ToastUtils.showLong(message);
                 mime = "*/*";
                 open.setType(mime);
             }
@@ -307,7 +311,7 @@ public class WidgetUtils {
     }
 
     public static void showRepo(Context context, String repoID, String repoName, String path, String dirID) {
-        Intent intent = new Intent(context, BrowserActivity.class);
+        Intent intent = new Intent(context, MainActivity.class);
         intent.putExtra("repoID", repoID);
         intent.putExtra("repoName", repoName);
         intent.putExtra("path", path);
@@ -315,13 +319,6 @@ public class WidgetUtils {
         context.startActivity(intent);
     }
 
-    public static void showStarredRepo(Activity activity, String repoID, String repoName, String path) {
-        Intent intent = new Intent(activity, BrowserActivity.class);
-        intent.putExtra("repoID", repoID);
-        intent.putExtra("repoName", repoName);
-        intent.putExtra("path", path);
-        activity.startActivityForResult(intent, 0);
-    }
 
     public static void startMarkdownActivity(Context context, String path) {
         Intent intent = new Intent(context, MarkdownActivity.class);

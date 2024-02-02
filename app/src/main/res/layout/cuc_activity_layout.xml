@@ -1,25 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <androidx.viewpager.widget.ViewPager
-        android:id="@+id/cuc_pager"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/pager"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:paddingBottom="16dp" />
 
-    <me.relex.circleindicator.CircleIndicator
-        android:id="@+id/cuc_indicator"
+    <Button
+        android:id="@+id/confirm_button"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|center_horizontal"
-        android:layout_marginBottom="8dp"
-        app:ci_drawable="@drawable/indicator_drawable"
-        app:ci_drawable_unselected="@drawable/indicator_drawable_2"
-        app:ci_height="4dp"
-        app:ci_margin="8dp"
-        app:ci_width="16dp" />
-</FrameLayout>
+        android:layout_height="@dimen/long_btn_height"
+        android:layout_gravity="bottom"
+        android:layout_marginHorizontal="16dp"
+        android:text="@string/confirm"
+        android:textColor="@color/white"
+        android:textSize="@dimen/long_btn_txt_size"
+        android:visibility="gone" />
+
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tabs"
+        android:layout_width="match_parent"
+        android:layout_height="16dp"
+        android:layout_gravity="bottom"
+        android:layout_marginBottom="4dp"
+        android:background="@null"
+        app:tabBackground="@drawable/indicator_selector"
+        app:tabGravity="center"
+        app:tabIndicatorFullWidth="false"
+        app:tabIndicatorHeight="0dp" />
+</LinearLayout>

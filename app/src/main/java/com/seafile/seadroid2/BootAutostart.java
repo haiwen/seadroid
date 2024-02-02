@@ -3,6 +3,7 @@ package com.seafile.seadroid2;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.text.TextUtils;
 
 import com.seafile.seadroid2.util.Utils;
 
@@ -21,10 +22,15 @@ public class BootAutostart extends BroadcastReceiver {
      * - upgrade of the Seadroid package
      */
     public void onReceive(Context context, Intent intent) {
+        if (intent == null || intent.getAction() == null) {
+            return;
+        }
 
-        Utils.startCameraSyncJob(context);
+        if (TextUtils.equals(Intent.ACTION_BOOT_COMPLETED, intent.getAction())
+                || TextUtils.equals(Intent.ACTION_MY_PACKAGE_REPLACED, intent.getAction())) {
+            Utils.startCameraSyncJob(context);
+        }
     }
-
 
 
 }

@@ -1,5 +1,6 @@
 package com.seafile.seadroid2.play.exoplayer;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
@@ -68,6 +69,15 @@ public class CustomExoVideoPlayerActivity extends BaseActivity implements VideoL
     private int startItemIndex;
     private long startPosition;
 
+    public static void startThis(Context context, String fileName, String repoID, String filePath, Account account) {
+        Intent intent = new Intent(context, CustomExoVideoPlayerActivity.class);
+        intent.putExtra("fileName", fileName);
+        intent.putExtra("repoID", repoID);
+        intent.putExtra("filePath", filePath);
+        intent.putExtra("account", account);
+        context.startActivity(intent);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -94,7 +104,7 @@ public class CustomExoVideoPlayerActivity extends BaseActivity implements VideoL
         }
     }
 
-    private void initUI(){
+    private void initUI() {
         backView = findViewById(R.id.back);
         backContainer = findViewById(R.id.back_container);
         progressContainer = findViewById(R.id.progress_container);

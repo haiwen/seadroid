@@ -7,10 +7,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import com.google.android.material.textfield.TextInputLayout;
-import androidx.core.app.NavUtils;
-import androidx.core.app.TaskStackBuilder;
-import androidx.appcompat.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -27,6 +23,13 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.NavUtils;
+import androidx.core.app.TaskStackBuilder;
+
+import com.blankj.utilcode.util.NetworkUtils;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafConnection;
 import com.seafile.seadroid2.SeafException;
@@ -35,7 +38,6 @@ import com.seafile.seadroid2.account.AccountInfo;
 import com.seafile.seadroid2.account.Authenticator;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.ssl.CertsManager;
-import com.seafile.seadroid2.ui.EmailAutoCompleteTextView;
 import com.seafile.seadroid2.ui.BaseActivity;
 import com.seafile.seadroid2.ui.dialog.SslConfirmDialog;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
@@ -57,18 +59,16 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
     private Button mLoginBtn;
     private EditText mServerEt;
     private ProgressDialog mProgressDialog;
-    private EmailAutoCompleteTextView mEmailEt;
+    private TextInputEditText mEmailEt;
     private EditText mPasswdEt;
     private CheckBox mHttpsCheckBox;
     private TextView mSeaHubUrlHintTv;
-    private ImageView mClearEmailIv, mClearPasswordIv, mEyeClickIv;
-    private RelativeLayout mEyeContainer;
+    private ImageView mClearEmailIv;
     private TextInputLayout mAuthTokenInputLayout;
     private EditText mAuthTokenEt;
 
     private android.accounts.AccountManager mAccountManager;
     private boolean serverTextHasFocus;
-    private boolean isPasswordVisible;
     private CheckBox mRemDeviceCheckBox;
     private String mSessionKey;
 
@@ -86,14 +86,11 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
         mLoginBtn = (Button) findViewById(R.id.login_button);
         mHttpsCheckBox = (CheckBox) findViewById(R.id.https_checkbox);
         mServerEt = (EditText) findViewById(R.id.server_url);
-        mEmailEt = (EmailAutoCompleteTextView) findViewById(R.id.email_address);
+        mEmailEt = findViewById(R.id.email_address);
         mPasswdEt = (EditText) findViewById(R.id.password);
         mSeaHubUrlHintTv = (TextView) findViewById(R.id.seahub_url_hint);
 
         mClearEmailIv = (ImageView) findViewById(R.id.iv_delete_email);
-        mClearPasswordIv = (ImageView) findViewById(R.id.iv_delete_pwd);
-        mEyeContainer = (RelativeLayout) findViewById(R.id.rl_layout_eye);
-        mEyeClickIv = (ImageView) findViewById(R.id.iv_eye_click);
 
         mAuthTokenInputLayout = (TextInputLayout) findViewById(R.id.auth_token_hint);
         mAuthTokenEt = (EditText) findViewById(R.id.auth_token);
@@ -125,8 +122,6 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
             mEmailEt.setText(email);
             mEmailEt.requestFocus();
             mSeaHubUrlHintTv.setVisibility(View.GONE);
-
-
         } else if (defaultServerUri != null) {
             if (defaultServerUri.startsWith(HTTPS_PREFIX))
                 mHttpsCheckBox.setChecked(true);
@@ -158,17 +153,6 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
             }
         });
 
-        mPasswdEt.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (hasFocus && mPasswdEt.getText().toString().trim().length() > 0) {
-                    mClearPasswordIv.setVisibility(View.VISIBLE);
-                } else {
-                    mClearPasswordIv.setVisibility(View.INVISIBLE);
-                }
-            }
-        });
-
         mEmailEt.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -189,25 +173,6 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
         });
 
 
-        mPasswdEt.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (mPasswdEt.getText().toString().trim().length() > 0) {
-                    mClearPasswordIv.setVisibility(View.VISIBLE);
-                } else {
-                    mClearPasswordIv.setVisibility(View.INVISIBLE);
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-            }
-        });
-
         mClearEmailIv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -215,25 +180,18 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
             }
         });
 
-        mClearPasswordIv.setOnClickListener(new View.OnClickListener() {
+        TextInputLayout passwordInputLayout = findViewById(R.id.password_hint);
+        passwordInputLayout.setEndIconOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mPasswdEt.setText("");
-            }
-        });
-
-        mEyeContainer.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!isPasswordVisible) {
-                    mEyeClickIv.setImageResource(R.drawable.icon_eye_open);
+                if (mPasswdEt.getTransformationMethod() instanceof PasswordTransformationMethod) {
                     mPasswdEt.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+                    passwordInputLayout.setEndIconDrawable(R.drawable.icon_eye_open);
                 } else {
-                    mEyeClickIv.setImageResource(R.drawable.icon_eye_close);
+                    passwordInputLayout.setEndIconDrawable(R.drawable.icon_eye_close);
                     mPasswdEt.setTransformationMethod(PasswordTransformationMethod.getInstance());
                 }
-                isPasswordVisible = !isPasswordVisible;
-                mPasswdEt.postInvalidate();
+
                 String input = mPasswdEt.getText().toString().trim();
                 if (!TextUtils.isEmpty(input)) {
                     mPasswdEt.setSelection(input.length());
@@ -371,11 +329,8 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
         String serverURL = mServerEt.getText().toString().trim();
         String email = mEmailEt.getText().toString().trim();
         String passwd = mPasswdEt.getText().toString();
-        ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 
-        if (networkInfo == null || !networkInfo.isConnected()) {
-//        if (!NetworkUtils.isConnected()) {
+        if (!NetworkUtils.isConnected()) {
             mStatusTv.setText(R.string.network_down);
             return;
         }
@@ -423,7 +378,7 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
         }
 
         mLoginBtn.setEnabled(false);
-        Account tmpAccount = new Account(null, serverURL, email, null, false, mSessionKey);
+        Account tmpAccount = new Account(null, serverURL, email, null, null, false, mSessionKey);
         mProgressDialog = new ProgressDialog(this);
         mProgressDialog.setMessage(getString(R.string.settings_cuc_loading));
         mProgressDialog.setCancelable(false);
@@ -508,6 +463,9 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
                 retData.putExtra(android.accounts.AccountManager.KEY_ACCOUNT_NAME, loginAccount.getSignature());
                 retData.putExtra(android.accounts.AccountManager.KEY_AUTHTOKEN, loginAccount.getToken());
                 retData.putExtra(android.accounts.AccountManager.KEY_ACCOUNT_TYPE, getIntent().getStringExtra(SeafileAuthenticatorActivity.ARG_ACCOUNT_TYPE));
+
+                //extra params
+                retData.putExtra(SeafileAuthenticatorActivity.ARG_AVATAR_URL, loginAccount.getAvatarUrl());
                 retData.putExtra(SeafileAuthenticatorActivity.ARG_EMAIL, loginAccount.getEmail());
                 retData.putExtra(SeafileAuthenticatorActivity.ARG_NAME, loginAccount.getName());
                 retData.putExtra(SeafileAuthenticatorActivity.ARG_AUTH_SESSION_KEY, loginAccount.getSessionKey());
@@ -537,8 +495,7 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
                     return "Unknown error";
 
                 // replace email address/username given by the user with the address known by the server.
-//                loginAccount = new Account(loginAccount.server, accountInfo.getEmail(), loginAccount.token, false, loginAccount.sessionKey);
-                loginAccount = new Account(accountInfo.getName(), loginAccount.server, accountInfo.getEmail(), loginAccount.token, false, loginAccount.sessionKey);
+                loginAccount = new Account(accountInfo.getName(), loginAccount.server, accountInfo.getEmail(), accountInfo.getAvatarUrl(), loginAccount.token, false, loginAccount.sessionKey);
 
                 return "Success";
 

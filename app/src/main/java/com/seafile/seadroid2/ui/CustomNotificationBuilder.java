@@ -3,6 +3,8 @@ package com.seafile.seadroid2.ui;
 import android.app.Notification;
 import android.content.Context;
 import android.os.Build;
+
+import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 import android.view.View;
 import android.widget.RemoteViews;
@@ -35,13 +37,7 @@ public class CustomNotificationBuilder extends NotificationCompat.Builder {
      *                      {@link NotificationCompat.Builder}, when it is good enough.
      */
     public static NotificationCompat.Builder getNotificationBuilder(Context context, String channelId) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-            return new CustomNotificationBuilder(context);
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            return new NotificationCompat.Builder(context, channelId);
-        } else {
-            return new NotificationCompat.Builder(context);
-        }
+        return new NotificationCompat.Builder(context, channelId);
     }
 
     /**
@@ -58,6 +54,7 @@ public class CustomNotificationBuilder extends NotificationCompat.Builder {
     /**
      * {@inheritDoc}
      */
+    @NonNull
     @Override
     public NotificationCompat.Builder setProgress(int max, int progress, boolean indeterminate) {
         mContentView.setProgressBar(R.id.progress, max, progress, indeterminate);
@@ -72,6 +69,7 @@ public class CustomNotificationBuilder extends NotificationCompat.Builder {
     /**
      * {@inheritDoc}
      */
+    @NonNull
     @Override
     public NotificationCompat.Builder setSmallIcon(int icon) {
         super.setSmallIcon(icon);   // necessary
@@ -82,6 +80,7 @@ public class CustomNotificationBuilder extends NotificationCompat.Builder {
     /**
      * {@inheritDoc}
      */
+    @NonNull
     @Override
     public NotificationCompat.Builder setContentTitle(CharSequence title) {
         super.setContentTitle(title);
@@ -92,6 +91,7 @@ public class CustomNotificationBuilder extends NotificationCompat.Builder {
     /**
      * {@inheritDoc}
      */
+    @NonNull
     @Override
     public NotificationCompat.Builder setContentText(CharSequence text) {
         super.setContentText(text);
@@ -103,16 +103,5 @@ public class CustomNotificationBuilder extends NotificationCompat.Builder {
         }
         return this;
     }
-
-    @Override
-    public Notification build() {
-        Notification result = super.build();
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-            // super.build() in Android 2.x totally ruins whatever was made #setContent
-            result.contentView = mContentView;
-        }
-        return result;
-    }
-
 
 }

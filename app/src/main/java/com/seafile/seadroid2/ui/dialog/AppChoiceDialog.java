@@ -8,8 +8,10 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+
 import androidx.fragment.app.DialogFragment;
 import androidx.appcompat.app.AlertDialog;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,6 +34,7 @@ public class AppChoiceDialog extends DialogFragment {
 
     public interface OnItemSelectedListener {
         void onAppSelected(ResolveInfo appInfo);
+
         void onCustomActionSelected(CustomAction action);
     }
 
@@ -101,12 +104,12 @@ public class AppChoiceDialog extends DialogFragment {
 
             if (convertView == null) {
                 view = LayoutInflater.from(getActivity()).inflate(R.layout.app_list_item, null);
-                ImageView icon = (ImageView)view.findViewById(R.id.app_icon);
-                TextView desc = (TextView)view.findViewById(R.id.app_desc);
+                ImageView icon = (ImageView) view.findViewById(R.id.app_icon);
+                TextView desc = (TextView) view.findViewById(R.id.app_desc);
                 viewHolder = new Viewholder(icon, desc);
                 view.setTag(viewHolder);
             } else {
-                viewHolder = (Viewholder)convertView.getTag();
+                viewHolder = (Viewholder) convertView.getTag();
             }
 
             if (position < customActions.size()) {

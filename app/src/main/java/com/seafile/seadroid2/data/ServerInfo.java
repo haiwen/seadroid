@@ -68,8 +68,7 @@ public class ServerInfo implements Parcelable{
     }
 
     public boolean canLocalDecrypt() {
-        if (TextUtils.isEmpty(version)
-                || version.length() != 5)
+        if (TextUtils.isEmpty(version) || version.length() != 5)
             return false;
 
         final String realVersion = version.replaceAll("[.]", "");

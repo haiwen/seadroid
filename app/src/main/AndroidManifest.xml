@@ -5,9 +5,15 @@
 
     <uses-sdk tools:overrideLibrary="us.feras.mdv" />
 
+
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
 
     <!-- to start monitor services during boot -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
@@ -49,35 +55,21 @@
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
 
     <application
-        android:name="com.seafile.seadroid2.SeadroidApplication"
+        android:name=".SeadroidApplication"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:networkSecurityConfig="@xml/network_security_config"
         android:requestLegacyExternalStorage="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme.Material3">
 
         <meta-data
-            android:name="com.seafile.seadroid2.util.GlideCache"
+            android:name=".util.GlideCache"
             android:value="AppGlideModule" />
 
         <activity
-            android:name="com.seafile.seadroid2.ui.account.AccountsActivity"
-            android:launchMode="singleTop" />
-
-        <activity android:name=".ui.account.SingleSignOnActivity" />
-
-        <activity android:name=".ui.account.SingleSignOnAuthorizeActivity" />
-
-        <activity android:name="com.seafile.seadroid2.ui.settings.SettingsActivity" />
-
-        <activity android:name="com.seafile.seadroid2.ui.settings.PrivacyPolicyActivity" />
-
-        <activity
-            android:name="com.seafile.seadroid2.ui.BrowserActivity"
-            android:configChanges="orientation"
-            android:exported="true"
-            android:launchMode="singleTop">
+            android:name=".ui.SplashActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -85,15 +77,31 @@
         </activity>
 
         <activity
-            android:name="com.seafile.seadroid2.ui.gesture.UnlockGesturePasswordActivity"
+            android:name=".ui.account.AccountsActivity"
+            android:launchMode="singleTop" />
+
+        <activity android:name=".ui.account.SingleSignOnActivity" />
+
+        <activity android:name=".ui.account.SingleSignOnAuthorizeActivity" />
+
+        <activity android:name=".ui.settings.SettingsActivity" />
+
+        <activity
+            android:name=".ui.main.MainActivity"
+            android:configChanges="orientation"
+            android:exported="false"
+            android:launchMode="singleTop" />
+
+        <activity
+            android:name=".ui.gesture.UnlockGesturePasswordActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.seafile.seadroid2.ui.gesture.CreateGesturePasswordActivity"
+            android:name=".ui.gesture.CreateGesturePasswordActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
 
-        <activity android:name="com.seafile.seadroid2.ui.markdown.MarkdownActivity" />
+        <activity android:name=".ui.markdown.MarkdownActivity" />
 
         <activity
             android:name=".ui.account.AccountDetailActivity"
@@ -102,11 +110,11 @@
         <!-- MultipleImageSelectionActivity uses the default theme, instead of
              ActionBarSherlock -->
         <activity
-            android:name="com.seafile.seadroid2.gallery.MultipleImageSelectionActivity"
+            android:name=".gallery.MultipleImageSelectionActivity"
             android:theme="@style/AppTheme.Multiple" />
 
         <activity
-            android:name="com.seafile.seadroid2.ui.activity.ShareToSeafileActivity"
+            android:name=".ui.activity.ShareToSeafileActivity"
             android:excludeFromRecents="true"
             android:exported="true">
             <intent-filter>
@@ -121,9 +129,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="com.seafile.seadroid2.ui.activity.SeafilePathChooserActivity" />
-
-        <activity android:name="com.seafile.seadroid2.ui.activity.FileActivity" />
+        <activity android:name=".ui.activity.FileActivity" />
 
         <activity
             android:name=".ui.account.SeafileAuthenticatorActivity"
@@ -132,16 +138,11 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.account.AccountsActivity" />
         </activity>
+        
+        <activity android:name=".ui.transfer.TransferActivity" />
 
-        <activity android:name="com.seafile.seadroid2.fileschooser.MultiFileChooserActivity" />
-
-        <activity android:name="com.seafile.seadroid2.ui.transfer.TransferActivity" />
-
-        <activity android:name="com.seafile.seadroid2.cameraupload.CameraUploadConfigActivity" />
-        <activity android:name=".folderbackup.FolderBackupConfigActivity" />
-        <!--<activity android:name="com.seafile.seadroid2.cameraupload.ContactsUploadConfigActivity"-->
-        <!--android:label="@string/app_name">-->
-        <!--</activity>-->
+        <activity android:name=".ui.camera_upload.CameraUploadConfigActivity" />
+        <activity android:name=".ui.folder_backup.FolderBackupConfigActivity" />
 
         <activity android:name=".ui.activity.GalleryActivity" />
         <activity
@@ -157,7 +158,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".folderbackup.FolderBackupSelectedPathActivity" />
+        <activity android:name=".ui.folder_backup.FolderBackupSelectedPathActivity" />
 
         <activity
             android:name=".play.exoplayer.CustomExoVideoPlayerActivity"
@@ -165,9 +166,11 @@
             android:screenOrientation="sensor"
             android:theme="@style/Theme.Fullscreen" />
         <activity android:name=".ui.webview.SeaWebViewActivity" />
+        <activity android:name=".ui.data_migrate.DataMigrationActivity" />
+        <activity android:name=".ui.selector.ObjSelectorActivity" />
 
         <provider
-            android:name="com.seafile.seadroid2.provider.SeafileProvider"
+            android:name=".provider.SeafileProvider"
             android:authorities="${applicationId}.documents"
             android:enabled="@bool/atLeastKitKat"
             android:exported="true"
@@ -178,13 +181,13 @@
             </intent-filter>
         </provider>
 
-        <service android:name="com.seafile.seadroid2.transfer.TransferService" />
-        <service android:name="com.seafile.seadroid2.folderbackup.FolderBackupService" />
-        <service android:name="com.seafile.seadroid2.monitor.FileMonitorService" />
-        <service android:name=".cameraupload.MediaObserverService" />
+        <service android:name=".transfer.TransferService" />
+        <service android:name=".ui.folder_backup.FolderBackupService" />
+        <service android:name=".monitor.FileMonitorService" />
+        <service android:name=".ui.camera_upload.MediaObserverService" />
 
         <provider
-            android:name=".cameraupload.StubContentProvider"
+            android:name=".ui.camera_upload.StubContentProvider"
             android:authorities="${applicationId}.cameraupload.provider"
             android:exported="false"
             android:label="@string/sync_provider_camera_upload"
@@ -192,7 +195,7 @@
 
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="${applicationId}"
+            android:authorities="${applicationId}.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data
@@ -212,7 +215,7 @@
         </service>
 
         <service
-            android:name=".cameraupload.CameraSyncService"
+            android:name=".ui.camera_upload.CameraSyncService"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
@@ -224,11 +227,11 @@
         </service>
 
         <service
-            android:name=".cameraupload.MediaSchedulerService"
+            android:name=".ui.camera_upload.MediaSchedulerService"
             android:permission="android.permission.BIND_JOB_SERVICE" />
 
         <receiver
-            android:name="com.seafile.seadroid2.BootAutostart"
+            android:name=".BootAutostart"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />

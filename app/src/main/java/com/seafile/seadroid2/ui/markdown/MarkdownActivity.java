@@ -10,6 +10,8 @@ import androidx.appcompat.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.blankj.utilcode.util.ToastUtils;
+import com.seafile.seadroid2.BuildConfig;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.editor.EditorActivity;
 import com.seafile.seadroid2.ui.BaseActivity;
@@ -101,7 +103,7 @@ public class MarkdownActivity extends BaseActivity implements Toolbar.OnMenuItem
 
         // First try to find an activity who can handle markdown edit
         Intent editAsMarkDown = new Intent(Intent.ACTION_EDIT);
-        Uri uri = FileProvider.getUriForFile(this, getPackageName(), new File(path));
+        Uri uri = FileProvider.getUriForFile(this, BuildConfig.FILE_PROVIDER_AUTHORITIES, new File(path));
         editAsMarkDown.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
 
         String mime = FileMimeUtils.getMimeType(new File(path));
@@ -123,7 +125,7 @@ public class MarkdownActivity extends BaseActivity implements Toolbar.OnMenuItem
             try {
                 startActivity(editAsText);
             } catch (ActivityNotFoundException e) {
-                showShortToast(this, getString(R.string.activity_not_found));
+                ToastUtils.showLong(R.string.activity_not_found);
             }
         }
     }

@@ -10,7 +10,9 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.util.SLogs;
 import com.seafile.seadroid2.util.Token2SessionConverts;
 
 import java.util.HashMap;
@@ -66,24 +68,32 @@ public class SeaWebViewClient extends WebViewClient {
         goWithToken(targetUrl, wb, true);
     }
 
-    private void goWithToken(String targetUrl, WebView wb, boolean isRedirect) {
-        Log.d(getClass().getSimpleName(), "targetUrl: " + targetUrl);
-
-        mOriginTargetUrl = targetUrl;
-        Map<String, String> map = new HashMap<>();
-        map.put("Authorization", "Token " + SupportAccountManager.getInstance().getCurrentAccount().token);
-        wb.loadUrl(buildUrl(mOriginTargetUrl, isRedirect), map);
+    public void goDirectly(String targetUrl, WebView wb) {
+        goWithToken(targetUrl, wb, false);
     }
 
-    private String buildUrl(String url, boolean isRedirect) {
-        if (!url.startsWith("http")) {
-            return url;
-        }
+    private void goWithToken(String targetUrl, WebView wb, boolean isRedirect) {
+        SLogs.d("targetUrl: " + targetUrl);
+
+        mOriginTargetUrl = targetUrl;
 
         if (isRedirect) {
-            String rUrl = Token2SessionConverts.buildUrl(url);
-            Log.d(getClass().getSimpleName(), "link redirect to -> " + rUrl);
-            return rUrl;
+            Map<String, String> map = new HashMap<>();
+
+            Account account = SupportAccountManager.getInstance().getCurrentAccount();
+            if (account != null) {
+                map.put("Authorization", "Token " + account.token);
+            }
+
+            wb.loadUrl(buildUrl(mOriginTargetUrl), map);
+        } else {
+            wb.loadUrl(mOriginTargetUrl);
+        }
+    }
+
+    private String buildUrl(String url) {
+        if (!url.startsWith("http")) {
+            return url;
         }
 
         // Optimise the code here:

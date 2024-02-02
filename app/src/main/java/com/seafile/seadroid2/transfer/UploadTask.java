@@ -6,7 +6,7 @@ import android.widget.Toast;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SeafException;
-import com.seafile.seadroid2.SettingsManager;
+import com.seafile.seadroid2.util.sp.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.ProgressMonitor;
@@ -113,7 +113,7 @@ public class UploadTask extends TransferTask {
         state = err == null ? TaskState.FINISHED : TaskState.FAILED;
         if (uploadStateListener != null) {
             if (err == null) {
-                SettingsManager.instance().saveUploadCompletedTime(Utils.getSyncCompletedTime());
+                SettingsManager.getInstance().saveUploadCompletedTime(Utils.getSyncCompletedTime());
                 uploadStateListener.onFileUploaded(taskID);
             } else {
                 if (err.getCode() == SeafException.HTTP_ABOVE_QUOTA) {

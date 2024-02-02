@@ -2,7 +2,7 @@ package com.seafile.seadroid2.data;
 
 import android.text.TextUtils;
 
-import com.seafile.seadroid2.SettingsManager;
+import com.seafile.seadroid2.util.sp.SettingsManager;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -50,7 +50,7 @@ public class SeafRepoEncrypt {
         return encrypted
                 && encVersion == 2
                 && !TextUtils.isEmpty(magic)
-                && SettingsManager.instance().isEncryptEnabled();
+                && SettingsManager.getInstance().isEncryptEnabled();
     }
 
 }
