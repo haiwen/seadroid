@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:foreground="?selectableItemBackground">
@@ -33,27 +34,23 @@
 
         <TextView
             android:id="@+id/item_title"
+            style="@style/ListItemTitleStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:textColor="@color/item_repo_title_color"
-            android:textSize="@dimen/lv_title_txt_size" />
+            tools:text="@string/app_name" />
 
         <TextView
             android:id="@+id/item_subtitle"
+            style="@style/ListItemSubTitleStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:textColor="@color/item_repo_subtitle_color"
-            android:textSize="@dimen/lv_subtitle_txt_size"
             app:layout_constrainedWidth="true"
             app:layout_constraintEnd_toStartOf="@+id/item_action"
             app:layout_constraintHorizontal_bias="0"
             app:layout_constraintStart_toEndOf="@+id/item_icon"
-            app:layout_constraintTop_toBottomOf="@+id/item_title" />
+            app:layout_constraintTop_toBottomOf="@+id/item_title"
+            tools:text="@string/app_name" />
 
     </LinearLayout>
 

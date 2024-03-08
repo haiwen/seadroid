@@ -81,7 +81,7 @@ public class FolderBackupSelectedPathActivity extends BaseActivity {
                 mAdapter.removeAt(position);
 
                 String strJsonPath = new Gson().toJson(mAdapter.getItems());
-                FolderBackupConfigSPs.saveBackupPaths(strJsonPath);
+                FolderBackupConfigSPs.saveBackupPathsByCurrentAccount(strJsonPath);
             }
         });
     }

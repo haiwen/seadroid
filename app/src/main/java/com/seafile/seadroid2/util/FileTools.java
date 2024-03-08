@@ -5,6 +5,7 @@ import android.os.storage.StorageManager;
 import android.text.TextUtils;
 
 import com.seafile.seadroid2.ui.selector.folder_selector.StringTools;
+import com.seafile.seadroid2.util.sp.SettingsManager;
 
 import java.io.File;
 import java.lang.reflect.Method;
@@ -41,15 +42,23 @@ public class FileTools {
     }
 
     public static int[] getChildrenNumber(File file) {
+        boolean isJumpHiddenFile = SettingsManager.getInstance().isFolderBackupJumpHiddenFiles();
+
         File[] files = file.listFiles();
         int[] numbers = new int[]{0, 0};
-        if (files != null) {
-            for (int i = 0; i < files.length; i++) {
-                if (files[i].isFile()) {
-                    numbers[0]++;
-                } else {
-                    numbers[1]++;
-                }
+        if (files == null) {
+            return numbers;
+        }
+
+        for (File value : files) {
+            if (isJumpHiddenFile && value.isHidden()) {
+                continue;
+            }
+
+            if (value.isFile()) {
+                numbers[0]++;
+            } else {
+                numbers[1]++;
             }
         }
         return numbers;
@@ -93,6 +102,9 @@ public class FileTools {
         if (TextUtils.isEmpty(filePath)) {
             return "";
         } else {
+            if (filePath.endsWith(File.separator)) {
+                filePath = StringUtils.trimEnd(filePath, File.separator);
+            }
             int lastSep = filePath.lastIndexOf(File.separator);
             return lastSep == -1 ? "" : filePath.substring(0, lastSep);
         }

@@ -40,7 +40,7 @@
     <color name="md_theme_background">#FFFBFE</color>
     <color name="md_theme_onBackground">#1C1B1F</color>
     <color name="md_theme_surface">#FFFBFE</color>
-    <color name="md_theme_onSurface">#1C1B1F</color>
+    <color name="md_theme_onSurface">#FFF</color>
 
 
     <!--editor-->
@@ -55,9 +55,10 @@
     <color name="file_picker_des">#86848B</color>
 
     <!-- view color -->
+    <color name="toolbar_divider_color">#2c2c2c</color>
     <color name="divider_color">#2c2c2c</color>
-    <color name="item_repo_title_color">#d3d3d3</color>
-    <color name="item_repo_subtitle_color">#5e5e5e</color>
+    <color name="list_item_title_color">#d3d3d3</color>
+    <color name="list_item_subtitle_color">#5e5e5e</color>
 
     <color name="toolbar_background_color">#191919</color>
     <color name="toolbar_title_color">#f2f2f2</color>
@@ -65,4 +66,10 @@
     <color name="alert_dialog_background_color">#191919</color>
     <color name="alert_dialog_onsurface_color">#f2f2f2</color>
 
+    <color name="switch_thumb_color">@color/fancy_orange</color>
+    <color name="switch_track_color">#E3E3E3</color>
+
+    <!-- search -->
+    <color name="search_bg_color">#5e5e5e</color>
+    <color name="search_stroke_color">#2c2c2c</color>
 </resources>

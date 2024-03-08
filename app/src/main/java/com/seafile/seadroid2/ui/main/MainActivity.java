@@ -13,6 +13,7 @@ import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.FileObserver;
 import android.os.IBinder;
 import android.text.TextUtils;
 import android.view.KeyEvent;
@@ -44,11 +45,14 @@ import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.context.NavContext;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.ServerInfo;
+import com.seafile.seadroid2.data.db.AppDatabase;
 import com.seafile.seadroid2.data.db.entities.DirentModel;
 import com.seafile.seadroid2.data.db.entities.ObjsModel;
 import com.seafile.seadroid2.data.db.entities.RepoModel;
+import com.seafile.seadroid2.data.model.star.StarredModel;
 import com.seafile.seadroid2.databinding.ActivityMainBinding;
 import com.seafile.seadroid2.monitor.FileMonitorService;
+import com.seafile.seadroid2.notification.UploadNotificationManager;
 import com.seafile.seadroid2.notification.UploadNotificationProvider;
 import com.seafile.seadroid2.transfer.DownloadTaskManager;
 import com.seafile.seadroid2.transfer.PendingUploadInfo;
@@ -77,6 +81,9 @@ import com.seafile.seadroid2.util.TakeCameras;
 import com.seafile.seadroid2.util.Utils;
 import com.seafile.seadroid2.util.sp.FolderBackupConfigSPs;
 import com.seafile.seadroid2.util.sp.SettingsManager;
+import com.seafile.seadroid2.worker.BackgroundJobManagerImpl;
+import com.seafile.seadroid2.worker.FileSyncService;
+import com.seafile.seadroid2.worker.observer.MediaContentObserver;
 
 import java.io.File;
 import java.io.IOException;
@@ -95,8 +102,10 @@ public class MainActivity extends BaseQuickActivity implements Toolbar.OnMenuIte
     public static final int INDEX_LIBRARY_TAB = 0;
 
     private Intent monitorIntent;
+    private FileSyncService syncService;
+
     private TransferService txService = null;
-    private FolderBackupService folderBackupService = null;
+
     private TransferReceiver mTransferReceiver;
 
 
@@ -154,7 +163,7 @@ public class MainActivity extends BaseQuickActivity implements Toolbar.OnMenuIte
         initViewModel();
 
         //service
-//        bindService();
+        bindService();
 
 //        requestServerInfo(true);
 
@@ -162,8 +171,15 @@ public class MainActivity extends BaseQuickActivity implements Toolbar.OnMenuIte
 //        Utils.startCameraSyncJob(this);
 
 //        syncCamera();
+
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        BackgroundJobManagerImpl.getInstance().cancelAllJobs();
+    }
 
     @Override
     public void onStart() {
@@ -190,6 +206,15 @@ public class MainActivity extends BaseQuickActivity implements Toolbar.OnMenuIte
         }
     }
 
+    public static void navToThis(Context context, String repo_id, String repo_name, String path, boolean is_dir) {
+        Intent intent = new Intent(context, MainActivity.class);
+        intent.putExtra("repo_id", repo_id);
+        intent.putExtra("repo_name", repo_name);
+        intent.putExtra("path", path);
+        intent.putExtra("is_dir", is_dir);
+        context.startActivity(intent);
+    }
+
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
@@ -214,19 +239,24 @@ public class MainActivity extends BaseQuickActivity implements Toolbar.OnMenuIte
             return;
         }
 
-        String repoId = intent.getStringExtra("repoID");
-        String repoName = intent.getStringExtra("repoName");
+        String repoId = intent.getStringExtra("repo_id");
+        String repoName = intent.getStringExtra("repo_name");
         String path = intent.getStringExtra("path");
+        boolean isDir = intent.getBooleanExtra("is_dir", false);
 
         if (TextUtils.isEmpty(repoId) || TextUtils.isEmpty(path)) {
             return;
         }
 
         //
-        navToPath(repoId, path);
+        navToPath(repoId, path, isDir);
     }
 
-    private void navToPath(String repoId, String path) {
+    private void navToPath(String repoId, String path, boolean isDir) {
+        if (!isDir) {
+            path = Utils.getParentPath(path);
+        }
+        String finalPath = path;
         mainViewModel.requestRepoModel(repoId, new Consumer<RepoModel>() {
             @Override
             public void accept(RepoModel repoModel) throws Exception {
@@ -238,9 +268,9 @@ public class MainActivity extends BaseQuickActivity implements Toolbar.OnMenuIte
                             long now = TimeUtils.getNowMills();
                             if (objsModel == null || (repoModel.encrypted && now > objsModel.decrypt_expire_time_long)) {
                                 // expired
-                                showPasswordDialog(repoModel, path);
+                                showPasswordDialog(repoModel, finalPath);
                             } else {
-                                getNavContext().navToPath(repoModel, path);
+                                getNavContext().navToPath(repoModel, finalPath);
                                 binding.pager.setCurrentItem(0);
                                 getReposFragment().loadData();
                                 refreshToolbarTitle();
@@ -248,7 +278,7 @@ public class MainActivity extends BaseQuickActivity implements Toolbar.OnMenuIte
                         }
                     });
                 } else {
-                    getNavContext().navToPath(repoModel, path);
+                    getNavContext().navToPath(repoModel, finalPath);
                     binding.pager.setCurrentItem(0);
                     getReposFragment().loadData();
                     refreshToolbarTitle();
@@ -404,30 +434,40 @@ public class MainActivity extends BaseQuickActivity implements Toolbar.OnMenuIte
     /////////////////////service
     private void bindService() {
         // restart service should it have been stopped for some reason
-        Intent mediaObserver = new Intent(this, MediaObserverService.class);
-        startService(mediaObserver);
-        SLogs.d("start MediaObserverService");
+//        Intent mediaObserver = new Intent(this, MediaObserverService.class);
+//        startService(mediaObserver);
+//        SLogs.d("start MediaObserverService");
+//
+//        Intent dIntent = new Intent(this, FolderBackupService.class);
+//        startService(dIntent);
+//        SLogs.d("start FolderBackupService");
+//
+//        Intent dirIntent = new Intent(this, FolderBackupService.class);
+//        bindService(dirIntent, folderBackupConnection, Context.BIND_AUTO_CREATE);
+//        SLogs.d("try bind FolderBackupService");
+//
+//        Intent txIntent = new Intent(this, TransferService.class);
+//        startService(txIntent);
+//        SLogs.d("start TransferService");
+//
+//        // bind transfer service
+//        Intent bIntent = new Intent(this, TransferService.class);
+//        bindService(bIntent, mConnection, Context.BIND_AUTO_CREATE);
+//        SLogs.d("try bind TransferService");
+//
+//        monitorIntent = new Intent(this, FileMonitorService.class);
+//        startService(monitorIntent);
+//        SLogs.d("start FileMonitorService");
 
-        Intent dIntent = new Intent(this, FolderBackupService.class);
-        startService(dIntent);
-        SLogs.d("start FolderBackupService");
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                AppDatabase.getInstance().fileTransferDAO().deleteAll();
+//            }
+//        }).start();
 
-        Intent dirIntent = new Intent(this, FolderBackupService.class);
-        bindService(dirIntent, folderBackupConnection, Context.BIND_AUTO_CREATE);
-        SLogs.d("try bind FolderBackupService");
-
-        Intent txIntent = new Intent(this, TransferService.class);
-        startService(txIntent);
-        SLogs.d("start TransferService");
-
-        // bind transfer service
-        Intent bIntent = new Intent(this, TransferService.class);
-        bindService(bIntent, mConnection, Context.BIND_AUTO_CREATE);
-        SLogs.d("try bind TransferService");
-
-        monitorIntent = new Intent(this, FileMonitorService.class);
-        startService(monitorIntent);
-        SLogs.d("start FileMonitorService");
+        Intent syncIntent = new Intent(this, FileSyncService.class);
+        bindService(syncIntent, syncConnection, Context.BIND_AUTO_CREATE);
     }
 
     private void registerReceiver() {
@@ -440,6 +480,21 @@ public class MainActivity extends BaseQuickActivity implements Toolbar.OnMenuIte
         LocalBroadcastManager.getInstance(this).registerReceiver(mTransferReceiver, filter);
 
     }
+
+    private final ServiceConnection syncConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            FileSyncService.FileSyncBinder binder = (FileSyncService.FileSyncBinder) service;
+            syncService = binder.getService();
+            SLogs.d("bond FileSyncService");
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            syncService = null;
+            SLogs.d("FileSyncService disconnected");
+        }
+    };
 
     private final ServiceConnection mConnection = new ServiceConnection() {
         @Override
@@ -463,27 +518,6 @@ public class MainActivity extends BaseQuickActivity implements Toolbar.OnMenuIte
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
             txService = null;
-        }
-    };
-
-
-    private final ServiceConnection folderBackupConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName className, IBinder service) {
-            FolderBackupService.FileBackupBinder binder = (FolderBackupService.FileBackupBinder) service;
-            folderBackupService = binder.getService();
-            SLogs.d("bond FolderBackupService");
-
-            boolean dirAutomaticUpload = SettingsManager.getInstance().isFolderAutomaticBackup();
-            String backupEmail = FolderBackupConfigSPs.getBackupEmail();
-            if (dirAutomaticUpload && folderBackupService != null && !TextUtils.isEmpty(backupEmail)) {
-                folderBackupService.backupFolder(backupEmail);
-            }
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-            folderBackupService = null;
         }
     };
 
@@ -526,11 +560,11 @@ public class MainActivity extends BaseQuickActivity implements Toolbar.OnMenuIte
             }
         }
 
-//        if (!checkSearchEnabled()) {
-//            // hide search menu
-//            if (menuSearch != null)
-//                menuSearch.setVisible(false);
-//        }
+        if (!checkSearchEnabled()) {
+            // hide search menu
+            if (menuSearch != null)
+                menuSearch.setVisible(false);
+        }
 
         if (loadFromNet) {
             mainViewModel.getServerInfo();
@@ -862,7 +896,7 @@ public class MainActivity extends BaseQuickActivity implements Toolbar.OnMenuIte
 
         String parentPath = getNavContext().getNavPath();
         NewDirFileDialogFragment dialogFragment = NewDirFileDialogFragment.newInstance();
-        dialogFragment.initData(getNavContext().getRepoModel().repo_id, parentPath, true);
+        dialogFragment.initData(getNavContext().getRepoModel().repo_id, parentPath, false);
         dialogFragment.setRefreshListener(new OnRefreshDataListener() {
             @Override
             public void onActionStatus(boolean isDone) {

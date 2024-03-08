@@ -493,6 +493,9 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
      */
     private void forceCreateDirectory(DataManager dataManager, String parent, String dir) throws SeafException {
 
+        //TODO 这种路径如何备份???
+        // /a/d.jpg
+        // /c/a/d.jpg
         List<SeafDirent> dirs = dataManager.getDirentsFromServer(targetRepoId, parent);
         boolean found = false;
         for (SeafDirent dirent : dirs) {

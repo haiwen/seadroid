@@ -14,6 +14,7 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.blankj.utilcode.util.CollectionUtils;
+import com.blankj.utilcode.util.ToastUtils;
 import com.chad.library.adapter4.QuickAdapterHelper;
 import com.google.common.collect.Maps;
 import com.seafile.seadroid2.R;
@@ -110,7 +111,7 @@ public class FolderSelectorFragment extends BaseFragmentWithVM<FolderSelectorVie
     private void initAdapter() {
         mFileListAdapter = new FileListAdapter();
         mFileListAdapter.setOnFileItemChangeListener((fileBean, position, isChecked) -> {
-            if (isChecked) {
+            if (!isChecked) {
                 getViewModel().removeSpecialPath(fileBean.getFilePath());
             } else {
                 getViewModel().addSpecialPath(fileBean.getFilePath());
@@ -123,13 +124,13 @@ public class FolderSelectorFragment extends BaseFragmentWithVM<FolderSelectorVie
 
             FileBean item = mFileListAdapter.getItems().get(i);
             if (item.isFile()) {
-                Toast.makeText(getActivity(), getActivity().getString(R.string.selection_file_type), Toast.LENGTH_SHORT).show();
+                ToastUtils.showLong(R.string.selection_file_type);
             } else {
                 mCurrentPath = item.getFilePath();
                 refreshFileAndTabBar(BeanListManager.TYPE_ADD_TAB_BAR);
-            }
 
-            loadData();
+                loadData();
+            }
         });
 
         QuickAdapterHelper helper = new QuickAdapterHelper.Builder(mFileListAdapter).build();
@@ -157,10 +158,8 @@ public class FolderSelectorFragment extends BaseFragmentWithVM<FolderSelectorVie
     }
 
     private void initData() {
-        String originalBackupPaths = FolderBackupConfigSPs.getBackupPaths();
-
-        if (!TextUtils.isEmpty(originalBackupPaths)) {
-            List<String> selectPaths = StringTools.getJsonToList(originalBackupPaths);
+        List<String> selectPaths = FolderBackupConfigSPs.getBackupPathListByCurrentAccount();
+        if (!CollectionUtils.isEmpty(selectPaths)) {
             getViewModel().setSelectFilePathList(selectPaths);
         }
 
@@ -227,15 +226,7 @@ public class FolderSelectorFragment extends BaseFragmentWithVM<FolderSelectorVie
     }
 
     public List<String> getSelectedPath() {
-        return mFileListAdapter
-                .getItems()
-                .stream()
-                .filter(FileBean::isChecked).map(new Function<FileBean, String>() {
-                    @Override
-                    public String apply(FileBean fileBean) {
-                        return fileBean.getFilePath();
-                    }
-                }).collect(Collectors.toList());
+        return getViewModel().getSelectFilePathList();
     }
 
 

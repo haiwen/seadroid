@@ -3,10 +3,7 @@ package com.seafile.seadroid2.ui.repo;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.ResolveInfo;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -22,25 +19,27 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.view.ActionMode;
-import androidx.core.content.FileProvider;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.work.WorkInfo;
+import androidx.work.Worker;
 
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.TimeUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.common.collect.Maps;
-import com.seafile.seadroid2.BuildConfig;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.account.SupportDataManager;
+import com.seafile.seadroid2.data.SeafCachedFile;
+import com.seafile.seadroid2.data.SeafRepo;
+import com.seafile.seadroid2.data.db.AppDatabase;
 import com.seafile.seadroid2.ui.base.fragment.BaseFragmentWithVM;
 import com.seafile.seadroid2.bottomsheetmenu.BottomSheetHelper;
 import com.seafile.seadroid2.bottomsheetmenu.BottomSheetMenuFragment;
@@ -54,8 +53,6 @@ import com.seafile.seadroid2.data.model.BaseModel;
 import com.seafile.seadroid2.databinding.LayoutFrameSwipeRvBinding;
 import com.seafile.seadroid2.play.exoplayer.CustomExoVideoPlayerActivity;
 import com.seafile.seadroid2.ui.WidgetUtils;
-import com.seafile.seadroid2.ui.dialog.AppChoiceDialog;
-import com.seafile.seadroid2.ui.dialog.FetchFileDialog;
 import com.seafile.seadroid2.ui.dialog_fragment.CopyMoveDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.DeleteFileDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.DeleteRepoDialogFragment;
@@ -63,17 +60,22 @@ import com.seafile.seadroid2.ui.dialog_fragment.PasswordDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.RenameDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.listener.OnRefreshDataListener;
 import com.seafile.seadroid2.ui.main.MainViewModel;
+import com.seafile.seadroid2.ui.media.image_preview.ImagePreviewActivity;
 import com.seafile.seadroid2.ui.selector.ObjSelectorActivity;
 import com.seafile.seadroid2.ui.webview.SeaWebViewActivity;
+import com.seafile.seadroid2.util.Objs;
 import com.seafile.seadroid2.util.SLogs;
 import com.seafile.seadroid2.util.Utils;
 import com.seafile.seadroid2.view.TipsViews;
+import com.seafile.seadroid2.worker.BackgroundJobManagerImpl;
+import com.seafile.seadroid2.worker.SupportWorkManager;
 
 import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.reactivex.functions.Consumer;
 import kotlin.Pair;
 
 public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
@@ -156,6 +158,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
     private void init() {
         rvManager = (LinearLayoutManager) binding.rv.getLayoutManager();
+
     }
 
     private void initAdapter() {
@@ -230,47 +233,47 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     }
 
     private void initViewModel() {
+
+        BackgroundJobManagerImpl.getInstance()
+                .getWorkInfosByTagLiveData(BackgroundJobManagerImpl.TAG_DOWNLOAD_WORKER_FILES_DOWNLOAD)
+                .observe(getViewLifecycleOwner(), new Observer<List<WorkInfo>>() {
+                    @Override
+                    public void onChanged(List<WorkInfo> workInfos) {
+                        if (CollectionUtils.isEmpty(workInfos)) {
+                            return;
+                        }
+
+                        //
+                        if (workInfos.get(0).getState().isFinished()) {
+                            loadData(true);
+                        }
+                    }
+                });
+
         getViewModel().getRefreshLiveData().observe(getViewLifecycleOwner(), aBoolean -> binding.swipeRefreshLayout.setRefreshing(aBoolean));
 
-        getViewModel().getExceptionLiveData().observe(getViewLifecycleOwner(), new Observer<Pair<Integer, SeafException>>() {
-            @Override
-            public void onChanged(Pair<Integer, SeafException> exceptionPair) {
-                showErrorTip();
-            }
-        });
+        getViewModel().getExceptionLiveData().observe(getViewLifecycleOwner(), exceptionPair -> showErrorTip());
 
-        getViewModel().getStarLiveData().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
-            @Override
-            public void onChanged(Boolean aBoolean) {
-                if (aBoolean) {
-                    loadData(true);
-                }
-            }
-        });
-
-        getViewModel().getObjsListLiveData().observe(getViewLifecycleOwner(), new Observer<List<BaseModel>>() {
-            @Override
-            public void onChanged(List<BaseModel> repoModels) {
-
-                notifyDataChanged(repoModels);
-
-                restoreScrollPosition();
-            }
-        });
-
-        mainViewModel.getOnResortListLiveData().observe(getViewLifecycleOwner(), new Observer<Integer>() {
-            @Override
-            public void onChanged(Integer a) {
-                SLogs.d("resort: " + a);
-                loadData();
-            }
-        });
-
-        mainViewModel.getOnForceRefreshRepoListLiveData().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
-            @Override
-            public void onChanged(Boolean aBoolean) {
+        getViewModel().getStarLiveData().observe(getViewLifecycleOwner(), aBoolean -> {
+            if (aBoolean) {
                 loadData(true);
             }
+        });
+
+        getViewModel().getObjsListLiveData().observe(getViewLifecycleOwner(), repoModels -> {
+
+            notifyDataChanged(repoModels);
+
+            restoreScrollPosition();
+        });
+
+        mainViewModel.getOnResortListLiveData().observe(getViewLifecycleOwner(), a -> {
+            SLogs.d("resort: " + a);
+            loadData();
+        });
+
+        mainViewModel.getOnForceRefreshRepoListLiveData().observe(getViewLifecycleOwner(), aBoolean -> {
+            loadData(true);
         });
 
     }
@@ -398,12 +401,9 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     private void showPasswordDialog(RepoModel repoModel) {
         PasswordDialogFragment dialogFragment = PasswordDialogFragment.newInstance();
         dialogFragment.initData(repoModel.repo_id, repoModel.repo_name);
-        dialogFragment.setRefreshListener(new OnRefreshDataListener() {
-            @Override
-            public void onActionStatus(boolean isDone) {
-                if (isDone) {
-                    navTo(repoModel);
-                }
+        dialogFragment.setRefreshListener(isDone -> {
+            if (isDone) {
+                navTo(repoModel);
             }
         });
         dialogFragment.show(getChildFragmentManager(), PasswordDialogFragment.class.getSimpleName());
@@ -471,7 +471,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         adapter.notifyItemChanged(i);
     }
 
-    public void closeActionMode(){
+    public void closeActionMode() {
         if (adapter.getActionMode()) {
             adapter.setActionModeOn(false);
 
@@ -594,9 +594,10 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     }
 
     public void showRepoBottomSheet(RepoModel model) {
-        int rid = model.starred ? R.menu.bottom_sheet_op_repo_with_unstar : R.menu.bottom_sheet_op_repo;
-        BottomSheetHelper.showSheet(getActivity(), rid, menuItem -> {
-            if (menuItem.getItemId() == R.id.star_repo) {
+
+        int rid = R.menu.bottom_sheet_op_repo;
+        BottomSheetMenuFragment.Builder builder = BottomSheetHelper.buildSheet(getActivity(), rid, menuItem -> {
+            if (menuItem.getItemId() == R.id.star || menuItem.getItemId() == R.id.unstar) {
                 starOrNot(model);
             } else if (menuItem.getItemId() == R.id.rename_repo) {
                 rename(model.repo_id, null, model.repo_name, "repo");
@@ -604,155 +605,130 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 deleteRepo(model.repo_id);
             }
         });
-    }
 
-    public void showFileBottomSheet(DirentModel dirent) {
-        BottomSheetHelper.showSheet(getActivity(), R.menu.bottom_sheet_op_file, new OnMenuClickListener() {
-            @Override
-            public void onMenuClick(MenuItem menuItem) {
-                int itemId = menuItem.getItemId();
+        if (model.starred) {
+            builder.removeMenu(R.id.star);
+        } else {
+            builder.removeMenu(R.id.unstar);
+        }
 
-                if (itemId == R.id.share) {
-                    showShareDialog(dirent);
-                } else if (itemId == R.id.open) {
-                    openDirent(dirent, true);
-                } else if (itemId == R.id.delete) {
-                    deleteDirent(dirent);
-                } else if (itemId == R.id.copy) {
-                    copyFiles(dirent.repo_id, dirent.repo_name, dirent.parent_dir, CollectionUtils.newArrayList(dirent));
-                } else if (itemId == R.id.move) {
-                    moveFiles(dirent.repo_id, dirent.repo_name, dirent.parent_dir, CollectionUtils.newArrayList(dirent));
-                } else if (itemId == R.id.rename) {
-                    rename(dirent.repo_id, dirent.full_path, dirent.name, "file");
-                } else if (itemId == R.id.update) {
-                    // mActivity.addUpdateTask(repoID, repoName, dir, localPath);
-                    //TODO: 文件上传
-                    ToastUtils.showLong("TODO: 文件上传");
-                } else if (itemId == R.id.download) {
-                    // mActivity.downloadFile(dir, dirent.name);
-                    //TODO: 文件下载
-                    ToastUtils.showLong("TODO: 文件下载");
-                } else if (itemId == R.id.export) {
-                    chooseExportApp(dirent);
-                } else if (itemId == R.id.star) {
-                    starOrNot(dirent);
-                }
-            }
-        });
+        builder.show(getChildFragmentManager());
     }
 
     public void showDirNewBottomSheet(DirentModel dirent) {
-        int rid = dirent.starred ? R.menu.bottom_sheet_op_dir_with_unstar : R.menu.bottom_sheet_op_dir;
-        BottomSheetMenuFragment.Builder builder1 = BottomSheetHelper.buildSheet(getActivity(), rid, new OnMenuClickListener() {
-            @Override
-            public void onMenuClick(MenuItem menuItem) {
-                int itemId = menuItem.getItemId();
+        int rid = R.menu.bottom_sheet_op_dir;
+        BottomSheetMenuFragment.Builder builder = BottomSheetHelper.buildSheet(getActivity(), rid, menuItem -> {
+            int itemId = menuItem.getItemId();
 
-                if (itemId == R.id.star) {
-                    starOrNot(dirent);
-                } else if (itemId == R.id.share) {
-                    showShareDialog(dirent);
-                } else if (itemId == R.id.delete) {
-                    deleteDirent(dirent);
-                } else if (itemId == R.id.copy) {
-                    copyFiles(dirent.repo_id, dirent.repo_name, dirent.parent_dir, CollectionUtils.newArrayList(dirent));
-                } else if (itemId == R.id.move) {
-                    moveFiles(dirent.repo_id, dirent.repo_name, dirent.parent_dir, CollectionUtils.newArrayList(dirent));
-                } else if (itemId == R.id.rename) {
-                    rename(dirent.repo_id, dirent.full_path, dirent.name, "dir");
-                } else if (itemId == R.id.download) {
-                    // mActivity.downloadDir(dir, dirent.name, true);
-                    //TODO: 文件夹下载
-                    ToastUtils.showLong("TODO: 文件夹下载");
-                }
+            if (itemId == R.id.star || itemId == R.id.unstar) {
+                starOrNot(dirent);
+            } else if (itemId == R.id.share) {
+                showShareDialog(dirent);
+            } else if (itemId == R.id.delete) {
+                deleteDirent(dirent);
+            } else if (itemId == R.id.copy) {
+                copyFiles(dirent.repo_id, dirent.repo_name, dirent.parent_dir, CollectionUtils.newArrayList(dirent));
+            } else if (itemId == R.id.move) {
+                moveFiles(dirent.repo_id, dirent.repo_name, dirent.parent_dir, CollectionUtils.newArrayList(dirent));
+            } else if (itemId == R.id.rename) {
+                rename(dirent.repo_id, dirent.full_path, dirent.name, "dir");
+            } else if (itemId == R.id.download) {
+                BackgroundJobManagerImpl.getInstance().scheduleOneTimeFilesDownloadSyncJob(dirent);
             }
         });
 
-        if (!dirent.hasWritePermission()) {
-            builder1.removeMenu(R.id.rename);
-            builder1.removeMenu(R.id.delete);
-            builder1.removeMenu(R.id.move);
+        if (dirent.starred) {
+            builder.removeMenu(R.id.star);
+        } else {
+            builder.removeMenu(R.id.unstar);
         }
 
-//        SeafRepo repo = getDataManager().getCachedRepoByID(repoID);
-//        if (repo != null && repo.encrypted) {
-//            builder1.removeMenu(R.id.share);
-//        }
-        builder1.show(getChildFragmentManager());
+        if (!dirent.hasWritePermission()) {
+            builder.removeMenu(R.id.rename);
+            builder.removeMenu(R.id.delete);
+            builder.removeMenu(R.id.move);
+        }
+
+        String repoId = getNavContext().getRepoModel().repo_id;
+        getViewModel().getRepoModelFromDB(repoId, new Consumer<RepoModel>() {
+            @Override
+            public void accept(RepoModel repoModel) throws Exception {
+                if (repoModel != null && repoModel.encrypted) {
+                    builder.removeMenu(R.id.share);
+                }
+                builder.show(getChildFragmentManager());
+            }
+        });
+    }
+
+    private void showFileBottomSheet(DirentModel dirent) {
+        int rid = R.menu.bottom_sheet_op_file;
+        BottomSheetMenuFragment.Builder builder = BottomSheetHelper.buildSheet(getActivity(), rid, menuItem -> {
+            int itemId = menuItem.getItemId();
+
+            if (itemId == R.id.share) {
+                showShareDialog(dirent);
+            } else if (itemId == R.id.open) {
+                openDirent(dirent, true);
+            } else if (itemId == R.id.delete) {
+                deleteDirent(dirent);
+            } else if (itemId == R.id.copy) {
+                copyFiles(dirent.repo_id, dirent.repo_name, dirent.parent_dir, CollectionUtils.newArrayList(dirent));
+            } else if (itemId == R.id.move) {
+                moveFiles(dirent.repo_id, dirent.repo_name, dirent.parent_dir, CollectionUtils.newArrayList(dirent));
+            } else if (itemId == R.id.rename) {
+                rename(dirent.repo_id, dirent.full_path, dirent.name, "file");
+            } else if (itemId == R.id.update) {
+                ToastUtils.showLong("TODO：action: update");
+            } else if (itemId == R.id.download) {
+                BackgroundJobManagerImpl.getInstance().scheduleOneTimeFilesDownloadSyncJob(dirent);
+            } else if (itemId == R.id.export) {
+                Objs.exportFile(RepoQuickFragment.this, dirent);
+            } else if (itemId == R.id.star || itemId == R.id.unstar) {
+                starOrNot(dirent);
+            }
+        });
+
+        if (dirent.starred) {
+            builder.removeMenu(R.id.star);
+        } else {
+            builder.removeMenu(R.id.unstar);
+        }
+
+        if (!dirent.hasWritePermission()) {
+            builder.removeMenu(R.id.rename);
+            builder.removeMenu(R.id.delete);
+            builder.removeMenu(R.id.move);
+        }
+
+        if (!Utils.isTextMimeType(dirent.name)) {
+            builder.removeMenu(R.id.open);
+        }
+
+        String repoId = getNavContext().getRepoModel().repo_id;
+        getViewModel().getRepoModelFromDB(repoId, new Consumer<RepoModel>() {
+            @Override
+            public void accept(RepoModel repoModel) throws Exception {
+                if (repoModel != null && repoModel.encrypted) {
+                    builder.removeMenu(R.id.share);
+                }
+
+                //TODO 上传下载
+//                SeafCachedFile cf = getDataManager().getCachedFile(repoName, repoID, path);
+//                if (cf != null) {
+//                    builder.remove(R.id.download);
+//                } else {
+//                    builder.remove(R.id.update);
+//                }
+
+                builder.show(getChildFragmentManager());
+            }
+        });
     }
 
 
     /************  Files ************/
 
-    /**
-     * Export a file.
-     * 1. first ask the user to choose an app
-     * 2. then download the latest version of the file
-     * 3. start the choosen app
-     */
-    private void chooseExportApp(DirentModel direntModel) {
-
-        final File file = SupportDataManager
-                .getInstance()
-                .getDataManager()
-                .getLocalRepoFile(direntModel.repo_name, direntModel.repo_id, direntModel.full_path);
-        Uri uri = FileProvider.getUriForFile(requireContext(), BuildConfig.FILE_PROVIDER_AUTHORITIES, file);
-
-        final Intent sendIntent = new Intent();
-        sendIntent.setAction(Intent.ACTION_SEND);
-        sendIntent.setType(Utils.getFileMimeType(file));
-        sendIntent.putExtra(Intent.EXTRA_STREAM, uri);
-
-        // Get a list of apps
-        List<ResolveInfo> infos = Utils.getAppsByIntent(sendIntent);
-
-        if (infos.isEmpty()) {
-            ToastUtils.showLong(R.string.no_app_available);
-            return;
-        }
-
-        AppChoiceDialog dialog = new AppChoiceDialog();
-        dialog.init(getString(R.string.export_file), infos, new AppChoiceDialog.OnItemSelectedListener() {
-            @Override
-            public void onCustomActionSelected(AppChoiceDialog.CustomAction action) {
-            }
-
-            @Override
-            public void onAppSelected(ResolveInfo appInfo) {
-                String className = appInfo.activityInfo.name;
-                String packageName = appInfo.activityInfo.packageName;
-                sendIntent.setClassName(packageName, className);
-
-                if (!Utils.isNetworkOn() && file.exists()) {
-                    startActivity(sendIntent);
-                    return;
-                }
-                fetchFileAndExport(sendIntent, direntModel.repo_name, direntModel.repo_id, direntModel.full_path, direntModel.size);
-            }
-
-        });
-        dialog.show(getChildFragmentManager(), AppChoiceDialog.class.getSimpleName());
-    }
-
-    public void fetchFileAndExport(Intent intent, String repoName, String repoID, String path, long fileSize) {
-
-        FetchFileDialog fetchFileDialog = new FetchFileDialog();
-        fetchFileDialog.init(repoName, repoID, path, fileSize, new FetchFileDialog.FetchFileListener() {
-            @Override
-            public void onSuccess() {
-                startActivity(intent);
-            }
-
-            @Override
-            public void onDismiss() {
-            }
-
-            @Override
-            public void onFailure(SeafException err) {
-            }
-        });
-        fetchFileDialog.show(getChildFragmentManager(), FetchFileDialog.class.getSimpleName());
-    }
 
     public void openDirent(DirentModel dirent, boolean isOpenWith) {
         String fileName = dirent.name;
@@ -763,16 +739,11 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         // Encrypted repo does not support gallery,
         // because pic thumbnail under encrypted repo was not supported at the server side
         if (Utils.isViewableImage(fileName) && !repoModel.encrypted) {
-            WidgetUtils.startGalleryActivity(getActivity(),
-                    repoModel.repo_name,
-                    repoModel.repo_id,
-                    getNavContext().getNavPath(),
-                    fileName,
-                    SupportAccountManager.getInstance().getCurrentAccount());
+            ImagePreviewActivity.startThis(requireContext(), repoModel.repo_id, dirent.full_path);
         } else if (fileName.endsWith(Constants.Format.DOT_SDOC)) {
             SeaWebViewActivity.openSdoc(getContext(), repoModel.repo_name, repoModel.repo_id, dirent.parent_dir + dirent.name);
         } else if (Utils.isVideoFile(fileName)) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+            MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext());
             builder.setItems(R.array.video_download_array, (dialog, which) -> {
                 if (which == 0) {
                     CustomExoVideoPlayerActivity.startThis(getContext(), fileName, repoModel.repo_id, filePath, SupportAccountManager.getInstance().getCurrentAccount());
@@ -869,30 +840,16 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             strings = getResources().getStringArray(R.array.file_action_share_array);
         }
 
-        mBuilder.setItems(strings, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                if (!inChina) {
-                    which++;
-                }
-                switch (which) {
-                    case 0: {
-                        ToastUtils.showLong("TODO: 分享到微信");
-                        // WidgetUtils.ShareWeChat(requireContext(), account, repoID, path, fileName, fileSize, isDir);
-                    }
-                    break;
-                    case 1: {
-                        ToastUtils.showLong("TODO: 分享链接");
-                        // need input password
-//                        WidgetUtils.chooseShareApp(BrowserActivity.this, repoID, path, isDir, account, null, null);
-                    }
-                    break;
-                    case 2: {
-                        ToastUtils.showLong("TODO: 分享高级链接");
-//                        WidgetUtils.inputSharePassword(BrowserActivity.this, repoID, path, isDir, account);
-                    }
-                    break;
-                }
+        mBuilder.setItems(strings, (dialog, which) -> {
+            if (!inChina) {
+                which++;
+            }
+            if (which == 0) {
+                Objs.shareToWeChat(RepoQuickFragment.this, direntModel);
+            } else if (which == 1) {
+                Objs.showCreateEncryptShareLinkDialog(requireContext(), getChildFragmentManager(), direntModel, false);
+            } else if (which == 2) {
+                Objs.showCreateEncryptShareLinkDialog(requireContext(), getChildFragmentManager(), direntModel, true);
             }
         }).show();
     }
@@ -900,7 +857,8 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     /**
      * Copy multiple files
      */
-    public void copyFiles(String srcRepoId, String srcRepoName, String srcDir, List<DirentModel> dirents) {
+    public void copyFiles(String srcRepoId, String srcRepoName, String
+            srcDir, List<DirentModel> dirents) {
         chooseCopyMoveDestForMultiFiles(srcRepoId, srcRepoName, srcDir, dirents, CopyMoveContext.OP.COPY);
     }
 
@@ -908,7 +866,8 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     /**
      * Move multiple files
      */
-    public void moveFiles(String srcRepoId, String srcRepoName, String srcDir, List<DirentModel> dirents) {
+    public void moveFiles(String srcRepoId, String srcRepoName, String
+            srcDir, List<DirentModel> dirents) {
         chooseCopyMoveDestForMultiFiles(srcRepoId, srcRepoName, srcDir, dirents, CopyMoveContext.OP.MOVE);
     }
 
@@ -918,7 +877,8 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     /**
      * Choose copy/move destination for multiple files
      */
-    private void chooseCopyMoveDestForMultiFiles(String repoID, String repoName, String dirPath, List<DirentModel> dirents, CopyMoveContext.OP op) {
+    private void chooseCopyMoveDestForMultiFiles(String repoID, String repoName, String
+            dirPath, List<DirentModel> dirents, CopyMoveContext.OP op) {
         copyMoveContext = new CopyMoveContext(repoID, repoName, dirPath, dirents, op);
 
         Intent intent = new Intent(requireContext(), ObjSelectorActivity.class);

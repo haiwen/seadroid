@@ -1,13 +1,19 @@
 package com.seafile.seadroid2.ui.search;
 
+import static androidx.cursoradapter.widget.CursorAdapter.FLAG_AUTO_REQUERY;
+
+import android.app.SearchManager;
 import android.content.ComponentName;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.os.AsyncTask;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.provider.SearchRecentSuggestions;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -15,16 +21,25 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
-import android.widget.EditText;
-import android.widget.ImageView;
+import android.widget.AutoCompleteTextView;
 import android.widget.TextView;
 
-import androidx.appcompat.app.AlertDialog;
+import androidx.activity.OnBackPressedCallback;
+import androidx.annotation.NonNull;
+import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+import androidx.core.view.OnApplyWindowInsetsListener;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.cursoradapter.widget.CursorAdapter;
+import androidx.cursoradapter.widget.SimpleCursorAdapter;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.ToastUtils;
@@ -32,147 +47,286 @@ import com.chad.library.adapter4.BaseQuickAdapter;
 import com.chad.library.adapter4.QuickAdapterHelper;
 import com.chad.library.adapter4.loadState.LoadState;
 import com.chad.library.adapter4.loadState.trailing.TrailingLoadStateAdapter;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.search.SearchBar;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
-import com.seafile.seadroid2.ui.base.adapter.CustomLoadMoreAdapter;
 import com.seafile.seadroid2.data.DataManager;
-import com.seafile.seadroid2.data.SeafRepo;
-import com.seafile.seadroid2.data.SearchedFile;
+import com.seafile.seadroid2.data.db.entities.DirentModel;
+import com.seafile.seadroid2.data.model.search.SearchModel;
+import com.seafile.seadroid2.databinding.ActivitySearch2Binding;
 import com.seafile.seadroid2.play.exoplayer.CustomExoVideoPlayerActivity;
 import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.ui.BaseActivity;
 import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.activity.FileActivity;
-import com.seafile.seadroid2.util.ConcurrentAsyncTask;
+import com.seafile.seadroid2.ui.base.adapter.CustomLoadMoreAdapter;
+import com.seafile.seadroid2.ui.main.MainActivity;
+import com.seafile.seadroid2.ui.media.image_preview.ImagePreviewActivity;
+import com.seafile.seadroid2.util.SearchUtils;
 import com.seafile.seadroid2.util.Utils;
-
-import org.jetbrains.annotations.NotNull;
+import com.seafile.seadroid2.view.TipsViews;
 
 import java.io.File;
-import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Function;
 
 /**
  * Search Activity
  */
-public class Search2Activity extends BaseActivity implements View.OnClickListener, Toolbar.OnMenuItemClickListener {
-    private static final String DEBUG_TAG = "SearchActivity";
-
-    private static final String STATE_SEARCHED_RESULT = "searched_result";
-    private String mSearchedRlt;
-    private EditText mTextField;
-    private ImageView mTextClearBtn;
-    private View mSearchBtn;
-    private RecyclerView mRecyclerView;
+public class Search2Activity extends BaseActivity implements Toolbar.OnMenuItemClickListener {
+    private ActivitySearch2Binding binding;
+    private SearchViewModel viewModel;
 
     private QuickAdapterHelper helper;
-    private SearchRecyclerViewAdapter mAdapter;
+    private SearchRecyclerViewAdapter adapter;
     private DataManager dataManager;
     private TransferService txService = null;
     private Account account;
 
     public static final int DOWNLOAD_FILE_REQUEST = 0;
-    private int page = 1;
-    private int PAGE_SIZE = 20;
+    private int page = 0;
+    private final int PAGE_SIZE = 20;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.search2);
-        mSearchBtn = findViewById(R.id.btn_search);
-        mSearchBtn.setOnClickListener(this);
-        mTextClearBtn = findViewById(R.id.btn_clear);
-        mTextClearBtn.setOnClickListener(this);
 
-        mTextField = findViewById(R.id.et_content);
-        mTextField.setOnClickListener(this);
-        mTextField.setImeOptions(EditorInfo.IME_ACTION_SEARCH);
-        mTextField.addTextChangedListener(new SearchTextWatcher());
-        mTextField.setOnEditorActionListener(new EditorActionListener());
-        mTextField.requestFocus();
+        binding = ActivitySearch2Binding.inflate(getLayoutInflater());
 
-        setSupportActionBar(getActionBarToolbar());
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle(R.string.search_menu_item);
+        setContentView(binding.getRoot());
 
-        mRecyclerView = findViewById(R.id.lv_search);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(this, RecyclerView.VERTICAL, false));
-
+        initView(savedInstanceState);
+        initViewModel();
         initAdapter();
 
         initData();
+
+        handleIntent(getIntent());
+    }
+
+    private void initView(Bundle bundle) {
+        binding.swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                loadNext(lastQuery, true);
+            }
+        });
+        binding.searchView.setSubmitButtonEnabled(false);
+
+        binding.searchView.findViewById(R.id.search_src_text).setBackground(null);
+//        Cursor cursor = getSuggestionsCursor();
+//        SimpleCursorAdapter simpleCursorAdapter = new SimpleCursorAdapter(this, R.layout.item_search_suggestion, cursor,
+//                new String[]{"suggest_text_1"},
+//                new int[]{R.id.cat_searchbar_suggestion_title});
+//
+//        binding.searchView.setSuggestionsAdapter(simpleCursorAdapter);
+
+        binding.searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
+            @Override
+            public boolean onSuggestionSelect(int position) {
+
+                return false;
+            }
+
+            @Override
+            public boolean onSuggestionClick(int position) {
+                return false;
+            }
+        });
+
+        binding.searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                loadNext(query, true);
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });
+
+        AutoCompleteTextView autoCompleteTextView = binding.searchView.findViewById(R.id.search_src_text);
+        autoCompleteTextView.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (s != null && s.length() > 0) {
+                    delayLoad();
+                } else {
+                    loadNext(null, true);
+                }
+            }
+        });
+        //
+        binding.searchView.requestFocus();
+    }
+
+    private void initViewModel() {
+        viewModel = new ViewModelProvider(this).get(SearchViewModel.class);
+
+        viewModel.getRefreshLiveData().observe(this, new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+                binding.swipeRefreshLayout.setRefreshing(aBoolean);
+            }
+        });
+
+        viewModel.getSeafExceptionLiveData().observe(this, new Observer<SeafException>() {
+            @Override
+            public void onChanged(SeafException e) {
+                page--;
+
+                if (e == SeafException.notFoundException) {
+                    showAdapterTip(R.string.search_server_not_support);
+                } else {
+                    showAdapterTip(e.getMessage());
+                }
+            }
+        });
+
+        viewModel.getListLiveData().observe(this, new Observer<List<SearchModel>>() {
+            @Override
+            public void onChanged(List<SearchModel> result) {
+                if (CollectionUtils.isEmpty(result)) {
+                    helper.setTrailingLoadState(new LoadState.NotLoading(true));
+                    if (helper.getTrailingLoadStateAdapter() != null) {
+                        helper.getTrailingLoadStateAdapter().checkDisableLoadMoreIfNotFullPage();
+                    }
+
+                    showAdapterTip(R.string.search_content_empty);
+
+                    return;
+                }
+
+                if (page == 1) {
+                    adapter.submitList(result);
+                } else {
+                    adapter.addAll(result);
+                }
+
+                if (CollectionUtils.isEmpty(result) || result.size() < PAGE_SIZE) {
+                    helper.setTrailingLoadState(new LoadState.NotLoading(true));
+                    if (helper.getTrailingLoadStateAdapter() != null) {
+                        helper.getTrailingLoadStateAdapter().checkDisableLoadMoreIfNotFullPage();
+                    }
+                } else {
+                    helper.setTrailingLoadState(new LoadState.NotLoading(false));
+                }
+
+            }
+        });
     }
 
     private void initAdapter() {
-        mAdapter = new SearchRecyclerViewAdapter(this);
-        View t = findViewById(R.id.ll_message_content);
-        mAdapter.setStateView(t);
-        mAdapter.setStateViewEnable(true);
-        mAdapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener<SearchedFile>() {
+        adapter = new SearchRecyclerViewAdapter(this);
+        adapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener<SearchModel>() {
             @Override
-            public void onClick(@NotNull BaseQuickAdapter<SearchedFile, ?> baseQuickAdapter, @NotNull View view, int i) {
-                onSearchedFileSelected(mAdapter.getItems().get(i));
+            public void onClick(@NonNull BaseQuickAdapter<SearchModel, ?> baseQuickAdapter, @NonNull View view, int i) {
+                onSearchedFileSelected(adapter.getItems().get(i));
             }
         });
 
         CustomLoadMoreAdapter customLoadMoreAdapter = new CustomLoadMoreAdapter();
         customLoadMoreAdapter.setOnLoadMoreListener(new TrailingLoadStateAdapter.OnTrailingListener() {
             @Override
-            public void onLoad() {
-                loadNext(false);
+            public void onFailRetry() {
+                loadNext(lastQuery, false);
             }
 
             @Override
-            public void onFailRetry() {
-                loadNext(false);
+            public void onLoad() {
+                loadNext(lastQuery, false);
             }
 
             @Override
             public boolean isAllowLoading() {
-                return true;
+                return !binding.swipeRefreshLayout.isRefreshing();
             }
         });
 
-
-        helper = new QuickAdapterHelper.Builder(mAdapter)
+        helper = new QuickAdapterHelper.Builder(adapter)
                 .setTrailingLoadStateAdapter(customLoadMoreAdapter)
                 .build();
-        mRecyclerView.setAdapter(helper.getAdapter());
+
+        binding.rv.setAdapter(helper.getAdapter());
     }
 
-    @Override
-    public void onSaveInstanceState(Bundle savedInstanceState) {
-        // Save the searched result
-        savedInstanceState.putString(STATE_SEARCHED_RESULT, mSearchedRlt);
+    private Cursor getSuggestionsCursor() {
 
-        // Always call the superclass so it can save the view hierarchy state
-        super.onSaveInstanceState(savedInstanceState);
+        Uri.Builder uriBuilder = new Uri.Builder()
+                .scheme(ContentResolver.SCHEME_CONTENT)
+                .authority(RecentSearchSuggestionsProvider.AUTHORITY);
+        uriBuilder.appendPath(SearchManager.SUGGEST_URI_PATH_QUERY);
+
+        String selection = " ?";
+        String[] selArgs = new String[]{""};
+        Uri uri = uriBuilder.build();
+        Cursor cursor = getContentResolver().query(uri, null, null, selArgs, null);
+        return cursor;
     }
 
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        // Always call the superclass so it can restore the view hierarchy
-        super.onRestoreInstanceState(savedInstanceState);
 
-        // Restore state members from saved instance
-        mSearchedRlt = savedInstanceState.getString(STATE_SEARCHED_RESULT);
+    private Disposable disposable;
 
-        // update ui
-        if (dataManager != null) {
-            ArrayList<SearchedFile> files = dataManager.parseSearchResult(mSearchedRlt);
-            if (files != null) {
-                mAdapter.submitList(files);
-            }
+    private void delayLoad() {
+        if (disposable != null && !disposable.isDisposed()) {
+            disposable.dispose();
+        }
+
+        disposable = Observable.timer(1000, TimeUnit.MILLISECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(aLong -> {
+                    loadNext(binding.searchView.getQuery().toString(), true);
+                });
+
+    }
+
+    private void showAdapterTip(int textRes) {
+        showAdapterTip(getString(textRes));
+    }
+
+    private void showAdapterTip(String textRes) {
+        adapter.submitList(null);
+
+        TextView tipView = TipsViews.getTipTextView(this);
+        tipView.setText(textRes);
+        adapter.setStateView(tipView);
+        adapter.setStateViewEnable(true);
+
+        helper.setTrailingLoadState(new LoadState.NotLoading(true));
+        if (helper.getTrailingLoadStateAdapter() != null) {
+            helper.getTrailingLoadStateAdapter().checkDisableLoadMoreIfNotFullPage();
         }
     }
 
     @Override
     protected void onDestroy() {
-        Log.d(DEBUG_TAG, "onDestroy is called");
         if (txService != null) {
             unbindService(mConnection);
             txService = null;
+        }
+
+        if (disposable != null && !disposable.isDisposed()) {
+            disposable.dispose();
         }
 
         super.onDestroy();
@@ -185,7 +339,26 @@ public class Search2Activity extends BaseActivity implements View.OnClickListene
         // bind transfer service
         Intent bIntent = new Intent(this, TransferService.class);
         bindService(bIntent, mConnection, Context.BIND_AUTO_CREATE);
-        Log.d(DEBUG_TAG, "try bind TransferService");
+    }
+
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        handleIntent(intent);
+    }
+
+    private void handleIntent(Intent intent) {
+        if (intent == null) {
+            return;
+        }
+
+        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+            String query = intent.getStringExtra(SearchManager.QUERY);
+            Log.d("SEARCH", "Search query was: $query");
+            binding.searchView.setQuery(query, false);
+            loadNext(query, true);
+        }
     }
 
     @Override
@@ -196,7 +369,7 @@ public class Search2Activity extends BaseActivity implements View.OnClickListene
 
     @Override
     public boolean onMenuItemClick(MenuItem item) {
-        return super.onOptionsItemSelected(item);
+        return onOptionsItemSelected(item);
     }
 
     @Override
@@ -207,17 +380,6 @@ public class Search2Activity extends BaseActivity implements View.OnClickListene
                 break;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onClick(View v) {
-        final int id = v.getId();
-        if (id == R.id.btn_search) {
-            loadNext(true);
-        } else if (id == R.id.btn_clear) {
-            mTextField.getText().clear();
-        }
-
     }
 
     @Override
@@ -234,171 +396,61 @@ public class Search2Activity extends BaseActivity implements View.OnClickListene
         }
     }
 
-    public void increasePage() {
-        this.page++;
-    }
+    private String lastQuery = null;
 
-    private void loadNext(boolean isRefresh) {
+    private void loadNext(String query, boolean isRefresh) {
         if (!Utils.isNetworkOn()) {
             ToastUtils.showLong(R.string.network_down);
             return;
         }
 
+        lastQuery = query;
+
+        if (TextUtils.isEmpty(query)) {
+            adapter.submitList(null);
+
+            helper.setTrailingLoadState(new LoadState.NotLoading(true));
+            if (helper.getTrailingLoadStateAdapter() != null) {
+                helper.getTrailingLoadStateAdapter().checkDisableLoadMoreIfNotFullPage();
+            }
+
+            return;
+        }
+
+        SearchRecentSuggestions searchRecentSuggestions = new SearchRecentSuggestions(this, RecentSearchSuggestionsProvider.AUTHORITY, RecentSearchSuggestionsProvider.MODE);
+        searchRecentSuggestions.saveRecentQuery(query, null);
+
+
         if (isRefresh) {
-            page = 1;
+            page = 0;
         }
 
-        String searchText = mTextField.getText().toString().trim();
-        if (!TextUtils.isEmpty(searchText)) {
+        page++;
 
-            search(searchText, page, PAGE_SIZE);
-
-            Utils.hideSoftKeyboard(mTextField);
-        } else {
-            ToastUtils.showLong(R.string.search_txt_empty);
-        }
+        viewModel.loadNext(query, page, PAGE_SIZE);
     }
 
-    private void search(String content, int page, int pageSize) {
-        // start asynctask
-        ConcurrentAsyncTask.execute(new SearchLibrariesTask(dataManager, content, page, pageSize));
-    }
+    public void onSearchedFileSelected(SearchModel searchedFile) {
+        final String repoID = searchedFile.repo_id;
+        final String repoName = searchedFile.repo_name;
+        final String fileName = searchedFile.name;
+        final String filePath = searchedFile.fullpath;
 
-    private class SearchLibrariesTask extends AsyncTask<Void, Void, ArrayList<SearchedFile>> {
+        if (searchedFile.is_dir) {
+//            if (repo == null) {
+//                ToastUtils.showLong(R.string.search_library_not_found);
+//                return;
+//            }
 
-        private DataManager dataManager;
-        private String query;
-        private int pageSize;
-        private int page;
-
-        private SeafException seafException;
-
-        @Override
-        protected void onPreExecute() {
-            // show loading view
-            mSearchBtn.setEnabled(false);
-        }
-
-        public SearchLibrariesTask(DataManager dataManager, String query, int page, int pageSize) {
-            this.dataManager = dataManager;
-            this.query = query;
-            this.pageSize = pageSize;
-            this.page = page;
-        }
-
-        @Override
-        protected ArrayList<SearchedFile> doInBackground(Void... params) {
-            try {
-                mSearchedRlt = dataManager.search(query, page, pageSize);
-                return dataManager.parseSearchResult(mSearchedRlt);
-            } catch (SeafException e) {
-                seafException = e;
-                return null;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(ArrayList<SearchedFile> result) {
-            // stop loading view
-            mSearchBtn.setEnabled(true);
-
-            if (result == null) {
-                if (seafException != null) {
-                    if (seafException.getCode() == 404)
-                        ToastUtils.showLong(R.string.search_server_not_support);
-
-                    Log.d(DEBUG_TAG, seafException.getMessage() + " code " + seafException.getCode());
-                }
-
-                return;
-            }
-
-            if (result.size() == 0) {
-                ToastUtils.showLong(R.string.search_content_empty);
-            }
-
-            if (page == 1) {
-                mAdapter.submitList(result);
-            } else {
-                mAdapter.addAll(result);
-            }
-
-            if (CollectionUtils.isEmpty(result) || result.size() < PAGE_SIZE) {
-                helper.setTrailingLoadState(new LoadState.NotLoading(true));
-                if (helper.getTrailingLoadStateAdapter() != null) {
-                    helper.getTrailingLoadStateAdapter().checkDisableLoadMoreIfNotFullPage();
-                }
-            } else {
-                helper.setTrailingLoadState(new LoadState.NotLoading(false));
-            }
-
-            increasePage();
-        }
-    }
-
-    public DataManager getDataManager() {
-        if (dataManager == null) {
-            account = SupportAccountManager.getInstance().getCurrentAccount();
-            dataManager = new DataManager(account);
-        }
-        return dataManager;
-    }
-
-    class SearchTextWatcher implements TextWatcher {
-
-        @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-        }
-
-        @Override
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-            if (mTextField.getText().toString().length() > 0) {
-                mTextClearBtn.setVisibility(View.VISIBLE);
-                mSearchBtn.setVisibility(View.VISIBLE);
-            } else {
-                mTextClearBtn.setVisibility(View.GONE);
-                mSearchBtn.setVisibility(View.GONE);
-            }
-        }
-
-        @Override
-        public void afterTextChanged(Editable s) {
-        }
-    }
-
-    class EditorActionListener implements TextView.OnEditorActionListener {
-        @Override
-        public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-            if (actionId == EditorInfo.IME_ACTION_SEARCH
-                    || (event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER)) {
-                // pass 0 to disable page loading
-                loadNext(true);
-                return true;
-            }
-            return false;
-        }
-    }
-
-    public void onSearchedFileSelected(SearchedFile searchedFile) {
-        final String repoID = searchedFile.getRepoID();
-        final String fileName = searchedFile.getTitle();
-        final SeafRepo repo = dataManager.getCachedRepoByID(repoID);
-        final String repoName = repo.getRepoName();
-        final String filePath = searchedFile.getPath();
-
-        if (searchedFile.isDir()) {
-            if (repo == null) {
-                ToastUtils.showLong(R.string.search_library_not_found);
-                return;
-            }
-            WidgetUtils.showRepo(this, repoID, repoName, filePath, null);
+            navTo(searchedFile);
             return;
         }
 
         // Encrypted repo doesn\`t support gallery,
         // because pic thumbnail under encrypted repo was not supported at the server side
-        if (Utils.isViewableImage(searchedFile.getTitle()) && !repo.encrypted) {
-            WidgetUtils.startGalleryActivity(this, repoName, repoID, Utils.getParentPath(filePath), searchedFile.getTitle(), account);
+        //TODO && !repo.encrypted
+        if (Utils.isViewableImage(searchedFile.name)) {
+            ImagePreviewActivity.startThis(this, repoID, searchedFile.fullpath);
             return;
         }
 
@@ -410,7 +462,7 @@ public class Search2Activity extends BaseActivity implements View.OnClickListene
 
         boolean videoFile = Utils.isVideoFile(fileName);
         if (videoFile) { // is video file
-            final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
             builder.setItems(R.array.video_download_array, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
@@ -424,6 +476,10 @@ public class Search2Activity extends BaseActivity implements View.OnClickListene
         }
 
         startFileActivity(repoName, repoID, filePath);
+    }
+
+    private void navTo(SearchModel model) {
+        MainActivity.navToThis(this, model.repo_id, model.repo_name, model.fullpath, model.is_dir);
     }
 
     private void startFileActivity(String repoName, String repoID, String filePath) {
@@ -443,7 +499,6 @@ public class Search2Activity extends BaseActivity implements View.OnClickListene
         intent.putExtra("repoID", repoID);
         intent.putExtra("filePath", filePath);
         intent.putExtra("account", account);
-//        DOWNLOAD_PLAY_REQUEST
         startActivity(intent);
     }
 
@@ -452,7 +507,6 @@ public class Search2Activity extends BaseActivity implements View.OnClickListene
         public void onServiceConnected(ComponentName className, IBinder service) {
             TransferService.TransferBinder binder = (TransferService.TransferBinder) service;
             txService = binder.getService();
-            Log.d(DEBUG_TAG, "bind TransferService");
         }
 
         @Override
@@ -460,4 +514,6 @@ public class Search2Activity extends BaseActivity implements View.OnClickListene
             txService = null;
         }
     };
+
+
 }

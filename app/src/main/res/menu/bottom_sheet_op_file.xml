@@ -3,7 +3,7 @@
     <item
         android:id="@+id/share"
         android:icon="@drawable/action_share"
-        android:title="@string/file_share"/>
+        android:title="@string/file_share" />
 
     <item
         android:id="@+id/export"
@@ -13,7 +13,7 @@
     <item
         android:id="@+id/open"
         android:icon="@drawable/action_open"
-        android:title="@string/file_action_open"/>
+        android:title="@string/file_action_open" />
 
 
     <group android:id="@+id/group_manage">
@@ -21,6 +21,12 @@
             android:id="@+id/star"
             android:icon="@drawable/star_normal"
             android:title="@string/file_action_star" />
+
+        <item
+            android:id="@+id/unstar"
+            android:icon="@drawable/star_normal"
+            android:title="@string/unstar" />
+
         <item
             android:id="@+id/rename"
             android:icon="@drawable/action_rename"
@@ -38,14 +44,15 @@
             android:icon="@drawable/action_move"
             android:title="@string/file_action_move" />
     </group>
+
     <group android:id="@+id/group_update">
         <item
             android:id="@+id/update"
-            android:icon="@drawable/action_update"
+            android:icon="@drawable/ic_upload"
             android:title="@string/file_action_update" />
         <item
             android:id="@+id/download"
-            android:icon="@drawable/action_download"
+            android:icon="@drawable/ic_download"
             android:title="@string/file_action_download" />
     </group>
 </menu>

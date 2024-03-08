@@ -1,16 +1,9 @@
 package com.seafile.seadroid2.ui.dialog;
 
-import java.net.HttpURLConnection;
-
-import androidx.appcompat.app.AlertDialog;
-
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
-
-import androidx.fragment.app.DialogFragment;
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,6 +12,9 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.fragment.app.DialogFragment;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafConnection;
 import com.seafile.seadroid2.SeafException;
@@ -29,6 +25,8 @@ import com.seafile.seadroid2.ui.dialog_fragment.PasswordDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.listener.OnRefreshDataListener;
 import com.seafile.seadroid2.ui.main.MainActivity;
 import com.seafile.seadroid2.util.Utils;
+
+import java.net.HttpURLConnection;
 
 /**
  * Check and download the latest version of a file and open it
@@ -151,7 +149,7 @@ public class FetchFileDialog extends DialogFragment {
 
 
     private void onTaskFailed(SeafException err) {
-        String fileName = Utils.fileNameFromPath(path);
+        String fileName = Utils.getFileNameFromPath(path);
         if (err.getCode() == HttpURLConnection.HTTP_NOT_FOUND) {
             getDialog().dismiss();
             final String message = String.format(getActivity().getString(R.string.file_not_found), fileName);
@@ -227,7 +225,7 @@ public class FetchFileDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getActivity());
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.dialog_open_file, null);
 
@@ -248,7 +246,7 @@ public class FetchFileDialog extends DialogFragment {
             }
         }
 
-        String fileName = Utils.fileNameFromPath(path);
+        String fileName = Utils.getFileNameFromPath(path);
         fileIcon.setImageResource(Utils.getFileIcon(fileName));
         fileNameText.setText(fileName);
 

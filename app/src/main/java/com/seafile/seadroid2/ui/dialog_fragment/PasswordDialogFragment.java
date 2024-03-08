@@ -12,6 +12,8 @@ import androidx.lifecycle.Observer;
 
 import com.google.android.material.textfield.TextInputLayout;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.SeafException;
+import com.seafile.seadroid2.crypto.Crypto;
 import com.seafile.seadroid2.ui.base.fragment.RequestCustomDialogFragmentWithVM;
 import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.data.model.ResultModel;
@@ -54,23 +56,11 @@ public class PasswordDialogFragment extends RequestCustomDialogFragmentWithVM<Pa
             return;
         }
 
-
         EditText editText = getDialogView().findViewById(R.id.password);
         String password = editText.getText().toString();
 
-        getViewModel().getRepoModelFromLocal(repoId, new Consumer<RepoModel>() {
-            @Override
-            public void accept(RepoModel repoModel) throws Exception {
-
-                if (repoModel == null || !repoModel.canLocalDecrypt()) {
-                    getViewModel().setPassword(repoId, password);
-                } else {
-                    //TODO 本地解密
-//                    Crypto.verifyRepoPassword(repoId, password, repo.encVersion, repo.magic);
-                }
-            }
-        });
-
+        //verify password
+        getViewModel().verifyPwd(repoId, password);
     }
 
     @Override

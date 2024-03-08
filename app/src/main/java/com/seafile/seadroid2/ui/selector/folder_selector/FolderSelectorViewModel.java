@@ -66,24 +66,17 @@ public class FolderSelectorViewModel extends BaseViewModel {
 
                 for (File value : files) {
                     FileBean fileBean = new FileBean(value.getAbsolutePath());
+                    if (isJumpHiddenFile && value.isHidden()) {
+                       continue;
+                    }
 
-                    boolean isJump = false;
-                    if (isJumpHiddenFile) {
-                        String fileName = fileBean.getFileName();
-                        if (!TextUtils.isEmpty(fileName) && fileName.startsWith(".")) {
-                            isJump = true;
+                    if (!CollectionUtils.isEmpty(getSelectFilePathList())) {
+                        if (getSelectFilePathList().contains(fileBean.getFilePath())) {
+                            fileBean.setChecked(true);
                         }
                     }
 
-                    if (!isJump) {
-                        if (!CollectionUtils.isEmpty(getSelectFilePathList())) {
-                            if (getSelectFilePathList().contains(fileBean.getFilePath())) {
-                                fileBean.setChecked(true);
-                            }
-                        }
-
-                        fileBeanList.add(fileBean);
-                    }
+                    fileBeanList.add(fileBean);
                 }
 
                 sortFileBeanList(fileBeanList, Constants.SORT_NAME_ASC);

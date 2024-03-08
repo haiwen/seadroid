@@ -54,6 +54,13 @@
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
 
+    <!-- Apps that target Android 9 (API level 28) or higher and use foreground services
+    must request the FOREGROUND_SERVICE permission -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <!-- Needed for Android 14 (API level 34) -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+
+
     <application
         android:name=".SeadroidApplication"
         android:allowBackup="true"
@@ -62,6 +69,28 @@
         android:networkSecurityConfig="@xml/network_security_config"
         android:requestLegacyExternalStorage="true"
         android:theme="@style/AppTheme.Material3">
+
+        <!--        <provider-->
+        <!--            android:name="androidx.startup.InitializationProvider"-->
+        <!--            android:authorities="${applicationId}.androidx-startup"-->
+        <!--            android:exported="false"-->
+        <!--            tools:node="merge">-->
+        <!--            &lt;!&ndash; This entry makes ExampleLoggerInitializer discoverable. &ndash;&gt;-->
+        <!--            <meta-data  android:name="com.example.ExampleLoggerInitializer"-->
+        <!--                android:value="androidx.startup" />-->
+        <!--        </provider>-->
+
+<!--        <provider-->
+<!--            android:name="androidx.startup.InitializationProvider"-->
+<!--            android:authorities="${applicationId}.androidx-startup"-->
+<!--            android:exported="false"-->
+<!--            tools:node="merge">-->
+<!--            &lt;!&ndash; If you are using androidx.startup to initialize other components &ndash;&gt;-->
+<!--            <meta-data-->
+<!--                android:name="androidx.work.WorkManagerInitializer"-->
+<!--                android:value="androidx.startup"-->
+<!--                tools:node="remove" />-->
+<!--        </provider>-->
 
         <meta-data
             android:name=".util.GlideCache"
@@ -138,7 +167,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.account.AccountsActivity" />
         </activity>
-        
+
         <activity android:name=".ui.transfer.TransferActivity" />
 
         <activity android:name=".ui.camera_upload.CameraUploadConfigActivity" />
@@ -150,12 +179,21 @@
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.Editor" />
 
+        <provider
+            android:name=".ui.search.RecentSearchSuggestionsProvider"
+            android:authorities="${applicationId}.ui.search.RecentSearchSuggestionsProvider" />
+
         <activity
             android:name=".ui.search.Search2Activity"
-            android:exported="true">
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:voiceSearchMode="showVoiceSearchButton|launchRecognizer">
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
             </intent-filter>
+            <meta-data
+                android:name="android.app.searchable"
+                android:resource="@xml/searchable" />
         </activity>
 
         <activity android:name=".ui.folder_backup.FolderBackupSelectedPathActivity" />
@@ -168,6 +206,8 @@
         <activity android:name=".ui.webview.SeaWebViewActivity" />
         <activity android:name=".ui.data_migrate.DataMigrationActivity" />
         <activity android:name=".ui.selector.ObjSelectorActivity" />
+        <activity android:name=".ui.media.image_preview.ImagePreviewActivity" />
+        <activity android:name=".ui.transfer_list.TransferListActivity" />
 
         <provider
             android:name=".provider.SeafileProvider"
@@ -229,6 +269,9 @@
         <service
             android:name=".ui.camera_upload.MediaSchedulerService"
             android:permission="android.permission.BIND_JOB_SERVICE" />
+        <service
+            android:name=".worker.FileSyncService"
+            android:exported="false" />
 
         <receiver
             android:name=".BootAutostart"

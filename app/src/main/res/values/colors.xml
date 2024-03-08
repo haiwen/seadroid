@@ -58,12 +58,20 @@
     <!-- view color -->
     <color name="toolbar_divider_color">#E3E3E3</color>
     <color name="divider_color">#E3E3E3</color>
-    <color name="item_repo_title_color">#333333</color>
-    <color name="item_repo_subtitle_color">#888888</color>
+
+    <color name="list_item_title_color">#333333</color>
+    <color name="list_item_subtitle_color">#888888</color>
 
     <color name="toolbar_background_color">#F2F2F2</color>
     <color name="toolbar_title_color">#191919</color>
 
     <color name="alert_dialog_background_color">#f2f2f2</color>
     <color name="alert_dialog_onsurface_color">#191919</color>
+
+    <color name="switch_thumb_color">@color/fancy_orange</color>
+    <color name="switch_track_color">#E3E3E3</color>
+
+    <!-- search -->
+    <color name="search_bg_color">@color/white</color>
+    <color name="search_stroke_color">@color/light_gray</color>
 </resources>

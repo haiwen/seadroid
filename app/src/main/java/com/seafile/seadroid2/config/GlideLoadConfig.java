@@ -5,22 +5,24 @@ import com.bumptech.glide.load.model.LazyHeaders;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.signature.ObjectKey;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.ui.WidgetUtils;
 
 public class GlideLoadConfig {
 
     public static GlideUrl getGlideUrl(String url) {
-        if (SupportAccountManager.getInstance().getCurrentAccount() == null) {
+
+        Account account = SupportAccountManager.getInstance().getCurrentAccount();
+        if (account == null) {
             return new GlideUrl(url, new LazyHeaders.Builder().build());
         }
 
-        String token = SupportAccountManager.getInstance().getCurrentAccount().token;
+        String token = account.token;
 
-        GlideUrl glideUrl = new GlideUrl(url, new LazyHeaders.Builder()
+        return new GlideUrl(url, new LazyHeaders.Builder()
                 .addHeader("Authorization", "Token " + token)
                 .build());
-        return glideUrl;
     }
 
     public static RequestOptions getAvatarOptions() {
@@ -33,8 +35,7 @@ public class GlideLoadConfig {
     public static RequestOptions getOptions() {
         return new RequestOptions()
                 .fallback(R.drawable.file_image)
-                .placeholder(R.drawable.file_image)
-                .override(WidgetUtils.getThumbnailWidth(), WidgetUtils.getThumbnailWidth());
+                .placeholder(R.drawable.file_image);
     }
 
     public static RequestOptions getOptions(String key) {

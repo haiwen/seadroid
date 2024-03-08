@@ -5,10 +5,7 @@ import android.text.TextUtils;
 import androidx.lifecycle.MutableLiveData;
 
 import com.blankj.utilcode.util.CollectionUtils;
-import com.blankj.utilcode.util.EncryptUtils;
-import com.blankj.utilcode.util.TimeUtils;
 import com.blankj.utilcode.util.ToastUtils;
-import com.google.common.collect.Lists;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
@@ -16,37 +13,38 @@ import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.data.db.AppDatabase;
 import com.seafile.seadroid2.data.model.BaseModel;
-import com.seafile.seadroid2.data.model.GroupItemModel;
+import com.seafile.seadroid2.data.db.entities.FileTransferEntity;
 import com.seafile.seadroid2.data.model.ResultModel;
 import com.seafile.seadroid2.data.db.entities.ObjsModel;
+import com.seafile.seadroid2.data.model.enums.TransferAction;
+import com.seafile.seadroid2.data.model.enums.TransferStatus;
 import com.seafile.seadroid2.data.model.repo.DirentMiniModel;
-import com.seafile.seadroid2.data.remote.api.RepoService;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
 import com.seafile.seadroid2.context.NavContext;
-import com.seafile.seadroid2.data.StorageManager;
 import com.seafile.seadroid2.io.http.IO;
 import com.seafile.seadroid2.data.db.entities.DirentModel;
 import com.seafile.seadroid2.data.model.repo.DirentWrapperModel;
 import com.seafile.seadroid2.data.db.entities.RepoModel;
 import com.seafile.seadroid2.data.model.repo.RepoWrapperModel;
+import com.seafile.seadroid2.util.Objs;
 import com.seafile.seadroid2.util.SLogs;
-import com.seafile.seadroid2.util.sp.Sorts;
-import com.seafile.seadroid2.util.Times;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.Comparator;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import io.reactivex.Completable;
 import io.reactivex.Single;
-import io.reactivex.functions.Action;
+import io.reactivex.SingleSource;
+import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
 import kotlin.Pair;
+import kotlin.Triple;
 import okhttp3.RequestBody;
 
 public class RepoViewModel extends BaseViewModel {
@@ -76,6 +74,29 @@ public class RepoViewModel extends BaseViewModel {
         });
     }
 
+    public void getRepoModelFromDB(String repoId, Consumer<RepoModel> consumer) {
+        //from db
+        Single<List<RepoModel>> singleDb = AppDatabase.getInstance().repoDao().getRepoById(repoId);
+        addSingleDisposable(singleDb, new Consumer<List<RepoModel>>() {
+            @Override
+            public void accept(List<RepoModel> repoModels) throws Exception {
+                if (consumer != null) {
+                    if (CollectionUtils.isEmpty(repoModels)) {
+                        //no data in sqlite, request RepoApi again
+                        consumer.accept(null);
+                    } else {
+                        consumer.accept(repoModels.get(0));
+                    }
+                }
+            }
+        }, new Consumer<Throwable>() {
+            @Override
+            public void accept(Throwable throwable) throws Exception {
+                SLogs.e(throwable);
+            }
+        });
+    }
+
     public void loadData(NavContext context, boolean forceRefresh) {
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
         if (account == null) {
@@ -90,19 +111,20 @@ public class RepoViewModel extends BaseViewModel {
     }
 
     private void loadReposFromDB(Account account, boolean isForce) {
-        Single<List<RepoModel>> singleDB = AppDatabase.getInstance().repoDao().getAllByAccount(account.email);
+        Single<List<RepoModel>> singleDB = AppDatabase.getInstance().repoDao().getAllByAccount(account.getSignature());
         addSingleDisposable(singleDB, new Consumer<List<RepoModel>>() {
             @Override
-            public void accept(List<RepoModel> repoModels) throws Exception {
-                if (!CollectionUtils.isEmpty(repoModels)) {
-                    Pair<List<BaseModel>, List<RepoModel>> pair = parseRepos(repoModels, account.email);
+            public void accept(List<RepoModel> repoModels) {
 
-                    getObjsListLiveData().setValue(null == pair ? null : pair.getFirst());
+                if (CollectionUtils.isEmpty(repoModels)) {
+                    loadReposFromNet(account);
+                    return;
+                }
 
-                    if (isForce) {
-                        loadReposFromNet(account);
-                    }
-                } else {
+                List<BaseModel> list = Objs.parseRepoListForAdapter(repoModels, account.getSignature(),false);
+                getObjsListLiveData().setValue(list);
+
+                if (isForce) {
                     loadReposFromNet(account);
                 }
             }
@@ -112,35 +134,71 @@ public class RepoViewModel extends BaseViewModel {
     private void loadReposFromNet(Account account) {
         getRefreshLiveData().setValue(true);
 
-        Single<RepoWrapperModel> singleNet = IO.getSingleton().execute(RepoService.class).getRepos();
-        addSingleDisposable(singleNet, new Consumer<RepoWrapperModel>() {
+        Single<RepoWrapperModel> netSingle = IO.getSingleton().execute(RepoService.class).getRepos();
+        Single<List<RepoModel>> dbListSingle = AppDatabase.getInstance().repoDao().getAllByAccount(account.getSignature());
+
+        //load net data and load local data
+        Single<List<BaseModel>> resultSingle = Single.zip(netSingle, dbListSingle, new BiFunction<RepoWrapperModel, List<RepoModel>, Triple<RepoWrapperModel, List<RepoModel>, List<RepoModel>>>() {
             @Override
-            public void accept(RepoWrapperModel repoWrapperModel) throws Exception {
-                getRefreshLiveData().setValue(false);
+            public Triple<RepoWrapperModel, List<RepoModel>, List<RepoModel>> apply(RepoWrapperModel repoWrapperModel, List<RepoModel> dbModels) throws Exception {
+                List<RepoModel> net2dbList = Objs.parseRepoListForDB(repoWrapperModel.repos, account.getSignature());
 
-                if (repoWrapperModel == null || CollectionUtils.isEmpty(repoWrapperModel.repos)) {
-                    getObjsListLiveData().setValue(null);
-                    return;
+                //diffs.first = delete list
+                //diffs.second = insert db list
+                Pair<List<RepoModel>, List<RepoModel>> diffs = Objs.diffRepos(net2dbList, dbModels);
+                if (diffs == null) {
+                    return new Triple<>(repoWrapperModel, null, null);
                 }
 
-                Pair<List<BaseModel>, List<RepoModel>> pair = parseRepos(repoWrapperModel.repos, account.email);
+                return new Triple<>(repoWrapperModel, diffs.getFirst(), diffs.getSecond());
+            }
+        }).flatMap(new Function<Triple<RepoWrapperModel, List<RepoModel>, List<RepoModel>>, SingleSource<Pair<RepoWrapperModel, List<RepoModel>>>>() {
+            @Override
+            public SingleSource<Pair<RepoWrapperModel, List<RepoModel>>> apply(Triple<RepoWrapperModel, List<RepoModel>, List<RepoModel>> triple) throws Exception {
 
-                if (null == pair) {
-                    getObjsListLiveData().setValue(null);
-                    return;
+                if (CollectionUtils.isEmpty(triple.getSecond())) {
+                    return Single.just(new Pair<>(triple.getFirst(), triple.getThird()));
                 }
 
-                Completable completableDelete = AppDatabase.getInstance().repoDao().deleteAllByAccount(account.email);
-                Completable completableInsert = AppDatabase.getInstance().repoDao().insertAll(pair.getSecond());
-                Completable completable = Completable.mergeArray(completableDelete, completableInsert);
-                addCompletableDisposable(completable, new Action() {
+                List<String> ids = triple.getSecond().stream().map(m -> m.repo_id).collect(Collectors.toList());
+                Completable deleteCompletable = AppDatabase.getInstance().repoDao().deleteAllByIds(ids);
+                Single<Long> deleteSingle = deleteCompletable.toSingleDefault(0L);
+                return deleteSingle.flatMap(new Function<Long, SingleSource<Pair<RepoWrapperModel, List<RepoModel>>>>() {
                     @Override
-                    public void run() throws Exception {
-                        SLogs.d("Dirents本地数据库已更新");
+                    public SingleSource<Pair<RepoWrapperModel, List<RepoModel>>> apply(Long aLong) throws Exception {
+
+                        return Single.just(new Pair<>(triple.getFirst(), triple.getThird()));
                     }
                 });
+            }
+        }).flatMap(new Function<Pair<RepoWrapperModel, List<RepoModel>>, SingleSource<RepoWrapperModel>>() {
+            @Override
+            public SingleSource<RepoWrapperModel> apply(Pair<RepoWrapperModel, List<RepoModel>> pair) throws Exception {
+                if (CollectionUtils.isEmpty(pair.getSecond())) {
+                    return Single.just(pair.getFirst());
+                }
 
-                getObjsListLiveData().setValue(pair.getFirst());
+                Completable insertCompletable = AppDatabase.getInstance().repoDao().insertAll(pair.getSecond());
+                Single<Long> longSingle = insertCompletable.toSingleDefault(0L);
+                return longSingle.flatMap(new Function<Long, SingleSource<RepoWrapperModel>>() {
+                    @Override
+                    public SingleSource<RepoWrapperModel> apply(Long aLong) throws Exception {
+                        return Single.just(pair.getFirst());
+                    }
+                });
+            }
+        }).flatMap(new Function<RepoWrapperModel, SingleSource<List<BaseModel>>>() {
+            @Override
+            public SingleSource<List<BaseModel>> apply(RepoWrapperModel repoWrapperModel) throws Exception {
+                List<BaseModel> models = Objs.parseRepoListForAdapter(repoWrapperModel.repos, account.getSignature(),false);
+                return Single.just(models);
+            }
+        });
+        addSingleDisposable(resultSingle, new Consumer<List<BaseModel>>() {
+            @Override
+            public void accept(List<BaseModel> models) throws Exception {
+                getObjsListLiveData().setValue(models);
+                getRefreshLiveData().setValue(false);
             }
         }, new Consumer<Throwable>() {
             @Override
@@ -154,12 +212,51 @@ public class RepoViewModel extends BaseViewModel {
         String repoId = context.getRepoModel().repo_id;
         String parentDir = context.getNavPath();
 
-        Single<List<DirentModel>> singleDB = AppDatabase.getInstance().direntDao().getAllByParentPath(repoId, parentDir);
-        addSingleDisposable(singleDB, new Consumer<List<DirentModel>>() {
+        Single<List<DirentModel>> direntDBSingle = AppDatabase.getInstance().direntDao().getAllByParentPath(repoId, parentDir);
+        Single<List<FileTransferEntity>> transferDBSingle = direntDBSingle.flatMap(new Function<List<DirentModel>, SingleSource<List<FileTransferEntity>>>() {
+            @Override
+            public SingleSource<List<FileTransferEntity>> apply(List<DirentModel> direntModels) throws Exception {
+                if (CollectionUtils.isEmpty(direntModels)) {
+                    return Single.just(Collections.emptyList());
+                }
+
+                List<String> fullPaths = direntModels.stream().map(m -> m.full_path).collect(Collectors.toList());
+                if (CollectionUtils.isEmpty(fullPaths)) {
+                    return Single.just(Collections.emptyList());
+                }
+
+                return AppDatabase.getInstance().fileTransferDAO().getListByFullPathsAsync(account.getSignature(), fullPaths, TransferAction.DOWNLOAD);
+            }
+        });
+
+
+        Single<List<DirentModel>> resultSingle = Single.zip(direntDBSingle, transferDBSingle, new BiFunction<List<DirentModel>, List<FileTransferEntity>, List<DirentModel>>() {
+            @Override
+            public List<DirentModel> apply(List<DirentModel> direntModels, List<FileTransferEntity> list) throws Exception {
+                if (CollectionUtils.isEmpty(direntModels)) {
+                    return direntModels;
+                }
+
+                for (DirentModel direntModel : direntModels) {
+                    String fullPath = direntModel.parent_dir + direntModel.name;
+                    Optional<FileTransferEntity> firstOp = list.stream().filter(f -> TextUtils.equals(fullPath, f.full_path)).findFirst();
+                    if (firstOp.isPresent()) {
+                        FileTransferEntity entity = firstOp.get();
+                        if (entity.transfer_status == TransferStatus.TRANSFER_SUCCEEDED) {
+                            direntModel.transfer_status = entity.transfer_status;
+                        }
+                    }
+                }
+
+                return direntModels;
+            }
+        });
+
+        addSingleDisposable(resultSingle, new Consumer<List<DirentModel>>() {
             @Override
             public void accept(List<DirentModel> direntModels) throws Exception {
                 if (!CollectionUtils.isEmpty(direntModels)) {
-                    getObjsListLiveData().setValue(parseDirentsWithLocal(direntModels));
+                    getObjsListLiveData().setValue(Objs.parseLocalDirents(direntModels));
 
                     if (isForce) {
                         loadDirentsFromNet(account, context);
@@ -177,34 +274,88 @@ public class RepoViewModel extends BaseViewModel {
         String repoId = context.getRepoModel().repo_id;
         String parentDir = context.getNavPath();
 
-        Single<DirentWrapperModel> singleNet = IO.getSingleton().execute(RepoService.class).getDirents(repoId, parentDir);
-        addSingleDisposable(singleNet, new Consumer<DirentWrapperModel>() {
+
+        Single<DirentWrapperModel> netSingle = IO.getSingleton().execute(RepoService.class).getDirents(repoId, parentDir);
+        Single<List<DirentModel>> dbSingle = AppDatabase.getInstance().direntDao().getAllByParentPath(repoId, parentDir);
+        Single<List<DirentModel>> resultSingle = Single.zip(netSingle, dbSingle, new BiFunction<DirentWrapperModel, List<DirentModel>, List<DirentModel>>() {
             @Override
-            public void accept(DirentWrapperModel direntWrapperModel) throws Exception {
-                Pair<List<BaseModel>, List<DirentModel>> pair = parseDirents(
+            public List<DirentModel> apply(DirentWrapperModel direntWrapperModel, List<DirentModel> direntModels) throws Exception {
+                return Objs.parseDirentsForDB(
                         direntWrapperModel.dirent_list,
                         direntWrapperModel.dir_id,
-                        account.email,
-                        context.getRepoModel());
-
-                if (null == pair) {
-                    getObjsListLiveData().setValue(null);
-                    getRefreshLiveData().setValue(false);
-                    return;
+                        account.getSignature(),
+                        context.getRepoModel().repo_id,
+                        context.getRepoModel().repo_name);
+            }
+        }).flatMap(new Function<List<DirentModel>, SingleSource<List<DirentModel>>>() {
+            @Override
+            public SingleSource<List<DirentModel>> apply(List<DirentModel> netModels) throws Exception {
+                if (CollectionUtils.isEmpty(netModels)) {
+                    return Single.just(netModels);
                 }
 
-                Completable completableDelete = AppDatabase.getInstance().direntDao().deleteAllByPath(repoId, parentDir);
-                Completable completableInsert = AppDatabase.getInstance().direntDao().insertAll(pair.getSecond());
-                Completable completable = Completable.concat(CollectionUtils.newArrayList(completableDelete, completableInsert));
-
-                addCompletableDisposable(completable, new Action() {
+                Completable deleted = AppDatabase.getInstance().direntDao().deleteAllByParentPath(repoId, parentDir);
+                Single<Long> deleteAllByPathSingle = deleted.toSingleDefault(0L);
+                return deleteAllByPathSingle.flatMap(new Function<Long, SingleSource<List<DirentModel>>>() {
                     @Override
-                    public void run() throws Exception {
-                        SLogs.d("Dirents本地数据库已更新");
+                    public SingleSource<List<DirentModel>> apply(Long aLong) throws Exception {
+                        return Single.just(netModels);
                     }
                 });
+            }
+        }).flatMap(new Function<List<DirentModel>, SingleSource<List<DirentModel>>>() {
+            @Override
+            public SingleSource<List<DirentModel>> apply(List<DirentModel> direntModels) throws Exception {
+                if (CollectionUtils.isEmpty(direntModels)) {
+                    return Single.just(direntModels);
+                }
 
-                getObjsListLiveData().setValue(pair.getFirst());
+                Completable insertCompletable = AppDatabase.getInstance().direntDao().insertAll(direntModels);
+                Single<Long> insertAllSingle = insertCompletable.toSingleDefault(0L);
+                return insertAllSingle.flatMap(new Function<Long, SingleSource<List<DirentModel>>>() {
+                    @Override
+                    public SingleSource<List<DirentModel>> apply(Long aLong) throws Exception {
+
+                        SLogs.d("Dirents本地数据库已更新");
+                        return Single.just(direntModels);
+                    }
+                });
+            }
+        }).flatMap(new Function<List<DirentModel>, SingleSource<List<DirentModel>>>() {
+            @Override
+            public SingleSource<List<DirentModel>> apply(List<DirentModel> direntModels) throws Exception {
+                if (CollectionUtils.isEmpty(direntModels)) {
+                    return Single.just(direntModels);
+                }
+
+
+                List<String> fullPaths = direntModels.stream().map(m -> m.parent_dir + m.name).collect(Collectors.toList());
+                Single<List<FileTransferEntity>> single = AppDatabase.getInstance().fileTransferDAO().getListByFullPathsAsync(account.getSignature(), fullPaths, TransferAction.DOWNLOAD);
+                return single.flatMap(new Function<List<FileTransferEntity>, SingleSource<List<DirentModel>>>() {
+                    @Override
+                    public SingleSource<List<DirentModel>> apply(List<FileTransferEntity> fileTransferEntities) throws Exception {
+
+                        for (DirentModel direntModel : direntModels) {
+                            String fullPath = direntModel.parent_dir + direntModel.name;
+                            Optional<FileTransferEntity> firstOp = fileTransferEntities.stream().filter(f -> TextUtils.equals(fullPath, f.full_path)).findFirst();
+                            if (firstOp.isPresent()) {
+                                FileTransferEntity entity = firstOp.get();
+                                if (entity.transfer_status == TransferStatus.TRANSFER_SUCCEEDED) {
+                                    direntModel.transfer_status = entity.transfer_status;
+                                }
+                            }
+                        }
+
+                        return Single.just(direntModels);
+                    }
+                });
+            }
+        });
+
+        addSingleDisposable(resultSingle, new Consumer<List<DirentModel>>() {
+            @Override
+            public void accept(List<DirentModel> direntModels) throws Exception {
+                getObjsListLiveData().setValue(new ArrayList<>(direntModels));
                 getRefreshLiveData().setValue(false);
             }
         }, new Consumer<Throwable>() {
@@ -217,257 +368,6 @@ public class RepoViewModel extends BaseViewModel {
             }
         });
     }
-
-    private Pair<List<BaseModel>, List<RepoModel>> parseRepos(List<RepoModel> list, String email) {
-        if (CollectionUtils.isEmpty(list)) {
-            return null;
-        }
-        for (int i = 0; i < list.size(); i++) {
-            list.get(i).related_account_email = email;
-        }
-
-        List<BaseModel> newRvList = CollectionUtils.newArrayList();
-        List<RepoModel> newDbList = CollectionUtils.newArrayList();
-
-        TreeMap<String, List<RepoModel>> treeMap = groupRepos(list);
-
-        //mine
-        List<RepoModel> mineList = treeMap.get("mine");
-        if (!CollectionUtils.isEmpty(mineList)) {
-            newRvList.add(new GroupItemModel(R.string.personal));
-            for (RepoModel repoModel : mineList) {
-                repoModel.last_modified_long = Times.convertMtime2Long(repoModel.last_modified);
-            }
-
-            List<RepoModel> sortedList = sortRepos(mineList);
-            newRvList.addAll(sortedList);
-            newDbList.addAll(mineList);
-        }
-
-        //shared
-        List<RepoModel> sharedList = treeMap.get("shared");
-        if (!CollectionUtils.isEmpty(sharedList)) {
-            newRvList.add(new GroupItemModel(R.string.shared));
-            for (RepoModel repoModel : sharedList) {
-                repoModel.last_modified_long = Times.convertMtime2Long(repoModel.last_modified);
-            }
-
-            List<RepoModel> sortedList = sortRepos(sharedList);
-            newRvList.addAll(sortedList);
-            newDbList.addAll(sharedList);
-        }
-
-        for (String key : treeMap.keySet()) {
-            if (TextUtils.equals(key, "mine")) {
-            } else if (TextUtils.equals(key, "shared")) {
-            } else {
-                List<RepoModel> groupList = treeMap.get(key);
-                if (!CollectionUtils.isEmpty(groupList)) {
-                    newRvList.add(new GroupItemModel(key));
-                    for (RepoModel repoModel : groupList) {
-                        repoModel.last_modified_long = Times.convertMtime2Long(repoModel.last_modified);
-                    }
-
-                    List<RepoModel> sortedList = sortRepos(groupList);
-                    newRvList.addAll(sortedList);
-                    newDbList.addAll(groupList);
-                }
-            }
-        }
-        return new Pair<>(newRvList, newDbList);
-    }
-
-    private Pair<List<BaseModel>, List<DirentModel>> parseDirents(List<DirentModel> list, String dir_id, String email, RepoModel repoModel) {
-        if (CollectionUtils.isEmpty(list)) {
-            return null;
-        }
-
-        TreeMap<String, List<DirentModel>> treeMap = groupDirents(list);
-        List<DirentModel> dirModels = treeMap.get("dir");
-        List<DirentModel> fileModels = treeMap.get("file");
-
-        List<DirentModel> newDbList = new ArrayList<>();
-        long now = TimeUtils.getNowMills();
-        if (!CollectionUtils.isEmpty(dirModels)) {
-            for (int i = 0; i < dirModels.size(); i++) {
-                //
-                dirModels.get(i).last_sync_time = now;
-                dirModels.get(i).dir_id = dir_id;
-                dirModels.get(i).related_account_email = email;
-                dirModels.get(i).repo_id = repoModel.repo_id;
-                dirModels.get(i).repo_name = repoModel.repo_name;
-                dirModels.get(i).full_path = dirModels.get(i).parent_dir + dirModels.get(i).name;
-                dirModels.get(i).hash_path = EncryptUtils.encryptMD5ToString(dirModels.get(i).repo_id + list.get(i).full_path);
-            }
-            newDbList.addAll(sortDirents(dirModels));
-        }
-
-        if (!CollectionUtils.isEmpty(fileModels)) {
-            for (int i = 0; i < fileModels.size(); i++) {
-                //
-                fileModels.get(i).repo_id = repoModel.repo_id;
-                fileModels.get(i).repo_name = repoModel.repo_name;
-                fileModels.get(i).last_sync_time = now;
-                fileModels.get(i).dir_id = dir_id;
-                fileModels.get(i).related_account_email = email;
-                fileModels.get(i).full_path = fileModels.get(i).parent_dir + fileModels.get(i).name;
-                fileModels.get(i).hash_path = EncryptUtils.encryptMD5ToString(repoModel.repo_id + fileModels.get(i).full_path);
-            }
-            newDbList.addAll(sortDirents(fileModels));
-        }
-
-        List<BaseModel> newRvList = new ArrayList<>(newDbList);
-
-        return new Pair<>(newRvList, newDbList);
-    }
-
-    private List<BaseModel> parseDirentsWithLocal(List<DirentModel> list) {
-        if (CollectionUtils.isEmpty(list)) {
-            return null;
-        }
-
-        TreeMap<String, List<DirentModel>> treeMap = groupDirents(list);
-        List<DirentModel> dirModels = treeMap.get("dir");
-        List<DirentModel> fileModels = treeMap.get("file");
-
-        List<DirentModel> newList = new ArrayList<>();
-        if (!CollectionUtils.isEmpty(dirModels)) {
-            newList.addAll(sortDirents(dirModels));
-        }
-
-        if (!CollectionUtils.isEmpty(fileModels)) {
-            newList.addAll(sortDirents(fileModels));
-        }
-
-        return new ArrayList<>(newList);
-    }
-
-
-    private List<RepoModel> sortRepos(List<RepoModel> repos) {
-        List<RepoModel> newRepos = new ArrayList<>();
-
-        int sortType = Sorts.getSortType();
-        switch (sortType) {
-            case 0: // sort by name, ascending
-                newRepos = repos.stream().sorted(new Comparator<RepoModel>() {
-                    @Override
-                    public int compare(RepoModel o1, RepoModel o2) {
-                        return o1.repo_name.compareTo(o2.repo_name);
-                    }
-                }).collect(Collectors.toList());
-
-                break;
-            case 1: // sort by name, descending
-                newRepos = repos.stream().sorted(new Comparator<RepoModel>() {
-                    @Override
-                    public int compare(RepoModel o1, RepoModel o2) {
-                        return -o1.repo_name.compareTo(o2.repo_name);
-                    }
-                }).collect(Collectors.toList());
-                break;
-            case 2: // sort by last modified time, ascending
-                newRepos = repos.stream().sorted(new Comparator<RepoModel>() {
-                    @Override
-                    public int compare(RepoModel o1, RepoModel o2) {
-                        return o1.last_modified_long < o2.last_modified_long ? -1 : 1;
-                    }
-                }).collect(Collectors.toList());
-                break;
-            case 3: // sort by last modified time, descending
-                newRepos = repos.stream().sorted(new Comparator<RepoModel>() {
-                    @Override
-                    public int compare(RepoModel o1, RepoModel o2) {
-                        return o1.last_modified_long > o2.last_modified_long ? -1 : 1;
-                    }
-                }).collect(Collectors.toList());
-                break;
-        }
-        return newRepos;
-    }
-
-    private List<DirentModel> sortDirents(List<DirentModel> list) {
-        List<DirentModel> newList = new ArrayList<>();
-
-        int sortType = Sorts.getSortType();
-        switch (sortType) {
-            case 0: // sort by name, ascending
-                newList = list.stream().sorted(new Comparator<DirentModel>() {
-                    @Override
-                    public int compare(DirentModel o1, DirentModel o2) {
-                        return o1.name.compareTo(o2.name);
-                    }
-                }).collect(Collectors.toList());
-
-                break;
-            case 1: // sort by name, descending
-                newList = list.stream().sorted(new Comparator<DirentModel>() {
-                    @Override
-                    public int compare(DirentModel o1, DirentModel o2) {
-                        return -o1.name.compareTo(o2.name);
-                    }
-                }).collect(Collectors.toList());
-                break;
-            case 2: // sort by last modified time, ascending
-                newList = list.stream().sorted(new Comparator<DirentModel>() {
-                    @Override
-                    public int compare(DirentModel o1, DirentModel o2) {
-                        return o1.mtime < o2.mtime ? -1 : 1;
-                    }
-                }).collect(Collectors.toList());
-                break;
-            case 3: // sort by last modified time, descending
-                newList = list.stream().sorted(new Comparator<DirentModel>() {
-                    @Override
-                    public int compare(DirentModel o1, DirentModel o2) {
-                        return o1.mtime > o2.mtime ? -1 : 1;
-                    }
-                }).collect(Collectors.toList());
-                break;
-        }
-        return newList;
-    }
-
-    public TreeMap<String, List<RepoModel>> groupRepos(List<RepoModel> repos) {
-        TreeMap<String, List<RepoModel>> map = new TreeMap<String, List<RepoModel>>();
-        for (RepoModel repo : repos) {
-            if (TextUtils.equals(repo.type, "group")) {
-                List<RepoModel> l = map.computeIfAbsent(repo.group_name, k -> Lists.newArrayList());
-                l.add(repo);
-            } else {
-                List<RepoModel> l = map.computeIfAbsent(repo.type, k -> Lists.newArrayList());
-                l.add(repo);
-            }
-        }
-        return map;
-    }
-
-    public TreeMap<String, List<DirentModel>> groupDirents(List<DirentModel> list) {
-        TreeMap<String, List<DirentModel>> map = new TreeMap<String, List<DirentModel>>();
-        for (DirentModel repo : list) {
-            List<DirentModel> l = map.computeIfAbsent(repo.type, k -> Lists.newArrayList());
-            l.add(repo);
-        }
-        return map;
-    }
-
-    private final StorageManager storageManager = StorageManager.getInstance();
-
-    private File getFileForReposCache() {
-        Account account = SupportAccountManager.getInstance().getCurrentAccount();
-        String filename = "repos-" + (account.server + account.email).hashCode() + ".dat";
-        return new File(storageManager.getJsonCacheDir(), filename);
-    }
-
-    private File getFileForDirentCache(String dirID) {
-        String filename = "dirent-" + dirID + ".dat";
-        return new File(storageManager.getJsonCacheDir() + "/" + filename);
-    }
-
-    private File getFileForBlockCache(String blockId) {
-        String filename = "block-" + blockId + ".dat";
-        return new File(storageManager.getTempDir() + "/" + filename);
-    }
-
 
     //star
     public void star(String repoId, String path) {

@@ -17,7 +17,10 @@ public interface CertCacheDAO {
     Completable insert(CertEntity entity);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    Completable insertAll(List<CertEntity> entities);
+    Completable insertAllAsync(List<CertEntity> entities);
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    void insertAll(List<CertEntity> entities);
 
 //    @Query("select * from repo_config_cache where repo_id = :repoId limit 1")
 //    Single<List<RepoConfigCacheEntity>> getByRepoId(String repoId);

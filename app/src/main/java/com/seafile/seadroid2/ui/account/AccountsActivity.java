@@ -306,6 +306,8 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
                 startEditAccountActivity(account);
                 return true;
             case R.id.delete:
+                //TODO 清除传输队列数据库
+
                 account = adapter.getItem((int) info.id);
 
                 Log.d(DEBUG_TAG, "removing account " + account);

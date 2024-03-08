@@ -15,6 +15,8 @@ public class CustomLoadMoreAdapter extends TrailingLoadStateAdapter<CustomLoadMo
 
     @Override
     public void onBindViewHolder(@NonNull CustomVH holder, @NonNull LoadState loadState) {
+
+        //TODO 优化代码
         if (loadState instanceof LoadState.NotLoading) {
             if (loadState.getEndOfPaginationReached()) {
                 holder.loadMoreLoadCompleteView.setVisibility(View.GONE);
@@ -49,7 +51,15 @@ public class CustomLoadMoreAdapter extends TrailingLoadStateAdapter<CustomLoadMo
     @Override
     public CustomVH onCreateViewHolder(@NonNull ViewGroup viewGroup, @NonNull LoadState loadState) {
         View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.view_load_more, viewGroup, false);
-        return new CustomVH(view);
+        CustomVH customVH = new CustomVH(view);
+        customVH.loadMoreLoadFailView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                invokeFailRetry();
+            }
+        });
+
+        return customVH;
     }
 
     public static class CustomVH extends RecyclerView.ViewHolder {

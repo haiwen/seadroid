@@ -5,7 +5,6 @@ import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 
 import com.seafile.seadroid2.data.db.entities.FolderBackupMonitorEntity;
-import com.seafile.seadroid2.data.db.entities.StarredFileCacheEntity;
 
 import java.util.List;
 

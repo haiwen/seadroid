@@ -9,6 +9,7 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.Service;
 import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -30,13 +31,14 @@ import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.ui.activity.GalleryActivity;
-import com.seafile.seadroid2.ui.dialog.AppChoiceDialog;
+import com.seafile.seadroid2.ui.dialog_fragment.AppChoiceDialogFragment;
 import com.seafile.seadroid2.ui.dialog.GetShareLinkDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog;
 import com.seafile.seadroid2.ui.dialog_fragment.GetShareLinkPasswordDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.listener.OnRefreshDataListener;
 import com.seafile.seadroid2.ui.main.MainActivity;
 import com.seafile.seadroid2.ui.markdown.MarkdownActivity;
+import com.seafile.seadroid2.ui.media.image_preview.ImagePreviewActivity;
 import com.seafile.seadroid2.util.FileExports;
 import com.seafile.seadroid2.util.Utils;
 
@@ -51,171 +53,6 @@ import java.util.Random;
  */
 public class WidgetUtils {
     public static final String MIME_ANDROID = "application/vnd.android.package-archive";
-
-    public static void chooseShareApp(final AppCompatActivity activity,
-                                      final String repoID,
-                                      final String path,
-                                      final boolean isdir,
-                                      final Account account,
-                                      final String password,
-                                      final String days) {
-        final Intent shareIntent = new Intent();
-        shareIntent.setAction(Intent.ACTION_SEND);
-        shareIntent.setType("text/plain");
-
-        // Get a list of apps
-        List<ResolveInfo> infos = Utils.getAppsByIntent(shareIntent);
-
-        String title = activity.getString(isdir ? R.string.share_dir_link : R.string.share_file_link);
-
-        AppChoiceDialog dialog = new AppChoiceDialog();
-        dialog.addCustomAction(0, activity.getResources().getDrawable(R.drawable.copy_link),
-                activity.getString(R.string.copy_link));
-        dialog.init(title, infos, new AppChoiceDialog.OnItemSelectedListener() {
-            @Override
-            public void onCustomActionSelected(AppChoiceDialog.CustomAction action) {
-                final GetShareLinkDialog gdialog = new GetShareLinkDialog();
-                gdialog.init(repoID, path, isdir, account, password, days);
-                gdialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
-                    @Override
-                    @SuppressWarnings("deprecation")
-                    public void onTaskSuccess() {
-                        ClipboardManager clipboard = (ClipboardManager)
-                                activity.getSystemService(Context.CLIPBOARD_SERVICE);
-                        clipboard.setText(gdialog.getLink());
-                        // ClipData clip = ClipData.newPlainText("seafile shared link", gdialog.getLink());
-                        // clipboard.setPrimaryClip(clip);
-                        ToastUtils.showLong(R.string.link_ready_to_be_pasted);
-                    }
-
-                    @Override
-                    public void onTaskFailed(SeafException e) {
-                        super.onTaskFailed(e);
-                        gdialog.dismiss();
-                        if (e.getCode() == HttpURLConnection.HTTP_FORBIDDEN) {
-                            ToastUtils.showLong(R.string.share_link_no_permission);
-                        } else {
-                            ToastUtils.showLong(e.getMessage());
-                        }
-                    }
-                });
-                gdialog.show(activity.getSupportFragmentManager(), "DialogFragment");
-            }
-
-            @Override
-            public void onAppSelected(ResolveInfo appInfo) {
-                String className = appInfo.activityInfo.name;
-                String packageName = appInfo.activityInfo.packageName;
-                shareIntent.setClassName(packageName, className);
-
-                final GetShareLinkDialog gdialog = new GetShareLinkDialog();
-                gdialog.init(repoID, path, isdir, account, password, days);
-                gdialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
-                    @Override
-                    public void onTaskSuccess() {
-                        shareIntent.putExtra(Intent.EXTRA_TEXT, gdialog.getLink());
-                        activity.startActivity(shareIntent);
-                    }
-                });
-                gdialog.show(activity.getSupportFragmentManager(), "DialogFragment");
-            }
-
-        });
-        dialog.show(activity.getSupportFragmentManager(), AppChoiceDialog.class.getSimpleName());
-    }
-
-    public static void inputSharePassword(final AppCompatActivity activity,
-                                          final String repoID,
-                                          final String path,
-                                          final boolean isdir,
-                                          final Account account) {
-
-        GetShareLinkPasswordDialogFragment dialogFragment = new GetShareLinkPasswordDialogFragment();
-        dialogFragment.setRefreshListener(new OnRefreshDataListener() {
-            @Override
-            public void onActionStatus(boolean isDone) {
-                String password = dialogFragment.getPassword();
-                String days = dialogFragment.getDays();
-                chooseShareApp(activity, repoID, path, isdir, account, password, days);
-            }
-        });
-        dialogFragment.show(activity.getSupportFragmentManager(), GetShareLinkPasswordDialogFragment.class.getSimpleName());
-    }
-
-    /**
-     * if dir will share dir link .
-     * if local file ,will share file to wachat app.
-     * if server file , it will download file and share file.
-     *
-     * @param activity
-     * @param account
-     * @param repoID
-     * @param path
-     * @param fileName
-     * @param fileSize
-     * @param isdir
-     */
-    public static void ShareWeChat(final BaseActivity activity, Account account, String repoID, String path,
-                                   String fileName,
-                                   long fileSize,
-                                   boolean isdir) {
-
-        if (isdir) {//share  link
-            final Intent shareIntent = new Intent();
-            shareIntent.setAction(Intent.ACTION_SEND);
-            shareIntent.setType("text/plain");
-            ResolveInfo weChatInfo = Utils.getWeChatIntent(shareIntent);
-            if (weChatInfo == null) {
-                ToastUtils.showLong(R.string.no_app_available);
-                return;
-            }
-            String className = weChatInfo.activityInfo.name;
-            String packageName = weChatInfo.activityInfo.packageName;
-            shareIntent.setClassName(packageName, className);
-            final GetShareLinkDialog gdialog = new GetShareLinkDialog();
-            gdialog.init(repoID, path, isdir, account, null, null);
-            gdialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
-                @Override
-                public void onTaskSuccess() {
-                    shareIntent.putExtra(Intent.EXTRA_TEXT, gdialog.getLink());
-                    activity.startActivity(shareIntent);
-                }
-            });
-            gdialog.show(activity.getSupportFragmentManager(), "DialogFragment");
-        } else {//share  files
-            //TODO
-//            BrowserActivity browserActivity = ((BrowserActivity) activity);
-//            String repoName = ((BrowserActivity) activity).getNavContext().getRepoName();
-//            String dirPath = ((BrowserActivity) activity).getNavContext().getDirPath();
-//
-//            String fullPath = Utils.pathJoin(dirPath, fileName);
-//            final File file = browserActivity.getDataManager().getLocalRepoFile(repoName, repoID, fullPath);
-//            Uri uri = null;
-//            if (android.os.Build.VERSION.SDK_INT > 23) {
-//                uri = FileProvider.getUriForFile(activity, BuildConfig.FILE_PROVIDER_AUTHORITIES, file);
-//            } else {
-//                uri = Uri.fromFile(file);
-//            }
-//            final Intent sendIntent = new Intent();
-//            sendIntent.setAction(Intent.ACTION_SEND);
-//            sendIntent.setType(Utils.getFileMimeType(file));
-//            sendIntent.putExtra(Intent.EXTRA_STREAM, uri);
-//            ResolveInfo weChatInfo = Utils.getWeChatIntent(sendIntent);
-//            if (weChatInfo == null) {
-//                activity.showShortToast(activity, R.string.no_app_available);
-//                return;
-//            }
-//            String className = weChatInfo.activityInfo.name;
-//            String packageName = weChatInfo.activityInfo.packageName;
-//            sendIntent.setClassName(packageName, className);
-//            if (!Utils.isNetworkOn() && file.exists()) {
-//                activity.startActivity(sendIntent);
-//                return;
-//            }
-//            browserActivity.fetchFileAndExport(weChatInfo, sendIntent, repoName, repoID, path, fileSize);
-
-        }
-    }
 
     public static void showFile(final BaseActivity activity, File file) {
         showFile(activity, file, false);
@@ -277,7 +114,8 @@ public class WidgetUtils {
         }
     }
 
-    private static void showFileForAndroid(final BaseActivity activity, File file, String fileName) {
+    private static void showFileForAndroid(final BaseActivity activity, File file, String
+            fileName) {
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 ContentResolver contentResolver = activity.getContentResolver();
@@ -310,15 +148,6 @@ public class WidgetUtils {
         manager.notify(nId, notification);
     }
 
-    public static void showRepo(Context context, String repoID, String repoName, String path, String dirID) {
-        Intent intent = new Intent(context, MainActivity.class);
-        intent.putExtra("repoID", repoID);
-        intent.putExtra("repoName", repoName);
-        intent.putExtra("path", path);
-        intent.putExtra("dirID", dirID);
-        context.startActivity(intent);
-    }
-
 
     public static void startMarkdownActivity(Context context, String path) {
         Intent intent = new Intent(context, MarkdownActivity.class);
@@ -334,7 +163,10 @@ public class WidgetUtils {
      * @param fileName
      * @param account
      */
-    public static void startGalleryActivity(Activity activity, String repoName, String repoId, String path, String fileName, Account account) {
+    public static void startGalleryActivity(Activity activity, String repoName, String
+            repoId, String path, String fileName, Account account) {
+
+
         Intent intent = new Intent(activity, GalleryActivity.class);
         intent.putExtra("repoName", repoName);
         intent.putExtra("repoId", repoId);

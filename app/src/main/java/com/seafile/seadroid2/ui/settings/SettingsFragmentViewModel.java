@@ -6,12 +6,11 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountInfo;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.data.ServerInfo;
-import com.seafile.seadroid2.data.db.AppDatabase;
 import com.seafile.seadroid2.data.model.server.ServerInfoModel;
-import com.seafile.seadroid2.data.remote.api.MainService;
+import com.seafile.seadroid2.ui.main.MainService;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
 import com.seafile.seadroid2.data.StorageManager;
-import com.seafile.seadroid2.data.remote.api.AccountService;
+import com.seafile.seadroid2.ui.account.AccountService;
 import com.seafile.seadroid2.io.http.IO;
 
 import org.apache.commons.io.FileUtils;
@@ -21,7 +20,6 @@ import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Consumer;
-import kotlin.Pair;
 
 public class SettingsFragmentViewModel extends BaseViewModel {
     private final MutableLiveData<AccountInfo> accountInfoLiveData = new MutableLiveData<>();

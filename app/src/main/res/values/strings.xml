@@ -10,6 +10,8 @@
     <string name="deleted">Deleted</string>
     <string name="delete_repo">Are you sure you want to delete this library?</string>
     <string name="delete_file">Are you sure you want to delete this file or folder?</string>
+    <string name="delete_records">Are you sure you want to delete records?</string>
+    <string name="delete_records_and_file">Are you sure you want to delete records and locally downloaded file?</string>
     <string name="delete_successful">Successfully deleted</string>
     <string name="delete_repo_title">Delete library</string>
     <string name="delete_file_f">Delete file</string>
@@ -70,6 +72,7 @@
     <string name="err_token_expired">Authentication expired, please login again</string>
     <string name="upload">Upload</string>
     <string name="uploaded">Uploaded</string>
+    <string name="re_upload">Upload again</string>
     <string name="updated">Updated</string>
     <string name="download_failed">Download failed</string>
     <string name="download_waiting">Download waiting</string>
@@ -201,6 +204,7 @@
     <string name="share_dir_link">Share a link to this folder</string>
     <string name="share_input_password">input share password</string>
     <string name="generating_link">Generating link…</string>
+    <string name="generating_link_title">Generating link</string>
     <string name="link_ready_to_be_pasted">The link is ready to be pasted.</string>
     <string name="rename_repo">Rename library</string>
     <string name="rename_file">Rename file</string>
@@ -493,6 +497,7 @@
     <string name="notification_upload_started_title">Uploading files…</string>
     <string name="notification_download_started_title">Downloading files…</string>
     <string name="notification_upload_completed">Upload completed</string>
+    <string name="notification_upload_upload_in_progress">%1$d%% %2$s</string>
     <plurals name="notification_upload_info">
         <item quantity="one">Uploading %1$d file (%2$d%%)</item>
         <item quantity="other">Uploading %1$d files (%2$d%%)</item>
@@ -563,6 +568,7 @@
     <string name="channel_name_error">Error Alerts</string>
     <string name="channel_name_upload">File Uploading Info</string>
     <string name="channel_name_download">File Downloading Info</string>
+    <string name="channel_name_album_backup">Album-backup Info</string>
 
     <string name="above_quota">Above Quota</string>
     <string name="camera_upload_state">Upload Info</string>
@@ -615,5 +621,11 @@
     <string name="done">Done</string>
     <string name="success">Success</string>
     <string name="failed">Failed</string>
+
+    <!-- share link -->
+    <string name="link_permission_set_permission">Set permission</string>
+    <string name="link_permission_preview_and_download">Preview and download</string>
+    <string name="link_permission_preview_only">Preview only</string>
+    <string name="link_permission_download_and_upload">Download and upload</string>
 
 </resources>

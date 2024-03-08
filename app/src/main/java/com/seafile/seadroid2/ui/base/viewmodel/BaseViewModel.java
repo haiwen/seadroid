@@ -14,9 +14,14 @@ import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.data.model.ResultModel;
 import com.seafile.seadroid2.util.SLogs;
+import com.seafile.seadroid2.util.Utils;
+
+import org.json.JSONObject;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
@@ -40,6 +45,8 @@ import retrofit2.HttpException;
 public class BaseViewModel extends ViewModel {
     private final MutableLiveData<Boolean> RefreshLiveData = new MutableLiveData<>(false);
     private final MutableLiveData<Pair<Integer, SeafException>> ExceptionLiveData = new MutableLiveData<>();
+    private final MutableLiveData<SeafException> SeafExceptionLiveData = new MutableLiveData<>();
+
 
     public MutableLiveData<Boolean> getRefreshLiveData() {
         return RefreshLiveData;
@@ -47,6 +54,10 @@ public class BaseViewModel extends ViewModel {
 
     public MutableLiveData<Pair<Integer, SeafException>> getExceptionLiveData() {
         return ExceptionLiveData;
+    }
+
+    public MutableLiveData<SeafException> getSeafExceptionLiveData() {
+        return SeafExceptionLiveData;
     }
 
     public void showRefresh() {
@@ -156,16 +167,95 @@ public class BaseViewModel extends ViewModel {
     }
 
     //TODO 优化异常返回
-    public String getErrorMsgByThrowable(Throwable throwable) throws IOException {
-        if (throwable instanceof HttpException) {
+    public SeafException getExceptionByThrowable(Throwable throwable) throws IOException {
+        if (throwable == null) {
+            return SeafException.networkException;
+        }
+
+        if (throwable instanceof SeafException) {
+            SeafException seafException = (SeafException) throwable;
+            if (seafException.getCode() == SeafException.invalidPassword.getCode()) {
+
+            }
+
+        } else if (throwable instanceof HttpException) {
+            HttpException httpException = (HttpException) throwable;
+            if (httpException.code() == HttpURLConnection.HTTP_UNAUTHORIZED) {
+
+                String wiped = httpException.response().headers().get("X-Seafile-Wiped");
+                if (!TextUtils.isEmpty(wiped)) {
+                    return SeafException.remoteWipedException;
+                }
+            }
+
+            if (504 == httpException.code()) {
+                return SeafException.networkException;
+            }
+
+            if (404 == httpException.code()) {
+                return SeafException.notFoundException;
+            }
+
+            try {
+                String result = httpException.response().errorBody().string();
+                if (TextUtils.isEmpty(result)) {
+                    return SeafException.unknownException;
+                }
+
+                JSONObject json = Utils.parseJsonObject(result);
+                if (json.has("detail")) {
+                    return new SeafException(httpException.code(), json.optString("detail"));
+                }
+
+                if (json.has("error_msg")) {
+                    String errorMsg = json.optString("error_msg");
+                    if (TextUtils.equals("Wrong password", errorMsg)) {
+                        return SeafException.invalidPassword;
+                    }
+                    return new SeafException(httpException.code(), json.optString("error_msg"));
+                }
+
+                return new SeafException(httpException.code(), result);
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+        } else if (throwable instanceof SSLHandshakeException) {
+            SSLHandshakeException sslHandshakeException = (SSLHandshakeException) throwable;
+            SLogs.e(sslHandshakeException.getMessage());
+            return SeafException.sslException;
+        } else if (throwable instanceof SocketTimeoutException) {
+            SocketTimeoutException socketTimeoutException = (SocketTimeoutException) throwable;
+            SLogs.e(socketTimeoutException.getMessage());
+            return SeafException.networkException;
+        }
+
+        return SeafException.unknownException;
+    }
+
+    public String getErrorMsgByThrowable(Throwable throwable) {
+        if (throwable instanceof SeafException) {
+            SeafException seafException = (SeafException) throwable;
+            if (seafException.getCode() == SeafException.invalidPassword.getCode()) {
+                return SeadroidApplication.getAppContext().getString(R.string.wrong_password);
+            }
+        } else if (throwable instanceof HttpException) {
             HttpException httpException = (HttpException) throwable;
             if (httpException.response() != null && httpException.response().errorBody() != null) {
 
-                if (504 == httpException.code()){
+                if (504 == httpException.code()) {
                     return SeadroidApplication.getAppContext().getString(R.string.network_unavailable);
                 }
 
-                String json = httpException.response().errorBody().string();
+                String json = null;
+                try {
+                    json = httpException.response().errorBody().string();
+                    if (TextUtils.isEmpty(json)) {
+                        return SeadroidApplication.getAppContext().getString(R.string.unknow_error);
+                    }
+                } catch (IOException ioException) {
+                    ioException.printStackTrace();
+                }
+
                 if (TextUtils.isEmpty(json)) {
                     return SeadroidApplication.getAppContext().getString(R.string.unknow_error);
                 }

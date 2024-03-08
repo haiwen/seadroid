@@ -7,7 +7,6 @@ import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.data.db.AppDatabase;
 import com.seafile.seadroid2.data.db.entities.RepoModel;
-import com.seafile.seadroid2.data.remote.api.ActivityService;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
 import com.seafile.seadroid2.enums.OpType;
 import com.seafile.seadroid2.io.http.IO;

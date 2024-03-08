@@ -29,7 +29,6 @@ import com.seafile.seadroid2.transfer.TaskState;
 import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
 import com.seafile.seadroid2.ui.BaseActivity;
-import com.seafile.seadroid2.ui.dialog.TaskDialog;
 import com.seafile.seadroid2.ui.dialog_fragment.PasswordDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.listener.OnRefreshDataListener;
 import com.seafile.seadroid2.util.Utils;
@@ -126,7 +125,7 @@ public class FileActivity extends BaseActivity implements Toolbar.OnMenuItemClic
         mProgressBar = (ProgressBar) findViewById(R.id.progress_bar);
         mProgressText = (TextView) findViewById(R.id.progress_text);
 
-        String fileName = Utils.fileNameFromPath(mFilePath);
+        String fileName = Utils.getFileNameFromPath(mFilePath);
         mFileNameText.setText(fileName);
 
         // icon
@@ -228,7 +227,7 @@ public class FileActivity extends BaseActivity implements Toolbar.OnMenuItemClic
         mButtonCancel.setVisibility(View.GONE);
 
         SeafException err = info.err;
-        String fileName = Utils.fileNameFromPath(info.pathInRepo);
+        String fileName = Utils.getFileNameFromPath(info.pathInRepo);
         if (err.getCode() == HttpURLConnection.HTTP_NOT_FOUND) {
             // file deleted
             showToast("The file \"" + fileName + "\" has been deleted");

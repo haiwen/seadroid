@@ -3,11 +3,13 @@ package com.seafile.seadroid2.ui.settings;
 import static androidx.core.text.HtmlCompat.FROM_HTML_MODE_LEGACY;
 
 import android.app.Activity;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.text.Html;
+import android.os.IBinder;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.util.Log;
@@ -20,7 +22,6 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.core.text.HtmlCompat;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -28,6 +29,7 @@ import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreferenceCompat;
+import androidx.work.WorkInfo;
 
 import com.blankj.utilcode.util.AppUtils;
 import com.blankj.utilcode.util.CollectionUtils;
@@ -63,15 +65,20 @@ import com.seafile.seadroid2.ui.main.MainActivity;
 import com.seafile.seadroid2.ui.selector.ObjSelectorActivity;
 import com.seafile.seadroid2.ui.webview.SeaWebViewActivity;
 import com.seafile.seadroid2.util.CameraSyncStatus;
+import com.seafile.seadroid2.util.SLogs;
 import com.seafile.seadroid2.util.Utils;
 import com.seafile.seadroid2.util.sp.FolderBackupConfigSPs;
 import com.seafile.seadroid2.util.sp.SettingsManager;
 import com.seafile.seadroid2.view.ListPreferenceCompat;
+import com.seafile.seadroid2.worker.BackgroundJobManagerImpl;
+import com.seafile.seadroid2.worker.FileSyncService;
+import com.seafile.seadroid2.worker.SupportWorkManager;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -105,7 +112,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     private Preference mFolderBackupFolderPref;
     private Preference mFolderBackupState;
 
-    private RepoConfig selectRepoConfig;
+    private FileSyncService fileSyncService;
 
     private final SharedPreferences.OnSharedPreferenceChangeListener spChangeListener = (sharedPreferences, key) -> {
         switch (key) {
@@ -153,7 +160,10 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         activityViewModel = new ViewModelProvider(requireActivity()).get(SettingsActivityViewModel.class);
 
         init();
+
+        bindService();
     }
+
 
     private void init() {
         //settings manager
@@ -163,14 +173,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         dataMgr = new DataManager(act);
 
         cameraManager = new CameraUploadManager();
-    }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-
-        Log.d(DEBUG_TAG, "onDestroy()");
-        SettingsManager.getInstance().unregisterSharedPreferencesListener(spChangeListener);
     }
 
     @Override
@@ -390,15 +393,12 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
         //repo
         if (mFolderBackupRepo != null) {
-            mFolderBackupRepo.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                @Override
-                public boolean onPreferenceClick(@NonNull Preference preference) {
-                    Intent intent = new Intent(mActivity, FolderBackupConfigActivity.class);
-                    intent.putExtra(FolderBackupConfigActivity.FOLDER_BACKUP_SELECT_MODE, "repo");
+            mFolderBackupRepo.setOnPreferenceClickListener(preference -> {
+                Intent intent = new Intent(mActivity, FolderBackupConfigActivity.class);
+                intent.putExtra(FolderBackupConfigActivity.FOLDER_BACKUP_SELECT_MODE, "repo");
 
-                    folderBackupConfigLauncher.launch(intent);
-                    return true;
-                }
+                folderBackupConfigLauncher.launch(intent);
+                return true;
             });
         }
 
@@ -419,7 +419,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 return true;
             });
         }
-
 
         setFolderPreferencesVisible(mFolderBackupSwitch.isChecked());
     }
@@ -548,7 +547,11 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         setCameraPreferencesVisible(isChecked);
 
         if (!isChecked) {
+            SettingsManager.getInstance().clearCameraUploadRepoInfo();
+
             cameraManager.disableCameraUpload();
+
+            BackgroundJobManagerImpl.getInstance().cancelMediaSyncJob();
             return;
         }
 
@@ -618,6 +621,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
         setCameraPreferencesVisible(mCameraBackupSwitch.isChecked());
 
+        //
+        BackgroundJobManagerImpl.getInstance().scheduleOneTimeMediaSyncJob();
     }
 
     private void refreshFolderBackupView() {
@@ -627,22 +632,26 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             return;
         }
 
-        String backupEmail = FolderBackupConfigSPs.getBackupEmail();
-        if (!TextUtils.isEmpty(backupEmail)) {
-            selectRepoConfig = FolderBackupConfigSPs.getBackupConfigByAccount(backupEmail);
-        }
-
-        if (selectRepoConfig != null && !TextUtils.isEmpty(selectRepoConfig.getRepoName())) {
-            mFolderBackupRepo.setSummary(backupEmail + "/" + selectRepoConfig.getRepoName());
+        RepoConfig repoConfig = FolderBackupConfigSPs.getBackupConfigByCurrentAccount();
+        if (repoConfig != null && !TextUtils.isEmpty(repoConfig.getRepoName())) {
+            mFolderBackupRepo.setSummary(repoConfig.getEmail() + "/" + repoConfig.getRepoName());
         } else {
             mFolderBackupRepo.setSummary(getString(R.string.folder_backup_select_repo_hint));
         }
 
-        List<String> stringList = FolderBackupConfigSPs.getBackupPathList();
-        if (CollectionUtils.isEmpty(stringList)) {
+        List<String> pathList = FolderBackupConfigSPs.getBackupPathListByCurrentAccount();
+        if (CollectionUtils.isEmpty(pathList)) {
             mFolderBackupFolderPref.setSummary("0");
         } else {
-            mFolderBackupFolderPref.setSummary(String.valueOf(stringList.size()));
+            mFolderBackupFolderPref.setSummary(String.valueOf(pathList.size()));
+        }
+
+        boolean folderAutomaticBackup = SettingsManager.getInstance().isFolderAutomaticBackup();
+        if (folderAutomaticBackup && !CollectionUtils.isEmpty(pathList) && repoConfig != null) {
+            if (fileSyncService != null) {
+                fileSyncService.startFolderMonitor(pathList);
+                fileSyncService.doBackup();
+            }
         }
     }
 
@@ -668,17 +677,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         viewModel.calculateCacheSize();
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        EventBus.getDefault().register(this);
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        EventBus.getDefault().unregister(this);
-    }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(CameraSyncEvent result) {
@@ -708,7 +706,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 return;
             }
 
-            ToastUtils.showLong(R.string.folder_backup_select_repo_update);
+//            ToastUtils.showLong(R.string.folder_backup_select_repo_update);
             refreshFolderBackupView();
         }
     });
@@ -745,5 +743,74 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             }
         }
     });
+
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        EventBus.getDefault().unregister(this);
+    }
+
+    private boolean isBound = false;
+
+    private final ServiceConnection syncConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            FileSyncService.FileSyncBinder binder = (FileSyncService.FileSyncBinder) service;
+            fileSyncService = binder.getService();
+            isBound = true;
+            SLogs.e("bond FileSyncService");
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            fileSyncService = null;
+            isBound = false;
+            SLogs.e("FileSyncService disconnected");
+        }
+    };
+
+    private void bindService() {
+        if (!isBound) {
+            Context context = requireContext();
+
+            Intent syncIntent = new Intent(context, FileSyncService.class);
+            context.bindService(syncIntent, syncConnection, Context.BIND_AUTO_CREATE);
+        }
+    }
+
+    private void unbindService() {
+        if (isBound) {
+            Context context = requireContext();
+            context.unbindService(syncConnection);
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+
+        unbindService();
+        Log.d(DEBUG_TAG, "onDestroy()");
+        SettingsManager.getInstance().unregisterSharedPreferencesListener(spChangeListener);
+        SupportWorkManager
+                .getWorkManager()
+                .getWorkInfosByTagLiveData(BackgroundJobManagerImpl.TAG_UPLOAD_ONETIME_FILES_SYNC)
+                .observe(this, new Observer<List<WorkInfo>>() {
+                    @Override
+                    public void onChanged(List<WorkInfo> workInfos) {
+
+                    }
+                });
+
+        super.onDestroy();
+    }
 
 }

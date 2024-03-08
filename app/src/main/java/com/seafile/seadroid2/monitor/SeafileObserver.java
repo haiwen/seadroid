@@ -192,7 +192,7 @@ public class SeafileObserver implements FileAlterationListener {
 
     /**
      * When user downloads a file, the outdated file is replaced, so the onFileChange signal would
-     * be triggered, which we should not treat it as a modification. This class provides a workaroud
+     * be triggered, which we should not treat it as a modification. This class provides a workaround
      * for this.
      */
     private static class RecentDownloadedFilesWorkAround {

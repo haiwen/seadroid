@@ -12,27 +12,24 @@ import android.os.IBinder;
 public class CameraSyncService extends Service {
 
     private static CameraSyncAdapter sSyncAdapter = null;
+    private static  AlbumBackupAdapter albumBackupAdapter;
     private static final Object sSyncAdapterLock = new Object();
 
     @Override
     public void onCreate() {
-//        Log.i(CameraSyncService.class.getName(), "CameraSyncService onCreate");
         synchronized (sSyncAdapterLock) {
-            if (sSyncAdapter == null) {
-                sSyncAdapter = new CameraSyncAdapter(getApplicationContext());
+//            if (sSyncAdapter == null) {
+//                sSyncAdapter = new CameraSyncAdapter(getApplicationContext());
+//            }
+
+            if (albumBackupAdapter == null) {
+                albumBackupAdapter = new AlbumBackupAdapter(getApplicationContext());
             }
         }
     }
 
     @Override
-    public void onDestroy() {
-//        Log.i(CameraSyncService.class.getName(), "CameraSyncService onDestroy");
-        super.onDestroy();
-    }
-
-    @Override
     public IBinder onBind(Intent intent) {
-//        Log.i(CameraSyncService.class.getName(), "CameraSyncService onBind");
-        return sSyncAdapter.getSyncAdapterBinder();
+        return albumBackupAdapter.getSyncAdapterBinder();
     }
 }

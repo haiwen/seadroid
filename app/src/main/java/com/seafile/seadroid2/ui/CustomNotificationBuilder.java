@@ -1,13 +1,12 @@
 package com.seafile.seadroid2.ui;
 
-import android.app.Notification;
 import android.content.Context;
-import android.os.Build;
+import android.view.View;
+import android.widget.RemoteViews;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
-import android.view.View;
-import android.widget.RemoteViews;
+
 import com.seafile.seadroid2.R;
 
 /**

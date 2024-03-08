@@ -4,7 +4,9 @@ import com.seafile.seadroid2.data.model.ResultModel;
 import com.seafile.seadroid2.data.model.dirents.DeleteDirentModel;
 import com.seafile.seadroid2.data.model.dirents.FileCreateModel;
 import com.seafile.seadroid2.data.db.entities.RepoModel;
+import com.seafile.seadroid2.data.model.objs.DirentShareLinkModel;
 
+import java.util.List;
 import java.util.Map;
 
 import io.reactivex.Observable;
@@ -12,6 +14,7 @@ import io.reactivex.Single;
 import okhttp3.RequestBody;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
+import retrofit2.http.GET;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
 import retrofit2.http.PartMap;
@@ -63,4 +66,10 @@ public interface DialogService {
 
     @POST("api/v2.1/repos/sync-batch-copy-item/")
     Single<ResultModel> copyDirents(@Body Map<String, Object> map);
+
+    @POST("api/v2.1/multi-share-links/")
+    Single<DirentShareLinkModel> createShareLink(@Body Map<String, Object> map);
+
+    @GET("api/v2.1/share-links/")
+    Single<List<DirentShareLinkModel>> listAllShareLink(@Query("repo_id") String repoId, @Query("path") String path);
 }

@@ -234,4 +234,6 @@ public abstract class RequestCustomDialogFragmentWithVM<VM extends BaseViewModel
             }
         }
     };
+
+
 }

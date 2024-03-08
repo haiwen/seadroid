@@ -12,17 +12,17 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.view.ActionMode;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
-import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
-import com.google.android.material.textfield.TextInputLayout;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.databinding.TransferListLayoutBinding;
 import com.seafile.seadroid2.notification.BaseNotificationProvider;
-import com.seafile.seadroid2.notification.DownloadNotificationProvider;
 import com.seafile.seadroid2.ui.BaseActivity;
 import com.seafile.seadroid2.ui.adapter.ViewPager2Adapter;
+import com.seafile.seadroid2.ui.transfer_list.DownloadListFragment;
+import com.seafile.seadroid2.ui.transfer_list.TransferTaskAdapter;
+import com.seafile.seadroid2.ui.transfer_list.UploadListFragment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -115,17 +115,17 @@ public class TransferActivity extends BaseActivity implements Toolbar.OnMenuItem
 
         ActionMode mode = null;
         if (whichTab == TransferTaskAdapter.TaskType.DOWNLOAD_TASK
-                && getUploadTaskFragment() != null) {
+                && getUploadFragment() != null) {
             // slide from Upload tab to Download tab,
             // so hide the CAB of UploadTaskFragment
-            mode = getUploadTaskFragment().getActionMode();
-            getUploadTaskFragment().deselectItems();
+            mode = getUploadFragment().getActionMode();
+            getUploadFragment().cancelSelectItems();
         } else if (whichTab == TransferTaskAdapter.TaskType.UPLOAD_TASK
-                && getDownloadTaskFragment() != null) {
+                && getDownloadFragment() != null) {
             // slide from Download tab to Upload tab,
             // so hide the CAB of DownloadTaskFragment
-            mode = getDownloadTaskFragment().getActionMode();
-            getDownloadTaskFragment().deselectItems();
+            mode = getDownloadFragment().getActionMode();
+            getDownloadFragment().cancelSelectItems();
         }
 
         if (mode != null)
@@ -136,8 +136,8 @@ public class TransferActivity extends BaseActivity implements Toolbar.OnMenuItem
 
     private void initViewPager() {
         fragments.clear();
-        fragments.add(new DownloadTaskFragment());
-        fragments.add(new UploadTaskFragment());
+        fragments.add(DownloadListFragment.newInstance());
+        fragments.add(UploadListFragment.newInstance());
 
         ViewPager2Adapter viewPager2Adapter = new ViewPager2Adapter(this);
         viewPager2Adapter.addFragments(fragments);
@@ -162,10 +162,10 @@ public class TransferActivity extends BaseActivity implements Toolbar.OnMenuItem
 
     public void onItemSelected() {
         // update CAB title
-        if (whichTab == TransferTaskAdapter.TaskType.DOWNLOAD_TASK && getDownloadTaskFragment() != null) {
-            getDownloadTaskFragment().updateContextualActionBar();
-        } else if (whichTab == TransferTaskAdapter.TaskType.UPLOAD_TASK && getUploadTaskFragment() != null) {
-            getUploadTaskFragment().updateContextualActionBar();
+        if (whichTab == TransferTaskAdapter.TaskType.DOWNLOAD_TASK && getDownloadFragment() != null) {
+            getDownloadFragment().updateContextualActionBar();
+        } else if (whichTab == TransferTaskAdapter.TaskType.UPLOAD_TASK && getUploadFragment() != null) {
+            getUploadFragment().updateContextualActionBar();
         }
     }
 
@@ -210,29 +210,28 @@ public class TransferActivity extends BaseActivity implements Toolbar.OnMenuItem
         switch (item.getItemId()) {
             case R.id.cancel_transfer_tasks:
                 if (whichTab == TransferTaskAdapter.TaskType.DOWNLOAD_TASK) {
-                    getDownloadTaskFragment().cancelAllDownloadTasks();
-
-                } else getUploadTaskFragment().cancelUploadTasks();
-
+                    getDownloadFragment().cancelAllTasks();
+                } else {
+                    getUploadFragment().cancelAllTasks();
+                }
                 return true;
             case R.id.clear_all_transfer_tasks: // actually this only clear {@link TaskState#FINISHED}, {@link TaskState#FAILED} and {@link TaskState#CANCELLED} tasks.
                 if (whichTab == TransferTaskAdapter.TaskType.DOWNLOAD_TASK) {
-                    getDownloadTaskFragment().removeAllDownloadTasks();
-
-                } else getUploadTaskFragment().removeAllUploadTasks();
-
+                    getDownloadFragment().removeAllTasks();
+                } else {
+                    getUploadFragment().removeAllTasks();
+                }
                 return true;
-
         }
         return super.onOptionsItemSelected(item);
     }
 
-    public DownloadTaskFragment getDownloadTaskFragment() {
-        return (DownloadTaskFragment) getFragment(0);
+    public DownloadListFragment getDownloadFragment() {
+        return (DownloadListFragment) getFragment(0);
     }
 
-    public UploadTaskFragment getUploadTaskFragment() {
-        return (UploadTaskFragment) getFragment(1);
+    public UploadListFragment getUploadFragment() {
+        return (UploadListFragment) getFragment(1);
     }
 
     public Fragment getFragment(int index) {

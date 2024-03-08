@@ -198,6 +198,6 @@ public class FolderBackupDBHelper extends SQLiteOpenHelper {
     private RepoConfig cursorToRepoConfigInfo(Cursor c, String email) {
         String repoID = c.getString(0);
         String repoName = c.getString(1);
-        return new RepoConfig(repoID, repoName, email);
+        return new RepoConfig(repoID, repoName, email, email);
     }
 }

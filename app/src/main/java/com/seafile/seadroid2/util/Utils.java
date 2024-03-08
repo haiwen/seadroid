@@ -165,7 +165,7 @@ public class Utils {
     public static String getParentPath(String path) {
         if (path == null) {
             // the caller should not give null
-            Log.w(DEBUG_TAG, "null in getParentPath");
+            Log.w(DEBUG_TAG, "path is null");
             return null;
         }
 
@@ -184,7 +184,7 @@ public class Utils {
             return parent;
     }
 
-    public static String fileNameFromPath(String path) {
+    public static String getFileNameFromPath(String path) {
         if (path == null) {
             // the caller should not give null
             Log.w(DEBUG_TAG, "null in getParentPath");
@@ -485,7 +485,7 @@ public class Utils {
     }
 
     public static String getFileMimeType(String path) {
-        String name = fileNameFromPath(path);
+        String name = getFileNameFromPath(path);
         String suffix = name.substring(name.lastIndexOf('.') + 1).toLowerCase();
         if (suffix.length() == 0) {
             return MIME_APPLICATION_OCTET_STREAM;

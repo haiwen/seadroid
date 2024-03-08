@@ -31,6 +31,9 @@ public class SplashActivity extends BaseActivity {
         disposable = Observable.timer(duration, TimeUnit.MILLISECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(aLong -> {
+
+                    AppSPs.isMigratedWhenV300();
+
                     Account curAccount = SupportAccountManager.getInstance().getCurrentAccount();
                     if (curAccount == null || !curAccount.hasValidToken()) {
                         Intent newIntent = new Intent(this, AccountsActivity.class);

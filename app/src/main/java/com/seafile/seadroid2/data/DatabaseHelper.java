@@ -204,7 +204,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             }
         }
 
-        // 删除表时为什么不备份???
+        //TODO 删除表时为什么不备份???
         db.execSQL("DROP TABLE IF EXISTS " + FILECACHE_TABLE_NAME + ";");
         db.execSQL("DROP TABLE IF EXISTS " + REPODIR_TABLE_NAME + ";");
         db.execSQL("DROP TABLE IF EXISTS " + DIRENTS_CACHE_TABLE_NAME + ";");

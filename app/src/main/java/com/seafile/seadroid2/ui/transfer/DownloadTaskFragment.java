@@ -6,6 +6,7 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.transfer.DownloadTaskInfo;
 import com.seafile.seadroid2.transfer.TaskState;
 import com.seafile.seadroid2.transfer.TransferTaskInfo;
+import com.seafile.seadroid2.ui.transfer_list.TransferTaskAdapter;
 
 import java.util.List;
 

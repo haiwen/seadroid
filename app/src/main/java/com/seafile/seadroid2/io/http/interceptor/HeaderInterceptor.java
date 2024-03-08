@@ -24,7 +24,7 @@ public class HeaderInterceptor implements Interceptor {
         builder.addHeader("Content-Type", "application/json");
         builder.addHeader("Accept", "application/json");
         builder.addHeader("charset", "utf-8");
-        builder.addHeader("timestamp", System.currentTimeMillis() + "");
+        builder.addHeader("timestamp", String.valueOf(System.currentTimeMillis()));
 
         if (!TextUtils.isEmpty(authToken)) {
             builder.addHeader("Authorization",  "Token " + authToken);

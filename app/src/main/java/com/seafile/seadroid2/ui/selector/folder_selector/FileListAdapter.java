@@ -13,6 +13,7 @@ import androidx.annotation.Nullable;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.ui.base.adapter.BaseAdapter;
 import com.seafile.seadroid2.listener.OnFileItemChangeListener;
+import com.seafile.seadroid2.util.SLogs;
 
 public class FileListAdapter extends BaseAdapter<FileBean, FileListViewHolder> {
 
@@ -32,7 +33,6 @@ public class FileListAdapter extends BaseAdapter<FileBean, FileListViewHolder> {
     @Override
     protected void onBindViewHolder(@NonNull FileListViewHolder holder, int i, @Nullable FileBean fileBean) {
 
-        holder.checkBoxFile.setChecked(fileBean.isChecked());
         holder.tvFileName.setText(fileBean.getFileName());
         holder.imgvFiletype.setImageResource(fileBean.getFileImgType());
         boolean isFile = fileBean.isFile();
@@ -44,6 +44,8 @@ public class FileListAdapter extends BaseAdapter<FileBean, FileListViewHolder> {
             holder.tvFileDetail.setText(c);
         }
 
+        holder.checkBoxFile.setOnCheckedChangeListener(null);
+        holder.checkBoxFile.setChecked(fileBean.isChecked());
         if (!isFile) {
             holder.checkBoxFile.setVisibility(View.VISIBLE);
         } else {
@@ -51,15 +53,11 @@ public class FileListAdapter extends BaseAdapter<FileBean, FileListViewHolder> {
         }
 
         final int p = i;
-        holder.checkBoxFile.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                onCheckBoxChanged(p, isChecked);
-            }
-        });
+        holder.checkBoxFile.setOnCheckedChangeListener((buttonView, isChecked) -> onCheckBoxChanged(p, isChecked));
     }
 
     private void onCheckBoxChanged(int position, boolean isChecked) {
+        SLogs.e("position -> " + position);
         getItems().get(position).setChecked(isChecked);
         if (onFileItemChangeListener != null) {
             onFileItemChangeListener.onChanged(getItems().get(position), position, isChecked);

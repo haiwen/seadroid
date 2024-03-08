@@ -296,7 +296,7 @@ public class SeafileProvider extends DocumentsProvider {
 
                 // look for the requested file in the dirents of the parent dir
                 for (SeafDirent entry : dirents) {
-                    if (entry.getTitle().equals(Utils.fileNameFromPath(path))) {
+                    if (entry.getTitle().equals(Utils.getFileNameFromPath(path))) {
                         includeDirent(result, dm, repo.getRepoId(), parentPath, entry);
                     }
                 }

@@ -41,8 +41,10 @@ public class FileBean implements Serializable {
         fileImgType = setImageResourceByExtension(fileExtension);
         parentPath = FileTools.getParentPath(filePath);
         parentName = FileTools.getDirName(filePath);
-        childrenFileNumber = FileTools.getChildrenNumber(filePath)[0];
-        childrenDirNumber = FileTools.getChildrenNumber(filePath)[1];
+
+        int[] n = FileTools.getChildrenNumber(filePath);
+        childrenFileNumber = n[0];
+        childrenDirNumber = n[1];
         modifyTime = FileTools.getFileLastModified(filePath);
         if (file) {
             size = FileTools.getSize(filePath);

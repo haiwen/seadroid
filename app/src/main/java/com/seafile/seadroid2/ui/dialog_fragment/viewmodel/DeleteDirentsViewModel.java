@@ -94,4 +94,3 @@ public class DeleteDirentsViewModel extends BaseViewModel {
         addDisposable(disposable);
     }
 }
-//https://dev.seafile.com/seahub/api/v2.1/repos/4809a6f3-250c-4435-bdd8-b68f34c128d1/dir/?p=%2F%E5%85%94%E5%85%94

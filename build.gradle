@@ -35,9 +35,9 @@ allprojects {
 }
 
 ext {
-    compileSdkVersion = 33 // 13.0 "Tiramisu"
+    compileSdkVersion = 34 // 13.0 "Tiramisu"
     supportLibVersion = '27.1.1'  // variable that can be referenced to keep support libs consistent
     minSdkVersion = 26 //8.0 "Oreo"
-    targetSdkVersion = 33 //12.0 "S"
+    targetSdkVersion = 34 //14
     buildToolsVersion = '27.0.3'
 }

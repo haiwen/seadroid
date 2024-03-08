@@ -13,6 +13,7 @@ import org.json.JSONObject;
 /**
  * Value type that represents a ServerInfo.
  */
+//TODO
 public class ServerInfo implements Parcelable{
 
     private String url;
@@ -68,7 +69,8 @@ public class ServerInfo implements Parcelable{
     }
 
     public boolean canLocalDecrypt() {
-        if (TextUtils.isEmpty(version) || version.length() != 5)
+        // TODO || version.length() != 5 ???
+        if (TextUtils.isEmpty(version) )
             return false;
 
         final String realVersion = version.replaceAll("[.]", "");

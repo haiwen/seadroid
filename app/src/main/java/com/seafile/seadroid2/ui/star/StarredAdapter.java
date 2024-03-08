@@ -75,14 +75,8 @@ public class StarredAdapter extends BaseAdapter<StarredModel, StarredViewHolder>
         }
     }
 
-    @SuppressLint("DefaultLocale")
     private String convertThumbnailUrl(String repoId, String filePath) {
-        try {
-            String pathEnc = URLEncoder.encode(filePath, "UTF-8");
-            return String.format("%sapi2/repos/%s/thumbnail/?p=%s&size=%d", SERVER, repoId, pathEnc, 48);
-        } catch (UnsupportedEncodingException e) {
-            return null;
-        }
+        return String.format("%sapi2/repos/%s/thumbnail/?p=%s&size=%d", SERVER, repoId, filePath, 48);
     }
 
     public void notifyDataChanged(List<StarredModel> list) {

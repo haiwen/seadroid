@@ -2,11 +2,17 @@ package com.seafile.seadroid2.io.http;
 
 import com.blankj.utilcode.util.NetworkUtils;
 import com.seafile.seadroid2.SeadroidApplication;
+import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.ssl.SSLTrustManager;
 
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.X509TrustManager;
 
 import okhttp3.Cache;
 import okhttp3.CacheControl;
@@ -28,15 +34,15 @@ public abstract class BaseIO {
     final File httpCacheDirectory = new File(cachePath, "cache");
 
     //20M
-    private static final long MAX_CACHE_SIZE = 20 * 1024 * 1024;
+    private static final long MAX_CACHE_SIZE = 20 * 1024 * 1024L;
 
     private final Cache cache;
 
     //8h
-    private static final int sMaxStale = 60 * 60 * 8;
+    private static final int MAX_STALE = 60 * 60 * 8;
 
     //10min
-    private static final int sMaxAge = 600;
+    private static final int MAX_AGE = 600;
 
     public BaseIO() {
         this.cache = new Cache(httpCacheDirectory, MAX_CACHE_SIZE);
@@ -70,19 +76,19 @@ public abstract class BaseIO {
             return originalResponse.newBuilder()
                     .removeHeader("Pragma")
                     .removeHeader("Cache-Control")
-                    .header("Cache-Control", "public, max-age=" + sMaxAge)
+                    .header("Cache-Control", "public, max-age=" + MAX_AGE)
                     .build();
         } else {
             return originalResponse.newBuilder()
                     .removeHeader("Pragma")
                     .removeHeader("Cache-Control")
-                    .header("Cache-Control", "public, only-if-cached, max-stale=" + sMaxStale)
+                    .header("Cache-Control", "public, only-if-cached, max-stale=" + MAX_STALE)
                     .build();
         }
     };
 
-    private volatile OkHttpClient okHttpClient = null;
-    private volatile Retrofit retrofit = null;
+    private OkHttpClient okHttpClient = null;
+    private Retrofit retrofit = null;
 
     private Retrofit getRetrofit() {
         if (retrofit == null) {
@@ -106,7 +112,13 @@ public abstract class BaseIO {
         if (okHttpClient == null) {
             synchronized (BaseIO.class) {
                 if (okHttpClient == null) {
+                    Account account = SupportAccountManager.getInstance().getCurrentAccount();
+                    SSLSocketFactory sslSocketFactory = SSLTrustManager.instance().getSSLSocketFactory(account);
+                    X509TrustManager defaultTrustManager = SSLTrustManager.instance().getDefaultTrustManager();
+
                     OkHttpClient.Builder builder = new OkHttpClient.Builder();
+                    builder.sslSocketFactory(sslSocketFactory, defaultTrustManager);
+
                     builder.connectionSpecs(Arrays.asList(
                             ConnectionSpec.MODERN_TLS,
                             ConnectionSpec.COMPATIBLE_TLS,

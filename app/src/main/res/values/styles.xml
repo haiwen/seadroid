@@ -152,4 +152,29 @@
     <style name="Widget.Catalog.BottomSheet.Modal.Scrollable" parent="Widget.Material3.BottomSheet.Modal">
         <item name="paddingBottomSystemWindowInsets">false</item>
     </style>
+
+    <style name="ThemeOverlay.Material3.Catalog.Toolbar.Contextual" parent="">
+        <item name="colorControlNormal">?attr/colorPrimary</item>
+    </style>
+
+    <style name="TextAppearance.Material3.Catalog.Toolbar.Contextual.Title" parent="TextAppearance.Material3.TitleMedium">
+        <item name="android:textColor">?attr/colorPrimary</item>
+        <item name="android:textSize">@dimen/m3_toolbar_text_size_title</item>
+    </style>
+
+    <style name="ListItemTitleStyle">
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:maxLines">@integer/list_item_title_max_lines</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:textSize">@dimen/lv_title_txt_size</item>
+        <item name="android:textColor">@color/list_item_title_color</item>
+    </style>
+
+    <style name="ListItemSubTitleStyle">
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:maxLines">@integer/list_item_title_max_lines</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:textSize">@dimen/lv_subtitle_txt_size</item>
+        <item name="android:textColor">@color/list_item_subtitle_color</item>
+    </style>
 </resources>

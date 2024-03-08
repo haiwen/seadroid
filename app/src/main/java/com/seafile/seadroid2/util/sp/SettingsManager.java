@@ -12,6 +12,7 @@ import com.seafile.seadroid2.gesturelock.LockPatternUtils;
 import com.seafile.seadroid2.util.Utils;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -186,14 +187,6 @@ public final class SettingsManager {
         lock_timestamp = System.currentTimeMillis();
     }
 
-    public String getCameraUploadRepoName() {
-        return SPs.getString(SHARED_PREF_CAMERA_UPLOAD_REPO_NAME, null);
-    }
-
-    public void saveCameraUploadRepoInfo(String repoId, String repoName) {
-        SPs.put(SHARED_PREF_CAMERA_UPLOAD_REPO_ID, repoId);
-        SPs.put(SHARED_PREF_CAMERA_UPLOAD_REPO_NAME, repoName);
-    }
 
     public boolean checkCameraUploadNetworkAvailable() {
         if (!NetworkUtils.isConnected()) {
@@ -207,13 +200,29 @@ public final class SettingsManager {
         return true;
     }
 
+    //camera backup
+    public void saveCameraUploadRepoInfo(String repoId, String repoName) {
+        SPs.put(SHARED_PREF_CAMERA_UPLOAD_REPO_ID, repoId);
+        SPs.put(SHARED_PREF_CAMERA_UPLOAD_REPO_NAME, repoName);
+    }
+    public void clearCameraUploadRepoInfo(){
+        SPs.remove(SHARED_PREF_CAMERA_UPLOAD_REPO_ID);
+        SPs.remove(SHARED_PREF_CAMERA_UPLOAD_REPO_NAME);
+        SPs.remove(SHARED_PREF_CAMERA_UPLOAD_BUCKETS);
+    }
+
+    public String getCameraUploadRepoId() {
+        return SPs.getString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_REPO_ID, null);
+    }
+
+    public String getCameraUploadRepoName() {
+        return SPs.getString(SHARED_PREF_CAMERA_UPLOAD_REPO_NAME, null);
+    }
+
     public boolean isDataPlanAllowed() {
         return settingsSharedPref.getBoolean(CAMERA_UPLOAD_ALLOW_DATA_PLAN_SWITCH_KEY, false);
     }
 
-    public boolean isFolderBackupDataPlanAllowed() {
-        return settingsSharedPref.getBoolean(FOLDER_BACKUP_ALLOW_DATA_PLAN_SWITCH_KEY, false);
-    }
 
     public boolean isVideosUploadAllowed() {
         return settingsSharedPref.getBoolean(CAMERA_UPLOAD_ALLOW_VIDEOS_SWITCH_KEY, false);
@@ -221,18 +230,6 @@ public final class SettingsManager {
 
     public void saveDataPlanAllowed(boolean isAllowed) {
         settingsSharedPref.edit().putBoolean(CAMERA_UPLOAD_ALLOW_DATA_PLAN_SWITCH_KEY, isAllowed).apply();
-    }
-
-    public void saveFolderBackupDataPlanAllowed(boolean isAllowed) {
-        settingsSharedPref.edit().putBoolean(FOLDER_BACKUP_ALLOW_DATA_PLAN_SWITCH_KEY, isAllowed).apply();
-    }
-
-    public void saveFolderAutomaticBackup(boolean isAllowed) {
-        settingsSharedPref.edit().putBoolean(FOLDER_AUTOMATIC_BACKUP_SWITCH_KEY, isAllowed).apply();
-    }
-
-    public boolean isFolderAutomaticBackup() {
-        return settingsSharedPref.getBoolean(FOLDER_AUTOMATIC_BACKUP_SWITCH_KEY, false);
     }
 
     public void saveVideosAllowed(boolean isVideosUploadAllowed) {
@@ -252,9 +249,25 @@ public final class SettingsManager {
         return Arrays.asList(TextUtils.split(s, ","));
     }
 
-    public String getCameraUploadRepoId() {
-        return SPs.getString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_REPO_ID, null);
+
+    //folder backup
+    public boolean isFolderBackupDataPlanAllowed() {
+        return settingsSharedPref.getBoolean(FOLDER_BACKUP_ALLOW_DATA_PLAN_SWITCH_KEY, false);
     }
+
+    public void saveFolderBackupDataPlanAllowed(boolean isAllowed) {
+        settingsSharedPref.edit().putBoolean(FOLDER_BACKUP_ALLOW_DATA_PLAN_SWITCH_KEY, isAllowed).apply();
+    }
+
+    public void saveFolderAutomaticBackup(boolean isAllowed) {
+        settingsSharedPref.edit().putBoolean(FOLDER_AUTOMATIC_BACKUP_SWITCH_KEY, isAllowed).apply();
+    }
+
+    public boolean isFolderAutomaticBackup() {
+        return settingsSharedPref.getBoolean(FOLDER_AUTOMATIC_BACKUP_SWITCH_KEY, false);
+    }
+
+
 
     public int getStorageDir() {
         return SPs.getInt(SHARED_PREF_STORAGE_DIR, Integer.MIN_VALUE);
@@ -279,7 +292,6 @@ public final class SettingsManager {
     public int getPrivacyPolicyConfirmed() {
         return SPs.getInt(PRIVACY_POLICY_CONFIRMED, 0);
     }
-
 
 
     public void setFolderBackupJumpHiddenFiles(boolean isJump) {

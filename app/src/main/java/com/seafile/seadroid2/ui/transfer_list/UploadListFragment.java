@@ -1,0 +1,54 @@
+package com.seafile.seadroid2.ui.transfer_list;
+
+import android.os.Bundle;
+
+import com.blankj.utilcode.util.ToastUtils;
+import com.seafile.seadroid2.data.db.entities.FileTransferEntity;
+import com.seafile.seadroid2.data.model.enums.TransferAction;
+
+import java.util.List;
+
+public class UploadListFragment extends TransferListFragment {
+
+    public static UploadListFragment newInstance() {
+
+        Bundle args = new Bundle();
+
+        UploadListFragment fragment = new UploadListFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    @Override
+    public TransferAction getTransferAction() {
+        return TransferAction.UPLOAD;
+    }
+
+    @Override
+    public void deleteSelectedItems(List<FileTransferEntity> list) {
+        ToastUtils.showShort("TODO：deleteSelectedItems");
+    }
+
+    @Override
+    public void restartSelectedItems(List<FileTransferEntity> list) {
+        ToastUtils.showShort("TODO：restartSelectedItems");
+    }
+
+    /**
+     * cancel all download tasks
+     */
+    public void cancelAllTasks() {
+        ToastUtils.showShort("TODO：cancelAllTasks");
+
+    }
+
+
+    /**
+     * remove all download tasks
+     */
+    public void removeAllTasks() {
+        ToastUtils.showShort("TODO：removeAllTasks");
+
+    }
+}
+

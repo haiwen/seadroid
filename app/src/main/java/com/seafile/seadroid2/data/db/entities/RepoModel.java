@@ -3,6 +3,7 @@ package com.seafile.seadroid2.data.db.entities;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
+import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
@@ -23,15 +24,25 @@ public class RepoModel extends BaseModel {
     public String type;   //mine\group\shared
     public long group_id;
     public String group_name;
-    public String owner_name;  //owner_name
-    public String owner_email;  //owner_email
-    public String owner_contact_email;  //owner_contact_email
+
+    public String owner_name;
+
+    /**
+     * xxx@auth.local
+     */
+    public String owner_email;
+
+    /**
+     * xxx@xxx.com
+     */
+    public String owner_contact_email;
+
     public String modifier_email;
     public String modifier_name;
     public String modifier_contact_email;
 
 
-    public String related_account_email;  //related account
+    public String related_account;  //related account
 
     public String last_modified;
 
@@ -48,6 +59,13 @@ public class RepoModel extends BaseModel {
     public String status;
 
     public long last_modified_long;
+
+    public String root;
+    public String magic;
+
+    public String random_key;
+    public int enc_version;
+    public int file_count;
 
     public String getSubtitle() {
         return Utils.readableFileSize(size) + " · " + Utils.translateCommitTime(last_modified_long);
@@ -67,6 +85,9 @@ public class RepoModel extends BaseModel {
     }
 
     public boolean canLocalDecrypt() {
-        return encrypted && SettingsManager.getInstance().isEncryptEnabled();
+        return encrypted
+                && enc_version == 2
+                && !TextUtils.isEmpty(magic)
+                && SettingsManager.getInstance().isEncryptEnabled();
     }
 }

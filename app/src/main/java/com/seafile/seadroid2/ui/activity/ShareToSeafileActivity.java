@@ -13,17 +13,15 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.MediaStore.Images;
+import android.util.Log;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.appcompat.app.AlertDialog;
-import androidx.preference.SwitchPreferenceCompat;
-
-import android.util.Log;
 
 import com.blankj.utilcode.util.ToastUtils;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
@@ -38,7 +36,6 @@ import com.seafile.seadroid2.ui.BaseActivity;
 import com.seafile.seadroid2.ui.selector.ObjSelectorActivity;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.util.Utils;
-import com.seafile.seadroid2.util.sp.SettingsManager;
 
 import org.apache.commons.io.IOUtils;
 
@@ -331,7 +328,7 @@ public class ShareToSeafileActivity extends BaseActivity {
                 for (SeafDirent dirent : dirents) {
                     if (dirent.isDir())
                         continue;
-                    if (Utils.fileNameFromPath(path).equals(dirent.getTitle())) {
+                    if (Utils.getFileNameFromPath(path).equals(dirent.getTitle())) {
                         fileExistent = true;
                         break;
                     }
@@ -339,7 +336,7 @@ public class ShareToSeafileActivity extends BaseActivity {
             }
 
             if (fileExistent) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
                         .setTitle(getString(R.string.overwrite_existing_file_title))
                         .setMessage(getString(R.string.overwrite_existing_file_msg))
                         .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
@@ -428,7 +425,7 @@ public class ShareToSeafileActivity extends BaseActivity {
                     for (SeafDirent dirent : dirents) {
                         if (dirent.isDir())
                             continue;
-                        if (Utils.fileNameFromPath(path).equals(dirent.getTitle())) {
+                        if (Utils.getFileNameFromPath(path).equals(dirent.getTitle())) {
                             existent = true;
                             break;
                         }

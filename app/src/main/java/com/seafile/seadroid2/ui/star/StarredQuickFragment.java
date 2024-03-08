@@ -16,6 +16,8 @@ import com.blankj.utilcode.util.ToastUtils;
 import com.chad.library.adapter4.BaseQuickAdapter;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
+import com.seafile.seadroid2.data.db.entities.DirentModel;
+import com.seafile.seadroid2.io.http.IO;
 import com.seafile.seadroid2.ui.base.fragment.BaseFragmentWithVM;
 import com.seafile.seadroid2.bottomsheetmenu.BottomSheetHelper;
 import com.seafile.seadroid2.databinding.LayoutFrameSwipeRvBinding;
@@ -23,6 +25,9 @@ import com.seafile.seadroid2.data.model.ResultModel;
 import com.seafile.seadroid2.data.model.star.StarredModel;
 import com.seafile.seadroid2.ui.main.MainActivity;
 import com.seafile.seadroid2.ui.main.MainViewModel;
+import com.seafile.seadroid2.ui.media.image_preview.ImagePreviewActivity;
+import com.seafile.seadroid2.ui.webview.SeaWebViewActivity;
+import com.seafile.seadroid2.util.Utils;
 import com.seafile.seadroid2.view.TipsViews;
 
 import java.util.List;
@@ -98,14 +103,12 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
             StarredModel starredModel = adapter.getItems().get(i);
             if (!starredModel.deleted) {
                 navTo(starredModel);
+            } else if (starredModel.isRepo()) {
+                ToastUtils.showLong(getString(R.string.library_not_found));
+            } else if (starredModel.is_dir) {
+                ToastUtils.showLong(getString(R.string.op_exception_folder_deleted, starredModel.obj_name));
             } else {
-                if (starredModel.isRepo()) {
-                    ToastUtils.showLong(getString(R.string.library_not_found));
-                } else if (starredModel.is_dir) {
-                    ToastUtils.showLong(getString(R.string.op_exception_folder_deleted, starredModel.obj_name));
-                } else {
-                    ToastUtils.showLong(getString(R.string.file_not_found, starredModel.obj_name));
-                }
+                ToastUtils.showLong(getString(R.string.file_not_found, starredModel.obj_name));
             }
 
         });
@@ -182,11 +185,15 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
     }
 
     private void navTo(StarredModel model) {
-        Intent intent = new Intent(requireContext(), MainActivity.class);
-        intent.putExtra("repoID", model.repo_id);
-        intent.putExtra("repoName", model.repo_name);
-        intent.putExtra("path", model.path);
-        startActivity(intent);
+        if (model.is_dir) {
+            MainActivity.navToThis(requireContext(), model.repo_id, model.repo_name, model.path, model.is_dir);
+        } else if (Utils.isViewableImage(model.obj_name)) {
+            ImagePreviewActivity.startThis(requireContext(), model.repo_id, model.path);
+        } else {
+            String host = IO.getSingleton().getServerUrl();
+            String url = String.format("%slib/%s/file%s", host, model.repo_id, model.path);
+            SeaWebViewActivity.openUrl(requireContext(),url);
+        }
     }
 }
 

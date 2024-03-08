@@ -9,7 +9,7 @@ public class ObjsModel {
 
     /**
      * when type is repo, this path is repo id.
-     * when type is dir/file, this path is full_path, like this: /1/2 or /1/2/3/4.md
+     * when type is dirent(dir/file), this path is full_path, like this: /a/b/ or /a/b/c/d.md
      */
     @PrimaryKey
     @NonNull
@@ -25,6 +25,5 @@ public class ObjsModel {
     // If it is 0, it means that there is no decryption.
     public long decrypt_expire_time_long;
 
-
-    public String related_account_email;  //related account
+    public String related_account;  //related account
 }

@@ -4,8 +4,6 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Build;
-import android.os.FileUtils;
-import android.provider.Settings.Secure;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
@@ -15,17 +13,13 @@ import com.github.kevinsawicki.http.HttpRequest.HttpRequestException;
 import com.google.common.collect.Maps;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.config.ApiUrls;
-import com.seafile.seadroid2.data.Block;
-import com.seafile.seadroid2.data.BlockInfoBean;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.FileBlocks;
 import com.seafile.seadroid2.data.ProgressMonitor;
-import com.seafile.seadroid2.httputils.RequestManager;
 import com.seafile.seadroid2.ssl.SSLTrustManager;
 import com.seafile.seadroid2.util.DeviceIdManager;
 import com.seafile.seadroid2.util.Utils;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -38,17 +32,13 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URLEncoder;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLHandshakeException;
 
-import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.RequestBody;
 import okhttp3.Response;
 
 /**
@@ -415,7 +405,6 @@ public class SeafConnection {
      *
      * @param repoID
      * @param path
-     * @param cachedDirID The local cached dirID.
      * @return A non-null Pair of (dirID, content). If the local cache is up to date, the "content" is null.
      * @throws SeafException
      */
@@ -544,24 +533,6 @@ public class SeafConnection {
         }
     }
 
-    public String uploadByBlocks(String repoID, String dir, String filePath, List<Block> blocks, boolean update, ProgressMonitor monitor) throws IOException, SeafException {
-
-        try {
-            LinkedList<String> blkListId = new LinkedList<>();
-            for (Block block : blocks) {
-                blkListId.addLast(block.getBlockId());
-            }
-            String json = getBlockUploadLink(repoID, blkListId);
-            BlockInfoBean infoBean = BlockInfoBean.fromJson(json);
-            if (infoBean.blkIds.size() > 0) {
-                uploadBlocksCommon(infoBean.rawblksurl, infoBean.blkIds, dir, filePath, blocks, monitor, update);
-            }
-            commitUpload(infoBean.commiturl, blkListId, dir, filePath, update);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
 
     private File getFileFromLink(String dlink, String path, String localPath, String oid, ProgressMonitor monitor) throws SeafException {
         if (dlink == null)
@@ -754,193 +725,6 @@ public class SeafConnection {
             e.printStackTrace();
         }
         return false;
-    }
-
-    private String getUploadLink(String repoID, boolean update, String dir) throws SeafException {
-        try {
-            String apiPath;
-            if (update) {
-                apiPath = "api2/repos/" + repoID + "/update-link/";
-            } else {
-                apiPath = "api2/repos/" + repoID + "/upload-link/?p=" + Utils.toURLEncoded(dir);
-            }
-            HttpRequest req;
-            req = prepareApiGetRequest(apiPath);
-            checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
-
-            String result = new String(req.bytes(), "UTF-8");
-            // should return "\"http://gonggeng.org:8082/...\"" or "\"https://gonggeng.org:8082/...\"
-            if (result.startsWith("\"http")) {
-                // remove the starting and trailing quote
-                return result.substring(1, result.length() - 1);
-            } else
-                throw SeafException.unknownException;
-        } catch (SeafException e) {
-            Log.d(DEBUG_TAG, e.getCode() + e.getMessage());
-            throw e;
-        } catch (Exception e) {
-            String msg = e.getMessage();
-            if (msg != null)
-                Log.d(DEBUG_TAG, msg);
-            else
-                Log.d(DEBUG_TAG, "get upload link error", e);
-            throw SeafException.unknownException;
-        }
-    }
-
-
-    private String getBlockUploadLink(String repoID, List<String> blocksId) throws SeafException {
-        try {
-            String apiPath;
-            apiPath = "api2/repos/" + repoID + "/upload-blks-link/";
-            HttpRequest req = prepareApiPostRequest(apiPath, true, null);
-            String ids = blocksId.toString().replace("[", "").replace("]", "").replace(" ", "");
-            req.form("blklist", ids);
-            checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
-            return new String(req.bytes(), "UTF-8");
-        } catch (SeafException e) {
-            Log.d(DEBUG_TAG, e.getCode() + e.getMessage());
-            throw e;
-        } catch (Exception e) {
-            String msg = e.getMessage();
-            if (msg != null)
-                Log.d(DEBUG_TAG, msg);
-            else
-                Log.d(DEBUG_TAG, "get upload link error", e);
-            throw SeafException.unknownException;
-        }
-    }
-
-
-    /**
-     * commit blocks to server
-     */
-    private String commitUpload(String link, List<String> blkIds, String dir, String filePath, boolean update)
-            throws SeafException, IOException {
-        File file = new File(filePath);
-        if (!file.exists()) {
-            throw new SeafException(SeafException.OTHER_EXCEPTION, "File not exists");
-        }
-
-        MultipartBody.Builder builder = new MultipartBody.Builder();
-        //set type
-        builder.setType(MultipartBody.FORM);
-        //set header ,to replace file
-        if (update) {
-            builder.addFormDataPart("replace", "1");
-        } else {
-            builder.addFormDataPart("replace", "0");
-        }
-        builder.addFormDataPart("parent_dir", dir);
-        builder.addFormDataPart("file_size", file.length() + "");
-        builder.addFormDataPart("file_name", file.getName());
-        JSONArray jsonArray = new JSONArray(blkIds);
-        builder.addFormDataPart("blockids", jsonArray.toString());
-        RequestBody body = builder.build();
-        Request request = new Request.Builder().url(link).post(body).build();
-        Response response = RequestManager.getInstance(account).getClient().newCall(request).execute();
-        if (response.isSuccessful()) {
-            return response.body().string();
-        }
-        throw new SeafException(SeafException.OTHER_EXCEPTION, "File upload failed");
-    }
-
-
-    /**
-     * Upload or update a file
-     *
-     * @param repoID
-     * @param dir
-     * @param filePath
-     * @param monitor
-     * @param update
-     * @return
-     * @throws SeafException
-     */
-    public String uploadFile(String repoID, String dir, String filePath, ProgressMonitor monitor, boolean update) throws SeafException, IOException {
-        String url = getUploadLink(repoID, update, "/");
-        return uploadFileCommon(url, repoID, dir, filePath, monitor, update);
-    }
-
-
-    /**
-     * Upload a file to seafile httpserver
-     */
-    private String uploadFileCommon(String link, String repoID, String dir, String filePath, ProgressMonitor monitor, boolean update) throws SeafException, IOException {
-        File file = new File(filePath);
-        if (!file.exists()) {
-            throw new SeafException(SeafException.OTHER_EXCEPTION, "File not exists");
-        }
-        MultipartBody.Builder builder = new MultipartBody.Builder();
-        //set type
-        builder.setType(MultipartBody.FORM);
-        // "target_file" "parent_dir"  must be "/" end off
-        if (update) {
-            String targetFilePath = Utils.pathJoin(dir, file.getName());
-            builder.addFormDataPart("target_file", targetFilePath);
-        } else {
-            builder.addFormDataPart("parent_dir", "/");
-            if (dir.charAt(0) == '/') {
-                dir = dir.substring(1);
-                //Fix an issue: When select the root of the repo, the file upload fails
-//                dir = dir + "/";
-            }
-            builder.addFormDataPart("relative_path", dir);
-        }
-
-        builder.addFormDataPart("file", file.getName(), RequestManager.getInstance(account).createProgressRequestBody(monitor, file));
-        //create RequestBody
-        RequestBody body = builder.build();
-        //create Request
-        final Request request = new Request.Builder().url(link).post(body).header("Authorization", "Token " + account.token).build();
-        Response response = RequestManager.getInstance(account).getClient().newCall(request).execute();
-        if (response.isSuccessful()) {
-            String str = response.body().string();
-            if (!TextUtils.isEmpty(str)) {
-                return str.replace("\"", "");
-            }
-        } else {
-            String b = response.body() != null ? response.body().string() : null;//[text={"error": "Out of quota.\n"}]
-            if (!TextUtils.isEmpty(b) && b.toLowerCase().contains("out of quota")) {
-                throw SeafException.OutOfQuota;
-            }
-        }
-        throw new SeafException(SeafException.OTHER_EXCEPTION, "File upload failed");
-
-    }
-
-    /**
-     * Upload file blocks to server
-     */
-    private String uploadBlocksCommon(String link, List<String> needUploadId, String dir, String filePath, List<Block> blocks, ProgressMonitor monitor, boolean update)
-            throws SeafException, IOException {
-        File file = new File(filePath);
-        if (!file.exists()) {
-            throw new SeafException(SeafException.OTHER_EXCEPTION, "File not exists");
-        }
-        MultipartBody.Builder builder = new MultipartBody.Builder();
-        //set type
-        builder.setType(MultipartBody.FORM);
-        builder.addFormDataPart("filename", file.getName());
-
-        for (int i = 0; i < blocks.size(); i++) {
-            Block block = blocks.get(i);
-            for (String s : needUploadId) {
-                if (s.equals(block.getBlockId())) {
-                    File blk = new File(block.path);
-                    builder.addFormDataPart("file", blk.getName(), RequestManager.getInstance(account).createProgressRequestBody(monitor, blk));
-                    break;
-                }
-            }
-        }
-
-        RequestBody body = builder.build();
-        final Request request = new Request.Builder().url(link).post(body).header("Authorization", "Token " + account.token).build();
-        Response response = RequestManager.getInstance(account).getClient().newCall(request).execute();
-        if (response.isSuccessful()) {
-            return response.body().string();
-        }
-        throw new SeafException(SeafException.OTHER_EXCEPTION, "File upload failed");
     }
 
     public void createNewRepo(String repoName, String description, String password) throws SeafException {

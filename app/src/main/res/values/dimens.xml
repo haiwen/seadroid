@@ -51,8 +51,8 @@
     <dimen name="lv_title_padding_top">4dp</dimen>
     <dimen name="lv_title_padding_left">8dp</dimen>
     <dimen name="lv_title_txt_size">16sp</dimen>
+    <dimen name="lv_subtitle_txt_size">14sp</dimen>
     <dimen name="lv_subtitle_padding_left">8dp</dimen>
-    <dimen name="lv_subtitle_txt_size">13sp</dimen>
     <dimen name="lv_download_icon_width">14dp</dimen>
     <dimen name="lv_download_icon_height">14dp</dimen>
     <dimen name="lv_download_icon_margin_left">4dp</dimen>

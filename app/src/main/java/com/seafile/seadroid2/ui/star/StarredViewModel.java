@@ -4,7 +4,6 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.SeafException;
-import com.seafile.seadroid2.data.remote.api.StarredService;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
 import com.seafile.seadroid2.io.http.IO;
 import com.seafile.seadroid2.data.model.ResultModel;

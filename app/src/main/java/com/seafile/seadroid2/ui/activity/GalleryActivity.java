@@ -10,6 +10,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.work.WorkManager;
+
 import com.blankj.utilcode.util.ToastUtils;
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.R;
@@ -72,22 +74,19 @@ public class GalleryActivity extends BaseActivity {
      * flag to mark if the tool bar was shown
      */
     private boolean showToolBar = true;
-    private View.OnClickListener onClickListener = new View.OnClickListener() {
+
+    private final View.OnClickListener onClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            switch (v.getId()) {
-                case R.id.gallery_download_photo:
-                    downloadFile(repoID, dirPath, fileName);
-                    break;
-                case R.id.gallery_delete_photo:
-                    deleteFile(repoID, Utils.pathJoin(dirPath, fileName));
-                    break;
-                case R.id.gallery_star_photo:
-                    starFile(repoID, dirPath, fileName);
-                    break;
-                case R.id.gallery_share_photo:
-                    shareFile(repoID, false, Utils.pathJoin(dirPath, fileName));
-                    break;
+            int id = v.getId();
+            if (id == R.id.gallery_download_photo) {
+                downloadFile(repoID, dirPath, fileName);
+            } else if (id == R.id.gallery_delete_photo) {
+                deleteFile(repoID, Utils.pathJoin(dirPath, fileName));
+            } else if (id == R.id.gallery_star_photo) {
+                starFile(repoID, dirPath, fileName);
+            } else if (id == R.id.gallery_share_photo) {
+                shareFile(repoID, false, Utils.pathJoin(dirPath, fileName));
             }
         }
     };
@@ -382,11 +381,11 @@ public class GalleryActivity extends BaseActivity {
     }
 
     private void shareFile(String repoID, boolean isEncrypt, String path) {
-        if (isEncrypt) {
-            WidgetUtils.inputSharePassword(this, repoID, path, false, mAccount);
-        } else {
-            WidgetUtils.chooseShareApp(this, repoID, path, false, mAccount, null, null);
-        }
+//        if (isEncrypt) {
+//            WidgetUtils.inputSharePassword(this, repoID, path, false, mAccount);
+//        } else {
+//            WidgetUtils.chooseShareApp(this, repoID, path, false, mAccount, null, null);
+//        }
     }
 
     class StarFileTask extends AsyncTask<Void, Void, Void> {

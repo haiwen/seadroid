@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:background="?android:selectableItemBackground"
+    android:paddingHorizontal="8dp"
+    android:paddingVertical="4dp">
+
+    <ImageView
+        android:id="@+id/icon"
+        android:layout_width="@dimen/lv_icon_width"
+        android:layout_height="@dimen/lv_icon_width"
+        android:layout_alignParentStart="true"
+        android:layout_centerVertical="true"
+        android:importantForAccessibility="no"
+        android:src="@drawable/file_image"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <LinearLayout
+        android:id="@+id/text_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginStart="8dp"
+        android:orientation="vertical"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0"
+        app:layout_constraintStart_toEndOf="@+id/icon"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/title"
+            style="@style/ListItemTitleStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="middle"
+            tools:text="@string/app_name" />
+
+        <TextView
+            android:id="@+id/subtitle"
+            style="@style/ListItemSubTitleStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            tools:text="@string/app_name" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

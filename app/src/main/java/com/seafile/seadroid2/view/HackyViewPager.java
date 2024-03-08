@@ -10,9 +10,7 @@ import android.view.MotionEvent;
  * Convenient way to temporarily disable ViewPager navigation while interacting with ImageView.
  * 
  * Julia Zudikova
- */
-
-/**
+ *
  * Hacky fix for Issue #4 and
  * http://code.google.com/p/android/issues/detail?id=18990
  * <p/>

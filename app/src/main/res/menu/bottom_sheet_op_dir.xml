@@ -3,12 +3,17 @@
     <item
         android:id="@+id/star"
         android:icon="@drawable/star_normal"
-        android:title="@string/file_action_star"/>
+        android:title="@string/file_action_star" />
+
+    <item
+        android:id="@+id/unstar"
+        android:icon="@drawable/star_normal"
+        android:title="@string/unstar" />
 
     <item
         android:id="@+id/share"
         android:icon="@drawable/action_share"
-        android:title="@string/file_share"/>
+        android:title="@string/file_share" />
 
     <item
         android:id="@+id/rename"

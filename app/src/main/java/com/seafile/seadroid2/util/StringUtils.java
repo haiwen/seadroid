@@ -2,6 +2,8 @@ package com.seafile.seadroid2.util;
 
 import android.text.TextUtils;
 
+import java.nio.charset.StandardCharsets;
+
 public class StringUtils {
 
 //    /**
@@ -139,5 +141,36 @@ public class StringUtils {
         input = trim(input, "\"");
 
         return input;
+    }
+
+    public static int getStringAsciiSum(String input) {
+        int sum = 0;
+        for (int i = 0; i < input.length(); i++) {
+            char c = input.charAt(i);
+            sum += c;
+        }
+        return sum;
+    }
+    
+    public static int getHexStringAsciiSum(String input) {
+
+        byte[] bytes = hexStringToByteArray(input);
+        int sum = 0;
+        for (int i = 0; i < bytes.length; i++) {
+            int value = bytes[i] & 0xFF; // Convert bytes to unsigned integers
+            sum += value;
+        }
+        return sum;
+    }
+
+    public static byte[] hexStringToByteArray(String s) {
+        int len = s.length();
+        byte[] data = new byte[len / 2];
+        for (int i = 0; i < len; i += 2) {
+            data[i / 2] = (byte) (
+                    (Character.digit(s.charAt(i), 16) << 4)
+                            + Character.digit(s.charAt(i + 1), 16));
+        }
+        return data;
     }
 }

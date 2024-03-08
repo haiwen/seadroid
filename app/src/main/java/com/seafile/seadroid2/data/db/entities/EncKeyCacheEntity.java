@@ -3,8 +3,10 @@ package com.seafile.seadroid2.data.db.entities;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
+import com.seafile.seadroid2.data.model.BaseModel;
+
 @Entity(tableName = "enc_key_cache")
-public class EncKeyCacheEntity {
+public class EncKeyCacheEntity extends BaseModel {
     @PrimaryKey(autoGenerate = true)
     public long id;
 

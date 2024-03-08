@@ -11,6 +11,7 @@ public class SeafException extends Exception {
     public static final int HTTP_ABOVE_QUOTA = 443;
 
     private int code;
+    public static final SeafException SUCCESS = new SeafException(-1, "success");
 
     public static final SeafException unknownException = new SeafException(1, "Unknown Error");
     public static final SeafException networkException = new SeafException(2, "Network Error");
@@ -27,6 +28,8 @@ public class SeafException extends Exception {
     public static final SeafException twoFactorAuthTokenMissing = new SeafException(13, "Two factor auth token is missing");
     public static final SeafException twoFactorAuthTokenInvalid = new SeafException(14, "Two factor auth token is invalid");
 
+    public static final SeafException notFoundException = new SeafException(404, "Not found");
+
     public static final SeafException OutOfQuota = new SeafException(HTTP_ABOVE_QUOTA, "out of quota");
 
     public SeafException(int code, String msg) {
@@ -40,8 +43,8 @@ public class SeafException extends Exception {
 
     public String toString() {
         return MoreObjects.toStringHelper(this)
-            .add("code", code)
-            .add("msg", getMessage())
-            .toString();
+                .add("code", code)
+                .add("msg", getMessage())
+                .toString();
     }
 }

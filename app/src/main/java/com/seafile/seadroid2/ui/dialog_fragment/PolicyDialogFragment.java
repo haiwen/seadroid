@@ -72,7 +72,7 @@ public class PolicyDialogFragment extends DialogFragment {
 
             @Override
             public void onClick(View widget) {
-                SeaWebViewActivity.openUrl(requireContext(), Constants.URL_PRIVACY);
+                SeaWebViewActivity.openUrlDirectly(requireContext(), Constants.URL_PRIVACY);
             }
 
             @Override
@@ -89,6 +89,9 @@ public class PolicyDialogFragment extends DialogFragment {
         builder.setView(rootView);
 
         final AlertDialog dialog = builder.create();
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.setCancelable(false);
+
         return dialog;
     }
 

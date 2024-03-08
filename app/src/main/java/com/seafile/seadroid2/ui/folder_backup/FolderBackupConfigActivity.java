@@ -25,7 +25,7 @@ import com.seafile.seadroid2.ui.selector.folder_selector.FolderSelectorFragment;
 import com.seafile.seadroid2.ui.selector.folder_selector.StringTools;
 import com.seafile.seadroid2.util.SLogs;
 import com.seafile.seadroid2.util.sp.FolderBackupConfigSPs;
-import com.seafile.seadroid2.util.sp.SettingsManager;
+import com.seafile.seadroid2.worker.FileSyncService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +38,7 @@ public class FolderBackupConfigActivity extends BaseActivity {
     private boolean isChooseFolderPage;
     private boolean isChooseRepoPage;
 
-    private FolderBackupService mBackupService;
+    private FileSyncService mBackupService;
     private List<String> selectFolderPaths;
     private Activity mActivity;
     private String originalBackupPaths;
@@ -63,7 +63,7 @@ public class FolderBackupConfigActivity extends BaseActivity {
         isChooseRepoPage = "repo".equals(selectMode);
 
         //bind service
-        Intent bindIntent = new Intent(this, FolderBackupService.class);
+        Intent bindIntent = new Intent(this, FileSyncService.class);
         bindService(bindIntent, mFolderBackupConnection, Context.BIND_AUTO_CREATE);
 
         mActivity = this;
@@ -94,11 +94,6 @@ public class FolderBackupConfigActivity extends BaseActivity {
         });
     }
 
-
-    public List<String> getSelectFolderPath() {
-        return selectFolderPaths;
-    }
-
     public void saveRepoConfig() {
         if (!isChooseRepoPage) {
             return;
@@ -114,25 +109,16 @@ public class FolderBackupConfigActivity extends BaseActivity {
             return;
         }
 
-
-        FolderBackupConfigSPs.saveBackupEmail(mAccount.getEmail());
-
         //update sp
-        RepoConfig repoConfig = FolderBackupConfigSPs.getBackupConfigByAccount(mAccount.getEmail());
+        RepoConfig repoConfig = FolderBackupConfigSPs.getBackupConfigByAccount(mAccount.getSignature());
         if (repoConfig != null) {
             repoConfig.setRepoName(repoModel.repo_name);
             repoConfig.setRepoID(repoModel.repo_id);
         } else {
-            repoConfig = new RepoConfig(repoModel.repo_id, repoModel.repo_name, mAccount.getEmail());
+            repoConfig = new RepoConfig(repoModel.repo_id, repoModel.repo_name, mAccount.getEmail(),mAccount.getSignature());
         }
 
-        FolderBackupConfigSPs.setBackupRepoConfigByAccount(repoConfig);
-
-        boolean automaticBackup = SettingsManager.getInstance().isFolderAutomaticBackup();
-        if (automaticBackup && mBackupService != null) {
-            mBackupService.backupFolder(mAccount.getEmail());
-        }
-
+        FolderBackupConfigSPs.setBackupRepoConfig(repoConfig);
 
         Intent intent = new Intent();
         intent.putExtra(ObjSelectorActivity.DATA_REPO_NAME, repoModel.repo_name);
@@ -156,7 +142,7 @@ public class FolderBackupConfigActivity extends BaseActivity {
             SLogs.d("----------No folder is selected");
 
             //clear local storage
-            FolderBackupConfigSPs.saveBackupPaths("");
+            FolderBackupConfigSPs.saveBackupPathsByCurrentAccount("");
 
             Intent intent = new Intent();
             String selectMode = getIntent().getStringExtra(FOLDER_BACKUP_SELECT_MODE);
@@ -168,22 +154,7 @@ public class FolderBackupConfigActivity extends BaseActivity {
         String backupEmail = FolderBackupConfigSPs.getBackupEmail();
 
         String strJsonPath = GsonUtils.toJson(selectFolderPaths);
-
-        if ((TextUtils.isEmpty(originalBackupPaths) && !TextUtils.isEmpty(strJsonPath)) || !originalBackupPaths.equals(strJsonPath)) {
-            mBackupService.startFolderMonitor(selectFolderPaths);
-
-            boolean folderAutomaticBackup = SettingsManager.getInstance().isFolderAutomaticBackup();
-            if (folderAutomaticBackup) {
-                mBackupService.backupFolder(backupEmail);
-            }
-
-            SLogs.d("----------Restart monitoring FolderMonitor");
-        } else if (!TextUtils.isEmpty(originalBackupPaths) && TextUtils.isEmpty(strJsonPath)) {
-            mBackupService.stopFolderMonitor();
-            SLogs.d("----------stop monitoring FolderMonitor");
-        }
-
-        FolderBackupConfigSPs.saveBackupPaths(strJsonPath);
+        FolderBackupConfigSPs.saveBackupPathsByCurrentAccount(strJsonPath);
 
         Intent intent = new Intent();
         intent.putStringArrayListExtra(BACKUP_SELECT_PATHS, (ArrayList<String>) selectFolderPaths);
@@ -223,7 +194,7 @@ public class FolderBackupConfigActivity extends BaseActivity {
     private final ServiceConnection mFolderBackupConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName className, IBinder binder) {
-            FolderBackupService.FileBackupBinder fileBackupBinder = (FolderBackupService.FileBackupBinder) binder;
+            FileSyncService.FileSyncBinder fileBackupBinder = (FileSyncService.FileSyncBinder) binder;
             mBackupService = fileBackupBinder.getService();
         }
 

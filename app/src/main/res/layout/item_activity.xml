@@ -24,7 +24,7 @@
         android:layout_marginTop="8dp"
         android:ellipsize="end"
         android:maxLines="1"
-        android:textColor="@color/item_repo_title_color"
+        android:textColor="@color/list_item_title_color"
         android:textSize="16sp"
         app:layout_constrainedWidth="true"
         app:layout_constraintEnd_toStartOf="@+id/item_time"
@@ -41,7 +41,7 @@
         android:layout_marginEnd="16dp"
         android:ellipsize="end"
         android:maxLines="1"
-        android:textColor="@color/item_repo_subtitle_color"
+        android:textColor="@color/list_item_subtitle_color"
         android:textSize="14sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

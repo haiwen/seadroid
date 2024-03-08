@@ -3,11 +3,9 @@ package com.seafile.seadroid2.context;
 import android.text.TextUtils;
 
 import com.blankj.utilcode.util.EncryptUtils;
-import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.model.BaseModel;
 import com.seafile.seadroid2.data.db.entities.DirentModel;
 import com.seafile.seadroid2.data.db.entities.RepoModel;
-import com.seafile.seadroid2.util.StringUtils;
 
 import java.util.Stack;
 
@@ -141,7 +139,7 @@ public class NavContext {
                 dm.name = s;
 //                dm.type =
                 dm.full_path = stringBuilder.toString();
-                dm.hash_path = EncryptUtils.encryptMD5ToString(dm.full_path);
+                dm.uid = EncryptUtils.encryptMD5ToString(dm.full_path);
 
                 stack.push(dm);
             }
@@ -188,10 +186,16 @@ public class NavContext {
             return "/";
         }
 
-        String fullPath = getTopDirentModel().full_path;
-        if (!fullPath.endsWith("/")) {
+        DirentModel direntModel = getTopDirentModel();
+        if (direntModel == null) {
+            return "/";
+        }
+
+        String fullPath = direntModel.full_path;
+        if (direntModel.isDir() && !fullPath.endsWith("/")) {
             fullPath += "/";
         }
+
         return fullPath;
     }
 

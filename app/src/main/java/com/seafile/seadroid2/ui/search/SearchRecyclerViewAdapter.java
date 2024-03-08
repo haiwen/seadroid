@@ -10,15 +10,16 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.data.model.search.SearchModel;
+import com.seafile.seadroid2.databinding.ItemSearchBinding;
 import com.seafile.seadroid2.ui.base.adapter.BaseAdapter;
 import com.seafile.seadroid2.ui.base.viewholder.BaseViewHolder;
 import com.seafile.seadroid2.data.SeafRepo;
-import com.seafile.seadroid2.data.SearchedFile;
 import com.seafile.seadroid2.util.Utils;
 
 import org.jetbrains.annotations.NotNull;
 
-public class SearchRecyclerViewAdapter extends BaseAdapter<SearchedFile, SearchRecyclerViewAdapter.SearchItemViewHolder> {
+public class SearchRecyclerViewAdapter extends BaseAdapter<SearchModel, SearchRecyclerViewAdapter.SearchItemViewHolder> {
     private Context context;
 
     public SearchRecyclerViewAdapter(Context context) {
@@ -26,42 +27,25 @@ public class SearchRecyclerViewAdapter extends BaseAdapter<SearchedFile, SearchR
     }
 
     @Override
-    protected void onBindViewHolder(@NotNull SearchItemViewHolder viewHolder, int i, @Nullable SearchedFile searchedFile) {
-        viewHolder.icon.setImageResource(searchedFile.getIcon());
-        viewHolder.path.setText(filePath(searchedFile));
-        viewHolder.title.setText(searchedFile.getTitle());
-        viewHolder.subtitle.setText(searchedFile.getSubtitle());
+    protected void onBindViewHolder(@NotNull SearchItemViewHolder holder, int i, @Nullable SearchModel model) {
+        holder.binding.icon.setImageResource(model.getIcon());
+        holder.binding.title.setText(model.getTitle());
+        holder.binding.subtitle.setText(model.getSubtitle());
     }
 
     @NotNull
     @Override
     protected SearchItemViewHolder onCreateViewHolder(@NotNull Context context, @NotNull ViewGroup viewGroup, int i) {
-        View view = LayoutInflater.from(context).inflate(R.layout.search_list_item, viewGroup, false);
-        return new SearchItemViewHolder(view);
-    }
-
-    private String filePath(SearchedFile searchedFile) {
-        String parentPath = Utils.getParentPath(searchedFile.getPath());
-        SeafRepo seafRepo = ((Search2Activity) context).getDataManager().getCachedRepoByID(searchedFile.getRepoID());
-        if (seafRepo != null)
-            return Utils.pathJoin(seafRepo.getRepoName(), parentPath);
-        else
-            return parentPath;
+        ItemSearchBinding binding = ItemSearchBinding.inflate(LayoutInflater.from(context), viewGroup, false);
+        return new SearchItemViewHolder(binding);
     }
 
     public static class SearchItemViewHolder extends BaseViewHolder {
-        public TextView path;
-        public TextView title;
-        public TextView subtitle;
-        public ImageView icon;
+        public ItemSearchBinding binding;
 
-        public SearchItemViewHolder(View view) {
-            super(view);
-
-            path = (TextView) view.findViewById(R.id.search_item_path);
-            title = (TextView) view.findViewById(R.id.search_item_title);
-            subtitle = (TextView) view.findViewById(R.id.search_item_subtitle);
-            icon = (ImageView) view.findViewById(R.id.search_item_icon);
+        public SearchItemViewHolder(ItemSearchBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
         }
 
     }

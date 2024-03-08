@@ -3,7 +3,7 @@ package com.seafile.seadroid2.data.repository;
 import com.seafile.seadroid2.data.db.dao.DirentDAO;
 import com.seafile.seadroid2.data.db.entities.DirentModel;
 import com.seafile.seadroid2.data.model.repo.DirentWrapperModel;
-import com.seafile.seadroid2.data.remote.api.RepoService;
+import com.seafile.seadroid2.ui.repo.RepoService;
 
 import java.util.Collections;
 import java.util.List;

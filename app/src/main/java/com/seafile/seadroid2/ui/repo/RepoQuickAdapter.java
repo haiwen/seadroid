@@ -16,6 +16,9 @@ import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.SizeUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.data.model.enums.TransferAction;
+import com.seafile.seadroid2.data.model.enums.TransferStatus;
+import com.seafile.seadroid2.io.http.IO;
 import com.seafile.seadroid2.ui.base.adapter.BaseMultiAdapter;
 import com.seafile.seadroid2.config.AbsLayoutItemType;
 import com.seafile.seadroid2.config.Constants;
@@ -31,11 +34,16 @@ import com.seafile.seadroid2.databinding.ItemRepoBinding;
 import com.seafile.seadroid2.databinding.ItemUnsupportedBinding;
 import com.seafile.seadroid2.ui.viewholder.GroupItemViewHolder;
 import com.seafile.seadroid2.util.GlideApp;
+import com.seafile.seadroid2.util.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.stream.Collectors;
 
 public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
+    private final String SERVER = IO.getSingleton().getServerUrl();
+
     private boolean actionModeOn;
 
     private Drawable starDrawable;
@@ -215,7 +223,16 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
     private void onBindDirents(DirentViewHolder holder, DirentModel model) {
         holder.binding.itemTitle.setText(model.name);
         holder.binding.itemSubtitle.setText(model.getSubtitle());
-        holder.binding.itemIcon.setImageResource(model.getIcon());
+
+        if (!Utils.isViewableImage(model.name)) {
+            holder.binding.itemIcon.setImageResource(model.getIcon());
+        } else {
+            String url = convertThumbnailUrl(model.repo_id, model.full_path);
+            GlideApp.with(getContext())
+                    .load(GlideLoadConfig.getGlideUrl(url))
+                    .apply(GlideLoadConfig.getOptions())
+                    .into(holder.binding.itemIcon);
+        }
 
         //action mode
         if (actionModeOn) {
@@ -234,8 +251,8 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         holder.binding.itemDownloadStatus.setVisibility(View.GONE);
 
         if (selectorMode < 0) {
-            holder.binding.itemTitle.setTextColor(ContextCompat.getColor(getContext(), R.color.item_repo_title_color));
-            holder.binding.itemSubtitle.setTextColor(ContextCompat.getColor(getContext(), R.color.item_repo_subtitle_color));
+            holder.binding.itemTitle.setTextColor(ContextCompat.getColor(getContext(), R.color.list_item_title_color));
+            holder.binding.itemSubtitle.setTextColor(ContextCompat.getColor(getContext(), R.color.list_item_subtitle_color));
 
             holder.binding.expandableToggleButton.setVisibility(View.VISIBLE);
         } else {
@@ -244,20 +261,28 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
                 holder.binding.itemTitle.setTextColor(ContextCompat.getColor(getContext(), R.color.light_grey));
                 holder.binding.itemSubtitle.setTextColor(ContextCompat.getColor(getContext(), R.color.light_grey));
             } else {
-                holder.binding.itemTitle.setTextColor(ContextCompat.getColor(getContext(), R.color.item_repo_title_color));
-                holder.binding.itemSubtitle.setTextColor(ContextCompat.getColor(getContext(), R.color.item_repo_subtitle_color));
+                holder.binding.itemTitle.setTextColor(ContextCompat.getColor(getContext(), R.color.list_item_title_color));
+                holder.binding.itemSubtitle.setTextColor(ContextCompat.getColor(getContext(), R.color.list_item_subtitle_color));
             }
 
             holder.binding.expandableToggleButton.setVisibility(View.INVISIBLE);
         }
 
-//        if (model.isDir()) {
-//            holder.binding.itemDownloadStatusProgressbar.setVisibility(View.GONE);
-//            holder.binding.itemDownloadStatus.setVisibility(View.GONE);
-//        } else {
-//            holder.binding.itemDownloadStatusProgressbar.setVisibility(View.VISIBLE);
-//            holder.binding.itemDownloadStatus.setVisibility(View.VISIBLE);
-//        }
+        if (model.isDir()) {
+            holder.binding.itemDownloadStatusProgressbar.setVisibility(View.GONE);
+            holder.binding.itemDownloadStatus.setVisibility(View.GONE);
+        } else if (TransferStatus.TRANSFER_WAITING == model.transfer_status ||
+                TransferStatus.TRANSFER_IN_PROGRESS == model.transfer_status) {
+            holder.binding.itemDownloadStatusProgressbar.setVisibility(View.VISIBLE);
+            holder.binding.itemDownloadStatus.setVisibility(View.VISIBLE);
+        } else if (TransferStatus.TRANSFER_CANCELLED == model.transfer_status ||
+                TransferStatus.TRANSFER_FAILED == model.transfer_status) {
+            holder.binding.itemDownloadStatusProgressbar.setVisibility(View.GONE);
+            holder.binding.itemDownloadStatus.setVisibility(View.GONE);
+        } else if (TransferStatus.TRANSFER_SUCCEEDED == model.transfer_status) {
+            holder.binding.itemDownloadStatusProgressbar.setVisibility(View.GONE);
+            holder.binding.itemDownloadStatus.setVisibility(View.VISIBLE);
+        }
 
         holder.binding.itemTitle.setCompoundDrawablePadding(Constants.DP.DP_4);
         if (model.starred) {
@@ -265,6 +290,10 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         } else {
             holder.binding.itemTitle.setCompoundDrawables(null, null, null, null);
         }
+    }
+
+    private String convertThumbnailUrl(String repoId, String filePath) {
+        return String.format(Locale.getDefault(), "%sapi2/repos/%s/thumbnail/?p=%s&size=%d", SERVER, repoId, filePath, 48);
     }
 
     public void setActionModeOn(boolean actionModeOn) {
@@ -314,23 +343,23 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         //single
         if (selectedMaxCount == 1) {
             int selectedPosition = getSelectedPositionByMode();
-            if (selectedPosition == position){
+            if (selectedPosition == position) {
                 item.is_selected = !item.is_selected;
                 notifyItemChanged(selectedPosition);
                 return item.is_selected;
 
-            }else if (selectedPosition > -1) {
+            } else if (selectedPosition > -1) {
                 //Deselect an item that has already been selected
                 getItems().get(selectedPosition).is_selected = false;
                 notifyItemChanged(selectedPosition);
 
                 item.is_selected = true;
                 notifyItemChanged(position);
-            }else {
+            } else {
                 item.is_selected = true;
                 notifyItemChanged(position);
             }
-        }else {
+        } else {
             long selectedCount = getSelectedCountByMode();
             if (selectedCount >= selectedMaxCount) {
                 return false;
@@ -456,6 +485,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
                             && newT.monitored == oldT.monitored
                             && newT.is_admin == oldT.is_admin;
                 }
+
                 if (getItems().get(oldItemPosition) instanceof Account) {
                     Account newT = (Account) getItems().get(oldItemPosition);
                     Account oldT = (Account) list.get(newItemPosition);
@@ -475,7 +505,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
                             && TextUtils.equals(newT.type, oldT.type)
                             && TextUtils.equals(newT.permission, oldT.permission)
                             && TextUtils.equals(newT.dir_id, oldT.dir_id)
-                            && TextUtils.equals(newT.related_account_email, oldT.related_account_email)
+                            && TextUtils.equals(newT.related_account, oldT.related_account)
                             && TextUtils.equals(newT.repo_id, oldT.repo_id)
                             && TextUtils.equals(newT.repo_name, oldT.repo_name)
 //                            && TextUtils.equals(newT.lock_owner, oldT.lock_owner)
@@ -485,12 +515,12 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
 //                            && TextUtils.equals(newT.modifier_name, oldT.modifier_name)
 //                            && TextUtils.equals(newT.modifier_contact_email, oldT.modifier_contact_email)
 //                            && TextUtils.equals(newT.encoded_thumbnail_src, oldT.encoded_thumbnail_src)
-                            && TextUtils.equals(newT.repo_name, oldT.repo_name)
                             && newT.mtime == oldT.mtime
                             && newT.starred == oldT.starred
                             && newT.size == oldT.size
                             && newT.is_locked == oldT.is_locked
                             && newT.is_freezed == oldT.is_freezed
+                            && newT.transfer_status == oldT.transfer_status
 //                            && newT.locked_by_me == oldT.locked_by_me
 //                            && newT.lock_time == oldT.lock_time
                             ;

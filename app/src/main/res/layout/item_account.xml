@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="?android:selectableItemBackground"
@@ -30,27 +31,23 @@
             android:layout_width="0dp"
             android:layout_height="@dimen/lv_act_title_group_height"
             android:layout_weight="1"
+            android:gravity="center_vertical"
             android:orientation="vertical">
 
             <TextView
                 android:id="@+id/list_item_account_title"
+                style="@style/ListItemTitleStyle"
                 android:layout_width="wrap_content"
-                android:layout_height="@dimen/lv_act_title_height"
-                android:layout_marginTop="@dimen/lv_act_title_margin_top"
-                android:lines="1"
-                android:singleLine="true"
-                android:textColor="@color/light_black"
-                android:textSize="@dimen/lv_act_title_txt_size" />
+                android:layout_height="wrap_content"
+                tools:text="@string/app_name" />
 
             <TextView
                 android:id="@+id/list_item_account_subtitle"
+                style="@style/ListItemSubTitleStyle"
                 android:layout_width="wrap_content"
-                android:layout_height="@dimen/lv_act_subtitle_height"
-                android:layout_marginTop="@dimen/lv_act_subtitle_margin_top"
-                android:layout_marginBottom="@dimen/lv_act_subtitle_margin_bottom"
-                android:lines="1"
-                android:textColor="@color/light_grey"
-                android:textSize="@dimen/lv_act_subtitle_txt_size" />
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                tools:text="@string/app_name" />
         </LinearLayout>
 
         <ImageView

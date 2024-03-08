@@ -1,18 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="?android:selectableItemBackground"
-    android:orientation="horizontal"
     android:gravity="center_vertical"
+    android:orientation="horizontal"
     android:paddingHorizontal="16dp">
 
     <RelativeLayout
         android:id="@+id/container"
         android:layout_width="0dp"
-        android:layout_weight="1"
         android:layout_height="wrap_content"
+        android:layout_weight="1"
         android:orientation="vertical"
         android:paddingVertical="8dp">
 
@@ -30,26 +31,24 @@
 
         <TextView
             android:id="@+id/list_item_account_title"
+            style="@style/ListItemTitleStyle"
             android:layout_width="wrap_content"
-            android:layout_height="@dimen/lv_act_title_height"
+            android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_marginTop="@dimen/lv_act_title_margin_top"
             android:layout_toEndOf="@+id/list_item_account_icon"
-            android:maxLines="1"
-            android:textColor="@color/light_black"
-            android:textSize="@dimen/lv_act_title_txt_size" />
+            tools:text="@string/app_name" />
 
         <TextView
             android:id="@+id/list_item_account_subtitle"
+            style="@style/ListItemSubTitleStyle"
             android:layout_width="wrap_content"
-            android:layout_height="@dimen/lv_act_subtitle_height"
+            android:layout_height="wrap_content"
             android:layout_below="@+id/list_item_account_title"
             android:layout_marginTop="@dimen/lv_act_subtitle_margin_top"
             android:layout_marginBottom="@dimen/lv_act_subtitle_margin_bottom"
             android:layout_toEndOf="@+id/list_item_account_icon"
-            android:maxLines="1"
-            android:textColor="@color/light_grey"
-            android:textSize="@dimen/lv_act_subtitle_txt_size" />
+            tools:text="@string/app_name" />
     </RelativeLayout>
 
     <ImageView

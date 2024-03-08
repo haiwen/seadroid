@@ -15,7 +15,6 @@ import com.seafile.seadroid2.util.Utils;
 public class CopyMoveDialogFragment extends RequestCustomDialogFragmentWithVM<CopyMoveViewModel> {
     private CopyMoveContext ctx;
 
-    private Boolean isOping = false;
 
     public static CopyMoveDialogFragment newInstance() {
 
@@ -77,6 +76,7 @@ public class CopyMoveDialogFragment extends RequestCustomDialogFragmentWithVM<Co
 
     }
 
+    private boolean isOping = false;
 
     @Override
     public void onResume() {

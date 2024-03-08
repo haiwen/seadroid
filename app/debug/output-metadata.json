@@ -1,0 +1,20 @@
+{
+  "version": 3,
+  "artifactType": {
+    "type": "APK",
+    "kind": "Directory"
+  },
+  "applicationId": "com.seafile.seadroid2.debug",
+  "variantName": "debug",
+  "elements": [
+    {
+      "type": "SINGLE",
+      "filters": [],
+      "attributes": [],
+      "versionCode": 150,
+      "versionName": "3.0.0",
+      "outputFile": "seafile-debug-3.0.0.apk"
+    }
+  ],
+  "elementType": "File"
+}

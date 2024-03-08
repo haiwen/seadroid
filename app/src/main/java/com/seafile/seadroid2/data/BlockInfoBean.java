@@ -11,23 +11,8 @@ import java.util.List;
 
 
 public class BlockInfoBean {
-    public List<String> blkIds;
+    public List<String> blklist;
     public String rawblksurl;
     public String commiturl;
 
-    public static BlockInfoBean fromJson(String json) throws JSONException {
-        BlockInfoBean bean = new BlockInfoBean();
-        JSONObject obj = Utils.parseJsonObject(json);
-        bean.rawblksurl = obj.optString("rawblksurl");
-        bean.commiturl = obj.optString("commiturl");
-        JSONArray jsonArray = obj.optJSONArray("blklist");
-        bean.blkIds = new ArrayList<>();
-        for (int i = 0; i < jsonArray.length(); i++) {
-            bean.blkIds.add(jsonArray.getString(i));
-        }
-        return bean;
-    }
-
-    public BlockInfoBean() {
-    }
 }

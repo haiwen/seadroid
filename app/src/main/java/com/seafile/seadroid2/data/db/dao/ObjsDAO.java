@@ -17,6 +17,10 @@ public interface ObjsDAO {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     Completable insert(ObjsModel dirModel);
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    void insertSync(ObjsModel dirModel);
+
+
     @Query("select * from objs where path = :path limit 1")
     Single<List<ObjsModel>> getByPath(String path);
 

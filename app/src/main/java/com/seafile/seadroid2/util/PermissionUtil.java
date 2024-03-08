@@ -21,6 +21,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.blankj.utilcode.util.CollectionUtils;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 import com.seafile.seadroid2.R;
 
@@ -28,10 +29,10 @@ import java.util.Arrays;
 import java.util.List;
 
 public class PermissionUtil {
-    public final static int PERMISSIONS_CAMERA = 2;
-    public final static int PERMISSIONS_EXTERNAL_STORAGE = 4;
-    public final static int PERMISSIONS_POST_NOTIFICATIONS = 8;
-    public final static int REQUEST_CODE_MANAGE_ALL_FILES = 16;
+    public static final int PERMISSIONS_CAMERA = 2;
+    public static final int PERMISSIONS_EXTERNAL_STORAGE = 4;
+    public static final int PERMISSIONS_POST_NOTIFICATIONS = 8;
+    public static final int REQUEST_CODE_MANAGE_ALL_FILES = 16;
 
     public static boolean checkSelfPermission(Context context, String permission) {
         return ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED;
@@ -67,21 +68,13 @@ public class PermissionUtil {
     public static void requestExternalStoragePermission(AppCompatActivity activity) {
         if (!checkExternalStoragePermission(activity)) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && canRequestAllFilesPermission(activity)) {
-                new AlertDialog.Builder(activity)
+                new MaterialAlertDialogBuilder(activity)
                         .setMessage(R.string.permission_manage_exteral_storage_rationale)
-                        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                            }
-                        })
-                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                                Intent intent = getManageAllFilesIntent(activity);
-                                activity.startActivity(intent);
-                            }
+                        .setNegativeButton(R.string.cancel, (dialog, which) -> dialog.dismiss())
+                        .setPositiveButton(R.string.ok, (dialog, which) -> {
+                            dialog.dismiss();
+                            Intent intent = getManageAllFilesIntent(activity);
+                            activity.startActivity(intent);
                         })
                         .show();
             } else {
@@ -96,14 +89,9 @@ public class PermissionUtil {
             Snackbar.make(activity.findViewById(android.R.id.content),
                             R.string.permission_read_exteral_storage_rationale,
                             Snackbar.LENGTH_INDEFINITE)
-                    .setAction(R.string.settings, new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            ActivityCompat.requestPermissions(activity,
-                                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                                    PERMISSIONS_EXTERNAL_STORAGE);
-                        }
-                    })
+                    .setAction(R.string.settings, view -> ActivityCompat.requestPermissions(activity,
+                            new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                            PERMISSIONS_EXTERNAL_STORAGE))
                     .show();
 
         } else {

@@ -63,4 +63,10 @@ public class SPs {
         SharedPreferences sp = Utils.getApp().getSharedPreferences(SP_NAME, Context.MODE_PRIVATE);
         sp.unregisterOnSharedPreferenceChangeListener(listener);
     }
+
+    ////////////////////////remove////////////////
+    public static void remove(@NonNull final String key) {
+        SPUtils.getInstance(SP_NAME).remove(key);
+    }
+
 }
