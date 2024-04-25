@@ -63,6 +63,7 @@ public class SingleSignOnAuthorizeActivity extends BaseActivity implements Toolb
 
         mWebview.getSettings().setLoadsImagesAutomatically(true);
         mWebview.getSettings().setJavaScriptEnabled(true);
+        mWebview.getSettings().setUserAgentString(System.getProperty("http.agent"));
         mWebview.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
 
         CustomWebviewClient client = new CustomWebviewClient();
