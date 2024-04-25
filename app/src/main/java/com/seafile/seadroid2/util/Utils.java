@@ -776,7 +776,7 @@ public class Utils {
     public static boolean isTextMimeType(String fileName) {
         String suffix = fileName.substring(fileName.lastIndexOf('.') + 1).toLowerCase();
         //file is markdown or  txt
-        String[] array = {"ac", "am", "bat", "c", "cc", "cmake", "conf", "cpp", "cs", "css", "csv", "diff",
+        String[] array = {"ac", "adoc", "asciidoc", "am", "bat", "c", "cc", "cmake", "conf", "cpp", "cs", "css", "csv", "diff",
                 "el", "go", "groovy", "h", "htm", "html", "java", "js", "json", "less", "log", "make",
                 "markdown", "md", "org", "patch", "pde", "php", "pl", "properties", "py", "rb", "rst",
                 "sc", "scala", "scd", "schelp", "script", "sh", "sql", "text", "tex", "txt", "vi", "vim",
