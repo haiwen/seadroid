@@ -5,8 +5,8 @@ import android.text.TextUtils;
 import androidx.lifecycle.MutableLiveData;
 
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
-import com.seafile.seadroid2.data.db.entities.RepoModel;
-import com.seafile.seadroid2.io.http.IO;
+import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
+import com.seafile.seadroid2.framework.http.IO;
 import com.seafile.seadroid2.ui.dialog_fragment.DialogService;
 
 import java.util.HashMap;
@@ -41,7 +41,7 @@ public class NewRepoViewModel extends BaseViewModel {
             requestDataMap.put("passwd", password);
         }
         Map<String, RequestBody> bodyMap = generateRequestBody(requestDataMap);
-        Single<RepoModel> single = IO.getSingleton().execute(DialogService.class).createRepo(bodyMap);
+        Single<RepoModel> single = IO.getInstanceWithLoggedIn().execute(DialogService.class).createRepo(bodyMap);
         addSingleDisposable(single, new Consumer<RepoModel>() {
             @Override
             public void accept(RepoModel repoModel) throws Exception {

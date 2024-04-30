@@ -3,6 +3,7 @@ package com.seafile.seadroid2.ui.transfer_list;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -27,30 +28,32 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.bottomsheetmenu.BottomSheetHelper;
 import com.seafile.seadroid2.bottomsheetmenu.BottomSheetMenuFragment;
-import com.seafile.seadroid2.data.db.entities.FileTransferEntity;
-import com.seafile.seadroid2.data.model.enums.TransferAction;
 import com.seafile.seadroid2.databinding.LayoutFrameSwipeRvBinding;
+import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
+import com.seafile.seadroid2.framework.data.model.enums.TransferAction;
+import com.seafile.seadroid2.framework.data.model.enums.TransferDataSource;
+import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
+import com.seafile.seadroid2.framework.worker.DownloadWorker;
+import com.seafile.seadroid2.framework.worker.SupportWorkManager;
+import com.seafile.seadroid2.framework.worker.TransferWorker;
+import com.seafile.seadroid2.framework.worker.UploadFolderFileAutomaticallyWorker;
+import com.seafile.seadroid2.framework.worker.UploadMediaFileAutomaticallyWorker;
 import com.seafile.seadroid2.ui.base.fragment.BaseFragment;
-import com.seafile.seadroid2.ui.transfer.TransferActivity;
-import com.seafile.seadroid2.util.SLogs;
 import com.seafile.seadroid2.view.TipsViews;
-import com.seafile.seadroid2.worker.BackgroundJobManagerImpl;
-import com.seafile.seadroid2.worker.TransferWorker;
 
 import java.util.List;
+import java.util.UUID;
 
 import io.reactivex.functions.Consumer;
 
 public abstract class TransferListFragment extends BaseFragment {
     private LayoutFrameSwipeRvBinding binding;
-    private TransferListAdapter adapter;
+    protected TransferListAdapter adapter;
     private ActionMode actionMode;
     protected TransferActivity activity = null;
-    private TransferListViewModel viewModel;
 
-    public TransferListViewModel getViewModel() {
-        return viewModel;
-    }
+    private TransferListViewModel viewModel;
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -61,7 +64,12 @@ public abstract class TransferListFragment extends BaseFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         viewModel = new ViewModelProvider(this).get(TransferListViewModel.class);
+    }
+
+    public TransferListViewModel getViewModel() {
+        return viewModel;
     }
 
     @Nullable
@@ -79,6 +87,7 @@ public abstract class TransferListFragment extends BaseFragment {
         initAdapter();
 
         initViewModel();
+
 
         loadData();
     }
@@ -131,52 +140,11 @@ public abstract class TransferListFragment extends BaseFragment {
     }
 
     private void initViewModel() {
-        String tag;
-        if (getTransferAction() == TransferAction.DOWNLOAD) {
-            tag = BackgroundJobManagerImpl.TAG_DOWNLOAD_WORKER_FILES_DOWNLOAD;
-        } else {
-            tag = BackgroundJobManagerImpl.TAG_UPLOAD_WORKER_FILES_UPLOAD;
-        }
-
-        BackgroundJobManagerImpl.getInstance()
-                .getWorkInfosByTagLiveData(tag)
-                .observe(getViewLifecycleOwner(), new Observer<List<WorkInfo>>() {
-                    @Override
-                    public void onChanged(List<WorkInfo> workInfos) {
-                        doWorkInfoLiveData(workInfos);
-                    }
-                });
-
         getViewModel().getRefreshLiveData().observe(getViewLifecycleOwner(), aBoolean -> binding.swipeRefreshLayout.setRefreshing(aBoolean));
 
         getViewModel().getFileTransferEntitiesLiveData().observe(getViewLifecycleOwner(), this::notifyDataChanged);
     }
 
-    private void doWorkInfoLiveData(List<WorkInfo> workInfos) {
-        if (CollectionUtils.isEmpty(workInfos)) {
-            return;
-        }
-        WorkInfo workInfo = workInfos.get(0);
-
-        //
-        if (workInfo.getState().isFinished()) {
-            loadData();
-        } else if (workInfo.getState() == WorkInfo.State.RUNNING) {
-            Data data = workInfo.getProgress();
-            String transferId = data.getString(TransferWorker.DATA_TRANSFER_KEY);
-            String fileName = data.getString(TransferWorker.DATA_TRANSFER_NAME_KEY);
-            int percent = data.getInt(TransferWorker.DATA_PROGRESS_KEY, 0);
-            long transferredSize = data.getLong(TransferWorker.DATA_TRANSFERRED_SIZE_KEY, 0);
-            long totalSize = data.getLong(TransferWorker.DATA_TOTAL_SIZE_KEY, 0);
-
-            if (getTransferAction() == TransferAction.DOWNLOAD) {
-                SLogs.e("传输列表页：" + fileName + ", 下载进度：" + percent + ", 已传输：" + transferredSize + ", 总大小：" + totalSize);
-            } else {
-                SLogs.e("传输列表页：" + fileName + ", 上传进度：" + percent + ", 已传输：" + transferredSize + ", 总大小：" + totalSize);
-            }
-            adapter.notifyProgressById(transferId, transferredSize, percent);
-        }
-    }
 
     public void showBottomSheet(FileTransferEntity entity) {
         int rid = R.menu.bottom_sheet_op_transfer_list;
@@ -186,21 +154,22 @@ public abstract class TransferListFragment extends BaseFragment {
             if (itemId == R.id.delete) {
                 onBottomSheetFileDelete(entity);
             } else if (itemId == R.id.upload) {
-                BackgroundJobManagerImpl.getInstance().scheduleOneTimeFilesDownloadSyncJob(entity.uid);
+                BackgroundJobManagerImpl.getInstance().scheduleOneTimeFilesDownloadScanWorker(entity.uid);
             } else if (itemId == R.id.download) {
-                BackgroundJobManagerImpl.getInstance().scheduleOneTimeFilesDownloadSyncJob(entity.uid);
+                BackgroundJobManagerImpl.getInstance().scheduleOneTimeFilesDownloadScanWorker(entity.uid);
             }
         });
 
         builder.removeMenu(R.id.upload);
         builder.removeMenu(R.id.download);
 
-        //TODO
+        //not support
 //        if (getTransferAction() == TransferAction.DOWNLOAD) {
 //            builder.removeMenu(R.id.upload);
 //        } else if (getTransferAction() == TransferAction.UPLOAD) {
 //            builder.removeMenu(R.id.download);
 //        }
+
         builder.show(getChildFragmentManager());
     }
 
@@ -263,7 +232,11 @@ public abstract class TransferListFragment extends BaseFragment {
     public abstract void restartSelectedItems(List<FileTransferEntity> list);
 
     protected void loadData() {
-        getViewModel().loadData(getTransferAction());
+        loadData(true);
+    }
+
+    protected void loadData(boolean isShowRefresh) {
+        getViewModel().loadData(getTransferAction(), isShowRefresh);
     }
 
     private void notifyDataChanged(List<FileTransferEntity> list) {

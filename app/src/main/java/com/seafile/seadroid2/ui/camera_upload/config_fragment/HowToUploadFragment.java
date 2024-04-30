@@ -11,7 +11,7 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.util.sp.SettingsManager;
+import com.seafile.seadroid2.framework.datastore.sp.AlbumBackupManager;
 
 /**
  * How to upload fragment
@@ -28,7 +28,7 @@ public class HowToUploadFragment extends Fragment {
         mRadioGroup = rootView.findViewById(R.id.cuc_wifi_radio_group);
         mDataPlanRadioBtn = rootView.findViewById(R.id.cuc_wifi_or_data_plan_rb);
 
-        if (SettingsManager.getInstance().isDataPlanAllowed()) {
+        if (AlbumBackupManager.readAllowDataPlanSwitch()) {
             mDataPlanRadioBtn.setChecked(true);
         }
 

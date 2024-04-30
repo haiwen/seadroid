@@ -11,17 +11,17 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.blankj.utilcode.util.SpanUtils;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.framework.util.GlideApp;
 import com.seafile.seadroid2.ui.base.adapter.BaseMultiAdapter;
 import com.seafile.seadroid2.ui.viewholder.GroupItemViewHolder;
 import com.seafile.seadroid2.config.AbsLayoutItemType;
 import com.seafile.seadroid2.config.GlideLoadConfig;
-import com.seafile.seadroid2.data.model.BaseModel;
-import com.seafile.seadroid2.data.model.GroupItemModel;
-import com.seafile.seadroid2.data.model.activities.ActivityModel;
+import com.seafile.seadroid2.framework.data.model.BaseModel;
+import com.seafile.seadroid2.framework.data.model.GroupItemModel;
+import com.seafile.seadroid2.framework.data.model.activities.ActivityModel;
 import com.seafile.seadroid2.databinding.ItemActivityBinding;
 import com.seafile.seadroid2.databinding.ItemGroupItemBinding;
-import com.seafile.seadroid2.util.GlideApp;
-import com.seafile.seadroid2.util.SystemSwitchUtils;
+import com.seafile.seadroid2.framework.util.SystemSwitchUtils;
 
 import java.util.List;
 
@@ -88,7 +88,7 @@ public class ActivityAdapter extends BaseMultiAdapter<BaseModel> {
 
             } else if (model.op_type.equals("delete")) {
                 holder.binding.itemDetail.setText(model.name);
-                holder.binding.itemDetail.setTextColor(ContextCompat.getColor(getContext(), R.color.dark_gray));
+                holder.binding.itemDetail.setTextColor(ContextCompat.getColor(getContext(), R.color.list_item_subtitle_color));
             } else {
                 holder.binding.itemDetail.setText(model.name);
                 holder.binding.itemDetail.setTextColor(ContextCompat.getColor(getContext(), R.color.fancy_orange));

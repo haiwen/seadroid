@@ -13,18 +13,22 @@ import androidx.lifecycle.Observer;
 import com.google.android.material.textfield.TextInputLayout;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
-import com.seafile.seadroid2.crypto.Crypto;
+import com.seafile.seadroid2.framework.data.model.TResultModel;
 import com.seafile.seadroid2.ui.base.fragment.RequestCustomDialogFragmentWithVM;
 import com.seafile.seadroid2.config.Constants;
-import com.seafile.seadroid2.data.model.ResultModel;
-import com.seafile.seadroid2.data.db.entities.RepoModel;
+import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
+import com.seafile.seadroid2.ui.dialog_fragment.listener.OnResultListener;
 import com.seafile.seadroid2.ui.dialog_fragment.viewmodel.PasswordViewModel;
-
-import io.reactivex.functions.Consumer;
 
 public class PasswordDialogFragment extends RequestCustomDialogFragmentWithVM<PasswordViewModel> {
     private String repoId;
     private String repoName;
+
+    private OnResultListener<RepoModel> resultListener;
+
+    public void setResultListener(OnResultListener<RepoModel> resultListener) {
+        this.resultListener = resultListener;
+    }
 
     public static PasswordDialogFragment newInstance() {
 
@@ -93,14 +97,24 @@ public class PasswordDialogFragment extends RequestCustomDialogFragmentWithVM<Pa
     @Override
     protected void initViewModel() {
         super.initViewModel();
-        getViewModel().getActionLiveData().observe(this, new Observer<ResultModel>() {
+        getViewModel().getSeafExceptionLiveData().observe(this, new Observer<SeafException>() {
             @Override
-            public void onChanged(ResultModel resultModel) {
-                if (resultModel.success) {
-                    refreshData();
+            public void onChanged(SeafException seafException) {
+                setInputError(R.id.password_hint, seafException.getMessage());
+            }
+        });
+        getViewModel().getActionResultLiveData().observe(this, new Observer<TResultModel<RepoModel>>() {
+            @Override
+            public void onChanged(TResultModel<RepoModel> tResultModel) {
+                if (tResultModel.success) {
+
+                    if (resultListener != null) {
+                        resultListener.onResultData(tResultModel.data);
+                    }
+
                     dismiss();
-                } else if (!TextUtils.isEmpty(resultModel.error_msg)) {
-                    setInputError(R.id.password_hint, resultModel.error_msg);
+                } else if (!TextUtils.isEmpty(tResultModel.error_msg)) {
+                    setInputError(R.id.password_hint, tResultModel.error_msg);
                 }
             }
         });

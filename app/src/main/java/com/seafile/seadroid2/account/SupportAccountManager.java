@@ -10,11 +10,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.seafile.seadroid2.SeadroidApplication;
-import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
 import com.seafile.seadroid2.config.Constants;
-import com.seafile.seadroid2.data.ServerInfo;
-import com.seafile.seadroid2.io.http.IO;
-import com.seafile.seadroid2.util.sp.SPs;
+import com.seafile.seadroid2.framework.data.ServerInfo;
+import com.seafile.seadroid2.framework.datastore.DataStoreKeys;
+import com.seafile.seadroid2.framework.datastore.DataStoreManager;
+import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +34,6 @@ public class SupportAccountManager {
         return singleton;
     }
 
-
     private final android.accounts.AccountManager accountManager;
 
     private SupportAccountManager() {
@@ -43,7 +42,7 @@ public class SupportAccountManager {
 
     @NonNull
     public List<Account> getAccountList() {
-        List<Account> list = new ArrayList<Account>();
+        List<Account> list = new ArrayList<>();
         String currentAccountName = getCurrentAccountName();
 
         android.accounts.Account[] availableAccounts = accountManager.getAccountsByType(Constants.Account.ACCOUNT_TYPE);
@@ -57,6 +56,20 @@ public class SupportAccountManager {
         }
 
         return list;
+    }
+
+    @Nullable
+    public Account getSpecialAccount(String accountSignature) {
+
+        android.accounts.Account[] availableAccounts = accountManager.getAccountsByType(Constants.Account.ACCOUNT_TYPE);
+        for (android.accounts.Account availableAccount : availableAccounts) {
+            Account a = getSeafileAccount(availableAccount);
+            if (!TextUtils.isEmpty(accountSignature) && a.getSignature().equals(accountSignature)) {
+                return a;
+            }
+        }
+
+        return null;
     }
 
     @NonNull
@@ -75,17 +88,23 @@ public class SupportAccountManager {
      * save current Account info to SharedPreference<br>
      * <strong>current</strong> means the Account is now in using at the foreground if has multiple accounts
      */
-    public void saveCurrentAccount(String accountName) {
-        SPs.put(Constants.SP.ACCOUNT_CURRENT, accountName);
+    public void saveCurrentAccount(String accountSignature) {
 
-        //IMPORTANT
-        //reset IO Singleton
-        IO.resetSingleton();
+        Account sAccount = getSpecialAccount(accountSignature);
+        if (sAccount == null) {
+            return;
+        }
+
+        //
+        DataStoreManager.getCommonInstance().writeString(DataStoreKeys.KEY_CURRENT_ACCOUNT, accountSignature);
+
+        //
+        setAuthToken(sAccount.getAndroidAccount(), Constants.Account.ACCOUNT_TYPE, sAccount.getToken());
     }
 
     @Nullable
     public Account getCurrentAccount() {
-        String name = SPs.getString(Constants.SP.ACCOUNT_CURRENT);
+        String name = DataStoreManager.getCommonInstance().readString(DataStoreKeys.KEY_CURRENT_ACCOUNT);
 
         if (!TextUtils.isEmpty(name)) {
             List<Account> list = getAccountList();
@@ -100,7 +119,7 @@ public class SupportAccountManager {
     }
 
     public String getCurrentAccountName() {
-        return SPs.getString(Constants.SP.ACCOUNT_CURRENT);
+        return DataStoreManager.getCommonInstance().readString(DataStoreKeys.KEY_CURRENT_ACCOUNT);
     }
 
     @NonNull
@@ -109,16 +128,17 @@ public class SupportAccountManager {
         String email = accountManager.getUserData(androidAccount, Authenticator.KEY_EMAIL);
         String name = accountManager.getUserData(androidAccount, Authenticator.KEY_NAME);
         String avatarUrl = accountManager.getUserData(androidAccount, Authenticator.KEY_AVATAR_URL);
-        boolean is_shib = accountManager.getUserData(androidAccount, Authenticator.KEY_SHIB) != null;
+        boolean isShib = accountManager.getUserData(androidAccount, Authenticator.KEY_SHIB) != null;
         String token = accountManager.peekAuthToken(androidAccount, Authenticator.AUTHTOKEN_TYPE);
-        String session_key = accountManager.getUserData(androidAccount, Authenticator.SESSION_KEY);
-        return new Account(name, server, email, avatarUrl, token, is_shib, session_key);
+        String sessionKey = accountManager.getUserData(androidAccount, Authenticator.SESSION_KEY);
+        String loginTime = accountManager.getUserData(androidAccount, Authenticator.LOGIN_TIME);
+        return new Account(name, server, email, avatarUrl, token, isShib, sessionKey, loginTime);
     }
 
     public void setServerInfo(Account account, ServerInfo serverInfo) {
-        accountManager.setUserData(account.getAndroidAccount(), Authenticator.KEY_SERVER_URI, serverInfo.getUrl());
-        accountManager.setUserData(account.getAndroidAccount(), Authenticator.KEY_SERVER_VERSION, serverInfo.getVersion());
-        accountManager.setUserData(account.getAndroidAccount(), Authenticator.KEY_SERVER_FEATURES, serverInfo.getFeatures());
+        setUserData(account.getAndroidAccount(), Authenticator.KEY_SERVER_URI, serverInfo.getUrl());
+        setUserData(account.getAndroidAccount(), Authenticator.KEY_SERVER_VERSION, serverInfo.getVersion());
+        setUserData(account.getAndroidAccount(), Authenticator.KEY_SERVER_FEATURES, serverInfo.getFeatures());
     }
 
     public void setUserData(final android.accounts.Account account, final String key, final String value) {
@@ -167,14 +187,9 @@ public class SupportAccountManager {
 
         saveCurrentAccount(null);
 
+        //invalidate auth token
         accountManager.invalidateAuthToken(Constants.Account.ACCOUNT_TYPE, account.getToken());
 
-        CameraUploadManager cameraManager = new CameraUploadManager();
-        // disable camera upload if on this account
-        Account camAccount = cameraManager.getCameraAccount();
-        if (camAccount != null && camAccount.equals(account)) {
-            cameraManager.disableCameraUpload();
-        }
     }
 
 }

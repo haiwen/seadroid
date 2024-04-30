@@ -6,8 +6,8 @@ import android.widget.TextView;
 
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.ui.base.fragment.CustomDialogFragment;
-import com.seafile.seadroid2.data.DataManager;
-import com.seafile.seadroid2.data.DatabaseHelper;
+import com.seafile.seadroid2.framework.datastore.DataManager;
+import com.seafile.seadroid2.framework.data.DatabaseHelper;
 
 public class ClearPasswordDialogFragment extends CustomDialogFragment {
     public static ClearPasswordDialogFragment newInstance() {
@@ -31,8 +31,7 @@ public class ClearPasswordDialogFragment extends CustomDialogFragment {
 
     @Override
     protected void onPositiveClick() {
-        DataManager.clearPassword();
-
+        //TODO 清除密码
         // clear cached data from database
         DatabaseHelper dbHelper = DatabaseHelper.getDatabaseHelper();
         dbHelper.clearEnckeys();

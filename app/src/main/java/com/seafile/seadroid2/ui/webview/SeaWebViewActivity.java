@@ -1,22 +1,17 @@
 package com.seafile.seadroid2.ui.webview;
 
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.text.TextUtils;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 
@@ -25,16 +20,11 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.config.Constants;
-import com.seafile.seadroid2.notification.DownloadNotificationProvider;
-import com.seafile.seadroid2.transfer.TransferService;
-import com.seafile.seadroid2.ui.BaseActivity;
+import com.seafile.seadroid2.ui.base.BaseActivity;
 import com.seafile.seadroid2.view.webview.PreloadWebView;
 import com.seafile.seadroid2.view.webview.SeaWebView;
 
 public class SeaWebViewActivity extends BaseActivity {
-
-    private TransferService txService = null;
-
     private LinearLayout mContainer;
     private SeaWebView mWebView;
     private ProgressBar mProgressBar;
@@ -92,6 +82,8 @@ public class SeaWebViewActivity extends BaseActivity {
             }
         }
 
+        initOnBackPressedDispatcher();
+
         initUI();
 
         //let's go
@@ -145,27 +137,22 @@ public class SeaWebViewActivity extends BaseActivity {
         return false;
     }
 
-    private void startTransferService() {
-        Intent txIntent = new Intent(this, TransferService.class);
-        startService(txIntent);
-        Log.d(getClass().getSimpleName(), "start TransferService");
-
-        bindService(txIntent, mTransferServiceConnection, Context.BIND_AUTO_CREATE);
-        Log.d(getClass().getSimpleName(), "bind TransferService");
-    }
-
     @Override
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
     }
 
-    @Override
-    public void onBackPressed() {
-        if (mWebView != null && mWebView.canGoBack()) {
-            mWebView.goBack();
-        } else {
-            super.onBackPressed();
-        }
+    private void initOnBackPressedDispatcher() {
+        getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (mWebView != null && mWebView.canGoBack()) {
+                    mWebView.goBack();
+                } else {
+                    finish();
+                }
+            }
+        });
     }
 
 //    @Override
@@ -182,36 +169,6 @@ public class SeaWebViewActivity extends BaseActivity {
 //        return super.onOptionsItemSelected(item);
 //    }
 
-    private void download() {
-        if (txService == null) {
-            startTransferService();
-            return;
-        }
-
-        Account account = SupportAccountManager.getInstance().getCurrentAccount();
-        txService.addDownloadTask(account, mRepoName, mRepoID, mFilePath);
-
-        if (!txService.hasDownloadNotifProvider()) {
-            DownloadNotificationProvider provider = new DownloadNotificationProvider(txService.getDownloadTaskManager(), txService);
-            txService.saveDownloadNotifProvider(provider);
-        }
-    }
-
-    private final ServiceConnection mTransferServiceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName className, IBinder service) {
-            TransferService.TransferBinder binder = (TransferService.TransferBinder) service;
-            txService = binder.getService();
-
-            //download
-            download();
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-            txService = null;
-        }
-    };
 
     private final WebChromeClient mWebChromeClient = new WebChromeClient() {
         @Override
@@ -253,10 +210,6 @@ public class SeaWebViewActivity extends BaseActivity {
     protected void onDestroy() {
         super.onDestroy();
 
-        if (txService != null) {
-            unbindService(mTransferServiceConnection);
-            txService = null;
-        }
         destroyWebView();
 
     }

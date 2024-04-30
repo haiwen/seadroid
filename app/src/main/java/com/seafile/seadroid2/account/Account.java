@@ -4,26 +4,47 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
 
-import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
-import com.seafile.seadroid2.BuildConfig;
 import com.seafile.seadroid2.config.Constants;
-import com.seafile.seadroid2.data.model.BaseModel;
-import com.seafile.seadroid2.util.URLs;
-import com.seafile.seadroid2.util.Utils;
+import com.seafile.seadroid2.framework.data.model.BaseModel;
+import com.seafile.seadroid2.framework.util.URLs;
+import com.seafile.seadroid2.framework.util.Utils;
 
 public class Account extends BaseModel implements Parcelable, Comparable<Account> {
     // The full URL of the server, like 'http://gonggeng.org/seahub/' or 'http://gonggeng.org/'
     public final String server;
-    public final String name;
+    public String name;
 
-    public final String email;
+    public String email;
 
-    public final Boolean is_shib;
+    //single sign in?
+    public boolean is_shib;
 
     public String token;
     public String sessionKey;
     public String avatar_url;
+    //timestamp
+    public long login_time;
+
+    public void setLoginTimestamp(long timestamp) {
+        this.login_time = timestamp;
+    }
+
+    public long getLoginTimestamp() {
+        return login_time;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setAvatarUrl(String avatar_url) {
+        this.avatar_url = avatar_url;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
     public Account(String server, String email, String name, String avatar_url, String token, Boolean is_shib) {
         this.name = name;
@@ -34,7 +55,8 @@ public class Account extends BaseModel implements Parcelable, Comparable<Account
         this.is_shib = is_shib;
     }
 
-    public Account(String name, String server, String email, String avatar_url, String token, Boolean is_shib, String sessionKey) {
+
+    public Account(String name, String server, String email, String avatar_url, String token, Boolean is_shib, String sessionKey, String loginTime) {
         this.server = server;
         this.name = name;
         this.email = email;
@@ -42,8 +64,12 @@ public class Account extends BaseModel implements Parcelable, Comparable<Account
         this.token = token;
         this.sessionKey = sessionKey;
         this.is_shib = is_shib;
-    }
 
+        if (TextUtils.isEmpty(loginTime)) {
+            loginTime = "0";
+        }
+        this.login_time = Long.parseLong(loginTime);
+    }
 
     public String getServerHost() {
         String s = server.substring(server.indexOf("://") + 3);

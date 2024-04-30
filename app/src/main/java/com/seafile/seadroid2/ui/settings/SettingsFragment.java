@@ -1,20 +1,19 @@
 package com.seafile.seadroid2.ui.settings;
 
+import static android.app.Activity.RESULT_OK;
 import static androidx.core.text.HtmlCompat.FROM_HTML_MODE_LEGACY;
 
-import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
-import android.widget.Toast;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
@@ -23,12 +22,15 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.text.HtmlCompat;
+import androidx.fragment.app.FragmentResultListener;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreferenceCompat;
+import androidx.work.Data;
+import androidx.work.NetworkType;
 import androidx.work.WorkInfo;
 
 import com.blankj.utilcode.util.AppUtils;
@@ -36,18 +38,32 @@ import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.bumptech.glide.Glide;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.hjq.permissions.OnPermissionCallback;
-import com.hjq.permissions.Permission;
-import com.hjq.permissions.XXPermissions;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.config.AnalyticsEvent;
 import com.seafile.seadroid2.config.Constants;
-import com.seafile.seadroid2.data.CameraSyncEvent;
-import com.seafile.seadroid2.data.DataManager;
-import com.seafile.seadroid2.data.ServerInfo;
-import com.seafile.seadroid2.data.StorageManager;
+import com.seafile.seadroid2.framework.data.ServerInfo;
+import com.seafile.seadroid2.framework.data.model.enums.TransferDataSource;
+import com.seafile.seadroid2.framework.datastore.StorageManager;
+import com.seafile.seadroid2.framework.datastore.sp.AlbumBackupManager;
+import com.seafile.seadroid2.framework.datastore.sp.AppDataManager;
+import com.seafile.seadroid2.framework.datastore.sp.FolderBackupManager;
+import com.seafile.seadroid2.framework.datastore.sp.GestureLockManager;
+import com.seafile.seadroid2.framework.datastore.sp.SettingsManager;
+import com.seafile.seadroid2.framework.util.PermissionUtil;
+import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
+import com.seafile.seadroid2.framework.worker.FileSyncService;
+import com.seafile.seadroid2.framework.worker.SupportWorkManager;
+import com.seafile.seadroid2.framework.worker.TransferEvent;
+import com.seafile.seadroid2.framework.worker.TransferWorker;
+import com.seafile.seadroid2.framework.worker.FolderBackupScannerWorker;
+import com.seafile.seadroid2.framework.worker.UploadFolderFileAutomaticallyWorker;
+import com.seafile.seadroid2.framework.worker.MediaBackupScannerWorker;
+import com.seafile.seadroid2.framework.worker.UploadMediaFileAutomaticallyWorker;
 import com.seafile.seadroid2.gesturelock.LockPatternUtils;
 import com.seafile.seadroid2.ui.camera_upload.CameraUploadConfigActivity;
 import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
@@ -57,38 +73,22 @@ import com.seafile.seadroid2.ui.dialog_fragment.SignOutDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.SwitchStorageDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.listener.OnRefreshDataListener;
 import com.seafile.seadroid2.ui.folder_backup.FolderBackupConfigActivity;
-import com.seafile.seadroid2.ui.folder_backup.FolderBackupEvent;
 import com.seafile.seadroid2.ui.folder_backup.FolderBackupSelectedPathActivity;
 import com.seafile.seadroid2.ui.folder_backup.RepoConfig;
 import com.seafile.seadroid2.ui.gesture.CreateGesturePasswordActivity;
 import com.seafile.seadroid2.ui.main.MainActivity;
-import com.seafile.seadroid2.ui.selector.ObjSelectorActivity;
 import com.seafile.seadroid2.ui.webview.SeaWebViewActivity;
-import com.seafile.seadroid2.util.CameraSyncStatus;
-import com.seafile.seadroid2.util.SLogs;
-import com.seafile.seadroid2.util.Utils;
-import com.seafile.seadroid2.util.sp.FolderBackupConfigSPs;
-import com.seafile.seadroid2.util.sp.SettingsManager;
 import com.seafile.seadroid2.view.ListPreferenceCompat;
-import com.seafile.seadroid2.worker.BackgroundJobManagerImpl;
-import com.seafile.seadroid2.worker.FileSyncService;
-import com.seafile.seadroid2.worker.SupportWorkManager;
 
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
-
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class SettingsFragment extends PreferenceFragmentCompat {
     private static final String DEBUG_TAG = "SettingsFragment";
 
     public static final String CAMERA_UPLOAD_REMOTE_LIBRARY = "com.seafile.seadroid2.camera.upload.library";
     public static final String CAMERA_UPLOAD_LOCAL_DIRECTORIES = "com.seafile.seadroid2.camera.upload.directories";
-    public static final int CHOOSE_CAMERA_UPLOAD_REQUEST = 2;
-    public static final int CHOOSE_BACKUP_UPLOAD_REQUEST = 5;
 
     private SettingsFragmentViewModel viewModel;
     private SettingsActivityViewModel activityViewModel;
@@ -97,13 +97,10 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     private SwitchPreferenceCompat mCameraBackupSwitch;
 
     private Preference mCameraBackupAdvanced;
-    private Preference mCameraBackupRepoState;
+    private Preference mCameraBackupState;
     private Preference mCameraBackupRepoPref;
-
+    private Account currentAccount;
     private SettingsActivity mActivity;
-
-    private CameraUploadManager cameraManager;
-    private DataManager dataMgr;
 
     //folder backup
     private SwitchPreferenceCompat mFolderBackupSwitch;
@@ -113,21 +110,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     private Preference mFolderBackupState;
 
     private FileSyncService fileSyncService;
-
-    private final SharedPreferences.OnSharedPreferenceChangeListener spChangeListener = (sharedPreferences, key) -> {
-        switch (key) {
-            case SettingsManager.SHARED_PREF_STORAGE_DIR: {
-                updateStorageLocationSummary();
-            }
-            break;
-            case SettingsManager.FOLDER_BACKUP_MODE: {
-                if (mFolderBackupNetworkMode != null) {
-                    mFolderBackupNetworkMode.setSummary(mFolderBackupNetworkMode.getEntry());
-                }
-            }
-            break;
-        }
-    };
 
     public static SettingsFragment newInstance() {
 
@@ -159,21 +141,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         viewModel = new ViewModelProvider(this).get(SettingsFragmentViewModel.class);
         activityViewModel = new ViewModelProvider(requireActivity()).get(SettingsActivityViewModel.class);
 
-        init();
-
         bindService();
-    }
-
-
-    private void init() {
-        //settings manager
-        SettingsManager.getInstance().registerSharedPreferencesListener(spChangeListener);
-
-        Account act = SupportAccountManager.getInstance().getCurrentAccount();
-        dataMgr = new DataManager(act);
-
-        cameraManager = new CameraUploadManager();
-
     }
 
     @Override
@@ -181,9 +149,10 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         Log.d(DEBUG_TAG, "onViewCreated");
         super.onViewCreated(view, savedInstanceState);
 
-        initViewModel();
-
         initView();
+
+        initViewModel();
+        initWorkerListener();
 
         loadData();
     }
@@ -210,13 +179,166 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 findPreference(SettingsManager.SETTINGS_CACHE_SIZE_KEY).setSummary(s);
             }
         });
+
+        viewModel.getFolderBackupStateLiveData().observe(getViewLifecycleOwner(), new Observer<String>() {
+            @Override
+            public void onChanged(String s) {
+                if (mFolderBackupState != null) {
+                    mFolderBackupState.setSummary(s);
+                }
+            }
+        });
+
+        viewModel.getAlbumBackupStateLiveData().observe(getViewLifecycleOwner(), new Observer<String>() {
+            @Override
+            public void onChanged(String s) {
+                if (CameraUploadManager.getInstance().isCameraUploadEnabled() && mCameraBackupState != null) {
+                    mCameraBackupState.setSummary(s);
+                }
+            }
+        });
+    }
+
+    private void initWorkerListener() {
+        SupportWorkManager.getWorkManager()
+                .getWorkInfoByIdLiveData(MediaBackupScannerWorker.UID)
+                .observe(getViewLifecycleOwner(), new Observer<WorkInfo>() {
+                    @Override
+                    public void onChanged(WorkInfo workInfo) {
+                        checkScanWorkInfo(TransferDataSource.ALBUM_BACKUP, workInfo);
+                    }
+                });
+
+        SupportWorkManager.getWorkManager()
+                .getWorkInfoByIdLiveData(FolderBackupScannerWorker.UID)
+                .observe(getViewLifecycleOwner(), new Observer<WorkInfo>() {
+                    @Override
+                    public void onChanged(WorkInfo workInfo) {
+                        checkScanWorkInfo(TransferDataSource.FOLDER_BACKUP, workInfo);
+                    }
+                });
+
+        SupportWorkManager.getWorkManager()
+                .getWorkInfoByIdLiveData(UploadFolderFileAutomaticallyWorker.UID)
+                .observe(getViewLifecycleOwner(), new Observer<WorkInfo>() {
+                    @Override
+                    public void onChanged(WorkInfo workInfo) {
+                        doWorkInfoLiveData(workInfo);
+                    }
+                });
+
+        SupportWorkManager.getWorkManager()
+                .getWorkInfoByIdLiveData(UploadMediaFileAutomaticallyWorker.UID)
+                .observe(getViewLifecycleOwner(), new Observer<WorkInfo>() {
+                    @Override
+                    public void onChanged(WorkInfo workInfo) {
+                        doWorkInfoLiveData(workInfo);
+                    }
+                });
+    }
+
+    private void checkScanWorkInfo(TransferDataSource dataSource, WorkInfo workInfo) {
+        if (null == workInfo) {
+            return;
+        }
+
+        Data progressData = workInfo.getProgress();
+        Data outData = workInfo.getOutputData();
+
+        String pDataEvent = progressData.getString(TransferWorker.KEY_DATA_EVENT);
+        String oDataEvent = outData.getString(TransferWorker.KEY_DATA_EVENT);
+
+        if (TextUtils.isEmpty(oDataEvent) && TextUtils.isEmpty(pDataEvent)) {
+            return;
+        }
+
+        if (TransferDataSource.ALBUM_BACKUP == dataSource) {
+            if (TransferEvent.EVENT_SCANNING.equals(pDataEvent)) {
+                mCameraBackupState.setSummary(R.string.is_scanning);
+            } else if (TransferEvent.EVENT_SCAN_END.equals(oDataEvent)) {
+                mCameraBackupState.setSummary(R.string.waiting);
+            }
+        } else if (TransferDataSource.FOLDER_BACKUP == dataSource) {
+            if (TransferEvent.EVENT_SCANNING.equals(pDataEvent)) {
+                mFolderBackupState.setSummary(R.string.is_scanning);
+            } else if (TransferEvent.EVENT_SCAN_END.equals(oDataEvent)) {
+                mFolderBackupState.setSummary(R.string.waiting);
+            }
+        }
+    }
+
+    private void doWorkInfoLiveData(WorkInfo workInfo) {
+        if (null == workInfo) {
+            return;
+        }
+
+        Data outData = workInfo.getOutputData();
+        Data progressData = workInfo.getProgress();
+
+        String outDataEvent = outData.getString(TransferWorker.KEY_DATA_EVENT);
+        String outDataType = outData.getString(TransferWorker.KEY_DATA_TYPE);
+        if (!TextUtils.isEmpty(outDataEvent)) {
+            if (String.valueOf(TransferDataSource.ALBUM_BACKUP).equals(outDataType)) {
+                if (TransferEvent.EVENT_TRANSFERRED_WITHOUT_DATA.equals(outDataEvent)) {
+                    mCameraBackupState.setSummary(R.string.settings_cuc_finish_title);
+                } else if (TransferEvent.EVENT_TRANSFERRED_WITH_DATA.equals(outDataEvent)) {
+                    mCameraBackupState.setSummary(R.string.settings_cuc_finish_title);
+                } else if (TransferEvent.EVENT_CANCEL_OUT_OF_QUOTA.equals(outDataEvent)) {
+                    mCameraBackupState.setSummary(R.string.out_of_quota);
+                }
+            } else if (String.valueOf(TransferDataSource.FOLDER_BACKUP).equals(outDataType)) {
+                if (TransferEvent.EVENT_TRANSFERRED_WITHOUT_DATA.equals(outDataEvent)) {
+                    mFolderBackupState.setSummary(R.string.folder_backup_waiting_state);
+                } else if (TransferEvent.EVENT_TRANSFERRED_WITH_DATA.equals(outDataEvent)) {
+                    mFolderBackupState.setSummary(R.string.folder_backup_waiting_state);
+                } else if (TransferEvent.EVENT_CANCEL_OUT_OF_QUOTA.equals(outDataEvent)) {
+                    mFolderBackupState.setSummary(R.string.out_of_quota);
+                }
+            }
+
+            return;
+        }
+
+        String dataType = progressData.getString(TransferWorker.KEY_DATA_TYPE);
+        String progressDataEvent = progressData.getString(TransferWorker.KEY_DATA_EVENT);
+        String progressFileName = progressData.getString(TransferWorker.DATA_TRANSFER_NAME_KEY);
+
+        if (TextUtils.isEmpty(dataType)) {
+            return;
+        }
+
+        if (String.valueOf(TransferDataSource.ALBUM_BACKUP).equals(dataType)) {
+            if (TransferEvent.EVENT_TRANSFERRING.equals(progressDataEvent)) {
+                viewModel.countAlbumBackupState(requireContext());
+            }
+        } else if (String.valueOf(TransferDataSource.FOLDER_BACKUP).equals(dataType)) {
+            if (TransferEvent.EVENT_TRANSFERRING.equals(progressDataEvent)) {
+                viewModel.countFolderBackupState(requireContext());
+            }
+        }
+
+
     }
 
     private void loadData() {
         viewModel.getAccountInfo();
+
+        if (mCameraBackupSwitch.isChecked()) {
+            viewModel.countAlbumBackupState(requireContext());
+        }
+
+        if (mFolderBackupSwitch.isChecked()) {
+            viewModel.countFolderBackupState(requireContext());
+        }
     }
 
     private void initView() {
+        // Space used
+        currentAccount = SupportAccountManager.getInstance().getCurrentAccount();
+        if (currentAccount == null) {
+            // User info
+            return;
+        }
 
         initAccountView();
 
@@ -233,20 +355,13 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         initPolicyView();
 
         refreshCameraUploadView();
-        refreshFolderBackupView();
+        refreshFolderBackupView(false);
 
         // Cache size
         calculateCacheSize();
     }
 
     private void initAccountView() {
-        // Space used
-        Account currentAccount = SupportAccountManager.getInstance().getCurrentAccount();
-        if (currentAccount == null) {
-            // User info
-            return;
-        }
-
         findPreference(SettingsManager.SETTINGS_ACCOUNT_INFO_KEY).setSummary(currentAccount.getDisplayName());
 
         refreshServerView();
@@ -272,7 +387,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 if (newValue instanceof Boolean) {
                     boolean isChecked = (Boolean) newValue;
                     // inverse checked status
-                    SettingsManager.getInstance().setupEncrypt(!isChecked);
+                    AppDataManager.writeClientEncSwitch(isChecked);
                     return true;
                 }
 
@@ -286,8 +401,12 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
     private void initAppView() {
         //gesture lock
-        findPreference(SettingsManager.GESTURE_LOCK_SWITCH_KEY).setOnPreferenceChangeListener((preference, newValue) -> {
+        SwitchPreferenceCompat gestureSwitch = findPreference(SettingsManager.GESTURE_LOCK_SWITCH_KEY);
+        gestureSwitch.setChecked(GestureLockManager.readGestureLockSwitch());
+        gestureSwitch.setOnPreferenceChangeListener((preference, newValue) -> {
             boolean isChecked = (Boolean) newValue;
+            GestureLockManager.writeGestureLockSwitch(isChecked);
+
             if (isChecked) {
                 // inverse checked status
                 Intent newIntent = new Intent(getActivity(), CreateGesturePasswordActivity.class);
@@ -319,18 +438,25 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         mCameraBackupSwitch = findPreference(SettingsManager.CAMERA_UPLOAD_SWITCH_KEY);
         mCameraBackupAdvanced = findPreference(SettingsManager.CAMERA_UPLOAD_ADVANCED_CATEGORY_KEY);
         mCameraBackupRepoPref = findPreference(SettingsManager.CAMERA_UPLOAD_REPO_KEY);
-        mCameraBackupRepoState = findPreference(SettingsManager.CAMERA_UPLOAD_STATE);
+        mCameraBackupState = findPreference(SettingsManager.CAMERA_UPLOAD_STATE);
+
+        boolean backSwitch = AlbumBackupManager.readBackupSwitch();
+        mCameraBackupSwitch.setChecked(backSwitch);
 
         //
         mCameraBackupAdvanced.setFragment(SettingsCameraBackupAdvanceFragment.class.getName());
 
+
         mCameraBackupSwitch.setOnPreferenceChangeListener((preference, newValue) -> {
-            boolean isBool = newValue instanceof Boolean;
-            if (!isBool) {
+            if (Boolean.TRUE.equals(newValue)) {
+                requestCameraStoragePermission();
                 return true;
             }
 
-            onPreferenceCameraBackupSwitchChanged((Boolean) newValue);
+            AlbumBackupManager.writeBackupSwitch(false);
+            refreshCameraUploadView();
+            switchCameraWorker(false);
+
             return true;
         });
 
@@ -345,59 +471,54 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             }
         });
 
-        if (cameraManager.isCameraUploadEnabled()) {
-            mCameraBackupRepoState.setSummary(Utils.getUploadStateShow(getActivity()));
-        }
-
         setCameraPreferencesVisible(mCameraBackupSwitch.isChecked());
     }
+
 
     private void initFolderBackupView() {
         //folder backup
         mFolderBackupSwitch = findPreference(SettingsManager.FOLDER_BACKUP_SWITCH_KEY);
         mFolderBackupRepo = findPreference(SettingsManager.FOLDER_BACKUP_LIBRARY_KEY);
-        mFolderBackupFolderPref = findPreference(SettingsManager.SELECTED_BACKUP_FOLDERS_KEY);
+        mFolderBackupFolderPref = findPreference(SettingsManager.FOLDERS_BACKUP_SELECTED_PATH_KEY);
         mFolderBackupState = findPreference(SettingsManager.FOLDER_BACKUP_STATE);
-        mFolderBackupNetworkMode = findPreference(SettingsManager.FOLDER_BACKUP_MODE);
+        mFolderBackupNetworkMode = findPreference(SettingsManager.FOLDER_BACKUP_NETWORK_MODE);
+
+        boolean isChecked = FolderBackupManager.readBackupSwitch();
+        mFolderBackupSwitch.setChecked(isChecked);
 
         mFolderBackupSwitch.setOnPreferenceChangeListener((preference, newValue) -> {
-            boolean isBool = newValue instanceof Boolean;
-            if (!isBool) {
+            if (Boolean.TRUE.equals(newValue)) {
+                requestFolderStoragePermission();
                 return true;
             }
 
-            onPreferenceFolderBackupSwitchChanged((Boolean) newValue);
+            FolderBackupManager.writeBackupSwitch(false);
+            refreshFolderBackupView();
             return true;
         });
 
         //network mode
         if (mFolderBackupNetworkMode != null) {
-            mFolderBackupNetworkMode.setOnPreferenceChangeListener((preference, newValue) -> {
-                String newString = (String) newValue;
-                int i = mFolderBackupNetworkMode.findIndexOfValue(newString);
-                SettingsManager.getInstance().saveFolderBackupDataPlanAllowed(i != 0);
-                return true;
-            });
+//            mFolderBackupNetworkMode.setOnPreferenceChangeListener((preference, newValue) -> {
+//                String newString = (String) newValue;
+//                FolderBackupManager.writeNetworkMode(newString);
 
-            String localMode = getPreferenceManager().getSharedPreferences().getString(SettingsManager.FOLDER_BACKUP_MODE, "WIFI");
-            CharSequence[] charSequences = mFolderBackupNetworkMode.getEntryValues();
-            CharSequence[] entrySequences = mFolderBackupNetworkMode.getEntries();
-            if (TextUtils.equals(localMode, charSequences[0])) {
-                mFolderBackupNetworkMode.setValueIndex(0);
-                mFolderBackupNetworkMode.setSummary(entrySequences[0]);
-            } else {
-                mFolderBackupNetworkMode.setValueIndex(1);
-                mFolderBackupNetworkMode.setSummary(entrySequences[1]);
-            }
+//                BackgroundJobManagerImpl.getInstance().scheduleFilesUploadScanWorker(true);
+//                refreshFolderBackNetworkMode();
+
+//                return true;
+//            });
+            refreshFolderBackNetworkMode();
         }
 
         //repo
         if (mFolderBackupRepo != null) {
             mFolderBackupRepo.setOnPreferenceClickListener(preference -> {
+
                 Intent intent = new Intent(mActivity, FolderBackupConfigActivity.class);
                 intent.putExtra(FolderBackupConfigActivity.FOLDER_BACKUP_SELECT_MODE, "repo");
-
                 folderBackupConfigLauncher.launch(intent);
+
                 return true;
             });
         }
@@ -406,7 +527,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         if (mFolderBackupFolderPref != null) {
             mFolderBackupFolderPref.setOnPreferenceClickListener(preference -> {
 
-                List<String> backupPathList = FolderBackupConfigSPs.getBackupPathList();
+                List<String> backupPathList = FolderBackupManager.readBackupPaths();
 
                 Intent intent;
                 if (CollectionUtils.isEmpty(backupPathList)) {
@@ -416,12 +537,14 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 }
                 intent.putExtra(FolderBackupConfigActivity.FOLDER_BACKUP_SELECT_MODE, "folder");
                 folderBackupConfigLauncher.launch(intent);
+
                 return true;
             });
         }
 
         setFolderPreferencesVisible(mFolderBackupSwitch.isChecked());
     }
+
 
     private void initCacheView() {
         // Clear cache
@@ -492,11 +615,34 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     private void showListPreferenceDialog(Preference preference) {
         ListPreferenceCompat dialogFragment = new ListPreferenceCompat();
         Bundle bundle = new Bundle(1);
-        bundle.putString("key", preference.getKey());
+        bundle.putString(ListPreferenceCompat.ARG_KEY, preference.getKey());//key is "key"
         dialogFragment.setArguments(bundle);
         dialogFragment.setTargetFragment(this, 0);
-//        getParentFragmentManager().setFragmentResultListener();
         dialogFragment.show(getParentFragmentManager(), "androidx.preference.PreferenceFragment.DIALOG");
+
+        getParentFragmentManager().setFragmentResultListener(preference.getKey(), this, new FragmentResultListener() {
+            @Override
+            public void onFragmentResult(@NonNull String requestKey, @NonNull Bundle result) {
+                String which = result.getString("result");
+
+                String localMode = FolderBackupManager.readNetworkMode();
+                if (TextUtils.equals(which, localMode)) {
+                    return;
+                }
+
+                FolderBackupManager.writeNetworkMode(which);
+                refreshFolderBackNetworkMode(which);
+
+                //restart
+                NetworkType networkType = NetworkType.UNMETERED;
+                if (FolderBackupManager.readDataPlanAllowed()) {
+                    networkType = NetworkType.CONNECTED;
+                }
+
+                BackgroundJobManagerImpl.getInstance().restartFolderUploadWorker(networkType);
+
+            }
+        });
     }
 
     private void onPreferenceSignOutClicked() {
@@ -512,71 +658,150 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         dialogFragment.show(getChildFragmentManager(), SignOutDialogFragment.class.getSimpleName());
     }
 
-    private void onPreferenceFolderBackupSwitchChanged(boolean isChecked) {
-        setFolderPreferencesVisible(isChecked);
 
-        if (!isChecked) {
-            SettingsManager.getInstance().saveFolderAutomaticBackup(false);
-            return;
-        }
+    //0 : no one
+    private int whoIsRequestingPermission = 0;
 
-        XXPermissions.with(requireContext()).permission(Permission.MANAGE_EXTERNAL_STORAGE).request(new OnPermissionCallback() {
+    private void requestCameraStoragePermission() {
+        if (PermissionUtil.checkExternalStoragePermission(requireContext())) {
 
-            @Override
-            public void onGranted(List<String> permissions, boolean all) {
-                if (all) {
-                    SettingsManager.getInstance().saveFolderAutomaticBackup(true);
-                    refreshCameraUploadView();
-                }
-            }
+            Intent intent = new Intent(mActivity, CameraUploadConfigActivity.class);
+            cameraBackupConfigLauncher.launch(intent);
 
-            @Override
-            public void onDenied(List<String> permissions, boolean never) {
-                if (never) {
-                    Toast.makeText(getActivity(), mActivity.getString(R.string.authorization_storage_permission), Toast.LENGTH_LONG).show();
-                    XXPermissions.startPermissionActivity(getActivity(), permissions);
-                } else {
-                    Toast.makeText(getActivity(), mActivity.getString(R.string.get_storage_permission_failed), Toast.LENGTH_LONG).show();
-                    mFolderBackupSwitch.setChecked(false);
-                }
-            }
-        });
-    }
+        } else {
+            whoIsRequestingPermission = 1;
 
-    private void onPreferenceCameraBackupSwitchChanged(boolean isChecked) {
-        setCameraPreferencesVisible(isChecked);
-
-        if (!isChecked) {
-            SettingsManager.getInstance().clearCameraUploadRepoInfo();
-
-            cameraManager.disableCameraUpload();
-
-            BackgroundJobManagerImpl.getInstance().cancelMediaSyncJob();
-            return;
-        }
-
-        XXPermissions.with(requireActivity()).permission(Permission.MANAGE_EXTERNAL_STORAGE).request(new OnPermissionCallback() {
-
-            @Override
-            public void onGranted(List<String> permissions, boolean all) {
-                if (all) {
-                    Intent intent = new Intent(mActivity, CameraUploadConfigActivity.class);
-                    cameraBackupConfigLauncher.launch(intent);
-                }
-            }
-
-            @Override
-            public void onDenied(List<String> permissions, boolean never) {
-                if (never) {
-                    Toast.makeText(getActivity(), mActivity.getString(R.string.authorization_storage_permission), Toast.LENGTH_LONG).show();
-                    XXPermissions.startPermissionActivity(getActivity(), permissions);
-                } else {
-                    Toast.makeText(getActivity(), mActivity.getString(R.string.get_storage_permission_failed), Toast.LENGTH_LONG).show();
+            PermissionUtil.requestExternalStoragePermission(requireContext(), multiplePermissionLauncher, manageStoragePermissionLauncher, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    //on cancel click
+                    ToastUtils.showLong(R.string.permission_manage_exteral_storage_rationale);
                     mCameraBackupSwitch.setChecked(false);
                 }
-            }
-        });
+            });
+        }
+
     }
+
+    private void requestFolderStoragePermission() {
+        if (PermissionUtil.checkExternalStoragePermission(requireContext())) {
+            FolderBackupManager.writeBackupSwitch(true);
+            refreshFolderBackupView();
+        } else {
+            whoIsRequestingPermission = 2;
+            PermissionUtil.requestExternalStoragePermission(requireContext(), multiplePermissionLauncher, manageStoragePermissionLauncher, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    //on cancel click
+                    ToastUtils.showLong(R.string.permission_manage_exteral_storage_rationale);
+                    mFolderBackupSwitch.setChecked(false);
+                }
+            });
+        }
+    }
+
+
+    private void refreshCameraUploadView() {
+        boolean isEnable = AlbumBackupManager.readBackupSwitch();
+
+        if (isEnable) {
+            Account camAccount = CameraUploadManager.getInstance().getCameraAccount();
+            RepoConfig repoConfig = AlbumBackupManager.readRepoConfig();
+            if (camAccount != null && repoConfig != null) {
+                mCameraBackupRepoPref.setSummary(camAccount.getSignature() + "/" + repoConfig.getRepoName());
+            }
+        } else {
+            mCameraBackupRepoPref.setSummary(null);
+        }
+
+        setCameraPreferencesVisible(isEnable);
+    }
+
+    private void setCameraPreferencesVisible(boolean isChecked) {
+        mCameraBackupRepoPref.setVisible(isChecked);
+        mCameraBackupState.setVisible(isChecked);
+        mCameraBackupAdvanced.setVisible(isChecked);
+    }
+
+    private void switchCameraWorker(boolean isChecked) {
+        if (isChecked) {
+            CameraUploadManager.getInstance().setCameraAccount(currentAccount);
+            BackgroundJobManagerImpl.getInstance().restartMediaUploadWorker(true);
+
+            //firebase - event -login
+            Bundle eventBundle = new Bundle();
+            eventBundle.putString(FirebaseAnalytics.Param.METHOD, "switchCameraWorker");
+            FirebaseAnalytics.getInstance(requireContext()).logEvent(AnalyticsEvent.ALBUM_BACKUP, eventBundle);
+
+        } else {
+            CameraUploadManager.getInstance().disableCameraUpload();
+            BackgroundJobManagerImpl.getInstance().cancelMediaWorker();
+        }
+    }
+
+    private void refreshFolderBackupView() {
+        refreshFolderBackupView(true);
+    }
+
+    private void refreshFolderBackupView(boolean isSync) {
+        boolean isFolderAutomaticBackup = FolderBackupManager.readBackupSwitch();
+
+        setFolderPreferencesVisible(isFolderAutomaticBackup);
+
+        if (!isFolderAutomaticBackup) {
+            BackgroundJobManagerImpl.getInstance().cancelFolderWorker();
+            if (fileSyncService != null) {
+                fileSyncService.stopFolderMonitor();
+            }
+            return;
+        }
+
+        RepoConfig repoConfig = FolderBackupManager.readRepoConfig();
+        if (repoConfig != null && !TextUtils.isEmpty(repoConfig.getRepoName())) {
+            mFolderBackupRepo.setSummary(repoConfig.getEmail() + "/" + repoConfig.getRepoName());
+        } else {
+            mFolderBackupRepo.setSummary(getString(R.string.folder_backup_select_repo_hint));
+        }
+
+        List<String> pathList = FolderBackupManager.readBackupPaths();
+        if (CollectionUtils.isEmpty(pathList)) {
+            mFolderBackupFolderPref.setSummary("0");
+        } else {
+            mFolderBackupFolderPref.setSummary(String.valueOf(pathList.size()));
+        }
+
+        if (isSync && !CollectionUtils.isEmpty(pathList) && repoConfig != null) {
+            if (fileSyncService != null) {
+                fileSyncService.startFolderMonitor(pathList);
+            }
+
+            BackgroundJobManagerImpl.getInstance().scheduleFolderBackupScannerWorker(true);
+        }
+
+        //firebase - event -login
+        Bundle eventBundle = new Bundle();
+        eventBundle.putString(FirebaseAnalytics.Param.METHOD, "refreshFolderBackupView");
+        FirebaseAnalytics.getInstance(requireContext()).logEvent(AnalyticsEvent.ALBUM_BACKUP, eventBundle);
+
+    }
+
+    private void refreshFolderBackNetworkMode() {
+        String localMode = FolderBackupManager.readNetworkMode();
+        refreshFolderBackNetworkMode(localMode);
+    }
+
+    private void refreshFolderBackNetworkMode(String localMode) {
+        CharSequence[] charSequences = mFolderBackupNetworkMode.getEntryValues();
+        CharSequence[] entrySequences = mFolderBackupNetworkMode.getEntries();
+        if (TextUtils.equals(localMode, charSequences[0])) {
+            mFolderBackupNetworkMode.setValueIndex(0);
+            mFolderBackupNetworkMode.setSummary(entrySequences[0]);
+        } else {
+            mFolderBackupNetworkMode.setValueIndex(1);
+            mFolderBackupNetworkMode.setSummary(entrySequences[1]);
+        }
+    }
+
 
     private void setFolderPreferencesVisible(boolean isChecked) {
         mFolderBackupNetworkMode.setVisible(isChecked);
@@ -585,11 +810,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         mFolderBackupState.setVisible(isChecked);
     }
 
-    private void setCameraPreferencesVisible(boolean isChecked) {
-        mCameraBackupRepoPref.setVisible(isChecked);
-        mCameraBackupRepoState.setVisible(isChecked);
-        mCameraBackupAdvanced.setVisible(isChecked);
-    }
 
     private void clearPassword() {
         ClearPasswordDialogFragment dialogFragment = ClearPasswordDialogFragment.newInstance();
@@ -611,49 +831,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         findPreference(SettingsManager.SETTINGS_CACHE_DIR_KEY).setSummary(summary);
     }
 
-    private void refreshCameraUploadView() {
-        Account camAccount = cameraManager.getCameraAccount();
-        if (camAccount != null && SettingsManager.getInstance().getCameraUploadRepoName() != null) {
-            mCameraBackupRepoPref.setSummary(camAccount.getSignature() + "/" + SettingsManager.getInstance().getCameraUploadRepoName());
-        }
-
-        mCameraBackupSwitch.setChecked(cameraManager.isCameraUploadEnabled());
-
-        setCameraPreferencesVisible(mCameraBackupSwitch.isChecked());
-
-        //
-        BackgroundJobManagerImpl.getInstance().scheduleOneTimeMediaSyncJob();
-    }
-
-    private void refreshFolderBackupView() {
-        boolean isFolderAutomaticBackup = SettingsManager.getInstance().isFolderAutomaticBackup();
-        mFolderBackupSwitch.setChecked(isFolderAutomaticBackup);
-        if (!isFolderAutomaticBackup) {
-            return;
-        }
-
-        RepoConfig repoConfig = FolderBackupConfigSPs.getBackupConfigByCurrentAccount();
-        if (repoConfig != null && !TextUtils.isEmpty(repoConfig.getRepoName())) {
-            mFolderBackupRepo.setSummary(repoConfig.getEmail() + "/" + repoConfig.getRepoName());
-        } else {
-            mFolderBackupRepo.setSummary(getString(R.string.folder_backup_select_repo_hint));
-        }
-
-        List<String> pathList = FolderBackupConfigSPs.getBackupPathListByCurrentAccount();
-        if (CollectionUtils.isEmpty(pathList)) {
-            mFolderBackupFolderPref.setSummary("0");
-        } else {
-            mFolderBackupFolderPref.setSummary(String.valueOf(pathList.size()));
-        }
-
-        boolean folderAutomaticBackup = SettingsManager.getInstance().isFolderAutomaticBackup();
-        if (folderAutomaticBackup && !CollectionUtils.isEmpty(pathList) && repoConfig != null) {
-            if (fileSyncService != null) {
-                fileSyncService.startFolderMonitor(pathList);
-                fileSyncService.doBackup();
-            }
-        }
-    }
 
     private void clearCache() {
         ClearCacheDialogFragment dialogFragment = ClearCacheDialogFragment.newInstance();
@@ -677,36 +854,13 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         viewModel.calculateCacheSize();
     }
 
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onEvent(CameraSyncEvent result) {
-        int scanUploadStatus = SeadroidApplication.getInstance().getScanUploadStatus();
-        if (cameraManager.isCameraUploadEnabled() && scanUploadStatus > 0) {
-            if (scanUploadStatus == CameraSyncStatus.SCAN_END) {
-                SeadroidApplication.getInstance().setScanUploadStatus(CameraSyncStatus.NORMAL);
-            }
-            mCameraBackupRepoState.setSummary(Utils.getUploadStateShow(getActivity()));
-        }
-
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onEvent(FolderBackupEvent result) {
-        int totalBackup = SeadroidApplication.getInstance().getTotalBackup();
-        int waitingBackup = SeadroidApplication.getInstance().getWaitingBackup();
-        if (mFolderBackupState != null) {
-            mFolderBackupState.setSummary(getActivity().getString(R.string.uploaded) + " " + (totalBackup - waitingBackup) + " / " + totalBackup);
-        }
-    }
-
     private final ActivityResultLauncher<Intent> folderBackupConfigLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
         @Override
         public void onActivityResult(ActivityResult o) {
-            if (o.getResultCode() != Activity.RESULT_OK) {
+            if (o.getResultCode() != RESULT_OK) {
                 return;
             }
 
-//            ToastUtils.showLong(R.string.folder_backup_select_repo_update);
             refreshFolderBackupView();
         }
     });
@@ -714,50 +868,101 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     private final ActivityResultLauncher<Intent> cameraBackupConfigLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
         @Override
         public void onActivityResult(ActivityResult o) {
-            if (o.getResultCode() != Activity.RESULT_OK) {
-                refreshCameraUploadView();
+            if (o.getResultCode() != RESULT_OK) {
+                if (o.getData() != null) {
+                    boolean isChooseRepo = o.getData().getBooleanExtra(CAMERA_UPLOAD_REMOTE_LIBRARY, false);
+                    boolean isChooseDir = o.getData().getBooleanExtra(CAMERA_UPLOAD_LOCAL_DIRECTORIES, false);
+                    if (!isChooseRepo && !isChooseDir) {
+                        mCameraBackupSwitch.setChecked(false);
+                        AlbumBackupManager.writeBackupSwitch(false);
+                    } else {
+                        SLogs.d("isChooseRepo?" + isChooseRepo);
+                        SLogs.d("isChooseDir?" + isChooseDir);
+                    }
+                } else {
+                    mCameraBackupSwitch.setChecked(false);
+                    AlbumBackupManager.writeBackupSwitch(false);
+                }
                 return;
             }
 
-            if (o.getData() == null) {
-                return;
-            }
-
-            final String repoName = o.getData().getStringExtra(ObjSelectorActivity.DATA_REPO_NAME);
-            final String repoId = o.getData().getStringExtra(ObjSelectorActivity.DATA_REPO_ID);
-            final Account account = o.getData().getParcelableExtra(ObjSelectorActivity.DATA_ACCOUNT);
-            if (repoName != null && repoId != null) {
-                cameraManager.setCameraAccount(account);
-                SettingsManager.getInstance().saveCameraUploadRepoInfo(repoId, repoName);
-            }
-
+            AlbumBackupManager.writeBackupSwitch(true);
             refreshCameraUploadView();
+            switchCameraWorker(true);
         }
     });
 
     private final ActivityResultLauncher<Intent> gestureLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
         @Override
         public void onActivityResult(ActivityResult o) {
-            if (o.getResultCode() != Activity.RESULT_OK) {
+            if (o.getResultCode() != RESULT_OK) {
                 ((SwitchPreferenceCompat) findPreference(SettingsManager.GESTURE_LOCK_SWITCH_KEY)).setChecked(false);
             }
         }
     });
 
 
-    @Override
-    public void onStart() {
-        super.onStart();
+    private final ActivityResultLauncher<String[]> multiplePermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), new ActivityResultCallback<Map<String, Boolean>>() {
+        @Override
+        public void onActivityResult(Map<String, Boolean> o) {
+            if (o.isEmpty()) {
+                return;
+            }
 
-        EventBus.getDefault().register(this);
-    }
+            for (Map.Entry<String, Boolean> stringBooleanEntry : o.entrySet()) {
+                if (Boolean.FALSE.equals(stringBooleanEntry.getValue())) {
 
-    @Override
-    public void onStop() {
-        super.onStop();
+                    ToastUtils.showLong(R.string.permission_manage_exteral_storage_rationale);
 
-        EventBus.getDefault().unregister(this);
-    }
+                    if (whoIsRequestingPermission == 1) {
+                        mCameraBackupSwitch.setChecked(false);
+                    } else if (whoIsRequestingPermission == 2) {
+                        mFolderBackupSwitch.setChecked(false);
+                    }
+                    return;
+                }
+            }
+
+            if (whoIsRequestingPermission == 1) {
+
+                Intent intent = new Intent(mActivity, CameraUploadConfigActivity.class);
+                cameraBackupConfigLauncher.launch(intent);
+
+            } else if (whoIsRequestingPermission == 2) {
+
+                FolderBackupManager.writeBackupSwitch(true);
+                refreshFolderBackupView();
+            }
+        }
+    });
+
+    private final ActivityResultLauncher<Intent> manageStoragePermissionLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+        @Override
+        public void onActivityResult(ActivityResult o) {
+            if (o.getResultCode() != RESULT_OK) {
+                ToastUtils.showLong(R.string.get_storage_permission_failed);
+
+                if (whoIsRequestingPermission == 1) {
+                    mCameraBackupSwitch.setChecked(false);
+                } else if (whoIsRequestingPermission == 2) {
+                    mFolderBackupSwitch.setChecked(false);
+                }
+                return;
+            }
+
+            if (whoIsRequestingPermission == 1) {
+
+                Intent intent = new Intent(mActivity, CameraUploadConfigActivity.class);
+                cameraBackupConfigLauncher.launch(intent);
+
+            } else if (whoIsRequestingPermission == 2) {
+
+                FolderBackupManager.writeBackupSwitch(true);
+                refreshFolderBackupView();
+            }
+        }
+    });
+
 
     private boolean isBound = false;
 
@@ -767,14 +972,14 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             FileSyncService.FileSyncBinder binder = (FileSyncService.FileSyncBinder) service;
             fileSyncService = binder.getService();
             isBound = true;
-            SLogs.e("bond FileSyncService");
+            SLogs.d("SettingsFragment: bond FileSyncService");
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
             fileSyncService = null;
             isBound = false;
-            SLogs.e("FileSyncService disconnected");
+            SLogs.d("SettingsFragment: FileSyncService disconnected");
         }
     };
 
@@ -798,17 +1003,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     public void onDestroy() {
 
         unbindService();
-        Log.d(DEBUG_TAG, "onDestroy()");
-        SettingsManager.getInstance().unregisterSharedPreferencesListener(spChangeListener);
-        SupportWorkManager
-                .getWorkManager()
-                .getWorkInfosByTagLiveData(BackgroundJobManagerImpl.TAG_UPLOAD_ONETIME_FILES_SYNC)
-                .observe(this, new Observer<List<WorkInfo>>() {
-                    @Override
-                    public void onChanged(List<WorkInfo> workInfos) {
-
-                    }
-                });
 
         super.onDestroy();
     }

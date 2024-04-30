@@ -5,9 +5,6 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
-
-import androidx.appcompat.widget.Toolbar;
-
 import android.view.MenuItem;
 import android.view.Window;
 import android.view.WindowManager;
@@ -15,13 +12,16 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 
+import androidx.activity.OnBackPressedCallback;
+import androidx.appcompat.widget.Toolbar;
+
 import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.util.sp.SettingsManager;
+import com.seafile.seadroid2.framework.datastore.sp.GestureLockManager;
 import com.seafile.seadroid2.gesturelock.LockPatternUtils;
 import com.seafile.seadroid2.gesturelock.LockPatternView;
 import com.seafile.seadroid2.gesturelock.LockPatternView.Cell;
-import com.seafile.seadroid2.ui.BaseActivity;
+import com.seafile.seadroid2.ui.base.BaseActivity;
 import com.seafile.seadroid2.ui.main.MainActivity;
 
 import java.util.List;
@@ -34,8 +34,6 @@ public class UnlockGesturePasswordActivity extends BaseActivity implements Toolb
     private Handler mHandler = new Handler();
     private TextView mHeadTextView;
     private Animation mShakeAnim;
-
-    SettingsManager settingsMgr;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -56,7 +54,13 @@ public class UnlockGesturePasswordActivity extends BaseActivity implements Toolb
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         getSupportActionBar().setTitle(R.string.gesture_lock);
-        settingsMgr = SettingsManager.getInstance();
+
+        getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                //do nothing
+            }
+        });
     }
 
     @Override
@@ -66,13 +70,11 @@ public class UnlockGesturePasswordActivity extends BaseActivity implements Toolb
             mCountdownTimer.cancel();
     }
 
-    @Override
-    public void onBackPressed() {
+    public void startMain() {
         // stop default action (finishing the current activity) to be executed.
         // super.onBackPressed();
-        Intent i = new Intent(this, MainActivity.class);
-        i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(i);
+
+        MainActivity.startThis(this);
         finish();
     }
 
@@ -99,8 +101,8 @@ public class UnlockGesturePasswordActivity extends BaseActivity implements Toolb
             LockPatternUtils mLockPatternUtils = new LockPatternUtils(getApplicationContext());
             if (mLockPatternUtils.checkPattern(pattern)) {
                 mLockPatternView.setDisplayMode(LockPatternView.DisplayMode.Correct);
-                settingsMgr.setupGestureLock();
-                finish();
+                GestureLockManager.writeGestureLockSwitch(true);
+                startMain();
             } else {
                 mLockPatternView.setDisplayMode(LockPatternView.DisplayMode.Wrong);
                 if (pattern.size() >= LockPatternUtils.MIN_PATTERN_REGISTER_FAIL) {

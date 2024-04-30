@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "809279966741",
+    "project_id": "seafile-a94ae",
+    "storage_bucket": "seafile-a94ae.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:809279966741:android:8b8a60dc762124a06f481c",
+        "android_client_info": {
+          "package_name": "com.seafile.seadroid2"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDmpAb00UKGnh3dU_AqL9vLN-8_VTraKNw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:809279966741:android:aa26fbc69907c20c6f481c",
+        "android_client_info": {
+          "package_name": "com.seafile.seadroid2.debug"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDmpAb00UKGnh3dU_AqL9vLN-8_VTraKNw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -14,7 +14,7 @@
         android:layout_height="@dimen/lv_multi_select_height"
         android:layout_alignParentStart="true"
         android:layout_centerInParent="true"
-        android:padding="4dp"
+        android:paddingVertical="4dp"
         android:src="@drawable/list_item_download_finished"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -25,7 +25,9 @@
         android:id="@+id/item_icon"
         android:layout_width="@dimen/lv_icon_width"
         android:layout_height="@dimen/lv_icon_width"
-        android:src="@drawable/repo_encrypted"
+        android:padding="8dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/icon_file_video_colorful"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@+id/item_multi_select"
         app:layout_constraintTop_toTopOf="parent" />
@@ -92,18 +94,17 @@
         android:layout_height="@dimen/lv_item_height"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:background="@drawable/toggle_btn_selector_holo_light"
+        android:foreground="?selectableItemBackground"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
-            android:layout_width="20dp"
-            android:layout_height="20dp"
+            android:layout_width="@dimen/lv_iv_action_width"
+            android:layout_height="@dimen/lv_item_height"
             android:layout_gravity="end|bottom"
-            android:layout_marginBottom="10dp"
-            android:src="@drawable/spinner_disabled_holo_light" />
+            android:src="@drawable/baseline_expandable_24" />
     </FrameLayout>
 
 

@@ -1,114 +1,88 @@
 package com.seafile.seadroid2.ui.main;
 
 import android.Manifest;
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.FileObserver;
 import android.os.IBinder;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import androidx.activity.OnBackPressedCallback;
+import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.content.FileProvider;
 import androidx.fragment.app.DialogFragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.TimeUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
-import com.google.common.collect.Lists;
-import com.seafile.seadroid2.BuildConfig;
+import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.context.NavContext;
-import com.seafile.seadroid2.data.DataManager;
-import com.seafile.seadroid2.data.ServerInfo;
-import com.seafile.seadroid2.data.db.AppDatabase;
-import com.seafile.seadroid2.data.db.entities.DirentModel;
-import com.seafile.seadroid2.data.db.entities.ObjsModel;
-import com.seafile.seadroid2.data.db.entities.RepoModel;
-import com.seafile.seadroid2.data.model.star.StarredModel;
 import com.seafile.seadroid2.databinding.ActivityMainBinding;
-import com.seafile.seadroid2.monitor.FileMonitorService;
-import com.seafile.seadroid2.notification.UploadNotificationManager;
-import com.seafile.seadroid2.notification.UploadNotificationProvider;
-import com.seafile.seadroid2.transfer.DownloadTaskManager;
-import com.seafile.seadroid2.transfer.PendingUploadInfo;
-import com.seafile.seadroid2.transfer.TransferManager;
-import com.seafile.seadroid2.transfer.TransferService;
-import com.seafile.seadroid2.transfer.UploadTaskManager;
+import com.seafile.seadroid2.framework.data.ServerInfo;
+import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
+import com.seafile.seadroid2.framework.data.db.entities.EncKeyCacheEntity;
+import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
+import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
+import com.seafile.seadroid2.framework.util.PermissionUtil;
+import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.util.TakeCameras;
+import com.seafile.seadroid2.framework.util.Utils;
+import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
+import com.seafile.seadroid2.framework.worker.FileSyncService;
 import com.seafile.seadroid2.ui.account.AccountsActivity;
 import com.seafile.seadroid2.ui.adapter.ViewPager2Adapter;
-import com.seafile.seadroid2.ui.base.BaseQuickActivity;
-import com.seafile.seadroid2.ui.camera_upload.MediaObserverService;
+import com.seafile.seadroid2.ui.base.BaseActivity;
 import com.seafile.seadroid2.ui.dialog_fragment.NewDirFileDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.NewRepoDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.PasswordDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.SortFilesDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.listener.OnRefreshDataListener;
 import com.seafile.seadroid2.ui.dialog_fragment.listener.OnSortItemClickListener;
-import com.seafile.seadroid2.ui.folder_backup.FolderBackupService;
-import com.seafile.seadroid2.ui.gesture.UnlockGesturePasswordActivity;
 import com.seafile.seadroid2.ui.repo.RepoQuickFragment;
 import com.seafile.seadroid2.ui.search.Search2Activity;
 import com.seafile.seadroid2.ui.settings.SettingsActivity;
-import com.seafile.seadroid2.ui.transfer.TransferActivity;
-import com.seafile.seadroid2.util.PermissionUtil;
-import com.seafile.seadroid2.util.SLogs;
-import com.seafile.seadroid2.util.TakeCameras;
-import com.seafile.seadroid2.util.Utils;
-import com.seafile.seadroid2.util.sp.FolderBackupConfigSPs;
-import com.seafile.seadroid2.util.sp.SettingsManager;
-import com.seafile.seadroid2.worker.BackgroundJobManagerImpl;
-import com.seafile.seadroid2.worker.FileSyncService;
-import com.seafile.seadroid2.worker.observer.MediaContentObserver;
+import com.seafile.seadroid2.ui.transfer_list.TransferActivity;
+
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
+import java.util.Map;
 
 import io.reactivex.functions.Consumer;
 import kotlin.Pair;
 
-public class MainActivity extends BaseQuickActivity implements Toolbar.OnMenuItemClickListener {
+public class MainActivity extends BaseActivity implements Toolbar.OnMenuItemClickListener {
 
     private ActivityMainBinding binding;
     public static final int INDEX_LIBRARY_TAB = 0;
 
     private Intent monitorIntent;
     private FileSyncService syncService;
-
-    private TransferService txService = null;
-
-    private TransferReceiver mTransferReceiver;
-
-
     private MainViewModel mainViewModel;
 
     private Menu overFlowMenu;
@@ -116,14 +90,8 @@ public class MainActivity extends BaseQuickActivity implements Toolbar.OnMenuIte
 
     private Account curAccount;
 
-    private ArrayList<PendingUploadInfo> pendingUploads = Lists.newArrayList();
-
     private NavContext getNavContext() {
         return mainViewModel.getNavContext();
-    }
-
-    public TransferService getTransferService() {
-        return txService;
     }
 
     private RepoQuickFragment getReposFragment() {
@@ -158,6 +126,8 @@ public class MainActivity extends BaseQuickActivity implements Toolbar.OnMenuIte
             return;
         }
 
+        initFireBase();
+        initOnBackPressedDispatcher();
         initTabLayout();
         initViewPager();
         initViewModel();
@@ -174,24 +144,59 @@ public class MainActivity extends BaseQuickActivity implements Toolbar.OnMenuIte
 
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
+    private void initFireBase() {
+        Account account = SupportAccountManager.getInstance().getCurrentAccount();
+        if (account != null) {
+            FirebaseCrashlytics crashlytics = FirebaseCrashlytics.getInstance();
+            crashlytics.setUserId(account.getSignature());
 
-        BackgroundJobManagerImpl.getInstance().cancelAllJobs();
+            FirebaseAnalytics analytics = FirebaseAnalytics.getInstance(this);
+            analytics.setUserId(account.getSignature());
+        }
+
+    }
+
+    private void initOnBackPressedDispatcher() {
+        getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (binding.pager.getCurrentItem() == INDEX_LIBRARY_TAB) {
+                    RepoQuickFragment fragment = (RepoQuickFragment) mainViewModel.getFragments().get(0);
+                    boolean canBack = fragment.backTo();
+                    if (canBack) {
+
+                    } else {
+                        finish();
+                    }
+                } else {
+                    finish();
+                }
+            }
+        });
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-        SLogs.d("onStart");
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
 
-        if (SettingsManager.getInstance().isGestureLockRequired()) {
-            Intent intent = new Intent(this, UnlockGesturePasswordActivity.class);
-            startActivity(intent);
+
+        // handle notification permission on API level >= 33
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            // request notification permission first and then prompt for storage permissions
+            // storage permissions handled in onRequestPermissionsResult
+
+            notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
+            return;
         }
 
-        registerReceiver();
+        PermissionUtil.requestExternalStoragePermission(this, multiplePermissionLauncher, manageStoragePermissionLauncher);
+    }
+
+
+    public static void startThis(Context context) {
+        Intent i = new Intent(context, MainActivity.class);
+        i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        context.startActivity(i);
     }
 
     @Override
@@ -204,6 +209,19 @@ public class MainActivity extends BaseQuickActivity implements Toolbar.OnMenuIte
                 || !SupportAccountManager.getInstance().getCurrentAccount().getToken().equals(curAccount.getToken())) {
             finishAndStartAccountsActivity();
         }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        SLogs.d("onStop");
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        BackgroundJobManagerImpl.getInstance().cancelAllJobs();
     }
 
     public static void navToThis(Context context, String repo_id, String repo_name, String path, boolean is_dir) {
@@ -256,17 +274,18 @@ public class MainActivity extends BaseQuickActivity implements Toolbar.OnMenuIte
         if (!isDir) {
             path = Utils.getParentPath(path);
         }
+
         String finalPath = path;
         mainViewModel.requestRepoModel(repoId, new Consumer<RepoModel>() {
             @Override
             public void accept(RepoModel repoModel) throws Exception {
                 if (repoModel.encrypted) {
-                    mainViewModel.getObjFromDB(repoId, new Consumer<ObjsModel>() {
+                    mainViewModel.getEncCacheDB(repoId, new Consumer<EncKeyCacheEntity>() {
                         @Override
-                        public void accept(ObjsModel objsModel) throws Exception {
+                        public void accept(EncKeyCacheEntity encKeyCacheEntity) throws Exception {
                             //check encrypt and decrypt_expire_time
                             long now = TimeUtils.getNowMills();
-                            if (objsModel == null || (repoModel.encrypted && now > objsModel.decrypt_expire_time_long)) {
+                            if (encKeyCacheEntity == null || (repoModel.encrypted && now > encKeyCacheEntity.expire_time_long)) {
                                 // expired
                                 showPasswordDialog(repoModel, finalPath);
                             } else {
@@ -277,6 +296,7 @@ public class MainActivity extends BaseQuickActivity implements Toolbar.OnMenuIte
                             }
                         }
                     });
+
                 } else {
                     getNavContext().navToPath(repoModel, finalPath);
                     binding.pager.setCurrentItem(0);
@@ -322,14 +342,14 @@ public class MainActivity extends BaseQuickActivity implements Toolbar.OnMenuIte
                 enableUpButton(true);
             } else {
                 enableUpButton(false);
-                setActionbarTitle(getString(R.string.tabs_library).toUpperCase());
+                setActionbarTitle(getString(R.string.tabs_library));
             }
         } else if (binding.slidingTabs.getSelectedTabPosition() == 1) {
             enableUpButton(false);
-            setActionbarTitle(getString(R.string.tabs_starred).toUpperCase());
+            setActionbarTitle(getString(R.string.tabs_starred));
         } else if (binding.slidingTabs.getSelectedTabPosition() == 2) {
             enableUpButton(false);
-            setActionbarTitle(getString(R.string.tabs_activity).toUpperCase());
+            setActionbarTitle(getString(R.string.tabs_activity));
         }
     }
 
@@ -362,19 +382,6 @@ public class MainActivity extends BaseQuickActivity implements Toolbar.OnMenuIte
             }
         });
 
-        mainViewModel.getOnNewFileDownloadLiveData().observe(this, new Observer<Pair<String, String>>() {
-            @Override
-            public void onChanged(Pair<String, String> pair) {
-                if (pair == null) {
-                    return;
-                }
-
-                String repoId = pair.getFirst();
-                String path = pair.getSecond();
-
-
-            }
-        });
 
         mainViewModel.getServerInfoLiveData().observe(this, new Observer<ServerInfo>() {
             @Override
@@ -399,35 +406,6 @@ public class MainActivity extends BaseQuickActivity implements Toolbar.OnMenuIte
         } else {
             String toolbarTitle = getNavContext().getLastPathName();
             getActionBarToolbar().setTitle(toolbarTitle);
-        }
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (binding.pager.getCurrentItem() == INDEX_LIBRARY_TAB) {
-            RepoQuickFragment fragment = (RepoQuickFragment) mainViewModel.getFragments().get(0);
-            boolean canBack = fragment.backTo();
-            if (canBack) {
-
-            } else {
-                super.onBackPressed();
-            }
-        } else {
-            super.onBackPressed();
-        }
-    }
-
-    @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-
-        // handle notification permission on API level >= 33
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            // request notification permission first and then prompt for storage permissions
-            // storage permissions handled in onRequestPermissionsResult
-            PermissionUtil.requestNotificationPermission(this);
-        } else {
-            PermissionUtil.requestExternalStoragePermission(this);
         }
     }
 
@@ -459,27 +437,10 @@ public class MainActivity extends BaseQuickActivity implements Toolbar.OnMenuIte
 //        startService(monitorIntent);
 //        SLogs.d("start FileMonitorService");
 
-//        new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                AppDatabase.getInstance().fileTransferDAO().deleteAll();
-//            }
-//        }).start();
-
         Intent syncIntent = new Intent(this, FileSyncService.class);
         bindService(syncIntent, syncConnection, Context.BIND_AUTO_CREATE);
     }
 
-    private void registerReceiver() {
-
-        if (mTransferReceiver == null) {
-            mTransferReceiver = new TransferReceiver();
-        }
-
-        IntentFilter filter = new IntentFilter(TransferManager.BROADCAST_ACTION);
-        LocalBroadcastManager.getInstance(this).registerReceiver(mTransferReceiver, filter);
-
-    }
 
     private final ServiceConnection syncConnection = new ServiceConnection() {
         @Override
@@ -495,58 +456,6 @@ public class MainActivity extends BaseQuickActivity implements Toolbar.OnMenuIte
             SLogs.d("FileSyncService disconnected");
         }
     };
-
-    private final ServiceConnection mConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName className, IBinder service) {
-            TransferService.TransferBinder binder = (TransferService.TransferBinder) service;
-            txService = binder.getService();
-            SLogs.d("bond TransferService");
-
-            for (PendingUploadInfo info : pendingUploads) {
-                txService.addTaskToUploadQue(curAccount,
-                        info.repoID,
-                        info.repoName,
-                        info.targetDir,
-                        info.localFilePath,
-                        info.isUpdate,
-                        info.isCopyToLocal);
-            }
-            pendingUploads.clear();
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-            txService = null;
-        }
-    };
-
-
-    // for receive broadcast from TransferService
-    private static class TransferReceiver extends BroadcastReceiver {
-
-        private TransferReceiver() {
-        }
-
-        public void onReceive(Context context, Intent intent) {
-            String type = intent.getStringExtra("type");
-            if (TextUtils.isEmpty(type)) {
-                return;
-            }
-
-            if (type.equals(DownloadTaskManager.BROADCAST_FILE_DOWNLOAD_FAILED)) {
-                int taskID = intent.getIntExtra("taskID", 0);
-//                onFileDownloadFailed(taskID);
-            } else if (type.equals(UploadTaskManager.BROADCAST_FILE_UPLOAD_SUCCESS)) {
-                int taskID = intent.getIntExtra("taskID", 0);
-//                onFileUploaded(taskID);
-            } else if (type.equals(UploadTaskManager.BROADCAST_FILE_UPLOAD_FAILED)) {
-                int taskID = intent.getIntExtra("taskID", 0);
-//                onFileUploadFailed(taskID);
-            }
-        }
-
-    }
 
     //////////////////////////check server info
     private void requestServerInfo(boolean loadFromNet) {
@@ -610,43 +519,6 @@ public class MainActivity extends BaseQuickActivity implements Toolbar.OnMenuIte
     }
 
 
-    /**
-     * Callback received when a permissions request has been completed.
-     */
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-        // Log.i(DEBUG_TAG, "Received response for permission request.");
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode) {
-            case PermissionUtil.PERMISSIONS_POST_NOTIFICATIONS:
-                // handle notification permission on API level >= 33
-                // dialogue was dismissed -> prompt for storage permissions
-                PermissionUtil.requestExternalStoragePermission(this);
-                break;
-            case PermissionUtil.PERMISSIONS_EXTERNAL_STORAGE:
-                // Check if the only required permission has been granted
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // permission was granted
-                    SLogs.i("PERMISSIONS_EXTERNAL_STORAGE has been granted");
-                }
-                break;
-        }
-    }
-
-
-//    @Override
-//    public void onSaveInstanceState(Bundle outState) {
-//        super.onSaveInstanceState(outState);
-//        //outState.putInt("tab", getActionBarToolbar().getSelectedNavigationIndex());
-//        if (navContext.getRepoID() != null) {
-//            outState.putString("repoID", navContext.getRepoID());
-//            outState.putString("repoName", navContext.getRepoName());
-//            outState.putString("path", navContext.getDirPath());
-//            outState.putString("permission", navContext.getDirPermission());
-//        }
-//    }
-
     ////////////////////////menu////////////////////////
     private void refreshActionbar() {
         if (getNavContext().isInRepo()) {
@@ -697,7 +569,7 @@ public class MainActivity extends BaseQuickActivity implements Toolbar.OnMenuIte
         switch (item.getItemId()) {
             case android.R.id.home:
                 if (getNavContext().isInRepo() && binding.pager.getCurrentItem() == INDEX_LIBRARY_TAB) {
-                    onBackPressed();
+                    getOnBackPressedDispatcher().onBackPressed();
                 }
                 return true;
         }
@@ -794,12 +666,44 @@ public class MainActivity extends BaseQuickActivity implements Toolbar.OnMenuIte
         return super.onKeyUp(keycode, e);
     }
 
+
     /**
      * onConfigurationChanged
      */
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
+
+//        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+//            ToastUtils.showLong("LANDSCAPE");
+//        } else {
+//            ToastUtils.showLong("PORTRAIT");
+//        }
+
+        int currentNightMode = newConfig.uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        switch (currentNightMode) {
+            case Configuration.UI_MODE_NIGHT_YES:
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                break;
+            case Configuration.UI_MODE_NIGHT_NO:
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                break;
+            case Configuration.UI_MODE_NIGHT_UNDEFINED:
+            default:
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+                break;
+        }
+
+        //restart app
+        Intent intent = getPackageManager().getLaunchIntentForPackage(getPackageName());
+        if (intent == null) {
+            ActivityUtils.finishToActivity(MainActivity.class, false);
+            return;
+        }
+
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+        ActivityUtils.finishActivity(this);
     }
 
     //////////////////////////////////////////////////////////////////
@@ -863,7 +767,7 @@ public class MainActivity extends BaseQuickActivity implements Toolbar.OnMenuIte
                 else if (which == 2) // upload file
                     pickFile();
                 else if (which == 3) // take a photo
-                    cameraTakePhoto();
+                    takePhoto();
             }
         }).show();
     }
@@ -908,27 +812,13 @@ public class MainActivity extends BaseQuickActivity implements Toolbar.OnMenuIte
         dialogFragment.show(getSupportFragmentManager(), NewDirFileDialogFragment.class.getSimpleName());
     }
 
-    void pickFile() {
+    private void pickFile() {
         if (!getNavContext().hasWritePermissionWithRepo()) {
             ToastUtils.showLong(R.string.library_read_only);
             return;
         }
 
         takeFile(true);
-    }
-
-    private void cameraTakePhoto() {
-        try {
-            File ImgDir = DataManager.createTempDir();
-
-            String fileName = new SimpleDateFormat("yyyyMMddHHmmss", Locale.getDefault()).format(new Date()) + ".jpg";
-            tempTakePhotoFile = new File(ImgDir, fileName);
-            tempTakePhotoUri = FileProvider.getUriForFile(this, BuildConfig.FILE_PROVIDER_AUTHORITIES, tempTakePhotoFile);
-
-            takePhoto();
-        } catch (IOException e) {
-            ToastUtils.showLong(R.string.unknow_error);
-        }
     }
 
     ////////////////Launcher///////////////
@@ -956,11 +846,64 @@ public class MainActivity extends BaseQuickActivity implements Toolbar.OnMenuIte
         }
     }
 
+    private final ActivityResultLauncher<String[]> multiplePermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), new ActivityResultCallback<Map<String, Boolean>>() {
+        @Override
+        public void onActivityResult(Map<String, Boolean> o) {
+            if (o.isEmpty()) {
+                return;
+            }
+
+            for (Map.Entry<String, Boolean> stringBooleanEntry : o.entrySet()) {
+                if (Boolean.FALSE.equals(stringBooleanEntry.getValue())) {
+                    ToastUtils.showLong(R.string.get_storage_permission_failed);
+                    return;
+                }
+            }
+        }
+    });
+
+    private final ActivityResultLauncher<Intent> manageStoragePermissionLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+        @Override
+        public void onActivityResult(ActivityResult o) {
+            if (!PermissionUtil.checkExternalStoragePermission(MainActivity.this)) {
+                ToastUtils.showLong(R.string.get_storage_permission_failed);
+            }
+        }
+    });
+
+    private final ActivityResultLauncher<String> notificationPermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestPermission(), new ActivityResultCallback<Boolean>() {
+        @Override
+        public void onActivityResult(Boolean result) {
+
+            //if result is false, the app can't display notifications
+
+            //continue
+            PermissionUtil.requestExternalStoragePermission(MainActivity.this, multiplePermissionLauncher, manageStoragePermissionLauncher);
+        }
+    });
+
+    private final ActivityResultLauncher<String> cameraPermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestPermission(), new ActivityResultCallback<Boolean>() {
+        @Override
+        public void onActivityResult(Boolean result) {
+            if (Boolean.FALSE.equals(result)) {
+                ToastUtils.showLong(R.string.permission_camera);
+                return;
+            }
+
+            if (permission_media_select_type == 0) {
+                uriPair = TakeCameras.buildTakePhotoUri(MainActivity.this);
+                takePhotoLauncher.launch(uriPair.getFirst());
+            } else if (permission_media_select_type == 1) {
+                uriPair = TakeCameras.buildTakeVideoUri(MainActivity.this);
+                takePhotoLauncher.launch(uriPair.getFirst());
+            }
+        }
+    });
+
     private final ActivityResultLauncher<String[]> singleFileAndImageChooseLauncher = registerForActivityResult(new ActivityResultContracts.OpenDocument(), new ActivityResultCallback<Uri>() {
         @Override
         public void onActivityResult(Uri o) {
             if (null == o) {
-                ToastUtils.showLong(R.string.saf_upload_path_not_available);
                 return;
             }
 
@@ -980,47 +923,28 @@ public class MainActivity extends BaseQuickActivity implements Toolbar.OnMenuIte
         }
     });
 
-    private final ActivityResultLauncher<String> cameraPermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestPermission(), new ActivityResultCallback<Boolean>() {
-        @Override
-        public void onActivityResult(Boolean result) {
-            if (Boolean.FALSE.equals(result)) {
-                ToastUtils.showLong(R.string.permission_camera);
-//                PermissionUtils.launchAppDetailsSettings();
-                return;
-            }
 
-            if (permission_media_select_type == 0) {
-                tempTakePhotoUri = TakeCameras.buildTakePhotoUriAfterCleanOldCacheFiles(MainActivity.this);
-                takePhotoLauncher.launch(tempTakePhotoUri);
-            } else if (permission_media_select_type == 1) {
-                tempTakePhotoUri = TakeCameras.buildTakePhotoUriAfterCleanOldCacheFiles(MainActivity.this);
-                takeVideoLauncher.launch(tempTakePhotoUri);
-            }
-        }
-    });
-
-    private Uri tempTakePhotoUri;
-    private File tempTakePhotoFile;
+    //    private Uri tempTakePhotoUri;
+    private Pair<Uri, File> uriPair;
     private final ActivityResultLauncher<Uri> takePhotoLauncher = registerForActivityResult(new ActivityResultContracts.TakePicture(), new ActivityResultCallback<Boolean>() {
         @Override
         public void onActivityResult(Boolean result) {
-            if (!result) {
-                return;
-            }
-            SLogs.d("take photo complete");
-
-            if (tempTakePhotoFile == null) {
-                ToastUtils.showLong(R.string.saf_upload_path_not_available);
+            if (Boolean.FALSE.equals(result)) {
                 return;
             }
 
-            ToastUtils.showLong(R.string.added_to_upload_tasks);
+            SLogs.d("take photo");
+
+            if (uriPair == null) {
+                return;
+            }
+
+            Uri uri = uriPair.getFirst();
+            File file = uriPair.getSecond();
+
             RepoModel repoModel = getNavContext().getRepoModel();
-            if (repoModel.canLocalDecrypt()) {
-                addUploadBlocksTask(repoModel.repo_id, repoModel.repo_name, getNavContext().getNavPath(), tempTakePhotoFile.getAbsolutePath());
-            } else {
-                addUploadTask(repoModel.repo_id, repoModel.repo_name, getNavContext().getNavPath(), tempTakePhotoFile.getAbsolutePath());
-            }
+
+            addUploadTask(repoModel, getNavContext().getNavPath(), file.getAbsolutePath(), false);
         }
     });
 
@@ -1031,141 +955,103 @@ public class MainActivity extends BaseQuickActivity implements Toolbar.OnMenuIte
                 return;
             }
 
-            SLogs.d("take video complete");
+            SLogs.d("take video");
         }
     });
 
 
-    ////////////////add task/////////////
-    private int addUploadTask(String repoID, String repoName, String targetDir, String localFilePath) {
-        ToastUtils.showLong("TODO: 上传文件");
-//        if (txService != null) {
-//            return txService.addTaskToUploadQue(curAccount, repoID, repoName, targetDir, localFilePath, false, false);
-//        } else {
-//            PendingUploadInfo info = new PendingUploadInfo(repoID, repoName, targetDir, localFilePath, false, false);
-//            pendingUploads.add(info);
-//            return 0;
-//        }
-        return 0;
-    }
-
-    private int addUploadBlocksTask(String repoID, String repoName, String targetDir, String localFilePath) {
-        ToastUtils.showLong("TODO: 上传文件");
-
-//        if (txService != null) {
-//            return txService.addTaskToUploadQueBlock(curAccount, repoID, repoName, targetDir, localFilePath, false, false);
-//        } else {
-//            PendingUploadInfo info = new PendingUploadInfo(repoID, repoName, targetDir, localFilePath, false, false);
-//            pendingUploads.add(info);
-//            return 0;
-//        }
-        return 0;
-    }
-
-    public void addUpdateTask(String repoID, String repoName, String targetDir, String localFilePath) {
-        ToastUtils.showLong("TODO: 更新文件");
-
-//        if (txService != null) {
-//            txService.addTaskToUploadQue(curAccount, repoID, repoName, targetDir, localFilePath, true, false);
-//        } else {
-//            PendingUploadInfo info = new PendingUploadInfo(repoID, repoName, targetDir, localFilePath, true, false);
-//            pendingUploads.add(info);
-//        }
-    }
-
-    public void addUpdateBlocksTask(String repoID, String repoName, String targetDir, String localFilePath) {
-        ToastUtils.showLong("TODO: 更新文件");
-
-//        if (txService != null) {
-//            txService.addTaskToUploadQueBlock(curAccount, repoID, repoName, targetDir, localFilePath, true, false);
-//        } else {
-//            PendingUploadInfo info = new PendingUploadInfo(repoID, repoName, targetDir, localFilePath, true, false);
-//            pendingUploads.add(info);
-//        }
-    }
-
     /////////////////////////////
     private void doSelectSingleFile(Uri o) {
         try {
-            File tempDir = DataManager.createTempDir();
-            File tempFile = new File(tempDir, Utils.getFilenamefromUri(MainActivity.this, o));
-
-            if (!tempFile.createNewFile()) {
-                throw new RuntimeException("could not create temporary file");
-            }
-
-            RepoModel repoModel = getNavContext().getRepoModel();
-            mainViewModel.getDirentsFromServer(repoModel.repo_id, getNavContext().getNavPath(), new Consumer<List<DirentModel>>() {
+            new Thread(new Runnable() {
                 @Override
-                public void accept(List<DirentModel> list) {
-                    boolean duplicate = false;
-                    for (DirentModel dirent : list) {
-                        if (dirent.name.equals(tempFile.getName())) {
-                            duplicate = true;
-                            break;
+                public void run() {
+                    RepoModel repoModel = getNavContext().getRepoModel();
+
+                    String fileName = Utils.getFilenameFromUri(MainActivity.this, o);
+
+                    mainViewModel.getDirentsFromServer(repoModel.repo_id, getNavContext().getNavPath(), new Consumer<List<DirentModel>>() {
+                        @Override
+                        public void accept(List<DirentModel> list) {
+                            boolean duplicate = list.stream().anyMatch(p -> p.name.equals(fileName));
+
+                            if (duplicate) {
+                                showFileExistDialog(o, fileName);
+                            } else {
+                                addUploadTask(repoModel, getNavContext().getNavPath(), o, false);
+                            }
                         }
-                    }
-                    if (!duplicate) {
-                        ToastUtils.showLong(R.string.added_to_upload_tasks);
-                        if (repoModel.canLocalDecrypt()) {
-                            addUploadBlocksTask(repoModel.repo_id, repoModel.repo_name, getNavContext().getNavPath(), tempFile.getAbsolutePath());
-                        } else {
-                            addUploadTask(repoModel.repo_id, repoModel.repo_name, getNavContext().getNavPath(), tempFile.getAbsolutePath());
-                        }
-                    } else {
-                        showFileExistDialog(tempFile);
-                    }
+                    });
 
-
-                    if (txService == null)
-                        return;
-
-                    if (!txService.hasUploadNotifProvider()) {
-                        UploadNotificationProvider provider = new UploadNotificationProvider(
-                                txService.getUploadTaskManager(),
-                                txService);
-                        txService.saveUploadNotifProvider(provider);
-                    }
                 }
-            });
-
+            }).start();
         } catch (Exception e) {
             SLogs.e("Could not open requested document", e);
         }
     }
 
-    private void showFileExistDialog(final File file) {
+    private void showFileExistDialog(final Uri file, String fileName) {
+
         RepoModel repoModel = getNavContext().getRepoModel();
+
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
         builder.setTitle(getString(R.string.upload_file_exist));
-        builder.setMessage(String.format(getString(R.string.upload_duplicate_found), file.getName()));
+        builder.setMessage(String.format(getString(R.string.upload_duplicate_found), fileName));
         builder.setPositiveButton(getString(R.string.upload_replace), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                ToastUtils.showLong(R.string.added_to_upload_tasks);
-
-                if (repoModel.canLocalDecrypt()) {
-                    addUpdateBlocksTask(repoModel.repo_id, repoModel.repo_name, getNavContext().getNavPath(), file.getAbsolutePath());
-                } else {
-                    addUpdateTask(repoModel.repo_id, repoModel.repo_name, getNavContext().getNavPath(), file.getAbsolutePath());
-                }
+                addUploadTask(repoModel, getNavContext().getNavPath(), file, true);
             }
         });
         builder.setNeutralButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
             }
         });
         builder.setNegativeButton(getString(R.string.upload_keep_both), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                if (repoModel.canLocalDecrypt()) {
-                    addUploadBlocksTask(repoModel.repo_id, repoModel.repo_name, getNavContext().getNavPath(), file.getAbsolutePath());
-                } else {
-                    addUploadTask(repoModel.repo_id, repoModel.repo_name, getNavContext().getNavPath(), file.getAbsolutePath());
-                }
+                addUploadTask(repoModel, getNavContext().getNavPath(), file, false);
             }
         });
         builder.show();
     }
+
+
+    ////////////////add task/////////////
+    private void addUploadTask(RepoModel repoModel, String targetDir, String localFilePath, boolean isUpdate) {
+        Account account = SupportAccountManager.getInstance().getCurrentAccount();
+        mainViewModel.addUploadTask(account, repoModel, targetDir, localFilePath, isUpdate, new Consumer<FileTransferEntity>() {
+            @Override
+            public void accept(FileTransferEntity transferEntity) throws Exception {
+
+
+                if (StringUtils.startsWith(transferEntity.mime_type, "image/")) {
+//                    //todo 移动到指定目录：DCIM/Seafile/images/
+//                    String targetDir = "/DCIM/Seafile/images/";
+//                    StorageManager.getInstance().getMediaDir();
+//
+//                    FileUtils.copy(localFilePath,)
+                } else if (StringUtils.startsWith(transferEntity.mime_type, "video/")) {
+
+                }
+
+                ToastUtils.showLong(R.string.added_to_upload_tasks);
+            }
+        });
+    }
+
+    private void addUploadTask(RepoModel repoModel, String targetDir, Uri sourceUri, boolean isUpdate) {
+        Account account = SupportAccountManager.getInstance().getCurrentAccount();
+        mainViewModel.addUploadTask(account, this, repoModel, targetDir, sourceUri, isUpdate, new Consumer<FileTransferEntity>() {
+            @Override
+            public void accept(FileTransferEntity fileTransferEntity) throws Exception {
+                ToastUtils.showLong(R.string.added_to_upload_tasks);
+            }
+        });
+
+    }
+
+
 }

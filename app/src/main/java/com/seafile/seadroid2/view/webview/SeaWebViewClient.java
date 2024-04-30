@@ -4,16 +4,14 @@ import static com.blankj.utilcode.util.ActivityUtils.startActivity;
 
 import android.content.Intent;
 import android.net.Uri;
-import android.text.TextUtils;
-import android.util.Log;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
-import com.seafile.seadroid2.util.SLogs;
-import com.seafile.seadroid2.util.Token2SessionConverts;
+import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.util.Token2SessionConverts;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -96,7 +94,6 @@ public class SeaWebViewClient extends WebViewClient {
             return url;
         }
 
-        //TODO
         return Token2SessionConverts.buildUrl(url);
 
 //        // Optimise the code here:

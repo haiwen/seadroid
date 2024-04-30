@@ -13,12 +13,13 @@ import android.widget.Toast;
 
 import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.util.sp.SettingsManager;
+import com.seafile.seadroid2.framework.datastore.sp.GestureLockManager;
+import com.seafile.seadroid2.framework.datastore.sp.SettingsManager;
 import com.seafile.seadroid2.gesturelock.LockPatternUtils;
 import com.seafile.seadroid2.gesturelock.LockPatternView;
 import com.seafile.seadroid2.gesturelock.LockPatternView.Cell;
 import com.seafile.seadroid2.gesturelock.LockPatternView.DisplayMode;
-import com.seafile.seadroid2.ui.BaseActivity;
+import com.seafile.seadroid2.ui.base.BaseActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -150,7 +151,6 @@ public class CreateGesturePasswordActivity extends BaseActivity implements
         final boolean patternEnabled;
     }
 
-    SettingsManager settingsMgr = SettingsManager.getInstance();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -191,7 +191,7 @@ public class CreateGesturePasswordActivity extends BaseActivity implements
         Toolbar toolbar = getActionBarToolbar();
         toolbar.setOnMenuItemClickListener(this);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         getSupportActionBar().setTitle(R.string.gesture_lock);
     }
 
@@ -417,7 +417,7 @@ public class CreateGesturePasswordActivity extends BaseActivity implements
     private void saveChosenPatternAndFinish() {
         LockPatternUtils mLockPatternUtils = new LockPatternUtils(this);
         mLockPatternUtils.saveLockPattern(mChosenPattern);
-        settingsMgr.setupGestureLock();
+        GestureLockManager.writeGestureLockSwitch(true);
         ToastUtils.showLong(R.string.lockpattern_pattern_toast_saved);
         setResult(RESULT_OK);
         finish();

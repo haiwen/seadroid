@@ -13,12 +13,12 @@ import com.github.kevinsawicki.http.HttpRequest.HttpRequestException;
 import com.google.common.collect.Maps;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.config.ApiUrls;
-import com.seafile.seadroid2.data.DataManager;
-import com.seafile.seadroid2.data.FileBlocks;
-import com.seafile.seadroid2.data.ProgressMonitor;
+import com.seafile.seadroid2.framework.datastore.DataManager;
+import com.seafile.seadroid2.framework.data.FileBlocks;
+import com.seafile.seadroid2.framework.data.ProgressMonitor;
 import com.seafile.seadroid2.ssl.SSLTrustManager;
-import com.seafile.seadroid2.util.DeviceIdManager;
-import com.seafile.seadroid2.util.Utils;
+import com.seafile.seadroid2.framework.util.DeviceIdManager;
+import com.seafile.seadroid2.framework.util.Utils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -523,7 +523,7 @@ public class SeafConnection {
                                        long fileSize,
                                        ProgressMonitor monitor) throws SeafException, IOException, JSONException {
 
-        String dlink = getBlockDownloadLink(repoID, fileBlocks.fileID, blockId).replaceAll("\"", "");
+        String dlink = getBlockDownloadLink(repoID, fileBlocks.getFileId(), blockId).replaceAll("\"", "");
 
         File block = getBlockFromLink(dlink, fileBlocks, blockId, localPath, fileSize, monitor);
         if (block != null) {

@@ -3,99 +3,43 @@ package com.seafile.seadroid2.context;
 import android.text.TextUtils;
 
 import com.blankj.utilcode.util.EncryptUtils;
-import com.seafile.seadroid2.data.model.BaseModel;
-import com.seafile.seadroid2.data.db.entities.DirentModel;
-import com.seafile.seadroid2.data.db.entities.RepoModel;
+import com.seafile.seadroid2.framework.data.model.BaseModel;
+import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
+import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
+import com.seafile.seadroid2.framework.util.Utils;
 
 import java.util.Stack;
 
 public class NavContext {
     private final Stack<BaseModel> navStack = new Stack<>();
 
-    private String repoID = null;
-    private String repoName = null;     // for display
-    private String dirPath = null;
-    private String dirID = null;
-
-    //(repo or dir)'s permission, recommend
-    private String permission = null;
-
-    public NavContext() {
-    }
-
-    public void setRepoID(String repoID) {
-        this.repoID = repoID;
-    }
-
-    public void setRepoName(String repoName) {
-        this.repoName = repoName;
-    }
-
-    public void setDirPath(String path) {
-        this.dirPath = path;
-    }
-
-
-    public String getRepoID() {
-        return repoID;
-    }
-
-    public String getRepoName() {
-        return repoName;
-    }
-
-    public boolean isRepoRoot() {
-        return "/".equals(dirPath);
-    }
-
-    public String getDirPath() {
-        return dirPath;
-    }
-
-    public String getDirPathName() {
-        return dirPath.substring(dirPath.lastIndexOf("/") + 1);
-    }
-
-    public String getPermission() {
-        return permission;
-    }
-
-    public void setPermission(String permission) {
-        this.permission = permission;
-    }
-
-    public boolean inRepo() {
-        return repoID != null;
-    }
-
     ////////////////////////////new////////////////////////
 
-    //repoId = xxx, path = /
+    // repoId = xxx, path = /
     public boolean isInRepoRoot() {
         return navStack.size() == 1;
     }
 
-    //repo list [age
+    // repo list page
     public boolean isInRepoList() {
-        return navStack.size() == 0;
+        return navStack.isEmpty();
     }
 
     /**
      * Not on the Repo list page
      */
     public boolean isInRepo() {
-        return navStack.size() >= 1;
+        return !navStack.isEmpty();
     }
 
     public void clear() {
-        if (!navStack.empty())
+        if (!navStack.empty()) {
             navStack.clear();
+        }
     }
 
     public void push(BaseModel model) {
         if (model instanceof RepoModel) {
-            //There is only one RepoModel
-
             //clear
             navStack.clear();
 
@@ -137,10 +81,11 @@ public class NavContext {
                 stringBuilder.append("/").append(s);
                 DirentModel dm = new DirentModel();
                 dm.name = s;
-//                dm.type =
+                dm.repo_id = repoModel.repo_id;
+                dm.repo_name = repoModel.repo_name;
                 dm.full_path = stringBuilder.toString();
-                dm.uid = EncryptUtils.encryptMD5ToString(dm.full_path);
-
+                dm.parent_dir = Utils.getParentPath(dm.full_path);
+                dm.uid = dm.getUID();
                 stack.push(dm);
             }
         }
@@ -154,7 +99,7 @@ public class NavContext {
      * Get the dirent model at the top of the stack
      */
     public DirentModel getTopDirentModel() {
-        if (navStack.empty()) {
+        if (navStack.empty() || navStack.size() == 1) {
             return null;
         }
         return (DirentModel) navStack.peek();
@@ -199,6 +144,9 @@ public class NavContext {
         return fullPath;
     }
 
+    /**
+     * /a/b/c/d/e.txt -> e.txt
+     */
     public String getLastPathName() {
         String fullPath = getNavPath();
         if (TextUtils.isEmpty(fullPath)) {
@@ -217,6 +165,9 @@ public class NavContext {
         return slash[slash.length - 1];
     }
 
+    /**
+     * /a/b/c -> c
+     */
     public String getNameInCurPath() {
         BaseModel baseModel = getTopModel();
         if (baseModel == null) {

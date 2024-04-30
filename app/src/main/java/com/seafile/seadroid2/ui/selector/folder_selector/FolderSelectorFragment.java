@@ -2,12 +2,10 @@ package com.seafile.seadroid2.ui.selector.folder_selector;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -18,25 +16,24 @@ import com.blankj.utilcode.util.ToastUtils;
 import com.chad.library.adapter4.QuickAdapterHelper;
 import com.google.common.collect.Maps;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.ui.base.fragment.BaseFragmentWithVM;
 import com.seafile.seadroid2.databinding.FragmentFolderSelectorBinding;
 import com.seafile.seadroid2.ui.folder_backup.FolderBackupConfigActivity;
 import com.seafile.seadroid2.ui.repo.ScrollState;
-import com.seafile.seadroid2.util.FileTools;
-import com.seafile.seadroid2.util.sp.FolderBackupConfigSPs;
+import com.seafile.seadroid2.framework.util.FileTools;
+import com.seafile.seadroid2.framework.datastore.sp.FolderBackupManager;
 import com.seafile.seadroid2.view.TipsViews;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public class FolderSelectorFragment extends BaseFragmentWithVM<FolderSelectorViewModel> {
 
     private FragmentFolderSelectorBinding binding;
     private LinearLayoutManager rvManager;
-    private LinearLayoutManager rvPathManager;
+    private LinearLayoutManager rvTabbarManager;
 
     private List<String> allPathsList;
 
@@ -45,7 +42,6 @@ public class FolderSelectorFragment extends BaseFragmentWithVM<FolderSelectorVie
     private FileListAdapter mFileListAdapter;
     private TabBarFileListAdapter mTabBarFileListAdapter;
     private FolderBackupConfigActivity mActivity;
-    private boolean chooseDirPage;
     private String initialPath;
 
     @Override
@@ -57,14 +53,13 @@ public class FolderSelectorFragment extends BaseFragmentWithVM<FolderSelectorVie
         rvManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
         binding.rvOfList.setLayoutManager(rvManager);
 
-        rvPathManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
-        binding.rvOfPath.setLayoutManager(rvPathManager);
+        rvTabbarManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
+        binding.rvOfPath.setLayoutManager(rvTabbarManager);
 
         mTabBarFileListAdapter = new TabBarFileListAdapter(getActivity(), mTabbarFileList);
         binding.rvOfPath.setAdapter(mTabBarFileListAdapter);
 
-        chooseDirPage = mActivity.isChooseDirPage();
-
+//        chooseDirPage = mActivity.isChooseDirPage();
         return binding.getRoot();
     }
 
@@ -89,7 +84,7 @@ public class FolderSelectorFragment extends BaseFragmentWithVM<FolderSelectorVie
             mCurrentPath = item.getFilePath();
 
             if (mTabbarFileList.size() > 1) {
-                refreshFileAndTabBar(BeanListManager.TYPE_DEL_TAB_BAR);
+                refreshFileAndTabBar(TYPE_DEL_TAB_BAR);
             }
 
             loadData();
@@ -119,18 +114,18 @@ public class FolderSelectorFragment extends BaseFragmentWithVM<FolderSelectorVie
         });
 
         mFileListAdapter.setOnItemClickListener((baseQuickAdapter, view, i) -> {
-
             saveScrollPosition();
 
             FileBean item = mFileListAdapter.getItems().get(i);
-            if (item.isFile()) {
+            if (!item.isDir()) {
                 ToastUtils.showLong(R.string.selection_file_type);
-            } else {
-                mCurrentPath = item.getFilePath();
-                refreshFileAndTabBar(BeanListManager.TYPE_ADD_TAB_BAR);
-
-                loadData();
+                return;
             }
+
+            mCurrentPath = item.getFilePath();
+            refreshFileAndTabBar(TYPE_ADD_TAB_BAR);
+
+            loadData();
         });
 
         QuickAdapterHelper helper = new QuickAdapterHelper.Builder(mFileListAdapter).build();
@@ -158,14 +153,14 @@ public class FolderSelectorFragment extends BaseFragmentWithVM<FolderSelectorVie
     }
 
     private void initData() {
-        List<String> selectPaths = FolderBackupConfigSPs.getBackupPathListByCurrentAccount();
+        List<String> selectPaths = FolderBackupManager.readBackupPaths();
         if (!CollectionUtils.isEmpty(selectPaths)) {
             getViewModel().setSelectFilePathList(selectPaths);
         }
 
         allPathsList = initRootPath(getActivity());
         mTabbarFileList = new ArrayList<>();
-        refreshFileAndTabBar(BeanListManager.TYPE_INIT_TAB_BAR);
+        refreshFileAndTabBar(TYPE_INIT_TAB_BAR);
     }
 
     private List<String> initRootPath(Activity activity) {
@@ -180,9 +175,7 @@ public class FolderSelectorFragment extends BaseFragmentWithVM<FolderSelectorVie
     }
 
     private void refreshFileAndTabBar(int tabbarType) {
-
-        BeanListManager.upDataTabbarFileBeanList(mTabbarFileList, mTabBarFileListAdapter,
-                mCurrentPath, tabbarType, allPathsList);
+        updateTabbarFileBeanList(mTabbarFileList, mCurrentPath, tabbarType, allPathsList);
     }
 
     public boolean onBackPressed() {
@@ -190,7 +183,7 @@ public class FolderSelectorFragment extends BaseFragmentWithVM<FolderSelectorVie
             return false;
         } else {
             mCurrentPath = FileTools.getParentPath(mCurrentPath);
-            refreshFileAndTabBar(BeanListManager.TYPE_DEL_TAB_BAR);
+            refreshFileAndTabBar(TYPE_DEL_TAB_BAR);
 
             loadData();
             return true;
@@ -229,6 +222,48 @@ public class FolderSelectorFragment extends BaseFragmentWithVM<FolderSelectorVie
         return getViewModel().getSelectFilePathList();
     }
 
+    public static final int TYPE_ADD_TAB_BAR = 0;
+    public static final int TYPE_DEL_TAB_BAR = 1;
+    public static final int TYPE_INIT_TAB_BAR = 2;
 
+    public static void getTabbarFileBeanList(List<TabBarFileBean> tabbarList, String path, List<String> allPathsList) {
+        if (allPathsList.contains(path)) {
+            tabbarList.add(0, new TabBarFileBean(path, SeadroidApplication.getAppContext().getString(R.string.internal_storage)));
+        }
+    }
+
+    private void updateTabbarFileBeanList(List<TabBarFileBean> tabbarList, String path, int type, List<String> allPathsList) {
+        switch (type) {
+            case TYPE_ADD_TAB_BAR:
+                tabbarList.add(new TabBarFileBean(path));
+                break;
+            case TYPE_DEL_TAB_BAR:
+                for (int i = tabbarList.size() - 1; i >= 0; i--) {
+                    if (tabbarList.get(i).getFilePath().length() > path.length()) {
+                        tabbarList.remove(i);
+                    } else {
+                        break;
+                    }
+                }
+                break;
+            case TYPE_INIT_TAB_BAR:
+                if (tabbarList == null) {
+                    tabbarList = new ArrayList<>();
+                } else {
+                    tabbarList.clear();
+                }
+                getTabbarFileBeanList(tabbarList, path, allPathsList);
+                break;
+        }
+
+        if (mTabBarFileListAdapter != null) {
+            mTabBarFileListAdapter.updateListData(tabbarList);
+            mTabBarFileListAdapter.notifyDataSetChanged();
+
+            if (mTabBarFileListAdapter.getItemCount() > 0) {
+                rvTabbarManager.scrollToPosition(mTabBarFileListAdapter.getItemCount() - 1);
+            }
+        }
+    }
 }
 

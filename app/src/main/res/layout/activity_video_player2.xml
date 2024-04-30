@@ -7,7 +7,7 @@
     android:keepScreenOn="true"
     android:orientation="vertical">
 
-    <com.seafile.seadroid2.play.exoplayer.ExoPlayerView
+    <com.seafile.seadroid2.ui.play.exoplayer.ExoPlayerView
         android:id="@+id/player_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -46,17 +46,16 @@
         android:background="#88000000"
         android:gravity="center_vertical"
         android:orientation="vertical"
-        android:padding="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
             android:id="@+id/back"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_width="?actionBarSize"
+            android:layout_height="?actionBarSize"
             android:foreground="?selectableItemBackground"
-            android:padding="8dp"
+            android:padding="20dp"
             android:src="@drawable/baseline_arrow_back_24"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"

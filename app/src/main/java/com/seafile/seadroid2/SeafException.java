@@ -1,8 +1,8 @@
 package com.seafile.seadroid2;
 
+import android.content.Context;
+
 import com.google.common.base.MoreObjects;
-import com.google.common.base.Objects;
-import com.seafile.seadroid2.transfer.UploadTask;
 
 public class SeafException extends Exception {
     private static final long serialVersionUID = 1L;
@@ -19,18 +19,22 @@ public class SeafException extends Exception {
     public static final SeafException illFormatException = new SeafException(4, "Ill-formatted Response");
     public static final SeafException sslException = new SeafException(5, "not trusted SSL server");
     public static final SeafException userCancelledException = new SeafException(6, "operation cancelled by user");
-    public static final SeafException invalidPassword = new SeafException(7, "wrong password");
+
+
+    public static final SeafException invalidPassword = new SeafException(7, SeadroidApplication.getAppContext().getString(R.string.wrong_password));
     public static final SeafException unsupportedEncVersion = new SeafException(8, "unsupported encryption version");
     public static final SeafException blockListNullPointerException = new SeafException(9, "block list is null");
     public static final SeafException encryptException = new SeafException(10, "encryption key or iv is null");
     public static final SeafException decryptException = new SeafException(11, "decryption key or iv is null");
     public static final SeafException remoteWipedException = new SeafException(12, "Remote Wiped Error");
-    public static final SeafException twoFactorAuthTokenMissing = new SeafException(13, "Two factor auth token is missing");
-    public static final SeafException twoFactorAuthTokenInvalid = new SeafException(14, "Two factor auth token is invalid");
+    public static final SeafException twoFactorAuthTokenMissing = new SeafException(13, SeadroidApplication.getAppContext().getString(R.string.two_factor_auth_token_empty));
+    public static final SeafException twoFactorAuthTokenInvalid = new SeafException(14, SeadroidApplication.getAppContext().getString(R.string.two_factor_auth_invalid));
 
     public static final SeafException notFoundException = new SeafException(404, "Not found");
+    public static final SeafException notFoundUserException = new SeafException(20, "Not logged in");
+    public static final SeafException notLoggedInException = new SeafException(21, "Not logged in");
 
-    public static final SeafException OutOfQuota = new SeafException(HTTP_ABOVE_QUOTA, "out of quota");
+    public static final SeafException OUT_OF_QUOTA = new SeafException(HTTP_ABOVE_QUOTA, SeadroidApplication.getAppContext().getString(R.string.above_quota));
 
     public SeafException(int code, String msg) {
         super(msg);

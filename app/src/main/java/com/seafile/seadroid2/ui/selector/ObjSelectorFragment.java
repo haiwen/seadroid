@@ -1,6 +1,5 @@
 package com.seafile.seadroid2.ui.selector;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Pair;
 import android.view.LayoutInflater;
@@ -10,7 +9,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -19,9 +17,9 @@ import com.chad.library.adapter4.QuickAdapterHelper;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.context.NavContext;
-import com.seafile.seadroid2.data.db.entities.RepoModel;
-import com.seafile.seadroid2.data.model.BaseModel;
 import com.seafile.seadroid2.databinding.FragmentRemoteLibraryFragmentBinding;
+import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
+import com.seafile.seadroid2.framework.data.model.BaseModel;
 import com.seafile.seadroid2.ui.base.fragment.BaseFragment;
 import com.seafile.seadroid2.ui.repo.RepoQuickAdapter;
 import com.seafile.seadroid2.view.TipsViews;
@@ -51,17 +49,30 @@ public class ObjSelectorFragment extends BaseFragment {
         viewModel = new ViewModelProvider(this).get(ObjSelectorViewModel.class);
     }
 
+    public static ObjSelectorFragment newInstance(Account account) {
+
+        Bundle args = new Bundle();
+        args.putParcelable(ObjSelectorActivity.DATA_ACCOUNT, account);
+
+        ObjSelectorFragment fragment = new ObjSelectorFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        AppCompatActivity mActivity = (AppCompatActivity) getActivity();
 
-        Intent intent = mActivity.getIntent();
-        Account account = intent.getParcelableExtra(ObjSelectorActivity.DATA_ACCOUNT);
-        if (account == null) {
+        if (getArguments() == null) {
             canChooseAccount = true;
         } else {
-            mAccount = account;
+            Account account = getArguments().getParcelable(ObjSelectorActivity.DATA_ACCOUNT);
+            if (account == null) {
+                canChooseAccount = true;
+            } else {
+                mAccount = account;
+            }
         }
+
 
         binding = FragmentRemoteLibraryFragmentBinding.inflate(getLayoutInflater(), container, false);
 
@@ -146,14 +157,17 @@ public class ObjSelectorFragment extends BaseFragment {
 
         } else if (baseModel instanceof RepoModel) {
 
-            //TODO 校验密码
+            //It cannot be backed up to an encrypted repo, so there is no need to verify the password
             boolean status = adapter.selectItemByMode(position);
-            if (status) {
+            if (status) {//selected
                 RepoModel model = (RepoModel) baseModel;
                 mNavContext.push(model);
             } else {
                 mNavContext.pop();
             }
+
+
+
         }
     }
 
@@ -161,7 +175,7 @@ public class ObjSelectorFragment extends BaseFragment {
         if (mStep == STEP_CHOOSE_ACCOUNT) {
             viewModel.loadAccount();
         } else if (mStep == STEP_CHOOSE_REPO) {
-            viewModel.loadReposFromNet(mAccount);
+            viewModel.loadReposFromNet(mAccount,true);
         } else if (mStep == STEP_CHOOSE_DIR) {
             viewModel.loadDirentsFromNet(mAccount, mNavContext);
         }

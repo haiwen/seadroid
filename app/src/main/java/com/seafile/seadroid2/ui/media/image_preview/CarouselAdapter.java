@@ -24,7 +24,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 
-import com.seafile.seadroid2.data.db.entities.DirentModel;
+import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
 
 /**
  * An adapter that displays {@link CarouselItem}s for a Carousel.

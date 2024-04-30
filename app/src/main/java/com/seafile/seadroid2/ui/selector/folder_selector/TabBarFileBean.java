@@ -1,7 +1,7 @@
 package com.seafile.seadroid2.ui.selector.folder_selector;
 
 
-import com.seafile.seadroid2.util.FileTools;
+import com.seafile.seadroid2.framework.util.FileTools;
 
 public class TabBarFileBean {
 

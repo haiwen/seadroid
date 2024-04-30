@@ -1,6 +1,6 @@
 package com.seafile.seadroid2.ui.main;
 
-import com.seafile.seadroid2.data.model.server.ServerInfoModel;
+import com.seafile.seadroid2.framework.data.model.server.ServerInfoModel;
 
 import io.reactivex.Single;
 import retrofit2.http.GET;

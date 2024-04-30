@@ -23,9 +23,8 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.data.db.entities.DirentModel;
+import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
 
 /**
  * An {@link RecyclerView.ViewHolder} that displays an item inside a Carousel.

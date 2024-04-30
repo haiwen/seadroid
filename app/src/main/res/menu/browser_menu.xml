@@ -4,14 +4,14 @@
 
     <item
         android:id="@+id/sort"
-        android:icon="@drawable/sort"
+        android:icon="@drawable/baseline_sort_24"
         android:title="@string/sort_menu_item"
         android:visible="true"
         app:showAsAction="always" />
 
     <item
         android:id="@+id/search"
-        android:icon="@drawable/search"
+        android:icon="@drawable/baseline_search_24"
         android:title="@string/search_menu_item"
         android:visible="true"
         app:showAsAction="always" />
@@ -19,7 +19,7 @@
     <!-- More -->
     <item
         android:id="@+id/menu_overflow"
-        android:icon="@drawable/ic_action_overflow"
+        android:icon="@drawable/baseline_more_vert_24"
         android:title="More"
         app:showAsAction="ifRoom">
 

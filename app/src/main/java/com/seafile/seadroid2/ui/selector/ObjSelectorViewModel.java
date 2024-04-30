@@ -7,16 +7,18 @@ import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
-import com.seafile.seadroid2.data.db.entities.DirentModel;
+import com.seafile.seadroid2.framework.data.db.AppDatabase;
+import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
+import com.seafile.seadroid2.framework.data.db.entities.EncKeyCacheEntity;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
 import com.seafile.seadroid2.context.NavContext;
-import com.seafile.seadroid2.data.model.BaseModel;
-import com.seafile.seadroid2.data.model.repo.DirentWrapperModel;
-import com.seafile.seadroid2.data.model.repo.RepoWrapperModel;
+import com.seafile.seadroid2.framework.data.model.BaseModel;
+import com.seafile.seadroid2.framework.data.model.repo.DirentWrapperModel;
+import com.seafile.seadroid2.framework.data.model.repo.RepoWrapperModel;
 import com.seafile.seadroid2.ui.repo.RepoService;
-import com.seafile.seadroid2.io.http.IO;
-import com.seafile.seadroid2.util.Objs;
-import com.seafile.seadroid2.util.SLogs;
+import com.seafile.seadroid2.framework.http.IO;
+import com.seafile.seadroid2.framework.util.Objs;
+import com.seafile.seadroid2.framework.util.SLogs;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,16 +34,31 @@ public class ObjSelectorViewModel extends BaseViewModel {
         return ObjsListLiveData;
     }
 
+    public void getEncCacheDB(String repoId, Consumer<EncKeyCacheEntity> consumer) {
+        Single<List<EncKeyCacheEntity>> single = AppDatabase.getInstance().encKeyCacheDAO().getListByRepoIdAsync(repoId);
+        addSingleDisposable(single, new Consumer<List<EncKeyCacheEntity>>() {
+            @Override
+            public void accept(List<EncKeyCacheEntity> list) throws Exception {
+                if (CollectionUtils.isEmpty(list)) {
+                    consumer.accept(null);
+                } else {
+                    consumer.accept(list.get(0));
+                }
+            }
+        });
+    }
+
+
     public void loadAccount() {
         List<Account> list = SupportAccountManager.getInstance().getSignedInAccountList();
         getObjsListLiveData().setValue(new ArrayList<>(list));
         getRefreshLiveData().setValue(false);
     }
 
-    public void loadReposFromNet(Account account) {
+    public void loadReposFromNet(Account account,boolean isFilterEncrypted) {
         getRefreshLiveData().setValue(true);
+        Single<RepoWrapperModel> singleNet = IO.getInstanceByAccount(account).execute(RepoService.class).getRepos();
 
-        Single<RepoWrapperModel> singleNet = IO.getNewInstance(account.server, account.token).execute(RepoService.class).getRepos();
         addSingleDisposable(singleNet, new Consumer<RepoWrapperModel>() {
             @Override
             public void accept(RepoWrapperModel repoWrapperModel) throws Exception {
@@ -51,7 +68,7 @@ public class ObjSelectorViewModel extends BaseViewModel {
                     return;
                 }
 
-                List<BaseModel> list = Objs.parseRepoListForAdapter(repoWrapperModel.repos, account.getSignature(), false);
+                List<BaseModel> list = Objs.parseRepoListForAdapter(repoWrapperModel.repos, account.getSignature(), isFilterEncrypted);
                 getObjsListLiveData().setValue(list);
                 getRefreshLiveData().setValue(false);
             }
@@ -69,7 +86,7 @@ public class ObjSelectorViewModel extends BaseViewModel {
         String repoId = context.getRepoModel().repo_id;
         String parentDir = context.getNavPath();
 
-        Single<DirentWrapperModel> singleNet = IO.getNewInstance(account.server, account.token).execute(RepoService.class).getDirents(repoId, parentDir);
+        Single<DirentWrapperModel> singleNet = IO.getInstanceByAccount(account).execute(RepoService.class).getDirents(repoId, parentDir);
         addSingleDisposable(singleNet, new Consumer<DirentWrapperModel>() {
             @Override
             public void accept(DirentWrapperModel direntWrapperModel) throws Exception {

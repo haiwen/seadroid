@@ -15,7 +15,9 @@
         android:id="@+id/rv_of_path"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/fancy_orange" />
+        android:background="@color/fancy_orange"
+        android:clipToPadding="false"
+        android:paddingHorizontal="16dp" />
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipe_refresh_layout"

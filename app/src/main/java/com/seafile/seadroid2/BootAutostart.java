@@ -5,7 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.text.TextUtils;
 
-import com.seafile.seadroid2.util.Utils;
+import com.seafile.seadroid2.framework.util.Utils;
 
 /**
  * This receiver is called whenever the system has booted or

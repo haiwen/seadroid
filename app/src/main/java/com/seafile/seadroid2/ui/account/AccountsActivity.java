@@ -3,49 +3,38 @@ package com.seafile.seadroid2.ui.account;
 import android.accounts.AccountManagerCallback;
 import android.accounts.AccountManagerFuture;
 import android.accounts.OnAccountsUpdateListener;
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
-import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.webkit.CookieManager;
-import android.webkit.ValueCallback;
-import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.ListView;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.widget.Toolbar;
 
 import com.blankj.utilcode.util.AppUtils;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.framework.datastore.sp.AppDataManager;
 import com.seafile.seadroid2.listener.OnCallback;
+import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
 import com.seafile.seadroid2.ui.dialog_fragment.PolicyDialogFragment;
-import com.seafile.seadroid2.util.sp.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.Authenticator;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.config.Constants;
-import com.seafile.seadroid2.monitor.FileMonitorService;
-import com.seafile.seadroid2.ui.BaseActivity;
 import com.seafile.seadroid2.ui.account.adapter.AccountAdapter;
 import com.seafile.seadroid2.ui.main.MainActivity;
 
 import java.util.List;
 import java.util.Locale;
 
-
-public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItemClickListener {
+public class AccountsActivity extends BaseActivityWithVM<AccountViewModel> implements Toolbar.OnMenuItemClickListener {
     private static final String DEBUG_TAG = "AccountsActivity";
-
     public static final int DETAIL_ACTIVITY_REQUEST = 1;
 
     private ListView accountsView;
@@ -53,7 +42,6 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
     private android.accounts.AccountManager mAccountManager;
     private AccountAdapter adapter;
     private List<Account> accounts;
-    private FileMonitorService mMonitorService;
     private Account currentDefaultAccount;
 
     private final OnAccountsUpdateListener accountsUpdateListener = new OnAccountsUpdateListener() {
@@ -63,20 +51,6 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
         }
     };
 
-    private final ServiceConnection mMonitorConnection = new ServiceConnection() {
-
-        @Override
-        public void onServiceConnected(ComponentName className, IBinder binder) {
-            FileMonitorService.MonitorBinder monitorBinder = (FileMonitorService.MonitorBinder) binder;
-            mMonitorService = monitorBinder.getService();
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName className) {
-            mMonitorService = null;
-        }
-
-    };
 
     private final AccountManagerCallback<Bundle> accountCallback = new AccountManagerCallback<Bundle>() {
 
@@ -105,14 +79,16 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
         Log.d(DEBUG_TAG, "AccountsActivity.onCreate is called");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.start);
-        mAccountManager = android.accounts.AccountManager.get(this);
-        accountsView = (ListView) findViewById(R.id.account_list_view);
 
+
+        initOnBackPressedDispatcher();
+
+        mAccountManager = android.accounts.AccountManager.get(this);
+
+        accounts = SupportAccountManager.getInstance().getAccountList();
         currentDefaultAccount = SupportAccountManager.getInstance().getCurrentAccount();
 
-        View footerView = ((LayoutInflater) this
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(
-                R.layout.account_list_footer, null, false);
+        View footerView = getLayoutInflater().inflate(R.layout.account_list_footer, null, false);
 
         Button addAccount = (Button) footerView.findViewById(R.id.account_footer_btn);
         addAccount.setOnClickListener(new View.OnClickListener() {
@@ -124,24 +100,13 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
             }
         });
 
+        accountsView = (ListView) findViewById(R.id.account_list_view);
         accountsView.addFooterView(footerView, null, true);
         accountsView.setFooterDividersEnabled(false);
+
         adapter = new AccountAdapter(this);
         accountsView.setAdapter(adapter);
-        accountsView.setOnItemClickListener(new OnItemClickListener() {
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-                Account account = accounts.get(position);
-                if (!account.hasValidToken()) {
-                    // user already signed out, input password first
-                    startEditAccountActivity(account);
-                } else {
-                    // update current Account info from SharedPreference
-                    SupportAccountManager.getInstance().saveCurrentAccount(account.getSignature());
-                    startFilesActivity();
-                }
-            }
-        });
+        accountsView.setOnItemClickListener((parent, view, position, id) -> onListItemClick(position));
 
         mAccountManager.addOnAccountsUpdatedListener(accountsUpdateListener, null, false);
 
@@ -151,7 +116,6 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
         toolbar.setOnMenuItemClickListener(this);
         setSupportActionBar(toolbar);
 
-        accounts = SupportAccountManager.getInstance().getAccountList();
         // updates toolbar back button
         if (currentDefaultAccount == null || !currentDefaultAccount.hasValidToken()) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(false);
@@ -163,34 +127,45 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
 
         String country = Locale.getDefault().getCountry();
         String language = Locale.getDefault().getLanguage();
-        int privacyPolicyConfirmed = SettingsManager.getInstance().getPrivacyPolicyConfirmed();
+
+        int privacyPolicyConfirmed = AppDataManager.getPrivacyPolicyConfirmed();
         if (country.equals("CN") && language.equals("zh") && (privacyPolicyConfirmed == 0)) {
             showDialog();
         }
     }
 
-    @Override
-    public void onStart() {
-        Log.d(DEBUG_TAG, "onStart");
-        super.onStart();
-        Intent bIntent = new Intent(this, FileMonitorService.class);
-        bindService(bIntent, mMonitorConnection, Context.BIND_AUTO_CREATE);
+    private void initOnBackPressedDispatcher() {
+        getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                Account account = SupportAccountManager.getInstance().getCurrentAccount();
+                if (account != null) {
+                    // force exit when current account was deleted
+                    Intent i = new Intent(AccountsActivity.this, MainActivity.class);
+                    i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(i);
+                }
+                finish();
+            }
+        });
     }
 
-    @Override
-    public void onStop() {
-        Log.d(DEBUG_TAG, "onStop");
-        super.onStop();
+    private void onListItemClick(int position) {
+        Account account = accounts.get(position);
+        if (!account.hasValidToken()) {
+            // user already signed out, input password first
+            startEditAccountActivity(account);
+        } else {
+            SupportAccountManager.getInstance().saveCurrentAccount(account.getSignature());
+            startFilesActivity();
+        }
     }
 
     @Override
     protected void onDestroy() {
         Log.d(DEBUG_TAG, "onDestroy");
         super.onDestroy();
-        if (mMonitorService != null) {
-            unbindService(mMonitorConnection);
-            mMonitorService = null;
-        }
+
         mAccountManager.removeOnAccountsUpdatedListener(accountsUpdateListener);
     }
 
@@ -233,12 +208,7 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
         adapter.clear();
         adapter.setItems(accounts);
 
-        // if the user switched default account while we were in background,
-        // switch to BrowserActivity
         Account newCurrentAccount = SupportAccountManager.getInstance().getCurrentAccount();
-        if (newCurrentAccount != null && !newCurrentAccount.equals(currentDefaultAccount)) {
-            startFilesActivity();
-        }
 
         // updates toolbar back button
         if (newCurrentAccount == null || !newCurrentAccount.hasValidToken()) {
@@ -246,30 +216,27 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
         }
 
         adapter.notifyChanged();
+
+        // if the user switched default account while we were in background,
+        // switch to BrowserActivity
+        if (newCurrentAccount != null && !newCurrentAccount.equals(currentDefaultAccount)) {
+            startFilesActivity();
+        }
     }
 
     private void startFilesActivity() {
+        Account account = SupportAccountManager.getInstance().getCurrentAccount();
 
-        removeAllCookie();
+        //switch account
+        getViewModel().switchAccount(account);
 
-        Intent intent = new Intent(this, MainActivity.class);
-
+        //start main
+        Intent intent = new Intent(AccountsActivity.this, MainActivity.class);
         // first finish this activity, so the BrowserActivity is again "on top"
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();
     }
-
-    private void removeAllCookie() {
-        CookieManager cookieManager = CookieManager.getInstance();
-        cookieManager.removeAllCookies(new ValueCallback<Boolean>() {
-            @Override
-            public void onReceiveValue(Boolean value) {
-                Log.d(AccountsActivity.class.getSimpleName(), "removeAllCookie? " + value);
-            }
-        });
-    }
-
 
     private void startEditAccountActivity(Account account) {
         mAccountManager.updateCredentials(account.getAndroidAccount(), Authenticator.AUTHTOKEN_TYPE, null, this, accountCallback, null);
@@ -300,39 +267,18 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
     public boolean onContextItemSelected(android.view.MenuItem item) {
         AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
         Account account;
-        switch (item.getItemId()) {
-            case R.id.edit:
-                account = adapter.getItem((int) info.id);
-                startEditAccountActivity(account);
-                return true;
-            case R.id.delete:
-                //TODO 清除传输队列数据库
+        if (item.getItemId() == R.id.edit) {
+            account = adapter.getItem((int) info.id);
+            startEditAccountActivity(account);
+            return true;
+        } else if (item.getItemId() == R.id.delete) {
+            account = adapter.getItem((int) info.id);
 
-                account = adapter.getItem((int) info.id);
-
-                Log.d(DEBUG_TAG, "removing account " + account);
-                mAccountManager.removeAccount(account.getAndroidAccount(), null, null);
-
-                if (mMonitorService != null) {
-                    mMonitorService.removeAccount(account);
-                }
-                return true;
-            default:
-                return super.onContextItemSelected(item);
+            getViewModel().deleteAccount(account);
+            Log.d(DEBUG_TAG, "removing account " + account);
+            return true;
         }
-    }
-
-    @Override
-    public void onBackPressed() {
-        Account account = SupportAccountManager.getInstance().getCurrentAccount();
-        if (account != null) {
-            // force exit when current account was deleted
-            Intent i = new Intent(this, MainActivity.class);
-            i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            startActivity(i);
-            finish();
-        } else
-            super.onBackPressed();
+        return super.onContextItemSelected(item);
     }
 
 
@@ -346,9 +292,9 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
 
             @Override
             public void onSuccess() {
-                SettingsManager.getInstance().savePrivacyPolicyConfirmed(1);
+                AppDataManager.savePrivacyPolicyConfirmed(1);
             }
         });
-        dialogFragment.show(getSupportFragmentManager(),PolicyDialogFragment.class.getSimpleName());
+        dialogFragment.show(getSupportFragmentManager(), PolicyDialogFragment.class.getSimpleName());
     }
 }

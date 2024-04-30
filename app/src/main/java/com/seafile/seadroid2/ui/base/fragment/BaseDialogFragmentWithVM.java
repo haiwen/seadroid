@@ -3,14 +3,13 @@ package com.seafile.seadroid2.ui.base.fragment;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
-import androidx.fragment.app.DialogFragment;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
-import com.seafile.seadroid2.util.TUtil;
+import com.seafile.seadroid2.framework.util.TUtil;
 
-public class BaseDialogFragmentWithVM<VM extends BaseViewModel> extends DialogFragment {
+public class BaseDialogFragmentWithVM<VM extends BaseViewModel> extends BaseDialogFragment {
     private VM tvm;
 
     public VM getViewModel() {
@@ -22,10 +21,10 @@ public class BaseDialogFragmentWithVM<VM extends BaseViewModel> extends DialogFr
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        initViewModelClass();
+        initTvm();
     }
 
-    protected void initViewModelClass() {
+    private void initTvm() {
         VM t = TUtil.getT(this, 0);
         if (t == null) {
             throw new IllegalStateException("VM generic parameters that inherit BaseViewModel cannot be instantiated");
@@ -38,6 +37,7 @@ public class BaseDialogFragmentWithVM<VM extends BaseViewModel> extends DialogFr
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+
         if (tvm != null) {
             tvm.disposeAll();
             tvm = null;

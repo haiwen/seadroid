@@ -9,7 +9,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:paddingHorizontal="16dp">
 
         <ImageView
             android:id="@+id/file_icon"
@@ -21,56 +22,39 @@
             android:id="@+id/file_name"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
             android:color="@color/black"
             android:gravity="center_horizontal"
             android:lines="1"
             android:singleLine="true"
             android:textSize="16sp" />
 
-
-        <LinearLayout
+        <TextView
+            android:id="@+id/progress_text"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="20dp">
+            android:layout_marginTop="8dp"
+            android:gravity="center_horizontal"
+            android:lines="1"
+            android:singleLine="true"
+            android:text="@string/app_name"
+            android:textSize="14sp" />
 
-            <TextView
-                android:id="@+id/progress_text"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_horizontal"
-                android:lines="1"
-                android:paddingBottom="4dp"
-                android:singleLine="true"
-                android:textSize="12dp" />
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="12dp"
+            android:layout_marginTop="8dp"
+            android:indeterminate="true" />
 
-            <ProgressBar
-                android:id="@+id/progress_bar"
-                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-                android:layout_width="fill_parent"
-                android:layout_height="12dp"
-                android:indeterminate="true" />
-
-        </LinearLayout>
-
-        <LinearLayout
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/op_cancel"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:orientation="horizontal"
-            android:paddingTop="7dp"
-            android:paddingBottom="7dp">
-
-            <Button
-                android:id="@+id/op_cancel"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/long_btn_height"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginLeft="@dimen/long_btn_margin_left"
-                android:layout_marginRight="@dimen/long_btn_margin_right"
-                android:text="@string/cancel"
-                android:textSize="@dimen/long_btn_txt_size"
-                android:theme="@style/NegativeButton" />
-        </LinearLayout>
+            android:layout_height="@dimen/long_btn_height"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="16dp"
+            android:text="@string/cancel"
+            android:textSize="18sp" />
     </LinearLayout>
 </LinearLayout>

@@ -1,6 +1,5 @@
 package com.seafile.seadroid2.view.webview;
 
-import android.os.Build;
 import android.text.TextUtils;
 import android.webkit.CookieManager;
 

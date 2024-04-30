@@ -1,6 +1,5 @@
 package com.seafile.seadroid2.ui.star;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -13,20 +12,18 @@ import androidx.recyclerview.widget.DiffUtil;
 
 import com.blankj.utilcode.util.CollectionUtils;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.framework.util.GlideApp;
+import com.seafile.seadroid2.framework.util.Icons;
 import com.seafile.seadroid2.ui.base.adapter.BaseAdapter;
 import com.seafile.seadroid2.config.GlideLoadConfig;
 import com.seafile.seadroid2.databinding.ItemStarredBinding;
-import com.seafile.seadroid2.io.http.IO;
-import com.seafile.seadroid2.data.model.star.StarredModel;
-import com.seafile.seadroid2.util.GlideApp;
-import com.seafile.seadroid2.util.Utils;
+import com.seafile.seadroid2.framework.http.IO;
+import com.seafile.seadroid2.framework.data.db.entities.StarredModel;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.List;
 
 public class StarredAdapter extends BaseAdapter<StarredModel, StarredViewHolder> {
-    private final String SERVER = IO.getSingleton().getServerUrl();
+    private final String SERVER = IO.getInstanceWithLoggedIn().getServerUrl();
 
     @NonNull
     @Override
@@ -50,21 +47,23 @@ public class StarredAdapter extends BaseAdapter<StarredModel, StarredViewHolder>
             holder.binding.itemSubtitle.setText(model.getSubtitle());
         }
 
+//        MiniatureReasoning
+//        ffmpeg -re -i C:\Users\asus\Videos\xiyangyang.mp4 -c copy -f flv "rtmp://live-push.bilivideo.com/live-bvc/?streamname=xxx"
 
         //set item_icon
         if (model.is_dir) {
             if (TextUtils.equals(model.path, "/")) {
                 if (model.repo_encrypted) {
-                    holder.binding.itemIcon.setImageResource(R.drawable.repo_encrypted);
+                    holder.binding.itemIcon.setImageResource(R.drawable.ic_repo_encrypted);
                 } else {
-                    holder.binding.itemIcon.setImageResource(R.drawable.repo);
+                    holder.binding.itemIcon.setImageResource(R.drawable.ic_repo);
                 }
             } else {
-                holder.binding.itemIcon.setImageResource(R.drawable.folder);
+                holder.binding.itemIcon.setImageResource(R.drawable.ic_folder);
             }
         } else {
-            if (TextUtils.isEmpty(model.encoded_thumbnail_src)) {
-                holder.binding.itemIcon.setImageResource(Utils.getFileIcon(model.obj_name));
+            if (model.deleted || TextUtils.isEmpty(model.encoded_thumbnail_src) || model.repo_encrypted) {
+                holder.binding.itemIcon.setImageResource(Icons.getFileIcon(model.obj_name));
             } else {
                 String url = convertThumbnailUrl(model.repo_id, model.path);
                 GlideApp.with(getContext())
@@ -76,7 +75,7 @@ public class StarredAdapter extends BaseAdapter<StarredModel, StarredViewHolder>
     }
 
     private String convertThumbnailUrl(String repoId, String filePath) {
-        return String.format("%sapi2/repos/%s/thumbnail/?p=%s&size=%d", SERVER, repoId, filePath, 48);
+        return String.format("%sapi2/repos/%s/thumbnail/?p=%s&size=%d", SERVER, repoId, filePath, 128);
     }
 
     public void notifyDataChanged(List<StarredModel> list) {
@@ -126,8 +125,7 @@ public class StarredAdapter extends BaseAdapter<StarredModel, StarredViewHolder>
                         && TextUtils.equals(oldModel.user_name, newModel.user_name)
                         && TextUtils.equals(oldModel.user_contact_email, newModel.user_contact_email)
                         && oldModel.repo_encrypted == newModel.repo_encrypted
-                        && oldModel.is_dir == newModel.is_dir
-                        && oldModel.size == newModel.size;
+                        && oldModel.is_dir == newModel.is_dir;
             }
         });
 

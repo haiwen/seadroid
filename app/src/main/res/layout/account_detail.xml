@@ -150,7 +150,6 @@
         android:layout_marginStart="@dimen/app_padding_horizontal"
         android:layout_marginTop="@dimen/app_widget_top_margin_middle"
         android:layout_marginEnd="@dimen/app_padding_horizontal"
-        android:onClick="login"
         android:paddingTop="@dimen/long_btn_padding_top"
         android:paddingBottom="@dimen/long_btn_padding_bottom"
         android:text="@string/login"

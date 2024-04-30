@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 import android.widget.RadioGroup;
 
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.util.sp.SettingsManager;
+import com.seafile.seadroid2.framework.datastore.sp.AlbumBackupManager;
 
 /**
  * What to upload fragment for camera upload configuration helper
@@ -23,7 +23,7 @@ public class WhatToUploadFragment extends Fragment {
 
         View rootView = LayoutInflater.from(getContext()).inflate(R.layout.cuc_what_to_upload_fragment, null);
         mRadioGroup = rootView.findViewById(R.id.cuc_upload_radio_group);
-        if (SettingsManager.getInstance().isVideosUploadAllowed()) {
+        if (AlbumBackupManager.readAllowVideoSwitch()) {
             mRadioGroup.check(R.id.cuc_upload_photos_and_videos_rb);
         }
 

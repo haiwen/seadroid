@@ -10,7 +10,7 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.ui.base.fragment.RequestCustomDialogFragmentWithVM;
 import com.seafile.seadroid2.context.CopyMoveContext;
 import com.seafile.seadroid2.ui.dialog_fragment.viewmodel.CopyMoveViewModel;
-import com.seafile.seadroid2.util.Utils;
+import com.seafile.seadroid2.framework.util.Utils;
 
 public class CopyMoveDialogFragment extends RequestCustomDialogFragmentWithVM<CopyMoveViewModel> {
     private CopyMoveContext ctx;

@@ -14,13 +14,14 @@ import androidx.recyclerview.widget.DiffUtil;
 
 import com.blankj.utilcode.util.CollectionUtils;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.data.db.entities.FileTransferEntity;
-import com.seafile.seadroid2.data.model.enums.TransferAction;
-import com.seafile.seadroid2.data.model.enums.TransferStatus;
+import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
+import com.seafile.seadroid2.framework.data.model.enums.TransferAction;
+import com.seafile.seadroid2.framework.data.model.enums.TransferStatus;
 import com.seafile.seadroid2.databinding.ItemTransferListBinding;
+import com.seafile.seadroid2.framework.util.Icons;
 import com.seafile.seadroid2.ui.base.adapter.BaseAdapter;
-import com.seafile.seadroid2.util.Utils;
-import com.seafile.seadroid2.worker.TransferWorker;
+import com.seafile.seadroid2.framework.util.Utils;
+import com.seafile.seadroid2.framework.worker.TransferWorker;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +30,7 @@ public class TransferListAdapter extends BaseAdapter<FileTransferEntity, Transfe
     private boolean actionModeOn;
 
     private TransferAction transferAction;
+
     /**
      * -1 no limited
      * 0 no this value
@@ -73,8 +75,8 @@ public class TransferListAdapter extends BaseAdapter<FileTransferEntity, Transfe
         }
 
         Bundle bundle = (Bundle) payloads.get(0);
-        long transferredSize = bundle.getLong(TransferWorker.DATA_TRANSFERRED_SIZE_KEY, 0);
-        int percent = bundle.getInt(TransferWorker.DATA_PROGRESS_KEY, 0);
+        long transferredSize = bundle.getLong(TransferWorker.KEY_DATA_TRANSFERRED_SIZE, 0);
+        int percent = bundle.getInt(TransferWorker.KEY_DATA_PROGRESS, 0);
         onBindPayloadHolder(holder, item, transferredSize, percent);
     }
 
@@ -94,14 +96,14 @@ public class TransferListAdapter extends BaseAdapter<FileTransferEntity, Transfe
         }
 
         //target path
-        String targetPath = Utils.pathJoin(entity.repo_name, entity.parent_path);
+        String targetPath = Utils.pathJoin(entity.repo_name, entity.getParent_path());
         holder.binding.transferTargetPath.setText(targetPath);
 
         //file name
         holder.binding.transferFileName.setText(entity.file_name);
 
         //icon
-        int iconId = Utils.getFileIcon(entity.file_name);
+        int iconId = Icons.getFileIcon(entity.file_name);
         holder.binding.transferFileIcon.setImageResource(iconId);
 
         //
@@ -110,11 +112,10 @@ public class TransferListAdapter extends BaseAdapter<FileTransferEntity, Transfe
         String sizeStr = Utils.readableFileSize(totalSize);
 
         boolean progressBarVisible = false;
-        boolean fileSizeVisible = false;
         boolean isRed = false;
 
         int stateTextRes = 0;
-        if (TransferStatus.TRANSFER_WAITING == entity.transfer_status) {
+        if (TransferStatus.WAITING == entity.transfer_status) {
             if (transferAction == TransferAction.DOWNLOAD) {
                 stateTextRes = R.string.download_waiting;
             } else {
@@ -122,11 +123,16 @@ public class TransferListAdapter extends BaseAdapter<FileTransferEntity, Transfe
             }
 
             progressBarVisible = false;
-            fileSizeVisible = false;
-        } else if (TransferStatus.TRANSFER_IN_PROGRESS == entity.transfer_status) {
+        } else if (TransferStatus.IN_PROGRESS == entity.transfer_status) {
             sizeStr = String.format("%s / %s",
                     Utils.readableFileSize(transferredSize),
                     Utils.readableFileSize(totalSize));
+
+            if (transferAction == TransferAction.DOWNLOAD) {
+                stateTextRes = R.string.notification_download_started_title;
+            } else {
+                stateTextRes = R.string.notification_upload_started_title;
+            }
 
             int percent;
             if (totalSize == 0) {
@@ -138,8 +144,7 @@ public class TransferListAdapter extends BaseAdapter<FileTransferEntity, Transfe
             holder.binding.transferFileProgressBar.setProgress(percent);
 
             progressBarVisible = true;
-            fileSizeVisible = true;
-        } else if (TransferStatus.TRANSFER_FAILED == entity.transfer_status) {
+        } else if (TransferStatus.FAILED == entity.transfer_status) {
             if (transferAction == TransferAction.DOWNLOAD) {
                 stateTextRes = R.string.download_failed;
             } else {
@@ -147,8 +152,7 @@ public class TransferListAdapter extends BaseAdapter<FileTransferEntity, Transfe
             }
             isRed = true;
             progressBarVisible = false;
-            fileSizeVisible = false;
-        } else if (TransferStatus.TRANSFER_CANCELLED == entity.transfer_status) {
+        } else if (TransferStatus.CANCELLED == entity.transfer_status) {
             if (transferAction == TransferAction.DOWNLOAD) {
                 stateTextRes = R.string.download_cancelled;
             } else {
@@ -156,15 +160,13 @@ public class TransferListAdapter extends BaseAdapter<FileTransferEntity, Transfe
             }
             isRed = true;
             progressBarVisible = false;
-            fileSizeVisible = false;
-        } else if (TransferStatus.TRANSFER_SUCCEEDED == entity.transfer_status) {
+        } else if (TransferStatus.SUCCEEDED == entity.transfer_status) {
             if (transferAction == TransferAction.DOWNLOAD) {
                 stateTextRes = R.string.download_finished;
             } else {
                 stateTextRes = R.string.upload_finished;
             }
             progressBarVisible = false;
-            fileSizeVisible = true;
         }
 
         if (stateTextRes != 0) {
@@ -176,11 +178,10 @@ public class TransferListAdapter extends BaseAdapter<FileTransferEntity, Transfe
         if (isRed) {
             holder.binding.transferFileState.setTextColor(ContextCompat.getColor(getContext(), R.color.red));
         } else {
-            holder.binding.transferFileState.setTextColor(ContextCompat.getColor(getContext(), R.color.black));
+            holder.binding.transferFileState.setTextColor(ContextCompat.getColor(getContext(), R.color.list_item_subtitle_color));
         }
 
-        holder.binding.transferFileProgressBar.setVisibility(progressBarVisible ? View.VISIBLE : View.INVISIBLE);
-        holder.binding.transferFileSize.setVisibility(fileSizeVisible ? View.VISIBLE : View.INVISIBLE);
+        holder.binding.transferFileProgressBar.setVisibility(progressBarVisible ? View.VISIBLE : View.GONE);
         holder.binding.transferFileSize.setText(sizeStr);
     }
 
@@ -204,8 +205,8 @@ public class TransferListAdapter extends BaseAdapter<FileTransferEntity, Transfe
         getItems().get(position).transferred_size = transferredSize;
 
         Bundle bundle = new Bundle();
-        bundle.putInt(TransferWorker.DATA_PROGRESS_KEY, percent);
-        bundle.putLong(TransferWorker.DATA_TRANSFERRED_SIZE_KEY, transferredSize);
+        bundle.putInt(TransferWorker.KEY_DATA_PROGRESS, percent);
+        bundle.putLong(TransferWorker.KEY_DATA_TRANSFERRED_SIZE, transferredSize);
         notifyItemChanged(position, bundle);
     }
 
@@ -262,16 +263,16 @@ public class TransferListAdapter extends BaseAdapter<FileTransferEntity, Transfe
                         && TextUtils.equals(newT.repo_name, oldT.repo_name)
                         && TextUtils.equals(newT.related_account, oldT.related_account)
                         && TextUtils.equals(newT.file_id, oldT.file_id)
-                        && TextUtils.equals(newT.parent_path, oldT.parent_path)
+                        && TextUtils.equals(newT.getParent_path(), oldT.getParent_path())
                         && TextUtils.equals(newT.file_name, oldT.file_name)
                         && TextUtils.equals(newT.file_format, oldT.file_format)
                         && TextUtils.equals(newT.mime_type, oldT.mime_type)
                         && TextUtils.equals(newT.file_md5, oldT.file_md5)
                         && newT.data_source == oldT.data_source
                         && newT.file_size == oldT.file_size
-                        && newT.is_block == oldT.is_block
+//                        && newT.is_block == oldT.is_block
                         && newT.is_copy_to_local == oldT.is_copy_to_local
-                        && newT.is_update == oldT.is_update
+                        && newT.file_strategy == oldT.file_strategy
                         && newT.created_at == oldT.created_at
                         && newT.modified_at == oldT.modified_at
                         && newT.action_end_at == oldT.action_end_at

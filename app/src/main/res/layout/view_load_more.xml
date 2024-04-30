@@ -42,7 +42,7 @@
         android:id="@+id/load_more_load_complete_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="visible">
+        android:visibility="gone">
 
         <TextView
             android:layout_width="wrap_content"

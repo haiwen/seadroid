@@ -76,4 +76,15 @@ public class RepoConfig implements Serializable {
         }
         return hashCode;
     }
+
+    @Override
+    public String toString() {
+        return "RepoConfig{" +
+                "email='" + email + '\'' +
+                ", signature='" + signature + '\'' +
+                ", repoID='" + repoID + '\'' +
+                ", repoName='" + repoName + '\'' +
+                ", hashCode=" + hashCode +
+                '}';
+    }
 }

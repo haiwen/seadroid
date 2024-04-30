@@ -9,8 +9,7 @@
         android:id="@+id/toolbar_actionbar"
         style="@style/ToolBarStyle"
         android:layout_width="match_parent"
-        android:layout_height="?actionBarSize"
-        app:popupTheme="@style/PopStyle" />
+        android:layout_height="?actionBarSize" />
 
     <com.google.android.material.divider.MaterialDivider
         android:id="@+id/view_toolbar_bottom_line"

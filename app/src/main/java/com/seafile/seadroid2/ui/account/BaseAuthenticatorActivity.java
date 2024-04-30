@@ -4,7 +4,7 @@ import android.accounts.AccountAuthenticatorResponse;
 import android.accounts.AccountManager;
 import android.os.Bundle;
 
-import com.seafile.seadroid2.ui.BaseActivity;
+import com.seafile.seadroid2.ui.base.BaseActivity;
 
 /**
  * Base class for implementing an Activity that is used to help implement an

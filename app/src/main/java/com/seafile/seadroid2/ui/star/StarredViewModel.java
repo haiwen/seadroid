@@ -3,12 +3,15 @@ package com.seafile.seadroid2.ui.star;
 import androidx.lifecycle.MutableLiveData;
 
 import com.blankj.utilcode.util.ToastUtils;
+import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
+import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.framework.util.Objs;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
-import com.seafile.seadroid2.io.http.IO;
-import com.seafile.seadroid2.data.model.ResultModel;
-import com.seafile.seadroid2.data.model.star.StarredModel;
-import com.seafile.seadroid2.data.model.star.StarredWrapperModel;
+import com.seafile.seadroid2.framework.http.IO;
+import com.seafile.seadroid2.framework.data.model.ResultModel;
+import com.seafile.seadroid2.framework.data.db.entities.StarredModel;
 
 import java.util.List;
 
@@ -30,31 +33,35 @@ public class StarredViewModel extends BaseViewModel {
 
     public void loadData() {
         getRefreshLiveData().setValue(true);
-        Single<StarredWrapperModel> flowable = IO.getSingleton().execute(StarredService.class).getStarItems();
-        addSingleDisposable(flowable, new Consumer<StarredWrapperModel>() {
+
+        Account account = SupportAccountManager.getInstance().getCurrentAccount();
+
+        Single<List<StarredModel>> listSingle = Objs.getStarredSingleFromServer(account);
+
+        addSingleDisposable(listSingle, new Consumer<List<StarredModel>>() {
             @Override
-            public void accept(StarredWrapperModel starredWrapperModel) throws Exception {
+            public void accept(List<StarredModel> starredModels) throws Exception {
                 getRefreshLiveData().setValue(false);
-
-                if (starredWrapperModel == null) {
-                    return;
-                }
-
-                getListLiveData().setValue(starredWrapperModel.starred_item_list);
+                getListLiveData().setValue(starredModels);
             }
         }, new Consumer<Throwable>() {
             @Override
             public void accept(Throwable throwable) throws Exception {
                 getRefreshLiveData().setValue(false);
-                getExceptionLiveData().setValue(new Pair<>(400, SeafException.networkException));
-                String msg = getErrorMsgByThrowable(throwable);
-                ToastUtils.showLong(msg);
+                SeafException seafException = getExceptionByThrowable(throwable);
+
+                if (seafException == SeafException.remoteWipedException) {
+                    //post a request
+                    completeRemoteWipe();
+                }
+
+                getSeafExceptionLiveData().setValue(seafException);
             }
         });
     }
 
     public void unStarItem(String repoId, String path) {
-        Single<ResultModel> flowable = IO.getSingleton().execute(StarredService.class).unStarItem(repoId, path);
+        Single<ResultModel> flowable = IO.getInstanceWithLoggedIn().execute(StarredService.class).unStarItem(repoId, path);
         addSingleDisposable(flowable, new Consumer<ResultModel>() {
             @Override
             public void accept(ResultModel resultModel) throws Exception {

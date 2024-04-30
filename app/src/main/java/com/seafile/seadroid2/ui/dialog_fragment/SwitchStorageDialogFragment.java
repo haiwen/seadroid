@@ -1,29 +1,26 @@
 package com.seafile.seadroid2.ui.dialog_fragment;
 
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
-import androidx.annotation.Nullable;
-
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.framework.datastore.StorageManager;
+import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.ui.base.fragment.CustomDialogFragment;
+import com.seafile.seadroid2.ui.base.fragment.RequestCustomDialogFragmentWithVM;
 import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
-import com.seafile.seadroid2.data.StorageManager;
-import com.seafile.seadroid2.transfer.TransferService;
-import com.seafile.seadroid2.util.SLogs;
+import com.seafile.seadroid2.ui.dialog_fragment.viewmodel.SwitchStorageViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class SwitchStorageDialogFragment extends CustomDialogFragment {
+import io.reactivex.functions.Consumer;
+
+public class SwitchStorageDialogFragment extends RequestCustomDialogFragmentWithVM<SwitchStorageViewModel> {
 
     private List<RadioButton> buttonList = new ArrayList<>();
     private int currentLocationId = -1;
@@ -39,20 +36,13 @@ public class SwitchStorageDialogFragment extends CustomDialogFragment {
     }
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        Intent bIntent = new Intent(requireContext(), TransferService.class);
-        requireContext().bindService(bIntent, mConnection, Context.BIND_AUTO_CREATE);
-    }
-
-    @Override
     protected int getLayoutId() {
         return R.layout.view_dialog_switch_storage;
     }
 
     @Override
     protected void onPositiveClick() {
+        StorageManager.Location location = null;
         int selectedId = group.getCheckedRadioButtonId();
         for (RadioButton b : buttonList) {
             if (b.getId() == selectedId) {
@@ -61,55 +51,12 @@ public class SwitchStorageDialogFragment extends CustomDialogFragment {
             }
         }
 
-        run();
-    }
-
-
-    private TransferService txService;
-    private StorageManager.Location location = null;
-    private ServiceConnection mConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName className, IBinder service) {
-            SLogs.d("txService connected");
-
-            TransferService.TransferBinder binder = (TransferService.TransferBinder) service;
-            txService = binder.getService();
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-            SLogs.d("txService disconnected");
-
-            txService = null;
-        }
-    };
-
-    private void run() {
-        if (location == null)
-            return;
-
-        if (txService != null) {
-            SLogs.d("Cancel all TransferService tasks");
-            txService.cancelAllUploadTasks();
-            txService.cancelAllDownloadTasks();
-        } else {
-            return;
-        }
-
-        CameraUploadManager camera = new CameraUploadManager();
-        Account camAccount = camera.getCameraAccount();
-        if (camera.isCameraUploadEnabled()) {
-            SLogs.d("Temporarily disable camera upload");
-            camera.disableCameraUpload();
-        }
-
-        SLogs.d("Switching storage to " + location.description);
-        StorageManager.getInstance().setStorageDir(location.id);
-
-        if (camAccount != null) {
-            SLogs.d("reEnable camera upload");
-            camera.setCameraAccount(camAccount);
-        }
+        getViewModel().switchStorage(location, new Consumer<Boolean>() {
+            @Override
+            public void accept(Boolean aBoolean) throws Exception {
+                dismiss();
+            }
+        });
     }
 
     @Override

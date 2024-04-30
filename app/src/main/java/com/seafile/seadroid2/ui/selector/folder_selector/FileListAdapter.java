@@ -5,15 +5,15 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CompoundButton;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 
+import com.google.android.material.checkbox.MaterialCheckBox;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.ui.base.adapter.BaseAdapter;
 import com.seafile.seadroid2.listener.OnFileItemChangeListener;
-import com.seafile.seadroid2.util.SLogs;
 
 public class FileListAdapter extends BaseAdapter<FileBean, FileListViewHolder> {
 
@@ -35,32 +35,39 @@ public class FileListAdapter extends BaseAdapter<FileBean, FileListViewHolder> {
 
         holder.tvFileName.setText(fileBean.getFileName());
         holder.imgvFiletype.setImageResource(fileBean.getFileImgType());
-        boolean isFile = fileBean.isFile();
 
-        if (isFile) {
-            holder.tvFileDetail.setText(String.format(getContext().getString(R.string.folder_file_item_size), fileBean.getSize()));
-        } else {
+        if (fileBean.isDir()) {
             String c = String.format(getContext().getString(R.string.folder_file_item_describe), fileBean.getChildrenFileNumber(), fileBean.getChildrenDirNumber());
             holder.tvFileDetail.setText(c);
+            holder.tvFileName.setTextColor(ContextCompat.getColor(getContext(), R.color.list_item_title_color));
+
+        } else {
+            holder.tvFileDetail.setText(String.format(getContext().getString(R.string.folder_file_item_size), fileBean.getSize()));
+            holder.tvFileName.setTextColor(ContextCompat.getColor(getContext(), R.color.list_item_subtitle_color));
         }
 
-        holder.checkBoxFile.setOnCheckedChangeListener(null);
-        holder.checkBoxFile.setChecked(fileBean.isChecked());
-        if (!isFile) {
+        holder.checkBoxFile.clearOnCheckedStateChangedListeners();
+
+        holder.checkBoxFile.setCheckedState(fileBean.getCheckedState());
+        if (fileBean.isDir()) {
             holder.checkBoxFile.setVisibility(View.VISIBLE);
         } else {
             holder.checkBoxFile.setVisibility(View.GONE);
         }
 
         final int p = i;
-        holder.checkBoxFile.setOnCheckedChangeListener((buttonView, isChecked) -> onCheckBoxChanged(p, isChecked));
+        holder.checkBoxFile.addOnCheckedStateChangedListener(new MaterialCheckBox.OnCheckedStateChangedListener() {
+            @Override
+            public void onCheckedStateChangedListener(@NonNull MaterialCheckBox checkBox, int state) {
+                onCheckBoxChanged(p, state);
+            }
+        });
     }
 
-    private void onCheckBoxChanged(int position, boolean isChecked) {
-        SLogs.e("position -> " + position);
-        getItems().get(position).setChecked(isChecked);
+    private void onCheckBoxChanged(int position, int checkState) {
+        getItems().get(position).setCheckedState(checkState);
         if (onFileItemChangeListener != null) {
-            onFileItemChangeListener.onChanged(getItems().get(position), position, isChecked);
+            onFileItemChangeListener.onChanged(getItems().get(position), position, checkState == MaterialCheckBox.STATE_CHECKED);
         }
     }
 }

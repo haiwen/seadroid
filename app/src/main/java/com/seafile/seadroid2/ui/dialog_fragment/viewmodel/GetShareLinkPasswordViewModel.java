@@ -8,9 +8,9 @@ import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.TimeUtils;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.config.DateFormatType;
-import com.seafile.seadroid2.data.model.dirents.DirentPermissionModel;
-import com.seafile.seadroid2.data.model.objs.DirentShareLinkModel;
-import com.seafile.seadroid2.io.http.IO;
+import com.seafile.seadroid2.framework.data.model.dirents.DirentPermissionModel;
+import com.seafile.seadroid2.framework.data.model.objs.DirentShareLinkModel;
+import com.seafile.seadroid2.framework.http.IO;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
 import com.seafile.seadroid2.ui.dialog_fragment.DialogService;
 
@@ -32,7 +32,7 @@ public class GetShareLinkPasswordViewModel extends BaseViewModel {
     public void getFirstShareLink(String repoId, String path, String password, String expire_days, DirentPermissionModel permissions) {
         getRefreshLiveData().setValue(true);
 
-        Single<List<DirentShareLinkModel>> single = IO.getSingleton().execute(DialogService.class).listAllShareLink(repoId, path);
+        Single<List<DirentShareLinkModel>> single = IO.getInstanceWithLoggedIn().execute(DialogService.class).listAllShareLink(repoId, path);
         addSingleDisposable(single, new Consumer<List<DirentShareLinkModel>>() {
             @Override
             public void accept(List<DirentShareLinkModel> models) throws Exception {
@@ -82,7 +82,7 @@ public class GetShareLinkPasswordViewModel extends BaseViewModel {
             requestDataMap.put("permissions", permissions);
         }
 
-        Single<DirentShareLinkModel> single = IO.getSingleton().execute(DialogService.class).createShareLink(requestDataMap);
+        Single<DirentShareLinkModel> single = IO.getInstanceWithLoggedIn().execute(DialogService.class).createShareLink(requestDataMap);
         addSingleDisposable(single, new Consumer<DirentShareLinkModel>() {
             @Override
             public void accept(DirentShareLinkModel direntShareLinkModel) throws Exception {

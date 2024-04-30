@@ -6,25 +6,35 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.blankj.utilcode.util.CollectionUtils;
+import com.blankj.utilcode.util.TimeUtils;
+import com.blankj.utilcode.util.ToastUtils;
 import com.chad.library.adapter4.QuickAdapterHelper;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.context.NavContext;
-import com.seafile.seadroid2.data.db.entities.DirentModel;
-import com.seafile.seadroid2.data.db.entities.RepoModel;
-import com.seafile.seadroid2.data.model.BaseModel;
+import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
+import com.seafile.seadroid2.framework.data.db.entities.EncKeyCacheEntity;
+import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
+import com.seafile.seadroid2.framework.data.model.BaseModel;
 import com.seafile.seadroid2.databinding.ActivitySelectorObjBinding;
-import com.seafile.seadroid2.ui.BaseActivity;
+import com.seafile.seadroid2.ui.base.BaseActivity;
+import com.seafile.seadroid2.ui.dialog_fragment.NewDirFileDialogFragment;
+import com.seafile.seadroid2.ui.dialog_fragment.PasswordDialogFragment;
+import com.seafile.seadroid2.ui.dialog_fragment.listener.OnRefreshDataListener;
+import com.seafile.seadroid2.ui.dialog_fragment.listener.OnResultListener;
 import com.seafile.seadroid2.ui.repo.RepoQuickAdapter;
 import com.seafile.seadroid2.view.TipsViews;
 
 import java.util.List;
+
+import io.reactivex.functions.Consumer;
 
 /**
  * can select repo、dir、account
@@ -53,7 +63,6 @@ public class ObjSelectorActivity extends BaseActivity {
     private ObjSelectorViewModel viewModel;
     private Account mAccount;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,6 +83,12 @@ public class ObjSelectorActivity extends BaseActivity {
             }
         }
 
+        getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                stepBack();
+            }
+        });
 
         Toolbar toolbar = getActionBarToolbar();
         setSupportActionBar(toolbar);
@@ -123,7 +138,7 @@ public class ObjSelectorActivity extends BaseActivity {
         binding.newFolder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                createNewFolder();
+                showNewDirDialog();
             }
         });
 
@@ -176,12 +191,20 @@ public class ObjSelectorActivity extends BaseActivity {
 
     private void onItemClick(BaseModel baseModel) {
         if (baseModel instanceof Account) {
+
             mAccount = (Account) baseModel;
             mStep = STEP_CHOOSE_REPO;
+            loadData();
         } else if (baseModel instanceof RepoModel) {
-            RepoModel model = (RepoModel) baseModel;
-            mStep = STEP_CHOOSE_DIR;
-            mNavContext.push(model);
+
+            RepoModel repoModel = (RepoModel) baseModel;
+            if (repoModel.encrypted) {
+                doEncrypt(repoModel);
+            } else {
+                mStep = STEP_CHOOSE_DIR;
+                mNavContext.push(repoModel);
+                loadData();
+            }
 
         } else if (baseModel instanceof DirentModel) {
             DirentModel model = (DirentModel) baseModel;
@@ -190,10 +213,62 @@ public class ObjSelectorActivity extends BaseActivity {
             }
 
             mNavContext.push(model);
-
+            loadData();
         }
 
-        loadData();
+
+    }
+
+    private void doEncrypt(RepoModel repoModel) {
+        viewModel.getEncCacheDB(repoModel.repo_id, new Consumer<EncKeyCacheEntity>() {
+            @Override
+            public void accept(EncKeyCacheEntity encKeyCacheEntity) throws Exception {
+                long now = TimeUtils.getNowMills();
+                if (encKeyCacheEntity == null || encKeyCacheEntity.expire_time_long == 0) {
+                    showPasswordDialog(repoModel);
+                } else if (now < encKeyCacheEntity.expire_time_long) {
+                    mStep = STEP_CHOOSE_DIR;
+                    mNavContext.push(repoModel);
+                    loadData();
+                } else {
+                    showPasswordDialog(repoModel);
+                }
+            }
+        });
+    }
+
+    private void showPasswordDialog(RepoModel repoModel) {
+        PasswordDialogFragment dialogFragment = PasswordDialogFragment.newInstance();
+        dialogFragment.initData(repoModel.repo_id, repoModel.repo_name);
+        dialogFragment.setResultListener(new OnResultListener<RepoModel>() {
+            @Override
+            public void onResultData(RepoModel uRepoModel) {
+                mStep = STEP_CHOOSE_DIR;
+                mNavContext.push(repoModel);
+                loadData();
+            }
+        });
+
+        dialogFragment.show(getSupportFragmentManager(), PasswordDialogFragment.class.getSimpleName());
+    }
+
+
+    private void showNewDirDialog() {
+        if (!mNavContext.hasWritePermissionWithRepo()) {
+            ToastUtils.showLong(R.string.library_read_only);
+            return;
+        }
+        NewDirFileDialogFragment dialogFragment = NewDirFileDialogFragment.newInstance();
+        dialogFragment.initData(mNavContext.getRepoModel().repo_id, mNavContext.getNavPath(), true);
+        dialogFragment.setRefreshListener(new OnRefreshDataListener() {
+            @Override
+            public void onActionStatus(boolean isDone) {
+                if (isDone) {
+                    loadData();
+                }
+            }
+        });
+        dialogFragment.show(getSupportFragmentManager(), NewDirFileDialogFragment.class.getSimpleName());
     }
 
     private void loadData() {
@@ -211,12 +286,10 @@ public class ObjSelectorActivity extends BaseActivity {
             viewModel.loadAccount();
         } else if (mStep == STEP_CHOOSE_REPO) {
 
-            //TODO 校验密码
-
             bar.setDisplayHomeAsUpEnabled(true);
             bar.setTitle(R.string.choose_a_library);
 
-            viewModel.loadReposFromNet(mAccount);
+            viewModel.loadReposFromNet(mAccount, false);
         } else if (mStep == STEP_CHOOSE_DIR) {
 
             bar.setDisplayHomeAsUpEnabled(true);
@@ -251,11 +324,6 @@ public class ObjSelectorActivity extends BaseActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onBackPressed() {
-        stepBack();
     }
 
     private void stepBack() {

@@ -2,21 +2,23 @@ package com.seafile.seadroid2.ui.media.image_preview;
 
 import androidx.lifecycle.MutableLiveData;
 
+import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.data.db.AppDatabase;
-import com.seafile.seadroid2.data.db.entities.DirentModel;
-import com.seafile.seadroid2.data.model.ResultModel;
-import com.seafile.seadroid2.data.model.repo.DirentMiniModel;
+import com.seafile.seadroid2.framework.data.db.AppDatabase;
+import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
+import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
+import com.seafile.seadroid2.framework.data.model.ResultModel;
+import com.seafile.seadroid2.framework.data.model.repo.Dirent2Model;
+import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.ui.repo.RepoService;
-import com.seafile.seadroid2.io.http.IO;
+import com.seafile.seadroid2.framework.http.IO;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
-import com.seafile.seadroid2.util.Utils;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import io.reactivex.Single;
 import io.reactivex.functions.Consumer;
@@ -34,32 +36,58 @@ public class ImagePreviewViewModel extends BaseViewModel {
         return ListLiveData;
     }
 
-    public void loadData(String repoID, String dirPath) {
-        if (!dirPath.endsWith("/")) {
-            dirPath += "/";
-        }
 
-        Single<List<DirentModel>> single = AppDatabase.getInstance().direntDao().getAllByParentPath(repoID, dirPath);
-        addSingleDisposable(single, new Consumer<List<DirentModel>>() {
+    public void getRepoModelFromDB(String repoId, Consumer<RepoModel> consumer) {
+        //from db
+        Single<List<RepoModel>> singleDb = AppDatabase.getInstance().repoDao().getRepoById(repoId);
+        addSingleDisposable(singleDb, new Consumer<List<RepoModel>>() {
             @Override
-            public void accept(List<DirentModel> direntModels) throws Exception {
-                getListLiveData().setValue(parseList(direntModels));
+            public void accept(List<RepoModel> repoModels) throws Exception {
+                if (consumer != null) {
+                    if (CollectionUtils.isEmpty(repoModels)) {
+                        //no data in sqlite, request RepoApi again
+                        consumer.accept(null);
+                    } else {
+                        consumer.accept(repoModels.get(0));
+                    }
+                }
+            }
+        }, new Consumer<Throwable>() {
+            @Override
+            public void accept(Throwable throwable) throws Exception {
+                SLogs.e(throwable);
             }
         });
     }
 
-    private List<DirentModel> parseList(List<DirentModel> direntModels) {
-        if (direntModels == null) {
-            return null;
-        }
+    public void loadData(String repoID, String fullPath) {
 
-        return direntModels
-                .stream()
-                .filter(f -> !f.isDir() && Utils.isViewableImage(f.name))
-                .collect(Collectors.toList());
-
+        Single<List<DirentModel>> single = AppDatabase.getInstance().direntDao().getAllByFullPath(repoID, fullPath);
+        addSingleDisposable(single, new Consumer<List<DirentModel>>() {
+            @Override
+            public void accept(List<DirentModel> direntModels) throws Exception {
+                getListLiveData().setValue(direntModels);
+            }
+        });
     }
 
+    public void download(String repoID, String fullPath) {
+
+        Single<List<DirentModel>> single = AppDatabase.getInstance().direntDao().getAllByFullPath(repoID, fullPath);
+        addSingleDisposable(single, new Consumer<List<DirentModel>>() {
+            @Override
+            public void accept(List<DirentModel> direntModels) throws Exception {
+                if (CollectionUtils.isEmpty(direntModels)) {
+                    return;
+                }
+
+                BackgroundJobManagerImpl
+                        .getInstance()
+                        .scheduleOneTimeFilesDownloadScanWorker(new String[]{direntModels.get(0).uid});
+
+            }
+        });
+    }
 
     //star
     public void star(String repoId, String path) {
@@ -70,10 +98,10 @@ public class ImagePreviewViewModel extends BaseViewModel {
         requestDataMap.put("path", path);
         Map<String, RequestBody> bodyMap = generateRequestBody(requestDataMap);
 
-        Single<DirentMiniModel> single = IO.getSingleton().execute(RepoService.class).star(bodyMap);
-        addSingleDisposable(single, new Consumer<DirentMiniModel>() {
+        Single<Dirent2Model> single = IO.getInstanceWithLoggedIn().execute(RepoService.class).star(bodyMap);
+        addSingleDisposable(single, new Consumer<Dirent2Model>() {
             @Override
-            public void accept(DirentMiniModel resultModel) throws Exception {
+            public void accept(Dirent2Model resultModel) throws Exception {
                 getRefreshLiveData().setValue(false);
 
                 getStarLiveData().setValue(true);
@@ -93,7 +121,7 @@ public class ImagePreviewViewModel extends BaseViewModel {
     public void unStar(String repoId, String path) {
         getRefreshLiveData().setValue(true);
 
-        Single<ResultModel> single = IO.getSingleton().execute(RepoService.class).unStar(repoId, path);
+        Single<ResultModel> single = IO.getInstanceWithLoggedIn().execute(RepoService.class).unStar(repoId, path);
         addSingleDisposable(single, new Consumer<ResultModel>() {
             @Override
             public void accept(ResultModel resultModel) throws Exception {

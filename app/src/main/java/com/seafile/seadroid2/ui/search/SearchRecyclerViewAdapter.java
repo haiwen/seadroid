@@ -2,20 +2,14 @@ package com.seafile.seadroid2.ui.search;
 
 import android.content.Context;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 
-import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.data.model.search.SearchModel;
+import com.seafile.seadroid2.framework.data.model.search.SearchModel;
 import com.seafile.seadroid2.databinding.ItemSearchBinding;
 import com.seafile.seadroid2.ui.base.adapter.BaseAdapter;
 import com.seafile.seadroid2.ui.base.viewholder.BaseViewHolder;
-import com.seafile.seadroid2.data.SeafRepo;
-import com.seafile.seadroid2.util.Utils;
 
 import org.jetbrains.annotations.NotNull;
 

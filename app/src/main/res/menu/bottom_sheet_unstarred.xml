@@ -1,8 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/nav_to"
+        android:icon="@drawable/icon_nav_to"
+        android:title="@string/navigate_to_directory" />
+
     <item
         android:id="@+id/unstar"
-        android:icon="@drawable/star_normal"
+        android:icon="@drawable/icon_star_fill"
         android:title="@string/unstar" />
 
 </menu>

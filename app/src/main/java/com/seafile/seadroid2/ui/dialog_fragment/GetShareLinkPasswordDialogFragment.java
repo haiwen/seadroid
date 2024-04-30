@@ -2,21 +2,16 @@ package com.seafile.seadroid2.ui.dialog_fragment;
 
 import android.text.TextUtils;
 import android.view.View;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RadioGroup;
-
-import androidx.lifecycle.Observer;
 
 import com.blankj.utilcode.util.ToastUtils;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputLayout;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.SeafException;
-import com.seafile.seadroid2.data.model.dirents.DirentPermissionModel;
-import com.seafile.seadroid2.data.model.objs.DirentShareLinkModel;
+import com.seafile.seadroid2.framework.data.model.dirents.DirentPermissionModel;
 import com.seafile.seadroid2.listener.OnCreateDirentShareLinkListener;
 import com.seafile.seadroid2.ui.base.fragment.RequestCustomDialogFragmentWithVM;
 import com.seafile.seadroid2.ui.dialog_fragment.viewmodel.GetShareLinkPasswordViewModel;
@@ -112,13 +107,16 @@ public class GetShareLinkPasswordDialogFragment extends RequestCustomDialogFragm
 
         if (isAdvance) {
             TextInputLayout passwordTextInput = getDialogView().findViewById(R.id.password_input_layout);
-            TextInputLayout daysTextInput = getDialogView().findViewById(R.id.days_text_input);
-
+            passwordTextInput.setHint(String.format(
+                    getResources().getString(R.string.passwd_min_len_limit_hint),
+                    getResources().getInteger(R.integer.minimum_password_length)
+            ));
             SwitchMaterial passwordSwitch = getDialogView().findViewById(R.id.add_password);
             passwordSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
                 passwordTextInput.setVisibility(isChecked ? View.VISIBLE : View.GONE);
             });
 
+            TextInputLayout daysTextInput = getDialogView().findViewById(R.id.days_text_input);
             SwitchMaterial switchMaterial = getDialogView().findViewById(R.id.add_expiration);
             switchMaterial.setOnCheckedChangeListener((buttonView, isChecked) -> {
                 daysTextInput.setVisibility(isChecked ? View.VISIBLE : View.GONE);

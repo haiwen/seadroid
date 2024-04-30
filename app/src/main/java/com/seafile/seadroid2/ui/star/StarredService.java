@@ -1,9 +1,8 @@
 package com.seafile.seadroid2.ui.star;
 
-import com.seafile.seadroid2.data.model.ResultModel;
-import com.seafile.seadroid2.data.model.star.StarredWrapperModel;
+import com.seafile.seadroid2.framework.data.model.ResultModel;
+import com.seafile.seadroid2.framework.data.model.star.StarredWrapperModel;
 
-import io.reactivex.Flowable;
 import io.reactivex.Single;
 import retrofit2.http.DELETE;
 import retrofit2.http.GET;

@@ -7,7 +7,7 @@ import android.os.Build;
 import android.provider.MediaStore;
 
 import com.blankj.utilcode.util.CollectionUtils;
-import com.seafile.seadroid2.data.StorageManager;
+import com.seafile.seadroid2.framework.datastore.StorageManager;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -4,7 +4,7 @@
 
     <item
         android:id="@+id/transfer_overflow_menu"
-        android:icon="@drawable/ic_action_overflow"
+        android:icon="@drawable/baseline_more_vert_24"
         android:title="@string/transfer_tasks"
         app:showAsAction="ifRoom">
         <menu>

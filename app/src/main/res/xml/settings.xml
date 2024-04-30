@@ -3,53 +3,51 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <PreferenceCategory
-        android:iconSpaceReserved="false"
-        android:layout="@layout/bg_settings_section_account"
-        android:title="@string/settings_account">
+        android:title="@string/settings_account"
+        app:iconSpaceReserved="false">
 
         <Preference
             android:enabled="false"
-            android:key="account_info_user_key"
+            android:key="@string/key_user_account_info"
             android:summary="@string/settings_account_info_load_data"
             android:title="@string/settings_account_info_title"
             app:iconSpaceReserved="false" />
 
         <Preference
             android:enabled="false"
-            android:key="account_info_space_key"
+            android:key="@string/key_user_space"
             android:summary="@string/settings_account_info_load_data"
             android:title="@string/settings_account_space_title"
             app:iconSpaceReserved="false" />
 
         <SwitchPreferenceCompat
             android:defaultValue="false"
-            android:key="gesture_lock_switch_key"
+            android:key="@string/key_user_gesture_switch"
             android:summaryOff="@string/gesture_lock_off"
             android:summaryOn="@string/gesture_lock_on"
             android:title="@string/gesture_lock"
             app:iconSpaceReserved="false" />
 
         <Preference
-            android:key="account_sign_out_key"
+            android:key="@string/key_user_sign_out"
             android:summary="@string/settings_account_sign_out_hint"
             android:title="@string/settings_account_sign_out_title"
             app:iconSpaceReserved="false" />
     </PreferenceCategory>
 
     <PreferenceCategory
-        android:key="category_privacy_key"
-        android:layout="@layout/bg_settings_section_security"
-        android:title="@string/security">
+        android:title="@string/security"
+        app:iconSpaceReserved="false">
 
         <Preference
-            android:key="clear_password_switch_key"
+            android:key="@string/key_security_clear_password"
             android:summary="@string/clear_password_hint"
             android:title="@string/clear_password_title"
             app:iconSpaceReserved="false" />
 
         <SwitchPreferenceCompat
             android:defaultValue="false"
-            android:key="client_encrypt_switch_key"
+            android:key="@string/key_security_client_encrypt_switch"
             android:summaryOff="@string/enc_off"
             android:summaryOn="@string/enc_on"
             android:title="@string/enc_title"
@@ -57,47 +55,46 @@
             app:isPreferenceVisible="false" />
 
     </PreferenceCategory>
+
     <PreferenceCategory
-        android:key="category_camera_upload_key"
-        android:layout="@layout/bg_settings_section_camera_upload"
-        android:title="@string/settings_camera_upload_info_title">
+        android:title="@string/settings_camera_upload_info_title"
+        app:iconSpaceReserved="false">
 
         <SwitchPreferenceCompat
             android:defaultValue="false"
-            android:key="camera_upload_switch_key"
+            android:key="@string/key_camera_upload_switch"
             android:summaryOff="@string/settings_camera_upload_service_stopped"
             android:summaryOn="@string/settings_camera_upload_service_started"
             android:title="@string/settings_camera_upload_turn_on"
             app:iconSpaceReserved="false" />
 
         <Preference
-            android:key="camera_upload_repo_key"
+            android:key="@string/key_camera_upload_repo_select"
             android:summary="@string/settings_camera_upload_repo_hint"
             android:title="@string/settings_camera_upload_change_repo_title"
             app:iconSpaceReserved="false"
             app:isPreferenceVisible="true" />
 
         <Preference
-            android:key="category_camera_upload_advanced_key"
+            android:key="@string/key_camera_upload_advanced"
             android:summary="@string/settings_camera_upload_advanced_feature_subtitle"
             android:title="@string/settings_camera_upload_advanced_feature_title"
             app:iconSpaceReserved="false" />
 
         <Preference
-            android:key="camera_upload_state"
+            android:key="@string/key_camera_upload_state"
             android:summary="@string/folder_backup_waiting_state"
             android:title="@string/camera_upload_state"
             app:iconSpaceReserved="false" />
     </PreferenceCategory>
 
     <PreferenceCategory
-        android:key="folder_backup_category_key"
-        android:layout="@layout/bg_settings_section_folder_backup"
-        android:title="@string/settings_folder_backup_info_title">
+        android:title="@string/settings_folder_backup_info_title"
+        app:iconSpaceReserved="false">
 
         <SwitchPreferenceCompat
             android:defaultValue="false"
-            android:key="folder_backup_switch_key"
+            android:key="@string/key_folder_backup_switch"
             android:summaryOff="@string/settings_folder_backup_service_stopped"
             android:summaryOn="@string/settings_folder_backup_service_started"
             android:title="@string/settings_folder_backup_switch_title"
@@ -106,64 +103,63 @@
         <ListPreference
             android:entries="@array/network_mode_readable"
             android:entryValues="@array/network_mode_non_readable"
-            android:key="folder_backup_mode"
+            android:key="@string/key_folder_backup_network_mode"
             android:summary="@string/settings_folder_backup_traffic_hint"
             android:title="@string/settings_folder_backup_traffic"
             app:iconSpaceReserved="false" />
 
         <Preference
-            android:key="folder_backup_library_key"
+            android:key="@string/key_folder_backup_repo_select"
             android:summary="@string/folder_backup_select_repo_hint"
             android:title="@string/settings_folder_backup_library"
             app:iconSpaceReserved="false" />
 
         <Preference
-            android:key="selected_backup_folders_key"
+            android:key="@string/key_folder_backup_folder_select"
             android:summary="@string/settings_folder_backup_select_hint"
             android:title="@string/settings_folder_backup_select_title"
             app:iconSpaceReserved="false" />
+
         <Preference
-            android:key="folder_backup_state"
+            android:key="@string/key_folder_backup_state"
             android:summary="@string/folder_backup_waiting_state"
             android:title="@string/folder_backup_state"
             app:iconSpaceReserved="false" />
     </PreferenceCategory>
 
     <PreferenceCategory
-        android:key="settings_cache_key"
-        android:layout="@layout/bg_settings_section_cache"
         android:title="@string/settings_storage_title"
-        app:allowDividerAbove="true">
+        app:allowDividerAbove="true"
+        app:iconSpaceReserved="false">
         <Preference
             android:enabled="false"
-            android:key="settings_cache_info_key"
+            android:key="@string/key_cache_info"
             android:title="@string/settings_cache_title"
             app:iconSpaceReserved="false" />
         <Preference
-            android:key="settings_cache_location_key"
+            android:key="@string/key_cache_location"
             android:title="@string/settings_cache_location_title"
             app:iconSpaceReserved="false" />
         <Preference
-            android:key="settings_clear_cache_key"
+            android:key="@string/key_cache_clear"
             android:title="@string/settings_clear_cache_title"
             app:iconSpaceReserved="false" />
     </PreferenceCategory>
 
     <PreferenceCategory
-        android:key="settings_section_about_key"
-        android:layout="@layout/bg_settings_section_about"
-        android:title="@string/settings_about_title">
+        android:title="@string/settings_about_title"
+        app:iconSpaceReserved="false">
         <Preference
             android:enabled="false"
-            android:key="settings_about_version_key"
+            android:key="@string/key_about_version"
             android:title="@string/settings_about_version_title"
             app:iconSpaceReserved="false" />
         <Preference
-            android:key="settings_privacy_policy_key"
+            android:key="@string/key_about_privacy"
             android:title="@string/settings_about_privacy_policy"
             app:iconSpaceReserved="false" />
         <Preference
-            android:key="settings_about_author_key"
+            android:key="@string/key_about_author"
             android:title="@string/settings_about_author_title"
             app:iconSpaceReserved="false" />
     </PreferenceCategory>

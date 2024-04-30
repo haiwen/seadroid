@@ -21,7 +21,7 @@ import android.content.Context;
 
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
-import com.seafile.seadroid2.util.Utils;
+import com.seafile.seadroid2.framework.util.Utils;
 
 import java.io.FileNotFoundException;
 import java.util.List;
@@ -44,13 +44,6 @@ public class DocumentIdParser {
     private static final String STARRED_FILE_REPO_ID = "starred-file-magic-repo";
     private static final String ROOT_REPO_ID = "root-magic-repo";
 
-    Context context;
-
-
-    public DocumentIdParser(Context context) {
-        this.context = context;
-    }
-
     /**
      * Extract the Seafile account from the documentId
      *
@@ -58,7 +51,7 @@ public class DocumentIdParser {
      * @return the corresponding Account
      * @throws java.io.FileNotFoundException if the documentId is bogus or the account doesn't exist
      */
-    public Account getAccountFromId(String documentId) throws FileNotFoundException {
+    public static Account getAccountFromId(String documentId) throws FileNotFoundException {
         String[] list = documentId.split(DOC_SEPERATOR, 2);
         if (list.length > 0) {
             String server = list[0];

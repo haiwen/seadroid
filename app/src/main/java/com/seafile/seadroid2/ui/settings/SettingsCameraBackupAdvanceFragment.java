@@ -1,5 +1,7 @@
 package com.seafile.seadroid2.ui.settings;
 
+import static android.app.Activity.RESULT_OK;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -16,12 +18,12 @@ import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreferenceCompat;
 
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.framework.datastore.sp.AlbumBackupManager;
+import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.ui.camera_upload.CameraUploadConfigActivity;
 import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
 import com.seafile.seadroid2.ui.camera_upload.GalleryBucketUtils;
-import com.seafile.seadroid2.ui.selector.ObjSelectorActivity;
-import com.seafile.seadroid2.util.sp.SettingsManager;
+import com.seafile.seadroid2.framework.datastore.sp.SettingsManager;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -33,8 +35,6 @@ public class SettingsCameraBackupAdvanceFragment extends PreferenceFragmentCompa
     private SwitchPreferenceCompat cbDataPlan;
     private SwitchPreferenceCompat cbVideoAllowed;
     private Preference mCameraBackupLocalBucketPref;
-
-    private CameraUploadManager cameraUploaderManager;
 
     @Override
     public void onCreatePreferences(@Nullable Bundle savedInstanceState, @Nullable String rootKey) {
@@ -48,7 +48,7 @@ public class SettingsCameraBackupAdvanceFragment extends PreferenceFragmentCompa
     }
 
     private void init() {
-        cameraUploaderManager = new CameraUploadManager();
+
     }
 
     @Override
@@ -63,27 +63,58 @@ public class SettingsCameraBackupAdvanceFragment extends PreferenceFragmentCompa
     }
 
     private void initCameraBackupView() {
-        mCameraBackupCustomBucketsSwitch = (SwitchPreferenceCompat) findPreference(SettingsManager.CAMERA_UPLOAD_CUSTOM_BUCKETS_KEY);
-        mCameraBackupLocalBucketPref = findPreference(SettingsManager.CAMERA_UPLOAD_BUCKETS_KEY);
 
+        //data plan
         cbDataPlan = findPreference(SettingsManager.CAMERA_UPLOAD_ALLOW_DATA_PLAN_SWITCH_KEY);
-        cbDataPlan.setChecked(SettingsManager.getInstance().isDataPlanAllowed());
+
+        boolean isDataPlanChecked = AlbumBackupManager.readAllowDataPlanSwitch();
+        cbDataPlan.setChecked(isDataPlanChecked);
+        cbDataPlan.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(@NonNull Preference preference, Object newValue) {
+                boolean isCustom = (Boolean) newValue;
+                AlbumBackupManager.writeAllowDataPlanSwitch(isCustom);
+
+                BackgroundJobManagerImpl.getInstance().restartMediaUploadWorker(isCustom);
+
+                return true;
+            }
+        });
 
         // videos
         cbVideoAllowed = findPreference(SettingsManager.CAMERA_UPLOAD_ALLOW_VIDEOS_SWITCH_KEY);
-        cbVideoAllowed.setChecked(SettingsManager.getInstance().isVideosUploadAllowed());
 
-        mCameraBackupCustomBucketsSwitch.setOnPreferenceChangeListener((preference, newValue) -> {
-            boolean isBool = newValue instanceof Boolean;
-            if (!isBool) {
+        boolean isAllowVideoChecked = AlbumBackupManager.readAllowVideoSwitch();
+        cbVideoAllowed.setChecked(isAllowVideoChecked);
+        cbVideoAllowed.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(@NonNull Preference preference, Object newValue) {
+                boolean isCustom = (Boolean) newValue;
+                AlbumBackupManager.writeAllowVideoSwitch(isCustom);
+
+                BackgroundJobManagerImpl.getInstance().restartMediaUploadWorker(isCustom);
+
                 return true;
             }
+        });
+
+        //custom album
+        mCameraBackupCustomBucketsSwitch = findPreference(SettingsManager.CAMERA_UPLOAD_CUSTOM_BUCKETS_KEY);
+
+        boolean isCustomChecked = AlbumBackupManager.readCustomAlbumSwitch();
+        mCameraBackupCustomBucketsSwitch.setChecked(isCustomChecked);
+
+        mCameraBackupCustomBucketsSwitch.setOnPreferenceChangeListener((preference, newValue) -> {
             boolean isCustom = (Boolean) newValue;
+            AlbumBackupManager.writeCustomAlbumSwitch(isCustom);
 
             mCameraBackupLocalBucketPref.setVisible(isCustom);
             scanCustomDirs(isCustom);
             return false;
         });
+
+        //
+        mCameraBackupLocalBucketPref = findPreference(SettingsManager.CAMERA_UPLOAD_BUCKETS_KEY);
 
         mCameraBackupLocalBucketPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
@@ -96,6 +127,7 @@ public class SettingsCameraBackupAdvanceFragment extends PreferenceFragmentCompa
         });
 
         mCameraBackupLocalBucketPref.setVisible(mCameraBackupCustomBucketsSwitch.isChecked());
+
         refreshPreferenceView();
     }
 
@@ -106,7 +138,10 @@ public class SettingsCameraBackupAdvanceFragment extends PreferenceFragmentCompa
             selectLocalDirLauncher.launch(intent);
         } else {
             List<String> selectedBuckets = new ArrayList<>();
-            SettingsManager.getInstance().setCameraUploadBucketList(selectedBuckets);
+            AlbumBackupManager.writeBucketIds(selectedBuckets);
+
+            BackgroundJobManagerImpl.getInstance().restartMediaUploadWorker(false);
+
             refreshPreferenceView();
         }
     }
@@ -114,7 +149,8 @@ public class SettingsCameraBackupAdvanceFragment extends PreferenceFragmentCompa
     private void refreshPreferenceView() {
         List<String> bucketNames = new ArrayList<>();
 
-        List<String> bucketIds = SettingsManager.getInstance().getCameraUploadBucketList();
+
+        List<String> bucketIds = AlbumBackupManager.readBucketIds();
         List<GalleryBucketUtils.Bucket> tempBuckets = GalleryBucketUtils.getMediaBuckets(getActivity().getApplicationContext());
         LinkedHashSet<GalleryBucketUtils.Bucket> bucketsSet = new LinkedHashSet<>(tempBuckets.size());
         bucketsSet.addAll(tempBuckets);
@@ -128,30 +164,30 @@ public class SettingsCameraBackupAdvanceFragment extends PreferenceFragmentCompa
         }
 
         if (bucketNames.isEmpty()) {
-            mCameraBackupLocalBucketPref.setVisible(false);
+            AlbumBackupManager.writeCustomAlbumSwitch(false);
             mCameraBackupCustomBucketsSwitch.setChecked(false);
+            mCameraBackupLocalBucketPref.setVisible(false);
         } else {
+            AlbumBackupManager.writeCustomAlbumSwitch(true);
             mCameraBackupCustomBucketsSwitch.setChecked(true);
             mCameraBackupLocalBucketPref.setVisible(true);
             mCameraBackupLocalBucketPref.setSummary(TextUtils.join(", ", bucketNames));
         }
     }
 
-
     private final ActivityResultLauncher<Intent> selectLocalDirLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
         @Override
-        public void onActivityResult(ActivityResult result) {
-            if (result == null || result.getData() == null) {
+        public void onActivityResult(ActivityResult o) {
+            if (o.getResultCode() != RESULT_OK) {
+
+                AlbumBackupManager.writeCustomAlbumSwitch(false);
+                mCameraBackupCustomBucketsSwitch.setChecked(false);
+                mCameraBackupLocalBucketPref.setVisible(false);
+
                 return;
             }
 
-            final String repoName = result.getData().getStringExtra(ObjSelectorActivity.DATA_REPO_NAME);
-            final String repoId = result.getData().getStringExtra(ObjSelectorActivity.DATA_REPO_ID);
-            final Account account = result.getData().getParcelableExtra(ObjSelectorActivity.DATA_ACCOUNT);
-            if (repoName != null && repoId != null) {
-                cameraUploaderManager.setCameraAccount(account);
-                SettingsManager.getInstance().saveCameraUploadRepoInfo(repoId, repoName);
-            }
+            BackgroundJobManagerImpl.getInstance().restartMediaUploadWorker(true);
 
             refreshPreferenceView();
         }

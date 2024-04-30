@@ -8,7 +8,6 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.CAMERA" />
 
     <uses-feature
@@ -33,33 +32,36 @@
     <uses-permission android:name="android.permission.MANAGE_ACCOUNTS" />
 
     <!--<uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />-->
-    <!--<uses-permission android:name="android.permission.READ_CONTACTS"/>-->
-    <!--<uses-permission android:name="android.permission.WRITE_CONTACTS"/>-->
 
     <!--android 9.0  FOREGROUND_SERVICE -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
     <uses-permission
         android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
         tools:ignore="ScopedStorage" />
+
     <uses-permission android:name="android.permission.READ_SYNC_STATS" />
 
     <!--    <uses-permission android:name="android.permission.ACCESS_MEDIA_LOCATION" />-->
 
+
+    <!-- Apps that target Android 9 (API level 28) or higher and use foreground services
+    must request the FOREGROUND_SERVICE permission -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <!-- Runtime permissions introduced in Android 13 (API level 33) -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
 
-    <!-- Apps that target Android 9 (API level 28) or higher and use foreground services
-    must request the FOREGROUND_SERVICE permission -->
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <!-- Needed for Android 14 (API level 34) -->
+    <!-- To handle the reselection within the app on devices running Android 14
+         or higher if your app targets Android 14 (API level 34) or higher.  -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
-
 
     <application
         android:name=".SeadroidApplication"
@@ -80,17 +82,17 @@
         <!--                android:value="androidx.startup" />-->
         <!--        </provider>-->
 
-<!--        <provider-->
-<!--            android:name="androidx.startup.InitializationProvider"-->
-<!--            android:authorities="${applicationId}.androidx-startup"-->
-<!--            android:exported="false"-->
-<!--            tools:node="merge">-->
-<!--            &lt;!&ndash; If you are using androidx.startup to initialize other components &ndash;&gt;-->
-<!--            <meta-data-->
-<!--                android:name="androidx.work.WorkManagerInitializer"-->
-<!--                android:value="androidx.startup"-->
-<!--                tools:node="remove" />-->
-<!--        </provider>-->
+        <!--        <provider-->
+        <!--            android:name="androidx.startup.InitializationProvider"-->
+        <!--            android:authorities="${applicationId}.androidx-startup"-->
+        <!--            android:exported="false"-->
+        <!--            tools:node="merge">-->
+        <!--            &lt;!&ndash; If you are using androidx.startup to initialize other components &ndash;&gt;-->
+        <!--            <meta-data-->
+        <!--                android:name="androidx.work.WorkManagerInitializer"-->
+        <!--                android:value="androidx.startup"-->
+        <!--                tools:node="remove" />-->
+        <!--        </provider>-->
 
         <meta-data
             android:name=".util.GlideCache"
@@ -117,12 +119,13 @@
 
         <activity
             android:name=".ui.main.MainActivity"
-            android:configChanges="orientation"
+            android:configChanges="uiMode|orientation|screenSize"
             android:exported="false"
             android:launchMode="singleTop" />
 
         <activity
             android:name=".ui.gesture.UnlockGesturePasswordActivity"
+            android:launchMode="singleTop"
             android:screenOrientation="portrait" />
 
         <activity
@@ -136,14 +139,8 @@
             android:name=".ui.account.AccountDetailActivity"
             android:parentActivityName=".ui.account.AccountsActivity" />
 
-        <!-- MultipleImageSelectionActivity uses the default theme, instead of
-             ActionBarSherlock -->
         <activity
-            android:name=".gallery.MultipleImageSelectionActivity"
-            android:theme="@style/AppTheme.Multiple" />
-
-        <activity
-            android:name=".ui.activity.ShareToSeafileActivity"
+            android:name=".ui.share.ShareToSeafileActivity"
             android:excludeFromRecents="true"
             android:exported="true">
             <intent-filter>
@@ -158,7 +155,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".ui.activity.FileActivity" />
+        <activity android:name=".ui.file.FileActivity" />
 
         <activity
             android:name=".ui.account.SeafileAuthenticatorActivity"
@@ -168,14 +165,16 @@
                 android:value=".ui.account.AccountsActivity" />
         </activity>
 
-        <activity android:name=".ui.transfer.TransferActivity" />
 
-        <activity android:name=".ui.camera_upload.CameraUploadConfigActivity" />
-        <activity android:name=".ui.folder_backup.FolderBackupConfigActivity" />
-
-        <activity android:name=".ui.activity.GalleryActivity" />
         <activity
-            android:name=".editor.EditorActivity"
+            android:name=".ui.camera_upload.CameraUploadConfigActivity"
+            android:configChanges="uiMode" />
+        <activity
+            android:name=".ui.folder_backup.FolderBackupConfigActivity"
+            android:configChanges="uiMode" />
+
+        <activity
+            android:name=".ui.editor.EditorActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.Editor" />
 
@@ -185,6 +184,7 @@
 
         <activity
             android:name=".ui.search.Search2Activity"
+            android:configChanges="uiMode"
             android:exported="true"
             android:launchMode="singleTop"
             android:voiceSearchMode="showVoiceSearchButton|launchRecognizer">
@@ -199,15 +199,15 @@
         <activity android:name=".ui.folder_backup.FolderBackupSelectedPathActivity" />
 
         <activity
-            android:name=".play.exoplayer.CustomExoVideoPlayerActivity"
+            android:name=".ui.play.exoplayer.CustomExoVideoPlayerActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
-            android:screenOrientation="sensor"
-            android:theme="@style/Theme.Fullscreen" />
+            android:screenOrientation="sensor" />
+
         <activity android:name=".ui.webview.SeaWebViewActivity" />
         <activity android:name=".ui.data_migrate.DataMigrationActivity" />
         <activity android:name=".ui.selector.ObjSelectorActivity" />
         <activity android:name=".ui.media.image_preview.ImagePreviewActivity" />
-        <activity android:name=".ui.transfer_list.TransferListActivity" />
+        <activity android:name=".ui.transfer_list.TransferActivity" />
 
         <provider
             android:name=".provider.SeafileProvider"
@@ -220,11 +220,6 @@
                 <action android:name="android.content.action.DOCUMENTS_PROVIDER" />
             </intent-filter>
         </provider>
-
-        <service android:name=".transfer.TransferService" />
-        <service android:name=".ui.folder_backup.FolderBackupService" />
-        <service android:name=".monitor.FileMonitorService" />
-        <service android:name=".ui.camera_upload.MediaObserverService" />
 
         <provider
             android:name=".ui.camera_upload.StubContentProvider"
@@ -266,11 +261,11 @@
                 android:resource="@xml/cameraadapter" />
         </service>
 
+        <!--        <service-->
+        <!--            android:name=".ui.camera_upload.MediaSchedulerService"-->
+        <!--            android:permission="android.permission.BIND_JOB_SERVICE" />-->
         <service
-            android:name=".ui.camera_upload.MediaSchedulerService"
-            android:permission="android.permission.BIND_JOB_SERVICE" />
-        <service
-            android:name=".worker.FileSyncService"
+            android:name=".framework.worker.FileSyncService"
             android:exported="false" />
 
         <receiver

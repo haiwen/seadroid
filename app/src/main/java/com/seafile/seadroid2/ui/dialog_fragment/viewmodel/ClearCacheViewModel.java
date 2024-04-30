@@ -3,8 +3,8 @@ package com.seafile.seadroid2.ui.dialog_fragment.viewmodel;
 import com.bumptech.glide.Glide;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
-import com.seafile.seadroid2.data.DatabaseHelper;
-import com.seafile.seadroid2.data.StorageManager;
+import com.seafile.seadroid2.framework.data.DatabaseHelper;
+import com.seafile.seadroid2.framework.datastore.StorageManager;
 
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
@@ -20,10 +20,9 @@ public class ClearCacheViewModel extends BaseViewModel {
                 StorageManager storageManager = StorageManager.getInstance();
                 storageManager.clearCache();
 
-                // clear cached data from database
-                //TODO 为什么要清理数据库？
-                DatabaseHelper dbHelper = DatabaseHelper.getDatabaseHelper();
-                dbHelper.delCaches();
+//                // clear cached data from database
+//                DatabaseHelper dbHelper = DatabaseHelper.getDatabaseHelper();
+//                dbHelper.delCaches();
 
                 //clear Glide cache
                 Glide.get(SeadroidApplication.getAppContext()).clearDiskCache();

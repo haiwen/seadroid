@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -29,39 +30,42 @@
         android:orientation="horizontal"
         android:paddingHorizontal="8dp">
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/cancel"
+            style="@style/App.Widget.Button.OutlinedButton"
             android:layout_width="match_parent"
             android:layout_height="@dimen/long_btn_height"
             android:layout_marginHorizontal="8dp"
             android:layout_weight="1"
-            android:gravity="center"
+            android:ellipsize="end"
+            android:maxLines="1"
             android:text="@string/cancel"
-            android:textSize="@dimen/btn_txt_size"
-            android:theme="@style/NegativeButton" />
+            android:textSize="@dimen/long_btn_txt_size" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/new_folder"
             android:layout_width="match_parent"
             android:layout_height="@dimen/long_btn_height"
             android:layout_marginHorizontal="8dp"
             android:layout_weight="1"
-            android:gravity="center"
+            android:ellipsize="end"
+            android:maxLines="1"
             android:text="@string/create_new_dir"
-            android:textSize="@dimen/btn_txt_size"
-            android:theme="@style/NegativeButton"
-            android:visibility="gone" />
+            android:textSize="@dimen/long_btn_txt_size"
+            android:visibility="visible" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/ok"
             android:layout_width="match_parent"
             android:layout_height="@dimen/long_btn_height"
             android:layout_marginHorizontal="8dp"
             android:layout_weight="1"
-            android:gravity="center"
+            android:ellipsize="end"
+            android:maxLines="1"
             android:text="@string/ok"
-            android:textSize="@dimen/btn_txt_size" />
+            android:textSize="@dimen/long_btn_txt_size" />
 
     </LinearLayout>
+
 </LinearLayout>
 

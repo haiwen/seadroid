@@ -1,43 +1,63 @@
 package com.seafile.seadroid2.ui.main;
 
+import android.content.Context;
+import android.net.Uri;
 import android.text.TextUtils;
+import android.webkit.MimeTypeMap;
 
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.MutableLiveData;
 
 import com.blankj.utilcode.util.CollectionUtils;
+import com.blankj.utilcode.util.FileUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
-import com.seafile.seadroid2.data.model.repo.DirentWrapperModel;
+import com.seafile.seadroid2.framework.data.db.entities.EncKeyCacheEntity;
+import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
+import com.seafile.seadroid2.framework.data.model.enums.TransferAction;
+import com.seafile.seadroid2.framework.data.model.enums.TransferDataSource;
+import com.seafile.seadroid2.framework.data.model.enums.TransferResult;
+import com.seafile.seadroid2.framework.data.model.enums.TransferStatus;
+import com.seafile.seadroid2.framework.data.model.repo.DirentWrapperModel;
+import com.seafile.seadroid2.framework.datastore.DataManager;
+import com.seafile.seadroid2.framework.util.Utils;
+import com.seafile.seadroid2.framework.worker.ExistingFileStrategy;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
-import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.context.NavContext;
-import com.seafile.seadroid2.data.ServerInfo;
-import com.seafile.seadroid2.data.db.AppDatabase;
-import com.seafile.seadroid2.data.db.entities.DirentModel;
-import com.seafile.seadroid2.data.db.entities.ObjsModel;
-import com.seafile.seadroid2.data.db.entities.RepoModel;
-import com.seafile.seadroid2.data.model.repo.RepoWrapperModel;
-import com.seafile.seadroid2.data.model.server.ServerInfoModel;
+import com.seafile.seadroid2.framework.data.ServerInfo;
+import com.seafile.seadroid2.framework.data.db.AppDatabase;
+import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
+import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
+import com.seafile.seadroid2.framework.data.model.repo.RepoWrapperModel;
+import com.seafile.seadroid2.framework.data.model.server.ServerInfoModel;
 import com.seafile.seadroid2.ui.repo.RepoService;
-import com.seafile.seadroid2.io.http.IO;
+import com.seafile.seadroid2.framework.http.IO;
 import com.seafile.seadroid2.ui.activities.AllActivitiesFragment;
 import com.seafile.seadroid2.ui.repo.RepoQuickFragment;
 import com.seafile.seadroid2.ui.star.StarredQuickFragment;
-import com.seafile.seadroid2.util.SLogs;
+import com.seafile.seadroid2.framework.util.FileTools;
+import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 
+import org.apache.commons.io.IOUtils;
+
+import java.io.File;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import io.reactivex.Single;
+import io.reactivex.SingleEmitter;
+import io.reactivex.SingleOnSubscribe;
 import io.reactivex.functions.Consumer;
-import kotlin.Pair;
 
 public class MainViewModel extends BaseViewModel {
-    private final MutableLiveData<Pair<String, String>> OnNewFileDownloadLiveData = new MutableLiveData<>();
+    //    private final MutableLiveData<Pair<String, String>> OnNewFileDownloadLiveData = new MutableLiveData<>();
     private final MutableLiveData<Integer> OnResortListLiveData = new MutableLiveData<>();
 
     //force refresh repo/dirents
@@ -52,9 +72,9 @@ public class MainViewModel extends BaseViewModel {
 
     private final MutableLiveData<ServerInfo> ServerInfoLiveData = new MutableLiveData<>();
 
-    public MutableLiveData<Pair<String, String>> getOnNewFileDownloadLiveData() {
-        return OnNewFileDownloadLiveData;
-    }
+//    public MutableLiveData<Pair<String, String>> getOnNewFileDownloadLiveData() {
+//        return OnNewFileDownloadLiveData;
+//    }
 
     public MutableLiveData<Boolean> getOnForceRefreshRepoListLiveData() {
         return OnForceRefreshRepoListLiveData;
@@ -101,7 +121,7 @@ public class MainViewModel extends BaseViewModel {
     }
 
     public void getServerInfo() {
-        Single<ServerInfoModel> single = IO.getSingleton().execute(MainService.class).getServerInfo();
+        Single<ServerInfoModel> single = IO.getInstanceWithLoggedIn().execute(MainService.class).getServerInfo();
         addSingleDisposable(single, new Consumer<ServerInfoModel>() {
             @Override
             public void accept(ServerInfoModel serverInfo) throws Exception {
@@ -149,7 +169,7 @@ public class MainViewModel extends BaseViewModel {
 
     private void requestRepoModelFromServer(String repoId, Consumer<RepoModel> consumer) {
         //from net
-        Single<RepoWrapperModel> singleNet = IO.getSingleton().execute(RepoService.class).getRepos();
+        Single<RepoWrapperModel> singleNet = IO.getInstanceWithLoggedIn().execute(RepoService.class).getRepos();
         addSingleDisposable(singleNet, new Consumer<RepoWrapperModel>() {
             @Override
             public void accept(RepoWrapperModel repoWrapperModel) throws Exception {
@@ -182,37 +202,23 @@ public class MainViewModel extends BaseViewModel {
         });
     }
 
-    public void getObjFromDB(String repoName, Consumer<ObjsModel> consumer) {
-        Single<List<ObjsModel>> single = AppDatabase.getInstance().objDao().getByPath(repoName, Constants.ObjType.REPO);
-        addSingleDisposable(single, new Consumer<List<ObjsModel>>() {
+    public void getEncCacheDB(String repoId, Consumer<EncKeyCacheEntity> consumer) {
+        Single<List<EncKeyCacheEntity>> single = AppDatabase.getInstance().encKeyCacheDAO().getListByRepoIdAsync(repoId);
+        addSingleDisposable(single, new Consumer<List<EncKeyCacheEntity>>() {
             @Override
-            public void accept(List<ObjsModel> objsModels) throws Exception {
-                if (!CollectionUtils.isEmpty(objsModels)) {
-                    consumer.accept(objsModels.get(0));
+            public void accept(List<EncKeyCacheEntity> list) throws Exception {
+                if (CollectionUtils.isEmpty(list)) {
+                    consumer.accept(null);
+                } else {
+                    consumer.accept(list.get(0));
                 }
-            }
-        }, new Consumer<Throwable>() {
-            @Override
-            public void accept(Throwable throwable) throws Exception {
-                SLogs.e(throwable);
             }
         });
     }
 
-    public void getDirentsFromLocal(String repoId, String parent_dir, Consumer<List<DirentModel>> consumer) {
-        Single<List<DirentModel>> singleDB = AppDatabase.getInstance().direntDao().getAllByParentPath(repoId, parent_dir);
-        addSingleDisposable(singleDB, new Consumer<List<DirentModel>>() {
-            @Override
-            public void accept(List<DirentModel> direntModels) throws Exception {
-                if (consumer != null) {
-                    consumer.accept(direntModels);
-                }
-            }
-        });
-    }
 
     public void getDirentsFromServer(String repoId, String parent_dir, Consumer<List<DirentModel>> consumer) {
-        Single<DirentWrapperModel> singleServer = IO.getSingleton().execute(RepoService.class).getDirents(repoId, parent_dir);
+        Single<DirentWrapperModel> singleServer = IO.getInstanceWithLoggedIn().execute(RepoService.class).getDirents(repoId, parent_dir);
         addSingleDisposable(singleServer, new Consumer<DirentWrapperModel>() {
             @Override
             public void accept(DirentWrapperModel direntWrapperModel) throws Exception {
@@ -223,4 +229,105 @@ public class MainViewModel extends BaseViewModel {
         });
     }
 
+    private Single<File> copyFile(Account account, Context context, Uri o, String repo_id, String repo_name, boolean isUpdate) {
+        return Single.create(new SingleOnSubscribe<File>() {
+            @Override
+            public void subscribe(SingleEmitter<File> emitter) throws Exception {
+                String fileName = Utils.getFilenameFromUri(context, o);
+                String p = getNavContext().getNavPath() + fileName;
+
+                File destinationFile = DataManager.getLocalRepoFile(account, repo_id, repo_name, p);
+                if (destinationFile.exists() && isUpdate) {
+                    destinationFile.delete();
+                }
+
+                try (InputStream in = context.getContentResolver().openInputStream(o);
+                     OutputStream out = Files.newOutputStream(destinationFile.toPath())) {
+                    IOUtils.copy(in, out);
+                }
+
+                emitter.onSuccess(destinationFile);
+            }
+        });
+    }
+
+    public void addUploadTask(Account account, Context context, RepoModel repoModel, String targetDir, Uri sourceUri, boolean isUpdate, Consumer<FileTransferEntity> consumer) {
+        Single<File> single = copyFile(account, context, sourceUri, repoModel.repo_id, repoModel.repo_name, isUpdate);
+        addSingleDisposable(single, new Consumer<File>() {
+            @Override
+            public void accept(File file) throws Exception {
+                addUploadTask(account, repoModel, targetDir, file.getAbsolutePath(), isUpdate, consumer);
+            }
+        });
+    }
+
+    public void addUploadTask(Account account, RepoModel repoModel, String targetDir, String localFilePath, boolean isReplace, Consumer<FileTransferEntity> consumer) {
+        Single<FileTransferEntity> single = Single.create(new SingleOnSubscribe<FileTransferEntity>() {
+            @Override
+            public void subscribe(SingleEmitter<FileTransferEntity> emitter) throws Exception {
+                FileTransferEntity entity = new FileTransferEntity();
+
+                File file = new File(localFilePath);
+                if (!file.exists()) {
+                    emitter.onSuccess(entity);
+                    return;
+                }
+
+                entity.full_path = file.getAbsolutePath();
+                entity.target_path = Utils.pathJoin(targetDir, file.getName());
+                entity.setParent_path(targetDir);
+
+                entity.file_name = file.getName();
+                entity.file_size = file.length();
+                entity.file_format = FileUtils.getFileExtension(entity.full_path);
+                entity.file_md5 = FileUtils.getFileMD5ToString(entity.full_path).toLowerCase();
+                entity.mime_type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(entity.file_format);
+
+//                entity.is_block = repoModel.canLocalDecrypt();
+
+                entity.repo_id = repoModel.repo_id;
+                entity.repo_name = repoModel.repo_name;
+                entity.related_account = account.getSignature();
+                entity.data_source = TransferDataSource.FILE_BACKUP;
+                entity.created_at = System.currentTimeMillis();
+                entity.modified_at = entity.created_at;
+                entity.file_original_modified_at = file.lastModified();
+                entity.action_end_at = 0;
+                entity.file_strategy = isReplace ? ExistingFileStrategy.REPLACE : ExistingFileStrategy.KEEP;
+                entity.is_copy_to_local = false;
+                entity.transfer_action = TransferAction.UPLOAD;
+                entity.transfer_result = TransferResult.NO_RESULT;
+                entity.transfer_status = TransferStatus.WAITING;
+
+                entity.uid = entity.getUID();
+
+                AppDatabase.getInstance().fileTransferDAO().insert(entity);
+
+                emitter.onSuccess(entity);
+
+            }
+        });
+
+        addSingleDisposable(single, new Consumer<FileTransferEntity>() {
+            @Override
+            public void accept(FileTransferEntity transferEntity) throws Exception {
+
+                if (TextUtils.isEmpty(transferEntity.uid)) {
+                    return;
+                }
+
+                //start worker
+                BackgroundJobManagerImpl.getInstance().startFileUploadWorker();
+
+                if (consumer != null) {
+                    consumer.accept(transferEntity);
+                }
+            }
+        }, new Consumer<Throwable>() {
+            @Override
+            public void accept(Throwable throwable) throws Exception {
+                throwable.printStackTrace();
+            }
+        });
+    }
 }

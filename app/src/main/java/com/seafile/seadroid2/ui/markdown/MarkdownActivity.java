@@ -1,40 +1,51 @@
 package com.seafile.seadroid2.ui.markdown;
 
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
-import androidx.core.content.FileProvider;
-import androidx.appcompat.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.FileProvider;
+
+import com.blankj.utilcode.util.FileUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.BuildConfig;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.editor.EditorActivity;
-import com.seafile.seadroid2.ui.BaseActivity;
-import com.seafile.seadroid2.util.FileMimeUtils;
+import com.seafile.seadroid2.framework.util.FileMimeUtils;
+import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
+import com.seafile.seadroid2.ui.editor.EditorActivity;
+import com.seafile.seadroid2.ui.editor.EditorViewModel;
 
 import java.io.File;
 
 import br.tiagohm.markdownview.MarkdownView;
-import br.tiagohm.markdownview.Utils;
 import br.tiagohm.markdownview.css.InternalStyleSheet;
 import br.tiagohm.markdownview.css.styles.Github;
+import io.reactivex.functions.Consumer;
 
 /**
  * For showing markdown files
  */
-public class MarkdownActivity extends BaseActivity implements Toolbar.OnMenuItemClickListener {
-
-    @SuppressWarnings("unused")
-    private static final String DEBUG_TAG = "MarkdownActivity";
+public class MarkdownActivity extends BaseActivityWithVM<EditorViewModel> implements Toolbar.OnMenuItemClickListener {
 
     private MarkdownView markdownView;
 
-    String path;
+    private String path, repoId, targetFile;
+
+    public static void start(Context context, String localPath, String repoId, String target_file) {
+        Intent starter = new Intent(context, MarkdownActivity.class);
+        starter.putExtra("path", localPath);
+        starter.putExtra("target_file", target_file);
+        starter.putExtra("repo_id", repoId);
+        context.startActivity(starter);
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -43,36 +54,62 @@ public class MarkdownActivity extends BaseActivity implements Toolbar.OnMenuItem
 
         Intent intent = getIntent();
         path = intent.getStringExtra("path");
+        repoId = intent.getStringExtra("repo_id");
+        targetFile = intent.getStringExtra("target_file");
 
         if (path == null) return;
 
         markdownView = findViewById(R.id.markdownView);
+//        markdownView.setWebViewClient(new ImageLoadWebViewClient());
+
         Toolbar toolbar = getActionBarToolbar();
         toolbar.setOnMenuItemClickListener(this);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle(FileUtils.getFileName(path));
+
+    }
+
+
+    @Override
+    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+
+        initMarkdown();
+    }
+
+    private void initMarkdown() {
+
+        InternalStyleSheet css = new Github();
+
+        int mode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        css.addRule("a", "color: orange");
+        if (mode == Configuration.UI_MODE_NIGHT_YES) {
+            css.addRule("body", new String[]{"line-height: 1.6", "padding: 0px", "background-color: #222;"});
+            css.addRule("body", "color: white");
+        } else {
+            css.addRule("body", new String[]{"line-height: 1.6", "padding: 0px"});
+        }
+
+        markdownView.addStyleSheet(css);
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        File file = new File(path);
-        if (!file.exists())
-            return;
 
-        InternalStyleSheet css = new Github();
-        css.addRule("body", new String[]{"line-height: 1.6", "padding: 0px"});
-        css.addRule("a", "color: orange");
-        markdownView.addStyleSheet(css);
-        try {
-            markdownView.loadMarkdownFromFile(file);
-        } catch (Exception e) {
-            markdownView.loadData(Utils.getStringFromFile(file), "text/plain", "UTF-8");
-            e.printStackTrace();
-        }
-
-        getSupportActionBar().setTitle(file.getName());
+        loadMarkContent();
     }
+
+    private void loadMarkContent() {
+        getViewModel().read(path, new Consumer<String>() {
+            @Override
+            public void accept(String s) {
+                markdownView.loadMarkdown(s);
+            }
+        });
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -110,9 +147,7 @@ public class MarkdownActivity extends BaseActivity implements Toolbar.OnMenuItem
         editAsMarkDown.setDataAndType(uri, mime);
 
         if ("text/plain".equals(mime)) {
-            Intent intent = new Intent(this, EditorActivity.class);
-            intent.putExtra("path", path);
-            startActivity(intent);
+            EditorActivity.start(this, path, repoId, targetFile);
         } else if (pm.queryIntentActivities(editAsMarkDown, 0).size() > 0) {
             // Some activity can edit markdown
             startActivity(editAsMarkDown);
@@ -130,4 +165,14 @@ public class MarkdownActivity extends BaseActivity implements Toolbar.OnMenuItem
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        if (markdownView != null) {
+            markdownView.loadUrl("about:blank");
+            markdownView.stopLoading();
+            markdownView.destroy();
+        }
+    }
 }

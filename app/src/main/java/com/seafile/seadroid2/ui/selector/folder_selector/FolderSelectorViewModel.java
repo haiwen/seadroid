@@ -5,9 +5,10 @@ import android.text.TextUtils;
 import androidx.lifecycle.MutableLiveData;
 
 import com.blankj.utilcode.util.CollectionUtils;
+import com.google.android.material.checkbox.MaterialCheckBox;
+import com.seafile.seadroid2.framework.datastore.sp.FolderBackupManager;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
-import com.seafile.seadroid2.util.FileTools;
-import com.seafile.seadroid2.util.sp.SettingsManager;
+import com.seafile.seadroid2.framework.util.FileTools;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -35,9 +36,11 @@ public class FolderSelectorViewModel extends BaseViewModel {
     public void removeSpecialPath(String filePath) {
         selectFilePath.removeIf(s -> TextUtils.equals(s, filePath));
     }
+
     public void addSpecialPath(String filePath) {
         selectFilePath.add(filePath);
     }
+
     public MutableLiveData<List<FileBean>> getDataListLiveData() {
         return dataListLiveData;
     }
@@ -45,7 +48,7 @@ public class FolderSelectorViewModel extends BaseViewModel {
     public void loadData(String path) {
 
         getRefreshLiveData().setValue(true);
-        boolean isJumpHiddenFile = SettingsManager.getInstance().isFolderBackupJumpHiddenFiles();
+        boolean isJumpHiddenFile = FolderBackupManager.isFolderBackupSkipHiddenFiles();
 
         Single<List<FileBean>> single = Single.create(new SingleOnSubscribe<List<FileBean>>() {
             @Override
@@ -67,14 +70,11 @@ public class FolderSelectorViewModel extends BaseViewModel {
                 for (File value : files) {
                     FileBean fileBean = new FileBean(value.getAbsolutePath());
                     if (isJumpHiddenFile && value.isHidden()) {
-                       continue;
+                        continue;
                     }
 
-                    if (!CollectionUtils.isEmpty(getSelectFilePathList())) {
-                        if (getSelectFilePathList().contains(fileBean.getFilePath())) {
-                            fileBean.setChecked(true);
-                        }
-                    }
+                    int checkState = checkIsInBackupPathList(fileBean.getFilePath());
+                    fileBean.setCheckedState(checkState);
 
                     fileBeanList.add(fileBean);
                 }
@@ -94,12 +94,38 @@ public class FolderSelectorViewModel extends BaseViewModel {
         });
     }
 
+    //prepare: FILE SYNC FEAT
+    private int checkIsInBackupPathList(String curPath) {
+
+        if (CollectionUtils.isEmpty(getSelectFilePathList())) {
+            return MaterialCheckBox.STATE_UNCHECKED;
+        }
+
+        for (String backupPath : getSelectFilePathList()) {
+            if (curPath.equals(backupPath)) {
+                return MaterialCheckBox.STATE_CHECKED;
+            }
+
+//            if (curPath.startsWith(backupPath)) {
+//                return MaterialCheckBox.STATE_CHECKED;
+//            }
+
+//            if (backupPath.startsWith(curPath)) {
+//                return MaterialCheckBox.STATE_INDETERMINATE;
+//            }
+        }
+
+        // backup: /storage/emulated/0/Downloads
+        return MaterialCheckBox.STATE_UNCHECKED;
+
+    }
+
     private void sortFileBeanList(List<FileBean> fileBeanList, int sortType) {
         Collections.sort(fileBeanList, (file1, file2) -> {
 
-            if (file1.isDir() && file2.isFile())
+            if (file1.isDir() && !file2.isDir())
                 return -1;
-            if (file1.isFile() && file2.isDir())
+            if (!file1.isDir() && file2.isDir())
                 return 1;
 
             switch (sortType) {

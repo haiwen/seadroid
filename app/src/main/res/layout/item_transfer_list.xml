@@ -38,7 +38,7 @@
         android:layout_marginStart="8dp"
         android:layout_weight="1"
         android:orientation="vertical"
-        android:paddingVertical="4dp"
+        android:paddingVertical="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/expandable_toggle_button"
         app:layout_constraintStart_toEndOf="@+id/transfer_file_icon"
@@ -46,10 +46,10 @@
 
         <TextView
             android:id="@+id/transfer_target_path"
+            style="@style/ListItemSubTitleStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ellipsize="middle"
-            style="@style/ListItemSubTitleStyle"
             tools:text="@string/app_name" />
 
         <TextView
@@ -57,24 +57,27 @@
             style="@style/ListItemTitleStyle"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
             android:ellipsize="middle"
             tools:text="@string/app_name" />
 
         <TextView
             android:id="@+id/transfer_file_state"
+            style="@style/ListItemSubTitleStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
             android:ellipsize="middle"
-            style="@style/ListItemSubTitleStyle"
             tools:text="@string/app_name" />
 
         <TextView
             android:id="@+id/transfer_file_size"
+            style="@style/ListItemSubTitleStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
             android:ellipsize="middle"
-            style="@style/ListItemSubTitleStyle"
-            tools:text="@string/app_name"/>
+            tools:text="@string/app_name" />
 
         <ProgressBar
             android:id="@+id/transfer_file_progress_bar"
@@ -91,17 +94,16 @@
         android:layout_height="@dimen/lv_item_height"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:background="@drawable/toggle_btn_selector_holo_light"
+        android:foreground="?selectableItemBackground"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
         <ImageView
-            android:layout_width="20dp"
-            android:layout_height="20dp"
+            android:layout_width="@dimen/lv_iv_action_width"
+            android:layout_height="@dimen/lv_item_height"
             android:layout_gravity="end|bottom"
-            android:layout_marginBottom="10dp"
-            android:src="@drawable/spinner_disabled_holo_light" />
+            android:src="@drawable/baseline_expandable_24" />
     </FrameLayout>
 
     <com.google.android.material.divider.MaterialDivider

@@ -11,7 +11,7 @@ import android.widget.EditText;
 
 import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.ui.BaseActivity;
+import com.seafile.seadroid2.ui.base.BaseActivity;
 
 /**
  * Single Sign-On welcome page

@@ -2,7 +2,8 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/pager"
@@ -13,105 +14,78 @@
         android:id="@+id/gallery_tool_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#44000000"
-        android:fitsSystemWindows="true"
         android:gravity="end"
         android:orientation="horizontal"
         android:padding="@dimen/gallery_padding"
         android:visibility="gone">
 
-        <ImageView
+        <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/gallery_download_photo"
-            android:layout_width="@dimen/gallery_icon_width"
-            android:layout_height="@dimen/gallery_icon_height"
-            android:layout_marginEnd="@dimen/gallery_icon_margin_right"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginEnd="12dp"
+            android:background="@drawable/shape_stroke_radius_solid_translucent"
             android:foreground="?selectableItemBackground"
             android:scaleType="centerInside"
             android:src="@drawable/action_download"
+            app:shapeAppearance="@style/ShapeCircleStyle"
             app:tint="@color/white" />
 
-        <ImageView
+        <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/gallery_delete_photo"
-            android:layout_width="@dimen/gallery_icon_width"
-            android:layout_height="@dimen/gallery_icon_height"
-            android:layout_marginEnd="@dimen/gallery_icon_margin_right"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginEnd="12dp"
+            android:background="@drawable/shape_stroke_radius_solid_translucent"
             android:foreground="?selectableItemBackground"
             android:scaleType="centerInside"
             android:src="@drawable/action_delete"
+            app:shapeAppearance="@style/ShapeCircleStyle"
             app:tint="@color/white" />
 
-        <ImageView
+        <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/gallery_star_photo"
-            android:layout_width="@dimen/gallery_icon_width"
-            android:layout_height="@dimen/gallery_icon_height"
-            android:layout_marginEnd="@dimen/gallery_icon_margin_right"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginEnd="12dp"
+            android:background="@drawable/shape_stroke_radius_solid_translucent"
             android:foreground="?selectableItemBackground"
             android:scaleType="centerInside"
             android:src="@drawable/baseline_star_outline_24"
+            app:shapeAppearance="@style/ShapeCircleStyle"
             app:tint="@color/white" />
 
-        <ImageView
+        <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/gallery_share_photo"
-            android:layout_width="@dimen/gallery_icon_width"
-            android:layout_height="@dimen/gallery_icon_height"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:background="@drawable/shape_stroke_radius_solid_translucent"
             android:foreground="?selectableItemBackground"
             android:scaleType="centerInside"
             android:src="@drawable/action_share"
+            app:shapeAppearance="@style/ShapeCircleStyle"
             app:tint="@color/white" />
 
     </LinearLayout>
 
-    <LinearLayout
+    <RelativeLayout
         android:id="@+id/page_index_container"
         android:layout_width="match_parent"
-        android:layout_height="40dp"
+        android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:background="#44000000"
-        android:baselineAligned="true"
-        android:fitsSystemWindows="true"
+        android:layout_marginBottom="8dp"
         android:orientation="horizontal"
         android:paddingHorizontal="16dp"
         android:visibility="gone">
 
         <TextView
-            android:id="@+id/gallery_page_name"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_marginEnd="16dp"
-            android:layout_weight="1"
-            android:ellipsize="start"
-            android:gravity="center_vertical"
-            android:maxLines="1"
-            android:text="@string/search_bar_hint"
-            android:textColor="@color/white"
-            android:textSize="16sp"
-            android:visibility="visible" />
-
-        <TextView
             android:id="@+id/gallery_page_index"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/white"
-            android:textSize="20sp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="/"
-            android:textColor="@color/white"
-            android:textSize="20sp" />
-
-        <TextView
-            android:id="@+id/gallery_page_count"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:shadowColor="@color/dark_gray"
-            android:shadowDy="1"
-            android:shadowRadius="1"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
             android:textColor="@color/white"
             android:textSize="16sp" />
-
-
-    </LinearLayout>
+    </RelativeLayout>
 
 </FrameLayout>

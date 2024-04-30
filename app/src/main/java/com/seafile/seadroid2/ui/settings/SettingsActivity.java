@@ -4,7 +4,9 @@ import android.os.Bundle;
 import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.OptIn;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.os.BuildCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -14,14 +16,14 @@ import androidx.preference.PreferenceFragmentCompat;
 import com.blankj.utilcode.util.FragmentUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.databinding.SettingsActivityLayoutBinding;
-import com.seafile.seadroid2.ui.BaseActivity;
-import com.seafile.seadroid2.ui.settings.SettingsFragment;
+import com.seafile.seadroid2.ui.base.BaseActivity;
 
 public class SettingsActivity extends BaseActivity implements Toolbar.OnMenuItemClickListener, PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
 
     private SettingsActivityLayoutBinding binding;
     private SettingsActivityViewModel viewModel;
 
+    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
@@ -50,7 +52,6 @@ public class SettingsActivity extends BaseActivity implements Toolbar.OnMenuItem
             }
         });
     }
-
 
     @Override
     public boolean onMenuItemClick(MenuItem item) {

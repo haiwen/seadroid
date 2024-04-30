@@ -11,7 +11,7 @@ import androidx.lifecycle.Observer;
 import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.ui.base.fragment.RequestCustomDialogFragmentWithVM;
-import com.seafile.seadroid2.data.model.ResultModel;
+import com.seafile.seadroid2.framework.data.model.ResultModel;
 import com.seafile.seadroid2.ui.dialog_fragment.viewmodel.DeleteRepoViewModel;
 
 public class DeleteRepoDialogFragment extends RequestCustomDialogFragmentWithVM<DeleteRepoViewModel> {

@@ -1,81 +1,68 @@
 package com.seafile.seadroid2.ui.selector.folder_selector;
 
 
+import com.blankj.utilcode.util.FileUtils;
+import com.google.android.material.checkbox.MaterialCheckBox;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.util.FileTools;
-import com.seafile.seadroid2.util.Utils;
+import com.seafile.seadroid2.framework.util.FileTools;
+import com.seafile.seadroid2.framework.util.Icons;
+import com.seafile.seadroid2.framework.util.Utils;
 
 import java.io.Serializable;
 
 
 public class FileBean implements Serializable {
     private String filePath;
-    private boolean dir;
-    private boolean file;
+    private boolean isDir;
+
     private String fileName;
     private String fileExtension;
     private int fileImgType;
-    private String parentPath;
-    private String parentName;
     private int childrenFileNumber;
     private int childrenDirNumber;
     private String size;
-    private boolean visible;
-    private boolean checked;
+
+
+    @MaterialCheckBox.CheckedState
+    private int checkedState;
+
     private long modifyTime;
     private long simpleSize;
 
     public FileBean(String filePath) {
         this.filePath = filePath;
-        visible = false;
-        checked = false;
-        if (FileTools.isFile(filePath)) {
-            file = true;
-            dir = false;
-        } else {
-            file = false;
-            dir = true;
-        }
+
+        isDir = FileUtils.isDir(filePath);
+
         fileName = FileTools.getFileName(filePath);
         fileExtension = FileTools.getFileExtension(filePath);
-        fileImgType = setImageResourceByExtension(fileExtension);
-        parentPath = FileTools.getParentPath(filePath);
-        parentName = FileTools.getDirName(filePath);
+
+        if (isDir) {
+            fileImgType = R.drawable.folders;
+        } else {
+            fileImgType = Icons.getFileIcon(fileName);
+        }
 
         int[] n = FileTools.getChildrenNumber(filePath);
         childrenFileNumber = n[0];
         childrenDirNumber = n[1];
         modifyTime = FileTools.getFileLastModified(filePath);
-        if (file) {
+        if (!isDir) {
             size = FileTools.getSize(filePath);
             simpleSize = FileTools.getSimpleSize(filePath);
         }
-    }
-
-    public int setImageResourceByExtension(String extension) {
-        int resourceId;
-        switch (extension) {
-            default:
-                if (dir) {
-                    resourceId = R.drawable.folders;
-                } else {
-                    resourceId = Utils.getFileIconSuffix(extension);
-                }
-                break;
-        }
-        return resourceId;
     }
 
     public void setFilePath(String filePath) {
         this.filePath = filePath;
     }
 
-    public void setVisible(boolean visible) {
-        this.visible = visible;
+    public void setCheckedState(int checkedState) {
+        this.checkedState = checkedState;
     }
 
-    public void setChecked(boolean checked) {
-        this.checked = checked;
+    public int getCheckedState() {
+        return checkedState;
     }
 
     public String getFilePath() {
@@ -83,11 +70,7 @@ public class FileBean implements Serializable {
     }
 
     public boolean isDir() {
-        return dir;
-    }
-
-    public boolean isFile() {
-        return file;
+        return isDir;
     }
 
     public String getFileName() {
@@ -102,14 +85,6 @@ public class FileBean implements Serializable {
         return fileImgType;
     }
 
-    public String getParentPath() {
-        return parentPath;
-    }
-
-    public String getParentName() {
-        return parentName;
-    }
-
     public String getChildrenFileNumber() {
         return String.valueOf(childrenFileNumber);
     }
@@ -122,28 +97,12 @@ public class FileBean implements Serializable {
         return size;
     }
 
-    public boolean isVisible() {
-        return visible;
-    }
-
-    public boolean isChecked() {
-        return checked;
-    }
-
     public long getModifyTime() {
         return modifyTime;
     }
 
     public long getSimpleSize() {
         return simpleSize;
-    }
-
-    public void setIsDir(Boolean dir) {
-        this.dir = dir;
-    }
-
-    public void setIsFile(Boolean file) {
-        this.file = file;
     }
 
     public void setSize(String size) {

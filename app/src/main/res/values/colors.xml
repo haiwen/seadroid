@@ -17,8 +17,7 @@
     <color name="fancy_white">#f4f5f6</color> <!-- theme color -->
     <color name="fancy_light_white">#fcfcfc</color>
     <color name="fancy_black">#888888</color>
-    <color name="fancy_light_black">#a9a9a9
-    </color> <!-- color for slide expandable list item background -->
+    <color name="fancy_light_black">#a9a9a9</color> <!-- color for slide expandable list item background -->
     <color name="fancy_dark_black">#282828</color>
     <color name="fancy_deep_black">#989898
     </color> <!-- color for dividers inside of slide expandable list item -->
@@ -48,7 +47,7 @@
     <color name="blue_200">#FF90CAF9</color>
     <color name="blue_500">#FF2196F3</color>
     <color name="blue_700">#FF1976D2</color>
-    <color name="blue_bg">#FF303030</color>
+    <color name="blue_bg">#FF303030</color>A235
     <color name="pale_yellow">#DFA788</color>
 
     <color name="file_bottom_line">#ECECEC</color>
@@ -62,8 +61,14 @@
     <color name="list_item_title_color">#333333</color>
     <color name="list_item_subtitle_color">#888888</color>
 
+    <color name="icon_actionbar_tint_color">#5A5A5A</color>
+    <color name="icon_tint_color">#9E9E9E</color>
+
     <color name="toolbar_background_color">#F2F2F2</color>
     <color name="toolbar_title_color">#191919</color>
+
+    <color name="toolbar_editor_background_color">@color/blue_500</color>
+    <color name="toolbar_editor_title_color">@color/white</color>
 
     <color name="alert_dialog_background_color">#f2f2f2</color>
     <color name="alert_dialog_onsurface_color">#191919</color>

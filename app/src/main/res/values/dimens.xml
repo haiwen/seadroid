@@ -111,19 +111,19 @@
     <dimen name="tv_txt_size">12sp</dimen>
     <dimen name="tv_padding">5dp</dimen>
 
-    <dimen name="long_btn_height">54dp</dimen> <!-- Button -->
+    <dimen name="long_btn_height">48dp</dimen> <!-- Button -->
     <dimen name="long_btn_padding_top">0dp</dimen>
     <dimen name="long_btn_padding_bottom">7dp</dimen>
     <dimen name="long_btn_margin_left">20dp</dimen>
     <dimen name="long_btn_margin_right">20dp</dimen>
-    <dimen name="long_btn_txt_size">18sp</dimen>
+    <dimen name="long_btn_txt_size">16sp</dimen>
 
     <dimen name="btn_height">60dp</dimen>
-    <dimen name="btn_txt_size">18sp</dimen>
+    <dimen name="btn_txt_size">16sp</dimen>
 
     <dimen name="dialog_title_margin_top">10dp</dimen> <!-- Dialog -->
     <dimen name="dialog_title_margin_bottom">3dp</dimen>
-    <dimen name="dialog_title_txt_size">18sp</dimen>
+    <dimen name="dialog_title_txt_size">16sp</dimen>
     <dimen name="dialog_lv_txt_size">16sp</dimen>
     <dimen name="dialog_msg_title_txt_size">16sp</dimen>
     <dimen name="dialog_msg_txt_size">20sp</dimen>

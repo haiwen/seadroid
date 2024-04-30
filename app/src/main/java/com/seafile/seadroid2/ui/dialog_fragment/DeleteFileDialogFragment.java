@@ -7,14 +7,16 @@ import androidx.lifecycle.Observer;
 
 import com.blankj.utilcode.util.CollectionUtils;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
 import com.seafile.seadroid2.ui.base.fragment.RequestCustomDialogFragmentWithVM;
-import com.seafile.seadroid2.data.db.entities.DirentModel;
-import com.seafile.seadroid2.ui.dialog_fragment.viewmodel.DeleteDirentsViewModel;
+import com.seafile.seadroid2.ui.dialog_fragment.viewmodel.DeleteDirsViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class DeleteFileDialogFragment extends RequestCustomDialogFragmentWithVM<DeleteDirentsViewModel> {
+public class DeleteFileDialogFragment extends RequestCustomDialogFragmentWithVM<DeleteDirsViewModel> {
     private List<DirentModel> dirents;
     private boolean isDir;
 
@@ -35,7 +37,7 @@ public class DeleteFileDialogFragment extends RequestCustomDialogFragmentWithVM<
 
     @Override
     protected int getLayoutId() {
-        return R.layout.view_dialog_message_textview;
+        return R.layout.view_dialog_delete_dirent;
     }
 
     @Override
@@ -45,7 +47,8 @@ public class DeleteFileDialogFragment extends RequestCustomDialogFragmentWithVM<
             return;
         }
 
-        getViewModel().deleteDirents(dirents);
+        Account account = SupportAccountManager.getInstance().getCurrentAccount();
+        getViewModel().deleteDirents(account.getSignature(), dirents, false);
     }
 
     @Override
@@ -76,5 +79,9 @@ public class DeleteFileDialogFragment extends RequestCustomDialogFragmentWithVM<
         //set message
         TextView textView = containerView.findViewById(R.id.message_view);
         textView.setText(R.string.delete_file);
+
+
     }
+
+
 }

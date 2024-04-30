@@ -7,22 +7,36 @@ import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ComponentActivity;
 import androidx.core.app.NavUtils;
 import androidx.core.app.TaskStackBuilder;
 
+import com.blankj.utilcode.util.ToastUtils;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Authenticator;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.framework.util.Objs;
+import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
 import com.seafile.seadroid2.config.Constants;
+import com.seafile.seadroid2.ui.markdown.MarkdownActivity;
+import com.seafile.seadroid2.ui.repo.RepoQuickFragment;
+
+import java.io.File;
 
 /**
  * The Authenticator activity.
@@ -45,6 +59,7 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
     public final static String ARG_AVATAR_URL = "AVATAR_URL";
     public final static String ARG_NAME = "NAME";
     public final static String ARG_SHIB = "SHIB";
+    public final static String ARG_LOGIN_TIME = "LOGIN_TIME";
     public final static String ARG_AUTH_SESSION_KEY = "TWO_FACTOR_AUTH";
     public final static String ARG_IS_EDITING = "isEdited";
 
@@ -73,27 +88,24 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent;
-                switch ((int) id) {
-                    case SEACLOUD_CC:
-                        intent = new Intent(SeafileAuthenticatorActivity.this, AccountDetailActivity.class);
-                        intent.putExtras(getIntent());
-                        intent.putExtra(SeafileAuthenticatorActivity.ARG_SERVER_URI, getString(R.string.server_url_seacloud));
-                        startActivityForResult(intent, SeafileAuthenticatorActivity.REQ_SIGNUP);
-                        break;
-                    case SINGLE_SIGN_ON_LOGIN:
-                        intent = new Intent(SeafileAuthenticatorActivity.this, SingleSignOnActivity.class);
-                        intent.putExtras(getIntent());
-                        startActivityForResult(intent, SeafileAuthenticatorActivity.REQ_SIGNUP);
-                        break;
-                    case OTHER_SERVER:
-                        intent = new Intent(SeafileAuthenticatorActivity.this, AccountDetailActivity.class);
-                        intent.putExtras(getIntent());
-                        startActivityForResult(intent, SeafileAuthenticatorActivity.REQ_SIGNUP);
-                        break;
-                    default:
-                        return;
+                Intent intent = null;
+                if (id == SEACLOUD_CC) {
+                    intent = new Intent(SeafileAuthenticatorActivity.this, AccountDetailActivity.class);
+                    intent.putExtras(getIntent());
+                    intent.putExtra(SeafileAuthenticatorActivity.ARG_SERVER_URI, getString(R.string.server_url_seacloud));
+
+                } else if (id == SINGLE_SIGN_ON_LOGIN) {
+                    intent = new Intent(SeafileAuthenticatorActivity.this, SingleSignOnActivity.class);
+                    intent.putExtras(getIntent());
+                } else if (id == OTHER_SERVER) {
+                    intent = new Intent(SeafileAuthenticatorActivity.this, AccountDetailActivity.class);
+                    intent.putExtras(getIntent());
                 }
+
+                if (intent != null) {
+                    activityLauncher.launch(intent);
+                }
+
             }
         });
 
@@ -104,14 +116,18 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
 
             String serverUrl = SupportAccountManager.getInstance().getUserData(account, Authenticator.KEY_SERVER_URI);
             intent.putExtra(SingleSignOnActivity.SINGLE_SIGN_ON_SERVER_URL, serverUrl);
-            intent.putExtras(getIntent().getExtras());
-            startActivityForResult(intent, SeafileAuthenticatorActivity.REQ_SIGNUP);
+            if (getIntent() != null) {
+                intent.putExtras(getIntent().getExtras());
+            }
+            activityLauncher.launch(intent);
 
         } else if (getIntent().getBooleanExtra(ARG_IS_EDITING, false)) {
 
             Intent intent = new Intent(this, AccountDetailActivity.class);
-            intent.putExtras(getIntent().getExtras());
-            startActivityForResult(intent, SeafileAuthenticatorActivity.REQ_SIGNUP);
+            if (getIntent() != null) {
+                intent.putExtras(getIntent().getExtras());
+            }
+            activityLauncher.launch(intent);
         }
 
         Toolbar toolbar = getActionBarToolbar();
@@ -141,7 +157,7 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
      * @param currentActivity         Activity in use when navigate Up action occurred.
      * @param syntheticParentActivity Parent activity to use when one is not already configured.
      */
-    public void navigateUpOrBack(Activity currentActivity, Class<? extends Activity> syntheticParentActivity) {
+    public void navigateUpOrBack(ComponentActivity currentActivity, Class<? extends Activity> syntheticParentActivity) {
         // Retrieve parent activity from AndroidManifest.
         Intent intent = NavUtils.getParentActivityIntent(currentActivity);
 
@@ -177,22 +193,30 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
         }
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
+    private final ActivityResultLauncher<Intent> activityLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+        @Override
+        public void onActivityResult(ActivityResult o) {
+            if (o == null) {
+                finish();
+                return;
+            }
 
-        Log.d(DEBUG_TAG, "onActivityResult");
-
-        // The sign up activity returned that the user has successfully created an account
-        if (requestCode == REQ_SIGNUP && resultCode == RESULT_OK) {
-            finishLogin(data);
-        } else {
-            finish();
+            if (o.getResultCode() == RESULT_OK) {
+                finishLogin(o.getData());
+            } else {
+                finish();
+            }
         }
-    }
+    });
 
     private void finishLogin(Intent intent) {
         Log.d(DEBUG_TAG, "finishLogin");
+
+        //firebase - event -login
+        Bundle eventBundle = new Bundle();
+        eventBundle.putString(FirebaseAnalytics.Param.METHOD, "finishLogin");
+        FirebaseAnalytics.getInstance(this).logEvent(FirebaseAnalytics.Event.LOGIN, eventBundle);
+
 
         String newAccountName = intent.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
         String accountType = intent.getStringExtra(AccountManager.KEY_ACCOUNT_TYPE);
@@ -205,7 +229,7 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
         String serverUri = intent.getStringExtra(ARG_SERVER_URI);
         boolean shib = intent.getBooleanExtra(ARG_SHIB, false);
 
-        //new account
+        //new android account
         final Account newAccount = new Account(newAccountName, accountType);
 
         int cameraIsSyncable = 0;
@@ -246,12 +270,14 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
         bundle.putString(Authenticator.KEY_SERVER_URI, serverUri);
         bundle.putString(Authenticator.KEY_EMAIL, email);
         bundle.putString(Authenticator.KEY_NAME, name);
-        bundle.putString(Authenticator.SESSION_KEY, sessionKey);
         bundle.putString(Authenticator.KEY_AVATAR_URL, avatarUrl);
+        bundle.putString(Authenticator.SESSION_KEY, sessionKey);
+        bundle.putString(Authenticator.LOGIN_TIME, String.valueOf(System.currentTimeMillis()));
 
         //add account
         SupportAccountManager.getInstance().addAccountExplicitly(newAccount, null, bundle);
         SupportAccountManager.getInstance().setAuthToken(newAccount, Authenticator.AUTHTOKEN_TYPE, authToken);
+
 
         if (shib) {
             SupportAccountManager.getInstance().setUserData(newAccount, Authenticator.KEY_SHIB, "shib");

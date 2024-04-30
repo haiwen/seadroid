@@ -11,6 +11,8 @@ import android.widget.ProgressBar;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.blankj.utilcode.util.SPStaticUtils;
+import com.blankj.utilcode.util.SizeUtils;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.engine.GlideException;
@@ -24,26 +26,31 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.config.GlideLoadConfig;
+import com.seafile.seadroid2.framework.datastore.DataManager;
+import com.seafile.seadroid2.framework.util.GlideApp;
 import com.seafile.seadroid2.ui.base.fragment.BaseFragment;
-import com.seafile.seadroid2.util.GlideApp;
-import com.seafile.seadroid2.util.SLogs;
-import com.seafile.seadroid2.util.Utils;
+import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.util.Utils;
+
+import java.io.File;
 
 public class PhotoFragment extends BaseFragment {
 
-    private String repoId, parentPath, fileName;
+    private String repoId, repoName, fullPath;
+    private Account account;
+
     private OnPhotoTapListener onPhotoTapListener;
 
     public void setOnPhotoTapListener(OnPhotoTapListener onPhotoTapListener) {
         this.onPhotoTapListener = onPhotoTapListener;
     }
 
-    public static PhotoFragment newInstance(String repoId, String path, String fileName) {
+    public static PhotoFragment newInstance(String repoId, String repoName, String fullPath) {
 
         Bundle args = new Bundle();
         args.putString("repoId", repoId);
-        args.putString("path", path);
-        args.putString("fileName", fileName);
+        args.putString("repoName", repoName);
+        args.putString("fullPath", fullPath);
 
         PhotoFragment fragment = new PhotoFragment();
         fragment.setArguments(args);
@@ -57,9 +64,10 @@ public class PhotoFragment extends BaseFragment {
             throw new IllegalArgumentException("Arguments is null");
         }
 
+        account = SupportAccountManager.getInstance().getCurrentAccount();
         repoId = getArguments().getString("repoId");
-        parentPath = getArguments().getString("path");
-        fileName = getArguments().getString("fileName");
+        repoName = getArguments().getString("repoName");
+        fullPath = getArguments().getString("fullPath");
     }
 
     @Nullable
@@ -71,6 +79,7 @@ public class PhotoFragment extends BaseFragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
         PhotoView photoView = view.findViewById(R.id.photo_view);
         photoView.setZoomable(true);
         photoView.setZoomTransitionDuration(300);
@@ -87,13 +96,24 @@ public class PhotoFragment extends BaseFragment {
 
         ProgressBar progressBar = view.findViewById(R.id.progress_bar);
 
+        File file = DataManager.getLocalRepoFile(account, repoId, repoName, fullPath);
+        if (file.exists()) {
+            progressBar.setVisibility(View.GONE);
+
+            GlideApp.with(requireContext())
+                    .load(file)
+                    .into(photoView);
+            return;
+        }
+
         String url = getUrl();
         SLogs.d(url);
         if (url == null) {
-            photoView.setImageResource(R.drawable.file_image);
+            photoView.setImageResource(R.drawable.icon_image_error_filled);
         } else {
             RequestOptions opt = new RequestOptions()
                     .skipMemoryCache(true)
+                    .error(R.drawable.icon_image_error_filled)
                     .diskCacheStrategy(DiskCacheStrategy.NONE);
 
             GlideUrl glideUrl1 = GlideLoadConfig.getGlideUrl(url);
@@ -120,12 +140,13 @@ public class PhotoFragment extends BaseFragment {
     }
 
     private String getUrl() {
-        String fileFullPath = Utils.pathJoin(parentPath, fileName);
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
         if (account == null) {
             return null;
         }
+
 //        return String.format("%srepo/%s/raw%s", account.getServer(), repoId, fileFullPath);
-        return String.format("%sapi2/repos/%s/thumbnail/?p=%s&size=%s", account.getServer(), repoId, fileFullPath, 100000);
+        int size = SizeUtils.dp2px(300);
+        return String.format("%sapi2/repos/%s/thumbnail/?p=%s&size=%s", account.getServer(), repoId, fullPath, size);
     }
 }

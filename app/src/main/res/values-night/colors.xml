@@ -60,8 +60,13 @@
     <color name="list_item_title_color">#d3d3d3</color>
     <color name="list_item_subtitle_color">#5e5e5e</color>
 
+    <color name="icon_tint_color">#8E8E8E</color>
+
     <color name="toolbar_background_color">#191919</color>
     <color name="toolbar_title_color">#f2f2f2</color>
+
+    <color name="toolbar_editor_background_color">@color/blue_500</color>
+    <color name="toolbar_editor_title_color">@color/white</color>
 
     <color name="alert_dialog_background_color">#191919</color>
     <color name="alert_dialog_onsurface_color">#f2f2f2</color>

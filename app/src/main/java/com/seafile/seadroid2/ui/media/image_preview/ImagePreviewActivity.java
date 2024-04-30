@@ -1,13 +1,19 @@
 package com.seafile.seadroid2.ui.media.image_preview;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowInsets;
 import android.view.WindowInsetsController;
 
+import androidx.activity.OnBackPressedCallback;
+import androidx.annotation.Nullable;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -15,48 +21,67 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.ToastUtils;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.data.db.entities.DirentModel;
+import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
 import com.seafile.seadroid2.databinding.ActivityImagePreviewBinding;
-import com.seafile.seadroid2.ui.BaseActivity;
+import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
+import com.seafile.seadroid2.framework.data.model.activities.ActivityModel;
+import com.seafile.seadroid2.framework.data.model.search.SearchModel;
+import com.seafile.seadroid2.framework.data.db.entities.StarredModel;
+import com.seafile.seadroid2.ui.base.BaseActivity;
 import com.seafile.seadroid2.ui.adapter.ViewPager2Adapter;
+import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
 import com.seafile.seadroid2.ui.dialog_fragment.DeleteFileDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.listener.OnRefreshDataListener;
-import com.seafile.seadroid2.util.Objs;
-import com.seafile.seadroid2.util.Utils;
+import com.seafile.seadroid2.framework.util.Objs;
+import com.seafile.seadroid2.framework.util.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
-public class ImagePreviewActivity extends BaseActivity {
+import io.reactivex.functions.Consumer;
+
+public class ImagePreviewActivity extends BaseActivityWithVM<ImagePreviewViewModel> {
     private ActivityImagePreviewBinding binding;
-    private ImagePreviewViewModel viewModel;
     private ViewPager2Adapter adapter;
-    private String repoId, fullPath, parentPath, fileName;
-    private List<DirentModel> dataList;
+    private DirentModel currentDirent;
+    private List<DirentModel> dataList = CollectionUtils.newArrayList();
+    private boolean isDataOperated = false;
 
-    public static void startThis(Context context, String repoId, String fullPath) {
+    public static Intent startThisFromRepo(Context context, DirentModel direntModel, ArrayList<DirentModel> direntModels) {
         Intent intent = new Intent(context, ImagePreviewActivity.class);
-        intent.putExtra("repoId", repoId);
-        intent.putExtra("fullPath", fullPath);
+        intent.putExtra("dirent", direntModel);
+        intent.putParcelableArrayListExtra("dirent_list", direntModels);
+        return intent;
+    }
+
+    public static Intent startThisFromStarred(Context context, StarredModel starredModel) {
+        Intent intent = new Intent(context, ImagePreviewActivity.class);
+        intent.putExtra("dirent", StarredModel.converterThis2DirentModel(starredModel));
+        return intent;
+    }
+
+    public static Intent startThisFromActivity(Context context, ActivityModel starredModel) {
+        Intent intent = new Intent(context, ImagePreviewActivity.class);
+        intent.putExtra("dirent", ActivityModel.converterThis2DirentModel(starredModel));
+        return intent;
+    }
+
+
+    public static void startThisFromSearch(Context context, SearchModel starredModel) {
+        Intent intent = new Intent(context, ImagePreviewActivity.class);
+        intent.putExtra("dirent", SearchModel.converterThis2DirentModel(starredModel));
         context.startActivity(intent);
     }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        //TODO
-        // 在 Android 11 及更高版本中，使用 WindowInsetsController 来隐藏状态栏和导航栏
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            final WindowInsetsController controller = getWindow().getInsetsController();
-            if (controller != null) {
-                controller.hide(WindowInsets.Type.statusBars() | WindowInsets.Type.navigationBars());
-                controller.setSystemBarsBehavior(WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
-            }
-        } else {
-            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
-        }
+        changeBarStatus(false);
 
         binding = ActivityImagePreviewBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -67,18 +92,69 @@ public class ImagePreviewActivity extends BaseActivity {
         initViewModel();
         initAdapter();
 
+        getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (isDataOperated) {
+                    setResult(RESULT_OK);
+                }
+                finish();
+            }
+        });
+    }
+
+    private void changeBarStatus(boolean isShow) {
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+            WindowInsetsController controller = getWindow().getInsetsController();
+            if (controller != null) {
+                if (!isShow) {
+                    controller.hide(WindowInsets.Type.statusBars());
+                    controller.hide(WindowInsets.Type.navigationBars());
+                } else {
+                    controller.show(WindowInsets.Type.statusBars());
+                    controller.show(WindowInsets.Type.navigationBars());
+                }
+            }
+        } else {
+            WindowInsetsControllerCompat controllerCompat = ViewCompat.getWindowInsetsController(binding.getRoot());
+            if (controllerCompat != null) {
+                if (!isShow) {
+                    controllerCompat.hide(WindowInsetsCompat.Type.statusBars());
+                    controllerCompat.hide(WindowInsetsCompat.Type.navigationBars());
+                } else {
+                    controllerCompat.show(WindowInsetsCompat.Type.statusBars());
+                    controllerCompat.show(WindowInsetsCompat.Type.navigationBars());
+                }
+            }
+        }
+
+    }
+
+    @Override
+    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+
         loadData();
     }
 
     private void initData() {
+
         if (getIntent() == null) {
             throw new IllegalArgumentException("Intent is null");
         }
 
-        repoId = getIntent().getStringExtra("repoId");
-        fullPath = getIntent().getStringExtra("fullPath");
-        parentPath = Utils.getParentPath(fullPath);
-        fileName = Utils.getFileNameFromPath(fullPath);
+        currentDirent = getIntent().getParcelableExtra("dirent");
+
+        if (getIntent().hasExtra("dirent_list")) {
+            ArrayList<DirentModel> ds = getIntent().getParcelableArrayListExtra("dirent_list");
+            dataList.addAll(ds);
+        }
+
+        if (CollectionUtils.isEmpty(dataList)) {
+            dataList.add(currentDirent);
+        }
     }
 
     private void initView() {
@@ -101,8 +177,6 @@ public class ImagePreviewActivity extends BaseActivity {
         binding.gallerySharePhoto.setOnClickListener(onClickListener);
     }
 
-    private int mPageIndex;
-
     private void initAdapter() {
         adapter = new ViewPager2Adapter(this);
         binding.pager.setAdapter(adapter);
@@ -111,37 +185,55 @@ public class ImagePreviewActivity extends BaseActivity {
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
 
-                // page index starting from 1 instead of 0 in user interface, so plus one here
-                binding.galleryPageIndex.setText(String.valueOf(position + 1));
-                mPageIndex = position;
-                // fixed IndexOutOfBoundsException when accessing list
-                if (mPageIndex == dataList.size()) return;
-                fileName = dataList.get(mPageIndex).name;
+                if (CollectionUtils.isEmpty(dataList)) {
+                    binding.galleryPageIndex.setText("1/1");
+                    return;
+                }
 
-                binding.galleryPageName.setText(fileName);
+                String fs = String.format(Locale.getDefault(), "%d/%d", (position + 1), dataList.size());
+                binding.galleryPageIndex.setText(fs);
             }
         });
     }
 
     private void initViewModel() {
-        viewModel = new ViewModelProvider(this).get(ImagePreviewViewModel.class);
-        viewModel.getListLiveData().observe(this, new Observer<List<DirentModel>>() {
+        getViewModel().getRefreshLiveData().observe(this, new Observer<Boolean>() {
             @Override
-            public void onChanged(List<DirentModel> direntModels) {
-                notifyFragmentList(direntModels);
+            public void onChanged(Boolean aBoolean) {
+                if (aBoolean) {
+                    showProgressDialog();
+                } else {
+                    dismissProgressDialog();
+                }
             }
         });
 
-        viewModel.getStarLiveData().observe(this, new Observer<Boolean>() {
+        getViewModel().getStarLiveData().observe(this, new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean aBoolean) {
+                if (aBoolean) {
+                    isDataOperated = true;
+                }
+
+                boolean isStar = dataList.get(binding.pager.getCurrentItem()).starred;
+                dataList.get(binding.pager.getCurrentItem()).starred = !isStar;
+
                 ToastUtils.showLong(aBoolean ? R.string.star_file_succeed : R.string.star_file_failed);
             }
         });
     }
 
     private void loadData() {
-        viewModel.loadData(repoId, parentPath);
+        getViewModel().getRepoModelFromDB(currentDirent.repo_id, new Consumer<RepoModel>() {
+            @Override
+            public void accept(RepoModel repoModel) {
+                if (!repoModel.hasWritePermission()) {
+                    binding.galleryDeletePhoto.setVisibility(View.GONE);
+                }
+
+                notifyFragmentList(dataList);
+            }
+        });
     }
 
     private void notifyFragmentList(List<DirentModel> direntModels) {
@@ -149,14 +241,12 @@ public class ImagePreviewActivity extends BaseActivity {
             return;
         }
 
-        dataList = direntModels;
-
         List<Fragment> fragments = new ArrayList<>();
         for (DirentModel direntModel : direntModels) {
             PhotoFragment photoFragment = PhotoFragment.newInstance(
                     direntModel.repo_id,
-                    direntModel.parent_dir,
-                    direntModel.name);
+                    direntModel.repo_name,
+                    direntModel.full_path);
             photoFragment.setOnPhotoTapListener((view, x, y) -> hideOrShowToolBar());
 
             fragments.add(photoFragment);
@@ -170,11 +260,6 @@ public class ImagePreviewActivity extends BaseActivity {
 
     private boolean showToolBar = false;
 
-    /**
-     * This method will get called when tapping at the center of a photo,
-     * tool bar will auto hide when open the gallery,
-     * and will show or hide alternatively when tapping.
-     */
     private void hideOrShowToolBar() {
         binding.galleryToolBar.setVisibility(!showToolBar ? View.VISIBLE : View.GONE);
         binding.pageIndexContainer.setVisibility(!showToolBar ? View.VISIBLE : View.GONE);
@@ -187,37 +272,39 @@ public class ImagePreviewActivity extends BaseActivity {
      */
     private void navToSelectedPage() {
         int size = dataList.size();
-
+        int mPageIndex = -1;
         for (int i = 0; i < size; i++) {
-            if (dataList.get(i).name.equals(fileName)) {
+            if (dataList.get(i).name.equals(currentDirent.name)) {
                 binding.pager.setCurrentItem(i);
                 binding.galleryPageIndex.setText(String.valueOf(i + 1));
                 mPageIndex = i;
-                binding.galleryPageName.setText(fileName);
                 break;
             }
         }
-        binding.galleryPageCount.setText(String.valueOf(size));
+
+        if (mPageIndex != -1) {
+            binding.galleryPageIndex.setText(String.format(Locale.getDefault(), "%d/%d", (mPageIndex + 1), size));
+        }
     }
 
-    private String getCurFullPath() {
-        return dataList.get(binding.pager.getCurrentItem()).full_path;
+    private DirentModel getSelectedDirent() {
+        return dataList.get(binding.pager.getCurrentItem());
     }
 
     private void deleteFile() {
-        String curPath = getCurFullPath();
+
         int curItem = binding.pager.getCurrentItem();
 
-        DirentModel direntModel = new DirentModel();
-        direntModel.repo_id = repoId;
-        direntModel.full_path = curPath;
-
         DeleteFileDialogFragment dialogFragment = DeleteFileDialogFragment.newInstance();
+
+        DirentModel direntModel = getSelectedDirent();
         dialogFragment.initData(direntModel);
         dialogFragment.setRefreshListener(new OnRefreshDataListener() {
             @Override
             public void onActionStatus(boolean isDone) {
                 if (isDone) {
+                    isDataOperated = true;
+
                     dataList.remove(curItem);
                     adapter.removeFragment(curItem);
                     adapter.notifyItemRemoved(curItem);
@@ -235,23 +322,45 @@ public class ImagePreviewActivity extends BaseActivity {
             return;
         }
 
-        viewModel.star(repoId, getCurFullPath());
+        DirentModel direntModel = getSelectedDirent();
+        if (direntModel.starred) {
+            getViewModel().unStar(direntModel.repo_id, direntModel.full_path);
+        } else {
+            getViewModel().star(direntModel.repo_id, direntModel.full_path);
+        }
     }
 
     private void shareFile() {
-        DirentModel direntModel = new DirentModel();
-        direntModel.repo_id = repoId;
-        direntModel.full_path = fullPath;
-        direntModel.type = "file";
-
-        Objs.showCreateEncryptShareLinkDialog(this, getSupportFragmentManager(), direntModel, false);
+        DirentModel direntModel = getSelectedDirent();
+        Objs.showCreateShareLinkDialog(this, getSupportFragmentManager(), direntModel, false);
     }
 
+
     private void downloadFile() {
-        //TODO
-        ToastUtils.showLong("TODO: 下载文件");
-//        progressDialog = ProgressDialog.show(this, "", getString(R.string.notification_download_started_title));
-//        final String filePath = Utils.pathJoin(dirPath, fileName);
-//        GallerySeeOriginals(repoName, repoID, filePath);
+        isDataOperated = true;
+
+        DirentModel direntModel = getSelectedDirent();
+        getViewModel().download(direntModel.repo_id, direntModel.full_path);
+    }
+
+
+    private Dialog dialog;
+
+    private void showProgressDialog() {
+        if (dialog == null) {
+            MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
+            builder.setView(R.layout.layout_dialog_progress_bar);
+            dialog = builder.create();
+        }
+
+        if (!dialog.isShowing()) {
+            dialog.show();
+        }
+    }
+
+    private void dismissProgressDialog() {
+        if (dialog != null) {
+            dialog.dismiss();
+        }
     }
 }

@@ -20,7 +20,7 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
 import com.seafile.seadroid2.ui.dialog_fragment.listener.OnRefreshDataListener;
-import com.seafile.seadroid2.util.SLogs;
+import com.seafile.seadroid2.framework.util.SLogs;
 
 import java.util.concurrent.TimeUnit;
 
@@ -82,10 +82,6 @@ public abstract class RequestCustomDialogFragmentWithVM<VM extends BaseViewModel
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        if (getDialog() != null) {
-            getDialog().setCanceledOnTouchOutside(false);
-        }
-
         return super.onCreateView(inflater, container, savedInstanceState);
     }
 
@@ -145,6 +141,8 @@ public abstract class RequestCustomDialogFragmentWithVM<VM extends BaseViewModel
         initViewModel();
 
         final AlertDialog dialog = builder.create();
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.setCancelable(false);
 
         onDialogCreated(dialog);
 
@@ -217,7 +215,7 @@ public abstract class RequestCustomDialogFragmentWithVM<VM extends BaseViewModel
 
         @Override
         public void onNext(Long aLong) {
-            SLogs.e("倒计时：" + aLong);
+            SLogs.d("Timer：" + aLong);
         }
 
         @Override
@@ -227,7 +225,7 @@ public abstract class RequestCustomDialogFragmentWithVM<VM extends BaseViewModel
 
         @Override
         public void onComplete() {
-            SLogs.e("倒计时：完成");
+            SLogs.d("Timer：finish");
 
             if (textInputLayoutId != 0) {
                 setInputError(textInputLayoutId, null);

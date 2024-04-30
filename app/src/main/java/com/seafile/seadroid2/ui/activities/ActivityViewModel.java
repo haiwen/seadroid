@@ -3,16 +3,18 @@ package com.seafile.seadroid2.ui.activities;
 import androidx.lifecycle.MutableLiveData;
 
 import com.blankj.utilcode.util.CollectionUtils;
+import com.blankj.utilcode.util.NetworkUtils;
 import com.blankj.utilcode.util.ToastUtils;
+import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
-import com.seafile.seadroid2.data.db.AppDatabase;
-import com.seafile.seadroid2.data.db.entities.RepoModel;
+import com.seafile.seadroid2.framework.data.db.AppDatabase;
+import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
 import com.seafile.seadroid2.enums.OpType;
-import com.seafile.seadroid2.io.http.IO;
-import com.seafile.seadroid2.data.model.activities.ActivityModel;
-import com.seafile.seadroid2.data.model.activities.ActivityWrapperModel;
-import com.seafile.seadroid2.util.SLogs;
+import com.seafile.seadroid2.framework.http.IO;
+import com.seafile.seadroid2.framework.data.model.activities.ActivityModel;
+import com.seafile.seadroid2.framework.data.model.activities.ActivityWrapperModel;
+import com.seafile.seadroid2.framework.util.SLogs;
 
 import java.util.List;
 
@@ -50,7 +52,7 @@ public class ActivityViewModel extends BaseViewModel {
 
     public void loadAllData(int page) {
         getRefreshLiveData().setValue(true);
-        Single<ActivityWrapperModel> flowable = IO.getSingleton().execute(ActivityService.class).getActivities(page);
+        Single<ActivityWrapperModel> flowable = IO.getInstanceWithLoggedIn().execute(ActivityService.class).getActivities(page);
         addSingleDisposable(flowable, new Consumer<ActivityWrapperModel>() {
             @Override
             public void accept(ActivityWrapperModel wrapperModel) throws Exception {
@@ -93,9 +95,14 @@ public class ActivityViewModel extends BaseViewModel {
             @Override
             public void accept(Throwable throwable) throws Exception {
                 getRefreshLiveData().setValue(false);
-                getExceptionLiveData().setValue(new Pair<>(400, SeafException.networkException));
-                String msg = getErrorMsgByThrowable(throwable);
-                ToastUtils.showLong(msg);
+                SeafException seafException = getExceptionByThrowable(throwable);
+
+                if (seafException == SeafException.remoteWipedException) {
+                    //post a request
+                    completeRemoteWipe();
+                }
+
+                getSeafExceptionLiveData().setValue(seafException);
             }
         });
     }

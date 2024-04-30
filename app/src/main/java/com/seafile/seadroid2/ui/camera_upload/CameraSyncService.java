@@ -10,18 +10,12 @@ import android.os.IBinder;
  * This service is started and stopped by the Android System.
  */
 public class CameraSyncService extends Service {
-
-    private static CameraSyncAdapter sSyncAdapter = null;
     private static  AlbumBackupAdapter albumBackupAdapter;
     private static final Object sSyncAdapterLock = new Object();
 
     @Override
     public void onCreate() {
         synchronized (sSyncAdapterLock) {
-//            if (sSyncAdapter == null) {
-//                sSyncAdapter = new CameraSyncAdapter(getApplicationContext());
-//            }
-
             if (albumBackupAdapter == null) {
                 albumBackupAdapter = new AlbumBackupAdapter(getApplicationContext());
             }

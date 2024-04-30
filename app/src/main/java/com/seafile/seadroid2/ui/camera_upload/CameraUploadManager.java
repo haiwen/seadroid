@@ -7,6 +7,7 @@ import android.util.Log;
 import com.seafile.seadroid2.BuildConfig;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.framework.util.SLogs;
 
 import java.util.List;
 
@@ -19,10 +20,53 @@ import java.util.List;
  */
 public class CameraUploadManager {
 
+    private static final CameraUploadManager INSTANCE = new CameraUploadManager();
+
+    public static CameraUploadManager getInstance() {
+        return INSTANCE;
+    }
+
     /**
      * The authority of the camera sync service
      */
     public static final String AUTHORITY = BuildConfig.APPLICATION_ID + ".cameraupload.provider";
+
+    /**
+     * Initiate a camera sync immediately.
+     */
+    public void performSync() {
+        Account cameraAccount = getCameraAccount();
+        if (cameraAccount == null) {
+            SLogs.d("No one has turned on album backup");
+            return;
+        }
+
+        ContentResolver.requestSync(cameraAccount.getAndroidAccount(), AUTHORITY, Bundle.EMPTY);
+
+    }
+
+    /**
+     * Initiate a camera sync immediately, upload all media files again.
+     */
+    public void performFullSync() {
+        Bundle b = new Bundle();
+        b.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
+        Log.d(CameraUploadManager.class.getName(), "performFullSync()~");
+
+        Account cameraAccount = getCameraAccount();
+        if (cameraAccount != null) {
+            ContentResolver.requestSync(cameraAccount.getAndroidAccount(), AUTHORITY, b);
+        }
+    }
+
+    public void performFullSyncIfEnable() {
+        if (!isCameraUploadEnabled()) {
+            return;
+        }
+
+        performFullSync();
+    }
+
 
     /**
      * Is camera upload enabled?
@@ -47,35 +91,6 @@ public class CameraUploadManager {
                 return account;
         }
         return null;
-    }
-
-    /**
-     * Initiate a camera sync immediately.
-     */
-    public void performSync() {
-        Account cameraAccount = getCameraAccount();
-        if (cameraAccount != null)
-            ContentResolver.requestSync(cameraAccount.getAndroidAccount(), AUTHORITY, Bundle.EMPTY);
-    }
-
-    /**
-     * Initiate a camera sync immediately, upload all media files again.
-     */
-    public void performFullSync() {
-        Bundle b = new Bundle();
-        b.putBoolean(ContentResolver.SYNC_EXTRAS_INITIALIZE, true);
-        Log.d(CameraUploadManager.class.getName(), "performFullSync()~");
-
-        Account cameraAccount = getCameraAccount();
-        if (cameraAccount != null)
-            ContentResolver.requestSync(cameraAccount.getAndroidAccount(), AUTHORITY, b);
-    }
-
-    public void performFullSyncIfEnable() {
-        if (!isCameraUploadEnabled()) {
-            return;
-        }
-        performFullSync();
     }
 
     /**
@@ -106,6 +121,19 @@ public class CameraUploadManager {
         for (Account account : list) {
             ContentResolver.cancelSync(account.getAndroidAccount(), AUTHORITY);
             ContentResolver.setIsSyncable(account.getAndroidAccount(), AUTHORITY, 0);
+        }
+    }
+
+    /**
+     * Disable camera upload.
+     */
+    public void disableSpecialAccountCameraUpload(Account forAccount) {
+        List<Account> list = SupportAccountManager.getInstance().getAccountList();
+        for (Account account : list) {
+            if (forAccount.equals(account)) {
+                ContentResolver.cancelSync(account.getAndroidAccount(), AUTHORITY);
+                ContentResolver.setIsSyncable(account.getAndroidAccount(), AUTHORITY, 0);
+            }
         }
     }
 }

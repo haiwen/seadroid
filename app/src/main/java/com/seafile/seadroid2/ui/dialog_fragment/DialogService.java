@@ -1,10 +1,10 @@
 package com.seafile.seadroid2.ui.dialog_fragment;
 
-import com.seafile.seadroid2.data.model.ResultModel;
-import com.seafile.seadroid2.data.model.dirents.DeleteDirentModel;
-import com.seafile.seadroid2.data.model.dirents.FileCreateModel;
-import com.seafile.seadroid2.data.db.entities.RepoModel;
-import com.seafile.seadroid2.data.model.objs.DirentShareLinkModel;
+import com.seafile.seadroid2.framework.data.model.ResultModel;
+import com.seafile.seadroid2.framework.data.model.dirents.DeleteDirentModel;
+import com.seafile.seadroid2.framework.data.model.dirents.FileCreateModel;
+import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
+import com.seafile.seadroid2.framework.data.model.objs.DirentShareLinkModel;
 
 import java.util.List;
 import java.util.Map;
@@ -55,11 +55,8 @@ public interface DialogService {
     @POST("api/v2.1/repos/{repo_id}/set-password/")
     Single<ResultModel> setPassword(@Path("repo_id") String repoId, @PartMap Map<String, RequestBody> map);
 
-    @DELETE("api/v2.1/repos/{repo_id}/dir/")
-    Observable<DeleteDirentModel> deleteDir(@Path("repo_id") String repoId, @Query("p") String path);
-
-    @DELETE("api/v2.1/repos/{repo_id}/file/")
-    Observable<DeleteDirentModel> deleteFile(@Path("repo_id") String repoId, @Query("p") String path);
+    @DELETE("api/v2.1/repos/{repo_id}/{obj}/")
+    Single<DeleteDirentModel> deleteDirent(@Path("repo_id") String repoId, @Path("obj") String obj, @Query("p") String path);
 
     @POST("api/v2.1/repos/sync-batch-move-item/")
     Single<ResultModel> moveDirents(@Body Map<String, Object> map);

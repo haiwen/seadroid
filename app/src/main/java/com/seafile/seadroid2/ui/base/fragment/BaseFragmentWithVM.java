@@ -10,7 +10,7 @@ import com.chad.library.adapter4.QuickAdapterHelper;
 import com.seafile.seadroid2.ui.base.adapter.BaseAdapter;
 import com.seafile.seadroid2.ui.base.adapter.BaseMultiAdapter;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
-import com.seafile.seadroid2.util.TUtil;
+import com.seafile.seadroid2.framework.util.TUtil;
 
 public class BaseFragmentWithVM<VM extends BaseViewModel> extends BaseFragment {
     private VM tvm;

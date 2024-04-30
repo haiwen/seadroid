@@ -14,7 +14,7 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.ui.base.fragment.BaseFragmentWithVM;
 import com.seafile.seadroid2.databinding.LayoutFrameSwipeRvBinding;
-import com.seafile.seadroid2.data.model.activities.ActivityModel;
+import com.seafile.seadroid2.framework.data.model.activities.ActivityModel;
 import com.seafile.seadroid2.view.TipsViews;
 
 import java.util.List;
@@ -39,6 +39,8 @@ public class MineActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = LayoutFrameSwipeRvBinding.inflate(inflater, container, false);
         binding.swipeRefreshLayout.setOnRefreshListener(this::reload);
+        binding.swipeRefreshLayout.setColorSchemeResources(R.color.fancy_orange);
+
         return binding.getRoot();
     }
 

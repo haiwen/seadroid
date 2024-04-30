@@ -1,7 +1,8 @@
 package com.seafile.seadroid2.monitor;
 
 import com.google.common.base.Objects;
-import com.seafile.seadroid2.util.sp.SettingsManager;
+import com.seafile.seadroid2.framework.datastore.sp.AppDataManager;
+import com.seafile.seadroid2.framework.datastore.sp.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 
 class AutoUpdateInfo {
@@ -22,7 +23,7 @@ class AutoUpdateInfo {
     }
 
     public boolean canLocalDecrypt() {
-        return SettingsManager.getInstance().isEncryptEnabled();
+        return AppDataManager.isEncryptEnabled();
     }
 
     @Override

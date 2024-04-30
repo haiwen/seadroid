@@ -1,6 +1,6 @@
 package com.seafile.seadroid2.listener;
 
-import com.seafile.seadroid2.data.db.entities.FileTransferEntity;
+import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
 
 public class FileTransferProgressListener {
     private TransferProgressListener progressListener;

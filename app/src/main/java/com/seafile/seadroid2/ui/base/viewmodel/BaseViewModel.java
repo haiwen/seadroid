@@ -7,18 +7,20 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.blankj.utilcode.util.GsonUtils;
+import com.blankj.utilcode.util.NetworkUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.BuildConfig;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SeafException;
-import com.seafile.seadroid2.data.model.ResultModel;
-import com.seafile.seadroid2.util.SLogs;
-import com.seafile.seadroid2.util.Utils;
+import com.seafile.seadroid2.framework.data.model.ResultModel;
+import com.seafile.seadroid2.framework.http.IO;
+import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.util.Utils;
+import com.seafile.seadroid2.ui.account.AccountService;
 
 import org.json.JSONObject;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
@@ -70,8 +72,14 @@ public class BaseViewModel extends ViewModel {
 
     private final CompositeDisposable compositeDisposable = new CompositeDisposable();
 
-    public void addDisposable(@NonNull Disposable closeable) {
-        compositeDisposable.add(closeable);
+    public void completeRemoteWipe() {
+        Single<Object> single = IO.getInstanceWithLoggedIn().execute(AccountService.class).deviceWiped();
+        addSingleDisposable(single, new Consumer<Object>() {
+            @Override
+            public void accept(Object o) throws Exception {
+                SLogs.d("device wiped");
+            }
+        });
     }
 
     private final Consumer<Throwable> throwable = throwable -> {
@@ -95,6 +103,7 @@ public class BaseViewModel extends ViewModel {
     protected void onCleared() {
         super.onCleared();
         SLogs.d("onCleared");
+
         if (!compositeDisposable.isDisposed()) {
             compositeDisposable.dispose();
             SLogs.d("CompositeDisposable dispose");
@@ -118,6 +127,10 @@ public class BaseViewModel extends ViewModel {
         return requestBodyMap;
     }
 
+    public void addDisposable(@NonNull Disposable closeable) {
+        compositeDisposable.add(closeable);
+    }
+
     public <T> void addSingleDisposable(Single<T> single, Consumer<T> consumer) {
         compositeDisposable.add(single
                 .subscribeOn(Schedulers.io())
@@ -132,12 +145,34 @@ public class BaseViewModel extends ViewModel {
                 .subscribe(consumer, throwable));
     }
 
-    public <T> void addFlowableDisposable(Flowable<T> flowable, Consumer<T> consumer) {
+    public <T> void addFlowableDisposable(Flowable<T> flowable, Consumer<T> onNext) {
         compositeDisposable.add(flowable
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread(), true)
-                .subscribe(consumer, throwable));
+                .subscribe(onNext, throwable));
     }
+
+    public <T> void addFlowableDisposable(Flowable<T> flowable, Consumer<T> onNext, Action onComplete) {
+        compositeDisposable.add(flowable
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(onNext, throwable, onComplete));
+    }
+
+    public <T> void addFlowableDisposable(Flowable<T> flowable, Consumer<T> onNext, Consumer<Throwable> throwable) {
+        compositeDisposable.add(flowable
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(onNext, throwable));
+    }
+
+    public <T> void addFlowableDisposable(Flowable<T> flowable, Consumer<T> onNext, Consumer<Throwable> throwable, Action onComplete) {
+        compositeDisposable.add(flowable
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(onNext, throwable, onComplete));
+    }
+
 
     public <T> void addCompletableDisposable(Completable completable, Action action) {
         compositeDisposable.add(completable
@@ -169,31 +204,47 @@ public class BaseViewModel extends ViewModel {
     //TODO 优化异常返回
     public SeafException getExceptionByThrowable(Throwable throwable) throws IOException {
         if (throwable == null) {
-            return SeafException.networkException;
+            return SeafException.unknownException;
         }
 
         if (throwable instanceof SeafException) {
-            SeafException seafException = (SeafException) throwable;
-            if (seafException.getCode() == SeafException.invalidPassword.getCode()) {
-
-            }
-
+            return (SeafException) throwable;
         } else if (throwable instanceof HttpException) {
             HttpException httpException = (HttpException) throwable;
-            if (httpException.code() == HttpURLConnection.HTTP_UNAUTHORIZED) {
 
+            //401
+            if (HttpURLConnection.HTTP_UNAUTHORIZED == httpException.code()) {
                 String wiped = httpException.response().headers().get("X-Seafile-Wiped");
                 if (!TextUtils.isEmpty(wiped)) {
                     return SeafException.remoteWipedException;
                 }
             }
 
-            if (504 == httpException.code()) {
+            //504
+            if (HttpURLConnection.HTTP_GATEWAY_TIMEOUT == httpException.code()) {
+
+                if (NetworkUtils.isConnected()) {
+                    ToastUtils.showLong(R.string.transfer_list_network_error);
+                } else {
+                    ToastUtils.showLong(R.string.network_unavailable);
+                }
+
                 return SeafException.networkException;
             }
 
-            if (404 == httpException.code()) {
+            //404
+            if (HttpURLConnection.HTTP_NOT_FOUND == httpException.code()) {
                 return SeafException.notFoundException;
+            }
+
+            //HTTP_STATUS_REPO_PASSWORD_REQUIRED
+            if (440 == httpException.code()) {
+                return SeafException.invalidPassword;
+            }
+
+            //400
+            if (HttpURLConnection.HTTP_BAD_REQUEST == httpException.code()) {
+                return SeafException.invalidPassword;
             }
 
             try {

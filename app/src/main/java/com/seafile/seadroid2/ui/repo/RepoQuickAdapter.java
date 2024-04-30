@@ -13,41 +13,41 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.DiffUtil;
 
 import com.blankj.utilcode.util.CollectionUtils;
+import com.blankj.utilcode.util.FileUtils;
 import com.blankj.utilcode.util.SizeUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.data.model.enums.TransferAction;
-import com.seafile.seadroid2.data.model.enums.TransferStatus;
-import com.seafile.seadroid2.io.http.IO;
+import com.seafile.seadroid2.framework.data.model.enums.TransferStatus;
+import com.seafile.seadroid2.framework.http.IO;
+import com.seafile.seadroid2.framework.util.GlideApp;
 import com.seafile.seadroid2.ui.base.adapter.BaseMultiAdapter;
 import com.seafile.seadroid2.config.AbsLayoutItemType;
 import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.config.GlideLoadConfig;
-import com.seafile.seadroid2.data.db.entities.DirentModel;
-import com.seafile.seadroid2.data.db.entities.RepoModel;
-import com.seafile.seadroid2.data.model.BaseModel;
-import com.seafile.seadroid2.data.model.GroupItemModel;
+import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
+import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
+import com.seafile.seadroid2.framework.data.model.BaseModel;
+import com.seafile.seadroid2.framework.data.model.GroupItemModel;
 import com.seafile.seadroid2.databinding.ItemAccountBinding;
 import com.seafile.seadroid2.databinding.ItemDirentBinding;
 import com.seafile.seadroid2.databinding.ItemGroupItemBinding;
 import com.seafile.seadroid2.databinding.ItemRepoBinding;
 import com.seafile.seadroid2.databinding.ItemUnsupportedBinding;
 import com.seafile.seadroid2.ui.viewholder.GroupItemViewHolder;
-import com.seafile.seadroid2.util.GlideApp;
-import com.seafile.seadroid2.util.Utils;
+import com.seafile.seadroid2.framework.util.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.stream.Collectors;
 
 public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
-    private final String SERVER = IO.getSingleton().getServerUrl();
+    private final String SERVER = IO.getInstanceWithLoggedIn().getServerUrl();
 
     private boolean actionModeOn;
 
     private Drawable starDrawable;
 
+    private boolean repoEncrypted = false;
     /**
      * -1 no select
      * 0 only select account
@@ -69,6 +69,10 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
     public void setSelectData(int selectorMode, int selectedMaxCount) {
         this.selectorMode = selectorMode;
         this.selectedMaxCount = selectedMaxCount;
+    }
+
+    public void setRepoEncrypted(boolean repoEncrypted) {
+        this.repoEncrypted = repoEncrypted;
     }
 
     public RepoQuickAdapter() {
@@ -203,9 +207,6 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         if (selectorMode >= 1) {
             holder.binding.itemSelectView.setVisibility(model.is_selected ? View.VISIBLE : View.INVISIBLE);
             holder.binding.expandableToggleButton.setVisibility(View.INVISIBLE);
-        } else if (!model.hasWritePermission()) {
-            holder.binding.expandableToggleButton.setVisibility(View.INVISIBLE);
-            holder.binding.itemSelectView.setVisibility(View.GONE);
         } else {
             holder.binding.expandableToggleButton.setVisibility(View.VISIBLE);
             holder.binding.itemSelectView.setVisibility(View.GONE);
@@ -219,12 +220,12 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         }
     }
 
-
     private void onBindDirents(DirentViewHolder holder, DirentModel model) {
         holder.binding.itemTitle.setText(model.name);
         holder.binding.itemSubtitle.setText(model.getSubtitle());
 
-        if (!Utils.isViewableImage(model.name)) {
+
+        if (repoEncrypted || !Utils.isViewableImage(model.name)) {
             holder.binding.itemIcon.setImageResource(model.getIcon());
         } else {
             String url = convertThumbnailUrl(model.repo_id, model.full_path);
@@ -271,17 +272,25 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         if (model.isDir()) {
             holder.binding.itemDownloadStatusProgressbar.setVisibility(View.GONE);
             holder.binding.itemDownloadStatus.setVisibility(View.GONE);
-        } else if (TransferStatus.TRANSFER_WAITING == model.transfer_status ||
-                TransferStatus.TRANSFER_IN_PROGRESS == model.transfer_status) {
+        } else if (TransferStatus.WAITING == model.transfer_status ||
+                TransferStatus.IN_PROGRESS == model.transfer_status) {
             holder.binding.itemDownloadStatusProgressbar.setVisibility(View.VISIBLE);
             holder.binding.itemDownloadStatus.setVisibility(View.VISIBLE);
-        } else if (TransferStatus.TRANSFER_CANCELLED == model.transfer_status ||
-                TransferStatus.TRANSFER_FAILED == model.transfer_status) {
+        } else if (TransferStatus.CANCELLED == model.transfer_status ||
+                TransferStatus.FAILED == model.transfer_status) {
             holder.binding.itemDownloadStatusProgressbar.setVisibility(View.GONE);
             holder.binding.itemDownloadStatus.setVisibility(View.GONE);
-        } else if (TransferStatus.TRANSFER_SUCCEEDED == model.transfer_status) {
+        } else if (TransferStatus.SUCCEEDED == model.transfer_status) {
+            if (FileUtils.isFileExists(model.local_file_path)) {
+                holder.binding.itemDownloadStatusProgressbar.setVisibility(View.GONE);
+                holder.binding.itemDownloadStatus.setVisibility(View.VISIBLE);
+            } else {
+                holder.binding.itemDownloadStatusProgressbar.setVisibility(View.GONE);
+                holder.binding.itemDownloadStatus.setVisibility(View.GONE);
+            }
+        } else {
             holder.binding.itemDownloadStatusProgressbar.setVisibility(View.GONE);
-            holder.binding.itemDownloadStatus.setVisibility(View.VISIBLE);
+            holder.binding.itemDownloadStatus.setVisibility(View.GONE);
         }
 
         holder.binding.itemTitle.setCompoundDrawablePadding(Constants.DP.DP_4);
@@ -293,7 +302,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
     }
 
     private String convertThumbnailUrl(String repoId, String filePath) {
-        return String.format(Locale.getDefault(), "%sapi2/repos/%s/thumbnail/?p=%s&size=%d", SERVER, repoId, filePath, 48);
+        return String.format(Locale.getDefault(), "%sapi2/repos/%s/thumbnail/?p=%s&size=%d", SERVER, repoId, filePath, 128);
     }
 
     public void setActionModeOn(boolean actionModeOn) {

@@ -1,55 +1,72 @@
 package com.seafile.seadroid2.ui.data_migrate;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.webkit.MimeTypeMap;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.preference.PreferenceManager;
 
+import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.FileUtils;
-import com.blankj.utilcode.util.ToastUtils;
-import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.account.AccountInfo;
+import com.seafile.seadroid2.account.Authenticator;
 import com.seafile.seadroid2.account.SupportAccountManager;
-import com.seafile.seadroid2.account.SupportDataManager;
-import com.seafile.seadroid2.data.DatabaseHelper;
-import com.seafile.seadroid2.data.SeafRepo;
-import com.seafile.seadroid2.data.StorageManager;
-import com.seafile.seadroid2.data.db.AppDatabase;
-import com.seafile.seadroid2.data.db.entities.CertEntity;
-import com.seafile.seadroid2.data.db.entities.EncKeyCacheEntity;
-import com.seafile.seadroid2.data.db.entities.FileTransferEntity;
-import com.seafile.seadroid2.data.db.entities.FolderBackupMonitorEntity;
-import com.seafile.seadroid2.data.db.entities.RepoDirMappingEntity;
-import com.seafile.seadroid2.data.db.entities.RepoModel;
-import com.seafile.seadroid2.data.model.enums.TransferAction;
-import com.seafile.seadroid2.data.model.enums.TransferFeature;
-import com.seafile.seadroid2.data.model.enums.TransferResult;
-import com.seafile.seadroid2.data.model.enums.TransferStatus;
-import com.seafile.seadroid2.data.model.repo.RepoWrapperModel;
+import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.databinding.ActivityDataMigrationBinding;
-import com.seafile.seadroid2.io.http.IO;
+import com.seafile.seadroid2.framework.data.DatabaseHelper;
+import com.seafile.seadroid2.framework.data.db.AppDatabase;
+import com.seafile.seadroid2.framework.data.db.entities.CertEntity;
+import com.seafile.seadroid2.framework.data.db.entities.EncKeyCacheEntity;
+import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
+import com.seafile.seadroid2.framework.data.db.entities.FolderBackupMonitorEntity;
+import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
+import com.seafile.seadroid2.framework.data.model.enums.TransferAction;
+import com.seafile.seadroid2.framework.data.model.enums.TransferDataSource;
+import com.seafile.seadroid2.framework.data.model.enums.TransferResult;
+import com.seafile.seadroid2.framework.data.model.enums.TransferStatus;
+import com.seafile.seadroid2.framework.data.model.repo.RepoWrapperModel;
+import com.seafile.seadroid2.framework.datastore.DataStoreKeys;
+import com.seafile.seadroid2.framework.datastore.DataStoreManager;
+import com.seafile.seadroid2.framework.datastore.StorageManager;
+import com.seafile.seadroid2.framework.datastore.sp.AlbumBackupManager;
+import com.seafile.seadroid2.framework.datastore.sp.AppDataManager;
+import com.seafile.seadroid2.framework.datastore.sp.FolderBackupManager;
+import com.seafile.seadroid2.framework.datastore.sp.SettingsManager;
+import com.seafile.seadroid2.framework.http.IO;
+import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.util.Utils;
+import com.seafile.seadroid2.framework.worker.ExistingFileStrategy;
 import com.seafile.seadroid2.monitor.MonitorDBHelper;
 import com.seafile.seadroid2.ssl.CertsDBHelper;
+import com.seafile.seadroid2.ui.account.AccountService;
+import com.seafile.seadroid2.ui.account.AccountsActivity;
 import com.seafile.seadroid2.ui.camera_upload.CameraUploadDBHelper;
+import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
 import com.seafile.seadroid2.ui.folder_backup.FolderBackupDBHelper;
 import com.seafile.seadroid2.ui.folder_backup.RepoConfig;
+import com.seafile.seadroid2.ui.main.MainActivity;
 import com.seafile.seadroid2.ui.repo.RepoService;
-import com.seafile.seadroid2.util.SLogs;
-import com.seafile.seadroid2.util.Utils;
-import com.seafile.seadroid2.util.sp.FolderBackupConfigSPs;
-import com.seafile.seadroid2.util.sp.SPs;
-import com.seafile.seadroid2.util.sp.SettingsManager;
+import com.seafile.seadroid2.ui.selector.folder_selector.StringTools;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
 
 import io.reactivex.Completable;
@@ -57,6 +74,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.functions.Action;
 import io.reactivex.schedulers.Schedulers;
+import retrofit2.Call;
 import retrofit2.Response;
 
 /**
@@ -65,7 +83,6 @@ import retrofit2.Response;
 public class DataMigrationActivity extends AppCompatActivity {
     private ActivityDataMigrationBinding binding;
     private final CompositeDisposable compositeDisposable = new CompositeDisposable();
-
 
     private final List<RepoModel> accountRepoList = new ArrayList<>();
 
@@ -76,13 +93,19 @@ public class DataMigrationActivity extends AppCompatActivity {
         binding = ActivityDataMigrationBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        binding.text.setText(R.string.wait);
-
         List<Account> accounts = SupportAccountManager.getInstance().getAccountList();
         if (CollectionUtils.isEmpty(accounts)) {
-            ToastUtils.showLong("当前用户未登录");
+            finishMigration();
+            navTo();
             return;
         }
+
+        getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                //do nothing
+            }
+        });
 
         new Thread(new Runnable() {
             @Override
@@ -92,11 +115,29 @@ public class DataMigrationActivity extends AppCompatActivity {
                     syncAccount();
 
                     startMigration();
+
+                    finishMigration();
                 } catch (IOException e) {
                     throw new RuntimeException(e);
+                } finally {
+                    navTo();
                 }
             }
         }).start();
+    }
+
+    private void navTo() {
+        Account curAccount = SupportAccountManager.getInstance().getCurrentAccount();
+        if (curAccount == null || !curAccount.hasValidToken()) {
+            Intent newIntent = new Intent(this, AccountsActivity.class);
+            newIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            ActivityUtils.startActivity(newIntent);
+        } else {
+            ActivityUtils.startActivity(MainActivity.class);
+        }
+
+        finish();
     }
 
     private void syncAccount() throws IOException {
@@ -106,7 +147,23 @@ public class DataMigrationActivity extends AppCompatActivity {
         }
 
         for (Account account : accounts) {
-            Response<RepoWrapperModel> response = IO.getNewInstance(account.server, account.token)
+            if (TextUtils.isEmpty(account.token)) {
+                continue;
+            }
+
+            Call<AccountInfo> accountInfoCall = IO.getInstanceByAccount(account).execute(AccountService.class).getAccountInfoCall();
+            Response<AccountInfo> accountRes = accountInfoCall.execute();
+            if (accountRes.isSuccessful()) {
+                AccountInfo accountInfo = accountRes.body();
+                if (accountInfo != null) {
+                    //update android account avatar url
+                    final android.accounts.Account newAccount = new android.accounts.Account(account.getSignature(), Constants.Account.ACCOUNT_TYPE);
+                    SupportAccountManager.getInstance().setUserData(newAccount, Authenticator.KEY_AVATAR_URL, accountInfo.getAvatarUrl());
+                }
+            }
+
+
+            Response<RepoWrapperModel> response = IO.getInstanceByAccount(account)
                     .execute(RepoService.class)
                     .getReposCall()
                     .execute();
@@ -134,18 +191,16 @@ public class DataMigrationActivity extends AppCompatActivity {
 
     }
 
-    //TODO 应当让用户选择某个账户
-
     private void startMigration() {
         if (accountRepoList.isEmpty()) {
-            //TODO 空了？
             return;
         }
+        migrationSP();
 
         //
 //        queryRepoFileDB();
 
-
+        queryAlbumSPConfig();
         queryPhotoDB();
 
         //folder backup
@@ -156,8 +211,6 @@ public class DataMigrationActivity extends AppCompatActivity {
         queryDataDB();
         queryMonitorDB();
         queryCertsDB();
-
-        finishMigration();
     }
 
     private boolean checkTableExists(SQLiteDatabase database, String tableName) {
@@ -173,44 +226,102 @@ public class DataMigrationActivity extends AppCompatActivity {
         return isExists;
     }
 
+    private void migrationSP() {
+        SharedPreferences sharedPref = getSharedPreferences(DataStoreKeys.LATEST_ACCOUNT, Context.MODE_PRIVATE);
+        //
+        int storageDir = sharedPref.getInt(SettingsManager.SHARED_PREF_STORAGE_DIR, Integer.MIN_VALUE);
+        DataStoreManager.getCommonInstance().writeInteger(SettingsManager.SHARED_PREF_STORAGE_DIR, storageDir);
+        SLogs.d("migrated: storageDir -> " + storageDir);
+
+        //privacy
+        int privacy = sharedPref.getInt(SettingsManager.PRIVACY_POLICY_CONFIRMED, Integer.MIN_VALUE);
+        DataStoreManager.getCommonInstance().writeInteger(SettingsManager.PRIVACY_POLICY_CONFIRMED, privacy);
+        SLogs.d("migrated: privacy -> " + privacy);
+
+
+        //com.seafile.seadroid.account_name
+        String curAccount = sharedPref.getString(DataStoreKeys.ACCOUNT_CURRENT_OLD, null);
+        DataStoreManager.getCommonInstance().writeString(DataStoreKeys.KEY_CURRENT_ACCOUNT, curAccount);
+        SLogs.d("migrated: curAccount -> " + curAccount);
+
+    }
+
     private void queryRepoFileDB() {
 
-        List<SeafRepo> seafRepos = SupportDataManager.getInstance().getDataManager().getReposFromCache();
-        if (CollectionUtils.isEmpty(seafRepos)) {
-            return;
+//        List<SeafRepo> seafRepos = SupportDataManager.getInstance().getDataManager().getReposFromCache();
+//        if (CollectionUtils.isEmpty(seafRepos)) {
+//            return;
+//        }
+//
+//
+//        List<RepoModel> repoModels = new ArrayList<>();
+//        for (SeafRepo seafRepo : seafRepos) {
+//            RepoModel repoModel = new RepoModel();
+//            repoModel.type = seafRepo.type;
+//            repoModel.repo_id = seafRepo.repo_id;
+//            repoModel.repo_name = seafRepo.repo_name;
+//            repoModel.group_id = seafRepo.group_id;
+//            repoModel.group_name = seafRepo.group_name;
+//            repoModel.owner_name = seafRepo.owner_name;
+//            repoModel.owner_email = seafRepo.owner_email;
+//            repoModel.owner_contact_email = seafRepo.owner_contact_email;
+//
+//            Optional<RepoModel> repoModelOp = accountRepoList.stream().filter(repo -> repo.repo_id.equals(seafRepo.repo_id)).findFirst();
+//            repoModelOp.ifPresent(repoModel1 -> repoModel.related_account = repoModel1.related_account);
+//
+//            repoModel.modifier_email = seafRepo.modifier_email;
+//            repoModel.modifier_name = seafRepo.modifier_name;
+//            repoModel.modifier_contact_email = seafRepo.modifier_contact_email;
+//            repoModel.last_modified = seafRepo.last_modified;
+//            repoModel.size = seafRepo.size;
+//            repoModel.permission = seafRepo.permission;
+//            repoModel.is_admin = seafRepo.is_admin;
+//            repoModel.salt = seafRepo.salt;
+//            repoModel.status = seafRepo.status;
+//            repoModel.monitored = seafRepo.monitored;
+//            repoModel.starred = seafRepo.starred;
+//            repoModel.encrypted = seafRepo.encrypted;
+//            repoModels.add(repoModel);
+//        }
+//        AppDatabase.getInstance().repoDao().insertAll(repoModels);
+    }
+
+    private void queryAlbumSPConfig() {
+        SharedPreferences sharedPref = getSharedPreferences(DataStoreKeys.LATEST_ACCOUNT, Context.MODE_PRIVATE);
+
+        String repoId = sharedPref.getString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_REPO_ID, null);
+        String repoName = sharedPref.getString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_REPO_NAME, null);
+        Account account = CameraUploadManager.getInstance().getCameraAccount();
+        if (repoId != null && account != null) {
+            RepoConfig config = new RepoConfig(repoId, repoName, account.email, account.getSignature());
+            AlbumBackupManager.writeRepoConfig(config);
+            SLogs.d("migrated: repoConfig -> " + config.toString());
+
         }
 
+        //PreferenceManager
+        SharedPreferences pm = PreferenceManager.getDefaultSharedPreferences(SeadroidApplication.getAppContext());
 
-        List<RepoModel> repoModels = new ArrayList<>();
-        for (SeafRepo seafRepo : seafRepos) {
-            RepoModel repoModel = new RepoModel();
-            repoModel.type = seafRepo.type;
-            repoModel.repo_id = seafRepo.repo_id;
-            repoModel.repo_name = seafRepo.repo_name;
-            repoModel.group_id = seafRepo.group_id;
-            repoModel.group_name = seafRepo.group_name;
-            repoModel.owner_name = seafRepo.owner_name;
-            repoModel.owner_email = seafRepo.owner_email;
-            repoModel.owner_contact_email = seafRepo.owner_contact_email;
+        //video
+        boolean isVideoAllowed = pm.getBoolean(SettingsManager.CAMERA_UPLOAD_ALLOW_VIDEOS_SWITCH_KEY, false);
+        AlbumBackupManager.writeAllowVideoSwitch(isVideoAllowed);
+        SLogs.d("migrated: isVideoAllowed -> " + isVideoAllowed);
 
-            Optional<RepoModel> repoModelOp = accountRepoList.stream().filter(repo -> repo.repo_id.equals(seafRepo.repo_id)).findFirst();
-            repoModelOp.ifPresent(repoModel1 -> repoModel.related_account = repoModel1.related_account);
+        //data plan
+        boolean isDataPlanAllowed = pm.getBoolean(SettingsManager.CAMERA_UPLOAD_ALLOW_DATA_PLAN_SWITCH_KEY, false);
+        AlbumBackupManager.writeAllowDataPlanSwitch(isDataPlanAllowed);
+        SLogs.d("migrated: isDataPlanAllowed -> " + isDataPlanAllowed);
 
-            repoModel.modifier_email = seafRepo.modifier_email;
-            repoModel.modifier_name = seafRepo.modifier_name;
-            repoModel.modifier_contact_email = seafRepo.modifier_contact_email;
-            repoModel.last_modified = seafRepo.last_modified;
-            repoModel.size = seafRepo.size;
-            repoModel.permission = seafRepo.permission;
-            repoModel.is_admin = seafRepo.is_admin;
-            repoModel.salt = seafRepo.salt;
-            repoModel.status = seafRepo.status;
-            repoModel.monitored = seafRepo.monitored;
-            repoModel.starred = seafRepo.starred;
-            repoModel.encrypted = seafRepo.encrypted;
-            repoModels.add(repoModel);
-        }
-        AppDatabase.getInstance().repoDao().insertAll(repoModels);
+        //custom
+        boolean isCustomAlbum = pm.getBoolean(SettingsManager.CAMERA_UPLOAD_CUSTOM_BUCKETS_KEY, false);
+        AlbumBackupManager.writeCustomAlbumSwitch(isCustomAlbum);
+        SLogs.d("migrated: isCustomAlbum -> " + isCustomAlbum);
+
+        //bucket ids
+        String bucketIdsStr = sharedPref.getString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_BUCKETS, "");
+        List<String> ids = Arrays.asList(TextUtils.split(bucketIdsStr, ","));
+        AlbumBackupManager.writeBucketIds(ids);
+        SLogs.d("migrated: bucketIds -> " + bucketIdsStr);
     }
 
     /**
@@ -242,9 +353,9 @@ public class DataMigrationActivity extends AppCompatActivity {
         try {
             c.moveToFirst();
 
-
-            String targetRepoId = SettingsManager.getInstance().getCameraUploadRepoId();
-            String targetRepoName = SettingsManager.getInstance().getCameraUploadRepoName();
+            SharedPreferences sharedPref = getSharedPreferences(DataStoreKeys.LATEST_ACCOUNT, Context.MODE_PRIVATE);
+            String targetRepoId = sharedPref.getString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_REPO_ID, null);
+            String targetRepoName = sharedPref.getString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_REPO_NAME, null);
 
             Optional<RepoModel> repoModelOp = accountRepoList.stream().filter(repo -> repo.repo_id.equals(targetRepoId)).findFirst();
 
@@ -265,34 +376,36 @@ public class DataMigrationActivity extends AppCompatActivity {
                     RepoModel backUpRepoModel = repoModelOp.get();
                     transferEntity.repo_id = backUpRepoModel.repo_id;
                     transferEntity.repo_name = backUpRepoModel.repo_name;
-                    transferEntity.is_block = backUpRepoModel.encrypted;
                     transferEntity.related_account = backUpRepoModel.related_account;
                 } else {
-                    transferEntity.is_block = false;
                     transferEntity.repo_id = null;
                     transferEntity.repo_name = null;
                     transferEntity.related_account = null;
                 }
 
                 transferEntity.is_copy_to_local = false;
-                transferEntity.is_update = false;
+                transferEntity.file_strategy = ExistingFileStrategy.AUTO;
 
                 transferEntity.full_path = filePath;
-                transferEntity.parent_path = Utils.getParentPath(filePath);
+                transferEntity.setParent_path(Utils.getParentPath(filePath));
                 transferEntity.file_name = FileUtils.getFileName(filePath);
                 transferEntity.file_size = FileUtils.getFileLength(filePath);
                 transferEntity.transferred_size = transferEntity.file_size;
                 transferEntity.file_format = FileUtils.getFileExtension(filePath);
                 transferEntity.mime_type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(transferEntity.file_format);
-                transferEntity.file_md5 = FileUtils.getFileMD5ToString(transferEntity.full_path);
+                transferEntity.file_md5 = FileUtils.getFileMD5ToString(transferEntity.full_path).toLowerCase();
+
                 transferEntity.created_at = action_end_time_stamp;
                 transferEntity.modified_at = action_end_time_stamp;
                 transferEntity.action_end_at = action_end_time_stamp;
 
-                transferEntity.data_source = TransferFeature.ALBUM_BACKUP;
+                transferEntity.data_source = TransferDataSource.ALBUM_BACKUP;
                 transferEntity.transfer_action = TransferAction.UPLOAD;
-                transferEntity.transfer_status = TransferStatus.TRANSFER_SUCCEEDED;
+                transferEntity.transfer_status = TransferStatus.SUCCEEDED;
                 transferEntity.transfer_result = TransferResult.TRANSMITTED;
+
+                transferEntity.file_id = null;
+                transferEntity.file_original_modified_at = FileUtils.getFileLastModified(transferEntity.full_path);
 
                 transferEntity.uid = transferEntity.getUID();
 
@@ -312,6 +425,7 @@ public class DataMigrationActivity extends AppCompatActivity {
         AppDatabase.getInstance().fileTransferDAO().insertAll(list);
         SLogs.d("--------------------" + table + " -> 完成");
     }
+
 
     /**
      * folder backup
@@ -344,7 +458,6 @@ public class DataMigrationActivity extends AppCompatActivity {
 
             while (!c.isAfterLast()) {
 
-                FileTransferEntity transferEntity = new FileTransferEntity();
                 int idIndex = c.getColumnIndexOrThrow("id");
                 int repoIdIndex = c.getColumnIndexOrThrow("repo_id");
                 int repoNameIndex = c.getColumnIndexOrThrow("repo_name");
@@ -353,6 +466,8 @@ public class DataMigrationActivity extends AppCompatActivity {
                 int filePathIndex = c.getColumnIndexOrThrow("file_path");
                 int fileSizeIndex = c.getColumnIndexOrThrow("file_size");
 
+                FileTransferEntity transferEntity = new FileTransferEntity();
+
                 transferEntity.v = 0;
                 transferEntity.repo_id = c.getString(repoIdIndex);
                 transferEntity.repo_name = c.getString(repoNameIndex);
@@ -360,33 +475,42 @@ public class DataMigrationActivity extends AppCompatActivity {
                 Optional<RepoModel> repoModelOp = accountRepoList.stream().filter(repo -> repo.repo_id.equals(transferEntity.repo_id)).findFirst();
                 if (repoModelOp.isPresent()) {
                     RepoModel rm = repoModelOp.get();
-                    transferEntity.is_block = rm.encrypted;
+//                    transferEntity.is_block = rm.encrypted;
                     transferEntity.related_account = rm.related_account;
                 }
 
 
                 transferEntity.is_copy_to_local = false;
-                transferEntity.is_update = false;
+                transferEntity.file_strategy = ExistingFileStrategy.AUTO;
 
                 transferEntity.full_path = c.getString(filePathIndex);
-                //TODO 检查是否已斜杠开头
-                transferEntity.parent_path = c.getString(parentFolderIndex);
+                transferEntity.setParent_path(c.getString(parentFolderIndex));
+
+
                 transferEntity.file_name = c.getString(fileNameIndex);
+                transferEntity.target_path = transferEntity.getParent_path() + transferEntity.file_name;
+
+
                 transferEntity.file_size = Long.parseLong(c.getString(fileSizeIndex));
                 transferEntity.transferred_size = transferEntity.file_size;
                 transferEntity.file_format = FileUtils.getFileExtension(transferEntity.full_path);
+                transferEntity.file_original_modified_at = FileUtils.getFileLastModified(transferEntity.full_path);
                 transferEntity.mime_type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(transferEntity.file_format);
-                transferEntity.file_md5 = FileUtils.getFileMD5ToString(transferEntity.full_path);
+
+                transferEntity.file_md5 = FileUtils.getFileMD5ToString(transferEntity.full_path).toLowerCase();
+
+                //null
+                transferEntity.file_id = null;
 
                 long nowMills = System.currentTimeMillis();
                 transferEntity.created_at = nowMills;
                 transferEntity.modified_at = nowMills;
                 transferEntity.action_end_at = nowMills;
 
-                transferEntity.data_source = TransferFeature.FOLDER_BACKUP;
+                transferEntity.data_source = TransferDataSource.FOLDER_BACKUP;
                 transferEntity.transfer_action = TransferAction.UPLOAD;
                 transferEntity.transfer_result = TransferResult.TRANSMITTED;
-                transferEntity.transfer_status = TransferStatus.TRANSFER_SUCCEEDED;
+                transferEntity.transfer_status = TransferStatus.SUCCEEDED;
 
                 transferEntity.uid = transferEntity.getUID();
 
@@ -442,9 +566,20 @@ public class DataMigrationActivity extends AppCompatActivity {
                 String repo_name = c.getString(repoNameIndex);
                 String related_account = c.getString(emailIndex);
 
-                //TODO 找当当前用户的 signature
-                RepoConfig repoConfig = new RepoConfig(repo_id, repo_name, related_account, related_account);
-                FolderBackupConfigSPs.setBackupRepoConfig(repoConfig);
+                Optional<RepoModel> repoModelOp = accountRepoList.stream().filter(repo -> repo.repo_id.equals(repo_id)).findFirst();
+                if (repoModelOp.isPresent()) {
+
+                    RepoModel rm = repoModelOp.get();
+
+                    //Only the first piece of data is recovered
+                    if (TextUtils.isEmpty(FolderBackupManager.getCurrentAccount())) {
+                        FolderBackupManager.setCurrentAccount(rm.related_account);
+
+                        RepoConfig repoConfig = new RepoConfig(repo_id, repo_name, related_account, related_account);
+                        FolderBackupManager.writeRepoConfig(repoConfig);
+                    }
+
+                }
 
                 c.moveToNext();
             }
@@ -454,9 +589,47 @@ public class DataMigrationActivity extends AppCompatActivity {
     }
 
     private void queryFolderBackPathsOfFolderBack() {
-        String backupPaths = FolderBackupConfigSPs.getBackupPaths();
-        FolderBackupConfigSPs.saveBackupPathsByCurrentAccount(backupPaths);
-        SPs.remove(FolderBackupConfigSPs.FOLDER_BACKUP_PATHS);
+        if (TextUtils.isEmpty(FolderBackupManager.getCurrentAccount())) {
+            return;
+        }
+
+        SharedPreferences sharedPref = getSharedPreferences(DataStoreKeys.LATEST_ACCOUNT, Context.MODE_PRIVATE);
+        String pathStr = sharedPref.getString(SettingsManager.FOLDER_BACKUP_PATHS, "");
+
+        if (!TextUtils.isEmpty(pathStr)) {
+            List<String> selectFolderPaths = StringTools.getJsonToList(pathStr);
+
+            Account account = SupportAccountManager.getInstance().getCurrentAccount();
+            if (account == null) {
+                //Not logged in or opened for the first time
+                List<Account> accountList = SupportAccountManager.getInstance().getAccountList();
+                if (!accountList.isEmpty()) {
+                    account = accountList.get(0);
+                }
+            }
+
+            if (account != null) {
+                FolderBackupManager.writeBackupPaths(selectFolderPaths);
+                SLogs.d("migrated: selectFolderPaths -> " + selectFolderPaths.size());
+            }
+        }
+
+        //PreferenceManager
+        SharedPreferences pm = PreferenceManager.getDefaultSharedPreferences(SeadroidApplication.getAppContext());
+
+        //folder_backup_switch
+        boolean folder_backup_switch = pm.getBoolean(SettingsManager.FOLDER_BACKUP_SWITCH_KEY, false);
+        FolderBackupManager.writeBackupSwitch(folder_backup_switch);
+        SLogs.d("migrated: folder_backup_switch -> " + folder_backup_switch);
+
+        //mode
+        String network = pm.getString(SettingsManager.FOLDER_BACKUP_MODE, "WIFI");
+        FolderBackupManager.writeNetworkMode(network);//PreferenceManager -> DataStore
+        SLogs.d("migrated: networkMode -> " + network);
+
+        //true
+        FolderBackupManager.writeSkipHiddenFiles(true);
+        SLogs.d("migrated: jumpHidden -> " + true);
     }
 
     private void queryDataDB() {
@@ -523,44 +696,44 @@ public class DataMigrationActivity extends AppCompatActivity {
                 Optional<RepoModel> repoModelOp = accountRepoList.stream().filter(repo -> repo.repo_id.equals(transferEntity.repo_id)).findFirst();
                 if (repoModelOp.isPresent()) {
                     RepoModel rm = repoModelOp.get();
-                    transferEntity.is_block = rm.encrypted;
+//                    transferEntity.is_block = rm.encrypted;
                     transferEntity.related_account = rm.related_account;
                 }
 
                 transferEntity.is_copy_to_local = false;
-                transferEntity.is_update = false;
+                transferEntity.file_strategy = ExistingFileStrategy.AUTO;
 
                 String path = c.getString(pathIndex);
 
                 transferEntity.transfer_result = TransferResult.TRANSMITTED;
-                transferEntity.transfer_status = TransferStatus.TRANSFER_SUCCEEDED;
+                transferEntity.transfer_status = TransferStatus.SUCCEEDED;
                 if (path.startsWith("/")) {
                     transferEntity.transfer_action = TransferAction.DOWNLOAD;
-                    transferEntity.data_source = TransferFeature.DOWNLOAD;
+                    transferEntity.data_source = TransferDataSource.DOWNLOAD;
                     transferEntity.full_path = path;
                 } else {
                     transferEntity.full_path = "/" + path;
                     transferEntity.transfer_action = TransferAction.UPLOAD;
                     if (path.startsWith("My Photos")) {
-                        transferEntity.data_source = TransferFeature.ALBUM_BACKUP;
+                        transferEntity.data_source = TransferDataSource.ALBUM_BACKUP;
                     } else {
-                        transferEntity.data_source = TransferFeature.FOLDER_BACKUP;
+                        transferEntity.data_source = TransferDataSource.FOLDER_BACKUP;
                     }
                 }
 
-                transferEntity.parent_path = Utils.getParentPath(transferEntity.full_path);
+                transferEntity.setParent_path(Utils.getParentPath(transferEntity.full_path));
                 transferEntity.file_name = FileUtils.getFileName(transferEntity.full_path);
 
-                if (TransferFeature.DOWNLOAD == transferEntity.data_source) {
+                if (TransferDataSource.DOWNLOAD == transferEntity.data_source) {
                     String mediaPath = StorageManager.getInstance().getMediaDir().getAbsolutePath();
                     String absPath = Utils.pathJoin(mediaPath, transferEntity.related_account, transferEntity.repo_name, path);
                     transferEntity.file_size = FileUtils.getFileLength(absPath);
                     transferEntity.transferred_size = transferEntity.file_size;
-                    transferEntity.file_md5 = FileUtils.getFileMD5ToString(absPath);
+                    transferEntity.file_md5 = FileUtils.getFileMD5ToString(absPath).toLowerCase();
                     transferEntity.target_path = absPath;
-                } else if (TransferFeature.FOLDER_BACKUP == transferEntity.data_source) {
+                } else if (TransferDataSource.FOLDER_BACKUP == transferEntity.data_source) {
                     //queryFolderBackupDB() 方法已实现数据迁移
-                } else if (TransferFeature.ALBUM_BACKUP == transferEntity.data_source) {
+                } else if (TransferDataSource.ALBUM_BACKUP == transferEntity.data_source) {
                     //My Photos/a/b.png
                     //文件属性数据为空
                 }
@@ -661,38 +834,38 @@ public class DataMigrationActivity extends AppCompatActivity {
                 null    // The sort order
         );
 
-        List<RepoDirMappingEntity> list = CollectionUtils.newArrayList();
+        Set<String> sets = DataStoreManager.getCommonInstance().readSetString(DataStoreKeys.DS_REPO_DIR_MAPPING);
+
 
         try {
             c.moveToFirst();
             while (!c.isAfterLast()) {
-                RepoDirMappingEntity item = new RepoDirMappingEntity();
                 int idIndex = c.getColumnIndexOrThrow("id");
                 int repoIdIndex = c.getColumnIndexOrThrow("repo_id");
                 int repoDirIndex = c.getColumnIndexOrThrow("repo_dir");
                 int accountIndex = c.getColumnIndexOrThrow("account");
 
 
-                item.id = c.getLong(idIndex);
-                item.repo_id = c.getString(repoIdIndex);
-                item.repo_dir = c.getString(repoDirIndex);
-                item.related_account = c.getString(accountIndex);
+//                item.id = c.getLong(idIndex);
+                String repo_id = c.getString(repoIdIndex);
+                String repo_dir = c.getString(repoDirIndex);
+//                item.related_account = c.getString(accountIndex);
+
+                sets.add(repo_id + DataStoreKeys.SEPARATOR + repo_dir);
 
                 c.moveToNext();
-
-                list.add(item);
             }
         } finally {
             c.close();
         }
 
-        SLogs.d("--------------------" + table);
-        for (RepoDirMappingEntity entity : list) {
-            SLogs.d(entity.toString());
+//        AppDatabase.getInstance().repoDirMappingDAO().insertAll(list);
+        SLogs.d("--------------------" + table + " -> 完成");
+
+        if (!sets.isEmpty()) {
+            DataStoreManager.getCommonInstance().writeSetString(DataStoreKeys.DS_REPO_DIR_MAPPING, sets);
         }
 
-        AppDatabase.getInstance().repoDirMappingDAO().insertAll(list);
-        SLogs.d("--------------------" + table + " -> 完成");
     }
 
     private void queryDirentsCacheOfDataDB() {
@@ -773,10 +946,10 @@ public class DataMigrationActivity extends AppCompatActivity {
                 int encKeyIndex = c.getColumnIndexOrThrow("enc_key");
                 int encIvIndex = c.getColumnIndexOrThrow("enc_iv");
 
-                item.id = c.getLong(idIndex);
                 item.repo_id = c.getString(repoIdIndex);
                 item.enc_key = c.getString(encKeyIndex);
                 item.enc_iv = c.getString(encIvIndex);
+                item.expire_time_long = System.currentTimeMillis();// now : expire
 
                 Optional<RepoModel> repoModelOp = accountRepoList.stream().filter(repo -> repo.repo_id.equals(item.repo_id)).findFirst();
                 if (repoModelOp.isPresent()) {
@@ -927,6 +1100,7 @@ public class DataMigrationActivity extends AppCompatActivity {
     }
 
     private void finishMigration() {
+        AppDataManager.setMigratedWhenV300(1);
         SLogs.d("finishMigration");
     }
 
@@ -936,10 +1110,5 @@ public class DataMigrationActivity extends AppCompatActivity {
             return true; //do not back
         }
         return super.onKeyDown(keyCode, event);
-    }
-
-    @Override
-    public void onBackPressed() {
-        //do not super
     }
 }

@@ -12,17 +12,21 @@
         android:background="@color/toolbar_background_color"
         android:orientation="vertical"
         android:paddingHorizontal="16dp"
-        android:paddingVertical="10dp">
+        android:paddingVertical="12dp">
 
-        <androidx.appcompat.widget.SearchView
+        <com.google.android.material.textfield.MaterialAutoCompleteTextView
             android:id="@+id/search_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@drawable/shape_search"
-            app:autoShowKeyboard="true"
-            app:iconifiedByDefault="false"
-            app:queryHint="@string/search_bar_hint"
-            app:searchIcon="@drawable/ic_search" />
+            android:drawableStart="@drawable/baseline_search_24"
+            android:drawablePadding="4dp"
+            android:textSize="16sp"
+            android:drawableTint="@color/grey"
+            android:hint="@string/search_bar_hint"
+            android:imeOptions="actionSearch"
+            android:inputType="text|textAutoComplete"
+            android:paddingHorizontal="16dp" />
     </LinearLayout>
 
     <com.google.android.material.divider.MaterialDivider

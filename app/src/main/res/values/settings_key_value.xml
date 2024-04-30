@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="key_user_account_info">account_info_user_key</string>
+    <string name="key_user_space">account_info_space_key</string>
+    <string name="key_user_gesture_switch">gesture_lock_switch_key</string>
+    <string name="key_user_sign_out">account_sign_out_key</string>
+
+    <string name="key_security_clear_password">clear_password_key</string>
+    <string name="key_security_client_encrypt_switch">client_encrypt_switch_key</string>
+
+    <string name="key_camera_upload_switch">camera_upload_switch_key</string>
+    <string name="key_camera_upload_repo_select">camera_upload_repo_key</string>
+    <string name="key_camera_upload_advanced">category_camera_upload_advanced_key</string>
+    <string name="key_camera_upload_state">camera_upload_state</string>
+
+    <string name="key_camera_upload_advanced_data_plan_switch">allow_data_plan_switch_key</string>
+    <string name="key_camera_upload_advanced_allow_video_switch">allow_videos_upload_switch_key</string>
+    <string name="key_camera_upload_advanced_buckets_switch">camera_upload_buckets_switch_key</string>
+    <string name="key_camera_upload_advanced_buckets_select">camera_upload_buckets_key</string>
+
+
+    <string name="key_folder_backup_switch">folder_backup_switch_key</string>
+    <string name="key_folder_automatic_backup_switch">folder_automatic_backup_switch_key</string>
+    <string name="key_folder_backup_network_mode">folder_backup_mode</string>
+    <string name="key_folder_backup_data_plan">folder_backup_allow_data_plan_switch_key</string>
+    <string name="key_folder_backup_repo_select">folder_backup_library_key</string>
+    <string name="key_folder_backup_folder_select">selected_backup_folders_key</string>
+    <string name="key_folder_backup_state">folder_backup_state</string>
+
+    <string name="key_cache_info">settings_cache_info_key</string>
+    <string name="key_cache_location">settings_cache_location_key</string>
+    <string name="key_cache_clear">settings_clear_cache_key</string>
+
+    <string name="key_about_version">settings_about_version_key</string>
+    <string name="key_about_privacy">settings_privacy_policy_key</string>
+    <string name="key_about_author">settings_about_author_key</string>
+</resources>

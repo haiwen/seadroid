@@ -8,26 +8,12 @@ public class Constants {
         throw new IllegalStateException("Constants class"); //NON-NLS(1)
     }
 
-    public static final int PASSWORD_MINIMUM_LENGTH = 4;
+    public static final String APP_PACKAGE = "com.seafile.seadroid2";
+
+
+    public static final int PERIODIC_SCAN_INTERVALS = 1000 * 60 * 30; //30 mins
+    public static final int PASSWORD_MINIMUM_LENGTH = 8;
     public static final String URL_PRIVACY = "https://www.seafile.com/privacy/";
-
-    public static class App {
-        private App() {
-            throw new IllegalStateException("Don't instantiate this class");
-        }
-
-        /**
-         * When the app version is upgraded to v3.0.0(or v3x), some data must be migrated,
-         * such as. CameraUploadDBHelper/FolderBackupDBHelper.
-         * This field is used to check if it has been migrated.
-         * <p>
-         * 0 no
-         * 1 yes
-         * <p/>
-         */
-        public static final String DATA_IS_MIGRATION = "data_is_migrated_when_app_version_is_v3x";
-    }
-
 
     public static class ObjType {
         private ObjType() {
@@ -50,15 +36,6 @@ public class Constants {
         public final static String ACCOUNT_TYPE = BuildConfig.ACCOUNT_TYPE;
     }
 
-    public static class SP {
-        private SP() {
-            throw new IllegalStateException("Don't instantiate this class");
-        }
-
-        public static final String ACCOUNT_CURRENT = "latest_account";
-        public static final String ACCOUNT_NAME = "com.seafile.seadroid..account_name";
-
-    }
 
     public static class Protocol {
         private Protocol() {

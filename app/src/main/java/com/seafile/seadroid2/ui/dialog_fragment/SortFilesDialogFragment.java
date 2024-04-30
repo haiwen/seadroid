@@ -9,7 +9,7 @@ import androidx.fragment.app.DialogFragment;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.ui.dialog_fragment.listener.OnSortItemClickListener;
-import com.seafile.seadroid2.util.sp.Sorts;
+import com.seafile.seadroid2.framework.datastore.sp.Sorts;
 
 public class SortFilesDialogFragment extends DialogFragment {
     

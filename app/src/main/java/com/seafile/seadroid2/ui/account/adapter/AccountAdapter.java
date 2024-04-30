@@ -13,7 +13,7 @@ import com.google.common.collect.Lists;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.config.GlideLoadConfig;
-import com.seafile.seadroid2.util.GlideApp;
+import com.seafile.seadroid2.framework.util.GlideApp;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -89,16 +89,15 @@ public class AccountAdapter extends BaseAdapter {
         Account account = items.get(position);
         viewHolder.selectView.setVisibility(account.is_selected ? View.VISIBLE : View.INVISIBLE);
 
-        viewHolder.title.setText(account.getServerHost());
-//        viewHolder.subtitle.setText(account.getEmail());
-        viewHolder.subtitle.setText(account.getName());
+        viewHolder.title.setText(account.getName());
+        viewHolder.subtitle.setText(account.getServerHost());
 
         if (TextUtils.isEmpty(account.avatar_url)) {
             viewHolder.icon.setImageResource(com.seafile.seadroid2.R.drawable.default_avatar);
         } else {
             GlideApp.with(viewHolder.icon)
                     .load(GlideLoadConfig.getGlideUrl(account.avatar_url))
-                    .apply(GlideLoadConfig.getOptions())
+                    .apply(GlideLoadConfig.getDefaultAvatarOptions())
                     .into(viewHolder.icon);
         }
 

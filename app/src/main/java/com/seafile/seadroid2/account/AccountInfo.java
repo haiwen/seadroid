@@ -1,6 +1,6 @@
 package com.seafile.seadroid2.account;
 
-import com.seafile.seadroid2.util.Utils;
+import com.seafile.seadroid2.framework.util.Utils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -56,12 +56,17 @@ public class AccountInfo {
         return server;
     }
 
+    public String getServerHost() {
+        String s = server.substring(server.indexOf("://") + 3);
+        return s.substring(0, s.indexOf('/'));
+    }
+
     public String getName() {
         return name;
     }
 
     public String getDisplayName() {
-        String server = Utils.stripSlashes(getServer());
+        String server = Utils.stripSlashes(getServerHost());
         return Utils.assembleUserName(name, email, server);
     }
 
@@ -77,5 +82,18 @@ public class AccountInfo {
 
     public String getAvatarUrl() {
         return avatar_url;
+    }
+
+    @Override
+    public String toString() {
+        return "AccountInfo{" +
+                "usage=" + usage +
+                ", total=" + total +
+                ", email='" + email + '\'' +
+                ", server='" + server + '\'' +
+                ", avatar_url='" + avatar_url + '\'' +
+                ", name='" + name + '\'' +
+                ", space_usage='" + space_usage + '\'' +
+                '}';
     }
 }

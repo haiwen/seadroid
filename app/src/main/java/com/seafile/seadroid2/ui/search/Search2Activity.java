@@ -1,44 +1,28 @@
 package com.seafile.seadroid2.ui.search;
 
-import static androidx.cursoradapter.widget.CursorAdapter.FLAG_AUTO_REQUERY;
-
+import android.app.Activity;
 import android.app.SearchManager;
-import android.content.ComponentName;
-import android.content.ContentResolver;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.ServiceConnection;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.IBinder;
-import android.provider.SearchRecentSuggestions;
 import android.text.Editable;
+import android.text.InputFilter;
+import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
-import android.widget.AutoCompleteTextView;
 import android.widget.TextView;
 
-import androidx.activity.OnBackPressedCallback;
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.view.OnApplyWindowInsetsListener;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
-import androidx.cursoradapter.widget.CursorAdapter;
-import androidx.cursoradapter.widget.SimpleCursorAdapter;
 import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.blankj.utilcode.util.CollectionUtils;
@@ -48,25 +32,25 @@ import com.chad.library.adapter4.QuickAdapterHelper;
 import com.chad.library.adapter4.loadState.LoadState;
 import com.chad.library.adapter4.loadState.trailing.TrailingLoadStateAdapter;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.search.SearchBar;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
-import com.seafile.seadroid2.data.DataManager;
-import com.seafile.seadroid2.data.db.entities.DirentModel;
-import com.seafile.seadroid2.data.model.search.SearchModel;
+import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.databinding.ActivitySearch2Binding;
-import com.seafile.seadroid2.play.exoplayer.CustomExoVideoPlayerActivity;
-import com.seafile.seadroid2.transfer.TransferService;
-import com.seafile.seadroid2.ui.BaseActivity;
+import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
+import com.seafile.seadroid2.framework.data.model.search.SearchModel;
+import com.seafile.seadroid2.framework.datastore.DataManager;
+import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.ui.WidgetUtils;
-import com.seafile.seadroid2.ui.activity.FileActivity;
-import com.seafile.seadroid2.ui.base.adapter.CustomLoadMoreAdapter;
+import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
+import com.seafile.seadroid2.ui.base.adapter.LoadMoreAdapter;
+import com.seafile.seadroid2.ui.file.FileActivity;
 import com.seafile.seadroid2.ui.main.MainActivity;
 import com.seafile.seadroid2.ui.media.image_preview.ImagePreviewActivity;
-import com.seafile.seadroid2.util.SearchUtils;
-import com.seafile.seadroid2.util.Utils;
+import com.seafile.seadroid2.ui.play.exoplayer.CustomExoVideoPlayerActivity;
+import com.seafile.seadroid2.ui.webview.SeaWebViewActivity;
 import com.seafile.seadroid2.view.TipsViews;
 
 import java.io.File;
@@ -76,22 +60,17 @@ import java.util.concurrent.TimeUnit;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Function;
+import io.reactivex.functions.Consumer;
 
 /**
  * Search Activity
  */
-public class Search2Activity extends BaseActivity implements Toolbar.OnMenuItemClickListener {
+public class Search2Activity extends BaseActivityWithVM<SearchViewModel> implements Toolbar.OnMenuItemClickListener {
     private ActivitySearch2Binding binding;
-    private SearchViewModel viewModel;
 
     private QuickAdapterHelper helper;
     private SearchRecyclerViewAdapter adapter;
-    private DataManager dataManager;
-    private TransferService txService = null;
-    private Account account;
 
-    public static final int DOWNLOAD_FILE_REQUEST = 0;
     private int page = 0;
     private final int PAGE_SIZE = 20;
 
@@ -107,9 +86,13 @@ public class Search2Activity extends BaseActivity implements Toolbar.OnMenuItemC
         initViewModel();
         initAdapter();
 
-        initData();
-
         handleIntent(getIntent());
+
+        //firebase - event -login
+        Bundle eventBundle = new Bundle();
+        eventBundle.putString(FirebaseAnalytics.Param.METHOD, Search2Activity.class.getSimpleName());
+        FirebaseAnalytics.getInstance(this).logEvent(FirebaseAnalytics.Event.SEARCH, eventBundle);
+
     }
 
     private void initView(Bundle bundle) {
@@ -119,44 +102,8 @@ public class Search2Activity extends BaseActivity implements Toolbar.OnMenuItemC
                 loadNext(lastQuery, true);
             }
         });
-        binding.searchView.setSubmitButtonEnabled(false);
 
-        binding.searchView.findViewById(R.id.search_src_text).setBackground(null);
-//        Cursor cursor = getSuggestionsCursor();
-//        SimpleCursorAdapter simpleCursorAdapter = new SimpleCursorAdapter(this, R.layout.item_search_suggestion, cursor,
-//                new String[]{"suggest_text_1"},
-//                new int[]{R.id.cat_searchbar_suggestion_title});
-//
-//        binding.searchView.setSuggestionsAdapter(simpleCursorAdapter);
-
-        binding.searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
-            @Override
-            public boolean onSuggestionSelect(int position) {
-
-                return false;
-            }
-
-            @Override
-            public boolean onSuggestionClick(int position) {
-                return false;
-            }
-        });
-
-        binding.searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                loadNext(query, true);
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                return false;
-            }
-        });
-
-        AutoCompleteTextView autoCompleteTextView = binding.searchView.findViewById(R.id.search_src_text);
-        autoCompleteTextView.addTextChangedListener(new TextWatcher() {
+        binding.searchView.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -181,16 +128,14 @@ public class Search2Activity extends BaseActivity implements Toolbar.OnMenuItemC
     }
 
     private void initViewModel() {
-        viewModel = new ViewModelProvider(this).get(SearchViewModel.class);
-
-        viewModel.getRefreshLiveData().observe(this, new Observer<Boolean>() {
+        getViewModel().getRefreshLiveData().observe(this, new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean aBoolean) {
                 binding.swipeRefreshLayout.setRefreshing(aBoolean);
             }
         });
 
-        viewModel.getSeafExceptionLiveData().observe(this, new Observer<SeafException>() {
+        getViewModel().getSeafExceptionLiveData().observe(this, new Observer<SeafException>() {
             @Override
             public void onChanged(SeafException e) {
                 page--;
@@ -203,7 +148,7 @@ public class Search2Activity extends BaseActivity implements Toolbar.OnMenuItemC
             }
         });
 
-        viewModel.getListLiveData().observe(this, new Observer<List<SearchModel>>() {
+        getViewModel().getListLiveData().observe(this, new Observer<List<SearchModel>>() {
             @Override
             public void onChanged(List<SearchModel> result) {
                 if (CollectionUtils.isEmpty(result)) {
@@ -241,11 +186,13 @@ public class Search2Activity extends BaseActivity implements Toolbar.OnMenuItemC
         adapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener<SearchModel>() {
             @Override
             public void onClick(@NonNull BaseQuickAdapter<SearchModel, ?> baseQuickAdapter, @NonNull View view, int i) {
-                onSearchedFileSelected(adapter.getItems().get(i));
+
+
+                onItemClick(adapter.getItems().get(i));
             }
         });
 
-        CustomLoadMoreAdapter customLoadMoreAdapter = new CustomLoadMoreAdapter();
+        LoadMoreAdapter customLoadMoreAdapter = new LoadMoreAdapter();
         customLoadMoreAdapter.setOnLoadMoreListener(new TrailingLoadStateAdapter.OnTrailingListener() {
             @Override
             public void onFailRetry() {
@@ -270,21 +217,6 @@ public class Search2Activity extends BaseActivity implements Toolbar.OnMenuItemC
         binding.rv.setAdapter(helper.getAdapter());
     }
 
-    private Cursor getSuggestionsCursor() {
-
-        Uri.Builder uriBuilder = new Uri.Builder()
-                .scheme(ContentResolver.SCHEME_CONTENT)
-                .authority(RecentSearchSuggestionsProvider.AUTHORITY);
-        uriBuilder.appendPath(SearchManager.SUGGEST_URI_PATH_QUERY);
-
-        String selection = " ?";
-        String[] selArgs = new String[]{""};
-        Uri uri = uriBuilder.build();
-        Cursor cursor = getContentResolver().query(uri, null, null, selArgs, null);
-        return cursor;
-    }
-
-
     private Disposable disposable;
 
     private void delayLoad() {
@@ -295,7 +227,7 @@ public class Search2Activity extends BaseActivity implements Toolbar.OnMenuItemC
         disposable = Observable.timer(1000, TimeUnit.MILLISECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(aLong -> {
-                    loadNext(binding.searchView.getQuery().toString(), true);
+                    loadNext(binding.searchView.getText().toString(), true);
                 });
 
     }
@@ -320,10 +252,6 @@ public class Search2Activity extends BaseActivity implements Toolbar.OnMenuItemC
 
     @Override
     protected void onDestroy() {
-        if (txService != null) {
-            unbindService(mConnection);
-            txService = null;
-        }
 
         if (disposable != null && !disposable.isDisposed()) {
             disposable.dispose();
@@ -331,16 +259,6 @@ public class Search2Activity extends BaseActivity implements Toolbar.OnMenuItemC
 
         super.onDestroy();
     }
-
-    private void initData() {
-        account = SupportAccountManager.getInstance().getCurrentAccount();
-        dataManager = new DataManager(account);
-
-        // bind transfer service
-        Intent bIntent = new Intent(this, TransferService.class);
-        bindService(bIntent, mConnection, Context.BIND_AUTO_CREATE);
-    }
-
 
     @Override
     protected void onNewIntent(Intent intent) {
@@ -356,7 +274,7 @@ public class Search2Activity extends BaseActivity implements Toolbar.OnMenuItemC
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             String query = intent.getStringExtra(SearchManager.QUERY);
             Log.d("SEARCH", "Search query was: $query");
-            binding.searchView.setQuery(query, false);
+            binding.searchView.setText(query);
             loadNext(query, true);
         }
     }
@@ -382,20 +300,6 @@ public class Search2Activity extends BaseActivity implements Toolbar.OnMenuItemC
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        switch (requestCode) {
-            case DOWNLOAD_FILE_REQUEST:
-                if (resultCode == RESULT_OK) {
-                    File file = new File(data.getStringExtra("path"));
-                    WidgetUtils.showFile(this, file);
-                }
-            default:
-                break;
-        }
-    }
-
     private String lastQuery = null;
 
     private void loadNext(String query, boolean isRefresh) {
@@ -417,9 +321,8 @@ public class Search2Activity extends BaseActivity implements Toolbar.OnMenuItemC
             return;
         }
 
-        SearchRecentSuggestions searchRecentSuggestions = new SearchRecentSuggestions(this, RecentSearchSuggestionsProvider.AUTHORITY, RecentSearchSuggestionsProvider.MODE);
-        searchRecentSuggestions.saveRecentQuery(query, null);
-
+//        SearchRecentSuggestions searchRecentSuggestions = new SearchRecentSuggestions(this, RecentSearchSuggestionsProvider.AUTHORITY, RecentSearchSuggestionsProvider.MODE);
+//        searchRecentSuggestions.saveRecentQuery(query, null);
 
         if (isRefresh) {
             page = 0;
@@ -427,93 +330,89 @@ public class Search2Activity extends BaseActivity implements Toolbar.OnMenuItemC
 
         page++;
 
-        viewModel.loadNext(query, page, PAGE_SIZE);
+        getViewModel().loadNext(query, page, PAGE_SIZE);
     }
 
-    public void onSearchedFileSelected(SearchModel searchedFile) {
-        final String repoID = searchedFile.repo_id;
-        final String repoName = searchedFile.repo_name;
+    public void onItemClick(SearchModel searchedFile) {
+        final String repo_id = searchedFile.repo_id;
+        final String repo_name = searchedFile.repo_name;
         final String fileName = searchedFile.name;
         final String filePath = searchedFile.fullpath;
 
         if (searchedFile.is_dir) {
-//            if (repo == null) {
-//                ToastUtils.showLong(R.string.search_library_not_found);
-//                return;
-//            }
-
             navTo(searchedFile);
             return;
         }
 
-        // Encrypted repo doesn\`t support gallery,
-        // because pic thumbnail under encrypted repo was not supported at the server side
-        //TODO && !repo.encrypted
-        if (Utils.isViewableImage(searchedFile.name)) {
-            ImagePreviewActivity.startThis(this, repoID, searchedFile.fullpath);
-            return;
-        }
+        getViewModel().getRepoModel(repo_id, new Consumer<RepoModel>() {
+            @Override
+            public void accept(RepoModel repoModel) throws Exception {
+                if (repoModel == null) {
+                    return;
+                }
 
-        final File localFile = dataManager.getLocalCachedFile(repoName, repoID, filePath, null);
-        if (localFile != null) {
-            WidgetUtils.showFile(this, localFile);
-            return;
-        }
+                open(repoModel, searchedFile, fileName, filePath);
+            }
+        });
+    }
 
-        boolean videoFile = Utils.isVideoFile(fileName);
-        if (videoFile) { // is video file
+    private void open(RepoModel repoModel, SearchModel searchedFile, String fileName, String filePath) {
+        if (fileName.endsWith(Constants.Format.DOT_SDOC)) {
+            SeaWebViewActivity.openSdoc(this, repoModel.repo_name, repoModel.repo_id, filePath);
+        } else if (Utils.isViewableImage(fileName) && !repoModel.encrypted) {
+            // Encrypted repo does not support gallery,
+            // because pic thumbnail under encrypted repo was not supported at the server side
+            ImagePreviewActivity.startThisFromSearch(this, searchedFile);
+        } else if (Utils.isVideoFile(fileName)) { // is video file
             final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
             builder.setItems(R.array.video_download_array, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    if (which == 0) // create file
-                        startPlayActivity(fileName, repoID, filePath);
-                    else if (which == 1) // create folder
-                        startFileActivity(repoName, repoID, filePath);
+                    if (which == 0) {
+                        CustomExoVideoPlayerActivity.startThis(Search2Activity.this, fileName, repoModel.repo_id, filePath);
+                    } else if (which == 1) {
+                        Intent intent = FileActivity.startFromSearch(Search2Activity.this, searchedFile, "video_download");
+                        fileActivityLauncher.launch(intent);
+                    }
                 }
             }).show();
-            return;
+        } else {
+            checkFileAndStartFileActivity(searchedFile, true);
         }
+    }
 
-        startFileActivity(repoName, repoID, filePath);
+    private void checkFileAndStartFileActivity(SearchModel searchedFile, boolean isOpenWith) {
+
+        Account account = SupportAccountManager.getInstance().getCurrentAccount();
+        File localFile = DataManager.getLocalRepoFile(account, searchedFile.repo_id, searchedFile.repo_name, searchedFile.fullpath);
+        if (localFile.exists()) {
+            WidgetUtils.openWith(this, localFile);
+        } else {
+            Intent intent = FileActivity.startFromSearch(this, searchedFile, "search");
+            fileActivityLauncher.launch(intent);
+        }
     }
 
     private void navTo(SearchModel model) {
         MainActivity.navToThis(this, model.repo_id, model.repo_name, model.fullpath, model.is_dir);
     }
 
-    private void startFileActivity(String repoName, String repoID, String filePath) {
-        final int taskID = txService.addDownloadTask(account, repoName, repoID, filePath);
-        Intent intent = new Intent(this, FileActivity.class);
-        intent.putExtra("repoName", repoName);
-        intent.putExtra("repoID", repoID);
-        intent.putExtra("filePath", filePath);
-        intent.putExtra("account", account);
-        intent.putExtra("taskID", taskID);
-        startActivityForResult(intent, DOWNLOAD_FILE_REQUEST);
-    }
 
-    private void startPlayActivity(String fileName, String repoID, String filePath) {
-        Intent intent = new Intent(this, CustomExoVideoPlayerActivity.class);
-        intent.putExtra("fileName", fileName);
-        intent.putExtra("repoID", repoID);
-        intent.putExtra("filePath", filePath);
-        intent.putExtra("account", account);
-        startActivity(intent);
-    }
-
-    private final ServiceConnection mConnection = new ServiceConnection() {
+    private final ActivityResultLauncher<Intent> fileActivityLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
         @Override
-        public void onServiceConnected(ComponentName className, IBinder service) {
-            TransferService.TransferBinder binder = (TransferService.TransferBinder) service;
-            txService = binder.getService();
-        }
+        public void onActivityResult(ActivityResult o) {
+            if (o.getResultCode() != Activity.RESULT_OK || o.getData() == null) {
+                return;
+            }
 
-        @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-            txService = null;
+            String action = o.getData().getStringExtra("action");
+            String path = o.getData().getStringExtra("path");
+
+            if ("search".equals(action) && !TextUtils.isEmpty(path)) {
+                WidgetUtils.openWith(Search2Activity.this, new File(path));
+            }
         }
-    };
+    });
 
 
 }

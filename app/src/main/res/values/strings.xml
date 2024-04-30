@@ -15,6 +15,7 @@
     <string name="delete_successful">Successfully deleted</string>
     <string name="delete_repo_title">Delete library</string>
     <string name="delete_file_f">Delete file</string>
+    <string name="delete_local_file_sametime">Delete local files at the same time</string>
     <string name="recover_library">Recover library</string>
     <string name="recover_file">Recover file</string>
     <string name="move_file">Move file</string>
@@ -70,6 +71,7 @@
     <string name="err_login_failed">Login failed</string>
     <string name="err_wrong_user_or_passwd">Email or password error</string>
     <string name="err_token_expired">Authentication expired, please login again</string>
+    <string name="out_of_quota">Out of quota</string>
     <string name="upload">Upload</string>
     <string name="uploaded">Uploaded</string>
     <string name="re_upload">Upload again</string>
@@ -124,6 +126,7 @@
         <item>@string/file_action_share_encrypt</item>
     </string-array>
     <string name="wait">Wait</string>
+    <string name="file_image_view_full_image">View full image</string>
     <string name="image_gallery_NoImageView_text">No image found</string>
     <string name="pick_photo_video_title">Choose photos/videos to upload</string>
     <string name="select_upload_items">Select items to upload</string>
@@ -153,6 +156,7 @@
     <string name="load_accounts_fail">Failed to load Seafile accounts</string>
     <string name="load_libraries_fail">Failed to load libraries</string>
     <string name="load_dir_fail">Failed to load contents of this folder</string>
+    <string name="not_supported">Not supported at this time</string>
     <string name="not_supported_share">This type of share is not supported</string>
     <string name="edit">Edit</string>
     <string name="create_draft">Create draft</string>
@@ -216,6 +220,7 @@
         <item>Accounts</item>
         <item>Backup Photos</item>
     </string-array>
+    <string name="navigate_to_directory">Navigate to directory</string>
     <string name="no_starred_file">No starred file yet</string>
     <string name="added_to_upload_tasks">Uploading started</string>
     <string name="added_photo_to_upload_tasks">Photo uploading started</string>
@@ -613,14 +618,24 @@
     <string name="UncaughtExceptionHandler_err">The application stopped running</string>
 
     <!--action-->
+    <string name="waiting">Waiting</string>
     <string name="add">Add</string>
     <string name="modify">Modify</string>
     <string name="update">Update</string>
+    <string name="update_local_file">Update local file</string>
+    <string name="update_remote_file">Update remote file</string>
     <string name="clear">Clear</string>
+    <string name="close">Close</string>
     <string name="clear_all">Clear all</string>
     <string name="done">Done</string>
     <string name="success">Success</string>
     <string name="failed">Failed</string>
+    <string name="uploading">Uploading</string>
+    <string name="downloading">Downloading</string>
+    <string name="replace_all">Replace All</string>
+    <string name="replace">Replace</string>
+    <string name="do_not_replace">Do not replace</string>
+    <string name="keep_both">Keep Both</string>
 
     <!-- share link -->
     <string name="link_permission_set_permission">Set permission</string>

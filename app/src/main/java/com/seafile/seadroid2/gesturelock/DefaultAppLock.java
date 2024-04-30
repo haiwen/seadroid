@@ -12,7 +12,9 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.google.common.collect.MapMaker;
-import com.seafile.seadroid2.util.sp.SettingsManager;
+import com.seafile.seadroid2.framework.datastore.sp.GestureLockManager;
+import com.seafile.seadroid2.framework.datastore.sp.SettingsManager;
+import com.seafile.seadroid2.ui.SplashActivity;
 import com.seafile.seadroid2.ui.gesture.UnlockGesturePasswordActivity;
 
 import java.util.concurrent.ConcurrentMap;
@@ -39,17 +41,11 @@ public class DefaultAppLock extends AbstractAppLock {
     }
 
     public void enable() {
-        if (android.os.Build.VERSION.SDK_INT < 14)
-            return;
-
         currentApp.registerActivityLifecycleCallbacks(this);
     }
 
     @Override
     public void disable() {
-        if (android.os.Build.VERSION.SDK_INT < 14)
-            return;
-
         currentApp.unregisterActivityLifecycleCallbacks(this);
     }
 
@@ -57,12 +53,16 @@ public class DefaultAppLock extends AbstractAppLock {
     public void onActivityPaused(Activity activity) {
         Log.d(DEBUG_TAG, "onActivityPaused");
 
-        if (activity.getClass() == UnlockGesturePasswordActivity.class)
+        if (activity.getClass() == UnlockGesturePasswordActivity.class) {
             return;
+        }
+
+        if (activity.getClass() == SplashActivity.class) {
+            return;
+        }
 
         if (!isActivityBeingChecked(activity)) {
-            SettingsManager.getInstance().saveGestureLockTimeStamp();
-
+            GestureLockManager.saveGestureLockTimeStamp();
         }
     }
 
@@ -81,10 +81,16 @@ public class DefaultAppLock extends AbstractAppLock {
         /** just compare fully-qualified names to determine if two classes being equal
          * even if they've been loaded by different classloaders,
          * possibly from different locations */
-        if (activity.getClass() == UnlockGesturePasswordActivity.class)
+        if (activity.getClass() == UnlockGesturePasswordActivity.class) {
             return;
+        }
 
-        if (SettingsManager.getInstance().isGestureLockRequired()) {
+        if (activity.getClass() == SplashActivity.class) {
+            return;
+        }
+
+
+        if (GestureLockManager.isGestureLockRequired()) {
             mCheckedActivities.put(activity, System.currentTimeMillis());
             Intent i = new Intent(activity, UnlockGesturePasswordActivity.class);
             activity.startActivity(i);

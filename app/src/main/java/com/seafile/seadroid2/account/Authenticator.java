@@ -1,20 +1,25 @@
 package com.seafile.seadroid2.account;
 
-import android.accounts.*;
+import android.accounts.AbstractAccountAuthenticator;
+import android.accounts.AccountAuthenticatorResponse;
 import android.accounts.AccountManager;
+import android.accounts.NetworkErrorException;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.seafile.seadroid2.SeafException;
+import com.seafile.seadroid2.framework.http.IO;
+import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.ui.account.AccountService;
 import com.seafile.seadroid2.ui.account.SeafileAuthenticatorActivity;
-import com.seafile.seadroid2.data.DataManager;
 
-import org.json.JSONException;
-
+import java.io.IOException;
 import java.net.HttpURLConnection;
+
+import retrofit2.Call;
+import retrofit2.Response;
 
 /*
  * Seafile Authenticator.
@@ -66,6 +71,11 @@ public class Authenticator extends AbstractAccountAuthenticator {
      */
     public static final String SESSION_KEY = "sessionKey";
 
+    /**
+     * Key of shib_setting in userData
+     */
+    public static final String LOGIN_TIME = "loginTime";
+
     public Authenticator(Context context) {
         super(context);
         Log.d(DEBUG_TAG, "SeafileAuthenticator created.");
@@ -115,25 +125,29 @@ public class Authenticator extends AbstractAccountAuthenticator {
             Bundle bundle) throws NetworkErrorException {
         Log.d(DEBUG_TAG, "confirmCredentials");
 
-        Account a = SupportAccountManager.getInstance().getSeafileAccount(account);
-        DataManager manager = new DataManager(a);
 
         try {
-            // test auth token
-            manager.getAccountInfo();
-        } catch (SeafException e) {
-            if (e.getCode() == HttpURLConnection.HTTP_UNAUTHORIZED) {
-                // Token is invalid
-                Bundle result = new Bundle();
-                result.putBoolean(AccountManager.KEY_BOOLEAN_RESULT, false);
-                result.putInt(AccountManager.KEY_ERROR_CODE, AccountManager.ERROR_CODE_INVALID_RESPONSE);
-                result.putString(AccountManager.KEY_ERROR_MESSAGE, "Authentication error.");
-                return result;
+            Account a = SupportAccountManager.getInstance().getSeafileAccount(account);
+            Call<AccountInfo> call = IO.getInstanceByAccount(a).execute(AccountService.class).getAccountInfoCall();
+            Response<AccountInfo> res = call.execute();
+
+            if (res.isSuccessful()) {
+                AccountInfo accountInfo = res.body();
+                SLogs.d(accountInfo.toString());
             } else {
-                // could not test token
-                throw new NetworkErrorException(e);
+                if (res.code() == HttpURLConnection.HTTP_UNAUTHORIZED) {
+                    // Token is invalid
+                    Bundle result = new Bundle();
+                    result.putBoolean(AccountManager.KEY_BOOLEAN_RESULT, false);
+                    result.putInt(AccountManager.KEY_ERROR_CODE, AccountManager.ERROR_CODE_INVALID_RESPONSE);
+                    result.putString(AccountManager.KEY_ERROR_MESSAGE, "Authentication error.");
+                    return result;
+                }else {
+                    throw new NetworkErrorException();
+                }
             }
-        } catch (JSONException e) {
+
+        } catch (IOException e) {
             throw new NetworkErrorException(e);
         }
 
@@ -202,6 +216,7 @@ public class Authenticator extends AbstractAccountAuthenticator {
         intent.putExtra(SeafileAuthenticatorActivity.ARG_EDIT_OLD_ACCOUNT_NAME, account.name);
         intent.putExtra(SeafileAuthenticatorActivity.ARG_IS_EDITING, true);
         boolean is_shib = SupportAccountManager.getInstance().getSeafileAccount(account).isShib();
+        intent.putExtra(SeafileAuthenticatorActivity.ARG_SHIB, is_shib);
         intent.putExtra(SeafileAuthenticatorActivity.ARG_SHIB, is_shib);
 
         final Bundle bundle = new Bundle();

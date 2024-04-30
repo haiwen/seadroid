@@ -3,9 +3,9 @@ package com.seafile.seadroid2.ui.dialog_fragment.viewmodel;
 import androidx.lifecycle.MutableLiveData;
 
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
-import com.seafile.seadroid2.data.model.ResultModel;
-import com.seafile.seadroid2.data.db.entities.DirentModel;
-import com.seafile.seadroid2.io.http.IO;
+import com.seafile.seadroid2.framework.data.model.ResultModel;
+import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
+import com.seafile.seadroid2.framework.http.IO;
 import com.seafile.seadroid2.ui.dialog_fragment.DialogService;
 
 import java.util.HashMap;
@@ -35,7 +35,7 @@ public class CopyMoveViewModel extends BaseViewModel {
         requestDataMap.put("src_repo_id", srcRepoId);
         requestDataMap.put("src_dirents", nameList);
 
-        Single<ResultModel> single = IO.getSingleton().execute(DialogService.class).moveDirents(requestDataMap);
+        Single<ResultModel> single = IO.getInstanceWithLoggedIn().execute(DialogService.class).moveDirents(requestDataMap);
         addSingleDisposable(single, new Consumer<ResultModel>() {
             @Override
             public void accept(ResultModel resultModel) throws Exception {
@@ -57,7 +57,7 @@ public class CopyMoveViewModel extends BaseViewModel {
         requestDataMap.put("src_repo_id", srcRepoId);
         requestDataMap.put("src_dirents", nameList);
 
-        Single<ResultModel> single = IO.getSingleton().execute(DialogService.class).copyDirents(requestDataMap);
+        Single<ResultModel> single = IO.getInstanceWithLoggedIn().execute(DialogService.class).copyDirents(requestDataMap);
         addSingleDisposable(single, new Consumer<ResultModel>() {
             @Override
             public void accept(ResultModel resultModel) throws Exception {
