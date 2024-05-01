@@ -254,6 +254,8 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             if (aBoolean) {
                 loadData(true);
             }
+
+            mainViewModel.getOnForceRefreshStarredListLiveData().setValue(true);
         });
 
         getViewModel().getObjsListLiveData().observe(getViewLifecycleOwner(), repoModels -> {

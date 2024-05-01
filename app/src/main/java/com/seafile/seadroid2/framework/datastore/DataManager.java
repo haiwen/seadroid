@@ -2,7 +2,9 @@ package com.seafile.seadroid2.framework.datastore;
 
 import android.text.TextUtils;
 
+import com.blankj.utilcode.util.GsonUtils;
 import com.google.common.collect.Maps;
+import com.google.gson.reflect.TypeToken;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.account.Account;
@@ -13,7 +15,9 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -129,27 +133,36 @@ public class DataManager {
      * repo-id::::new-repo-name
      * </p>
      */
-    private static String getSpecialRepoDirMapping(String repo_id) {
+    private static String getSpecialRepoDirMapping(Account account, String repo_id) {
 
-        Set<String> sets = DataStoreManager.getCommonInstance().readSetString(DataStoreKeys.DS_REPO_DIR_MAPPING);
-
-        for (String set : sets) {
-            String[] ss = StringUtils.split(set, DataStoreKeys.SEPARATOR);
-            if (repo_id.equals(ss[0])) {
-                return ss[1];
+        List<String> list = getRepoNameMaps(account);
+        for (String set : list) {
+            String[] sp = StringUtils.split(set, DataStoreKeys.SEPARATOR);
+            if (repo_id.equals(sp[0])) {
+                return sp[1];
             }
         }
 
         return null;
     }
 
-    private static boolean checkSpecialRepoDirMapping(String repo_name) {
+    public static List<String> getRepoNameMaps(Account account) {
+        String names = DataStoreManager.getInstanceByUser(account.getSignature()).readString(DataStoreKeys.DS_REPO_DIR_MAPPING);
+        Type listType = new TypeToken<List<String>>() {
+        }.getType();
 
-        Set<String> sets = DataStoreManager.getCommonInstance().readSetString(DataStoreKeys.DS_REPO_DIR_MAPPING);
+        List<String> list = GsonUtils.fromJson(names, listType);
+        if (null == list) {
+            list = new ArrayList<>();
+        }
+        return list;
+    }
 
-        for (String set : sets) {
-            String[] ss = StringUtils.split(set, DataStoreKeys.SEPARATOR);
-            if (repo_name.equals(ss[1])) {
+    private static boolean checkSpecialRepoDirMapping(Account account, String repo_name) {
+        List<String> list = getRepoNameMaps(account);
+        for (String set : list) {
+            String[] sp = StringUtils.split(set, DataStoreKeys.SEPARATOR);
+            if (repo_name.equals(sp[1])) {
                 return true;
             }
         }
@@ -161,7 +174,7 @@ public class DataManager {
 
         String accountDir = DataManager.getAccountDir(account);
 
-        String repoDirName = getSpecialRepoDirMapping(repo_id);
+        String repoDirName = getSpecialRepoDirMapping(account, repo_id);
 
         File repoDir;
         if (!TextUtils.isEmpty(repoDirName)) {
@@ -181,7 +194,7 @@ public class DataManager {
                     uniqueRepoName = repo_name + " (" + i + ")";
                 }
 
-                boolean isDuplicate = checkSpecialRepoDirMapping(uniqueRepoName);
+                boolean isDuplicate = checkSpecialRepoDirMapping(account, uniqueRepoName);
                 repoDir = new File(accountDir, uniqueRepoName);
                 if (!repoDir.exists() && !isDuplicate) {
                     break;
@@ -196,9 +209,10 @@ public class DataManager {
             }
 
 
-            Set<String> sets = DataStoreManager.getCommonInstance().readSetString(DataStoreKeys.DS_REPO_DIR_MAPPING);
-            sets.add(repo_id + DataStoreKeys.SEPARATOR + uniqueRepoName);
-            DataStoreManager.getCommonInstance().writeSetString(DataStoreKeys.DS_REPO_DIR_MAPPING, sets);
+            List<String> list = getRepoNameMaps(account);
+            list.add(repo_id + DataStoreKeys.SEPARATOR + uniqueRepoName);
+            String v = GsonUtils.toJson(list);
+            DataStoreManager.getInstanceByUser(account.getSignature()).writeString(DataStoreKeys.DS_REPO_DIR_MAPPING, v);
 
         }
 

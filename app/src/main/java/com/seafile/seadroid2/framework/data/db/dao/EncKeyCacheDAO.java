@@ -27,7 +27,7 @@ public interface EncKeyCacheDAO {
     void insertAllSync(List<EncKeyCacheEntity> entities);
 
     @Query("select * from enc_key_cache where repo_id = :repoId limit 1")
-    EncKeyCacheEntity getOneByRepoIdSync(String repoId);
+    List<EncKeyCacheEntity> getOneByRepoIdSync(String repoId);
 
     @Query("select * from enc_key_cache where repo_id = :repoId limit 1")
     Single<List<EncKeyCacheEntity>> getListByRepoIdAsync(String repoId);

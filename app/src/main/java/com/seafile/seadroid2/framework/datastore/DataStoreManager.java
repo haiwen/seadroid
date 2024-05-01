@@ -151,7 +151,6 @@ public class DataStoreManager {
 //            file1.delete();
 //        }
 //    }
-
     public void writeInteger(String strKey, Integer value) {
         writeValue(strKey, value);
     }
@@ -179,12 +178,12 @@ public class DataStoreManager {
         writeValue(strKey, value);
     }
 
-    public void writeSetString(String strKey, Set<String> value) {
-        if (null == value) {
-            value = new HashSet<>();
-        }
-        writeValue(strKey, value);
-    }
+//    public void writeSetString(String strKey, Set<String> value) {
+//        if (null == value) {
+//            value = new HashSet<>();
+//        }
+//        writeValue(strKey, value);
+//    }
 
     /**
      * write value
@@ -192,7 +191,7 @@ public class DataStoreManager {
     private void writeValue(String strKey, Object value) {
 //        Single<Preferences> single = null;
         if (value instanceof Integer) {
-            sharedPreferences.edit().putInt(strKey, (Integer) value).commit();
+            sharedPreferences.edit().putInt(strKey, (Integer) value).apply();
 
 //            Preferences.Key<Integer> intKey = PreferencesKeys.intKey(strKey);
 //            single = dataStore.updateDataAsync(preferences -> {
@@ -201,7 +200,7 @@ public class DataStoreManager {
 //                return Single.just(mutablePreferences);
 //            });
         } else if (value instanceof String) {
-            sharedPreferences.edit().putString(strKey, (String) value).commit();
+            sharedPreferences.edit().putString(strKey, (String) value).apply();
 
 //            Preferences.Key<String> stringKey = PreferencesKeys.stringKey(strKey);
 //            single = dataStore.updateDataAsync(preferences -> {
@@ -211,7 +210,7 @@ public class DataStoreManager {
 //                    }
 //            );
         } else if (value instanceof Boolean) {
-            sharedPreferences.edit().putBoolean(strKey, (Boolean) value).commit();
+            sharedPreferences.edit().putBoolean(strKey, (Boolean) value).apply();
 
 //            Preferences.Key<Boolean> booleanKey = PreferencesKeys.booleanKey(strKey);
 //            single = dataStore.updateDataAsync(preferences -> {
@@ -220,7 +219,7 @@ public class DataStoreManager {
 //                return Single.just(mutablePreferences);
 //            });
         } else if (value instanceof Double) {
-            sharedPreferences.edit().putFloat(strKey, (Float) value).commit();
+            sharedPreferences.edit().putFloat(strKey, (Float) value).apply();
 
 //            Preferences.Key<Double> doubleKey = PreferencesKeys.doubleKey(strKey);
 //            single = dataStore.updateDataAsync(preferences -> {
@@ -229,7 +228,7 @@ public class DataStoreManager {
 //                return Single.just(mutablePreferences);
 //            });
         } else if (value instanceof Float) {
-            sharedPreferences.edit().putFloat(strKey, (Float) value).commit();
+            sharedPreferences.edit().putFloat(strKey, (Float) value).apply();
 
 //            Preferences.Key<Float> floatKey = PreferencesKeys.floatKey(strKey);
 //            single = dataStore.updateDataAsync(preferences -> {
@@ -238,7 +237,7 @@ public class DataStoreManager {
 //                return Single.just(mutablePreferences);
 //            });
         } else if (value instanceof Long) {
-            sharedPreferences.edit().putLong(strKey, (Long) value).commit();
+            sharedPreferences.edit().putLong(strKey, (Long) value).apply();
 
 //            Preferences.Key<Long> longKey = PreferencesKeys.longKey(strKey);
 //            single = dataStore.updateDataAsync(preferences -> {
@@ -246,16 +245,19 @@ public class DataStoreManager {
 //                mutablePreferences.set(longKey, (Long) value);
 //                return Single.just(mutablePreferences);
 //            });
-        } else if (value instanceof Set) {
-            sharedPreferences.edit().putStringSet(strKey, (Set<String>) value).commit();
-
-//            Preferences.Key<Set<String>> setKey = PreferencesKeys.stringSetKey(strKey);
-//            single = dataStore.updateDataAsync(preferences -> {
-//                MutablePreferences mutablePreferences = preferences.toMutablePreferences();
-//                mutablePreferences.set(setKey, (Set<String>) value);
-//                return Single.just(mutablePreferences);
-//            });
-        } else {
+        }
+//        else if (value instanceof Set<?>) {
+//            Set<String> set = (Set<String>) value;
+//            sharedPreferences.edit().putStringSet(strKey, set).apply();
+//
+////            Preferences.Key<Set<String>> setKey = PreferencesKeys.stringSetKey(strKey);
+////            single = dataStore.updateDataAsync(preferences -> {
+////                MutablePreferences mutablePreferences = preferences.toMutablePreferences();
+////                mutablePreferences.set(setKey, (Set<String>) value);
+////                return Single.just(mutablePreferences);
+////            });
+//        }
+        else {
             throw new IllegalStateException("Unexpected value: " + value);
         }
 
@@ -372,20 +374,20 @@ public class DataStoreManager {
     }
 
 
-    public Set<String> readSetString(String key) {
-        return sharedPreferences.getStringSet(key, new HashSet<>());
-
-//        Preferences.Key<Set<String>> setKey = PreferencesKeys.stringSetKey(key);
-//        Flowable<Set<String>> flowable = dataStore.data().map(new Function<Preferences, Set<String>>() {
-//            @Override
-//            public Set<String> apply(Preferences preferences) throws Exception {
-//                Set<String> value = preferences.get(setKey);
-//                return value != null ? new HashSet<>(value) : new HashSet<>();
-//            }
-//        });
+//    public Set<String> readSetString(String key) {
+//        return sharedPreferences.getStringSet(key, new HashSet<>());
 //
-//        return flowable.first(new HashSet<>()).blockingGet();
-    }
+////        Preferences.Key<Set<String>> setKey = PreferencesKeys.stringSetKey(key);
+////        Flowable<Set<String>> flowable = dataStore.data().map(new Function<Preferences, Set<String>>() {
+////            @Override
+////            public Set<String> apply(Preferences preferences) throws Exception {
+////                Set<String> value = preferences.get(setKey);
+////                return value != null ? new HashSet<>(value) : new HashSet<>();
+////            }
+////        });
+////
+////        return flowable.first(new HashSet<>()).blockingGet();
+//    }
 
 
 //    public void removeByStringKey(String strKey) {

@@ -103,12 +103,13 @@ public class DownloadedFileCheckerWorkerBak extends BaseUploadFileWorker {
             return;
         }
 
-        DirentModel direntModel = AppDatabase.getInstance().direntDao().getByFullPathSync(transferEntity.repo_id, transferEntity.full_path);
-        if (direntModel == null) {
+        List<DirentModel> direntList = AppDatabase.getInstance().direntDao().getByFullPathSync(transferEntity.repo_id, transferEntity.full_path);
+        if (CollectionUtils.isEmpty(direntList)) {
             // db not exist
             SLogs.d("db is not exists: " + transferEntity.target_path);
             return;
         }
+        DirentModel direntModel = direntList.get(0);
 
         //More judgment conditions may be required
 

@@ -17,6 +17,7 @@ import androidx.preference.PreferenceManager;
 import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.FileUtils;
+import com.blankj.utilcode.util.GsonUtils;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountInfo;
@@ -36,6 +37,7 @@ import com.seafile.seadroid2.framework.data.model.enums.TransferDataSource;
 import com.seafile.seadroid2.framework.data.model.enums.TransferResult;
 import com.seafile.seadroid2.framework.data.model.enums.TransferStatus;
 import com.seafile.seadroid2.framework.data.model.repo.RepoWrapperModel;
+import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.datastore.DataStoreKeys;
 import com.seafile.seadroid2.framework.datastore.DataStoreManager;
 import com.seafile.seadroid2.framework.datastore.StorageManager;
@@ -116,10 +118,11 @@ public class DataMigrationActivity extends AppCompatActivity {
 
                     startMigration();
 
-                    finishMigration();
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 } finally {
+                    finishMigration();
+
                     navTo();
                 }
             }
@@ -834,9 +837,6 @@ public class DataMigrationActivity extends AppCompatActivity {
                 null    // The sort order
         );
 
-        Set<String> sets = DataStoreManager.getCommonInstance().readSetString(DataStoreKeys.DS_REPO_DIR_MAPPING);
-
-
         try {
             c.moveToFirst();
             while (!c.isAfterLast()) {
@@ -851,7 +851,19 @@ public class DataMigrationActivity extends AppCompatActivity {
                 String repo_dir = c.getString(repoDirIndex);
 //                item.related_account = c.getString(accountIndex);
 
-                sets.add(repo_id + DataStoreKeys.SEPARATOR + repo_dir);
+                Optional<RepoModel> repoModelOp = accountRepoList.stream().filter(repo -> repo.repo_id.equals(repo_id)).findFirst();
+                if (repoModelOp.isPresent()) {
+                    RepoModel repo = repoModelOp.get();
+                    Account account = SupportAccountManager.getInstance().getSpecialAccount(repo.related_account);
+                    if (account != null) {
+                        List<String> list = DataManager.getRepoNameMaps(account);
+                        list.add(repo_id + DataStoreKeys.SEPARATOR + repo_dir);
+
+                        String v = GsonUtils.toJson(list);
+                        DataStoreManager.getInstanceByUser(account.getSignature()).writeString(DataStoreKeys.DS_REPO_DIR_MAPPING, v);
+                    }
+                }
+
 
                 c.moveToNext();
             }
@@ -859,13 +871,7 @@ public class DataMigrationActivity extends AppCompatActivity {
             c.close();
         }
 
-//        AppDatabase.getInstance().repoDirMappingDAO().insertAll(list);
         SLogs.d("--------------------" + table + " -> 完成");
-
-        if (!sets.isEmpty()) {
-            DataStoreManager.getCommonInstance().writeSetString(DataStoreKeys.DS_REPO_DIR_MAPPING, sets);
-        }
-
     }
 
     private void queryDirentsCacheOfDataDB() {

@@ -23,6 +23,7 @@ import com.seafile.seadroid2.framework.notification.base.BaseNotification;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.notification.FolderBackupNotificationHelper;
 
+import java.util.List;
 import java.util.UUID;
 
 
@@ -83,13 +84,15 @@ public class UploadFolderFileAutomaticallyWorker extends BaseUploadFileWorker {
             SLogs.d("start upload file worker");
 
             //check
-            FileTransferEntity transfer = AppDatabase.getInstance().fileTransferDAO()
+            List<FileTransferEntity> transferList = AppDatabase.getInstance().fileTransferDAO()
                     .getOnePendingTransferSync(account.getSignature(),
                             TransferAction.UPLOAD, TransferDataSource.FOLDER_BACKUP);
 
-            if (transfer == null) {
+            if (CollectionUtils.isEmpty(transferList)) {
                 break;
             }
+
+            FileTransferEntity transfer = transferList.get(0);
 
             try {
                 boolean isAmple = calculateQuota(CollectionUtils.newArrayList(transfer));

@@ -62,6 +62,7 @@ public class MainViewModel extends BaseViewModel {
 
     //force refresh repo/dirents
     private final MutableLiveData<Boolean> OnForceRefreshRepoListLiveData = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> OnForceRefreshStarredListLiveData = new MutableLiveData<>();
 
     //show swipeRefresh in Repo Fragment
     private final MutableLiveData<Boolean> OnShowRefreshLoadingInRepoLiveData = new MutableLiveData<>();
@@ -88,6 +89,9 @@ public class MainViewModel extends BaseViewModel {
         return OnNavChangeListenerLiveData;
     }
 
+    public MutableLiveData<Boolean> getOnForceRefreshStarredListLiveData() {
+        return OnForceRefreshStarredListLiveData;
+    }
 
     public MutableLiveData<ServerInfo> getServerInfoLiveData() {
         return ServerInfoLiveData;

@@ -308,8 +308,9 @@ public class DownloadWorker extends BaseDownloadFileWorker {
         AppDatabase.getInstance().fileTransferDAO().update(fileTransferEntity);
 
         //update
-        DirentModel direntModel = AppDatabase.getInstance().direntDao().getByFullPathSync(fileTransferEntity.repo_id, fileTransferEntity.full_path);
-        if (direntModel != null) {
+        List<DirentModel> direntList = AppDatabase.getInstance().direntDao().getByFullPathSync(fileTransferEntity.repo_id, fileTransferEntity.full_path);
+        if (!CollectionUtils.isEmpty(direntList)) {
+            DirentModel direntModel = direntList.get(0);
             direntModel.last_modified_at = fileTransferEntity.modified_at;
             direntModel.id = fileTransferEntity.file_id;
             direntModel.size = fileTransferEntity.file_size;
@@ -349,10 +350,12 @@ public class DownloadWorker extends BaseDownloadFileWorker {
 
         FileBlocks fileBlocks = getDownloadBlockList(transferEntity);
 
-        EncKeyCacheEntity entity = AppDatabase.getInstance().encKeyCacheDAO().getOneByRepoIdSync(transferEntity.repo_id);
-        if (entity == null) {
+        List<EncKeyCacheEntity> encKeyCacheEntityList = AppDatabase.getInstance().encKeyCacheDAO().getOneByRepoIdSync(transferEntity.repo_id);
+
+        if (CollectionUtils.isEmpty(encKeyCacheEntityList)) {
             throw SeafException.decryptException;
         }
+        EncKeyCacheEntity entity = encKeyCacheEntityList.get(0);
 
         final String encKey = entity.enc_key;
         final String encIv = entity.enc_iv;

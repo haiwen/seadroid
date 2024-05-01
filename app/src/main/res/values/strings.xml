@@ -622,8 +622,6 @@
     <string name="add">Add</string>
     <string name="modify">Modify</string>
     <string name="update">Update</string>
-    <string name="update_local_file">Update local file</string>
-    <string name="update_remote_file">Update remote file</string>
     <string name="clear">Clear</string>
     <string name="close">Close</string>
     <string name="clear_all">Clear all</string>
@@ -634,6 +632,8 @@
     <string name="downloading">Downloading</string>
     <string name="replace_all">Replace All</string>
     <string name="replace">Replace</string>
+    <string name="replace_local_file">Replace local file</string>
+    <string name="replace_remote_file">Replace remote file</string>
     <string name="do_not_replace">Do not replace</string>
     <string name="keep_both">Keep Both</string>
 

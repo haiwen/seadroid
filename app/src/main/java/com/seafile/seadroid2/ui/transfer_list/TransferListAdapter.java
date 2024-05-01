@@ -13,6 +13,7 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.DiffUtil;
 
 import com.blankj.utilcode.util.CollectionUtils;
+import com.blankj.utilcode.util.TimeUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
 import com.seafile.seadroid2.framework.data.model.enums.TransferAction;
@@ -105,6 +106,8 @@ public class TransferListAdapter extends BaseAdapter<FileTransferEntity, Transfe
         //icon
         int iconId = Icons.getFileIcon(entity.file_name);
         holder.binding.transferFileIcon.setImageResource(iconId);
+
+        holder.binding.transferTime.setText(Utils.translateCommitTime(entity.created_at));
 
         //
         long totalSize = entity.file_size;

@@ -230,6 +230,7 @@ public class MainActivity extends BaseActivity implements Toolbar.OnMenuItemClic
         intent.putExtra("repo_name", repo_name);
         intent.putExtra("path", path);
         intent.putExtra("is_dir", is_dir);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         context.startActivity(intent);
     }
 

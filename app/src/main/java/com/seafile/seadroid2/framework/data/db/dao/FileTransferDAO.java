@@ -76,14 +76,14 @@ public interface FileTransferDAO {
     Single<List<FileTransferEntity>> getListByFeatAsync(String related_account, List<TransferDataSource> feats);
 
     @Query("select * from file_transfer_list where related_account = :related_account and transfer_action = :transfer_action and is_auto_transfer = 1 and transfer_status in ('IN_PROGRESS', 'WAITING') and data_source = :feature and data_status = 0  order by created_at asc limit 1")
-    FileTransferEntity getOnePendingTransferSync(String related_account, TransferAction transfer_action, TransferDataSource feature);
+    List<FileTransferEntity> getOnePendingTransferSync(String related_account, TransferAction transfer_action, TransferDataSource feature);
 
     @Query("select * from file_transfer_list where related_account = :related_account and transfer_action = :transfer_action and is_auto_transfer = 1 and transfer_status in ('IN_PROGRESS', 'WAITING') and data_status = 0 order by created_at asc limit :limit")
     List<FileTransferEntity> getListPendingTransferSync(String related_account, TransferAction transfer_action, int limit);
 
 
     @Query("select * from file_transfer_list where transfer_action = :transfer_action and is_auto_transfer = 1 and transfer_status in ('IN_PROGRESS', 'WAITING') and data_source = :feature and data_status = 0  order by created_at asc limit 1")
-    FileTransferEntity getOnePendingTransferAllAccountSync(TransferAction transfer_action, TransferDataSource feature);
+    List<FileTransferEntity> getOnePendingTransferAllAccountSync(TransferAction transfer_action, TransferDataSource feature);
 
     @Query("select * from file_transfer_list where related_account = :related_account and is_auto_transfer = 1 and transfer_action = 'DOWNLOAD' and transfer_status in ('IN_PROGRESS', 'WAITING') and data_status = 0  order by created_at asc")
     List<FileTransferEntity> getPendingDownloadListByActionSync(String related_account);
@@ -98,10 +98,8 @@ public interface FileTransferDAO {
     List<FileTransferEntity> getDownloadListSync(String related_account);
 
     @Query("select * from file_transfer_list where related_account = :related_account and transfer_action = :transferAction and target_path = :target_path and data_status = 0  order by created_at desc limit 1")
-    FileTransferEntity getByTargetPathSync(String related_account, TransferAction transferAction, String target_path);
+    List<FileTransferEntity> getByTargetPathSync(String related_account, TransferAction transferAction, String target_path);
 
-    @Query("select * from file_transfer_list where related_account = :related_account and transfer_action = :transferAction and full_path = :full_path and data_status = 0  order by created_at desc limit 1")
-    FileTransferEntity getByFullPathSync(String related_account, TransferAction transferAction, String full_path);
 
     @Query("select * from file_transfer_list where uid = :uid")
     List<FileTransferEntity> getByUid(String uid);
@@ -109,20 +107,14 @@ public interface FileTransferDAO {
     @Query("select * from file_transfer_list where uid in ( :uids )")
     List<FileTransferEntity> getListByUidsSync(List<String> uids);
 
-    @Query("select * from file_transfer_list where related_account = :related_account and transfer_action = 'UPLOAD' and data_source = 'ALBUM_BACKUP' and mime_type like :mime_type_str and data_status = 0  order by file_original_modified_at desc limit 1")
-    FileTransferEntity getLastOneForMedia(String related_account, String mime_type_str);
-
     @Query("select * from file_transfer_list where repo_id = :repoId and full_path IN(:fullPaths) and transfer_action = :transfer_action order by created_at asc")
     Single<List<FileTransferEntity>> getListByFullPathsAsync(String repoId, List<String> fullPaths, TransferAction transfer_action);
 
     @Query("select * from file_transfer_list where repo_id = :repoId and full_path IN(:fullPaths) and transfer_action = :transfer_action order by created_at asc")
     List<FileTransferEntity> getListByFullPathsSync(String repoId, List<String> fullPaths, TransferAction transfer_action);
 
-    @Query("select * from file_transfer_list where repo_id = :repoId and full_path = :fullPath and transfer_action = :transfer_action order by created_at asc limit 1")
-    FileTransferEntity getOneByFullPathSync(String repoId, String fullPath, TransferAction transfer_action);
-
-    @Query("select * from file_transfer_list where repo_id = :repoId and full_path = :fullPath and transfer_action = :transfer_action order by created_at asc limit 1")
-    Single<FileTransferEntity> getOneByFullPathAsync(String repoId, String fullPath, TransferAction transfer_action);
+    @Query("select * from file_transfer_list where related_account = :related_account and transfer_action = :transferAction and full_path = :full_path and data_status = 0  order by created_at")
+    List<FileTransferEntity> getListByFullPathsSync(String related_account, TransferAction transferAction, String full_path);
 
     @Query("select COUNT(*) from file_transfer_list where repo_id = :repoId and full_path = :fullPath and transfer_action = :transfer_action and data_source = :feature and data_status = 0 ")
     int checkOneByFullPath(String repoId, String fullPath, TransferAction transfer_action, TransferDataSource feature);

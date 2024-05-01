@@ -251,7 +251,7 @@ public class FileActivity extends BaseActivityWithVM<FileViewModel> implements T
             }
         });
 
-        builder.setPositiveButton(R.string.replace, new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(R.string.replace_local_file, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
 

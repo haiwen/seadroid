@@ -30,16 +30,7 @@ public interface DirentDAO {
     Single<List<DirentModel>> getAllByFullPath(String repo_id, String full_path);
 
     @Query("select * from dirents where full_path = :full_path and repo_id = :repo_id limit 1")
-    DirentModel getByFullPathSync(String repo_id, String full_path);
-
-    @Query("select * from dirents where full_path = :full_path and repo_id = :repo_id limit 1")
-    DirentModel getByTargetPathSync(String repo_id, String full_path);
-
-    @Query("select * from dirents where uid = :uid")
-    Single<DirentModel> getDirentById(String uid);
-
-    @Query("select * from dirents where uid = :uid limit 1")
-    DirentModel getOneByIdSync(String uid);
+    List<DirentModel> getByFullPathSync(String repo_id, String full_path);
 
     @Query("select * from dirents where uid in ( :uids )")
     List<DirentModel> getListByIdsSync(List<String> uids);

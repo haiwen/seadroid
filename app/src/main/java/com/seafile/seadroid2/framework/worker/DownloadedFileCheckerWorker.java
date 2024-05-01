@@ -8,6 +8,7 @@ import androidx.work.Data;
 import androidx.work.WorkerParameters;
 
 import com.blankj.utilcode.util.CloneUtils;
+import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.FileUtils;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
@@ -26,6 +27,7 @@ import com.seafile.seadroid2.framework.util.Utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -77,19 +79,19 @@ public class DownloadedFileCheckerWorker extends BaseUploadFileWorker {
         String outEvent = TransferEvent.EVENT_TRANSFERRED_WITH_DATA;
 
         //
-        FileTransferEntity transferEntity = AppDatabase
+        List<FileTransferEntity> transferEntityList = AppDatabase
                 .getInstance()
                 .fileTransferDAO()
                 .getByTargetPathSync(account.getSignature(), TransferAction.DOWNLOAD, filePath);
 
-        if (transferEntity == null) {
+        if (CollectionUtils.isEmpty(transferEntityList)) {
             return Result.success();
         }
 
         notificationManager.showNotification();
 
         try {
-            checkFile(account, transferEntity);
+            checkFile(account, transferEntityList.get(0));
         } catch (IOException | SeafException e) {
             throw new RuntimeException(e);
         }
@@ -115,8 +117,8 @@ public class DownloadedFileCheckerWorker extends BaseUploadFileWorker {
             return;
         }
 
-        DirentModel direntModel = AppDatabase.getInstance().direntDao().getByFullPathSync(downloadTransferEntity.repo_id, downloadTransferEntity.full_path);
-        if (direntModel == null) {
+        List<DirentModel> direntList = AppDatabase.getInstance().direntDao().getByFullPathSync(downloadTransferEntity.repo_id, downloadTransferEntity.full_path);
+        if (CollectionUtils.isEmpty(direntList)) {
             // db not exist
             SLogs.d("db is not exists: " + downloadTransferEntity.target_path);
             return;
@@ -132,12 +134,14 @@ public class DownloadedFileCheckerWorker extends BaseUploadFileWorker {
         }
 
         //target_path is Absolute Path
-        FileTransferEntity transferEntity = AppDatabase
+        List<FileTransferEntity> transferEntityList = AppDatabase
                 .getInstance()
                 .fileTransferDAO()
-                .getByFullPathSync(account.getSignature(), TransferAction.UPLOAD, downloadTransferEntity.target_path);
-        if (transferEntity == null) {
-            transferEntity = CloneUtils.deepClone(downloadTransferEntity,FileTransferEntity.class);
+                .getListByFullPathsSync(account.getSignature(), TransferAction.UPLOAD, downloadTransferEntity.target_path);
+
+        FileTransferEntity transferEntity = null;
+        if (CollectionUtils.isEmpty(transferEntityList)) {
+            transferEntity = CloneUtils.deepClone(downloadTransferEntity, FileTransferEntity.class);
             transferEntity.full_path = downloadTransferEntity.target_path;
             transferEntity.target_path = downloadTransferEntity.full_path;
             transferEntity.setParent_path(Utils.getParentPath(transferEntity.target_path));

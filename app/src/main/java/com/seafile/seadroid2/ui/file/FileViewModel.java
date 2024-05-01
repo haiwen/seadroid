@@ -63,19 +63,19 @@ public class FileViewModel extends BaseViewModel {
         //
         Single<List<RepoModel>> repoListSingle = AppDatabase.getInstance().repoDao().getByIdAsync(repoId);
 
-        Single<FileTransferEntity> transferEntity = AppDatabase
+        Single<List<FileTransferEntity>> transferEntity = AppDatabase
                 .getInstance()
                 .fileTransferDAO()
-                .getOneByFullPathAsync(repoId, path, TransferAction.DOWNLOAD);
+                .getListByFullPathsAsync(repoId, CollectionUtils.newArrayList(path), TransferAction.DOWNLOAD);
 
-        Single<Triple<RepoModel, DirentFileModel, FileTransferEntity>> s = Single.zip(single, repoListSingle, transferEntity, new Function3<DirentFileModel, List<RepoModel>, FileTransferEntity, Triple<RepoModel, DirentFileModel, FileTransferEntity>>() {
+        Single<Triple<RepoModel, DirentFileModel, FileTransferEntity>> s = Single.zip(single, repoListSingle, transferEntity, new Function3<DirentFileModel, List<RepoModel>, List<FileTransferEntity>, Triple<RepoModel, DirentFileModel, FileTransferEntity>>() {
             @Override
-            public Triple<RepoModel, DirentFileModel, FileTransferEntity> apply(DirentFileModel direntFileModel, List<RepoModel> repoModels, FileTransferEntity fileTransferEntity) throws Exception {
+            public Triple<RepoModel, DirentFileModel, FileTransferEntity> apply(DirentFileModel direntFileModel, List<RepoModel> repoModels, List<FileTransferEntity> fileTransferEntity) throws Exception {
                 if (CollectionUtils.isEmpty(repoModels)) {
                     throw SeafException.notFoundException;
                 }
 
-                return new Triple<>(repoModels.get(0), direntFileModel, fileTransferEntity);
+                return new Triple<>(repoModels.get(0), direntFileModel, CollectionUtils.isEmpty(fileTransferEntity) ? null : fileTransferEntity.get(0));
             }
         });
 
@@ -99,20 +99,26 @@ public class FileViewModel extends BaseViewModel {
             public void subscribe(SingleEmitter<Boolean> emitter) throws Exception {
                 //this is in child thread.
 
-                FileTransferEntity dbEntity = AppDatabase
+                List<FileTransferEntity> transferEntityList = AppDatabase
                         .getInstance()
                         .fileTransferDAO()
-                        .getOneByFullPathSync(repoModel.repo_id, direntModel.full_path, TransferAction.DOWNLOAD);
+                        .getListByFullPathsSync(repoModel.repo_id, CollectionUtils.newArrayList(direntModel.full_path), TransferAction.DOWNLOAD);
 
-                if (null == dbEntity) {
+                if (CollectionUtils.isEmpty(transferEntityList)) {
 
                     FileTransferEntity transferEntity = FileTransferEntity.convertDirentModel2This(repoModel.encrypted, direntModel);
+                    //newest file id
+                    transferEntity.file_id = direntModel.id;
+                    transferEntity.file_size = direntModel.size;
+                    transferEntity.target_path = destinationFile.getAbsolutePath();
+
                     AppDatabase.getInstance().fileTransferDAO().insert(transferEntity);
 
                     emitter.onSuccess(true);
                     return;
                 }
 
+                FileTransferEntity dbEntity = transferEntityList.get(0);
 
                 //re-download
                 if (dbEntity.transfer_result == TransferResult.TRANSMITTED) {
@@ -199,13 +205,14 @@ public class FileViewModel extends BaseViewModel {
             public void subscribe(SingleEmitter<File> emitter) throws Exception {
                 //this is in child thread.
 
-                FileTransferEntity dbEntity = AppDatabase
+                List<FileTransferEntity> transferEntityList = AppDatabase
                         .getInstance()
                         .fileTransferDAO()
-                        .getOneByFullPathSync(repo_id, fullPathInRepo, TransferAction.DOWNLOAD);
+                        .getListByFullPathsSync(repo_id, CollectionUtils.newArrayList(fullPathInRepo), TransferAction.DOWNLOAD);
 
-                if (dbEntity != null) {
+                if (!CollectionUtils.isEmpty(transferEntityList)) {
 
+                    FileTransferEntity dbEntity = transferEntityList.get(0);
                     if (seafException != null) {
                         dbEntity.transfer_result = TransferUtils.convertException2TransferResult(seafException);
                         dbEntity.transfer_status = TransferStatus.FAILED;

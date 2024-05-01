@@ -46,6 +46,7 @@ import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
 import com.seafile.seadroid2.ui.base.adapter.LoadMoreAdapter;
+import com.seafile.seadroid2.ui.base.adapter.LogicLoadMoreAdapter;
 import com.seafile.seadroid2.ui.file.FileActivity;
 import com.seafile.seadroid2.ui.main.MainActivity;
 import com.seafile.seadroid2.ui.media.image_preview.ImagePreviewActivity;
@@ -192,8 +193,19 @@ public class Search2Activity extends BaseActivityWithVM<SearchViewModel> impleme
             }
         });
 
-        LoadMoreAdapter customLoadMoreAdapter = new LoadMoreAdapter();
-        customLoadMoreAdapter.setOnLoadMoreListener(new TrailingLoadStateAdapter.OnTrailingListener() {
+        LogicLoadMoreAdapter logicLoadMoreAdapter = getLogicLoadMoreAdapter();
+
+        helper = new QuickAdapterHelper.Builder(adapter)
+                .setTrailingLoadStateAdapter(logicLoadMoreAdapter)
+                .build();
+
+        binding.rv.setAdapter(helper.getAdapter());
+    }
+
+    @NonNull
+    private LogicLoadMoreAdapter getLogicLoadMoreAdapter() {
+        LogicLoadMoreAdapter logicLoadMoreAdapter = new LogicLoadMoreAdapter();
+        logicLoadMoreAdapter.setOnLoadMoreListener(new TrailingLoadStateAdapter.OnTrailingListener() {
             @Override
             public void onFailRetry() {
                 loadNext(lastQuery, false);
@@ -209,12 +221,7 @@ public class Search2Activity extends BaseActivityWithVM<SearchViewModel> impleme
                 return !binding.swipeRefreshLayout.isRefreshing();
             }
         });
-
-        helper = new QuickAdapterHelper.Builder(adapter)
-                .setTrailingLoadStateAdapter(customLoadMoreAdapter)
-                .build();
-
-        binding.rv.setAdapter(helper.getAdapter());
+        return logicLoadMoreAdapter;
     }
 
     private Disposable disposable;

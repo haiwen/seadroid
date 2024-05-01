@@ -399,11 +399,12 @@ public abstract class BaseUploadFileWorker extends TransferWorker {
         AppDatabase.getInstance().fileTransferDAO().update(transferEntity);
 
         //
-        EncKeyCacheEntity encKeyCacheEntity = AppDatabase.getInstance().encKeyCacheDAO().getOneByRepoIdSync(transferEntity.repo_id);
-        if (encKeyCacheEntity == null) {
+        List<EncKeyCacheEntity> encKeyCacheEntityList = AppDatabase.getInstance().encKeyCacheDAO().getOneByRepoIdSync(transferEntity.repo_id);
+        if (CollectionUtils.isEmpty(encKeyCacheEntityList)) {
             throw SeafException.encryptException;
         }
 
+        EncKeyCacheEntity encKeyCacheEntity = encKeyCacheEntityList.get(0);
         final String encKey = encKeyCacheEntity.enc_key;
         final String encIv = encKeyCacheEntity.enc_iv;
         if (TextUtils.isEmpty(encKey) || TextUtils.isEmpty(encIv)) {
@@ -560,8 +561,9 @@ public abstract class BaseUploadFileWorker extends TransferWorker {
         AppDatabase.getInstance().fileTransferDAO().update(transferEntity);
 
         //update
-        DirentModel direntModel = AppDatabase.getInstance().direntDao().getByFullPathSync(transferEntity.repo_id, transferEntity.full_path);
-        if (direntModel != null) {
+        List<DirentModel> direntList = AppDatabase.getInstance().direntDao().getByFullPathSync(transferEntity.repo_id, transferEntity.full_path);
+        if (!CollectionUtils.isEmpty(direntList)) {
+            DirentModel direntModel = direntList.get(0);
             direntModel.last_modified_at = transferEntity.modified_at;
             direntModel.id = fileId;
             direntModel.size = transferEntity.file_size;

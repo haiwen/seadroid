@@ -96,12 +96,15 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
     }
 
     private boolean isFirstLoadData = true;
+    private boolean isForce = false;
 
     @Override
     public void onResume() {
         super.onResume();
         d("load data：onResume");
-        if (isFirstLoadData) {
+        if (isForce) {
+            reload();
+        } else if (isFirstLoadData) {
             isFirstLoadData = false;
             d("load data：isFirstLoadData");
             reload();
@@ -143,6 +146,13 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
     }
 
     private void initViewModel() {
+        mainViewModel.getOnForceRefreshStarredListLiveData().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+                isForce = aBoolean;
+            }
+        });
+
         getViewModel().getRefreshLiveData().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean aBoolean) {
