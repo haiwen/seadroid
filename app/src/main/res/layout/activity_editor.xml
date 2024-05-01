@@ -1,26 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
     <include
         android:id="@+id/editor_toolbar"
-        layout="@layout/toolbar_actionbar" />
+        layout="@layout/toolbar_actionbar_editor" />
 
-
-    <com.seafile.seadroid2.editor.widget.HorizontalEditScrollView
+    <com.seafile.seadroid2.ui.editor.widget.HorizontalEditScrollView
         android:id="@+id/scroll_edit"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:layout_below="@id/editor_toolbar"></com.seafile.seadroid2.editor.widget.HorizontalEditScrollView>
+        android:layout_height="48dp" />
 
-
-    <com.seafile.seadroid2.editor.widget.EditScrollView
+    <com.seafile.seadroid2.ui.editor.widget.EditScrollView
         android:id="@+id/edit_scroll"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/scroll_edit"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:background="@color/blue_bg"
         android:fillViewport="true">
 
@@ -29,10 +26,10 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@color/blue_bg"
-            android:gravity="left|top"
+            android:gravity="start|top"
             android:padding="16dp"
             android:textColor="@color/white" />
-    </com.seafile.seadroid2.editor.widget.EditScrollView>
+    </com.seafile.seadroid2.ui.editor.widget.EditScrollView>
 
 
-</RelativeLayout>
+</LinearLayout>

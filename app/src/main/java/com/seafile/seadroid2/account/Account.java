@@ -4,48 +4,72 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
 
-import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
-import com.seafile.seadroid2.BuildConfig;
-import com.seafile.seadroid2.util.URLs;
-import com.seafile.seadroid2.util.Utils;
+import com.seafile.seadroid2.config.Constants;
+import com.seafile.seadroid2.framework.data.model.BaseModel;
+import com.seafile.seadroid2.framework.util.URLs;
+import com.seafile.seadroid2.framework.util.Utils;
 
-public class Account implements Parcelable, Comparable<Account> {
-    private static final String DEBUG_TAG = "Account";
-
-    /**
-     * Type of the account (currently there is only one type)
-     */
-    public final static String ACCOUNT_TYPE = BuildConfig.ACCOUNT_TYPE;
-
+public class Account extends BaseModel implements Parcelable, Comparable<Account> {
     // The full URL of the server, like 'http://gonggeng.org/seahub/' or 'http://gonggeng.org/'
     public final String server;
-    public final String name;
+    public String name;
 
-    public final String email;
+    public String email;
 
-    public final Boolean is_shib;
+    //single sign in?
+    public boolean is_shib;
 
     public String token;
     public String sessionKey;
+    public String avatar_url;
+    //timestamp
+    public long login_time;
 
-    public Account(String server, String email, String name, String token, Boolean is_shib) {
+    public void setLoginTimestamp(long timestamp) {
+        this.login_time = timestamp;
+    }
+
+    public long getLoginTimestamp() {
+        return login_time;
+    }
+
+    public void setName(String name) {
         this.name = name;
+    }
+
+    public void setAvatarUrl(String avatar_url) {
+        this.avatar_url = avatar_url;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public Account(String server, String email, String name, String avatar_url, String token, Boolean is_shib) {
+        this.name = name;
+        this.avatar_url = avatar_url;
         this.server = server;
         this.email = email;
         this.token = token;
         this.is_shib = is_shib;
     }
 
-    public Account(String name, String server, String email, String token, Boolean is_shib, String sessionKey) {
+
+    public Account(String name, String server, String email, String avatar_url, String token, Boolean is_shib, String sessionKey, String loginTime) {
         this.server = server;
         this.name = name;
         this.email = email;
+        this.avatar_url = avatar_url;
         this.token = token;
         this.sessionKey = sessionKey;
         this.is_shib = is_shib;
-    }
 
+        if (TextUtils.isEmpty(loginTime)) {
+            loginTime = "0";
+        }
+        this.login_time = Long.parseLong(loginTime);
+    }
 
     public String getServerHost() {
         String s = server.substring(server.indexOf("://") + 3);
@@ -64,16 +88,21 @@ public class Account implements Parcelable, Comparable<Account> {
      * https://dev.xxx.com/dev/ => https://dev.xxx.com
      */
     public String getProtocolHost() {
-       return URLs.getProtocolHost(server);
+        return URLs.getProtocolHost(server);
     }
 
     public String getEmail() {
         return email;
     }
 
-    public String getName(){
+    public String getAvatarUrl() {
+        return avatar_url;
+    }
+
+    public String getName() {
         return name;
     }
+
     public String getServer() {
         return server;
     }
@@ -118,7 +147,7 @@ public class Account implements Parcelable, Comparable<Account> {
             return false;
 
         Account a = (Account) obj;
-        if (a.server == null || a.email == null || a.token == null )
+        if (a.server == null || a.email == null || a.token == null)
             return false;
 
         return a.server.equals(this.server) && a.email.equals(this.email);
@@ -134,7 +163,7 @@ public class Account implements Parcelable, Comparable<Account> {
     }
 
     public android.accounts.Account getAndroidAccount() {
-        return new android.accounts.Account(getSignature(), ACCOUNT_TYPE);
+        return new android.accounts.Account(getSignature(), Constants.Account.ACCOUNT_TYPE);
     }
 
     public boolean hasValidToken() {
@@ -153,6 +182,7 @@ public class Account implements Parcelable, Comparable<Account> {
         out.writeString(this.email);
         out.writeString(this.token);
         out.writeString(this.sessionKey);
+        out.writeString(this.avatar_url);
         out.writeValue(this.is_shib);
     }
 
@@ -174,19 +204,23 @@ public class Account implements Parcelable, Comparable<Account> {
         this.email = in.readString();
         this.token = in.readString();
         this.sessionKey = in.readString();
+        this.avatar_url = in.readString();
         this.is_shib = (Boolean) in.readValue(Boolean.class.getClassLoader());
 
-       // Log.d(DEBUG_TAG, String.format("%s %s %s %b", server, email, token ,is_shib));
+        // Log.d(DEBUG_TAG, String.format("%s %s %s %b", server, email, token ,is_shib));
     }
 
     @Override
     public String toString() {
-        return MoreObjects.toStringHelper(this)
-                .add("server", server)
-                .add("user", email)
-                .add("name", name)
-                .add("sessionKey", sessionKey)
-                .toString();
+        return "Account{" +
+                "server='" + server + '\'' +
+                ", name='" + name + '\'' +
+                ", email='" + email + '\'' +
+                ", is_shib=" + is_shib +
+                ", token='" + token + '\'' +
+                ", sessionKey='" + sessionKey + '\'' +
+                ", avatar_url='" + avatar_url + '\'' +
+                '}';
     }
 
     @Override

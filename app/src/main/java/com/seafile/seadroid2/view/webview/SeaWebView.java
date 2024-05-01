@@ -2,7 +2,6 @@ package com.seafile.seadroid2.view.webview;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.webkit.CookieManager;
 import android.webkit.WebSettings;
@@ -13,8 +12,6 @@ import androidx.annotation.Nullable;
 
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
-import com.seafile.seadroid2.util.SeafileLog;
-import com.seafile.seadroid2.util.Token2SessionConverts;
 
 public class SeaWebView extends WebView {
     public static final String PATH_ACCOUNT_LOGIN = "accounts/login/";
@@ -45,6 +42,10 @@ public class SeaWebView extends WebView {
     @SuppressLint("SetJavaScriptEnabled")
     private void init() {
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
+        if (account == null) {
+            return;
+        }
+
         URL_LOGIN = account.server + PATH_ACCOUNT_LOGIN;
 
         WebSettings webSettings = this.getSettings();
@@ -76,8 +77,10 @@ public class SeaWebView extends WebView {
     }
 
     public void load(String targetUrl) {
-        if (mWebViewClient != null) {
-            mWebViewClient.go(targetUrl, this);
-        }
+        mWebViewClient.go(targetUrl, this);
+    }
+
+    public void loadDirectly(String targetUrl) {
+        mWebViewClient.goDirectly(targetUrl, this);
     }
 }

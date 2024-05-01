@@ -18,22 +18,10 @@
 */
 -->
 <resources>
-
-
-    <integer name="preference_fragment_scrollbarStyle">0x02000000</integer>
-    <!-- outsideOverlay -->
-
-    <!-- Notificaiton bar -->
-    <dimen name="notificationbar_title_txt_size">16sp</dimen>
-    <dimen name="notificationbar_sutitle_txt_size">14sp</dimen>
-    <dimen name="notificationbar_container_padding">5dp</dimen>
-    <dimen name="notificationbar_margin_left">5dp</dimen>
-    <dimen name="notificationbar_margin_top">0dp</dimen>
-
-    <!-- Header -->
-    <dimen name="abs_actionbar_height">48dp</dimen>
-    <dimen name="tab_height">32dp</dimen>
-    <dimen name="tab_txt_size">14sp</dimen>
+    <!-- App Dimen -->
+    <dimen name="app_padding_horizontal">16dp</dimen>
+    <dimen name="app_widget_top_margin_small">4dp</dimen>
+    <dimen name="app_widget_top_margin_middle">8dp</dimen>
 
     <!-- Title -->
     <dimen name="tv_title_txt_size">28sp</dimen> <!-- TextView -->
@@ -45,8 +33,6 @@
     <dimen name="section_margin_top">5dp</dimen>
 
     <!-- Content -->
-    <dimen name="head_progressBar_width">24dp</dimen>
-    <dimen name="head_progressBar_height">24dp</dimen>
     <dimen name="lv_margin_top">10dp</dimen> <!-- ListView -->
     <dimen name="lv_item_height">68dp</dimen>
     <dimen name="lv_item_padding">10dp</dimen>
@@ -65,8 +51,8 @@
     <dimen name="lv_title_padding_top">4dp</dimen>
     <dimen name="lv_title_padding_left">8dp</dimen>
     <dimen name="lv_title_txt_size">16sp</dimen>
+    <dimen name="lv_subtitle_txt_size">14sp</dimen>
     <dimen name="lv_subtitle_padding_left">8dp</dimen>
-    <dimen name="lv_subtitle_txt_size">13sp</dimen>
     <dimen name="lv_download_icon_width">14dp</dimen>
     <dimen name="lv_download_icon_height">14dp</dimen>
     <dimen name="lv_download_icon_margin_left">4dp</dimen>
@@ -110,34 +96,34 @@
     <dimen name="form_padding_top">0dp</dimen> <!-- Login Form -->
     <dimen name="form_padding_bottom">7dp</dimen>
 
-    <dimen name="auto_complete_ed_margin_left">20dp</dimen> <!-- EditText -->
-    <dimen name="auto_complete_ed_margin_right">20dp</dimen>
+    <dimen name="auto_complete_ed_margin_left">16dp</dimen> <!-- EditText -->
+    <dimen name="auto_complete_ed_margin_right">16dp</dimen>
     <dimen name="auto_complete_et_height">40dp</dimen>
     <dimen name="clearable_et_btn_width">20dp</dimen>
     <dimen name="clearable_et_btn_height">20dp</dimen>
-    <dimen name="et_margin_left">20dp</dimen>
-    <dimen name="et_margin_right">20dp</dimen>
-    <dimen name="et_margin_bottom">5dp</dimen>
-    <dimen name="et_txt_size">16dp</dimen>
+    <dimen name="et_margin_left">16dp</dimen>
+    <dimen name="et_margin_right">16dp</dimen>
+    <dimen name="et_margin_bottom">4dp</dimen>
+    <dimen name="et_txt_size">16sp</dimen>
 
     <dimen name="tv_margin_left">20dp</dimen> <!-- TextView -->
     <dimen name="tv_margin_right">20dp</dimen>
     <dimen name="tv_txt_size">12sp</dimen>
     <dimen name="tv_padding">5dp</dimen>
 
-    <dimen name="long_btn_height">60dp</dimen> <!-- Button -->
+    <dimen name="long_btn_height">48dp</dimen> <!-- Button -->
     <dimen name="long_btn_padding_top">0dp</dimen>
     <dimen name="long_btn_padding_bottom">7dp</dimen>
     <dimen name="long_btn_margin_left">20dp</dimen>
     <dimen name="long_btn_margin_right">20dp</dimen>
-    <dimen name="long_btn_txt_size">18sp</dimen>
+    <dimen name="long_btn_txt_size">16sp</dimen>
 
     <dimen name="btn_height">60dp</dimen>
-    <dimen name="btn_txt_size">18sp</dimen>
+    <dimen name="btn_txt_size">16sp</dimen>
 
     <dimen name="dialog_title_margin_top">10dp</dimen> <!-- Dialog -->
     <dimen name="dialog_title_margin_bottom">3dp</dimen>
-    <dimen name="dialog_title_txt_size">18sp</dimen>
+    <dimen name="dialog_title_txt_size">16sp</dimen>
     <dimen name="dialog_lv_txt_size">16sp</dimen>
     <dimen name="dialog_msg_title_txt_size">16sp</dimen>
     <dimen name="dialog_msg_txt_size">20sp</dimen>

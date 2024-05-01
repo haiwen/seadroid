@@ -1,6 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
 <paths xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!--    /data/data/<package_name>/files   -->
+    <!--    Context.getFilesDir()   -->
+    <files-path
+        name="files-path"
+        path="." />
+
+    <!--    /data/data/<package_name>/cache   -->
+    <!--    Context.getCacheDir()   -->
+    <cache-path
+        name="cache-path"
+        path="." />
+
+    <!--    /storage/emulate/0  -->
+    <!--    Environment.getExternalStorageDirectory()   -->
+    <external-path
+        name="external-path"
+        path="." />
+
+    <!--    /storage/emulate/0/Android/data/<package_name>/files  -->
+    <!--    Context.getExternalFilesDir()   -->
+    <external-files-path
+        name="external-files-path"
+        path="." />
+
+    <!--    /storage/emulate/0/Android/data/<package_name>/cache   -->
+    <!--    Context.getExternalCacheDir()   -->
+    <external-cache-path
+        name="external_cache_path"
+        path="." />
+
+    <!--    /storage/emulated/0/Android/media/<package_name>   -->
+    <!--    Context.getExternalMediaDirs()  -->
+    <external-media-path
+        name="external_media_path"
+        path="." />
+
+    <!--    /   -->
+    <!--    File DEVICE_ROOT = new File("/")  -->
     <root-path
-        name="name"
-        path="."/>
+        name="root"
+        path="." />
+
 </paths>
+

@@ -4,22 +4,14 @@ import static com.blankj.utilcode.util.ActivityUtils.startActivity;
 
 import android.content.Intent;
 import android.net.Uri;
-import android.text.TextUtils;
-import android.util.Log;
-import android.webkit.CookieManager;
-import android.webkit.URLUtil;
 import android.webkit.WebResourceRequest;
-import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import androidx.annotation.Nullable;
-
-import com.blankj.utilcode.util.ToastUtils;
+import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
-import com.seafile.seadroid2.util.SeafileLog;
-import com.seafile.seadroid2.util.Token2SessionConverts;
-import com.seafile.seadroid2.util.URLs;
+import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.util.Token2SessionConverts;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -74,38 +66,48 @@ public class SeaWebViewClient extends WebViewClient {
         goWithToken(targetUrl, wb, true);
     }
 
-    private void goWithToken(String targetUrl, WebView wb, boolean isRedirect) {
-        Log.d(getClass().getSimpleName(), "targetUrl: " + targetUrl);
-
-        mOriginTargetUrl = targetUrl;
-        Map<String, String> map = new HashMap<>();
-        map.put("Authorization", "Token " + SupportAccountManager.getInstance().getCurrentAccount().token);
-        wb.loadUrl(buildUrl(mOriginTargetUrl, isRedirect), map);
+    public void goDirectly(String targetUrl, WebView wb) {
+        goWithToken(targetUrl, wb, false);
     }
 
-    private String buildUrl(String url, boolean isRedirect) {
+    private void goWithToken(String targetUrl, WebView wb, boolean isRedirect) {
+        SLogs.d("targetUrl: " + targetUrl);
+
+        mOriginTargetUrl = targetUrl;
+
+        if (isRedirect) {
+            Map<String, String> map = new HashMap<>();
+
+            Account account = SupportAccountManager.getInstance().getCurrentAccount();
+            if (account != null) {
+                map.put("Authorization", "Token " + account.token);
+            }
+
+            wb.loadUrl(buildUrl(mOriginTargetUrl), map);
+        } else {
+            wb.loadUrl(mOriginTargetUrl);
+        }
+    }
+
+    private String buildUrl(String url) {
         if (!url.startsWith("http")) {
             return url;
         }
 
-        if (isRedirect) {
-            String rUrl = Token2SessionConverts.buildUrl(url);
-            Log.d(getClass().getSimpleName(), "link redirect to -> " + rUrl);
-            return rUrl;
-        }
+        return Token2SessionConverts.buildUrl(url);
 
-        // Optimise the code here:
-        // The expiry time of each cookie field is not consistent,
-        // and it is possible to be redirected to the login page when opening the link
-        String cookieStr = SupportCookieManager.getCookie(url);
-        String u = url;
-        if (TextUtils.isEmpty(cookieStr)) {
-            u = Token2SessionConverts.buildUrl(url);
-            Log.d(getClass().getSimpleName(), "link redirect to -> " + u);
-        } else {
-            Log.d(getClass().getSimpleName(), "link to -> " + u);
-        }
-        return u;
+//        // Optimise the code here:
+//        // The expiry time of each cookie field is not consistent,
+//        // and it is possible to be redirected to the login page when opening the link
+//        String cookieStr = SupportCookieManager.getCookie(url);
+//        String u = url;
+//        if (TextUtils.isEmpty(cookieStr)) {
+//            u = Token2SessionConverts.buildUrl(url);
+//            Log.d(getClass().getSimpleName(), "link redirect to -> " + u);
+//        } else {
+//            Log.d(getClass().getSimpleName(), "link to -> " + u);
+//        }
+//        return u;
     }
 
 }

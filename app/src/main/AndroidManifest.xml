@@ -5,9 +5,14 @@
 
     <uses-sdk tools:overrideLibrary="us.feras.mdv" />
 
+
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
 
     <!-- to start monitor services during boot -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
@@ -27,57 +32,75 @@
     <uses-permission android:name="android.permission.MANAGE_ACCOUNTS" />
 
     <!--<uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />-->
-    <!--<uses-permission android:name="android.permission.READ_CONTACTS"/>-->
-    <!--<uses-permission android:name="android.permission.WRITE_CONTACTS"/>-->
 
     <!--android 9.0  FOREGROUND_SERVICE -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
     <uses-permission
         android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
         tools:ignore="ScopedStorage" />
+
     <uses-permission android:name="android.permission.READ_SYNC_STATS" />
 
     <!--    <uses-permission android:name="android.permission.ACCESS_MEDIA_LOCATION" />-->
 
+
+    <!-- Apps that target Android 9 (API level 28) or higher and use foreground services
+    must request the FOREGROUND_SERVICE permission -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <!-- Runtime permissions introduced in Android 13 (API level 33) -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
 
+    <!-- To handle the reselection within the app on devices running Android 14
+         or higher if your app targets Android 14 (API level 34) or higher.  -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+
     <application
-        android:name="com.seafile.seadroid2.SeadroidApplication"
+        android:name=".SeadroidApplication"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:networkSecurityConfig="@xml/network_security_config"
         android:requestLegacyExternalStorage="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme.Material3">
+
+        <!--        <provider-->
+        <!--            android:name="androidx.startup.InitializationProvider"-->
+        <!--            android:authorities="${applicationId}.androidx-startup"-->
+        <!--            android:exported="false"-->
+        <!--            tools:node="merge">-->
+        <!--            &lt;!&ndash; This entry makes ExampleLoggerInitializer discoverable. &ndash;&gt;-->
+        <!--            <meta-data  android:name="com.example.ExampleLoggerInitializer"-->
+        <!--                android:value="androidx.startup" />-->
+        <!--        </provider>-->
+
+        <!--        <provider-->
+        <!--            android:name="androidx.startup.InitializationProvider"-->
+        <!--            android:authorities="${applicationId}.androidx-startup"-->
+        <!--            android:exported="false"-->
+        <!--            tools:node="merge">-->
+        <!--            &lt;!&ndash; If you are using androidx.startup to initialize other components &ndash;&gt;-->
+        <!--            <meta-data-->
+        <!--                android:name="androidx.work.WorkManagerInitializer"-->
+        <!--                android:value="androidx.startup"-->
+        <!--                tools:node="remove" />-->
+        <!--        </provider>-->
 
         <meta-data
-            android:name="com.seafile.seadroid2.util.GlideCache"
+            android:name=".util.GlideCache"
             android:value="AppGlideModule" />
 
         <activity
-            android:name="com.seafile.seadroid2.ui.activity.AccountsActivity"
-            android:launchMode="singleTop" />
-
-        <activity android:name=".account.ui.SingleSignOnActivity" />
-
-        <activity android:name=".account.ui.SingleSignOnAuthorizeActivity" />
-
-        <activity android:name="com.seafile.seadroid2.ui.activity.SettingsActivity" />
-
-        <activity android:name="com.seafile.seadroid2.ui.activity.PrivacyPolicyActivity" />
-
-        <activity
-            android:name="com.seafile.seadroid2.ui.activity.BrowserActivity"
-            android:configChanges="orientation"
-            android:exported="true"
-            android:launchMode="singleTop">
+            android:name=".ui.SplashActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -85,28 +108,39 @@
         </activity>
 
         <activity
-            android:name="com.seafile.seadroid2.ui.activity.UnlockGesturePasswordActivity"
+            android:name=".ui.account.AccountsActivity"
+            android:launchMode="singleTop" />
+
+        <activity android:name=".ui.account.SingleSignOnActivity" />
+
+        <activity android:name=".ui.account.SingleSignOnAuthorizeActivity" />
+
+        <activity android:name=".ui.settings.SettingsActivity" />
+
+        <activity
+            android:name=".ui.main.MainActivity"
+            android:configChanges="uiMode|orientation|screenSize"
+            android:exported="false"
+            android:launchMode="singleTop" />
+
+        <activity
+            android:name=".ui.gesture.UnlockGesturePasswordActivity"
+            android:launchMode="singleTop"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.seafile.seadroid2.ui.activity.CreateGesturePasswordActivity"
+            android:name=".ui.gesture.CreateGesturePasswordActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
 
-        <activity android:name="com.seafile.seadroid2.ui.activity.MarkdownActivity" />
+        <activity android:name=".ui.markdown.MarkdownActivity" />
 
         <activity
-            android:name=".account.ui.AccountDetailActivity"
-            android:parentActivityName=".ui.activity.AccountsActivity" />
-
-        <!-- MultipleImageSelectionActivity uses the default theme, instead of
-             ActionBarSherlock -->
-        <activity
-            android:name="com.seafile.seadroid2.gallery.MultipleImageSelectionActivity"
-            android:theme="@style/AppTheme.Multiple" />
+            android:name=".ui.account.AccountDetailActivity"
+            android:parentActivityName=".ui.account.AccountsActivity" />
 
         <activity
-            android:name="com.seafile.seadroid2.ui.activity.ShareToSeafileActivity"
+            android:name=".ui.share.ShareToSeafileActivity"
             android:excludeFromRecents="true"
             android:exported="true">
             <intent-filter>
@@ -121,53 +155,62 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="com.seafile.seadroid2.ui.activity.SeafilePathChooserActivity" />
-
-        <activity android:name="com.seafile.seadroid2.ui.activity.FileActivity" />
+        <activity android:name=".ui.file.FileActivity" />
 
         <activity
-            android:name=".account.ui.SeafileAuthenticatorActivity"
-            android:parentActivityName=".ui.activity.AccountsActivity">
+            android:name=".ui.account.SeafileAuthenticatorActivity"
+            android:parentActivityName=".ui.account.AccountsActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ui.activity.AccountsActivity" />
+                android:value=".ui.account.AccountsActivity" />
         </activity>
 
-        <activity android:name="com.seafile.seadroid2.fileschooser.MultiFileChooserActivity" />
 
-        <activity android:name="com.seafile.seadroid2.ui.activity.TransferActivity" />
-
-        <activity android:name="com.seafile.seadroid2.cameraupload.CameraUploadConfigActivity" />
-        <activity android:name=".folderbackup.FolderBackupConfigActivity" />
-        <!--<activity android:name="com.seafile.seadroid2.cameraupload.ContactsUploadConfigActivity"-->
-        <!--android:label="@string/app_name">-->
-        <!--</activity>-->
-
-        <activity android:name=".ui.activity.GalleryActivity" />
         <activity
-            android:name=".editor.EditorActivity"
+            android:name=".ui.camera_upload.CameraUploadConfigActivity"
+            android:configChanges="uiMode" />
+        <activity
+            android:name=".ui.folder_backup.FolderBackupConfigActivity"
+            android:configChanges="uiMode" />
+
+        <activity
+            android:name=".ui.editor.EditorActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.Editor" />
 
+        <provider
+            android:name=".ui.search.RecentSearchSuggestionsProvider"
+            android:authorities="${applicationId}.ui.search.RecentSearchSuggestionsProvider" />
+
         <activity
-            android:name=".ui.activity.search.Search2Activity"
-            android:exported="true">
+            android:name=".ui.search.Search2Activity"
+            android:configChanges="uiMode"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:voiceSearchMode="showVoiceSearchButton|launchRecognizer">
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
             </intent-filter>
+            <meta-data
+                android:name="android.app.searchable"
+                android:resource="@xml/searchable" />
         </activity>
 
-        <activity android:name=".folderbackup.FolderBackupSelectedPathActivity" />
+        <activity android:name=".ui.folder_backup.FolderBackupSelectedPathActivity" />
 
         <activity
-            android:name=".play.exoplayer.CustomExoVideoPlayerActivity"
+            android:name=".ui.play.exoplayer.CustomExoVideoPlayerActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
-            android:screenOrientation="sensor"
-            android:theme="@style/Theme.Fullscreen" />
-        <activity android:name=".ui.activity.webview.SeaWebViewActivity" />
+            android:screenOrientation="sensor" />
+
+        <activity android:name=".ui.webview.SeaWebViewActivity" />
+        <activity android:name=".ui.data_migrate.DataMigrationActivity" />
+        <activity android:name=".ui.selector.ObjSelectorActivity" />
+        <activity android:name=".ui.media.image_preview.ImagePreviewActivity" />
+        <activity android:name=".ui.transfer_list.TransferActivity" />
 
         <provider
-            android:name="com.seafile.seadroid2.provider.SeafileProvider"
+            android:name=".provider.SeafileProvider"
             android:authorities="${applicationId}.documents"
             android:enabled="@bool/atLeastKitKat"
             android:exported="true"
@@ -178,13 +221,8 @@
             </intent-filter>
         </provider>
 
-        <service android:name="com.seafile.seadroid2.transfer.TransferService" />
-        <service android:name="com.seafile.seadroid2.folderbackup.FolderBackupService" />
-        <service android:name="com.seafile.seadroid2.monitor.FileMonitorService" />
-        <service android:name=".cameraupload.MediaObserverService" />
-
         <provider
-            android:name=".cameraupload.StubContentProvider"
+            android:name=".ui.camera_upload.StubContentProvider"
             android:authorities="${applicationId}.cameraupload.provider"
             android:exported="false"
             android:label="@string/sync_provider_camera_upload"
@@ -192,7 +230,7 @@
 
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="${applicationId}"
+            android:authorities="${applicationId}.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data
@@ -212,7 +250,7 @@
         </service>
 
         <service
-            android:name=".cameraupload.CameraSyncService"
+            android:name=".ui.camera_upload.CameraSyncService"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
@@ -223,12 +261,15 @@
                 android:resource="@xml/cameraadapter" />
         </service>
 
+        <!--        <service-->
+        <!--            android:name=".ui.camera_upload.MediaSchedulerService"-->
+        <!--            android:permission="android.permission.BIND_JOB_SERVICE" />-->
         <service
-            android:name=".cameraupload.MediaSchedulerService"
-            android:permission="android.permission.BIND_JOB_SERVICE" />
+            android:name=".framework.worker.FileSyncService"
+            android:exported="false" />
 
         <receiver
-            android:name="com.seafile.seadroid2.BootAutostart"
+            android:name=".BootAutostart"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />

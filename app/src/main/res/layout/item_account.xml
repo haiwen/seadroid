@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?android:selectableItemBackground"
+    android:gravity="center"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingVertical="8dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/list_item_account_icon"
+            android:layout_width="@dimen/lv_act_icon_width"
+            android:layout_height="@dimen/lv_act_icon_height"
+            android:layout_marginEnd="@dimen/lv_act_icon_margin_right"
+            android:src="@drawable/default_avatar"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:shapeAppearance="@style/ShapeCircleStyle" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="@dimen/lv_act_title_group_height"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/list_item_account_title"
+                style="@style/ListItemTitleStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="@string/app_name" />
+
+            <TextView
+                android:id="@+id/list_item_account_subtitle"
+                style="@style/ListItemSubTitleStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                tools:text="@string/app_name" />
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/item_select_view"
+            android:layout_width="@dimen/lv_iv_action_width"
+            android:layout_height="@dimen/lv_iv_action_width"
+            android:padding="12dp"
+            android:src="@drawable/cuc_repo_selected"
+            android:visibility="invisible" />
+    </LinearLayout>
+
+
+    <com.google.android.material.divider.MaterialDivider
+        android:id="@+id/divider"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:dividerColor="@color/divider_color"
+        app:dividerInsetStart="16dp" />
+</LinearLayout>

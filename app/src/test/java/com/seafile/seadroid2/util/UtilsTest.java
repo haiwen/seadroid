@@ -1,11 +1,18 @@
 package com.seafile.seadroid2.util;
 
+import android.text.TextUtils;
+
+import androidx.annotation.Nullable;
+
+import com.seafile.seadroid2.framework.util.Utils;
+
 import org.junit.Test;
 import org.junit.Assert;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 
-import java.text.DecimalFormat;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @RunWith(RobolectricTestRunner.class)
 public class UtilsTest {
@@ -49,6 +56,41 @@ public class UtilsTest {
 
         result = Utils.readableFileSize(285008);
         Assert.assertEquals("285 KB", result);
+    }
+
+
+    @Test
+    public void checkFormat() {
+        String fileName = "logo.png@100px|auto";
+        if (TextUtils.isEmpty(fileName)) {
+            return;
+        }
+
+        int dotIndex = fileName.lastIndexOf(".");
+        if (dotIndex == -1) {
+            return;
+        }
+
+        String regex = "[^a-zA-Z0-9]"; // Whether it contains non-alphabetic-number characters
+        String f = fileName.substring(dotIndex + 1);
+
+        //if fileName = logo.png@100px|auto
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(f);
+        if (!matcher.find()) {
+            System.out.println(f);
+            return;
+        }
+
+        int startIndex = matcher.start();
+        if (startIndex == 0) {//not support if fileName = logo.@100px|auto
+            System.out.println(fileName);
+            return;
+        }
+
+        String fff = f.substring(0, startIndex);
+        System.out.println(fff);
+        return;
     }
 
 }

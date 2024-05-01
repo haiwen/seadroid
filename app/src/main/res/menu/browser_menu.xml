@@ -1,57 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <item android:id="@+id/sort"
-          android:visible="true"
-          android:icon="@drawable/sort"
-          android:title="@string/sort_menu_item"
-          app:showAsAction="always"/>
+    <item
+        android:id="@+id/sort"
+        android:icon="@drawable/baseline_sort_24"
+        android:title="@string/sort_menu_item"
+        android:visible="true"
+        app:showAsAction="always" />
 
-    <item android:id="@+id/search"
-          android:visible="true"
-          android:icon="@drawable/search"
-          android:title="@string/search_menu_item"
-          app:showAsAction="always"/>
+    <item
+        android:id="@+id/search"
+        android:icon="@drawable/baseline_search_24"
+        android:title="@string/search_menu_item"
+        android:visible="true"
+        app:showAsAction="always" />
 
     <!-- More -->
     <item
         android:id="@+id/menu_overflow"
-        android:icon="@drawable/ic_action_overflow"
-        app:showAsAction="always"
-        android:title="More">
-      <menu>
-        <item android:id="@+id/create_repo"
-        android:visible="true"
-        android:title="@string/add_repo"
-        app:showAsAction="ifRoom"/>
+        android:icon="@drawable/baseline_more_vert_24"
+        android:title="More"
+        app:showAsAction="ifRoom">
 
-        <item android:id="@+id/add"
-        android:visible="true"
-        android:title="@string/add_file"
-        app:showAsAction="ifRoom"/>
+        <menu>
+            <item
+                android:id="@+id/create_repo"
+                android:title="@string/add_repo"
+                android:visible="true"
+                app:showAsAction="ifRoom" />
 
-        <item android:id="@+id/edit"
-              android:visible="false"
-              android:title="@string/edit"
-              app:showAsAction="never"/>
+            <item
+                android:id="@+id/add"
+                android:title="@string/add_file"
+                android:visible="true"
+                app:showAsAction="ifRoom" />
 
-	    <item android:id="@+id/transfer_tasks"
-              android:visible="true"
-              android:title="@string/transfer_tasks"
-              app:showAsAction="never"/>
+            <item
+                android:id="@+id/edit"
+                android:title="@string/edit"
+                android:visible="false"
+                app:showAsAction="never" />
 
-	    <item android:id="@+id/accounts"
-              android:visible="true"
-              android:title="@string/accounts"
-              app:showAsAction="never"/>
+            <item
+                android:id="@+id/transfer_tasks"
+                android:title="@string/transfer_tasks"
+                android:visible="true"
+                app:showAsAction="never" />
 
+            <item
+                android:id="@+id/accounts"
+                android:title="@string/accounts"
+                android:visible="true"
+                app:showAsAction="never" />
 
-        <item android:id="@+id/settings"
-              android:visible="true"
-              android:title="@string/settings"
-              app:showAsAction="never"/>
-      </menu>
+            <item
+                android:id="@+id/settings"
+                android:title="@string/settings"
+                android:visible="true"
+                app:showAsAction="never" />
+        </menu>
     </item>
 </menu>

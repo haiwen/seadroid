@@ -1,17 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:orientation="vertical">
 
     <include layout="@layout/toolbar_actionbar" /> <!-- placeholder, empty except on L -->
+
     <CheckBox
         android:id="@+id/https_checkbox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/cb_padding_left"
-        android:layout_marginLeft="@dimen/cb_padding_left"
-        android:layout_marginTop="@dimen/cb_padding_top"
+        android:layout_marginStart="@dimen/app_padding_horizontal"
+        android:layout_marginTop="@dimen/app_widget_top_margin_middle"
+        android:layout_marginEnd="@dimen/app_padding_horizontal"
         android:onClick="onHttpsCheckboxClicked"
         android:text="@string/accounts_https_hint"
         android:textSize="@dimen/cb_btn_txt_size" />
@@ -21,11 +23,13 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:orientation="vertical"
+        android:paddingHorizontal="@dimen/app_padding_horizontal"
         android:paddingTop="@dimen/form_padding_top"
         android:paddingBottom="@dimen/form_padding_bottom">
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/server_hint"
+
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/server_hint">
@@ -34,8 +38,6 @@
                 android:id="@+id/server_url"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/et_margin_left"
-                android:layout_marginRight="@dimen/et_margin_right"
                 android:layout_marginBottom="@dimen/et_margin_bottom"
                 android:importantForAutofill="auto"
                 android:inputType="textUri"
@@ -52,16 +54,15 @@
                 android:layout_height="wrap_content"
                 android:hint="@string/email_hint">
 
-                <com.seafile.seadroid2.ui.EmailAutoCompleteTextView
+                <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/email_address"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="@dimen/auto_complete_ed_margin_left"
-                    android:layout_marginRight="@dimen/auto_complete_ed_margin_right"
                     android:layout_marginBottom="@dimen/et_margin_bottom"
-                    android:ems="10"
                     android:importantForAutofill="auto"
-                    android:inputType="textEmailAddress" />
+                    android:inputType="textEmailAddress"
+                    android:maxLines="1"
+                    android:textSize="@dimen/et_txt_size" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <ImageView
@@ -76,57 +77,44 @@
                 android:visibility="invisible" />
         </RelativeLayout>
 
-        <RelativeLayout
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/password_hint"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:hint="@string/passwd_hint">
+                android:layout_weight="1"
+                android:hint="@string/passwd_hint"
+                android:orientation="horizontal"
+                app:passwordToggleDrawable="@drawable/icon_eye_close"
+                app:passwordToggleEnabled="true">
 
                 <EditText
                     android:id="@+id/password"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="@dimen/auto_complete_ed_margin_left"
-                    android:layout_marginRight="@dimen/auto_complete_ed_margin_right"
                     android:layout_marginBottom="@dimen/et_margin_bottom"
+                    android:layout_weight="1"
                     android:fontFamily="sans-serif"
                     android:importantForAutofill="auto"
                     android:inputType="textPassword" />
+
             </com.google.android.material.textfield.TextInputLayout>
 
             <ImageView
                 android:id="@+id/iv_delete_pwd"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_toLeftOf="@+id/rl_layout_eye"
+                android:layout_gravity="end"
                 android:padding="@dimen/padding_normal"
                 android:src="@drawable/icon_delete"
-                android:visibility="invisible" />
+                android:visibility="gone" />
 
-            <RelativeLayout
-                android:id="@+id/rl_layout_eye"
-                android:layout_width="40dp"
-                android:layout_height="60dp"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
-                android:layout_marginRight="@dimen/margin_larger"
-                android:background="@color/transparent"
-                android:paddingRight="@dimen/padding_normal">
-
-                <ImageView
-                    android:id="@+id/iv_eye_click"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerInParent="true"
-                    android:padding="@dimen/padding_small"
-                    android:src="@drawable/icon_eye_close" />
-            </RelativeLayout>
-        </RelativeLayout>
+        </LinearLayout>
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/auth_token_hint"
@@ -139,33 +127,29 @@
                 android:id="@+id/auth_token"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/auto_complete_ed_margin_left"
-                android:layout_marginRight="@dimen/auto_complete_ed_margin_right"
                 android:layout_marginBottom="@dimen/et_margin_bottom"
                 android:importantForAutofill="auto"
                 android:inputType="number" />
         </com.google.android.material.textfield.TextInputLayout>
     </LinearLayout>
 
-
     <CheckBox
         android:id="@+id/remember_device"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/auto_complete_ed_margin_left"
-        android:layout_marginRight="@dimen/auto_complete_ed_margin_left"
+        android:layout_marginStart="@dimen/app_padding_horizontal"
+        android:layout_marginTop="@dimen/app_widget_top_margin_small"
+        android:layout_marginEnd="@dimen/app_padding_horizontal"
         android:text="@string/two_factor_auth_remember_phone"
         android:visibility="gone" />
 
-
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/login_button"
         android:layout_width="match_parent"
         android:layout_height="@dimen/long_btn_height"
-        android:layout_marginLeft="@dimen/long_btn_margin_left"
-        android:layout_marginTop="10dp"
-        android:layout_marginRight="@dimen/long_btn_margin_right"
-        android:onClick="login"
+        android:layout_marginStart="@dimen/app_padding_horizontal"
+        android:layout_marginTop="@dimen/app_widget_top_margin_middle"
+        android:layout_marginEnd="@dimen/app_padding_horizontal"
         android:paddingTop="@dimen/long_btn_padding_top"
         android:paddingBottom="@dimen/long_btn_padding_bottom"
         android:text="@string/login"
@@ -177,16 +161,18 @@
         android:id="@+id/status_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/tv_margin_left"
-        android:layout_marginRight="@dimen/tv_margin_right"
+        android:layout_marginStart="@dimen/app_padding_horizontal"
+        android:layout_marginTop="@dimen/app_widget_top_margin_small"
+        android:layout_marginEnd="@dimen/app_padding_horizontal"
         android:text="" />
 
     <TextView
         android:id="@+id/seahub_url_hint"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/tv_margin_left"
-        android:layout_marginRight="@dimen/tv_margin_right"
+        android:layout_marginStart="@dimen/app_padding_horizontal"
+        android:layout_marginTop="@dimen/app_widget_top_margin_small"
+        android:layout_marginEnd="@dimen/app_padding_horizontal"
         android:text="@string/seahub_url_hint"
         android:textSize="@dimen/tv_txt_size" />
 

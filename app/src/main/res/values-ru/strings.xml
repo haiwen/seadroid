@@ -19,10 +19,10 @@
   <string name="delete_dir">Удалить папку</string>
   <string name="name_hint">Имя</string>
   <string name="server_hint">Адрес сервера</string>
-  <string name="email_hint">Email или Логин</string>
+  <string name="email_hint">Эл. почта или логин</string>
   <string name="passwd_hint">Пароль</string>
-  <string name="passwd_min_len_limit_hint">Пароль (не менее %d символов)</string>
-  <string name="passwd_confirmation_hint">Пароль еще раз</string>
+  <string name="passwd_min_len_limit_hint">Пароль [не менее %d символ(-а/-ов)]</string>
+  <string name="passwd_confirmation_hint">Пароль снова</string>
   <string name="login">Войти</string>
   <string name="open_file">Открыть</string>
   <string name="download_file">Скачать</string>
@@ -72,8 +72,8 @@
   <string name="task_cancel">Отмена</string>
   <string name="task_retry">Повторить</string>
   <string name="task_remove">Удалить</string>
-  <string name="task_remove_all_cancelled">Удалить все отмененные задачи</string>
-  <string name="task_remove_all_finished">Удалить все завершенные задачи</string>
+  <string name="task_remove_all_cancelled">Удалить все отменённые задачи</string>
+  <string name="task_remove_all_finished">Удалить все завершённые задачи</string>
   <string name="repo_action_delete">Удалить</string>
   <string name="repo_action_rename">Переименовать</string>
   <string name="file_action_star">Пометить</string>
@@ -111,9 +111,9 @@
   <string name="select_upload_items">Выбрать элементы для загрузки</string>
   <plurals name="n_upload_items_selected">
     <item quantity="one">%1$d элемент выбран</item>
-    <item quantity="few">%1$d выбранных элементов</item>
-    <item quantity="many">%1$d выбранных элементов</item>
-    <item quantity="other">%1$d выбранных элементов</item>
+    <item quantity="few">%1$d элемента выбрано</item>
+    <item quantity="many">%1$d элементов выбрано</item>
+    <item quantity="other">%1$d элементов выбрано</item>
   </plurals>
   <string name="repo_name_empty">Пожалуйста, введите имя библиотеки</string>
   <string name="dir_name_empty">Пожалуйста, введите имя папки</string>
@@ -177,7 +177,7 @@
   <string name="file_modified">изменено</string>
   <string name="file_size">размер файла</string>
   <string name="library_not_found">Библиотека была удалена.</string>
-  <string name="file_not_found">Файл \"%s\" был удален</string>
+  <string name="file_not_found">Файл «%s» был удалён</string>
   <string name="export_file">Экспортировать этот файл</string>
   <string name="no_upload_tasks">Пока нет задач на загрузку</string>
   <string name="no_download_tasks">Пока нет задач на скачивание</string>
@@ -212,7 +212,7 @@
   <string name="upload_cancelled">Загрузка отменена</string>
   <string name="upload_failed">Загрузка не удалась</string>
   <string name="upload_file_exist">Файл уже существует</string>
-  <string name="upload_duplicate_found">Элемент с именем \"%s\" уже существует в этом месте.\n Вы хотите заменить его на загружаемый ?</string>
+  <string name="upload_duplicate_found">Элемент с именем «%s» уже существует в этом месте.\n Вы хотите заменить его на загружаемый?</string>
   <string name="upload_replace_all">Заменить все</string>
   <string name="upload_keep_both">Оставить оба</string>
   <string name="upload_replace">Заменить</string>
@@ -228,15 +228,15 @@
   <string name="error_selecting_file">Ошибка при выборе файла</string>
   <plurals name="n_upload_files_selected">
     <item quantity="one">%1$d файл выбран</item>
-    <item quantity="few">%1$d файлов выбраны</item>
+    <item quantity="few">%1$d файла выбраны</item>
     <item quantity="many">%1$d файлов выбраны</item>
-    <item quantity="other">%1$d файл(ов) выбраны</item>
+    <item quantity="other">%1$d файлов выбраны</item>
   </plurals>
   <string name="empty_folder">Пустая папка</string>
   <string name="choose_file">Выбрать файл</string>
   <string name="ssl_error">Проверка безопасности прошла неудачно</string>
   <string name="ssl_confirm">Сертификат безопасности %s недоверенный. Вы хотите продолжить?</string>
-  <string name="ssl_confirm_cert_changed">%s использует недействительный сертификат безопасности. Соединение не безопасно. Все равно продолжить?</string>
+  <string name="ssl_confirm_cert_changed">%s использует недействительный сертификат безопасности. Соединение не безопасно. Всё равно продолжить?</string>
   <string name="ssl_confirm_title">Недоверенное соединение</string>
   <string name="issued_to">Выдано</string>
   <string name="finger_prints">Отпечатки пальцев</string>
@@ -284,16 +284,16 @@
   <string name="lockscreen_access_pattern_passwd_forget">Я забыл(а) пароль</string>
   <string name="lockscreen_access_pattern_failure">Не удалось 5 раз ввести пароль, пожалуйста, подождите 30 секунд, прежде чем попробовать снова</string>
   <plurals name="lockscreen_access_pattern_failure_left_try_seconds">
-    <item quantity="one">Вы можете повторить через %1$d секундй</item>
-    <item quantity="few">Вы можете повторить через %1$d секунд</item>
+    <item quantity="one">Вы можете повторить через %1$d секунду</item>
+    <item quantity="few">Вы можете повторить через %1$d секунды</item>
     <item quantity="many">Вы можете повторить через %1$d секунд</item>
     <item quantity="other">Вы можете повторить через %1$d секунд</item>
   </plurals>
   <plurals name="lockscreen_access_pattern_failure_left_try_times">
-    <item quantity="one">Не правильный шаблон, вы можете попробовать еще %1$d раз</item>
-    <item quantity="few">Не правильный шаблон, вы можете попробовать еще %1$d раз</item>
-    <item quantity="many">Не правильный шаблон, вы можете попробовать еще %1$d раз</item>
-    <item quantity="other">Не правильный шаблон, вы можете попробовать еще %1$d раз</item>
+    <item quantity="one">Не правильный шаблон, вы можете попробовать ещё %1$d раз</item>
+    <item quantity="few">Не правильный шаблон, вы можете попробовать ещё %1$d раза</item>
+    <item quantity="many">Не правильный шаблон, вы можете попробовать ещё %1$d раз</item>
+    <item quantity="other">Не правильный шаблон, вы можете попробовать ещё %1$d раз</item>
   </plurals>
   <string name="lockscreen_access_pattern_failure_not_long_enough">Соединяйте точки не так долго, попробуйте еще раз</string>
   <string name="lockpattern_retry_button_text">Повторить</string>
@@ -359,7 +359,7 @@
   <string name="settings_cuc_local_dir_title">Выбрать альбомы</string>
   <plurals name="settings_cuc_local_dir_items">
     <item quantity="one">%1$d элемент</item>
-    <item quantity="few">%1$d элементов</item>
+    <item quantity="few">%1$d элемента</item>
     <item quantity="many">%1$d элементов</item>
     <item quantity="other">%1$d элементов</item>
   </plurals>
@@ -369,9 +369,9 @@
   <string name="settings_cuc_upload_to_parent_folder">К родительской папке</string>
   <string name="settings_cuc_auto_scan">Автоматически определить альбомы с камеры</string>
   <string name="settings_cuc_pick_albums">Позволить мне выбрать мои фотоальбомы</string>
-  <string name="settings_cuc_remote_lib_hint">Выберите нужный аккаунт и библиотеку. \nВы можете изменить эти параметры позже в меню Настройки.</string>
+  <string name="settings_cuc_remote_lib_hint">Выберите нужный аккаунт и библиотеку. \nВы можете изменить эти параметры позже в меню «Настройки».</string>
   <string name="settings_cuc_finish_title">Завершить</string>
-  <string name="settings_cuc_ready">Seafile начнет загрузку файлов из выбранных вами папок после подтверждения.\nВо время этого вы можете закрыть приложение.</string>
+  <string name="settings_cuc_ready">Seafile начнёт загрузку файлов из выбранных вами папок после подтверждения.\nВо время этого вы можете закрыть приложение.</string>
   <string name="settings_cuc_swipe_left">Проведите влево, чтобы продолжить.</string>
   <string name="settings_cuc_click_btn">Щелкните, чтобы закрыть помощник.</string>
   <string name="settings_cuc_loading">загрузка...</string>
@@ -379,7 +379,7 @@
   <string name="sync_provider_camera_upload">Фото и видео с камеры</string>
   <string name="camera_sync_notification_title_failed">Загрузка с камеры не удалась</string>
   <string name="camera_sync_notification_repo_missing_failed">Репозиторий на сервере отсутствует</string>
-  <string name="camera_sync_notification_auth_error_failed">Ошибка аутентификации.</string>
+  <string name="camera_sync_notification_auth_error_failed">Ошибка авторизации.</string>
   <string name="camera_sync_rename_file">%s (переименовано Seafile)</string>
   <string name="settings_about_title">О ПРИЛОЖЕНИИ</string>
   <string name="settings_about_privacy_policy">Политика конфиденциальности</string>
@@ -391,12 +391,12 @@
         <p>%s</p>
         <h5>Связь с нами</h5>
         <p>
-            Twitter: Seafile<br>
-            Email: support@seafile.com<br>
+            Твиттер: Seafile<br>
+            Эл. почта: support@seafile.com<br>
         </p>
         <h5>Внести свой вклад</h5>
         <p>https://github.com/haiwen/seadroid.git</P>
-        <h5>Copyright ©2013-2023 Seafile Ltd.</h5>
+        <h5>Авторское право ©2013-2023 Seafile Ltd.</h5>
         ]]>
     </string>
   <string name="settings_advance_feature_title">ДОПОЛНИТЕЛЬНЫЕ ФУНКЦИИ</string>
@@ -410,7 +410,7 @@
   <string name="settings_cache_location_title">Место хранения кэша</string>
   <string name="dialog_switch_storage_info_text">Существующие файлы будут перемещены в новое место хранения. Это может занять некоторое время.</string>
   <string name="storage_manager_primary_storage">Основное место хранения</string>
-  <string name="storage_manager_secondary_storage">Вторичное место хранения</string>
+  <string name="storage_manager_secondary_storage">Дополнительное место хранения</string>
   <string name="storage_manager_storage_description">%1$s (%2$s свободно/%3$s всего)</string>
   <string name="storage_manager_storage_description_not_available">%1$s (недоступно)</string>
   <!--pull to refresh-->
@@ -441,13 +441,13 @@
   <string name="shib_loading">загрузка...</string>
   <!--Transfer List-->
   <string name="transfer_list_network_error">Ошибка подключения к сети, пожалуйста, повторите позже!</string>
-  <string name="transfer_list_cancel_all">Отменить все задания</string>
+  <string name="transfer_list_cancel_all">Отменить все задачи</string>
   <string name="transfer_list_restart_all">Перезапустить</string>
   <string name="transfer_list_retry_failed_tasks">Повтор неудачных задач</string>
-  <string name="transfer_list_restart_cancelled_tasks">Перезапустить отмененные задания</string>
-  <string name="transfer_list_clear_failed_tasks">Удалить неудачные задания</string>
-  <string name="transfer_list_clear_all_tasks">Удалить все задания</string>
-  <string name="transfer_list_clear_finished_tasks">Удалить завершенные задания</string>
+  <string name="transfer_list_restart_cancelled_tasks">Перезапустить отменённые задачи</string>
+  <string name="transfer_list_clear_failed_tasks">Удалить неудачные задачи</string>
+  <string name="transfer_list_clear_all_tasks">Удалить все задачи</string>
+  <string name="transfer_list_clear_finished_tasks">Удалить завершённые задачи</string>
   <string name="transfer_tabs_downloads">Список загрузок</string>
   <string name="transfer_tabs_uploads">Список закачек</string>
   <string name="transfer_download_no_task">Все файлы были загружены</string>
@@ -493,13 +493,13 @@
   <string name="notification_upload_completed">Загрузка завершена</string>
   <plurals name="notification_upload_info">
     <item quantity="one">Загружается %1$d файл (%2$d%%)</item>
-    <item quantity="few">Загружается %1$d файлов (%2$d%%)</item>
+    <item quantity="few">Загружается %1$d файла (%2$d%%)</item>
     <item quantity="many">Загружается %1$d файлов (%2$d%%)</item>
     <item quantity="other">Загружается %1$d файлов (%2$d%%)</item>
   </plurals>
   <plurals name="notification_download_info">
     <item quantity="one">Скачивается %1$d файл (%2$d%%)</item>
-    <item quantity="few">Скачивается %1$d файлов (%2$d%%)</item>
+    <item quantity="few">Скачивается %1$d файла (%2$d%%)</item>
     <item quantity="many">Скачивается %1$d файлов (%2$d%%)</item>
     <item quantity="other">Скачивается %1$d файлов (%2$d%%)</item>
   </plurals>
@@ -515,6 +515,7 @@
   <string name="action_mode_no_items_selected">Нет выбранных элементов</string>
   <!--Accessibility description for navigation drawer-->
   <!--permission-->
+  <string name="permission_manage_exteral_storage_rationale">Для обработки файлов, позволяет управлять всеми файлами на внешнем хранилище.</string>
   <string name="permission_read_exteral_storage_rationale">Для обработки файлов, позволить получить доступ к их хранилищу</string>
   <string name="permission_read_contacts_storage_rationale">Для обработки контактов, разрешить к ним доступ.</string>
   <string name="permission_not_granted">Разрешение не было предоставлено</string>
@@ -532,25 +533,25 @@
   <string name="clear_password_warning">Вы хотите удалить пароль?</string>
   <string name="clear_password_auto">Автоматический сброс паролей</string>
   <!--Two factor auth-->
-  <string name="two_factor_auth_error">токен аутентификации обязателен</string>
-  <string name="two_factor_auth_invalid">токен аутентификации недействителен</string>
-  <string name="two_factor_auth_token">Токен двухфакторной аутентификации</string>
-  <string name="two_factor_auth_token_empty">Токен аутентификации не может быть пустым</string>
+  <string name="two_factor_auth_error">токен авторизации обязателен</string>
+  <string name="two_factor_auth_invalid">токен авторизации недействителен</string>
+  <string name="two_factor_auth_token">Токен двухфакторной авторизации</string>
+  <string name="two_factor_auth_token_empty">Токен авторизации не может быть пустым</string>
   <string name="two_factor_auth_remember_phone">Запомнить это устройство</string>
   <!--Operation Exceptions-->
-  <string name="op_exception_folder_deleted">Папка \"%s\" была удалена</string>
-  <string name="op_exception_suitable_app_not_found">Не удается найти подходящее приложение для MIME-типа %s</string>
+  <string name="op_exception_folder_deleted">Папка «%s» была удалена</string>
+  <string name="op_exception_suitable_app_not_found">Не удаётся найти подходящее приложение для MIME-типа %s</string>
   <string name="op_exception_failed_to_download_file">Не удалось скачать файл %s</string>
   <!--Home list title-->
   <string name="shared_with_all">Общие со всеми</string>
   <string name="add_password_protection">Добавить защиту паролем</string>
   <string name="expiration_dates">даты истечения срока действия</string>
-  <string name="add_auto_expiration">Добавить авто истечение срока действия</string>
+  <string name="add_auto_expiration">Добавить автоистечение срока действия</string>
   <string name="input_auto_expiration">Введите даты истечения срока действия</string>
   <!--editor-->
   <string name="editor_lines_error">Невозможно работать с несколькими строками</string>
   <string name="editor_file_save">Вы хотите сохранить и выйти?</string>
-  <string name="editor_file_save_success">Файл успешно сохранен</string>
+  <string name="editor_file_save_success">Файл успешно сохранён</string>
   <string name="editor_file_save_failed">Не удалось очистить кэш</string>
   <string name="editor_file_save_title">Сохранение файла</string>
   <string name="description">Описание</string>
@@ -603,5 +604,5 @@
   <string name="modify">Изменить</string>
   <string name="update">Обновить</string>
   <string name="clear">Очистить</string>
-  <string name="clear_all">Очистить все</string>
+  <string name="clear_all">Очистить всё</string>
 </resources>

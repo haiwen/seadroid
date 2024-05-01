@@ -53,11 +53,6 @@
         <attr name="aspect" format="string" />
    </declare-styleable>
 
-  <style name="dialog_light" parent="@android:style/Theme.Dialog">
-    <item name="android:windowBackground">@color/whitegrey</item>
-    <item name="android:textColor">@color/black</item>
-  </style>
-
   <declare-styleable name="BaseTheme">
     <attr name="actionBarInsetStart" format="dimension" />
   </declare-styleable>
@@ -66,4 +61,7 @@
     <attr name="border_width" format="dimension" />
     <attr name="border_color" format="color" />
   </declare-styleable>
+
+  <attr name="catalogToolbarWithCloseButtonStyle" format="reference"/>
+
 </resources>

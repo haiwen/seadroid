@@ -1,0 +1,178 @@
+package com.seafile.seadroid2.ui.selector;
+
+import androidx.lifecycle.MutableLiveData;
+
+import com.blankj.utilcode.util.CollectionUtils;
+import com.blankj.utilcode.util.ToastUtils;
+import com.seafile.seadroid2.SeafException;
+import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.framework.data.db.AppDatabase;
+import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
+import com.seafile.seadroid2.framework.data.db.entities.EncKeyCacheEntity;
+import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
+import com.seafile.seadroid2.context.NavContext;
+import com.seafile.seadroid2.framework.data.model.BaseModel;
+import com.seafile.seadroid2.framework.data.model.repo.DirentWrapperModel;
+import com.seafile.seadroid2.framework.data.model.repo.RepoWrapperModel;
+import com.seafile.seadroid2.ui.repo.RepoService;
+import com.seafile.seadroid2.framework.http.IO;
+import com.seafile.seadroid2.framework.util.Objs;
+import com.seafile.seadroid2.framework.util.SLogs;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import io.reactivex.Single;
+import io.reactivex.functions.Consumer;
+import kotlin.Pair;
+
+public class ObjSelectorViewModel extends BaseViewModel {
+    private final MutableLiveData<List<BaseModel>> ObjsListLiveData = new MutableLiveData<>();
+
+    public MutableLiveData<List<BaseModel>> getObjsListLiveData() {
+        return ObjsListLiveData;
+    }
+
+    public void getEncCacheDB(String repoId, Consumer<EncKeyCacheEntity> consumer) {
+        Single<List<EncKeyCacheEntity>> single = AppDatabase.getInstance().encKeyCacheDAO().getListByRepoIdAsync(repoId);
+        addSingleDisposable(single, new Consumer<List<EncKeyCacheEntity>>() {
+            @Override
+            public void accept(List<EncKeyCacheEntity> list) throws Exception {
+                if (CollectionUtils.isEmpty(list)) {
+                    consumer.accept(null);
+                } else {
+                    consumer.accept(list.get(0));
+                }
+            }
+        });
+    }
+
+
+    public void loadAccount() {
+        List<Account> list = SupportAccountManager.getInstance().getSignedInAccountList();
+        getObjsListLiveData().setValue(new ArrayList<>(list));
+        getRefreshLiveData().setValue(false);
+    }
+
+    public void loadReposFromNet(Account account,boolean isFilterEncrypted) {
+        getRefreshLiveData().setValue(true);
+        Single<RepoWrapperModel> singleNet = IO.getInstanceByAccount(account).execute(RepoService.class).getRepos();
+
+        addSingleDisposable(singleNet, new Consumer<RepoWrapperModel>() {
+            @Override
+            public void accept(RepoWrapperModel repoWrapperModel) throws Exception {
+                if (repoWrapperModel == null || CollectionUtils.isEmpty(repoWrapperModel.repos)) {
+                    getObjsListLiveData().setValue(null);
+                    getRefreshLiveData().setValue(false);
+                    return;
+                }
+
+                List<BaseModel> list = Objs.parseRepoListForAdapter(repoWrapperModel.repos, account.getSignature(), isFilterEncrypted);
+                getObjsListLiveData().setValue(list);
+                getRefreshLiveData().setValue(false);
+            }
+        }, new Consumer<Throwable>() {
+            @Override
+            public void accept(Throwable throwable) throws Exception {
+                SLogs.d(throwable.getMessage());
+            }
+        });
+    }
+
+    public void loadDirentsFromNet(Account account, NavContext context) {
+        getRefreshLiveData().setValue(true);
+
+        String repoId = context.getRepoModel().repo_id;
+        String parentDir = context.getNavPath();
+
+        Single<DirentWrapperModel> singleNet = IO.getInstanceByAccount(account).execute(RepoService.class).getDirents(repoId, parentDir);
+        addSingleDisposable(singleNet, new Consumer<DirentWrapperModel>() {
+            @Override
+            public void accept(DirentWrapperModel direntWrapperModel) throws Exception {
+
+                List<DirentModel> list = Objs.parseDirentsForDB(
+                        direntWrapperModel.dirent_list,
+                        direntWrapperModel.dir_id,
+                        account.getSignature(),
+                        context.getRepoModel().repo_id,
+                        context.getRepoModel().repo_name);
+
+                getObjsListLiveData().setValue(new ArrayList<>(list));
+                getRefreshLiveData().setValue(false);
+            }
+        }, new Consumer<Throwable>() {
+            @Override
+            public void accept(Throwable throwable) throws Exception {
+                getRefreshLiveData().setValue(false);
+                getExceptionLiveData().setValue(new Pair<>(400, SeafException.networkException));
+                String msg = getErrorMsgByThrowable(throwable);
+                ToastUtils.showLong(msg);
+            }
+        });
+    }
+//
+//    public void requestRepoModel(String repoId, Consumer<RepoModel> consumer) {
+//        getRefreshLiveData().setValue(true);
+//
+//        //from db
+//        Single<List<RepoModel>> singleDb = AppDatabase.getInstance().repoDao().getRepoById(repoId);
+//        addSingleDisposable(singleDb, new Consumer<List<RepoModel>>() {
+//            @Override
+//            public void accept(List<RepoModel> repoModels) throws Exception {
+//                if (consumer != null) {
+//                    if (CollectionUtils.isEmpty(repoModels)) {
+//                        //no data in sqlite, request RepoApi again
+//                        requestRepoModelFromNet(repoId, consumer);
+//                    } else {
+//                        consumer.accept(repoModels.get(0));
+//                        getRefreshLiveData().setValue(false);
+//                    }
+//                } else {
+//                    getRefreshLiveData().setValue(false);
+//                }
+//            }
+//        }, new Consumer<Throwable>() {
+//            @Override
+//            public void accept(Throwable throwable) throws Exception {
+//                getRefreshLiveData().setValue(false);
+//                SLogs.e(throwable);
+//            }
+//        });
+//    }
+//
+//    private void requestRepoModelFromNet(String repoId, Consumer<RepoModel> consumer) {
+//        //from net
+//        Single<RepoWrapperModel> singleNet = IO.getSingleton().execute(RepoService.class).getRepos();
+//        addSingleDisposable(singleNet, new Consumer<RepoWrapperModel>() {
+//            @Override
+//            public void accept(RepoWrapperModel repoWrapperModel) throws Exception {
+//                getRefreshLiveData().setValue(false);
+//
+//                if (repoWrapperModel == null || CollectionUtils.isEmpty(repoWrapperModel.repos)) {
+//                    ToastUtils.showLong(R.string.search_library_not_found);
+//                    return;
+//                }
+//
+//                Optional<RepoModel> optionalRepoModel = repoWrapperModel.repos
+//                        .stream()
+//                        .filter(f -> TextUtils.equals(f.repo_id, repoId))
+//                        .findFirst();
+//                if (optionalRepoModel.isPresent()) {
+//                    if (consumer != null) {
+//                        consumer.accept(optionalRepoModel.get());
+//                    }
+//                } else {
+//                    ToastUtils.showLong(R.string.search_library_not_found);
+//                }
+//            }
+//        }, new Consumer<Throwable>() {
+//            @Override
+//            public void accept(Throwable throwable) throws Exception {
+//                getRefreshLiveData().setValue(false);
+//                String msg = getErrorMsgByThrowable(throwable);
+//                ToastUtils.showLong(msg);
+//            }
+//        });
+//    }
+}

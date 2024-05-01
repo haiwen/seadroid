@@ -1,4 +1,4 @@
- // Top-level build file where you can add configuration options common to all sub-projects/modules.
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
     repositories {
@@ -10,13 +10,13 @@ buildscript {
         mavenCentral()
         maven { url 'https://jitpack.io' }
         maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
-//        maven { url "https://maven.aliyun.com/repository/public" }  //do not use
+//        maven { url "https://maven.aliyun.com/repository/public" }  //do not use，because F-Droid.
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:7.4.2'
 
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
+        classpath 'com.google.gms:google-services:4.4.1'
+        classpath 'com.google.firebase:firebase-crashlytics-gradle:2.9.9'
     }
 }
 
@@ -30,14 +30,14 @@ allprojects {
         mavenCentral()
         maven { url 'https://jitpack.io' }
         maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
-//        maven { url "https://maven.aliyun.com/repository/public" } //do not use
+//        maven { url "https://maven.aliyun.com/repository/public" }
     }
 }
 
 ext {
-    compileSdkVersion = 33 // 13.0 "Tiramisu"
+    compileSdkVersion = 34 // 13.0 "Tiramisu"
+    targetSdkVersion = 34 //14
     supportLibVersion = '27.1.1'  // variable that can be referenced to keep support libs consistent
     minSdkVersion = 26 //8.0 "Oreo"
-    targetSdkVersion = 33 //12.0 "S"
     buildToolsVersion = '27.0.3'
 }

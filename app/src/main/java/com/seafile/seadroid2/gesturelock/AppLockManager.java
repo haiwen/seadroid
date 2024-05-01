@@ -23,9 +23,7 @@ public class AppLockManager {
     }
 
     public void enableDefaultAppLockIfAvailable(Application currentApp) {
-        if (android.os.Build.VERSION.SDK_INT >= 14) {
-            currentAppLocker = new DefaultAppLock(currentApp);
-            currentAppLocker.enable();
-        }
+        currentAppLocker = new DefaultAppLock(currentApp);
+        currentAppLocker.enable();
     }
 }

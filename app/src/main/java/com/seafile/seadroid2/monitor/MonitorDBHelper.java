@@ -11,7 +11,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.account.AccountManager;
+import com.seafile.seadroid2.account.SupportAccountManager;
 
 import java.io.File;
 import java.util.List;
@@ -55,12 +55,12 @@ public class MonitorDBHelper extends SQLiteOpenHelper {
             + " TEXT NOT NULL);";
 
     private static final String[] FULL_PROJECTION = {
-        AUTO_UPDATE_INFO_COLUMN_ACCOUNT,
-        AUTO_UPDATE_INFO_COLUMN_REPO_ID,
-        AUTO_UPDATE_INFO_COLUMN_REPO_NAME,
-        AUTO_UPDATE_INFO_COLUMN_PARENT_DIR,
-        AUTO_UPDATE_INFO_COLUMN_LOCAL_PATH,
-        AUTO_UPDATE_INFO_COLUMN_VERSION,};
+            AUTO_UPDATE_INFO_COLUMN_ACCOUNT,
+            AUTO_UPDATE_INFO_COLUMN_REPO_ID,
+            AUTO_UPDATE_INFO_COLUMN_REPO_NAME,
+            AUTO_UPDATE_INFO_COLUMN_PARENT_DIR,
+            AUTO_UPDATE_INFO_COLUMN_LOCAL_PATH,
+            AUTO_UPDATE_INFO_COLUMN_VERSION,};
 
     // Use only single dbHelper to prevent multi-thread issue and db is closed exception
     // Reference
@@ -165,9 +165,9 @@ public class MonitorDBHelper extends SQLiteOpenHelper {
     }
 
     private Map<String, Account> getAllAccounts() {
-        AccountManager accountMgr = new AccountManager(SeadroidApplication.getAppContext());
         Map<String, Account> accounts = Maps.newHashMap();
-        for (Account account : accountMgr.getAccountList()) {
+        List<Account> list = SupportAccountManager.getInstance().getAccountList();
+        for (Account account : list) {
             accounts.put(account.getSignature(), account);
         }
 

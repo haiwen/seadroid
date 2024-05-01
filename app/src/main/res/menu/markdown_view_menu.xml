@@ -3,9 +3,10 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <item android:id="@+id/edit_markdown"
+    <item
+        android:id="@+id/edit_markdown"
+        android:icon="@drawable/baseline_edit_24"
+        android:title="@string/edit"
         android:visible="true"
-        android:title="Edit"
-        android:icon="@drawable/action_rename"
-        app:showAsAction="always"/>
+        app:showAsAction="always" />
 </menu>

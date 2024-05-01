@@ -1,0 +1,138 @@
+package com.seafile.seadroid2.framework.notification.base;
+
+import static android.app.PendingIntent.FLAG_IMMUTABLE;
+
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
+import android.os.Build;
+
+import androidx.activity.contextaware.ContextAware;
+import androidx.annotation.RequiresApi;
+import androidx.core.app.NotificationCompat;
+import androidx.core.content.ContextCompat;
+
+import com.seafile.seadroid2.R;
+
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
+public abstract class BaseNotification {
+    private final int REQ_CODE = 1;
+    private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+    private NotificationCompat.Builder builder;
+    private final NotificationManager notificationManager;
+    protected Context context;
+    private long last_time = 0;
+
+
+    public abstract String getChannelId();
+
+    public abstract int getMaxProgress();
+
+    private boolean hasPermission = true;
+
+    public BaseNotification(Context context) {
+        this.context = context;
+
+        notificationManager = context.getSystemService(NotificationManager.class);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            int i = ContextCompat.checkSelfPermission(context, android.Manifest.permission.POST_NOTIFICATIONS);
+            hasPermission = i == android.content.pm.PackageManager.PERMISSION_GRANTED;
+        }
+
+
+        init();
+    }
+
+    private void init() {
+        builder = new NotificationCompat.Builder(context, getChannelId())
+                .setSmallIcon(R.drawable.icon);
+
+        if (getMaxProgress() > 0) {
+            builder.setOnlyAlertOnce(true);
+            builder.setOngoing(true);
+            builder.setProgress(getMaxProgress(), 0, false);
+            builder.setCategory(NotificationCompat.CATEGORY_PROGRESS);
+        } else {
+            builder.setOnlyAlertOnce(true);
+            builder.setPriority(NotificationCompat.PRIORITY_HIGH);
+            builder.setOngoing(false);
+            builder.setAutoCancel(true);
+            builder.setCategory(NotificationCompat.CATEGORY_RECOMMENDATION);
+            builder.setSilent(false);
+        }
+    }
+
+
+    public void showNotification(int nid, String title, String content, Intent intent) {
+        if (!hasPermission) {
+            return;
+        }
+
+        builder.setContentTitle(title);
+        builder.setContentText(content);
+
+        if (null == intent) {
+            builder.setContentIntent(null);
+        } else {
+            PendingIntent pendingIntent = PendingIntent.getActivity(context,
+                    REQ_CODE,
+                    intent,
+                    FLAG_IMMUTABLE);
+            builder.setContentIntent(pendingIntent);
+        }
+
+        notificationManager.notify(nid, builder.build());
+    }
+
+    public void notifyProgress(int nid, String title, String subTitle, int percent, Intent intent) {
+        if (!hasPermission) {
+            return;
+        }
+
+        long now = System.currentTimeMillis();
+        if (now - last_time < 1000) {
+            return;
+        }
+        last_time = now;
+
+        builder.setProgress(getMaxProgress(), percent, false);
+
+        String progressStr = context.getString(R.string.notification_upload_upload_in_progress);
+        String text = String.format(progressStr, percent, subTitle);
+
+        showNotification(nid, title, text, intent);
+    }
+
+
+    ////////////////
+    /// cancel
+    ////////////////
+    public void cancel(int nid) {
+        cancel(nid, 0);
+    }
+
+    /**
+     * Delay for a while before cancel notification in order user can see the result
+     */
+    public void cancel(int nid, long delayInMillis) {
+        if (delayInMillis <= 0) {
+            notificationManager.cancel(nid);
+        } else {
+            executorService.schedule(() -> {
+                try {
+                    if (notificationManager != null) {
+                        notificationManager.cancel(nid);
+                    }
+                } catch (Exception e) {
+                    System.err.println("Failed to cancel notification with ID " + nid + ": " + e.getMessage());
+                }
+            }, delayInMillis, TimeUnit.MILLISECONDS);
+        }
+    }
+
+}

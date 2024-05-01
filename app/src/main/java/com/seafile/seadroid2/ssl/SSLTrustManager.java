@@ -40,11 +40,9 @@ public final class SSLTrustManager {
 
     private X509TrustManager defaultTrustManager;
 
-    private Map<Account, SecureX509TrustManager> managers =
-            Maps.newHashMap();
+    private Map<Account, SecureX509TrustManager> managers = Maps.newHashMap();
 
-    private Map<Account, SSLSocketFactory> cachedFactories =
-            Maps.newHashMap();
+    private Map<Account, SSLSocketFactory> cachedFactories = Maps.newHashMap();
 
     private static SSLTrustManager instance;
 

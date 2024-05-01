@@ -1,47 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:background="?android:selectableItemBackground"
-              android:orientation="horizontal"
-              android:gravity="center_horizontal"
-              android:padding="0dp">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?android:selectableItemBackground"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingHorizontal="16dp">
 
-    <ImageView
+    <RelativeLayout
+        android:id="@+id/container"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:paddingVertical="8dp">
+
+        <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/list_item_account_icon"
             android:layout_width="@dimen/lv_act_icon_width"
             android:layout_height="@dimen/lv_act_icon_height"
-            android:layout_marginTop="@dimen/lv_act_icon_margin_top"
-            android:layout_marginRight="@dimen/lv_act_icon_margin_right"
-            android:layout_marginEnd="@dimen/lv_act_icon_margin_right"
-            android:src="@drawable/default_account"/>
-
-    <LinearLayout
-            android:layout_width="@dimen/lv_act_title_group_width"
-            android:layout_height="@dimen/lv_act_title_group_height"
-            android:orientation="vertical"
-            >
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="8dp"
+            android:src="@drawable/default_avatar"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:shapeAppearance="@style/ShapeCircleStyle" />
 
         <TextView
-                android:id="@+id/list_item_account_title"
-                android:layout_width="wrap_content"
-                android:layout_height="@dimen/lv_act_title_height"
-                android:lines="1"
-                android:layout_marginTop="@dimen/lv_act_title_margin_top"
-                android:singleLine="true"
-                android:text="Titel"
-                android:textColor="@color/light_black"
-                android:textSize="@dimen/lv_act_title_txt_size"/>
+            android:id="@+id/list_item_account_title"
+            style="@style/ListItemTitleStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/lv_act_title_height"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="@dimen/lv_act_title_margin_top"
+            android:layout_toEndOf="@+id/list_item_account_icon" />
 
         <TextView
-                android:id="@+id/list_item_account_subtitle"
-                android:layout_width="wrap_content"
-                android:layout_height="@dimen/lv_act_subtitle_height"
-                android:layout_marginTop="@dimen/lv_act_subtitle_margin_top"
-                android:layout_marginBottom="@dimen/lv_act_subtitle_margin_bottom"
-                android:lines="1"
-                android:text="Subtitle"
-                android:textColor="@color/light_grey"
-                android:textSize="@dimen/lv_act_subtitle_txt_size"/>
-    </LinearLayout>
+            android:id="@+id/list_item_account_subtitle"
+            style="@style/ListItemSubTitleStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/lv_act_subtitle_height"
+            android:layout_below="@+id/list_item_account_title"
+            android:layout_marginTop="@dimen/lv_act_subtitle_margin_top"
+            android:layout_marginBottom="@dimen/lv_act_subtitle_margin_bottom"
+            android:layout_toEndOf="@+id/list_item_account_icon" />
+    </RelativeLayout>
+
+    <ImageView
+        android:id="@+id/item_select_view"
+        android:layout_width="@dimen/lv_act_icon_width"
+        android:layout_height="@dimen/lv_act_icon_width"
+        android:padding="12dp"
+        android:src="@drawable/cuc_repo_selected"
+        android:visibility="invisible" />
 </LinearLayout>

@@ -20,10 +20,11 @@ package com.seafile.seadroid2.provider;
 import android.content.Context;
 
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.account.AccountManager;
-import com.seafile.seadroid2.util.Utils;
+import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.framework.util.Utils;
 
 import java.io.FileNotFoundException;
+import java.util.List;
 
 /**
  * Helper class to create and parse DocumentIds for the DocumentProvider
@@ -43,14 +44,6 @@ public class DocumentIdParser {
     private static final String STARRED_FILE_REPO_ID = "starred-file-magic-repo";
     private static final String ROOT_REPO_ID = "root-magic-repo";
 
-    Context context;
-    AccountManager manager;
-
-    public DocumentIdParser(Context context) {
-        this.context = context;
-        this.manager = new AccountManager(context);
-    }
-
     /**
      * Extract the Seafile account from the documentId
      *
@@ -58,11 +51,14 @@ public class DocumentIdParser {
      * @return the corresponding Account
      * @throws java.io.FileNotFoundException if the documentId is bogus or the account doesn't exist
      */
-    public Account getAccountFromId(String documentId) throws FileNotFoundException {
+    public static Account getAccountFromId(String documentId) throws FileNotFoundException {
         String[] list = documentId.split(DOC_SEPERATOR, 2);
         if (list.length > 0) {
             String server = list[0];
-            for (Account a: manager.getAccountList()) {
+
+            //TODO test it.
+            List<Account> accounts = SupportAccountManager.getInstance().getAccountList();
+            for (Account a: accounts) {
                 if (a.getSignature().equals(server)) {
                     return a;
                 }

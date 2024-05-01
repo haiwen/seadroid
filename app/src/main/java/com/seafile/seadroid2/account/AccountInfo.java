@@ -1,33 +1,42 @@
 package com.seafile.seadroid2.account;
 
-import com.seafile.seadroid2.util.Utils;
+import com.seafile.seadroid2.framework.util.Utils;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
  * This class used to manage Account information
- *
  */
 public class AccountInfo {
-    private static final String DEBUG_TAG = "AccountInfo";
-
     public static final String SPACE_USAGE_SEPERATOR = " / ";
     private long usage;
     private long total;
     private String email;
     private String server;
+    private String avatar_url;
     private String name;
+    private String space_usage;// "6.0382327%"
+//    private String login_id;
+//    private String department;
+//    private String contact_email;
+//    private String institution;
+//    private boolean is_staff;
+//    private int file_updates_email_interval;
+//    private int collaborate_email_interval;
 
-    private AccountInfo() {}
+    private AccountInfo() {
+    }
 
-    public static  AccountInfo fromJson(JSONObject accountInfo, String server) throws JSONException {
+    public static AccountInfo fromJson(JSONObject accountInfo, String server) throws JSONException {
         AccountInfo info = new AccountInfo();
         info.server = server;
         info.usage = accountInfo.getLong("usage");
         info.total = accountInfo.getLong("total");
         info.email = accountInfo.getString("email");
         info.name = accountInfo.optString("name");
-
+        info.avatar_url = accountInfo.optString("avatar_url");
+        info.space_usage = accountInfo.optString("space_usage");
         return info;
     }
 
@@ -47,8 +56,22 @@ public class AccountInfo {
         return server;
     }
 
+    public String getServerHost() {
+        String s = server.substring(server.indexOf("://") + 3);
+        return s.substring(0, s.indexOf('/'));
+    }
+
     public String getName() {
         return name;
+    }
+
+    public String getDisplayName() {
+        String server = Utils.stripSlashes(getServerHost());
+        return Utils.assembleUserName(name, email, server);
+    }
+
+    public void setServer(String server) {
+        this.server = server;
     }
 
     public String getSpaceUsed() {
@@ -57,4 +80,20 @@ public class AccountInfo {
         return strUsage + SPACE_USAGE_SEPERATOR + strTotal;
     }
 
+    public String getAvatarUrl() {
+        return avatar_url;
+    }
+
+    @Override
+    public String toString() {
+        return "AccountInfo{" +
+                "usage=" + usage +
+                ", total=" + total +
+                ", email='" + email + '\'' +
+                ", server='" + server + '\'' +
+                ", avatar_url='" + avatar_url + '\'' +
+                ", name='" + name + '\'' +
+                ", space_usage='" + space_usage + '\'' +
+                '}';
+    }
 }

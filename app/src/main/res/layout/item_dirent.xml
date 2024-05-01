@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?android:selectableItemBackground"
+    android:paddingStart="8dp"
+    android:paddingEnd="16dp">
+
+    <ImageView
+        android:id="@+id/item_multi_select"
+        android:layout_width="@dimen/lv_multi_select_width"
+        android:layout_height="@dimen/lv_multi_select_height"
+        android:layout_alignParentStart="true"
+        android:layout_centerInParent="true"
+        android:paddingVertical="4dp"
+        android:src="@drawable/list_item_download_finished"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/item_icon"
+        android:layout_width="@dimen/lv_icon_width"
+        android:layout_height="@dimen/lv_icon_width"
+        android:padding="8dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/icon_file_video_colorful"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/item_multi_select"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:id="@+id/title_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="vertical"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/expandable_toggle_button"
+        app:layout_constraintStart_toEndOf="@+id/item_icon"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/item_title"
+            style="@style/ListItemTitleStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="@string/app_name" />
+
+        <LinearLayout
+            android:id="@+id/item_subtitle_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:ellipsize="end"
+            android:gravity="center_vertical"
+            android:maxLines="1"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/item_download_status"
+                android:layout_width="@dimen/lv_download_icon_width"
+                android:layout_height="@dimen/lv_download_icon_height"
+                android:layout_marginEnd="@dimen/lv_download_icon_margin_right"
+                android:contentDescription="@null"
+                android:src="@drawable/list_item_download_finished"
+                android:visibility="visible" />
+
+            <ProgressBar
+                android:id="@+id/item_download_status_progressbar"
+                android:layout_width="@dimen/lv_download_icon_width"
+                android:layout_height="@dimen/lv_download_icon_height"
+                android:layout_marginEnd="@dimen/lv_download_icon_margin_right"
+                android:visibility="visible" />
+
+            <TextView
+                android:id="@+id/item_subtitle"
+                style="@style/ListItemSubTitleStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                tools:text="@string/app_name" />
+        </LinearLayout>
+    </LinearLayout>
+
+
+    <FrameLayout
+        android:id="@+id/expandable_toggle_button"
+        android:layout_width="@dimen/lv_iv_action_width"
+        android:layout_height="@dimen/lv_item_height"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:foreground="?selectableItemBackground"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:layout_width="@dimen/lv_iv_action_width"
+            android:layout_height="@dimen/lv_item_height"
+            android:layout_gravity="end|bottom"
+            android:src="@drawable/baseline_expandable_24" />
+    </FrameLayout>
+
+
+    <com.google.android.material.divider.MaterialDivider
+        android:id="@+id/divider"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:dividerColor="@color/divider_color"
+        app:dividerInsetStart="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+</androidx.constraintlayout.widget.ConstraintLayout>

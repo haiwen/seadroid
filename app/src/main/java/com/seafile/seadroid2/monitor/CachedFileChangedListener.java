@@ -1,7 +1,7 @@
 package com.seafile.seadroid2.monitor;
 
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.data.SeafCachedFile;
+import com.seafile.seadroid2.framework.data.SeafCachedFile;
 
 import java.io.File;
 
