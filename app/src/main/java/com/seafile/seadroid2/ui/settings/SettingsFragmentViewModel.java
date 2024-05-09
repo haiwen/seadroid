@@ -75,7 +75,7 @@ public class SettingsFragmentViewModel extends BaseViewModel {
 
                 accountInfo.setServer(IO.getInstanceWithLoggedIn().getServerUrl());
 
-                ServerInfo serverInfo1 = new ServerInfo(account.server, serverInfoModel.version, serverInfoModel.getFeaturesString());
+                ServerInfo serverInfo1 = new ServerInfo(account.server, serverInfoModel.version, serverInfoModel.getFeaturesString(), serverInfoModel.encrypted_library_version);
                 SupportAccountManager.getInstance().setServerInfo(account, serverInfo1);
                 return accountInfo;
             }

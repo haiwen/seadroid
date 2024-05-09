@@ -3,6 +3,7 @@ package com.seafile.seadroid2.ui.account;
 import android.accounts.AccountManagerCallback;
 import android.accounts.AccountManagerFuture;
 import android.accounts.OnAccountsUpdateListener;
+import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,9 +17,12 @@ import android.widget.ListView;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.widget.Toolbar;
+import androidx.lifecycle.Observer;
 
 import com.blankj.utilcode.util.AppUtils;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.framework.data.ServerInfo;
 import com.seafile.seadroid2.framework.datastore.sp.AppDataManager;
 import com.seafile.seadroid2.listener.OnCallback;
 import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
@@ -81,8 +85,6 @@ public class AccountsActivity extends BaseActivityWithVM<AccountViewModel> imple
         setContentView(R.layout.start);
 
 
-        initOnBackPressedDispatcher();
-
         mAccountManager = android.accounts.AccountManager.get(this);
 
         accounts = SupportAccountManager.getInstance().getAccountList();
@@ -125,6 +127,10 @@ public class AccountsActivity extends BaseActivityWithVM<AccountViewModel> imple
 
         getSupportActionBar().setTitle(R.string.accounts);
 
+
+        initOnBackPressedDispatcher();
+        initViewModel();
+
         String country = Locale.getDefault().getCountry();
         String language = Locale.getDefault().getLanguage();
 
@@ -132,6 +138,7 @@ public class AccountsActivity extends BaseActivityWithVM<AccountViewModel> imple
         if (country.equals("CN") && language.equals("zh") && (privacyPolicyConfirmed == 0)) {
             showDialog();
         }
+
     }
 
     private void initOnBackPressedDispatcher() {
@@ -150,6 +157,39 @@ public class AccountsActivity extends BaseActivityWithVM<AccountViewModel> imple
         });
     }
 
+    private void initViewModel() {
+        getViewModel().getRefreshLiveData().observe(this, new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+                if (aBoolean) {
+                    showProgressDialog();
+                } else {
+                    dismissProgressDialog();
+                }
+            }
+        });
+
+        getViewModel().getServerInfoLiveData().observe(this, new Observer<ServerInfo>() {
+            @Override
+            public void onChanged(ServerInfo serverInfo) {
+//                if (serverInfo != null) {
+//
+//                }
+                Account account = SupportAccountManager.getInstance().getCurrentAccount();
+
+                //switch account
+                getViewModel().switchAccount(account);
+
+                //start main
+                Intent intent = new Intent(AccountsActivity.this, MainActivity.class);
+                // first finish this activity, so the BrowserActivity is again "on top"
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+                finish();
+            }
+        });
+    }
+
     private void onListItemClick(int position) {
         Account account = accounts.get(position);
         if (!account.hasValidToken()) {
@@ -158,6 +198,28 @@ public class AccountsActivity extends BaseActivityWithVM<AccountViewModel> imple
         } else {
             SupportAccountManager.getInstance().saveCurrentAccount(account.getSignature());
             startFilesActivity();
+        }
+    }
+
+    private Dialog dialog;
+
+    private void showProgressDialog() {
+
+        if (dialog == null) {
+            MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
+            builder.setView(R.layout.layout_dialog_progress_bar);
+            dialog = builder.create();
+        }
+
+        if (dialog.isShowing()) {
+            dialog.dismiss();
+        }
+        dialog.show();
+    }
+
+    private void dismissProgressDialog() {
+        if (dialog != null) {
+            dialog.dismiss();
         }
     }
 
@@ -217,25 +279,15 @@ public class AccountsActivity extends BaseActivityWithVM<AccountViewModel> imple
 
         adapter.notifyChanged();
 
-        // if the user switched default account while we were in background,
-        // switch to BrowserActivity
-        if (newCurrentAccount != null && !newCurrentAccount.equals(currentDefaultAccount)) {
-            startFilesActivity();
-        }
+//        // if the user switched default account while we were in background,
+//        // switch to BrowserActivity
+//        if (newCurrentAccount != null && !newCurrentAccount.equals(currentDefaultAccount)) {
+//            startFilesActivity();
+//        }
     }
 
     private void startFilesActivity() {
-        Account account = SupportAccountManager.getInstance().getCurrentAccount();
-
-        //switch account
-        getViewModel().switchAccount(account);
-
-        //start main
-        Intent intent = new Intent(AccountsActivity.this, MainActivity.class);
-        // first finish this activity, so the BrowserActivity is again "on top"
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
-        finish();
+        getViewModel().getServerInfo();
     }
 
     private void startEditAccountActivity(Account account) {

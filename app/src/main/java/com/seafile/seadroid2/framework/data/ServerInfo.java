@@ -13,22 +13,32 @@ import org.json.JSONObject;
 /**
  * Value type that represents a ServerInfo.
  */
-public class ServerInfo implements Parcelable{
+public class ServerInfo implements Parcelable {
 
     private String url;
     private String version;
     private String features;
+    private String encrypted_library_version;
 
-    public ServerInfo(String url, String version, String features) {
+    public ServerInfo(String url, String version, String features, String encrypted_library_version) {
         this.url = url;
         this.version = version;
         this.features = features;
+        this.encrypted_library_version = encrypted_library_version;
     }
 
     protected ServerInfo(Parcel in) {
         url = in.readString();
         version = in.readString();
         features = in.readString();
+    }
+
+    public String getEncrypted_library_version() {
+        return encrypted_library_version;
+    }
+
+    public void setEncrypted_library_version(String encrypted_library_version) {
+        this.encrypted_library_version = encrypted_library_version;
     }
 
     public static final Creator<ServerInfo> CREATOR = new Creator<ServerInfo>() {
@@ -44,7 +54,6 @@ public class ServerInfo implements Parcelable{
     };
 
     /**
-     *
      * @return Server version. Might be null
      */
     public String getVersion() {
@@ -52,7 +61,6 @@ public class ServerInfo implements Parcelable{
     }
 
     /**
-     *
      * @return Server features. Might be null
      */
     public String getFeatures() {
@@ -68,7 +76,7 @@ public class ServerInfo implements Parcelable{
     }
 
     public boolean canLocalDecrypt() {
-        if (TextUtils.isEmpty(version) )
+        if (TextUtils.isEmpty(version))
             return false;
 
         final String realVersion = version.replaceAll("[.]", "");
@@ -84,7 +92,8 @@ public class ServerInfo implements Parcelable{
     public static ServerInfo fromJson(JSONObject obj, String server) throws JSONException {
         String version = obj.optString("version");
         String features = obj.optString("features");
-        ServerInfo serverInfo = new ServerInfo(server, version, features);
+        String encrypted_library_version = obj.optString("encrypted_library_version");
+        ServerInfo serverInfo = new ServerInfo(server, version, features, encrypted_library_version);
         // raw data goes like "features":["seafile-basic","seafile-pro","office-preview","file-search"]
         return serverInfo;
     }
@@ -101,7 +110,7 @@ public class ServerInfo implements Parcelable{
         if (obj == null || (obj.getClass() != this.getClass()))
             return false;
 
-        ServerInfo si = (ServerInfo)obj;
+        ServerInfo si = (ServerInfo) obj;
         if (si.url == null || si.version == null || si.features == null)
             return false;
 

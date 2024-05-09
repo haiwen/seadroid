@@ -57,7 +57,7 @@ public class IO extends BaseIO {
 
                 Account currentAccount = SupportAccountManager.getInstance().getCurrentAccount();
                 if (currentAccount == null) {
-                    throw new IllegalStateException("No current account");
+                    throw new IllegalStateException("IO: No current account");
                 }
 
                 SLogs.d(currentAccount.toString());

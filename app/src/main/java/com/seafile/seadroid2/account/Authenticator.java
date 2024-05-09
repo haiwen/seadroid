@@ -56,6 +56,7 @@ public class Authenticator extends AbstractAccountAuthenticator {
      * Key of Server version in userData
      */
     public static final String KEY_SERVER_VERSION = "version";
+    public static final String KEY_SERVER_ENCRYPTED_VERSION = "encrypted_library_version";
 
     /**
      * Key of Server Feature-list in userData

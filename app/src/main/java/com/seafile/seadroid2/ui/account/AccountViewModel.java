@@ -13,7 +13,9 @@ import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountInfo;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.framework.data.ServerInfo;
 import com.seafile.seadroid2.framework.data.model.TokenModel;
+import com.seafile.seadroid2.framework.data.model.server.ServerInfoModel;
 import com.seafile.seadroid2.framework.datastore.DataStoreManager;
 import com.seafile.seadroid2.framework.datastore.sp.AlbumBackupManager;
 import com.seafile.seadroid2.framework.datastore.sp.FolderBackupManager;
@@ -26,6 +28,7 @@ import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
 import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
 import com.seafile.seadroid2.ui.dialog_fragment.SignOutDialogFragment;
+import com.seafile.seadroid2.ui.main.MainService;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,7 +36,9 @@ import java.util.Map;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
+import io.reactivex.SingleSource;
 import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
 import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.HttpException;
@@ -43,6 +48,11 @@ public class AccountViewModel extends BaseViewModel {
     private MutableLiveData<Account> mAccountLiveData = new MutableLiveData<>();
     private MutableLiveData<AccountInfo> mAccountInfoLiveData = new MutableLiveData<>();
     private final MutableLiveData<Pair<Account, SeafException>> AccountSeafExceptionLiveData = new MutableLiveData<>();
+    private final MutableLiveData<ServerInfo> ServerInfoLiveData = new MutableLiveData<>();
+
+    public MutableLiveData<ServerInfo> getServerInfoLiveData() {
+        return ServerInfoLiveData;
+    }
 
     public MutableLiveData<Pair<Account, SeafException>> getAccountSeafExceptionLiveData() {
         return AccountSeafExceptionLiveData;
@@ -83,7 +93,7 @@ public class AccountViewModel extends BaseViewModel {
         });
     }
 
-    public void login(Account tempAccount, String pwd, String token, boolean isRememberDevice) {
+    public void login(Account tempAccount, String pwd, String authToken, boolean isRememberDevice) {
         getRefreshLiveData().setValue(true);
 
         Single<Account> single = Single.create(new SingleOnSubscribe<Account>() {
@@ -92,11 +102,11 @@ public class AccountViewModel extends BaseViewModel {
 
                 //the SYNC way
 
-                Call<TokenModel> call = getLoginCall(tempAccount, pwd, token, isRememberDevice);
+                Call<TokenModel> call = getLoginCall(tempAccount, pwd, authToken, isRememberDevice);
                 Response<TokenModel> response = call.execute();
                 if (!response.isSuccessful()) {
                     HttpException httpException = new HttpException(response);
-                    throw getExceptionByThrowable(httpException);
+                    throw getExceptionByThrowableForLogin(httpException, !TextUtils.isEmpty(authToken));
                 }
 
                 String s2fa = response.headers().get("x-seafile-s2fa");
@@ -190,6 +200,34 @@ public class AccountViewModel extends BaseViewModel {
         Map<String, RequestBody> requestBody = generateRequestBody(body);
 
         return IO.getInstanceByAccount(tempAccount).execute(AccountService.class).login(headers, requestBody);
+    }
+
+    public void getServerInfo() {
+        getRefreshLiveData().setValue(true);
+
+        Single<ServerInfoModel> serverSingle = IO.getInstanceWithLoggedIn().execute(MainService.class).getServerInfo();
+        addSingleDisposable(serverSingle, new Consumer<ServerInfoModel>() {
+            @Override
+            public void accept(ServerInfoModel serverInfoModel) throws Exception {
+
+                Account account = SupportAccountManager.getInstance().getCurrentAccount();
+                if (account == null) {
+                    return;
+                }
+
+                ServerInfo serverInfo1 = new ServerInfo(account.server, serverInfoModel.version, serverInfoModel.getFeaturesString(), serverInfoModel.encrypted_library_version);
+                SupportAccountManager.getInstance().setServerInfo(account, serverInfo1);
+
+                getRefreshLiveData().setValue(false);
+                getServerInfoLiveData().setValue(serverInfo1);
+            }
+        }, new Consumer<Throwable>() {
+            @Override
+            public void accept(Throwable throwable) throws Exception {
+                getRefreshLiveData().setValue(false);
+                getServerInfoLiveData().setValue(null);
+            }
+        });
     }
 
     /**

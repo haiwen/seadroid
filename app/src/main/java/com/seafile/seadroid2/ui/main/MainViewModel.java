@@ -134,7 +134,7 @@ public class MainViewModel extends BaseViewModel {
                     return;
                 }
 
-                ServerInfo serverInfo1 = new ServerInfo(account.server, serverInfo.version, serverInfo.getFeaturesString());
+                ServerInfo serverInfo1 = new ServerInfo(account.server, serverInfo.version, serverInfo.getFeaturesString(),serverInfo.encrypted_library_version);
                 SupportAccountManager.getInstance().setServerInfo(account, serverInfo1);
 
                 getServerInfoLiveData().setValue(serverInfo1);

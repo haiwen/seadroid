@@ -506,7 +506,6 @@ public class MainActivity extends BaseActivity implements Toolbar.OnMenuItemClic
             return false;
 
         ServerInfo serverInfo = SupportAccountManager.getInstance().getServerInfo(curAccount);
-
         return serverInfo.isSearchEnabled();
     }
 

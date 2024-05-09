@@ -419,17 +419,17 @@ public class AccountDetailActivity extends BaseActivityWithVM<AccountViewModel> 
             return;
         }
 
-        if (serverURL.length() == 0) {
+        if (serverURL.isEmpty()) {
             mStatusTv.setText(R.string.err_server_andress_empty);
             return;
         }
 
-        if (email.length() == 0) {
+        if (email.isEmpty()) {
             mEmailEt.setError(getResources().getString(R.string.err_email_empty));
             return;
         }
 
-        if (passwd.length() == 0) {
+        if (passwd.isEmpty()) {
             mPasswdEt.setError(getResources().getString(R.string.err_passwd_empty));
             return;
         }
@@ -476,6 +476,9 @@ public class AccountDetailActivity extends BaseActivityWithVM<AccountViewModel> 
             dialog = builder.create();
         }
 
+        if (dialog.isShowing()) {
+            dialog.dismiss();
+        }
         dialog.show();
     }
 

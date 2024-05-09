@@ -40,9 +40,12 @@ import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 import kotlin.Pair;
+import okhttp3.Headers;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
 import retrofit2.HttpException;
+import retrofit2.Response;
 
 public class BaseViewModel extends ViewModel {
     private final MutableLiveData<Boolean> RefreshLiveData = new MutableLiveData<>(false);
@@ -201,7 +204,6 @@ public class BaseViewModel extends ViewModel {
         }
     }
 
-    //TODO 优化异常返回
     public SeafException getExceptionByThrowable(Throwable throwable) throws IOException {
         if (throwable == null) {
             return SeafException.unknownException;
@@ -212,17 +214,23 @@ public class BaseViewModel extends ViewModel {
         } else if (throwable instanceof HttpException) {
             HttpException httpException = (HttpException) throwable;
 
-            //401
-            if (HttpURLConnection.HTTP_UNAUTHORIZED == httpException.code()) {
-                String wiped = httpException.response().headers().get("X-Seafile-Wiped");
+            Response<?> resp = httpException.response();
+
+            if (resp != null) {
+                String wiped = resp.headers().get("X-Seafile-Wiped");
                 if (!TextUtils.isEmpty(wiped)) {
                     return SeafException.remoteWipedException;
                 }
             }
 
+            //401
+            if (HttpURLConnection.HTTP_UNAUTHORIZED == httpException.code()) {
+                return SeafException.notLoggedInException;
+            }
+
+
             //504
             if (HttpURLConnection.HTTP_GATEWAY_TIMEOUT == httpException.code()) {
-
                 if (NetworkUtils.isConnected()) {
                     ToastUtils.showLong(R.string.transfer_list_network_error);
                 } else {
@@ -247,29 +255,39 @@ public class BaseViewModel extends ViewModel {
                 return SeafException.invalidPassword;
             }
 
-            try {
-                String result = httpException.response().errorBody().string();
-                if (TextUtils.isEmpty(result)) {
-                    return SeafException.unknownException;
-                }
-
-                JSONObject json = Utils.parseJsonObject(result);
-                if (json.has("detail")) {
-                    return new SeafException(httpException.code(), json.optString("detail"));
-                }
-
-                if (json.has("error_msg")) {
-                    String errorMsg = json.optString("error_msg");
-                    if (TextUtils.equals("Wrong password", errorMsg)) {
-                        return SeafException.invalidPassword;
+            if (resp != null) {
+                try {
+                    ResponseBody body = resp.errorBody();
+                    if (body == null) {
+                        return SeafException.unknownException;
                     }
-                    return new SeafException(httpException.code(), json.optString("error_msg"));
-                }
 
-                return new SeafException(httpException.code(), result);
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
+                    String result = body.string();
+                    if (TextUtils.isEmpty(result)) {
+                        return SeafException.unknownException;
+                    }
+
+                    JSONObject json = Utils.parseJsonObject(result);
+
+                    if (json.has("error_msg")) {
+                        String errorMsg = json.optString("error_msg");
+                        if (TextUtils.equals("Wrong password", errorMsg)) {
+                            return SeafException.invalidPassword;
+                        }
+                        return new SeafException(httpException.code(), json.optString("error_msg"));
+                    }
+
+                    if (json.has("detail")) {
+                        return new SeafException(httpException.code(), json.optString("detail"));
+                    }
+
+                    return new SeafException(httpException.code(), result);
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
             }
+
+
         } else if (throwable instanceof SSLHandshakeException) {
             SSLHandshakeException sslHandshakeException = (SSLHandshakeException) throwable;
             SLogs.e(sslHandshakeException.getMessage());
@@ -281,6 +299,32 @@ public class BaseViewModel extends ViewModel {
         }
 
         return SeafException.unknownException;
+    }
+
+
+    public SeafException getExceptionByThrowableForLogin(Throwable throwable, boolean withAuthToken) throws IOException {
+        if (throwable == null) {
+            return SeafException.unknownException;
+        }
+
+        if (throwable instanceof HttpException) {
+            HttpException httpException = (HttpException) throwable;
+
+            Response<?> resp = httpException.response();
+
+            if (resp != null) {
+                String otp = resp.headers().get("X-Seafile-OTP");
+                if ("required".equals(otp)) {
+                    if (withAuthToken) {
+                        return SeafException.twoFactorAuthTokenInvalid;
+                    } else {
+                        return SeafException.twoFactorAuthTokenMissing;
+                    }
+                }
+            }
+        }
+
+        return getExceptionByThrowable(throwable);
     }
 
     public String getErrorMsgByThrowable(Throwable throwable) {

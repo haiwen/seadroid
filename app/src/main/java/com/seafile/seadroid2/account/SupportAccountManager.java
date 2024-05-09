@@ -135,15 +135,6 @@ public class SupportAccountManager {
         return new Account(name, server, email, avatarUrl, token, isShib, sessionKey, loginTime);
     }
 
-    public void setServerInfo(Account account, ServerInfo serverInfo) {
-        setUserData(account.getAndroidAccount(), Authenticator.KEY_SERVER_URI, serverInfo.getUrl());
-        setUserData(account.getAndroidAccount(), Authenticator.KEY_SERVER_VERSION, serverInfo.getVersion());
-        setUserData(account.getAndroidAccount(), Authenticator.KEY_SERVER_FEATURES, serverInfo.getFeatures());
-    }
-
-    public void setUserData(final android.accounts.Account account, final String key, final String value) {
-        accountManager.setUserData(account, key, value);
-    }
 
     public boolean addAccountExplicitly(android.accounts.Account account, String password, Bundle userdata) {
         return accountManager.addAccountExplicitly(account, password, userdata);
@@ -158,6 +149,18 @@ public class SupportAccountManager {
         accountManager.setAuthToken(account, authTokenType, authToken);
     }
 
+
+    public void setServerInfo(Account account, ServerInfo serverInfo) {
+        setUserData(account.getAndroidAccount(), Authenticator.KEY_SERVER_URI, serverInfo.getUrl());
+        setUserData(account.getAndroidAccount(), Authenticator.KEY_SERVER_VERSION, serverInfo.getVersion());
+        setUserData(account.getAndroidAccount(), Authenticator.KEY_SERVER_ENCRYPTED_VERSION, serverInfo.getEncrypted_library_version());
+        setUserData(account.getAndroidAccount(), Authenticator.KEY_SERVER_FEATURES, serverInfo.getFeatures());
+    }
+
+    public void setUserData(android.accounts.Account account, String key, String value) {
+        accountManager.setUserData(account, key, value);
+    }
+
     public String getUserData(final android.accounts.Account account, final String key) {
         return accountManager.getUserData(account, key);
     }
@@ -169,10 +172,11 @@ public class SupportAccountManager {
      */
     @NonNull
     public ServerInfo getServerInfo(Account account) {
-        String server = accountManager.getUserData(account.getAndroidAccount(), Authenticator.KEY_SERVER_URI);
-        String version = accountManager.getUserData(account.getAndroidAccount(), Authenticator.KEY_SERVER_VERSION);
-        String features = accountManager.getUserData(account.getAndroidAccount(), Authenticator.KEY_SERVER_FEATURES);
-        return new ServerInfo(server, version, features);
+        String server = getUserData(account.getAndroidAccount(), Authenticator.KEY_SERVER_URI);
+        String version = getUserData(account.getAndroidAccount(), Authenticator.KEY_SERVER_VERSION);
+        String features = getUserData(account.getAndroidAccount(), Authenticator.KEY_SERVER_FEATURES);
+        String encrypted_library_version = getUserData(account.getAndroidAccount(), Authenticator.KEY_SERVER_ENCRYPTED_VERSION);
+        return new ServerInfo(server, version, features, encrypted_library_version);
     }
 
 
