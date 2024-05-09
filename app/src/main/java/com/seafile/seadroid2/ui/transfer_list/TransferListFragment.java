@@ -88,7 +88,6 @@ public abstract class TransferListFragment extends BaseFragment {
 
         initViewModel();
 
-
         loadData();
     }
 
@@ -144,7 +143,6 @@ public abstract class TransferListFragment extends BaseFragment {
 
         getViewModel().getFileTransferEntitiesLiveData().observe(getViewLifecycleOwner(), this::notifyDataChanged);
     }
-
 
     public void showBottomSheet(FileTransferEntity entity) {
         int rid = R.menu.bottom_sheet_op_transfer_list;
@@ -341,30 +339,21 @@ public abstract class TransferListFragment extends BaseFragment {
                 return true;
             }
 
-            switch (item.getItemId()) {
-                case R.id.action_mode_delete: {
-                    deleteSelectedItems(selectedList);
-                    cancelSelectItems();
+            if (item.getItemId() == R.id.action_mode_delete) {
+                deleteSelectedItems(selectedList);
+                cancelSelectItems();
+            } else if (item.getItemId() == R.id.action_mode_restart) {
+                restartSelectedItems(selectedList);
+                cancelSelectItems();
+            } else if (item.getItemId() == R.id.action_mode_select_all) {
+                if (!allItemsSelected) {
+                    adapter.setItemSelected(true);
+                } else {
+                    adapter.setItemSelected(false);
                 }
-                break;
-                case R.id.action_mode_restart: {
-                    restartSelectedItems(selectedList);
-                    cancelSelectItems();
-                }
-                break;
-                case R.id.action_mode_select_all: {
-                    if (!allItemsSelected) {
-                        adapter.setItemSelected(true);
-                    } else {
-                        adapter.setItemSelected(false);
-                    }
-                    updateContextualActionBar();
+                updateContextualActionBar();
 
-                    allItemsSelected = !allItemsSelected;
-                }
-                break;
-                default:
-                    return false;
+                allItemsSelected = !allItemsSelected;
             }
             return true;
         }

@@ -13,7 +13,7 @@
         android:layout_width="@dimen/lv_icon_width"
         android:layout_height="@dimen/lv_icon_width"
         android:padding="8dp"
-        android:src="@drawable/ic_repo_encrypted"
+        android:src="@drawable/baseline_repo_24"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

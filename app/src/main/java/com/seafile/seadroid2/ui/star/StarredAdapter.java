@@ -54,12 +54,12 @@ public class StarredAdapter extends BaseAdapter<StarredModel, StarredViewHolder>
         if (model.is_dir) {
             if (TextUtils.equals(model.path, "/")) {
                 if (model.repo_encrypted) {
-                    holder.binding.itemIcon.setImageResource(R.drawable.ic_repo_encrypted);
+                    holder.binding.itemIcon.setImageResource(R.drawable.baseline_repo_encrypted_24);
                 } else {
-                    holder.binding.itemIcon.setImageResource(R.drawable.ic_repo);
+                    holder.binding.itemIcon.setImageResource(R.drawable.baseline_repo_24);
                 }
             } else {
-                holder.binding.itemIcon.setImageResource(R.drawable.ic_folder);
+                holder.binding.itemIcon.setImageResource(R.drawable.baseline_folder_24);
             }
         } else {
             if (model.deleted || TextUtils.isEmpty(model.encoded_thumbnail_src) || model.repo_encrypted) {

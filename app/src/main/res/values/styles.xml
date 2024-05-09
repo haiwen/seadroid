@@ -2,7 +2,7 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
     <style name="BaseTheme.App.Toolbar" parent="Theme.Material3.Light.NoActionBar">
-        <item name="android:statusBarColor">@color/toolbar_background_color</item>
+        <item name="android:statusBarColor">@color/bar_background_color</item>
         <item name="android:windowLightStatusBar">true</item> <!-- android 6.0+ -->
 
         <!-- action mode -->
@@ -17,6 +17,7 @@
 
         <item name="materialButtonStyle">@style/App.Widget.Button</item>
         <item name="materialAlertDialogTheme">@style/AppCompatAlertDialogStyle</item>
+        <item name="bottomNavigationStyle">@style/App.Widget.BottomNavigationView</item>
 
         <item name="switchStyle">@style/App.Widget.Switch</item>
         <item name="switchPreferenceStyle">@style/App.Preference.Switch</item>
@@ -42,11 +43,11 @@
     <style name="ToolBarStyle" parent="">
         <item name="popupTheme">@style/ThemeOverlay.Material3.Light</item>
         <item name="theme">@style/ThemeOverlay.Material3.Light</item>
-        <item name="android:background">@color/toolbar_background_color</item>
-        <item name="titleTextColor">@color/toolbar_title_color</item>
+        <item name="android:background">@color/bar_background_color</item>
+        <item name="titleTextColor">@color/bar_title_color</item>
         <item name="colorSurface">@color/white</item>
         <item name="navigationIcon">@drawable/baseline_arrow_back_24</item>
-        <item name="navigationIconTint">@color/toolbar_title_color</item>
+        <item name="navigationIconTint">@color/bar_title_color</item>
     </style>
 
     <style name="ToolBarStyle.Editor" parent="">
@@ -70,15 +71,27 @@
     </style>
 
     <style name="App.Widget.PopupMenu" parent="@style/Widget.Material3.PopupMenu">
-        <item name="popupMenuBackground">@color/list_item_title_color</item>
+        <item name="popupMenuBackground">@color/item_title_color</item>
     </style>
 
     <style name="App.ActionMode.LightTheme" parent="Widget.Material3.ActionMode">
-        <item name="android:background">@color/toolbar_background_color</item>
-        <item name="background">@color/toolbar_background_color</item>
-        <item name="android:textColor">@color/list_item_title_color</item>
+        <item name="android:background">@color/bar_background_color</item>
+        <item name="background">@color/bar_background_color</item>
+        <item name="android:textColor">@color/bar_title_color</item>
     </style>
 
+
+    <style name="App.Widget.BottomNavigationView" parent="Widget.Material3.BottomNavigationView">
+        <item name="itemActiveIndicatorStyle">@null</item>
+        <item name="android:background">@color/bar_background_color</item>
+        <item name="backgroundTint">@null</item>
+        <item name="itemIconTint">@color/selector_color_primary</item>
+        <item name="itemTextColor">@color/selector_color_primary</item>
+        <item name="labelVisibilityMode">labeled</item>
+        <item name="android:minHeight">?actionBarSize</item>
+        <item name="itemPaddingTop">8dp</item>
+        <item name="itemPaddingBottom">14dp</item>
+    </style>
 
     <style name="AppCompatAlertDialogStyle" parent="ThemeOverlay.Material3.MaterialAlertDialog">
         <item name="alertDialogStyle">@style/App.AlertDialog.Material3</item>
@@ -146,8 +159,8 @@
     </style>
 
     <style name="ThemeOverlay.App.TextInputLayout" parent="ThemeOverlay.Material3.TextInputEditText.OutlinedBox">
-        <item name="colorPrimary">@color/list_item_title_color</item>
-        <item name="colorOnSurface">@color/list_item_title_color</item>
+        <item name="colorPrimary">@color/item_title_color</item>
+        <item name="colorOnSurface">@color/item_title_color</item>
         <item name="colorError">@color/red</item>
         <item name="editTextStyle">@style/Widget.Material3.TextInputEditText.OutlinedBox</item>
     </style>
@@ -212,7 +225,7 @@
         <item name="android:maxLines">@integer/list_item_title_max_lines</item>
         <item name="android:ellipsize">end</item>
         <item name="android:textSize">@dimen/lv_title_txt_size</item>
-        <item name="android:textColor">@color/list_item_title_color</item>
+        <item name="android:textColor">@color/item_title_color</item>
     </style>
 
     <style name="ListItemSubTitleStyle">
@@ -220,6 +233,6 @@
         <item name="android:maxLines">@integer/list_item_title_max_lines</item>
         <item name="android:ellipsize">end</item>
         <item name="android:textSize">@dimen/lv_subtitle_txt_size</item>
-        <item name="android:textColor">@color/list_item_subtitle_color</item>
+        <item name="android:textColor">@color/item_subtitle_color</item>
     </style>
 </resources>

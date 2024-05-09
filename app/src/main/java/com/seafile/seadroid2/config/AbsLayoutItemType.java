@@ -4,7 +4,7 @@ public class AbsLayoutItemType {
     /**
      * unsupported layout
      */
-    public static final int UNSUPPORTED = -1;
+    public static final int NOT_SUPPORTED = -1;
 
     public static final int REPO = 10;
     public static final int DIRENT = 11;

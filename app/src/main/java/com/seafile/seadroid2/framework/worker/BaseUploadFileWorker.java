@@ -24,6 +24,7 @@ import com.seafile.seadroid2.framework.data.model.dirents.DirentFileModel;
 import com.seafile.seadroid2.framework.data.model.enums.TransferResult;
 import com.seafile.seadroid2.framework.data.model.enums.TransferStatus;
 import com.seafile.seadroid2.framework.datastore.StorageManager;
+import com.seafile.seadroid2.framework.datastore.sp.AccountDataStoreManager;
 import com.seafile.seadroid2.framework.http.IO;
 import com.seafile.seadroid2.framework.notification.AlbumBackupNotificationHelper;
 import com.seafile.seadroid2.framework.notification.FileBackupNotificationHelper;
@@ -66,7 +67,18 @@ public abstract class BaseUploadFileWorker extends TransferWorker {
     public abstract BaseNotification getNotification();
 
     protected boolean calculateQuota(List<FileTransferEntity> list) throws SeafException, IOException {
+
+        boolean ret = AccountDataStoreManager.readIsQuotaLimited();
+        if (ret) {
+            return true;
+        }
+
         AccountInfo accountInfo = getAccountInfo();
+        if (accountInfo.getTotal() <= 0L) {
+            AccountDataStoreManager.writeIsQuotaLimited(true);
+            return true;
+        }
+
         long remain = accountInfo.getTotal() - accountInfo.getUsage();
 
         long localTotalSize = 0;

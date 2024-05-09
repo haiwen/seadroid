@@ -27,12 +27,14 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.DialogFragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.TimeUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.navigation.NavigationBarView;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 import com.google.firebase.analytics.FirebaseAnalytics;
@@ -112,6 +114,7 @@ public class MainActivity extends BaseActivity implements Toolbar.OnMenuItemClic
         }
 
         mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
+
         binding = ActivityMainBinding.inflate(getLayoutInflater());
 
         setContentView(binding.getRoot());
@@ -128,14 +131,14 @@ public class MainActivity extends BaseActivity implements Toolbar.OnMenuItemClic
 
         initFireBase();
         initOnBackPressedDispatcher();
-        initTabLayout();
+        initBottomNavigation();
         initViewPager();
         initViewModel();
 
         //service
         bindService();
 
-//        requestServerInfo(true);
+        requestServerInfo(true);
 
         //job
 //        Utils.startCameraSyncJob(this);
@@ -308,36 +311,23 @@ public class MainActivity extends BaseActivity implements Toolbar.OnMenuItemClic
         });
     }
 
-    private void initTabLayout() {
-        binding.slidingTabs.setTabIndicatorAnimationMode(TabLayout.INDICATOR_ANIMATION_MODE_ELASTIC);
-        binding.slidingTabs.setSelectedTabIndicator(R.drawable.cat_tabs_rounded_line_indicator);
-        binding.slidingTabs.setTabIndicatorFullWidth(false);
-        binding.slidingTabs.setTabGravity(TabLayout.GRAVITY_CENTER);
-
-        binding.slidingTabs.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+    private void initBottomNavigation() {
+        binding.navBottomView.setItemHorizontalTranslationEnabled(true);
+        binding.navBottomView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                onTabLayoutSelected();
-            }
-
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-
-            }
-
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {
-
+            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+                onBottomNavigationSelected(menuItem);
+                return true;
             }
         });
     }
 
-    private void onTabLayoutSelected() {
+    private void onBottomNavigationSelected(MenuItem menuItem) {
         //Invalidate menu
         supportInvalidateOptionsMenu();
 
         //tab
-        if (binding.slidingTabs.getSelectedTabPosition() == 0) {
+        if (menuItem.getItemId() == R.id.tabs_library) {
             if (getNavContext().isInRepo()) {
                 setActionbarTitle(getNavContext().getNameInCurPath());
                 enableUpButton(true);
@@ -345,12 +335,18 @@ public class MainActivity extends BaseActivity implements Toolbar.OnMenuItemClic
                 enableUpButton(false);
                 setActionbarTitle(getString(R.string.tabs_library));
             }
-        } else if (binding.slidingTabs.getSelectedTabPosition() == 1) {
+
+            binding.pager.setCurrentItem(0);
+        } else if (menuItem.getItemId() == R.id.tabs_starred) {
             enableUpButton(false);
             setActionbarTitle(getString(R.string.tabs_starred));
-        } else if (binding.slidingTabs.getSelectedTabPosition() == 2) {
+
+            binding.pager.setCurrentItem(1);
+        } else if (menuItem.getItemId() == R.id.tabs_activity) {
             enableUpButton(false);
             setActionbarTitle(getString(R.string.tabs_activity));
+
+            binding.pager.setCurrentItem(2);
         }
     }
 
@@ -359,16 +355,20 @@ public class MainActivity extends BaseActivity implements Toolbar.OnMenuItemClic
         viewPager2Adapter.addFragments(mainViewModel.getFragments());
         binding.pager.setAdapter(viewPager2Adapter);
         binding.pager.setOffscreenPageLimit(3);
-
-        String[] tabArray = getResources().getStringArray(R.array.main_fragment_titles);
-        TabLayoutMediator mediator = new TabLayoutMediator(binding.slidingTabs, binding.pager, new TabLayoutMediator.TabConfigurationStrategy() {
+        binding.pager.setUserInputEnabled(true);
+        binding.pager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
-            public void onConfigureTab(@NonNull TabLayout.Tab tab, int position) {
-                tab.setText(tabArray[position]);
+            public void onPageSelected(int position) {
+                super.onPageSelected(position);
+                if (0 == position) {
+                    binding.navBottomView.setSelectedItemId(R.id.tabs_library);
+                } else if (1 == position) {
+                    binding.navBottomView.setSelectedItemId(R.id.tabs_starred);
+                } else if (2 == position) {
+                    binding.navBottomView.setSelectedItemId(R.id.tabs_activity);
+                }
             }
         });
-
-        mediator.attach();
     }
 
     private void initViewModel() {
@@ -465,7 +465,7 @@ public class MainActivity extends BaseActivity implements Toolbar.OnMenuItemClic
             ViewPager2Adapter adapter = (ViewPager2Adapter) binding.pager.getAdapter();
             if (adapter != null) {
                 adapter.removeFragment(2);
-                binding.slidingTabs.removeTabAt(2);
+                binding.navBottomView.getMenu().removeItem(R.id.tabs_activity);
                 adapter.notifyDataSetChanged();
             }
         }
@@ -531,7 +531,7 @@ public class MainActivity extends BaseActivity implements Toolbar.OnMenuItemClic
         } else {
             enableUpButton(false);
 
-            setActionbarTitle(null);
+            setActionbarTitle(getString(R.string.tabs_library));
         }
 
         //refresh toolbar menu
@@ -541,7 +541,7 @@ public class MainActivity extends BaseActivity implements Toolbar.OnMenuItemClic
     public void setActionbarTitle(String title) {
         if (getSupportActionBar() != null) {
             if (TextUtils.isEmpty(title)) {
-                getSupportActionBar().setTitle(R.string.libraries);
+                getSupportActionBar().setTitle(null);
             } else {
                 getSupportActionBar().setTitle(title);
             }

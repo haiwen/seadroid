@@ -60,7 +60,7 @@ public class ActivityAdapter extends BaseMultiAdapter<BaseModel> {
                 } else if (list.get(i) instanceof GroupItemModel) {
                     return AbsLayoutItemType.GROUP_ITEM;
                 }
-                return AbsLayoutItemType.UNSUPPORTED;
+                return AbsLayoutItemType.NOT_SUPPORTED;
             }
         });
     }
@@ -88,7 +88,7 @@ public class ActivityAdapter extends BaseMultiAdapter<BaseModel> {
 
             } else if (model.op_type.equals("delete")) {
                 holder.binding.itemDetail.setText(model.name);
-                holder.binding.itemDetail.setTextColor(ContextCompat.getColor(getContext(), R.color.list_item_subtitle_color));
+                holder.binding.itemDetail.setTextColor(ContextCompat.getColor(getContext(), R.color.item_subtitle_color));
             } else {
                 holder.binding.itemDetail.setText(model.name);
                 holder.binding.itemDetail.setTextColor(ContextCompat.getColor(getContext(), R.color.fancy_orange));

@@ -45,7 +45,7 @@ public class SearchModel extends BaseModel implements Parcelable {
 
     public int getIcon() {
         if (is_dir)
-            return R.drawable.ic_folder;
+            return R.drawable.baseline_folder_24;
         return Icons.getFileIcon(getTitle());
     }
 

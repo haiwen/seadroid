@@ -81,11 +81,11 @@ public class RepoModel extends BaseModel {
 
     public int getIcon() {
         if (encrypted)
-            return R.drawable.ic_repo_encrypted;
+            return R.drawable.baseline_repo_encrypted_24;
         if (!hasWritePermission())
-            return R.drawable.ic_repo_readonly;
+            return R.drawable.baseline_repo_readonly_24;
 
-        return R.drawable.ic_repo;
+        return R.drawable.baseline_repo_24;
     }
 
     public boolean hasWritePermission() {

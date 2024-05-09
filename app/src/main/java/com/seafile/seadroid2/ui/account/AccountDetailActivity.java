@@ -34,6 +34,7 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.Authenticator;
+import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.ssl.CertsManager;
 import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
@@ -45,9 +46,7 @@ import java.net.MalformedURLException;
 public class AccountDetailActivity extends BaseActivityWithVM<AccountViewModel> implements Toolbar.OnMenuItemClickListener {
     private static final String DEBUG_TAG = "AccountDetailActivity";
 
-    private static final String HTTP_PREFIX = "http://";
-    private static final String HTTPS_PREFIX = "https://";
-    public static final String TWO_FACTOR_AUTH = "two_factor_auth";
+    private final String TWO_FACTOR_AUTH = "two_factor_auth";
 
     private TextView mStatusTv;
     private Button mLoginBtn;
@@ -110,7 +109,7 @@ public class AccountDetailActivity extends BaseActivityWithVM<AccountViewModel> 
             mSessionKey = mAccountManager.getUserData(account, Authenticator.SESSION_KEY);
             // isFromEdit = mAccountManager.getUserData(account, Authenticator.KEY_EMAIL);
 
-            if (server.startsWith(HTTPS_PREFIX))
+            if (server.startsWith(Constants.Protocol.HTTPS))
                 mHttpsCheckBox.setChecked(true);
 
             mServerEt.setText(server);
@@ -118,13 +117,13 @@ public class AccountDetailActivity extends BaseActivityWithVM<AccountViewModel> 
             mEmailEt.requestFocus();
             mSeaHubUrlHintTv.setVisibility(View.GONE);
         } else if (defaultServerUri != null) {
-            if (defaultServerUri.startsWith(HTTPS_PREFIX))
+            if (defaultServerUri.startsWith(Constants.Protocol.HTTPS))
                 mHttpsCheckBox.setChecked(true);
             mServerEt.setText(defaultServerUri);
             mEmailEt.requestFocus();
         } else {
-            mServerEt.setText(HTTP_PREFIX);
-            int prefixLen = HTTP_PREFIX.length();
+            mServerEt.setText(Constants.Protocol.HTTP);
+            int prefixLen = Constants.Protocol.HTTP.length();
             mServerEt.setSelection(prefixLen, prefixLen);
         }
 
@@ -352,14 +351,14 @@ public class AccountDetailActivity extends BaseActivityWithVM<AccountViewModel> 
     private void refreshServerUrlPrefix() {
         boolean isHttps = mHttpsCheckBox.isChecked();
         String url = mServerEt.getText().toString();
-        String prefix = isHttps ? HTTPS_PREFIX : HTTP_PREFIX;
+        String prefix = isHttps ? Constants.Protocol.HTTPS : Constants.Protocol.HTTP;
 
-        String urlWithoutScheme = url.replace(HTTPS_PREFIX, "").replace(HTTP_PREFIX, "");
+        String urlWithoutScheme = url.replace(Constants.Protocol.HTTPS, "").replace(Constants.Protocol.HTTP, "");
 
         int oldOffset = mServerEt.getSelectionStart();
 
         // Change the text
-        mServerEt.setText(prefix + urlWithoutScheme);
+        mServerEt.setText(String.format("%s%s", prefix, urlWithoutScheme));
 
         if (serverTextHasFocus) {
             // Change the cursor position since we changed the text
@@ -399,7 +398,7 @@ public class AccountDetailActivity extends BaseActivityWithVM<AccountViewModel> 
                 // Don't allow the user to edit the "https://" or "http://" part of the serverText
                 String url = mServerEt.getText().toString();
                 boolean isHttps = mHttpsCheckBox.isChecked();
-                String prefix = isHttps ? HTTPS_PREFIX : HTTP_PREFIX;
+                String prefix = isHttps ? Constants.Protocol.HTTPS : Constants.Protocol.HTTP;
                 if (!url.startsWith(prefix)) {
                     int oldOffset = Math.max(prefix.length(), mServerEt.getSelectionStart());
                     mServerEt.setText(old);

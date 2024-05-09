@@ -104,23 +104,31 @@ public class TransferActivity extends BaseActivity implements Toolbar.OnMenuItem
     }
 
     private void onTabLayoutSelected() {
-        int whichTab = binding.slidingTabs.getSelectedTabPosition();
+        if (getUploadFragment() == null) {
+            return;
+        }
 
-        ActionMode mode = null;
-        if (whichTab == 1 && getUploadFragment() != null) {
-            // slide from Upload tab to Download tab,
-            // so hide the CAB of UploadTaskFragment
-            mode = getUploadFragment().getActionMode();
-            getUploadFragment().cancelSelectItems();
-        } else if (whichTab == 0 && getDownloadFragment() != null) {
-            // slide from Download tab to Upload tab,
-            // so hide the CAB of DownloadTaskFragment
-            mode = getDownloadFragment().getActionMode();
+        if (getDownloadFragment() == null) {
+            return;
+        }
+
+        ActionMode downloadActionMode = getDownloadFragment().getActionMode();
+        ActionMode uploadActionMode = getUploadFragment().getActionMode();
+
+        if (downloadActionMode == null && uploadActionMode == null) {
+            return;
+        }
+
+        //
+        if (downloadActionMode != null && uploadActionMode == null) {
+            downloadActionMode.finish();
             getDownloadFragment().cancelSelectItems();
         }
 
-        if (mode != null)
-            mode.finish();
+        if (uploadActionMode != null && downloadActionMode == null) {
+            uploadActionMode.finish();
+            getUploadFragment().cancelSelectItems();
+        }
 
         supportInvalidateOptionsMenu();
     }
@@ -135,32 +143,17 @@ public class TransferActivity extends BaseActivity implements Toolbar.OnMenuItem
         binding.pager.setAdapter(viewPager2Adapter);
         binding.pager.setOffscreenPageLimit(1);
 
-        String downloadTabTitle = getString(R.string.transfer_tabs_downloads);
-        String uploadTabTitle = getString(R.string.transfer_tabs_uploads);
 
-        String[] tabArray = new String[]{
-                downloadTabTitle, uploadTabTitle
-        };
+        String[] tabs = getResources().getStringArray(R.array.transfer_list_titles);
 
-        TabLayoutMediator mediator = new TabLayoutMediator(binding.slidingTabs, binding.pager, new TabLayoutMediator.TabConfigurationStrategy() {
+        new TabLayoutMediator(binding.slidingTabs, binding.pager, false, new TabLayoutMediator.TabConfigurationStrategy() {
             @Override
             public void onConfigureTab(@NonNull TabLayout.Tab tab, int position) {
-                tab.setText(tabArray[position]);
+                tab.setText(tabs[position]);
             }
-        });
+        }).attach();
 
-        mediator.attach();
-    }
 
-    public void onItemSelected() {
-        // update CAB title
-        int whichTab = binding.slidingTabs.getSelectedTabPosition();
-
-        if (whichTab == 0 && getDownloadFragment() != null) {
-            getDownloadFragment().updateContextualActionBar();
-        } else if (whichTab == 1 && getUploadFragment() != null) {
-            getUploadFragment().updateContextualActionBar();
-        }
     }
 
     @Override

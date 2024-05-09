@@ -21,6 +21,7 @@ import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.framework.worker.DownloadWorker;
 import com.seafile.seadroid2.framework.worker.SupportWorkManager;
+import com.seafile.seadroid2.framework.worker.TransferEvent;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
 import com.seafile.seadroid2.framework.worker.UploadFolderFileAutomaticallyWorker;
 import com.seafile.seadroid2.framework.worker.UploadMediaFileAutomaticallyWorker;
@@ -81,17 +82,25 @@ public class UploadListFragment extends TransferListFragment {
             return;
         }
 
-        //
-        if (workInfo.getState().isFinished()) {
-            loadData();
-        } else if (workInfo.getState() == WorkInfo.State.RUNNING) {
+        Data outData = workInfo.getOutputData();
+        Data progressData = workInfo.getProgress();
 
-            Data data = workInfo.getProgress();
-            String transferId = data.getString(TransferWorker.DATA_TRANSFER_KEY);
-            String fileName = data.getString(TransferWorker.DATA_TRANSFER_NAME_KEY);
-            int percent = data.getInt(TransferWorker.KEY_DATA_PROGRESS, 0);
-            long transferredSize = data.getLong(TransferWorker.KEY_DATA_TRANSFERRED_SIZE, 0);
-            long totalSize = data.getLong(TransferWorker.KEY_DATA_TOTAL_SIZE, 0);
+        String outEvent = outData.getString(TransferWorker.KEY_DATA_EVENT);
+        String progressEvent = progressData.getString(TransferWorker.KEY_DATA_EVENT);
+
+        if (TransferEvent.EVENT_TRANSFERRED_WITH_DATA.equals(outEvent)) {
+            loadData();
+        } else if (TransferEvent.EVENT_TRANSFERRED_WITHOUT_DATA.equals(outEvent)) {
+
+        } else if (TransferEvent.EVENT_CANCEL_OUT_OF_QUOTA.equals(outEvent)) {
+            loadData();
+        } else if (TransferEvent.EVENT_TRANSFERRING.equals(progressEvent)) {
+
+            String transferId = progressData.getString(TransferWorker.DATA_TRANSFER_KEY);
+            String fileName = progressData.getString(TransferWorker.DATA_TRANSFER_NAME_KEY);
+            int percent = progressData.getInt(TransferWorker.KEY_DATA_PROGRESS, 0);
+            long transferredSize = progressData.getLong(TransferWorker.KEY_DATA_TRANSFERRED_SIZE, 0);
+            long totalSize = progressData.getLong(TransferWorker.KEY_DATA_TOTAL_SIZE, 0);
 
             SLogs.d("upload: " + fileName + ", percent：" + percent + ", total_size：" + totalSize + ", dataSource: " + dataSource);
 
@@ -104,6 +113,7 @@ public class UploadListFragment extends TransferListFragment {
             }
 
         }
+
     }
 
     @Override

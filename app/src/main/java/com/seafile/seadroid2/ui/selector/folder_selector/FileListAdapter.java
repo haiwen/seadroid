@@ -39,11 +39,11 @@ public class FileListAdapter extends BaseAdapter<FileBean, FileListViewHolder> {
         if (fileBean.isDir()) {
             String c = String.format(getContext().getString(R.string.folder_file_item_describe), fileBean.getChildrenFileNumber(), fileBean.getChildrenDirNumber());
             holder.tvFileDetail.setText(c);
-            holder.tvFileName.setTextColor(ContextCompat.getColor(getContext(), R.color.list_item_title_color));
+            holder.tvFileName.setTextColor(ContextCompat.getColor(getContext(), R.color.item_title_color));
 
         } else {
             holder.tvFileDetail.setText(String.format(getContext().getString(R.string.folder_file_item_size), fileBean.getSize()));
-            holder.tvFileName.setTextColor(ContextCompat.getColor(getContext(), R.color.list_item_subtitle_color));
+            holder.tvFileName.setTextColor(ContextCompat.getColor(getContext(), R.color.item_subtitle_color));
         }
 
         holder.checkBoxFile.clearOnCheckedStateChangedListeners();

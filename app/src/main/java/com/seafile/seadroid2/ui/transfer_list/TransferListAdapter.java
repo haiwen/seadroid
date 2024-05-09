@@ -13,7 +13,6 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.DiffUtil;
 
 import com.blankj.utilcode.util.CollectionUtils;
-import com.blankj.utilcode.util.TimeUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
 import com.seafile.seadroid2.framework.data.model.enums.TransferAction;
@@ -181,7 +180,7 @@ public class TransferListAdapter extends BaseAdapter<FileTransferEntity, Transfe
         if (isRed) {
             holder.binding.transferFileState.setTextColor(ContextCompat.getColor(getContext(), R.color.red));
         } else {
-            holder.binding.transferFileState.setTextColor(ContextCompat.getColor(getContext(), R.color.list_item_subtitle_color));
+            holder.binding.transferFileState.setTextColor(ContextCompat.getColor(getContext(), R.color.item_subtitle_color));
         }
 
         holder.binding.transferFileProgressBar.setVisibility(progressBarVisible ? View.VISIBLE : View.GONE);

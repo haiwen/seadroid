@@ -20,4 +20,9 @@
         <item>@string/app_name</item>
         <item>@string/app_name</item>
     </string-array>
+
+    <string-array name="transfer_list_titles">
+        <item>@string/transfer_tabs_downloads</item>
+        <item>@string/transfer_tabs_uploads</item>
+    </string-array>
 </resources>

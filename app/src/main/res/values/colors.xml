@@ -58,14 +58,13 @@
     <color name="toolbar_divider_color">#E3E3E3</color>
     <color name="divider_color">#E3E3E3</color>
 
-    <color name="list_item_title_color">#333333</color>
-    <color name="list_item_subtitle_color">#888888</color>
+    <color name="item_title_color">#333333</color>
+    <color name="item_subtitle_color">#888888</color>
+    <color name="item_icon_tint_color">#A0A0A0</color>
 
-    <color name="icon_actionbar_tint_color">#5A5A5A</color>
-    <color name="icon_tint_color">#9E9E9E</color>
-
-    <color name="toolbar_background_color">#F2F2F2</color>
-    <color name="toolbar_title_color">#191919</color>
+    <color name="bar_background_color">#f9f9f9</color>
+    <color name="bar_title_color">#191919</color>
+    <color name="bar_icon_tint_color">#191919</color>
 
     <color name="toolbar_editor_background_color">@color/blue_500</color>
     <color name="toolbar_editor_title_color">@color/white</color>

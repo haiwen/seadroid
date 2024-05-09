@@ -124,7 +124,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
             public void onBind(@NonNull DirentViewHolder viewHolder, int i, @Nullable BaseModel baseModel) {
                 onBindDirents(viewHolder, (DirentModel) baseModel);
             }
-        }).addItemType(AbsLayoutItemType.UNSUPPORTED, new OnMultiItem<BaseModel, UnsupportedViewHolder>() {
+        }).addItemType(AbsLayoutItemType.NOT_SUPPORTED, new OnMultiItem<BaseModel, UnsupportedViewHolder>() {
             @NonNull
             @Override
             public UnsupportedViewHolder onCreate(@NonNull Context context, @NonNull ViewGroup viewGroup, int i) {
@@ -147,7 +147,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
                 } else if (list.get(i) instanceof Account) {
                     return AbsLayoutItemType.ACCOUNT;
                 }
-                return AbsLayoutItemType.UNSUPPORTED;
+                return AbsLayoutItemType.NOT_SUPPORTED;
             }
         });
     }
@@ -252,8 +252,8 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         holder.binding.itemDownloadStatus.setVisibility(View.GONE);
 
         if (selectorMode < 0) {
-            holder.binding.itemTitle.setTextColor(ContextCompat.getColor(getContext(), R.color.list_item_title_color));
-            holder.binding.itemSubtitle.setTextColor(ContextCompat.getColor(getContext(), R.color.list_item_subtitle_color));
+            holder.binding.itemTitle.setTextColor(ContextCompat.getColor(getContext(), R.color.item_title_color));
+            holder.binding.itemSubtitle.setTextColor(ContextCompat.getColor(getContext(), R.color.item_subtitle_color));
 
             holder.binding.expandableToggleButton.setVisibility(View.VISIBLE);
         } else {
@@ -262,8 +262,8 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
                 holder.binding.itemTitle.setTextColor(ContextCompat.getColor(getContext(), R.color.light_grey));
                 holder.binding.itemSubtitle.setTextColor(ContextCompat.getColor(getContext(), R.color.light_grey));
             } else {
-                holder.binding.itemTitle.setTextColor(ContextCompat.getColor(getContext(), R.color.list_item_title_color));
-                holder.binding.itemSubtitle.setTextColor(ContextCompat.getColor(getContext(), R.color.list_item_subtitle_color));
+                holder.binding.itemTitle.setTextColor(ContextCompat.getColor(getContext(), R.color.item_title_color));
+                holder.binding.itemSubtitle.setTextColor(ContextCompat.getColor(getContext(), R.color.item_subtitle_color));
             }
 
             holder.binding.expandableToggleButton.setVisibility(View.INVISIBLE);

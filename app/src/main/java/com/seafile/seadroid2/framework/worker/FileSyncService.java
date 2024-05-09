@@ -180,8 +180,10 @@ public class FileSyncService extends Service {
         }
 
         try {
-            if (fileMonitor != null) {
+            try {
                 fileMonitor.stop();
+            } catch (Exception e) {
+                SLogs.w("FileSyncService", e);
             }
 
             fileMonitor = new FileAlterationMonitor(5000L, observerList);
@@ -271,7 +273,7 @@ public class FileSyncService extends Service {
             try {
                 fileMonitor.stop();
             } catch (Exception e) {
-                throw new RuntimeException("failed to stop file monitor");
+                SLogs.w("FileSyncService", e);
             }
         }
 

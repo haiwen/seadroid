@@ -105,9 +105,9 @@ public class DirentModel extends BaseModel implements Parcelable {
     public int getIcon() {
         if (isDir()) {
             if (!hasWritePermission()) {
-                return R.drawable.ic_folder_read_only;
+                return R.drawable.baseline_folder_read_only_24;
             } else {
-                return R.drawable.ic_folder;
+                return R.drawable.baseline_folder_24;
             }
         }
         return Icons.getFileIcon(name);

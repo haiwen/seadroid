@@ -9,6 +9,7 @@ public class DataStoreKeys {
 
     public static final String ACCOUNT_CURRENT_OLD = "com.seafile.seadroid.account_name";
     public static final String KEY_CURRENT_ACCOUNT = "current_account_signature";
+    public static final String ACCOUNT_QUOTA_NO_LIMIT_KEY = "key_account_quota_no_limit";
 
     /**
      * When the app version is upgraded to v3.0.0(or v3x), some data must be migrated,
