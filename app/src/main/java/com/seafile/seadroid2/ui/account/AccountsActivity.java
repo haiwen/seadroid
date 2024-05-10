@@ -172,9 +172,6 @@ public class AccountsActivity extends BaseActivityWithVM<AccountViewModel> imple
         getViewModel().getServerInfoLiveData().observe(this, new Observer<ServerInfo>() {
             @Override
             public void onChanged(ServerInfo serverInfo) {
-//                if (serverInfo != null) {
-//
-//                }
                 Account account = SupportAccountManager.getInstance().getCurrentAccount();
 
                 //switch account

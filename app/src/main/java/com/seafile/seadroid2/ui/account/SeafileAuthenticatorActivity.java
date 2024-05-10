@@ -57,6 +57,8 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
     public final static String ARG_EDIT_OLD_ACCOUNT_NAME = "EDIT_OLD_ACCOUNT";
     public final static String ARG_EMAIL = "EMAIL";
     public final static String ARG_AVATAR_URL = "AVATAR_URL";
+    public final static String ARG_SPACE_TOTAL = "SPACE_TOTAL";
+    public final static String ARG_SPACE_USAGE = "SPACE_USAGE";
     public final static String ARG_NAME = "NAME";
     public final static String ARG_SHIB = "SHIB";
     public final static String ARG_LOGIN_TIME = "LOGIN_TIME";
@@ -228,6 +230,8 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
         String sessionKey = intent.getStringExtra(ARG_AUTH_SESSION_KEY);
         String serverUri = intent.getStringExtra(ARG_SERVER_URI);
         boolean shib = intent.getBooleanExtra(ARG_SHIB, false);
+        long totalSpace = intent.getLongExtra(SeafileAuthenticatorActivity.ARG_SPACE_TOTAL, 0L);
+        long usageSpace = intent.getLongExtra(SeafileAuthenticatorActivity.ARG_SPACE_USAGE, 0L);
 
         //new android account
         final Account newAccount = new Account(newAccountName, accountType);
@@ -245,7 +249,6 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
 
                 SupportAccountManager.getInstance().setAuthToken(newAccount, Authenticator.AUTHTOKEN_TYPE, authToken);
                 SupportAccountManager.getInstance().setUserData(newAccount, Authenticator.SESSION_KEY, sessionKey);
-                SupportAccountManager.getInstance().setUserData(newAccount, Authenticator.KEY_NAME, name);
 
                 Bundle result = new Bundle();
                 result.putBoolean(AccountManager.KEY_BOOLEAN_RESULT, true);
@@ -273,6 +276,8 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
         bundle.putString(Authenticator.KEY_AVATAR_URL, avatarUrl);
         bundle.putString(Authenticator.SESSION_KEY, sessionKey);
         bundle.putString(Authenticator.LOGIN_TIME, String.valueOf(System.currentTimeMillis()));
+        bundle.putString(Authenticator.SPACE_TOTAL, String.valueOf(totalSpace));
+        bundle.putString(Authenticator.SPACE_USAGE, String.valueOf(usageSpace));
 
         //add account
         SupportAccountManager.getInstance().addAccountExplicitly(newAccount, null, bundle);

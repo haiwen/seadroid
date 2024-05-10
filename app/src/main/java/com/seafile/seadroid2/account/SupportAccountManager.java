@@ -132,7 +132,23 @@ public class SupportAccountManager {
         String token = accountManager.peekAuthToken(androidAccount, Authenticator.AUTHTOKEN_TYPE);
         String sessionKey = accountManager.getUserData(androidAccount, Authenticator.SESSION_KEY);
         String loginTime = accountManager.getUserData(androidAccount, Authenticator.LOGIN_TIME);
-        return new Account(name, server, email, avatarUrl, token, isShib, sessionKey, loginTime);
+        String totalSpace = accountManager.getUserData(androidAccount, Authenticator.SPACE_TOTAL);
+        String usageSpace = accountManager.getUserData(androidAccount, Authenticator.SPACE_USAGE);
+
+        Account account = new Account();
+        account.name = name;
+        account.server = server;
+        account.email = email;
+        account.avatar_url = avatarUrl;
+        account.token = token;
+        account.is_shib = isShib;
+        account.sessionKey = sessionKey;
+
+        account.setTotalSpace(Long.parseLong(totalSpace));
+        account.setUsageSpace(Long.parseLong(usageSpace));
+        account.setLoginTimestamp(Long.parseLong(loginTime));
+
+        return account;
     }
 
 

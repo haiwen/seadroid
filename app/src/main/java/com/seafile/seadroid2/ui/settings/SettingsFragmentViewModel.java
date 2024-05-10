@@ -17,16 +17,14 @@ import com.seafile.seadroid2.framework.data.model.enums.TransferAction;
 import com.seafile.seadroid2.framework.data.model.enums.TransferDataSource;
 import com.seafile.seadroid2.framework.data.model.enums.TransferStatus;
 import com.seafile.seadroid2.framework.data.model.server.ServerInfoModel;
+import com.seafile.seadroid2.framework.datastore.StorageManager;
+import com.seafile.seadroid2.framework.http.IO;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
-import com.seafile.seadroid2.framework.worker.FolderBackupScannerWorker;
-import com.seafile.seadroid2.framework.worker.SupportWorkManager;
 import com.seafile.seadroid2.framework.worker.UploadFolderFileAutomaticallyWorker;
 import com.seafile.seadroid2.framework.worker.UploadMediaFileAutomaticallyWorker;
-import com.seafile.seadroid2.ui.main.MainService;
-import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
-import com.seafile.seadroid2.framework.datastore.StorageManager;
 import com.seafile.seadroid2.ui.account.AccountService;
-import com.seafile.seadroid2.framework.http.IO;
+import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
+import com.seafile.seadroid2.ui.main.MainService;
 
 import org.apache.commons.io.FileUtils;
 

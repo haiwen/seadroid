@@ -72,10 +72,10 @@ public class Authenticator extends AbstractAccountAuthenticator {
      */
     public static final String SESSION_KEY = "sessionKey";
 
-    /**
-     * Key of shib_setting in userData
-     */
-    public static final String LOGIN_TIME = "loginTime";
+
+    public static final String LOGIN_TIME = "login_time";
+    public static final String SPACE_TOTAL = "total_space";
+    public static final String SPACE_USAGE = "usage_space";
 
     public Authenticator(Context context) {
         super(context);

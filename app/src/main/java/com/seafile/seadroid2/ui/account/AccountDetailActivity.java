@@ -278,6 +278,8 @@ public class AccountDetailActivity extends BaseActivityWithVM<AccountViewModel> 
 
         //extra params
         retData.putExtra(SeafileAuthenticatorActivity.ARG_AVATAR_URL, loginAccount.getAvatarUrl());
+        retData.putExtra(SeafileAuthenticatorActivity.ARG_SPACE_TOTAL, loginAccount.getTotalSpace());
+        retData.putExtra(SeafileAuthenticatorActivity.ARG_SPACE_USAGE, loginAccount.getUsageSpace());
         retData.putExtra(SeafileAuthenticatorActivity.ARG_EMAIL, loginAccount.getEmail());
         retData.putExtra(SeafileAuthenticatorActivity.ARG_NAME, loginAccount.getName());
         retData.putExtra(SeafileAuthenticatorActivity.ARG_AUTH_SESSION_KEY, loginAccount.getSessionKey());
@@ -447,6 +449,7 @@ public class AccountDetailActivity extends BaseActivityWithVM<AccountViewModel> 
         if (mRemDeviceCheckBox.getVisibility() == View.VISIBLE) {
             rememberDevice = mRemDeviceCheckBox.isChecked();
         }
+
         try {
             serverURL = Utils.cleanServerURL(serverURL);
         } catch (MalformedURLException e) {

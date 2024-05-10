@@ -9,7 +9,7 @@ import org.json.JSONObject;
  * This class used to manage Account information
  */
 public class AccountInfo {
-    public static final String SPACE_USAGE_SEPERATOR = " / ";
+    public static final String SPACE_USAGE_SEPARATOR = " / ";
     private long usage;
     private long total;
     private String email;
@@ -25,27 +25,16 @@ public class AccountInfo {
 //    private int file_updates_email_interval;
 //    private int collaborate_email_interval;
 
-    private AccountInfo() {
-    }
-
-    public static AccountInfo fromJson(JSONObject accountInfo, String server) throws JSONException {
-        AccountInfo info = new AccountInfo();
-        info.server = server;
-        info.usage = accountInfo.getLong("usage");
-        info.total = accountInfo.getLong("total");
-        info.email = accountInfo.getString("email");
-        info.name = accountInfo.optString("name");
-        info.avatar_url = accountInfo.optString("avatar_url");
-        info.space_usage = accountInfo.optString("space_usage");
-        return info;
-    }
-
     public long getUsage() {
         return usage;
     }
 
     public long getTotal() {
         return total;
+    }
+
+    public boolean isQuotaNoLimit() {
+        return total < 0;
     }
 
     public String getEmail() {
@@ -76,8 +65,12 @@ public class AccountInfo {
 
     public String getSpaceUsed() {
         String strUsage = Utils.readableFileSize(usage);
+        if (isQuotaNoLimit()) {
+            return strUsage + SPACE_USAGE_SEPARATOR + "--";
+        }
+
         String strTotal = Utils.readableFileSize(total);
-        return strUsage + SPACE_USAGE_SEPERATOR + strTotal;
+        return strUsage + SPACE_USAGE_SEPARATOR + strTotal;
     }
 
     public String getAvatarUrl() {

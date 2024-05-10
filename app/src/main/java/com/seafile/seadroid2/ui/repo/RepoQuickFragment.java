@@ -239,14 +239,12 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     }
 
     private void initViewModel() {
-
         getViewModel().getRefreshLiveData().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean aBoolean) {
                 binding.swipeRefreshLayout.setRefreshing(aBoolean);
             }
         });
-
 
         getViewModel().getSeafExceptionLiveData().observe(getViewLifecycleOwner(), this::showAdapterTipView);
 

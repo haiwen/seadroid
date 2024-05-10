@@ -273,10 +273,7 @@ public class RepoViewModel extends BaseViewModel {
         addSingleDisposable(single, new Consumer<Dirent2Model>() {
             @Override
             public void accept(Dirent2Model resultModel) throws Exception {
-                getRefreshLiveData().setValue(false);
-
                 getStarLiveData().setValue(true);
-                ToastUtils.showLong(R.string.success);
             }
         }, new Consumer<Throwable>() {
             @Override
@@ -296,10 +293,7 @@ public class RepoViewModel extends BaseViewModel {
         addSingleDisposable(single, new Consumer<ResultModel>() {
             @Override
             public void accept(ResultModel resultModel) throws Exception {
-                getRefreshLiveData().setValue(false);
-
                 getStarLiveData().setValue(true);
-                ToastUtils.showLong(R.string.success);
             }
         }, new Consumer<Throwable>() {
             @Override

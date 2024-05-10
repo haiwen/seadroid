@@ -3,8 +3,6 @@ package com.seafile.seadroid2.ui.account;
 import android.os.Build;
 import android.text.TextUtils;
 import android.util.Pair;
-import android.webkit.CookieManager;
-import android.webkit.ValueCallback;
 
 import androidx.lifecycle.MutableLiveData;
 
@@ -16,17 +14,10 @@ import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.framework.data.ServerInfo;
 import com.seafile.seadroid2.framework.data.model.TokenModel;
 import com.seafile.seadroid2.framework.data.model.server.ServerInfoModel;
-import com.seafile.seadroid2.framework.datastore.DataStoreManager;
-import com.seafile.seadroid2.framework.datastore.sp.AlbumBackupManager;
-import com.seafile.seadroid2.framework.datastore.sp.FolderBackupManager;
-import com.seafile.seadroid2.framework.datastore.sp.GestureLockManager;
 import com.seafile.seadroid2.framework.http.IO;
 import com.seafile.seadroid2.framework.util.AccountUtils;
 import com.seafile.seadroid2.framework.util.DeviceIdManager;
-import com.seafile.seadroid2.framework.util.SLogs;
-import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
-import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
 import com.seafile.seadroid2.ui.dialog_fragment.SignOutDialogFragment;
 import com.seafile.seadroid2.ui.main.MainService;
 
@@ -36,9 +27,7 @@ import java.util.Map;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
-import io.reactivex.SingleSource;
 import io.reactivex.functions.Consumer;
-import io.reactivex.functions.Function;
 import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.HttpException;
@@ -146,6 +135,8 @@ public class AccountViewModel extends BaseViewModel {
                 tempAccount.setName(accountInfo.getName());
                 tempAccount.setEmail(accountInfo.getEmail());
                 tempAccount.setAvatarUrl(accountInfo.getAvatarUrl());
+                tempAccount.setTotalSpace(accountInfo.getTotal());
+                tempAccount.setUsageSpace(accountInfo.getUsage());
 
                 emitter.onSuccess(tempAccount);
             }
@@ -170,7 +161,6 @@ public class AccountViewModel extends BaseViewModel {
 
     private Call<TokenModel> getLoginCall(Account tempAccount, String pwd, String token, boolean isRememberDevice) {
         Map<String, String> headers = new HashMap<>();
-        headers.put("Authorization", "Bearer your_access_token");
 
         if (!TextUtils.isEmpty(token)) {
             headers.put("X-Seafile-OTP", token);

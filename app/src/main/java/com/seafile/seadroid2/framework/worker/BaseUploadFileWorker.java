@@ -11,6 +11,7 @@ import com.blankj.utilcode.util.FileUtils;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountInfo;
+import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.framework.crypto.Crypto;
 import com.seafile.seadroid2.framework.data.Block;
 import com.seafile.seadroid2.framework.data.BlockInfoBean;
@@ -24,7 +25,6 @@ import com.seafile.seadroid2.framework.data.model.dirents.DirentFileModel;
 import com.seafile.seadroid2.framework.data.model.enums.TransferResult;
 import com.seafile.seadroid2.framework.data.model.enums.TransferStatus;
 import com.seafile.seadroid2.framework.datastore.StorageManager;
-import com.seafile.seadroid2.framework.datastore.sp.AccountDataStoreManager;
 import com.seafile.seadroid2.framework.http.IO;
 import com.seafile.seadroid2.framework.notification.AlbumBackupNotificationHelper;
 import com.seafile.seadroid2.framework.notification.FileBackupNotificationHelper;
@@ -68,17 +68,12 @@ public abstract class BaseUploadFileWorker extends TransferWorker {
 
     protected boolean calculateQuota(List<FileTransferEntity> list) throws SeafException, IOException {
 
-        boolean ret = AccountDataStoreManager.readIsQuotaLimited();
-        if (ret) {
+        Account account = SupportAccountManager.getInstance().getCurrentAccount();
+        if (account != null && account.isQuotaNoLimit()) {
             return true;
         }
 
         AccountInfo accountInfo = getAccountInfo();
-        if (accountInfo.getTotal() <= 0L) {
-            AccountDataStoreManager.writeIsQuotaLimited(true);
-            return true;
-        }
-
         long remain = accountInfo.getTotal() - accountInfo.getUsage();
 
         long localTotalSize = 0;
