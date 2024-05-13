@@ -506,7 +506,6 @@ E-mail : support@seafile.com<br>
   <string name="action_mode_no_items_selected">Aucun élément sélectionné </string>
   <!--Accessibility description for navigation drawer-->
   <!--permission-->
-  <string name="permission_read_exteral_storage_rationale">Pour traiter les fichiers, permettre l\'autorisation de stockage pour y accéder.</string>
   <string name="permission_read_contacts_storage_rationale">Pour traiter les contacts, autorisez les accès aux contacts afin d\'y accéder.</string>
   <string name="permission_not_granted">L\'autorisation n\'a pas été accordée</string>
   <string name="history_change_title">Détails de modification</string>
@@ -595,4 +594,5 @@ E-mail : support@seafile.com<br>
   <string name="update">Mise à jour</string>
   <string name="clear">Nettoyer</string>
   <string name="clear_all">Tout nettoyer</string>
+  <!--share link-->
 </resources>

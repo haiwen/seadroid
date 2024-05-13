@@ -31,13 +31,18 @@ public class FileExports {
             ParcelFileDescriptor descriptor = null;
             FileOutputStream fos = null;
             FileInputStream fis = null;
-            //TODO
+
             try {
                 descriptor = contentResolver.openFileDescriptor(uri, "w");
                 if (descriptor != null) {
                     fos = new FileOutputStream(descriptor.getFileDescriptor());
                     fis = new FileInputStream(file);
-                    copyStream(fis, fos);
+
+                    byte[] buffer = new byte[1024];
+                    int len;
+                    while ((len = fis.read(buffer)) != -1) {
+                        fos.write(buffer, 0, len);
+                    }
                 }
 
             } finally {
@@ -62,13 +67,4 @@ public class FileExports {
         }
 
     }
-
-    private static void copyStream(InputStream inputStream, FileOutputStream outputStream) throws IOException {
-        byte[] buffer = new byte[1024];
-        int len;
-        while ((len = inputStream.read(buffer)) != -1) {
-            outputStream.write(buffer, 0, len);
-        }
-    }
-
 }

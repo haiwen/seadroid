@@ -20,7 +20,6 @@ public class FolderBackupNotificationHelper extends BaseTransferNotificationHelp
     public Intent getTransferIntent() {
         Intent dIntent = new Intent(context, TransferActivity.class);
         dIntent.putExtra(NOTIFICATION_MESSAGE_KEY, NOTIFICATION_OPEN_UPLOAD_TAB);
-        dIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         return dIntent;
     }
 
@@ -38,11 +37,11 @@ public class FolderBackupNotificationHelper extends BaseTransferNotificationHelp
 
     @Override
     public String getChannelId() {
-        return NotificationUtils.NOTIFICATION_CHANNEL_UPLOAD_FOLDER;
+        return NotificationUtils.NOTIFICATION_CHANNEL_TRANSFER;
     }
 
     @Override
     public int getNotificationId() {
-        return NotificationUtils.NOTIFICATION_UPLOAD_FOLDER_ID;
+        return NotificationUtils.NOTIFICATION_ID_UPLOAD_FOLDER;
     }
 }

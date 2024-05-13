@@ -515,8 +515,6 @@
   <string name="action_mode_no_items_selected">Нет выбранных элементов</string>
   <!--Accessibility description for navigation drawer-->
   <!--permission-->
-  <string name="permission_manage_exteral_storage_rationale">Для обработки файлов, позволяет управлять всеми файлами на внешнем хранилище.</string>
-  <string name="permission_read_exteral_storage_rationale">Для обработки файлов, позволить получить доступ к их хранилищу</string>
   <string name="permission_read_contacts_storage_rationale">Для обработки контактов, разрешить к ним доступ.</string>
   <string name="permission_not_granted">Разрешение не было предоставлено</string>
   <string name="history_change_title">Подробности изменений</string>
@@ -605,4 +603,5 @@
   <string name="update">Обновить</string>
   <string name="clear">Очистить</string>
   <string name="clear_all">Очистить всё</string>
+  <!--share link-->
 </resources>

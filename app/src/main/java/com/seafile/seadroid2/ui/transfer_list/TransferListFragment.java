@@ -3,7 +3,6 @@ package com.seafile.seadroid2.ui.transfer_list;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -15,10 +14,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.view.ActionMode;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.work.Data;
-import androidx.work.WorkInfo;
 
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.ToastUtils;
@@ -31,19 +27,11 @@ import com.seafile.seadroid2.bottomsheetmenu.BottomSheetMenuFragment;
 import com.seafile.seadroid2.databinding.LayoutFrameSwipeRvBinding;
 import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
 import com.seafile.seadroid2.framework.data.model.enums.TransferAction;
-import com.seafile.seadroid2.framework.data.model.enums.TransferDataSource;
-import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
-import com.seafile.seadroid2.framework.worker.DownloadWorker;
-import com.seafile.seadroid2.framework.worker.SupportWorkManager;
-import com.seafile.seadroid2.framework.worker.TransferWorker;
-import com.seafile.seadroid2.framework.worker.UploadFolderFileAutomaticallyWorker;
-import com.seafile.seadroid2.framework.worker.UploadMediaFileAutomaticallyWorker;
 import com.seafile.seadroid2.ui.base.fragment.BaseFragment;
 import com.seafile.seadroid2.view.TipsViews;
 
 import java.util.List;
-import java.util.UUID;
 
 import io.reactivex.functions.Consumer;
 
@@ -160,8 +148,9 @@ public abstract class TransferListFragment extends BaseFragment {
 
         builder.removeMenu(R.id.upload);
         builder.removeMenu(R.id.download);
+        builder.removeMenu(R.id.pause);
 
-        //not support
+        //not supported yet
 //        if (getTransferAction() == TransferAction.DOWNLOAD) {
 //            builder.removeMenu(R.id.upload);
 //        } else if (getTransferAction() == TransferAction.UPLOAD) {

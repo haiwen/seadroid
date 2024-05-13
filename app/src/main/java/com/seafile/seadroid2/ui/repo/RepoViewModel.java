@@ -7,7 +7,6 @@ import androidx.lifecycle.MutableLiveData;
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.NetworkUtils;
 import com.blankj.utilcode.util.ToastUtils;
-import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
@@ -167,7 +166,7 @@ public class RepoViewModel extends BaseViewModel {
         String repoId = context.getRepoModel().repo_id;
         String parentDir = context.getNavPath();
 
-        Single<List<DirentModel>> direntDBSingle = AppDatabase.getInstance().direntDao().getAllByParentPath(repoId, parentDir);
+        Single<List<DirentModel>> direntDBSingle = AppDatabase.getInstance().direntDao().getListByParentPath(repoId, parentDir);
         Single<List<FileTransferEntity>> transferDBSingle = direntDBSingle.flatMap(new Function<List<DirentModel>, SingleSource<List<FileTransferEntity>>>() {
             @Override
             public SingleSource<List<FileTransferEntity>> apply(List<DirentModel> direntModels) throws Exception {

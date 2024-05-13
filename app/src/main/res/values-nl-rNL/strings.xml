@@ -431,7 +431,6 @@
   <string name="action_mode_no_items_selected">Geen items geselecteerd</string>
   <!--Accessibility description for navigation drawer-->
   <!--permission-->
-  <string name="permission_read_exteral_storage_rationale">Om de bestanden te kunnen verwerken zijn voldoende leesrechten noodzakelijk</string>
   <string name="permission_not_granted">Toestemming is niet verleend</string>
   <string name="history_change_title">Details over de wijzigingen</string>
   <string name="no_more_activities">Geen acties meer over</string>
@@ -451,4 +450,7 @@
   <!--Home list title-->
   <string name="shared_with_all">Gedeeld met iedereen</string>
   <!--editor-->
+  <!--Folder backup Preference-->
+  <!--action-->
+  <!--share link-->
 </resources>

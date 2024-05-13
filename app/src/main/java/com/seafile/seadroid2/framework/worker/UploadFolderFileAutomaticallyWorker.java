@@ -95,9 +95,9 @@ public class UploadFolderFileAutomaticallyWorker extends BaseUploadFileWorker {
             FileTransferEntity transfer = transferList.get(0);
 
             try {
-                boolean isAmple = calculateQuota(CollectionUtils.newArrayList(transfer));
+                boolean isAmple = calcQuota(CollectionUtils.newArrayList(transfer));
                 if (!isAmple) {
-                    getGeneralNotificationHelper().showErrorNotification(R.string.out_of_quota, R.string.settings_folder_backup_info_title);
+                    getGeneralNotificationHelper().showErrorNotification(R.string.above_quota, R.string.settings_folder_backup_info_title);
                     //
                     AppDatabase.getInstance().fileTransferDAO().cancel(account.getSignature(), TransferDataSource.FOLDER_BACKUP, TransferResult.OUT_OF_QUOTA);
 

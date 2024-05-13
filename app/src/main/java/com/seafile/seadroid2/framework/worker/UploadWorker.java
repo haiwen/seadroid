@@ -84,9 +84,9 @@ public class UploadWorker extends BaseUploadFileWorker {
             }
 
             try {
-                boolean isAmple = calculateQuota(transferList);
+                boolean isAmple = calcQuota(transferList);
                 if (!isAmple) {
-                    getGeneralNotificationHelper().showErrorNotification(R.string.out_of_quota, R.string.settings_folder_backup_info_title);
+                    getGeneralNotificationHelper().showErrorNotification(R.string.above_quota, R.string.settings_folder_backup_info_title);
                     //
                     AppDatabase.getInstance().fileTransferDAO().cancel(account.getSignature(), TransferDataSource.FOLDER_BACKUP, TransferResult.OUT_OF_QUOTA);
 

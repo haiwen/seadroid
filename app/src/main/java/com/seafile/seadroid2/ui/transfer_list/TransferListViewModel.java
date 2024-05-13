@@ -12,6 +12,11 @@ import com.seafile.seadroid2.framework.data.model.enums.TransferAction;
 import com.seafile.seadroid2.framework.data.model.enums.TransferDataSource;
 import com.seafile.seadroid2.framework.data.model.enums.TransferResult;
 import com.seafile.seadroid2.framework.data.model.enums.TransferStatus;
+import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
+import com.seafile.seadroid2.framework.worker.SupportWorkManager;
+import com.seafile.seadroid2.framework.worker.UploadFileManuallyWorker;
+import com.seafile.seadroid2.framework.worker.UploadFolderFileAutomaticallyWorker;
+import com.seafile.seadroid2.framework.worker.UploadMediaFileAutomaticallyWorker;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
 import com.seafile.seadroid2.framework.util.SLogs;
 
@@ -77,13 +82,47 @@ public class TransferListViewModel extends BaseViewModel {
         Single<Boolean> single = Single.create(new SingleOnSubscribe<Boolean>() {
             @Override
             public void subscribe(SingleEmitter<Boolean> emitter) throws Exception {
-                fileTransferEntity.data_status = -1;
-                fileTransferEntity.transfer_result = TransferResult.NO_RESULT;
-                fileTransferEntity.transfer_status = TransferStatus.CANCELLED;
-                fileTransferEntity.transferred_size = 0;
 
-                AppDatabase.getInstance().fileTransferDAO().insert(fileTransferEntity);
+                if (TransferDataSource.DOWNLOAD == fileTransferEntity.data_source) {
+                    if (fileTransferEntity.transfer_status == TransferStatus.IN_PROGRESS) {
+                        BackgroundJobManagerImpl.getInstance().cancelFilesDownloadJob();
+                    }
 
+                    AppDatabase.getInstance().fileTransferDAO().deleteOne(fileTransferEntity);
+                } else if (TransferDataSource.FILE_BACKUP == fileTransferEntity.data_source) {
+                    if (fileTransferEntity.transfer_status == TransferStatus.IN_PROGRESS) {
+                        BackgroundJobManagerImpl.getInstance().cancelById(UploadFileManuallyWorker.UID);
+                    }
+
+                    AppDatabase.getInstance().fileTransferDAO().deleteOne(fileTransferEntity);
+                    FileUtils.delete(fileTransferEntity.full_path);
+
+                    BackgroundJobManagerImpl.getInstance().startFileUploadWorker();
+
+                } else if (TransferDataSource.FOLDER_BACKUP == fileTransferEntity.data_source) {
+                    BackgroundJobManagerImpl.getInstance().cancelById(UploadFolderFileAutomaticallyWorker.UID);
+
+                    fileTransferEntity.data_status = -1;
+                    fileTransferEntity.transfer_result = TransferResult.NO_RESULT;
+                    fileTransferEntity.transfer_status = TransferStatus.CANCELLED;
+                    fileTransferEntity.transferred_size = 0;
+
+                    AppDatabase.getInstance().fileTransferDAO().insert(fileTransferEntity);
+
+                    BackgroundJobManagerImpl.getInstance().startFolderUploadWorker();
+
+                } else if (TransferDataSource.ALBUM_BACKUP == fileTransferEntity.data_source) {
+                    BackgroundJobManagerImpl.getInstance().cancelById(UploadMediaFileAutomaticallyWorker.UID);
+
+                    fileTransferEntity.data_status = -1;
+                    fileTransferEntity.transfer_result = TransferResult.NO_RESULT;
+                    fileTransferEntity.transfer_status = TransferStatus.CANCELLED;
+                    fileTransferEntity.transferred_size = 0;
+
+                    AppDatabase.getInstance().fileTransferDAO().insert(fileTransferEntity);
+
+                    BackgroundJobManagerImpl.getInstance().startMediaBackupWorker();
+                }
                 emitter.onSuccess(true);
             }
         });

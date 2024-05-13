@@ -308,7 +308,7 @@ public class DownloadWorker extends BaseDownloadFileWorker {
         AppDatabase.getInstance().fileTransferDAO().update(fileTransferEntity);
 
         //update
-        List<DirentModel> direntList = AppDatabase.getInstance().direntDao().getByFullPathSync(fileTransferEntity.repo_id, fileTransferEntity.full_path);
+        List<DirentModel> direntList = AppDatabase.getInstance().direntDao().getListByFullPathSync(fileTransferEntity.repo_id, fileTransferEntity.full_path);
         if (!CollectionUtils.isEmpty(direntList)) {
             DirentModel direntModel = direntList.get(0);
             direntModel.last_modified_at = fileTransferEntity.modified_at;

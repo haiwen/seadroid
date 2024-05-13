@@ -1,7 +1,5 @@
 package com.seafile.seadroid2.framework.worker;
 
-import android.annotation.SuppressLint;
-
 import androidx.work.Constraints;
 import androidx.work.Data;
 import androidx.work.ExistingWorkPolicy;
@@ -120,6 +118,10 @@ public class BackgroundJobManagerImpl {
 
     }
 
+    public void cancelById(UUID uid) {
+        SupportWorkManager.getWorkManager().cancelWorkById(uid);
+    }
+
     public WorkInfo getWorkInfoById(UUID uid) {
         ListenableFuture<WorkInfo> listener = SupportWorkManager.getWorkManager().getWorkInfoById(uid);
         try {
@@ -154,7 +156,7 @@ public class BackgroundJobManagerImpl {
                         boolean isRunning = checkWorkerIsRunningByTag(workTag);
                         if (isRunning) {
                             SLogs.d(workTag + " is running");
-                            Thread.sleep(500);
+                            Thread.sleep(250);
                         }
 
                         SLogs.d(workTag + " is stopped");
@@ -216,11 +218,11 @@ public class BackgroundJobManagerImpl {
 
     //cancel media
     public void cancelMediaWorker() {
-        SupportWorkManager.getWorkManager().cancelAllWorkByTag(TAG_TRANSFER_UPLOAD_MEDIA_SCAN);
-        SupportWorkManager.getWorkManager().cancelAllWorkByTag(TAG_TRANSFER_UPLOAD_MEDIA_WORKER);
+        cancelById(UploadMediaFileAutomaticallyWorker.UID);
+        cancelById(MediaBackupScannerWorker.UID);
     }
 
-    public void restartMediaUploadWorker(boolean isForce) {
+    public void restartMediaBackupWorker(boolean isForce) {
         cancelMediaWorker();
 
         Disposable disposable = startWorkerUntilStopped(TAG_TRANSFER_UPLOAD_MEDIA_WORKER).subscribe(new Action() {
@@ -257,8 +259,8 @@ public class BackgroundJobManagerImpl {
 
 
     public void cancelFolderWorker() {
-        SupportWorkManager.getWorkManager().cancelWorkById(FolderBackupScannerWorker.UID);
-        SupportWorkManager.getWorkManager().cancelWorkById(UploadFolderFileAutomaticallyWorker.UID);
+        cancelById(FolderBackupScannerWorker.UID);
+        cancelById(UploadFolderFileAutomaticallyWorker.UID);
     }
 
     public void restartFolderUploadWorker(NetworkType networkType) {
@@ -266,7 +268,7 @@ public class BackgroundJobManagerImpl {
 
         Disposable disposable = startWorkerUntilStopped(TAG_TRANSFER_UPLOAD_FOLDER_BACKUP_WORKER).subscribe(new Action() {
             @Override
-            public void run() throws Exception {
+            public void run() {
                 startFolderUploadWorker(networkType);
             }
         });
@@ -305,11 +307,10 @@ public class BackgroundJobManagerImpl {
         SupportWorkManager.getWorkManager().enqueueUniqueWork(TAG_TRANSFER_UPLOAD_FOLDER_BACKUP_WORKER, ExistingWorkPolicy.REPLACE, request);
     }
 
-
     //
     public void cancelFilesUploadWorker() {
-        SupportWorkManager.getWorkManager().cancelAllWorkByTag(TAG_TRANSFER_UPLOAD_FOLDER_BACKUP_WORKER);
-        SupportWorkManager.getWorkManager().cancelAllWorkByTag(TAG_TRANSFER_UPLOAD_FOLDER_SCAN);
+        cancelById(FolderBackupScannerWorker.UID);
+        cancelById(UploadFolderFileAutomaticallyWorker.UID);
     }
 
     ///////////////////upload file///////////////////
@@ -395,8 +396,9 @@ public class BackgroundJobManagerImpl {
 
 
     public void cancelFilesDownloadJob() {
-        SupportWorkManager.getWorkManager().cancelAllWorkByTag(TAG_TRANSFER_DOWNLOAD_FILES_SCAN);
-        SupportWorkManager.getWorkManager().cancelAllWorkByTag(TAG_TRANSFER_DOWNLOAD_FILES_WORKER);
+        cancelById(DownloadWorker.UID);
+        cancelById(DownloadedFileCheckerWorker.UID);
+        cancelById(DownloadFileScanWorker.UID);
     }
 
 

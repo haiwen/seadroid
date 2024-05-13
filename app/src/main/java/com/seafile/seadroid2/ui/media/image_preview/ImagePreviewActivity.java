@@ -47,13 +47,13 @@ public class ImagePreviewActivity extends BaseActivityWithVM<ImagePreviewViewMod
     private ActivityImagePreviewBinding binding;
     private ViewPager2Adapter adapter;
     private DirentModel currentDirent;
-    private List<DirentModel> dataList = CollectionUtils.newArrayList();
+
     private boolean isDataOperated = false;
 
-    public static Intent startThisFromRepo(Context context, DirentModel direntModel, ArrayList<DirentModel> direntModels) {
+    public static Intent startThisFromRepo(Context context, DirentModel direntModel) {
         Intent intent = new Intent(context, ImagePreviewActivity.class);
         intent.putExtra("dirent", direntModel);
-        intent.putParcelableArrayListExtra("dirent_list", direntModels);
+        intent.putExtra("query_db", true);
         return intent;
     }
 
@@ -90,7 +90,6 @@ public class ImagePreviewActivity extends BaseActivityWithVM<ImagePreviewViewMod
 
         initView();
         initViewModel();
-        initAdapter();
 
         getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
             @Override
@@ -146,15 +145,6 @@ public class ImagePreviewActivity extends BaseActivityWithVM<ImagePreviewViewMod
         }
 
         currentDirent = getIntent().getParcelableExtra("dirent");
-
-        if (getIntent().hasExtra("dirent_list")) {
-            ArrayList<DirentModel> ds = getIntent().getParcelableArrayListExtra("dirent_list");
-            dataList.addAll(ds);
-        }
-
-        if (CollectionUtils.isEmpty(dataList)) {
-            dataList.add(currentDirent);
-        }
     }
 
     private void initView() {
@@ -177,25 +167,6 @@ public class ImagePreviewActivity extends BaseActivityWithVM<ImagePreviewViewMod
         binding.gallerySharePhoto.setOnClickListener(onClickListener);
     }
 
-    private void initAdapter() {
-        adapter = new ViewPager2Adapter(this);
-        binding.pager.setAdapter(adapter);
-        binding.pager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
-            @Override
-            public void onPageSelected(int position) {
-                super.onPageSelected(position);
-
-                if (CollectionUtils.isEmpty(dataList)) {
-                    binding.galleryPageIndex.setText("1/1");
-                    return;
-                }
-
-                String fs = String.format(Locale.getDefault(), "%d/%d", (position + 1), dataList.size());
-                binding.galleryPageIndex.setText(fs);
-            }
-        });
-    }
-
     private void initViewModel() {
         getViewModel().getRefreshLiveData().observe(this, new Observer<Boolean>() {
             @Override
@@ -215,10 +186,25 @@ public class ImagePreviewActivity extends BaseActivityWithVM<ImagePreviewViewMod
                     isDataOperated = true;
                 }
 
-                boolean isStar = dataList.get(binding.pager.getCurrentItem()).starred;
-                dataList.get(binding.pager.getCurrentItem()).starred = !isStar;
+//                PhotoFragment photoFragment = (PhotoFragment) adapter.getFragments().get(binding.pager.getCurrentItem());
+//                photoFragment.getDirentModel().starred = !photoFragment.getDirentModel().starred;
+//
+//                boolean isStar = dataList.get(binding.pager.getCurrentItem()).starred;
+//                dataList.get(binding.pager.getCurrentItem()).starred = !isStar;
 
                 ToastUtils.showLong(aBoolean ? R.string.star_file_succeed : R.string.star_file_failed);
+            }
+        });
+
+        getViewModel().getListLiveData().observe(this, new Observer<List<DirentModel>>() {
+            @Override
+            public void onChanged(List<DirentModel> direntModels) {
+
+                if (CollectionUtils.isEmpty(direntModels)) {
+                    direntModels = CollectionUtils.newArrayList(currentDirent);
+                }
+
+                notifyFragmentList(direntModels);
             }
         });
     }
@@ -231,7 +217,8 @@ public class ImagePreviewActivity extends BaseActivityWithVM<ImagePreviewViewMod
                     binding.galleryDeletePhoto.setVisibility(View.GONE);
                 }
 
-                notifyFragmentList(dataList);
+                getViewModel().loadData(currentDirent.repo_id, currentDirent.parent_dir);
+
             }
         });
     }
@@ -241,21 +228,32 @@ public class ImagePreviewActivity extends BaseActivityWithVM<ImagePreviewViewMod
             return;
         }
 
+        adapter = new ViewPager2Adapter(this);
         List<Fragment> fragments = new ArrayList<>();
         for (DirentModel direntModel : direntModels) {
-            PhotoFragment photoFragment = PhotoFragment.newInstance(
-                    direntModel.repo_id,
-                    direntModel.repo_name,
-                    direntModel.full_path);
+            PhotoFragment photoFragment = PhotoFragment.newInstance();
+            photoFragment.setDirentModel(direntModel);
             photoFragment.setOnPhotoTapListener((view, x, y) -> hideOrShowToolBar());
-
             fragments.add(photoFragment);
         }
 
         adapter.addFragments(fragments);
-        adapter.notifyDataSetChanged();
 
-        navToSelectedPage();
+        binding.pager.setAdapter(adapter);
+        binding.pager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
+                super.onPageSelected(position);
+
+                String fs = String.format(Locale.getDefault(), "%d/%d", (position + 1), adapter.getFragments().size());
+                binding.galleryPageIndex.setText(fs);
+
+                PhotoFragment photoFragment = (PhotoFragment) adapter.getFragments().get(position);
+                binding.galleryPageName.setText(photoFragment.getDirentModel().name);
+            }
+        });
+
+        navToSelectedPage(direntModels);
     }
 
     private boolean showToolBar = false;
@@ -270,11 +268,11 @@ public class ImagePreviewActivity extends BaseActivityWithVM<ImagePreviewViewMod
      * Dynamically navigate to the starting page index selected by user
      * by default the starting page index is 0
      */
-    private void navToSelectedPage() {
-        int size = dataList.size();
+    private void navToSelectedPage(List<DirentModel> direntModels) {
+        int size = direntModels.size();
         int mPageIndex = -1;
         for (int i = 0; i < size; i++) {
-            if (dataList.get(i).name.equals(currentDirent.name)) {
+            if (direntModels.get(i).name.equals(currentDirent.name)) {
                 binding.pager.setCurrentItem(i);
                 binding.galleryPageIndex.setText(String.valueOf(i + 1));
                 mPageIndex = i;
@@ -288,12 +286,13 @@ public class ImagePreviewActivity extends BaseActivityWithVM<ImagePreviewViewMod
     }
 
     private DirentModel getSelectedDirent() {
-        return dataList.get(binding.pager.getCurrentItem());
+        PhotoFragment photoFragment = (PhotoFragment) adapter.getFragments().get(binding.pager.getCurrentItem());
+        return photoFragment.getDirentModel();
     }
 
     private void deleteFile() {
 
-        int curItem = binding.pager.getCurrentItem();
+        int position = binding.pager.getCurrentItem();
 
         DeleteFileDialogFragment dialogFragment = DeleteFileDialogFragment.newInstance();
 
@@ -305,9 +304,8 @@ public class ImagePreviewActivity extends BaseActivityWithVM<ImagePreviewViewMod
                 if (isDone) {
                     isDataOperated = true;
 
-                    dataList.remove(curItem);
-                    adapter.removeFragment(curItem);
-                    adapter.notifyItemRemoved(curItem);
+                    adapter.removeFragment(position);
+                    adapter.notifyItemRemoved(position);
 
                     ToastUtils.showLong(R.string.delete_successful);
                 }

@@ -23,6 +23,7 @@ import com.seafile.seadroid2.framework.worker.DownloadWorker;
 import com.seafile.seadroid2.framework.worker.SupportWorkManager;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
+import com.seafile.seadroid2.framework.worker.UploadFileManuallyWorker;
 import com.seafile.seadroid2.framework.worker.UploadFolderFileAutomaticallyWorker;
 import com.seafile.seadroid2.framework.worker.UploadMediaFileAutomaticallyWorker;
 
@@ -64,6 +65,14 @@ public class UploadListFragment extends TransferListFragment {
                     }
                 });
 
+        SupportWorkManager.getWorkManager()
+                .getWorkInfoByIdLiveData(UploadFileManuallyWorker.UID)
+                .observe(getViewLifecycleOwner(), new Observer<WorkInfo>() {
+                    @Override
+                    public void onChanged(WorkInfo workInfo) {
+                        doWorkInfoLiveData(TransferDataSource.FILE_BACKUP, workInfo);
+                    }
+                });
 
         SupportWorkManager.getWorkManager()
                 .getWorkInfoByIdLiveData(UploadMediaFileAutomaticallyWorker.UID)

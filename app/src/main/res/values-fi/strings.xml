@@ -360,21 +360,6 @@
   <string name="settings_about_title">TIETOA</string>
   <string name="settings_about_version_title">Sovellusversio</string>
   <string name="settings_about_author_title">Tietoa tekijästä</string>
-
-  <string name="settings_about_author_info">
-<![CDATA[
-<h5>Seafile Android Asiakasohjelma</h5>
-<p>%s</p>
-<h5>Ota Yhteyttä</h5>
-<p>
-Twitter: Seafile<br>
-Sähköposti: support@seafile.com<br>
-</p>
-<h5>Osallistumiset</h5>
-<p>https://github.com/haiwen/seadroid.git</P>
-<h5>Copyright ©2013-2023 Seafile Ltd</h5>
-]]></string>
-
   <string name="settings_advance_feature_title">EDISTYNEET OMINAISUUDET</string>
   <string name="settings_storage_title">VÄLIMUISTIN TALLENNUSTILA</string>
   <string name="settings_cache_title">Välimuistin koko</string>
@@ -483,7 +468,6 @@ Sähköposti: support@seafile.com<br>
   <string name="action_mode_no_items_selected">Ei kohteita valittuna</string>
   <!--Accessibility description for navigation drawer-->
   <!--permission-->
-  <string name="permission_read_exteral_storage_rationale">Prosessoidaksesi tiedostoja sinun pitää antaa tallennustilalle lupa avata ne.</string>
   <string name="permission_read_contacts_storage_rationale">Prosessoidaksesi kontakteja sinun pitää antaa kontakteille lupa avata ne.</string>
   <string name="permission_not_granted">Oikeuksia ei myönnetty</string>
   <string name="history_change_title">Muokkauksen Yksityiskohdat</string>
@@ -525,4 +509,6 @@ Sähköposti: support@seafile.com<br>
   <string name="redo">tee uudelleen</string>
   <string name="link">Linkki</string>
   <!--Folder backup Preference-->
+  <!--action-->
+  <!--share link-->
 </resources>

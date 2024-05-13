@@ -7,6 +7,7 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.data.model.BaseModel;
 import com.seafile.seadroid2.framework.util.Icons;
+import com.seafile.seadroid2.framework.util.Utils;
 
 public class SearchModel extends BaseModel implements Parcelable {
 

@@ -20,7 +20,6 @@ public class AlbumBackupNotificationHelper extends BaseTransferNotificationHelpe
     public Intent getTransferIntent() {
         Intent dIntent = new Intent(context, TransferActivity.class);
         dIntent.putExtra(NOTIFICATION_MESSAGE_KEY, NOTIFICATION_OPEN_UPLOAD_TAB);
-        dIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         return dIntent;
     }
 
@@ -33,7 +32,7 @@ public class AlbumBackupNotificationHelper extends BaseTransferNotificationHelpe
 
     @Override
     public String getChannelId() {
-        return NotificationUtils.NOTIFICATION_CHANNEL_UPLOAD_ALBUM_BACKUP;
+        return NotificationUtils.NOTIFICATION_CHANNEL_TRANSFER;
     }
 
     @Override
@@ -43,6 +42,6 @@ public class AlbumBackupNotificationHelper extends BaseTransferNotificationHelpe
 
     @Override
     public int getNotificationId() {
-        return NotificationUtils.NOTIFICATION_UPLOAD_ALBUM_BACKUP_ID;
+        return NotificationUtils.NOTIFICATION_ID_UPLOAD_ALBUM_BACKUP;
     }
 }

@@ -68,7 +68,6 @@ public class StarredModel extends BaseModel implements Parcelable {
         d.name = model.obj_name;
         d.repo_id = model.repo_id;
         d.repo_name = model.repo_name;
-
         return d;
     }
 

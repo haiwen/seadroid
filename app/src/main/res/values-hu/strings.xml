@@ -348,21 +348,6 @@
   <string name="settings_about_title">Névjegy</string>
   <string name="settings_about_version_title">Alkalmazás verzió</string>
   <string name="settings_about_author_title">Névjegy</string>
-
-  <string name="settings_about_author_info">
-<![CDATA[
-<h5>Seafile Android Kliens</h5>
-<p>%s</p>
-<h5>Kapcsolat</h5>
-<p>
-Twitter: Seafile<br>
-Email: support@seafile.com<br>
-</p>
-<h5>Hozzájárulás</h5>
-<p>https://github.com/haiwen/seadroid.git</P>
-<h5>Copyright ©2013-2023 Seafile Ltd.</h5>
-]]></string>
-
   <string name="settings_advance_feature_title">HALADÓ BEÁLLÍTÁSOK</string>
   <string name="settings_storage_title">GYORSÍTÓTÁR</string>
   <string name="settings_cache_title">Gyorsítótár mérete</string>
@@ -469,7 +454,6 @@ Email: support@seafile.com<br>
   <string name="action_mode_no_items_selected">Nincs kiválasztott elem</string>
   <!--Accessibility description for navigation drawer-->
   <!--permission-->
-  <string name="permission_read_exteral_storage_rationale">A fájlok kezeléséhez engedélyezze a tárhely elérését.</string>
   <string name="permission_read_contacts_storage_rationale">A névjegyek kezeléséhez engedélyezd a névjegyekhez való hozzáférést.</string>
   <string name="permission_not_granted">Engedély nem lett megadva</string>
   <string name="history_change_title">Változtatás részletei</string>
@@ -502,4 +486,6 @@ Email: support@seafile.com<br>
   <string name="input_auto_expiration">Adja meg a lejárati időt</string>
   <!--editor-->
   <!--Folder backup Preference-->
+  <!--action-->
+  <!--share link-->
 </resources>

@@ -4,7 +4,6 @@ import static android.content.Context.NOTIFICATION_SERVICE;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 
 import android.app.DownloadManager;
-import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -26,14 +25,13 @@ import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.BuildConfig;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
-import com.seafile.seadroid2.ui.base.BaseActivity;
-import com.seafile.seadroid2.ui.markdown.MarkdownActivity;
+import com.seafile.seadroid2.framework.notification.base.NotificationUtils;
 import com.seafile.seadroid2.framework.util.FileExports;
+import com.seafile.seadroid2.ui.base.BaseActivity;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.Random;
 
 /**
  * Activity Utils
@@ -51,11 +49,16 @@ public class WidgetUtils {
             mime = "*/*"; // forces app chooser dialog on unknown type//
         }
 
+        if (MIME_ANDROID.equals(mime)) {
+            showFileForAndroid((BaseActivity) context, file);
+            return;
+        }
+
         Intent openIntent = new Intent(Intent.ACTION_VIEW);
         openIntent.addFlags(FLAG_ACTIVITY_NEW_TASK);
 
-        Uri photoURI = FileProvider.getUriForFile(context, BuildConfig.FILE_PROVIDER_AUTHORITIES, file);
-        openIntent.setDataAndType(photoURI, mime);
+        Uri uri = FileProvider.getUriForFile(context, BuildConfig.FILE_PROVIDER_AUTHORITIES, file);
+        openIntent.setDataAndType(uri, mime);
         openIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
 
         boolean isAvailable = isIntentAvailable(context, openIntent);
@@ -77,45 +80,40 @@ public class WidgetUtils {
         return !list.isEmpty();
     }
 
-    private static void showFileForAndroid(final BaseActivity activity, File file, String
-            fileName) {
+    private static void showFileForAndroid(final BaseActivity activity, File file) {
+        NotificationManager manager = (NotificationManager) activity.getSystemService(NOTIFICATION_SERVICE);
+        NotificationChannel channel = new NotificationChannel(NotificationUtils.NOTIFICATION_CHANNEL_OPEN_APK, NotificationUtils.NOTIFICATION_CHANNEL_OPEN_APK, NotificationManager.IMPORTANCE_HIGH);
+        manager.createNotificationChannel(channel);
+
+        //wait
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(activity, NotificationUtils.NOTIFICATION_CHANNEL_OPEN_APK)
+                .setContentTitle(activity.getString(R.string.waiting))
+                .setSmallIcon(R.drawable.icon)
+                .setAutoCancel(true);
+
+        manager.notify(NotificationUtils.NOTIFICATION_ID_OPEN_APK, notificationBuilder.build());
+
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 ContentResolver contentResolver = activity.getContentResolver();
-                FileExports.exportFileAndroid10AndAbove(fileName, MIME_ANDROID, contentResolver, file);
+                FileExports.exportFileAndroid10AndAbove(file.getName(), MIME_ANDROID, contentResolver, file);
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        int nId = new Random(10000).nextInt();
-        String channelName = "seadroid-downloader";
-
-        NotificationManager manager = (NotificationManager) activity.getSystemService(NOTIFICATION_SERVICE);
-        NotificationChannel channel = new NotificationChannel(channelName, channelName, NotificationManager.IMPORTANCE_HIGH);
-        manager.createNotificationChannel(channel);
-
         Intent intent = new Intent(DownloadManager.ACTION_VIEW_DOWNLOADS);
         intent.addFlags(FLAG_ACTIVITY_NEW_TASK);
 
-        PendingIntent pendingIntent = PendingIntent.getActivity(activity, nId, intent, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-
-        Notification notification = new NotificationCompat.Builder(activity, channelName)
-                .setContentTitle(fileName + " " + activity.getString(R.string.download_finished))
-                .setContentText(activity.getString(R.string.open))
-                .setSmallIcon(R.drawable.icon)
+        //open
+        PendingIntent pendingIntent = PendingIntent.getActivity(activity, NotificationUtils.NOTIFICATION_ID_OPEN_APK, intent, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        notificationBuilder.setContentTitle(file.getName() + " " + activity.getString(R.string.download_finished))
                 .setContentIntent(pendingIntent)
-                .setAutoCancel(true)
+                .addAction(R.drawable.action_open, activity.getString(R.string.open), pendingIntent)
                 .build();
-        manager.notify(nId, notification);
+        manager.notify(NotificationUtils.NOTIFICATION_ID_OPEN_APK, notificationBuilder.build());
     }
 
-
-    public static void startMarkdownActivity(Context context, String path) {
-        Intent intent = new Intent(context, MarkdownActivity.class);
-        intent.putExtra("path", path);
-        context.startActivity(intent);
-    }
 
     public static int getThumbnailWidth() {
         return (int) SeadroidApplication.getAppContext().getResources().getDimension(R.dimen.lv_icon_width);

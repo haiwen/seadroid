@@ -944,7 +944,7 @@ public class MainActivity extends BaseActivity implements Toolbar.OnMenuItemClic
 
             RepoModel repoModel = getNavContext().getRepoModel();
 
-            addUploadTask(repoModel, getNavContext().getNavPath(), file.getAbsolutePath(), false);
+            addUploadTask(repoModel, getNavContext().getNavPath(), file.getAbsolutePath());
         }
     });
 
@@ -997,54 +997,50 @@ public class MainActivity extends BaseActivity implements Toolbar.OnMenuItemClic
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
         builder.setTitle(getString(R.string.upload_file_exist));
         builder.setMessage(String.format(getString(R.string.upload_duplicate_found), fileName));
+
         builder.setPositiveButton(getString(R.string.upload_replace), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 addUploadTask(repoModel, getNavContext().getNavPath(), file, true);
             }
         });
+
         builder.setNeutralButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
             }
         });
+
         builder.setNegativeButton(getString(R.string.upload_keep_both), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 addUploadTask(repoModel, getNavContext().getNavPath(), file, false);
             }
         });
+
         builder.show();
     }
 
 
     ////////////////add task/////////////
-    private void addUploadTask(RepoModel repoModel, String targetDir, String localFilePath, boolean isUpdate) {
+    private void addUploadTask(RepoModel repoModel, String targetDir, String localFilePath) {
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
-        mainViewModel.addUploadTask(account, repoModel, targetDir, localFilePath, isUpdate, new Consumer<FileTransferEntity>() {
+        mainViewModel.addUploadTask(account, repoModel, targetDir, localFilePath, false, new Consumer<FileTransferEntity>() {
             @Override
             public void accept(FileTransferEntity transferEntity) throws Exception {
-
-
-                if (StringUtils.startsWith(transferEntity.mime_type, "image/")) {
-//                    //todo 移动到指定目录：DCIM/Seafile/images/
-//                    String targetDir = "/DCIM/Seafile/images/";
-//                    StorageManager.getInstance().getMediaDir();
-//
-//                    FileUtils.copy(localFilePath,)
-                } else if (StringUtils.startsWith(transferEntity.mime_type, "video/")) {
-
-                }
+//                if (StringUtils.startsWith(transferEntity.mime_type, "image/")) {
+//                } else if (StringUtils.startsWith(transferEntity.mime_type, "video/")) {
+//                }
 
                 ToastUtils.showLong(R.string.added_to_upload_tasks);
             }
         });
     }
 
-    private void addUploadTask(RepoModel repoModel, String targetDir, Uri sourceUri, boolean isUpdate) {
+    private void addUploadTask(RepoModel repoModel, String targetDir, Uri sourceUri, boolean isReplace) {
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
-        mainViewModel.addUploadTask(account, this, repoModel, targetDir, sourceUri, isUpdate, new Consumer<FileTransferEntity>() {
+        mainViewModel.addUploadTask(account, this, repoModel, targetDir, sourceUri, isReplace, new Consumer<FileTransferEntity>() {
             @Override
             public void accept(FileTransferEntity fileTransferEntity) throws Exception {
                 ToastUtils.showLong(R.string.added_to_upload_tasks);

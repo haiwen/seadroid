@@ -207,6 +207,14 @@ public class SeaWebViewActivity extends BaseActivity {
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        if (mWebView != null) {
+            mWebView.onResume();
+        }
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
 

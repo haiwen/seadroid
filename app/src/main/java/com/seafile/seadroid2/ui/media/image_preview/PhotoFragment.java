@@ -26,6 +26,7 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.config.GlideLoadConfig;
+import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.util.GlideApp;
 import com.seafile.seadroid2.ui.base.fragment.BaseFragment;
@@ -36,8 +37,8 @@ import java.io.File;
 
 public class PhotoFragment extends BaseFragment {
 
-    private String repoId, repoName, fullPath;
     private Account account;
+    private DirentModel direntModel;
 
     private OnPhotoTapListener onPhotoTapListener;
 
@@ -45,29 +46,28 @@ public class PhotoFragment extends BaseFragment {
         this.onPhotoTapListener = onPhotoTapListener;
     }
 
-    public static PhotoFragment newInstance(String repoId, String repoName, String fullPath) {
+    public void setDirentModel(DirentModel direntModel) {
+        this.direntModel = direntModel;
+    }
 
-        Bundle args = new Bundle();
-        args.putString("repoId", repoId);
-        args.putString("repoName", repoName);
-        args.putString("fullPath", fullPath);
+    public DirentModel getDirentModel() {
+        return direntModel;
+    }
 
+    public static PhotoFragment newInstance() {
         PhotoFragment fragment = new PhotoFragment();
-        fragment.setArguments(args);
         return fragment;
     }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() == null) {
-            throw new IllegalArgumentException("Arguments is null");
-        }
 
         account = SupportAccountManager.getInstance().getCurrentAccount();
-        repoId = getArguments().getString("repoId");
-        repoName = getArguments().getString("repoName");
-        fullPath = getArguments().getString("fullPath");
+
+        if (null == direntModel) {
+            throw new IllegalArgumentException("DirentModel is null");
+        }
     }
 
     @Nullable
@@ -96,7 +96,7 @@ public class PhotoFragment extends BaseFragment {
 
         ProgressBar progressBar = view.findViewById(R.id.progress_bar);
 
-        File file = DataManager.getLocalRepoFile(account, repoId, repoName, fullPath);
+        File file = DataManager.getLocalRepoFile(account, direntModel.repo_id, direntModel.repo_name, direntModel.full_path);
         if (file.exists()) {
             progressBar.setVisibility(View.GONE);
 
@@ -147,6 +147,6 @@ public class PhotoFragment extends BaseFragment {
 
 //        return String.format("%srepo/%s/raw%s", account.getServer(), repoId, fileFullPath);
         int size = SizeUtils.dp2px(300);
-        return String.format("%sapi2/repos/%s/thumbnail/?p=%s&size=%s", account.getServer(), repoId, fullPath, size);
+        return String.format("%sapi2/repos/%s/thumbnail/?p=%s&size=%s", account.getServer(), direntModel.repo_id, direntModel.full_path, size);
     }
 }

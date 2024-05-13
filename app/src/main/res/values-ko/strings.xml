@@ -488,8 +488,6 @@
   <string name="action_mode_no_items_selected">선택한 항목이 없습니다</string>
   <!--Accessibility description for navigation drawer-->
   <!--permission-->
-  <string name="permission_manage_exteral_storage_rationale">파일을 처리하려면, 외부 저장소의 모든 파일 관리를 허용하세요</string>
-  <string name="permission_read_exteral_storage_rationale">파일을 처리하려면, 파일에 접근할 저장소 권한이 필요합니다.</string>
   <string name="permission_read_contacts_storage_rationale">연락처를 처리하려면, 연락처에 접근할 권한이 필요합니다.</string>
   <string name="permission_not_granted">권한을 부여하지 않음</string>
   <string name="history_change_title">자세한 수정 내역</string>
@@ -578,4 +576,5 @@
   <string name="update">업데이트</string>
   <string name="clear">지우기</string>
   <string name="clear_all">모두 지우기</string>
+  <!--share link-->
 </resources>

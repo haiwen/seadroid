@@ -71,7 +71,6 @@
     <string name="err_login_failed">Login failed</string>
     <string name="err_wrong_user_or_passwd">Email or password error</string>
     <string name="err_token_expired">Authentication expired, please login again</string>
-    <string name="out_of_quota">Out of quota</string>
     <string name="upload">Upload</string>
     <string name="uploaded">Uploaded</string>
     <string name="re_upload">Upload again</string>
@@ -126,7 +125,6 @@
         <item>@string/file_action_share_encrypt</item>
     </string-array>
     <string name="wait">Wait</string>
-    <string name="file_image_view_full_image">View full image</string>
     <string name="image_gallery_NoImageView_text">No image found</string>
     <string name="pick_photo_video_title">Choose photos/videos to upload</string>
     <string name="select_upload_items">Select items to upload</string>
@@ -525,8 +523,8 @@
     <string name="navdrawer_description_a11y" translatable="false">Navigation Drawer used to switch between major
         features of the application</string>
     <!--permission-->
-    <string name="permission_manage_exteral_storage_rationale">To process files, allows management of all files on external storage</string>
-    <string name="permission_read_exteral_storage_rationale">To process files, allow storage permission to access them.</string>
+    <string name="permission_manage_external_storage_rationale">To process files, allows management of all files on external storage</string>
+    <string name="permission_read_external_storage_rationale">To process files, allow storage permission to access them.</string>
     <string name="permission_read_contacts_storage_rationale">To process contacts, allow contacts permission to access them.</string>
     <string name="permission_camera">To process media files, allow camera permission.</string>
 
@@ -574,6 +572,7 @@
     <string name="channel_name_upload">File Uploading Info</string>
     <string name="channel_name_download">File Downloading Info</string>
     <string name="channel_name_album_backup">Album-backup Info</string>
+    <string name="channel_name_transfer">File Transferring Info</string>
 
     <string name="above_quota">Above Quota</string>
     <string name="camera_upload_state">Upload Info</string>
@@ -618,6 +617,8 @@
     <string name="UncaughtExceptionHandler_err">The application stopped running</string>
 
     <!--action-->
+    <string name="pause">Pause</string>
+    <string name="paused">Paused</string>
     <string name="waiting">Waiting</string>
     <string name="add">Add</string>
     <string name="modify">Modify</string>

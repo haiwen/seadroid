@@ -378,22 +378,6 @@
   <string name="settings_about_title">ACERCA DE</string>
   <string name="settings_about_version_title">App Version</string>
   <string name="settings_about_author_title">Acerca del Autor</string>
-
-  <string name="settings_about_author_info">
-        <![CDATA[
-        <h5>Cliente Seafile para Android</h5>
-        <p>%s</p>
-        <h5>Contáctenos</h5>
-        <p>
-            Twitter: Seafile<br>
-            Email: support@seafile.com<br>
-        </p>
-        <h5>Contribuir</h5>
-        <p>https://github.com/haiwen/seadroid.git</P>
-        <h5>Copyright ©2013-2023 Seafile Ltd.</h5>
-        ]]>
-    </string>
-
   <string name="settings_advance_feature_title">FUNCIONES AVANZADAS</string>
   <string name="settings_storage_title">ALMACENAMIENTO DE CACHÉ</string>
   <string name="settings_cache_title">Tamaño del caché</string>
@@ -506,7 +490,6 @@
   <string name="action_mode_no_items_selected">No se han seleccionado items</string>
   <!--Accessibility description for navigation drawer-->
   <!--permission-->
-  <string name="permission_read_exteral_storage_rationale">Para procesar archivos, conceda permiso de almacenamiento para accederlos.</string>
   <string name="permission_read_contacts_storage_rationale">Para procesar los contactos, permita el acceso a ellos.</string>
   <string name="permission_not_granted">El permiso no fue concedido</string>
   <string name="history_change_title">Detalle de las modificaciones</string>
@@ -561,4 +544,6 @@
   <string name="required_password">Se requiere contraseña.</string>
   <string name="weak_password">La contraseña es demasiado débil.</string>
   <!--Folder backup Preference-->
+  <!--action-->
+  <!--share link-->
 </resources>

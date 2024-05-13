@@ -284,7 +284,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 } else if (TransferEvent.EVENT_TRANSFERRED_WITH_DATA.equals(outDataEvent)) {
                     mCameraBackupState.setSummary(R.string.settings_cuc_finish_title);
                 } else if (TransferEvent.EVENT_CANCEL_OUT_OF_QUOTA.equals(outDataEvent)) {
-                    mCameraBackupState.setSummary(R.string.out_of_quota);
+                    mCameraBackupState.setSummary(R.string.above_quota);
                 }
             } else if (String.valueOf(TransferDataSource.FOLDER_BACKUP).equals(outDataType)) {
                 if (TransferEvent.EVENT_TRANSFERRED_WITHOUT_DATA.equals(outDataEvent)) {
@@ -292,7 +292,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 } else if (TransferEvent.EVENT_TRANSFERRED_WITH_DATA.equals(outDataEvent)) {
                     mFolderBackupState.setSummary(R.string.folder_backup_waiting_state);
                 } else if (TransferEvent.EVENT_CANCEL_OUT_OF_QUOTA.equals(outDataEvent)) {
-                    mFolderBackupState.setSummary(R.string.out_of_quota);
+                    mFolderBackupState.setSummary(R.string.above_quota);
                 }
             }
 
@@ -675,7 +675,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     //on cancel click
-                    ToastUtils.showLong(R.string.permission_manage_exteral_storage_rationale);
+                    ToastUtils.showLong(R.string.permission_manage_external_storage_rationale);
                     mCameraBackupSwitch.setChecked(false);
                 }
             });
@@ -693,7 +693,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     //on cancel click
-                    ToastUtils.showLong(R.string.permission_manage_exteral_storage_rationale);
+                    ToastUtils.showLong(R.string.permission_manage_external_storage_rationale);
                     mFolderBackupSwitch.setChecked(false);
                 }
             });
@@ -726,7 +726,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     private void switchCameraWorker(boolean isChecked) {
         if (isChecked) {
             CameraUploadManager.getInstance().setCameraAccount(currentAccount);
-            BackgroundJobManagerImpl.getInstance().restartMediaUploadWorker(true);
+            BackgroundJobManagerImpl.getInstance().restartMediaBackupWorker(true);
 
             //firebase - event -login
             Bundle eventBundle = new Bundle();
@@ -912,7 +912,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             for (Map.Entry<String, Boolean> stringBooleanEntry : o.entrySet()) {
                 if (Boolean.FALSE.equals(stringBooleanEntry.getValue())) {
 
-                    ToastUtils.showLong(R.string.permission_manage_exteral_storage_rationale);
+                    ToastUtils.showLong(R.string.permission_manage_external_storage_rationale);
 
                     if (whoIsRequestingPermission == 1) {
                         mCameraBackupSwitch.setChecked(false);

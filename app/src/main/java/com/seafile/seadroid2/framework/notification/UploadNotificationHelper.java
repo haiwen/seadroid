@@ -20,7 +20,6 @@ public class UploadNotificationHelper extends BaseTransferNotificationHelper {
     public Intent getTransferIntent() {
         Intent dIntent = new Intent(context, TransferActivity.class);
         dIntent.putExtra(NOTIFICATION_MESSAGE_KEY, NOTIFICATION_OPEN_UPLOAD_TAB);
-        dIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         return dIntent;
     }
 
@@ -36,11 +35,11 @@ public class UploadNotificationHelper extends BaseTransferNotificationHelper {
 
     @Override
     public String getChannelId() {
-        return NotificationUtils.NOTIFICATION_CHANNEL_UPLOAD;
+        return NotificationUtils.NOTIFICATION_CHANNEL_TRANSFER;
     }
 
     @Override
     public int getNotificationId() {
-        return NotificationUtils.NOTIFICATION_UPLOAD_ID;
+        return NotificationUtils.NOTIFICATION_ID_UPLOAD;
     }
 }

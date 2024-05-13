@@ -73,9 +73,9 @@ public class PermissionUtil {
             DialogInterface.OnClickListener onCancel) {
 
         if (!checkExternalStoragePermission(context)) {
-            int msg = R.string.permission_manage_exteral_storage_rationale;
+            int msg = R.string.permission_manage_external_storage_rationale;
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
-                msg = R.string.permission_read_exteral_storage_rationale;
+                msg = R.string.permission_read_external_storage_rationale;
             }
 
             new MaterialAlertDialogBuilder(context)

@@ -792,13 +792,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         // because pic thumbnail under encrypted repo was not supported at the server side
         if (Utils.isViewableImage(fileName) && !repoModel.encrypted) {
 
-            List<DirentModel> ds = adapter.getItems().stream()
-                    .filter(DirentModel.class::isInstance)
-                    .map(DirentModel.class::cast)
-                    .filter(f -> !f.isDir() && Utils.isViewableImage(f.name))
-                    .collect(Collectors.toList());
-
-            Intent getIntent = ImagePreviewActivity.startThisFromRepo(requireContext(), dirent, new ArrayList<>(ds));
+            Intent getIntent = ImagePreviewActivity.startThisFromRepo(requireContext(), dirent);
             imagePreviewActivityLauncher.launch(getIntent);
 
             return;
@@ -843,16 +837,15 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     private File getLocalDestinationFile(String repoId, String repoName, String fullPathInRepo) {
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
 
-        File localFile = DataManager.getLocalRepoFile(account, repoId, repoName, fullPathInRepo);
-        return localFile;
+        return DataManager.getLocalRepoFile(account, repoId, repoName, fullPathInRepo);
     }
 
     private void openWith(DirentModel direntModel) {
         File local = getLocalDestinationFile(direntModel.repo_id, direntModel.repo_name, direntModel.full_path);
         if (local.exists() && local.length() == direntModel.size) {
-            WidgetUtils.openWith(requireContext(), local);
+            WidgetUtils.openWith(requireActivity(), local);
         } else {
-            Intent intent = FileActivity.start(requireContext(), direntModel, "open_with");
+            Intent intent = FileActivity.start(requireActivity(), direntModel, "open_with");
             fileActivityLauncher.launch(intent);
         }
     }
@@ -1078,6 +1071,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             if (isUpdateWhenFileExists) {
                 ToastUtils.showLong(R.string.download_finished);
             }
+
             loadData(true);
 
             File destinationFile = new File(localFullPath);
@@ -1092,10 +1086,10 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             } else if ("open_with".equals(action)) {
 
 
-                WidgetUtils.openWith(requireContext(), destinationFile);
+                WidgetUtils.openWith(requireActivity(), destinationFile);
             } else if ("open_text_mime".equals(action)) {
 
-                MarkdownActivity.start(requireContext(), localFullPath, repoId, targetFile);
+                MarkdownActivity.start(requireActivity(), localFullPath, repoId, targetFile);
             }
         }
     });

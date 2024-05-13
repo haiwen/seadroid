@@ -32,7 +32,7 @@ public class DownloadNotificationHelper extends BaseTransferNotificationHelper {
 
     @Override
     public String getChannelId() {
-        return NotificationUtils.NOTIFICATION_CHANNEL_DOWNLOAD;
+        return NotificationUtils.NOTIFICATION_CHANNEL_TRANSFER;
     }
 
     @Override
@@ -42,6 +42,6 @@ public class DownloadNotificationHelper extends BaseTransferNotificationHelper {
 
     @Override
     public int getNotificationId() {
-        return NotificationUtils.NOTIFICATION_DOWNLOAD_ID;
+        return NotificationUtils.NOTIFICATION_ID_DOWNLOAD;
     }
 }

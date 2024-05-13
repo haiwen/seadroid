@@ -8,7 +8,6 @@ import androidx.room.Query;
 import androidx.room.Update;
 
 import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
-import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
 
 import java.util.List;
 
@@ -18,19 +17,23 @@ import io.reactivex.Single;
 @Dao
 public interface DirentDAO {
     @Query("select * from dirents where related_account = :related_account")
-    Single<List<DirentModel>> getAllByAccount(String related_account);
+    Single<List<DirentModel>> getListByAccount(String related_account);
 
     @Query("select * from dirents where parent_dir = :parent_dir and repo_id = :repo_id")
-    Single<List<DirentModel>> getAllByParentPath(String repo_id, String parent_dir);
+    Single<List<DirentModel>> getListByParentPath(String repo_id, String parent_dir);
 
     @Query("select * from dirents where parent_dir = :parent_dir and repo_id = :repo_id")
-    List<DirentModel> getAllByParentPathSync(String repo_id, String parent_dir);
+    Single<List<DirentModel>> getImageListByParentPath(String repo_id, String parent_dir);
+
+
+    @Query("select * from dirents where parent_dir = :parent_dir and repo_id = :repo_id")
+    List<DirentModel> getListByParentPathSync(String repo_id, String parent_dir);
 
     @Query("select * from dirents where full_path = :full_path and repo_id = :repo_id")
-    Single<List<DirentModel>> getAllByFullPath(String repo_id, String full_path);
+    Single<List<DirentModel>> getListByFullPath(String repo_id, String full_path);
 
     @Query("select * from dirents where full_path = :full_path and repo_id = :repo_id limit 1")
-    List<DirentModel> getByFullPathSync(String repo_id, String full_path);
+    List<DirentModel> getListByFullPathSync(String repo_id, String full_path);
 
     @Query("select * from dirents where uid in ( :uids )")
     List<DirentModel> getListByIdsSync(List<String> uids);

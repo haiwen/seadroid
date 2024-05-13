@@ -305,7 +305,7 @@ public class SeafileProvider extends DocumentsProvider {
             if (!path.endsWith("/")) {
                 path += "/";
             }
-            List<DirentModel> direntModels = AppDatabase.getInstance().direntDao().getAllByParentPathSync(repoId, path);
+            List<DirentModel> direntModels = AppDatabase.getInstance().direntDao().getListByParentPathSync(repoId, path);
             // in the meantime return cached ones
             if (!CollectionUtils.isEmpty(direntModels)) {
                 if (path.endsWith("/")) {
@@ -367,7 +367,7 @@ public class SeafileProvider extends DocumentsProvider {
                 parentPath += "/";
             }
 
-            List<DirentModel> direntModels = AppDatabase.getInstance().direntDao().getAllByParentPathSync(repoId, parentPath);
+            List<DirentModel> direntModels = AppDatabase.getInstance().direntDao().getListByParentPathSync(repoId, parentPath);
             List<StarredModel> starredModels = AppDatabase.getInstance().starredDirentDAO().getListByAccountSync(account.getSignature());
 
             if (!CollectionUtils.isEmpty(direntModels)) {

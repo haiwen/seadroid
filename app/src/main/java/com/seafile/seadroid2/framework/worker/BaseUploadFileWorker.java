@@ -66,7 +66,7 @@ public abstract class BaseUploadFileWorker extends TransferWorker {
 
     public abstract BaseNotification getNotification();
 
-    protected boolean calculateQuota(List<FileTransferEntity> list) throws SeafException, IOException {
+    protected boolean calcQuota(List<FileTransferEntity> list) throws SeafException, IOException {
 
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
         if (account != null && account.isQuotaNoLimit()) {
@@ -568,7 +568,7 @@ public abstract class BaseUploadFileWorker extends TransferWorker {
         AppDatabase.getInstance().fileTransferDAO().update(transferEntity);
 
         //update
-        List<DirentModel> direntList = AppDatabase.getInstance().direntDao().getByFullPathSync(transferEntity.repo_id, transferEntity.full_path);
+        List<DirentModel> direntList = AppDatabase.getInstance().direntDao().getListByFullPathSync(transferEntity.repo_id, transferEntity.full_path);
         if (!CollectionUtils.isEmpty(direntList)) {
             DirentModel direntModel = direntList.get(0);
             direntModel.last_modified_at = transferEntity.modified_at;

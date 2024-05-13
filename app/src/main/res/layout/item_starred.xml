@@ -4,6 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:paddingStart="8dp"
+    android:paddingEnd="16dp"
     android:foreground="?selectableItemBackground">
 
     <ImageView
@@ -12,7 +14,6 @@
         android:layout_height="@dimen/lv_icon_height"
         android:layout_centerVertical="true"
         android:layout_marginVertical="4dp"
-        android:layout_marginStart="8dp"
         android:contentDescription="@null"
         android:padding="8dp"
         android:scaleType="centerCrop"
@@ -50,16 +51,24 @@
 
     </LinearLayout>
 
-    <ImageView
+    <FrameLayout
         android:id="@+id/item_action"
         android:layout_width="@dimen/lv_iv_action_width"
-        android:layout_height="@dimen/lv_iv_action_width"
+        android:layout_height="@dimen/lv_item_height"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
         android:foreground="?selectableItemBackground"
-        android:scaleType="center"
-        android:src="@drawable/baseline_more_vert_24"
+        android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:layout_width="@dimen/lv_iv_action_width"
+            android:layout_height="@dimen/lv_item_height"
+            android:layout_gravity="end|bottom"
+            android:src="@drawable/baseline_expandable_24" />
+    </FrameLayout>
 
     <com.google.android.material.divider.MaterialDivider
         android:layout_width="match_parent"

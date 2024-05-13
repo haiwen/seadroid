@@ -483,7 +483,6 @@ Zum Aktualisieren einmal antippen</string>
   <string name="action_mode_no_items_selected">Es wurden keine Objekte ausgewählt</string>
   <!--Accessibility description for navigation drawer-->
   <!--permission-->
-  <string name="permission_read_exteral_storage_rationale">Um Dateien zu bearbeiten bitte Speicherrechte erteilen.</string>
   <string name="permission_read_contacts_storage_rationale">Um Kontakte zu bearbeiten bitte Rechte erteilen.</string>
   <string name="permission_not_granted">Berechtigung wurde nicht erteilt</string>
   <string name="history_change_title">Änderungsinformationen</string>
@@ -538,4 +537,6 @@ Zum Aktualisieren einmal antippen</string>
   <string name="required_password">Passwort erforderlich.</string>
   <string name="weak_password">Passwort ist zu schwach.</string>
   <!--Folder backup Preference-->
+  <!--action-->
+  <!--share link-->
 </resources>

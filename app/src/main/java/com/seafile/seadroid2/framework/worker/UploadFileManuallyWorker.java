@@ -8,6 +8,7 @@ import androidx.work.Data;
 import androidx.work.WorkerParameters;
 
 import com.blankj.utilcode.util.CollectionUtils;
+import com.blankj.utilcode.util.FileUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
@@ -84,9 +85,9 @@ public class UploadFileManuallyWorker extends BaseUploadFileWorker {
             FileTransferEntity transfer = transferList.get(0);
 
             try {
-                boolean isAmple = calculateQuota(CollectionUtils.newArrayList(transfer));
+                boolean isAmple = calcQuota(CollectionUtils.newArrayList(transfer));
                 if (!isAmple) {
-                    getGeneralNotificationHelper().showErrorNotification(R.string.out_of_quota, R.string.settings_folder_backup_info_title);
+                    getGeneralNotificationHelper().showErrorNotification(R.string.above_quota, R.string.settings_folder_backup_info_title);
                     AppDatabase.getInstance().fileTransferDAO().cancelWithFileBackup(TransferResult.OUT_OF_QUOTA);
 
                     outEvent = TransferEvent.EVENT_CANCEL_OUT_OF_QUOTA;
@@ -115,8 +116,13 @@ public class UploadFileManuallyWorker extends BaseUploadFileWorker {
             } catch (Exception e) {
                 SLogs.e(e);
                 catchExceptionAndUpdateDB(transfer, e);
+            } finally {
+                // After the user selects the file and completes the upload,
+                // the APP will no longer cache the file in ".../android/Media/Seafile/..."
+                FileUtils.delete(transfer.full_path);
             }
         }
+
 
         if (isUploaded) {
             ToastUtils.showLong(R.string.upload_finished);

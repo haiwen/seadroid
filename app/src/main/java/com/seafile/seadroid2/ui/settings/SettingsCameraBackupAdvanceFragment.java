@@ -21,7 +21,6 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.framework.datastore.sp.AlbumBackupManager;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.ui.camera_upload.CameraUploadConfigActivity;
-import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
 import com.seafile.seadroid2.ui.camera_upload.GalleryBucketUtils;
 import com.seafile.seadroid2.framework.datastore.sp.SettingsManager;
 
@@ -75,7 +74,7 @@ public class SettingsCameraBackupAdvanceFragment extends PreferenceFragmentCompa
                 boolean isCustom = (Boolean) newValue;
                 AlbumBackupManager.writeAllowDataPlanSwitch(isCustom);
 
-                BackgroundJobManagerImpl.getInstance().restartMediaUploadWorker(isCustom);
+                BackgroundJobManagerImpl.getInstance().restartMediaBackupWorker(isCustom);
 
                 return true;
             }
@@ -92,7 +91,7 @@ public class SettingsCameraBackupAdvanceFragment extends PreferenceFragmentCompa
                 boolean isCustom = (Boolean) newValue;
                 AlbumBackupManager.writeAllowVideoSwitch(isCustom);
 
-                BackgroundJobManagerImpl.getInstance().restartMediaUploadWorker(isCustom);
+                BackgroundJobManagerImpl.getInstance().restartMediaBackupWorker(isCustom);
 
                 return true;
             }
@@ -140,7 +139,7 @@ public class SettingsCameraBackupAdvanceFragment extends PreferenceFragmentCompa
             List<String> selectedBuckets = new ArrayList<>();
             AlbumBackupManager.writeBucketIds(selectedBuckets);
 
-            BackgroundJobManagerImpl.getInstance().restartMediaUploadWorker(false);
+            BackgroundJobManagerImpl.getInstance().restartMediaBackupWorker(false);
 
             refreshPreferenceView();
         }
@@ -187,7 +186,7 @@ public class SettingsCameraBackupAdvanceFragment extends PreferenceFragmentCompa
                 return;
             }
 
-            BackgroundJobManagerImpl.getInstance().restartMediaUploadWorker(true);
+            BackgroundJobManagerImpl.getInstance().restartMediaBackupWorker(true);
 
             refreshPreferenceView();
         }

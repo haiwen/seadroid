@@ -255,12 +255,14 @@ public class MainViewModel extends BaseViewModel {
         });
     }
 
-    public void addUploadTask(Account account, Context context, RepoModel repoModel, String targetDir, Uri sourceUri, boolean isUpdate, Consumer<FileTransferEntity> consumer) {
-        Single<File> single = copyFile(account, context, sourceUri, repoModel.repo_id, repoModel.repo_name, isUpdate);
+    public void addUploadTask(Account account, Context context, RepoModel repoModel, String targetDir, Uri sourceUri, boolean isReplace, Consumer<FileTransferEntity> consumer) {
+        ToastUtils.showLong(R.string.upload_waiting);
+
+        Single<File> single = copyFile(account, context, sourceUri, repoModel.repo_id, repoModel.repo_name, isReplace);
         addSingleDisposable(single, new Consumer<File>() {
             @Override
             public void accept(File file) throws Exception {
-                addUploadTask(account, repoModel, targetDir, file.getAbsolutePath(), isUpdate, consumer);
+                addUploadTask(account, repoModel, targetDir, file.getAbsolutePath(), isReplace, consumer);
             }
         });
     }
@@ -286,8 +288,6 @@ public class MainViewModel extends BaseViewModel {
                 entity.file_format = FileUtils.getFileExtension(entity.full_path);
                 entity.file_md5 = FileUtils.getFileMD5ToString(entity.full_path).toLowerCase();
                 entity.mime_type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(entity.file_format);
-
-//                entity.is_block = repoModel.canLocalDecrypt();
 
                 entity.repo_id = repoModel.repo_id;
                 entity.repo_name = repoModel.repo_name;
@@ -330,7 +330,7 @@ public class MainViewModel extends BaseViewModel {
         }, new Consumer<Throwable>() {
             @Override
             public void accept(Throwable throwable) throws Exception {
-                throwable.printStackTrace();
+                SLogs.e("addUploadTask",throwable);
             }
         });
     }

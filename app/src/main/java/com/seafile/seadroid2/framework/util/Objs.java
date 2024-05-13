@@ -384,7 +384,7 @@ public class Objs {
 
     public static Single<List<DirentModel>> getDirentsSingleFromServer(Account account, String repoId, String repoName, String parentDir) {
         Single<DirentWrapperModel> netSingle = IO.getInstanceByAccount(account).execute(RepoService.class).getDirents(repoId, parentDir);
-        Single<List<DirentModel>> dbSingle = AppDatabase.getInstance().direntDao().getAllByParentPath(repoId, parentDir);
+        Single<List<DirentModel>> dbSingle = AppDatabase.getInstance().direntDao().getListByParentPath(repoId, parentDir);
         return Single.zip(netSingle, dbSingle, new BiFunction<DirentWrapperModel, List<DirentModel>, List<DirentModel>>() {
             @Override
             public List<DirentModel> apply(DirentWrapperModel direntWrapperModel, List<DirentModel> direntModels) throws Exception {

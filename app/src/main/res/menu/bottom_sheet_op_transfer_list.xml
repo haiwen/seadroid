@@ -15,4 +15,8 @@
         android:icon="@drawable/action_update"
         android:title="@string/re_upload" />
 
+    <item
+        android:id="@+id/pause"
+        android:icon="@drawable/delete"
+        android:title="@string/pause" />
 </menu>

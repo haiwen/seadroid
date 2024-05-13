@@ -9,26 +9,31 @@ import com.seafile.seadroid2.framework.util.SLogs;
 
 public class NotificationUtils {
     public static final String NOTIFICATION_CHANNEL_GENERAL = "NOTIFICATION_CHANNEL_GENERAL";
-    public static final String NOTIFICATION_CHANNEL_DOWNLOAD = "NOTIFICATION_CHANNEL_DOWNLOAD";
-    public static final String NOTIFICATION_CHANNEL_UPLOAD = "NOTIFICATION_CHANNEL_UPLOAD";
-    public static final String NOTIFICATION_CHANNEL_UPLOAD_FOLDER = "NOTIFICATION_CHANNEL_UPLOAD_FOLDER";
+    public static final String NOTIFICATION_CHANNEL_TRANSFER = "NOTIFICATION_CHANNEL_TRANSFER";
+//    public static final String NOTIFICATION_CHANNEL_UPLOAD = "NOTIFICATION_CHANNEL_UPLOAD";
+//    public static final String NOTIFICATION_CHANNEL_UPLOAD_FOLDER = "NOTIFICATION_CHANNEL_UPLOAD_FOLDER";
+//    public static final String NOTIFICATION_CHANNEL_UPLOAD_FILE = "NOTIFICATION_CHANNEL_UPLOAD_FILE";
+//    public static final String NOTIFICATION_CHANNEL_UPLOAD_ALBUM_BACKUP = "NOTIFICATION_CHANNEL_ALBUM_BACKUP";
 
-    public static final String NOTIFICATION_CHANNEL_UPLOAD_FILE = "NOTIFICATION_CHANNEL_UPLOAD_FILE";
-    public static final String NOTIFICATION_CHANNEL_UPLOAD_ALBUM_BACKUP = "NOTIFICATION_CHANNEL_ALBUM_BACKUP";
+
+    public static final String NOTIFICATION_CHANNEL_OPEN_APK = "NOTIFICATION_CHANNEL_OPEN_APK_FILE";
 
 
-    public static final int NOTIFICATION_ERROR_ID = 100;
-    public static final int NOTIFICATION_GENERAL_ID = 1010;
-    public static final int NOTIFICATION_DOWNLOAD_ID = 2000;
-    public static final int NOTIFICATION_UPLOAD_ID = 3000;
-    public static final int NOTIFICATION_UPLOAD_FOLDER_ID = 3010;
-    public static final int NOTIFICATION_UPLOAD_FILE_ID = 3011;
-    public static final int NOTIFICATION_UPLOAD_ALBUM_BACKUP_ID = 3020;
+    public static final int NOTIFICATION_ID_ERROR = 100;
+    public static final int NOTIFICATION_ID_GENERAL = 1010;
+    public static final int NOTIFICATION_ID_DOWNLOAD = 2000;
+
+    @Deprecated
+    public static final int NOTIFICATION_ID_UPLOAD = 3000;
+    public static final int NOTIFICATION_ID_UPLOAD_FOLDER = 3010;
+    public static final int NOTIFICATION_ID_UPLOAD_FILE = 3011;
+    public static final int NOTIFICATION_ID_UPLOAD_ALBUM_BACKUP = 3020;
+    public static final int NOTIFICATION_ID_OPEN_APK = 4000;
 
 
     public static final String NOTIFICATION_MESSAGE_KEY = "notification_key";
-    public static final String NOTIFICATION_OPEN_UPLOAD_TAB = "open upload tab notification";
-    public static final String NOTIFICATION_OPEN_DOWNLOAD_TAB = "open download tab notification";
+    public static final String NOTIFICATION_OPEN_UPLOAD_TAB = "open_upload_tab_notification";
+    public static final String NOTIFICATION_OPEN_DOWNLOAD_TAB = "open_download_tab_notification";
 
     private NotificationUtils() {
     }
@@ -45,30 +50,35 @@ public class NotificationUtils {
         }
 
         createChannel(context, notificationManager,
-                NOTIFICATION_CHANNEL_DOWNLOAD,
-                R.string.channel_name_download,
-                R.string.notification_download_started_title, NotificationManager.IMPORTANCE_DEFAULT);
+                NOTIFICATION_CHANNEL_TRANSFER,
+                R.string.channel_name_transfer,
+                R.string.channel_name_transfer, NotificationManager.IMPORTANCE_DEFAULT);
 
-        createChannel(context, notificationManager,
-                NOTIFICATION_CHANNEL_UPLOAD,
-                R.string.channel_name_upload,
-                R.string.notification_upload_started_title, NotificationManager.IMPORTANCE_DEFAULT);
 
-        createChannel(context, notificationManager,
-                NOTIFICATION_CHANNEL_UPLOAD_FOLDER,
-                R.string.channel_name_upload,
-                R.string.notification_upload_started_title, NotificationManager.IMPORTANCE_DEFAULT);
-
-        createChannel(context, notificationManager,
-                NOTIFICATION_CHANNEL_UPLOAD_FILE,
-                R.string.channel_name_upload,
-                R.string.notification_upload_started_title, NotificationManager.IMPORTANCE_DEFAULT);
-
-        createChannel(context, notificationManager,
-                NOTIFICATION_CHANNEL_UPLOAD_ALBUM_BACKUP,
-                R.string.channel_name_album_backup,
-                R.string.notification_upload_started_title, NotificationManager.IMPORTANCE_DEFAULT);
-
+//        createChannel(context, notificationManager,
+//                NOTIFICATION_CHANNEL_TRANSFER,
+//                R.string.channel_name_download,
+//                R.string.notification_download_started_title, NotificationManager.IMPORTANCE_DEFAULT);
+//
+//        createChannel(context, notificationManager,
+//                NOTIFICATION_CHANNEL_TRANSFER,
+//                R.string.channel_name_upload,
+//                R.string.notification_upload_started_title, NotificationManager.IMPORTANCE_DEFAULT);
+//
+//        createChannel(context, notificationManager,
+//                NOTIFICATION_CHANNEL_TRANSFER,
+//                R.string.channel_name_upload,
+//                R.string.notification_upload_started_title, NotificationManager.IMPORTANCE_DEFAULT);
+//
+//        createChannel(context, notificationManager,
+//                NOTIFICATION_CHANNEL_TRANSFER,
+//                R.string.channel_name_upload,
+//                R.string.notification_upload_started_title, NotificationManager.IMPORTANCE_DEFAULT);
+//
+//        createChannel(context, notificationManager,
+//                NOTIFICATION_CHANNEL_TRANSFER,
+//                R.string.channel_name_album_backup,
+//                R.string.notification_upload_started_title, NotificationManager.IMPORTANCE_DEFAULT);
 
         createChannel(context, notificationManager,
                 NotificationUtils.NOTIFICATION_CHANNEL_GENERAL,

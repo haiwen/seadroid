@@ -436,7 +436,6 @@
   <string name="action_mode_no_items_selected">未選中任何文件</string>
   <!--Accessibility description for navigation drawer-->
   <!--permission-->
-  <string name="permission_read_exteral_storage_rationale">在處理文件之前，請允許應用獲取存儲權限</string>
   <string name="permission_read_contacts_storage_rationale">在處理文件之前，請允許應用獲取存儲權限</string>
   <string name="permission_not_granted">未獲得權限</string>
   <string name="history_change_title">修改詳情</string>
@@ -480,4 +479,5 @@
   <string name="link">鏈接</string>
   <!--Folder backup Preference-->
   <!--action-->
+  <!--share link-->
 </resources>
