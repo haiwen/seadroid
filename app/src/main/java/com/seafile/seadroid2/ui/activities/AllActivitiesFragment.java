@@ -41,7 +41,7 @@ import com.seafile.seadroid2.ui.file.FileActivity;
 import com.seafile.seadroid2.ui.main.MainActivity;
 import com.seafile.seadroid2.ui.markdown.MarkdownActivity;
 import com.seafile.seadroid2.ui.media.image_preview.ImagePreviewActivity;
-import com.seafile.seadroid2.ui.play.exoplayer.CustomExoVideoPlayerActivity;
+import com.seafile.seadroid2.ui.media.player.exoplayer.CustomExoVideoPlayerActivity;
 import com.seafile.seadroid2.ui.webview.SeaWebViewActivity;
 import com.seafile.seadroid2.view.TipsViews;
 

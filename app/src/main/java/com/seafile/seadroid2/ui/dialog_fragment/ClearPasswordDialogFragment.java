@@ -8,10 +8,14 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.ui.base.fragment.CustomDialogFragment;
 import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.data.DatabaseHelper;
+import com.seafile.seadroid2.ui.base.fragment.RequestCustomDialogFragmentWithVM;
+import com.seafile.seadroid2.ui.dialog_fragment.viewmodel.ClearCacheViewModel;
+import com.seafile.seadroid2.ui.dialog_fragment.viewmodel.ClearPasswordViewModel;
 
-public class ClearPasswordDialogFragment extends CustomDialogFragment {
+import io.reactivex.functions.Consumer;
+
+public class ClearPasswordDialogFragment extends RequestCustomDialogFragmentWithVM<ClearPasswordViewModel> {
     public static ClearPasswordDialogFragment newInstance() {
-
         Bundle args = new Bundle();
 
         ClearPasswordDialogFragment fragment = new ClearPasswordDialogFragment();
@@ -31,10 +35,13 @@ public class ClearPasswordDialogFragment extends CustomDialogFragment {
 
     @Override
     protected void onPositiveClick() {
-        //TODO 清除密码
-        // clear cached data from database
-        DatabaseHelper dbHelper = DatabaseHelper.getDatabaseHelper();
-        dbHelper.clearEnckeys();
+        getViewModel().clear(new Consumer<Boolean>() {
+            @Override
+            public void accept(Boolean aBoolean) throws Exception {
+                refreshData();
+                dismiss();
+            }
+        });
     }
 
     @Override

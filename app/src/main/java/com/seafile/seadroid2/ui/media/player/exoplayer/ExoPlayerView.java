@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.ui.play.exoplayer;
+package com.seafile.seadroid2.ui.media.player.exoplayer;
 
 import static androidx.media3.common.Player.COMMAND_SET_VIDEO_SURFACE;
 
@@ -6,7 +6,6 @@ import android.content.Context;
 import android.os.Looper;
 import android.os.Message;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.SurfaceView;
 import android.view.View;
@@ -16,14 +15,11 @@ import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.media3.common.C;
 import androidx.media3.common.PlaybackException;
-import androidx.media3.common.PlaybackParameters;
 import androidx.media3.common.Player;
 import androidx.media3.common.VideoSize;
 import androidx.media3.common.util.Assertions;
 
-import com.blankj.utilcode.util.TimeUtils;
 import com.seafile.seadroid2.R;
 
 public class ExoPlayerView extends ConstraintLayout {

@@ -49,7 +49,8 @@ import java.util.stream.Collectors;
  * @see BackgroundJobManagerImpl#TAG_TRANSFER_UPLOAD_FOLDER_SCAN
  */
 public class FolderBackupScannerWorker extends TransferWorker {
-    public static final UUID UID = UUID.randomUUID();
+    public static final UUID UID = UUID.nameUUIDFromBytes(FolderBackupScannerWorker.class.getSimpleName().getBytes());
+
     private FolderBackupNotificationHelper notificationHelper;
 
     public FolderBackupScannerWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {

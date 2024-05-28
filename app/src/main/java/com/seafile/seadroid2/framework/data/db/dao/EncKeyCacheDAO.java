@@ -31,4 +31,7 @@ public interface EncKeyCacheDAO {
 
     @Query("select * from enc_key_cache where repo_id = :repoId limit 1")
     Single<List<EncKeyCacheEntity>> getListByRepoIdAsync(String repoId);
+
+    @Query("DELETE FROM enc_key_cache")
+    Completable deleteAll();
 }

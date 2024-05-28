@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.ui.play;
+package com.seafile.seadroid2.ui.media.player;
 
 import android.os.AsyncTask;
 

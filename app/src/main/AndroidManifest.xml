@@ -199,7 +199,7 @@
         <activity android:name=".ui.folder_backup.FolderBackupSelectedPathActivity" />
 
         <activity
-            android:name=".ui.play.exoplayer.CustomExoVideoPlayerActivity"
+            android:name=".ui.media.player.exoplayer.CustomExoVideoPlayerActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:screenOrientation="sensor" />
 
@@ -208,6 +208,7 @@
         <activity android:name=".ui.selector.ObjSelectorActivity" />
         <activity android:name=".ui.media.image_preview.ImagePreviewActivity" />
         <activity android:name=".ui.transfer_list.TransferActivity" />
+        <activity android:name=".ui.BugHandlerActivity" />
 
         <provider
             android:name=".provider.SeafileProvider"

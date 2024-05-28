@@ -144,9 +144,24 @@ public class SupportAccountManager {
         account.is_shib = isShib;
         account.sessionKey = sessionKey;
 
-        account.setTotalSpace(Long.parseLong(totalSpace));
-        account.setUsageSpace(Long.parseLong(usageSpace));
-        account.setLoginTimestamp(Long.parseLong(loginTime));
+        if (TextUtils.isEmpty(totalSpace)) {
+            account.setTotalSpace(0L);
+        } else {
+            account.setTotalSpace(Long.parseLong(totalSpace));
+        }
+
+        if (TextUtils.isEmpty(totalSpace)) {
+            account.setUsageSpace(0L);
+        } else {
+            account.setUsageSpace(Long.parseLong(usageSpace));
+        }
+
+        if (TextUtils.isEmpty(totalSpace)) {
+            account.setLoginTimestamp(0L);
+        } else {
+            account.setLoginTimestamp(Long.parseLong(loginTime));
+        }
+
 
         return account;
     }
@@ -188,6 +203,20 @@ public class SupportAccountManager {
      */
     @NonNull
     public ServerInfo getServerInfo(Account account) {
+        String server = getUserData(account.getAndroidAccount(), Authenticator.KEY_SERVER_URI);
+        String version = getUserData(account.getAndroidAccount(), Authenticator.KEY_SERVER_VERSION);
+        String features = getUserData(account.getAndroidAccount(), Authenticator.KEY_SERVER_FEATURES);
+        String encrypted_library_version = getUserData(account.getAndroidAccount(), Authenticator.KEY_SERVER_ENCRYPTED_VERSION);
+        return new ServerInfo(server, version, features, encrypted_library_version);
+    }
+
+    @Nullable
+    public ServerInfo getCurrentServerInfo() {
+        Account account = getCurrentAccount();
+        if (account == null) {
+            return null;
+        }
+
         String server = getUserData(account.getAndroidAccount(), Authenticator.KEY_SERVER_URI);
         String version = getUserData(account.getAndroidAccount(), Authenticator.KEY_SERVER_VERSION);
         String features = getUserData(account.getAndroidAccount(), Authenticator.KEY_SERVER_FEATURES);

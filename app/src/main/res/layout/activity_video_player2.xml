@@ -7,7 +7,7 @@
     android:keepScreenOn="true"
     android:orientation="vertical">
 
-    <com.seafile.seadroid2.ui.play.exoplayer.ExoPlayerView
+    <com.seafile.seadroid2.ui.media.player.exoplayer.ExoPlayerView
         android:id="@+id/player_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

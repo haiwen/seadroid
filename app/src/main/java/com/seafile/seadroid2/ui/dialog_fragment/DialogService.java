@@ -9,7 +9,6 @@ import com.seafile.seadroid2.framework.data.model.objs.DirentShareLinkModel;
 import java.util.List;
 import java.util.Map;
 
-import io.reactivex.Observable;
 import io.reactivex.Single;
 import okhttp3.RequestBody;
 import retrofit2.http.Body;
@@ -65,6 +64,9 @@ public interface DialogService {
     Single<ResultModel> copyDirents(@Body Map<String, Object> map);
 
     @POST("api/v2.1/multi-share-links/")
+    Single<DirentShareLinkModel> createMultiShareLink(@Body Map<String, Object> map);
+
+    @POST("api/v2.1/share-links/")
     Single<DirentShareLinkModel> createShareLink(@Body Map<String, Object> map);
 
     @GET("api/v2.1/share-links/")

@@ -29,7 +29,7 @@ public class GetShareLinkPasswordViewModel extends BaseViewModel {
         return linkLiveData;
     }
 
-    public void getFirstShareLink(String repoId, String path, String password, String expire_days, DirentPermissionModel permissions) {
+    public void getFirstShareLink(String repoId, String path, String password, String expire_days) {
         getRefreshLiveData().setValue(true);
 
         Single<List<DirentShareLinkModel>> single = IO.getInstanceWithLoggedIn().execute(DialogService.class).listAllShareLink(repoId, path);
@@ -37,7 +37,7 @@ public class GetShareLinkPasswordViewModel extends BaseViewModel {
             @Override
             public void accept(List<DirentShareLinkModel> models) throws Exception {
                 if (CollectionUtils.isEmpty(models)) {
-                    createShareLink(repoId, path, password, expire_days, permissions);
+                    createShareLink(repoId, path, password, expire_days, null);
                 } else {
                     Optional<DirentShareLinkModel> optional = models.stream().filter(f -> !f.is_expired).findFirst();
                     if (optional.isPresent()) {
@@ -78,11 +78,14 @@ public class GetShareLinkPasswordViewModel extends BaseViewModel {
             requestDataMap.put("expiration_time", expireDayStr);
         }
 
+        Single<DirentShareLinkModel> single;
         if (permissions != null) {
             requestDataMap.put("permissions", permissions);
+            single = IO.getInstanceWithLoggedIn().execute(DialogService.class).createMultiShareLink(requestDataMap);
+        } else {
+            single = IO.getInstanceWithLoggedIn().execute(DialogService.class).createShareLink(requestDataMap);
         }
 
-        Single<DirentShareLinkModel> single = IO.getInstanceWithLoggedIn().execute(DialogService.class).createShareLink(requestDataMap);
         addSingleDisposable(single, new Consumer<DirentShareLinkModel>() {
             @Override
             public void accept(DirentShareLinkModel direntShareLinkModel) throws Exception {

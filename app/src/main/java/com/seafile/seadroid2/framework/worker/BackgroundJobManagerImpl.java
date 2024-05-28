@@ -31,40 +31,12 @@ public class BackgroundJobManagerImpl {
     public static final String TAG_ALL = "*";
     public static final String TAG_TRANSFER = TAG_ALL + ":transfer";
 
-    public static final String TAG_TRANSFER_DOWNLOAD = TAG_TRANSFER + ":download";
-    public static final String TAG_TRANSFER_UPLOAD = TAG_TRANSFER + ":upload";
-
-    public static final String TAG_TRANSFER_DOWNLOAD_CHECKER = TAG_TRANSFER + ":download_checker";
-
-
-    //SYNC
-    public static final String TAG_TRANSFER_DOWNLOAD_SCAN = TAG_TRANSFER + ":download_scan";
-    public static final String TAG_TRANSFER_UPLOAD_SCAN = TAG_TRANSFER + ":upload_scan";
-
-    //download
-    public static final String TAG_TRANSFER_DOWNLOAD_FILES_SCAN = TAG_TRANSFER_DOWNLOAD_SCAN + ":schedule_files_download_scan_worker";
-    public static final String TAG_TRANSFER_DOWNLOAD_FILES_WORKER = TAG_TRANSFER_DOWNLOAD + ":download_files_worker";
-
-    //upload
-    public static final String TAG_TRANSFER_UPLOAD_FOLDER_SCAN = TAG_TRANSFER_UPLOAD_SCAN + ":schedule_folder_upload_scan_worker";
-    public static final String TAG_TRANSFER_UPLOAD_FOLDER_BACKUP_WORKER = TAG_TRANSFER_UPLOAD + ":upload_folder_backup_worker";
-    public static final String TAG_TRANSFER_UPLOAD_FILE_BACKUP_WORKER = TAG_TRANSFER_UPLOAD + ":upload_file_backup_worker";
-
-
-    //media
-    public static final String TAG_TRANSFER_UPLOAD_MEDIA_SCAN = TAG_TRANSFER_UPLOAD_SCAN + ":schedule_media_upload_scan_worker";
-    public static final String TAG_TRANSFER_UPLOAD_MEDIA_WORKER = TAG_TRANSFER_UPLOAD + ":upload_media_worker";
-
-
     public static final String JOB_CONTENT_OBSERVER = "content_observer";
     public static final String JOB_PERIODIC_MEDIA_DETECTION = "periodic_media_detection";
 
     public static final String JOB_NOTIFICATION = "notification";
 
     public static final String JOB_PERIODIC_HEALTH_STATUS = "periodic_health_status";
-
-
-    private final String TAG_PREFIX_NAME = "name";
 
     private final long MAX_CONTENT_TRIGGER_DELAY_MS = 1500L;
     private final long PERIODIC_BACKUP_INTERVAL_MINUTES = 24 * 60L;
@@ -74,7 +46,7 @@ public class BackgroundJobManagerImpl {
 
     }
 
-    private List<Disposable> disposableList = Lists.newArrayList();
+    private final List<Disposable> disposableList = Lists.newArrayList();
 
     public static BackgroundJobManagerImpl getInstance() {
         return SingletonHolder.INSTANCE;
@@ -84,13 +56,14 @@ public class BackgroundJobManagerImpl {
         private static final BackgroundJobManagerImpl INSTANCE = new BackgroundJobManagerImpl();
     }
 
-    private <T extends ListenableWorker> OneTimeWorkRequest.Builder oneTimeRequestBuilder(Class<T> tClass, String jobName) {
+    private <T extends ListenableWorker> OneTimeWorkRequest.Builder oneTimeRequestBuilder(Class<T> tClass) {
         return new OneTimeWorkRequest.Builder(tClass)
                 .addTag(TAG_ALL)
-                .addTag(jobName);
+                .addTag(TAG_TRANSFER)
+                .addTag(tClass.getSimpleName());
     }
 
-    private <T extends ListenableWorker> PeriodicWorkRequest.Builder periodicRequestBuilder(Class<T> tClass, String jobName, long intervalMins, long flexIntervalMins) {
+    private <T extends ListenableWorker> PeriodicWorkRequest.Builder periodicRequestBuilder(Class<T> tClass, long intervalMins, long flexIntervalMins) {
         if (intervalMins == 0) {
             intervalMins = DEFAULT_PERIODIC_JOB_INTERVAL_MINUTES;
         }
@@ -99,7 +72,8 @@ public class BackgroundJobManagerImpl {
         }
         return new PeriodicWorkRequest.Builder(tClass, intervalMins, TimeUnit.MINUTES, flexIntervalMins, TimeUnit.MINUTES)
                 .addTag(TAG_ALL)
-                .addTag(jobName);
+                .addTag(TAG_TRANSFER)
+                .addTag(tClass.getSimpleName());
     }
 
     private boolean checkWorkerIsRunningById(UUID uid) {
@@ -133,33 +107,16 @@ public class BackgroundJobManagerImpl {
 
     }
 
-    private boolean checkWorkerIsRunningByTag(String tag) {
-        ListenableFuture<List<WorkInfo>> workInfos = SupportWorkManager.getWorkManager().getWorkInfosByTag(tag);
-        try {
-            List<WorkInfo> workInfosList = workInfos.get();
-            if (CollectionUtils.isEmpty(workInfosList)) {
-                return false;
-            }
-
-            boolean isFinish = workInfosList.get(0).getState().isFinished();
-
-            return !isFinish;
-        } catch (ExecutionException | InterruptedException e) {
-            SLogs.e("checkWorkerIsRunningByTag", e);
-            return false;
-        }
-    }
-
-    private Completable startWorkerUntilStopped(String workTag) {
+    private Completable startWorkerUntilStopped(UUID uid) {
         return Completable.fromAction(() -> {
                     while (true) {
-                        boolean isRunning = checkWorkerIsRunningByTag(workTag);
+                        boolean isRunning = checkWorkerIsRunningById(uid);
                         if (isRunning) {
-                            SLogs.d(workTag + " is running");
-                            Thread.sleep(250);
+                            SLogs.d(uid + " is running");
+                            Thread.sleep(100);
                         }
 
-                        SLogs.d(workTag + " is stopped");
+                        SLogs.d(uid + " is stopped");
                         break;
                     }
                 }).subscribeOn(Schedulers.io())
@@ -168,9 +125,12 @@ public class BackgroundJobManagerImpl {
 
     ///////////////////media///////////////////
     public void scheduleMediaScanWorker(boolean isForce) {
+
+        String workerName = MediaBackupScannerWorker.class.getSimpleName();
+
         boolean isRunning = checkWorkerIsRunningById(MediaBackupScannerWorker.UID);
         if (isRunning) {
-            SLogs.d(TAG_TRANSFER_UPLOAD_MEDIA_SCAN + " is running");
+            SLogs.d(workerName + " is running");
             return;
         }
 
@@ -178,20 +138,19 @@ public class BackgroundJobManagerImpl {
                 .putBoolean(TransferWorker.DATA_FORCE_TRANSFER_KEY, isForce)
                 .build();
 
-        OneTimeWorkRequest request = oneTimeRequestBuilder(MediaBackupScannerWorker.class, TAG_TRANSFER_UPLOAD_MEDIA_SCAN)
-                .addTag(TAG_TRANSFER)
-                .addTag(TAG_TRANSFER_UPLOAD_SCAN)
+        OneTimeWorkRequest request = oneTimeRequestBuilder(MediaBackupScannerWorker.class)
                 .setInputData(data)
                 .setId(MediaBackupScannerWorker.UID)
                 .build();
 
-        SupportWorkManager.getWorkManager().enqueueUniqueWork(TAG_TRANSFER_UPLOAD_MEDIA_SCAN, ExistingWorkPolicy.KEEP, request);
+        SupportWorkManager.getWorkManager().enqueueUniqueWork(workerName, ExistingWorkPolicy.KEEP, request);
     }
 
     public void startMediaBackupWorker() {
+        String workerName = UploadMediaFileAutomaticallyWorker.class.getSimpleName();
         boolean isRunning = checkWorkerIsRunningById(UploadMediaFileAutomaticallyWorker.UID);
         if (isRunning) {
-            SLogs.d(TAG_TRANSFER_UPLOAD_MEDIA_WORKER + " is running");
+            SLogs.d(workerName + " is running");
         }
 
         NetworkType networkType = NetworkType.UNMETERED;
@@ -206,14 +165,12 @@ public class BackgroundJobManagerImpl {
                 .setRequiresDeviceIdle(false)
                 .build();
 
-        OneTimeWorkRequest request = oneTimeRequestBuilder(UploadMediaFileAutomaticallyWorker.class, TAG_TRANSFER_UPLOAD_MEDIA_WORKER)
-                .addTag(TAG_TRANSFER)
-                .addTag(TAG_TRANSFER_UPLOAD)
+        OneTimeWorkRequest request = oneTimeRequestBuilder(UploadMediaFileAutomaticallyWorker.class)
                 .setConstraints(constraints)
                 .setId(UploadMediaFileAutomaticallyWorker.UID)
                 .build();
 
-        SupportWorkManager.getWorkManager().enqueueUniqueWork(TAG_TRANSFER_UPLOAD_MEDIA_WORKER, ExistingWorkPolicy.REPLACE, request);
+        SupportWorkManager.getWorkManager().enqueueUniqueWork(workerName, ExistingWorkPolicy.REPLACE, request);
     }
 
     //cancel media
@@ -225,7 +182,7 @@ public class BackgroundJobManagerImpl {
     public void restartMediaBackupWorker(boolean isForce) {
         cancelMediaWorker();
 
-        Disposable disposable = startWorkerUntilStopped(TAG_TRANSFER_UPLOAD_MEDIA_WORKER).subscribe(new Action() {
+        Disposable disposable = startWorkerUntilStopped(UploadMediaFileAutomaticallyWorker.UID).subscribe(new Action() {
             @Override
             public void run() throws Exception {
                 scheduleMediaScanWorker(isForce);
@@ -238,23 +195,22 @@ public class BackgroundJobManagerImpl {
 
     ///////////////////upload folder///////////////////
     public void scheduleFolderBackupScannerWorker(boolean isForce) {
+        String workerName = FolderBackupScannerWorker.class.getSimpleName();
         boolean isRunning = checkWorkerIsRunningById(FolderBackupScannerWorker.UID);
         if (isRunning) {
-            SLogs.w(FolderBackupScannerWorker.class.getSimpleName() + " is running");
+            SLogs.w(workerName + " is running");
         }
 
         Data data = new Data.Builder()
                 .putBoolean(TransferWorker.DATA_FORCE_TRANSFER_KEY, isForce)
                 .build();
 
-        OneTimeWorkRequest request = oneTimeRequestBuilder(FolderBackupScannerWorker.class, TAG_TRANSFER_UPLOAD_FOLDER_SCAN)
-                .addTag(TAG_TRANSFER)
-                .addTag(TAG_TRANSFER_UPLOAD_SCAN)
+        OneTimeWorkRequest request = oneTimeRequestBuilder(FolderBackupScannerWorker.class)
                 .setInputData(data)
                 .setId(FolderBackupScannerWorker.UID)
                 .build();
 
-        SupportWorkManager.getWorkManager().enqueueUniqueWork(TAG_TRANSFER_UPLOAD_FOLDER_SCAN, ExistingWorkPolicy.KEEP, request);
+        SupportWorkManager.getWorkManager().enqueueUniqueWork(workerName, ExistingWorkPolicy.KEEP, request);
     }
 
 
@@ -266,7 +222,7 @@ public class BackgroundJobManagerImpl {
     public void restartFolderUploadWorker(NetworkType networkType) {
         cancelFolderWorker();
 
-        Disposable disposable = startWorkerUntilStopped(TAG_TRANSFER_UPLOAD_FOLDER_BACKUP_WORKER).subscribe(new Action() {
+        Disposable disposable = startWorkerUntilStopped(UploadFolderFileAutomaticallyWorker.UID).subscribe(new Action() {
             @Override
             public void run() {
                 startFolderUploadWorker(networkType);
@@ -285,9 +241,11 @@ public class BackgroundJobManagerImpl {
     }
 
     public void startFolderUploadWorker(NetworkType networkType) {
+
+        String workerName = UploadFolderFileAutomaticallyWorker.class.getSimpleName();
         boolean isRunning = checkWorkerIsRunningById(UploadFolderFileAutomaticallyWorker.UID);
         if (isRunning) {
-            SLogs.w(UploadFolderFileAutomaticallyWorker.class.getSimpleName() + " is running");
+            SLogs.w(workerName + " is running");
         }
 
         Constraints constraints = new Constraints.Builder()
@@ -297,14 +255,12 @@ public class BackgroundJobManagerImpl {
                 .setRequiresDeviceIdle(false)
                 .build();
 
-        OneTimeWorkRequest request = oneTimeRequestBuilder(UploadFolderFileAutomaticallyWorker.class, TAG_TRANSFER_UPLOAD_FOLDER_BACKUP_WORKER)
-                .addTag(TAG_TRANSFER)
-                .addTag(TAG_TRANSFER_UPLOAD)
+        OneTimeWorkRequest request = oneTimeRequestBuilder(UploadFolderFileAutomaticallyWorker.class)
                 .setConstraints(constraints)
                 .setId(UploadFolderFileAutomaticallyWorker.UID)
                 .build();
 
-        SupportWorkManager.getWorkManager().enqueueUniqueWork(TAG_TRANSFER_UPLOAD_FOLDER_BACKUP_WORKER, ExistingWorkPolicy.REPLACE, request);
+        SupportWorkManager.getWorkManager().enqueueUniqueWork(workerName, ExistingWorkPolicy.REPLACE, request);
     }
 
     //
@@ -315,26 +271,24 @@ public class BackgroundJobManagerImpl {
 
     ///////////////////upload file///////////////////
     public void startFileUploadWorker() {
+        String workerName = UploadFileManuallyWorker.class.getSimpleName();
+
         boolean isRunning = checkWorkerIsRunningById(UploadFileManuallyWorker.UID);
         if (isRunning) {
-            SLogs.w(UploadFileManuallyWorker.class.getSimpleName() + " is running");
+            SLogs.w(workerName + " is running");
         }
 
-        OneTimeWorkRequest request = oneTimeRequestBuilder(UploadFileManuallyWorker.class, TAG_TRANSFER_UPLOAD_FILE_BACKUP_WORKER)
-                .addTag(TAG_TRANSFER)
-                .addTag(TAG_TRANSFER_UPLOAD)
+        OneTimeWorkRequest request = oneTimeRequestBuilder(UploadFileManuallyWorker.class)
                 .setId(UploadFileManuallyWorker.UID)
                 .build();
 
-        SupportWorkManager.getWorkManager().enqueueUniqueWork(TAG_TRANSFER_UPLOAD_FILE_BACKUP_WORKER, ExistingWorkPolicy.KEEP, request);
+        SupportWorkManager.getWorkManager().enqueueUniqueWork(workerName, ExistingWorkPolicy.KEEP, request);
     }
 
 
     ///////////////////download///////////////////
     public void scheduleOneTimeFilesDownloadScanWorker() {
-        OneTimeWorkRequest request = oneTimeRequestBuilder(DownloadFileScanWorker.class, TAG_TRANSFER_DOWNLOAD_FILES_SCAN)
-                .addTag(TAG_TRANSFER)
-                .addTag(TAG_TRANSFER_DOWNLOAD_SCAN)
+        OneTimeWorkRequest request = oneTimeRequestBuilder(DownloadFileScanWorker.class)
                 .build();
         SupportWorkManager.getWorkManager().enqueue(request);
     }
@@ -344,9 +298,7 @@ public class BackgroundJobManagerImpl {
                 .putStringArray(TransferWorker.DATA_DIRENT_LIST_KEY, direntIds)
                 .build();
 
-        OneTimeWorkRequest request = oneTimeRequestBuilder(DownloadFileScanWorker.class, TAG_TRANSFER_DOWNLOAD_FILES_SCAN)
-                .addTag(TAG_TRANSFER)
-                .addTag(TAG_TRANSFER_DOWNLOAD_SCAN)
+        OneTimeWorkRequest request = oneTimeRequestBuilder(DownloadFileScanWorker.class)
                 .setInputData(data)
                 .build();
         SupportWorkManager.getWorkManager().enqueue(request);
@@ -357,9 +309,7 @@ public class BackgroundJobManagerImpl {
                 .putString(DownloadFileScanWorker.DATA_TRANSFER_KEY, transferId)
                 .build();
 
-        OneTimeWorkRequest request = oneTimeRequestBuilder(DownloadFileScanWorker.class, TAG_TRANSFER_DOWNLOAD_FILES_SCAN)
-                .addTag(TAG_TRANSFER)
-                .addTag(TAG_TRANSFER_DOWNLOAD_SCAN)
+        OneTimeWorkRequest request = oneTimeRequestBuilder(DownloadFileScanWorker.class)
                 .setInputData(data)
                 .build();
         SupportWorkManager.getWorkManager().enqueue(request);
@@ -367,18 +317,17 @@ public class BackgroundJobManagerImpl {
 
 
     public void startFileDownloadWorker() {
-        boolean isRunning = checkWorkerIsRunningByTag(TAG_TRANSFER_DOWNLOAD_FILES_WORKER);
+        String workerName = DownloadWorker.class.getSimpleName();
+        boolean isRunning = checkWorkerIsRunningById(DownloadWorker.UID);
         if (isRunning) {
-            SLogs.w(TAG_TRANSFER_DOWNLOAD_FILES_WORKER + " is running");
+            SLogs.w(workerName + " is running");
             return;
         }
 
-        OneTimeWorkRequest request = oneTimeRequestBuilder(DownloadWorker.class, TAG_TRANSFER_DOWNLOAD_FILES_WORKER)
-                .addTag(TAG_TRANSFER)
-                .addTag(TAG_TRANSFER_DOWNLOAD)
+        OneTimeWorkRequest request = oneTimeRequestBuilder(DownloadWorker.class)
                 .setId(DownloadWorker.UID)
                 .build();
-        SupportWorkManager.getWorkManager().enqueueUniqueWork(TAG_TRANSFER_DOWNLOAD_FILES_WORKER, ExistingWorkPolicy.KEEP, request);
+        SupportWorkManager.getWorkManager().enqueueUniqueWork(workerName, ExistingWorkPolicy.KEEP, request);
     }
 
     public void startDownloadCheckerWorker(String filePath) {
@@ -386,7 +335,7 @@ public class BackgroundJobManagerImpl {
                 .putString(DownloadedFileCheckerWorker.FILE_CHANGE_KEY, filePath)
                 .build();
 
-        OneTimeWorkRequest request = oneTimeRequestBuilder(DownloadedFileCheckerWorker.class, TAG_TRANSFER_DOWNLOAD_CHECKER)
+        OneTimeWorkRequest request = oneTimeRequestBuilder(DownloadedFileCheckerWorker.class)
                 .addTag(TAG_TRANSFER)
                 .setInputData(data)
                 .build();

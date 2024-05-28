@@ -16,6 +16,7 @@ import com.blankj.utilcode.util.CollectionUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
 import com.seafile.seadroid2.framework.data.model.enums.TransferAction;
+import com.seafile.seadroid2.framework.data.model.enums.TransferResult;
 import com.seafile.seadroid2.framework.data.model.enums.TransferStatus;
 import com.seafile.seadroid2.databinding.ItemTransferListBinding;
 import com.seafile.seadroid2.framework.util.Icons;
@@ -123,8 +124,6 @@ public class TransferListAdapter extends BaseAdapter<FileTransferEntity, Transfe
             } else {
                 stateTextRes = R.string.upload_waiting;
             }
-
-            progressBarVisible = false;
         } else if (TransferStatus.IN_PROGRESS == entity.transfer_status) {
             sizeStr = String.format("%s / %s",
                     Utils.readableFileSize(transferredSize),
@@ -146,6 +145,7 @@ public class TransferListAdapter extends BaseAdapter<FileTransferEntity, Transfe
             holder.binding.transferFileProgressBar.setProgress(percent);
 
             progressBarVisible = true;
+
         } else if (TransferStatus.FAILED == entity.transfer_status) {
             if (transferAction == TransferAction.DOWNLOAD) {
                 stateTextRes = R.string.download_failed;
@@ -153,7 +153,6 @@ public class TransferListAdapter extends BaseAdapter<FileTransferEntity, Transfe
                 stateTextRes = R.string.upload_failed;
             }
             isRed = true;
-            progressBarVisible = false;
         } else if (TransferStatus.CANCELLED == entity.transfer_status) {
             if (transferAction == TransferAction.DOWNLOAD) {
                 stateTextRes = R.string.download_cancelled;
@@ -161,20 +160,29 @@ public class TransferListAdapter extends BaseAdapter<FileTransferEntity, Transfe
                 stateTextRes = R.string.upload_cancelled;
             }
             isRed = true;
-            progressBarVisible = false;
         } else if (TransferStatus.SUCCEEDED == entity.transfer_status) {
             if (transferAction == TransferAction.DOWNLOAD) {
                 stateTextRes = R.string.download_finished;
             } else {
                 stateTextRes = R.string.upload_finished;
             }
-            progressBarVisible = false;
         }
 
         if (stateTextRes != 0) {
             holder.binding.transferFileState.setText(stateTextRes);
         } else {
             holder.binding.transferFileState.setText(null);
+        }
+
+        if (TransferResult.NO_RESULT == entity.transfer_result) {
+            holder.binding.transferFileErrorState.setVisibility(View.GONE);
+            holder.binding.transferFileErrorState.setText(null);
+        }else if (TransferResult.TRANSMITTED == entity.transfer_result) {
+            holder.binding.transferFileErrorState.setVisibility(View.GONE);
+            holder.binding.transferFileErrorState.setText(null);
+        } else {
+            holder.binding.transferFileErrorState.setVisibility(View.VISIBLE);
+            holder.binding.transferFileErrorState.setText(entity.transfer_result.toString());
         }
 
         if (isRed) {

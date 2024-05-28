@@ -19,6 +19,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.blankj.utilcode.util.BarUtils;
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -81,10 +82,11 @@ public class ImagePreviewActivity extends BaseActivityWithVM<ImagePreviewViewMod
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        changeBarStatus(false);
-
         binding = ActivityImagePreviewBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        BarUtils.setNavBarVisibility(this,false);
+        BarUtils.setStatusBarVisibility(this,false);
 
         initData();
 
@@ -100,35 +102,6 @@ public class ImagePreviewActivity extends BaseActivityWithVM<ImagePreviewViewMod
                 finish();
             }
         });
-    }
-
-    private void changeBarStatus(boolean isShow) {
-        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
-
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
-            WindowInsetsController controller = getWindow().getInsetsController();
-            if (controller != null) {
-                if (!isShow) {
-                    controller.hide(WindowInsets.Type.statusBars());
-                    controller.hide(WindowInsets.Type.navigationBars());
-                } else {
-                    controller.show(WindowInsets.Type.statusBars());
-                    controller.show(WindowInsets.Type.navigationBars());
-                }
-            }
-        } else {
-            WindowInsetsControllerCompat controllerCompat = ViewCompat.getWindowInsetsController(binding.getRoot());
-            if (controllerCompat != null) {
-                if (!isShow) {
-                    controllerCompat.hide(WindowInsetsCompat.Type.statusBars());
-                    controllerCompat.hide(WindowInsetsCompat.Type.navigationBars());
-                } else {
-                    controllerCompat.show(WindowInsetsCompat.Type.statusBars());
-                    controllerCompat.show(WindowInsetsCompat.Type.navigationBars());
-                }
-            }
-        }
-
     }
 
     @Override

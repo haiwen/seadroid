@@ -1,16 +1,22 @@
 package com.seafile.seadroid2.ui.dialog_fragment;
 
+import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 
+import androidx.annotation.Nullable;
+
 import com.blankj.utilcode.util.ToastUtils;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputLayout;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.framework.data.ServerInfo;
 import com.seafile.seadroid2.framework.data.model.dirents.DirentPermissionModel;
 import com.seafile.seadroid2.listener.OnCreateDirentShareLinkListener;
 import com.seafile.seadroid2.ui.base.fragment.RequestCustomDialogFragmentWithVM;
@@ -51,36 +57,14 @@ public class GetShareLinkPasswordDialogFragment extends RequestCustomDialogFragm
 
     @Override
     protected void onPositiveClick() {
-        DirentPermissionModel permissionModel = new DirentPermissionModel();
-        permissionModel.can_edit = false;
-        permissionModel.can_download = false;
-        permissionModel.can_upload = false;
-
         if (isAdvance) {
             if (!checkData()) {
                 return;
             }
 
-            RadioGroup radioGroup = getDialogView().findViewById(R.id.radio_group);
-            if (radioGroup.getCheckedRadioButtonId() == R.id.radio_group_1) {
-                permissionModel.can_edit = true;
-                permissionModel.can_download = true;
-                permissionModel.can_upload = false;
-
-            } else if (radioGroup.getCheckedRadioButtonId() == R.id.radio_group_2) {
-                permissionModel.can_edit = false;
-                permissionModel.can_download = false;
-                permissionModel.can_upload = false;
-            } else if (radioGroup.getCheckedRadioButtonId() == R.id.radio_group_3) {
-                permissionModel.can_edit = false;
-                permissionModel.can_download = true;
-                permissionModel.can_upload = true;
-            }
-
-            getViewModel().createShareLink(repoId, path, getPassword(), getDays(), permissionModel);
+            getViewModel().createShareLink(repoId, path, getPassword(), getDays(), null);
         } else {
-
-            getViewModel().getFirstShareLink(repoId, path, null, null, permissionModel);
+            getViewModel().getFirstShareLink(repoId, path, null, null);
         }
     }
 
@@ -91,14 +75,12 @@ public class GetShareLinkPasswordDialogFragment extends RequestCustomDialogFragm
 
     public String getPassword() {
         EditText editText = getDialogView().findViewById(R.id.password);
-        String password = editText.getText().toString();
-        return password;
+        return editText.getText().toString();
     }
 
     public String getDays() {
         EditText daysEditText = getDialogView().findViewById(R.id.days);
-        String daysText = daysEditText.getText().toString();
-        return daysText;
+        return daysEditText.getText().toString();
     }
 
     @Override
@@ -111,6 +93,7 @@ public class GetShareLinkPasswordDialogFragment extends RequestCustomDialogFragm
                     getResources().getString(R.string.passwd_min_len_limit_hint),
                     getResources().getInteger(R.integer.minimum_password_length)
             ));
+
             SwitchMaterial passwordSwitch = getDialogView().findViewById(R.id.add_password);
             passwordSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
                 passwordTextInput.setVisibility(isChecked ? View.VISIBLE : View.GONE);
@@ -161,7 +144,6 @@ public class GetShareLinkPasswordDialogFragment extends RequestCustomDialogFragm
                 return false;
             }
 
-            //TODO 密码长度待确定
             if (password.length() < getResources().getInteger(R.integer.minimum_password_length)) {
                 ToastUtils.showLong(R.string.err_passwd_too_short);
                 return false;

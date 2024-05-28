@@ -36,7 +36,7 @@ import java.util.UUID;
  * @see BackgroundJobManagerImpl#TAG_TRANSFER_UPLOAD_FILE_BACKUP_WORKER
  */
 public class UploadFileManuallyWorker extends BaseUploadFileWorker {
-    public static final UUID UID = UUID.randomUUID();
+    public static final UUID UID = UUID.nameUUIDFromBytes(UploadFileManuallyWorker.class.getSimpleName().getBytes());
 
     private final FileBackupNotificationHelper notificationManager;
 

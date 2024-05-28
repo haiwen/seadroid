@@ -34,7 +34,9 @@ import java.util.UUID;
  * Check the change status of the downloaded file
  */
 public class DownloadedFileCheckerWorker extends BaseUploadFileWorker {
-    public static final UUID UID = UUID.randomUUID();
+    public static final UUID UID = UUID.nameUUIDFromBytes(DownloadedFileCheckerWorker.class.getSimpleName().getBytes());
+
+
     public static final String FILE_CHANGE_KEY = "download_file_change_key";
     private final FolderBackupNotificationHelper notificationManager;
 

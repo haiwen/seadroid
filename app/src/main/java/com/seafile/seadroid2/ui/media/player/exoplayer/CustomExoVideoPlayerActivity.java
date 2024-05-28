@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.ui.play.exoplayer;
+package com.seafile.seadroid2.ui.media.player.exoplayer;
 
 import android.content.Context;
 import android.content.Intent;
@@ -37,14 +37,14 @@ import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
-import com.seafile.seadroid2.ui.play.VideoLinkStateListener;
-import com.seafile.seadroid2.ui.play.VideoLinkTask;
+import com.seafile.seadroid2.ui.media.player.VideoLinkStateListener;
+import com.seafile.seadroid2.ui.media.player.VideoLinkTask;
 import com.seafile.seadroid2.ui.base.BaseActivity;
 import com.seafile.seadroid2.framework.util.ConcurrentAsyncTask;
-import com.seafile.seadroid2.framework.util.Utils;
 
 import java.util.Locale;
 
+@UnstableApi
 public class CustomExoVideoPlayerActivity extends BaseActivity implements VideoLinkStateListener {
     private static final String KEY_FULL_SCREEN = "isFullScreen";
     private static final String KEY_ITEM_INDEX = "startItemIndex";
@@ -85,17 +85,13 @@ public class CustomExoVideoPlayerActivity extends BaseActivity implements VideoL
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
-//        BarUtils.setNavBarVisibility(this, false);
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_video_player2);
-//        Utils.hideSystemNavigationBar(this);
 
-
+        //
+        BarUtils.setNavBarVisibility(this,false);
+        BarUtils.setStatusBarVisibility(this,false);
 
         mAccount = SupportAccountManager.getInstance().getCurrentAccount();
 

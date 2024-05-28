@@ -46,7 +46,7 @@ import java.util.stream.Collectors;
  * @see BackgroundJobManagerImpl#TAG_TRANSFER_DOWNLOAD_FILES_SCAN
  */
 public class DownloadFileScanWorker extends TransferWorker {
-    public static final UUID UID = UUID.randomUUID();
+    public static final UUID UID = UUID.nameUUIDFromBytes(DownloadFileScanWorker.class.getSimpleName().getBytes());
 
     private final DownloadNotificationHelper notificationManager;
 

@@ -20,10 +20,12 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.view.ActionMode;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.media3.common.util.UnstableApi;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.work.WorkInfo;
 
@@ -72,17 +74,15 @@ import com.seafile.seadroid2.ui.file.FileActivity;
 import com.seafile.seadroid2.ui.main.MainViewModel;
 import com.seafile.seadroid2.ui.markdown.MarkdownActivity;
 import com.seafile.seadroid2.ui.media.image_preview.ImagePreviewActivity;
-import com.seafile.seadroid2.ui.play.exoplayer.CustomExoVideoPlayerActivity;
+import com.seafile.seadroid2.ui.media.player.exoplayer.CustomExoVideoPlayerActivity;
 import com.seafile.seadroid2.ui.selector.ObjSelectorActivity;
 import com.seafile.seadroid2.ui.webview.SeaWebViewActivity;
 import com.seafile.seadroid2.view.TipsViews;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import io.reactivex.functions.Consumer;
 
@@ -278,6 +278,8 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     }
 
     private void initWorkerListener() {
+
+        //UploadFileManuallyWorker
         SupportWorkManager.getWorkManager()
                 .getWorkInfoByIdLiveData(UploadFileManuallyWorker.UID)
                 .observe(getViewLifecycleOwner(), new Observer<WorkInfo>() {
@@ -287,7 +289,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                     }
                 });
 
-
+        //UploadFolderFileAutomaticallyWorker
         SupportWorkManager.getWorkManager()
                 .getWorkInfoByIdLiveData(UploadFolderFileAutomaticallyWorker.UID)
                 .observe(getViewLifecycleOwner(), new Observer<WorkInfo>() {
@@ -297,6 +299,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                     }
                 });
 
+        //UploadMediaFileAutomaticallyWorker
         SupportWorkManager.getWorkManager()
                 .getWorkInfoByIdLiveData(UploadMediaFileAutomaticallyWorker.UID)
                 .observe(getViewLifecycleOwner(), new Observer<WorkInfo>() {
@@ -306,6 +309,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                     }
                 });
 
+        //DownloadWorker
         SupportWorkManager.getWorkManager()
                 .getWorkInfoByIdLiveData(DownloadWorker.UID)
                 .observe(getViewLifecycleOwner(), new Observer<WorkInfo>() {
@@ -314,7 +318,6 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                         checkWorkInfo(workInfo);
                     }
                 });
-
     }
 
     private void checkWorkInfo(WorkInfo workInfo) {
@@ -782,6 +785,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
     /************ Files ************/
 
+    @OptIn(markerClass = UnstableApi.class)
     private void open(DirentModel dirent) {
         String fileName = dirent.name;
         String filePath = dirent.full_path;

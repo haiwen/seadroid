@@ -58,10 +58,10 @@ import retrofit2.Call;
  * @see BackgroundJobManagerImpl#TAG_ALL
  * @see BackgroundJobManagerImpl#TAG_TRANSFER
  * @see BackgroundJobManagerImpl#TAG_TRANSFER_UPLOAD_SCAN
- * @see BackgroundJobManagerImpl#TAG_TRANSFER_UPLOAD_MEDIA_SCAN
+ * @see BackgroundJobManagerImpl#NAME_TRANSFER_UPLOAD_MEDIA_SCAN
  */
 public class MediaBackupScannerWorker extends TransferWorker {
-    public static final UUID UID = UUID.randomUUID();
+    public static final UUID UID = UUID.nameUUIDFromBytes(MediaBackupScannerWorker.class.getSimpleName().getBytes());
 
     private AlbumBackupNotificationHelper albumNotificationHelper;
 
