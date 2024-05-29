@@ -38,6 +38,7 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.tabs.TabLayout;
 import com.google.common.collect.Lists;
+import com.seafile.seadroid2.BuildConfig;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafConnection;
 import com.seafile.seadroid2.SeafException;
@@ -1202,7 +1203,7 @@ public class BrowserActivity extends BaseActivity implements ReposFragment.OnFil
             String fileName = new SimpleDateFormat("yyyyMMddHHmmss", Locale.getDefault()).format(new Date()) + ".jpg";
             takeCameraPhotoTempFile = new File(ImgDir, fileName);
 
-            Uri photo = FileProvider.getUriForFile(this, getApplicationContext().getPackageName(), takeCameraPhotoTempFile);
+            Uri photo = FileProvider.getUriForFile(this, BuildConfig.FILE_PROVIDER_AUTHORITIES, takeCameraPhotoTempFile);
             imageCaptureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photo);
             startActivityForResult(imageCaptureIntent, TAKE_PHOTO_REQUEST);
 
@@ -1897,12 +1898,7 @@ public class BrowserActivity extends BaseActivity implements ReposFragment.OnFil
 
     private void chooseExportApp(final String repoName, final String repoID, final String path, final long fileSize) {
         final File file = dataManager.getLocalRepoFile(repoName, repoID, path);
-        Uri uri = null;
-        if (android.os.Build.VERSION.SDK_INT > 23) {
-            uri = FileProvider.getUriForFile(this, getApplicationContext().getPackageName(), file);
-        } else {
-            uri = Uri.fromFile(file);
-        }
+        Uri uri = FileProvider.getUriForFile(this, BuildConfig.FILE_PROVIDER_AUTHORITIES, file);
         final Intent sendIntent = new Intent();
         sendIntent.setAction(Intent.ACTION_SEND);
         sendIntent.setType(Utils.getFileMimeType(file));

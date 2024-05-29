@@ -110,8 +110,8 @@ public class SeafileProvider extends DocumentsProvider {
 
     private android.accounts.AccountManager androidAccountManager;
     private AccountManager accountManager;
-
-    public static final Uri NOTIFICATION_URI = DocumentsContract.buildRootsUri(BuildConfig.APPLICATION_ID);
+    
+    public static final Uri NOTIFICATION_URI = DocumentsContract.buildRootsUri(Utils.AUTHORITY_OF_DOCUMENTS);
 
     private final OnAccountsUpdateListener accountListener = new OnAccountsUpdateListener() {
         @Override

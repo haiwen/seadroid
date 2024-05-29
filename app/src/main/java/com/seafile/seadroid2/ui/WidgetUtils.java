@@ -13,6 +13,7 @@ import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Build;
@@ -21,10 +22,12 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.content.FileProvider;
 
 import android.text.ClipboardManager;
+import android.text.TextUtils;
 import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
 import com.blankj.utilcode.util.ToastUtils;
+import com.seafile.seadroid2.BuildConfig;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SeafException;
@@ -189,12 +192,7 @@ public class WidgetUtils {
 
             String fullPath = Utils.pathJoin(dirPath, fileName);
             final File file = browserActivity.getDataManager().getLocalRepoFile(repoName, repoID, fullPath);
-            Uri uri = null;
-            if (android.os.Build.VERSION.SDK_INT > 23) {
-                uri = FileProvider.getUriForFile(activity, activity.getApplicationContext().getPackageName(), file);
-            } else {
-                uri = Uri.fromFile(file);
-            }
+            Uri uri = FileProvider.getUriForFile(activity, BuildConfig.FILE_PROVIDER_AUTHORITIES, file);
             final Intent sendIntent = new Intent();
             sendIntent.setAction(Intent.ACTION_SEND);
             sendIntent.setType(Utils.getFileMimeType(file));
@@ -225,7 +223,7 @@ public class WidgetUtils {
      *
      * @param file
      */
-    public static void showFile(final BaseActivity activity, File file, boolean isOpenWith) {
+    public static void showFile(final BaseActivity context, File file, boolean isOpenWith) {
 
         String name = file.getName();
         String suffix = name.substring(name.lastIndexOf('.') + 1).toLowerCase();
@@ -233,8 +231,8 @@ public class WidgetUtils {
         //Open markdown and txt files in MarkdownActivity
         boolean isTextMime = Utils.isTextMimeType(name);
         if (isTextMime && !isOpenWith) {
-            startMarkdownActivity(activity, file.getPath());
-            activity.overridePendingTransition(0, 0);
+            startMarkdownActivity(context, file.getPath());
+            context.overridePendingTransition(0, 0);
             return;
         }
 
@@ -250,30 +248,33 @@ public class WidgetUtils {
             return;
         }
 
-        Intent open = new Intent(Intent.ACTION_VIEW);
-        open.addFlags(FLAG_ACTIVITY_NEW_TASK);
+        Intent openIntent = new Intent(Intent.ACTION_VIEW);
+        openIntent.addFlags(FLAG_ACTIVITY_NEW_TASK);
 
-        if (Build.VERSION.SDK_INT > 23) {
-            Uri photoURI = FileProvider.getUriForFile(activity, activity.getApplicationContext().getPackageName(), file);
-            open.setDataAndType(photoURI, mime);
-            open.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        Uri uri = FileProvider.getUriForFile(context, BuildConfig.FILE_PROVIDER_AUTHORITIES, file);
+        openIntent.setDataAndType(uri, mime);
+        openIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+
+        boolean isAvailable = isIntentAvailable(context, openIntent);
+        if (isAvailable) {
+            context.startActivity(openIntent);
         } else {
-            open.setDataAndType((Uri.fromFile(file)), mime);
-        }
-        if (Build.VERSION.SDK_INT < 30) {
-            if (activity.getPackageManager().resolveActivity(open, 0) == null) {
-                String message = String.format(activity.getString(R.string.op_exception_suitable_app_not_found), mime);
-                activity.showShortToast(activity, message);
-                mime = "*/*";
-                open.setType(mime);
+            if (TextUtils.isEmpty(suffix)) {
+                suffix = mime;
             }
+            String message = String.format(context.getString(R.string.op_exception_suitable_app_not_found), suffix);
+            ToastUtils.showLong(message);
+        }
+    }
+
+    private static boolean isIntentAvailable(Context context, Intent intent) {
+        if (Build.VERSION.SDK_INT < 30) {
+            return context.getPackageManager().resolveActivity(intent, 0) != null;
         }
 
-        try {
-            activity.startActivity(open);
-        } catch (ActivityNotFoundException e) {
-            e.printStackTrace();
-        }
+        PackageManager pm = context.getPackageManager();
+        List<ResolveInfo> list = pm.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
+        return !list.isEmpty();
     }
 
     private static void showFileForAndroid(final BaseActivity activity, File file, String fileName) {

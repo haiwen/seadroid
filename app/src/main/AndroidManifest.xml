@@ -167,7 +167,7 @@
         <activity android:name=".ui.activity.webview.SeaWebViewActivity" />
 
         <provider
-            android:name="com.seafile.seadroid2.provider.SeafileProvider"
+            android:name=".provider.SeafileProvider"
             android:authorities="${applicationId}.documents"
             android:enabled="@bool/atLeastKitKat"
             android:exported="true"
@@ -192,7 +192,7 @@
 
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="${applicationId}"
+            android:authorities="${applicationId}.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data

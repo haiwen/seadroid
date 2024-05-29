@@ -39,6 +39,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.gson.JsonObject;
+import com.seafile.seadroid2.BuildConfig;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SettingsManager;
@@ -89,7 +90,9 @@ import java.util.TreeMap;
 
 public class Utils {
     public static final String MIME_APPLICATION_OCTET_STREAM = "application/octet-stream";
-    public static final String AUTHORITY = "com.seafile.seadroid2";
+    public static final String AUTHORITY = BuildConfig.APPLICATION_ID;
+    public static final String AUTHORITY_OF_DOCUMENTS = BuildConfig.APPLICATION_ID + ".documents";
+
     public static final String PATH_SEPERATOR = "/";
     // public static final String NOGROUP = "$nogroup";
     public static final String PERSONAL_REPO = "personal_repo";

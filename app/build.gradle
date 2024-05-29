@@ -10,9 +10,13 @@ android {
         versionCode 140
         versionName "2.3.7"
         multiDexEnabled true
-        resValue "string", "authorities", applicationId + '.cameraupload.provider'
-        resValue "string", "account_type", "com.seafile.seadroid2.account.api2"
-        buildConfigField "String", "ACCOUNT_TYPE", '"com.seafile.seadroid2.account.api2"'
+
+        resValue "string", "authorities", defaultConfig.applicationId + '.debug.cameraupload.provider'
+        resValue "string", "account_type", defaultConfig.applicationId + ".debug.account.api2"
+
+        buildConfigField "String", "ACCOUNT_TYPE", '"' + defaultConfig.applicationId + '.debug.account.api2"'
+        buildConfigField "String", "FILE_PROVIDER_AUTHORITIES", '"' + defaultConfig.applicationId + '.debug.fileprovider"'
+
     }
 
     lintOptions {
@@ -61,11 +65,15 @@ android {
         debug {
             debuggable true
             applicationIdSuffix ".debug"
-            resValue "string", "authorities", defaultConfig.applicationId + '.debug.cameraupload.provider'
-            resValue "string", "account_type", "com.seafile.seadroid2.debug.account.api2"
-            buildConfigField "String", "ACCOUNT_TYPE", '"com.seafile.seadroid2.debug.account.api2"'
             signingConfig signingConfigs.debug
             minifyEnabled false
+
+            resValue "string", "authorities", defaultConfig.applicationId + '.debug.cameraupload.provider'
+            resValue "string", "account_type", defaultConfig.applicationId + ".debug.account.api2"
+
+            buildConfigField "String", "ACCOUNT_TYPE", '"' + defaultConfig.applicationId + '.debug.account.api2"'
+            buildConfigField "String", "FILE_PROVIDER_AUTHORITIES", '"' + defaultConfig.applicationId + '.debug.fileprovider"'
+
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
             applicationVariants.all { variant ->
                 variant.outputs.all { output ->
@@ -80,6 +88,13 @@ android {
         release {
             signingConfig signingConfigs.release
             minifyEnabled true
+
+            resValue "string", "authorities", defaultConfig.applicationId + '.cameraupload.provider'
+            resValue "string", "account_type", defaultConfig.applicationId + ".account.api2"
+
+            buildConfigField "String", "ACCOUNT_TYPE", '"' + defaultConfig.applicationId + '.account.api2"'
+            buildConfigField "String", "FILE_PROVIDER_AUTHORITIES", '"' + defaultConfig.applicationId + '.fileprovider"'
+
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
             applicationVariants.all { variant ->
                 variant.outputs.all { output ->
