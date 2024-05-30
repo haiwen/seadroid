@@ -54,8 +54,6 @@ import okhttp3.ResponseBody;
  *
  * @see BackgroundJobManagerImpl#TAG_ALL
  * @see BackgroundJobManagerImpl#TAG_TRANSFER
- * @see BackgroundJobManagerImpl#TAG_TRANSFER_DOWNLOAD
- * @see BackgroundJobManagerImpl#TAG_TRANSFER_DOWNLOAD_FILES_WORKER
  */
 public class DownloadWorker extends BaseDownloadFileWorker {
     public static final UUID UID = UUID.nameUUIDFromBytes(DownloadWorker.class.getSimpleName().getBytes());
@@ -278,6 +276,7 @@ public class DownloadWorker extends BaseDownloadFileWorker {
                 fileTransferProgressListener.onProgressNotify(fileSize, fileSize);
             }
 
+            //important
             tempFile.renameTo(localFile);
 
             if (localFile.length() != fileSize) {

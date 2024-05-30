@@ -65,7 +65,10 @@ public class WidgetUtils {
         if (isAvailable) {
             context.startActivity(openIntent);
         } else {
-            String message = String.format(context.getString(R.string.op_exception_suitable_app_not_found), mime);
+            if (TextUtils.isEmpty(suffix)) {
+                suffix = mime;
+            }
+            String message = String.format(context.getString(R.string.op_exception_suitable_app_not_found), suffix);
             ToastUtils.showLong(message);
         }
     }

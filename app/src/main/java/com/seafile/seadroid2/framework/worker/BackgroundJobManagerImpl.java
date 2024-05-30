@@ -104,7 +104,6 @@ public class BackgroundJobManagerImpl {
             SLogs.w("getWorkInfoById", e);
             return null;
         }
-
     }
 
     private Completable startWorkerUntilStopped(UUID uid) {

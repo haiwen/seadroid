@@ -45,8 +45,6 @@ import java.util.stream.Collectors;
  *
  * @see BackgroundJobManagerImpl#TAG_ALL
  * @see BackgroundJobManagerImpl#TAG_TRANSFER
- * @see BackgroundJobManagerImpl#TAG_TRANSFER_UPLOAD_SCAN
- * @see BackgroundJobManagerImpl#TAG_TRANSFER_UPLOAD_FOLDER_SCAN
  */
 public class FolderBackupScannerWorker extends TransferWorker {
     public static final UUID UID = UUID.nameUUIDFromBytes(FolderBackupScannerWorker.class.getSimpleName().getBytes());
@@ -75,20 +73,17 @@ public class FolderBackupScannerWorker extends TransferWorker {
             return Result.success();
         }
 
-        boolean isEnable = FolderBackupManager.readBackupSwitch();
-        List<String> backupPaths = FolderBackupManager.readBackupPaths();
-        RepoConfig repoConfig = FolderBackupManager.readRepoConfig();
 
         boolean canScan = checkCanScan();
         if (!canScan) {
             SLogs.d("UploadFolderBackupScanWorker: do not start the folder scan task this time");
 
-            //start upload worker
-            BackgroundJobManagerImpl.getInstance().startFolderUploadWorker();
             return Result.success();
         }
 
-        if (!isEnable || CollectionUtils.isEmpty(backupPaths) || repoConfig == null) {
+        List<String> backupPaths = FolderBackupManager.readBackupPaths();
+        RepoConfig repoConfig = FolderBackupManager.readRepoConfig();
+        if (CollectionUtils.isEmpty(backupPaths) || repoConfig == null) {
             return Result.success();
         }
 
@@ -122,9 +117,18 @@ public class FolderBackupScannerWorker extends TransferWorker {
     }
 
     private boolean checkCanScan() {
-        boolean isForceBackup = getInputData().getBoolean(TransferWorker.DATA_FORCE_TRANSFER_KEY, false);
+        boolean isOpenBackup = FolderBackupManager.readBackupSwitch();
+        if (!isOpenBackup) {
+            return false;
+        }
+
+        boolean isForce = getInputData().getBoolean(TransferWorker.DATA_FORCE_TRANSFER_KEY, false);
+        if (isForce) {
+            return true;
+        }
+
         long lastScanTime = FolderBackupManager.readLastScanTime();
-        if (lastScanTime != 0 && !isForceBackup) {
+        if (lastScanTime != 0) {
             long now = System.currentTimeMillis();
             if (now - lastScanTime < PERIODIC_SCAN_INTERVALS) {
                 return false;

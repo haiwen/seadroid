@@ -57,8 +57,6 @@ import retrofit2.Call;
  *
  * @see BackgroundJobManagerImpl#TAG_ALL
  * @see BackgroundJobManagerImpl#TAG_TRANSFER
- * @see BackgroundJobManagerImpl#TAG_TRANSFER_UPLOAD_SCAN
- * @see BackgroundJobManagerImpl#NAME_TRANSFER_UPLOAD_MEDIA_SCAN
  */
 public class MediaBackupScannerWorker extends TransferWorker {
     public static final UUID UID = UUID.nameUUIDFromBytes(MediaBackupScannerWorker.class.getSimpleName().getBytes());
@@ -88,10 +86,6 @@ public class MediaBackupScannerWorker extends TransferWorker {
             return Result.success();
         }
 
-        boolean isEnable = AlbumBackupManager.readBackupSwitch();
-        if (!isEnable) {
-            return Result.success();
-        }
 
         boolean canScan = checkCanScan();
         if (!canScan) {
@@ -132,9 +126,18 @@ public class MediaBackupScannerWorker extends TransferWorker {
     }
 
     private boolean checkCanScan() {
-        boolean isForceBackup = getInputData().getBoolean(TransferWorker.DATA_FORCE_TRANSFER_KEY, false);
+        boolean isEnable = AlbumBackupManager.readBackupSwitch();
+        if (!isEnable) {
+            return false;
+        }
+
+        boolean isForce = getInputData().getBoolean(TransferWorker.DATA_FORCE_TRANSFER_KEY, false);
+        if (isForce){
+            return true;
+        }
+
         long lastScanTime = AlbumBackupManager.readLastScanTime();
-        if (lastScanTime != 0 && !isForceBackup) {
+        if (lastScanTime != 0) {
             long now = System.currentTimeMillis();
             if (now - lastScanTime < PERIODIC_SCAN_INTERVALS) {
                 return false;

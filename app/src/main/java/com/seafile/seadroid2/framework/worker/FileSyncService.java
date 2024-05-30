@@ -159,13 +159,13 @@ public class FileSyncService extends Service {
         startFolderMonitor(pathList);
     }
 
-    public void startFolderMonitor(List<String> backupPaths) {
-        if (CollectionUtils.isEmpty(backupPaths)) {
+    public void startFolderMonitor(List<String> pathList) {
+        if (CollectionUtils.isEmpty(pathList)) {
             return;
         }
 
         List<FileAlterationObserver> observerList = new ArrayList<>();
-        for (String str : backupPaths) {
+        for (String str : pathList) {
 
             SLogs.d("backup path: " + str);
             FileAlterationObserver observer = new FileAlterationObserver(str, FILE_FILTER);

@@ -31,8 +31,6 @@ import java.util.UUID;
  *
  * @see BackgroundJobManagerImpl#TAG_ALL
  * @see BackgroundJobManagerImpl#TAG_TRANSFER
- * @see BackgroundJobManagerImpl#TAG_TRANSFER_UPLOAD
- * @see BackgroundJobManagerImpl#TAG_TRANSFER_UPLOAD_MEDIA_WORKER
  */
 public class UploadMediaFileAutomaticallyWorker extends BaseUploadFileWorker {
     public static final UUID UID = UUID.nameUUIDFromBytes(UploadMediaFileAutomaticallyWorker.class.getSimpleName().getBytes());
