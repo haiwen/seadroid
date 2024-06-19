@@ -15,26 +15,27 @@ import androidx.recyclerview.widget.DiffUtil;
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.FileUtils;
 import com.blankj.utilcode.util.SizeUtils;
+import com.bumptech.glide.Glide;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.framework.data.model.enums.TransferStatus;
-import com.seafile.seadroid2.framework.http.IO;
-import com.seafile.seadroid2.framework.util.GlideApp;
-import com.seafile.seadroid2.ui.base.adapter.BaseMultiAdapter;
 import com.seafile.seadroid2.config.AbsLayoutItemType;
 import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.config.GlideLoadConfig;
-import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
-import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
-import com.seafile.seadroid2.framework.data.model.BaseModel;
-import com.seafile.seadroid2.framework.data.model.GroupItemModel;
 import com.seafile.seadroid2.databinding.ItemAccountBinding;
 import com.seafile.seadroid2.databinding.ItemDirentBinding;
 import com.seafile.seadroid2.databinding.ItemGroupItemBinding;
 import com.seafile.seadroid2.databinding.ItemRepoBinding;
 import com.seafile.seadroid2.databinding.ItemUnsupportedBinding;
-import com.seafile.seadroid2.ui.viewholder.GroupItemViewHolder;
+import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
+import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
+import com.seafile.seadroid2.framework.data.model.BaseModel;
+import com.seafile.seadroid2.framework.data.model.GroupItemModel;
+import com.seafile.seadroid2.framework.data.model.enums.TransferStatus;
+import com.seafile.seadroid2.framework.http.IO;
+import com.seafile.seadroid2.framework.util.GlideApp;
 import com.seafile.seadroid2.framework.util.Utils;
+import com.seafile.seadroid2.ui.base.adapter.BaseMultiAdapter;
+import com.seafile.seadroid2.ui.viewholder.GroupItemViewHolder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -172,7 +173,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         if (TextUtils.isEmpty(account.avatar_url)) {
             holder.binding.listItemAccountIcon.setImageResource(R.drawable.default_avatar);
         } else {
-            GlideApp.with(getContext())
+            Glide.with(getContext())
                     .load(GlideLoadConfig.getGlideUrl(account.avatar_url))
                     .apply(GlideLoadConfig.getAvatarOptions())
                     .into(holder.binding.listItemAccountIcon);
@@ -229,7 +230,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
             holder.binding.itemIcon.setImageResource(model.getIcon());
         } else {
             String url = convertThumbnailUrl(model.repo_id, model.full_path);
-            GlideApp.with(getContext())
+            Glide.with(getContext())
                     .load(GlideLoadConfig.getGlideUrl(url))
                     .apply(GlideLoadConfig.getOptions())
                     .into(holder.binding.itemIcon);

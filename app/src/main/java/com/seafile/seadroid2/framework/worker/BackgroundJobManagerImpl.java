@@ -357,7 +357,7 @@ public class BackgroundJobManagerImpl {
             }
         }
 
-        SupportWorkManager.getWorkManager().cancelAllWorkByTag(TAG_ALL);
+        SupportWorkManager.getWorkManager().cancelAllWork();
     }
 
 

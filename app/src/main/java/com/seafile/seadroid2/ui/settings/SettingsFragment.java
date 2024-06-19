@@ -56,7 +56,7 @@ import com.seafile.seadroid2.framework.datastore.sp.SettingsManager;
 import com.seafile.seadroid2.framework.util.PermissionUtil;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
-import com.seafile.seadroid2.framework.worker.FileSyncService;
+import com.seafile.seadroid2.framework.file_monitor.FileSyncService;
 import com.seafile.seadroid2.framework.worker.SupportWorkManager;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
@@ -778,7 +778,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             BackgroundJobManagerImpl.getInstance().scheduleFolderBackupScannerWorker(true);
         }
 
-        //firebase - event -login
+        //firebase - event - album_backup
         Bundle eventBundle = new Bundle();
         eventBundle.putString(FirebaseAnalytics.Param.METHOD, "refreshFolderBackupView");
         FirebaseAnalytics.getInstance(requireContext()).logEvent(AnalyticsEvent.ALBUM_BACKUP, eventBundle);

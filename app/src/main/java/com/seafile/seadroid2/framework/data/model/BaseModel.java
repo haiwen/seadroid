@@ -24,17 +24,9 @@ public class BaseModel {
      */
     public int v = 1;
 
+
     /**
-     * <pre>
-     * {@code
-     * data status
-     * 0: normal,
-     * -1: deleted,
-     * -2: hidden,
-     * -3: locked,
-     * -4: locked and hidden.
-     * }
-     * </pre>
+     * @see com.seafile.seadroid2.config.Constants.DataStatus
      */
     public int data_status = 0;
 

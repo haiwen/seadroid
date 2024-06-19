@@ -167,33 +167,18 @@ public class RepoViewModel extends BaseViewModel {
         String parentDir = context.getNavPath();
 
         Single<List<DirentModel>> direntDBSingle = AppDatabase.getInstance().direntDao().getListByParentPath(repoId, parentDir);
-        Single<List<FileTransferEntity>> transferDBSingle = direntDBSingle.flatMap(new Function<List<DirentModel>, SingleSource<List<FileTransferEntity>>>() {
+        Single<List<FileTransferEntity>> curParentDownloadedList = AppDatabase.getInstance().fileTransferDAO().getDownloadedListByParentAsync(repoId, parentDir);
+
+        Single<List<DirentModel>> resultSingle = Single.zip(direntDBSingle, curParentDownloadedList, new BiFunction<List<DirentModel>, List<FileTransferEntity>, List<DirentModel>>() {
             @Override
-            public SingleSource<List<FileTransferEntity>> apply(List<DirentModel> direntModels) throws Exception {
-                if (CollectionUtils.isEmpty(direntModels)) {
-                    return Single.just(Collections.emptyList());
-                }
-
-                List<String> fullPaths = direntModels.stream().map(m -> m.full_path).collect(Collectors.toList());
-                if (CollectionUtils.isEmpty(fullPaths)) {
-                    return Single.just(Collections.emptyList());
-                }
-
-                String repoId = direntModels.get(0).repo_id;
-                return AppDatabase.getInstance().fileTransferDAO().getListByFullPathsAsync(repoId, fullPaths, TransferAction.DOWNLOAD);
-            }
-        });
-
-        Single<List<DirentModel>> resultSingle = Single.zip(direntDBSingle, transferDBSingle, new BiFunction<List<DirentModel>, List<FileTransferEntity>, List<DirentModel>>() {
-            @Override
-            public List<DirentModel> apply(List<DirentModel> direntModels, List<FileTransferEntity> list) throws Exception {
+            public List<DirentModel> apply(List<DirentModel> direntModels, List<FileTransferEntity> cur_parent_downloaded_list) throws Exception {
                 if (CollectionUtils.isEmpty(direntModels)) {
                     return direntModels;
                 }
 
                 for (DirentModel direntModel : direntModels) {
                     String fullPath = direntModel.parent_dir + direntModel.name;
-                    Optional<FileTransferEntity> firstOp = list.stream().filter(f -> TextUtils.equals(fullPath, f.full_path)).findFirst();
+                    Optional<FileTransferEntity> firstOp = cur_parent_downloaded_list.stream().filter(f -> TextUtils.equals(fullPath, f.full_path)).findFirst();
                     if (firstOp.isPresent()) {
                         FileTransferEntity entity = firstOp.get();
                         if (entity.transfer_status == TransferStatus.SUCCEEDED) {

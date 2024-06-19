@@ -1,7 +1,5 @@
 package com.seafile.seadroid2;
 
-import android.content.Context;
-
 import com.google.common.base.MoreObjects;
 
 public class SeafException extends Exception {
@@ -11,7 +9,10 @@ public class SeafException extends Exception {
     public static final int HTTP_ABOVE_QUOTA = 443;
 
     private int code;
-    public static final SeafException SUCCESS = new SeafException(-1, "success");
+    public static final int CODE_SUCCESS = -1;
+    public static final int CODE_ERROR = 0;
+
+    public static final SeafException SUCCESS = new SeafException(CODE_SUCCESS, "success");
 
     public static final SeafException unknownException = new SeafException(1, "Unknown Error");
     public static final SeafException networkException = new SeafException(2, "Network Error");

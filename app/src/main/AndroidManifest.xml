@@ -266,7 +266,7 @@
         <!--            android:name=".ui.camera_upload.MediaSchedulerService"-->
         <!--            android:permission="android.permission.BIND_JOB_SERVICE" />-->
         <service
-            android:name=".framework.worker.FileSyncService"
+            android:name=".framework.file_monitor.FileSyncService"
             android:exported="false" />
 
         <receiver

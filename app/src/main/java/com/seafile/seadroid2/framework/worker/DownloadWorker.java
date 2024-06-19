@@ -84,35 +84,51 @@ public class DownloadWorker extends BaseDownloadFileWorker {
         if (account == null) {
             return Result.success();
         }
+
+        //count
+        int pendingCount = AppDatabase.getInstance().fileTransferDAO().countPendingDownloadListSync(account.getSignature());
+        if (pendingCount <= 0) {
+            Data data = new Data.Builder()
+                    .putString(TransferWorker.KEY_DATA_EVENT, TransferEvent.EVENT_TRANSFERRED_WITHOUT_DATA)
+                    .build();
+            return Result.success(data);
+        }
+
         notificationManager.showNotification();
 
-        //
+        //tip
+        String tip = getApplicationContext().getResources().getQuantityString(R.plurals.transfer_download_started, pendingCount, pendingCount);
+        ToastUtils.showLong(tip);
+
+        //start download
         boolean isDownloaded = false;
         while (true) {
+
+            if (isStopped()) {
+                break;
+            }
+
             List<FileTransferEntity> list = AppDatabase
                     .getInstance()
                     .fileTransferDAO()
-                    .getPendingDownloadListByActionSync(account.getSignature());
+                    .getOnePendingDownloadByActionSync(account.getSignature());
             if (CollectionUtils.isEmpty(list)) {
                 break;
             }
 
             isDownloaded = true;
 
-            int fileCount = list.size();
-            String tip = getApplicationContext().getResources().getQuantityString(R.plurals.transfer_download_started, fileCount, fileCount);
-            ToastUtils.showLong(tip);
+            if (isStopped()) {
+                break;
+            }
 
-            for (FileTransferEntity fileTransferEntity : list) {
-                if (isStopped()) {
-                    break;
-                }
+            FileTransferEntity fileTransferEntity = list.get(0);
 
-                try {
-                    transferFile(account, fileTransferEntity);
-                } catch (Exception e) {
-                    catchExceptionAndUpdateDB(fileTransferEntity, e);
-                }
+            try {
+                transferFile(account, fileTransferEntity);
+            } catch (Exception e) {
+                catchExceptionAndUpdateDB(fileTransferEntity, e);
+                isDownloaded = false;
             }
         }
 
@@ -133,11 +149,16 @@ public class DownloadWorker extends BaseDownloadFileWorker {
     }
 
 
+    /**
+     *
+     */
     private final FileTransferProgressListener.TransferProgressListener progressListener = new FileTransferProgressListener.TransferProgressListener() {
         @Override
         public void onProgressNotify(FileTransferEntity fileTransferEntity, int percent, long transferredSize, long totalSize) {
             SLogs.d(fileTransferEntity.file_name + " -> progress：" + percent);
-            notificationManager.notifyProgress(fileTransferEntity.file_name, percent);
+
+            int diff = AppDatabase.getInstance().fileTransferDAO().countPendingDownloadListSync(fileTransferEntity.related_account);
+            notificationManager.notifyProgress(fileTransferEntity.file_name, percent, diff);
 
             //
             AppDatabase.getInstance().fileTransferDAO().update(fileTransferEntity);
@@ -149,7 +170,9 @@ public class DownloadWorker extends BaseDownloadFileWorker {
 
     private void transferFile(Account account, FileTransferEntity transferEntity) throws Exception {
         SLogs.d("download start：" + transferEntity.full_path);
-        notificationManager.notifyProgress(transferEntity.file_name, 0);
+
+        int diff = AppDatabase.getInstance().fileTransferDAO().countPendingDownloadListSync(transferEntity.related_account);
+        notificationManager.notifyProgress(transferEntity.file_name, 0, diff);
 
         List<RepoModel> repoModels = AppDatabase.getInstance().repoDao().getByIdSync(transferEntity.repo_id);
 

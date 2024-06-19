@@ -1,5 +1,6 @@
 package com.seafile.seadroid2.framework.worker;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.text.TextUtils;
 
@@ -218,6 +219,7 @@ public class DownloadFileScanWorker extends TransferWorker {
 
         RepoModel repoModel = repoModels.get(0);
         List<FileTransferEntity> transferEntityList = new ArrayList<>();
+        List<String> fullPathList = new ArrayList<>();
 
         for (DirentRecursiveFileModel model : list) {
             FileTransferEntity transferEntity = FileTransferEntity.convertDirentRecursiveModel2This(repoModel, model);
@@ -228,10 +230,10 @@ public class DownloadFileScanWorker extends TransferWorker {
             transferEntity.target_path = DataManager.getLocalRepoFile(account, transferEntity).getAbsolutePath();
 
             transferEntityList.add(transferEntity);
+            fullPathList.add(transferEntity.full_path);
         }
 
-        List<String> fullPaths = transferEntityList.stream().map(m -> m.full_path).collect(Collectors.toList());
-        List<FileTransferEntity> existsList = AppDatabase.getInstance().fileTransferDAO().getListByFullPathsSync(direntModel.repo_id, fullPaths, TransferAction.DOWNLOAD);
+        List<FileTransferEntity> existsList = readExistsListFromDB(direntModel.repo_id, fullPathList);
 
         List<FileTransferEntity> newList = CollectionUtils.newArrayList();
 
@@ -281,6 +283,38 @@ public class DownloadFileScanWorker extends TransferWorker {
         }
 
         return res.body();
+    }
+
+    @SuppressLint("RestrictedApi")
+    private List<FileTransferEntity> readExistsListFromDB(String repoId, List<String> fullPaths) {
+        List<FileTransferEntity> existsList = CollectionUtils.newArrayList();
+
+//        int pageSize = RoomDatabase.MAX_BIND_PARAMETER_CNT;
+        int pageSize = 50;
+
+        if (fullPaths.size() > pageSize) {
+
+            //paginate the data
+            for (int pageNumber = 1; pageNumber <= (fullPaths.size() + pageSize - 1) / pageSize; pageNumber++) {
+                int fromIndex = (pageNumber - 1) * pageSize;
+                int toIndex = Math.min(pageNumber * pageSize, fullPaths.size());
+                List<String> pageListData = fullPaths.subList(fromIndex, toIndex);
+
+                List<FileTransferEntity> tempExistsList = AppDatabase
+                        .getInstance()
+                        .fileTransferDAO()
+                        .getListByFullPathsSync(repoId, pageListData, TransferAction.UPLOAD);
+                existsList.addAll(tempExistsList);
+            }
+        } else {
+            List<FileTransferEntity> tempExistsList = AppDatabase
+                    .getInstance()
+                    .fileTransferDAO()
+                    .getListByFullPathsSync(repoId, fullPaths, TransferAction.UPLOAD);
+            existsList.addAll(tempExistsList);
+        }
+
+        return existsList;
     }
 
 }

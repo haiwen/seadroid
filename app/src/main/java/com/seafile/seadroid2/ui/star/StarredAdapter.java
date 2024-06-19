@@ -11,14 +11,14 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.DiffUtil;
 
 import com.blankj.utilcode.util.CollectionUtils;
+import com.bumptech.glide.Glide;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.framework.util.GlideApp;
-import com.seafile.seadroid2.framework.util.Icons;
-import com.seafile.seadroid2.ui.base.adapter.BaseAdapter;
 import com.seafile.seadroid2.config.GlideLoadConfig;
 import com.seafile.seadroid2.databinding.ItemStarredBinding;
-import com.seafile.seadroid2.framework.http.IO;
 import com.seafile.seadroid2.framework.data.db.entities.StarredModel;
+import com.seafile.seadroid2.framework.http.IO;
+import com.seafile.seadroid2.framework.util.Icons;
+import com.seafile.seadroid2.ui.base.adapter.BaseAdapter;
 
 import java.util.List;
 
@@ -66,7 +66,7 @@ public class StarredAdapter extends BaseAdapter<StarredModel, StarredViewHolder>
                 holder.binding.itemIcon.setImageResource(Icons.getFileIcon(model.obj_name));
             } else {
                 String url = convertThumbnailUrl(model.repo_id, model.path);
-                GlideApp.with(getContext())
+                Glide.with(getContext())
                         .load(GlideLoadConfig.getGlideUrl(url))
                         .apply(GlideLoadConfig.getOptions())
                         .into(holder.binding.itemIcon);

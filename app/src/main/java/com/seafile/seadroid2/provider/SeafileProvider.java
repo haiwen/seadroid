@@ -49,6 +49,7 @@ import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.config.GlideLoadConfig;
+import com.seafile.seadroid2.config.RepoType;
 import com.seafile.seadroid2.framework.data.db.AppDatabase;
 import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
@@ -773,11 +774,21 @@ public class SeafileProvider extends DocumentsProvider {
         final MatrixCursor.RowBuilder row = result.newRow();
         row.add(Document.COLUMN_DOCUMENT_ID, docId);
         row.add(Document.COLUMN_DISPLAY_NAME, repoModel.repo_name);
-        row.add(Document.COLUMN_SUMMARY, null);
         row.add(Document.COLUMN_LAST_MODIFIED, repoModel.last_modified_long);
         row.add(Document.COLUMN_FLAGS, flags);
         row.add(Document.COLUMN_ICON, repoModel.getIcon());
         row.add(Document.COLUMN_SIZE, repoModel.size);
+
+        row.add(Document.COLUMN_SUMMARY, null);
+//        if (RepoType.TYPE_MINE.equals(repoModel.type)) {
+//            row.add(Document.COLUMN_SUMMARY, R.string.personal);
+//        } else if (RepoType.TYPE_SHARED.equals(repoModel.type)) {
+//            row.add(Document.COLUMN_SUMMARY, R.string.shared);
+//        } else if (RepoType.TYPE_GROUP.equals(repoModel.type)) {
+//            row.add(Document.COLUMN_SUMMARY, repoModel.group_name);
+//        } else {
+//            row.add(Document.COLUMN_SUMMARY, null);
+//        }
 
         if (repoModel.encrypted || !reachableAccounts.contains(account)) {
             row.add(Document.COLUMN_MIME_TYPE, null); // undocumented: will grey out the entry

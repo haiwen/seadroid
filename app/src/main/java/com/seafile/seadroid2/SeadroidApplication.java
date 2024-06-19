@@ -4,7 +4,7 @@ import android.app.Application;
 import android.content.Context;
 
 import com.seafile.seadroid2.gesturelock.AppLockManager;
-import com.seafile.seadroid2.monitor.ActivityMonitor;
+import com.seafile.seadroid2.framework.monitor.ActivityMonitor;
 import com.seafile.seadroid2.framework.notification.base.NotificationUtils;
 import com.seafile.seadroid2.framework.util.CrashHandler;
 

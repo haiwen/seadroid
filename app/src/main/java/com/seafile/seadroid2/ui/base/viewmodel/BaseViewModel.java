@@ -23,6 +23,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
 import java.util.HashMap;
@@ -298,7 +299,7 @@ public class BaseViewModel extends ViewModel {
             return SeafException.networkException;
         }
 
-        return SeafException.unknownException;
+        return new SeafException(SeafException.CODE_ERROR, throwable.getMessage());
     }
 
 

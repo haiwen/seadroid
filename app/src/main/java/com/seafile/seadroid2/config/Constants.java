@@ -66,4 +66,24 @@ public class Constants {
         public static final int DP_16 = SizeUtils.dp2px(16);
         public static final int DP_32 = SizeUtils.dp2px(32);
     }
+
+    /**
+     * <pre>
+     * {@code
+     * data status
+     * 0: normal,
+     * -1: deleted,
+     * -2: hidden,
+     * -3: locked,
+     * -4: locked and hidden.
+     * }
+     * </pre>
+     */
+    public static class DataStatus {
+        public static final int NORMAL = 0;
+        public static final int DELETED = -1;
+        public static final int HIDDEN = -2;
+        public static final int LOCKED = -3;
+        public static final int LOCKED_AND_HIDDEN = -4;
+    }
 }

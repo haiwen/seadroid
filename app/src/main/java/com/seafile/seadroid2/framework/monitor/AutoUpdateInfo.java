@@ -1,8 +1,7 @@
-package com.seafile.seadroid2.monitor;
+package com.seafile.seadroid2.framework.monitor;
 
 import com.google.common.base.Objects;
 import com.seafile.seadroid2.framework.datastore.sp.AppDataManager;
-import com.seafile.seadroid2.framework.datastore.sp.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 
 class AutoUpdateInfo {

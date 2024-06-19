@@ -29,11 +29,11 @@ public interface FileTransferDAO {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(FileTransferEntity entity);
 
-    @Query("DELETE FROM file_transfer_list where transfer_action = :transfer_action")
-    void deleteAllByAction(TransferAction transfer_action);
+    @Query("DELETE FROM file_transfer_list  where related_account = :related_account and transfer_action = :transfer_action")
+    void deleteAllByAction(String related_account, TransferAction transfer_action);
 
-    @Query("DELETE FROM file_transfer_list where transfer_action = :transfer_action")
-    Completable deleteAllByActionAsync(TransferAction transfer_action);
+    @Query("DELETE FROM file_transfer_list where related_account = :related_account and transfer_action = :transfer_action")
+    Completable deleteAllByActionAsync(String related_account, TransferAction transfer_action);
 
     @Query("DELETE FROM file_transfer_list where uid = :uid")
     Completable deleteAsyncById(String uid);
@@ -72,6 +72,9 @@ public interface FileTransferDAO {
     @Query("update file_transfer_list set transfer_status = 'CANCELLED', transfer_result = :result where data_source = 'FILE_BACKUP' and transfer_status in ('IN_PROGRESS','WAITING')")
     void cancelWithFileBackup(TransferResult result);
 
+    @Query("update file_transfer_list set transfer_status = 'CANCELLED', transfer_result = 'CANCELLED', data_status = -1, transferred_size = 0 where data_source in ('FILE_BACKUP','FOLDER_BACKUP')")
+    void cancelAllWithFileBackup();
+
     @Query("select * from file_transfer_list where related_account = :related_account and data_source in ( :feats ) and data_status = 0  order by created_at asc")
     Single<List<FileTransferEntity>> getListByFeatAsync(String related_account, List<TransferDataSource> feats);
 
@@ -85,8 +88,16 @@ public interface FileTransferDAO {
     @Query("select * from file_transfer_list where transfer_action = :transfer_action and is_auto_transfer = 1 and transfer_status in ('IN_PROGRESS', 'WAITING') and data_source = :feature and data_status = 0  order by created_at asc limit 1")
     List<FileTransferEntity> getOnePendingTransferAllAccountSync(TransferAction transfer_action, TransferDataSource feature);
 
-    @Query("select * from file_transfer_list where related_account = :related_account and is_auto_transfer = 1 and transfer_action = 'DOWNLOAD' and transfer_status in ('IN_PROGRESS', 'WAITING') and data_status = 0  order by created_at asc")
+    @Query("select * from file_transfer_list where related_account = :related_account and is_auto_transfer = 1 and transfer_action = 'DOWNLOAD' and transfer_status in ('IN_PROGRESS', 'WAITING') and data_status = 0  order by created_at asc limit 10")
     List<FileTransferEntity> getPendingDownloadListByActionSync(String related_account);
+
+    @Query("select * from file_transfer_list where related_account = :related_account and is_auto_transfer = 1 and transfer_action = 'DOWNLOAD' and transfer_status in ('IN_PROGRESS', 'WAITING') and data_status = 0  order by created_at asc limit 1")
+    List<FileTransferEntity> getOnePendingDownloadByActionSync(String related_account);
+
+
+    @Query("select  COUNT(*)  from file_transfer_list where related_account = :related_account and is_auto_transfer = 1 and transfer_action = 'DOWNLOAD' and transfer_status in ('IN_PROGRESS', 'WAITING') and data_status = 0")
+    int countPendingDownloadListSync(String related_account);
+
 
     @Query("select * from file_transfer_list where related_account = :related_account and transfer_action = 'UPLOAD' and data_source in ('FOLDER_BACKUP','FILE_BACKUP','ALBUM_BACKUP') and data_status = 0 order by created_at desc")
     Single<List<FileTransferEntity>> getUploadListAsync(String related_account);
@@ -110,20 +121,23 @@ public interface FileTransferDAO {
     @Query("select * from file_transfer_list where repo_id = :repoId and full_path IN(:fullPaths) and transfer_action = :transfer_action order by created_at asc")
     Single<List<FileTransferEntity>> getListByFullPathsAsync(String repoId, List<String> fullPaths, TransferAction transfer_action);
 
+    @Query("select * from file_transfer_list where repo_id = :repoId and transfer_action = 'DOWNLOAD' and transfer_result = 'SUCCEEDED' and parent_path = :parent_path order by created_at asc")
+    Single<List<FileTransferEntity>> getDownloadedListByParentAsync(String repoId, String parent_path);
+
+
     @Query("select * from file_transfer_list where repo_id = :repoId and full_path IN(:fullPaths) and transfer_action = :transfer_action order by created_at asc")
     List<FileTransferEntity> getListByFullPathsSync(String repoId, List<String> fullPaths, TransferAction transfer_action);
 
     @Query("select * from file_transfer_list where related_account = :related_account and transfer_action = :transferAction and full_path = :full_path and data_status = 0  order by created_at")
-    List<FileTransferEntity> getListByFullPathsSync(String related_account, TransferAction transferAction, String full_path);
+    List<FileTransferEntity> getListByFullPathSync(String related_account, TransferAction transferAction, String full_path);
 
     @Query("select COUNT(*) from file_transfer_list where repo_id = :repoId and full_path = :fullPath and transfer_action = :transfer_action and data_source = :feature and data_status = 0 ")
     int checkOneByFullPath(String repoId, String fullPath, TransferAction transfer_action, TransferDataSource feature);
+
 
     @RawQuery
     int updateEntityStatus(SupportSQLiteQuery query);
 
     @Query("select COUNT(*) from file_transfer_list where related_account = :related_account and transfer_action = :transferAction and data_source = :feature and transfer_status in (:transferStatus) and data_status = 0  order by created_at asc")
     Single<Integer> getCount(String related_account, TransferAction transferAction, TransferDataSource feature, List<TransferStatus> transferStatus);
-
-
 }

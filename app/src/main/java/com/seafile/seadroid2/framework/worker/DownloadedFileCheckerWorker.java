@@ -1,5 +1,6 @@
 package com.seafile.seadroid2.framework.worker;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.text.TextUtils;
 
@@ -139,7 +140,7 @@ public class DownloadedFileCheckerWorker extends BaseUploadFileWorker {
         List<FileTransferEntity> transferEntityList = AppDatabase
                 .getInstance()
                 .fileTransferDAO()
-                .getListByFullPathsSync(account.getSignature(), TransferAction.UPLOAD, downloadTransferEntity.target_path);
+                .getListByFullPathSync(account.getSignature(), TransferAction.UPLOAD, downloadTransferEntity.target_path);
 
         FileTransferEntity transferEntity = null;
         if (CollectionUtils.isEmpty(transferEntityList)) {

@@ -11,8 +11,8 @@ import android.widget.ProgressBar;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.blankj.utilcode.util.SPStaticUtils;
 import com.blankj.utilcode.util.SizeUtils;
+import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.engine.GlideException;
@@ -28,10 +28,8 @@ import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.config.GlideLoadConfig;
 import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.datastore.DataManager;
-import com.seafile.seadroid2.framework.util.GlideApp;
-import com.seafile.seadroid2.ui.base.fragment.BaseFragment;
 import com.seafile.seadroid2.framework.util.SLogs;
-import com.seafile.seadroid2.framework.util.Utils;
+import com.seafile.seadroid2.ui.base.fragment.BaseFragment;
 
 import java.io.File;
 
@@ -100,7 +98,7 @@ public class PhotoFragment extends BaseFragment {
         if (file.exists()) {
             progressBar.setVisibility(View.GONE);
 
-            GlideApp.with(requireContext())
+            Glide.with(requireContext())
                     .load(file)
                     .into(photoView);
             return;
@@ -118,7 +116,7 @@ public class PhotoFragment extends BaseFragment {
 
             GlideUrl glideUrl1 = GlideLoadConfig.getGlideUrl(url);
 
-            GlideApp.with(requireContext())
+            Glide.with(requireContext())
                     .load(glideUrl1)
                     .apply(opt)
                     .fitCenter()

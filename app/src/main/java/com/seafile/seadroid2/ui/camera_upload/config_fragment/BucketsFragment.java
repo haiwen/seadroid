@@ -19,9 +19,9 @@ import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.framework.datastore.sp.AlbumBackupManager;
-import com.seafile.seadroid2.framework.util.GlideApp;
 import com.seafile.seadroid2.ui.camera_upload.CameraUploadConfigActivity;
 import com.seafile.seadroid2.ui.camera_upload.GalleryBucketUtils;
 
@@ -213,7 +213,7 @@ public class BucketsFragment extends Fragment {
                 }
             });
 
-            GlideApp.with(getContext()).load(buckets.get(position).uri).into(holder.imageview);
+            Glide.with(requireContext()).load(buckets.get(position).uri).into(holder.imageview);
 
             if (selectedBuckets[position])
                 holder.marking.setBackgroundResource(R.drawable.checkbox_checked);

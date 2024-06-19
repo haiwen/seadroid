@@ -7,6 +7,8 @@ import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.ssl.SSLTrustManager;
 
 import java.io.File;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -15,7 +17,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 
+import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
 import okhttp3.Cache;
@@ -31,7 +35,7 @@ import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 
 public abstract class BaseIO {
 
-    private final int DEFAULT_TIME_OUT = 10000;
+    private final int DEFAULT_TIME_OUT = 60000;
     private final File cachePath = SeadroidApplication.getAppContext().getCacheDir();
 
     //cache path
@@ -125,7 +129,7 @@ public abstract class BaseIO {
         rBuilder.addConverterFactory(getConverterFactory());
         rBuilder.addCallAdapterFactory(RxJava2CallAdapterFactory.create());
 
-        rBuilder.client(getClient(account));
+        rBuilder.client(getClient());
         Retrofit retrofit = rBuilder.build();
 
         CLIENT_MAP.put(account.getSignature(), retrofit);
@@ -133,45 +137,64 @@ public abstract class BaseIO {
         return retrofit;
     }
 
-    public OkHttpClient getClient() {
-        return getClient(getAccount());
-    }
+    final TrustManager[] trustAllCerts = new TrustManager[]{
+            new X509TrustManager() {
+                @Override
+                public void checkClientTrusted(java.security.cert.X509Certificate[] chain, String authType) throws CertificateException {
+                }
 
-    public OkHttpClient getClient(Account account) {
+                @Override
+                public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType) throws CertificateException {
+                }
+
+                @Override
+                public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                    return new X509Certificate[]{};
+                }
+            }
+    };
+
+    public OkHttpClient getClient() {
         if (okHttpClient == null) {
             synchronized (BaseIO.class) {
                 if (okHttpClient == null) {
-                    //
-                    SSLSocketFactory sslSocketFactory = SSLTrustManager.instance().getSSLSocketFactory(account);
-                    X509TrustManager defaultTrustManager = SSLTrustManager.instance().getDefaultTrustManager();
+                    try {
+                        // Install the all-trusting trust manager
+                        final SSLContext sslContext = SSLContext.getInstance("SSL");
+                        sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
+                        // Create an ssl socket factory with our all-trusting manager
+                        final SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
 
-                    OkHttpClient.Builder builder = new OkHttpClient.Builder();
-                    builder.sslSocketFactory(sslSocketFactory, defaultTrustManager);
 
-                    builder.connectionSpecs(Arrays.asList(
-                            ConnectionSpec.MODERN_TLS,
-                            ConnectionSpec.COMPATIBLE_TLS,
-                            ConnectionSpec.CLEARTEXT)).build();
-                    builder.cache(cache);
+                        OkHttpClient.Builder builder = new OkHttpClient.Builder();
+                        builder.sslSocketFactory(sslSocketFactory, (X509TrustManager) trustAllCerts[0]);
+                        builder.connectionSpecs(Arrays.asList(
+                                ConnectionSpec.MODERN_TLS,
+                                ConnectionSpec.COMPATIBLE_TLS,
+                                ConnectionSpec.CLEARTEXT));
+                        builder.cache(cache);
 
-                    //cache control
-                    builder.interceptors().add(REWRITE_CACHE_CONTROL_INTERCEPTOR);
-                    builder.networkInterceptors().add(REWRITE_CACHE_CONTROL_INTERCEPTOR);
+                        //cache control
+                        builder.interceptors().add(REWRITE_CACHE_CONTROL_INTERCEPTOR);
+                        builder.networkInterceptors().add(REWRITE_CACHE_CONTROL_INTERCEPTOR);
 
-                    //add interceptors
-                    List<Interceptor> interceptors = getInterceptors();
-                    if (interceptors != null && !interceptors.isEmpty()) {
-                        for (Interceptor i : interceptors) {
-                            builder.interceptors().add(i);
+                        //add interceptors
+                        List<Interceptor> interceptors = getInterceptors();
+                        if (interceptors != null && !interceptors.isEmpty()) {
+                            for (Interceptor i : interceptors) {
+                                builder.interceptors().add(i);
+                            }
                         }
+
+                        //timeout
+                        builder.writeTimeout(DEFAULT_TIME_OUT, TimeUnit.MILLISECONDS);
+                        builder.readTimeout(DEFAULT_TIME_OUT, TimeUnit.MILLISECONDS);
+                        builder.connectTimeout(DEFAULT_TIME_OUT, TimeUnit.MILLISECONDS);
+
+                        okHttpClient = builder.build();
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-
-                    //timeout
-                    builder.writeTimeout(DEFAULT_TIME_OUT, TimeUnit.MILLISECONDS);
-                    builder.readTimeout(DEFAULT_TIME_OUT, TimeUnit.MILLISECONDS);
-                    builder.connectTimeout(DEFAULT_TIME_OUT, TimeUnit.MILLISECONDS);
-
-                    okHttpClient = builder.build();
                 }
             }
         }

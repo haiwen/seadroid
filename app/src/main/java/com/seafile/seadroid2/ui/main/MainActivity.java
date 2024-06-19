@@ -35,8 +35,6 @@ import com.blankj.utilcode.util.TimeUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.navigation.NavigationBarView;
-import com.google.android.material.tabs.TabLayout;
-import com.google.android.material.tabs.TabLayoutMediator;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.seafile.seadroid2.R;
@@ -54,7 +52,7 @@ import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.TakeCameras;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
-import com.seafile.seadroid2.framework.worker.FileSyncService;
+import com.seafile.seadroid2.framework.file_monitor.FileSyncService;
 import com.seafile.seadroid2.ui.account.AccountsActivity;
 import com.seafile.seadroid2.ui.adapter.ViewPager2Adapter;
 import com.seafile.seadroid2.ui.base.BaseActivity;
@@ -68,8 +66,6 @@ import com.seafile.seadroid2.ui.repo.RepoQuickFragment;
 import com.seafile.seadroid2.ui.search.Search2Activity;
 import com.seafile.seadroid2.ui.settings.SettingsActivity;
 import com.seafile.seadroid2.ui.transfer_list.TransferActivity;
-
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.util.List;

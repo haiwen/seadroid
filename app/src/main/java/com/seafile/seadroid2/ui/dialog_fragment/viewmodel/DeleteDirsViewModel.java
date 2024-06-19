@@ -95,8 +95,6 @@ public class DeleteDirsViewModel extends BaseViewModel {
                             });
                         }
                     });
-
-
         }
 
         addFlowableDisposable(flowable, new Consumer<DeleteDirentModel>() {

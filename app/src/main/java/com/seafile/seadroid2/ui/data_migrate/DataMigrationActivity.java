@@ -49,7 +49,7 @@ import com.seafile.seadroid2.framework.http.IO;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.ExistingFileStrategy;
-import com.seafile.seadroid2.monitor.MonitorDBHelper;
+import com.seafile.seadroid2.framework.monitor.MonitorDBHelper;
 import com.seafile.seadroid2.ssl.CertsDBHelper;
 import com.seafile.seadroid2.ui.account.AccountService;
 import com.seafile.seadroid2.ui.account.AccountsActivity;

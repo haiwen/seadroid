@@ -20,7 +20,7 @@ import com.seafile.seadroid2.databinding.FolderBackupActivityLayoutBinding;
 import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.datastore.sp.FolderBackupManager;
 import com.seafile.seadroid2.framework.util.SLogs;
-import com.seafile.seadroid2.framework.worker.FileSyncService;
+import com.seafile.seadroid2.framework.file_monitor.FileSyncService;
 import com.seafile.seadroid2.ui.base.BaseActivity;
 import com.seafile.seadroid2.ui.selector.ObjSelectorActivity;
 import com.seafile.seadroid2.ui.selector.ObjSelectorFragment;

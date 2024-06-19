@@ -42,6 +42,10 @@ public abstract class BaseTransferNotificationHelper extends BaseNotification {
         super.notifyProgress(getNotificationId(), fileName, getNotificationTitle(), percent, getTransferIntent());
     }
 
+    public void notifyProgress(String fileName, int percent, int totalCount) {
+        super.notifyProgress(getNotificationId(), fileName, getNotificationTitle(), percent,totalCount, getTransferIntent());
+    }
+
     public void cancel() {
         super.cancel(getNotificationId(), 0);
     }

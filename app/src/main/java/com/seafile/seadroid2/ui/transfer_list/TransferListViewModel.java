@@ -164,6 +164,8 @@ public class TransferListViewModel extends BaseViewModel {
     }
 
     public void removeAllDownloadTask(Consumer<Boolean> consumer) {
+        getRefreshLiveData().setValue(true);
+
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
         List<TransferDataSource> features = CollectionUtils.newArrayList(TransferDataSource.DOWNLOAD);
         Single<List<FileTransferEntity>> single = AppDatabase.getInstance().fileTransferDAO().getListByFeatAsync(account.getSignature(), features);
@@ -175,10 +177,10 @@ public class TransferListViewModel extends BaseViewModel {
                     @Override
                     public void subscribe(SingleEmitter<Boolean> emitter) throws Exception {
 
+                        AppDatabase.getInstance().fileTransferDAO().deleteAllByAction(account.getSignature(), TransferAction.DOWNLOAD);
+
                         for (FileTransferEntity entity : entities) {
                             //delete record
-                            AppDatabase.getInstance().fileTransferDAO().deleteOne(entity);
-
                             if (entity.transfer_action == TransferAction.DOWNLOAD) {
                                 FileUtils.delete(entity.target_path);
                                 SLogs.d("deleted : " + entity.target_path);
@@ -257,6 +259,8 @@ public class TransferListViewModel extends BaseViewModel {
     }
 
     public void removeAllUploadTask(Consumer<Boolean> consumer) {
+        getRefreshLiveData().setValue(true);
+
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
         List<TransferDataSource> features = CollectionUtils.newArrayList(TransferDataSource.FILE_BACKUP, TransferDataSource.FOLDER_BACKUP);
         Single<List<FileTransferEntity>> single = AppDatabase.getInstance().fileTransferDAO().getListByFeatAsync(account.getSignature(), features);
@@ -267,15 +271,9 @@ public class TransferListViewModel extends BaseViewModel {
                 return Single.create(new SingleOnSubscribe<Boolean>() {
                     @Override
                     public void subscribe(SingleEmitter<Boolean> emitter) throws Exception {
+                        AppDatabase.getInstance().fileTransferDAO().cancelAllWithFileBackup();
 
                         for (FileTransferEntity entity : entities) {
-                            entity.data_status = -1;
-                            entity.transfer_result = TransferResult.NO_RESULT;
-                            entity.transfer_status = TransferStatus.CANCELLED;
-                            entity.transferred_size = 0;
-
-                            AppDatabase.getInstance().fileTransferDAO().insert(entity);
-
                             if (entity.transfer_action == TransferAction.DOWNLOAD) {
                                 FileUtils.delete(entity.target_path);
                                 SLogs.d("deleted : " + entity.target_path);

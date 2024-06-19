@@ -21,6 +21,7 @@ import com.seafile.seadroid2.BuildConfig;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.config.RepoType;
 import com.seafile.seadroid2.framework.data.db.AppDatabase;
 import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
@@ -130,6 +131,7 @@ public class Objs {
                 List<String> ids = triple.getSecond().stream().map(m -> m.repo_id).collect(Collectors.toList());
                 Completable deleteCompletable = AppDatabase.getInstance().repoDao().deleteAllByIds(ids);
                 Single<Long> deleteSingle = deleteCompletable.toSingleDefault(0L);
+
                 return deleteSingle.flatMap(new Function<Long, SingleSource<Pair<RepoWrapperModel, List<RepoModel>>>>() {
                     @Override
                     public SingleSource<Pair<RepoWrapperModel, List<RepoModel>>> apply(Long aLong) throws Exception {
@@ -185,7 +187,7 @@ public class Objs {
         TreeMap<String, List<RepoModel>> treeMap = groupRepos(list);
 
         //mine
-        List<RepoModel> mineList = treeMap.get("mine");
+        List<RepoModel> mineList = treeMap.get(RepoType.TYPE_MINE);
         if (!CollectionUtils.isEmpty(mineList)) {
             newRvList.add(new GroupItemModel(R.string.personal));
             for (RepoModel repoModel : mineList) {
@@ -197,7 +199,7 @@ public class Objs {
         }
 
         //shared
-        List<RepoModel> sharedList = treeMap.get("shared");
+        List<RepoModel> sharedList = treeMap.get(RepoType.TYPE_SHARED);
         if (!CollectionUtils.isEmpty(sharedList)) {
             newRvList.add(new GroupItemModel(R.string.shared));
             for (RepoModel repoModel : sharedList) {
@@ -209,8 +211,8 @@ public class Objs {
         }
 
         for (String key : treeMap.keySet()) {
-            if (TextUtils.equals(key, "mine")) {
-            } else if (TextUtils.equals(key, "shared")) {
+            if (TextUtils.equals(key, RepoType.TYPE_MINE)) {
+            } else if (TextUtils.equals(key, RepoType.TYPE_SHARED)) {
             } else {
                 List<RepoModel> groupList = treeMap.get(key);
                 if (!CollectionUtils.isEmpty(groupList)) {
@@ -242,7 +244,7 @@ public class Objs {
         TreeMap<String, List<RepoModel>> treeMap = groupRepos(list);
 
         //mine
-        List<RepoModel> mineList = treeMap.get("mine");
+        List<RepoModel> mineList = treeMap.get(RepoType.TYPE_MINE);
         if (!CollectionUtils.isEmpty(mineList)) {
             for (RepoModel repoModel : mineList) {
                 repoModel.last_modified_long = Times.convertMtime2Long(repoModel.last_modified);
@@ -253,7 +255,7 @@ public class Objs {
         }
 
         //shared
-        List<RepoModel> sharedList = treeMap.get("shared");
+        List<RepoModel> sharedList = treeMap.get(RepoType.TYPE_SHARED);
         if (!CollectionUtils.isEmpty(sharedList)) {
             for (RepoModel repoModel : sharedList) {
                 repoModel.last_modified_long = Times.convertMtime2Long(repoModel.last_modified);
@@ -264,8 +266,8 @@ public class Objs {
         }
 
         for (String key : treeMap.keySet()) {
-            if (TextUtils.equals(key, "mine")) {
-            } else if (TextUtils.equals(key, "shared")) {
+            if (TextUtils.equals(key, RepoType.TYPE_MINE)) {
+            } else if (TextUtils.equals(key, RepoType.TYPE_SHARED)) {
             } else {
                 List<RepoModel> groupList = treeMap.get(key);
                 if (!CollectionUtils.isEmpty(groupList)) {
@@ -367,7 +369,7 @@ public class Objs {
     private static TreeMap<String, List<RepoModel>> groupRepos(List<RepoModel> repos) {
         TreeMap<String, List<RepoModel>> map = new TreeMap<String, List<RepoModel>>();
         for (RepoModel repo : repos) {
-            if (TextUtils.equals(repo.type, "group")) {
+            if (TextUtils.equals(repo.type, RepoType.TYPE_GROUP)) {
                 List<RepoModel> l = map.computeIfAbsent(repo.group_name, k -> Lists.newArrayList());
                 l.add(repo);
             } else {
@@ -385,6 +387,7 @@ public class Objs {
     public static Single<List<DirentModel>> getDirentsSingleFromServer(Account account, String repoId, String repoName, String parentDir) {
         Single<DirentWrapperModel> netSingle = IO.getInstanceByAccount(account).execute(RepoService.class).getDirents(repoId, parentDir);
         Single<List<DirentModel>> dbSingle = AppDatabase.getInstance().direntDao().getListByParentPath(repoId, parentDir);
+
         return Single.zip(netSingle, dbSingle, new BiFunction<DirentWrapperModel, List<DirentModel>, List<DirentModel>>() {
             @Override
             public List<DirentModel> apply(DirentWrapperModel direntWrapperModel, List<DirentModel> direntModels) throws Exception {
@@ -436,11 +439,10 @@ public class Objs {
                     return Single.just(direntModels);
                 }
 
+                Single<List<FileTransferEntity>> curParentDownloadedList = AppDatabase.getInstance().fileTransferDAO().getDownloadedListByParentAsync(repoId, parentDir);
 
-                List<String> fullPaths = direntModels.stream().map(m -> m.parent_dir + m.name).collect(Collectors.toList());
-                String repoId = direntModels.get(0).repo_id;
-                Single<List<FileTransferEntity>> single = AppDatabase.getInstance().fileTransferDAO().getListByFullPathsAsync(repoId, fullPaths, TransferAction.DOWNLOAD);
-                return single.flatMap(new Function<List<FileTransferEntity>, SingleSource<List<DirentModel>>>() {
+
+                return curParentDownloadedList.flatMap(new Function<List<FileTransferEntity>, SingleSource<List<DirentModel>>>() {
                     @Override
                     public SingleSource<List<DirentModel>> apply(List<FileTransferEntity> fileTransferEntities) throws Exception {
 

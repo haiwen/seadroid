@@ -3,7 +3,7 @@ package com.seafile.seadroid2.ui.editor;
 import androidx.lifecycle.MutableLiveData;
 
 import com.blankj.utilcode.util.FileIOUtils;
-import com.seafile.seadroid2.framework.worker.FileSyncService;
+import com.seafile.seadroid2.framework.file_monitor.FileSyncService;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
 
 import io.reactivex.Single;

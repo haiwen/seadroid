@@ -91,6 +91,24 @@ public class IO extends BaseIO {
         return io;
     }
 
+    public static void removeInstanceByAccount(Account account) {
+        CLIENT_MAP.remove(account.getSignature());
+        IO_MAP.remove(account.getSignature());
+    }
+
+    /**
+     * Not logged in/Log in to another server
+     */
+    public static IO newInstanceByAccount(Account account) {
+
+
+        IO io = new IO();
+        io.setServerUrl(account.server);
+        io.setToken(account.token);
+        io.account = account;
+        return io;
+    }
+
     public static void updateInstanceByAccount(Account account) {
         IO_MAP.remove(account.getSignature());
 

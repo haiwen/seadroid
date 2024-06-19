@@ -3,11 +3,12 @@ plugins {
     id 'com.google.gms.google-services'
     id 'com.google.firebase.crashlytics'
 }
+def pid = 'com.seafile.seadroid2'
 
 android {
 
     defaultConfig {
-        applicationId 'com.seafile.seadroid2'
+        applicationId pid
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         compileSdk rootProject.ext.compileSdkVersion
@@ -89,8 +90,9 @@ android {
             applicationVariants.all { variant ->
                 variant.outputs.all { output ->
                     if (output.outputFile != null && output.outputFile.name.endsWith('.apk')) {
-                        if (variant.name == "debug")
+                        if (variant.name == "debug") {
                             outputFileName = "seafile-debug-" + defaultConfig.versionName + ".apk"
+                        }
                     }
                 }
             }
@@ -110,15 +112,47 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
             applicationVariants.all { variant ->
                 variant.outputs.all { output ->
-                    if (output.outputFile != null && output.outputFile.name.endsWith('.apk')) {
-                        if (variant.name == "release") {
-                            outputFileName = "seafile-" + defaultConfig.versionName + ".apk"
+                    if (variant.name == "release") {
+                        if (output.outputFile != null && output.outputFile.name.endsWith('.apk')) {
+                            def versionName = defaultConfig.versionName
+
+                            def outputFileName = "${versionName}_snapshot_build_temp.apk"
+                            outputFileName = outputFileName.replace(" ", "_")
+                            output.outputFileName = outputFileName
+
+                            variant.assemble.doLast {
+
+                                def buildCountFile = file("$rootDir/build_count.txt")
+                                def buildCount = 0
+                                if (buildCountFile.exists()) {
+                                    buildCount = buildCountFile.text.toInteger()
+                                }
+
+                                buildCount++
+                                buildCountFile.text = buildCount.toString()
+
+                                if (versionName.contains("-")) {
+                                    def prefix = versionName.substring(0, versionName.indexOf("-"))
+                                    def suffix = versionName.substring(versionName.indexOf("-") + 1)
+                                    versionName = prefix + "(" + suffix + ")"
+                                }
+
+                                def newOutputFileName = "seafile_${versionName}_build${versionCode}_snapshot${buildCount}.apk"
+                                newOutputFileName = newOutputFileName.replace(" ", "_").replace("-", "_")
+                                def apkFile = output.outputFile
+                                def newApkFile = new File(apkFile.parent, newOutputFileName)
+
+                                if (apkFile.exists()) {
+                                    apkFile.renameTo(newApkFile)
+                                }
+                            }
                         }
                     }
                 }
             }
         }
     }
+
     bundle {
         density {
             enableSplit true
@@ -251,7 +285,6 @@ android {
 //        implementation "io.noties.markwon:inline-parser:$markwon_version"
 //        implementation "io.noties.markwon:linkify:$markwon_version"
 //        implementation "io.noties.markwon:syntax-highlight:$markwon_version"
-
 
 
         implementation 'com.madgag.spongycastle:core:1.54.0.0'

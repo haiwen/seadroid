@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.framework.worker;
+package com.seafile.seadroid2.framework.file_monitor;
 
 import android.app.Service;
 import android.content.Intent;
@@ -13,6 +13,7 @@ import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.datastore.StorageManager;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Utils;
+import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.framework.worker.observer.MediaContentObserver;
 import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
 import com.seafile.seadroid2.framework.datastore.sp.FolderBackupManager;
@@ -28,7 +29,7 @@ import java.util.List;
 
 public class FileSyncService extends Service {
     private MediaContentObserver mediaContentObserver;
-    private FileAlterationMonitor fileMonitor;
+    private SupportFileAlterationMonitor fileMonitor;
 
     /**
      * <p>
@@ -117,7 +118,6 @@ public class FileSyncService extends Service {
         //file upload backup
         BackgroundJobManagerImpl.getInstance().startFileUploadWorker();
 
-
         startFolderMonitor();
     }
 
@@ -164,39 +164,33 @@ public class FileSyncService extends Service {
             return;
         }
 
-        List<FileAlterationObserver> observerList = new ArrayList<>();
-        for (String str : pathList) {
-
-            SLogs.d("backup path: " + str);
-            FileAlterationObserver observer = new FileAlterationObserver(str, FILE_FILTER);
-            observer.addListener(new FileSyncService.FolderStateChangedListener());
-            observerList.add(observer);
-
-            //
-            // download checker worker
-            // BackgroundJobManagerImpl.getInstance().startDownloadCheckerWorker();
-            //
-            observer.checkAndNotify();
-        }
-
         try {
-            try {
-                fileMonitor.stop();
-            } catch (Exception e) {
-                SLogs.w("FileSyncService", e);
+            List<FileAlterationObserver> observerList = new ArrayList<>();
+            for (String str : pathList) {
+
+                SLogs.d("backup path: " + str);
+                FileAlterationObserver observer = new FileAlterationObserver(str, FILE_FILTER);
+
+                observer.addListener(new FileSyncService.FolderStateChangedListener());
+                observerList.add(observer);
             }
 
-            fileMonitor = new FileAlterationMonitor(5000L, observerList);
+            //stopIfRunning
+            if (fileMonitor != null) {
+                fileMonitor.stopIfRunning();
+            }
+
+            fileMonitor = new SupportFileAlterationMonitor(5000L, observerList);
             fileMonitor.start();
 
         } catch (Exception e) {
-            e.printStackTrace();
+            SLogs.w(e);
         }
     }
 
 
     /**
-     * Think about it, why doesn't the 'change' event happen when download a large file?
+     * it doesn't the 'change' event happen when download a large file
      *
      * @see #FILE_FILTER
      * @see DataManager#createTempFile()
@@ -220,8 +214,7 @@ public class FileSyncService extends Service {
 
         @Override
         public void onStart(FileAlterationObserver observer) {
-
-            SLogs.d("FileMonitor monitor onStart");
+            SLogs.d("FileMonitor onStart: " + observer.getDirectory());
         }
 
         @Override

@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.monitor;
+package com.seafile.seadroid2.framework.monitor;
 
 import android.util.Log;
 

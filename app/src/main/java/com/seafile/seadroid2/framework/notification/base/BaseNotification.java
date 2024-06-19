@@ -90,6 +90,10 @@ public abstract class BaseNotification {
     }
 
     public void notifyProgress(int nid, String title, String subTitle, int percent, Intent intent) {
+        notifyProgress(nid, title, subTitle, percent, 0, intent);
+    }
+
+    public void notifyProgress(int nid, String title, String subTitle, int percent, int totalCount, Intent intent) {
         if (!hasPermission) {
             return;
         }
@@ -102,12 +106,14 @@ public abstract class BaseNotification {
 
         builder.setProgress(getMaxProgress(), percent, false);
 
+        if (totalCount > 0) {
+            subTitle = subTitle + " / " + totalCount;
+        }
         String progressStr = context.getString(R.string.notification_upload_upload_in_progress);
         String text = String.format(progressStr, percent, subTitle);
 
         showNotification(nid, title, text, intent);
     }
-
 
     ////////////////
     /// cancel

@@ -189,7 +189,10 @@ public class AccountViewModel extends BaseViewModel {
 
         Map<String, RequestBody> requestBody = generateRequestBody(body);
 
-        return IO.getInstanceByAccount(tempAccount).execute(AccountService.class).login(headers, requestBody);
+        //
+        IO.removeInstanceByAccount(tempAccount);
+
+        return IO.newInstanceByAccount(tempAccount).execute(AccountService.class).login(headers, requestBody);
     }
 
     public void getServerInfo() {
@@ -240,6 +243,7 @@ public class AccountViewModel extends BaseViewModel {
         if (account == null) {
             return;
         }
+
 
         AccountUtils.switchAccount(account);
     }

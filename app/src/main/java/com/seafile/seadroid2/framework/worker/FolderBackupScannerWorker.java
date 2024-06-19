@@ -15,6 +15,7 @@ import com.blankj.utilcode.util.CollectionUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.framework.data.model.enums.TransferDataSource;
 import com.seafile.seadroid2.framework.datastore.StorageManager;
 import com.seafile.seadroid2.framework.data.db.AppDatabase;
@@ -165,57 +166,66 @@ public class FolderBackupScannerWorker extends TransferWorker {
 
         RepoModel repoModel = repoModels.get(0);
 
-        List<FileTransferEntity> transferEntityList = CollectionUtils.newArrayList();
         for (String backupPath : backupPathsList) {
 
             //iterate over local files
             List<File> localFiles = traverseFiles(backupPath);
+            if (CollectionUtils.isEmpty(localFiles)) {
+                continue;
+            }
 
+            List<String> fullPaths = localFiles.stream().map(File::getAbsolutePath).collect(Collectors.toList());
+            List<FileTransferEntity> existsList = readExistsListFromDB(repoConfig.getRepoID(), fullPaths);
+
+            List<FileTransferEntity> tList = CollectionUtils.newArrayList();
             for (File file : localFiles) {
                 FileTransferEntity fEntity = FileTransferEntity.convert2ThisForUploadFileSyncWorker(account, repoModel, file, backupPath);
                 if (fEntity != null) {
-                    transferEntityList.add(fEntity);
+                    tList.add(fEntity);
                 }
             }
-        }
 
-        List<String> fullPaths = transferEntityList.stream().map(m -> m.full_path).collect(Collectors.toList());
-        List<FileTransferEntity> existsList = readExistsListFromDB(repoConfig.getRepoID(), fullPaths);
+            if (CollectionUtils.isEmpty(existsList)) {
+                AppDatabase.getInstance().fileTransferDAO().insertAll(tList);
+                continue;
+            }
 
-        List<FileTransferEntity> newList = CollectionUtils.newArrayList();
+            List<FileTransferEntity> newList = CollectionUtils.newArrayList();
 
-        //compare
-        if (!CollectionUtils.isEmpty(existsList)) {
-            for (FileTransferEntity transferEntity : transferEntityList) {
+            int i = 0;
+            for (FileTransferEntity transferEntity : tList) {
+                i++;
                 Optional<FileTransferEntity> optional = existsList.stream().filter(f -> TextUtils.equals(f.full_path, transferEntity.full_path)).findFirst();
-                if (optional.isPresent()) {
-                    FileTransferEntity dbEntity = optional.get();
+                if (!optional.isPresent()) {
+                    newList.add(transferEntity);
+                    SLogs.d(i+" :folder backup scan: new file(local empty): " + transferEntity.target_path);
+                    continue;
+                }
 
-                    if (dbEntity.data_status == -1) {
-                        // has been deleted in db.
-                        SLogs.d("folder backup scan: skip file(deleted): " + transferEntity.target_path);
+                FileTransferEntity dbEntity = optional.get();
+                if (dbEntity.data_status == Constants.DataStatus.DELETED) {
+                    // has been deleted in db.
+                    SLogs.d(i+" :folder backup scan: skip file(deleted): " + transferEntity.target_path);
 
-                    } else if (TextUtils.equals(dbEntity.file_md5, transferEntity.file_md5)) {
-                        //it's the same file，do not insert into db.
+                } else if (TextUtils.equals(dbEntity.file_md5, transferEntity.file_md5)) {
+                    //it's the same file，do not insert into db.
+                    SLogs.d(i+" :folder backup scan: skip file(same file): " + transferEntity.target_path);
 
-                    } else {
-                        transferEntity.transfer_action = TransferAction.UPLOAD;
-                        transferEntity.transfer_result = TransferResult.NO_RESULT;
-                        transferEntity.transfer_status = TransferStatus.WAITING;
-                        transferEntity.file_strategy = ExistingFileStrategy.REPLACE;
-                        newList.add(transferEntity);
-                    }
                 } else {
+                    SLogs.d(i+" :folder backup scan: new file: " + transferEntity.target_path);
+
+                    transferEntity.transfer_action = TransferAction.UPLOAD;
+                    transferEntity.transfer_result = TransferResult.NO_RESULT;
+                    transferEntity.transfer_status = TransferStatus.WAITING;
+                    transferEntity.file_strategy = ExistingFileStrategy.REPLACE;
                     newList.add(transferEntity);
                 }
             }
-        } else {
-            newList.addAll(transferEntityList);
-        }
 
-        //insert
-        if (!CollectionUtils.isEmpty(newList)) {
-            AppDatabase.getInstance().fileTransferDAO().insertAll(newList);
+            if (CollectionUtils.isEmpty(newList)) {
+                AppDatabase.getInstance().fileTransferDAO().insertAll(newList);
+            }
+
         }
     }
 
@@ -223,7 +233,8 @@ public class FolderBackupScannerWorker extends TransferWorker {
     private List<FileTransferEntity> readExistsListFromDB(String repoId, List<String> fullPaths) {
         List<FileTransferEntity> existsList = CollectionUtils.newArrayList();
 
-        int pageSize = RoomDatabase.MAX_BIND_PARAMETER_CNT;
+//        int pageSize = RoomDatabase.MAX_BIND_PARAMETER_CNT;
+        int pageSize = 50;
 
         if (fullPaths.size() > pageSize) {
 

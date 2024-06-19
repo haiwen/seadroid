@@ -12,6 +12,8 @@
             android:id="@+id/rv"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:scrollbars="vertical"
+            android:scrollbarStyle="outsideOverlay"
             android:clipToPadding="false"
             android:paddingBottom="32dp" />
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

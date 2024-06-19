@@ -14,14 +14,15 @@ import com.seafile.seadroid2.framework.datastore.sp.AppDataManager;
 import com.seafile.seadroid2.framework.datastore.sp.SettingsManager;
 import com.seafile.seadroid2.framework.util.Utils;
 
-@Entity(tableName = "repos")
+@Entity(tableName = "repos",primaryKeys = {"repo_id","group_id"})
 public class RepoModel extends BaseModel {
-    @PrimaryKey
+
     @NonNull
     public String repo_id = "";
     public String repo_name;   //repo_name
 
     public String type;   //mine\group\shared
+
     public long group_id;
     public String group_name;
 
