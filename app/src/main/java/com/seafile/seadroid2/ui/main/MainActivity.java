@@ -60,6 +60,7 @@ import com.seafile.seadroid2.framework.worker.SupportWorkManager;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
 import com.seafile.seadroid2.ui.account.AccountsActivity;
+import com.seafile.seadroid2.ui.activities.AllActivitiesFragment;
 import com.seafile.seadroid2.ui.adapter.ViewPager2Adapter;
 import com.seafile.seadroid2.ui.base.BaseActivity;
 import com.seafile.seadroid2.ui.dialog_fragment.NewDirFileDialogFragment;
@@ -491,12 +492,16 @@ public class MainActivity extends BaseActivity implements Toolbar.OnMenuItemClic
     //////////////////////////check server info
     private void requestServerInfo(boolean loadFromNet) {
         if (!checkServerProEdition()) {
+            binding.navBottomView.getMenu().removeItem(R.id.tabs_activity);
+
             // hide Activity tab
             ViewPager2Adapter adapter = (ViewPager2Adapter) binding.pager.getAdapter();
-            if (adapter != null) {
-                adapter.removeFragment(2);
-                binding.navBottomView.getMenu().removeItem(R.id.tabs_activity);
-                adapter.notifyDataSetChanged();
+            if (adapter != null && adapter.getItemCount() > 2) {
+                long hashCode = mainViewModel.getFragments().get(2).hashCode();
+                if (adapter.containsItem(hashCode)) {
+                    adapter.removeFragment(2);
+                    adapter.notifyItemRemoved(2);
+                }
             }
         }
 
@@ -512,7 +517,11 @@ public class MainActivity extends BaseActivity implements Toolbar.OnMenuItemClic
     }
 
     /**
-     * check if server is pro edition
+     *
+     *
+     *
+     *
+     * +|+++}}}}}}++}""""""""""""""""""""'    ]\ * check if server is pro edition
      *
      * @return true, if server is pro edition
      * false, otherwise.

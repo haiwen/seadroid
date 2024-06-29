@@ -65,3 +65,4 @@ seadroid-key
 /app/seeds.txt
 /app/unused.txt
 /app/proguardMapping.txt
+build_count.txt

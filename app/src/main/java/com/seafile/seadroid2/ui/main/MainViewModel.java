@@ -110,18 +110,24 @@ public class MainViewModel extends BaseViewModel {
         return navContext;
     }
 
-    private final List<Fragment> fragments = new ArrayList<>();
+    private final List<Fragment> fragments = CollectionUtils.newUnmodifiableListNotNull(
+            RepoQuickFragment.newInstance(),
+            StarredQuickFragment.newInstance(),
+            AllActivitiesFragment.newInstance());
 
     public List<Fragment> getFragments() {
         return fragments;
     }
 
+    public AllActivitiesFragment getActivityFragment() {
+        if (fragments == null || fragments.size() != 3) {
+            return null;
+        }
+        return (AllActivitiesFragment) fragments.get(2);
+    }
+
     public MainViewModel() {
         getNavContext();
-
-        fragments.add(RepoQuickFragment.newInstance());
-        fragments.add(StarredQuickFragment.newInstance());
-        fragments.add(AllActivitiesFragment.newInstance());
     }
 
     public void getServerInfo() {
@@ -134,7 +140,7 @@ public class MainViewModel extends BaseViewModel {
                     return;
                 }
 
-                ServerInfo serverInfo1 = new ServerInfo(account.server, serverInfo.version, serverInfo.getFeaturesString(),serverInfo.encrypted_library_version);
+                ServerInfo serverInfo1 = new ServerInfo(account.server, serverInfo.version, serverInfo.getFeaturesString(), serverInfo.encrypted_library_version);
                 SupportAccountManager.getInstance().setServerInfo(account, serverInfo1);
 
                 getServerInfoLiveData().setValue(serverInfo1);
@@ -330,7 +336,7 @@ public class MainViewModel extends BaseViewModel {
         }, new Consumer<Throwable>() {
             @Override
             public void accept(Throwable throwable) throws Exception {
-                SLogs.e("addUploadTask",throwable);
+                SLogs.e("addUploadTask", throwable);
             }
         });
     }
