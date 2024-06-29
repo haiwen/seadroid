@@ -1,10 +1,11 @@
-package com.seafile.seadroid2.framework.worker;
+package com.seafile.seadroid2.framework.worker.download;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
+import androidx.work.ForegroundInfo;
 import androidx.work.WorkerParameters;
 
 import com.blankj.utilcode.util.CollectionUtils;
@@ -26,6 +27,8 @@ import com.seafile.seadroid2.framework.data.model.enums.TransferStatus;
 import com.seafile.seadroid2.framework.http.IO;
 import com.seafile.seadroid2.framework.notification.DownloadNotificationHelper;
 import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
+import com.seafile.seadroid2.framework.worker.TransferWorker;
 import com.seafile.seadroid2.ui.file.FileService;
 
 import java.io.IOException;
@@ -35,7 +38,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 
 /**
@@ -47,12 +49,12 @@ import java.util.stream.Collectors;
 public class DownloadFileScanWorker extends TransferWorker {
     public static final UUID UID = UUID.nameUUIDFromBytes(DownloadFileScanWorker.class.getSimpleName().getBytes());
 
-    private final DownloadNotificationHelper notificationManager;
+    private final DownloadNotificationHelper notificationHelper;
 
     public DownloadFileScanWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
 
-        notificationManager = new DownloadNotificationHelper(context);
+        notificationHelper = new DownloadNotificationHelper(context);
     }
 
     @NonNull
@@ -64,16 +66,17 @@ public class DownloadFileScanWorker extends TransferWorker {
         }
 
         // just only for cancel db.
-        String[] rids = getInputData().getStringArray(DATA_CANCEL_IDS);
-        String transferId = getInputData().getString(DATA_TRANSFER_KEY);
+        String[] removeIds = getInputData().getStringArray(DATA_CANCEL_IDS);
+        String transferId = getInputData().getString(DATA_TRANSFER_ID_KEY);
         String[] direntIds = getInputData().getStringArray(DATA_DIRENT_LIST_KEY);
 
         if (!TextUtils.isEmpty(transferId) || (direntIds != null && direntIds.length > 0)) {
-            notificationManager.showNotification(R.string.download_waiting);
+            ForegroundInfo foregroundInfo = notificationHelper.getForegroundNotification(R.string.download_waiting);
+            showForegroundAsync(foregroundInfo);
         }
 
-        if (rids != null && rids.length > 0) {
-            removeDownload(rids);
+        if (removeIds != null && removeIds.length > 0) {
+            removeDownload(removeIds);
         }
 
         //
@@ -119,11 +122,6 @@ public class DownloadFileScanWorker extends TransferWorker {
                     e.printStackTrace();
                 }
             }
-        }
-
-        //dismiss notification
-        if (!TextUtils.isEmpty(transferId) || (direntIds != null && direntIds.length > 0)) {
-            notificationManager.cancel();
         }
 
         //start upload worker
@@ -184,7 +182,7 @@ public class DownloadFileScanWorker extends TransferWorker {
 
         if (!CollectionUtils.isEmpty(existsList)) {
             FileTransferEntity existEntity = existsList.get(0);
-            if (TransferStatus.SUCCEEDED == existEntity.transfer_status){
+            if (TransferStatus.SUCCEEDED == existEntity.transfer_status) {
                 if (TextUtils.equals(existsList.get(0).file_id, transferEntity.file_id)) {
                     //it's the same file，do not insert into db.
                     SLogs.d("file download: skip file(local exists): " + transferEntity.full_path);

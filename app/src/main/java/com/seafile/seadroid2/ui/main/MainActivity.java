@@ -28,6 +28,8 @@ import androidx.fragment.app.DialogFragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.widget.ViewPager2;
+import androidx.work.Data;
+import androidx.work.WorkInfo;
 
 import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.CollectionUtils;
@@ -53,6 +55,10 @@ import com.seafile.seadroid2.framework.util.TakeCameras;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.framework.file_monitor.FileSyncService;
+import com.seafile.seadroid2.framework.worker.upload.FolderBackupScannerWorker;
+import com.seafile.seadroid2.framework.worker.SupportWorkManager;
+import com.seafile.seadroid2.framework.worker.TransferEvent;
+import com.seafile.seadroid2.framework.worker.TransferWorker;
 import com.seafile.seadroid2.ui.account.AccountsActivity;
 import com.seafile.seadroid2.ui.adapter.ViewPager2Adapter;
 import com.seafile.seadroid2.ui.base.BaseActivity;
@@ -129,7 +135,9 @@ public class MainActivity extends BaseActivity implements Toolbar.OnMenuItemClic
         initOnBackPressedDispatcher();
         initBottomNavigation();
         initViewPager();
+
         initViewModel();
+        initWorkerListener();
 
         //service
         bindService();
@@ -365,6 +373,32 @@ public class MainActivity extends BaseActivity implements Toolbar.OnMenuItemClic
                 }
             }
         });
+    }
+
+    private void initWorkerListener() {
+        SupportWorkManager.getWorkManager()
+                .getWorkInfoByIdLiveData(FolderBackupScannerWorker.UID)
+                .observe(this, new Observer<WorkInfo>() {
+                    @Override
+                    public void onChanged(WorkInfo workInfo) {
+                        if (null == workInfo) {
+                            return;
+                        }
+
+                        Data data = workInfo.getOutputData();
+                        String event = data.getString(TransferWorker.KEY_DATA_EVENT);
+
+                        if (TextUtils.isEmpty(event)) {
+                            return;
+                        }
+
+                        if (TransferEvent.EVENT_SCAN_END.equals(event)) {
+                            if (syncService != null) {
+                                syncService.startFolderMonitor();
+                            }
+                        }
+                    }
+                });
     }
 
     private void initViewModel() {

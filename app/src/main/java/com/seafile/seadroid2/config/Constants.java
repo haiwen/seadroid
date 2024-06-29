@@ -8,10 +8,8 @@ public class Constants {
         throw new IllegalStateException("Constants class"); //NON-NLS(1)
     }
 
-    public static final String APP_PACKAGE = "com.seafile.seadroid2";
 
-
-    public static final int PERIODIC_SCAN_INTERVALS = 1000 * 60 * 30; //30 mins
+    public static final int PERIODIC_SCAN_INTERVALS = 1000 * 60 * 5; //5m
     public static final int PASSWORD_MINIMUM_LENGTH = 8;
     public static final String URL_PRIVACY = "https://www.seafile.com/privacy/";
 

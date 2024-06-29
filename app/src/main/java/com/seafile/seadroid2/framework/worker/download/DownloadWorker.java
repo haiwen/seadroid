@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.framework.worker;
+package com.seafile.seadroid2.framework.worker.download;
 
 import android.content.Context;
 import android.text.TextUtils;
@@ -6,6 +6,7 @@ import android.util.Pair;
 
 import androidx.annotation.NonNull;
 import androidx.work.Data;
+import androidx.work.ForegroundInfo;
 import androidx.work.WorkerParameters;
 
 import com.blankj.utilcode.util.CollectionUtils;
@@ -18,6 +19,7 @@ import com.seafile.seadroid2.framework.crypto.Crypto;
 import com.seafile.seadroid2.framework.data.Block;
 import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
+import com.seafile.seadroid2.framework.data.model.enums.TransferDataSource;
 import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.data.FileBlocks;
 import com.seafile.seadroid2.framework.datastore.StorageManager;
@@ -27,7 +29,12 @@ import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
 import com.seafile.seadroid2.framework.data.model.enums.TransferResult;
 import com.seafile.seadroid2.framework.data.model.enums.TransferStatus;
 import com.seafile.seadroid2.framework.http.IO;
+import com.seafile.seadroid2.framework.notification.base.BaseNotification;
 import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
+import com.seafile.seadroid2.framework.worker.ExistingFileStrategy;
+import com.seafile.seadroid2.framework.worker.TransferEvent;
+import com.seafile.seadroid2.framework.worker.TransferWorker;
 import com.seafile.seadroid2.listener.FileTransferProgressListener;
 import com.seafile.seadroid2.framework.notification.DownloadNotificationHelper;
 import com.seafile.seadroid2.ui.file.FileService;
@@ -55,30 +62,32 @@ import okhttp3.ResponseBody;
  * @see BackgroundJobManagerImpl#TAG_ALL
  * @see BackgroundJobManagerImpl#TAG_TRANSFER
  */
-public class DownloadWorker extends BaseDownloadFileWorker {
+public class DownloadWorker extends BaseDownloadWorker {
     public static final UUID UID = UUID.nameUUIDFromBytes(DownloadWorker.class.getSimpleName().getBytes());
 
-    private final DownloadNotificationHelper notificationManager;
+    private final DownloadNotificationHelper notificationHelper;
     private final FileTransferProgressListener fileTransferProgressListener = new FileTransferProgressListener();
+
+    @Override
+    public BaseNotification getNotification() {
+        return notificationHelper;
+    }
 
     public DownloadWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
 
-        notificationManager = new DownloadNotificationHelper(context);
+        notificationHelper = new DownloadNotificationHelper(context);
         fileTransferProgressListener.setProgressListener(progressListener);
     }
 
     @Override
     public void onStopped() {
         super.onStopped();
-
-        notificationManager.cancel();
     }
 
     @NonNull
     @Override
     public Result doWork() {
-        notificationManager.cancel();
 
         Account account = getCurrentAccount();
         if (account == null) {
@@ -88,13 +97,11 @@ public class DownloadWorker extends BaseDownloadFileWorker {
         //count
         int pendingCount = AppDatabase.getInstance().fileTransferDAO().countPendingDownloadListSync(account.getSignature());
         if (pendingCount <= 0) {
-            Data data = new Data.Builder()
-                    .putString(TransferWorker.KEY_DATA_EVENT, TransferEvent.EVENT_TRANSFERRED_WITHOUT_DATA)
-                    .build();
-            return Result.success(data);
+            return Result.success(getFinishData());
         }
 
-        notificationManager.showNotification();
+        ForegroundInfo foregroundInfo = notificationHelper.getForegroundNotification();
+        showForegroundAsync(foregroundInfo);
 
         //tip
         String tip = getApplicationContext().getResources().getQuantityString(R.plurals.transfer_download_started, pendingCount, pendingCount);
@@ -118,36 +125,46 @@ public class DownloadWorker extends BaseDownloadFileWorker {
 
             isDownloaded = true;
 
-            if (isStopped()) {
-                break;
-            }
-
-            FileTransferEntity fileTransferEntity = list.get(0);
+            FileTransferEntity transferEntity = list.get(0);
 
             try {
-                transferFile(account, fileTransferEntity);
+                transferFile(account, transferEntity);
+
+                sendTransferEvent(transferEntity, true);
+
             } catch (Exception e) {
-                catchExceptionAndUpdateDB(fileTransferEntity, e);
                 isDownloaded = false;
+
+                TransferResult transferResult = onException(transferEntity, e);
+
+                //
+                notifyError(transferResult);
+
+                sendTransferEvent(transferEntity, false);
+
+                String finishFlag = isInterrupt(transferResult);
+                if (!TextUtils.isEmpty(finishFlag)) {
+                    break;
+                }
             }
         }
+
+        SLogs.d("all task run");
 
         //
         if (isDownloaded) {
             ToastUtils.showLong(R.string.download_finished);
-            SLogs.d("all task run");
-        } else {
-            SLogs.d("nothing to run");
         }
 
-        notificationManager.cancel();
-
-        Data data = new Data.Builder()
-                .putString(TransferWorker.KEY_DATA_EVENT, isDownloaded ? TransferEvent.EVENT_TRANSFERRED_WITH_DATA : TransferEvent.EVENT_NOT_TRANSFERRED)
-                .build();
-        return Result.success(data);
+        return Result.success(getFinishData());
     }
 
+    private Data getFinishData() {
+        return new Data.Builder()
+                .putString(TransferWorker.KEY_DATA_EVENT, TransferEvent.EVENT_FINISH)
+                .putString(TransferWorker.KEY_DATA_TYPE, String.valueOf(TransferDataSource.FOLDER_BACKUP))
+                .build();
+    }
 
     /**
      *
@@ -158,21 +175,25 @@ public class DownloadWorker extends BaseDownloadFileWorker {
             SLogs.d(fileTransferEntity.file_name + " -> progress：" + percent);
 
             int diff = AppDatabase.getInstance().fileTransferDAO().countPendingDownloadListSync(fileTransferEntity.related_account);
-            notificationManager.notifyProgress(fileTransferEntity.file_name, percent, diff);
+
+            ForegroundInfo foregroundInfo = notificationHelper.getForegroundProgressNotification(fileTransferEntity.file_name, percent, diff);
+            showForegroundAsync(foregroundInfo);
 
             //
             AppDatabase.getInstance().fileTransferDAO().update(fileTransferEntity);
 
             //
-            sendProgress(fileTransferEntity.file_name, fileTransferEntity.uid, percent, transferredSize, totalSize, fileTransferEntity.data_source);
+            sendProgressNotifyEvent(fileTransferEntity.file_name, fileTransferEntity.uid, percent, transferredSize, totalSize, fileTransferEntity.data_source);
         }
     };
 
     private void transferFile(Account account, FileTransferEntity transferEntity) throws Exception {
         SLogs.d("download start：" + transferEntity.full_path);
 
+        //show notification
         int diff = AppDatabase.getInstance().fileTransferDAO().countPendingDownloadListSync(transferEntity.related_account);
-        notificationManager.notifyProgress(transferEntity.file_name, 0, diff);
+        ForegroundInfo foregroundInfo = notificationHelper.getForegroundProgressNotification(transferEntity.file_name, 0, diff);
+        showForegroundAsync(foregroundInfo);
 
         List<RepoModel> repoModels = AppDatabase.getInstance().repoDao().getByIdSync(transferEntity.repo_id);
 

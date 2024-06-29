@@ -1,13 +1,15 @@
-package com.seafile.seadroid2.framework.worker;
+package com.seafile.seadroid2.framework.worker.upload;
 
 import android.content.Context;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
+import androidx.work.ForegroundInfo;
 import androidx.work.WorkerParameters;
 
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.FileUtils;
+import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountInfo;
@@ -30,11 +32,16 @@ import com.seafile.seadroid2.framework.notification.AlbumBackupNotificationHelpe
 import com.seafile.seadroid2.framework.notification.FileBackupNotificationHelper;
 import com.seafile.seadroid2.framework.notification.FolderBackupNotificationHelper;
 import com.seafile.seadroid2.framework.notification.base.BaseNotification;
+import com.seafile.seadroid2.framework.notification.base.BaseTransferNotificationHelper;
+import com.seafile.seadroid2.framework.util.HttpUtils;
 import com.seafile.seadroid2.framework.util.SLogs;
-import com.seafile.seadroid2.framework.util.TransferUtils;
+import com.seafile.seadroid2.framework.worker.ExistingFileStrategy;
+import com.seafile.seadroid2.framework.worker.TransferEvent;
+import com.seafile.seadroid2.framework.worker.TransferWorker;
 import com.seafile.seadroid2.framework.worker.body.ProgressRequestBody;
 import com.seafile.seadroid2.listener.FileTransferProgressListener;
 import com.seafile.seadroid2.ui.account.AccountService;
+import com.seafile.seadroid2.ui.file.FileService;
 
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
@@ -45,10 +52,18 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.SocketTimeoutException;
 import java.nio.file.Files;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.net.ssl.SSLHandshakeException;
 
 import okhttp3.Call;
 import okhttp3.MultipartBody;
@@ -56,15 +71,95 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-public abstract class BaseUploadFileWorker extends TransferWorker {
+public abstract class BaseUploadWorker extends TransferWorker {
+    public abstract BaseTransferNotificationHelper getNotification();
 
-    public BaseUploadFileWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
+    public BaseUploadWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
 
         fileTransferProgressListener.setProgressListener(progressListener);
     }
 
-    public abstract BaseNotification getNotification();
+
+    private TransferResult parseTransferException(Exception e) {
+        if (e instanceof JSONException) {
+            return TransferResult.ENCODING_EXCEPTION;
+        } else if (e instanceof SeafException) {
+            if (e == SeafException.notFoundException) {
+                return TransferResult.FILE_NOT_FOUND;
+            } else if (e == SeafException.OUT_OF_QUOTA) {
+                return TransferResult.OUT_OF_QUOTA;
+            } else if (e == SeafException.networkException) {
+                return TransferResult.NETWORK_CONNECTION;
+            } else if (e == SeafException.sslException) {
+                return TransferResult.SSL_EXCEPTION;
+            } else if (e == SeafException.illFormatException) {
+                return TransferResult.ENCODING_EXCEPTION;
+            } else if (e == SeafException.notLoggedInException) {
+                return TransferResult.ACCOUNT_NOT_LOGGED_IN;
+            } else if (e == SeafException.notFoundUserException) {
+                return TransferResult.ACCOUNT_NOT_FOUND;
+            }
+        } else if (e instanceof UnsupportedEncodingException) {
+            return TransferResult.ENCODING_EXCEPTION;
+        } else if (e instanceof SSLHandshakeException) {
+            return TransferResult.SSL_EXCEPTION;
+        } else if (e instanceof SocketTimeoutException) {
+            return TransferResult.NETWORK_CONNECTION;
+        } else if (e instanceof IOException) {
+            return TransferResult.NETWORK_CONNECTION;
+        }
+
+        return TransferResult.UNKNOWN;
+    }
+
+    public TransferResult onException(FileTransferEntity transferEntity, Exception e) {
+        transferEntity.transfer_status = TransferStatus.FAILED;
+        transferEntity.action_end_at = System.currentTimeMillis();
+        transferEntity.transfer_result = parseTransferException(e);
+
+        //update db
+        AppDatabase.getInstance().fileTransferDAO().update(transferEntity);
+
+        return transferEntity.transfer_result;
+    }
+
+
+    public void notifyError(TransferResult result) {
+        if (result == TransferResult.OUT_OF_QUOTA) {
+            getGeneralNotificationHelper().showErrorNotification(R.string.above_quota, getNotification().getDefaultTitle());
+        } else if (result == TransferResult.NETWORK_CONNECTION) {
+            getGeneralNotificationHelper().showErrorNotification(R.string.network_error, getNotification().getDefaultTitle());
+        } else if (result == TransferResult.ACCOUNT_NOT_FOUND) {
+            getGeneralNotificationHelper().showErrorNotification(R.string.saf_account_not_found_exception, getNotification().getDefaultTitle());
+        } else {
+            getGeneralNotificationHelper().showErrorNotification(String.valueOf(result), getNotification().getDefaultTitle());
+        }
+    }
+
+    public String isInterrupt(TransferResult result) {
+        String finishFlagEvent = null;
+        if (result == TransferResult.ENCODING_EXCEPTION) {
+            finishFlagEvent = TransferEvent.EVENT_FINISH;
+        } else if (result == TransferResult.FILE_NOT_FOUND) {
+//            finishFlagEvent = null;
+        } else if (result == TransferResult.OUT_OF_QUOTA) {
+            finishFlagEvent = TransferEvent.EVENT_CANCEL_OUT_OF_QUOTA;
+        } else if (result == TransferResult.NETWORK_CONNECTION) {
+            finishFlagEvent = TransferEvent.EVENT_CANCEL_WITH_NETWORK_ERR;
+        } else if (result == TransferResult.SSL_EXCEPTION) {
+            finishFlagEvent = TransferEvent.EVENT_FINISH;
+        } else if (result == TransferResult.ACCOUNT_NOT_LOGGED_IN) {
+            finishFlagEvent = TransferEvent.EVENT_FINISH;
+        } else if (result == TransferResult.ACCOUNT_NOT_FOUND) {
+            finishFlagEvent = TransferEvent.EVENT_FINISH;
+        } else if (result == TransferResult.UNKNOWN) {
+            finishFlagEvent = TransferEvent.EVENT_FINISH;
+        }
+
+        return finishFlagEvent;
+    }
+
 
     protected boolean calcQuota(List<FileTransferEntity> list) throws SeafException, IOException {
 
@@ -107,23 +202,33 @@ public abstract class BaseUploadFileWorker extends TransferWorker {
         return accountInfo;
     }
 
-
     /**
      *
      */
-    protected void catchExceptionAndUpdateDB(FileTransferEntity transferEntity, Exception e) {
+    private final Set<String> repoNetDataIsFetched = new HashSet<>();
 
-        transferEntity.transfer_status = TransferStatus.FAILED;
-        transferEntity.action_end_at = System.currentTimeMillis();
+    private ExistingFileStrategy compareLocal(File file, FileTransferEntity transferEntity) {
+        List<DirentModel> entList = AppDatabase.getInstance().direntDao().getListByFullPathSync(transferEntity.repo_id, transferEntity.target_path);
+        if (CollectionUtils.isEmpty(entList)) {
+            return ExistingFileStrategy.NOT_FOUND_IN_REMOTE;
+        }
 
-        transferEntity.transfer_result = TransferUtils.convertException2TransferResult(e);
-        AppDatabase.getInstance().fileTransferDAO().update(transferEntity);
+        if (TextUtils.equals(transferEntity.file_id, entList.get(0).id)) {
+            return ExistingFileStrategy.SKIP;
+        }
+
+        // improve
+        if (entList.get(0).size == file.length()) {
+            return ExistingFileStrategy.SKIP;
+        }
+
+        return ExistingFileStrategy.APPEND;
     }
 
     /**
      * @return true: The file in repo already exists and does not need to be uploaded
      */
-    protected ExistingFileStrategy checkRemoteFileExists(FileTransferEntity transferEntity) throws IOException, SeafException {
+    protected ExistingFileStrategy checkRemoteFileExists(Account account, RepoModel repoModel, FileTransferEntity transferEntity) throws IOException, SeafException {
 
         if (ExistingFileStrategy.REPLACE == transferEntity.file_strategy) {
             return ExistingFileStrategy.REPLACE;
@@ -143,22 +248,62 @@ public abstract class BaseUploadFileWorker extends TransferWorker {
             throw SeafException.notFoundException;
         }
 
-        DirentFileModel direntFileModel = getRemoteFile(repoId, remotePath);
-        if (direntFileModel == null) {
-            // nothing in remote
-            return ExistingFileStrategy.NOT_FOUND_IN_REMOTE;
+        List<DirentModel> entList = AppDatabase.getInstance().direntDao().getListByFullPathSync(repoId, remotePath);
+        if (CollectionUtils.isEmpty(entList)) {
+            if (repoNetDataIsFetched.contains(repoId)) {
+                return ExistingFileStrategy.NOT_FOUND_IN_REMOTE;
+            }
+
+            //load data from net
+            try {
+                boolean isSuccess = getRemoteDirentList(account, repoModel, transferEntity.getParent_path());
+                if (isSuccess) {
+                    repoNetDataIsFetched.add(repoId);
+
+                    return compareLocal(file, transferEntity);
+                }
+
+            } catch (SeafException e) {
+
+                //Second attempt
+                DirentFileModel direntFileModel = getRemoteFile(repoId, remotePath);
+                if (direntFileModel == null) {
+                    // nothing in remote
+                    return ExistingFileStrategy.NOT_FOUND_IN_REMOTE;
+                }
+
+                if (TextUtils.equals(transferEntity.file_id, direntFileModel.id)) {
+                    return ExistingFileStrategy.SKIP;
+                }
+
+                // improve
+                if (direntFileModel.size == file.length()) {
+                    return ExistingFileStrategy.SKIP;
+                }
+            }
+
+            return ExistingFileStrategy.APPEND;
+        } else {
+            return compareLocal(file, transferEntity);
         }
 
-        if (TextUtils.equals(transferEntity.file_id, direntFileModel.id)) {
-            return ExistingFileStrategy.SKIP;
-        }
+//
+//        DirentFileModel direntFileModel = getRemoteFile(repoId, remotePath);
+//        if (direntFileModel == null) {
+//            // nothing in remote
+//            return ExistingFileStrategy.NOT_FOUND_IN_REMOTE;
+//        }
+//
+//        if (TextUtils.equals(transferEntity.file_id, direntFileModel.id)) {
+//            return ExistingFileStrategy.SKIP;
+//        }
+//
+//        // improve
+//        if (direntFileModel.size == file.length()) {
+//            return ExistingFileStrategy.SKIP;
+//        }
 
-        // improve
-        if (direntFileModel.size == file.length()) {
-            return ExistingFileStrategy.SKIP;
-        }
-
-        return ExistingFileStrategy.REPLACE;
+//        return ExistingFileStrategy.REPLACE;
 
 
         //FILE SYNC FEAT is not implemented in this version (v3.0.0).
@@ -206,38 +351,21 @@ public abstract class BaseUploadFileWorker extends TransferWorker {
             //
             AppDatabase.getInstance().fileTransferDAO().update(fileTransferEntity);
 
-            sendProgress(fileTransferEntity.file_name, fileTransferEntity.uid, percent, transferredSize, totalSize, fileTransferEntity.data_source);
+            sendProgressNotifyEvent(fileTransferEntity.file_name, fileTransferEntity.uid, percent, transferredSize, totalSize, fileTransferEntity.data_source);
 
         }
     };
+
     private Call newCall;
 
     @Override
     public void onStopped() {
         super.onStopped();
 
-        cancelNotification();
+//        cancelNotification();
 
-        if (newCall != null) {
+        if (newCall != null && !newCall.isCanceled()) {
             newCall.cancel();
-        }
-    }
-
-    private void cancelNotification() {
-        if (getNotification() == null) {
-            return;
-        }
-
-        BaseNotification notification = getNotification();
-        if (notification instanceof AlbumBackupNotificationHelper) {
-            AlbumBackupNotificationHelper helper = (AlbumBackupNotificationHelper) notification;
-            helper.cancel();
-        } else if (notification instanceof FolderBackupNotificationHelper) {
-            FolderBackupNotificationHelper helper = (FolderBackupNotificationHelper) notification;
-            helper.cancel();
-        } else if (notification instanceof FileBackupNotificationHelper) {
-            FileBackupNotificationHelper helper = (FileBackupNotificationHelper) notification;
-            helper.cancel();
         }
     }
 
@@ -246,18 +374,9 @@ public abstract class BaseUploadFileWorker extends TransferWorker {
             return;
         }
 
-        BaseNotification notification = getNotification();
-        if (notification instanceof AlbumBackupNotificationHelper) {
-            AlbumBackupNotificationHelper helper = (AlbumBackupNotificationHelper) notification;
-            helper.notifyProgress(fileName, percent);
-        } else if (notification instanceof FolderBackupNotificationHelper) {
-            FolderBackupNotificationHelper helper = (FolderBackupNotificationHelper) notification;
-            helper.notifyProgress(fileName, percent);
-        } else if (notification instanceof FileBackupNotificationHelper) {
-            FileBackupNotificationHelper helper = (FileBackupNotificationHelper) notification;
-            helper.notifyProgress(fileName, percent);
-        }
-
+        BaseTransferNotificationHelper notification = getNotification();
+        ForegroundInfo f = notification.getForegroundProgressNotification(fileName, percent);
+        showForegroundAsync(f);
     }
 
     public void transferFile(Account account, FileTransferEntity transferEntity) throws IOException, SeafException, JSONException {
@@ -272,14 +391,18 @@ public abstract class BaseUploadFileWorker extends TransferWorker {
             return;
         }
 
-        if (repoModels.get(0).canLocalDecrypt()) {
-            uploadBlockFile(account, transferEntity);
+        RepoModel repo = repoModels.get(0);
+        if (repo.canLocalDecrypt()) {
+            uploadBlockFile(account, repo, transferEntity);
         } else {
-            uploadFile(account, transferEntity);
+            uploadFile(account, repo, transferEntity);
         }
     }
 
-    private void uploadFile(Account account, FileTransferEntity transferEntity) throws IOException, SeafException {
+    /**
+     * upload file
+     */
+    private void uploadFile(Account account, RepoModel repoModel, FileTransferEntity transferEntity) throws IOException, SeafException {
         if (isStopped()) {
             return;
         }
@@ -291,7 +414,7 @@ public abstract class BaseUploadFileWorker extends TransferWorker {
 
         ExistingFileStrategy fileStrategy = transferEntity.file_strategy;
         if (fileStrategy == ExistingFileStrategy.AUTO) {
-            fileStrategy = checkRemoteFileExists(transferEntity);
+            fileStrategy = checkRemoteFileExists(account, repoModel, transferEntity);
         }
 
         if (fileStrategy == ExistingFileStrategy.SKIP) {
@@ -343,41 +466,48 @@ public abstract class BaseUploadFileWorker extends TransferWorker {
             throw SeafException.networkException;
         }
 
-        Request request = new Request.Builder()
-                .url(uploadUrl)
-                .post(requestBody)
-                .build();
-
         //
-        if (newCall != null && !newCall.isCanceled()) {
-            newCall.cancel();
+        if (newCall != null && newCall.isExecuted()) {
+            SLogs.d("Folder upload: newCall has executed()");
         }
 
-        newCall = IO.getInstanceWithLoggedIn().getClient().newCall(request);
+        try {
 
-        Response response = newCall.execute();
+            Request request = new Request.Builder()
+                    .url(uploadUrl)
+                    .post(requestBody)
+                    .build();
+            newCall = IO.getInstanceWithLoggedIn().getClient().newCall(request);
 
-        if (!response.isSuccessful()) {
-            String b = response.body() != null ? response.body().string() : null;
-            SLogs.d("result，failed：" + b);
+            Response response = newCall.execute();
 
-            //[text={"error": "Out of quota.\n"}]
-            if (b != null && b.toLowerCase().contains("out of quota")) {
-                throw SeafException.OUT_OF_QUOTA;
+            if (!response.isSuccessful()) {
+                String b = response.body() != null ? response.body().string() : null;
+                SLogs.d("result，failed：" + b);
+
+                //
+                newCall.cancel();
+
+                //[text={"error": "Out of quota.\n"}]
+                if (b != null && b.toLowerCase().contains("out of quota")) {
+                    throw SeafException.OUT_OF_QUOTA;
+                }
+
+                throw SeafException.networkException;
             }
 
-            throw SeafException.networkException;
+            String str = response.body().string();
+            String fileId = str.replace("\"", "");
+            SLogs.d("result，file ID：" + str);
+
+            updateSuccess(transferEntity, fileId, file);
+        } catch (Exception e) {
+            throw e;
         }
-
-        String str = response.body().string();
-        String fileId = str.replace("\"", "");
-        SLogs.d("result，file ID：" + str);
-
-        updateSuccess(transferEntity, fileId, file);
     }
 
 
-    private void uploadBlockFile(Account account, FileTransferEntity transferEntity) throws SeafException, IOException, JSONException {
+    private void uploadBlockFile(Account account, RepoModel repoModel, FileTransferEntity transferEntity) throws SeafException, IOException, JSONException {
         if (isStopped()) {
             return;
         }
@@ -387,7 +517,7 @@ public abstract class BaseUploadFileWorker extends TransferWorker {
             throw SeafException.notFoundException;
         }
 
-        ExistingFileStrategy policy = checkRemoteFileExists(transferEntity);
+        ExistingFileStrategy policy = checkRemoteFileExists(account, repoModel, transferEntity);
         if (ExistingFileStrategy.SKIP == policy) {
             SLogs.d("skip block file(remote exists): " + transferEntity.target_path);
 
@@ -447,6 +577,54 @@ public abstract class BaseUploadFileWorker extends TransferWorker {
         commitUpload(infoBean.commiturl, blkListId, transferEntity);
     }
 
+    private String getFileUploadUrl(String repoId, String target_dir, boolean isUpdate) throws IOException, SeafException {
+        retrofit2.Response<String> res;
+        if (isUpdate) {
+            res = IO.getInstanceWithLoggedIn()
+                    .execute(FileService.class)
+                    .getFileUpdateLink(repoId)
+                    .execute();
+        } else {
+
+//            target_dir = StringUtils.removeEnd(target_dir, "/");
+
+            res = IO.getInstanceWithLoggedIn()
+                    .execute(FileService.class)
+                    .getFileUploadLink(repoId, "/")
+                    .execute();
+        }
+
+        if (!res.isSuccessful()) {
+            throw new SeafException(res.code(), res.message());
+        }
+
+        String urlStr = res.body();
+        urlStr = StringUtils.replace(urlStr, "\"", "");
+
+        return urlStr;
+    }
+
+    //block
+    private BlockInfoBean getFileBlockUploadUrl(Account account, String repoId, LinkedList<String> blkListId) throws IOException, JSONException {
+        String ids = String.join(",", blkListId);
+
+        Map<String, String> requestDataMap = new HashMap<>();
+        requestDataMap.put("blklist", ids);
+
+        Map<String, RequestBody> requestBodyMap = HttpUtils.generateRequestBody(requestDataMap);
+
+        retrofit2.Response<BlockInfoBean> res = IO.getInstanceWithLoggedIn()
+                .execute(FileService.class)
+                .getFileBlockUploadLink(repoId, requestBodyMap)
+                .execute();
+
+        if (!res.isSuccessful()) {
+            return null;
+        }
+
+        return res.body();
+    }
+
 
     /**
      * Upload file blocks to server
@@ -494,8 +672,7 @@ public abstract class BaseUploadFileWorker extends TransferWorker {
     /**
      * commit blocks to server
      */
-    private void commitUpload(String link, List<String> blkIds, FileTransferEntity transferEntity)
-            throws SeafException, IOException {
+    private void commitUpload(String link, List<String> blkIds, FileTransferEntity transferEntity) throws SeafException, IOException {
 
         File file = new File(transferEntity.full_path);
         if (!file.exists()) {
@@ -531,28 +708,31 @@ public abstract class BaseUploadFileWorker extends TransferWorker {
         Request request = new Request.Builder().url(link).post(body).build();
 
         //
-        if (newCall != null && !newCall.isCanceled()) {
-            newCall.cancel();
+        if (newCall != null && newCall.isExecuted()) {
+            SLogs.d("Folder upload block: newCall has executed()");
         }
+        try {
+            newCall = IO.getInstanceWithLoggedIn().getClient().newCall(request);
+            Response response = newCall.execute();
 
-        newCall = IO.getInstanceWithLoggedIn().getClient().newCall(request);
-        Response response = newCall.execute();
+            if (!response.isSuccessful()) {
+                String b = response.body() != null ? response.body().string() : null;
+                SLogs.d("上传结果，失败：" + b);
 
-        if (!response.isSuccessful()) {
-            String b = response.body() != null ? response.body().string() : null;
-            SLogs.d("上传结果，失败：" + b);
+                //[text={"error": "Out of quota.\n"}]
+                if (b != null && b.toLowerCase().contains("out of quota")) {
+                    throw SeafException.OUT_OF_QUOTA;
+                }
 
-            //[text={"error": "Out of quota.\n"}]
-            if (b != null && b.toLowerCase().contains("out of quota")) {
-                throw SeafException.OUT_OF_QUOTA;
+                throw SeafException.networkException;
             }
 
-            throw SeafException.networkException;
+            String fileId = response.body().string();
+
+            updateSuccess(transferEntity, fileId, file);
+        } catch (Exception e) {
+            throw e;
         }
-
-        String fileId = response.body().string();
-
-        updateSuccess(transferEntity, fileId, file);
     }
 
     private void updateSuccess(FileTransferEntity transferEntity, String fileId, File file) {

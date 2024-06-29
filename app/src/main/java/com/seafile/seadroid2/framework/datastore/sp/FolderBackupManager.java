@@ -5,6 +5,7 @@ import android.text.TextUtils;
 import androidx.annotation.Nullable;
 
 import com.blankj.utilcode.util.CollectionUtils;
+import com.blankj.utilcode.util.EncryptUtils;
 import com.blankj.utilcode.util.GsonUtils;
 import com.google.gson.reflect.TypeToken;
 import com.seafile.seadroid2.account.Account;
@@ -113,8 +114,7 @@ public class FolderBackupManager {
     }
 
     public static String readBackupPathStr() {
-        String confStr = DataStoreManager.getInstanceByUser(getCurrentAccount()).readString(SettingsManager.FOLDERS_BACKUP_SELECTED_PATH_KEY);
-        return confStr;
+        return DataStoreManager.getInstanceByUser(getCurrentAccount()).readString(SettingsManager.FOLDERS_BACKUP_SELECTED_PATH_KEY);
     }
 
     public static List<String> readBackupPaths() {
@@ -130,6 +130,28 @@ public class FolderBackupManager {
         return CollectionUtils.isEmpty(list) ? CollectionUtils.newArrayList() : list;
     }
 
+    public static long readBackupPathLastScanTime(String absPath) {
+        String k = SettingsManager.FOLDER_BACKUP_LAST_TIME_PREFIX + EncryptUtils.encryptMD5ToString(absPath);
+        return DataStoreManager
+                .getInstanceByUser(getCurrentAccount())
+                .readLong(k);
+    }
+
+    public static void writeBackupPathLastScanTime(String absPath) {
+        String k = SettingsManager.FOLDER_BACKUP_LAST_TIME_PREFIX + EncryptUtils.encryptMD5ToString(absPath);
+
+        DataStoreManager
+                .getInstanceByUser(getCurrentAccount())
+                .writeLong(k, System.currentTimeMillis());
+    }
+
+    public static void clearBackupPathLastScanTime(String absPath) {
+        String k = SettingsManager.FOLDER_BACKUP_LAST_TIME_PREFIX + EncryptUtils.encryptMD5ToString(absPath);
+
+        DataStoreManager
+                .getInstanceByUser(getCurrentAccount())
+                .removeByKey(k);
+    }
 
     public static void writeSkipHiddenFiles(boolean isSkip) {
         DataStoreManager.getInstanceByUser(getCurrentAccount()).writeBoolean(SettingsManager.FOLDER_BACKUP_SKIP_HIDDEN_FILES, isSkip);

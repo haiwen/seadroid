@@ -33,6 +33,11 @@ public interface RepoService {
     @GET("api/v2.1/repos/{repo_id}/dir/?with_thumbnail=true")
     Single<DirentWrapperModel> getDirents(@Path("repo_id") String repoId, @Query("p") String path);
 
+
+    @GET("api/v2.1/repos/{repo_id}/dir/?with_thumbnail=true")
+    Call<DirentWrapperModel> getDirentsCall(@Path("repo_id") String repoId, @Query("p") String path);
+
+
     @GET("api/v2.1/repos/{repo_id}/dir/?with_thumbnail=true")
     Call<DirentWrapperModel> getDirentsSync(@Path("repo_id") String repoId, @Query("p") String path);
 

@@ -7,6 +7,7 @@ import org.json.JSONException;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.SocketTimeoutException;
 
 import javax.net.ssl.SSLHandshakeException;
 
@@ -14,7 +15,7 @@ public class TransferUtils {
 
     public static TransferResult convertException2TransferResult(Exception e) {
         if (e instanceof JSONException) {
-            return TransferResult.NETWORK_CONNECTION;
+            return TransferResult.ENCODING_EXCEPTION;
         } else if (e instanceof SeafException) {
             if (e == SeafException.notFoundException) {
                 return TransferResult.FILE_NOT_FOUND;
@@ -35,6 +36,8 @@ public class TransferUtils {
             return TransferResult.ENCODING_EXCEPTION;
         } else if (e instanceof SSLHandshakeException) {
             return TransferResult.SSL_EXCEPTION;
+        } else if (e instanceof SocketTimeoutException) {
+            return TransferResult.NETWORK_CONNECTION;
         } else if (e instanceof IOException) {
             return TransferResult.NETWORK_CONNECTION;
         }

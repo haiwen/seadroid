@@ -98,6 +98,11 @@
             android:name=".util.GlideCache"
             android:value="AppGlideModule" />
 
+        <service
+            android:name="androidx.work.impl.foreground.SystemForegroundService"
+            android:foregroundServiceType="dataSync"
+            tools:node="merge" />
+
         <activity
             android:name=".ui.SplashActivity"
             android:exported="true">

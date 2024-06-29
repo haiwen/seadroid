@@ -19,7 +19,7 @@ public class ProgressRequestBody extends RequestBody {
 
     private final File file;
     private final MediaType mediaType;
-    private FileTransferProgressListener fileTransferProgressListener;
+    private final FileTransferProgressListener fileTransferProgressListener;
 
     public ProgressRequestBody(File file, FileTransferProgressListener fileTransferProgressListener) {
         this.file = file;

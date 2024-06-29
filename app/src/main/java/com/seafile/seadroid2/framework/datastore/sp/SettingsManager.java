@@ -75,7 +75,16 @@ public final class SettingsManager {
     public static final String FOLDER_BACKUP_STATE = gAppContext.getString(R.string.key_folder_backup_state);
 
     public static final String FOLDER_BACKUP_PATHS = "folder_backup_paths";
+
+    /**
+     * The last time the folder backup service was executed
+     */
     public static final String FOLDER_BACKUP_LAST_TIME = "folder_backup_last_time";
+
+    /**
+     * The last sync time for each backup folder
+     */
+    public static final String FOLDER_BACKUP_LAST_TIME_PREFIX = "folder_backup_last_time_";
 
     /**
      * Is it necessary to filter hidden files when the folder backup service is turned on

@@ -65,6 +65,14 @@ public class GeneralNotificationHelper extends BaseNotification {
         super.showNotification(NotificationUtils.NOTIFICATION_ID_ERROR, title, content, null);
     }
 
+    public void showErrorNotification(@StringRes int titleRes, String content) {
+        super.showNotification(NotificationUtils.NOTIFICATION_ID_ERROR, context.getString(titleRes), content, null);
+    }
+
+    public void showErrorNotification(String title, @StringRes int contentRes) {
+        super.showNotification(NotificationUtils.NOTIFICATION_ID_ERROR, title, context.getString(contentRes), null);
+    }
+
     public void showErrorNotification(@StringRes int titleRes, @StringRes int contentRes, Intent intent) {
         super.showNotification(NotificationUtils.NOTIFICATION_ID_ERROR, context.getString(titleRes), context.getString(contentRes), intent);
     }

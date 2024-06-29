@@ -26,7 +26,12 @@ public class DownloadNotificationHelper extends BaseTransferNotificationHelper {
     }
 
     @Override
-    public String getNotificationTitle() {
+    public String getDefaultTitle() {
+        return context.getString(R.string.download);
+    }
+
+    @Override
+    public String getDefaultSubtitle() {
         return context.getString(R.string.downloading);
     }
 

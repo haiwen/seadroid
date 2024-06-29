@@ -23,11 +23,16 @@ public class NotificationUtils {
     public static final int NOTIFICATION_ID_GENERAL = 1010;
     public static final int NOTIFICATION_ID_DOWNLOAD = 2000;
 
-    @Deprecated
-    public static final int NOTIFICATION_ID_UPLOAD = 3000;
-    public static final int NOTIFICATION_ID_UPLOAD_FOLDER = 3010;
+    //folder
+    public static final int NOTIFICATION_ID_UPLOAD_FOLDER_SCAN = 3010;
+    public static final int NOTIFICATION_ID_UPLOAD_FOLDER = 3011;
     public static final int NOTIFICATION_ID_UPLOAD_FILE = 3011;
+
+    //album
     public static final int NOTIFICATION_ID_UPLOAD_ALBUM_BACKUP = 3020;
+    public static final int NOTIFICATION_ID_UPLOAD_ALBUM_BACKUP_SCAN = 3021;
+
+
     public static final int NOTIFICATION_ID_OPEN_APK = 4000;
 
 

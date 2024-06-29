@@ -24,10 +24,13 @@ public class AlbumBackupNotificationHelper extends BaseTransferNotificationHelpe
     }
 
     @Override
-    public String getNotificationTitle() {
-        String uploading = context.getString(R.string.uploading);
-        String title = context.getString(R.string.settings_camera_upload_info_title);
-        return title + " " + uploading;
+    public String getDefaultTitle() {
+        return context.getString(R.string.settings_camera_upload_info_title);
+    }
+
+    @Override
+    public String getDefaultSubtitle() {
+        return context.getString(R.string.uploading);
     }
 
     @Override

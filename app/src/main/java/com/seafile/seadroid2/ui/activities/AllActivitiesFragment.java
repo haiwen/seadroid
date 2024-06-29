@@ -88,18 +88,12 @@ public class AllActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel>
 
     }
 
-    private boolean isFirstLoadData = true;
-
     @Override
-    public void onResume() {
-        super.onResume();
-        d("load data：onResume");
-        if (isFirstLoadData) {
-            isFirstLoadData = false;
-            d("load data：isFirstLoadData");
-            loadNext();
-        }
+    public void onFirstResume() {
+        super.onFirstResume();
+        loadNext();
     }
+
 
     private void initAdapter() {
         adapter = new ActivityAdapter();
@@ -115,6 +109,16 @@ public class AllActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel>
             checkOpen(activityModel);
         });
 
+        LogicLoadMoreAdapter loadMoreAdapter = getLogicLoadMoreAdapter();
+
+        helper = new QuickAdapterHelper.Builder(adapter)
+                .setTrailingLoadStateAdapter(loadMoreAdapter)
+                .build();
+        binding.rv.setAdapter(helper.getAdapter());
+    }
+
+    @NonNull
+    private LogicLoadMoreAdapter getLogicLoadMoreAdapter() {
         LogicLoadMoreAdapter loadMoreAdapter = new LogicLoadMoreAdapter();
         loadMoreAdapter.setOnLoadMoreListener(new TrailingLoadStateAdapter.OnTrailingListener() {
             @Override
@@ -133,11 +137,7 @@ public class AllActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel>
                 return !binding.swipeRefreshLayout.isRefreshing();
             }
         });
-
-        helper = new QuickAdapterHelper.Builder(adapter)
-                .setTrailingLoadStateAdapter(loadMoreAdapter)
-                .build();
-        binding.rv.setAdapter(helper.getAdapter());
+        return loadMoreAdapter;
     }
 
     private void showErrorTip() {

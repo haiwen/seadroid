@@ -1,10 +1,12 @@
-package com.seafile.seadroid2.framework.worker;
+package com.seafile.seadroid2.framework.worker.upload;
 
 import android.content.Context;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import androidx.work.Data;
+import androidx.work.ForegroundInfo;
+import androidx.work.ListenableWorker;
 import androidx.work.WorkerParameters;
 
 import com.blankj.utilcode.util.CollectionUtils;
@@ -21,7 +23,11 @@ import com.seafile.seadroid2.framework.data.model.enums.TransferDataSource;
 import com.seafile.seadroid2.framework.data.model.enums.TransferResult;
 import com.seafile.seadroid2.framework.notification.FileBackupNotificationHelper;
 import com.seafile.seadroid2.framework.notification.base.BaseNotification;
+import com.seafile.seadroid2.framework.notification.base.BaseTransferNotificationHelper;
 import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
+import com.seafile.seadroid2.framework.worker.TransferEvent;
+import com.seafile.seadroid2.framework.worker.TransferWorker;
 
 import java.util.List;
 import java.util.UUID;
@@ -33,7 +39,7 @@ import java.util.UUID;
  * @see BackgroundJobManagerImpl#TAG_ALL
  * @see BackgroundJobManagerImpl#TAG_TRANSFER
  */
-public class UploadFileManuallyWorker extends BaseUploadFileWorker {
+public class UploadFileManuallyWorker extends BaseUploadWorker {
     public static final UUID UID = UUID.nameUUIDFromBytes(UploadFileManuallyWorker.class.getSimpleName().getBytes());
 
     private final FileBackupNotificationHelper notificationManager;
@@ -45,50 +51,55 @@ public class UploadFileManuallyWorker extends BaseUploadFileWorker {
     }
 
     @Override
-    public BaseNotification getNotification() {
+    public BaseTransferNotificationHelper getNotification() {
         return notificationManager;
     }
 
     @NonNull
     @Override
-    public Result doWork() {
+    public ListenableWorker.Result doWork() {
         return start();
     }
 
     /**
      * The task here may not be from the current account
      */
-    private Result start() {
+    private ListenableWorker.Result start() {
 
-        notificationManager.cancel();
-        notificationManager.showNotification();
+        ForegroundInfo foregroundInfo = notificationManager.getForegroundNotification();
+        showForegroundAsync(foregroundInfo);
+
+//        notificationManager.cancel();
+//        notificationManager.showNotification();
 
         boolean isUploaded = false;
-        String outEvent = null;
+        String finishFlagEvent = null;
 
         while (true) {
             SLogs.d("start upload file worker");
             if (isStopped()) {
-                return Result.success();
+                return ListenableWorker.Result.success();
             }
 
-            List<FileTransferEntity> transferList = AppDatabase.getInstance().fileTransferDAO()
+            List<FileTransferEntity> transferList = AppDatabase
+                    .getInstance().fileTransferDAO()
                     .getOnePendingTransferAllAccountSync(
                             TransferAction.UPLOAD,
-                            TransferDataSource.FILE_BACKUP);
+                            TransferDataSource.FILE_BACKUP
+                    );
             if (CollectionUtils.isEmpty(transferList)) {
                 break;
             }
 
-            FileTransferEntity transfer = transferList.get(0);
+            FileTransferEntity transferEntity = transferList.get(0);
 
             try {
-                boolean isAmple = calcQuota(CollectionUtils.newArrayList(transfer));
+                boolean isAmple = calcQuota(CollectionUtils.newArrayList(transferEntity));
                 if (!isAmple) {
                     getGeneralNotificationHelper().showErrorNotification(R.string.above_quota, R.string.settings_folder_backup_info_title);
                     AppDatabase.getInstance().fileTransferDAO().cancelWithFileBackup(TransferResult.OUT_OF_QUOTA);
 
-                    outEvent = TransferEvent.EVENT_CANCEL_OUT_OF_QUOTA;
+                    finishFlagEvent = TransferEvent.EVENT_CANCEL_OUT_OF_QUOTA;
                     break;
                 }
             } catch (Exception e) {
@@ -97,9 +108,10 @@ public class UploadFileManuallyWorker extends BaseUploadFileWorker {
             }
 
             isUploaded = true;
+
             try {
 
-                String relatedAccount = transfer.related_account;
+                String relatedAccount = transferEntity.related_account;
                 Account account = SupportAccountManager.getInstance().getSpecialAccount(relatedAccount);
                 if (account == null) {
                     SLogs.d("account is null : " + relatedAccount);
@@ -109,39 +121,57 @@ public class UploadFileManuallyWorker extends BaseUploadFileWorker {
                     throw SeafException.notLoggedInException;
                 }
 
-                transferFile(account, transfer);
+                transferFile(account, transferEntity);
 
+                sendTransferEvent(transferEntity, true);
             } catch (Exception e) {
-                SLogs.e(e);
-                catchExceptionAndUpdateDB(transfer, e);
+                SLogs.e("upload file file failed: ", e);
+                isUploaded = false;
+
+                TransferResult transferResult = onException(transferEntity, e);
+
+                notifyError(transferResult);
+
+                sendTransferEvent(transferEntity, false);
+
+                String finishFlag = isInterrupt(transferResult);
+                if (!TextUtils.isEmpty(finishFlag)) {
+                    finishFlagEvent = finishFlag;
+                    break;
+                }
+
             } finally {
                 // After the user selects the file and completes the upload,
                 // the APP will no longer cache the file in ".../android/Media/Seafile/..."
-                FileUtils.delete(transfer.full_path);
+                FileUtils.delete(transferEntity.full_path);
             }
         }
-
 
         if (isUploaded) {
             ToastUtils.showLong(R.string.upload_finished);
-            SLogs.d("UploadFileManuallyWorker all task run");
-            if (outEvent == null) {
-                outEvent = TransferEvent.EVENT_TRANSFERRED_WITH_DATA;
-            }
-        } else {
-            SLogs.d("UploadFileManuallyWorker nothing to run");
-            if (outEvent == null) {
-                outEvent = TransferEvent.EVENT_TRANSFERRED_WITHOUT_DATA;
-            }
         }
 
-        notificationManager.cancel();
+        SLogs.e("UploadFileManuallyWorker all task run");
 
-        //Send a completion event
+        if (finishFlagEvent == null) {
+            finishFlagEvent = TransferEvent.EVENT_FINISH;
+        }
+
+//        Account account = SupportAccountManager.getInstance().getCurrentAccount();
+//        int pendingCount = AppDatabase
+//                .getInstance()
+//                .fileTransferDAO()
+//                .countPendingTransferSync(account.getSignature(),
+//                        TransferAction.UPLOAD,
+//                        TransferDataSource.FILE_BACKUP
+//                );
+
         Data data = new Data.Builder()
-                .putString(TransferWorker.KEY_DATA_EVENT, outEvent)
+                .putString(TransferWorker.KEY_DATA_EVENT, finishFlagEvent)
+//                .putInt(TransferWorker.KEY_DATA_PARAM, pendingCount)
                 .putString(TransferWorker.KEY_DATA_TYPE, String.valueOf(TransferDataSource.FILE_BACKUP))
                 .build();
-        return Result.success(data);
+        return ListenableWorker.Result.success(data);
     }
+
 }

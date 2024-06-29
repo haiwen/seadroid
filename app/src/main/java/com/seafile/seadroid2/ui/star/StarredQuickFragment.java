@@ -94,18 +94,18 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
         initViewModel();
     }
 
-    private boolean isFirstLoadData = true;
     private boolean isForce = false;
+
+    @Override
+    public void onFirstResume() {
+        super.onFirstResume();
+        reload();
+    }
 
     @Override
     public void onResume() {
         super.onResume();
-        d("load data：onResume");
         if (isForce) {
-            reload();
-        } else if (isFirstLoadData) {
-            isFirstLoadData = false;
-            d("load data：isFirstLoadData");
             reload();
         }
     }

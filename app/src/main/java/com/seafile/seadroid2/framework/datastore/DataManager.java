@@ -257,6 +257,26 @@ public class DataManager {
     }
 
     /**
+     * Each repo is placed under [account-dir]/[repo-name].
+     * When a file is downloaded, it's placed in its repo, with its full path.
+     */
+    public static File getLocalRepoPath(Account account, String repoId, String repoName) throws RuntimeException {
+        File file = getRepoDirMappingDataStore(account, repoId, repoName);
+
+
+        //build valid file path and name
+        String localPath = com.seafile.seadroid2.framework.util.FileUtils.buildValidFilePathName(file.getAbsolutePath());
+
+        File parentDir = new File(Utils.getParentPath(localPath));
+        if (!parentDir.exists()) {
+            parentDir.mkdirs();
+        }
+
+        return new File(localPath);
+    }
+
+
+    /**
      * calculate if refresh time is expired, the expiration is 10 mins
      */
     public boolean isReposRefreshTimeout() {

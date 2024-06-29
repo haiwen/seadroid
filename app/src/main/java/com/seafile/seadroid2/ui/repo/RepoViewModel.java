@@ -106,7 +106,9 @@ public class RepoViewModel extends BaseViewModel {
     }
 
     private void loadReposFromDB(Account account, boolean isForce) {
-        getRefreshLiveData().setValue(true);
+        if (isForce) {
+            getRefreshLiveData().setValue(true);
+        }
 
         Single<List<RepoModel>> singleDB = AppDatabase.getInstance().repoDao().getListByAccount(account.getSignature());
         addSingleDisposable(singleDB, new Consumer<List<RepoModel>>() {

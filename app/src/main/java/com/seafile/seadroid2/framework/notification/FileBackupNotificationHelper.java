@@ -6,6 +6,8 @@ import static com.seafile.seadroid2.framework.notification.base.NotificationUtil
 import android.content.Context;
 import android.content.Intent;
 
+import androidx.work.ForegroundInfo;
+
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.framework.notification.base.BaseTransferNotificationHelper;
 import com.seafile.seadroid2.framework.notification.base.NotificationUtils;
@@ -24,10 +26,13 @@ public class FileBackupNotificationHelper extends BaseTransferNotificationHelper
     }
 
     @Override
-    public String getNotificationTitle() {
-        String uploading = context.getString(R.string.uploading);
-        String title = context.getString(R.string.settings_folder_backup_info_title);
-        return title + " " + uploading;
+    public String getDefaultTitle() {
+        return context.getString(R.string.settings_folder_backup_info_title);
+    }
+
+    @Override
+    public String getDefaultSubtitle() {
+        return context.getString(R.string.uploading);
     }
 
     @Override

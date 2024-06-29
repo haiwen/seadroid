@@ -1,11 +1,11 @@
-package com.seafile.seadroid2.framework.worker;
+package com.seafile.seadroid2.framework.worker.download;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import androidx.work.Data;
+import androidx.work.ForegroundInfo;
 import androidx.work.WorkerParameters;
 
 import com.blankj.utilcode.util.CloneUtils;
@@ -25,6 +25,11 @@ import com.seafile.seadroid2.framework.data.model.enums.TransferStatus;
 import com.seafile.seadroid2.framework.notification.FolderBackupNotificationHelper;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Utils;
+import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
+import com.seafile.seadroid2.framework.worker.upload.BaseUploadWorker;
+import com.seafile.seadroid2.framework.worker.ExistingFileStrategy;
+import com.seafile.seadroid2.framework.worker.TransferEvent;
+import com.seafile.seadroid2.framework.worker.TransferWorker;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,22 +39,22 @@ import java.util.UUID;
 /**
  * Check the change status of the downloaded file
  */
-public class DownloadedFileCheckerWorker extends BaseUploadFileWorker {
+public class DownloadedFileCheckerWorker extends BaseUploadWorker {
     public static final UUID UID = UUID.nameUUIDFromBytes(DownloadedFileCheckerWorker.class.getSimpleName().getBytes());
 
 
     public static final String FILE_CHANGE_KEY = "download_file_change_key";
-    private final FolderBackupNotificationHelper notificationManager;
+    private final FolderBackupNotificationHelper notificationHelper;
 
     public DownloadedFileCheckerWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
 
-        notificationManager = new FolderBackupNotificationHelper(context);
+        notificationHelper = new FolderBackupNotificationHelper(context);
     }
 
     @Override
     public FolderBackupNotificationHelper getNotification() {
-        return notificationManager;
+        return notificationHelper;
     }
 
     @NonNull
@@ -77,9 +82,8 @@ public class DownloadedFileCheckerWorker extends BaseUploadFileWorker {
             return Result.success();
         }
 
-        notificationManager.cancel();
 
-        String outEvent = TransferEvent.EVENT_TRANSFERRED_WITH_DATA;
+        String outEvent = TransferEvent.EVENT_FINISH;
 
         //
         List<FileTransferEntity> transferEntityList = AppDatabase
@@ -91,15 +95,14 @@ public class DownloadedFileCheckerWorker extends BaseUploadFileWorker {
             return Result.success();
         }
 
-        notificationManager.showNotification();
+        ForegroundInfo foregroundInfo = notificationHelper.getForegroundNotification();
+        showForegroundAsync(foregroundInfo);
 
         try {
             checkFile(account, transferEntityList.get(0));
         } catch (IOException | SeafException e) {
             throw new RuntimeException(e);
         }
-
-        notificationManager.cancel();
 
         //Send a completion event
         Data data = new Data.Builder()
@@ -175,7 +178,6 @@ public class DownloadedFileCheckerWorker extends BaseUploadFileWorker {
             transferEntity.transfer_result = TransferResult.NO_RESULT;
             transferEntity.transfer_status = TransferStatus.WAITING;
         }
-
 
         AppDatabase.getInstance().fileTransferDAO().insert(transferEntity);
 

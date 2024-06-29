@@ -26,6 +26,7 @@ import javax.net.ssl.TrustManager;
  * based on:
  * https://stackoverflow.com/questions/1037590/which-cipher-suites-to-enable-for-ssl-socket
  */
+@Deprecated
 public class SSLSeafileSocketFactory extends SSLSocketFactory {
 
     private SSLContext context;

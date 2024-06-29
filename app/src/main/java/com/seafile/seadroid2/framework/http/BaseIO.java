@@ -35,7 +35,7 @@ import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 
 public abstract class BaseIO {
 
-    private final int DEFAULT_TIME_OUT = 60000;
+    private final int DEFAULT_TIME_OUT = 120000;
     private final File cachePath = SeadroidApplication.getAppContext().getCacheDir();
 
     //cache path
@@ -158,43 +158,44 @@ public abstract class BaseIO {
         if (okHttpClient == null) {
             synchronized (BaseIO.class) {
                 if (okHttpClient == null) {
+                    OkHttpClient.Builder builder = new OkHttpClient.Builder();
+
                     try {
                         // Install the all-trusting trust manager
-                        final SSLContext sslContext = SSLContext.getInstance("SSL");
+                        final SSLContext sslContext = SSLContext.getInstance("TLS");
                         sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
                         // Create an ssl socket factory with our all-trusting manager
                         final SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
 
-
-                        OkHttpClient.Builder builder = new OkHttpClient.Builder();
                         builder.sslSocketFactory(sslSocketFactory, (X509TrustManager) trustAllCerts[0]);
-                        builder.connectionSpecs(Arrays.asList(
-                                ConnectionSpec.MODERN_TLS,
-                                ConnectionSpec.COMPATIBLE_TLS,
-                                ConnectionSpec.CLEARTEXT));
-                        builder.cache(cache);
-
-                        //cache control
-                        builder.interceptors().add(REWRITE_CACHE_CONTROL_INTERCEPTOR);
-                        builder.networkInterceptors().add(REWRITE_CACHE_CONTROL_INTERCEPTOR);
-
-                        //add interceptors
-                        List<Interceptor> interceptors = getInterceptors();
-                        if (interceptors != null && !interceptors.isEmpty()) {
-                            for (Interceptor i : interceptors) {
-                                builder.interceptors().add(i);
-                            }
-                        }
-
-                        //timeout
-                        builder.writeTimeout(DEFAULT_TIME_OUT, TimeUnit.MILLISECONDS);
-                        builder.readTimeout(DEFAULT_TIME_OUT, TimeUnit.MILLISECONDS);
-                        builder.connectTimeout(DEFAULT_TIME_OUT, TimeUnit.MILLISECONDS);
-
-                        okHttpClient = builder.build();
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
+
+                    builder.connectionSpecs(Arrays.asList(
+                            ConnectionSpec.MODERN_TLS,
+                            ConnectionSpec.COMPATIBLE_TLS,
+                            ConnectionSpec.CLEARTEXT));
+                    builder.cache(cache);
+
+                    //cache control
+                    builder.interceptors().add(REWRITE_CACHE_CONTROL_INTERCEPTOR);
+                    builder.networkInterceptors().add(REWRITE_CACHE_CONTROL_INTERCEPTOR);
+
+                    //add interceptors
+                    List<Interceptor> interceptors = getInterceptors();
+                    if (interceptors != null && !interceptors.isEmpty()) {
+                        for (Interceptor i : interceptors) {
+                            builder.interceptors().add(i);
+                        }
+                    }
+
+                    //timeout
+                    builder.writeTimeout(DEFAULT_TIME_OUT, TimeUnit.MILLISECONDS);
+                    builder.readTimeout(DEFAULT_TIME_OUT, TimeUnit.MILLISECONDS);
+                    builder.connectTimeout(DEFAULT_TIME_OUT, TimeUnit.MILLISECONDS);
+
+                    okHttpClient = builder.build();
                 }
             }
         }

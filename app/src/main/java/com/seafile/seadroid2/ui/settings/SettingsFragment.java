@@ -30,7 +30,6 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreferenceCompat;
 import androidx.work.Data;
-import androidx.work.NetworkType;
 import androidx.work.WorkInfo;
 
 import com.blankj.utilcode.util.AppUtils;
@@ -60,10 +59,10 @@ import com.seafile.seadroid2.framework.file_monitor.FileSyncService;
 import com.seafile.seadroid2.framework.worker.SupportWorkManager;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
-import com.seafile.seadroid2.framework.worker.FolderBackupScannerWorker;
-import com.seafile.seadroid2.framework.worker.UploadFolderFileAutomaticallyWorker;
-import com.seafile.seadroid2.framework.worker.MediaBackupScannerWorker;
-import com.seafile.seadroid2.framework.worker.UploadMediaFileAutomaticallyWorker;
+import com.seafile.seadroid2.framework.worker.upload.FolderBackupScannerWorker;
+import com.seafile.seadroid2.framework.worker.upload.UploadFolderFileAutomaticallyWorker;
+import com.seafile.seadroid2.framework.worker.upload.MediaBackupScannerWorker;
+import com.seafile.seadroid2.framework.worker.upload.UploadMediaFileAutomaticallyWorker;
 import com.seafile.seadroid2.gesturelock.LockPatternUtils;
 import com.seafile.seadroid2.ui.camera_upload.CameraUploadConfigActivity;
 import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
@@ -242,27 +241,34 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             return;
         }
 
-        Data progressData = workInfo.getProgress();
         Data outData = workInfo.getOutputData();
+        String outDataEvent = outData.getString(TransferWorker.KEY_DATA_EVENT);
+        String outDataType = outData.getString(TransferWorker.KEY_DATA_TYPE);
+        if (String.valueOf(TransferDataSource.ALBUM_BACKUP).equals(outDataType)) {
+            if (TransferEvent.EVENT_SCAN_END.equals(outDataEvent)) {
+                mCameraBackupState.setSummary(R.string.waiting);
+                return;
+            }
+        } else if (String.valueOf(TransferDataSource.FOLDER_BACKUP).equals(outDataType)) {
+            if (TransferEvent.EVENT_SCAN_END.equals(outDataEvent)) {
+                mFolderBackupState.setSummary(R.string.waiting);
+                return;
+            }
+        }
 
+        Data progressData = workInfo.getProgress();
         String pDataEvent = progressData.getString(TransferWorker.KEY_DATA_EVENT);
-        String oDataEvent = outData.getString(TransferWorker.KEY_DATA_EVENT);
-
-        if (TextUtils.isEmpty(oDataEvent) && TextUtils.isEmpty(pDataEvent)) {
+        if (TextUtils.isEmpty(pDataEvent)) {
             return;
         }
 
         if (TransferDataSource.ALBUM_BACKUP == dataSource) {
             if (TransferEvent.EVENT_SCANNING.equals(pDataEvent)) {
                 mCameraBackupState.setSummary(R.string.is_scanning);
-            } else if (TransferEvent.EVENT_SCAN_END.equals(oDataEvent)) {
-                mCameraBackupState.setSummary(R.string.waiting);
             }
         } else if (TransferDataSource.FOLDER_BACKUP == dataSource) {
             if (TransferEvent.EVENT_SCANNING.equals(pDataEvent)) {
                 mFolderBackupState.setSummary(R.string.is_scanning);
-            } else if (TransferEvent.EVENT_SCAN_END.equals(oDataEvent)) {
-                mFolderBackupState.setSummary(R.string.waiting);
             }
         }
     }
@@ -273,34 +279,24 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         }
 
         Data outData = workInfo.getOutputData();
-        Data progressData = workInfo.getProgress();
-
         String outDataEvent = outData.getString(TransferWorker.KEY_DATA_EVENT);
         String outDataType = outData.getString(TransferWorker.KEY_DATA_TYPE);
-        if (!TextUtils.isEmpty(outDataEvent)) {
-            if (String.valueOf(TransferDataSource.ALBUM_BACKUP).equals(outDataType)) {
-                if (TransferEvent.EVENT_TRANSFERRED_WITHOUT_DATA.equals(outDataEvent)) {
-                    mCameraBackupState.setSummary(R.string.settings_cuc_finish_title);
-                } else if (TransferEvent.EVENT_TRANSFERRED_WITH_DATA.equals(outDataEvent)) {
-                    mCameraBackupState.setSummary(R.string.settings_cuc_finish_title);
-                } else if (TransferEvent.EVENT_CANCEL_OUT_OF_QUOTA.equals(outDataEvent)) {
-                    mCameraBackupState.setSummary(R.string.above_quota);
-                }
-            } else if (String.valueOf(TransferDataSource.FOLDER_BACKUP).equals(outDataType)) {
-                if (TransferEvent.EVENT_TRANSFERRED_WITHOUT_DATA.equals(outDataEvent)) {
-                    mFolderBackupState.setSummary(R.string.folder_backup_waiting_state);
-                } else if (TransferEvent.EVENT_TRANSFERRED_WITH_DATA.equals(outDataEvent)) {
-                    mFolderBackupState.setSummary(R.string.folder_backup_waiting_state);
-                } else if (TransferEvent.EVENT_CANCEL_OUT_OF_QUOTA.equals(outDataEvent)) {
-                    mFolderBackupState.setSummary(R.string.above_quota);
-                }
+        if (String.valueOf(TransferDataSource.ALBUM_BACKUP).equals(outDataType)) {
+            if (TransferEvent.EVENT_FINISH.equals(outDataEvent)) {
+                mCameraBackupState.setSummary(R.string.settings_cuc_finish_title);
+                return;
             }
-
-            return;
+        } else if (String.valueOf(TransferDataSource.FOLDER_BACKUP).equals(outDataType)) {
+            if (TransferEvent.EVENT_FINISH.equals(outDataEvent)) {
+                mFolderBackupState.setSummary(R.string.folder_backup_waiting_state);
+                return;
+            }
         }
 
+
+        Data progressData = workInfo.getProgress();
         String dataType = progressData.getString(TransferWorker.KEY_DATA_TYPE);
-        String progressDataEvent = progressData.getString(TransferWorker.KEY_DATA_EVENT);
+        String progressEvent = progressData.getString(TransferWorker.KEY_DATA_EVENT);
         String progressFileName = progressData.getString(TransferWorker.DATA_TRANSFER_NAME_KEY);
 
         if (TextUtils.isEmpty(dataType)) {
@@ -308,16 +304,18 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         }
 
         if (String.valueOf(TransferDataSource.ALBUM_BACKUP).equals(dataType)) {
-            if (TransferEvent.EVENT_TRANSFERRING.equals(progressDataEvent)) {
+            if (TransferEvent.EVENT_CANCEL_OUT_OF_QUOTA.equals(progressEvent)) {
+                mCameraBackupState.setSummary(R.string.above_quota);
+            } else if (TransferEvent.EVENT_TRANSFERRING.equals(progressEvent)) {
                 viewModel.countAlbumBackupState(requireContext());
             }
         } else if (String.valueOf(TransferDataSource.FOLDER_BACKUP).equals(dataType)) {
-            if (TransferEvent.EVENT_TRANSFERRING.equals(progressDataEvent)) {
+            if (TransferEvent.EVENT_CANCEL_OUT_OF_QUOTA.equals(progressEvent)) {
+                mFolderBackupState.setSummary(R.string.above_quota);
+            } else if (TransferEvent.EVENT_TRANSFERRING.equals(progressEvent)) {
                 viewModel.countFolderBackupState(requireContext());
             }
         }
-
-
     }
 
     private void loadData() {
@@ -634,12 +632,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 refreshFolderBackNetworkMode(which);
 
                 //restart
-                NetworkType networkType = NetworkType.UNMETERED;
-                if (FolderBackupManager.readDataPlanAllowed()) {
-                    networkType = NetworkType.CONNECTED;
-                }
-
-                BackgroundJobManagerImpl.getInstance().restartFolderUploadWorker(networkType);
+                BackgroundJobManagerImpl.getInstance().restartFolderUploadWorker();
 
             }
         });
@@ -728,7 +721,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             CameraUploadManager.getInstance().setCameraAccount(currentAccount);
             BackgroundJobManagerImpl.getInstance().restartMediaBackupWorker(true);
 
-            //firebase - event -login
+            //firebase - event - switch camera worker
             Bundle eventBundle = new Bundle();
             eventBundle.putString(FirebaseAnalytics.Param.METHOD, "switchCameraWorker");
             FirebaseAnalytics.getInstance(requireContext()).logEvent(AnalyticsEvent.ALBUM_BACKUP, eventBundle);
@@ -749,7 +742,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         setFolderPreferencesVisible(isFolderAutomaticBackup);
 
         if (!isFolderAutomaticBackup) {
-            BackgroundJobManagerImpl.getInstance().cancelFolderWorker();
+            BackgroundJobManagerImpl.getInstance().cancelFilesUploadWorker();
             if (fileSyncService != null) {
                 fileSyncService.stopFolderMonitor();
             }
@@ -772,7 +765,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
         if (isSync && !CollectionUtils.isEmpty(pathList) && repoConfig != null) {
             if (fileSyncService != null) {
-                fileSyncService.startFolderMonitor(pathList);
+                fileSyncService.startFolderMonitor();
             }
 
             BackgroundJobManagerImpl.getInstance().scheduleFolderBackupScannerWorker(true);

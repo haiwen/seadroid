@@ -9,12 +9,19 @@ import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkInfo;
 
-import com.blankj.utilcode.util.CollectionUtils;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.seafile.seadroid2.framework.datastore.sp.AlbumBackupManager;
 import com.seafile.seadroid2.framework.datastore.sp.FolderBackupManager;
 import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.worker.download.DownloadFileScanWorker;
+import com.seafile.seadroid2.framework.worker.download.DownloadWorker;
+import com.seafile.seadroid2.framework.worker.download.DownloadedFileCheckerWorker;
+import com.seafile.seadroid2.framework.worker.upload.FolderBackupScannerWorker;
+import com.seafile.seadroid2.framework.worker.upload.MediaBackupScannerWorker;
+import com.seafile.seadroid2.framework.worker.upload.UploadFileManuallyWorker;
+import com.seafile.seadroid2.framework.worker.upload.UploadFolderFileAutomaticallyWorker;
+import com.seafile.seadroid2.framework.worker.upload.UploadMediaFileAutomaticallyWorker;
 
 import java.util.List;
 import java.util.UUID;
@@ -212,14 +219,17 @@ public class BackgroundJobManagerImpl {
         SupportWorkManager.getWorkManager().enqueueUniqueWork(workerName, ExistingWorkPolicy.KEEP, request);
     }
 
-
-    public void cancelFolderWorker() {
-        cancelById(FolderBackupScannerWorker.UID);
-        cancelById(UploadFolderFileAutomaticallyWorker.UID);
+    public void restartFolderUploadWorker() {
+        //restart
+        NetworkType networkType = NetworkType.UNMETERED;
+        if (FolderBackupManager.readDataPlanAllowed()) {
+            networkType = NetworkType.CONNECTED;
+        }
+        restartFolderUploadWorker(networkType);
     }
 
     public void restartFolderUploadWorker(NetworkType networkType) {
-        cancelFolderWorker();
+        cancelFilesUploadWorker();
 
         Disposable disposable = startWorkerUntilStopped(UploadFolderFileAutomaticallyWorker.UID).subscribe(new Action() {
             @Override
@@ -305,7 +315,7 @@ public class BackgroundJobManagerImpl {
 
     public void scheduleOneTimeFilesDownloadScanWorker(String transferId) {
         Data data = new Data.Builder()
-                .putString(DownloadFileScanWorker.DATA_TRANSFER_KEY, transferId)
+                .putString(DownloadFileScanWorker.DATA_TRANSFER_ID_KEY, transferId)
                 .build();
 
         OneTimeWorkRequest request = oneTimeRequestBuilder(DownloadFileScanWorker.class)
@@ -329,7 +339,7 @@ public class BackgroundJobManagerImpl {
         SupportWorkManager.getWorkManager().enqueueUniqueWork(workerName, ExistingWorkPolicy.KEEP, request);
     }
 
-    public void startDownloadCheckerWorker(String filePath) {
+    public void startDownloadedCheckerWorker(String filePath) {
         Data data = new Data.Builder()
                 .putString(DownloadedFileCheckerWorker.FILE_CHANGE_KEY, filePath)
                 .build();

@@ -26,6 +26,7 @@ import com.seafile.seadroid2.framework.worker.TransferWorker;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class TransferListAdapter extends BaseAdapter<FileTransferEntity, TransferItemViewHolder> {
     private boolean actionModeOn;
@@ -177,7 +178,7 @@ public class TransferListAdapter extends BaseAdapter<FileTransferEntity, Transfe
         if (TransferResult.NO_RESULT == entity.transfer_result) {
             holder.binding.transferFileErrorState.setVisibility(View.GONE);
             holder.binding.transferFileErrorState.setText(null);
-        }else if (TransferResult.TRANSMITTED == entity.transfer_result) {
+        } else if (TransferResult.TRANSMITTED == entity.transfer_result) {
             holder.binding.transferFileErrorState.setVisibility(View.GONE);
             holder.binding.transferFileErrorState.setText(null);
         } else {
@@ -204,20 +205,6 @@ public class TransferListAdapter extends BaseAdapter<FileTransferEntity, Transfe
         holder.binding.transferFileSize.setText(sizeStr);
 
         holder.binding.transferFileProgressBar.setProgress(percent);
-    }
-
-    public void notifyProgressById(String transferId, long transferredSize, int percent) {
-        int position = getPositionById(transferId);
-        if (position == -1) {
-            return;
-        }
-
-        getItems().get(position).transferred_size = transferredSize;
-
-        Bundle bundle = new Bundle();
-        bundle.putInt(TransferWorker.KEY_DATA_PROGRESS, percent);
-        bundle.putLong(TransferWorker.KEY_DATA_TRANSFERRED_SIZE, transferredSize);
-        notifyItemChanged(position, bundle);
     }
 
     public void notifyDataChanged(List<FileTransferEntity> list) {
@@ -369,19 +356,6 @@ public class TransferListAdapter extends BaseAdapter<FileTransferEntity, Transfe
         return true;
     }
 
-
-    private int getPositionById(String id) {
-        if (CollectionUtils.isEmpty(getItems())) {
-            return -1;
-        }
-
-        for (int i = 0; i < getItems().size(); i++) {
-            if (TextUtils.equals(id, getItems().get(i).uid)) {
-                return i;
-            }
-        }
-        return -1;
-    }
 
     private int getSelectedPositionByMode() {
         for (int i = 0; i < getItems().size(); i++) {

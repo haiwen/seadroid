@@ -260,15 +260,18 @@ public class BaseViewModel extends ViewModel {
                 try {
                     ResponseBody body = resp.errorBody();
                     if (body == null) {
-                        return SeafException.unknownException;
+                        return SeafException.networkException;
                     }
 
                     String result = body.string();
                     if (TextUtils.isEmpty(result)) {
-                        return SeafException.unknownException;
+                        return SeafException.networkException;
                     }
 
                     JSONObject json = Utils.parseJsonObject(result);
+                    if (json == null) {
+                        return SeafException.networkException;
+                    }
 
                     if (json.has("error_msg")) {
                         String errorMsg = json.optString("error_msg");

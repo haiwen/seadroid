@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.framework.worker;
+package com.seafile.seadroid2.framework.worker.upload;
 
 import static com.seafile.seadroid2.config.Constants.PERIODIC_SCAN_INTERVALS;
 
@@ -10,9 +10,12 @@ import android.provider.MediaStore;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
+import androidx.work.Data;
+import androidx.work.ForegroundInfo;
 import androidx.work.WorkerParameters;
 
 import com.blankj.utilcode.util.CollectionUtils;
+import com.blankj.utilcode.util.FileUtils;
 import com.google.common.base.Joiner;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
@@ -20,6 +23,7 @@ import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.framework.data.model.enums.TransferDataSource;
+import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.datastore.StorageManager;
 import com.seafile.seadroid2.framework.data.db.AppDatabase;
 import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
@@ -28,8 +32,12 @@ import com.seafile.seadroid2.framework.data.model.enums.TransferAction;
 import com.seafile.seadroid2.framework.data.model.repo.DirentWrapperModel;
 import com.seafile.seadroid2.framework.datastore.sp.AlbumBackupManager;
 import com.seafile.seadroid2.framework.http.IO;
+import com.seafile.seadroid2.framework.notification.AlbumBackupScanNotificationHelper;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.notification.AlbumBackupNotificationHelper;
+import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
+import com.seafile.seadroid2.framework.worker.TransferEvent;
+import com.seafile.seadroid2.framework.worker.TransferWorker;
 import com.seafile.seadroid2.ui.file.FileService;
 import com.seafile.seadroid2.ui.folder_backup.RepoConfig;
 import com.seafile.seadroid2.ui.repo.RepoService;
@@ -61,7 +69,7 @@ import retrofit2.Call;
 public class MediaBackupScannerWorker extends TransferWorker {
     public static final UUID UID = UUID.nameUUIDFromBytes(MediaBackupScannerWorker.class.getSimpleName().getBytes());
 
-    private AlbumBackupNotificationHelper albumNotificationHelper;
+    private final AlbumBackupScanNotificationHelper albumNotificationHelper;
 
     private final String BASE_DIR = "My Photos";
 
@@ -73,7 +81,7 @@ public class MediaBackupScannerWorker extends TransferWorker {
     public MediaBackupScannerWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
 
-        albumNotificationHelper = new AlbumBackupNotificationHelper(context);
+        albumNotificationHelper = new AlbumBackupScanNotificationHelper(context);
 
         account = SupportAccountManager.getInstance().getCurrentAccount();
     }
@@ -86,43 +94,41 @@ public class MediaBackupScannerWorker extends TransferWorker {
             return Result.success();
         }
 
-
         boolean canScan = checkCanScan();
         if (!canScan) {
             SLogs.d("UploadMediaScanWorker: do not start the media scan task this time");
 
-            //start media backup worker
             BackgroundJobManagerImpl.getInstance().startMediaBackupWorker();
-            return Result.success();
+
+            //start media backup worker
+            return Result.success(getScanEndData());
         }
 
-        //
+        //todo
+        String title = getApplicationContext().getString(R.string.settings_camera_upload_info_title);
+        String subTitle = getApplicationContext().getString(R.string.is_scanning);
 
-        String nTitle = getApplicationContext().getString(R.string.settings_camera_upload_info_title);
-        nTitle += " - " + getApplicationContext().getString(R.string.is_scanning);
-
-        albumNotificationHelper.showNotification(nTitle);
-        albumNotificationHelper.cancel(3000);
+        ForegroundInfo foregroundInfo = albumNotificationHelper.getForegroundNotification(title, subTitle);
+        showForegroundAsync(foregroundInfo);
 
         SLogs.d("MediaSyncWorker start");
         try {
 
-            sendProgressEvent(TransferEvent.EVENT_SCANNING);
+            sendEvent(TransferEvent.EVENT_SCANNING, TransferDataSource.ALBUM_BACKUP);
 
             loadMedia();
+
         } catch (SeafException | IOException e) {
             SLogs.e("MediaBackupScannerWorker has occurred error", e);
         } finally {
             //
             AlbumBackupManager.writeLastScanTime(System.currentTimeMillis());
 
-            sendProgressEvent(TransferEvent.EVENT_SCAN_END);
-
             //start upload worker
             BackgroundJobManagerImpl.getInstance().startMediaBackupWorker();
         }
 
-        return Result.success();
+        return Result.success(getScanEndData());
     }
 
     private boolean checkCanScan() {
@@ -132,7 +138,7 @@ public class MediaBackupScannerWorker extends TransferWorker {
         }
 
         boolean isForce = getInputData().getBoolean(TransferWorker.DATA_FORCE_TRANSFER_KEY, false);
-        if (isForce){
+        if (isForce) {
             return true;
         }
 
@@ -147,6 +153,13 @@ public class MediaBackupScannerWorker extends TransferWorker {
         return true;
     }
 
+    private Data getScanEndData() {
+        return new Data.Builder()
+                .putString(TransferWorker.KEY_DATA_EVENT, TransferEvent.EVENT_SCAN_END)
+                .putString(TransferWorker.KEY_DATA_TYPE, String.valueOf(TransferDataSource.ALBUM_BACKUP))
+                .build();
+    }
+
     private void loadMedia() throws SeafException, IOException {
 
         repoConfig = AlbumBackupManager.readRepoConfig();
@@ -154,7 +167,8 @@ public class MediaBackupScannerWorker extends TransferWorker {
 
         if (repoConfig == null) {
             SLogs.d("MediaSyncWorker: repoConfig is null");
-            sendProgressEvent(TransferEvent.EVENT_TRANSFERRED_WITH_DATA);
+
+            sendEvent(TransferEvent.EVENT_FINISH, TransferDataSource.ALBUM_BACKUP);
             return;
         }
 
@@ -307,6 +321,13 @@ public class MediaBackupScannerWorker extends TransferWorker {
      */
     private void iterateCursor(Cursor cursor, String media) {
 
+//        String repoId = repoConfig.getRepoID();
+//        String repoName = repoConfig.getRepoName();
+//        File localRepoFilePath = DataManager.getLocalRepoPath(account, repoId, repoName);
+//        String localRepoPhotoPath = Utils.pathJoin(localRepoFilePath.getAbsolutePath(), BASE_DIR);
+
+        String localCacheAbsPath = StorageManager.getInstance().getMediaDir().getAbsolutePath();
+
         // upload them one by one
         while (!isStopped() && cursor.moveToNext()) {
 
@@ -348,7 +369,6 @@ public class MediaBackupScannerWorker extends TransferWorker {
                 int dateAddIndex = cursor.getColumnIndex(MediaStore.Images.Media.DATE_ADDED);
                 dateAdded = cursor.getLong(dateAddIndex);
 
-
                 file = new File(cursor.getString(dataColumn));
             }
 
@@ -361,8 +381,10 @@ public class MediaBackupScannerWorker extends TransferWorker {
                 continue;
             }
 
+
+//            boolean isCached = FileUtils.isFileExists(Utils.pathJoin(localRepoPhotoPath,file.getName()));
             // Ignore all media by Seafile. We don't want to upload our own cached files.
-            if (file.getAbsolutePath().startsWith(StorageManager.getInstance().getMediaDir().getAbsolutePath())) {
+            if (file.getAbsolutePath().startsWith(localCacheAbsPath)) {
                 SLogs.d("skip file -> " + file.getAbsolutePath() + ", because it's part of the Seadroid cache");
                 continue;
             }
@@ -419,6 +441,7 @@ public class MediaBackupScannerWorker extends TransferWorker {
 
         parent = Utils.pathJoin(parent, "/");// // -> /
 
+        //todo 使用获取 path 详情接口
         //get parent dirent list
         Call<DirentWrapperModel> direntWrapperModelCall = IO.getInstanceWithLoggedIn().execute(RepoService.class).getDirentsSync(repoConfig.getRepoID(), parent);
         retrofit2.Response<DirentWrapperModel> res = direntWrapperModelCall.execute();

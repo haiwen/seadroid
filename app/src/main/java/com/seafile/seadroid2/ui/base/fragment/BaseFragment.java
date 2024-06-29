@@ -8,4 +8,25 @@ public class BaseFragment extends Fragment {
     public void d(String e) {
         SLogs.d(this.getClass().getSimpleName() + " => " + e);
     }
+
+    private boolean isFirstLoadData = true;
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (isFirstLoadData) {
+            isFirstLoadData = false;
+            onFirstResume();
+        } else {
+            onNonFirstResume();
+        }
+    }
+
+    public void onFirstResume() {
+
+    }
+
+    public void onNonFirstResume() {
+
+    }
 }

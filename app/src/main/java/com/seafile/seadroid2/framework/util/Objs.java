@@ -47,14 +47,18 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import io.reactivex.Completable;
 import io.reactivex.Single;
+import io.reactivex.SingleEmitter;
+import io.reactivex.SingleOnSubscribe;
 import io.reactivex.SingleSource;
 import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Function;
@@ -97,7 +101,7 @@ public class Objs {
     ////////////////////////////
     //////repo
     ////////////////////////////
-    public static Single<List<BaseModel>> getReposSingleFromServer( Account account) {
+    public static Single<List<BaseModel>> getReposSingleFromServer(Account account) {
         Single<RepoWrapperModel> netSingle = IO.getInstanceByAccount(account).execute(RepoService.class).getRepos();
         Single<List<RepoModel>> dbListSingle = AppDatabase.getInstance().repoDao().getListByAccount(account.getSignature());
 
@@ -446,15 +450,22 @@ public class Objs {
                     @Override
                     public SingleSource<List<DirentModel>> apply(List<FileTransferEntity> fileTransferEntities) throws Exception {
 
+                        Map<String, FileTransferEntity> transferMap = new HashMap<>(fileTransferEntities.size());
+                        for (FileTransferEntity fileTransferEntity : fileTransferEntities) {
+                            transferMap.put(fileTransferEntity.full_path, fileTransferEntity);
+                        }
+
                         for (DirentModel direntModel : direntModels) {
                             String fullPath = direntModel.parent_dir + direntModel.name;
-                            Optional<FileTransferEntity> firstOp = fileTransferEntities.stream().filter(f -> TextUtils.equals(fullPath, f.full_path)).findFirst();
-                            if (firstOp.isPresent()) {
-                                FileTransferEntity entity = firstOp.get();
-                                if (entity.transfer_status == TransferStatus.SUCCEEDED) {
-                                    direntModel.transfer_status = entity.transfer_status;
-                                    direntModel.local_file_path = entity.target_path;
-                                }
+
+                            if (!transferMap.containsKey(fullPath)) {
+                                continue;
+                            }
+
+                            FileTransferEntity entity = transferMap.get(fullPath);
+                            if (entity.transfer_status == TransferStatus.SUCCEEDED) {
+                                direntModel.transfer_status = entity.transfer_status;
+                                direntModel.local_file_path = entity.target_path;
                             }
                         }
 
@@ -573,7 +584,7 @@ public class Objs {
                 newList = list.stream().sorted(new Comparator<DirentModel>() {
                     @Override
                     public int compare(DirentModel o1, DirentModel o2) {
-                        return o1.mtime < o2.mtime ? -1 : 1;
+                        return Long.compare(o1.mtime,o2.mtime);
                     }
                 }).collect(Collectors.toList());
                 break;
@@ -581,7 +592,8 @@ public class Objs {
                 newList = list.stream().sorted(new Comparator<DirentModel>() {
                     @Override
                     public int compare(DirentModel o1, DirentModel o2) {
-                        return o1.mtime > o2.mtime ? -1 : 1;
+
+                        return -Long.compare(o1.mtime,o2.mtime);
                     }
                 }).collect(Collectors.toList());
                 break;

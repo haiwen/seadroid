@@ -4,40 +4,47 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.work.Data;
+import androidx.work.ForegroundInfo;
 import androidx.work.WorkerParameters;
 
+import com.google.common.util.concurrent.ListenableFuture;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.framework.data.BlockInfoBean;
+import com.seafile.seadroid2.framework.data.db.AppDatabase;
+import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
+import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
+import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.data.model.dirents.DirentDirModel;
 import com.seafile.seadroid2.framework.data.model.dirents.DirentFileModel;
 import com.seafile.seadroid2.framework.data.model.enums.TransferDataSource;
-import com.seafile.seadroid2.framework.datastore.sp.FolderBackupManager;
+import com.seafile.seadroid2.framework.data.model.repo.DirentWrapperModel;
 import com.seafile.seadroid2.framework.http.IO;
 import com.seafile.seadroid2.framework.notification.GeneralNotificationHelper;
 import com.seafile.seadroid2.framework.util.HttpUtils;
+import com.seafile.seadroid2.framework.util.Objs;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.ui.file.FileService;
+import com.seafile.seadroid2.ui.repo.RepoService;
 
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
-import io.reactivex.disposables.CompositeDisposable;
 import okhttp3.RequestBody;
 
 public abstract class TransferWorker extends BaseWorker {
 
-
     public static final int SEGMENT_SIZE = 8192;
+
     public static final String KEY_DATA_EVENT = "data_event_key";
     public static final String KEY_DATA_TYPE = "data_type_key";
+    public static final String KEY_DATA_PARAM = "data_param_key";
 
     public static final String KEY_DATA_PROGRESS = "data_progress_key";
     public static final String KEY_DATA_TRANSFERRED_SIZE = "data_transferred_size_key";
@@ -45,7 +52,7 @@ public abstract class TransferWorker extends BaseWorker {
 
 
     public static final String DATA_DIRENT_LIST_KEY = "data_dirent_list_key";
-    public static final String DATA_TRANSFER_KEY = "data_transfer_key";
+    public static final String DATA_TRANSFER_ID_KEY = "data_transfer_key";
     public static final String DATA_TRANSFER_NAME_KEY = "data_transfer_name_key";
 
     public static final String DATA_FORCE_TRANSFER_KEY = "data_transfer_force_key";
@@ -54,7 +61,7 @@ public abstract class TransferWorker extends BaseWorker {
 
     private final GeneralNotificationHelper generalNotificationHelper;
 
-    TransferWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
+    public TransferWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
 
         generalNotificationHelper = new GeneralNotificationHelper(context);
@@ -64,86 +71,10 @@ public abstract class TransferWorker extends BaseWorker {
         return generalNotificationHelper;
     }
 
-//    protected CompositeDisposable compositeDisposable = new CompositeDisposable();
-//
-//    public CompositeDisposable getCompositeDisposable() {
-//        return compositeDisposable;
-//    }
-
-
-    protected void sendProgressEvent(String event) {
-        Data data = new Data.Builder()
-                .putString(KEY_DATA_EVENT, event)
-                .putInt(KEY_DATA_PROGRESS, 100)
-                .putLong(KEY_DATA_TRANSFERRED_SIZE, 0)
-                .putLong(KEY_DATA_TOTAL_SIZE, 0)
-                .build();
-
-        setProgressAsync(data);
-    }
-
-    protected void sendProgress(String fileName, String uid, int percent, long size, long totalSize, TransferDataSource dataSource) {
-        Data data = new Data.Builder()
-                .putString(KEY_DATA_EVENT, TransferEvent.EVENT_TRANSFERRING)
-                .putString(KEY_DATA_TYPE, String.valueOf(dataSource))
-
-                .putString(DATA_TRANSFER_NAME_KEY, fileName)
-                .putString(DATA_TRANSFER_KEY, uid)
-                .putInt(KEY_DATA_PROGRESS, percent)
-                .putLong(KEY_DATA_TRANSFERRED_SIZE, size)
-                .putLong(KEY_DATA_TOTAL_SIZE, totalSize)
-                .build();
-
-        setProgressAsync(data);
-    }
-
-
-    protected String getFileUploadUrl(String repoId, String target_dir, boolean isUpdate) throws IOException, SeafException {
-        retrofit2.Response<String> res;
-        if (isUpdate) {
-            res = IO.getInstanceWithLoggedIn()
-                    .execute(FileService.class)
-                    .getFileUpdateLink(repoId)
-                    .execute();
-        } else {
-
-//            target_dir = StringUtils.removeEnd(target_dir, "/");
-
-            res = IO.getInstanceWithLoggedIn()
-                    .execute(FileService.class)
-                    .getFileUploadLink(repoId, "/")
-                    .execute();
+    public void showForegroundAsync(ForegroundInfo foregroundInfo) {
+        if (foregroundInfo != null) {
+            setForegroundAsync(foregroundInfo);
         }
-
-        if (!res.isSuccessful()) {
-            throw new SeafException(res.code(),res.message());
-        }
-
-        String urlStr = res.body();
-        urlStr = StringUtils.replace(urlStr, "\"", "");
-
-        return urlStr;
-    }
-
-    //block
-    protected BlockInfoBean getFileBlockUploadUrl(Account account, String repoId, LinkedList<String> blkListId) throws IOException, JSONException {
-        String ids = String.join(",", blkListId);
-
-        Map<String, String> requestDataMap = new HashMap<>();
-        requestDataMap.put("blklist", ids);
-
-        Map<String, RequestBody> requestBodyMap = HttpUtils.generateRequestBody(requestDataMap);
-
-        retrofit2.Response<BlockInfoBean> res = IO.getInstanceWithLoggedIn()
-                .execute(FileService.class)
-                .getFileBlockUploadLink(repoId, requestBodyMap)
-                .execute();
-
-        if (!res.isSuccessful()) {
-            return null;
-        }
-
-        return res.body();
     }
 
     protected boolean checkRemoteDirExists(String repoId, String dirPath) throws IOException {
@@ -191,4 +122,105 @@ public abstract class TransferWorker extends BaseWorker {
 
         return fileDetailRes.body();
     }
+
+
+    protected boolean getRemoteDirentList(Account account, RepoModel repoModel, String parentDir) throws IOException, SeafException {
+        retrofit2.Response<DirentWrapperModel> wrapperRes = IO.getInstanceWithLoggedIn()
+                .execute(RepoService.class)
+                .getDirentsCall(repoModel.repo_id, parentDir)
+                .execute();
+
+        //Successful: code >= 200 && code < 300;
+        if (!wrapperRes.isSuccessful()) {
+            throw SeafException.networkException;
+        }
+
+        DirentWrapperModel direntWrapperModel = wrapperRes.body();
+        if (direntWrapperModel == null) {
+            throw SeafException.networkException;
+        }
+
+        List<DirentModel> direntModels = Objs.parseDirentsForDB(
+                direntWrapperModel.dirent_list,
+                direntWrapperModel.dir_id,
+                account.getSignature(),
+                repoModel.repo_id,
+                repoModel.repo_name);
+
+        //delete
+        AppDatabase.getInstance().direntDao().deleteAllByParentPathSync(repoModel.repo_id, parentDir);
+
+
+        //insert
+        insertAllDataInBatches(direntModels);
+        return true;
+    }
+
+    public void insertAllDataInBatches(List<DirentModel> data) {
+        final int batchSize = 1000;
+        int totalSize = data.size();
+        for (int i = 0; i < totalSize; i += batchSize) {
+            int endIndex = Math.min(totalSize, i + batchSize);
+            List<DirentModel> batchList = data.subList(i, endIndex);
+            AppDatabase.getInstance().direntDao().insertAllSync(batchList);
+        }
+    }
+
+    public void sendEvent(String event, TransferDataSource dataSource) {
+        sendFutureEvent(event, dataSource);
+    }
+
+    public ListenableFuture<Void> sendFutureEvent(String event, TransferDataSource dataSource) {
+        Map<String, Object> eventMap = new HashMap<>();
+        eventMap.put(KEY_DATA_EVENT, event);
+        eventMap.put(TransferWorker.KEY_DATA_TYPE, String.valueOf(dataSource));
+        return send(eventMap);
+    }
+
+    public void sendTransferEvent(FileTransferEntity transferEntity, boolean isSuccess) {
+        Map<String, Object> eventMap = new HashMap<>();
+
+        eventMap.put(KEY_DATA_TYPE, String.valueOf(transferEntity.data_source));
+
+        eventMap.put(DATA_TRANSFER_NAME_KEY, transferEntity.file_name);
+        eventMap.put(DATA_TRANSFER_ID_KEY, transferEntity.uid);
+        eventMap.put(KEY_DATA_TOTAL_SIZE, transferEntity.file_size);
+
+        if (isSuccess) {
+            eventMap.put(KEY_DATA_EVENT, TransferEvent.EVENT_TRANSFER_SUCCESS);
+
+            eventMap.put(KEY_DATA_PROGRESS, 100);
+            eventMap.put(KEY_DATA_TRANSFERRED_SIZE, transferEntity.file_size);
+        } else {
+            eventMap.put(KEY_DATA_EVENT, TransferEvent.EVENT_TRANSFER_FAILED);
+            eventMap.put(KEY_DATA_PROGRESS, 0);
+            eventMap.put(KEY_DATA_TRANSFERRED_SIZE, 0);
+        }
+
+        send(eventMap);
+    }
+
+    public void sendProgressNotifyEvent(String fileName, String uid, int percent, long size, long totalSize, TransferDataSource dataSource) {
+        Map<String, Object> eventMap = new HashMap<>();
+        eventMap.put(KEY_DATA_EVENT, TransferEvent.EVENT_TRANSFERRING);
+        eventMap.put(KEY_DATA_TYPE, String.valueOf(dataSource));
+
+        eventMap.put(DATA_TRANSFER_NAME_KEY, fileName);
+        eventMap.put(DATA_TRANSFER_ID_KEY, uid);
+        eventMap.put(KEY_DATA_PROGRESS, percent);
+        eventMap.put(KEY_DATA_TRANSFERRED_SIZE, size);
+        eventMap.put(KEY_DATA_TOTAL_SIZE, totalSize);
+
+        send(eventMap);
+    }
+
+    private ListenableFuture<Void> send(Map<String, Object> eventData) {
+        Data.Builder builder = new Data.Builder();
+        if (eventData != null) {
+            builder.putAll(eventData);
+        }
+        Data data = builder.build();
+        return setProgressAsync(data);
+    }
+
 }

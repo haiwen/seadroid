@@ -20,8 +20,8 @@ import com.seafile.seadroid2.framework.data.model.server.ServerInfoModel;
 import com.seafile.seadroid2.framework.datastore.StorageManager;
 import com.seafile.seadroid2.framework.http.IO;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
-import com.seafile.seadroid2.framework.worker.UploadFolderFileAutomaticallyWorker;
-import com.seafile.seadroid2.framework.worker.UploadMediaFileAutomaticallyWorker;
+import com.seafile.seadroid2.framework.worker.upload.UploadFolderFileAutomaticallyWorker;
+import com.seafile.seadroid2.framework.worker.upload.UploadMediaFileAutomaticallyWorker;
 import com.seafile.seadroid2.ui.account.AccountService;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
 import com.seafile.seadroid2.ui.main.MainService;
@@ -93,10 +93,6 @@ public class SettingsFragmentViewModel extends BaseViewModel {
     }
 
     public void countFolderBackupState(Context context) {
-        countFolderBackupState(context, null);
-    }
-
-    public void countFolderBackupState(Context context, String fileName) {
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
 
 
@@ -118,11 +114,7 @@ public class SettingsFragmentViewModel extends BaseViewModel {
                     if (workInfo != null && WorkInfo.State.ENQUEUED == workInfo.getState()) {
                         folderBackupStateLiveData.setValue(context.getString(R.string.waiting));
                     } else {
-                        if (TextUtils.isEmpty(fileName)) {
-                            folderBackupStateLiveData.setValue(String.valueOf(s));
-                        } else {
-                            folderBackupStateLiveData.setValue("(" + s + ") " + fileName);
-                        }
+                        folderBackupStateLiveData.setValue(String.valueOf(s));
                     }
                 }
             }
@@ -130,10 +122,6 @@ public class SettingsFragmentViewModel extends BaseViewModel {
     }
 
     public void countAlbumBackupState(Context context) {
-        countAlbumBackupState(context, null);
-    }
-
-    public void countAlbumBackupState(Context context, String fileName) {
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
 
         Single<Integer> folderBackupInProgressCountSingle = AppDatabase
@@ -146,7 +134,7 @@ public class SettingsFragmentViewModel extends BaseViewModel {
 
         addSingleDisposable(folderBackupInProgressCountSingle, new Consumer<Integer>() {
             @Override
-            public void accept(Integer s) throws Exception {
+            public void accept(Integer s) {
                 if (s == 0) {
                     albumBackupStateLiveData.setValue(context.getString(R.string.settings_cuc_finish_title));
                 } else {
@@ -154,11 +142,7 @@ public class SettingsFragmentViewModel extends BaseViewModel {
                     if (workInfo != null && WorkInfo.State.ENQUEUED == workInfo.getState()) {
                         albumBackupStateLiveData.setValue(context.getString(R.string.waiting));
                     } else {
-                        if (TextUtils.isEmpty(fileName)) {
-                            albumBackupStateLiveData.setValue(String.valueOf(s));
-                        } else {
-                            albumBackupStateLiveData.setValue("(" + s + ") " + fileName);
-                        }
+                        albumBackupStateLiveData.setValue(String.valueOf(s));
                     }
 
                 }

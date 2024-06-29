@@ -10,6 +10,7 @@ import android.util.Log;
 
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.framework.datastore.sp.AlbumBackupManager;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 
@@ -80,6 +81,11 @@ public class AlbumBackupAdapter extends AbstractThreadedSyncAdapter {
 
             // we're logged out on this account. disable camera upload.
             CameraUploadManager.getInstance().disableSpecialAccountCameraUpload(seafileAccount);
+            return;
+        }
+
+        boolean isEnable = AlbumBackupManager.readBackupSwitch();
+        if (!isEnable) {
             return;
         }
 

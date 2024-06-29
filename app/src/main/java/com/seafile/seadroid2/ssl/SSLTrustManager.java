@@ -29,7 +29,7 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
-
+@Deprecated
 public final class SSLTrustManager {
     public enum SslFailureReason {
         CERT_NOT_TRUSTED,

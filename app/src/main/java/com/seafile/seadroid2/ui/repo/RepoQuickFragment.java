@@ -27,6 +27,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.media3.common.util.UnstableApi;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.work.Data;
 import androidx.work.WorkInfo;
 
 import com.blankj.utilcode.util.CollectionUtils;
@@ -54,13 +55,13 @@ import com.seafile.seadroid2.framework.util.Objs;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
-import com.seafile.seadroid2.framework.worker.DownloadWorker;
+import com.seafile.seadroid2.framework.worker.download.DownloadWorker;
 import com.seafile.seadroid2.framework.worker.SupportWorkManager;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
-import com.seafile.seadroid2.framework.worker.UploadFileManuallyWorker;
-import com.seafile.seadroid2.framework.worker.UploadFolderFileAutomaticallyWorker;
-import com.seafile.seadroid2.framework.worker.UploadMediaFileAutomaticallyWorker;
+import com.seafile.seadroid2.framework.worker.upload.UploadFileManuallyWorker;
+import com.seafile.seadroid2.framework.worker.upload.UploadFolderFileAutomaticallyWorker;
+import com.seafile.seadroid2.framework.worker.upload.UploadMediaFileAutomaticallyWorker;
 import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.base.fragment.BaseFragmentWithVM;
 import com.seafile.seadroid2.ui.dialog_fragment.CopyMoveDialogFragment;
@@ -90,8 +91,10 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     private static final String KEY_REPO_SCROLL_POSITION = "repo_scroll_position";
     private static final String KEY_REPO_LIST = "key_in_repo_list";
 
+    private final int forceRefreshInterval = 1000 * 60 * 5;//5m
+
     private final HashMap<String, Long> mRefreshStatusExpireTimeMap = new HashMap<>();
-    private boolean isFirstLoadData = true;
+
     private LayoutFrameSwipeRvBinding binding;
     private RepoQuickAdapter adapter;
     private LinearLayoutManager rvManager;
@@ -146,17 +149,16 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        d("load data：onResume");
-        if (isFirstLoadData) {
-            isFirstLoadData = false;
-            d("load data：isFirstLoadData");
+    public void onFirstResume() {
+        super.onFirstResume();
+        loadData(true);
+    }
+
+    @Override
+    public void onNonFirstResume() {
+        super.onNonFirstResume();
+        if (isForce()) {
             loadData(true);
-        } else {
-            if (isForce()) {
-                loadData(true);
-            }
         }
     }
 
@@ -322,9 +324,13 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
     private void checkWorkInfo(WorkInfo workInfo) {
         if (workInfo != null && workInfo.getState().isFinished()) {
-            String transferState = workInfo.getOutputData().getString(TransferWorker.KEY_DATA_EVENT);
-            if (TransferEvent.EVENT_TRANSFERRED_WITH_DATA.equals(transferState)) {
-                loadData(true);
+            Data data = workInfo.getOutputData();
+            String transferState = data.getString(TransferWorker.KEY_DATA_EVENT);
+//            int pendingTransferCount = data.getInt(TransferWorker.KEY_DATA_PARAM, -1);
+            String dataType = data.getString(TransferWorker.KEY_DATA_TYPE);
+            SLogs.e(dataType + " -> " + transferState);
+            if (TransferEvent.EVENT_FINISH.equals(transferState)) {
+                loadData(isForce());
             }
         }
     }
@@ -352,14 +358,13 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     public void loadData(boolean forceRefresh) {
         if (forceRefresh) {
             long now = TimeUtils.getNowMills();
-            now += 1000 * 60 * 10;//10min
+            now += forceRefreshInterval;
             if (getNavContext().isInRepoList()) {
                 mRefreshStatusExpireTimeMap.put(KEY_REPO_LIST, now);
             } else {
                 String k = getNavContext().getRepoModel().repo_id + getNavContext().getNavPath();
                 mRefreshStatusExpireTimeMap.put(k, now);
             }
-
         }
 
         //
