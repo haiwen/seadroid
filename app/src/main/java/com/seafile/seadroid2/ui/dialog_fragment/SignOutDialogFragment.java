@@ -9,17 +9,8 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.config.AnalyticsEvent;
-import com.seafile.seadroid2.framework.datastore.DataStoreManager;
-import com.seafile.seadroid2.framework.datastore.sp.AlbumBackupManager;
-import com.seafile.seadroid2.framework.datastore.sp.FolderBackupManager;
-import com.seafile.seadroid2.framework.datastore.sp.GestureLockManager;
-import com.seafile.seadroid2.framework.http.IO;
 import com.seafile.seadroid2.framework.util.AccountUtils;
-import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.ui.base.fragment.CustomDialogFragment;
-import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
-
-import java.util.List;
 
 public class SignOutDialogFragment extends CustomDialogFragment {
     public static SignOutDialogFragment newInstance() {

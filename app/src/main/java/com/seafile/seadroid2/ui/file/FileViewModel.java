@@ -1,8 +1,5 @@
 package com.seafile.seadroid2.ui.file;
 
-import android.text.TextUtils;
-import android.util.Pair;
-
 import androidx.lifecycle.MutableLiveData;
 
 import com.blankj.utilcode.util.CollectionUtils;
@@ -19,8 +16,7 @@ import com.seafile.seadroid2.framework.data.model.enums.TransferAction;
 import com.seafile.seadroid2.framework.data.model.enums.TransferResult;
 import com.seafile.seadroid2.framework.data.model.enums.TransferStatus;
 import com.seafile.seadroid2.framework.datastore.DataManager;
-import com.seafile.seadroid2.framework.http.IO;
-import com.seafile.seadroid2.framework.worker.ExistingFileStrategy;
+import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
 import com.seafile.seadroid2.framework.util.TransferUtils;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
@@ -33,7 +29,6 @@ import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.functions.Action;
-import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function3;
 import kotlin.Triple;
@@ -58,7 +53,7 @@ public class FileViewModel extends BaseViewModel {
     public void loadFileDetail(String repoId, String path, Consumer<Triple<RepoModel, DirentFileModel, FileTransferEntity>> consumer) {
 
         // get file detail
-        Single<DirentFileModel> single = IO.getInstanceWithLoggedIn().execute(FileService.class).getFileDetail(repoId, path);
+        Single<DirentFileModel> single = HttpIO.getCurrentInstance().execute(FileService.class).getFileDetail(repoId, path);
 
         //
         Single<List<RepoModel>> repoListSingle = AppDatabase.getInstance().repoDao().getByIdAsync(repoId);
@@ -158,7 +153,7 @@ public class FileViewModel extends BaseViewModel {
 
     public void download(Account account, DirentModel direntModel, File destinationFile) {
 
-        Single<String> urlSingle = IO.getInstanceWithLoggedIn().execute(FileService.class).getFileDownloadLinkAsync(direntModel.repo_id, direntModel.full_path);
+        Single<String> urlSingle = HttpIO.getCurrentInstance().execute(FileService.class).getFileDownloadLinkAsync(direntModel.repo_id, direntModel.full_path);
 
         addSingleDisposable(urlSingle, new Consumer<String>() {
             @Override
@@ -167,7 +162,7 @@ public class FileViewModel extends BaseViewModel {
                 File tempFile = DataManager.createTempFile();
 
                 //start download
-                Flowable<Long[]> flowable = IO.getInstanceWithLoggedIn().downloadBinary(url, tempFile);
+                Flowable<Long[]> flowable = HttpIO.getCurrentInstance().downloadBinary(url, tempFile);
                 addFlowableDisposable(flowable, new Consumer<Long[]>() {
                     @Override
                     public void accept(Long[] longs) throws Exception {

@@ -3,15 +3,12 @@ package com.seafile.seadroid2.ui.activities;
 import androidx.lifecycle.MutableLiveData;
 
 import com.blankj.utilcode.util.CollectionUtils;
-import com.blankj.utilcode.util.NetworkUtils;
-import com.blankj.utilcode.util.ToastUtils;
-import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.framework.data.db.AppDatabase;
 import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
 import com.seafile.seadroid2.enums.OpType;
-import com.seafile.seadroid2.framework.http.IO;
+import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.data.model.activities.ActivityModel;
 import com.seafile.seadroid2.framework.data.model.activities.ActivityWrapperModel;
 import com.seafile.seadroid2.framework.util.SLogs;
@@ -20,7 +17,6 @@ import java.util.List;
 
 import io.reactivex.Single;
 import io.reactivex.functions.Consumer;
-import kotlin.Pair;
 
 public class ActivityViewModel extends BaseViewModel {
     private final MutableLiveData<List<ActivityModel>> listLiveData = new MutableLiveData<>();
@@ -52,7 +48,7 @@ public class ActivityViewModel extends BaseViewModel {
 
     public void loadAllData(int page) {
         getRefreshLiveData().setValue(true);
-        Single<ActivityWrapperModel> flowable = IO.getInstanceWithLoggedIn().execute(ActivityService.class).getActivities(page);
+        Single<ActivityWrapperModel> flowable = HttpIO.getCurrentInstance().execute(ActivityService.class).getActivities(page);
         addSingleDisposable(flowable, new Consumer<ActivityWrapperModel>() {
             @Override
             public void accept(ActivityWrapperModel wrapperModel) throws Exception {

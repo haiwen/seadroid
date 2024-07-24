@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
 /* //device/apps/common/assets/res/any/dimens.xml
 **
 ** Copyright 2006, The Android Open Source Project
@@ -31,6 +30,12 @@
     <dimen name="tv_title_margin_left">20dp</dimen>
 
     <dimen name="section_margin_top">5dp</dimen>
+
+    <dimen name="rv_item_account_height">80dp</dimen>
+    <dimen name="rv_item_group_height">40dp</dimen>
+    <dimen name="rv_item_repo_height">64dp</dimen>M
+    <dimen name="rv_item_dirent_height">70dp</dimen>
+    <dimen name="rv_item_icon_width">60dp</dimen>
 
     <!-- Content -->
     <dimen name="lv_margin_top">10dp</dimen> <!-- ListView -->

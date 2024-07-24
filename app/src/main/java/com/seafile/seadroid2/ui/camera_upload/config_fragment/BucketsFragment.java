@@ -2,9 +2,6 @@ package com.seafile.seadroid2.ui.camera_upload.config_fragment;
 
 import android.content.Context;
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,9 +16,11 @@ import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
+import androidx.fragment.app.Fragment;
+
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.framework.datastore.sp.AlbumBackupManager;
+import com.seafile.seadroid2.framework.util.GlideApp;
 import com.seafile.seadroid2.ui.camera_upload.CameraUploadConfigActivity;
 import com.seafile.seadroid2.ui.camera_upload.GalleryBucketUtils;
 
@@ -213,7 +212,7 @@ public class BucketsFragment extends Fragment {
                 }
             });
 
-            Glide.with(requireContext()).load(buckets.get(position).uri).into(holder.imageview);
+            GlideApp.with(requireContext()).load(buckets.get(position).uri).into(holder.imageview);
 
             if (selectedBuckets[position])
                 holder.marking.setBackgroundResource(R.drawable.checkbox_checked);

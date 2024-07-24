@@ -1,7 +1,6 @@
 package com.seafile.seadroid2.ui.settings;
 
 import android.content.Context;
-import android.text.TextUtils;
 
 import androidx.lifecycle.MutableLiveData;
 import androidx.work.WorkInfo;
@@ -18,7 +17,7 @@ import com.seafile.seadroid2.framework.data.model.enums.TransferDataSource;
 import com.seafile.seadroid2.framework.data.model.enums.TransferStatus;
 import com.seafile.seadroid2.framework.data.model.server.ServerInfoModel;
 import com.seafile.seadroid2.framework.datastore.StorageManager;
-import com.seafile.seadroid2.framework.http.IO;
+import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.framework.worker.upload.UploadFolderFileAutomaticallyWorker;
 import com.seafile.seadroid2.framework.worker.upload.UploadMediaFileAutomaticallyWorker;
@@ -59,8 +58,8 @@ public class SettingsFragmentViewModel extends BaseViewModel {
     public void getAccountInfo() {
         getRefreshLiveData().setValue(true);
 
-        Single<ServerInfoModel> single1 = IO.getInstanceWithLoggedIn().execute(MainService.class).getServerInfo();
-        Single<AccountInfo> single2 = IO.getInstanceWithLoggedIn().execute(AccountService.class).getAccountInfo();
+        Single<ServerInfoModel> single1 = HttpIO.getCurrentInstance().execute(MainService.class).getServerInfo();
+        Single<AccountInfo> single2 = HttpIO.getCurrentInstance().execute(AccountService.class).getAccountInfo();
 
         Single<AccountInfo> single = Single.zip(single1, single2, new BiFunction<ServerInfoModel, AccountInfo, AccountInfo>() {
             @Override
@@ -71,7 +70,7 @@ public class SettingsFragmentViewModel extends BaseViewModel {
                     return accountInfo;
                 }
 
-                accountInfo.setServer(IO.getInstanceWithLoggedIn().getServerUrl());
+                accountInfo.setServer(HttpIO.getCurrentInstance().getServerUrl());
 
                 ServerInfo serverInfo1 = new ServerInfo(account.server, serverInfoModel.version, serverInfoModel.getFeaturesString(), serverInfoModel.encrypted_library_version);
                 SupportAccountManager.getInstance().setServerInfo(account, serverInfo1);
@@ -82,7 +81,7 @@ public class SettingsFragmentViewModel extends BaseViewModel {
         addSingleDisposable(single, new Consumer<AccountInfo>() {
             @Override
             public void accept(AccountInfo accountInfo) throws Exception {
-                accountInfo.setServer(IO.getInstanceWithLoggedIn().getServerUrl());
+                accountInfo.setServer(HttpIO.getCurrentInstance().getServerUrl());
 
 
                 getRefreshLiveData().setValue(false);

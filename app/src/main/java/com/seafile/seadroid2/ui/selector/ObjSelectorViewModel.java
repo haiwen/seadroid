@@ -16,7 +16,7 @@ import com.seafile.seadroid2.framework.data.model.BaseModel;
 import com.seafile.seadroid2.framework.data.model.repo.DirentWrapperModel;
 import com.seafile.seadroid2.framework.data.model.repo.RepoWrapperModel;
 import com.seafile.seadroid2.ui.repo.RepoService;
-import com.seafile.seadroid2.framework.http.IO;
+import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.util.Objs;
 import com.seafile.seadroid2.framework.util.SLogs;
 
@@ -57,7 +57,7 @@ public class ObjSelectorViewModel extends BaseViewModel {
 
     public void loadReposFromNet(Account account,boolean isFilterEncrypted) {
         getRefreshLiveData().setValue(true);
-        Single<RepoWrapperModel> singleNet = IO.getInstanceByAccount(account).execute(RepoService.class).getRepos();
+        Single<RepoWrapperModel> singleNet = HttpIO.getInstanceByAccount(account).execute(RepoService.class).getRepos();
 
         addSingleDisposable(singleNet, new Consumer<RepoWrapperModel>() {
             @Override
@@ -86,7 +86,7 @@ public class ObjSelectorViewModel extends BaseViewModel {
         String repoId = context.getRepoModel().repo_id;
         String parentDir = context.getNavPath();
 
-        Single<DirentWrapperModel> singleNet = IO.getInstanceByAccount(account).execute(RepoService.class).getDirents(repoId, parentDir);
+        Single<DirentWrapperModel> singleNet = HttpIO.getInstanceByAccount(account).execute(RepoService.class).getDirents(repoId, parentDir);
         addSingleDisposable(singleNet, new Consumer<DirentWrapperModel>() {
             @Override
             public void accept(DirentWrapperModel direntWrapperModel) throws Exception {

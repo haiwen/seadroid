@@ -11,11 +11,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.FileUtils;
 import com.blankj.utilcode.util.SizeUtils;
-import com.bumptech.glide.Glide;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.config.AbsLayoutItemType;
@@ -31,18 +31,19 @@ import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.data.model.BaseModel;
 import com.seafile.seadroid2.framework.data.model.GroupItemModel;
 import com.seafile.seadroid2.framework.data.model.enums.TransferStatus;
-import com.seafile.seadroid2.framework.http.IO;
+import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.util.GlideApp;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.ui.base.adapter.BaseMultiAdapter;
 import com.seafile.seadroid2.ui.viewholder.GroupItemViewHolder;
+import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
-    private final String SERVER = IO.getInstanceWithLoggedIn().getServerUrl();
+public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> implements FastScrollRecyclerView.SectionedAdapter, FastScrollRecyclerView.MeasurableAdapter {
+    private final String SERVER = HttpIO.getCurrentInstance().getServerUrl();
 
     private boolean actionModeOn;
 
@@ -173,8 +174,8 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         if (TextUtils.isEmpty(account.avatar_url)) {
             holder.binding.listItemAccountIcon.setImageResource(R.drawable.default_avatar);
         } else {
-            Glide.with(getContext())
-                    .load(GlideLoadConfig.getGlideUrl(account.avatar_url))
+            GlideApp.with(getContext())
+                    .load(account.avatar_url)
                     .apply(GlideLoadConfig.getAvatarOptions())
                     .into(holder.binding.listItemAccountIcon);
         }
@@ -230,8 +231,8 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
             holder.binding.itemIcon.setImageResource(model.getIcon());
         } else {
             String url = convertThumbnailUrl(model.repo_id, model.full_path);
-            Glide.with(getContext())
-                    .load(GlideLoadConfig.getGlideUrl(url))
+            GlideApp.with(getContext())
+                    .load(url)
                     .apply(GlideLoadConfig.getOptions())
                     .into(holder.binding.itemIcon);
         }
@@ -543,5 +544,38 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
 
         setItems(list);
         diffResult.dispatchUpdatesTo(this);
+    }
+
+    @NonNull
+    @Override
+    public String getSectionName(int position) {
+        BaseModel item = getItems().get(position);
+        if (item instanceof GroupItemModel) {
+            GroupItemModel m = (GroupItemModel) item;
+            return m.title;
+        } else if (item instanceof DirentModel) {
+            DirentModel m = (DirentModel) item;
+            return m.name;
+        } else if (item instanceof RepoModel) {
+            RepoModel m = (RepoModel) item;
+            return m.repo_name;
+        }
+
+        return "";
+    }
+
+    @Override
+    public int getViewTypeHeight(RecyclerView recyclerView, @Nullable RecyclerView.ViewHolder viewHolder, int viewType) {
+        if (viewType == AbsLayoutItemType.ACCOUNT) {
+            return recyclerView.getResources().getDimensionPixelSize(R.dimen.rv_item_account_height);
+        } else if (viewType == AbsLayoutItemType.GROUP_ITEM) {
+            return recyclerView.getResources().getDimensionPixelSize(R.dimen.rv_item_group_height);
+        } else if (viewType == AbsLayoutItemType.REPO) {
+            return recyclerView.getResources().getDimensionPixelSize(R.dimen.rv_item_repo_height);
+        } else if (viewType == AbsLayoutItemType.DIRENT) {
+            return recyclerView.getResources().getDimensionPixelSize(R.dimen.rv_item_dirent_height);
+        }
+
+        return 0;
     }
 }

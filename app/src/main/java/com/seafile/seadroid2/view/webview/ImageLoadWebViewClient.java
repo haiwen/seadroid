@@ -7,7 +7,7 @@ import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import com.seafile.seadroid2.framework.http.IO;
+import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.util.URLs;
 
 import java.io.ByteArrayInputStream;
@@ -16,8 +16,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ImageLoadWebViewClient extends WebViewClient {
-    private final String TOKEN = IO.getInstanceWithLoggedIn().getToken();
-    private final String SERVER_URL = IO.getInstanceWithLoggedIn().getServerUrl();
+    private final String TOKEN = HttpIO.getCurrentInstance().getAccount().getToken();
+    private final String SERVER_URL = HttpIO.getCurrentInstance().getServerUrl();
 
 
     @Override

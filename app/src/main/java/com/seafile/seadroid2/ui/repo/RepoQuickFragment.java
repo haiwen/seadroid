@@ -26,6 +26,8 @@ import androidx.appcompat.view.ActionMode;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.media3.common.util.UnstableApi;
+import androidx.recyclerview.widget.ConcatAdapter;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.work.Data;
 import androidx.work.WorkInfo;
@@ -33,6 +35,7 @@ import androidx.work.WorkInfo;
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.TimeUtils;
 import com.blankj.utilcode.util.ToastUtils;
+import com.github.panpf.recycler.sticky.StickyItemDecoration;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.common.collect.Maps;
 import com.seafile.seadroid2.R;
@@ -41,10 +44,11 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.bottomsheetmenu.BottomSheetHelper;
 import com.seafile.seadroid2.bottomsheetmenu.BottomSheetMenuFragment;
+import com.seafile.seadroid2.config.AbsLayoutItemType;
 import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.context.CopyMoveContext;
 import com.seafile.seadroid2.context.NavContext;
-import com.seafile.seadroid2.databinding.LayoutFrameSwipeRvBinding;
+import com.seafile.seadroid2.databinding.LayoutFastRvBinding;
 import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.data.db.entities.EncKeyCacheEntity;
 import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
@@ -95,7 +99,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
     private final HashMap<String, Long> mRefreshStatusExpireTimeMap = new HashMap<>();
 
-    private LayoutFrameSwipeRvBinding binding;
+    private LayoutFastRvBinding binding;
     private RepoQuickAdapter adapter;
     private LinearLayoutManager rvManager;
 
@@ -130,7 +134,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        binding = LayoutFrameSwipeRvBinding.inflate(inflater, container, false);
+        binding = LayoutFastRvBinding.inflate(inflater, container, false);
         binding.swipeRefreshLayout.setOnRefreshListener(() -> loadData(true));
         return binding.getRoot();
     }
@@ -155,8 +159,8 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     }
 
     @Override
-    public void onNonFirstResume() {
-        super.onNonFirstResume();
+    public void onOtherResume() {
+        super.onOtherResume();
         if (isForce()) {
             loadData(true);
         }
@@ -164,6 +168,12 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
     private void init() {
         rvManager = (LinearLayoutManager) binding.rv.getLayoutManager();
+
+        StickyItemDecoration decoration = new StickyItemDecoration.Builder()
+                .itemType(AbsLayoutItemType.GROUP_ITEM)
+                .build();
+
+        binding.rv.addItemDecoration(decoration);
     }
 
     private void initAdapter() {
@@ -248,7 +258,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             }
         });
 
-        getViewModel().getSeafExceptionLiveData().observe(getViewLifecycleOwner(), this::showAdapterTipView);
+        getViewModel().getSeafExceptionLiveData().observe(getViewLifecycleOwner(), this::showErrorView);
 
         getViewModel().getStarLiveData().observe(getViewLifecycleOwner(), aBoolean -> {
             if (aBoolean) {
@@ -383,21 +393,26 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     }
 
     private void showEmptyTip() {
-        showAdapterTipView(R.string.no_repo);
+        showErrorView(R.string.no_repo);
     }
 
-    private void showAdapterTipView(SeafException seafException) {
+    private void showErrorView(SeafException seafException) {
 
-        ToastUtils.showLong(seafException.getMessage());
+        String errorMsg = seafException.getMessage();
+        ToastUtils.showLong(errorMsg);
 
         int strInt = !getNavContext().isInRepo() ? R.string.error_when_load_repos : R.string.error_when_load_dirents;
-        showAdapterTipView(strInt);
+        showErrorView(strInt);
     }
 
-    private void showAdapterTipView(int textRes) {
+    private void showErrorView(int textRes) {
+        showErrorView(getString(textRes));
+    }
+
+    private void showErrorView(String msg) {
         adapter.submitList(null);
         TextView tipView = TipsViews.getTipTextView(requireContext());
-        tipView.setText(textRes);
+        tipView.setText(msg);
         tipView.setOnClickListener(v -> loadData(true));
         adapter.setStateView(tipView);
         adapter.setStateViewEnable(true);

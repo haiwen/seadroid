@@ -10,7 +10,6 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.blankj.utilcode.util.SpanUtils;
-import com.bumptech.glide.Glide;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.config.AbsLayoutItemType;
 import com.seafile.seadroid2.config.GlideLoadConfig;
@@ -19,6 +18,7 @@ import com.seafile.seadroid2.databinding.ItemGroupItemBinding;
 import com.seafile.seadroid2.framework.data.model.BaseModel;
 import com.seafile.seadroid2.framework.data.model.GroupItemModel;
 import com.seafile.seadroid2.framework.data.model.activities.ActivityModel;
+import com.seafile.seadroid2.framework.util.GlideApp;
 import com.seafile.seadroid2.framework.util.SystemSwitchUtils;
 import com.seafile.seadroid2.ui.base.adapter.BaseMultiAdapter;
 import com.seafile.seadroid2.ui.viewholder.GroupItemViewHolder;
@@ -95,9 +95,9 @@ public class ActivityAdapter extends BaseMultiAdapter<BaseModel> {
             }
         }
 
-        Glide.with(getContext())
-                .load(GlideLoadConfig.getGlideUrl(model.avatar_url))
-                .apply(GlideLoadConfig.getOptions())
+        GlideApp.with(getContext())
+                .load(model.avatar_url)
+                .apply(GlideLoadConfig.getAvatarOptions())
                 .into(holder.binding.itemAvatar);
     }
 }

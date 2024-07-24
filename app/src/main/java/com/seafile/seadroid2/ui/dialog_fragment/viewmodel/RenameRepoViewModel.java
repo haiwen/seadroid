@@ -6,7 +6,7 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
 import com.seafile.seadroid2.framework.data.model.dirents.FileCreateModel;
-import com.seafile.seadroid2.framework.http.IO;
+import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.ui.dialog_fragment.DialogService;
 
 import java.util.HashMap;
@@ -40,7 +40,7 @@ public class RenameRepoViewModel extends BaseViewModel {
         requestDataMap.put("repo_name", repoName);
         Map<String, RequestBody> bodyMap = generateRequestBody(requestDataMap);
 
-        Single<String> single = IO.getInstanceWithLoggedIn().execute(DialogService.class).renameRepo(repoId, bodyMap);
+        Single<String> single = HttpIO.getCurrentInstance().execute(DialogService.class).renameRepo(repoId, bodyMap);
 
         addSingleDisposable(single, new Consumer<String>() {
             @Override
@@ -66,7 +66,7 @@ public class RenameRepoViewModel extends BaseViewModel {
         requestDataMap.put("newname", newName);
         Map<String, RequestBody> bodyMap = generateRequestBody(requestDataMap);
 
-        Single<String> single = IO.getInstanceWithLoggedIn().execute(DialogService.class).renameDir(repoId, curPath, bodyMap);
+        Single<String> single = HttpIO.getCurrentInstance().execute(DialogService.class).renameDir(repoId, curPath, bodyMap);
 
         addSingleDisposable(single, new Consumer<String>() {
             @Override
@@ -92,7 +92,7 @@ public class RenameRepoViewModel extends BaseViewModel {
         requestDataMap.put("newname", newName);
         Map<String, RequestBody> bodyMap = generateRequestBody(requestDataMap);
 
-        Single<FileCreateModel> single = IO.getInstanceWithLoggedIn().execute(DialogService.class).renameFile(repoId, curPath, bodyMap);
+        Single<FileCreateModel> single = HttpIO.getCurrentInstance().execute(DialogService.class).renameFile(repoId, curPath, bodyMap);
 
         addSingleDisposable(single, new Consumer<FileCreateModel>() {
             @Override

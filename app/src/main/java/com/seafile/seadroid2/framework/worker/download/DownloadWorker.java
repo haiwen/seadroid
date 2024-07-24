@@ -28,7 +28,7 @@ import com.seafile.seadroid2.framework.data.db.entities.EncKeyCacheEntity;
 import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
 import com.seafile.seadroid2.framework.data.model.enums.TransferResult;
 import com.seafile.seadroid2.framework.data.model.enums.TransferStatus;
-import com.seafile.seadroid2.framework.http.IO;
+import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.notification.base.BaseNotification;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
@@ -97,7 +97,7 @@ public class DownloadWorker extends BaseDownloadWorker {
         //count
         int pendingCount = AppDatabase.getInstance().fileTransferDAO().countPendingDownloadListSync(account.getSignature());
         if (pendingCount <= 0) {
-            return Result.success(getFinishData());
+            return Result.success(getFinishData(false));
         }
 
         ForegroundInfo foregroundInfo = notificationHelper.getForegroundNotification();
@@ -156,13 +156,14 @@ public class DownloadWorker extends BaseDownloadWorker {
             ToastUtils.showLong(R.string.download_finished);
         }
 
-        return Result.success(getFinishData());
+        return Result.success(getFinishData(isDownloaded));
     }
 
-    private Data getFinishData() {
+    private Data getFinishData(boolean isDownloaded) {
         return new Data.Builder()
                 .putString(TransferWorker.KEY_DATA_EVENT, TransferEvent.EVENT_FINISH)
-                .putString(TransferWorker.KEY_DATA_TYPE, String.valueOf(TransferDataSource.FOLDER_BACKUP))
+                .putBoolean(TransferWorker.KEY_DATA_PARAM, isDownloaded)
+                .putString(TransferWorker.KEY_DATA_TYPE, String.valueOf(TransferDataSource.DOWNLOAD))
                 .build();
     }
 
@@ -202,6 +203,10 @@ public class DownloadWorker extends BaseDownloadWorker {
             return;
         }
 
+        //update modified_at field
+        transferEntity.modified_at = System.currentTimeMillis();
+        AppDatabase.getInstance().fileTransferDAO().update(transferEntity);
+
         if (repoModels.get(0).canLocalDecrypt()) {
             downloadFileByBlock(account, transferEntity);
         } else {
@@ -228,7 +233,7 @@ public class DownloadWorker extends BaseDownloadWorker {
     }
 
     private Pair<String, String> getDownloadLink(FileTransferEntity transferEntity, boolean isReUsed) throws SeafException, IOException {
-        retrofit2.Response<String> res = IO.getInstanceWithLoggedIn()
+        retrofit2.Response<String> res = HttpIO.getCurrentInstance()
                 .execute(FileService.class)
                 .getFileDownloadLink(transferEntity.repo_id, transferEntity.full_path)
                 .execute();
@@ -273,7 +278,7 @@ public class DownloadWorker extends BaseDownloadWorker {
                 .get()
                 .build();
 
-        Call newCall = IO.getInstanceWithLoggedIn().getClient().newCall(request);
+        Call newCall = HttpIO.getCurrentInstance().getOkHttpClient().getOkClient().newCall(request);
 
         try (Response response = newCall.execute()) {
             if (!response.isSuccessful()) {
@@ -366,7 +371,7 @@ public class DownloadWorker extends BaseDownloadWorker {
 
     ///////////////block///////////////
     private FileBlocks getDownloadBlockList(FileTransferEntity transferEntity) throws Exception {
-        retrofit2.Response<FileBlocks> res = IO.getInstanceWithLoggedIn()
+        retrofit2.Response<FileBlocks> res = HttpIO.getCurrentInstance()
                 .execute(FileService.class)
                 .getFileBlockDownloadLink(transferEntity.repo_id, transferEntity.full_path)
                 .execute();
@@ -423,7 +428,7 @@ public class DownloadWorker extends BaseDownloadWorker {
         for (Block blk : fileBlocks.getBlocks()) {
             File tempBlock = new File(StorageManager.getInstance().getTempDir(), blk.blockId);
 
-            retrofit2.Response<String> blockRes = IO.getInstanceWithLoggedIn()
+            retrofit2.Response<String> blockRes = HttpIO.getCurrentInstance()
                     .execute(FileService.class)
                     .getBlockDownloadLink(transferEntity.repo_id, fileBlocks.getFileId(), blk.blockId)
                     .execute();
@@ -461,7 +466,7 @@ public class DownloadWorker extends BaseDownloadWorker {
                     .url(dlink)
                     .get()
                     .build();
-            Call newCall = IO.getInstanceWithLoggedIn().getClient().newCall(request);
+            Call newCall = HttpIO.getCurrentInstance().getOkHttpClient().getOkClient().newCall(request);
 
             Response response = newCall.execute();
 

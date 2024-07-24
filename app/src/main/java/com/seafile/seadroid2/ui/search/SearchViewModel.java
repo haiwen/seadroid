@@ -7,7 +7,7 @@ import com.seafile.seadroid2.framework.data.db.AppDatabase;
 import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.data.model.search.SearchModel;
 import com.seafile.seadroid2.framework.data.model.search.SearchWrapperModel;
-import com.seafile.seadroid2.framework.http.IO;
+import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
 import com.seafile.seadroid2.ui.repo.RepoService;
@@ -29,7 +29,7 @@ public class SearchViewModel extends BaseViewModel {
 
     public void loadNext(String q, int pageNo, int pageSize) {
         getRefreshLiveData().setValue(true);
-        Single<SearchWrapperModel> single = IO.getInstanceWithLoggedIn().execute(SearchService.class).search("all", q, "all", pageNo, pageSize);
+        Single<SearchWrapperModel> single = HttpIO.getCurrentInstance().execute(SearchService.class).search("all", q, "all", pageNo, pageSize);
         addSingleDisposable(single, new Consumer<SearchWrapperModel>() {
             @Override
             public void accept(SearchWrapperModel searchWrapperModel) throws Exception {
@@ -50,7 +50,7 @@ public class SearchViewModel extends BaseViewModel {
         //from db
         Single<List<RepoModel>> singleDb = AppDatabase.getInstance().repoDao().getRepoById(repoId);
 
-        Single<RepoModel> singleNet = IO.getInstanceWithLoggedIn().execute(RepoService.class).getRepoInfo(repoId);
+        Single<RepoModel> singleNet = HttpIO.getCurrentInstance().execute(RepoService.class).getRepoInfo(repoId);
 
         Single<RepoModel> single = singleDb.flatMap(new Function<List<RepoModel>, SingleSource<RepoModel>>() {
             @Override

@@ -1,7 +1,5 @@
 package com.seafile.seadroid2.ui.transfer_list;
 
-import android.util.Pair;
-
 import androidx.lifecycle.MutableLiveData;
 
 import com.blankj.utilcode.util.CollectionUtils;
@@ -15,7 +13,6 @@ import com.seafile.seadroid2.framework.data.model.enums.TransferDataSource;
 import com.seafile.seadroid2.framework.data.model.enums.TransferResult;
 import com.seafile.seadroid2.framework.data.model.enums.TransferStatus;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
-import com.seafile.seadroid2.framework.worker.SupportWorkManager;
 import com.seafile.seadroid2.framework.worker.upload.UploadFileManuallyWorker;
 import com.seafile.seadroid2.framework.worker.upload.UploadFolderFileAutomaticallyWorker;
 import com.seafile.seadroid2.framework.worker.upload.UploadMediaFileAutomaticallyWorker;
@@ -23,9 +20,7 @@ import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
 import com.seafile.seadroid2.framework.util.SLogs;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import io.reactivex.Completable;
 import io.reactivex.Single;
@@ -38,10 +33,10 @@ import io.reactivex.functions.Function;
 
 public class TransferListViewModel extends BaseViewModel {
 
-    private final MutableLiveData<Pair<Map<String, Integer>, List<FileTransferEntity>>> mFileTransferEntitiesLiveData = new MutableLiveData<>();
+    private final MutableLiveData<List<FileTransferEntity>> mTransferListLiveData = new MutableLiveData<>();
 
-    public MutableLiveData<Pair<Map<String, Integer>, List<FileTransferEntity>>> getFileTransferEntitiesLiveData() {
-        return mFileTransferEntitiesLiveData;
+    public MutableLiveData<List<FileTransferEntity>> getTransferListLiveData() {
+        return mTransferListLiveData;
     }
 
     public void loadData(TransferAction transferAction, boolean isShowRefresh) {
@@ -55,10 +50,11 @@ public class TransferListViewModel extends BaseViewModel {
             getRefreshLiveData().setValue(false);
             return;
         }
-        Single<Pair<Map<String, Integer>, List<FileTransferEntity>>> single = queryPageData(account, transferAction);
+
+        Single<List<FileTransferEntity>> single = queryPageData(account, transferAction);
 
         addSingleDisposable(single, pair -> {
-            mFileTransferEntitiesLiveData.setValue(pair);
+            getTransferListLiveData().setValue(pair);
 
             if (isShowRefresh) {
                 getRefreshLiveData().setValue(false);
@@ -66,15 +62,15 @@ public class TransferListViewModel extends BaseViewModel {
         });
     }
 
-    private Single<Pair<Map<String, Integer>, List<FileTransferEntity>>> queryPageData(Account account, TransferAction transferAction) {
-        return Single.create(new SingleOnSubscribe<Pair<Map<String, Integer>, List<FileTransferEntity>>>() {
+    private Single<List<FileTransferEntity>> queryPageData(Account account, TransferAction transferAction) {
+        return Single.create(new SingleOnSubscribe<List<FileTransferEntity>>() {
             @Override
-            public void subscribe(SingleEmitter<Pair<Map<String, Integer>, List<FileTransferEntity>>> emitter) throws Exception {
-                int page = 1;
-                int pageSize = 500;
+            public void subscribe(SingleEmitter<List<FileTransferEntity>> emitter) throws Exception {
+
+                int pageSize = 100;
 
                 List<FileTransferEntity> list = new ArrayList<>();
-                while (true) {
+                for (int page = 1; page <= 10; page++) {
                     int offset = (page - 1) * pageSize;
 
                     List<FileTransferEntity> temp;
@@ -94,18 +90,11 @@ public class TransferListViewModel extends BaseViewModel {
                         break;
                     }
 
-                    page++;
-
                     list.addAll(temp);
                 }
 
-                Map<String, Integer> map = new HashMap<>();
-
-                for (int i = 0; i < list.size(); i++) {
-                    map.put(list.get(i).uid, i);
-                }
-
-                emitter.onSuccess(new Pair<>(map, list));
+                SLogs.e("本次查询的大小：" + list.size());
+                emitter.onSuccess(list);
             }
         });
     }

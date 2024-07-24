@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="@dimen/rv_item_dirent_height"
     android:background="?android:selectableItemBackground"
     android:paddingStart="8dp"
     android:paddingEnd="16dp">
@@ -23,8 +23,8 @@
 
     <ImageView
         android:id="@+id/item_icon"
-        android:layout_width="@dimen/lv_icon_width"
-        android:layout_height="@dimen/lv_icon_width"
+        android:layout_width="@dimen/rv_item_icon_width"
+        android:layout_height="@dimen/rv_item_icon_width"
         android:padding="8dp"
         android:scaleType="centerCrop"
         android:src="@drawable/icon_file_video_colorful"
@@ -35,7 +35,7 @@
     <LinearLayout
         android:id="@+id/title_container"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:gravity="center_vertical"
         android:orientation="vertical"
         app:layout_constrainedWidth="true"
@@ -88,24 +88,16 @@
     </LinearLayout>
 
 
-    <FrameLayout
+    <ImageView
         android:id="@+id/expandable_toggle_button"
-        android:layout_width="@dimen/lv_iv_action_width"
-        android:layout_height="@dimen/lv_item_height"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
+        android:layout_width="@dimen/rv_item_dirent_height"
+        android:layout_height="@dimen/rv_item_dirent_height"
         android:foreground="?selectableItemBackground"
+        android:src="@drawable/baseline_expandable_24"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <ImageView
-            android:layout_width="@dimen/lv_iv_action_width"
-            android:layout_height="@dimen/lv_item_height"
-            android:layout_gravity="end|bottom"
-            android:src="@drawable/baseline_expandable_24" />
-    </FrameLayout>
+        app:layout_constraintTop_toTopOf="parent" />
 
 
     <com.google.android.material.divider.MaterialDivider

@@ -12,11 +12,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.blankj.utilcode.util.SizeUtils;
-import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.engine.GlideException;
-import com.bumptech.glide.load.model.GlideUrl;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.Target;
@@ -25,9 +23,9 @@ import com.github.chrisbanes.photoview.PhotoView;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
-import com.seafile.seadroid2.config.GlideLoadConfig;
 import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.datastore.DataManager;
+import com.seafile.seadroid2.framework.util.GlideApp;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.ui.base.fragment.BaseFragment;
 
@@ -98,7 +96,7 @@ public class PhotoFragment extends BaseFragment {
         if (file.exists()) {
             progressBar.setVisibility(View.GONE);
 
-            Glide.with(requireContext())
+            GlideApp.with(requireContext())
                     .load(file)
                     .into(photoView);
             return;
@@ -114,10 +112,8 @@ public class PhotoFragment extends BaseFragment {
                     .error(R.drawable.icon_image_error_filled)
                     .diskCacheStrategy(DiskCacheStrategy.NONE);
 
-            GlideUrl glideUrl1 = GlideLoadConfig.getGlideUrl(url);
-
-            Glide.with(requireContext())
-                    .load(glideUrl1)
+            GlideApp.with(requireContext())
+                    .load(url)
                     .apply(opt)
                     .fitCenter()
                     .listener(new RequestListener<Drawable>() {

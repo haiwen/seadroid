@@ -14,7 +14,7 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.framework.data.model.ResultModel;
-import com.seafile.seadroid2.framework.http.IO;
+import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.ui.account.AccountService;
@@ -23,13 +23,14 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLHandshakeException;
+import javax.net.ssl.SSLPeerUnverifiedException;
 
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
@@ -41,7 +42,6 @@ import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 import kotlin.Pair;
-import okhttp3.Headers;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
@@ -77,7 +77,7 @@ public class BaseViewModel extends ViewModel {
     private final CompositeDisposable compositeDisposable = new CompositeDisposable();
 
     public void completeRemoteWipe() {
-        Single<Object> single = IO.getInstanceWithLoggedIn().execute(AccountService.class).deviceWiped();
+        Single<Object> single = HttpIO.getCurrentInstance().execute(AccountService.class).deviceWiped();
         addSingleDisposable(single, new Consumer<Object>() {
             @Override
             public void accept(Object o) throws Exception {
@@ -300,6 +300,10 @@ public class BaseViewModel extends ViewModel {
             SocketTimeoutException socketTimeoutException = (SocketTimeoutException) throwable;
             SLogs.e(socketTimeoutException.getMessage());
             return SeafException.networkException;
+        } else if (throwable instanceof SSLPeerUnverifiedException) {
+            return SeafException.sslException;
+        } else if (throwable instanceof SSLException) {
+            return SeafException.sslException;
         }
 
         return new SeafException(SeafException.CODE_ERROR, throwable.getMessage());

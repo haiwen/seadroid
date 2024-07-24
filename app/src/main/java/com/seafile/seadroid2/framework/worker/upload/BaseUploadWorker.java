@@ -27,11 +27,7 @@ import com.seafile.seadroid2.framework.data.model.dirents.DirentFileModel;
 import com.seafile.seadroid2.framework.data.model.enums.TransferResult;
 import com.seafile.seadroid2.framework.data.model.enums.TransferStatus;
 import com.seafile.seadroid2.framework.datastore.StorageManager;
-import com.seafile.seadroid2.framework.http.IO;
-import com.seafile.seadroid2.framework.notification.AlbumBackupNotificationHelper;
-import com.seafile.seadroid2.framework.notification.FileBackupNotificationHelper;
-import com.seafile.seadroid2.framework.notification.FolderBackupNotificationHelper;
-import com.seafile.seadroid2.framework.notification.base.BaseNotification;
+import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.notification.base.BaseTransferNotificationHelper;
 import com.seafile.seadroid2.framework.util.HttpUtils;
 import com.seafile.seadroid2.framework.util.SLogs;
@@ -163,8 +159,9 @@ public abstract class BaseUploadWorker extends TransferWorker {
 
     protected boolean calcQuota(List<FileTransferEntity> list) throws SeafException, IOException {
 
+        //
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
-        if (account != null && account.isQuotaNoLimit()) {
+        if (account != null && account.isQuotaUnlimited()) {
             return true;
         }
 
@@ -184,7 +181,7 @@ public abstract class BaseUploadWorker extends TransferWorker {
     }
 
     protected AccountInfo getAccountInfo() throws IOException, SeafException {
-        retrofit2.Response<AccountInfo> response = IO.getInstanceWithLoggedIn()
+        retrofit2.Response<AccountInfo> response = HttpIO.getCurrentInstance()
                 .execute(AccountService.class)
                 .getAccountInfoCall()
                 .execute();
@@ -391,6 +388,10 @@ public abstract class BaseUploadWorker extends TransferWorker {
             return;
         }
 
+        //update modified_at field
+        transferEntity.modified_at = System.currentTimeMillis();
+        AppDatabase.getInstance().fileTransferDAO().update(transferEntity);
+
         RepoModel repo = repoModels.get(0);
         if (repo.canLocalDecrypt()) {
             uploadBlockFile(account, repo, transferEntity);
@@ -477,7 +478,7 @@ public abstract class BaseUploadWorker extends TransferWorker {
                     .url(uploadUrl)
                     .post(requestBody)
                     .build();
-            newCall = IO.getInstanceWithLoggedIn().getClient().newCall(request);
+            newCall = HttpIO.getCurrentInstance().getOkHttpClient().getOkClient().newCall(request);
 
             Response response = newCall.execute();
 
@@ -580,7 +581,7 @@ public abstract class BaseUploadWorker extends TransferWorker {
     private String getFileUploadUrl(String repoId, String target_dir, boolean isUpdate) throws IOException, SeafException {
         retrofit2.Response<String> res;
         if (isUpdate) {
-            res = IO.getInstanceWithLoggedIn()
+            res = HttpIO.getCurrentInstance()
                     .execute(FileService.class)
                     .getFileUpdateLink(repoId)
                     .execute();
@@ -588,7 +589,7 @@ public abstract class BaseUploadWorker extends TransferWorker {
 
 //            target_dir = StringUtils.removeEnd(target_dir, "/");
 
-            res = IO.getInstanceWithLoggedIn()
+            res = HttpIO.getCurrentInstance()
                     .execute(FileService.class)
                     .getFileUploadLink(repoId, "/")
                     .execute();
@@ -613,7 +614,7 @@ public abstract class BaseUploadWorker extends TransferWorker {
 
         Map<String, RequestBody> requestBodyMap = HttpUtils.generateRequestBody(requestDataMap);
 
-        retrofit2.Response<BlockInfoBean> res = IO.getInstanceWithLoggedIn()
+        retrofit2.Response<BlockInfoBean> res = HttpIO.getCurrentInstance()
                 .execute(FileService.class)
                 .getFileBlockUploadLink(repoId, requestBodyMap)
                 .execute();
@@ -660,7 +661,7 @@ public abstract class BaseUploadWorker extends TransferWorker {
         Request request = new Request.Builder().url(link)
                 .post(body)
                 .build();
-        Response response = IO.getInstanceWithLoggedIn().getClient().newCall(request).execute();
+        Response response = HttpIO.getCurrentInstance().getOkHttpClient().getOkClient().newCall(request).execute();
 
         if (!response.isSuccessful()) {
             throw SeafException.networkException;
@@ -712,7 +713,7 @@ public abstract class BaseUploadWorker extends TransferWorker {
             SLogs.d("Folder upload block: newCall has executed()");
         }
         try {
-            newCall = IO.getInstanceWithLoggedIn().getClient().newCall(request);
+            newCall = HttpIO.getCurrentInstance().getOkHttpClient().getOkClient().newCall(request);
             Response response = newCall.execute();
 
             if (!response.isSuccessful()) {

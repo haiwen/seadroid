@@ -16,7 +16,7 @@ import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.ui.repo.RepoService;
-import com.seafile.seadroid2.framework.http.IO;
+import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
 
 import java.util.HashMap;
@@ -111,7 +111,7 @@ public class ImagePreviewViewModel extends BaseViewModel {
         requestDataMap.put("path", path);
         Map<String, RequestBody> bodyMap = generateRequestBody(requestDataMap);
 
-        Single<Dirent2Model> single = IO.getInstanceWithLoggedIn().execute(RepoService.class).star(bodyMap);
+        Single<Dirent2Model> single = HttpIO.getCurrentInstance().execute(RepoService.class).star(bodyMap);
         addSingleDisposable(single, new Consumer<Dirent2Model>() {
             @Override
             public void accept(Dirent2Model resultModel) throws Exception {
@@ -134,7 +134,7 @@ public class ImagePreviewViewModel extends BaseViewModel {
     public void unStar(String repoId, String path) {
         getRefreshLiveData().setValue(true);
 
-        Single<ResultModel> single = IO.getInstanceWithLoggedIn().execute(RepoService.class).unStar(repoId, path);
+        Single<ResultModel> single = HttpIO.getCurrentInstance().execute(RepoService.class).unStar(repoId, path);
         addSingleDisposable(single, new Consumer<ResultModel>() {
             @Override
             public void accept(ResultModel resultModel) throws Exception {

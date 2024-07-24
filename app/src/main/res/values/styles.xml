@@ -235,4 +235,37 @@
         <item name="android:textSize">@dimen/lv_subtitle_txt_size</item>
         <item name="android:textColor">@color/item_subtitle_color</item>
     </style>
+
+    <style name="Widget.RecyclerView.Style" parent="">
+        <item name="android:scrollbarStyle">outsideOverlay</item>
+        <item name="android:scrollbars">vertical</item>
+        <item name="android:clipToPadding">false</item>
+        <item name="android:paddingBottom">16dp</item>
+        <!--        <item name="android:scrollbarSize">16dp</item>-->
+        <!--        <item name="android:scrollbarThumbVertical">@drawable/scrollbar_vertical</item>-->
+        <!--        <item name="android:scrollbarTrackVertical">@drawable/scrollbar_vertical_bg</item>-->
+    </style>
+
+    <style name="Widget.FastRecyclerView.Style" parent="">
+        <!--        <item name="android:clipToPadding">false</item>-->
+        <!--        <item name="android:paddingBottom">16dp</item>-->
+
+        <item name="fastScrollAutoHide">true</item>
+        <item name="fastScrollAutoHideDelay">1500</item>
+        <item name="fastScrollThumbEnabled">true</item>
+        <item name="fastScrollThumbColor">@color/grey</item>
+        <item name="fastScrollEnableThumbInactiveColor">true</item>
+        <item name="fastScrollThumbInactiveColor">@color/light_grey</item>
+        <item name="fastScrollTrackColor">@color/light_gray</item>
+        <!--        <item name="fastScrollPopupPosition">center</item>-->
+        <!--        <item name="fastScrollPopupBgColor">@color/red</item>-->
+        <!--        <item name="fastScrollPopupTextColor">@color/fancy_orange</item>-->
+        <!--        <item name="fastScrollPopupTextSize">54sp</item>-->
+        <!--        <item name="fastScrollPopupBackgroundSize">88dp</item>-->
+
+
+        <!--        <item name="android:scrollbarSize">16dp</item>-->
+        <!--        <item name="android:scrollbarThumbVertical">@drawable/scrollbar_vertical</item>-->
+        <!--        <item name="android:scrollbarTrackVertical">@drawable/scrollbar_vertical_bg</item>-->
+    </style>
 </resources>

@@ -121,17 +121,7 @@ public class ObjSelectorActivity extends BaseActivity {
         binding.ok.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String repoName = mNavContext.getRepoModel().repo_name;
-                String repoID = mNavContext.getRepoModel().repo_id;
-                String dir = mNavContext.getNavPath();
-
-                Intent intent = new Intent();
-                intent.putExtra(DATA_REPO_NAME, repoName);
-                intent.putExtra(DATA_REPO_ID, repoID);
-                intent.putExtra(DATA_DIR, dir);
-                intent.putExtra(DATA_ACCOUNT, mAccount);
-                setResult(RESULT_OK, intent);
-                finish();
+                onOkClick();
             }
         });
 
@@ -151,6 +141,24 @@ public class ObjSelectorActivity extends BaseActivity {
         });
     }
 
+    private void onOkClick() {
+        if (!mNavContext.isInRepo()) {
+            ToastUtils.showLong(R.string.choose_a_library);
+            return;
+        }
+
+        String repoName = mNavContext.getRepoModel().repo_name;
+        String repoID = mNavContext.getRepoModel().repo_id;
+        String dir = mNavContext.getNavPath();
+
+        Intent intent = new Intent();
+        intent.putExtra(DATA_REPO_NAME, repoName);
+        intent.putExtra(DATA_REPO_ID, repoID);
+        intent.putExtra(DATA_DIR, dir);
+        intent.putExtra(DATA_ACCOUNT, mAccount);
+        setResult(RESULT_OK, intent);
+        finish();
+    }
 
     private void initViewModel() {
         viewModel.getRefreshLiveData().observe(this, new Observer<Boolean>() {
@@ -254,10 +262,16 @@ public class ObjSelectorActivity extends BaseActivity {
 
 
     private void showNewDirDialog() {
+        if (!mNavContext.isInRepo()) {
+            ToastUtils.showLong(R.string.choose_a_library);
+            return;
+        }
+
         if (!mNavContext.hasWritePermissionWithRepo()) {
             ToastUtils.showLong(R.string.library_read_only);
             return;
         }
+
         NewDirFileDialogFragment dialogFragment = NewDirFileDialogFragment.newInstance();
         dialogFragment.initData(mNavContext.getRepoModel().repo_id, mNavContext.getNavPath(), true);
         dialogFragment.setRefreshListener(new OnRefreshDataListener() {

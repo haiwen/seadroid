@@ -9,11 +9,11 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.config.GlideLoadConfig;
+import com.seafile.seadroid2.framework.util.GlideApp;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -95,9 +95,9 @@ public class AccountAdapter extends BaseAdapter {
         if (TextUtils.isEmpty(account.avatar_url)) {
             viewHolder.icon.setImageResource(com.seafile.seadroid2.R.drawable.default_avatar);
         } else {
-            Glide.with(context)
-                    .load(GlideLoadConfig.getGlideUrl(account.avatar_url))
-                    .apply(GlideLoadConfig.getDefaultAvatarOptions())
+            GlideApp.with(context)
+                    .load(account.avatar_url)
+                    .apply(GlideLoadConfig.getAvatarOptions())
                     .into(viewHolder.icon);
         }
 

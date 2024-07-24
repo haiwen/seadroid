@@ -18,7 +18,7 @@ public class BaseFragment extends Fragment {
             isFirstLoadData = false;
             onFirstResume();
         } else {
-            onNonFirstResume();
+            onOtherResume();
         }
     }
 
@@ -26,7 +26,7 @@ public class BaseFragment extends Fragment {
 
     }
 
-    public void onNonFirstResume() {
+    public void onOtherResume() {
 
     }
 }

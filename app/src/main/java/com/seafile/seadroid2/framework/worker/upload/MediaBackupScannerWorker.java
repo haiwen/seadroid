@@ -15,7 +15,6 @@ import androidx.work.ForegroundInfo;
 import androidx.work.WorkerParameters;
 
 import com.blankj.utilcode.util.CollectionUtils;
-import com.blankj.utilcode.util.FileUtils;
 import com.google.common.base.Joiner;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
@@ -23,7 +22,6 @@ import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.framework.data.model.enums.TransferDataSource;
-import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.datastore.StorageManager;
 import com.seafile.seadroid2.framework.data.db.AppDatabase;
 import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
@@ -31,10 +29,9 @@ import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
 import com.seafile.seadroid2.framework.data.model.enums.TransferAction;
 import com.seafile.seadroid2.framework.data.model.repo.DirentWrapperModel;
 import com.seafile.seadroid2.framework.datastore.sp.AlbumBackupManager;
-import com.seafile.seadroid2.framework.http.IO;
+import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.notification.AlbumBackupScanNotificationHelper;
 import com.seafile.seadroid2.framework.util.SLogs;
-import com.seafile.seadroid2.framework.notification.AlbumBackupNotificationHelper;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
@@ -443,7 +440,7 @@ public class MediaBackupScannerWorker extends TransferWorker {
 
         //todo 使用获取 path 详情接口
         //get parent dirent list
-        Call<DirentWrapperModel> direntWrapperModelCall = IO.getInstanceWithLoggedIn().execute(RepoService.class).getDirentsSync(repoConfig.getRepoID(), parent);
+        Call<DirentWrapperModel> direntWrapperModelCall = HttpIO.getCurrentInstance().execute(RepoService.class).getDirentsSync(repoConfig.getRepoID(), parent);
         retrofit2.Response<DirentWrapperModel> res = direntWrapperModelCall.execute();
         if (!res.isSuccessful()) {
             throw SeafException.networkException;
@@ -493,7 +490,7 @@ public class MediaBackupScannerWorker extends TransferWorker {
      * @param filePathList (file.getAbsolutePath(), media(image or video), dateAdded(long))
      */
     private void checkAndInsert(String parent, List<Triple<String, String, Long>> filePathList) throws SeafException, IOException {
-        Call<DirentWrapperModel> direntWrapperModelCall = IO.getInstanceWithLoggedIn().execute(RepoService.class).getDirentsSync(repoConfig.getRepoID(), parent);
+        Call<DirentWrapperModel> direntWrapperModelCall = HttpIO.getCurrentInstance().execute(RepoService.class).getDirentsSync(repoConfig.getRepoID(), parent);
         retrofit2.Response<DirentWrapperModel> res = direntWrapperModelCall.execute();
         if (!res.isSuccessful()) {
             throw SeafException.networkException;
@@ -550,7 +547,7 @@ public class MediaBackupScannerWorker extends TransferWorker {
         renameMap.put("newname", newFilename);
         Map<String, RequestBody> requestBodyMap = HttpUtils.generateRequestBody(renameMap);
 
-        retrofit2.Response<String> renameRes = IO.getInstanceWithLoggedIn()
+        retrofit2.Response<String> renameRes = HttpIO.getCurrentInstance()
                 .execute(FileService.class)
                 .renameFileCall(repoConfig.getRepoID(), fullPath, requestBodyMap)
                 .execute();

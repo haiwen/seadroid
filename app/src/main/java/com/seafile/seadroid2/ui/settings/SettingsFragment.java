@@ -35,7 +35,6 @@ import androidx.work.WorkInfo;
 import com.blankj.utilcode.util.AppUtils;
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.ToastUtils;
-import com.bumptech.glide.Glide;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.seafile.seadroid2.R;
@@ -52,16 +51,17 @@ import com.seafile.seadroid2.framework.datastore.sp.AppDataManager;
 import com.seafile.seadroid2.framework.datastore.sp.FolderBackupManager;
 import com.seafile.seadroid2.framework.datastore.sp.GestureLockManager;
 import com.seafile.seadroid2.framework.datastore.sp.SettingsManager;
+import com.seafile.seadroid2.framework.file_monitor.FileSyncService;
+import com.seafile.seadroid2.framework.util.GlideApp;
 import com.seafile.seadroid2.framework.util.PermissionUtil;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
-import com.seafile.seadroid2.framework.file_monitor.FileSyncService;
 import com.seafile.seadroid2.framework.worker.SupportWorkManager;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
 import com.seafile.seadroid2.framework.worker.upload.FolderBackupScannerWorker;
-import com.seafile.seadroid2.framework.worker.upload.UploadFolderFileAutomaticallyWorker;
 import com.seafile.seadroid2.framework.worker.upload.MediaBackupScannerWorker;
+import com.seafile.seadroid2.framework.worker.upload.UploadFolderFileAutomaticallyWorker;
 import com.seafile.seadroid2.framework.worker.upload.UploadMediaFileAutomaticallyWorker;
 import com.seafile.seadroid2.gesturelock.LockPatternUtils;
 import com.seafile.seadroid2.ui.camera_upload.CameraUploadConfigActivity;
@@ -833,7 +833,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 if (isDone) {
                     calculateCacheSize();
                     //clear Glide cache
-                    Glide.get(SeadroidApplication.getAppContext()).clearMemory();
+                    GlideApp.get(SeadroidApplication.getAppContext()).clearMemory();
                     ToastUtils.showLong(R.string.settings_clear_cache_success);
                 } else {
                     ToastUtils.showLong(R.string.settings_clear_cache_failed);

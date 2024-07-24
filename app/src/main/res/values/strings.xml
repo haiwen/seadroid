@@ -253,6 +253,7 @@
     <string name="empty_folder">Empty folder</string>
     <string name="choose_file">Choose a file</string>
     <string name="ssl_error">Security check failed</string>
+    <string name="ssl_not_trusted">The security certificate of %s is not trusted.</string>
     <string name="ssl_confirm">The security certificate of %s is not trusted. Do you want to continue?</string>
     <string name="ssl_confirm_cert_changed">%s uses an invalid security certificate. The connection is not secure. Continue anyway?</string>
     <string name="ssl_confirm_title">Untrusted Connection</string>

@@ -121,6 +121,10 @@ public class UploadFileManuallyWorker extends BaseUploadWorker {
                     throw SeafException.notLoggedInException;
                 }
 
+                //update modified_at field
+                transferEntity.modified_at = System.currentTimeMillis();
+                AppDatabase.getInstance().fileTransferDAO().update(transferEntity);
+
                 transferFile(account, transferEntity);
 
                 sendTransferEvent(transferEntity, true);
@@ -168,7 +172,7 @@ public class UploadFileManuallyWorker extends BaseUploadWorker {
 
         Data data = new Data.Builder()
                 .putString(TransferWorker.KEY_DATA_EVENT, finishFlagEvent)
-//                .putInt(TransferWorker.KEY_DATA_PARAM, pendingCount)
+                .putBoolean(TransferWorker.KEY_DATA_PARAM, isUploaded)
                 .putString(TransferWorker.KEY_DATA_TYPE, String.valueOf(TransferDataSource.FILE_BACKUP))
                 .build();
         return ListenableWorker.Result.success(data);

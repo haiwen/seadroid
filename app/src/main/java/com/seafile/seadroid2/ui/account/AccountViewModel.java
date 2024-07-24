@@ -14,7 +14,7 @@ import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.framework.data.ServerInfo;
 import com.seafile.seadroid2.framework.data.model.TokenModel;
 import com.seafile.seadroid2.framework.data.model.server.ServerInfoModel;
-import com.seafile.seadroid2.framework.http.IO;
+import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.util.AccountUtils;
 import com.seafile.seadroid2.framework.util.DeviceIdManager;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
@@ -59,7 +59,7 @@ public class AccountViewModel extends BaseViewModel {
         getRefreshLiveData().setValue(true);
 
         loginAccount.token = authToken;
-        Single<AccountInfo> single = IO.getInstanceByAccount(loginAccount).execute(AccountService.class).getAccountInfo();
+        Single<AccountInfo> single = HttpIO.getInstanceByAccount(loginAccount).execute(AccountService.class).getAccountInfo();
         addSingleDisposable(single, new Consumer<AccountInfo>() {
             @Override
             public void accept(AccountInfo accountInfo) throws Exception {
@@ -108,14 +108,8 @@ public class AccountViewModel extends BaseViewModel {
                     tempAccount.token = tokenModel.token;
                 }
 
-                //note this:
-                //the token to be updated here, because the user is logged in successfully
-                //but don't use "IO.getLoggedInAccountInstance();"
-                //because not set up an Android Account yet.
-                IO.updateInstanceByAccount(tempAccount);
-
                 //
-                retrofit2.Response<AccountInfo> accountInfoResponse = IO
+                retrofit2.Response<AccountInfo> accountInfoResponse = HttpIO
                         .getInstanceByAccount(tempAccount) //Still use it that way
                         .execute(AccountService.class)
                         .getAccountInfoCall()
@@ -189,19 +183,16 @@ public class AccountViewModel extends BaseViewModel {
 
         Map<String, RequestBody> requestBody = generateRequestBody(body);
 
-        //
-        IO.removeInstanceByAccount(tempAccount);
-
-        return IO.newInstanceByAccount(tempAccount).execute(AccountService.class).login(headers, requestBody);
+        return HttpIO.getInstanceByAccount(tempAccount).execute(AccountService.class).login(headers, requestBody);
     }
 
     public void getServerInfo() {
         getRefreshLiveData().setValue(true);
 
-        Single<ServerInfoModel> serverSingle = IO.getInstanceWithLoggedIn().execute(MainService.class).getServerInfo();
+        Single<ServerInfoModel> serverSingle = HttpIO.getCurrentInstance().execute(MainService.class).getServerInfo();
         addSingleDisposable(serverSingle, new Consumer<ServerInfoModel>() {
             @Override
-            public void accept(ServerInfoModel serverInfoModel) throws Exception {
+            public void accept(ServerInfoModel serverInfoModel) {
 
                 Account account = SupportAccountManager.getInstance().getCurrentAccount();
                 if (account == null) {

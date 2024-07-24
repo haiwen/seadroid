@@ -18,27 +18,22 @@ import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
 import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.data.model.BaseModel;
 import com.seafile.seadroid2.framework.data.model.ResultModel;
-import com.seafile.seadroid2.framework.data.model.enums.TransferAction;
 import com.seafile.seadroid2.framework.data.model.enums.TransferStatus;
 import com.seafile.seadroid2.framework.data.model.repo.Dirent2Model;
-import com.seafile.seadroid2.framework.http.IO;
+import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
 import com.seafile.seadroid2.framework.util.Objs;
 import com.seafile.seadroid2.framework.util.SLogs;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import io.reactivex.Single;
-import io.reactivex.SingleSource;
 import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Consumer;
-import io.reactivex.functions.Function;
 import okhttp3.RequestBody;
 
 public class RepoViewModel extends BaseViewModel {
@@ -197,16 +192,11 @@ public class RepoViewModel extends BaseViewModel {
         addSingleDisposable(resultSingle, new Consumer<List<DirentModel>>() {
             @Override
             public void accept(List<DirentModel> direntModels) throws Exception {
-                if (!CollectionUtils.isEmpty(direntModels)) {
-                    getObjsListLiveData().setValue(Objs.parseLocalDirents(direntModels));
-
-                    if (isForce) {
-                        loadDirentsFromNet(account, context);
-                    } else {
-                        getRefreshLiveData().setValue(false);
-                    }
-                } else {
+                if (CollectionUtils.isEmpty(direntModels) || isForce) {
                     loadDirentsFromNet(account, context);
+                } else {
+                    getObjsListLiveData().setValue(Objs.parseLocalDirents(direntModels));
+                    getRefreshLiveData().setValue(false);
                 }
             }
         });
@@ -241,7 +231,6 @@ public class RepoViewModel extends BaseViewModel {
                     completeRemoteWipe();
                 }
                 getSeafExceptionLiveData().setValue(seafException);
-
             }
         });
     }
@@ -255,7 +244,7 @@ public class RepoViewModel extends BaseViewModel {
         requestDataMap.put("path", path);
         Map<String, RequestBody> bodyMap = generateRequestBody(requestDataMap);
 
-        Single<Dirent2Model> single = IO.getInstanceWithLoggedIn().execute(RepoService.class).star(bodyMap);
+        Single<Dirent2Model> single = HttpIO.getCurrentInstance().execute(RepoService.class).star(bodyMap);
         addSingleDisposable(single, new Consumer<Dirent2Model>() {
             @Override
             public void accept(Dirent2Model resultModel) throws Exception {
@@ -275,7 +264,7 @@ public class RepoViewModel extends BaseViewModel {
     public void unStar(String repoId, String path) {
         getRefreshLiveData().setValue(true);
 
-        Single<ResultModel> single = IO.getInstanceWithLoggedIn().execute(RepoService.class).unStar(repoId, path);
+        Single<ResultModel> single = HttpIO.getCurrentInstance().execute(RepoService.class).unStar(repoId, path);
         addSingleDisposable(single, new Consumer<ResultModel>() {
             @Override
             public void accept(ResultModel resultModel) throws Exception {

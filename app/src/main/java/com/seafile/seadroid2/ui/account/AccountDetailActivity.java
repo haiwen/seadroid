@@ -2,6 +2,7 @@ package com.seafile.seadroid2.ui.account;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
@@ -20,6 +21,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.NavUtils;
 import androidx.core.app.TaskStackBuilder;
@@ -229,21 +231,33 @@ public class AccountDetailActivity extends BaseActivityWithVM<AccountViewModel> 
         if (err == SeafException.sslException) {
             mAuthTokenInputLayout.setVisibility(View.GONE);
             mRemDeviceCheckBox.setVisibility(View.GONE);
-            SslConfirmDialog sslConfirmDialog = new SslConfirmDialog(account,
-                    new SslConfirmDialog.Listener() {
-                        @Override
-                        public void onAccepted(boolean rememberChoice) {
-                            CertsManager.instance().saveCertForAccount(account, rememberChoice);
-                            login();
-                        }
 
-                        @Override
-                        public void onRejected() {
-                            mStatusTv.setText(R.string.ssl_error);
-                            mLoginBtn.setEnabled(true);
-                        }
-                    });
-            sslConfirmDialog.show(getSupportFragmentManager(), SslConfirmDialog.FRAGMENT_TAG);
+            MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
+            builder.setTitle(R.string.ssl_confirm_title);
+            builder.setMessage(getString(R.string.ssl_not_trusted,account.getServerHost()));
+            builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            });
+            builder.create().show();
+
+//            SslConfirmDialog sslConfirmDialog = new SslConfirmDialog(account,
+//                    new SslConfirmDialog.Listener() {
+//                        @Override
+//                        public void onAccepted(boolean rememberChoice) {
+//                            CertsManager.instance().saveCertForAccount(account, rememberChoice);
+//                            login();
+//                        }
+//
+//                        @Override
+//                        public void onRejected() {
+//                            mStatusTv.setText(R.string.ssl_error);
+//                            mLoginBtn.setEnabled(true);
+//                        }
+//                    });
+//            sslConfirmDialog.show(getSupportFragmentManager(), SslConfirmDialog.FRAGMENT_TAG);
         } else if (err == SeafException.twoFactorAuthTokenMissing) {
             // show auth token input box
             mAuthTokenInputLayout.setVisibility(View.VISIBLE);

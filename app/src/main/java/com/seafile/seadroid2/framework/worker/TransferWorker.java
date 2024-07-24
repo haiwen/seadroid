@@ -10,7 +10,6 @@ import androidx.work.WorkerParameters;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.framework.data.BlockInfoBean;
 import com.seafile.seadroid2.framework.data.db.AppDatabase;
 import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
@@ -19,7 +18,7 @@ import com.seafile.seadroid2.framework.data.model.dirents.DirentDirModel;
 import com.seafile.seadroid2.framework.data.model.dirents.DirentFileModel;
 import com.seafile.seadroid2.framework.data.model.enums.TransferDataSource;
 import com.seafile.seadroid2.framework.data.model.repo.DirentWrapperModel;
-import com.seafile.seadroid2.framework.http.IO;
+import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.notification.GeneralNotificationHelper;
 import com.seafile.seadroid2.framework.util.HttpUtils;
 import com.seafile.seadroid2.framework.util.Objs;
@@ -27,12 +26,8 @@ import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.ui.file.FileService;
 import com.seafile.seadroid2.ui.repo.RepoService;
 
-import org.apache.commons.lang3.StringUtils;
-import org.json.JSONException;
-
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -78,7 +73,7 @@ public abstract class TransferWorker extends BaseWorker {
     }
 
     protected boolean checkRemoteDirExists(String repoId, String dirPath) throws IOException {
-        retrofit2.Response<DirentDirModel> response = IO.getInstanceWithLoggedIn()
+        retrofit2.Response<DirentDirModel> response = HttpIO.getCurrentInstance()
                 .execute(FileService.class)
                 .getDirDetailCall(repoId, dirPath)
                 .execute();
@@ -93,7 +88,7 @@ public abstract class TransferWorker extends BaseWorker {
 
         Map<String, RequestBody> requestBodyMap = HttpUtils.generateRequestBody(requestDataMap);
 
-        retrofit2.Response<String> response = IO.getInstanceWithLoggedIn()
+        retrofit2.Response<String> response = HttpIO.getCurrentInstance()
                 .execute(FileService.class)
                 .mkDirCall(repoId, path, requestBodyMap)
                 .execute();
@@ -106,7 +101,7 @@ public abstract class TransferWorker extends BaseWorker {
     }
 
     protected DirentFileModel getRemoteFile(String repoId, String remotePath) throws IOException, SeafException {
-        retrofit2.Response<DirentFileModel> fileDetailRes = IO.getInstanceWithLoggedIn()
+        retrofit2.Response<DirentFileModel> fileDetailRes = HttpIO.getCurrentInstance()
                 .execute(FileService.class)
                 .getFileDetailCall(repoId, remotePath)
                 .execute();
@@ -125,7 +120,7 @@ public abstract class TransferWorker extends BaseWorker {
 
 
     protected boolean getRemoteDirentList(Account account, RepoModel repoModel, String parentDir) throws IOException, SeafException {
-        retrofit2.Response<DirentWrapperModel> wrapperRes = IO.getInstanceWithLoggedIn()
+        retrofit2.Response<DirentWrapperModel> wrapperRes = HttpIO.getCurrentInstance()
                 .execute(RepoService.class)
                 .getDirentsCall(repoModel.repo_id, parentDir)
                 .execute();

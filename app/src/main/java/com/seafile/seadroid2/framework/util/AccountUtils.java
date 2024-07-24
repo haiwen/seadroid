@@ -9,7 +9,7 @@ import com.seafile.seadroid2.framework.datastore.DataStoreManager;
 import com.seafile.seadroid2.framework.datastore.sp.AlbumBackupManager;
 import com.seafile.seadroid2.framework.datastore.sp.FolderBackupManager;
 import com.seafile.seadroid2.framework.datastore.sp.GestureLockManager;
-import com.seafile.seadroid2.framework.http.IO;
+import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
 
@@ -30,7 +30,7 @@ public class AccountUtils {
         BackgroundJobManagerImpl.getInstance().cancelAllJobs();
 
         //reset IO instance for new account
-        IO.resetLoggedInInstance();
+        HttpIO.resetLoggedInInstance();
 
         //clear instance
         DataStoreManager.resetUserInstance();
@@ -63,7 +63,7 @@ public class AccountUtils {
         BackgroundJobManagerImpl.getInstance().cancelAllJobs();
 
         //reset IO instance for new account
-        IO.resetLoggedInInstance();
+        HttpIO.resetLoggedInInstance();
 
         //clear instance
         DataStoreManager.resetUserInstance();

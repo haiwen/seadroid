@@ -10,7 +10,7 @@ import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
 import com.seafile.seadroid2.framework.data.model.dirents.DeleteDirentModel;
 import com.seafile.seadroid2.framework.data.model.enums.TransferAction;
-import com.seafile.seadroid2.framework.http.IO;
+import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
 import com.seafile.seadroid2.ui.dialog_fragment.DialogService;
@@ -44,7 +44,7 @@ public class DeleteDirsViewModel extends BaseViewModel {
                         @Override
                         public SingleSource<DeleteDirentModel> apply(DirentModel dirent) throws Exception {
                             String obj = dirent.isDir() ? "dir" : "file";
-                            return IO.getInstanceWithLoggedIn().execute(DialogService.class).deleteDirent(dirent.repo_id, obj, dirent.full_path);
+                            return HttpIO.getCurrentInstance().execute(DialogService.class).deleteDirent(dirent.repo_id, obj, dirent.full_path);
                         }
                     });
         } else {
@@ -90,7 +90,7 @@ public class DeleteDirsViewModel extends BaseViewModel {
                                     }
 
                                     String obj = dirent.isDir() ? "dir" : "file";
-                                    return IO.getInstanceWithLoggedIn().execute(DialogService.class).deleteDirent(dirent.repo_id, obj, dirent.full_path);
+                                    return HttpIO.getCurrentInstance().execute(DialogService.class).deleteDirent(dirent.repo_id, obj, dirent.full_path);
                                 }
                             });
                         }

@@ -10,6 +10,10 @@ import com.seafile.seadroid2.framework.data.model.BaseModel;
 import com.seafile.seadroid2.framework.util.URLs;
 import com.seafile.seadroid2.framework.util.Utils;
 
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.Locale;
+
 public class Account extends BaseModel implements Parcelable, Comparable<Account> {
     // The full URL of the server, like 'http://gonggeng.org/seahub/' or 'http://gonggeng.org/'
     public String server;
@@ -48,8 +52,14 @@ public class Account extends BaseModel implements Parcelable, Comparable<Account
         this.total = total;
     }
 
-    public boolean isQuotaNoLimit() {
-        return total < 0;
+    /**
+     * in fact, the value should be less than 0.
+     * however, in some cases, it may be 0, and should also return unlimited.
+     * even if the non-limit is returned, App does not need to verify "Out of quota" status.
+     * and the "Out of quota" error will be returned in the file upload result.
+     */
+    public boolean isQuotaUnlimited() {
+        return total <= 0;
     }
 
     public void setLoginTimestamp(long timestamp) {
@@ -114,12 +124,6 @@ public class Account extends BaseModel implements Parcelable, Comparable<Account
         return dn;
     }
 
-    /**
-     * https://dev.xxx.com/dev/ => https://dev.xxx.com
-     */
-    public String getProtocolHost() {
-        return URLs.getProtocolHost(server);
-    }
 
     public String getEmail() {
         return email;
@@ -133,10 +137,21 @@ public class Account extends BaseModel implements Parcelable, Comparable<Account
         return name;
     }
 
+
     public String getServer() {
         return server;
     }
 
+    /**
+     * https://dev.xxx.com/dev/ => https://dev.xxx.com
+     */
+    public String getProtocolHost() {
+        return URLs.getProtocolHost(server);
+    }
+
+    /**
+     * https://dev.xxx.com/dev/ => dev.xxx.com/dev
+     */
     public String getServerNoProtocol() {
         String result = server.substring(server.indexOf("://") + 3);
         if (result.endsWith("/"))
@@ -149,7 +164,7 @@ public class Account extends BaseModel implements Parcelable, Comparable<Account
     }
 
     public boolean isHttps() {
-        return server.startsWith("https");
+        return server.toLowerCase(Locale.getDefault()).startsWith("https");
     }
 
     public boolean isShib() {
@@ -165,6 +180,9 @@ public class Account extends BaseModel implements Parcelable, Comparable<Account
     }
 
 
+    /**
+     * NOTICE: Do not modify the splicing format of this string
+     */
     public String getSignature() {
         return String.format("%s (%s)", getServerNoProtocol(), email);
     }
@@ -189,16 +207,22 @@ public class Account extends BaseModel implements Parcelable, Comparable<Account
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null || (obj.getClass() != this.getClass()))
-            return false;
+        }
 
-        Account a = (Account) obj;
-        if (a.server == null || a.email == null || a.token == null)
+        if (obj == null || (obj.getClass() != this.getClass())) {
             return false;
+        }
 
-        return a.server.equals(this.server) && a.email.equals(this.email);
+        Account newAccount = (Account) obj;
+        if (newAccount.server == null || newAccount.email == null) {
+            return false;
+        }
+
+        return Objects.equal(newAccount.server, this.server)
+                && Objects.equal(newAccount.email, this.email)
+                && Objects.equal(newAccount.token, this.token);
     }
 
 

@@ -18,25 +18,31 @@ import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ComponentActivity;
 import androidx.core.app.NavUtils;
 import androidx.core.app.TaskStackBuilder;
+import androidx.preference.Preference;
 
 import com.blankj.utilcode.util.ToastUtils;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Authenticator;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.framework.datastore.sp.SettingsManager;
 import com.seafile.seadroid2.framework.util.Objs;
+import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
 import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.ui.markdown.MarkdownActivity;
 import com.seafile.seadroid2.ui.repo.RepoQuickFragment;
+import com.seafile.seadroid2.ui.webview.SeaWebViewActivity;
 
 import java.io.File;
+import java.util.Locale;
 
 /**
  * The Authenticator activity.
@@ -78,12 +84,22 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.account_create_type_select);
 
+
+        String country = Locale.getDefault().getCountry();
+        String language = Locale.getDefault().getLanguage();
+        boolean isZH = TextUtils.equals("CN", country) || TextUtils.equals("zh", language);
+
         String[] array = getResources().getStringArray(R.array.choose_server_array);
-        String[] strArray = new String[1 + array.length];
-        strArray[0] = getString(R.string.server_name_top);
-        for (int i = 0; i < array.length; i++) {
-            strArray[i + 1] = array[i];
+        String[] strArray;
+        if (isZH) {
+            strArray = new String[1 + array.length];
+            strArray[0] = getString(R.string.server_name_top);
+            System.arraycopy(array, 0, strArray, 1, array.length);
+        } else {
+            strArray = new String[array.length];
+            System.arraycopy(array, 0, strArray, 0, array.length);
         }
+
         ArrayAdapter<String> listAdapter = new ArrayAdapter<>(this, R.layout.list_item_authenticator, strArray);
         ListView listView = (ListView) findViewById(R.id.account_create_list);
         listView.setAdapter(listAdapter);
@@ -91,11 +107,15 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent intent = null;
+
+                if (!isZH) {
+                    id++;
+                }
+
                 if (id == SEACLOUD_CC) {
                     intent = new Intent(SeafileAuthenticatorActivity.this, AccountDetailActivity.class);
                     intent.putExtras(getIntent());
                     intent.putExtra(SeafileAuthenticatorActivity.ARG_SERVER_URI, getString(R.string.server_url_seacloud));
-
                 } else if (id == SINGLE_SIGN_ON_LOGIN) {
                     intent = new Intent(SeafileAuthenticatorActivity.this, SingleSignOnActivity.class);
                     intent.putExtras(getIntent());
@@ -103,6 +123,7 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
                     intent = new Intent(SeafileAuthenticatorActivity.this, AccountDetailActivity.class);
                     intent.putExtras(getIntent());
                 }
+
 
                 if (intent != null) {
                     activityLauncher.launch(intent);
@@ -212,7 +233,7 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
     });
 
     private void finishLogin(Intent intent) {
-        Log.d(DEBUG_TAG, "finishLogin");
+        SLogs.d(DEBUG_TAG, "finishLogin");
 
         //firebase - event -login
         Bundle eventBundle = new Bundle();

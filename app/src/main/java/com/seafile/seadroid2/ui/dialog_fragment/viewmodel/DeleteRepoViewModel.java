@@ -6,7 +6,7 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
 import com.seafile.seadroid2.framework.data.model.ResultModel;
-import com.seafile.seadroid2.framework.http.IO;
+import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.ui.dialog_fragment.DialogService;
 
 import io.reactivex.Single;
@@ -22,7 +22,7 @@ public class DeleteRepoViewModel extends BaseViewModel {
     public void deleteRepo(String repoId) {
         getRefreshLiveData().setValue(true);
 
-        Single<String> single = IO.getInstanceWithLoggedIn().execute(DialogService.class).deleteRepo(repoId);
+        Single<String> single = HttpIO.getCurrentInstance().execute(DialogService.class).deleteRepo(repoId);
         addSingleDisposable(single, new Consumer<String>() {
             @Override
             public void accept(String resultModel) throws Exception {

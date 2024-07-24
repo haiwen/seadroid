@@ -165,7 +165,7 @@ public class UploadFolderFileAutomaticallyWorker extends BaseUploadWorker {
 
         Data data = new Data.Builder()
                 .putString(TransferWorker.KEY_DATA_EVENT, finishFlagEvent)
-//                .putInt(TransferWorker.KEY_DATA_PARAM, pendingCount)
+                .putBoolean(TransferWorker.KEY_DATA_PARAM, isUploaded)
                 .putString(TransferWorker.KEY_DATA_TYPE, String.valueOf(TransferDataSource.FOLDER_BACKUP))
                 .build();
         return Result.success(data);

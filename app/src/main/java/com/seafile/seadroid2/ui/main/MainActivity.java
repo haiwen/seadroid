@@ -1,6 +1,7 @@
 package com.seafile.seadroid2.ui.main;
 
 import android.Manifest;
+import android.app.Dialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -49,6 +50,7 @@ import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.data.db.entities.EncKeyCacheEntity;
 import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
 import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
+import com.seafile.seadroid2.framework.data.model.dirents.DirentFileModel;
 import com.seafile.seadroid2.framework.util.PermissionUtil;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.TakeCameras;
@@ -60,7 +62,6 @@ import com.seafile.seadroid2.framework.worker.SupportWorkManager;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
 import com.seafile.seadroid2.ui.account.AccountsActivity;
-import com.seafile.seadroid2.ui.activities.AllActivitiesFragment;
 import com.seafile.seadroid2.ui.adapter.ViewPager2Adapter;
 import com.seafile.seadroid2.ui.base.BaseActivity;
 import com.seafile.seadroid2.ui.dialog_fragment.NewDirFileDialogFragment;
@@ -75,6 +76,7 @@ import com.seafile.seadroid2.ui.settings.SettingsActivity;
 import com.seafile.seadroid2.ui.transfer_list.TransferActivity;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -517,11 +519,7 @@ public class MainActivity extends BaseActivity implements Toolbar.OnMenuItemClic
     }
 
     /**
-     *
-     *
-     *
-     *
-     * +|+++}}}}}}++}""""""""""""""""""""'    ]\ * check if server is pro edition
+     * check if server is pro edition
      *
      * @return true, if server is pro edition
      * false, otherwise.
@@ -857,7 +855,7 @@ public class MainActivity extends BaseActivity implements Toolbar.OnMenuItemClic
             return;
         }
 
-        takeFile(true);
+        takeFile(false);
     }
 
     ////////////////Launcher///////////////
@@ -956,9 +954,11 @@ public class MainActivity extends BaseActivity implements Toolbar.OnMenuItemClic
             if (CollectionUtils.isEmpty(o)) {
                 return;
             }
-
-            Uri[] uris = o.toArray(new Uri[0]);
-
+            if (o.size() == 1) {
+                doSelectSingleFile(o.get(0));
+            } else {
+                doSelectedMultiFile(o);
+            }
         }
     });
 
@@ -998,32 +998,75 @@ public class MainActivity extends BaseActivity implements Toolbar.OnMenuItemClic
         }
     });
 
+    private Dialog dialog;
+
+    private void showProgressDialog() {
+        if (dialog == null) {
+            MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
+            builder.setView(R.layout.layout_dialog_progress_bar);
+            dialog = builder.create();
+        }
+
+        if (dialog.isShowing()) {
+            dialog.dismiss();
+        }
+        dialog.show();
+    }
+
+    private void dismissProgressDialog() {
+        if (dialog != null) {
+            dialog.dismiss();
+        }
+    }
 
     /////////////////////////////
-    private void doSelectSingleFile(Uri o) {
+    private void doSelectedMultiFile(List<Uri> uriList) {
+        showProgressDialog();
+
         try {
-            new Thread(new Runnable() {
+            RepoModel repoModel = getNavContext().getRepoModel();
+            String parent_dir = getNavContext().getNavPath();
+
+            mainViewModel.checkLocalDirent(curAccount, this, repoModel, parent_dir, uriList, new Consumer<List<Uri>>() {
                 @Override
-                public void run() {
-                    RepoModel repoModel = getNavContext().getRepoModel();
+                public void accept(List<Uri> newUris) throws Exception {
 
-                    String fileName = Utils.getFilenameFromUri(MainActivity.this, o);
+                    dismissProgressDialog();
 
-                    mainViewModel.getDirentsFromServer(repoModel.repo_id, getNavContext().getNavPath(), new Consumer<List<DirentModel>>() {
-                        @Override
-                        public void accept(List<DirentModel> list) {
-                            boolean duplicate = list.stream().anyMatch(p -> p.name.equals(fileName));
+                    if (!CollectionUtils.isEmpty(newUris)) {
+                        ToastUtils.showLong(R.string.added_to_upload_tasks);
 
-                            if (duplicate) {
-                                showFileExistDialog(o, fileName);
-                            } else {
-                                addUploadTask(repoModel, getNavContext().getNavPath(), o, false);
-                            }
-                        }
-                    });
-
+                        //start worker
+                        BackgroundJobManagerImpl.getInstance().startFileUploadWorker();
+                    }
                 }
-            }).start();
+            });
+
+        } catch (Exception e) {
+            SLogs.e("Could not open requested document", e);
+        }
+    }
+
+    private void doSelectSingleFile(Uri uri) {
+        showProgressDialog();
+        try {
+            String fileName = Utils.getFilenameFromUri(this, uri);
+            String parent_dir = getNavContext().getNavPath();
+            String fullPath = Utils.pathJoin(parent_dir, fileName);
+
+            RepoModel repoModel = getNavContext().getRepoModel();
+            mainViewModel.checkRemoteDirent(this, repoModel.repo_id, fullPath, new Consumer<DirentFileModel>() {
+                @Override
+                public void accept(DirentFileModel direntFileModel) throws Exception {
+                    if (direntFileModel != null) {
+                        showFileExistDialog(uri, fileName);
+                    } else {
+                        addUploadTask(repoModel, getNavContext().getNavPath(), uri, false);
+                    }
+
+                    dismissProgressDialog();
+                }
+            });
         } catch (Exception e) {
             SLogs.e("Could not open requested document", e);
         }

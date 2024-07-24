@@ -70,7 +70,8 @@ public class DownloadListFragment extends TransferListFragment {
 
         Data outData = workInfo.getOutputData();
         String outEvent = outData.getString(TransferWorker.KEY_DATA_EVENT);
-        if (TransferEvent.EVENT_FINISH.equals(outEvent)) {
+        boolean isDownloaded = outData.getBoolean(TransferWorker.KEY_DATA_PARAM, false);
+        if (TransferEvent.EVENT_FINISH.equals(outEvent) && isDownloaded) {
             refreshData();
             return;
         }

@@ -16,7 +16,7 @@ import com.seafile.seadroid2.framework.data.model.ResultModel;
 import com.seafile.seadroid2.framework.data.model.TResultModel;
 import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.datastore.sp.SettingsManager;
-import com.seafile.seadroid2.framework.http.IO;
+import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
 import com.seafile.seadroid2.ui.dialog_fragment.DialogService;
 import com.seafile.seadroid2.ui.repo.RepoService;
@@ -70,7 +70,7 @@ public class PasswordViewModel extends BaseViewModel {
     }
 
     public void getRepoModel(String repoId, Consumer<RepoModel> consumer) {
-        Single<RepoModel> singleNet = IO.getInstanceWithLoggedIn().execute(RepoService.class).getRepoInfo(repoId);
+        Single<RepoModel> singleNet = HttpIO.getCurrentInstance().execute(RepoService.class).getRepoInfo(repoId);
 
         Single<List<RepoModel>> singleDb = AppDatabase.getInstance().repoDao().getByIdAsync(repoId);
 
@@ -137,7 +137,7 @@ public class PasswordViewModel extends BaseViewModel {
         requestDataMap.put("password", password);
         Map<String, RequestBody> bodyMap = generateRequestBody(requestDataMap);
 
-        Single<ResultModel> netSingle = IO.getInstanceWithLoggedIn().execute(DialogService.class).setPassword(repoModel.repo_id, bodyMap);
+        Single<ResultModel> netSingle = HttpIO.getCurrentInstance().execute(DialogService.class).setPassword(repoModel.repo_id, bodyMap);
 
         Single<Exception> insertEncSingle = Single.create(new SingleOnSubscribe<Exception>() {
             @Override

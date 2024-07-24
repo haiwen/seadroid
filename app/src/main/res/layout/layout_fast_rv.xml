@@ -9,9 +9,9 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <com.seafile.seadroid2.view.LinearRecyclerView
+        <com.seafile.seadroid2.view.FastRecyclerView
             android:id="@+id/rv"
-            style="@style/Widget.RecyclerView.Style"
+            style="@style/Widget.FastRecyclerView.Style"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 

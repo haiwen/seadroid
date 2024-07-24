@@ -7,6 +7,8 @@ import java.util.Map;
 import android.util.Log;
 
 import com.google.common.collect.Maps;
+import com.seafile.seadroid2.framework.data.db.AppDatabase;
+import com.seafile.seadroid2.framework.data.db.entities.CertEntity;
 import com.seafile.seadroid2.framework.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.account.Account;
 
@@ -32,7 +34,7 @@ public final class CertsManager {
 
     public void saveCertForAccount(final Account account, boolean rememberChoice) {
         List<X509Certificate> certs = SSLTrustManager.instance().getCertsChainForAccount(account);
-        if (certs == null || certs.size() == 0) {
+        if (certs == null || certs.isEmpty()) {
             return;
         }
 
@@ -43,7 +45,8 @@ public final class CertsManager {
             ConcurrentAsyncTask.submit(new Runnable() {
                 @Override
                 public void run() {
-                    db.saveCertificate(account.server, cert);
+                    CertsHelper.saveCertificate(account.server,cert);
+//                    db.saveCertificate(account.server, cert);
                 }
             });
         }
@@ -57,7 +60,8 @@ public final class CertsManager {
             return cert;
         }
 
-        cert = db.getCertificate(account.server);
+//        cert = db.getCertificate(account.server);
+        cert = CertsHelper.getCertificate(account.server);
         if (cert != null) {
             cachedCerts.put(account, cert);
         }

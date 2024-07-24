@@ -23,7 +23,6 @@ import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.chad.library.adapter4.BaseQuickAdapter;
 import com.chad.library.adapter4.QuickAdapterHelper;
-import com.chad.library.adapter4.loadState.trailing.TrailingLoadStateAdapter;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.bottomsheetmenu.BottomSheetHelper;
@@ -31,17 +30,18 @@ import com.seafile.seadroid2.bottomsheetmenu.BottomSheetMenuFragment;
 import com.seafile.seadroid2.databinding.LayoutFrameSwipeRvBinding;
 import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
 import com.seafile.seadroid2.framework.data.model.enums.TransferAction;
-import com.seafile.seadroid2.framework.data.model.enums.TransferResult;
 import com.seafile.seadroid2.framework.data.model.enums.TransferStatus;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
-import com.seafile.seadroid2.ui.base.adapter.LogicLoadMoreAdapter;
 import com.seafile.seadroid2.ui.base.fragment.BaseFragment;
 import com.seafile.seadroid2.view.TipsViews;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import io.reactivex.functions.Consumer;
 
@@ -52,7 +52,7 @@ public abstract class TransferListFragment extends BaseFragment {
     protected TransferActivity activity = null;
     private LinearLayoutManager layoutManager;
     private TransferListViewModel viewModel;
-    private Map<String, Integer> positionMap;
+    private ConcurrentHashMap<String, Integer> positionMap;
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -148,11 +148,17 @@ public abstract class TransferListFragment extends BaseFragment {
     private void initViewModel() {
         getViewModel().getRefreshLiveData().observe(getViewLifecycleOwner(), aBoolean -> binding.swipeRefreshLayout.setRefreshing(aBoolean));
 
-        getViewModel().getFileTransferEntitiesLiveData().observe(getViewLifecycleOwner(), new Observer<Pair<Map<String, Integer>, List<FileTransferEntity>>>() {
+
+        getViewModel().getTransferListLiveData().observe(getViewLifecycleOwner(), new Observer<List<FileTransferEntity>>() {
             @Override
-            public void onChanged(Pair<Map<String, Integer>, List<FileTransferEntity>> mapListPair) {
-                notifyDataChanged(mapListPair.second);
-                positionMap = mapListPair.first;
+            public void onChanged(List<FileTransferEntity> list) {
+                positionMap = new ConcurrentHashMap<>(list.size());
+
+                for (int i = 0; i < list.size(); i++) {
+                    positionMap.put(list.get(i).uid, i);
+                }
+
+                notifyDataChanged(list);
             }
         });
     }
@@ -256,8 +262,12 @@ public abstract class TransferListFragment extends BaseFragment {
             return;
         }
 
-        int position = positionMap.get(transferId).intValue();
-        if (position == -1) {
+        if (!positionMap.containsKey(transferId)){
+            return;
+        }
+
+        Integer position = positionMap.get(transferId);
+        if (position == null || position == -1) {
             return;
         }
 

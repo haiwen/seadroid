@@ -2,14 +2,12 @@ package com.seafile.seadroid2.ui.star;
 
 import androidx.lifecycle.MutableLiveData;
 
-import com.blankj.utilcode.util.ToastUtils;
-import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.framework.util.Objs;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
-import com.seafile.seadroid2.framework.http.IO;
+import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.data.model.ResultModel;
 import com.seafile.seadroid2.framework.data.db.entities.StarredModel;
 
@@ -61,7 +59,7 @@ public class StarredViewModel extends BaseViewModel {
     }
 
     public void unStarItem(String repoId, String path) {
-        Single<ResultModel> flowable = IO.getInstanceWithLoggedIn().execute(StarredService.class).unStarItem(repoId, path);
+        Single<ResultModel> flowable = HttpIO.getCurrentInstance().execute(StarredService.class).unStarItem(repoId, path);
         addSingleDisposable(flowable, new Consumer<ResultModel>() {
             @Override
             public void accept(ResultModel resultModel) throws Exception {

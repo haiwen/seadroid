@@ -10,7 +10,7 @@ import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.config.DateFormatType;
 import com.seafile.seadroid2.framework.data.model.dirents.DirentPermissionModel;
 import com.seafile.seadroid2.framework.data.model.objs.DirentShareLinkModel;
-import com.seafile.seadroid2.framework.http.IO;
+import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
 import com.seafile.seadroid2.ui.dialog_fragment.DialogService;
 
@@ -32,7 +32,7 @@ public class GetShareLinkPasswordViewModel extends BaseViewModel {
     public void getFirstShareLink(String repoId, String path, String password, String expire_days) {
         getRefreshLiveData().setValue(true);
 
-        Single<List<DirentShareLinkModel>> single = IO.getInstanceWithLoggedIn().execute(DialogService.class).listAllShareLink(repoId, path);
+        Single<List<DirentShareLinkModel>> single = HttpIO.getCurrentInstance().execute(DialogService.class).listAllShareLink(repoId, path);
         addSingleDisposable(single, new Consumer<List<DirentShareLinkModel>>() {
             @Override
             public void accept(List<DirentShareLinkModel> models) throws Exception {
@@ -81,9 +81,9 @@ public class GetShareLinkPasswordViewModel extends BaseViewModel {
         Single<DirentShareLinkModel> single;
         if (permissions != null) {
             requestDataMap.put("permissions", permissions);
-            single = IO.getInstanceWithLoggedIn().execute(DialogService.class).createMultiShareLink(requestDataMap);
+            single = HttpIO.getCurrentInstance().execute(DialogService.class).createMultiShareLink(requestDataMap);
         } else {
-            single = IO.getInstanceWithLoggedIn().execute(DialogService.class).createShareLink(requestDataMap);
+            single = HttpIO.getCurrentInstance().execute(DialogService.class).createShareLink(requestDataMap);
         }
 
         addSingleDisposable(single, new Consumer<DirentShareLinkModel>() {

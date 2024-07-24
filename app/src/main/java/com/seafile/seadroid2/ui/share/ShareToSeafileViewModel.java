@@ -15,7 +15,7 @@ import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
 import com.seafile.seadroid2.framework.data.model.repo.DirentWrapperModel;
 import com.seafile.seadroid2.framework.datastore.DataManager;
-import com.seafile.seadroid2.framework.http.IO;
+import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
@@ -51,7 +51,7 @@ public class ShareToSeafileViewModel extends BaseViewModel {
         Single<Pair<List<DirentModel>, List<DirentModel>>> single = Single.create(new SingleOnSubscribe<Pair<List<DirentModel>, List<DirentModel>>>() {
             @Override
             public void subscribe(SingleEmitter<Pair<List<DirentModel>, List<DirentModel>>> emitter) throws Exception {
-                Call<DirentWrapperModel> call = IO.getInstanceByAccount(account).execute(RepoService.class).getDirentsSync(repoId, targetDir);
+                Call<DirentWrapperModel> call = HttpIO.getInstanceByAccount(account).execute(RepoService.class).getDirentsSync(repoId, targetDir);
                 Response<DirentWrapperModel> res = call.execute();
                 if (!res.isSuccessful()) {
                     emitter.onError(SeafException.networkException);

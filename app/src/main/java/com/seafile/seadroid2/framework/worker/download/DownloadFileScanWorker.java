@@ -24,7 +24,7 @@ import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
 import com.seafile.seadroid2.framework.data.model.enums.TransferAction;
 import com.seafile.seadroid2.framework.data.model.enums.TransferResult;
 import com.seafile.seadroid2.framework.data.model.enums.TransferStatus;
-import com.seafile.seadroid2.framework.http.IO;
+import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.notification.DownloadNotificationHelper;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
@@ -263,7 +263,7 @@ public class DownloadFileScanWorker extends TransferWorker {
      * fetch file detail from server
      */
     private DirentFileModel fetchFile(DirentModel direntModel) throws IOException {
-        retrofit2.Response<DirentFileModel> res = IO.getInstanceWithLoggedIn().execute(FileService.class).getFileDetailCall(direntModel.repo_id, direntModel.full_path).execute();
+        retrofit2.Response<DirentFileModel> res = HttpIO.getCurrentInstance().execute(FileService.class).getFileDetailCall(direntModel.repo_id, direntModel.full_path).execute();
         if (!res.isSuccessful()) {
             return null;
         }
@@ -275,7 +275,7 @@ public class DownloadFileScanWorker extends TransferWorker {
      * get recursive files from server
      */
     private List<DirentRecursiveFileModel> fetchRecursiveFiles(DirentModel direntModel) throws IOException {
-        retrofit2.Response<List<DirentRecursiveFileModel>> res = IO.getInstanceWithLoggedIn().execute(FileService.class).getDirRecursiveFileCall(direntModel.repo_id, direntModel.full_path).execute();
+        retrofit2.Response<List<DirentRecursiveFileModel>> res = HttpIO.getCurrentInstance().execute(FileService.class).getDirRecursiveFileCall(direntModel.repo_id, direntModel.full_path).execute();
         if (!res.isSuccessful()) {
             return Collections.emptyList();
         }

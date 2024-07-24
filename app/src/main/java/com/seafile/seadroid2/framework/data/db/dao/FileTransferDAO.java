@@ -98,22 +98,11 @@ public interface FileTransferDAO {
     int countPendingDownloadListSync(String related_account);
 
 
-    @Query("select * from file_transfer_list where related_account = :related_account and transfer_action = 'UPLOAD' and data_source in ('FOLDER_BACKUP','FILE_BACKUP','ALBUM_BACKUP') and data_status = 0 order by created_at desc")
-    Single<List<FileTransferEntity>> getUploadListAsync(String related_account);
-
-    @Query("select * from file_transfer_list where related_account = :related_account and transfer_action = 'UPLOAD' and data_source in ('FOLDER_BACKUP','FILE_BACKUP','ALBUM_BACKUP') and data_status = 0 order by created_at desc limit :limit offset :offset")
+    @Query("select * from file_transfer_list where related_account = :related_account and transfer_action = 'UPLOAD' and data_source in ('FOLDER_BACKUP','FILE_BACKUP','ALBUM_BACKUP') and data_status = 0 order by modified_at desc limit :limit offset :offset")
     List<FileTransferEntity> getPageUploadListSync(String related_account, int limit, int offset);
 
-
-    @Query("select * from file_transfer_list where related_account = :related_account and transfer_action = 'DOWNLOAD' and data_status = 0  order by created_at desc")
-    Single<List<FileTransferEntity>> getDownloadListAsync(String related_account);
-
-    @Query("select * from file_transfer_list where related_account = :related_account and transfer_action = 'DOWNLOAD' and data_status = 0  order by created_at desc limit :limit offset :offset")
+    @Query("select * from file_transfer_list where related_account = :related_account and transfer_action = 'DOWNLOAD' and data_status = 0  order by modified_at desc limit :limit offset :offset")
     List<FileTransferEntity> getPageDownloadListSync(String related_account, int limit, int offset);
-
-
-    @Query("select * from file_transfer_list where related_account = :related_account and transfer_action = 'DOWNLOAD' and data_status = 0  order by created_at desc")
-    List<FileTransferEntity> getDownloadListSync(String related_account);
 
     @Query("select * from file_transfer_list where related_account = :related_account and transfer_action = :transferAction and target_path = :target_path and data_status = 0  order by created_at desc limit 1")
     List<FileTransferEntity> getByTargetPathSync(String related_account, TransferAction transferAction, String target_path);

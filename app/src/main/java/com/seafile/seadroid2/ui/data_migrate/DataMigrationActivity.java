@@ -45,7 +45,7 @@ import com.seafile.seadroid2.framework.datastore.sp.AlbumBackupManager;
 import com.seafile.seadroid2.framework.datastore.sp.AppDataManager;
 import com.seafile.seadroid2.framework.datastore.sp.FolderBackupManager;
 import com.seafile.seadroid2.framework.datastore.sp.SettingsManager;
-import com.seafile.seadroid2.framework.http.IO;
+import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.ExistingFileStrategy;
@@ -153,7 +153,7 @@ public class DataMigrationActivity extends AppCompatActivity {
                 continue;
             }
 
-            Call<AccountInfo> accountInfoCall = IO.getInstanceByAccount(account).execute(AccountService.class).getAccountInfoCall();
+            Call<AccountInfo> accountInfoCall = HttpIO.getInstanceByAccount(account).execute(AccountService.class).getAccountInfoCall();
             Response<AccountInfo> accountRes = accountInfoCall.execute();
             if (accountRes.isSuccessful()) {
                 AccountInfo accountInfo = accountRes.body();
@@ -165,7 +165,7 @@ public class DataMigrationActivity extends AppCompatActivity {
             }
 
 
-            Response<RepoWrapperModel> response = IO.getInstanceByAccount(account)
+            Response<RepoWrapperModel> response = HttpIO.getInstanceByAccount(account)
                     .execute(RepoService.class)
                     .getReposCall()
                     .execute();

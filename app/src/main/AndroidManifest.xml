@@ -33,9 +33,6 @@
 
     <!--<uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />-->
 
-    <!--android 9.0  FOREGROUND_SERVICE -->
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
@@ -93,10 +90,6 @@
         <!--                android:value="androidx.startup"-->
         <!--                tools:node="remove" />-->
         <!--        </provider>-->
-
-        <meta-data
-            android:name=".util.GlideCache"
-            android:value="AppGlideModule" />
 
         <service
             android:name="androidx.work.impl.foreground.SystemForegroundService"

@@ -10,7 +10,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.seafile.seadroid2.framework.http.IO;
+import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.ui.account.AccountService;
 import com.seafile.seadroid2.ui.account.SeafileAuthenticatorActivity;
@@ -129,7 +129,7 @@ public class Authenticator extends AbstractAccountAuthenticator {
 
         try {
             Account a = SupportAccountManager.getInstance().getSeafileAccount(account);
-            Call<AccountInfo> call = IO.getInstanceByAccount(a).execute(AccountService.class).getAccountInfoCall();
+            Call<AccountInfo> call = HttpIO.getInstanceByAccount(a).execute(AccountService.class).getAccountInfoCall();
             Response<AccountInfo> res = call.execute();
 
             if (res.isSuccessful()) {

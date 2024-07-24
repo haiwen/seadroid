@@ -40,24 +40,21 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.blankj.utilcode.util.CollectionUtils;
-import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.load.model.GlideUrl;
 import com.bumptech.glide.request.RequestOptions;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
-import com.seafile.seadroid2.config.GlideLoadConfig;
-import com.seafile.seadroid2.config.RepoType;
 import com.seafile.seadroid2.framework.data.db.AppDatabase;
 import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.data.db.entities.StarredModel;
 import com.seafile.seadroid2.framework.data.model.BaseModel;
 import com.seafile.seadroid2.framework.datastore.DataManager;
-import com.seafile.seadroid2.framework.http.IO;
+import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.util.ConcurrentAsyncTask;
+import com.seafile.seadroid2.framework.util.GlideApp;
 import com.seafile.seadroid2.framework.util.Objs;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Utils;
@@ -507,7 +504,12 @@ public class SeafileProvider extends DocumentsProvider {
 
         try {
             //get download url
-            Call<String> urlCall = IO.getInstanceByAccount(account).execute(FileService.class).getFileDownloadLinkSync(repo.repo_id, path);
+            HttpIO httpIo = HttpIO.getInstanceByAccount(account);
+            if (httpIo == null) {
+                throw new FileNotFoundException();
+            }
+            Call<String> urlCall = httpIo.execute(FileService.class).getFileDownloadLinkSync(repo.repo_id, path);
+
             Response<String> res = urlCall.execute();
             if (!res.isSuccessful()) {
                 throw new FileNotFoundException();
@@ -520,7 +522,7 @@ public class SeafileProvider extends DocumentsProvider {
             SLogs.d("SeafileProvider: start download");
             SLogs.d("targetFile = " + targetFile);
 
-            IO.getInstanceByAccount(account).downloadBinarySync(url, targetFile, new ProgressListener() {
+            httpIo.downloadBinarySync(url, targetFile, new ProgressListener() {
                 @Override
                 public void onProgress(String fileName, long cur, long total) {
                     SLogs.d("fileName = " + fileName + ", cur = " + ", total = " + total);
@@ -590,25 +592,23 @@ public class SeafileProvider extends DocumentsProvider {
                 try (FileOutputStream fileStream = new FileOutputStream(pair[1].getFileDescriptor())) {
 
                     File localFile = DataManager.getLocalRepoFile(account, repoId, repoModel.repo_name, path);
-                    GlideUrl glideUrl;
+                    String urlPath;
                     if (localFile.exists()) {
-                        String urlPath = "file://" + localFile.getAbsolutePath();
+                        urlPath = "file://" + localFile.getAbsolutePath();
                         SLogs.d("urlPath = " + urlPath);
-                        glideUrl = new GlideUrl(urlPath);
                     } else {
                         String pathEnc = URLEncoder.encode(path, "UTF-8");
-                        String urlPath = account.getServer() + String.format("api2/repos/%s/thumbnail/?p=%s&size=%s", repoId, pathEnc, sizeHint.x);
+                        urlPath = account.getServer() + String.format("api2/repos/%s/thumbnail/?p=%s&size=%s", repoId, pathEnc, sizeHint.x);
                         SLogs.d("urlPath = " + urlPath);
-                        glideUrl = GlideLoadConfig.getGlideUrl(urlPath, account.token);
                     }
 
                     RequestOptions requestOptions = new RequestOptions()
                             .diskCacheStrategy(DiskCacheStrategy.ALL);
 
-                    bitmap = Glide.with(getContext())
+                    bitmap = GlideApp.with(getContext())
                             .asBitmap()
                             .apply(requestOptions)
-                            .load(glideUrl)
+                            .load(urlPath)
                             .centerCrop()
                             .submit(sizeHint.x, sizeHint.y)
                             .get();

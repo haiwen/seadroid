@@ -29,14 +29,13 @@ import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.data.db.entities.StarredModel;
 import com.seafile.seadroid2.framework.data.model.BaseModel;
 import com.seafile.seadroid2.framework.data.model.GroupItemModel;
-import com.seafile.seadroid2.framework.data.model.enums.TransferAction;
 import com.seafile.seadroid2.framework.data.model.enums.TransferStatus;
 import com.seafile.seadroid2.framework.data.model.objs.DirentShareLinkModel;
 import com.seafile.seadroid2.framework.data.model.repo.DirentWrapperModel;
 import com.seafile.seadroid2.framework.data.model.repo.RepoWrapperModel;
 import com.seafile.seadroid2.framework.data.model.star.StarredWrapperModel;
 import com.seafile.seadroid2.framework.datastore.sp.Sorts;
-import com.seafile.seadroid2.framework.http.IO;
+import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.listener.OnCreateDirentShareLinkListener;
 import com.seafile.seadroid2.ui.dialog_fragment.AppChoiceDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.GetShareLinkPasswordDialogFragment;
@@ -51,14 +50,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import io.reactivex.Completable;
 import io.reactivex.Single;
-import io.reactivex.SingleEmitter;
-import io.reactivex.SingleOnSubscribe;
 import io.reactivex.SingleSource;
 import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Function;
@@ -72,7 +68,7 @@ public class Objs {
     ////////////////////////////
 
     public static Single<List<StarredModel>> getStarredSingleFromServer(Account account) {
-        Single<StarredWrapperModel> netSingle = IO.getInstanceByAccount(account).execute(StarredService.class).getStarItems();
+        Single<StarredWrapperModel> netSingle = HttpIO.getInstanceByAccount(account).execute(StarredService.class).getStarItems();
         Completable completable = AppDatabase.getInstance().starredDirentDAO().deleteAllByAccount(account.getSignature());
         Single<Integer> deleteSingle = completable.toSingleDefault(0);
         return Single.zip(netSingle, deleteSingle, new BiFunction<StarredWrapperModel, Integer, List<StarredModel>>() {
@@ -102,7 +98,7 @@ public class Objs {
     //////repo
     ////////////////////////////
     public static Single<List<BaseModel>> getReposSingleFromServer(Account account) {
-        Single<RepoWrapperModel> netSingle = IO.getInstanceByAccount(account).execute(RepoService.class).getRepos();
+        Single<RepoWrapperModel> netSingle = HttpIO.getInstanceByAccount(account).execute(RepoService.class).getRepos();
         Single<List<RepoModel>> dbListSingle = AppDatabase.getInstance().repoDao().getListByAccount(account.getSignature());
 
         //load net data and load local data
@@ -389,7 +385,7 @@ public class Objs {
     ////////////////////////////
 
     public static Single<List<DirentModel>> getDirentsSingleFromServer(Account account, String repoId, String repoName, String parentDir) {
-        Single<DirentWrapperModel> netSingle = IO.getInstanceByAccount(account).execute(RepoService.class).getDirents(repoId, parentDir);
+        Single<DirentWrapperModel> netSingle = HttpIO.getInstanceByAccount(account).execute(RepoService.class).getDirents(repoId, parentDir);
         Single<List<DirentModel>> dbSingle = AppDatabase.getInstance().direntDao().getListByParentPath(repoId, parentDir);
 
         return Single.zip(netSingle, dbSingle, new BiFunction<DirentWrapperModel, List<DirentModel>, List<DirentModel>>() {
