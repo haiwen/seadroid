@@ -21,13 +21,12 @@
     <uses-permission android:name="android.permission.READ_SYNC_SETTINGS" />
     <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
 
-    <!-- get list of Seadroid accounts -->
-    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
-
     <!--Set/Get the auth token from the account manager -->
     <uses-permission android:name="android.permission.USE_CREDENTIALS" />
+    <!--  auth accounts  -->
     <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
-
+    <!-- get list of Seadroid accounts -->
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <!-- Add/Remove/Update Seafile accounts -->
     <uses-permission android:name="android.permission.MANAGE_ACCOUNTS" />
 
