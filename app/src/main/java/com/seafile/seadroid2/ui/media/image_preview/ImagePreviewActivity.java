@@ -218,7 +218,7 @@ public class ImagePreviewActivity extends BaseActivityWithVM<ImagePreviewViewMod
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
 
-                String fs = String.format(Locale.getDefault(), "%d/%d", (position + 1), adapter.getFragments().size());
+                String fs = String.format(Locale.ROOT, "%d/%d", (position + 1), adapter.getFragments().size());
                 binding.galleryPageIndex.setText(fs);
 
                 PhotoFragment photoFragment = (PhotoFragment) adapter.getFragments().get(position);
@@ -254,7 +254,7 @@ public class ImagePreviewActivity extends BaseActivityWithVM<ImagePreviewViewMod
         }
 
         if (mPageIndex != -1) {
-            binding.galleryPageIndex.setText(String.format(Locale.getDefault(), "%d/%d", (mPageIndex + 1), size));
+            binding.galleryPageIndex.setText(String.format(Locale.ROOT, "%d/%d", (mPageIndex + 1), size));
         }
     }
 

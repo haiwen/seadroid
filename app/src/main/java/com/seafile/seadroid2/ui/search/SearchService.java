@@ -2,8 +2,12 @@ package com.seafile.seadroid2.ui.search;
 
 import com.seafile.seadroid2.framework.data.model.search.SearchWrapperModel;
 
+import java.util.Map;
+
 import io.reactivex.Single;
+import retrofit2.http.Body;
 import retrofit2.http.GET;
+import retrofit2.http.POST;
 import retrofit2.http.Query;
 
 public interface SearchService {
@@ -15,5 +19,8 @@ public interface SearchService {
                                       @Query("page") int pageNo,
                                       @Query("per_page") int pageSize
     );
+
+    @POST("api/v2.1/ai/search/")
+    Single<SearchWrapperModel> search(@Body Map<String, String> m);
 
 }

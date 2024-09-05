@@ -71,4 +71,13 @@ public interface DialogService {
 
     @GET("api/v2.1/share-links/")
     Single<List<DirentShareLinkModel>> listAllShareLink(@Query("repo_id") String repoId, @Query("path") String path);
+
+    @POST("api/v2.1/upload-links/")
+    Single<DirentShareLinkModel> uploadLinks(@Body Map<String, Object> map);
+
+    @GET("api/v2.1/upload-links/")
+    Single<List<DirentShareLinkModel>> listUploadLinks(@Query("repo_id") String repo_id, @Query("path") String path);
+
+    @DELETE("api/v2.1/upload-links/{link_id}/")
+    Single<Boolean> deleteUploadLink(@Path("link_id") String linkId);
 }

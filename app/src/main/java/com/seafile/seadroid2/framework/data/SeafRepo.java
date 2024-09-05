@@ -5,9 +5,8 @@ import android.text.TextUtils;
 import com.blankj.utilcode.util.TimeUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
-import com.seafile.seadroid2.framework.datastore.sp.AppDataManager;
-import com.seafile.seadroid2.framework.datastore.sp.SettingsManager;
 import com.seafile.seadroid2.config.DateFormatType;
+import com.seafile.seadroid2.framework.datastore.sp_livedata.ClientEncryptSharePreferenceHelper;
 import com.seafile.seadroid2.framework.util.PinyinUtils;
 import com.seafile.seadroid2.framework.util.Utils;
 
@@ -148,7 +147,7 @@ public class SeafRepo implements SeafItem {
     }
 
     public boolean canLocalDecrypt() {
-        return encrypted && AppDataManager.isEncryptEnabled();
+        return encrypted && ClientEncryptSharePreferenceHelper.isEncryptEnabled();
     }
 
     public boolean hasWritePermission() {

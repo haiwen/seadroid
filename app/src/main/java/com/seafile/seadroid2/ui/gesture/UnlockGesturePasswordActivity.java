@@ -1,6 +1,5 @@
 package com.seafile.seadroid2.ui.gesture;
 
-import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -17,7 +16,7 @@ import androidx.appcompat.widget.Toolbar;
 
 import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.framework.datastore.sp.GestureLockManager;
+import com.seafile.seadroid2.framework.datastore.sp_livedata.GestureLockSharePreferenceHelper;
 import com.seafile.seadroid2.gesturelock.LockPatternUtils;
 import com.seafile.seadroid2.gesturelock.LockPatternView;
 import com.seafile.seadroid2.gesturelock.LockPatternView.Cell;
@@ -101,7 +100,9 @@ public class UnlockGesturePasswordActivity extends BaseActivity implements Toolb
             LockPatternUtils mLockPatternUtils = new LockPatternUtils(getApplicationContext());
             if (mLockPatternUtils.checkPattern(pattern)) {
                 mLockPatternView.setDisplayMode(LockPatternView.DisplayMode.Correct);
-                GestureLockManager.writeGestureLockSwitch(true);
+
+                GestureLockSharePreferenceHelper.updateLockTimeStamp();
+
                 startMain();
             } else {
                 mLockPatternView.setDisplayMode(LockPatternView.DisplayMode.Wrong);

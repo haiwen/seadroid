@@ -2,6 +2,7 @@ package com.seafile.seadroid2.ui.dialog_fragment.viewmodel;
 
 import com.bumptech.glide.Glide;
 import com.seafile.seadroid2.SeadroidApplication;
+import com.seafile.seadroid2.framework.util.GlideApp;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
 import com.seafile.seadroid2.framework.data.DatabaseHelper;
 import com.seafile.seadroid2.framework.datastore.StorageManager;
@@ -25,7 +26,8 @@ public class ClearCacheViewModel extends BaseViewModel {
 //                dbHelper.delCaches();
 
                 //clear Glide cache
-                Glide.get(SeadroidApplication.getAppContext()).clearDiskCache();
+                GlideApp.get(SeadroidApplication.getAppContext()).clearMemory();
+                GlideApp.get(SeadroidApplication.getAppContext()).clearDiskCache();
 
                 emitter.onSuccess(true);
             }

@@ -1,7 +1,6 @@
 package com.seafile.seadroid2.ui.data_migrate;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -14,7 +13,6 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceManager;
 
-import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.FileUtils;
 import com.blankj.utilcode.util.GsonUtils;
@@ -32,10 +30,10 @@ import com.seafile.seadroid2.framework.data.db.entities.EncKeyCacheEntity;
 import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
 import com.seafile.seadroid2.framework.data.db.entities.FolderBackupMonitorEntity;
 import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
-import com.seafile.seadroid2.framework.data.model.enums.TransferAction;
-import com.seafile.seadroid2.framework.data.model.enums.TransferDataSource;
-import com.seafile.seadroid2.framework.data.model.enums.TransferResult;
-import com.seafile.seadroid2.framework.data.model.enums.TransferStatus;
+import com.seafile.seadroid2.enums.TransferAction;
+import com.seafile.seadroid2.enums.TransferDataSource;
+import com.seafile.seadroid2.enums.TransferResult;
+import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.data.model.repo.RepoWrapperModel;
 import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.datastore.DataStoreKeys;
@@ -52,12 +50,10 @@ import com.seafile.seadroid2.framework.worker.ExistingFileStrategy;
 import com.seafile.seadroid2.framework.monitor.MonitorDBHelper;
 import com.seafile.seadroid2.ssl.CertsDBHelper;
 import com.seafile.seadroid2.ui.account.AccountService;
-import com.seafile.seadroid2.ui.account.AccountsActivity;
 import com.seafile.seadroid2.ui.camera_upload.CameraUploadDBHelper;
 import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
 import com.seafile.seadroid2.ui.folder_backup.FolderBackupDBHelper;
 import com.seafile.seadroid2.ui.folder_backup.RepoConfig;
-import com.seafile.seadroid2.ui.main.MainActivity;
 import com.seafile.seadroid2.ui.repo.RepoService;
 import com.seafile.seadroid2.ui.selector.folder_selector.StringTools;
 
@@ -97,7 +93,6 @@ public class DataMigrationActivity extends AppCompatActivity {
         List<Account> accounts = SupportAccountManager.getInstance().getAccountList();
         if (CollectionUtils.isEmpty(accounts)) {
             finishMigration();
-            navTo();
             return;
         }
 
@@ -121,25 +116,9 @@ public class DataMigrationActivity extends AppCompatActivity {
                     throw new RuntimeException(e);
                 } finally {
                     finishMigration();
-
-                    navTo();
                 }
             }
         }).start();
-    }
-
-    private void navTo() {
-        Account curAccount = SupportAccountManager.getInstance().getCurrentAccount();
-        if (curAccount == null || !curAccount.hasValidToken()) {
-            Intent newIntent = new Intent(this, AccountsActivity.class);
-            newIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            ActivityUtils.startActivity(newIntent);
-        } else {
-            ActivityUtils.startActivity(MainActivity.class);
-        }
-
-        finish();
     }
 
     private void syncAccount() throws IOException {
@@ -232,18 +211,18 @@ public class DataMigrationActivity extends AppCompatActivity {
         SharedPreferences sharedPref = getSharedPreferences(DataStoreKeys.LATEST_ACCOUNT, Context.MODE_PRIVATE);
         //
         int storageDir = sharedPref.getInt(SettingsManager.SHARED_PREF_STORAGE_DIR, Integer.MIN_VALUE);
-        DataStoreManager.getCommonInstance().writeInteger(SettingsManager.SHARED_PREF_STORAGE_DIR, storageDir);
+        DataStoreManager.getCommonSharePreference().writeInteger(SettingsManager.SHARED_PREF_STORAGE_DIR, storageDir);
         SLogs.d("migrated: storageDir -> " + storageDir);
 
         //privacy
         int privacy = sharedPref.getInt(SettingsManager.PRIVACY_POLICY_CONFIRMED, Integer.MIN_VALUE);
-        DataStoreManager.getCommonInstance().writeInteger(SettingsManager.PRIVACY_POLICY_CONFIRMED, privacy);
+        DataStoreManager.getCommonSharePreference().writeInteger(SettingsManager.PRIVACY_POLICY_CONFIRMED, privacy);
         SLogs.d("migrated: privacy -> " + privacy);
 
 
         //com.seafile.seadroid.account_name
         String curAccount = sharedPref.getString(DataStoreKeys.ACCOUNT_CURRENT_OLD, null);
-        DataStoreManager.getCommonInstance().writeString(DataStoreKeys.KEY_CURRENT_ACCOUNT, curAccount);
+        DataStoreManager.getCommonSharePreference().writeString(DataStoreKeys.KEY_CURRENT_ACCOUNT, curAccount);
         SLogs.d("migrated: curAccount -> " + curAccount);
 
     }
@@ -291,18 +270,24 @@ public class DataMigrationActivity extends AppCompatActivity {
     private void queryAlbumSPConfig() {
         SharedPreferences sharedPref = getSharedPreferences(DataStoreKeys.LATEST_ACCOUNT, Context.MODE_PRIVATE);
 
+
+
         String repoId = sharedPref.getString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_REPO_ID, null);
         String repoName = sharedPref.getString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_REPO_NAME, null);
         Account account = CameraUploadManager.getInstance().getCameraAccount();
         if (repoId != null && account != null) {
             RepoConfig config = new RepoConfig(repoId, repoName, account.email, account.getSignature());
             AlbumBackupManager.writeRepoConfig(config);
-            SLogs.d("migrated: repoConfig -> " + config.toString());
+            SLogs.d("migrated: repoConfig -> " + config);
 
         }
 
         //PreferenceManager
         SharedPreferences pm = PreferenceManager.getDefaultSharedPreferences(SeadroidApplication.getAppContext());
+        //is enable
+        boolean isEnable = pm.getBoolean(SettingsManager.CAMERA_UPLOAD_SWITCH_KEY, false);
+        SLogs.d("migrated: album backup switch -> " + isEnable);
+        AlbumBackupManager.writeBackupSwitch(isEnable);
 
         //video
         boolean isVideoAllowed = pm.getBoolean(SettingsManager.CAMERA_UPLOAD_ALLOW_VIDEOS_SWITCH_KEY, false);
@@ -574,13 +559,12 @@ public class DataMigrationActivity extends AppCompatActivity {
                     RepoModel rm = repoModelOp.get();
 
                     //Only the first piece of data is recovered
-                    if (TextUtils.isEmpty(FolderBackupManager.getCurrentAccount())) {
-                        FolderBackupManager.setCurrentAccount(rm.related_account);
+                    FolderBackupManager.setCurrentAccount(rm.related_account);
 
-                        RepoConfig repoConfig = new RepoConfig(repo_id, repo_name, related_account, related_account);
-                        FolderBackupManager.writeRepoConfig(repoConfig);
-                    }
+                    RepoConfig repoConfig = new RepoConfig(repo_id, repo_name, related_account, related_account);
+                    FolderBackupManager.writeRepoConfig(repoConfig);
 
+                    FolderBackupManager.resetUserInstance();
                 }
 
                 c.moveToNext();
@@ -1107,6 +1091,10 @@ public class DataMigrationActivity extends AppCompatActivity {
     private void finishMigration() {
         AppDataManager.setMigratedWhenV300(1);
         SLogs.d("finishMigration");
+
+        setResult(RESULT_OK);
+
+        finish();
     }
 
     @Override

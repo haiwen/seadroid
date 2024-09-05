@@ -14,7 +14,6 @@ import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.framework.data.ServerInfo;
 import com.seafile.seadroid2.framework.datastore.DataStoreKeys;
 import com.seafile.seadroid2.framework.datastore.DataStoreManager;
-import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,7 +48,7 @@ public class SupportAccountManager {
         for (android.accounts.Account availableAccount : availableAccounts) {
             Account a = getSeafileAccount(availableAccount);
             if (!TextUtils.isEmpty(currentAccountName) && a.getSignature().equals(currentAccountName)) {
-                a.is_selected = true;
+                a.is_checked = true;
             }
 
             list.add(a);
@@ -96,7 +95,7 @@ public class SupportAccountManager {
         }
 
         //
-        DataStoreManager.getCommonInstance().writeString(DataStoreKeys.KEY_CURRENT_ACCOUNT, accountSignature);
+        DataStoreManager.getCommonSharePreference().writeString(DataStoreKeys.KEY_CURRENT_ACCOUNT, accountSignature);
 
         //
         setAuthToken(sAccount.getAndroidAccount(), Constants.Account.ACCOUNT_TYPE, sAccount.getToken());
@@ -104,7 +103,7 @@ public class SupportAccountManager {
 
     @Nullable
     public Account getCurrentAccount() {
-        String name = DataStoreManager.getCommonInstance().readString(DataStoreKeys.KEY_CURRENT_ACCOUNT);
+        String name = DataStoreManager.getCommonSharePreference().readString(DataStoreKeys.KEY_CURRENT_ACCOUNT);
 
         if (!TextUtils.isEmpty(name)) {
             List<Account> list = getAccountList();
@@ -119,7 +118,7 @@ public class SupportAccountManager {
     }
 
     public String getCurrentAccountName() {
-        return DataStoreManager.getCommonInstance().readString(DataStoreKeys.KEY_CURRENT_ACCOUNT);
+        return DataStoreManager.getCommonSharePreference().readString(DataStoreKeys.KEY_CURRENT_ACCOUNT);
     }
 
     @NonNull
@@ -234,7 +233,6 @@ public class SupportAccountManager {
             return;
         }
 
-        saveCurrentAccount(null);
 
         //invalidate auth token
         accountManager.invalidateAuthToken(Constants.Account.ACCOUNT_TYPE, account.getToken());

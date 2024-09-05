@@ -1,11 +1,9 @@
 package com.seafile.seadroid2.ui.dialog_fragment.viewmodel;
 
-import com.bumptech.glide.Glide;
-import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.framework.datastore.StorageManager;
-import com.seafile.seadroid2.framework.datastore.sp.AlbumBackupManager;
-import com.seafile.seadroid2.framework.datastore.sp.FolderBackupManager;
+import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
+import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
@@ -37,8 +35,8 @@ public class SwitchStorageViewModel extends BaseViewModel {
                     CameraUploadManager.getInstance().disableCameraUpload();
                 }
 
-                AlbumBackupManager.writeBackupSwitch(false);
-                FolderBackupManager.writeBackupSwitch(false);
+                AlbumBackupSharePreferenceHelper.writeBackupSwitch(false);
+                FolderBackupSharePreferenceHelper.writeBackupSwitch(false);
 
                 SLogs.d("Switching storage to " + location.description);
                 StorageManager.getInstance().setStorageDir(location.id);

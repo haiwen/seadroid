@@ -55,7 +55,10 @@ public class ObjSelectorViewModel extends BaseViewModel {
         getRefreshLiveData().setValue(false);
     }
 
-    public void loadReposFromNet(Account account,boolean isFilterEncrypted) {
+    /**
+     * @param isFilter Filter out encrypted and read-only repo
+     */
+    public void loadReposFromNet(Account account, boolean isFilter) {
         getRefreshLiveData().setValue(true);
         Single<RepoWrapperModel> singleNet = HttpIO.getInstanceByAccount(account).execute(RepoService.class).getRepos();
 
@@ -68,7 +71,7 @@ public class ObjSelectorViewModel extends BaseViewModel {
                     return;
                 }
 
-                List<BaseModel> list = Objs.parseRepoListForAdapter(repoWrapperModel.repos, account.getSignature(), isFilterEncrypted);
+                List<BaseModel> list = Objs.parseRepoListForAdapter(repoWrapperModel.repos, account.getSignature(), isFilter);
                 getObjsListLiveData().setValue(list);
                 getRefreshLiveData().setValue(false);
             }
@@ -96,7 +99,7 @@ public class ObjSelectorViewModel extends BaseViewModel {
                         direntWrapperModel.dir_id,
                         account.getSignature(),
                         context.getRepoModel().repo_id,
-                        context.getRepoModel().repo_name);
+                        context.getRepoModel().repo_name, true);
 
                 getObjsListLiveData().setValue(new ArrayList<>(list));
                 getRefreshLiveData().setValue(false);
@@ -111,68 +114,4 @@ public class ObjSelectorViewModel extends BaseViewModel {
             }
         });
     }
-//
-//    public void requestRepoModel(String repoId, Consumer<RepoModel> consumer) {
-//        getRefreshLiveData().setValue(true);
-//
-//        //from db
-//        Single<List<RepoModel>> singleDb = AppDatabase.getInstance().repoDao().getRepoById(repoId);
-//        addSingleDisposable(singleDb, new Consumer<List<RepoModel>>() {
-//            @Override
-//            public void accept(List<RepoModel> repoModels) throws Exception {
-//                if (consumer != null) {
-//                    if (CollectionUtils.isEmpty(repoModels)) {
-//                        //no data in sqlite, request RepoApi again
-//                        requestRepoModelFromNet(repoId, consumer);
-//                    } else {
-//                        consumer.accept(repoModels.get(0));
-//                        getRefreshLiveData().setValue(false);
-//                    }
-//                } else {
-//                    getRefreshLiveData().setValue(false);
-//                }
-//            }
-//        }, new Consumer<Throwable>() {
-//            @Override
-//            public void accept(Throwable throwable) throws Exception {
-//                getRefreshLiveData().setValue(false);
-//                SLogs.e(throwable);
-//            }
-//        });
-//    }
-//
-//    private void requestRepoModelFromNet(String repoId, Consumer<RepoModel> consumer) {
-//        //from net
-//        Single<RepoWrapperModel> singleNet = IO.getSingleton().execute(RepoService.class).getRepos();
-//        addSingleDisposable(singleNet, new Consumer<RepoWrapperModel>() {
-//            @Override
-//            public void accept(RepoWrapperModel repoWrapperModel) throws Exception {
-//                getRefreshLiveData().setValue(false);
-//
-//                if (repoWrapperModel == null || CollectionUtils.isEmpty(repoWrapperModel.repos)) {
-//                    ToastUtils.showLong(R.string.search_library_not_found);
-//                    return;
-//                }
-//
-//                Optional<RepoModel> optionalRepoModel = repoWrapperModel.repos
-//                        .stream()
-//                        .filter(f -> TextUtils.equals(f.repo_id, repoId))
-//                        .findFirst();
-//                if (optionalRepoModel.isPresent()) {
-//                    if (consumer != null) {
-//                        consumer.accept(optionalRepoModel.get());
-//                    }
-//                } else {
-//                    ToastUtils.showLong(R.string.search_library_not_found);
-//                }
-//            }
-//        }, new Consumer<Throwable>() {
-//            @Override
-//            public void accept(Throwable throwable) throws Exception {
-//                getRefreshLiveData().setValue(false);
-//                String msg = getErrorMsgByThrowable(throwable);
-//                ToastUtils.showLong(msg);
-//            }
-//        });
-//    }
 }

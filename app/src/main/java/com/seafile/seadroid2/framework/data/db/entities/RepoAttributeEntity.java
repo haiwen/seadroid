@@ -9,8 +9,7 @@ import androidx.room.PrimaryKey;
 import com.google.gson.annotations.JsonAdapter;
 import com.seafile.seadroid2.framework.data.model.BaseModel;
 import com.seafile.seadroid2.framework.data.model.repo.deserializer.EncryptFieldJsonAdapter;
-import com.seafile.seadroid2.framework.datastore.sp.AppDataManager;
-import com.seafile.seadroid2.framework.datastore.sp.SettingsManager;
+import com.seafile.seadroid2.framework.datastore.sp_livedata.ClientEncryptSharePreferenceHelper;
 
 @Entity(tableName = "repo_attributes")
 public class RepoAttributeEntity extends BaseModel {
@@ -33,6 +32,6 @@ public class RepoAttributeEntity extends BaseModel {
         return encrypted
                 && enc_version == 2
                 && !TextUtils.isEmpty(magic)
-                && AppDataManager.isEncryptEnabled();
+                && ClientEncryptSharePreferenceHelper.isEncryptEnabled();
     }
 }

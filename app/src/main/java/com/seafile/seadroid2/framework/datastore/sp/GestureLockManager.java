@@ -4,17 +4,18 @@ import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.framework.datastore.DataStoreManager;
 import com.seafile.seadroid2.gesturelock.LockPatternUtils;
 
+@Deprecated
 public class GestureLockManager {
 
     public static long lock_timestamp = 0;
     public static final long LOCK_EXPIRATION_MSECS = 5 * 60 * 1000;
 
     public static boolean readGestureLockSwitch() {
-        return DataStoreManager.getCommonInstance().readBoolean(SettingsManager.GESTURE_LOCK_SWITCH_KEY, false);
+        return DataStoreManager.getCommonSharePreference().readBoolean(SettingsManager.GESTURE_LOCK_SWITCH_KEY, false);
     }
 
     public static void writeGestureLockSwitch(boolean isChecked) {
-        DataStoreManager.getCommonInstance().writeBoolean(SettingsManager.GESTURE_LOCK_SWITCH_KEY, isChecked);
+        DataStoreManager.getCommonSharePreference().writeBoolean(SettingsManager.GESTURE_LOCK_SWITCH_KEY, isChecked);
         saveGestureLockTimeStamp();
     }
 
@@ -23,7 +24,7 @@ public class GestureLockManager {
      * would not be asked for gesture lock for a short period of time.
      */
     public static boolean isGestureLockRequired() {
-        boolean isEnable = DataStoreManager.getCommonInstance().readBoolean(SettingsManager.GESTURE_LOCK_SWITCH_KEY);
+        boolean isEnable = DataStoreManager.getCommonSharePreference().readBoolean(SettingsManager.GESTURE_LOCK_SWITCH_KEY);
         if (!isEnable) {
             return false;
         }

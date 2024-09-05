@@ -129,6 +129,7 @@
   <string name="error_when_load_starred">星标文件加载出错.\n 点击刷新</string>
   <string name="dir_empty">此文件夹是空的</string>
   <string name="no_repo">无资料库</string>
+  <string name="no_album_type_data">您还没有可预览的相册类型数据</string>
   <string name="no_app_available">没有找到应用</string>
   <string name="add_to_seafile">添加到Seafile中</string>
   <string name="ok">确定</string>
@@ -269,12 +270,14 @@
   <string name="confirm">确定</string>
   <string name="repo_not_found">找不到该资料库，它可能是加密资料库或已被删除</string>
   <string name="settings_account">账户</string>
+  <string name="settings_switch_account">切换账号</string>
   <string name="settings_account_info_title">账户信息</string>
   <string name="settings_account_info_load_data">加载中...</string>
   <string name="settings_account_space_title">已使用空间</string>
   <string name="settings_account_sign_out_title">退出登录</string>
   <string name="settings_account_sign_out_hint">点击退出</string>
   <string name="settings_account_sign_out_confirm">你想退出登录吗？</string>
+  <string name="settings_night_mode_title">夜间模式</string>
   <string name="security">安全性</string>
   <string name="gesture_lock">手势密码锁</string>
   <string name="gesture_lock_on">手势锁开启</string>
@@ -307,10 +310,10 @@
   <string name="lockpattern_recording_inprogress">完成后松开手指</string>
   <string name="lockpattern_pattern_toast_saved">密码设置成功</string>
   <!--Strings for possible PreferenceActivity Back/Next buttons-->
-  <string name="back_button_label">Back</string>
-  <string name="next_button_label">Next</string>
+  <string name="back_button_label">返回</string>
+  <string name="next_button_label">下一个</string>
   <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
-  <string name="skip_button_label">Skip</string>
+  <string name="skip_button_label">跳过</string>
   <!--contacts  upload-->
   <string name="settings_contacts_upload_info_title">通讯录备份</string>
   <string name="settings_contacts_upload_turn_on">启用通讯录备份</string>
@@ -607,9 +610,24 @@ Email: support@seafile.com<br>
   <string name="replace_remote_file">替换远程文件</string>
   <string name="do_not_replace">不要替换</string>
   <string name="keep_both">保持两者</string>
+  <string name="off">关闭</string>
+  <string name="on">开启</string>
+  <string name="follow_system">跟随系统</string>
+  <string name="empty">空</string>
   <!--share link-->
   <string name="link_permission_set_permission">设置权限</string>
   <string name="link_permission_preview_and_download">预览和下载</string>
   <string name="link_permission_preview_only">仅预览</string>
   <string name="link_permission_download_and_upload">下载和上传</string>
+  <!--menu-->
+  <string name="menu_action_view_and_sort">视图与排序</string>
+  <string name="menu_action_view_list">列表</string>
+  <string name="menu_action_view_grid">网格</string>
+  <string name="menu_action_view_gallery">相册</string>
+  <string name="menu_action_sort_by_name">名称</string>
+  <string name="menu_action_sort_by_type">类型</string>
+  <string name="menu_action_sort_by_size">大小</string>
+  <string name="menu_action_sort_by_last_modified">最后修改</string>
+  <string name="menu_action_sort_order_ascending">升序</string>
+  <string name="menu_action_sort_directories_first">文件夹优先</string>
 </resources>

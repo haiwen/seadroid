@@ -1,7 +1,7 @@
 package com.seafile.seadroid2.framework.util;
 
 import com.seafile.seadroid2.SeafException;
-import com.seafile.seadroid2.framework.data.model.enums.TransferResult;
+import com.seafile.seadroid2.enums.TransferResult;
 
 import org.json.JSONException;
 

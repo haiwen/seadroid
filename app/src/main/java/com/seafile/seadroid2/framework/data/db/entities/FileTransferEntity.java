@@ -16,10 +16,10 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.framework.data.model.BaseModel;
 import com.seafile.seadroid2.framework.data.model.dirents.DirentFileModel;
 import com.seafile.seadroid2.framework.data.model.dirents.DirentRecursiveFileModel;
-import com.seafile.seadroid2.framework.data.model.enums.TransferAction;
-import com.seafile.seadroid2.framework.data.model.enums.TransferDataSource;
-import com.seafile.seadroid2.framework.data.model.enums.TransferResult;
-import com.seafile.seadroid2.framework.data.model.enums.TransferStatus;
+import com.seafile.seadroid2.enums.TransferAction;
+import com.seafile.seadroid2.enums.TransferDataSource;
+import com.seafile.seadroid2.enums.TransferResult;
+import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.util.FileTools;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.ExistingFileStrategy;
@@ -43,7 +43,7 @@ public class FileTransferEntity extends BaseModel {
     /**
      * <h2>Destination path<h2/>
      * <p>The value of this field depends on the type of transfer_action and data_source</p>
-     * <p><b>UPLOAD: ALBUM_BACKUP<b/></p>
+     * <p><b>UPLOAD: ALBUM_BACKUP</b></p>
      * <p>
      * target_path's format is "/My Photos/" + buckName.
      * <p/>
@@ -55,9 +55,9 @@ public class FileTransferEntity extends BaseModel {
      *     -> target_path = /My Photos/mm/xxx.jpg
      * }
      * </pre>
-     * <p><b>UPLOAD: FOLDER_BACKUP/FILE_BACKUP<b/></p>
+     * <p><b>UPLOAD: FOLDER_BACKUP/FILE_BACKUP</b></p>
      * <p>
-     * target_path is the name stored in the repository, which is the parent directory of <b><i>full_path<i/><b/>.
+     * target_path is the name stored in the repository, which is the parent directory of <b><i>full_path<i/></b>.
      * </p>
      * <pre>
      * {@code
@@ -67,7 +67,7 @@ public class FileTransferEntity extends BaseModel {
      *     -> target_path = /mm/xxx.jpg (in remote repo)
      * }
      * </pre>
-     * <p><b>or<b/></p>
+     * <p><b>or</b></p>
      * <p>
      * target_path is special dir in repo.
      * </p>
@@ -80,7 +80,7 @@ public class FileTransferEntity extends BaseModel {
      * }
      * </pre>
      *
-     * <p><b>DOWNLOAD<b/></p>
+     * <p><b>DOWNLOAD</b></p>
      * <p>
      * target_path is the absolute path to the file stored locally ("/storage/emulated/0/Android/media").
      * <br>
@@ -100,7 +100,7 @@ public class FileTransferEntity extends BaseModel {
      * <h2>Original file path</h2>
      * <p>The value of this field depends on the type of transfer_action and data_source</p>
      * <br>
-     * <p><b>UPLOAD - ALBUM_BACKUP - FOLDER_BACKUP<b/></p>
+     * <p><b>UPLOAD (ALBUM_BACKUP/FOLDER_BACKUP) </b></p>
      * <p>
      * full_path is the absolute path to the file stored locally ("/storage/emulated/0/").
      * <br>
@@ -108,9 +108,9 @@ public class FileTransferEntity extends BaseModel {
      * </p>
      * <br>
      * <br>
-     * <p><b>DOWNLOAD<b/></p>
+     * <p><b>DOWNLOAD</b></p>
      * <p> full_path is the relative path to the file in the repository. <br>
-     * full_path = /a/b/c/d.txt (in remote repo)</p>
+     * eg. /a/b/c/d.txt (in remote repo)</p>
      */
     public String full_path;
 
@@ -118,9 +118,9 @@ public class FileTransferEntity extends BaseModel {
     /**
      * <p>The value of this field depends on the type of transfer_action and data_source</p>
      *
-     * <p><b>UPLOAD<b/></p>
+     * <p><b>UPLOAD</b></p>
      * <p>
-     * parent_path is the parent directory of <b><i>target_path<i/><b/>.<br>
+     * parent_path is the parent directory of <b><i>target_path<i/></b>.<br>
      * </p>
      * <pre>
      * {@code
@@ -131,9 +131,9 @@ public class FileTransferEntity extends BaseModel {
      * }
      * </pre>
      *
-     * <p><b>DOWNLOAD<b/></p>
+     * <p><b>DOWNLOAD</b></p>
      * <p>
-     * parent_path is the parent directory of <b><i>full_path<i/><b/>.
+     * parent_path is the parent directory of <b><i>full_path<i/></b>.
      * </p>
      * <pre>
      * {@code
@@ -258,11 +258,11 @@ public class FileTransferEntity extends BaseModel {
      * modified timestamp (mills)
      * <br>
      * <br>
-     * <p><b>UPLOAD - ALBUM_BACKUP - FOLDER_BACKUP<b/></p>
+     * <p><b>UPLOAD - ALBUM_BACKUP - FOLDER_BACKUP</b></p>
      * The time when the file was <i><b>modified</b><i/> locally
      * <br>
      * <br>
-     * <p><b>DOWNLOAD - ALBUM_BACKUP - FOLDER_BACKUP<b/></p>
+     * <p><b>DOWNLOAD - ALBUM_BACKUP - FOLDER_BACKUP</b></p>
      * The time when the file was <i><b>created</b><i/> locally
      */
     public long modified_at;

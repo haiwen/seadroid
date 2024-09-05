@@ -1,17 +1,16 @@
 package com.seafile.seadroid2.ui.camera_upload.config_fragment;
 
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
+import androidx.fragment.app.Fragment;
+
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.framework.datastore.sp.AlbumBackupManager;
+import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
 
 /**
  * How to upload fragment
@@ -28,7 +27,7 @@ public class HowToUploadFragment extends Fragment {
         mRadioGroup = rootView.findViewById(R.id.cuc_wifi_radio_group);
         mDataPlanRadioBtn = rootView.findViewById(R.id.cuc_wifi_or_data_plan_rb);
 
-        if (AlbumBackupManager.readAllowDataPlanSwitch()) {
+        if (AlbumBackupSharePreferenceHelper.readAllowDataPlanSwitch()) {
             mDataPlanRadioBtn.setChecked(true);
         }
 

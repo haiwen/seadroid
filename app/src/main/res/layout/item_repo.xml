@@ -3,16 +3,16 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/rv_item_repo_height"
-    android:background="?android:selectableItemBackground"
+    android:layout_height="wrap_content"
+    android:foreground="?android:selectableItemBackground"
     android:paddingStart="8dp"
-    android:paddingEnd="16dp">
+    android:paddingEnd="8dp">
 
     <ImageView
         android:id="@+id/item_icon"
         android:layout_width="@dimen/rv_item_icon_width"
         android:layout_height="@dimen/rv_item_icon_width"
-        android:padding="8dp"
+        android:padding="12dp"
         android:src="@drawable/baseline_repo_24"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -47,25 +47,20 @@
             tools:text="@string/app_name" />
     </LinearLayout>
 
-    <FrameLayout
+    <ImageView
         android:id="@+id/expandable_toggle_button"
         android:layout_width="@dimen/rv_item_repo_height"
         android:layout_height="@dimen/rv_item_repo_height"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
+        android:layout_gravity="end|bottom"
+        android:layout_marginEnd="8dp"
         android:foreground="?selectableItemBackground"
+        android:src="@drawable/baseline_expandable_24"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <ImageView
-            android:layout_width="@dimen/rv_item_repo_height"
-            android:layout_height="@dimen/rv_item_repo_height"
-            android:layout_gravity="end|bottom"
-            android:src="@drawable/baseline_expandable_24" />
-
-    </FrameLayout>
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
         android:id="@+id/item_select_view"
@@ -77,14 +72,4 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-
-    <com.google.android.material.divider.MaterialDivider
-        android:id="@+id/divider"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:dividerColor="@color/divider_color"
-        app:dividerInsetStart="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

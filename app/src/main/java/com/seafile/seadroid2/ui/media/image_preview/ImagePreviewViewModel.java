@@ -96,7 +96,7 @@ public class ImagePreviewViewModel extends BaseViewModel {
 
                 BackgroundJobManagerImpl
                         .getInstance()
-                        .scheduleOneTimeFilesDownloadScanWorker(new String[]{direntModels.get(0).uid});
+                        .startDownloadChainWorker(new String[]{direntModels.get(0).uid});
 
             }
         });

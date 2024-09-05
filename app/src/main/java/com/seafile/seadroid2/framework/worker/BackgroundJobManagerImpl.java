@@ -1,5 +1,7 @@
 package com.seafile.seadroid2.framework.worker;
 
+import android.text.TextUtils;
+
 import androidx.work.Constraints;
 import androidx.work.Data;
 import androidx.work.ExistingWorkPolicy;
@@ -8,11 +10,12 @@ import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkInfo;
+import androidx.work.WorkManager;
 
-import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ListenableFuture;
-import com.seafile.seadroid2.framework.datastore.sp.AlbumBackupManager;
-import com.seafile.seadroid2.framework.datastore.sp.FolderBackupManager;
+import com.seafile.seadroid2.SeadroidApplication;
+import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
+import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.worker.download.DownloadFileScanWorker;
 import com.seafile.seadroid2.framework.worker.download.DownloadWorker;
@@ -23,27 +26,13 @@ import com.seafile.seadroid2.framework.worker.upload.UploadFileManuallyWorker;
 import com.seafile.seadroid2.framework.worker.upload.UploadFolderFileAutomaticallyWorker;
 import com.seafile.seadroid2.framework.worker.upload.UploadMediaFileAutomaticallyWorker;
 
-import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
-import io.reactivex.Completable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Action;
-import io.reactivex.schedulers.Schedulers;
-
 public class BackgroundJobManagerImpl {
     public static final String TAG_ALL = "*";
     public static final String TAG_TRANSFER = TAG_ALL + ":transfer";
-
-    public static final String JOB_CONTENT_OBSERVER = "content_observer";
-    public static final String JOB_PERIODIC_MEDIA_DETECTION = "periodic_media_detection";
-
-    public static final String JOB_NOTIFICATION = "notification";
-
-    public static final String JOB_PERIODIC_HEALTH_STATUS = "periodic_health_status";
 
     private final long MAX_CONTENT_TRIGGER_DELAY_MS = 1500L;
     private final long PERIODIC_BACKUP_INTERVAL_MINUTES = 24 * 60L;
@@ -52,8 +41,6 @@ public class BackgroundJobManagerImpl {
     private BackgroundJobManagerImpl() {
 
     }
-
-    private final List<Disposable> disposableList = Lists.newArrayList();
 
     public static BackgroundJobManagerImpl getInstance() {
         return SingletonHolder.INSTANCE;
@@ -84,7 +71,7 @@ public class BackgroundJobManagerImpl {
     }
 
     private boolean checkWorkerIsRunningById(UUID uid) {
-        ListenableFuture<WorkInfo> listenableFuture = SupportWorkManager.getWorkManager().getWorkInfoById(uid);
+        ListenableFuture<WorkInfo> listenableFuture = getWorkManager().getWorkInfoById(uid);
         try {
             WorkInfo task = listenableFuture.get();
             if (task == null) {
@@ -100,11 +87,11 @@ public class BackgroundJobManagerImpl {
     }
 
     public void cancelById(UUID uid) {
-        SupportWorkManager.getWorkManager().cancelWorkById(uid);
+        getWorkManager().cancelWorkById(uid);
     }
 
     public WorkInfo getWorkInfoById(UUID uid) {
-        ListenableFuture<WorkInfo> listener = SupportWorkManager.getWorkManager().getWorkInfoById(uid);
+        ListenableFuture<WorkInfo> listener = getWorkManager().getWorkInfoById(uid);
         try {
             return listener.get();
         } catch (ExecutionException | InterruptedException e) {
@@ -113,54 +100,43 @@ public class BackgroundJobManagerImpl {
         }
     }
 
-    private Completable startWorkerUntilStopped(UUID uid) {
-        return Completable.fromAction(() -> {
-                    while (true) {
-                        boolean isRunning = checkWorkerIsRunningById(uid);
-                        if (isRunning) {
-                            SLogs.d(uid + " is running");
-                            Thread.sleep(100);
-                        }
-
-                        SLogs.d(uid + " is stopped");
-                        break;
-                    }
-                }).subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread());
+    public WorkManager getWorkManager() {
+        return WorkManager.getInstance(SeadroidApplication.getAppContext());
     }
 
-    ///////////////////media///////////////////
-    public void scheduleMediaScanWorker(boolean isForce) {
+    ///////////////////
+    /// media worker
+    ///////////////////
+    public void startMediaChainWorker(boolean isForce) {
+        cancelAllMediaWorker();
+
+        OneTimeWorkRequest scanRequest = getMediaScanRequest(isForce);
+        OneTimeWorkRequest uploadRequest = getMediaUploadRequest();
 
         String workerName = MediaBackupScannerWorker.class.getSimpleName();
 
-        boolean isRunning = checkWorkerIsRunningById(MediaBackupScannerWorker.UID);
-        if (isRunning) {
-            SLogs.d(workerName + " is running");
-            return;
-        }
 
+        getWorkManager()
+                .beginUniqueWork(workerName, ExistingWorkPolicy.KEEP, scanRequest)
+                .then(uploadRequest)
+                .enqueue();
+    }
+
+    private OneTimeWorkRequest getMediaScanRequest(boolean isForce) {
         Data data = new Data.Builder()
                 .putBoolean(TransferWorker.DATA_FORCE_TRANSFER_KEY, isForce)
                 .build();
 
-        OneTimeWorkRequest request = oneTimeRequestBuilder(MediaBackupScannerWorker.class)
+        return oneTimeRequestBuilder(MediaBackupScannerWorker.class)
                 .setInputData(data)
+                .setInitialDelay(1, TimeUnit.SECONDS)
                 .setId(MediaBackupScannerWorker.UID)
                 .build();
-
-        SupportWorkManager.getWorkManager().enqueueUniqueWork(workerName, ExistingWorkPolicy.KEEP, request);
     }
 
-    public void startMediaBackupWorker() {
-        String workerName = UploadMediaFileAutomaticallyWorker.class.getSimpleName();
-        boolean isRunning = checkWorkerIsRunningById(UploadMediaFileAutomaticallyWorker.UID);
-        if (isRunning) {
-            SLogs.d(workerName + " is running");
-        }
-
+    private OneTimeWorkRequest getMediaUploadRequest() {
         NetworkType networkType = NetworkType.UNMETERED;
-        if (AlbumBackupManager.readAllowDataPlanSwitch()) {
+        if (AlbumBackupSharePreferenceHelper.readAllowDataPlanSwitch()) {
             networkType = NetworkType.CONNECTED;
         }
 
@@ -171,90 +147,52 @@ public class BackgroundJobManagerImpl {
                 .setRequiresDeviceIdle(false)
                 .build();
 
-        OneTimeWorkRequest request = oneTimeRequestBuilder(UploadMediaFileAutomaticallyWorker.class)
+        return oneTimeRequestBuilder(UploadMediaFileAutomaticallyWorker.class)
                 .setConstraints(constraints)
+                .setInitialDelay(1, TimeUnit.SECONDS)
                 .setId(UploadMediaFileAutomaticallyWorker.UID)
                 .build();
-
-        SupportWorkManager.getWorkManager().enqueueUniqueWork(workerName, ExistingWorkPolicy.REPLACE, request);
     }
 
     //cancel media
-    public void cancelMediaWorker() {
+    public void cancelAllMediaWorker() {
         cancelById(UploadMediaFileAutomaticallyWorker.UID);
         cancelById(MediaBackupScannerWorker.UID);
     }
 
-    public void restartMediaBackupWorker(boolean isForce) {
-        cancelMediaWorker();
+    ///////////////////
+    /// upload folder
+    ///////////////////
+    public void startFolderChainWorker(boolean isForce) {
+        cancelAllFolderUploadWorker();
 
-        Disposable disposable = startWorkerUntilStopped(UploadMediaFileAutomaticallyWorker.UID).subscribe(new Action() {
-            @Override
-            public void run() throws Exception {
-                scheduleMediaScanWorker(isForce);
-            }
-        });
+        OneTimeWorkRequest scanRequest = getFolderScanRequest(isForce);
+        OneTimeWorkRequest uploadRequest = getFolderUploadRequest();
 
-        disposableList.add(disposable);
+        String workerName = FolderBackupScannerWorker.class.getSimpleName();
+
+        getWorkManager()
+                .beginUniqueWork(workerName, ExistingWorkPolicy.KEEP, scanRequest)
+                .then(uploadRequest)
+                .enqueue();
     }
 
-
-    ///////////////////upload folder///////////////////
-    public void scheduleFolderBackupScannerWorker(boolean isForce) {
-        String workerName = FolderBackupScannerWorker.class.getSimpleName();
-        boolean isRunning = checkWorkerIsRunningById(FolderBackupScannerWorker.UID);
-        if (isRunning) {
-            SLogs.w(workerName + " is running");
-        }
-
+    private OneTimeWorkRequest getFolderScanRequest(boolean isForce) {
         Data data = new Data.Builder()
                 .putBoolean(TransferWorker.DATA_FORCE_TRANSFER_KEY, isForce)
                 .build();
 
-        OneTimeWorkRequest request = oneTimeRequestBuilder(FolderBackupScannerWorker.class)
+        return oneTimeRequestBuilder(FolderBackupScannerWorker.class)
                 .setInputData(data)
+                .setInitialDelay(1, TimeUnit.SECONDS)
                 .setId(FolderBackupScannerWorker.UID)
                 .build();
-
-        SupportWorkManager.getWorkManager().enqueueUniqueWork(workerName, ExistingWorkPolicy.KEEP, request);
     }
 
-    public void restartFolderUploadWorker() {
-        //restart
+    private OneTimeWorkRequest getFolderUploadRequest() {
         NetworkType networkType = NetworkType.UNMETERED;
-        if (FolderBackupManager.readDataPlanAllowed()) {
+        if (FolderBackupSharePreferenceHelper.readDataPlanAllowed()) {
             networkType = NetworkType.CONNECTED;
-        }
-        restartFolderUploadWorker(networkType);
-    }
-
-    public void restartFolderUploadWorker(NetworkType networkType) {
-        cancelFilesUploadWorker();
-
-        Disposable disposable = startWorkerUntilStopped(UploadFolderFileAutomaticallyWorker.UID).subscribe(new Action() {
-            @Override
-            public void run() {
-                startFolderUploadWorker(networkType);
-            }
-        });
-
-        disposableList.add(disposable);
-    }
-
-    public void startFolderUploadWorker() {
-        NetworkType networkType = NetworkType.UNMETERED;
-        if (FolderBackupManager.readDataPlanAllowed()) {
-            networkType = NetworkType.CONNECTED;
-        }
-        startFolderUploadWorker(networkType);
-    }
-
-    public void startFolderUploadWorker(NetworkType networkType) {
-
-        String workerName = UploadFolderFileAutomaticallyWorker.class.getSimpleName();
-        boolean isRunning = checkWorkerIsRunningById(UploadFolderFileAutomaticallyWorker.UID);
-        if (isRunning) {
-            SLogs.w(workerName + " is running");
         }
 
         Constraints constraints = new Constraints.Builder()
@@ -264,110 +202,113 @@ public class BackgroundJobManagerImpl {
                 .setRequiresDeviceIdle(false)
                 .build();
 
-        OneTimeWorkRequest request = oneTimeRequestBuilder(UploadFolderFileAutomaticallyWorker.class)
+        return oneTimeRequestBuilder(UploadFolderFileAutomaticallyWorker.class)
                 .setConstraints(constraints)
+                .setInitialDelay(1, TimeUnit.SECONDS)
                 .setId(UploadFolderFileAutomaticallyWorker.UID)
                 .build();
-
-        SupportWorkManager.getWorkManager().enqueueUniqueWork(workerName, ExistingWorkPolicy.REPLACE, request);
     }
 
-    //
-    public void cancelFilesUploadWorker() {
+    public void cancelAllFolderUploadWorker() {
         cancelById(FolderBackupScannerWorker.UID);
         cancelById(UploadFolderFileAutomaticallyWorker.UID);
     }
 
-    ///////////////////upload file///////////////////
+    ///////////////////
+    /// upload file
+    ///////////////////
     public void startFileUploadWorker() {
         String workerName = UploadFileManuallyWorker.class.getSimpleName();
+        OneTimeWorkRequest request = getFileUploadRequest();
+        getWorkManager().enqueueUniqueWork(workerName, ExistingWorkPolicy.KEEP, request);
+    }
 
-        boolean isRunning = checkWorkerIsRunningById(UploadFileManuallyWorker.UID);
-        if (isRunning) {
-            SLogs.w(workerName + " is running");
-        }
-
-        OneTimeWorkRequest request = oneTimeRequestBuilder(UploadFileManuallyWorker.class)
+    private OneTimeWorkRequest getFileUploadRequest() {
+        return oneTimeRequestBuilder(UploadFileManuallyWorker.class)
                 .setId(UploadFileManuallyWorker.UID)
                 .build();
-
-        SupportWorkManager.getWorkManager().enqueueUniqueWork(workerName, ExistingWorkPolicy.KEEP, request);
     }
 
-
-    ///////////////////download///////////////////
-    public void scheduleOneTimeFilesDownloadScanWorker() {
-        OneTimeWorkRequest request = oneTimeRequestBuilder(DownloadFileScanWorker.class)
-                .build();
-        SupportWorkManager.getWorkManager().enqueue(request);
-    }
-
-    public void scheduleOneTimeFilesDownloadScanWorker(String[] direntIds) {
-        Data data = new Data.Builder()
-                .putStringArray(TransferWorker.DATA_DIRENT_LIST_KEY, direntIds)
-                .build();
-
-        OneTimeWorkRequest request = oneTimeRequestBuilder(DownloadFileScanWorker.class)
-                .setInputData(data)
-                .build();
-        SupportWorkManager.getWorkManager().enqueue(request);
-    }
-
-    public void scheduleOneTimeFilesDownloadScanWorker(String transferId) {
-        Data data = new Data.Builder()
-                .putString(DownloadFileScanWorker.DATA_TRANSFER_ID_KEY, transferId)
-                .build();
-
-        OneTimeWorkRequest request = oneTimeRequestBuilder(DownloadFileScanWorker.class)
-                .setInputData(data)
-                .build();
-        SupportWorkManager.getWorkManager().enqueue(request);
-    }
-
-
-    public void startFileDownloadWorker() {
-        String workerName = DownloadWorker.class.getSimpleName();
-        boolean isRunning = checkWorkerIsRunningById(DownloadWorker.UID);
-        if (isRunning) {
-            SLogs.w(workerName + " is running");
-            return;
+    ///////////////////
+    /// download
+    ///////////////////
+    public OneTimeWorkRequest getDownloadScanRequest(String transferId, String[] direntIds) {
+        Data.Builder builder = new Data.Builder();
+        if (!TextUtils.isEmpty(transferId)) {
+            builder.putString(DownloadFileScanWorker.DATA_TRANSFER_ID_KEY, transferId);
+        }
+        if (direntIds != null && direntIds.length > 0) {
+            builder.putStringArray(TransferWorker.DATA_DIRENT_LIST_KEY, direntIds);
         }
 
-        OneTimeWorkRequest request = oneTimeRequestBuilder(DownloadWorker.class)
-                .setId(DownloadWorker.UID)
+        return oneTimeRequestBuilder(DownloadFileScanWorker.class)
+                .setInputData(builder.build())
                 .build();
-        SupportWorkManager.getWorkManager().enqueueUniqueWork(workerName, ExistingWorkPolicy.KEEP, request);
     }
 
-    public void startDownloadedCheckerWorker(String filePath) {
+    private OneTimeWorkRequest getDownloadRequest() {
+        return oneTimeRequestBuilder(DownloadWorker.class)
+                .setId(DownloadWorker.UID)
+                .build();
+    }
+
+    public void startDownloadChainWorker() {
+        startDownloadChainWorker(null, null);
+    }
+
+    /**
+     * in batches
+     */
+    public void startDownloadChainWorker(String[] direntIds) {
+        startDownloadChainWorker(null, direntIds);
+    }
+
+    public void startDownloadChainWorker(String transferId) {
+        startDownloadChainWorker(transferId, null);
+    }
+
+    public void startDownloadChainWorker(String transferId, String[] direntIds) {
+
+        OneTimeWorkRequest scanRequest = getDownloadScanRequest(transferId, direntIds);
+        OneTimeWorkRequest downloadRequest = getDownloadRequest();
+
+        String workerName = DownloadFileScanWorker.class.getSimpleName();
+        getWorkManager().beginUniqueWork(workerName, ExistingWorkPolicy.REPLACE, scanRequest)
+                .then(downloadRequest)
+                .enqueue();
+    }
+
+    public void startCheckDownloadedFileChainWorker(String filePath) {
+
+        OneTimeWorkRequest fileRequest = getFileUploadRequest();
+        OneTimeWorkRequest checkRequest = getCheckDownloadedFileRequest(filePath);
+
+        String workerName = DownloadedFileCheckerWorker.class.getSimpleName();
+
+        getWorkManager().beginUniqueWork(workerName, ExistingWorkPolicy.REPLACE, checkRequest)
+                .then(fileRequest)
+                .enqueue();
+    }
+
+    private OneTimeWorkRequest getCheckDownloadedFileRequest(String filePath) {
         Data data = new Data.Builder()
                 .putString(DownloadedFileCheckerWorker.FILE_CHANGE_KEY, filePath)
                 .build();
 
-        OneTimeWorkRequest request = oneTimeRequestBuilder(DownloadedFileCheckerWorker.class)
-                .addTag(TAG_TRANSFER)
+        return oneTimeRequestBuilder(DownloadedFileCheckerWorker.class)
                 .setInputData(data)
                 .build();
-
-        SupportWorkManager.getWorkManager().enqueue(request);
     }
 
 
-    public void cancelFilesDownloadJob() {
+    public void cancelDownloadWorker() {
         cancelById(DownloadWorker.UID);
         cancelById(DownloadedFileCheckerWorker.UID);
         cancelById(DownloadFileScanWorker.UID);
     }
 
-
     public void cancelAllJobs() {
-        for (Disposable disposable : disposableList) {
-            if (!disposable.isDisposed()) {
-                disposable.dispose();
-            }
-        }
-
-        SupportWorkManager.getWorkManager().cancelAllWork();
+        getWorkManager().cancelAllWork();
     }
 
 

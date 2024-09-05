@@ -6,9 +6,9 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.blankj.utilcode.util.CollectionUtils;
 import com.google.android.material.checkbox.MaterialCheckBox;
-import com.seafile.seadroid2.framework.datastore.sp.FolderBackupManager;
-import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
+import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.util.FileTools;
+import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -48,7 +48,7 @@ public class FolderSelectorViewModel extends BaseViewModel {
     public void loadData(String path) {
 
         getRefreshLiveData().setValue(true);
-        boolean isJumpHiddenFile = FolderBackupManager.isFolderBackupSkipHiddenFiles();
+        boolean isJumpHiddenFile = FolderBackupSharePreferenceHelper.isFolderBackupSkipHiddenFiles();
 
         Single<List<FileBean>> single = Single.create(new SingleOnSubscribe<List<FileBean>>() {
             @Override

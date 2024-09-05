@@ -8,10 +8,10 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.framework.data.db.AppDatabase;
 import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
-import com.seafile.seadroid2.framework.data.model.enums.TransferAction;
-import com.seafile.seadroid2.framework.data.model.enums.TransferDataSource;
-import com.seafile.seadroid2.framework.data.model.enums.TransferResult;
-import com.seafile.seadroid2.framework.data.model.enums.TransferStatus;
+import com.seafile.seadroid2.enums.TransferAction;
+import com.seafile.seadroid2.enums.TransferDataSource;
+import com.seafile.seadroid2.enums.TransferResult;
+import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.framework.worker.upload.UploadFileManuallyWorker;
 import com.seafile.seadroid2.framework.worker.upload.UploadFolderFileAutomaticallyWorker;
@@ -107,7 +107,7 @@ public class TransferListViewModel extends BaseViewModel {
 
                 if (TransferDataSource.DOWNLOAD == fileTransferEntity.data_source) {
                     if (fileTransferEntity.transfer_status == TransferStatus.IN_PROGRESS) {
-                        BackgroundJobManagerImpl.getInstance().cancelFilesDownloadJob();
+                        BackgroundJobManagerImpl.getInstance().cancelDownloadWorker();
                     }
 
                     AppDatabase.getInstance().fileTransferDAO().deleteOne(fileTransferEntity);
@@ -131,7 +131,7 @@ public class TransferListViewModel extends BaseViewModel {
 
                     AppDatabase.getInstance().fileTransferDAO().insert(fileTransferEntity);
 
-                    BackgroundJobManagerImpl.getInstance().startFolderUploadWorker();
+                    BackgroundJobManagerImpl.getInstance().startFolderChainWorker(true);
 
                 } else if (TransferDataSource.ALBUM_BACKUP == fileTransferEntity.data_source) {
                     BackgroundJobManagerImpl.getInstance().cancelById(UploadMediaFileAutomaticallyWorker.UID);
@@ -143,7 +143,7 @@ public class TransferListViewModel extends BaseViewModel {
 
                     AppDatabase.getInstance().fileTransferDAO().insert(fileTransferEntity);
 
-                    BackgroundJobManagerImpl.getInstance().startMediaBackupWorker();
+                    BackgroundJobManagerImpl.getInstance().startMediaChainWorker(true);
                 }
                 emitter.onSuccess(true);
             }

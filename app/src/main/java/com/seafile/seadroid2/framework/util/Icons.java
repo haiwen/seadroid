@@ -8,7 +8,6 @@ import com.blankj.utilcode.util.FileUtils;
 import com.google.common.collect.Maps;
 import com.seafile.seadroid2.R;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -135,9 +134,7 @@ public class Icons {
         if (mimetype == null)
             return R.drawable.file;
 
-        if (mimetype.contains("pdf")) {
-            return R.drawable.file_pdf;
-        } else if (mimetype.contains("image/")) {
+        if (mimetype.contains("image/")) {
             return R.drawable.file_image;
         } else if (mimetype.contains("text")) {
             return R.drawable.file_text;

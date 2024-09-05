@@ -17,12 +17,12 @@ import com.chad.library.adapter4.QuickAdapterHelper;
 import com.google.common.collect.Maps;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
-import com.seafile.seadroid2.ui.base.fragment.BaseFragmentWithVM;
 import com.seafile.seadroid2.databinding.FragmentFolderSelectorBinding;
+import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
+import com.seafile.seadroid2.framework.util.FileTools;
+import com.seafile.seadroid2.ui.base.fragment.BaseFragmentWithVM;
 import com.seafile.seadroid2.ui.folder_backup.FolderBackupConfigActivity;
 import com.seafile.seadroid2.ui.repo.ScrollState;
-import com.seafile.seadroid2.framework.util.FileTools;
-import com.seafile.seadroid2.framework.datastore.sp.FolderBackupManager;
 import com.seafile.seadroid2.view.TipsViews;
 
 import java.util.ArrayList;
@@ -153,7 +153,7 @@ public class FolderSelectorFragment extends BaseFragmentWithVM<FolderSelectorVie
     }
 
     private void initData() {
-        List<String> selectPaths = FolderBackupManager.readBackupPaths();
+        List<String> selectPaths = FolderBackupSharePreferenceHelper.readBackupPathsAsList();
         if (!CollectionUtils.isEmpty(selectPaths)) {
             getViewModel().setSelectFilePathList(selectPaths);
         }

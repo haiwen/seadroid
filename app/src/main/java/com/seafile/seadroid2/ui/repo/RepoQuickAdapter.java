@@ -2,16 +2,17 @@ package com.seafile.seadroid2.ui.repo;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.DiffUtil;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.FileUtils;
@@ -23,74 +24,78 @@ import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.config.GlideLoadConfig;
 import com.seafile.seadroid2.databinding.ItemAccountBinding;
 import com.seafile.seadroid2.databinding.ItemDirentBinding;
+import com.seafile.seadroid2.databinding.ItemDirentGalleryBinding;
+import com.seafile.seadroid2.databinding.ItemDirentGridBinding;
 import com.seafile.seadroid2.databinding.ItemGroupItemBinding;
 import com.seafile.seadroid2.databinding.ItemRepoBinding;
 import com.seafile.seadroid2.databinding.ItemUnsupportedBinding;
+import com.seafile.seadroid2.enums.FileViewType;
+import com.seafile.seadroid2.enums.RepoSelectType;
+import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.data.model.BaseModel;
 import com.seafile.seadroid2.framework.data.model.GroupItemModel;
-import com.seafile.seadroid2.framework.data.model.enums.TransferStatus;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.util.GlideApp;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.ui.base.adapter.BaseMultiAdapter;
 import com.seafile.seadroid2.ui.viewholder.GroupItemViewHolder;
-import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView;
+import com.seafile.seadroid2.widget.AnimatedStateListDrawableCompatUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> implements FastScrollRecyclerView.SectionedAdapter, FastScrollRecyclerView.MeasurableAdapter {
+public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
     private final String SERVER = HttpIO.getCurrentInstance().getServerUrl();
 
     private boolean actionModeOn;
 
-    private Drawable starDrawable;
-
     private boolean repoEncrypted = false;
-    /**
-     * -1 no select
-     * 0 only select account
-     * 1 only select repo
-     */
-    private int selectorMode = -1;
+    private FileViewType fileViewType = FileViewType.LIST;
+    private RepoSelectType selectType = RepoSelectType.NOT_SELECTABLE;
 
     /**
-     * -1 no limited
-     * 0 no this value
+     * <pre>
+     *  -1 no limited
+     *   0 do not write this value
      * >=1 max count
+     * </pre>
      */
     private int selectedMaxCount = 1;
 
-    public void setSelectorMode(int selectorMode) {
-        this.selectorMode = selectorMode;
+    public void setSelectType(RepoSelectType selectType) {
+        this.selectType = selectType;
     }
 
-    public void setSelectData(int selectorMode, int selectedMaxCount) {
-        this.selectorMode = selectorMode;
+    public void setSelectType(RepoSelectType selectType, int selectedMaxCount) {
+        this.selectType = selectType;
         this.selectedMaxCount = selectedMaxCount;
+    }
+
+    private Drawable starDrawable;
+
+    public Drawable getStarDrawable() {
+        if (null == starDrawable) {
+            int DP_16 = SizeUtils.dp2px(16);
+            starDrawable = ContextCompat.getDrawable(getContext(), R.drawable.baseline_star_24);
+            starDrawable.setBounds(0, 0, DP_16, DP_16);
+            starDrawable.setTint(ContextCompat.getColor(getContext(), R.color.light_grey));
+        }
+        return starDrawable;
     }
 
     public void setRepoEncrypted(boolean repoEncrypted) {
         this.repoEncrypted = repoEncrypted;
     }
 
-    public RepoQuickAdapter() {
-        addItemType(AbsLayoutItemType.GROUP_ITEM, new OnMultiItemAdapterListener<BaseModel, GroupItemViewHolder>() {
-            @NonNull
-            @Override
-            public GroupItemViewHolder onCreate(@NonNull Context context, @NonNull ViewGroup viewGroup, int i) {
-                ItemGroupItemBinding binding = ItemGroupItemBinding.inflate(LayoutInflater.from(context), viewGroup, false);
-                return new GroupItemViewHolder(binding);
-            }
+    public void setFileViewType(FileViewType fileViewType) {
+        this.fileViewType = fileViewType;
+    }
 
-            @Override
-            public void onBind(@NonNull GroupItemViewHolder holder, int i, @Nullable BaseModel groupTimeModel) {
-                onBindGroup(holder, (GroupItemModel) groupTimeModel);
-            }
-        }).addItemType(AbsLayoutItemType.ACCOUNT, new OnMultiItem<BaseModel, AccountViewHolder>() {
+    public RepoQuickAdapter() {
+        addItemType(AbsLayoutItemType.ACCOUNT, new OnMultiItem<BaseModel, AccountViewHolder>() {
             @NonNull
             @Override
             public AccountViewHolder onCreate(@NonNull Context context, @NonNull ViewGroup viewGroup, int i) {
@@ -101,6 +106,23 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> implements Fas
             @Override
             public void onBind(@NonNull AccountViewHolder viewHolder, int i, @Nullable BaseModel baseModel) {
                 onBindAccount(viewHolder, baseModel);
+            }
+        }).addItemType(AbsLayoutItemType.GROUP_ITEM, new OnMultiItemAdapterListener<BaseModel, GroupItemViewHolder>() {
+            @NonNull
+            @Override
+            public GroupItemViewHolder onCreate(@NonNull Context context, @NonNull ViewGroup viewGroup, int i) {
+                ItemGroupItemBinding binding = ItemGroupItemBinding.inflate(LayoutInflater.from(context), viewGroup, false);
+                return new GroupItemViewHolder(binding);
+            }
+
+            @Override
+            public void onBind(@NonNull GroupItemViewHolder holder, int i, @Nullable BaseModel groupTimeModel) {
+                onBind(holder, i, groupTimeModel, null);
+            }
+
+            @Override
+            public void onBind(@NonNull GroupItemViewHolder holder, int position, @Nullable BaseModel item, @NonNull List<?> payloads) {
+                onBindGroup(position, holder, (GroupItemModel) item, payloads);
             }
         }).addItemType(AbsLayoutItemType.REPO, new OnMultiItem<BaseModel, RepoViewHolder>() {
             @NonNull
@@ -114,7 +136,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> implements Fas
             public void onBind(@NonNull RepoViewHolder viewHolder, int i, @Nullable BaseModel baseModel) {
                 onBindRepos(viewHolder, (RepoModel) baseModel);
             }
-        }).addItemType(AbsLayoutItemType.DIRENT, new OnMultiItem<BaseModel, DirentViewHolder>() {
+        }).addItemType(AbsLayoutItemType.DIRENT_LIST, new OnMultiItem<BaseModel, DirentViewHolder>() {
             @NonNull
             @Override
             public DirentViewHolder onCreate(@NonNull Context context, @NonNull ViewGroup viewGroup, int i) {
@@ -125,6 +147,30 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> implements Fas
             @Override
             public void onBind(@NonNull DirentViewHolder viewHolder, int i, @Nullable BaseModel baseModel) {
                 onBindDirents(viewHolder, (DirentModel) baseModel);
+            }
+        }).addItemType(AbsLayoutItemType.DIRENT_GRID, new OnMultiItem<BaseModel, DirentGridViewHolder>() {
+            @NonNull
+            @Override
+            public DirentGridViewHolder onCreate(@NonNull Context context, @NonNull ViewGroup viewGroup, int i) {
+                ItemDirentGridBinding binding = ItemDirentGridBinding.inflate(LayoutInflater.from(context), viewGroup, false);
+                return new DirentGridViewHolder(binding);
+            }
+
+            @Override
+            public void onBind(@NonNull DirentGridViewHolder viewHolder, int i, @Nullable BaseModel baseModel) {
+                onBindDirentsGrid(viewHolder, (DirentModel) baseModel);
+            }
+        }).addItemType(AbsLayoutItemType.DIRENT_GALLERY, new OnMultiItem<BaseModel, DirentGalleryViewHolder>() {
+            @NonNull
+            @Override
+            public DirentGalleryViewHolder onCreate(@NonNull Context context, @NonNull ViewGroup viewGroup, int i) {
+                ItemDirentGalleryBinding binding = ItemDirentGalleryBinding.inflate(LayoutInflater.from(context), viewGroup, false);
+                return new DirentGalleryViewHolder(binding);
+            }
+
+            @Override
+            public void onBind(@NonNull DirentGalleryViewHolder viewHolder, int i, @Nullable BaseModel baseModel) {
+                onBindDirentsGallery(viewHolder, (DirentModel) baseModel);
             }
         }).addItemType(AbsLayoutItemType.NOT_SUPPORTED, new OnMultiItem<BaseModel, UnsupportedViewHolder>() {
             @NonNull
@@ -145,7 +191,13 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> implements Fas
                 } else if (list.get(i) instanceof RepoModel) {
                     return AbsLayoutItemType.REPO;
                 } else if (list.get(i) instanceof DirentModel) {
-                    return AbsLayoutItemType.DIRENT;
+                    if (FileViewType.LIST == fileViewType) {
+                        return AbsLayoutItemType.DIRENT_LIST;
+                    } else if (FileViewType.GRID == fileViewType) {
+                        return AbsLayoutItemType.DIRENT_GRID;
+                    } else {
+                        return AbsLayoutItemType.DIRENT_GALLERY;
+                    }
                 } else if (list.get(i) instanceof Account) {
                     return AbsLayoutItemType.ACCOUNT;
                 }
@@ -154,18 +206,9 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> implements Fas
         });
     }
 
-    public Drawable getStarDrawable() {
-        if (null == starDrawable) {
-            int DP_16 = SizeUtils.dp2px(16);
-            starDrawable = ContextCompat.getDrawable(getContext(), R.drawable.baseline_star_24);
-            starDrawable.setBounds(0, 0, DP_16, DP_16);
-            starDrawable.setTint(ContextCompat.getColor(getContext(), R.color.light_grey));
-        }
-        return starDrawable;
-    }
-
-
     private void onBindAccount(AccountViewHolder holder, BaseModel model) {
+        holder.binding.getRoot().setBackground(null);
+
         Account account = (Account) model;
 
         holder.binding.listItemAccountTitle.setText(account.getServerHost());
@@ -180,25 +223,32 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> implements Fas
                     .into(holder.binding.listItemAccountIcon);
         }
 
-
-        if (selectorMode >= 0) {
-            holder.binding.itemSelectView.setVisibility(account.is_selected ? View.VISIBLE : View.INVISIBLE);
+        if (selectType.ordinal() >= RepoSelectType.ONLY_ACCOUNT.ordinal()) {
+            holder.binding.itemSelectView.setVisibility(account.is_checked ? View.VISIBLE : View.INVISIBLE);
         } else {
             holder.binding.itemSelectView.setVisibility(View.INVISIBLE);
         }
-
     }
 
-    private void onBindGroup(GroupItemViewHolder holder, GroupItemModel model) {
-        if (model.name != 0) {
-            holder.binding.itemGroupTitle.setText(model.name);
-        } else if (!TextUtils.isEmpty(model.title)) {
+    private void onBindGroup(int position, GroupItemViewHolder holder, GroupItemModel model, List<?> payloads) {
+
+//        if (!CollectionUtils.isEmpty(payloads)) {
+//            Bundle bundle = (Bundle) payloads.get(0);
+//            boolean isChecked = bundle.getBoolean("is_checked");
+//
+//            holder.binding.listSeparatorItemActionText.setRotation(isChecked ? 90 : 270);
+//            return;
+//        }
+
+        if (!TextUtils.isEmpty(model.title)) {
             if ("Organization".equals(model.title)) {
                 holder.binding.itemGroupTitle.setText(R.string.shared_with_all);
             } else {
                 holder.binding.itemGroupTitle.setText(model.title);
             }
         }
+
+//        holder.binding.listSeparatorItemActionText.setRotation(model.is_checked ? 90 : 270);
     }
 
     private void onBindRepos(RepoViewHolder holder, RepoModel model) {
@@ -206,8 +256,8 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> implements Fas
         holder.binding.itemSubtitle.setText(model.getSubtitle());
         holder.binding.itemIcon.setImageResource(model.getIcon());
 
-        if (selectorMode >= 1) {
-            holder.binding.itemSelectView.setVisibility(model.is_selected ? View.VISIBLE : View.INVISIBLE);
+        if (selectType.ordinal() >= RepoSelectType.ONLY_REPO.ordinal()) {
+            holder.binding.itemSelectView.setVisibility(model.is_checked ? View.VISIBLE : View.INVISIBLE);
             holder.binding.expandableToggleButton.setVisibility(View.INVISIBLE);
         } else {
             holder.binding.expandableToggleButton.setVisibility(View.VISIBLE);
@@ -222,10 +272,12 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> implements Fas
         }
     }
 
+
     private void onBindDirents(DirentViewHolder holder, DirentModel model) {
         holder.binding.itemTitle.setText(model.name);
         holder.binding.itemSubtitle.setText(model.getSubtitle());
 
+        holder.binding.getRoot().setBackground(AnimatedStateListDrawableCompatUtils.createDrawableCompat(getContext()));
 
         if (repoEncrypted || !Utils.isViewableImage(model.name)) {
             holder.binding.itemIcon.setImageResource(model.getIcon());
@@ -240,7 +292,10 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> implements Fas
         //action mode
         if (actionModeOn) {
             holder.binding.itemMultiSelect.setVisibility(View.VISIBLE);
-            if (model.is_selected) {
+
+            holder.binding.getRoot().setChecked(model.is_checked);
+
+            if (model.is_checked) {
                 holder.binding.itemMultiSelect.setImageResource(R.drawable.multi_select_item_checked);
             } else {
                 holder.binding.itemMultiSelect.setImageResource(R.drawable.multi_select_item_unchecked);
@@ -248,12 +303,15 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> implements Fas
         } else {
             holder.binding.itemMultiSelect.setVisibility(View.GONE);
             holder.binding.itemMultiSelect.setImageResource(R.drawable.multi_select_item_unchecked);
+
+            holder.binding.getRoot().setChecked(false);
+
         }
 
         holder.binding.itemDownloadStatusProgressbar.setVisibility(View.GONE);
         holder.binding.itemDownloadStatus.setVisibility(View.GONE);
 
-        if (selectorMode < 0) {
+        if (selectType.ordinal() < RepoSelectType.ONLY_ACCOUNT.ordinal()) {
             holder.binding.itemTitle.setTextColor(ContextCompat.getColor(getContext(), R.color.item_title_color));
             holder.binding.itemSubtitle.setTextColor(ContextCompat.getColor(getContext(), R.color.item_subtitle_color));
 
@@ -295,7 +353,6 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> implements Fas
             holder.binding.itemDownloadStatus.setVisibility(View.GONE);
         }
 
-        holder.binding.itemTitle.setCompoundDrawablePadding(Constants.DP.DP_4);
         if (model.starred) {
             holder.binding.itemTitle.setCompoundDrawables(null, null, getStarDrawable(), null);
         } else {
@@ -303,8 +360,96 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> implements Fas
         }
     }
 
+    private void onBindDirentsGrid(DirentGridViewHolder holder, DirentModel model) {
+        holder.binding.itemTitle.setText(model.name);
+
+        holder.binding.getRoot().setBackground(AnimatedStateListDrawableCompatUtils.createDrawableCompat(getContext()));
+
+        if (model.isDir()) {
+            holder.binding.itemOutline.setVisibility(View.GONE);
+        } else {
+            holder.binding.itemOutline.setVisibility(View.VISIBLE);
+        }
+
+        if (repoEncrypted || !Utils.isViewableImage(model.name)) {
+            holder.binding.itemIcon.setScaleType(ImageView.ScaleType.FIT_CENTER);
+            holder.binding.itemIcon.setImageResource(model.getIcon());
+        } else {
+            holder.binding.itemIcon.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            String url = convertMiddleUrl(model.repo_id, model.full_path);
+            GlideApp.with(getContext())
+                    .load(url)
+                    .apply(GlideLoadConfig.getOptions())
+                    .into(holder.binding.itemIcon);
+        }
+
+        //action mode
+        if (actionModeOn) {
+            holder.binding.itemMultiSelect.setVisibility(View.VISIBLE);
+            holder.binding.getRoot().setChecked(model.is_checked);
+
+            if (model.is_checked) {
+                holder.binding.itemMultiSelect.setImageResource(R.drawable.multi_select_item_checked);
+            } else {
+                holder.binding.itemMultiSelect.setImageResource(R.drawable.multi_select_item_unchecked);
+            }
+        } else {
+            holder.binding.itemMultiSelect.setVisibility(View.GONE);
+            holder.binding.itemMultiSelect.setImageResource(R.drawable.multi_select_item_unchecked);
+
+            holder.binding.getRoot().setChecked(false);
+        }
+
+        if (model.starred) {
+            holder.binding.itemTitle.setCompoundDrawables(null, null, getStarDrawable(), null);
+        } else {
+            holder.binding.itemTitle.setCompoundDrawables(null, null, null, null);
+        }
+    }
+
+    private void onBindDirentsGallery(DirentGalleryViewHolder holder, DirentModel model) {
+//        holder.binding.itemTitle.setText(model.name);
+
+        holder.binding.getRoot().setBackground(AnimatedStateListDrawableCompatUtils.createDrawableCompat(getContext()));
+
+        if (repoEncrypted || !Utils.isViewableImage(model.name)) {
+            holder.binding.itemIcon.setImageResource(model.getIcon());
+        } else {
+            String url = convertMiddleUrl(model.repo_id, model.full_path);
+            GlideApp.with(getContext())
+                    .load(url)
+                    .apply(GlideLoadConfig.getOptions())
+                    .into(holder.binding.itemIcon);
+        }
+
+        //action mode
+        if (actionModeOn) {
+            holder.binding.itemMultiSelect.setVisibility(View.VISIBLE);
+            holder.binding.getRoot().setChecked(model.is_checked);
+
+            if (model.is_checked) {
+                holder.binding.itemMultiSelect.setImageResource(R.drawable.multi_select_item_checked);
+            } else {
+                holder.binding.itemMultiSelect.setImageResource(R.drawable.multi_select_item_unchecked);
+            }
+        } else {
+            holder.binding.getRoot().setChecked(false);
+
+            holder.binding.itemMultiSelect.setVisibility(View.GONE);
+            holder.binding.itemMultiSelect.setImageResource(R.drawable.multi_select_item_unchecked);
+        }
+    }
+
     private String convertThumbnailUrl(String repoId, String filePath) {
-        return String.format(Locale.getDefault(), "%sapi2/repos/%s/thumbnail/?p=%s&size=%d", SERVER, repoId, filePath, 128);
+        return convertThumbnailUrl(repoId, filePath, 128);
+    }
+
+    private String convertMiddleUrl(String repoId, String filePath) {
+        return convertThumbnailUrl(repoId, filePath, 256);
+    }
+
+    private String convertThumbnailUrl(String repoId, String filePath, int size) {
+        return String.format(Locale.ROOT, "%sapi2/repos/%s/thumbnail/?p=%s&size=%d", SERVER, repoId, filePath, size);
     }
 
     public void setActionModeOn(boolean actionModeOn) {
@@ -325,7 +470,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> implements Fas
         for (BaseModel item : getItems()) {
             if (item instanceof DirentModel) {
                 DirentModel model = (DirentModel) item;
-                model.is_selected = itemSelected;
+                model.is_checked = itemSelected;
             }
         }
 
@@ -335,9 +480,8 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> implements Fas
     public List<DirentModel> getSelectedList() {
         List<DirentModel> list = new ArrayList<>();
         for (BaseModel item : getItems()) {
-            if (item instanceof DirentModel) {
-                DirentModel model = (DirentModel) item;
-                if (model.is_selected) {
+            if (item instanceof DirentModel model) {
+                if (model.is_checked) {
                     list.add(model);
                 }
             }
@@ -355,46 +499,46 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> implements Fas
         if (selectedMaxCount == 1) {
             int selectedPosition = getSelectedPositionByMode();
             if (selectedPosition == position) {
-                item.is_selected = !item.is_selected;
+                item.is_checked = !item.is_checked;
                 notifyItemChanged(selectedPosition);
-                return item.is_selected;
+                return item.is_checked;
 
             } else if (selectedPosition > -1) {
                 //Deselect an item that has already been selected
-                getItems().get(selectedPosition).is_selected = false;
+                getItems().get(selectedPosition).is_checked = false;
                 notifyItemChanged(selectedPosition);
 
-                item.is_selected = true;
+                item.is_checked = true;
                 notifyItemChanged(position);
             } else {
-                item.is_selected = true;
+                item.is_checked = true;
                 notifyItemChanged(position);
             }
         } else {
-            long selectedCount = getSelectedCountByMode();
+            long selectedCount = getSelectedCountBySelectType();
             if (selectedCount >= selectedMaxCount) {
                 return false;
             }
 
-            item.is_selected = !item.is_selected;
+            item.is_checked = !item.is_checked;
             notifyItemChanged(position);
 
-            return item.is_selected;
+            return item.is_checked;
         }
 
         return true;
     }
 
-    private long getSelectedCountByMode() {
-        if (selectorMode == 0) {
+    private long getSelectedCountBySelectType() {
+        if (RepoSelectType.ONLY_ACCOUNT == selectType) {
             return getItems().stream()
                     .filter(Account.class::isInstance)
-                    .filter(f -> f.is_selected)
+                    .filter(f -> f.is_checked)
                     .count();
-        } else if (selectorMode == 1) {
+        } else if (RepoSelectType.ONLY_REPO == selectType) {
             return getItems().stream()
                     .filter(RepoModel.class::isInstance)
-                    .filter(f -> f.is_selected)
+                    .filter(f -> f.is_checked)
                     .count();
         }
         return 0;
@@ -402,7 +546,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> implements Fas
 
     private int getSelectedPositionByMode() {
         for (int i = 0; i < getItems().size(); i++) {
-            if (getItems().get(i).is_selected) {
+            if (getItems().get(i).is_checked) {
                 return i;
             }
         }
@@ -544,38 +688,5 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> implements Fas
 
         setItems(list);
         diffResult.dispatchUpdatesTo(this);
-    }
-
-    @NonNull
-    @Override
-    public String getSectionName(int position) {
-        BaseModel item = getItems().get(position);
-        if (item instanceof GroupItemModel) {
-            GroupItemModel m = (GroupItemModel) item;
-            return m.title;
-        } else if (item instanceof DirentModel) {
-            DirentModel m = (DirentModel) item;
-            return m.name;
-        } else if (item instanceof RepoModel) {
-            RepoModel m = (RepoModel) item;
-            return m.repo_name;
-        }
-
-        return "";
-    }
-
-    @Override
-    public int getViewTypeHeight(RecyclerView recyclerView, @Nullable RecyclerView.ViewHolder viewHolder, int viewType) {
-        if (viewType == AbsLayoutItemType.ACCOUNT) {
-            return recyclerView.getResources().getDimensionPixelSize(R.dimen.rv_item_account_height);
-        } else if (viewType == AbsLayoutItemType.GROUP_ITEM) {
-            return recyclerView.getResources().getDimensionPixelSize(R.dimen.rv_item_group_height);
-        } else if (viewType == AbsLayoutItemType.REPO) {
-            return recyclerView.getResources().getDimensionPixelSize(R.dimen.rv_item_repo_height);
-        } else if (viewType == AbsLayoutItemType.DIRENT) {
-            return recyclerView.getResources().getDimensionPixelSize(R.dimen.rv_item_dirent_height);
-        }
-
-        return 0;
     }
 }

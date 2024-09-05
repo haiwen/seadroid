@@ -9,7 +9,7 @@ import com.seafile.seadroid2.framework.data.db.AppDatabase;
 import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
 import com.seafile.seadroid2.framework.data.model.dirents.DeleteDirentModel;
-import com.seafile.seadroid2.framework.data.model.enums.TransferAction;
+import com.seafile.seadroid2.enums.TransferAction;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;

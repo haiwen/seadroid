@@ -87,7 +87,7 @@ public class AccountAdapter extends BaseAdapter {
         }
 
         Account account = items.get(position);
-        viewHolder.selectView.setVisibility(account.is_selected ? View.VISIBLE : View.INVISIBLE);
+        viewHolder.selectView.setVisibility(account.is_checked ? View.VISIBLE : View.INVISIBLE);
 
         viewHolder.title.setText(account.getName());
         viewHolder.subtitle.setText(account.getServerHost());

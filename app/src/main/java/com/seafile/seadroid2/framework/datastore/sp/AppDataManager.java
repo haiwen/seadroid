@@ -1,60 +1,60 @@
 package com.seafile.seadroid2.framework.datastore.sp;
 
-import androidx.appcompat.app.AppCompatDelegate;
-
 import com.seafile.seadroid2.framework.datastore.DataStoreKeys;
 import com.seafile.seadroid2.framework.datastore.DataStoreManager;
 
 public class AppDataManager {
     /**
      * <p>Whether the app is migrated from v2.x.x to v3.0.0.</p>
-     * <p>The migration of the app will last for two versions.</p>
-     * <p>If the value is 0, the app is not migrated.</p>
-     * <p>If the value is 1, the app is migrated. but the local db file is not deleted</p>
      */
     public static boolean isMigratedWhenV300() {
-        int v = DataStoreManager.getCommonInstance().readInteger(DataStoreKeys.DATA_IS_MIGRATION);
+        int v = DataStoreManager.getCommonSharePreference().readInteger(DataStoreKeys.DATA_IS_MIGRATION);
+        return v > 0;
+    }
+
+    /**
+     * <p>Whether the app is migrated from v3.0.(0/1/2) to v3.0.3.</p>
+     */
+    public static boolean isMigratedWhenV303() {
+        int v = DataStoreManager.getCommonSharePreference().readInteger(DataStoreKeys.DATA_IS_MIGRATED_WHEN_APP_IS_V303);
         return v > 0;
     }
 
     public static void setMigratedWhenV300(int v) {
-        DataStoreManager.getCommonInstance().writeInteger(DataStoreKeys.DATA_IS_MIGRATION, v);
+        DataStoreManager.getCommonSharePreference().writeInteger(DataStoreKeys.DATA_IS_MIGRATION, v);
+    }
+
+    public static void setMigratedWhenV303(int v) {
+        DataStoreManager.getCommonSharePreference().writeInteger(DataStoreKeys.DATA_IS_MIGRATED_WHEN_APP_IS_V303, v);
     }
 
     public static void savePrivacyPolicyConfirmed(int type) {
-        DataStoreManager.getCommonInstance().writeInteger(SettingsManager.PRIVACY_POLICY_CONFIRMED, type);
+        DataStoreManager.getCommonSharePreference().writeInteger(SettingsManager.PRIVACY_POLICY_CONFIRMED, type);
     }
 
     public static int getPrivacyPolicyConfirmed() {
-        return DataStoreManager.getCommonInstance().readInteger(SettingsManager.PRIVACY_POLICY_CONFIRMED);
+        return DataStoreManager.getCommonSharePreference().readInteger(SettingsManager.PRIVACY_POLICY_CONFIRMED);
     }
 
 
     /**
      * Whether the user has enabled client side encryption
      */
+    @Deprecated
     public static boolean isEncryptEnabled() {
-        return DataStoreManager.getCommonInstance().readBoolean(SettingsManager.CLIENT_ENC_SWITCH_KEY);
+        return DataStoreManager.getCommonSharePreference().readBoolean(SettingsManager.CLIENT_ENC_SWITCH_KEY);
     }
 
+    @Deprecated
     public static void writeClientEncSwitch(boolean isChecked) {
-        DataStoreManager.getCommonInstance().writeBoolean(SettingsManager.CLIENT_ENC_SWITCH_KEY, isChecked);
+        DataStoreManager.getCommonSharePreference().writeBoolean(SettingsManager.CLIENT_ENC_SWITCH_KEY, isChecked);
     }
 
     public static int readStorageDir() {
-        return DataStoreManager.getCommonInstance().readInteger(SettingsManager.SHARED_PREF_STORAGE_DIR, Integer.MIN_VALUE);
+        return DataStoreManager.getCommonSharePreference().readInteger(SettingsManager.SHARED_PREF_STORAGE_DIR, Integer.MIN_VALUE);
     }
 
     public static void writeStorageDir(int nightMode) {
-        DataStoreManager.getCommonInstance().writeInteger(SettingsManager.SHARED_PREF_STORAGE_DIR, nightMode);
+        DataStoreManager.getCommonSharePreference().writeInteger(SettingsManager.SHARED_PREF_STORAGE_DIR, nightMode);
     }
-
-    public static void writeDarkMode(int nightMode) {
-        DataStoreManager.getCommonInstance().writeInteger(DataStoreKeys.KEY_DARK_MODE, nightMode);
-    }
-
-    public static int readDarkMode() {
-        return DataStoreManager.getCommonInstance().readInteger(DataStoreKeys.KEY_DARK_MODE, AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
-    }
-
 }

@@ -15,11 +15,10 @@ import com.blankj.utilcode.util.ToastUtils;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
-import com.seafile.seadroid2.framework.data.model.enums.TransferAction;
-import com.seafile.seadroid2.framework.data.model.enums.TransferDataSource;
+import com.seafile.seadroid2.enums.TransferAction;
+import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
-import com.seafile.seadroid2.framework.worker.SupportWorkManager;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
 import com.seafile.seadroid2.framework.worker.upload.UploadFileManuallyWorker;
@@ -55,7 +54,7 @@ public class UploadListFragment extends TransferListFragment {
     }
 
     private void initWorkerListener() {
-        SupportWorkManager.getWorkManager()
+        BackgroundJobManagerImpl.getInstance().getWorkManager()
                 .getWorkInfoByIdLiveData(UploadFolderFileAutomaticallyWorker.UID)
                 .observe(getViewLifecycleOwner(), new Observer<WorkInfo>() {
                     @Override
@@ -64,7 +63,7 @@ public class UploadListFragment extends TransferListFragment {
                     }
                 });
 
-        SupportWorkManager.getWorkManager()
+        BackgroundJobManagerImpl.getInstance().getWorkManager()
                 .getWorkInfoByIdLiveData(UploadFileManuallyWorker.UID)
                 .observe(getViewLifecycleOwner(), new Observer<WorkInfo>() {
                     @Override
@@ -73,7 +72,7 @@ public class UploadListFragment extends TransferListFragment {
                     }
                 });
 
-        SupportWorkManager.getWorkManager()
+        BackgroundJobManagerImpl.getInstance().getWorkManager()
                 .getWorkInfoByIdLiveData(UploadMediaFileAutomaticallyWorker.UID)
                 .observe(getViewLifecycleOwner(), new Observer<WorkInfo>() {
                     @Override
@@ -150,12 +149,13 @@ public class UploadListFragment extends TransferListFragment {
             @Override
             public void onClick(DialogInterface dialog, int which) {
 
-                BackgroundJobManagerImpl.getInstance().cancelFilesUploadWorker();
+                BackgroundJobManagerImpl.getInstance().cancelAllFolderUploadWorker();
 
                 getViewModel().removeSpecialUploadListTask(list, new Consumer<Boolean>() {
                     @Override
                     public void accept(Boolean aBoolean) throws Exception {
-                        BackgroundJobManagerImpl.getInstance().startFolderUploadWorker();
+                        //todo 检查此处逻辑
+//                        BackgroundJobManagerImpl.getInstance().startFolderUploadWorker();
 
                         ToastUtils.showLong(R.string.deleted);
 
@@ -175,9 +175,9 @@ public class UploadListFragment extends TransferListFragment {
             @Override
             public void accept(Boolean aBoolean) throws Exception {
 
-                //
-                BackgroundJobManagerImpl.getInstance().startFolderUploadWorker();
-                BackgroundJobManagerImpl.getInstance().startMediaBackupWorker();
+                //todo 检查此处逻辑
+                BackgroundJobManagerImpl.getInstance().startFolderChainWorker(true);
+                BackgroundJobManagerImpl.getInstance().startMediaChainWorker(true);
             }
         });
     }
@@ -187,8 +187,8 @@ public class UploadListFragment extends TransferListFragment {
      */
     public void cancelAllTasks() {
 
-        BackgroundJobManagerImpl.getInstance().cancelFilesUploadWorker();
-        BackgroundJobManagerImpl.getInstance().cancelMediaWorker();
+        BackgroundJobManagerImpl.getInstance().cancelAllFolderUploadWorker();
+        BackgroundJobManagerImpl.getInstance().cancelAllMediaWorker();
 
         getViewModel().cancelAllUploadTask(new Consumer<Boolean>() {
             @Override
@@ -210,7 +210,7 @@ public class UploadListFragment extends TransferListFragment {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 //
-                BackgroundJobManagerImpl.getInstance().cancelFilesUploadWorker();
+                BackgroundJobManagerImpl.getInstance().cancelAllFolderUploadWorker();
 
                 //
                 getViewModel().removeAllUploadTask(new Consumer<Boolean>() {

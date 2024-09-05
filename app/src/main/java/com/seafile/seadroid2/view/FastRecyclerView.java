@@ -6,10 +6,10 @@ import android.util.AttributeSet;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
-import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView;
 
-public class FastRecyclerView extends FastScrollRecyclerView {
+public class FastRecyclerView extends RecyclerView {
 
     public FastRecyclerView(@NonNull Context context) {
         super(context);
@@ -27,6 +27,6 @@ public class FastRecyclerView extends FastScrollRecyclerView {
     }
 
     private void init() {
-        setLayoutManager(new LinearLayoutManager(getContext()));
+
     }
 }

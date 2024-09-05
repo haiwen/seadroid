@@ -14,4 +14,9 @@
         android:id="@+id/tabs_activity"
         android:icon="@drawable/baseline_activities_bold_24"
         android:title="@string/tabs_activity" />
+
+    <item
+        android:id="@+id/tabs_settings"
+        android:icon="@drawable/baseline_settings_24"
+        android:title="@string/settings" />
 </menu>

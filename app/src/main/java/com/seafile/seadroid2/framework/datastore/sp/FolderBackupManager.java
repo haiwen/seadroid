@@ -16,6 +16,7 @@ import com.seafile.seadroid2.ui.folder_backup.RepoConfig;
 import java.lang.reflect.Type;
 import java.util.List;
 
+@Deprecated
 public class FolderBackupManager {
 //    private static final Context _appContext = SeadroidApplication.getAppContext();
 //

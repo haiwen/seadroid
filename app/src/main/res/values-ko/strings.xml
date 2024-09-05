@@ -5,11 +5,15 @@
   <string name="edit_account">편집</string>
   <string name="delete_account">삭제</string>
   <string name="delete">삭제</string>
+  <string name="deleted">삭제함</string>
   <string name="delete_repo">정말로 이 라이브러리를 삭제할까요?</string>
   <string name="delete_file">정말로 이 파일 또는 폴더를 삭제할까요?</string>
+  <string name="delete_records">정말로 기록을 삭제할까요?</string>
+  <string name="delete_records_and_file">정말로 기록과 로컬에 다운로드한 파일을 삭제할까요?</string>
   <string name="delete_successful">성공적으로 삭제했습니다</string>
   <string name="delete_repo_title">라이브러리 삭제</string>
   <string name="delete_file_f">파일 삭제</string>
+  <string name="delete_local_file_sametime">로컬 파일을 동시에 삭제</string>
   <string name="recover_library">라이브러리 복구</string>
   <string name="recover_file">파일 복구</string>
   <string name="move_file">파일 이동</string>
@@ -64,6 +68,7 @@
   <string name="err_token_expired">인증 유효시간이 지났습니다. 다시 로그인하세요</string>
   <string name="upload">업로드</string>
   <string name="uploaded">업로드함</string>
+  <string name="re_upload">다시 업로드</string>
   <string name="updated">업데이트함</string>
   <string name="download_failed">다운로드에 실패했습니다</string>
   <string name="download_waiting">다운로드 대기 중</string>
@@ -134,6 +139,7 @@
   <string name="load_accounts_fail">Seafile 계정 불러오기에 실패했습니다</string>
   <string name="load_libraries_fail">라이브러리 불러오기에 실패했습니다</string>
   <string name="load_dir_fail">이 폴더의 내용 불러오기에 실패했습니다.</string>
+  <string name="not_supported">현재 지원하지 않습니다</string>
   <string name="not_supported_share">이 공유 형식은 지원하지 않습니다</string>
   <string name="edit">편집</string>
   <string name="create_draft">초안 만들기</string>
@@ -185,6 +191,7 @@
   <string name="share_dir_link">이 폴더 링크 공유</string>
   <string name="share_input_password">공유 암호를 입력하세요</string>
   <string name="generating_link">링크 만드는 중...</string>
+  <string name="generating_link_title">링크 만드는 중</string>
   <string name="link_ready_to_be_pasted">붙여넣을 링크를 준비했습니다.</string>
   <string name="rename_repo">라이브러리 이름 바꾸기</string>
   <string name="rename_file">파일 이름 바꾸기</string>
@@ -196,6 +203,7 @@
     <item>계정</item>
     <item>사진 백업</item>
   </string-array>
+  <string name="navigate_to_directory">디렉터리 탐색</string>
   <string name="no_starred_file">별표 표시한 파일이 없습니다</string>
   <string name="added_to_upload_tasks">업로드를 시작했습니다</string>
   <string name="added_photo_to_upload_tasks">사진 업로드를 시작했습니다</string>
@@ -229,6 +237,7 @@
   <string name="empty_folder">빈 폴더</string>
   <string name="choose_file">파일 선택</string>
   <string name="ssl_error">보안 검사 실패</string>
+  <string name="ssl_not_trusted">%s의 보안 인증서를 신뢰할 수 없습니다.</string>
   <string name="ssl_confirm">%s 보안 인증서를 신뢰할 수 없습니다. 계속할까요?</string>
   <string name="ssl_confirm_cert_changed">%s은(는) 잘못된 보안 인증서를 사용합니다. 안전한 연결이 아닙니다. 그래도 계속 진행할까요?</string>
   <string name="ssl_confirm_title">신뢰할 수 없는 연결</string>
@@ -266,6 +275,7 @@
   <string name="settings_account_sign_out_title">로그아웃</string>
   <string name="settings_account_sign_out_hint">로그아웃 하려면 클릭</string>
   <string name="settings_account_sign_out_confirm">로그아웃할까요?</string>
+  <string name="settings_night_mode_title">야간 모드</string>
   <string name="security">보안</string>
   <string name="gesture_lock">제스처 잠금</string>
   <string name="gesture_lock_on">제스처 잠금 켬</string>
@@ -470,6 +480,7 @@
   <string name="notification_upload_started_title">파일 업로드 중...</string>
   <string name="notification_download_started_title">파일 다운로드 중...</string>
   <string name="notification_upload_completed">업로드를 끝냈습니다</string>
+  <string name="notification_upload_upload_in_progress">%1$d%% %2$s</string>
   <plurals name="notification_upload_info">
     <item quantity="other">파일 %1$d개 업로드 중(%2$d%%)</item>
   </plurals>
@@ -488,7 +499,10 @@
   <string name="action_mode_no_items_selected">선택한 항목이 없습니다</string>
   <!--Accessibility description for navigation drawer-->
   <!--permission-->
+  <string name="permission_manage_external_storage_rationale">파일을 처리하려면, 외부 저장소의 모든 파일 관리를 허용하세요</string>
+  <string name="permission_read_external_storage_rationale">파일을 처리하려면, 저장소의 파일 접근 권한을 허용하세요.</string>
   <string name="permission_read_contacts_storage_rationale">연락처를 처리하려면, 연락처에 접근할 권한이 필요합니다.</string>
+  <string name="permission_camera">미디어 파일을 처리하려면, 카메라 권한을 허용하세요.</string>
   <string name="permission_not_granted">권한을 부여하지 않음</string>
   <string name="history_change_title">자세한 수정 내역</string>
   <string name="no_more_activities">더 이상의 활동 없음</string>
@@ -532,6 +546,8 @@
   <string name="channel_name_error">오류 경고</string>
   <string name="channel_name_upload">파일 업로드 정보</string>
   <string name="channel_name_download">파일 다운로드 정보</string>
+  <string name="channel_name_album_backup">앨범 백업 정보</string>
+  <string name="channel_name_transfer">파일 전송 정보</string>
   <string name="above_quota">제한 용량 이상</string>
   <string name="camera_upload_state">업로드 정보</string>
   <string name="waiting_state">업로드 대기 중</string>
@@ -539,6 +555,7 @@
   <string name="is_scanning">탐색 중</string>
   <string name="is_uploading">업로드 중</string>
   <string name="network_unavailable">네트워크 연결이 없습니다</string>
+  <string name="network_error">네트워크 오류</string>
   <string name="required_password">암호가 필요합니다.</string>
   <string name="weak_password">암호가 매우 단순합니다.</string>
   <!--Folder backup Preference-->
@@ -571,10 +588,44 @@
   <string name="folder_backup_select_repo_update">백업 라이브러리 업데이트</string>
   <string name="UncaughtExceptionHandler_err">프로그램 실행을 멈추었습니다</string>
   <!--action-->
+  <string name="pause">일시 정지</string>
+  <string name="paused">일시 정지함</string>
+  <string name="waiting">대기중</string>
   <string name="add">추가</string>
   <string name="modify">수정</string>
   <string name="update">업데이트</string>
   <string name="clear">지우기</string>
+  <string name="close">닫기</string>
   <string name="clear_all">모두 지우기</string>
+  <string name="done">완료</string>
+  <string name="success">성공</string>
+  <string name="failed">실패</string>
+  <string name="uploading">업로드 중</string>
+  <string name="downloading">다운로드 중</string>
+  <string name="replace_all">모두 바꾸기</string>
+  <string name="replace">바꾸기</string>
+  <string name="replace_local_file">로컬 파일 바꾸기</string>
+  <string name="replace_remote_file">원격 파일 바꾸기</string>
+  <string name="do_not_replace">바꾸지 않음</string>
+  <string name="keep_both">둘 다 유지</string>
+  <string name="off">끔</string>
+  <string name="on">켬</string>
+  <string name="follow_system">시스템 설정 따름</string>
+  <string name="empty">비어 있음</string>
   <!--share link-->
+  <string name="link_permission_set_permission">권한 설정</string>
+  <string name="link_permission_preview_and_download">미리 보기 및 다운로드</string>
+  <string name="link_permission_preview_only">미리 보기만</string>
+  <string name="link_permission_download_and_upload">다운로드 및 업로드</string>
+  <!--menu-->
+  <string name="menu_action_view_and_sort">보기 및 정렬</string>
+  <string name="menu_action_view_list">목록 보기</string>
+  <string name="menu_action_view_grid">격자 보기</string>
+  <string name="menu_action_view_gallery">갤러리 보기</string>
+  <string name="menu_action_sort_by_name">이름</string>
+  <string name="menu_action_sort_by_type">형식</string>
+  <string name="menu_action_sort_by_size">크기</string>
+  <string name="menu_action_sort_by_last_modified">최근 수정</string>
+  <string name="menu_action_sort_order_ascending">오름 차순</string>
+  <string name="menu_action_sort_directories_first">폴더 먼저</string>
 </resources>

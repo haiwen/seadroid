@@ -9,7 +9,6 @@ import com.seafile.seadroid2.R;
 
 public class TipsViews {
     public static TextView getTipTextView(Context context) {
-        TextView v = (TextView) LayoutInflater.from(context).inflate(R.layout.view_tip_textview, null);
-        return v;
+        return (TextView) LayoutInflater.from(context).inflate(R.layout.view_tip_textview, null);
     }
 }

@@ -10,9 +10,7 @@ import com.seafile.seadroid2.SeadroidApplication;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -21,7 +19,10 @@ import java.util.regex.Pattern;
  */
 public class DataStoreManager {
     private static final String DATA_STORE_NAME = "seafile_app_data_store";
+
+    @Deprecated
     private final String DATA_STORE_NAME_PREFIX = "seafile_user_";
+    @Deprecated
     private final String DATA_STORE_NAME_SUFFIX = "_data_store";
 
     private static final Map<String, DataStoreManager> instanceMap = new HashMap<>();
@@ -52,6 +53,7 @@ public class DataStoreManager {
 //        this.filePath = context.getFilesDir().getAbsolutePath() + "/datastore/";
     }
 
+    @Deprecated
     private String replaceNonAlphanumeric(String input) {
         String regex = "[^a-zA-Z0-9]";
         Pattern pattern = Pattern.compile(regex);
@@ -59,14 +61,16 @@ public class DataStoreManager {
         return matcher.replaceAll("_");
     }
 
+    @Deprecated
     public static void resetUserInstance() {
         instanceMap.clear();
     }
 
-    public static DataStoreManager getCommonInstance() {
+    public static DataStoreManager getCommonSharePreference() {
         return getInstanceByUser(DATA_STORE_NAME);
     }
 
+    @Deprecated
     public static DataStoreManager getInstanceByUser(String accountSignature) {
         if (instanceMap.containsKey(accountSignature)) {
             return instanceMap.get(accountSignature);

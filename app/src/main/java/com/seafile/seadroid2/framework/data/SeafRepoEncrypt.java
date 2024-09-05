@@ -2,8 +2,7 @@ package com.seafile.seadroid2.framework.data;
 
 import android.text.TextUtils;
 
-import com.seafile.seadroid2.framework.datastore.sp.AppDataManager;
-import com.seafile.seadroid2.framework.datastore.sp.SettingsManager;
+import com.seafile.seadroid2.framework.datastore.sp_livedata.ClientEncryptSharePreferenceHelper;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -51,7 +50,7 @@ public class SeafRepoEncrypt {
         return encrypted
                 && encVersion == 2
                 && !TextUtils.isEmpty(magic)
-                && AppDataManager.isEncryptEnabled();
+                && ClientEncryptSharePreferenceHelper.isEncryptEnabled();
     }
 
 }

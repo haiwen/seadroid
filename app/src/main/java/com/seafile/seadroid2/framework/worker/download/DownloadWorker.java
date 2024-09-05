@@ -19,15 +19,15 @@ import com.seafile.seadroid2.framework.crypto.Crypto;
 import com.seafile.seadroid2.framework.data.Block;
 import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
-import com.seafile.seadroid2.framework.data.model.enums.TransferDataSource;
+import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.data.FileBlocks;
 import com.seafile.seadroid2.framework.datastore.StorageManager;
 import com.seafile.seadroid2.framework.data.db.AppDatabase;
 import com.seafile.seadroid2.framework.data.db.entities.EncKeyCacheEntity;
 import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
-import com.seafile.seadroid2.framework.data.model.enums.TransferResult;
-import com.seafile.seadroid2.framework.data.model.enums.TransferStatus;
+import com.seafile.seadroid2.enums.TransferResult;
+import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.notification.base.BaseNotification;
 import com.seafile.seadroid2.framework.util.SLogs;
@@ -97,6 +97,7 @@ public class DownloadWorker extends BaseDownloadWorker {
         //count
         int pendingCount = AppDatabase.getInstance().fileTransferDAO().countPendingDownloadListSync(account.getSignature());
         if (pendingCount <= 0) {
+            SLogs.eDebug("没有要下载的");
             return Result.success(getFinishData(false));
         }
 

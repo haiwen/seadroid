@@ -180,7 +180,7 @@ public class Search2Activity extends BaseActivityWithVM<SearchViewModel> impleme
     }
 
     private void initAdapter() {
-        adapter = new SearchRecyclerViewAdapter(this);
+        adapter = new SearchRecyclerViewAdapter();
         adapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener<SearchModel>() {
             @Override
             public void onClick(@NonNull BaseQuickAdapter<SearchModel, ?> baseQuickAdapter, @NonNull View view, int i) {

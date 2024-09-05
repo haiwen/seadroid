@@ -32,6 +32,7 @@ public class ClearCacheDialogFragment extends RequestCustomDialogFragmentWithVM<
             public void accept(Boolean aBoolean) throws Exception {
                 //
                 refreshData(aBoolean);
+
                 dismiss();
             }
         });

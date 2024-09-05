@@ -31,5 +31,5 @@ public class BaseModel {
     public int data_status = 0;
 
     @Ignore
-    public boolean is_selected = false;
+    public boolean is_checked = false;
 }

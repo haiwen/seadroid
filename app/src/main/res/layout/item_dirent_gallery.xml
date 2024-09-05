@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.seafile.seadroid2.widget.CheckableForegroundLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:foreground="?android:selectableItemBackground"
+    android:orientation="vertical"
+    android:padding="8dp">
+
+    <com.seafile.seadroid2.widget.AspectRatioFrameLayout
+        android:id="@+id/aspect_ratio_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:aspectRatio="1">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/item_icon"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:src="@drawable/selectable_item_background_oval"
+            app:shapeAppearance="?shapeAppearanceSmallComponent" />
+
+        <ImageView
+            android:id="@+id/item_multi_select"
+            android:layout_width="@dimen/lv_multi_select_width"
+            android:layout_height="@dimen/lv_multi_select_height"
+            android:layout_alignParentStart="true"
+            android:layout_centerInParent="true"
+            android:paddingVertical="6dp"
+            android:src="@drawable/list_item_download_finished"
+            android:visibility="visible" />
+
+    </com.seafile.seadroid2.widget.AspectRatioFrameLayout>
+
+    <TextView
+        android:visibility="gone"
+        android:id="@+id/item_title"
+        style="@style/ListItemTitleStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        tools:text="@string/app_name" />
+</com.seafile.seadroid2.widget.CheckableForegroundLinearLayout>

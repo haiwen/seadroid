@@ -251,41 +251,10 @@ public class BaseViewModel extends ViewModel {
                 return SeafException.invalidPassword;
             }
 
-            //400
-            if (HttpURLConnection.HTTP_BAD_REQUEST == httpException.code()) {
-                return SeafException.invalidPassword;
-            }
 
             if (resp != null) {
                 try {
-                    ResponseBody body = resp.errorBody();
-                    if (body == null) {
-                        return SeafException.networkException;
-                    }
-
-                    String result = body.string();
-                    if (TextUtils.isEmpty(result)) {
-                        return SeafException.networkException;
-                    }
-
-                    JSONObject json = Utils.parseJsonObject(result);
-                    if (json == null) {
-                        return SeafException.networkException;
-                    }
-
-                    if (json.has("error_msg")) {
-                        String errorMsg = json.optString("error_msg");
-                        if (TextUtils.equals("Wrong password", errorMsg)) {
-                            return SeafException.invalidPassword;
-                        }
-                        return new SeafException(httpException.code(), json.optString("error_msg"));
-                    }
-
-                    if (json.has("detail")) {
-                        return new SeafException(httpException.code(), json.optString("detail"));
-                    }
-
-                    return new SeafException(httpException.code(), result);
+                    return checkResErrorBody(resp);
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
                 }
@@ -309,6 +278,45 @@ public class BaseViewModel extends ViewModel {
         return new SeafException(SeafException.CODE_ERROR, throwable.getMessage());
     }
 
+    private SeafException checkResErrorBody(Response<?> resp) throws IOException {
+        ResponseBody errorBody = resp.errorBody();
+        if (errorBody == null) {
+            return returnBadRequest(resp.code());
+        }
+
+        String result = errorBody.string();
+        if (TextUtils.isEmpty(result)) {
+            return returnBadRequest(resp.code());
+        }
+
+        JSONObject json = Utils.parseJsonObject(result);
+        if (json == null) {
+            return returnBadRequest(resp.code());
+        }
+
+        if (json.has("error_msg")) {
+            String errorMsg = json.optString("error_msg");
+            if (TextUtils.equals("Wrong password", errorMsg)) {
+                return SeafException.invalidPassword;
+            }
+
+            return new SeafException(resp.code(), json.optString("error_msg"));
+        }
+
+        if (json.has("detail")) {
+            return new SeafException(resp.code(), json.optString("detail"));
+        }
+
+        return new SeafException(resp.code(), result);
+    }
+
+    private SeafException returnBadRequest(int code) {
+        if (HttpURLConnection.HTTP_BAD_REQUEST == code) {
+            return SeafException.REQUEST_EXCEPTION;
+        }
+
+        return SeafException.networkException;
+    }
 
     public SeafException getExceptionByThrowableForLogin(Throwable throwable, boolean withAuthToken) throws IOException {
         if (throwable == null) {
@@ -334,6 +342,7 @@ public class BaseViewModel extends ViewModel {
 
         return getExceptionByThrowable(throwable);
     }
+
 
     public String getErrorMsgByThrowable(Throwable throwable) {
         if (throwable instanceof SeafException) {

@@ -16,9 +16,13 @@ import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.TimeUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.chad.library.adapter4.QuickAdapterHelper;
+import com.github.panpf.recycler.sticky.StickyItemDecoration;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.config.AbsLayoutItemType;
 import com.seafile.seadroid2.context.NavContext;
+import com.seafile.seadroid2.enums.FileViewType;
+import com.seafile.seadroid2.enums.RepoSelectType;
 import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.data.db.entities.EncKeyCacheEntity;
 import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
@@ -57,7 +61,7 @@ public class ObjSelectorActivity extends BaseActivity {
     private boolean isOnlyChooseRepo;
 
     private ActivitySelectorObjBinding binding;
-    private NavContext mNavContext = new NavContext();
+    private final NavContext mNavContext = new NavContext();
 
     private RepoQuickAdapter adapter;
     private ObjSelectorViewModel viewModel;
@@ -99,7 +103,7 @@ public class ObjSelectorActivity extends BaseActivity {
 
         initView();
         initViewModel();
-        initAdapter();
+        initRv();
 
         if (canChooseAccount) {
             mStep = STEP_CHOOSE_ACCOUNT;
@@ -142,7 +146,7 @@ public class ObjSelectorActivity extends BaseActivity {
     }
 
     private void onOkClick() {
-        if (!mNavContext.isInRepo()) {
+        if (!mNavContext.inRepo()) {
             ToastUtils.showLong(R.string.choose_a_library);
             return;
         }
@@ -176,9 +180,16 @@ public class ObjSelectorActivity extends BaseActivity {
         });
     }
 
-    private void initAdapter() {
+    private void initRv() {
+        StickyItemDecoration decoration = new StickyItemDecoration.Builder()
+                .itemType(AbsLayoutItemType.GROUP_ITEM)
+                .build();
+
+        binding.rv.addItemDecoration(decoration);
+
         adapter = new RepoQuickAdapter();
-        adapter.setSelectorMode(2);
+        adapter.setSelectType(RepoSelectType.DIRENT);
+        adapter.setFileViewType(FileViewType.LIST);
 
         adapter.setOnItemClickListener((baseQuickAdapter, view, i) -> {
             BaseModel baseModel = adapter.getItems().get(i);
@@ -262,7 +273,7 @@ public class ObjSelectorActivity extends BaseActivity {
 
 
     private void showNewDirDialog() {
-        if (!mNavContext.isInRepo()) {
+        if (!mNavContext.inRepo()) {
             ToastUtils.showLong(R.string.choose_a_library);
             return;
         }
@@ -358,7 +369,7 @@ public class ObjSelectorActivity extends BaseActivity {
             }
             break;
             case STEP_CHOOSE_DIR: {
-                if (mNavContext.isInRepoRoot()) {
+                if (mNavContext.inRepoRoot()) {
                     mStep = STEP_CHOOSE_REPO;
                 } else {
                     mNavContext.pop();

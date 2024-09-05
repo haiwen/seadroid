@@ -13,7 +13,7 @@ import com.blankj.utilcode.util.EncryptUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.framework.data.model.BaseModel;
 import com.seafile.seadroid2.framework.data.model.activities.ActivityModel;
-import com.seafile.seadroid2.framework.data.model.enums.TransferStatus;
+import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.data.model.search.SearchModel;
 import com.seafile.seadroid2.framework.util.Icons;
 import com.seafile.seadroid2.framework.util.Times;
@@ -35,8 +35,6 @@ public class DirentModel extends BaseModel implements Parcelable {
     public String full_path = "";
 
     ///////////////////common///////////////
-
-
     public String name;
 
     /**
@@ -114,7 +112,35 @@ public class DirentModel extends BaseModel implements Parcelable {
     }
 
     public boolean hasWritePermission() {
-        return !TextUtils.isEmpty(permission) && permission.contains("w");
+        if (TextUtils.isEmpty(permission)) {
+            return false;
+        }
+
+        if (permission.equals("cloud-edit")) {
+            return false;
+        }
+
+        if (permission.equals("preview")) {
+            return false;
+        }
+
+        return permission.contains("w");
+    }
+
+    public boolean hasDownloadPermission() {
+        if (TextUtils.isEmpty(permission)) {
+            return false;
+        }
+
+        if (permission.equals("cloud-edit")) {
+            return false;
+        }
+
+        if (permission.equals("preview")) {
+            return false;
+        }
+
+        return true;
     }
 
     public static DirentModel convertStarredModelToThis(StarredModel starredModel) {
@@ -178,11 +204,11 @@ public class DirentModel extends BaseModel implements Parcelable {
         direntModel.repo_id = searchModel.repo_id;
         direntModel.repo_name = searchModel.repo_name;
         direntModel.type = searchModel.is_dir ? "dir" : "file";
-        direntModel.mtime = searchModel.last_modified;
+//        direntModel.mtime = searchModel.last_modified;
         direntModel.parent_dir = Utils.getParentPath(searchModel.fullpath);
         direntModel.name = searchModel.name;
-        direntModel.encoded_thumbnail_src = searchModel.thumbnail_url;
-        direntModel.size = searchModel.size;
+//        direntModel.encoded_thumbnail_src = searchModel.thumbnail_url;
+//        direntModel.size = searchModel.size;
 
         direntModel.uid = direntModel.getUID();
         return direntModel;

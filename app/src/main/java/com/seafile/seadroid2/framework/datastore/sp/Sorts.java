@@ -4,6 +4,7 @@ import android.text.TextUtils;
 
 import com.seafile.seadroid2.framework.datastore.DataStoreManager;
 
+@Deprecated
 public class Sorts {
     /**
      * sort files type
@@ -37,38 +38,38 @@ public class Sorts {
     public static final int SORT_BY_MODIFIED_TIME_DESC = 3;
 
     public static void init() {
-        String k = DataStoreManager.getCommonInstance().readString(SORT_KEY);
+        String k = DataStoreManager.getCommonSharePreference().readString(SORT_KEY);
         if (TextUtils.isEmpty(k)) {
-            DataStoreManager.getCommonInstance().writeString(SORT_KEY, BY_NAME);
+            DataStoreManager.getCommonSharePreference().writeString(SORT_KEY, BY_NAME);
         }
 
-        String o = DataStoreManager.getCommonInstance().readString(SORT_ORDER);
+        String o = DataStoreManager.getCommonSharePreference().readString(SORT_ORDER);
         if (TextUtils.isEmpty(o)) {
-            DataStoreManager.getCommonInstance().writeString(SORT_ORDER, DESCENDING);
+            DataStoreManager.getCommonSharePreference().writeString(SORT_ORDER, DESCENDING);
         }
     }
 
     public static String getSortKey() {
-        return DataStoreManager.getCommonInstance().readString(SORT_KEY);
+        return DataStoreManager.getCommonSharePreference().readString(SORT_KEY);
     }
 
     public static String getSortOrder() {
-        return DataStoreManager.getCommonInstance().readString(SORT_ORDER);
+        return DataStoreManager.getCommonSharePreference().readString(SORT_ORDER);
     }
 
     public static void setSortType(int type) {
         if (type == SORT_BY_NAME_ASC) {
-            DataStoreManager.getCommonInstance().writeString(SORT_KEY, BY_NAME);
-            DataStoreManager.getCommonInstance().writeString(SORT_ORDER, ASCENDING);
+            DataStoreManager.getCommonSharePreference().writeString(SORT_KEY, BY_NAME);
+            DataStoreManager.getCommonSharePreference().writeString(SORT_ORDER, ASCENDING);
         } else if (type == SORT_BY_NAME_DESC) {
-            DataStoreManager.getCommonInstance().writeString(SORT_KEY, BY_NAME);
-            DataStoreManager.getCommonInstance().writeString(SORT_ORDER, DESCENDING);
+            DataStoreManager.getCommonSharePreference().writeString(SORT_KEY, BY_NAME);
+            DataStoreManager.getCommonSharePreference().writeString(SORT_ORDER, DESCENDING);
         } else if (type == SORT_BY_MODIFIED_TIME_ASC) {
-            DataStoreManager.getCommonInstance().writeString(SORT_KEY, BY_MODIFIED_TIME);
-            DataStoreManager.getCommonInstance().writeString(SORT_ORDER, ASCENDING);
+            DataStoreManager.getCommonSharePreference().writeString(SORT_KEY, BY_MODIFIED_TIME);
+            DataStoreManager.getCommonSharePreference().writeString(SORT_ORDER, ASCENDING);
         } else if (type == SORT_BY_MODIFIED_TIME_DESC) {
-            DataStoreManager.getCommonInstance().writeString(SORT_KEY, BY_MODIFIED_TIME);
-            DataStoreManager.getCommonInstance().writeString(SORT_ORDER, DESCENDING);
+            DataStoreManager.getCommonSharePreference().writeString(SORT_KEY, BY_MODIFIED_TIME);
+            DataStoreManager.getCommonSharePreference().writeString(SORT_ORDER, DESCENDING);
         }
     }
 

@@ -1,11 +1,7 @@
 package com.seafile.seadroid2.ui.folder_backup;
 
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.util.Pair;
 import android.view.View;
 
@@ -18,9 +14,7 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.databinding.FolderBackupActivityLayoutBinding;
 import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
-import com.seafile.seadroid2.framework.datastore.sp.FolderBackupManager;
-import com.seafile.seadroid2.framework.util.SLogs;
-import com.seafile.seadroid2.framework.file_monitor.FileSyncService;
+import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
 import com.seafile.seadroid2.ui.base.BaseActivity;
 import com.seafile.seadroid2.ui.selector.ObjSelectorActivity;
 import com.seafile.seadroid2.ui.selector.ObjSelectorFragment;
@@ -30,15 +24,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FolderBackupConfigActivity extends BaseActivity {
-    public static final String FOLDER_BACKUP_SELECT_MODE = "folder_backup_select_mode";
+    public static final String FOLDER_BACKUP_SELECT_TYPE = "folder_backup_select_type";
     public static final String BACKUP_SELECT_PATHS = "backup_select_paths";
     private RepoModel repoModel;
     private Account mAccount;
     private boolean isChooseFolderPage;
     private boolean isChooseRepoPage;
 
-    private FileSyncService mBackupService;
-    private List<String> selectFolderPaths;
+    private List<String> selectedFolderPaths;
 
     private FolderBackupActivityLayoutBinding binding;
     private FolderSelectorFragment folderSelectorFragment;
@@ -52,119 +45,10 @@ public class FolderBackupConfigActivity extends BaseActivity {
 
         setContentView(binding.getRoot());
 
-        if (getSupportActionBar() != null)
+        if (getSupportActionBar() != null) {
             getSupportActionBar().hide();
-
-        initOnBackPressedDispatcher();
-
-        String selectMode = getIntent().getStringExtra(FOLDER_BACKUP_SELECT_MODE);
-        isChooseFolderPage = "folder".equals(selectMode);
-        isChooseRepoPage = "repo".equals(selectMode);
-
-        //bind service
-        Intent bindIntent = new Intent(this, FileSyncService.class);
-        bindService(bindIntent, mFolderBackupConnection, Context.BIND_AUTO_CREATE);
-
-
-        if (isChooseFolderPage) {
-            selectFolderPaths = FolderBackupManager.readBackupPaths();
         }
 
-        if (isChooseRepoPage) {
-            Account account = SupportAccountManager.getInstance().getCurrentAccount();
-            objSelectorFragment = ObjSelectorFragment.newInstance(account);
-            FragmentUtils.add(getSupportFragmentManager(), objSelectorFragment, R.id.container);
-        } else if (isChooseFolderPage) {
-            folderSelectorFragment = new FolderSelectorFragment();
-            FragmentUtils.add(getSupportFragmentManager(), folderSelectorFragment, R.id.container);
-        }
-
-        binding.confirmButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (folderSelectorFragment != null) {
-                    saveFolderConfig();
-                } else if (objSelectorFragment != null) {
-                    saveRepoConfig();
-                }
-            }
-        });
-    }
-
-    public void saveRepoConfig() {
-        if (!isChooseRepoPage) {
-            return;
-        }
-
-        Pair<Account, RepoModel> pair = objSelectorFragment.getCameraUploadInfo();
-        mAccount = pair.first;
-        repoModel = pair.second;
-
-        //FIX an issue: When no folder or library is selected, a crash occurs
-        if (null == repoModel || null == mAccount) {
-            SLogs.d("----------No repo is selected");
-            return;
-        }
-
-        //update sp
-
-        RepoConfig repoConfig = FolderBackupManager.readRepoConfig();
-        if (repoConfig != null) {
-            repoConfig.setRepoName(repoModel.repo_name);
-            repoConfig.setRepoID(repoModel.repo_id);
-        } else {
-            repoConfig = new RepoConfig(repoModel.repo_id, repoModel.repo_name, mAccount.getEmail(), mAccount.getSignature());
-        }
-        FolderBackupManager.writeRepoConfig(repoConfig);
-
-        Intent intent = new Intent();
-        intent.putExtra(ObjSelectorActivity.DATA_REPO_NAME, repoModel.repo_name);
-        intent.putExtra(ObjSelectorActivity.DATA_REPO_ID, repoModel.repo_id);
-        intent.putExtra(ObjSelectorActivity.DATA_ACCOUNT, mAccount);
-
-        String selectMode = getIntent().getStringExtra(FOLDER_BACKUP_SELECT_MODE);
-        intent.putExtra(FOLDER_BACKUP_SELECT_MODE, selectMode);
-
-        setResult(RESULT_OK, intent);
-        finish();
-    }
-
-    public void saveFolderConfig() {
-        if (!isChooseFolderPage) {
-            return;
-        }
-
-        selectFolderPaths = folderSelectorFragment.getSelectedPath();
-
-        if (CollectionUtils.isEmpty(selectFolderPaths)) {
-            SLogs.d("----------No folder is selected");
-
-            //clear local storage
-            FolderBackupManager.writeBackupPaths(null);
-
-            Intent intent = new Intent();
-            String selectMode = getIntent().getStringExtra(FOLDER_BACKUP_SELECT_MODE);
-            intent.putExtra(FOLDER_BACKUP_SELECT_MODE, selectMode);
-            setResult(RESULT_OK, intent);
-
-            finish();
-            return;
-        }
-
-        FolderBackupManager.writeBackupPaths(selectFolderPaths);
-
-        Intent intent = new Intent();
-        intent.putStringArrayListExtra(BACKUP_SELECT_PATHS, (ArrayList<String>) selectFolderPaths);
-
-        String selectMode = getIntent().getStringExtra(FOLDER_BACKUP_SELECT_MODE);
-        intent.putExtra(FOLDER_BACKUP_SELECT_MODE, selectMode);
-
-        setResult(RESULT_OK, intent);
-
-        finish();
-    }
-
-    private void initOnBackPressedDispatcher() {
         getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
@@ -176,32 +60,90 @@ public class FolderBackupConfigActivity extends BaseActivity {
                 finish();
             }
         });
+
+
+        binding.confirmButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (folderSelectorFragment != null) {
+                    saveFolderConfig();
+                } else if (objSelectorFragment != null) {
+                    saveRepoConfig();
+                }
+            }
+        });
+
+        initFragment();
     }
 
-    public boolean isChooseDirPage() {
-        return isChooseFolderPage;
+    private void initFragment() {
+        String selectMode = getIntent().getStringExtra(FOLDER_BACKUP_SELECT_TYPE);
+        isChooseFolderPage = "folder".equals(selectMode);
+        isChooseRepoPage = "repo".equals(selectMode);
+
+        if (isChooseRepoPage) {
+            Account account = SupportAccountManager.getInstance().getCurrentAccount();
+            objSelectorFragment = ObjSelectorFragment.newInstance(account);
+            FragmentUtils.add(getSupportFragmentManager(), objSelectorFragment, R.id.container);
+
+        } else if (isChooseFolderPage) {
+            selectedFolderPaths = FolderBackupSharePreferenceHelper.readBackupPathsAsList();
+
+            folderSelectorFragment = new FolderSelectorFragment();
+            FragmentUtils.add(getSupportFragmentManager(), folderSelectorFragment, R.id.container);
+        }
     }
 
-    @Override
-    protected void onDestroy() {
-        if (mBackupService != null) {
-            unbindService(mFolderBackupConnection);
-            mBackupService = null;
+    public void saveRepoConfig() {
+        if (!isChooseRepoPage) {
+            return;
         }
-        super.onDestroy();
+
+        Pair<Account, RepoModel> pair = objSelectorFragment.getBackupInfo();
+        mAccount = pair.first;
+        repoModel = pair.second;
+
+        Intent intent = new Intent();
+
+        String selectType = getIntent().getStringExtra(FOLDER_BACKUP_SELECT_TYPE);
+        intent.putExtra(FOLDER_BACKUP_SELECT_TYPE, selectType);
+
+        //FIX an issue: When no folder or library is selected, a crash occurs
+        if (null == repoModel || null == mAccount) {
+
+        } else {
+            intent.putExtra(ObjSelectorActivity.DATA_REPO_NAME, repoModel.repo_name);
+            intent.putExtra(ObjSelectorActivity.DATA_REPO_ID, repoModel.repo_id);
+            intent.putExtra(ObjSelectorActivity.DATA_ACCOUNT, mAccount);
+        }
+
+        setResult(RESULT_OK, intent);
+        finish();
     }
 
-    private final ServiceConnection mFolderBackupConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName className, IBinder binder) {
-            FileSyncService.FileSyncBinder fileBackupBinder = (FileSyncService.FileSyncBinder) binder;
-            mBackupService = fileBackupBinder.getService();
+    public void saveFolderConfig() {
+        if (!isChooseFolderPage) {
+            return;
         }
 
-        @Override
-        public void onServiceDisconnected(ComponentName className) {
-            mBackupService = null;
+
+        Intent intent = new Intent();
+
+        //set select type
+        String selectMode = getIntent().getStringExtra(FOLDER_BACKUP_SELECT_TYPE);
+        intent.putExtra(FOLDER_BACKUP_SELECT_TYPE, selectMode);
+
+        selectedFolderPaths = folderSelectorFragment.getSelectedPath();
+        if (CollectionUtils.isEmpty(selectedFolderPaths)) {
+            //clear local storage
+            intent.putStringArrayListExtra(BACKUP_SELECT_PATHS, null);
+        } else {
+            intent.putStringArrayListExtra(BACKUP_SELECT_PATHS, (ArrayList<String>) selectedFolderPaths);
         }
 
-    };
+        //set result
+        setResult(RESULT_OK, intent);
+        finish();
+    }
+
 }

@@ -11,6 +11,7 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.ui.dialog_fragment.listener.OnSortItemClickListener;
 import com.seafile.seadroid2.framework.datastore.sp.Sorts;
 
+@Deprecated
 public class SortFilesDialogFragment extends DialogFragment {
     
     // Use this instance of the interface to deliver action events

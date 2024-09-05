@@ -144,6 +144,7 @@
     <string name="error_when_load_starred">Error when loading starred files.\n Tap to refresh</string>
     <string name="dir_empty">This folder is empty</string>
     <string name="no_repo">You have no libraries yet</string>
+    <string name="no_album_type_data">You have no album types available for preview.</string>
     <string name="no_app_available">No app can be found</string>
     <string name="add_to_seafile">Add to Seafile</string>
     <string name="ok">OK</string>
@@ -286,12 +287,14 @@
     <string name="confirm">Confirm</string>
     <string name="repo_not_found">Couldn\'t find this library. It may be deleted or encrypted</string>
     <string name="settings_account">Account</string>
+    <string name="settings_switch_account">Switch account</string>
     <string name="settings_account_info_title">User info</string>
     <string name="settings_account_info_load_data">loading…</string>
     <string name="settings_account_space_title">Space used</string>
     <string name="settings_account_sign_out_title">Sign out</string>
     <string name="settings_account_sign_out_hint">Click to sign out</string>
     <string name="settings_account_sign_out_confirm">Do you want to sign out?</string>
+    <string name="settings_night_mode_title">Night mode</string>
     <string name="security">Security</string>
     <string name="gesture_lock">Gesture Lock</string>
     <string name="gesture_lock_on">Gesture lock on</string>
@@ -639,11 +642,25 @@
     <string name="replace_remote_file">Replace remote file</string>
     <string name="do_not_replace">Do not replace</string>
     <string name="keep_both">Keep Both</string>
-
+    <string name="off">Off</string>
+    <string name="on">On</string>
+    <string name="follow_system">Follow system</string>
+    <string name="empty">Empty</string>
     <!-- share link -->
     <string name="link_permission_set_permission">Set permission</string>
     <string name="link_permission_preview_and_download">Preview and download</string>
     <string name="link_permission_preview_only">Preview only</string>
     <string name="link_permission_download_and_upload">Download and upload</string>
 
+    <!-- menu -->
+    <string name="menu_action_view_and_sort">View and sort</string>
+    <string name="menu_action_view_list">List</string>
+    <string name="menu_action_view_grid">Grid</string>
+    <string name="menu_action_view_gallery">Gallery</string>
+    <string name="menu_action_sort_by_name">Name</string>
+    <string name="menu_action_sort_by_type">Type</string>
+    <string name="menu_action_sort_by_size">Size</string>
+    <string name="menu_action_sort_by_last_modified">Last modified</string>
+    <string name="menu_action_sort_order_ascending">Ascending</string>
+    <string name="menu_action_sort_directories_first">Folders first</string>
 </resources>

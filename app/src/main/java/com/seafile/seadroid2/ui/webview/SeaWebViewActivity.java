@@ -14,6 +14,8 @@ import android.widget.ProgressBar;
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
+import androidx.webkit.WebSettingsCompat;
+import androidx.webkit.WebViewFeature;
 
 import com.blankj.utilcode.util.ActivityUtils;
 import com.seafile.seadroid2.R;
@@ -114,6 +116,11 @@ public class SeaWebViewActivity extends BaseActivity {
         }
 
         mWebView = PreloadWebView.getInstance().getWebView(this);
+
+        if (WebViewFeature.isFeatureSupported(WebViewFeature.ALGORITHMIC_DARKENING)) {
+            WebSettingsCompat.setAlgorithmicDarkeningAllowed(mWebView.getSettings(), true);
+        }
+
         LinearLayout.LayoutParams ll = new LinearLayout.LayoutParams(-1, -1);
         ll.weight = 1;
         mWebView.setLayoutParams(ll);

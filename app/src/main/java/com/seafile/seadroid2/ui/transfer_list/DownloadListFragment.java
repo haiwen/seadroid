@@ -15,12 +15,11 @@ import com.blankj.utilcode.util.ToastUtils;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
-import com.seafile.seadroid2.framework.data.model.enums.TransferAction;
-import com.seafile.seadroid2.framework.data.model.enums.TransferDataSource;
+import com.seafile.seadroid2.enums.TransferAction;
+import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.framework.worker.download.DownloadWorker;
-import com.seafile.seadroid2.framework.worker.SupportWorkManager;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
 
@@ -51,7 +50,7 @@ public class DownloadListFragment extends TransferListFragment {
     }
 
     private void initWorkerListener() {
-        SupportWorkManager.getWorkManager()
+        BackgroundJobManagerImpl.getInstance().getWorkManager()
                 .getWorkInfoByIdLiveData(DownloadWorker.UID)
                 .observe(getViewLifecycleOwner(), new Observer<WorkInfo>() {
                     @Override
@@ -129,13 +128,13 @@ public class DownloadListFragment extends TransferListFragment {
             @Override
             public void onClick(DialogInterface dialog, int which) {
 
-                BackgroundJobManagerImpl.getInstance().cancelFilesDownloadJob();
+                BackgroundJobManagerImpl.getInstance().cancelDownloadWorker();
 
                 getViewModel().removeSpecialDownloadListTask(list, new Consumer<Boolean>() {
                     @Override
                     public void accept(Boolean aBoolean) throws Exception {
 
-                        BackgroundJobManagerImpl.getInstance().scheduleOneTimeFilesDownloadScanWorker();
+                        BackgroundJobManagerImpl.getInstance().startDownloadChainWorker();
 
                         ToastUtils.showLong(R.string.deleted);
 
@@ -172,7 +171,7 @@ public class DownloadListFragment extends TransferListFragment {
             public void accept(Boolean aBoolean) throws Exception {
 
                 //
-                BackgroundJobManagerImpl.getInstance().startFileDownloadWorker();
+                BackgroundJobManagerImpl.getInstance().startDownloadChainWorker();
             }
         });
 
@@ -182,7 +181,7 @@ public class DownloadListFragment extends TransferListFragment {
      * cancel all download tasks
      */
     public void cancelAllTasks() {
-        BackgroundJobManagerImpl.getInstance().cancelFilesDownloadJob();
+        BackgroundJobManagerImpl.getInstance().cancelDownloadWorker();
 
         getViewModel().cancelAllDownloadTask(new Consumer<Boolean>() {
             @Override
@@ -203,7 +202,7 @@ public class DownloadListFragment extends TransferListFragment {
             public void onClick(DialogInterface dialog, int which) {
 
                 //cancel worker
-                BackgroundJobManagerImpl.getInstance().cancelFilesDownloadJob();
+                BackgroundJobManagerImpl.getInstance().cancelDownloadWorker();
 
                 getViewModel().removeAllDownloadTask(new Consumer<Boolean>() {
                     @Override

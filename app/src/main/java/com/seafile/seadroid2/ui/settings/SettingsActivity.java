@@ -18,6 +18,7 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.databinding.SettingsActivityLayoutBinding;
 import com.seafile.seadroid2.ui.base.BaseActivity;
 
+@Deprecated
 public class SettingsActivity extends BaseActivity implements Toolbar.OnMenuItemClickListener, PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
 
     private SettingsActivityLayoutBinding binding;
@@ -73,10 +74,7 @@ public class SettingsActivity extends BaseActivity implements Toolbar.OnMenuItem
         String f = pref.getFragment();
         final Fragment fragment = getSupportFragmentManager().getFragmentFactory().instantiate(getClassLoader(), f);
         fragment.setArguments(args);
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.settings_fragment_container, fragment)
-                .addToBackStack(null)
-                .commit();
+        getSupportFragmentManager().beginTransaction().replace(R.id.settings_fragment_container, fragment).addToBackStack(null).commit();
         return true;
     }
 }

@@ -36,27 +36,23 @@ import com.blankj.utilcode.util.AppUtils;
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.firebase.analytics.FirebaseAnalytics;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
-import com.seafile.seadroid2.config.AnalyticsEvent;
 import com.seafile.seadroid2.config.Constants;
+import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.framework.data.ServerInfo;
-import com.seafile.seadroid2.framework.data.model.enums.TransferDataSource;
 import com.seafile.seadroid2.framework.datastore.StorageManager;
 import com.seafile.seadroid2.framework.datastore.sp.AlbumBackupManager;
 import com.seafile.seadroid2.framework.datastore.sp.AppDataManager;
 import com.seafile.seadroid2.framework.datastore.sp.FolderBackupManager;
-import com.seafile.seadroid2.framework.datastore.sp.GestureLockManager;
 import com.seafile.seadroid2.framework.datastore.sp.SettingsManager;
 import com.seafile.seadroid2.framework.file_monitor.FileSyncService;
 import com.seafile.seadroid2.framework.util.GlideApp;
 import com.seafile.seadroid2.framework.util.PermissionUtil;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
-import com.seafile.seadroid2.framework.worker.SupportWorkManager;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
 import com.seafile.seadroid2.framework.worker.upload.FolderBackupScannerWorker;
@@ -83,6 +79,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+@Deprecated
 public class SettingsFragment extends PreferenceFragmentCompat {
     private static final String DEBUG_TAG = "SettingsFragment";
 
@@ -163,43 +160,43 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 activityViewModel.getRefreshLiveData().setValue(aBoolean);
             }
         });
-
-        viewModel.getAccountInfoLiveData().observe(getViewLifecycleOwner(), accountInfo -> {
-            // update Account info settings
-            findPreference(SettingsManager.SETTINGS_ACCOUNT_INFO_KEY).setSummary(accountInfo.getDisplayName());
-            findPreference(SettingsManager.SETTINGS_ACCOUNT_SPACE_KEY).setSummary(accountInfo.getSpaceUsed());
-
-            refreshServerView();
-        });
-
-        viewModel.getCacheSizeLiveData().observe(getViewLifecycleOwner(), new Observer<String>() {
-            @Override
-            public void onChanged(String s) {
-                findPreference(SettingsManager.SETTINGS_CACHE_SIZE_KEY).setSummary(s);
-            }
-        });
-
-        viewModel.getFolderBackupStateLiveData().observe(getViewLifecycleOwner(), new Observer<String>() {
-            @Override
-            public void onChanged(String s) {
-                if (mFolderBackupState != null) {
-                    mFolderBackupState.setSummary(s);
-                }
-            }
-        });
-
-        viewModel.getAlbumBackupStateLiveData().observe(getViewLifecycleOwner(), new Observer<String>() {
-            @Override
-            public void onChanged(String s) {
-                if (CameraUploadManager.getInstance().isCameraUploadEnabled() && mCameraBackupState != null) {
-                    mCameraBackupState.setSummary(s);
-                }
-            }
-        });
+//
+//        viewModel.getAccountInfoLiveData().observe(getViewLifecycleOwner(), accountInfo -> {
+//            // update Account info settings
+//            findPreference(SettingsManager.SETTINGS_ACCOUNT_INFO_KEY).setSummary(accountInfo.getDisplayName());
+//            findPreference(SettingsManager.SETTINGS_ACCOUNT_SPACE_KEY).setSummary(accountInfo.getSpaceUsed());
+//
+//            refreshServerView();
+//        });
+//
+//        viewModel.getCacheSizeLiveData().observe(getViewLifecycleOwner(), new Observer<String>() {
+//            @Override
+//            public void onChanged(String s) {
+//                findPreference(SettingsManager.SETTINGS_CACHE_SIZE_KEY).setSummary(s);
+//            }
+//        });
+//
+//        viewModel.getFolderBackupStateLiveData().observe(getViewLifecycleOwner(), new Observer<String>() {
+//            @Override
+//            public void onChanged(String s) {
+//                if (mFolderBackupState != null) {
+//                    mFolderBackupState.setSummary(s);
+//                }
+//            }
+//        });
+//
+//        viewModel.getAlbumBackupStateLiveData().observe(getViewLifecycleOwner(), new Observer<String>() {
+//            @Override
+//            public void onChanged(String s) {
+//                if (CameraUploadManager.getInstance().isCameraUploadEnabled() && mCameraBackupState != null) {
+//                    mCameraBackupState.setSummary(s);
+//                }
+//            }
+//        });
     }
 
     private void initWorkerListener() {
-        SupportWorkManager.getWorkManager()
+        BackgroundJobManagerImpl.getInstance().getWorkManager()
                 .getWorkInfoByIdLiveData(MediaBackupScannerWorker.UID)
                 .observe(getViewLifecycleOwner(), new Observer<WorkInfo>() {
                     @Override
@@ -208,7 +205,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                     }
                 });
 
-        SupportWorkManager.getWorkManager()
+        BackgroundJobManagerImpl.getInstance().getWorkManager()
                 .getWorkInfoByIdLiveData(FolderBackupScannerWorker.UID)
                 .observe(getViewLifecycleOwner(), new Observer<WorkInfo>() {
                     @Override
@@ -217,7 +214,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                     }
                 });
 
-        SupportWorkManager.getWorkManager()
+        BackgroundJobManagerImpl.getInstance().getWorkManager()
                 .getWorkInfoByIdLiveData(UploadFolderFileAutomaticallyWorker.UID)
                 .observe(getViewLifecycleOwner(), new Observer<WorkInfo>() {
                     @Override
@@ -226,7 +223,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                     }
                 });
 
-        SupportWorkManager.getWorkManager()
+        BackgroundJobManagerImpl.getInstance().getWorkManager()
                 .getWorkInfoByIdLiveData(UploadMediaFileAutomaticallyWorker.UID)
                 .observe(getViewLifecycleOwner(), new Observer<WorkInfo>() {
                     @Override
@@ -307,13 +304,13 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             if (TransferEvent.EVENT_CANCEL_OUT_OF_QUOTA.equals(progressEvent)) {
                 mCameraBackupState.setSummary(R.string.above_quota);
             } else if (TransferEvent.EVENT_TRANSFERRING.equals(progressEvent)) {
-                viewModel.countAlbumBackupState(requireContext());
+                viewModel.countAlbumBackupPendingList(requireContext());
             }
         } else if (String.valueOf(TransferDataSource.FOLDER_BACKUP).equals(dataType)) {
             if (TransferEvent.EVENT_CANCEL_OUT_OF_QUOTA.equals(progressEvent)) {
                 mFolderBackupState.setSummary(R.string.above_quota);
             } else if (TransferEvent.EVENT_TRANSFERRING.equals(progressEvent)) {
-                viewModel.countFolderBackupState(requireContext());
+                viewModel.countFolderBackupPendingList(requireContext());
             }
         }
     }
@@ -322,11 +319,11 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         viewModel.getAccountInfo();
 
         if (mCameraBackupSwitch.isChecked()) {
-            viewModel.countAlbumBackupState(requireContext());
+            viewModel.countAlbumBackupPendingList(requireContext());
         }
 
         if (mFolderBackupSwitch.isChecked()) {
-            viewModel.countFolderBackupState(requireContext());
+            viewModel.countFolderBackupPendingList(requireContext());
         }
     }
 
@@ -400,10 +397,10 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     private void initAppView() {
         //gesture lock
         SwitchPreferenceCompat gestureSwitch = findPreference(SettingsManager.GESTURE_LOCK_SWITCH_KEY);
-        gestureSwitch.setChecked(GestureLockManager.readGestureLockSwitch());
+//        gestureSwitch.setChecked(GestureLockManager.readGestureLockSwitch());
         gestureSwitch.setOnPreferenceChangeListener((preference, newValue) -> {
             boolean isChecked = (Boolean) newValue;
-            GestureLockManager.writeGestureLockSwitch(isChecked);
+//            GestureLockManager.writeGestureLockSwitch(isChecked);
 
             if (isChecked) {
                 // inverse checked status
@@ -514,7 +511,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             mFolderBackupRepo.setOnPreferenceClickListener(preference -> {
 
                 Intent intent = new Intent(mActivity, FolderBackupConfigActivity.class);
-                intent.putExtra(FolderBackupConfigActivity.FOLDER_BACKUP_SELECT_MODE, "repo");
+                intent.putExtra(FolderBackupConfigActivity.FOLDER_BACKUP_SELECT_TYPE, "repo");
                 folderBackupConfigLauncher.launch(intent);
 
                 return true;
@@ -533,7 +530,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 } else {
                     intent = new Intent(mActivity, FolderBackupSelectedPathActivity.class);
                 }
-                intent.putExtra(FolderBackupConfigActivity.FOLDER_BACKUP_SELECT_MODE, "folder");
+                intent.putExtra(FolderBackupConfigActivity.FOLDER_BACKUP_SELECT_TYPE, "folder");
                 folderBackupConfigLauncher.launch(intent);
 
                 return true;
@@ -632,7 +629,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 refreshFolderBackNetworkMode(which);
 
                 //restart
-                BackgroundJobManagerImpl.getInstance().restartFolderUploadWorker();
+                BackgroundJobManagerImpl.getInstance().startFolderChainWorker(true);
 
             }
         });
@@ -719,16 +716,10 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     private void switchCameraWorker(boolean isChecked) {
         if (isChecked) {
             CameraUploadManager.getInstance().setCameraAccount(currentAccount);
-            BackgroundJobManagerImpl.getInstance().restartMediaBackupWorker(true);
-
-            //firebase - event - switch camera worker
-            Bundle eventBundle = new Bundle();
-            eventBundle.putString(FirebaseAnalytics.Param.METHOD, "switchCameraWorker");
-            FirebaseAnalytics.getInstance(requireContext()).logEvent(AnalyticsEvent.ALBUM_BACKUP, eventBundle);
-
+            BackgroundJobManagerImpl.getInstance().startMediaChainWorker(true);
         } else {
             CameraUploadManager.getInstance().disableCameraUpload();
-            BackgroundJobManagerImpl.getInstance().cancelMediaWorker();
+            BackgroundJobManagerImpl.getInstance().cancelAllMediaWorker();
         }
     }
 
@@ -742,9 +733,9 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         setFolderPreferencesVisible(isFolderAutomaticBackup);
 
         if (!isFolderAutomaticBackup) {
-            BackgroundJobManagerImpl.getInstance().cancelFilesUploadWorker();
+            BackgroundJobManagerImpl.getInstance().cancelAllFolderUploadWorker();
             if (fileSyncService != null) {
-                fileSyncService.stopFolderMonitor();
+//                fileSyncService.stopFolderMonitor();
             }
             return;
         }
@@ -765,17 +756,11 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
         if (isSync && !CollectionUtils.isEmpty(pathList) && repoConfig != null) {
             if (fileSyncService != null) {
-                fileSyncService.startFolderMonitor();
+//                fileSyncService.startFolderMonitor();
             }
 
-            BackgroundJobManagerImpl.getInstance().scheduleFolderBackupScannerWorker(true);
+            BackgroundJobManagerImpl.getInstance().startFolderChainWorker(true);
         }
-
-        //firebase - event - album_backup
-        Bundle eventBundle = new Bundle();
-        eventBundle.putString(FirebaseAnalytics.Param.METHOD, "refreshFolderBackupView");
-        FirebaseAnalytics.getInstance(requireContext()).logEvent(AnalyticsEvent.ALBUM_BACKUP, eventBundle);
-
     }
 
     private void refreshFolderBackNetworkMode() {

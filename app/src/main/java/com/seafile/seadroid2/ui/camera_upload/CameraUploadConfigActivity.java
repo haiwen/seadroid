@@ -12,12 +12,13 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.google.android.material.tabs.TabLayoutMediator;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
-import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
 import com.seafile.seadroid2.databinding.CucActivityLayoutBinding;
-import com.seafile.seadroid2.framework.datastore.sp.AlbumBackupManager;
+import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
+import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.util.SLogs;
-import com.seafile.seadroid2.ui.base.BaseActivity;
+import com.seafile.seadroid2.framework.util.SystemSwitchUtils;
 import com.seafile.seadroid2.ui.adapter.ViewPager2Adapter;
+import com.seafile.seadroid2.ui.base.BaseActivity;
 import com.seafile.seadroid2.ui.camera_upload.config_fragment.BucketsFragment;
 import com.seafile.seadroid2.ui.camera_upload.config_fragment.ConfigWelcomeFragment;
 import com.seafile.seadroid2.ui.camera_upload.config_fragment.HowToUploadFragment;
@@ -25,8 +26,6 @@ import com.seafile.seadroid2.ui.camera_upload.config_fragment.ReadyToScanFragmen
 import com.seafile.seadroid2.ui.camera_upload.config_fragment.WhatToUploadFragment;
 import com.seafile.seadroid2.ui.folder_backup.RepoConfig;
 import com.seafile.seadroid2.ui.selector.ObjSelectorFragment;
-import com.seafile.seadroid2.ui.settings.SettingsFragment;
-import com.seafile.seadroid2.framework.util.SystemSwitchUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +35,9 @@ import java.util.List;
  * Camera upload configuration helper
  */
 public class CameraUploadConfigActivity extends BaseActivity {
+    public static final String CAMERA_UPLOAD_REMOTE_LIBRARY = "com.seafile.seadroid2.camera.upload.library";
+    public static final String CAMERA_UPLOAD_LOCAL_DIRECTORIES = "com.seafile.seadroid2.camera.upload.directories";
+
 
     private RepoModel repoModel;
     private Account mAccount;
@@ -63,8 +65,8 @@ public class CameraUploadConfigActivity extends BaseActivity {
         if (getSupportActionBar() != null)
             getSupportActionBar().hide();
 
-        isChooseRepoPage = getIntent().getBooleanExtra(SettingsFragment.CAMERA_UPLOAD_REMOTE_LIBRARY, false);
-        isChooseDirPage = getIntent().getBooleanExtra(SettingsFragment.CAMERA_UPLOAD_LOCAL_DIRECTORIES, false);
+        isChooseRepoPage = getIntent().getBooleanExtra(CAMERA_UPLOAD_REMOTE_LIBRARY, false);
+        isChooseDirPage = getIntent().getBooleanExtra(CAMERA_UPLOAD_LOCAL_DIRECTORIES, false);
 
         initOnBackPressedDispatcher();
 
@@ -129,16 +131,18 @@ public class CameraUploadConfigActivity extends BaseActivity {
     }
 
     private void saveSettings() {
+        //TODO improve
         SystemSwitchUtils.getInstance(this).syncSwitchUtils();
+
         for (Fragment fragment : fragmentList) {
             if (fragment instanceof HowToUploadFragment) {
 
                 HowToUploadFragment howToUploadFragment = (HowToUploadFragment) fragment;
-                AlbumBackupManager.writeAllowDataPlanSwitch(howToUploadFragment.getHowToUpload());
+                AlbumBackupSharePreferenceHelper.writeAllowDataPlanSwitch(howToUploadFragment.getHowToUpload());
             } else if (fragment instanceof WhatToUploadFragment) {
 
                 WhatToUploadFragment whatToUploadFragment = (WhatToUploadFragment) fragment;
-                AlbumBackupManager.writeAllowVideoSwitch(whatToUploadFragment.getWhatToUpload());
+                AlbumBackupSharePreferenceHelper.writeAllowVideoSwitch(whatToUploadFragment.getWhatToUpload());
 
 
             } else if (fragment instanceof BucketsFragment) {
@@ -149,11 +153,11 @@ public class CameraUploadConfigActivity extends BaseActivity {
                     selectedBuckets.clear();
                 }
 
-                AlbumBackupManager.writeBucketIds(selectedBuckets);
+                AlbumBackupSharePreferenceHelper.writeBucketIds(selectedBuckets);
             } else if (fragment instanceof ObjSelectorFragment) {
 
                 ObjSelectorFragment cloudLibrarySelectorFragment = (ObjSelectorFragment) fragment;
-                Pair<Account, RepoModel> pair = cloudLibrarySelectorFragment.getCameraUploadInfo();
+                Pair<Account, RepoModel> pair = cloudLibrarySelectorFragment.getBackupInfo();
                 mAccount = pair.first;
                 repoModel = pair.second;
 
@@ -163,13 +167,13 @@ public class CameraUploadConfigActivity extends BaseActivity {
                 }
 
                 RepoConfig config = new RepoConfig(repoModel.repo_id, repoModel.repo_name, mAccount.email, mAccount.getSignature());
-                AlbumBackupManager.writeRepoConfig(config);
+                AlbumBackupSharePreferenceHelper.writeRepoConfig(config);
             }
         }
 
         Intent intent = new Intent();
-        intent.putExtra(SettingsFragment.CAMERA_UPLOAD_REMOTE_LIBRARY, isChooseRepoPage);
-        intent.putExtra(SettingsFragment.CAMERA_UPLOAD_LOCAL_DIRECTORIES, isChooseDirPage);
+        intent.putExtra(CAMERA_UPLOAD_REMOTE_LIBRARY, isChooseRepoPage);
+        intent.putExtra(CAMERA_UPLOAD_LOCAL_DIRECTORIES, isChooseDirPage);
         setResult(RESULT_OK, intent);
         finish();
     }
@@ -180,8 +184,8 @@ public class CameraUploadConfigActivity extends BaseActivity {
             public void handleOnBackPressed() {
                 if (mCurrentPosition == 0) {
                     Intent intent = new Intent();
-                    intent.putExtra(SettingsFragment.CAMERA_UPLOAD_LOCAL_DIRECTORIES, isChooseDirPage);
-                    intent.putExtra(SettingsFragment.CAMERA_UPLOAD_REMOTE_LIBRARY, isChooseRepoPage);
+                    intent.putExtra(CAMERA_UPLOAD_LOCAL_DIRECTORIES, isChooseDirPage);
+                    intent.putExtra(CAMERA_UPLOAD_REMOTE_LIBRARY, isChooseRepoPage);
                     setResult(RESULT_CANCELED, intent);
                     finish();
                 } else {
