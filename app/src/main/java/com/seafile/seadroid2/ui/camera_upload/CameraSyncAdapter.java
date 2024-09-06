@@ -40,8 +40,6 @@ import com.seafile.seadroid2.framework.util.CameraSyncStatus;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Utils;
 
-import org.greenrobot.eventbus.EventBus;
-
 import java.io.File;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;

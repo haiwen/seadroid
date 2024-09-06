@@ -1,16 +1,13 @@
 package com.seafile.seadroid2.context;
 
+import com.seafile.seadroid2.enums.OpType;
 import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
 
 import java.util.List;
 
 public class CopyMoveContext {
-    public enum OP {
-        COPY,
-        MOVE
-    }
 
-    public OP op;
+    public OpType op;
 
     public List<DirentModel> dirents;
     public String srcRepoId;
@@ -26,7 +23,7 @@ public class CopyMoveContext {
     /**
      * Constructor for multiple files operations
      */
-    public CopyMoveContext(String srcRepoId, String srcRepoName, String srcDir, List<DirentModel> dirents, OP op) {
+    public CopyMoveContext(String srcRepoId, String srcRepoName, String srcDir, List<DirentModel> dirents, OpType op) {
         this.srcRepoId = srcRepoId;
         this.srcRepoName = srcRepoName;
         this.srcDir = srcDir;
@@ -41,11 +38,11 @@ public class CopyMoveContext {
     }
 
     public boolean isCopy() {
-        return op == OP.COPY;
+        return op == OpType.COPY;
     }
 
     public boolean isMove() {
-        return op == OP.MOVE;
+        return op == OpType.MOVE;
     }
 
     /**

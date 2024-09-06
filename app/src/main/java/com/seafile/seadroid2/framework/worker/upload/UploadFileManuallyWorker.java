@@ -18,11 +18,10 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.framework.data.db.AppDatabase;
 import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
-import com.seafile.seadroid2.framework.data.model.enums.TransferAction;
-import com.seafile.seadroid2.framework.data.model.enums.TransferDataSource;
-import com.seafile.seadroid2.framework.data.model.enums.TransferResult;
+import com.seafile.seadroid2.enums.TransferAction;
+import com.seafile.seadroid2.enums.TransferDataSource;
+import com.seafile.seadroid2.enums.TransferResult;
 import com.seafile.seadroid2.framework.notification.FileBackupNotificationHelper;
-import com.seafile.seadroid2.framework.notification.base.BaseNotification;
 import com.seafile.seadroid2.framework.notification.base.BaseTransferNotificationHelper;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
@@ -125,6 +124,7 @@ public class UploadFileManuallyWorker extends BaseUploadWorker {
                 transferEntity.modified_at = System.currentTimeMillis();
                 AppDatabase.getInstance().fileTransferDAO().update(transferEntity);
 
+                //transfer
                 transferFile(account, transferEntity);
 
                 sendTransferEvent(transferEntity, true);
@@ -170,12 +170,12 @@ public class UploadFileManuallyWorker extends BaseUploadWorker {
 //                        TransferDataSource.FILE_BACKUP
 //                );
 
-        Data data = new Data.Builder()
+        Data outputData = new Data.Builder()
                 .putString(TransferWorker.KEY_DATA_EVENT, finishFlagEvent)
                 .putBoolean(TransferWorker.KEY_DATA_PARAM, isUploaded)
                 .putString(TransferWorker.KEY_DATA_TYPE, String.valueOf(TransferDataSource.FILE_BACKUP))
                 .build();
-        return ListenableWorker.Result.success(data);
+        return ListenableWorker.Result.success(outputData);
     }
 
 }

@@ -22,6 +22,8 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.config.RepoType;
+import com.seafile.seadroid2.enums.SortBy;
+import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.data.db.AppDatabase;
 import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
@@ -29,14 +31,13 @@ import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.data.db.entities.StarredModel;
 import com.seafile.seadroid2.framework.data.model.BaseModel;
 import com.seafile.seadroid2.framework.data.model.GroupItemModel;
-import com.seafile.seadroid2.framework.data.model.enums.TransferStatus;
 import com.seafile.seadroid2.framework.data.model.objs.DirentShareLinkModel;
 import com.seafile.seadroid2.framework.data.model.repo.DirentWrapperModel;
 import com.seafile.seadroid2.framework.data.model.repo.RepoWrapperModel;
 import com.seafile.seadroid2.framework.data.model.star.StarredWrapperModel;
-import com.seafile.seadroid2.framework.datastore.sp.Sorts;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.listener.OnCreateDirentShareLinkListener;
+import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.ui.dialog_fragment.AppChoiceDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.GetShareLinkPasswordDialogFragment;
 import com.seafile.seadroid2.ui.repo.RepoService;
@@ -55,6 +56,8 @@ import java.util.stream.Collectors;
 
 import io.reactivex.Completable;
 import io.reactivex.Single;
+import io.reactivex.SingleEmitter;
+import io.reactivex.SingleOnSubscribe;
 import io.reactivex.SingleSource;
 import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Function;
@@ -100,8 +103,6 @@ public class Objs {
     public static Single<List<BaseModel>> getReposSingleFromServer(Account account) {
         Single<RepoWrapperModel> netSingle = HttpIO.getInstanceByAccount(account).execute(RepoService.class).getRepos();
         Single<List<RepoModel>> dbListSingle = AppDatabase.getInstance().repoDao().getListByAccount(account.getSignature());
-
-        //load net data and load local data
 
         return Single.zip(netSingle, dbListSingle, new BiFunction<RepoWrapperModel, List<RepoModel>, Triple<RepoWrapperModel, List<RepoModel>, List<RepoModel>>>() {
             @Override
@@ -169,7 +170,7 @@ public class Objs {
         });
     }
 
-    public static List<BaseModel> parseRepoListForAdapter(List<RepoModel> list, String related_account, boolean isFilterEncrypted) {
+    public static List<BaseModel> parseRepoListForAdapter(List<RepoModel> list, String related_account, boolean isFilter) {
         if (CollectionUtils.isEmpty(list)) {
             return Collections.emptyList();
         }
@@ -178,8 +179,8 @@ public class Objs {
             list.get(i).related_account = related_account;
         }
 
-        if (isFilterEncrypted) {
-            list = list.stream().filter(f -> !f.encrypted).collect(Collectors.toList());
+        if (isFilter) {
+            list = list.stream().filter(f -> !f.encrypted && f.hasWritePermission()).collect(Collectors.toList());
         }
 
         List<BaseModel> newRvList = CollectionUtils.newArrayList();
@@ -327,41 +328,47 @@ public class Objs {
     private static List<RepoModel> sortRepos(List<RepoModel> repos) {
         List<RepoModel> newRepos = new ArrayList<>();
 
-        int sortType = Sorts.getSortType();
-        switch (sortType) {
-            case 0: // sort by name, ascending
-                newRepos = repos.stream().sorted(new Comparator<RepoModel>() {
-                    @Override
-                    public int compare(RepoModel o1, RepoModel o2) {
+        SortBy by = Settings.FILE_LIST_SORT_BY.queryValue();
+        boolean isAscending = Settings.FILE_LIST_SORT_ASCENDING.queryValue();
+
+        if (SortBy.NAME == by) {
+            newRepos = repos.stream().sorted(new Comparator<RepoModel>() {
+                @Override
+                public int compare(RepoModel o1, RepoModel o2) {
+                    if (isAscending) {
                         return o1.repo_name.compareTo(o2.repo_name);
                     }
-                }).collect(Collectors.toList());
-
-                break;
-            case 1: // sort by name, descending
-                newRepos = repos.stream().sorted(new Comparator<RepoModel>() {
-                    @Override
-                    public int compare(RepoModel o1, RepoModel o2) {
-                        return -o1.repo_name.compareTo(o2.repo_name);
+                    return -o1.repo_name.compareTo(o2.repo_name);
+                }
+            }).collect(Collectors.toList());
+        } else if (SortBy.TYPE == by) {
+            //todo not supported
+        } else if (SortBy.SIZE == by) {
+            newRepos = repos.stream().sorted(new Comparator<RepoModel>() {
+                @Override
+                public int compare(RepoModel o1, RepoModel o2) {
+                    if (o1.size == o2.size) {
+                        return 0;
                     }
-                }).collect(Collectors.toList());
-                break;
-            case 2: // sort by last modified time, ascending
-                newRepos = repos.stream().sorted(new Comparator<RepoModel>() {
-                    @Override
-                    public int compare(RepoModel o1, RepoModel o2) {
+                    if (isAscending) {
+                        return o1.size < o2.size ? -1 : 1;
+                    }
+                    return o1.size > o2.size ? -1 : 1;
+                }
+            }).collect(Collectors.toList());
+        } else if (SortBy.LAST_MODIFIED == by) {
+            newRepos = repos.stream().sorted(new Comparator<RepoModel>() {
+                @Override
+                public int compare(RepoModel o1, RepoModel o2) {
+                    if (o1.last_modified_long == o2.last_modified_long) {
+                        return 0;
+                    }
+                    if (isAscending) {
                         return o1.last_modified_long < o2.last_modified_long ? -1 : 1;
                     }
-                }).collect(Collectors.toList());
-                break;
-            case 3: // sort by last modified time, descending
-                newRepos = repos.stream().sorted(new Comparator<RepoModel>() {
-                    @Override
-                    public int compare(RepoModel o1, RepoModel o2) {
-                        return o1.last_modified_long > o2.last_modified_long ? -1 : 1;
-                    }
-                }).collect(Collectors.toList());
-                break;
+                    return o1.last_modified_long > o2.last_modified_long ? -1 : 1;
+                }
+            }).collect(Collectors.toList());
         }
         return newRepos;
     }
@@ -383,20 +390,25 @@ public class Objs {
     ////////////////////////////
     //////dirent
     ////////////////////////////
-
     public static Single<List<DirentModel>> getDirentsSingleFromServer(Account account, String repoId, String repoName, String parentDir) {
         Single<DirentWrapperModel> netSingle = HttpIO.getInstanceByAccount(account).execute(RepoService.class).getDirents(repoId, parentDir);
-        Single<List<DirentModel>> dbSingle = AppDatabase.getInstance().direntDao().getListByParentPath(repoId, parentDir);
-
-        return Single.zip(netSingle, dbSingle, new BiFunction<DirentWrapperModel, List<DirentModel>, List<DirentModel>>() {
+//        Single<List<DirentModel>> dbSingle = AppDatabase.getInstance().direntDao().getListByParentPath(repoId, parentDir);
+        return netSingle.flatMap(new Function<DirentWrapperModel, SingleSource<List<DirentModel>>>() {
             @Override
-            public List<DirentModel> apply(DirentWrapperModel direntWrapperModel, List<DirentModel> direntModels) throws Exception {
-                return Objs.parseDirentsForDB(
-                        direntWrapperModel.dirent_list,
-                        direntWrapperModel.dir_id,
-                        account.getSignature(),
-                        repoId,
-                        repoName);
+            public SingleSource<List<DirentModel>> apply(DirentWrapperModel direntWrapperModel) throws Exception {
+                return Single.create(new SingleOnSubscribe<List<DirentModel>>() {
+                    @Override
+                    public void subscribe(SingleEmitter<List<DirentModel>> emitter) throws Exception {
+                        List<DirentModel> list = Objs.parseDirentsForDB(
+                                direntWrapperModel.dirent_list,
+                                direntWrapperModel.dir_id,
+                                account.getSignature(),
+                                repoId,
+                                repoName);
+
+                        emitter.onSuccess(list);
+                    }
+                });
             }
         }).flatMap(new Function<List<DirentModel>, SingleSource<List<DirentModel>>>() {
             @Override
@@ -441,7 +453,6 @@ public class Objs {
 
                 Single<List<FileTransferEntity>> curParentDownloadedList = AppDatabase.getInstance().fileTransferDAO().getDownloadedListByParentAsync(repoId, parentDir);
 
-
                 return curParentDownloadedList.flatMap(new Function<List<FileTransferEntity>, SingleSource<List<DirentModel>>>() {
                     @Override
                     public SingleSource<List<DirentModel>> apply(List<FileTransferEntity> fileTransferEntities) throws Exception {
@@ -485,15 +496,38 @@ public class Objs {
         List<DirentModel> fileModels = treeMap.get("file");
 
         List<DirentModel> newList = new ArrayList<>();
-        if (!CollectionUtils.isEmpty(dirModels)) {
-            newList.addAll(sortDirents(dirModels));
+
+        boolean isFolderFirst = Settings.FILE_LIST_SORT_FOLDER_FIRST.queryValue();
+        if (isFolderFirst) {
+            if (!CollectionUtils.isEmpty(dirModels)) {
+                newList.addAll(sortDirents(dirModels));
+            }
+
+            if (!CollectionUtils.isEmpty(fileModels)) {
+                newList.addAll(sortDirents(fileModels));
+            }
+        } else {
+            if (!CollectionUtils.isEmpty(fileModels)) {
+                newList.addAll(sortDirents(fileModels));
+            }
+
+            if (!CollectionUtils.isEmpty(dirModels)) {
+                newList.addAll(sortDirents(dirModels));
+            }
         }
 
-        if (!CollectionUtils.isEmpty(fileModels)) {
-            newList.addAll(sortDirents(fileModels));
-        }
 
         return new ArrayList<>(newList);
+    }
+
+    public static List<DirentModel> parseDirentsForDB(List<DirentModel> list,
+                                                      String dir_id,
+                                                      String related_account,
+                                                      String repo_id,
+                                                      String repo_name) {
+
+        boolean isFolderFirst = Settings.FILE_LIST_SORT_FOLDER_FIRST.queryValue();
+        return parseDirentsForDB(list, dir_id, related_account, repo_id, repo_name, isFolderFirst);
     }
 
     /**
@@ -503,7 +537,8 @@ public class Objs {
                                                       String dir_id,
                                                       String related_account,
                                                       String repo_id,
-                                                      String repo_name) {
+                                                      String repo_name,
+                                                      boolean isFolderFirst) {
         if (CollectionUtils.isEmpty(list)) {
             return Collections.emptyList();
         }
@@ -513,6 +548,12 @@ public class Objs {
         List<DirentModel> fileModels = treeMap.get("file");
 
         List<DirentModel> newDbList = new ArrayList<>();
+
+
+        List<DirentModel> dirList = null;
+        List<DirentModel> fileList = null;
+
+
         long now = TimeUtils.getNowMills();
         if (!CollectionUtils.isEmpty(dirModels)) {
             for (int i = 0; i < dirModels.size(); i++) {
@@ -525,7 +566,7 @@ public class Objs {
                 dirModels.get(i).full_path = dirModels.get(i).parent_dir + dirModels.get(i).name;
                 dirModels.get(i).uid = dirModels.get(i).getUID();
             }
-            newDbList.addAll(sortDirents(dirModels));
+            dirList = sortDirents(dirModels);
         }
 
         if (!CollectionUtils.isEmpty(fileModels)) {
@@ -539,9 +580,26 @@ public class Objs {
                 fileModels.get(i).full_path = fileModels.get(i).parent_dir + fileModels.get(i).name;
                 fileModels.get(i).uid = fileModels.get(i).getUID();
             }
-            newDbList.addAll(sortDirents(fileModels));
+            fileList = sortDirents(fileModels);
         }
 
+        if (isFolderFirst) {
+            if (!CollectionUtils.isEmpty(dirList)) {
+                newDbList.addAll(dirList);
+            }
+            if (!CollectionUtils.isEmpty(fileList)) {
+                newDbList.addAll(fileList);
+            }
+
+        } else {
+            if (!CollectionUtils.isEmpty(fileList)) {
+                newDbList.addAll(fileList);
+            }
+            if (!CollectionUtils.isEmpty(dirList)) {
+                newDbList.addAll(dirList);
+            }
+
+        }
         return newDbList;
     }
 
@@ -557,43 +615,43 @@ public class Objs {
     private static List<DirentModel> sortDirents(List<DirentModel> list) {
         List<DirentModel> newList = new ArrayList<>();
 
-        int sortType = Sorts.getSortType();
-        switch (sortType) {
-            case 0: // sort by name, ascending
-                newList = list.stream().sorted(new Comparator<DirentModel>() {
-                    @Override
-                    public int compare(DirentModel o1, DirentModel o2) {
+        SortBy by = Settings.FILE_LIST_SORT_BY.queryValue();
+        boolean isAscending = Settings.FILE_LIST_SORT_ASCENDING.queryValue();
+
+        if (SortBy.NAME == by) {
+            newList = list.stream().sorted(new Comparator<DirentModel>() {
+                @Override
+                public int compare(DirentModel o1, DirentModel o2) {
+                    if (isAscending) {
                         return o1.name.compareTo(o2.name);
                     }
-                }).collect(Collectors.toList());
-
-                break;
-            case 1: // sort by name, descending
-                newList = list.stream().sorted(new Comparator<DirentModel>() {
-                    @Override
-                    public int compare(DirentModel o1, DirentModel o2) {
-                        return -o1.name.compareTo(o2.name);
+                    return -o1.name.compareTo(o2.name);
+                }
+            }).collect(Collectors.toList());
+        } else if (SortBy.TYPE == by) {
+            //todo not supported
+        } else if (SortBy.SIZE == by) {
+            newList = list.stream().sorted(new Comparator<DirentModel>() {
+                @Override
+                public int compare(DirentModel o1, DirentModel o2) {
+                    if (isAscending) {
+                        return Long.compare(o1.size, o2.size);
                     }
-                }).collect(Collectors.toList());
-                break;
-            case 2: // sort by last modified time, ascending
-                newList = list.stream().sorted(new Comparator<DirentModel>() {
-                    @Override
-                    public int compare(DirentModel o1, DirentModel o2) {
-                        return Long.compare(o1.mtime,o2.mtime);
+                    return -Long.compare(o1.size, o2.size);
+                }
+            }).collect(Collectors.toList());
+        } else if (SortBy.LAST_MODIFIED == by) {
+            newList = list.stream().sorted(new Comparator<DirentModel>() {
+                @Override
+                public int compare(DirentModel o1, DirentModel o2) {
+                    if (isAscending) {
+                        return Long.compare(o1.mtime, o2.mtime);
                     }
-                }).collect(Collectors.toList());
-                break;
-            case 3: // sort by last modified time, descending
-                newList = list.stream().sorted(new Comparator<DirentModel>() {
-                    @Override
-                    public int compare(DirentModel o1, DirentModel o2) {
-
-                        return -Long.compare(o1.mtime,o2.mtime);
-                    }
-                }).collect(Collectors.toList());
-                break;
+                    return -Long.compare(o1.mtime, o2.mtime);
+                }
+            }).collect(Collectors.toList());
         }
+
         return newList;
     }
 

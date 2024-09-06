@@ -12,9 +12,9 @@ import com.seafile.seadroid2.framework.data.model.dirents.DirentFileModel;
 import com.seafile.seadroid2.framework.data.db.AppDatabase;
 import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
 import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
-import com.seafile.seadroid2.framework.data.model.enums.TransferAction;
-import com.seafile.seadroid2.framework.data.model.enums.TransferResult;
-import com.seafile.seadroid2.framework.data.model.enums.TransferStatus;
+import com.seafile.seadroid2.enums.TransferAction;
+import com.seafile.seadroid2.enums.TransferResult;
+import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
@@ -134,7 +134,7 @@ public class FileViewModel extends BaseViewModel {
                     dbEntity.transfer_status = TransferStatus.WAITING;
 
                     //stop download worker
-                    BackgroundJobManagerImpl.getInstance().cancelFilesDownloadJob();
+                    BackgroundJobManagerImpl.getInstance().cancelDownloadWorker();
                 }
 
                 AppDatabase.getInstance().fileTransferDAO().insert(dbEntity);

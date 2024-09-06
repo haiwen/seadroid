@@ -19,12 +19,15 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.Observer;
 
+import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.AppUtils;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.framework.data.ServerInfo;
 import com.seafile.seadroid2.framework.datastore.sp.AppDataManager;
+import com.seafile.seadroid2.account.AccountUtils;
 import com.seafile.seadroid2.listener.OnCallback;
+import com.seafile.seadroid2.ui.SplashActivity;
 import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
 import com.seafile.seadroid2.ui.dialog_fragment.PolicyDialogFragment;
 import com.seafile.seadroid2.account.Account;
@@ -40,6 +43,7 @@ import java.util.Locale;
 public class AccountsActivity extends BaseActivityWithVM<AccountViewModel> implements Toolbar.OnMenuItemClickListener {
     private static final String DEBUG_TAG = "AccountsActivity";
     public static final int DETAIL_ACTIVITY_REQUEST = 1;
+    public static final String FROM_THIS = AccountsActivity.class.getName();
 
     private ListView accountsView;
 
@@ -83,7 +87,6 @@ public class AccountsActivity extends BaseActivityWithVM<AccountViewModel> imple
         Log.d(DEBUG_TAG, "AccountsActivity.onCreate is called");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.start);
-
 
         mAccountManager = android.accounts.AccountManager.get(this);
 
@@ -138,20 +141,12 @@ public class AccountsActivity extends BaseActivityWithVM<AccountViewModel> imple
         if (country.equals("CN") && language.equals("zh") && (privacyPolicyConfirmed == 0)) {
             showDialog();
         }
-
     }
 
     private void initOnBackPressedDispatcher() {
         getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                Account account = SupportAccountManager.getInstance().getCurrentAccount();
-                if (account != null) {
-                    // force exit when current account was deleted
-                    Intent i = new Intent(AccountsActivity.this, MainActivity.class);
-                    i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    startActivity(i);
-                }
                 finish();
             }
         });
@@ -172,28 +167,38 @@ public class AccountsActivity extends BaseActivityWithVM<AccountViewModel> imple
         getViewModel().getServerInfoLiveData().observe(this, new Observer<ServerInfo>() {
             @Override
             public void onChanged(ServerInfo serverInfo) {
-                Account account = SupportAccountManager.getInstance().getCurrentAccount();
+                //finish main firstly
+                ActivityUtils.finishActivity(MainActivity.class);
 
-                //switch account
-                getViewModel().switchAccount(account);
-
-                //start main
-                Intent intent = new Intent(AccountsActivity.this, MainActivity.class);
-                // first finish this activity, so the BrowserActivity is again "on top"
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                startActivity(intent);
+                //start splash
+                startActivity(new Intent(AccountsActivity.this, SplashActivity.class));
                 finish();
+                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
             }
         });
     }
 
     private void onListItemClick(int position) {
-        Account account = accounts.get(position);
-        if (!account.hasValidToken()) {
+        Account clickedAccount = accounts.get(position);
+
+        Account loggedAccount = SupportAccountManager.getInstance().getCurrentAccount();
+
+        if (clickedAccount.is_checked && loggedAccount != null) {
+            finish();
+            return;
+        }
+
+        if (!clickedAccount.hasValidToken()) {
             // user already signed out, input password first
-            startEditAccountActivity(account);
+            startEditAccountActivity(clickedAccount);
         } else {
-            SupportAccountManager.getInstance().saveCurrentAccount(account.getSignature());
+
+            //save
+            SupportAccountManager.getInstance().saveCurrentAccount(clickedAccount.getSignature());
+
+            //switch account
+            AccountUtils.switchAccount(clickedAccount);
+
             startFilesActivity();
         }
     }
@@ -247,14 +252,6 @@ public class AccountsActivity extends BaseActivityWithVM<AccountViewModel> imple
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                // if the current account sign out and no account was to logged in,
-                // then always goes to AccountsActivity
-                if (SupportAccountManager.getInstance().getCurrentAccount() == null) {
-                    Intent intent = new Intent(this, MainActivity.class);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    startActivity(intent);
-                }
-
                 this.finish();
             default:
                 return super.onOptionsItemSelected(item);
@@ -266,15 +263,17 @@ public class AccountsActivity extends BaseActivityWithVM<AccountViewModel> imple
         accounts = SupportAccountManager.getInstance().getAccountList();
         adapter.clear();
         adapter.setItems(accounts);
+        adapter.notifyChanged();
 
         Account newCurrentAccount = SupportAccountManager.getInstance().getCurrentAccount();
 
         // updates toolbar back button
         if (newCurrentAccount == null || !newCurrentAccount.hasValidToken()) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-        }
 
-        adapter.notifyChanged();
+            //close main activity
+            ActivityUtils.finishActivity(MainActivity.class);
+        }
 
 //        // if the user switched default account while we were in background,
 //        // switch to BrowserActivity

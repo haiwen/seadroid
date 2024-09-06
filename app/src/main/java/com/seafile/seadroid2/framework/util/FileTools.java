@@ -4,7 +4,7 @@ import android.content.Context;
 import android.os.storage.StorageManager;
 import android.text.TextUtils;
 
-import com.seafile.seadroid2.framework.datastore.sp.FolderBackupManager;
+import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
 import com.seafile.seadroid2.ui.selector.folder_selector.StringTools;
 
 import java.io.File;
@@ -42,7 +42,7 @@ public class FileTools {
     }
 
     public static int[] getChildrenNumber(File file) {
-        boolean isJumpHiddenFile = FolderBackupManager.isFolderBackupSkipHiddenFiles();
+        boolean isJumpHiddenFile = FolderBackupSharePreferenceHelper.isFolderBackupSkipHiddenFiles();
 
         File[] files = file.listFiles();
         int[] numbers = new int[]{0, 0};

@@ -4,17 +4,16 @@ import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import androidx.room.Entity;
-import androidx.room.PrimaryKey;
 
 import com.google.gson.annotations.JsonAdapter;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.framework.data.model.BaseModel;
 import com.seafile.seadroid2.framework.data.model.repo.deserializer.EncryptFieldJsonAdapter;
-import com.seafile.seadroid2.framework.datastore.sp.AppDataManager;
 import com.seafile.seadroid2.framework.datastore.sp.SettingsManager;
+import com.seafile.seadroid2.framework.datastore.sp_livedata.ClientEncryptSharePreferenceHelper;
 import com.seafile.seadroid2.framework.util.Utils;
 
-@Entity(tableName = "repos",primaryKeys = {"repo_id","group_id"})
+@Entity(tableName = "repos", primaryKeys = {"repo_id", "group_id"})
 public class RepoModel extends BaseModel {
 
     @NonNull
@@ -90,8 +89,21 @@ public class RepoModel extends BaseModel {
     }
 
     public boolean hasWritePermission() {
+        if (TextUtils.isEmpty(permission)) {
+            return false;
+        }
+
+        if (permission.equals("cloud-edit")) {
+            return false;
+        }
+
+        if (permission.equals("preview")) {
+            return false;
+        }
+
         return !TextUtils.isEmpty(permission) && permission.contains("w");
     }
+
 
     /**
      * If the result is true, and the decryption was successful,
@@ -101,6 +113,6 @@ public class RepoModel extends BaseModel {
         return encrypted
                 && enc_version == SettingsManager.REPO_ENC_VERSION
                 && !TextUtils.isEmpty(magic)
-                && AppDataManager.isEncryptEnabled();
+                && ClientEncryptSharePreferenceHelper.isEncryptEnabled();
     }
 }

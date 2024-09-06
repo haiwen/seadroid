@@ -8,7 +8,6 @@ import androidx.work.Data;
 import androidx.work.ForegroundInfo;
 import androidx.work.WorkerParameters;
 
-import com.blankj.utilcode.util.CloneUtils;
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.FileUtils;
 import com.seafile.seadroid2.SeafException;
@@ -18,14 +17,13 @@ import com.seafile.seadroid2.framework.data.db.AppDatabase;
 import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
 import com.seafile.seadroid2.framework.data.model.dirents.DirentFileModel;
-import com.seafile.seadroid2.framework.data.model.enums.TransferAction;
-import com.seafile.seadroid2.framework.data.model.enums.TransferDataSource;
-import com.seafile.seadroid2.framework.data.model.enums.TransferResult;
-import com.seafile.seadroid2.framework.data.model.enums.TransferStatus;
+import com.seafile.seadroid2.enums.TransferAction;
+import com.seafile.seadroid2.enums.TransferDataSource;
+import com.seafile.seadroid2.enums.TransferResult;
+import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.notification.FolderBackupNotificationHelper;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Utils;
-import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.framework.worker.upload.BaseUploadWorker;
 import com.seafile.seadroid2.framework.worker.ExistingFileStrategy;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
@@ -101,7 +99,7 @@ public class DownloadedFileCheckerWorker extends BaseUploadWorker {
         try {
             checkFile(account, transferEntityList.get(0));
         } catch (IOException | SeafException e) {
-            throw new RuntimeException(e);
+            return Result.failure();
         }
 
         //Send a completion event
@@ -111,77 +109,72 @@ public class DownloadedFileCheckerWorker extends BaseUploadWorker {
         return Result.success(data);
     }
 
-    private void checkFile(Account account, FileTransferEntity downloadTransferEntity) throws IOException, SeafException {
-        if (downloadTransferEntity.transfer_status != TransferStatus.SUCCEEDED) {
-            SLogs.d("transfer_status is not success: " + downloadTransferEntity.target_path);
+    private void checkFile(Account account, FileTransferEntity downloadedTransferEntity) throws IOException, SeafException {
+        if (downloadedTransferEntity.transfer_status != TransferStatus.SUCCEEDED) {
+            SLogs.e("transfer_status is not success: " + downloadedTransferEntity.target_path);
             return;
         }
 
-        File file = new File(downloadTransferEntity.target_path);
+        File file = new File(downloadedTransferEntity.target_path);
         if (!file.exists()) {
-            SLogs.d("file is not exists: " + downloadTransferEntity.target_path);
+            SLogs.e("file is not exists: " + downloadedTransferEntity.target_path);
             return;
         }
 
-        List<DirentModel> direntList = AppDatabase.getInstance().direntDao().getListByFullPathSync(downloadTransferEntity.repo_id, downloadTransferEntity.full_path);
+        List<DirentModel> direntList = AppDatabase.getInstance().direntDao().getListByFullPathSync(downloadedTransferEntity.repo_id, downloadedTransferEntity.full_path);
         if (CollectionUtils.isEmpty(direntList)) {
             // db not exist
-            SLogs.d("db is not exists: " + downloadTransferEntity.target_path);
+            SLogs.e("db is not exists: " + downloadedTransferEntity.target_path);
             return;
         }
 
         //More judgment conditions may be required
 
-        DirentFileModel fileModel = getRemoteFile(downloadTransferEntity.repo_id, downloadTransferEntity.full_path);
+        DirentFileModel fileModel = getRemoteFile(downloadedTransferEntity.repo_id, downloadedTransferEntity.full_path);
         if (fileModel == null) {
             //remote not exists, delete local
-            SLogs.d("remote file is not exists: " + downloadTransferEntity.target_path);
+            SLogs.e("remote file is not exists: " + downloadedTransferEntity.target_path);
             return;
         }
 
-        //target_path is Absolute Path
-        List<FileTransferEntity> transferEntityList = AppDatabase
-                .getInstance()
-                .fileTransferDAO()
-                .getListByFullPathSync(account.getSignature(), TransferAction.UPLOAD, downloadTransferEntity.target_path);
+        //insert upload entity
+        FileTransferEntity transferEntity = new FileTransferEntity();
 
-        FileTransferEntity transferEntity = null;
-        if (CollectionUtils.isEmpty(transferEntityList)) {
-            transferEntity = CloneUtils.deepClone(downloadTransferEntity, FileTransferEntity.class);
-            transferEntity.full_path = downloadTransferEntity.target_path;
-            transferEntity.target_path = downloadTransferEntity.full_path;
-            transferEntity.setParent_path(Utils.getParentPath(transferEntity.target_path));
-            transferEntity.file_id = null;
-            transferEntity.transfer_action = TransferAction.UPLOAD;
-            transferEntity.transferred_size = 0;
-            transferEntity.transfer_result = TransferResult.NO_RESULT;
-            transferEntity.transfer_status = TransferStatus.WAITING;
-            transferEntity.file_size = FileUtils.getFileLength(transferEntity.full_path);
-            transferEntity.file_strategy = ExistingFileStrategy.REPLACE;
-            transferEntity.is_copy_to_local = true;
-            transferEntity.is_auto_transfer = true;
-            transferEntity.data_source = TransferDataSource.FILE_BACKUP;
-            transferEntity.action_end_at = 0;
-            transferEntity.created_at = System.currentTimeMillis();
-            transferEntity.modified_at = transferEntity.created_at;
-            transferEntity.file_original_modified_at = file.lastModified();
-            transferEntity.file_md5 = FileUtils.getFileMD5ToString(transferEntity.full_path).toLowerCase();
+        //user attribute
+        transferEntity.repo_id = downloadedTransferEntity.repo_id;
+        transferEntity.repo_name = downloadedTransferEntity.repo_name;
+        transferEntity.related_account = downloadedTransferEntity.related_account;
 
-            transferEntity.uid = transferEntity.getUID();
-        } else {
-            transferEntity.file_md5 = FileUtils.getFileMD5ToString(transferEntity.full_path).toLowerCase();
-            transferEntity.file_size = FileUtils.getFileLength(transferEntity.full_path);
-            transferEntity.file_strategy = ExistingFileStrategy.REPLACE;
-            transferEntity.file_original_modified_at = file.lastModified();
+        //file
+        transferEntity.file_format = downloadedTransferEntity.file_format;
+        transferEntity.file_name = downloadedTransferEntity.file_name;
+        transferEntity.file_md5 = FileUtils.getFileMD5ToString(downloadedTransferEntity.target_path).toLowerCase();
+        transferEntity.file_id = null;
+        transferEntity.file_size = FileUtils.getFileLength(downloadedTransferEntity.target_path);
+        transferEntity.file_original_modified_at = file.lastModified();
+        transferEntity.file_strategy = ExistingFileStrategy.REPLACE;
+        transferEntity.mime_type = downloadedTransferEntity.mime_type;
 
-            transferEntity.transferred_size = 0;
-            transferEntity.transfer_result = TransferResult.NO_RESULT;
-            transferEntity.transfer_status = TransferStatus.WAITING;
-        }
+        //data
+        transferEntity.data_source = TransferDataSource.FILE_BACKUP;
+        transferEntity.transfer_result = TransferResult.NO_RESULT;
+        transferEntity.transfer_status = TransferStatus.WAITING;
+        transferEntity.full_path = downloadedTransferEntity.target_path;
+        transferEntity.target_path = downloadedTransferEntity.full_path;
+        transferEntity.setParent_path(Utils.getParentPath(downloadedTransferEntity.full_path));
+
+        //tranfer
+        transferEntity.transfer_action = TransferAction.UPLOAD;
+        transferEntity.transferred_size = 0;
+        transferEntity.is_copy_to_local = true;
+        transferEntity.is_auto_transfer = true;
+        transferEntity.action_end_at = 0;
+        transferEntity.created_at = System.currentTimeMillis();
+        transferEntity.modified_at = transferEntity.created_at;
+
+        //uid
+        transferEntity.uid = transferEntity.getUID();
 
         AppDatabase.getInstance().fileTransferDAO().insert(transferEntity);
-
-        //start
-        BackgroundJobManagerImpl.getInstance().startFileUploadWorker();
     }
 }

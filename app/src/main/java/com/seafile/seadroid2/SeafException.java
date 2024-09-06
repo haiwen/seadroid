@@ -36,6 +36,7 @@ public class SeafException extends Exception {
     public static final SeafException notLoggedInException = new SeafException(21, "Not logged in");
 
     public static final SeafException OUT_OF_QUOTA = new SeafException(HTTP_ABOVE_QUOTA, SeadroidApplication.getAppContext().getString(R.string.above_quota));
+    public static final SeafException REQUEST_EXCEPTION = new SeafException(400, "Request Failed");
 
     public SeafException(int code, String msg) {
         super(msg);

@@ -1,43 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <style name="BaseTheme.App.Toolbar" parent="Theme.Material3.Dark.NoActionBar">
-        <item name="android:statusBarColor">@color/bar_background_color</item>
-        <item name="android:windowLightStatusBar">false</item> <!-- android 6.0+ -->
-
-        <!-- action mode -->
-        <item name="windowActionBar">false</item>
-        <item name="android:windowActionModeOverlay">true</item>
-        <item name="windowActionModeOverlay">true</item>
-        <item name="windowNoTitle">true</item>
-
-        <item name="actionModeStyle">@style/App.ActionMode.LightTheme</item>
-        <item name="popupMenuStyle">@style/App.Widget.PopupMenu</item>
-        <item name="textInputStyle">@style/App.Widget.TextInput</item>
-
-        <item name="materialButtonStyle">@style/App.Widget.Button</item>
-        <item name="materialAlertDialogTheme">@style/AppCompatAlertDialogStyle</item>
-        <item name="bottomNavigationStyle">@style/App.Widget.BottomNavigationView</item>
-
-        <item name="switchStyle">@style/App.Widget.Switch</item>
-        <item name="switchPreferenceStyle">@style/App.Preference.Switch</item>
-
-        <item name="colorAccent">@color/fancy_orange</item>
-        <!-- Primary -->
-        <item name="colorPrimary">@color/md_theme_primary</item>
-        <item name="colorOnPrimary">@color/md_theme_onPrimary</item>
-
-        <!-- Secondary -->
-        <item name="colorSecondary">@color/md_theme_secondary</item>
-        <item name="colorOnSecondary">@color/md_theme_onSecondary</item>
-
-        <item name="colorSurface">@color/md_theme_surface</item>
-        <item name="colorOnSurface">@color/md_theme_onSurface</item>
-
-        <item name="android:colorControlNormal">@color/fancy_light_black</item>
-        <item name="android:colorControlActivated">@color/fancy_orange</item>
-        <item name="android:colorControlHighlight">@color/fancy_light_black</item>
-    </style>
 
     <style name="ToolBarStyle" parent="">
         <item name="popupTheme">@style/ThemeOverlay.Material3.Dark</item>
@@ -54,11 +17,6 @@
         <item name="android:background">@color/bar_background_color</item>
         <item name="android:contentInsetStart">?actionBarInsetStart</item>
         <item name="tabSelectedTextColor">@color/fancy_orange</item>
-    </style>
-
-
-    <style name="App.Widget.PopupMenu" parent="@style/Widget.Material3.PopupMenu">
-        <item name="popupMenuBackground">@color/item_title_color</item>
     </style>
 
     <style name="App.Widget.BottomNavigationView" parent="Widget.Material3.BottomNavigationView">
@@ -141,20 +99,6 @@
         <item name="colorOnSurface">@color/item_title_color</item>
         <item name="colorError">@color/red</item>
         <item name="editTextStyle">@style/Widget.Material3.TextInputEditText.OutlinedBox</item>
-    </style>
-
-
-    <style name="App.Widget.Switch" parent="Widget.MaterialComponents.CompoundButton.Switch">
-        <item name="materialThemeOverlay">@style/ThemeOverlay.App.Switch</item>
-    </style>
-
-    <style name="ThemeOverlay.App.Switch" parent="">
-        <item name="colorOnSurface">@color/md_theme_primary</item>
-        <item name="colorSecondary">@color/light_gray</item>
-    </style>
-
-    <style name="App.Preference.Switch" parent="@style/Preference.SwitchPreferenceCompat">
-        <item name="widgetLayout">@layout/preference_widget_material_switch</item>
     </style>
 
 

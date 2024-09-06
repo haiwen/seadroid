@@ -21,26 +21,26 @@ import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
-import com.seafile.seadroid2.framework.data.model.enums.TransferDataSource;
-import com.seafile.seadroid2.framework.datastore.StorageManager;
 import com.seafile.seadroid2.framework.data.db.AppDatabase;
 import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
-import com.seafile.seadroid2.framework.data.model.enums.TransferAction;
+import com.seafile.seadroid2.enums.TransferAction;
+import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.framework.data.model.repo.DirentWrapperModel;
-import com.seafile.seadroid2.framework.datastore.sp.AlbumBackupManager;
+import com.seafile.seadroid2.framework.datastore.StorageManager;
+import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.notification.AlbumBackupScanNotificationHelper;
+import com.seafile.seadroid2.framework.util.HttpUtils;
 import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
+import com.seafile.seadroid2.ui.camera_upload.GalleryBucketUtils;
 import com.seafile.seadroid2.ui.file.FileService;
 import com.seafile.seadroid2.ui.folder_backup.RepoConfig;
 import com.seafile.seadroid2.ui.repo.RepoService;
-import com.seafile.seadroid2.ui.camera_upload.GalleryBucketUtils;
-import com.seafile.seadroid2.framework.util.HttpUtils;
-import com.seafile.seadroid2.framework.util.Utils;
 
 import java.io.File;
 import java.io.IOException;
@@ -94,11 +94,7 @@ public class MediaBackupScannerWorker extends TransferWorker {
         boolean canScan = checkCanScan();
         if (!canScan) {
             SLogs.d("UploadMediaScanWorker: do not start the media scan task this time");
-
-            BackgroundJobManagerImpl.getInstance().startMediaBackupWorker();
-
-            //start media backup worker
-            return Result.success(getScanEndData());
+            return Result.success(getOutData());
         }
 
         //todo
@@ -118,18 +114,14 @@ public class MediaBackupScannerWorker extends TransferWorker {
         } catch (SeafException | IOException e) {
             SLogs.e("MediaBackupScannerWorker has occurred error", e);
         } finally {
-            //
-            AlbumBackupManager.writeLastScanTime(System.currentTimeMillis());
-
-            //start upload worker
-            BackgroundJobManagerImpl.getInstance().startMediaBackupWorker();
+            AlbumBackupSharePreferenceHelper.writeLastScanTime(System.currentTimeMillis());
         }
 
-        return Result.success(getScanEndData());
+        return Result.success(getOutData());
     }
 
     private boolean checkCanScan() {
-        boolean isEnable = AlbumBackupManager.readBackupSwitch();
+        boolean isEnable = AlbumBackupSharePreferenceHelper.readBackupSwitch();
         if (!isEnable) {
             return false;
         }
@@ -139,8 +131,8 @@ public class MediaBackupScannerWorker extends TransferWorker {
             return true;
         }
 
-        long lastScanTime = AlbumBackupManager.readLastScanTime();
-        if (lastScanTime != 0) {
+        Long lastScanTime = AlbumBackupSharePreferenceHelper.readLastScanTime();
+        if (lastScanTime != null && lastScanTime != 0) {
             long now = System.currentTimeMillis();
             if (now - lastScanTime < PERIODIC_SCAN_INTERVALS) {
                 return false;
@@ -150,7 +142,7 @@ public class MediaBackupScannerWorker extends TransferWorker {
         return true;
     }
 
-    private Data getScanEndData() {
+    private Data getOutData() {
         return new Data.Builder()
                 .putString(TransferWorker.KEY_DATA_EVENT, TransferEvent.EVENT_SCAN_END)
                 .putString(TransferWorker.KEY_DATA_TYPE, String.valueOf(TransferDataSource.ALBUM_BACKUP))
@@ -159,8 +151,8 @@ public class MediaBackupScannerWorker extends TransferWorker {
 
     private void loadMedia() throws SeafException, IOException {
 
-        repoConfig = AlbumBackupManager.readRepoConfig();
-        bucketIdList = AlbumBackupManager.readBucketIds();
+        repoConfig = AlbumBackupSharePreferenceHelper.readRepoConfig();
+        bucketIdList = AlbumBackupSharePreferenceHelper.readBucketIds();
 
         if (repoConfig == null) {
             SLogs.d("MediaSyncWorker: repoConfig is null");
@@ -179,15 +171,12 @@ public class MediaBackupScannerWorker extends TransferWorker {
 
         uploadImages();
 
-        if (AlbumBackupManager.readAllowVideoSwitch()) {
+        if (AlbumBackupSharePreferenceHelper.readAllowVideoSwitch()) {
             uploadVideos();
         }
 
         if (needToUploadMap.isEmpty()) {
             SLogs.d("UploadMediaSyncWorker no need to upload");
-
-            //start worker
-            BackgroundJobManagerImpl.getInstance().startMediaBackupWorker();
             return;
         }
 

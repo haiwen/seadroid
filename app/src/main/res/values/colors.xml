@@ -17,7 +17,8 @@
     <color name="fancy_white">#f4f5f6</color> <!-- theme color -->
     <color name="fancy_light_white">#fcfcfc</color>
     <color name="fancy_black">#888888</color>
-    <color name="fancy_light_black">#a9a9a9</color> <!-- color for slide expandable list item background -->
+    <color name="fancy_light_black">#a9a9a9
+    </color> <!-- color for slide expandable list item background -->
     <color name="fancy_dark_black">#282828</color>
     <color name="fancy_deep_black">#989898
     </color> <!-- color for dividers inside of slide expandable list item -->
@@ -56,7 +57,7 @@
 
     <!-- view color -->
     <color name="toolbar_divider_color">#E3E3E3</color>
-    <color name="divider_color">#E3E3E3</color>
+    <color name="divider_color">#F1F1F1</color>
 
     <color name="item_title_color">#333333</color>
     <color name="item_subtitle_color">#888888</color>
@@ -78,4 +79,7 @@
     <!-- search -->
     <color name="search_bg_color">@color/white</color>
     <color name="search_stroke_color">@color/light_gray</color>
+
+    <!--  player mask color  -->
+    <color name="player_mask_background_color">#88000000</color>
 </resources>

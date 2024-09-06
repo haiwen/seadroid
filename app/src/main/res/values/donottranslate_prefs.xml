@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <bool name="pref_default_false">false</bool>
+    <bool name="pref_default_true">true</bool>
+
+    <!--  settings  -->
+    <string name="pref_key_file_list_view_type">key_file_list_view_type</string>
+    <string name="pref_default_value_file_list_view_type">0</string>
+    <string name="pref_key_file_list_sort_options">key_file_list_sort_options</string>
+    <string name="pref_default_value_file_list_options">0</string>
+    <string name="pref_key_file_list_sort_ascending">key_file_list_sort_ascending</string>
+    <string name="pref_key_file_list_sort_folder_first">key_file_list_sort_folder_first</string>
+
+    <!-- account -->
+    <string name="pref_key_user_info">key_user_info</string>
+    <string name="pref_key_user_space">key_space_info</string>
+    <string name="pref_key_sign_out">key_sign_out</string>
+
+    <!-- gesture lock -->
+    <string name="pref_key_gesture_lock">key_gesture_lock</string>
+    <string name="pref_key_gesture_lock_timestamp">key_gesture_lock_timestamp</string>
+    <string name="pref_default_value_key_gesture_lock_timestamp">0</string>
+
+
+    <!-- night mode -->
+    <string name="pref_key_night_mode">key_night_mode_sp_config</string>
+    <string name="pref_key_current_night_mode">key_night_mode_app_config</string>
+    <string name="pref_default_value_night_mode">0</string>
+    <string-array name="pref_entry_values_night_mode_visualization">
+        <item>@string/follow_system</item>
+        <item>@string/off</item>
+        <item>@string/on</item>
+    </string-array>
+
+    <string-array name="pref_entry_values_night_mode">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+
+    <!-- security -->
+    <string name="pref_key_security_clear_password">key_clear_password</string>
+    <string name="pref_key_security_client_encrypt">key_client_encrypt</string>
+
+    <!-- album backup -->
+    <string name="pref_key_album_backup_switch">key_album_backup_switch</string>
+    <string name="pref_key_album_backup_repo_select">key_album_backup_repo</string>
+    <string name="pref_key_album_backup_state">key_album_backup_state</string>
+
+    <string name="pref_key_album_backup_advanced">key_album_backup_advance</string>
+    <string name="pref_key_album_backup_advanced_data_plan_switch">key_album_backup_advanced_allow_data_plan_switch</string>
+    <string name="pref_key_album_backup_advanced_allow_video_switch">key_album_backup_advanced_allow_videos_upload_switch</string>
+    <string name="pref_key_album_backup_advanced_buckets_switch">key_album_backup_advanced_buckets_switch</string>
+    <string name="pref_key_album_backup_advanced_buckets_select">key_album_backup_advanced_buckets_select</string>
+    <string name="pref_key_album_backup_advanced_selected_buckets_string">key_album_backup_advanced_selected_buckets_string</string>
+
+    <!-- folder backup -->
+    <string name="pref_key_folder_backup_switch">key_folder_backup_switch</string>
+    <string name="pref_key_folder_backup_repo_select">key_folder_backup_repo</string>
+    <string name="pref_key_folder_backup_folder_select">key_folder_backup_selected_folders</string>
+    <string name="pref_key_folder_backup_state">key_folder_backup_state</string>
+    <string name="pref_key_folder_backup_network_mode">key_folder_backup_network_mode</string>
+    <string name="pref_key_default_value_folder_backup_network_mode">0</string>
+    <string name="pref_key_default_summary_folder_backup_network_mode">WIFI</string>
+    <string-array name="pref_entry_values_folder_backup_network_mode_visualization">
+        <item>WIFI</item>
+        <item>@string/folder_backup_mode</item>
+    </string-array>
+
+    <string-array name="pref_entry_values_folder_backup_network_mode">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+
+
+    <!-- cache -->
+    <string name="pref_key_cache_info">key_cache_info</string>
+    <string name="pref_key_cache_location">key_cache_location</string>
+    <string name="pref_key_cache_clear">key_clear_cache</string>
+
+    <!-- about -->
+    <string name="pref_key_about_version">key_about_version</string>
+    <string name="pref_key_about_privacy">key_privacy_policy</string>
+    <string name="pref_key_about_author">key_about_author</string>
+</resources>

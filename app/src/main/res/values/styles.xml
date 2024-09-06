@@ -1,45 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <style name="BaseTheme.App.Toolbar" parent="Theme.Material3.Light.NoActionBar">
-        <item name="android:statusBarColor">@color/bar_background_color</item>
-        <item name="android:windowLightStatusBar">true</item> <!-- android 6.0+ -->
-
-        <!-- action mode -->
-        <item name="windowActionBar">false</item>
-        <item name="android:windowActionModeOverlay">true</item>
-        <item name="windowActionModeOverlay">true</item>
-        <item name="windowNoTitle">true</item>
-
-        <item name="actionModeStyle">@style/App.ActionMode.LightTheme</item>
-        <item name="popupMenuStyle">@style/App.Widget.PopupMenu</item>
-        <item name="textInputStyle">@style/App.Widget.TextInput</item>
-
-        <item name="materialButtonStyle">@style/App.Widget.Button</item>
-        <item name="materialAlertDialogTheme">@style/AppCompatAlertDialogStyle</item>
-        <item name="bottomNavigationStyle">@style/App.Widget.BottomNavigationView</item>
-
-        <item name="switchStyle">@style/App.Widget.Switch</item>
-        <item name="switchPreferenceStyle">@style/App.Preference.Switch</item>
-
-        <item name="colorAccent">@color/fancy_orange</item>
-        <!-- Primary -->
-        <item name="colorPrimary">@color/md_theme_primary</item>
-        <item name="colorOnPrimary">@color/md_theme_onPrimary</item>
-
-        <!-- Secondary -->
-        <item name="colorSecondary">@color/md_theme_secondary</item>
-        <item name="colorOnSecondary">@color/md_theme_onSecondary</item>
-
-        <item name="colorSurface">@color/md_theme_surface</item>
-        <item name="colorOnSurface">@color/md_theme_onSurface</item>
-
-        <item name="android:colorControlNormal">@color/fancy_light_black</item>
-        <item name="android:colorControlActivated">@color/fancy_orange</item>
-        <item name="android:colorControlHighlight">@color/fancy_light_black</item>
-    </style>
-
-
     <style name="ToolBarStyle" parent="">
         <item name="popupTheme">@style/ThemeOverlay.Material3.Light</item>
         <item name="theme">@style/ThemeOverlay.Material3.Light</item>
@@ -68,10 +29,6 @@
         <item name="android:background">@drawable/tab_background_drawable</item>
         <item name="android:contentInsetStart">?actionBarInsetStart</item>
         <item name="tabSelectedTextColor">@color/fancy_orange</item>
-    </style>
-
-    <style name="App.Widget.PopupMenu" parent="@style/Widget.Material3.PopupMenu">
-        <item name="popupMenuBackground">@color/item_title_color</item>
     </style>
 
     <style name="App.ActionMode.LightTheme" parent="Widget.Material3.ActionMode">
@@ -166,18 +123,19 @@
     </style>
 
 
-    <!-- Switch -->
-    <style name="App.Widget.Switch" parent="Widget.MaterialComponents.CompoundButton.Switch">
-        <item name="materialThemeOverlay">@style/ThemeOverlay.App.Switch</item>
+    <style name="Preference.Material3.SimpleMenuPreference" parent="Preference.SimpleMenuPreference">
+        <item name="android:popupMenuStyle">
+            @style/Widget.Material3.Preference.SimpleMenuPreference.PopupMenu
+        </item>
     </style>
 
-    <style name="ThemeOverlay.App.Switch" parent="">
-        <item name="colorOnSurface">@color/md_theme_primary</item>
-        <item name="colorSecondary">@color/light_gray</item>
+    <style name="Widget.Material3.Preference.SimpleMenuPreference.PopupMenu" parent="Widget.Preference.SimpleMenuPreference.PopupMenu">
+        <item name="android:popupBackground">@drawable/m3_popupmenu_background_overlay</item>
     </style>
 
-    <style name="App.Preference.Switch" parent="@style/Preference.SwitchPreferenceCompat">
-        <item name="widgetLayout">@layout/preference_widget_material_switch</item>
+    <style name="Preference.Material3.SwitchPreferenceCompat" parent="Preference.SwitchPreferenceCompat.Material">
+        <!--        <item name="widgetLayout">@layout/preference_widget_material_switch_m2</item>-->
+        <item name="android:widgetLayout">@layout/preference_widget_material_switch_m3</item>
     </style>
 
     <!-- Notifications -->
@@ -208,6 +166,11 @@
     <style name="ShapeCircleStyle">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">50%</item>
+    </style>
+
+    <style name="ShapeCorner4Style">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">4dp</item>
     </style>
 
     <!-- BottomSheet DayNight -->
@@ -246,26 +209,18 @@
         <!--        <item name="android:scrollbarTrackVertical">@drawable/scrollbar_vertical_bg</item>-->
     </style>
 
+
     <style name="Widget.FastRecyclerView.Style" parent="">
-        <!--        <item name="android:clipToPadding">false</item>-->
-        <!--        <item name="android:paddingBottom">16dp</item>-->
+        <item name="android:clipToPadding">false</item>
+        <item name="android:paddingBottom">32dp</item>
+        <item name="android:fitsSystemWindows">true</item>
+        <item name="android:scrollbars">vertical</item>
+    </style>
 
-        <item name="fastScrollAutoHide">true</item>
-        <item name="fastScrollAutoHideDelay">1500</item>
-        <item name="fastScrollThumbEnabled">true</item>
-        <item name="fastScrollThumbColor">@color/grey</item>
-        <item name="fastScrollEnableThumbInactiveColor">true</item>
-        <item name="fastScrollThumbInactiveColor">@color/light_grey</item>
-        <item name="fastScrollTrackColor">@color/light_gray</item>
-        <!--        <item name="fastScrollPopupPosition">center</item>-->
-        <!--        <item name="fastScrollPopupBgColor">@color/red</item>-->
-        <!--        <item name="fastScrollPopupTextColor">@color/fancy_orange</item>-->
-        <!--        <item name="fastScrollPopupTextSize">54sp</item>-->
-        <!--        <item name="fastScrollPopupBackgroundSize">88dp</item>-->
-
-
-        <!--        <item name="android:scrollbarSize">16dp</item>-->
-        <!--        <item name="android:scrollbarThumbVertical">@drawable/scrollbar_vertical</item>-->
-        <!--        <item name="android:scrollbarTrackVertical">@drawable/scrollbar_vertical_bg</item>-->
+    <style name="ThemeOverlay.Editor.AlertDialogTheme" parent="Theme.AppCompat.Dialog">
+        <item name="colorPrimary">@color/blue_500</item>
+        <item name="colorPrimaryDark">@color/blue_700</item>
+        <item name="colorAccent">@color/blue_500</item>
+        <item name="colorSurface">@color/white</item>
     </style>
 </resources>

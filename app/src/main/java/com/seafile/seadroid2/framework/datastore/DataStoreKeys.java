@@ -9,7 +9,6 @@ public class DataStoreKeys {
 
     public static final String ACCOUNT_CURRENT_OLD = "com.seafile.seadroid.account_name";
     public static final String KEY_CURRENT_ACCOUNT = "current_account_signature";
-    public static final String ACCOUNT_QUOTA_NO_LIMIT_KEY = "key_account_quota_no_limit";
 
     /**
      * When the app version is upgraded to v3.0.0(or v3x), some data must be migrated,
@@ -21,6 +20,18 @@ public class DataStoreKeys {
      * <p/>
      */
     public static final String DATA_IS_MIGRATION = "data_is_migrated_when_app_version_is_v3x";
+
+    /**
+     * When the app version is upgraded to v3.0.3, some data must be migrated,
+     * such as. FolderBackupManager/AlbumBackupManager/GestureLockManager/SettingsManager.
+     * This field is used to check if it has been migrated.
+     * <p>
+     * 0 no
+     * 1 yes
+     * <p/>
+     */
+    public static final String DATA_IS_MIGRATED_WHEN_APP_IS_V303 = "data_is_migrated_when_app_version_is_v303";
+
 
     public static final String KEY_DARK_MODE = "key_dark_mode";
 

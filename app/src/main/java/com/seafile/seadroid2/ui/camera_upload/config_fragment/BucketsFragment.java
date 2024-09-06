@@ -19,7 +19,7 @@ import android.widget.TextView;
 import androidx.fragment.app.Fragment;
 
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.framework.datastore.sp.AlbumBackupManager;
+import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.util.GlideApp;
 import com.seafile.seadroid2.ui.camera_upload.CameraUploadConfigActivity;
 import com.seafile.seadroid2.ui.camera_upload.GalleryBucketUtils;
@@ -66,7 +66,7 @@ public class BucketsFragment extends Fragment {
         mGridView = rootView.findViewById(R.id.cuc_bucket_selection_grid);
         mRadioGroup = rootView.findViewById(R.id.cuc_local_directory_radio_group);
 
-        if (AlbumBackupManager.readBucketIds().isEmpty()) {
+        if (AlbumBackupSharePreferenceHelper.readBucketIds().isEmpty()) {
             // auto scan
             mGridView.setVisibility(View.INVISIBLE);
             mGridView.setEnabled(false);
@@ -84,7 +84,7 @@ public class BucketsFragment extends Fragment {
 
         selectedBuckets = new boolean[buckets.size()];
 
-        List<String> currentBucketList = AlbumBackupManager.readBucketIds();
+        List<String> currentBucketList = AlbumBackupSharePreferenceHelper.readBucketIds();
         for (int i = 0; i < this.buckets.size(); i++) {
             GalleryBucketUtils.Bucket b = this.buckets.get(i);
             if (!currentBucketList.isEmpty())

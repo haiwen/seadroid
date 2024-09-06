@@ -10,6 +10,7 @@ import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
 import com.seafile.seadroid2.framework.util.Utils;
+import com.seafile.seadroid2.preferences.Settings;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -21,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
 public class DataManager {
@@ -147,7 +147,9 @@ public class DataManager {
     }
 
     public static List<String> getRepoNameMaps(Account account) {
-        String names = DataStoreManager.getInstanceByUser(account.getSignature()).readString(DataStoreKeys.DS_REPO_DIR_MAPPING);
+
+        String names = Settings.getUserSharedPreferences().getString(DataStoreKeys.DS_REPO_DIR_MAPPING, null);
+//        String names = DataStoreManager.getInstanceByUser(account.getSignature()).readString(DataStoreKeys.DS_REPO_DIR_MAPPING);
         Type listType = new TypeToken<List<String>>() {
         }.getType();
 
@@ -212,8 +214,9 @@ public class DataManager {
             List<String> list = getRepoNameMaps(account);
             list.add(repo_id + DataStoreKeys.SEPARATOR + uniqueRepoName);
             String v = GsonUtils.toJson(list);
-            DataStoreManager.getInstanceByUser(account.getSignature()).writeString(DataStoreKeys.DS_REPO_DIR_MAPPING, v);
 
+            Settings.getUserSharedPreferences().edit().putString(DataStoreKeys.DS_REPO_DIR_MAPPING, v).commit();
+//            DataStoreManager.getInstanceByUser(account.getSignature()).writeString(DataStoreKeys.DS_REPO_DIR_MAPPING, v);
         }
 
         return repoDir;

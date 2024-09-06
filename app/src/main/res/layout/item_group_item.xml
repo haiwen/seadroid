@@ -1,28 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/group_container"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/rv_item_group_height"
-    android:orientation="vertical"
-    android:paddingHorizontal="16dp">
+    android:layout_height="wrap_content"
+    android:background="?android:attr/colorBackground"
+    android:foreground="?selectableItemBackground"
+    android:orientation="vertical">
 
     <TextView
         android:id="@+id/item_group_title"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:background="?android:attr/colorBackground"
+        android:layout_height="wrap_content"
         android:gravity="center_vertical"
+        android:paddingHorizontal="16dp"
         android:paddingVertical="8dp"
         android:text="@string/app_name"
         android:textColor="@color/item_subtitle_color"
-        android:textSize="16sp">
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-    </TextView>
+    <ImageView
+        android:id="@+id/listSeparatorItemActionText"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:padding="8dp"
+        android:rotation="90"
+        android:layout_marginEnd="8dp"
+        android:visibility="gone"
+        android:src="@drawable/baseline_arrow_forward_24"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="@color/item_subtitle_color" />
 
     <com.google.android.material.divider.MaterialDivider
         android:id="@+id/divider"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:dividerColor="@color/divider_color" />
-</LinearLayout>
+        app:dividerColor="@color/divider_color"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+</androidx.constraintlayout.widget.ConstraintLayout>

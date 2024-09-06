@@ -5,11 +5,15 @@
   <string name="edit_account">Редактировать</string>
   <string name="delete_account">Удалить</string>
   <string name="delete">Удалить</string>
+  <string name="deleted">Удалено</string>
   <string name="delete_repo">Вы действительно хотите удалить эту библиотеку?</string>
   <string name="delete_file">Вы действительно хотите удалить этот файл или папку?</string>
+  <string name="delete_records">Вы уверены, что хотите удалить записи?</string>
+  <string name="delete_records_and_file">Вы уверены, что хотите удалить записи и локально загруженный файл?</string>
   <string name="delete_successful">Успешно удалено</string>
   <string name="delete_repo_title">Удалить библиотеку</string>
   <string name="delete_file_f">Удалить файл</string>
+  <string name="delete_local_file_sametime">Удалить локальные файлы одновременно</string>
   <string name="recover_library">Восстановить библиотеку</string>
   <string name="recover_file">Восстановить файл</string>
   <string name="move_file">Переместить файл</string>
@@ -64,6 +68,7 @@
   <string name="err_token_expired">Истекло время сессии, войдите снова</string>
   <string name="upload">Загрузить</string>
   <string name="uploaded">Загруженные</string>
+  <string name="re_upload">Загрузить снова</string>
   <string name="updated">Обновленные</string>
   <string name="download_failed">Скачивание не удалось</string>
   <string name="download_waiting">Скачивание ожидается</string>
@@ -137,6 +142,7 @@
   <string name="load_accounts_fail">Не удалось загрузить аккаунты Seafile</string>
   <string name="load_libraries_fail">Не удалось загрузить библиотеки</string>
   <string name="load_dir_fail">Не удалось загрузить содержимое этой папки</string>
+  <string name="not_supported">В настоящее время не поддерживается</string>
   <string name="not_supported_share">Этот тип обмена не поддерживается</string>
   <string name="edit">Изменить</string>
   <string name="create_draft">Создать черновик</string>
@@ -188,6 +194,7 @@
   <string name="share_dir_link">Поделиться ссылкой на эту папку</string>
   <string name="share_input_password">пароль</string>
   <string name="generating_link">Создание ссылки...</string>
+  <string name="generating_link_title">Создание ссылки</string>
   <string name="link_ready_to_be_pasted">Ссылка готова для вставки.</string>
   <string name="rename_repo">Переименовать библиотеку</string>
   <string name="rename_file">Переименовать файл</string>
@@ -199,6 +206,7 @@
     <item>Аккаунты</item>
     <item>Резервное копирование фото</item>
   </string-array>
+  <string name="navigate_to_directory">Перейти в каталог</string>
   <string name="no_starred_file">Пока нет помеченных файлов</string>
   <string name="added_to_upload_tasks">Загрузка началась</string>
   <string name="added_photo_to_upload_tasks">Загрузка фото началась</string>
@@ -235,6 +243,7 @@
   <string name="empty_folder">Пустая папка</string>
   <string name="choose_file">Выбрать файл</string>
   <string name="ssl_error">Проверка безопасности прошла неудачно</string>
+  <string name="ssl_not_trusted">Сертификат безопасности %s не является доверенным.</string>
   <string name="ssl_confirm">Сертификат безопасности %s недоверенный. Вы хотите продолжить?</string>
   <string name="ssl_confirm_cert_changed">%s использует недействительный сертификат безопасности. Соединение не безопасно. Всё равно продолжить?</string>
   <string name="ssl_confirm_title">Недоверенное соединение</string>
@@ -272,6 +281,7 @@
   <string name="settings_account_sign_out_title">Выйти</string>
   <string name="settings_account_sign_out_hint">Нажмите, чтобы выйти</string>
   <string name="settings_account_sign_out_confirm">Вы хотите выйти?</string>
+  <string name="settings_night_mode_title">Темный режим</string>
   <string name="security">Безопасность</string>
   <string name="gesture_lock">Защита жестом</string>
   <string name="gesture_lock_on">Защита жестом включена</string>
@@ -491,6 +501,7 @@
   <string name="notification_upload_started_title">Загрузка файлов...</string>
   <string name="notification_download_started_title">Скачивание файлов...</string>
   <string name="notification_upload_completed">Загрузка завершена</string>
+  <string name="notification_upload_upload_in_progress">%1$d%% %2$s</string>
   <plurals name="notification_upload_info">
     <item quantity="one">Загружается %1$d файл (%2$d%%)</item>
     <item quantity="few">Загружается %1$d файла (%2$d%%)</item>
@@ -515,7 +526,10 @@
   <string name="action_mode_no_items_selected">Нет выбранных элементов</string>
   <!--Accessibility description for navigation drawer-->
   <!--permission-->
+  <string name="permission_manage_external_storage_rationale">Для обработки файлов, позволяет управлять всеми файлами на внешнем хранилище</string>
+  <string name="permission_read_external_storage_rationale">Для обработки файлов, позволить получить доступ к их хранилищу</string>
   <string name="permission_read_contacts_storage_rationale">Для обработки контактов, разрешить к ним доступ.</string>
+  <string name="permission_camera">Для обработки медиафайлов предоставьте доступ к камере.</string>
   <string name="permission_not_granted">Разрешение не было предоставлено</string>
   <string name="history_change_title">Подробности изменений</string>
   <string name="no_more_activities">Не больше действий</string>
@@ -559,6 +573,8 @@
   <string name="channel_name_error">Предупреждения об ошибках</string>
   <string name="channel_name_upload">Информация о загрузке файла</string>
   <string name="channel_name_download">Информация о скачивании файла</string>
+  <string name="channel_name_album_backup">Информация о резервном копировании альбома</string>
+  <string name="channel_name_transfer">Информация о передаче файлов</string>
   <string name="above_quota">Больше квоты</string>
   <string name="camera_upload_state">Информация о загрузке</string>
   <string name="waiting_state">Ожидание загрузки</string>
@@ -566,6 +582,7 @@
   <string name="is_scanning">Сканирование</string>
   <string name="is_uploading">Загрузка</string>
   <string name="network_unavailable">Сеть недоступна</string>
+  <string name="network_error">Ошибка сети</string>
   <string name="required_password">Необходим пароль.</string>
   <string name="weak_password">Пароль слишком слабый.</string>
   <!--Folder backup Preference-->
@@ -598,10 +615,44 @@
   <string name="folder_backup_select_repo_update">Обновить библиотеку для резервных копий</string>
   <string name="UncaughtExceptionHandler_err">Приложение перестало работать</string>
   <!--action-->
+  <string name="pause">Пауза</string>
+  <string name="paused">Остановлено</string>
+  <string name="waiting">Ожидание</string>
   <string name="add">Добавить</string>
   <string name="modify">Изменить</string>
   <string name="update">Обновить</string>
   <string name="clear">Очистить</string>
+  <string name="close">Закрыть</string>
   <string name="clear_all">Очистить всё</string>
+  <string name="done">Завершено</string>
+  <string name="success">Успешно</string>
+  <string name="failed">Неудачно</string>
+  <string name="uploading">Загрузка</string>
+  <string name="downloading">Скачивание</string>
+  <string name="replace_all">Заменить все</string>
+  <string name="replace">Заменить</string>
+  <string name="replace_local_file">Заменить локальный файл</string>
+  <string name="replace_remote_file">Заменить удаленный файл</string>
+  <string name="do_not_replace">Не заменять</string>
+  <string name="keep_both">Оставить оба</string>
+  <string name="off">Отключено</string>
+  <string name="on">Включено</string>
+  <string name="follow_system">Как в системе</string>
+  <string name="empty">Пустой</string>
   <!--share link-->
+  <string name="link_permission_set_permission">Установить разрешение</string>
+  <string name="link_permission_preview_and_download">Предварительный просмотр и загрузка</string>
+  <string name="link_permission_preview_only">Только предварительный просмотр</string>
+  <string name="link_permission_download_and_upload">Скачать и загрузить</string>
+  <!--menu-->
+  <string name="menu_action_view_and_sort">Просмотр и сортировка</string>
+  <string name="menu_action_view_list">Список</string>
+  <string name="menu_action_view_grid">Сетка</string>
+  <string name="menu_action_view_gallery">Галерея</string>
+  <string name="menu_action_sort_by_name">Имя</string>
+  <string name="menu_action_sort_by_type">Тип</string>
+  <string name="menu_action_sort_by_size">Размер</string>
+  <string name="menu_action_sort_by_last_modified">Последнее изменение</string>
+  <string name="menu_action_sort_order_ascending">Восходящий</string>
+  <string name="menu_action_sort_directories_first">Сначала папки</string>
 </resources>

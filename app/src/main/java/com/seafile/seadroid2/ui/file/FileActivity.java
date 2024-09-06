@@ -154,6 +154,8 @@ public class FileActivity extends BaseActivityWithVM<FileViewModel> implements T
                 DirentFileModel direntFileModel = triple.getSecond();
                 FileTransferEntity fileTransfer = triple.getThird();
 
+                direntModel.size = direntFileModel.size;
+
                 ExistingFileStrategy strategy = checkFileStrategy(direntFileModel, fileTransfer);
                 if (ExistingFileStrategy.APPEND == strategy) {
                     getViewModel().preDownload(repoModel, direntModel, destinationFile);

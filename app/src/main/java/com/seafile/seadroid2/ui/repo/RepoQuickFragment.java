@@ -26,15 +26,14 @@ import androidx.appcompat.view.ActionMode;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.media3.common.util.UnstableApi;
-import androidx.recyclerview.widget.ConcatAdapter;
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.work.Data;
 import androidx.work.WorkInfo;
 
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.TimeUtils;
 import com.blankj.utilcode.util.ToastUtils;
+import com.chad.library.adapter4.BaseQuickAdapter;
 import com.github.panpf.recycler.sticky.StickyItemDecoration;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.common.collect.Maps;
@@ -49,23 +48,27 @@ import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.context.CopyMoveContext;
 import com.seafile.seadroid2.context.NavContext;
 import com.seafile.seadroid2.databinding.LayoutFastRvBinding;
+import com.seafile.seadroid2.enums.FileViewType;
+import com.seafile.seadroid2.enums.OpType;
+import com.seafile.seadroid2.enums.SortBy;
 import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.data.db.entities.EncKeyCacheEntity;
 import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
 import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.data.model.BaseModel;
+import com.seafile.seadroid2.framework.data.model.GroupItemModel;
 import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.util.Objs;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.framework.worker.download.DownloadWorker;
-import com.seafile.seadroid2.framework.worker.SupportWorkManager;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
 import com.seafile.seadroid2.framework.worker.upload.UploadFileManuallyWorker;
 import com.seafile.seadroid2.framework.worker.upload.UploadFolderFileAutomaticallyWorker;
 import com.seafile.seadroid2.framework.worker.upload.UploadMediaFileAutomaticallyWorker;
+import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.base.fragment.BaseFragmentWithVM;
 import com.seafile.seadroid2.ui.dialog_fragment.CopyMoveDialogFragment;
@@ -101,7 +104,6 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
     private LayoutFastRvBinding binding;
     private RepoQuickAdapter adapter;
-    private LinearLayoutManager rvManager;
 
     private MainViewModel mainViewModel;
     private final Map<String, ScrollState> scrollPositions = Maps.newHashMap();
@@ -136,6 +138,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = LayoutFastRvBinding.inflate(inflater, container, false);
         binding.swipeRefreshLayout.setOnRefreshListener(() -> loadData(true));
+
         return binding.getRoot();
     }
 
@@ -143,14 +146,15 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        init();
-
         initAdapter();
+
+        initRv();
 
         initViewModel();
 
         initWorkerListener();
     }
+
 
     @Override
     public void onFirstResume() {
@@ -166,18 +170,61 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         }
     }
 
-    private void init() {
-        rvManager = (LinearLayoutManager) binding.rv.getLayoutManager();
-
+    private void initRv() {
         StickyItemDecoration decoration = new StickyItemDecoration.Builder()
                 .itemType(AbsLayoutItemType.GROUP_ITEM)
+//                .invisibleOriginItemWhenStickyItemShowing(false)
+//                .disabledScrollUpStickyItem(false)
+//                .showInContainer(binding.stickyContainer)
                 .build();
 
         binding.rv.addItemDecoration(decoration);
+
+        //layout manager
+        binding.rv.setLayoutManager(getGridLayoutManager());
+    }
+
+    private int SPAN_COUNT = 1;
+
+    private GridLayoutManager getGridLayoutManager() {
+        FileViewType fileViewType = Settings.FILE_LIST_VIEW_TYPE.queryValue();
+        if (FileViewType.LIST == fileViewType) {
+            SPAN_COUNT = 1;
+        } else if (FileViewType.GRID == fileViewType) {
+            SPAN_COUNT = 2;
+        } else if (FileViewType.GALLERY == fileViewType) {
+            SPAN_COUNT = 4;
+        }
+
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(requireContext(), SPAN_COUNT);
+        gridLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+            @Override
+            public int getSpanSize(int i) {
+                List<BaseModel> list = adapter.getItems();
+                if (CollectionUtils.isEmpty(list)) {
+                    return SPAN_COUNT;
+                }
+
+                if (list.get(i) instanceof GroupItemModel) {
+                    return SPAN_COUNT;
+                } else if (list.get(i) instanceof Account) {
+                    return SPAN_COUNT;
+                } else if (list.get(i) instanceof RepoModel) {
+                    return SPAN_COUNT;
+                }
+
+                return 1;
+            }
+        });
+
+        return gridLayoutManager;
     }
 
     private void initAdapter() {
         adapter = new RepoQuickAdapter();
+
+        lastViewType = Settings.FILE_LIST_VIEW_TYPE.queryValue();
+        adapter.setFileViewType(lastViewType);
 
         adapter.setOnItemClickListener((baseQuickAdapter, view, i) -> {
             if (adapter.getActionMode()) {
@@ -197,26 +244,24 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 } else {
                     navTo(baseModel);
                 }
-                return;
+            } else if (baseModel instanceof DirentModel) {
+                navTo(baseModel);
             }
-
-            navTo(baseModel);
-
         });
 
         adapter.setOnItemLongClickListener((baseQuickAdapter, view, i) -> {
-            if (getNavContext().isInRepo()) {
+            if (getNavContext().inRepo()) {
 
                 //return
                 if (adapter.getActionMode()) {
                     return true;
                 }
 
-                //toggle
-                toggleAdapterItemSelectedOnLongClick(i);
-
                 //start action mode
                 startContextualActionMode();
+
+                //toggle
+                toggleAdapterItemSelectedOnLongClick(i);
 
                 //It's actually updating the title of the ActionBar
                 updateContextualActionBar();
@@ -227,6 +272,17 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             }
         });
 
+//        adapter.addOnItemChildClickListener(R.id.group_container, new BaseQuickAdapter.OnItemChildClickListener<BaseModel>() {
+//            @Override
+//            public void onItemClick(@NonNull BaseQuickAdapter<BaseModel, ?> baseQuickAdapter, @NonNull View view, int i) {
+//                GroupItemModel groupItemModel = (GroupItemModel) adapter.getItems().get(i);
+//                groupItemModel.is_checked = !groupItemModel.is_checked;
+//                Bundle bundle = new Bundle();
+//                bundle.putBoolean("is_checked", groupItemModel.is_checked);
+//                adapter.notifyItemChanged(i, bundle);
+//            }
+//        });
+
         adapter.addOnItemChildClickListener(R.id.expandable_toggle_button, (baseQuickAdapter, view, i) -> {
 
             //when ActionMode is On, return
@@ -235,7 +291,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             }
 
             //open bottom sheet dialog
-            if (getNavContext().isInRepo()) {
+            if (getNavContext().inRepo()) {
                 DirentModel direntModel = (DirentModel) adapter.getItems().get(i);
                 if (direntModel.isDir()) {
                     showDirNewBottomSheet(direntModel);
@@ -247,7 +303,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             }
         });
 
-        binding.rv.setAdapter(createMuiltAdapterHelper(adapter).getAdapter());
+        binding.rv.setAdapter(adapter);
     }
 
     private void initViewModel() {
@@ -287,12 +343,86 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             loadData(true);
         });
 
+        Settings.FILE_LIST_VIEW_TYPE.observe(getViewLifecycleOwner(), new Observer<FileViewType>() {
+            @Override
+            public void onChanged(FileViewType fileViewType) {
+                switchRecyclerViewLayout(fileViewType);
+            }
+        });
+
+        Settings.FILE_LIST_SORT_BY.observe(getViewLifecycleOwner(), new Observer<SortBy>() {
+            @Override
+            public void onChanged(SortBy sortBy) {
+                reloadData();
+            }
+        });
+
+        Settings.FILE_LIST_SORT_ASCENDING.observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+                reloadData();
+            }
+        });
+
+        Settings.FILE_LIST_SORT_FOLDER_FIRST.observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+                reloadData();
+            }
+        });
+    }
+
+    public void reloadData() {
+        loadData(isForce());
+    }
+
+    private FileViewType lastViewType;
+
+    private void switchRecyclerViewLayout(FileViewType newViewType) {
+        int spanCount = 0;
+        if (FileViewType.LIST == newViewType) {
+            spanCount = 1;
+        } else if (FileViewType.GRID == newViewType) {
+            spanCount = 2;
+        } else if (FileViewType.GALLERY == newViewType) {
+            spanCount = 4;
+        }
+
+        if (spanCount == SPAN_COUNT) {
+            return;
+        }
+
+        SPAN_COUNT = spanCount;
+
+
+        if (FileViewType.GALLERY != lastViewType && newViewType != FileViewType.GALLERY) {
+        } else {
+            adapter.notifyDataChanged(null);
+        }
+
+        GridLayoutManager gridLayoutManager = (GridLayoutManager) binding.rv.getLayoutManager();
+        if (gridLayoutManager != null) {
+            gridLayoutManager.setSpanCount(SPAN_COUNT);
+        }
+
+        adapter.setFileViewType(newViewType);
+
+        if (FileViewType.GALLERY != lastViewType && newViewType != FileViewType.GALLERY) {
+            adapter.notifyItemRangeChanged(0, adapter.getItemCount());
+        } else {
+            loadData();
+        }
+
+        //If SPAN_COUNT is updated, then the data in the ScrollPosition is meaningless
+        removeScrollPositionExcludeRoot();
+
+        lastViewType = newViewType;
     }
 
     private void initWorkerListener() {
 
         //UploadFileManuallyWorker
-        SupportWorkManager.getWorkManager()
+        BackgroundJobManagerImpl.getInstance().getWorkManager()
                 .getWorkInfoByIdLiveData(UploadFileManuallyWorker.UID)
                 .observe(getViewLifecycleOwner(), new Observer<WorkInfo>() {
                     @Override
@@ -302,7 +432,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 });
 
         //UploadFolderFileAutomaticallyWorker
-        SupportWorkManager.getWorkManager()
+        BackgroundJobManagerImpl.getInstance().getWorkManager()
                 .getWorkInfoByIdLiveData(UploadFolderFileAutomaticallyWorker.UID)
                 .observe(getViewLifecycleOwner(), new Observer<WorkInfo>() {
                     @Override
@@ -312,7 +442,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 });
 
         //UploadMediaFileAutomaticallyWorker
-        SupportWorkManager.getWorkManager()
+        BackgroundJobManagerImpl.getInstance().getWorkManager()
                 .getWorkInfoByIdLiveData(UploadMediaFileAutomaticallyWorker.UID)
                 .observe(getViewLifecycleOwner(), new Observer<WorkInfo>() {
                     @Override
@@ -322,7 +452,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 });
 
         //DownloadWorker
-        SupportWorkManager.getWorkManager()
+        BackgroundJobManagerImpl.getInstance().getWorkManager()
                 .getWorkInfoByIdLiveData(DownloadWorker.UID)
                 .observe(getViewLifecycleOwner(), new Observer<WorkInfo>() {
                     @Override
@@ -333,6 +463,10 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     }
 
     private void checkWorkInfo(WorkInfo workInfo) {
+        if (!isResumed()) {
+            return;
+        }
+
         if (workInfo != null && workInfo.getState().isFinished()) {
             Data data = workInfo.getOutputData();
             String transferState = data.getString(TransferWorker.KEY_DATA_EVENT);
@@ -352,7 +486,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     private boolean isForce() {
         long now = TimeUtils.getNowMills();
         Long expire;
-        if (getNavContext().isInRepoList()) {
+        if (!getNavContext().inRepo()) {
             expire = mRefreshStatusExpireTimeMap.get(KEY_REPO_LIST);
         } else {
             String k = getNavContext().getRepoModel().repo_id + getNavContext().getNavPath();
@@ -366,10 +500,12 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     }
 
     public void loadData(boolean forceRefresh) {
+        removeCurrentScrollPosition();
+
         if (forceRefresh) {
             long now = TimeUtils.getNowMills();
             now += forceRefreshInterval;
-            if (getNavContext().isInRepoList()) {
+            if (!getNavContext().inRepo()) {
                 mRefreshStatusExpireTimeMap.put(KEY_REPO_LIST, now);
             } else {
                 String k = getNavContext().getRepoModel().repo_id + getNavContext().getNavPath();
@@ -377,12 +513,8 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             }
         }
 
-        //
-        saveScrollPosition();
-
         getViewModel().loadData(getNavContext(), forceRefresh);
     }
-
 
     private void notifyDataChanged(List<BaseModel> repoModels) {
         if (CollectionUtils.isEmpty(repoModels)) {
@@ -393,7 +525,14 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     }
 
     private void showEmptyTip() {
-        showErrorView(R.string.no_repo);
+        FileViewType type = Settings.FILE_LIST_VIEW_TYPE.queryValue();
+        if (FileViewType.GALLERY == type) {
+            showErrorView(R.string.no_album_type_data);
+        } else if (getNavContext().inRepo()) {
+            showErrorView(R.string.no_repo);
+        } else {
+            showErrorView(R.string.dir_empty);
+        }
     }
 
     private void showErrorView(SeafException seafException) {
@@ -401,7 +540,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         String errorMsg = seafException.getMessage();
         ToastUtils.showLong(errorMsg);
 
-        int strInt = !getNavContext().isInRepo() ? R.string.error_when_load_repos : R.string.error_when_load_dirents;
+        int strInt = !getNavContext().inRepo() ? R.string.error_when_load_repos : R.string.error_when_load_dirents;
         showErrorView(strInt);
     }
 
@@ -413,7 +552,6 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         adapter.submitList(null);
         TextView tipView = TipsViews.getTipTextView(requireContext());
         tipView.setText(msg);
-        tipView.setOnClickListener(v -> loadData(true));
         adapter.setStateView(tipView);
         adapter.setStateViewEnable(true);
     }
@@ -422,7 +560,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         //save
         saveScrollPosition();
 
-        if (getNavContext().isInRepoList()) {
+        if (!getNavContext().inRepo()) {
             getNavContext().push(model);
             loadData(isForce());
         } else if (model instanceof DirentModel) {
@@ -437,12 +575,12 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     }
 
     public boolean backTo() {
-        if (getNavContext().isInRepo()) {
+        if (getNavContext().inRepo()) {
             if (adapter.getActionMode()) {
                 adapter.setActionModeOn(false);
             } else {
                 //
-                removeScrollPosition();
+                removeCurrentScrollPosition();
                 //
                 getNavContext().pop();
                 getViewModel().loadData(getNavContext(), false);
@@ -492,12 +630,18 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     private void saveScrollPosition() {
         View vi = binding.rv.getChildAt(0);
         int top = (vi == null) ? 0 : vi.getTop();
-        final int index = rvManager.findFirstVisibleItemPosition();
+
+        GridLayoutManager gridLayoutManager = (GridLayoutManager) binding.rv.getLayoutManager();
+        if (gridLayoutManager == null) {
+            return;
+        }
+
+        final int index = gridLayoutManager.findFirstVisibleItemPosition();
         final ScrollState state = new ScrollState(index, top);
 
-        removeScrollPosition();
+        removeCurrentScrollPosition();
 
-        if (!getNavContext().isInRepo()) {
+        if (!getNavContext().inRepo()) {
             scrollPositions.put(KEY_REPO_SCROLL_POSITION, state);
         } else {
             String k = getNavContext().getNavPath();
@@ -505,8 +649,16 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         }
     }
 
-    private void removeScrollPosition() {
-        if (!getNavContext().isInRepo()) {
+    private void removeScrollPositionExcludeRoot() {
+        if (!scrollPositions.isEmpty()) {
+            ScrollState rootState = scrollPositions.get(KEY_REPO_SCROLL_POSITION);
+            scrollPositions.clear();
+            scrollPositions.put(KEY_REPO_SCROLL_POSITION, rootState);
+        }
+    }
+
+    private void removeCurrentScrollPosition() {
+        if (!getNavContext().inRepo()) {
             scrollPositions.remove(KEY_REPO_SCROLL_POSITION);
         } else {
             String k = getNavContext().getNavPath();
@@ -516,16 +668,21 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
     private void restoreScrollPosition() {
         ScrollState state;
-        if (!getNavContext().isInRepo()) {
+        if (!getNavContext().inRepo()) {
             state = scrollPositions.get(KEY_REPO_SCROLL_POSITION);
         } else {
             state = scrollPositions.get(getNavContext().getNavPath());
         }
 
-        if (state != null) {
-            rvManager.scrollToPositionWithOffset(state.index, state.top);
+        GridLayoutManager gridLayoutManager = (GridLayoutManager) binding.rv.getLayoutManager();
+        if (gridLayoutManager == null) {
+            return;
+        }
+
+        if (null == state) {
+            gridLayoutManager.scrollToPosition(0);
         } else {
-            rvManager.scrollToPosition(0);
+            gridLayoutManager.scrollToPositionWithOffset(state.index, state.top);
         }
     }
 
@@ -539,13 +696,8 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     }
 
     private void toggleAdapterItemSelectedOnLongClick(int i) {
-        //action mode on
-        if (!adapter.getActionMode()) {
-            adapter.setActionModeOn(true);
-        }
-
         DirentModel direntModel = (DirentModel) adapter.getItems().get(i);
-        direntModel.is_selected = !direntModel.is_selected;
+        direntModel.is_checked = !direntModel.is_checked;
         adapter.getItems().set(i, direntModel);
         adapter.notifyItemChanged(i);
     }
@@ -560,7 +712,12 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     }
 
     public void startContextualActionMode() {
-        if (!getNavContext().isInRepo()) return;
+        if (!getNavContext().inRepo()) return;
+
+        //action mode on
+        if (!adapter.getActionMode()) {
+            adapter.setActionModeOn(true);
+        }
 
         if (actionMode == null) {
             // start the actionMode
@@ -572,7 +729,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
      * update state of contextual action bar (CAB)
      */
     public void updateContextualActionBar() {
-        if (!getNavContext().isInRepo()) return;
+        if (!getNavContext().inRepo()) return;
 
         if (actionMode == null) {
             // there are some selected items, start the actionMode
@@ -581,7 +738,6 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             int count = adapter.getSelectedList().size();
             actionMode.setTitle(getResources().getQuantityString(R.plurals.transfer_list_items_selected, count, count));
         }
-
     }
 
     /**
@@ -627,12 +783,13 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
             //check data
             List<DirentModel> selectedDirents = adapter.getSelectedList();
-            if (CollectionUtils.isEmpty(selectedDirents) || !getNavContext().isInRepo()) {
+            if (CollectionUtils.isEmpty(selectedDirents) || !getNavContext().inRepo()) {
                 if (item.getItemId() != R.id.action_mode_select_all) {
                     ToastUtils.showLong(R.string.action_mode_no_items_selected);
                     return true;
                 }
             }
+
             int itemId = item.getItemId();
             if (itemId == R.id.action_mode_select_all) {
                 adapter.setItemSelected(!allItemsSelected);
@@ -694,6 +851,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             builder.removeMenu(R.id.delete_repo);
             builder.removeMenu(R.id.rename_repo);
         }
+
         builder.show(getChildFragmentManager());
     }
 
@@ -715,7 +873,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             } else if (itemId == R.id.rename) {
                 rename(dirent.repo_id, dirent.full_path, dirent.name, "dir");
             } else if (itemId == R.id.download) {
-                BackgroundJobManagerImpl.getInstance().scheduleOneTimeFilesDownloadScanWorker(new String[]{dirent.uid});
+                BackgroundJobManagerImpl.getInstance().startDownloadChainWorker(new String[]{dirent.uid});
             }
         });
 
@@ -731,8 +889,12 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             builder.removeMenu(R.id.move);
         }
 
+        if (!dirent.hasDownloadPermission()) {
+            builder.removeMenu(R.id.download);
+        }
+
         String repoId = getNavContext().getRepoModel().repo_id;
-        getViewModel().getRepoModelFromDB(repoId, new Consumer<RepoModel>() {
+        getViewModel().getRepoModelFromLocal(repoId, new Consumer<RepoModel>() {
             @Override
             public void accept(RepoModel repoModel) throws Exception {
                 if (repoModel != null && repoModel.encrypted) {
@@ -783,6 +945,10 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             builder.removeMenu(R.id.delete);
             builder.removeMenu(R.id.move);
             builder.removeMenu(R.id.update);
+        }
+
+        if (!dirent.hasDownloadPermission()) {
+            builder.removeMenu(R.id.download);
         }
 
 //        if (!Utils.isTextMimeType(dirent.name)) {
@@ -875,9 +1041,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     }
 
     public void download(DirentModel direntModel) {
-//        Intent intent = FileActivity.start(requireContext(), direntModel, "no_action");
-//        fileActivityLauncher.launch(intent);
-        BackgroundJobManagerImpl.getInstance().scheduleOneTimeFilesDownloadScanWorker(new String[]{direntModel.uid});
+        BackgroundJobManagerImpl.getInstance().startDownloadChainWorker(new String[]{direntModel.uid});
     }
 
     public void rename(String repoID, String curPath, String curName, String type) {
@@ -937,7 +1101,8 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
         boolean inChina = Utils.isInChina();
         String[] strings;
-        //if user  in China ，system  add  WeChat  share
+
+        //if user in China, system add WeChat share
         if (inChina) {
             strings = getResources().getStringArray(R.array.file_action_share_array_zh);
         } else {
@@ -948,6 +1113,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             if (!inChina) {
                 which++;
             }
+
             if (which == 0) {
                 shareFile(direntModel);
             } else if (which == 1) {
@@ -962,7 +1128,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
      * Copy multiple files
      */
     public void copyFiles(String srcRepoId, String srcRepoName, String srcDir, List<DirentModel> dirents) {
-        chooseCopyMoveDestForMultiFiles(srcRepoId, srcRepoName, srcDir, dirents, CopyMoveContext.OP.COPY);
+        chooseCopyMoveDestForMultiFiles(srcRepoId, srcRepoName, srcDir, dirents, OpType.COPY);
     }
 
 
@@ -970,7 +1136,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
      * Move multiple files
      */
     public void moveFiles(String srcRepoId, String srcRepoName, String srcDir, List<DirentModel> dirents) {
-        chooseCopyMoveDestForMultiFiles(srcRepoId, srcRepoName, srcDir, dirents, CopyMoveContext.OP.MOVE);
+        chooseCopyMoveDestForMultiFiles(srcRepoId, srcRepoName, srcDir, dirents, OpType.MOVE);
     }
 
     /**
@@ -978,7 +1144,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
      */
     public void downloadDirents(List<DirentModel> dirents) {
         String[] uids = dirents.stream().map(m -> m.uid).toArray(String[]::new);
-        BackgroundJobManagerImpl.getInstance().scheduleOneTimeFilesDownloadScanWorker(uids);
+        BackgroundJobManagerImpl.getInstance().startDownloadChainWorker(uids);
 
         closeActionMode();
     }
@@ -990,7 +1156,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
      */
     private void chooseCopyMoveDestForMultiFiles(String repoID, String repoName,
                                                  String dirPath, List<DirentModel> dirents,
-                                                 CopyMoveContext.OP op) {
+                                                 OpType op) {
         copyMoveContext = new CopyMoveContext(repoID, repoName, dirPath, dirents, op);
 
         Intent intent = new Intent(requireContext(), ObjSelectorActivity.class);

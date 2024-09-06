@@ -1,16 +1,17 @@
 package com.seafile.seadroid2.account;
 
+import static com.seafile.seadroid2.account.AccountInfo.SPACE_USAGE_SEPARATOR;
+
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
 
+import com.blankj.utilcode.util.EncryptUtils;
 import com.google.common.base.Objects;
 import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.framework.data.model.BaseModel;
 import com.seafile.seadroid2.framework.util.URLs;
 import com.seafile.seadroid2.framework.util.Utils;
-
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.Locale;
 
@@ -36,6 +37,36 @@ public class Account extends BaseModel implements Parcelable, Comparable<Account
     public long usage;
     public long total;
 
+
+    public Account() {
+
+    }
+
+    public Account(String server, String email, String name, String avatar_url, String token, Boolean is_shib) {
+        this.name = name;
+        this.avatar_url = avatar_url;
+        this.server = server;
+        this.email = email;
+        this.token = token;
+        this.is_shib = is_shib;
+    }
+
+
+    public Account(String name, String server, String email, String avatar_url, String token, Boolean is_shib, String sessionKey, String loginTime) {
+        this.server = server;
+        this.name = name;
+        this.email = email;
+        this.avatar_url = avatar_url;
+        this.token = token;
+        this.sessionKey = sessionKey;
+        this.is_shib = is_shib;
+
+        if (TextUtils.isEmpty(loginTime)) {
+            loginTime = "0";
+        }
+        this.login_time = Long.parseLong(loginTime);
+    }
+
     public long getUsageSpace() {
         return usage;
     }
@@ -50,6 +81,16 @@ public class Account extends BaseModel implements Parcelable, Comparable<Account
 
     public void setTotalSpace(long total) {
         this.total = total;
+    }
+
+    public String getSpaceUsed() {
+        String strUsage = Utils.readableFileSize(usage);
+        if (isQuotaUnlimited()) {
+            return strUsage + SPACE_USAGE_SEPARATOR + "--";
+        }
+
+        String strTotal = Utils.readableFileSize(total);
+        return strUsage + SPACE_USAGE_SEPARATOR + strTotal;
     }
 
     /**
@@ -82,34 +123,6 @@ public class Account extends BaseModel implements Parcelable, Comparable<Account
         this.email = email;
     }
 
-    public Account() {
-
-    }
-
-    public Account(String server, String email, String name, String avatar_url, String token, Boolean is_shib) {
-        this.name = name;
-        this.avatar_url = avatar_url;
-        this.server = server;
-        this.email = email;
-        this.token = token;
-        this.is_shib = is_shib;
-    }
-
-
-    public Account(String name, String server, String email, String avatar_url, String token, Boolean is_shib, String sessionKey, String loginTime) {
-        this.server = server;
-        this.name = name;
-        this.email = email;
-        this.avatar_url = avatar_url;
-        this.token = token;
-        this.sessionKey = sessionKey;
-        this.is_shib = is_shib;
-
-        if (TextUtils.isEmpty(loginTime)) {
-            loginTime = "0";
-        }
-        this.login_time = Long.parseLong(loginTime);
-    }
 
     public String getServerHost() {
         String s = server.substring(server.indexOf("://") + 3);
@@ -187,6 +200,11 @@ public class Account extends BaseModel implements Parcelable, Comparable<Account
         return String.format("%s (%s)", getServerNoProtocol(), email);
     }
 
+    public String getEncryptSignature() {
+        return EncryptUtils.encryptMD5ToString(getSignature());
+    }
+
+
     public String getDisplayName() {
         String server = Utils.stripSlashes(getServerHost());
         return Utils.assembleUserName(name, email, server);
@@ -202,7 +220,7 @@ public class Account extends BaseModel implements Parcelable, Comparable<Account
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(server, email, name);
+        return Objects.hashCode(server, email, name, token);
     }
 
     @Override
@@ -222,6 +240,7 @@ public class Account extends BaseModel implements Parcelable, Comparable<Account
 
         return Objects.equal(newAccount.server, this.server)
                 && Objects.equal(newAccount.email, this.email)
+                && Objects.equal(newAccount.name, this.name)
                 && Objects.equal(newAccount.token, this.token);
     }
 

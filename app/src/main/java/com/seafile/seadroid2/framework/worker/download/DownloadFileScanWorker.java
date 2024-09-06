@@ -5,6 +5,7 @@ import android.content.Context;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
+import androidx.work.Data;
 import androidx.work.ForegroundInfo;
 import androidx.work.WorkerParameters;
 
@@ -14,6 +15,7 @@ import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.data.db.AppDatabase;
 import com.seafile.seadroid2.framework.data.model.dirents.DirentFileModel;
@@ -21,13 +23,14 @@ import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.data.model.dirents.DirentRecursiveFileModel;
 import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
-import com.seafile.seadroid2.framework.data.model.enums.TransferAction;
-import com.seafile.seadroid2.framework.data.model.enums.TransferResult;
-import com.seafile.seadroid2.framework.data.model.enums.TransferStatus;
+import com.seafile.seadroid2.enums.TransferAction;
+import com.seafile.seadroid2.enums.TransferResult;
+import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.notification.DownloadNotificationHelper;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
+import com.seafile.seadroid2.framework.worker.TransferEvent;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
 import com.seafile.seadroid2.ui.file.FileService;
 
@@ -124,11 +127,15 @@ public class DownloadFileScanWorker extends TransferWorker {
             }
         }
 
-        //start upload worker
-        BackgroundJobManagerImpl.getInstance().startFileDownloadWorker();
-
         //success
-        return Result.success();
+        return Result.success(getFinishData());
+    }
+
+    private Data getFinishData() {
+        return new Data.Builder()
+                .putString(TransferWorker.KEY_DATA_EVENT, TransferEvent.EVENT_SCAN_END)
+                .putString(TransferWorker.KEY_DATA_TYPE, String.valueOf(TransferDataSource.DOWNLOAD))
+                .build();
     }
 
     private void removeDownload(String[] ids) {

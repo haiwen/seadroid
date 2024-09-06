@@ -5,16 +5,12 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
-import androidx.appcompat.widget.AppCompatImageView;
+import androidx.lifecycle.Observer;
 import androidx.media3.common.AudioAttributes;
 import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
@@ -35,40 +31,29 @@ import com.blankj.utilcode.util.AppUtils;
 import com.blankj.utilcode.util.BarUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.account.SupportAccountManager;
-import com.seafile.seadroid2.ui.media.player.VideoLinkStateListener;
-import com.seafile.seadroid2.ui.media.player.VideoLinkTask;
-import com.seafile.seadroid2.ui.base.BaseActivity;
-import com.seafile.seadroid2.framework.util.ConcurrentAsyncTask;
+import com.seafile.seadroid2.SeafException;
+import com.seafile.seadroid2.databinding.ActivityExoPlayerBinding;
+import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
+import com.seafile.seadroid2.ui.media.player.PlayerViewModel;
+import com.seafile.seadroid2.view.ExoPlayerView;
 
 import java.util.Locale;
 
 @UnstableApi
-public class CustomExoVideoPlayerActivity extends BaseActivity implements VideoLinkStateListener {
+public class CustomExoVideoPlayerActivity extends BaseActivityWithVM<PlayerViewModel> {
     private static final String KEY_FULL_SCREEN = "isFullScreen";
     private static final String KEY_ITEM_INDEX = "startItemIndex";
     private static final String KEY_POSITION = "position";
     private static final String KEY_AUTO_PLAY = "auto_play";
 
-    private ExoPlayer player;
-    private ExoPlayerView playerView;
+    private ActivityExoPlayerBinding binding;
 
-    private TextView playerPosition, playerDuration;
-    private DefaultTimeBar timeBar;
-    private AppCompatImageView playerPlay;
-    private ImageView playerFullscreen;
-    private ImageView backView;
-    private ProgressBar loadingProgressBar;
-    private LinearLayout progressContainer;
-    private LinearLayout backContainer;
-    private FrameLayout playContainer;
+    private ExoPlayer exoPlayer;
+    private ExoPlayerView exoPlayerView;
 
-    private Account mAccount;
     private String fileName;
     private String mRepoID;
     private String mFilePath;
-    private String mFileLink;
 
     private boolean hasFullScreen = false;
     private boolean startAutoPlay;
@@ -87,23 +72,26 @@ public class CustomExoVideoPlayerActivity extends BaseActivity implements VideoL
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_video_player2);
+        binding = ActivityExoPlayerBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
         //
-        BarUtils.setNavBarVisibility(this,false);
-        BarUtils.setStatusBarVisibility(this,false);
-
-        mAccount = SupportAccountManager.getInstance().getCurrentAccount();
+        BarUtils.setNavBarVisibility(this, false);
+        BarUtils.setStatusBarVisibility(this, false);
 
         Intent intent = getIntent();
+        if (!intent.hasExtra("repoID")) {
+            throw new IllegalArgumentException("no repoID param");
+        }
+
+        if (!intent.hasExtra("filePath")) {
+            throw new IllegalArgumentException("no filePath param");
+        }
+
         fileName = intent.getStringExtra("fileName");
         mRepoID = intent.getStringExtra("repoID");
         mFilePath = intent.getStringExtra("filePath");
 
-        VideoLinkTask task = new VideoLinkTask(mAccount, mRepoID, mFilePath, this);
-        ConcurrentAsyncTask.execute(task);
-
-        initUI();
 
         if (savedInstanceState != null) {
             startAutoPlay = savedInstanceState.getBoolean(KEY_AUTO_PLAY);
@@ -113,58 +101,47 @@ public class CustomExoVideoPlayerActivity extends BaseActivity implements VideoL
         } else {
             clearStartPosition();
         }
+
+        initUI();
+
+        initViewModel();
+    }
+
+    @Override
+    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+
+        getViewModel().getFileLink(mRepoID, mFilePath, true);
     }
 
     @OptIn(markerClass = UnstableApi.class)
     private void initUI() {
-        backView = findViewById(R.id.back);
-        backContainer = findViewById(R.id.back_container);
-        progressContainer = findViewById(R.id.progress_container);
-        loadingProgressBar = findViewById(R.id.loading_progress);
-        playerView = findViewById(R.id.player_view);
-        playerPlay = findViewById(R.id.player_play);
-        playerPosition = findViewById(R.id.progress_position);
-        playerDuration = findViewById(R.id.progress_duration);
-        timeBar = findViewById(R.id.progress);
-        playerFullscreen = findViewById(R.id.fullscreen);
-        playContainer = findViewById(R.id.play_container);
 
-        playContainer.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showControllerView();
+        exoPlayerView = binding.playerView;
+
+        binding.back.setOnClickListener(v -> {
+            if (hasFullScreen) {
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+                hasFullScreen = false;
+                return;
+            }
+
+            finish();
+        });
+
+        binding.fullscreen.setOnClickListener(v -> {
+            if (hasFullScreen) {
+                binding.fullscreen.setImageResource(R.drawable.ic_fullscreen_enter);
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+                hasFullScreen = false;
+            } else {
+                binding.fullscreen.setImageResource(R.drawable.ic_fullscreen_exit);
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+                hasFullScreen = true;
             }
         });
 
-        backView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (hasFullScreen) {
-                    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-                    hasFullScreen = false;
-                    return;
-                }
-
-                finish();
-            }
-        });
-
-        playerFullscreen.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (hasFullScreen) {
-                    playerFullscreen.setImageResource(R.drawable.ic_fullscreen_enter);
-                    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-                    hasFullScreen = false;
-                } else {
-                    playerFullscreen.setImageResource(R.drawable.ic_fullscreen_exit);
-                    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-                    hasFullScreen = true;
-                }
-            }
-        });
-
-        timeBar.addListener(new TimeBar.OnScrubListener() {
+        binding.progressBar.addListener(new TimeBar.OnScrubListener() {
             @Override
             public void onScrubStart(TimeBar timeBar, long position) {
 
@@ -177,44 +154,54 @@ public class CustomExoVideoPlayerActivity extends BaseActivity implements VideoL
 
             @Override
             public void onScrubStop(TimeBar timeBar, long position, boolean canceled) {
-                if (player != null) {
-                    player.seekTo(position);
+                if (exoPlayer != null) {
+                    exoPlayer.seekTo(position);
                 }
             }
         });
 
-        playerPlay.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (player == null) {
-                    return;
-                }
+        binding.playPause.setOnClickListener(v -> {
+            if (exoPlayer == null) {
+                return;
+            }
 
+            showControllerView();
+
+            //end or pause or play
+            if (exoPlayer.getPlaybackState() == Player.STATE_ENDED) {
+                exoPlayer.seekTo(0);
+                exoPlayer.setPlayWhenReady(true);
+                setPlayIcon(false);
+            } else if (exoPlayer.isPlaying()) {
+                setPlayIcon(true);
+                exoPlayer.pause();
+            } else {
+                setPlayIcon(false);
+                exoPlayer.play();
+            }
+        });
+
+        binding.playContainer.setOnClickListener(v -> {
+            if (binding.progressContainer.getVisibility() == View.VISIBLE) {
+                hideControllerViewImmediately();
+            } else {
                 showControllerView();
+            }
+        });
+    }
 
-                //end or pause or play
-                if (player.getPlaybackState() == Player.STATE_ENDED) {
-                    player.seekTo(0);
-                    player.setPlayWhenReady(true);
-                    setPlayIcon(false);
-                } else if (player.isPlaying()) {
-                    setPlayIcon(true);
-                    player.pause();
-                } else {
-                    setPlayIcon(false);
-                    player.play();
-                }
+    private void initViewModel() {
+        getViewModel().getSeafExceptionLiveData().observe(this, new Observer<SeafException>() {
+            @Override
+            public void onChanged(SeafException e) {
+                ToastUtils.showLong(e.getMessage());
             }
         });
 
-        playContainer.setOnClickListener(new View.OnClickListener() {
+        getViewModel().getUrlLiveData().observe(this, new Observer<String>() {
             @Override
-            public void onClick(View v) {
-                if (progressContainer.getVisibility() == View.VISIBLE) {
-                    hideControllerViewImmediately();
-                } else {
-                    showControllerView();
-                }
+            public void onChanged(String url) {
+                prepareForPlay(url);
             }
         });
     }
@@ -229,62 +216,53 @@ public class CustomExoVideoPlayerActivity extends BaseActivity implements VideoL
         outState.putInt(KEY_ITEM_INDEX, startItemIndex);
     }
 
-    @Override
-    public void onSuccess(String fileLink) {
-        mFileLink = fileLink;
-        init();
-    }
 
     private void setPlayIcon(boolean isPlay) {
-        playerPlay.setImageResource(isPlay ? R.drawable.ic_play_fill : R.drawable.ic_pause_fill);
+        binding.playPause.setImageResource(isPlay ? R.drawable.ic_play_fill : R.drawable.ic_pause_fill);
     }
 
     @OptIn(markerClass = UnstableApi.class)
-    private void init() {
-        player = new ExoPlayer.Builder(this).build();
-        playerView.setPlaybackStateChanged(new ExoPlayerView.PlaybackStateChangedListener() {
-            @Override
-            public void onCall(int playbackState) {
-                switch (playbackState) {
-                    case Player.STATE_BUFFERING: //loading
-                        loadingProgressBar.setVisibility(View.VISIBLE);
-                        playerPlay.setVisibility(View.GONE);
-                        break;
-                    case Player.STATE_READY:
-                        loadingProgressBar.setVisibility(View.GONE);
-                        playerPlay.setVisibility(View.VISIBLE);
-                        break;
-                    case Player.STATE_ENDED:
-
-                        setPlayIcon(/* isPlay */ true);
-                        showControllerView();
-                        break;
-                }
+    private void prepareForPlay(String url) {
+        exoPlayer = new ExoPlayer.Builder(this).build();
+        exoPlayerView.setPlaybackStateChanged(playbackState -> {
+            switch (playbackState) {
+                case Player.STATE_BUFFERING: //loading
+                    binding.playLoading.setVisibility(View.VISIBLE);
+                    binding.playPause.setVisibility(View.GONE);
+                    break;
+                case Player.STATE_READY:
+                    binding.playLoading.setVisibility(View.GONE);
+                    binding.playPause.setVisibility(View.VISIBLE);
+                    break;
+                case Player.STATE_ENDED:
+                    setPlayIcon(/* isPlay */ true);
+                    showControllerView();
+                    break;
             }
         });
 
-        playerView.setPlayer(player);
-        playerView.setProgressChangeListener(new ExoPlayerView.ProgressStateChangeListener() {
+        exoPlayerView.setPlayer(exoPlayer);
+        exoPlayerView.setProgressChangeListener(new ExoPlayerView.ProgressStateChangeListener() {
             @Override
             public void onProgressChanged(long currentPosition, long bufferedPosition, long duration) {
-                playerPosition.setText(getMinSecFormat(currentPosition));
-                playerDuration.setText(getMinSecFormat(duration));
-                timeBar.setDuration(duration);
-                timeBar.setPosition(currentPosition);
+                binding.progressPosition.setText(getMinSecFormat(currentPosition));
+                binding.progressDuration.setText(getMinSecFormat(duration));
+                binding.progressBar.setDuration(duration);
+                binding.progressBar.setPosition(currentPosition);
 
                 //
                 hideControllerView();
             }
         });
 
-        player.setAudioAttributes(AudioAttributes.DEFAULT, true);
-        player.setPlayWhenReady(startAutoPlay);
+        exoPlayer.setAudioAttributes(AudioAttributes.DEFAULT, true);
+        exoPlayer.setPlayWhenReady(startAutoPlay);
         boolean haveStartPosition = startItemIndex != C.INDEX_UNSET;
         if (haveStartPosition) {
-            player.seekTo(startItemIndex, startPosition);
+            exoPlayer.seekTo(startItemIndex, startPosition);
         }
-        player.setMediaSource(getMediaSource(mFileLink), !haveStartPosition);
-        player.prepare();
+        exoPlayer.setMediaSource(getMediaSource(url), !haveStartPosition);
+        exoPlayer.prepare();
     }
 
     private int countdown = 12;
@@ -295,34 +273,33 @@ public class CustomExoVideoPlayerActivity extends BaseActivity implements VideoL
             countdown = 0;
         }
 
-        if (countdown == 0 && progressContainer.getVisibility() == View.VISIBLE) {
-            progressContainer.setVisibility(View.GONE);
-            backContainer.setVisibility(View.GONE);
-            playerPlay.setVisibility(View.GONE);
+        if (countdown == 0 && binding.progressContainer.getVisibility() == View.VISIBLE) {
+            binding.progressContainer.setVisibility(View.GONE);
+            binding.back.setVisibility(View.GONE);
+            binding.playPause.setVisibility(View.GONE);
         }
     }
 
     private void hideControllerViewImmediately() {
         countdown = 0;
 
-        playerPlay.setVisibility(View.GONE);
-        progressContainer.setVisibility(View.GONE);
-        backContainer.setVisibility(View.GONE);
+        binding.playPause.setVisibility(View.GONE);
+        binding.progressContainer.setVisibility(View.GONE);
+        binding.back.setVisibility(View.GONE);
     }
-
 
     private void showControllerView() {
         countdown = 12;
-        progressContainer.setVisibility(View.VISIBLE);
-        backContainer.setVisibility(View.VISIBLE);
-        playerPlay.setVisibility(View.VISIBLE);
+        binding.playPause.setVisibility(View.VISIBLE);
+        binding.progressContainer.setVisibility(View.VISIBLE);
+        binding.back.setVisibility(View.VISIBLE);
     }
 
     private void updateStartPosition() {
-        if (player != null) {
-            startAutoPlay = player.getPlayWhenReady();
-            startItemIndex = player.getCurrentMediaItemIndex();
-            startPosition = Math.max(0, player.getContentPosition());
+        if (exoPlayer != null) {
+            startAutoPlay = exoPlayer.getPlayWhenReady();
+            startItemIndex = exoPlayer.getCurrentMediaItemIndex();
+            startPosition = Math.max(0, exoPlayer.getContentPosition());
         }
     }
 
@@ -332,26 +309,20 @@ public class CustomExoVideoPlayerActivity extends BaseActivity implements VideoL
         startPosition = C.TIME_UNSET;
     }
 
-
-    @Override
-    public void onError(String errMsg) {
-        ToastUtils.showLong(errMsg);
-    }
-
     @Override
     protected void onPause() {
         super.onPause();
-        if (player != null) {
-            player.pause();
-            playerPlay.setAlpha(0.8F);
+        if (exoPlayer != null) {
+            exoPlayer.pause();
+            binding.playPause.setAlpha(0.8F);
         }
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        if (player != null) {
-            player.stop();
+        if (exoPlayer != null) {
+            exoPlayer.stop();
         }
     }
 
@@ -362,10 +333,10 @@ public class CustomExoVideoPlayerActivity extends BaseActivity implements VideoL
     }
 
     protected void releasePlayer() {
-        if (player != null) {
+        if (exoPlayer != null) {
             updateStartPosition();
-            player.release();
-            player = null;
+            exoPlayer.release();
+            exoPlayer = null;
         }
     }
 

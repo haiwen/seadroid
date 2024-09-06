@@ -2,11 +2,14 @@ package com.seafile.seadroid2.ui.base;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.framework.helper.NightModeHelper;
 
 /**
  * A base activity that handles common functionality in the app. This includes Action Bar tweaks.

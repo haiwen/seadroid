@@ -1,12 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.seafile.seadroid2.widget.CheckableForegroundConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/rv_item_dirent_height"
-    android:background="?android:selectableItemBackground"
+    android:layout_height="wrap_content"
+    android:foreground="?android:selectableItemBackground"
     android:paddingStart="8dp"
     android:paddingEnd="16dp">
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/item_icon"
+        android:layout_width="@dimen/rv_item_icon_width"
+        android:layout_height="@dimen/rv_item_icon_width"
+        android:padding="12dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/file"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:shapeAppearance="@style/ShapeCorner4Style" />
 
     <ImageView
         android:id="@+id/item_multi_select"
@@ -14,23 +26,11 @@
         android:layout_height="@dimen/lv_multi_select_height"
         android:layout_alignParentStart="true"
         android:layout_centerInParent="true"
-        android:paddingVertical="4dp"
+        android:paddingVertical="6dp"
         android:src="@drawable/list_item_download_finished"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <ImageView
-        android:id="@+id/item_icon"
-        android:layout_width="@dimen/rv_item_icon_width"
-        android:layout_height="@dimen/rv_item_icon_width"
-        android:padding="8dp"
-        android:scaleType="centerCrop"
-        android:src="@drawable/icon_file_video_colorful"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/item_multi_select"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintEnd_toEndOf="@+id/item_icon" />
 
     <LinearLayout
         android:id="@+id/title_container"
@@ -49,6 +49,7 @@
             style="@style/ListItemTitleStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:drawablePadding="4dp"
             tools:text="@string/app_name" />
 
         <LinearLayout
@@ -60,6 +61,15 @@
             android:gravity="center_vertical"
             android:maxLines="1"
             android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/item_subtitle"
+                style="@style/ListItemSubTitleStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                tools:text="@string/app_name" />
 
             <ImageView
                 android:id="@+id/item_download_status"
@@ -77,13 +87,6 @@
                 android:layout_marginEnd="@dimen/lv_download_icon_margin_right"
                 android:visibility="visible" />
 
-            <TextView
-                android:id="@+id/item_subtitle"
-                style="@style/ListItemSubTitleStyle"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                tools:text="@string/app_name" />
         </LinearLayout>
     </LinearLayout>
 
@@ -104,9 +107,10 @@
         android:id="@+id/divider"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:visibility="invisible"
         app:dividerColor="@color/divider_color"
         app:dividerInsetStart="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+</com.seafile.seadroid2.widget.CheckableForegroundConstraintLayout>

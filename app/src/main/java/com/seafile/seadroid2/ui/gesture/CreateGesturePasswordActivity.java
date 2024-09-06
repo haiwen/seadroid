@@ -1,7 +1,6 @@
 package com.seafile.seadroid2.ui.gesture;
 
 import android.os.Bundle;
-import androidx.appcompat.widget.Toolbar;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MenuItem;
@@ -11,10 +10,10 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.widget.Toolbar;
+
 import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.framework.datastore.sp.GestureLockManager;
-import com.seafile.seadroid2.framework.datastore.sp.SettingsManager;
 import com.seafile.seadroid2.gesturelock.LockPatternUtils;
 import com.seafile.seadroid2.gesturelock.LockPatternView;
 import com.seafile.seadroid2.gesturelock.LockPatternView.Cell;
@@ -417,7 +416,6 @@ public class CreateGesturePasswordActivity extends BaseActivity implements
     private void saveChosenPatternAndFinish() {
         LockPatternUtils mLockPatternUtils = new LockPatternUtils(this);
         mLockPatternUtils.saveLockPattern(mChosenPattern);
-        GestureLockManager.writeGestureLockSwitch(true);
         ToastUtils.showLong(R.string.lockpattern_pattern_toast_saved);
         setResult(RESULT_OK);
         finish();

@@ -14,10 +14,14 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.blankj.utilcode.util.CollectionUtils;
 import com.chad.library.adapter4.QuickAdapterHelper;
+import com.github.panpf.recycler.sticky.StickyItemDecoration;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.config.AbsLayoutItemType;
 import com.seafile.seadroid2.context.NavContext;
 import com.seafile.seadroid2.databinding.FragmentRemoteLibraryFragmentBinding;
+import com.seafile.seadroid2.enums.FileViewType;
+import com.seafile.seadroid2.enums.RepoSelectType;
 import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.data.model.BaseModel;
 import com.seafile.seadroid2.ui.base.fragment.BaseFragment;
@@ -37,7 +41,7 @@ public class ObjSelectorFragment extends BaseFragment {
 
     private FragmentRemoteLibraryFragmentBinding binding;
     private RepoQuickAdapter adapter;
-    private NavContext mNavContext = new NavContext();
+    private final NavContext mNavContext = new NavContext();
     private ObjSelectorViewModel viewModel;
     private Account mAccount;
     private boolean canChooseAccount;
@@ -78,7 +82,7 @@ public class ObjSelectorFragment extends BaseFragment {
 
         initView();
         initViewModel();
-        initAdapter();
+        initRv();
 
         return binding.getRoot();
     }
@@ -124,9 +128,16 @@ public class ObjSelectorFragment extends BaseFragment {
         });
     }
 
-    private void initAdapter() {
+    private void initRv() {
+        StickyItemDecoration decoration = new StickyItemDecoration.Builder()
+                .itemType(AbsLayoutItemType.GROUP_ITEM)
+                .build();
+
+        binding.rv.addItemDecoration(decoration);
+
         adapter = new RepoQuickAdapter();
-        adapter.setSelectorMode(1);
+        adapter.setSelectType(RepoSelectType.ONLY_REPO);
+        adapter.setFileViewType(FileViewType.LIST);
 
         adapter.setOnItemClickListener((baseQuickAdapter, view, i) -> {
             BaseModel baseModel = adapter.getItems().get(i);
@@ -218,7 +229,7 @@ public class ObjSelectorFragment extends BaseFragment {
     }
 
 
-    public Pair<Account, RepoModel> getCameraUploadInfo() {
+    public Pair<Account, RepoModel> getBackupInfo() {
         return new Pair<>(mAccount, mNavContext.getRepoModel());
     }
 }

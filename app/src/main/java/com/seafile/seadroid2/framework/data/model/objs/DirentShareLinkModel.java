@@ -7,6 +7,7 @@ public class DirentShareLinkModel {
     public String repo_id;
     public String repo_name;
     public String path;
+    public String password;
     public String obj_name;
     public boolean is_dir;
     public String token;

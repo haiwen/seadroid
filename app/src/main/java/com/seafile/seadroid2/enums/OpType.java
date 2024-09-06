@@ -6,6 +6,7 @@ public enum OpType {
     DELETE,
     RESTORE,
     EDIT,
+    COPY,
     MOVE,
     UPDATE,
     PUBLISH,

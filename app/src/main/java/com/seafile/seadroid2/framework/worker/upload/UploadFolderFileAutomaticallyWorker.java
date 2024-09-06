@@ -15,16 +15,15 @@ import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
-import com.seafile.seadroid2.framework.data.model.enums.TransferDataSource;
 import com.seafile.seadroid2.framework.data.db.AppDatabase;
 import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
-import com.seafile.seadroid2.framework.data.model.enums.TransferAction;
-import com.seafile.seadroid2.framework.data.model.enums.TransferResult;
-import com.seafile.seadroid2.framework.datastore.sp.FolderBackupManager;
-import com.seafile.seadroid2.framework.notification.base.BaseNotification;
+import com.seafile.seadroid2.enums.TransferAction;
+import com.seafile.seadroid2.enums.TransferDataSource;
+import com.seafile.seadroid2.enums.TransferResult;
+import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
+import com.seafile.seadroid2.framework.notification.FolderBackupNotificationHelper;
 import com.seafile.seadroid2.framework.notification.base.BaseTransferNotificationHelper;
 import com.seafile.seadroid2.framework.util.SLogs;
-import com.seafile.seadroid2.framework.notification.FolderBackupNotificationHelper;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
@@ -78,7 +77,7 @@ public class UploadFolderFileAutomaticallyWorker extends BaseUploadWorker {
             return Result.success();
         }
 
-        boolean isEnable = FolderBackupManager.readBackupSwitch();
+        boolean isEnable = FolderBackupSharePreferenceHelper.readBackupSwitch();
         if (!isEnable) {
             return Result.success();
         }
@@ -163,12 +162,12 @@ public class UploadFolderFileAutomaticallyWorker extends BaseUploadWorker {
 //                        TransferDataSource.FOLDER_BACKUP
 //                );
 
-        Data data = new Data.Builder()
+        Data outputData = new Data.Builder()
                 .putString(TransferWorker.KEY_DATA_EVENT, finishFlagEvent)
                 .putBoolean(TransferWorker.KEY_DATA_PARAM, isUploaded)
                 .putString(TransferWorker.KEY_DATA_TYPE, String.valueOf(TransferDataSource.FOLDER_BACKUP))
                 .build();
-        return Result.success(data);
+        return Result.success(outputData);
     }
 
 }

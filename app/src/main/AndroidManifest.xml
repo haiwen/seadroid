@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="com.seafile.seadroid2">
+    xmlns:tools="http://schemas.android.com/tools">
 
     <uses-sdk tools:overrideLibrary="us.feras.mdv" />
 
@@ -97,7 +96,8 @@
 
         <activity
             android:name=".ui.SplashActivity"
-            android:exported="true">
+            android:exported="true"
+            android:theme="@style/AppTheme.Starting">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -206,6 +206,8 @@
         <activity android:name=".ui.media.image_preview.ImagePreviewActivity" />
         <activity android:name=".ui.transfer_list.TransferActivity" />
         <activity android:name=".ui.BugHandlerActivity" />
+        <activity android:name=".ui.settings.SettingsAlbumBackupAdvancedActivity" />
+        <activity android:name=".ui.data_migrate.DataMigrationV303Activity" />
 
         <provider
             android:name=".provider.SeafileProvider"

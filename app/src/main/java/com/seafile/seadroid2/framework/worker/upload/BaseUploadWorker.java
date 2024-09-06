@@ -24,8 +24,8 @@ import com.seafile.seadroid2.framework.data.db.entities.EncKeyCacheEntity;
 import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
 import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.data.model.dirents.DirentFileModel;
-import com.seafile.seadroid2.framework.data.model.enums.TransferResult;
-import com.seafile.seadroid2.framework.data.model.enums.TransferStatus;
+import com.seafile.seadroid2.enums.TransferResult;
+import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.datastore.StorageManager;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.notification.base.BaseTransferNotificationHelper;
@@ -378,19 +378,24 @@ public abstract class BaseUploadWorker extends TransferWorker {
 
     public void transferFile(Account account, FileTransferEntity transferEntity) throws IOException, SeafException, JSONException {
         SLogs.d("start transfer, full_path: " + transferEntity.full_path);
-        SLogs.d("start transfer, target_path: " + transferEntity.target_path);
-        notifyProgress(transferEntity.file_name, 0);
+
 
         List<RepoModel> repoModels = AppDatabase.getInstance().repoDao().getByIdSync(transferEntity.repo_id);
 
         if (CollectionUtils.isEmpty(repoModels)) {
             SLogs.d("no repo for repoId: " + transferEntity.repo_id);
+
+            transferEntity.transfer_status = TransferStatus.FAILED;
+            transferEntity.transfer_result = TransferResult.CANCELLED;
+            AppDatabase.getInstance().fileTransferDAO().update(transferEntity);
             return;
         }
 
         //update modified_at field
         transferEntity.modified_at = System.currentTimeMillis();
         AppDatabase.getInstance().fileTransferDAO().update(transferEntity);
+        notifyProgress(transferEntity.file_name, 0);
+        SLogs.d("start transfer, target_path: " + transferEntity.target_path);
 
         RepoModel repo = repoModels.get(0);
         if (repo.canLocalDecrypt()) {
@@ -552,6 +557,11 @@ public abstract class BaseUploadWorker extends TransferWorker {
         final FileBlocks chunkFile = chunkFile(encKey, encIv, transferEntity.full_path);
         if (chunkFile == null) {
             SLogs.d("chunkFile is null");
+
+            transferEntity.transfer_status = TransferStatus.FAILED;
+            transferEntity.transfer_result = TransferResult.FILE_ERROR;
+            AppDatabase.getInstance().fileTransferDAO().update(transferEntity);
+
             return;
         }
 
@@ -568,6 +578,10 @@ public abstract class BaseUploadWorker extends TransferWorker {
         BlockInfoBean infoBean = getFileBlockUploadUrl(account, transferEntity.repo_id, blkListId);
         if (infoBean == null) {
             SLogs.d("infoBean is null");
+
+            transferEntity.transfer_status = TransferStatus.FAILED;
+            transferEntity.transfer_result = TransferResult.FILE_ERROR;
+            AppDatabase.getInstance().fileTransferDAO().update(transferEntity);
             return;
         }
 

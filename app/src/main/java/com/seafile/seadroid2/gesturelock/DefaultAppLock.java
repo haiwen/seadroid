@@ -12,8 +12,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.google.common.collect.MapMaker;
-import com.seafile.seadroid2.framework.datastore.sp.GestureLockManager;
-import com.seafile.seadroid2.framework.datastore.sp.SettingsManager;
+import com.seafile.seadroid2.framework.datastore.sp_livedata.GestureLockSharePreferenceHelper;
 import com.seafile.seadroid2.ui.SplashActivity;
 import com.seafile.seadroid2.ui.gesture.UnlockGesturePasswordActivity;
 
@@ -62,7 +61,7 @@ public class DefaultAppLock extends AbstractAppLock {
         }
 
         if (!isActivityBeingChecked(activity)) {
-            GestureLockManager.saveGestureLockTimeStamp();
+            GestureLockSharePreferenceHelper.updateLockTimeStamp();
         }
     }
 
@@ -70,6 +69,7 @@ public class DefaultAppLock extends AbstractAppLock {
         if (!mCheckedActivities.containsKey(activity)) {
             return false;
         }
+
         long ts = mCheckedActivities.get(activity);
         return ts + 2000 > System.currentTimeMillis();
     }
@@ -90,7 +90,7 @@ public class DefaultAppLock extends AbstractAppLock {
         }
 
 
-        if (GestureLockManager.isGestureLockRequired()) {
+        if (GestureLockSharePreferenceHelper.isLockRequired()) {
             mCheckedActivities.put(activity, System.currentTimeMillis());
             Intent i = new Intent(activity, UnlockGesturePasswordActivity.class);
             activity.startActivity(i);

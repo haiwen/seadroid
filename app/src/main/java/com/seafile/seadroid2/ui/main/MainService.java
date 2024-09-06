@@ -13,5 +13,4 @@ public interface MainService {
 
     @GET("api2/server-info/")
     Call<ServerInfoModel> getServerInfoSync();
-
 }

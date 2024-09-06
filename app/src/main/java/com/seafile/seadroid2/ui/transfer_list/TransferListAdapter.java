@@ -15,9 +15,9 @@ import androidx.recyclerview.widget.DiffUtil;
 import com.blankj.utilcode.util.CollectionUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
-import com.seafile.seadroid2.framework.data.model.enums.TransferAction;
-import com.seafile.seadroid2.framework.data.model.enums.TransferResult;
-import com.seafile.seadroid2.framework.data.model.enums.TransferStatus;
+import com.seafile.seadroid2.enums.TransferAction;
+import com.seafile.seadroid2.enums.TransferResult;
+import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.databinding.ItemTransferListBinding;
 import com.seafile.seadroid2.framework.util.Icons;
 import com.seafile.seadroid2.ui.base.adapter.BaseAdapter;
@@ -26,7 +26,6 @@ import com.seafile.seadroid2.framework.worker.TransferWorker;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class TransferListAdapter extends BaseAdapter<FileTransferEntity, TransferItemViewHolder> {
     private boolean actionModeOn;
@@ -87,7 +86,7 @@ public class TransferListAdapter extends BaseAdapter<FileTransferEntity, Transfe
         //action mode
         if (actionModeOn) {
             holder.binding.itemMultiSelect.setVisibility(View.VISIBLE);
-            if (entity.is_selected) {
+            if (entity.is_checked) {
                 holder.binding.itemMultiSelect.setImageResource(R.drawable.multi_select_item_checked);
             } else {
                 holder.binding.itemMultiSelect.setImageResource(R.drawable.multi_select_item_unchecked);
@@ -300,7 +299,7 @@ public class TransferListAdapter extends BaseAdapter<FileTransferEntity, Transfe
 
     public void setItemSelected(boolean itemSelected) {
         for (FileTransferEntity item : getItems()) {
-            item.is_selected = itemSelected;
+            item.is_checked = itemSelected;
         }
 
         notifyItemRangeChanged(0, getItemCount());
@@ -309,7 +308,7 @@ public class TransferListAdapter extends BaseAdapter<FileTransferEntity, Transfe
     public List<FileTransferEntity> getSelectedList() {
         List<FileTransferEntity> list = new ArrayList<>();
         for (FileTransferEntity item : getItems()) {
-            if (item.is_selected) {
+            if (item.is_checked) {
                 list.add(item);
             }
         }
@@ -326,19 +325,19 @@ public class TransferListAdapter extends BaseAdapter<FileTransferEntity, Transfe
         if (selectedMaxCount == 1) {
             int selectedPosition = getSelectedPositionByMode();
             if (selectedPosition == position) {
-                item.is_selected = !item.is_selected;
+                item.is_checked = !item.is_checked;
                 notifyItemChanged(selectedPosition);
-                return item.is_selected;
+                return item.is_checked;
 
             } else if (selectedPosition > -1) {
                 //Deselect an item that has already been selected
-                getItems().get(selectedPosition).is_selected = false;
+                getItems().get(selectedPosition).is_checked = false;
                 notifyItemChanged(selectedPosition);
 
-                item.is_selected = true;
+                item.is_checked = true;
                 notifyItemChanged(position);
             } else {
-                item.is_selected = true;
+                item.is_checked = true;
                 notifyItemChanged(position);
             }
         } else {
@@ -347,10 +346,10 @@ public class TransferListAdapter extends BaseAdapter<FileTransferEntity, Transfe
                 return false;
             }
 
-            item.is_selected = !item.is_selected;
+            item.is_checked = !item.is_checked;
             notifyItemChanged(position);
 
-            return item.is_selected;
+            return item.is_checked;
         }
 
         return true;
@@ -359,7 +358,7 @@ public class TransferListAdapter extends BaseAdapter<FileTransferEntity, Transfe
 
     private int getSelectedPositionByMode() {
         for (int i = 0; i < getItems().size(); i++) {
-            if (getItems().get(i).is_selected) {
+            if (getItems().get(i).is_checked) {
                 return i;
             }
         }
@@ -368,7 +367,7 @@ public class TransferListAdapter extends BaseAdapter<FileTransferEntity, Transfe
 
     public long getSelectedCountByMode() {
         return getItems().stream()
-                .filter(f -> f.is_selected)
+                .filter(f -> f.is_checked)
                 .count();
     }
 }

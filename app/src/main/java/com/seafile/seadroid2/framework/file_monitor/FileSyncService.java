@@ -7,17 +7,19 @@ import android.os.Handler;
 import android.os.IBinder;
 
 import androidx.annotation.Nullable;
+import androidx.lifecycle.Observer;
 
 import com.blankj.utilcode.util.CollectionUtils;
-import com.blankj.utilcode.util.NetworkUtils;
+import com.seafile.seadroid2.bus.TransferBusHelper;
+import com.seafile.seadroid2.enums.TransferOpType;
 import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.datastore.StorageManager;
+import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.framework.worker.observer.MediaContentObserver;
 import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
-import com.seafile.seadroid2.framework.datastore.sp.FolderBackupManager;
 
 import org.apache.commons.io.monitor.FileAlterationListener;
 import org.apache.commons.io.monitor.FileAlterationObserver;
@@ -33,7 +35,7 @@ public class FileSyncService extends Service {
 
     /**
      * <p>
-     * Since the file download location of the app is located in the /Android/ directory,
+     * Since the file download location of the app is located in the <b>/Android/</b> directory,
      * special monitoring of this folder is required. When a change event occurs in the files in this folder,
      * need to re-upload it, because the user may have edited the cached text file in the app.
      * </p>
@@ -102,55 +104,83 @@ public class FileSyncService extends Service {
 
         initIgnorePath();
 
+        //start local path and app cache path listener
+        startFolderMonitor();
+
         //Detect updates to local media file
         mediaContentObserver = new MediaContentObserver(getBaseContext(), new Handler());
         mediaContentObserver.register();
 
-        //download worker
-        BackgroundJobManagerImpl.getInstance().scheduleOneTimeFilesDownloadScanWorker();
-
         //media upload worker
         CameraUploadManager.getInstance().performSync();
 
+        //download worker
+        BackgroundJobManagerImpl.getInstance().startDownloadChainWorker();
+
         //folder backup upload worker
-        BackgroundJobManagerImpl.getInstance().scheduleFolderBackupScannerWorker(false);
+        BackgroundJobManagerImpl.getInstance().startFolderChainWorker(false);
 
         //file upload backup
         BackgroundJobManagerImpl.getInstance().startFileUploadWorker();
-        if (!NetworkUtils.isRegisteredNetworkStatusChangedListener(networkStatusChangedListener)) {
-            NetworkUtils.registerNetworkStatusChangedListener(networkStatusChangedListener);
-        }
+
+        //bus
+        TransferBusHelper.getTransferObserver().observeForever(transferOpTypeObserver);
     }
 
-    private final NetworkUtils.OnNetworkStatusChangedListener networkStatusChangedListener = new NetworkUtils.OnNetworkStatusChangedListener() {
+    private final Observer<TransferOpType> transferOpTypeObserver = new Observer<TransferOpType>() {
         @Override
-        public void onDisconnected() {
-            SLogs.e("disconnected: " + NetworkUtils.getNetworkType());
-        }
-
-        @Override
-        public void onConnected(NetworkUtils.NetworkType networkType) {
-            SLogs.e("connected: " + networkType);
+        public void onChanged(TransferOpType transferOpType) {
+            onBusEvent(transferOpType);
         }
     };
 
-    private final FileFilter FILE_FILTER = file -> {
+    private void onBusEvent(TransferOpType opType) {
+        if (TransferOpType.FILE_MONITOR_START == opType) {
+            startFolderMonitor();
 
+        } else if (TransferOpType.FILE_MONITOR_RESET == opType) {
+
+            resetFolderMonitor();
+
+            BackgroundJobManagerImpl.getInstance().cancelAllFolderUploadWorker();
+        }
+    }
+
+    private final FileFilter FILE_FILTER = file -> {
         if (file.getAbsolutePath().startsWith(TEMP_FILE_DIR)) {
             return false;
         }
 
         final String fileName = file.getName();
 
-        if (FolderBackupManager.isFolderBackupSkipHiddenFiles()) {
+        if (FolderBackupSharePreferenceHelper.isFolderBackupSkipHiddenFiles()) {
             return !fileName.startsWith(".");
         }
-
 
         return true;
     };
 
-    public void stopFolderMonitor() {
+    private void startFolderMonitor() {
+        boolean isBackupEnable = FolderBackupSharePreferenceHelper.readBackupSwitch();
+        if (isBackupEnable){
+            List<String> pathList = FolderBackupSharePreferenceHelper.readBackupPathsAsList();
+            boolean isFound = pathList.stream().anyMatch(IGNORE_PATHS::contains);
+            if (!isFound) {
+                pathList.add(IGNORE_PATHS.get(0));
+            }
+            startFolderMonitor(pathList);
+        }else{
+            resetFolderMonitor();
+        }
+    }
+
+    private void resetFolderMonitor() {
+        List<String> pathList = new ArrayList<>();
+        pathList.add(IGNORE_PATHS.get(0));
+        startFolderMonitor(pathList);
+    }
+
+    private void stopFolderMonitor() {
         if (fileMonitor != null) {
             try {
                 fileMonitor.stop();
@@ -158,18 +188,6 @@ public class FileSyncService extends Service {
                 SLogs.w("FileSyncService", e);
             }
         }
-    }
-
-    public void startFolderMonitor() {
-        List<String> pathList = FolderBackupManager.readBackupPaths();
-
-        boolean isFound = pathList.stream().anyMatch(IGNORE_PATHS::contains);
-        if (!isFound) {
-            // /storage/emulated/0/Android/media/com.seafile.seadroid2
-            pathList.add(IGNORE_PATHS.get(0));
-        }
-
-        startFolderMonitor(pathList);
     }
 
     private void startFolderMonitor(List<String> pathList) {
@@ -208,14 +226,14 @@ public class FileSyncService extends Service {
      * @see #FILE_FILTER
      * @see DataManager#createTempFile()
      */
-    public void doBackup(String action, File file) {
+    private void doBackup(String action, File file) {
         // The file has changed: /storage/emulated/0/Android/media/com.seafile.seadroid2/Seafile
         if (file.getAbsolutePath().startsWith(IGNORE_PATHS.get(0))) {
             if ("change".equals(action)) {
-                BackgroundJobManagerImpl.getInstance().startDownloadedCheckerWorker(file.getAbsolutePath());
+                BackgroundJobManagerImpl.getInstance().startCheckDownloadedFileChainWorker(file.getAbsolutePath());
             }
         } else {
-            BackgroundJobManagerImpl.getInstance().scheduleFolderBackupScannerWorker(true);
+            BackgroundJobManagerImpl.getInstance().startFolderChainWorker(true);
         }
     }
 
@@ -275,20 +293,15 @@ public class FileSyncService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (fileMonitor != null) {
-            try {
-                fileMonitor.stop();
-            } catch (Exception e) {
-                SLogs.w("FileSyncService", e);
-            }
-        }
 
+        stopFolderMonitor();
+
+        //
+        TransferBusHelper.getTransferObserver().removeObserver(transferOpTypeObserver);
+
+        //
         if (mediaContentObserver != null) {
             mediaContentObserver.unregister();
-        }
-
-        if (NetworkUtils.isRegisteredNetworkStatusChangedListener(networkStatusChangedListener)) {
-            NetworkUtils.unregisterNetworkStatusChangedListener(networkStatusChangedListener);
         }
     }
 

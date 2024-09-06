@@ -3,7 +3,6 @@ package com.seafile.seadroid2.ui.transfer_list;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -29,19 +28,16 @@ import com.seafile.seadroid2.bottomsheetmenu.BottomSheetHelper;
 import com.seafile.seadroid2.bottomsheetmenu.BottomSheetMenuFragment;
 import com.seafile.seadroid2.databinding.LayoutFrameSwipeRvBinding;
 import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
-import com.seafile.seadroid2.framework.data.model.enums.TransferAction;
-import com.seafile.seadroid2.framework.data.model.enums.TransferStatus;
+import com.seafile.seadroid2.enums.TransferAction;
+import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
 import com.seafile.seadroid2.ui.base.fragment.BaseFragment;
 import com.seafile.seadroid2.view.TipsViews;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 import io.reactivex.functions.Consumer;
 
@@ -171,9 +167,9 @@ public abstract class TransferListFragment extends BaseFragment {
             if (itemId == R.id.delete) {
                 onBottomSheetFileDelete(entity);
             } else if (itemId == R.id.upload) {
-                BackgroundJobManagerImpl.getInstance().scheduleOneTimeFilesDownloadScanWorker(entity.uid);
+                BackgroundJobManagerImpl.getInstance().startDownloadChainWorker(entity.uid);
             } else if (itemId == R.id.download) {
-                BackgroundJobManagerImpl.getInstance().scheduleOneTimeFilesDownloadScanWorker(entity.uid);
+                BackgroundJobManagerImpl.getInstance().startDownloadChainWorker(entity.uid);
             }
         });
 
@@ -231,7 +227,7 @@ public abstract class TransferListFragment extends BaseFragment {
         }
 
         FileTransferEntity entity = adapter.getItems().get(i);
-        entity.is_selected = !entity.is_selected;
+        entity.is_checked = !entity.is_checked;
         adapter.getItems().set(i, entity);
         adapter.notifyItemChanged(i);
     }

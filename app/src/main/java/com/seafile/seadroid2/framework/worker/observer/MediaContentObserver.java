@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.os.Handler;
 import android.provider.MediaStore;
 
+import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;

@@ -2,7 +2,6 @@ package com.seafile.seadroid2.context;
 
 import android.text.TextUtils;
 
-import com.blankj.utilcode.util.EncryptUtils;
 import com.seafile.seadroid2.framework.data.model.BaseModel;
 import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
@@ -13,22 +12,15 @@ import java.util.Stack;
 public class NavContext {
     private final Stack<BaseModel> navStack = new Stack<>();
 
-    ////////////////////////////new////////////////////////
-
     // repoId = xxx, path = /
-    public boolean isInRepoRoot() {
+    public boolean inRepoRoot() {
         return navStack.size() == 1;
     }
 
-    // repo list page
-    public boolean isInRepoList() {
-        return navStack.isEmpty();
-    }
-
     /**
-     * Not on the Repo list page
+     * @return true: it's in a repo, false: not
      */
-    public boolean isInRepo() {
+    public boolean inRepo() {
         return !navStack.isEmpty();
     }
 
@@ -105,10 +97,31 @@ public class NavContext {
         return (DirentModel) navStack.peek();
     }
 
+    /**
+     * Get the parents model of the current Dirent, maybe RepoModel
+     */
+    public boolean hasParentWritePermission() {
+        if (!inRepo()) {
+            throw new IllegalArgumentException("Please check your code");
+        }
+
+        if (inRepoRoot()) {
+            return hasWritePermissionWithRepo();
+        }
+
+        BaseModel bd = navStack.elementAt(navStack.size() - 1);
+        DirentModel d = (DirentModel) bd;
+        if (d != null) {
+            return d.hasWritePermission();
+        }
+        return false;
+    }
+
     public RepoModel getRepoModel() {
         if (navStack.empty()) {
             return null;
         }
+
         return (RepoModel) navStack.get(0);
     }
 
@@ -122,6 +135,10 @@ public class NavContext {
         return navStack.peek();
     }
 
+
+    /**
+     * @return /a/b/c/d/e/
+     */
     public String getNavPath() {
         if (navStack.empty()) {
             return null;
@@ -143,32 +160,32 @@ public class NavContext {
 
         return fullPath;
     }
-
-    /**
-     * /a/b/c/d/e.txt -> e.txt
-     */
-    public String getLastPathName() {
-        String fullPath = getNavPath();
-        if (TextUtils.isEmpty(fullPath)) {
-            return null;
-        }
-
-        if (!fullPath.contains("/")) {
-            return fullPath;
-        }
-
-        String[] slash = fullPath.split("/");
-        if (slash.length == 0) {
-            return null;
-        }
-
-        return slash[slash.length - 1];
-    }
+//
+//    /**
+//     * /a/b/c/d/e.txt -> e.txt
+//     */
+//    public String getLastNameOfPath() {
+//        String fullPath = getNavPath();
+//        if (TextUtils.isEmpty(fullPath)) {
+//            return null;
+//        }
+//
+//        if (!fullPath.contains("/")) {
+//            return fullPath;
+//        }
+//
+//        String[] slash = fullPath.split("/");
+//        if (slash.length == 0) {
+//            return null;
+//        }
+//
+//        return slash[slash.length - 1];
+//    }
 
     /**
      * /a/b/c -> c
      */
-    public String getNameInCurPath() {
+    public String getLastPathName() {
         BaseModel baseModel = getTopModel();
         if (baseModel == null) {
             return null;

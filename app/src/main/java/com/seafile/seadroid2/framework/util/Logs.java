@@ -183,4 +183,11 @@ public class Logs {
     public static void e(String msg, Throwable tr) {
         XLog.e(msg, tr);
     }
+
+    public static void eDebug(String msg) {
+        if (BuildConfig.DEBUG) {
+            XLog.e(msg);
+        }
+    }
+
 }

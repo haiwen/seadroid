@@ -15,7 +15,7 @@ import com.seafile.seadroid2.framework.data.ServerInfo;
 import com.seafile.seadroid2.framework.data.model.TokenModel;
 import com.seafile.seadroid2.framework.data.model.server.ServerInfoModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
-import com.seafile.seadroid2.framework.util.AccountUtils;
+import com.seafile.seadroid2.account.AccountUtils;
 import com.seafile.seadroid2.framework.util.DeviceIdManager;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
 import com.seafile.seadroid2.ui.dialog_fragment.SignOutDialogFragment;
@@ -34,8 +34,8 @@ import retrofit2.HttpException;
 import retrofit2.Response;
 
 public class AccountViewModel extends BaseViewModel {
-    private MutableLiveData<Account> mAccountLiveData = new MutableLiveData<>();
-    private MutableLiveData<AccountInfo> mAccountInfoLiveData = new MutableLiveData<>();
+    private final MutableLiveData<Account> mAccountLiveData = new MutableLiveData<>();
+    private final MutableLiveData<AccountInfo> mAccountInfoLiveData = new MutableLiveData<>();
     private final MutableLiveData<Pair<Account, SeafException>> AccountSeafExceptionLiveData = new MutableLiveData<>();
     private final MutableLiveData<ServerInfo> ServerInfoLiveData = new MutableLiveData<>();
 
@@ -222,20 +222,12 @@ public class AccountViewModel extends BaseViewModel {
 
         //The user who is currently logged in is deleted
         if (curAccount != null && curAccount.equals(account)) {
+            //
             AccountUtils.logout(account);
         }
 
         //delete local account
         SupportAccountManager.getInstance().removeAccount(account.getAndroidAccount(), null, null);
 
-    }
-
-    public void switchAccount(Account account) {
-        if (account == null) {
-            return;
-        }
-
-
-        AccountUtils.switchAccount(account);
     }
 }

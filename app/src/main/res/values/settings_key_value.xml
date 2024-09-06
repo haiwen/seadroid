@@ -27,6 +27,8 @@
     <string name="key_folder_backup_folder_select">selected_backup_folders_key</string>
     <string name="key_folder_backup_state">folder_backup_state</string>
 
+
+
     <string name="key_cache_info">settings_cache_info_key</string>
     <string name="key_cache_location">settings_cache_location_key</string>
     <string name="key_cache_clear">settings_clear_cache_key</string>

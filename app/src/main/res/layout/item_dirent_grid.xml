@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.seafile.seadroid2.widget.CheckableForegroundLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:foreground="?android:selectableItemBackground"
+    android:orientation="vertical">
+
+    <com.seafile.seadroid2.widget.AspectRatioFrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        app:aspectRatio="1.78">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/item_icon"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="fitCenter"
+            android:src="@drawable/baseline_settings_24"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:shapeAppearance="?shapeAppearanceSmallComponent" />
+
+        <ImageView
+            android:id="@+id/item_multi_select"
+            android:layout_width="@dimen/lv_multi_select_width"
+            android:layout_height="@dimen/lv_multi_select_height"
+            android:paddingVertical="6dp"
+            android:src="@drawable/list_item_download_finished"
+            android:visibility="visible"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <View
+            android:id="@+id/item_outline"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/file_item_grid_thumbnail_outline"
+            android:duplicateParentState="true" />
+    </com.seafile.seadroid2.widget.AspectRatioFrameLayout>
+
+    <LinearLayout
+        android:id="@+id/title_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/item_title"
+            style="@style/ListItemTitleStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:drawablePadding="4dp"
+            tools:text="@string/app_name" />
+
+        <ImageView
+            android:id="@+id/expandable_toggle_button"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:foreground="@drawable/selectable_item_background_oval"
+            android:padding="12dp"
+            android:src="@drawable/baseline_more_vert_24"
+            android:visibility="visible"
+            app:tint="@color/item_title_color" />
+
+    </LinearLayout>
+
+
+</com.seafile.seadroid2.widget.CheckableForegroundLinearLayout>

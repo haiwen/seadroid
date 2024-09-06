@@ -1,6 +1,7 @@
 package com.seafile.seadroid2.ui.main;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.ComponentName;
 import android.content.Context;
@@ -15,6 +16,7 @@ import android.os.IBinder;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import androidx.activity.OnBackPressedCallback;
@@ -23,14 +25,12 @@ import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatDelegate;
-import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.MenuCompat;
 import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.widget.ViewPager2;
-import androidx.work.Data;
-import androidx.work.WorkInfo;
 
 import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.CollectionUtils;
@@ -45,23 +45,24 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.context.NavContext;
 import com.seafile.seadroid2.databinding.ActivityMainBinding;
+import com.seafile.seadroid2.enums.FileViewType;
+import com.seafile.seadroid2.enums.NightMode;
+import com.seafile.seadroid2.enums.SortBy;
 import com.seafile.seadroid2.framework.data.ServerInfo;
-import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.data.db.entities.EncKeyCacheEntity;
 import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
 import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.data.model.dirents.DirentFileModel;
+import com.seafile.seadroid2.framework.file_monitor.FileSyncService;
+import com.seafile.seadroid2.framework.helper.NightModeHelper;
 import com.seafile.seadroid2.framework.util.PermissionUtil;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.TakeCameras;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
-import com.seafile.seadroid2.framework.file_monitor.FileSyncService;
-import com.seafile.seadroid2.framework.worker.upload.FolderBackupScannerWorker;
-import com.seafile.seadroid2.framework.worker.SupportWorkManager;
-import com.seafile.seadroid2.framework.worker.TransferEvent;
-import com.seafile.seadroid2.framework.worker.TransferWorker;
+import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.ui.account.AccountsActivity;
+import com.seafile.seadroid2.ui.activities.AllActivitiesFragment;
 import com.seafile.seadroid2.ui.adapter.ViewPager2Adapter;
 import com.seafile.seadroid2.ui.base.BaseActivity;
 import com.seafile.seadroid2.ui.dialog_fragment.NewDirFileDialogFragment;
@@ -72,28 +73,23 @@ import com.seafile.seadroid2.ui.dialog_fragment.listener.OnRefreshDataListener;
 import com.seafile.seadroid2.ui.dialog_fragment.listener.OnSortItemClickListener;
 import com.seafile.seadroid2.ui.repo.RepoQuickFragment;
 import com.seafile.seadroid2.ui.search.Search2Activity;
-import com.seafile.seadroid2.ui.settings.SettingsActivity;
 import com.seafile.seadroid2.ui.transfer_list.TransferActivity;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
 import io.reactivex.functions.Consumer;
 import kotlin.Pair;
 
-public class MainActivity extends BaseActivity implements Toolbar.OnMenuItemClickListener {
+public class MainActivity extends BaseActivity {
+
+    public static final int INDEX_LIBRARY_TAB = 0;
+    private int last_orientation;
 
     private ActivityMainBinding binding;
-    public static final int INDEX_LIBRARY_TAB = 0;
-
-    private Intent monitorIntent;
     private FileSyncService syncService;
     private MainViewModel mainViewModel;
-
-    private Menu overFlowMenu;
-    private MenuItem menuSearch;
 
     private Account curAccount;
 
@@ -118,6 +114,8 @@ public class MainActivity extends BaseActivity implements Toolbar.OnMenuItemClic
             }
         }
 
+        last_orientation = getResources().getConfiguration().orientation;
+
         mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
@@ -134,24 +132,24 @@ public class MainActivity extends BaseActivity implements Toolbar.OnMenuItemClic
             return;
         }
 
+        initSettings();
+
         initFireBase();
         initOnBackPressedDispatcher();
         initBottomNavigation();
+
         initViewPager();
 
         initViewModel();
-        initWorkerListener();
 
         //service
         bindService();
 
         requestServerInfo(true);
+    }
 
-        //job
-//        Utils.startCameraSyncJob(this);
-
-//        syncCamera();
-
+    private void initSettings() {
+        Settings.initUserSettings();
     }
 
     private void initFireBase() {
@@ -202,36 +200,10 @@ public class MainActivity extends BaseActivity implements Toolbar.OnMenuItemClic
         PermissionUtil.requestExternalStoragePermission(this, multiplePermissionLauncher, manageStoragePermissionLauncher);
     }
 
-
-    public static void startThis(Context context) {
+    public static void startThis(Activity context) {
         Intent i = new Intent(context, MainActivity.class);
         i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         context.startActivity(i);
-    }
-
-    @Override
-    public void onRestart() {
-        super.onRestart();
-        SLogs.d("onRestart");
-
-        if (curAccount == null
-                || !curAccount.equals(SupportAccountManager.getInstance().getCurrentAccount())
-                || !SupportAccountManager.getInstance().getCurrentAccount().getToken().equals(curAccount.getToken())) {
-            finishAndStartAccountsActivity();
-        }
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        SLogs.d("onStop");
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-
-        BackgroundJobManagerImpl.getInstance().cancelAllJobs();
     }
 
     public static void navToThis(Context context, String repo_id, String repo_name, String path, boolean is_dir) {
@@ -242,6 +214,24 @@ public class MainActivity extends BaseActivity implements Toolbar.OnMenuItemClic
         intent.putExtra("is_dir", is_dir);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         context.startActivity(intent);
+    }
+
+    @Override
+    public void onRestart() {
+        super.onRestart();
+        SLogs.d("onRestart");
+
+//        Account cAccount = SupportAccountManager.getInstance().getCurrentAccount();
+//        if (curAccount == null || !curAccount.equals(cAccount)) {
+//            finishAndStartAccountsActivity();
+//        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        BackgroundJobManagerImpl.getInstance().cancelAllJobs();
     }
 
     @Override
@@ -258,15 +248,13 @@ public class MainActivity extends BaseActivity implements Toolbar.OnMenuItemClic
         }
 
         Account selectedAccount = SupportAccountManager.getInstance().getCurrentAccount();
-
         SLogs.d("Current account: " + curAccount);
-        if (selectedAccount == null
-                || !curAccount.equals(selectedAccount)
-                || !curAccount.getToken().equals(selectedAccount.getToken())) {
+        if (!curAccount.equals(selectedAccount)) {
             SLogs.d("Account switched, restarting activity.");
             finishAndStartAccountsActivity();
             return;
         }
+
 
         String repoId = intent.getStringExtra("repo_id");
         String repoName = intent.getStringExtra("repo_name");
@@ -335,8 +323,8 @@ public class MainActivity extends BaseActivity implements Toolbar.OnMenuItemClic
 
         //tab
         if (menuItem.getItemId() == R.id.tabs_library) {
-            if (getNavContext().isInRepo()) {
-                setActionbarTitle(getNavContext().getNameInCurPath());
+            if (getNavContext().inRepo()) {
+                setActionbarTitle(getNavContext().getLastPathName());
                 enableUpButton(true);
             } else {
                 enableUpButton(false);
@@ -344,64 +332,83 @@ public class MainActivity extends BaseActivity implements Toolbar.OnMenuItemClic
             }
 
             binding.pager.setCurrentItem(0);
-        } else if (menuItem.getItemId() == R.id.tabs_starred) {
+
+            return;
+        }
+        if (menuItem.getItemId() == R.id.tabs_starred) {
             enableUpButton(false);
             setActionbarTitle(getString(R.string.tabs_starred));
 
             binding.pager.setCurrentItem(1);
-        } else if (menuItem.getItemId() == R.id.tabs_activity) {
-            enableUpButton(false);
-            setActionbarTitle(getString(R.string.tabs_activity));
+            return;
+        }
 
-            binding.pager.setCurrentItem(2);
+        MenuItem activityMenuItem = binding.navBottomView.getMenu().findItem(R.id.tabs_activity);
+        if (null == activityMenuItem) {
+            if (menuItem.getItemId() == R.id.tabs_settings) {
+                enableUpButton(false);
+                setActionbarTitle(getString(R.string.settings));
+
+                binding.pager.setCurrentItem(2);
+            }
+        } else {
+            if (menuItem.getItemId() == R.id.tabs_activity) {
+                enableUpButton(false);
+                setActionbarTitle(getString(R.string.tabs_activity));
+
+                binding.pager.setCurrentItem(2);
+            } else if (menuItem.getItemId() == R.id.tabs_settings) {
+                enableUpButton(false);
+                setActionbarTitle(getString(R.string.settings));
+
+                binding.pager.setCurrentItem(3);
+            }
         }
     }
 
     private void initViewPager() {
+        List<Fragment> fragments = mainViewModel.getFragments();
         ViewPager2Adapter viewPager2Adapter = new ViewPager2Adapter(this);
-        viewPager2Adapter.addFragments(mainViewModel.getFragments());
+        viewPager2Adapter.addFragments(fragments);
+        binding.pager.setOffscreenPageLimit(fragments.size());
         binding.pager.setAdapter(viewPager2Adapter);
-        binding.pager.setOffscreenPageLimit(3);
         binding.pager.setUserInputEnabled(true);
         binding.pager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
+
                 if (0 == position) {
                     binding.navBottomView.setSelectedItemId(R.id.tabs_library);
-                } else if (1 == position) {
-                    binding.navBottomView.setSelectedItemId(R.id.tabs_starred);
-                } else if (2 == position) {
-                    binding.navBottomView.setSelectedItemId(R.id.tabs_activity);
+                    return;
                 }
+
+                if (1 == position) {
+                    binding.navBottomView.setSelectedItemId(R.id.tabs_starred);
+                    return;
+                }
+
+                MenuItem activityMenuItem = binding.navBottomView.getMenu().findItem(R.id.tabs_activity);
+                if (null == activityMenuItem) {
+                    //means the server is not pro edition
+                    if (2 == position) {
+                        binding.navBottomView.setSelectedItemId(R.id.tabs_settings);
+                    }
+                } else {
+
+                    if (2 == position) {
+                        binding.navBottomView.setSelectedItemId(R.id.tabs_activity);
+                        return;
+                    }
+
+                    if (3 == position) {
+                        binding.navBottomView.setSelectedItemId(R.id.tabs_settings);
+                    }
+                }
+
+
             }
         });
-    }
-
-    private void initWorkerListener() {
-        SupportWorkManager.getWorkManager()
-                .getWorkInfoByIdLiveData(FolderBackupScannerWorker.UID)
-                .observe(this, new Observer<WorkInfo>() {
-                    @Override
-                    public void onChanged(WorkInfo workInfo) {
-                        if (null == workInfo) {
-                            return;
-                        }
-
-                        Data data = workInfo.getOutputData();
-                        String event = data.getString(TransferWorker.KEY_DATA_EVENT);
-
-                        if (TextUtils.isEmpty(event)) {
-                            return;
-                        }
-
-                        if (TransferEvent.EVENT_SCAN_END.equals(event)) {
-                            if (syncService != null) {
-                                syncService.startFolderMonitor();
-                            }
-                        }
-                    }
-                });
     }
 
     private void initViewModel() {
@@ -416,7 +423,6 @@ public class MainActivity extends BaseActivity implements Toolbar.OnMenuItemClic
             }
         });
 
-
         mainViewModel.getServerInfoLiveData().observe(this, new Observer<ServerInfo>() {
             @Override
             public void onChanged(ServerInfo serverInfo) {
@@ -430,12 +436,28 @@ public class MainActivity extends BaseActivity implements Toolbar.OnMenuItemClic
                 refreshActionbar();
             }
         });
+
+        Settings.FILE_LIST_VIEW_TYPE.observe(this, new Observer<FileViewType>() {
+            @Override
+            public void onChanged(FileViewType fileViewType) {
+                updateMenu();
+            }
+        });
+
+        Settings.NIGHT_MODE.observe(this, new Observer<NightMode>() {
+            @Override
+            public void onChanged(NightMode nightMode) {
+//                if (checkCanApply(nightMode)) {
+                applyNightMode(nightMode);
+//                }
+            }
+        });
     }
 
     private void refreshToolbarTitle() {
-        if (getNavContext().isInRepoList()) {
+        if (!getNavContext().inRepo()) {
             getActionBarToolbar().setTitle(R.string.libraries);
-        } else if (getNavContext().isInRepoRoot()) {
+        } else if (getNavContext().inRepoRoot()) {
             getActionBarToolbar().setTitle(getNavContext().getRepoModel().repo_name);
         } else {
             String toolbarTitle = getNavContext().getLastPathName();
@@ -443,38 +465,14 @@ public class MainActivity extends BaseActivity implements Toolbar.OnMenuItemClic
         }
     }
 
-    /////////////////////service
+    /////////////////////
+    /// service
+    /////////////////////
     private void bindService() {
-        // restart service should it have been stopped for some reason
-//        Intent mediaObserver = new Intent(this, MediaObserverService.class);
-//        startService(mediaObserver);
-//        SLogs.d("start MediaObserverService");
-//
-//        Intent dIntent = new Intent(this, FolderBackupService.class);
-//        startService(dIntent);
-//        SLogs.d("start FolderBackupService");
-//
-//        Intent dirIntent = new Intent(this, FolderBackupService.class);
-//        bindService(dirIntent, folderBackupConnection, Context.BIND_AUTO_CREATE);
-//        SLogs.d("try bind FolderBackupService");
-//
-//        Intent txIntent = new Intent(this, TransferService.class);
-//        startService(txIntent);
-//        SLogs.d("start TransferService");
-//
-//        // bind transfer service
-//        Intent bIntent = new Intent(this, TransferService.class);
-//        bindService(bIntent, mConnection, Context.BIND_AUTO_CREATE);
-//        SLogs.d("try bind TransferService");
-//
-//        monitorIntent = new Intent(this, FileMonitorService.class);
-//        startService(monitorIntent);
-//        SLogs.d("start FileMonitorService");
-
         Intent syncIntent = new Intent(this, FileSyncService.class);
         bindService(syncIntent, syncConnection, Context.BIND_AUTO_CREATE);
+        startService(syncIntent);
     }
-
 
     private final ServiceConnection syncConnection = new ServiceConnection() {
         @Override
@@ -491,26 +489,28 @@ public class MainActivity extends BaseActivity implements Toolbar.OnMenuItemClic
         }
     };
 
-    //////////////////////////check server info
+
+    ////////////////////////////
+    /// check server info
+    ////////////////////////////
     private void requestServerInfo(boolean loadFromNet) {
         if (!checkServerProEdition()) {
             binding.navBottomView.getMenu().removeItem(R.id.tabs_activity);
 
             // hide Activity tab
             ViewPager2Adapter adapter = (ViewPager2Adapter) binding.pager.getAdapter();
-            if (adapter != null && adapter.getItemCount() > 2) {
-                long hashCode = mainViewModel.getFragments().get(2).hashCode();
-                if (adapter.containsItem(hashCode)) {
-                    adapter.removeFragment(2);
-                    adapter.notifyItemRemoved(2);
+            if (adapter != null) {
+                int index = adapter.removeByClass(AllActivitiesFragment.class);
+                if (index != -1) {
+                    adapter.notifyItemRemoved(index);
                 }
             }
         }
 
         if (!checkSearchEnabled()) {
             // hide search menu
-            if (menuSearch != null)
-                menuSearch.setVisible(false);
+            if (menuBinding != null && menuBinding.search != null)
+                menuBinding.search.setVisible(false);
         }
 
         if (loadFromNet) {
@@ -549,25 +549,35 @@ public class MainActivity extends BaseActivity implements Toolbar.OnMenuItemClic
 
     private void finishAndStartAccountsActivity() {
         Intent newIntent = new Intent(this, AccountsActivity.class);
-        newIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//        newIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        finish();
         startActivity(newIntent);
+        finish();
     }
 
 
-    ////////////////////////menu////////////////////////
+    ////////////////////////////
+    /// menu
+    ////////////////////////////
     private void refreshActionbar() {
-        if (getNavContext().isInRepo()) {
+        if (getNavContext().inRepo()) {
 
             //refresh back btn state
             enableUpButton(true);
 
-            setActionbarTitle(getNavContext().getNameInCurPath());
+            setActionbarTitle(getNavContext().getLastPathName());
         } else {
             enableUpButton(false);
 
-            setActionbarTitle(getString(R.string.tabs_library));
+            if (binding.pager.getCurrentItem() == 0) {
+                setActionbarTitle(getString(R.string.tabs_library));
+            } else if (binding.pager.getCurrentItem() == 1) {
+                setActionbarTitle(getString(R.string.tabs_starred));
+            } else if (binding.pager.getCurrentItem() == 2) {
+                setActionbarTitle(getString(R.string.tabs_activity));
+            } else {
+                setActionbarTitle(getString(R.string.settings));
+            }
         }
 
         //refresh toolbar menu
@@ -591,63 +601,44 @@ public class MainActivity extends BaseActivity implements Toolbar.OnMenuItemClic
         }
     }
 
+    private MenuBinding menuBinding;
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        overFlowMenu = menu;
 
-        Toolbar toolbar = getActionBarToolbar();
-        toolbar.inflateMenu(R.menu.browser_menu);
-        toolbar.setOnMenuItemClickListener(this);
+        menuBinding = MenuBinding.inflate(menu, getMenuInflater());
+
+        MenuCompat.setGroupDividerEnabled(menu, true);
         return true;
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                if (getNavContext().isInRepo() && binding.pager.getCurrentItem() == INDEX_LIBRARY_TAB) {
-                    getOnBackPressedDispatcher().onBackPressed();
-                }
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        menuSearch = menu.findItem(R.id.search);
-        MenuItem menuSort = menu.findItem(R.id.sort);
-        MenuItem menuAdd = menu.findItem(R.id.add);
-        MenuItem menuCreateRepo = menu.findItem(R.id.create_repo);
-        MenuItem menuEdit = menu.findItem(R.id.edit);
-
-        // Libraries Tab
         if (binding.pager.getCurrentItem() == INDEX_LIBRARY_TAB) {
-            if (getNavContext().isInRepo()) {
-                menuCreateRepo.setVisible(false);
-                menuAdd.setVisible(true);
-                menuEdit.setVisible(true);
-                if (getNavContext().hasWritePermissionWithRepo()) {
-                    menuAdd.setEnabled(true);
-                    menuEdit.setEnabled(true);
+            if (getNavContext().inRepo()) {
+                menuBinding.createRepo.setVisible(false);
+                if (getNavContext().hasParentWritePermission()) {
+                    menuBinding.add.setEnabled(true);
+                    menuBinding.edit.setEnabled(true);
                 } else {
-                    menuAdd.setEnabled(false);
-                    menuEdit.setEnabled(false);
+                    menuBinding.add.setEnabled(false);
+                    menuBinding.edit.setEnabled(false);
                 }
-
             } else {
-                menuCreateRepo.setVisible(true);
-                menuAdd.setVisible(false);
-                menuEdit.setVisible(false);
+                menuBinding.createRepo.setVisible(true);
+                menuBinding.add.setVisible(false);
+                menuBinding.edit.setVisible(false);
             }
 
-            menuSort.setVisible(true);
+            menuBinding.sortGroup.setVisible(true);
         } else {
-            menuSort.setVisible(false);
-            menuCreateRepo.setVisible(false);
-            menuAdd.setVisible(false);
-            menuEdit.setVisible(false);
+            menuBinding.sortGroup.setVisible(false);
+            menuBinding.createRepo.setVisible(false);
+            menuBinding.add.setVisible(false);
+            menuBinding.edit.setVisible(false);
         }
+
+        updateMenu();
 
         // Global menus, e.g. Accounts, TransferTasks, Settings, are visible by default.
         // So nothing need to be done here.
@@ -660,10 +651,14 @@ public class MainActivity extends BaseActivity implements Toolbar.OnMenuItemClic
     }
 
     @Override
-    public boolean onMenuItemClick(MenuItem item) {
-        if (item.getItemId() == R.id.sort) {
-            showSortFilesDialog();
-        } else if (item.getItemId() == R.id.search) {
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        boolean isRet = true;
+        if (item.getItemId() == android.R.id.home) {
+            if (getNavContext().inRepo() && binding.pager.getCurrentItem() == INDEX_LIBRARY_TAB) {
+                getOnBackPressedDispatcher().onBackPressed();
+            }
+        } else if (item.getItemId() == R.id.menu_action_search) {
             Intent searchIntent = new Intent(this, Search2Activity.class);
             startActivity(searchIntent);
         } else if (item.getItemId() == R.id.create_repo) {
@@ -674,76 +669,197 @@ public class MainActivity extends BaseActivity implements Toolbar.OnMenuItemClic
             Intent newIntent = new Intent(this, TransferActivity.class);
             newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(newIntent);
-        } else if (item.getItemId() == R.id.accounts) {
-            Intent newIntent = new Intent(this, AccountsActivity.class);
-            newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            startActivity(newIntent);
         } else if (item.getItemId() == R.id.edit) {
             if (binding.pager.getCurrentItem() == INDEX_LIBRARY_TAB) {
                 getReposFragment().startContextualActionMode();
             }
-        } else if (item.getItemId() == R.id.settings) {
-            Intent settingsIntent = new Intent(MainActivity.this, SettingsActivity.class);
-            settingsIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            startActivity(settingsIntent);
+        } else if (item.getItemId() == R.id.menu_action_view_list) {
+            Settings.FILE_LIST_VIEW_TYPE.putValue(FileViewType.LIST);
+        } else if (item.getItemId() == R.id.menu_action_view_grid) {
+            Settings.FILE_LIST_VIEW_TYPE.putValue(FileViewType.GRID);
+        } else if (item.getItemId() == R.id.menu_action_view_gallery) {
+            Settings.FILE_LIST_VIEW_TYPE.putValue(FileViewType.GALLERY);
+        } else if (item.getItemId() == R.id.menu_action_sort_by_name) {
+            Settings.FILE_LIST_SORT_BY.putValue(SortBy.NAME);
+        } else if (item.getItemId() == R.id.menu_action_sort_by_type) {
+            Settings.FILE_LIST_SORT_BY.putValue(SortBy.TYPE);
+        } else if (item.getItemId() == R.id.menu_action_sort_by_size) {
+            Settings.FILE_LIST_SORT_BY.putValue(SortBy.SIZE);
+        } else if (item.getItemId() == R.id.menu_action_sort_by_last_modified) {
+            Settings.FILE_LIST_SORT_BY.putValue(SortBy.LAST_MODIFIED);
+        } else if (item.getItemId() == R.id.menu_action_sort_ascending) {
+            boolean isChecked = !menuBinding.sortOrderAscending.isChecked();
+            Settings.FILE_LIST_SORT_ASCENDING.putValue(isChecked);
+        } else if (item.getItemId() == R.id.menu_action_sort_folder_first) {
+            boolean isChecked = !menuBinding.sortFolderFirst.isChecked();
+            Settings.FILE_LIST_SORT_FOLDER_FIRST.putValue(isChecked);
         } else {
-            return super.onOptionsItemSelected(item);
+            isRet = false;
         }
-        return true;
+
+        if (isRet) {
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void updateMenu() {
+        if (menuBinding == null) {
+            return;
+        }
+
+        //view type
+        FileViewType viewType = Settings.FILE_LIST_VIEW_TYPE.queryValue();
+        if (FileViewType.LIST == viewType) {
+            menuBinding.viewList.setChecked(true);
+        } else if (FileViewType.GRID == viewType) {
+            menuBinding.viewGrid.setChecked(true);
+        } else if (FileViewType.GALLERY == viewType) {
+            menuBinding.viewGallery.setChecked(true);
+        }
+
+        //sort
+        SortBy by = Settings.FILE_LIST_SORT_BY.queryValue();
+        if (SortBy.NAME == by) {
+            menuBinding.sortByName.setChecked(true);
+        } else if (SortBy.TYPE == by) {
+            menuBinding.sortByType.setChecked(true);
+        } else if (SortBy.SIZE == by) {
+            menuBinding.sortBySize.setChecked(true);
+        } else if (SortBy.LAST_MODIFIED == by) {
+            menuBinding.sortByLastModified.setChecked(true);
+        }
+
+        boolean ascendingChecked = Settings.FILE_LIST_SORT_ASCENDING.queryValue();
+        menuBinding.sortOrderAscending.setChecked(ascendingChecked);
+
+        boolean folderFirstChecked = Settings.FILE_LIST_SORT_FOLDER_FIRST.queryValue();
+        menuBinding.sortFolderFirst.setChecked(folderFirstChecked);
+    }
+
+    private static class MenuBinding {
+        public Menu menu;
+
+        //sort
+        public MenuItem sortGroup;
+        public MenuItem sortByName;
+        public MenuItem sortByType;
+        public MenuItem sortBySize;
+        public MenuItem sortByLastModified;
+        public MenuItem sortOrderAscending;
+        public MenuItem sortFolderFirst;
+
+        //view
+        public MenuItem viewList;
+        public MenuItem viewGrid;
+        public MenuItem viewGallery;
+
+        public MenuItem search;
+        public MenuItem createRepo;
+        public MenuItem add;
+        public MenuItem edit;
+        public MenuItem transferList;
+
+
+        public static MenuBinding inflate(Menu menu, MenuInflater inflater) {
+            inflater.inflate(R.menu.browser_menu, menu);
+            MenuBinding binding1 = new MenuBinding();
+            binding1.menu = menu;
+
+            binding1.sortGroup = menu.findItem(R.id.menu_action_sort);
+            binding1.sortByName = menu.findItem(R.id.menu_action_sort_by_name);
+            binding1.sortByType = menu.findItem(R.id.menu_action_sort_by_type);
+            binding1.sortBySize = menu.findItem(R.id.menu_action_sort_by_size);
+            binding1.sortByLastModified = menu.findItem(R.id.menu_action_sort_by_last_modified);
+            binding1.sortOrderAscending = menu.findItem(R.id.menu_action_sort_ascending);
+            binding1.sortFolderFirst = menu.findItem(R.id.menu_action_sort_folder_first);
+
+            binding1.viewList = menu.findItem(R.id.menu_action_view_list);
+            binding1.viewGrid = menu.findItem(R.id.menu_action_view_grid);
+            binding1.viewGallery = menu.findItem(R.id.menu_action_view_gallery);
+
+            binding1.search = menu.findItem(R.id.menu_action_search);
+
+            binding1.createRepo = menu.findItem(R.id.create_repo);
+            binding1.add = menu.findItem(R.id.add);
+            binding1.edit = menu.findItem(R.id.edit);
+            binding1.transferList = menu.findItem(R.id.transfer_tasks);
+            return binding1;
+        }
     }
 
     @Override
     public boolean onKeyUp(int keycode, KeyEvent e) {
         if (keycode == KeyEvent.KEYCODE_MENU) {
-            if (overFlowMenu != null) {
-                overFlowMenu.performIdentifierAction(R.id.menu_overflow, 0);
+            if (menuBinding != null && menuBinding.menu != null) {
+//                menuBinding.menu.performIdentifierAction(android.R.id, 0);
             }
         }
 
         return super.onKeyUp(keycode, e);
     }
 
-
     /**
-     * onConfigurationChanged
+     * @see MainActivity -> android:configChanges="uiMode|orientation|screenSize"
      */
     @Override
-    public void onConfigurationChanged(Configuration newConfig) {
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
+        if (last_orientation != newConfig.orientation) {
+//            if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+//                ToastUtils.showLong("LANDSCAPE");
+//            } else {
+//                ToastUtils.showLong("PORTRAIT");
+//            }
+            last_orientation = newConfig.orientation;
+        } else {
+            NightMode nightMode = Settings.NIGHT_MODE.queryValue();
+            if (nightMode == NightMode.FOLLOW_SYSTEM) {
+                NightMode applyMode;
+                int currentNightMode = newConfig.uiMode & Configuration.UI_MODE_NIGHT_MASK;
+                switch (currentNightMode) {
+                    case Configuration.UI_MODE_NIGHT_YES:
+                        applyMode = NightMode.ON;
+                        break;
+                    case Configuration.UI_MODE_NIGHT_NO:
+                    case Configuration.UI_MODE_NIGHT_UNDEFINED:
+                    default:
+                        applyMode = NightMode.OFF;
+                        break;
+                }
 
-//        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-//            ToastUtils.showLong("LANDSCAPE");
-//        } else {
-//            ToastUtils.showLong("PORTRAIT");
-//        }
+                applyNightMode(applyMode);
+            }
+        }
+    }
 
-        int currentNightMode = newConfig.uiMode & Configuration.UI_MODE_NIGHT_MASK;
-        switch (currentNightMode) {
-            case Configuration.UI_MODE_NIGHT_YES:
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-                break;
-            case Configuration.UI_MODE_NIGHT_NO:
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-                break;
-            case Configuration.UI_MODE_NIGHT_UNDEFINED:
-            default:
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
-                break;
+
+    private void applyNightMode(NightMode nightMode) {
+        if (nightMode == null) {
+            return;
         }
 
-        //restart app
+        NightModeHelper.syncTo(nightMode);
+
+        restartThis();
+    }
+
+    private void restartThis() {
         Intent intent = getPackageManager().getLaunchIntentForPackage(getPackageName());
         if (intent == null) {
             ActivityUtils.finishToActivity(MainActivity.class, false);
             return;
         }
 
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
-        ActivityUtils.finishActivity(this);
+        finish();
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     }
 
-    //////////////////////////////////////////////////////////////////
+    ////////////////////////////////
+    // show dialog
+    ////////////////////////////////
     private void showSortFilesDialog() {
         SortFilesDialogFragment dialog = new SortFilesDialogFragment();
         dialog.setOnSortItemClickListener(new OnSortItemClickListener() {
@@ -858,7 +974,10 @@ public class MainActivity extends BaseActivity implements Toolbar.OnMenuItemClic
         takeFile(false);
     }
 
-    ////////////////Launcher///////////////
+
+    ////////////////////////////
+    /// Launcher
+    ////////////////////////////
 
     //0 camera
     //1 video
@@ -1105,7 +1224,10 @@ public class MainActivity extends BaseActivity implements Toolbar.OnMenuItemClic
     }
 
 
-    ////////////////add task/////////////
+    ////////////////////////////
+    /// task
+    ////////////////////////////
+
     private void addUploadTask(RepoModel repoModel, String targetDir, String localFilePath) {
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
         mainViewModel.addUploadTask(account, repoModel, targetDir, localFilePath, false, new Consumer<FileTransferEntity>() {
@@ -1130,6 +1252,4 @@ public class MainActivity extends BaseActivity implements Toolbar.OnMenuItemClic
         });
 
     }
-
-
 }

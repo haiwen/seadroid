@@ -3,6 +3,7 @@ package com.seafile.seadroid2.ui.editor;
 import androidx.lifecycle.MutableLiveData;
 
 import com.blankj.utilcode.util.FileIOUtils;
+import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.framework.file_monitor.FileSyncService;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
 
@@ -23,7 +24,11 @@ public class EditorViewModel extends BaseViewModel {
             @Override
             public void subscribe(SingleEmitter<String> emitter) throws Exception {
                 String content = FileIOUtils.readFile2String(path);
-                emitter.onSuccess(content);
+                if (content == null) {
+                    emitter.onError(SeafException.unknownException);
+                } else {
+                    emitter.onSuccess(content);
+                }
             }
         });
 
@@ -31,7 +36,7 @@ public class EditorViewModel extends BaseViewModel {
     }
 
     /**
-     * @see FileSyncService#startFolderMonitor() for more details
+     * @see FileSyncService#startFolderMonitor()
      */
     public void save(String repoId, String localPath, String fullPath, String content, String target_file) {
         getRefreshLiveData().setValue(true);

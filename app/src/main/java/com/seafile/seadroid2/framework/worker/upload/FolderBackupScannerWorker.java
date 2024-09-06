@@ -15,15 +15,15 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.config.Constants;
+import com.seafile.seadroid2.enums.TransferAction;
+import com.seafile.seadroid2.enums.TransferDataSource;
+import com.seafile.seadroid2.enums.TransferResult;
+import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.data.db.AppDatabase;
 import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
 import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
-import com.seafile.seadroid2.framework.data.model.enums.TransferAction;
-import com.seafile.seadroid2.framework.data.model.enums.TransferDataSource;
-import com.seafile.seadroid2.framework.data.model.enums.TransferResult;
-import com.seafile.seadroid2.framework.data.model.enums.TransferStatus;
 import com.seafile.seadroid2.framework.datastore.StorageManager;
-import com.seafile.seadroid2.framework.datastore.sp.FolderBackupManager;
+import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.notification.FolderBackupScanNotificationHelper;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Utils;
@@ -81,26 +81,20 @@ public class FolderBackupScannerWorker extends TransferWorker {
             List<String> idList = Arrays.asList(ids);
             //
             removeFromDB(idList);
-
-            BackgroundJobManagerImpl.getInstance().startFolderUploadWorker();
-
             return Result.success();
         }
 
         boolean canScan = checkCanScan();
         if (!canScan) {
             SLogs.i("The folder scan task was not started");
-
-            BackgroundJobManagerImpl.getInstance().startFolderUploadWorker();
-
-            return Result.success(getScanEndData());
+            return Result.success(getOutData());
         }
 
-        List<String> backupPaths = FolderBackupManager.readBackupPaths();
-        RepoConfig repoConfig = FolderBackupManager.readRepoConfig();
-        if (CollectionUtils.isEmpty(backupPaths) || repoConfig == null) {
+        List<String> backupPaths = FolderBackupSharePreferenceHelper.readBackupPathsAsList();
+        RepoConfig repoConfig = FolderBackupSharePreferenceHelper.readRepoConfig();
 
-            return Result.success(getScanEndData());
+        if (CollectionUtils.isEmpty(backupPaths) || repoConfig == null) {
+            return Result.success(getOutData());
         }
 
         //
@@ -109,7 +103,6 @@ public class FolderBackupScannerWorker extends TransferWorker {
 
         ForegroundInfo foregroundInfo = notificationHelper.getForegroundNotification(title, subTitle);
         showForegroundAsync(foregroundInfo);
-//        notificationHelper.showNotification(nTitle);
 
         try {
             //send a scan event
@@ -119,19 +112,13 @@ public class FolderBackupScannerWorker extends TransferWorker {
             traverseBackupPath(account, repoConfig, backupPaths);
 
         } finally {
-            //
-//            notificationHelper.cancel();
-
-            FolderBackupManager.writeLastScanTime(System.currentTimeMillis());
-
-            //start upload worker
-            BackgroundJobManagerImpl.getInstance().startFolderUploadWorker();
+            FolderBackupSharePreferenceHelper.writeLastScanTime(System.currentTimeMillis());
         }
 
-        return Result.success(getScanEndData());
+        return Result.success(getOutData());
     }
 
-    private Data getScanEndData() {
+    private Data getOutData() {
         return new Data.Builder()
                 .putString(TransferWorker.KEY_DATA_EVENT, TransferEvent.EVENT_SCAN_END)
                 .putString(TransferWorker.KEY_DATA_TYPE, String.valueOf(TransferDataSource.FOLDER_BACKUP))
@@ -139,7 +126,7 @@ public class FolderBackupScannerWorker extends TransferWorker {
     }
 
     private boolean checkCanScan() {
-        boolean isOpenBackup = FolderBackupManager.readBackupSwitch();
+        boolean isOpenBackup = FolderBackupSharePreferenceHelper.readBackupSwitch();
         if (!isOpenBackup) {
             return false;
         }
@@ -149,8 +136,8 @@ public class FolderBackupScannerWorker extends TransferWorker {
             return true;
         }
 
-        long lastScanTime = FolderBackupManager.readLastScanTime();
-        if (lastScanTime != 0) {
+        Long lastScanTime = FolderBackupSharePreferenceHelper.readLastScanTime();
+        if (lastScanTime != null && lastScanTime != 0) {
             long now = System.currentTimeMillis();
             if (now - lastScanTime < PERIODIC_SCAN_INTERVALS) {
                 return false;
@@ -182,13 +169,13 @@ public class FolderBackupScannerWorker extends TransferWorker {
         RepoModel repoModel = repoModels.get(0);
 
         for (String backupPath : backupPathsList) {
-            long lastTime = FolderBackupManager.readBackupPathLastScanTime(backupPath);
+            Long lastTime = FolderBackupSharePreferenceHelper.readLastScanTimeForPath(backupPath);
 
             //iterate over local files
             List<File> localFiles = traverseFiles(backupPath, lastTime);
 
             //write last scan time
-            FolderBackupManager.writeBackupPathLastScanTime(backupPath);
+            FolderBackupSharePreferenceHelper.writeLastScanTimeForPath(backupPath);
 
             if (CollectionUtils.isEmpty(localFiles)) {
                 SLogs.e("没有新增、更新的文件: " + backupPath);
@@ -277,7 +264,7 @@ public class FolderBackupScannerWorker extends TransferWorker {
     }
 
 
-    private List<File> traverseFiles(String path, long lastScanTime) {
+    private List<File> traverseFiles(String path, Long lastScanTime) {
         Deque<File> stack = new ArrayDeque<>();
         stack.push(new File(path));
 
@@ -287,7 +274,7 @@ public class FolderBackupScannerWorker extends TransferWorker {
 
         List<File> filePathList = new ArrayList<>();
 
-        boolean isSkipHiddenFile = FolderBackupManager.isFolderBackupSkipHiddenFiles();
+        boolean isSkipHiddenFile = FolderBackupSharePreferenceHelper.isFolderBackupSkipHiddenFiles();
 
         while (!stack.isEmpty()) {
             File currentDir = stack.pop();
@@ -313,14 +300,14 @@ public class FolderBackupScannerWorker extends TransferWorker {
         return filePathList;
     }
 
-    private void processFile(File file, List<File> filePathList, String lPath, long lastScanTime) {
+    private void processFile(File file, List<File> filePathList, String lPath, Long lastScanTime) {
         String fPath = file.getAbsolutePath();
 
         if (fPath.startsWith(lPath)) {
             return;
         }
 
-        if (lastScanTime > 0) {
+        if (lastScanTime != null && lastScanTime > 0) {
             try {
                 BasicFileAttributes attr = Files.readAttributes(file.toPath(), BasicFileAttributes.class);
                 long created = attr.creationTime().toMillis();

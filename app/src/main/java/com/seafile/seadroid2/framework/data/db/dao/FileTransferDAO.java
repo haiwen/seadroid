@@ -10,10 +10,10 @@ import androidx.room.Update;
 import androidx.sqlite.db.SupportSQLiteQuery;
 
 import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
-import com.seafile.seadroid2.framework.data.model.enums.TransferAction;
-import com.seafile.seadroid2.framework.data.model.enums.TransferDataSource;
-import com.seafile.seadroid2.framework.data.model.enums.TransferResult;
-import com.seafile.seadroid2.framework.data.model.enums.TransferStatus;
+import com.seafile.seadroid2.enums.TransferAction;
+import com.seafile.seadroid2.enums.TransferDataSource;
+import com.seafile.seadroid2.enums.TransferResult;
+import com.seafile.seadroid2.enums.TransferStatus;
 
 import java.util.List;
 
@@ -26,6 +26,9 @@ public interface FileTransferDAO {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertAll(List<FileTransferEntity> list);
 
+    /**
+     * insert or replace
+     */
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(FileTransferEntity entity);
 

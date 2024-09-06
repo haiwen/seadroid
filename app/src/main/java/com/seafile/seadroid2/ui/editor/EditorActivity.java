@@ -116,7 +116,7 @@ public class EditorActivity extends BaseActivityWithVM<EditorViewModel> implemen
             @Override
             public void onChanged(String s) {
                 isSave = true;
-                Toast.makeText(EditorActivity.this, getString(R.string.editor_file_save_success), Toast.LENGTH_SHORT).show();
+//                Toast.makeText(EditorActivity.this, getString(R.string.editor_file_save_success), Toast.LENGTH_SHORT).show();
                 finish();
             }
         });

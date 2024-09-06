@@ -15,6 +15,7 @@ import com.seafile.seadroid2.ui.folder_backup.RepoConfig;
 import java.util.Arrays;
 import java.util.List;
 
+@Deprecated
 public class AlbumBackupManager {
     private AlbumBackupManager() {
 

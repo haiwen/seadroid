@@ -1,23 +1,15 @@
 package com.seafile.seadroid2.ui.dialog_fragment;
 
-import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.RadioGroup;
-
-import androidx.annotation.Nullable;
 
 import com.blankj.utilcode.util.ToastUtils;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputLayout;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.account.SupportAccountManager;
-import com.seafile.seadroid2.framework.data.ServerInfo;
-import com.seafile.seadroid2.framework.data.model.dirents.DirentPermissionModel;
 import com.seafile.seadroid2.listener.OnCreateDirentShareLinkListener;
 import com.seafile.seadroid2.ui.base.fragment.RequestCustomDialogFragmentWithVM;
 import com.seafile.seadroid2.ui.dialog_fragment.viewmodel.GetShareLinkPasswordViewModel;
@@ -89,10 +81,10 @@ public class GetShareLinkPasswordDialogFragment extends RequestCustomDialogFragm
 
         if (isAdvance) {
             TextInputLayout passwordTextInput = getDialogView().findViewById(R.id.password_input_layout);
-            passwordTextInput.setHint(String.format(
-                    getResources().getString(R.string.passwd_min_len_limit_hint),
-                    getResources().getInteger(R.integer.minimum_password_length)
-            ));
+//            passwordTextInput.setHint(String.format(
+//                    getResources().getString(R.string.passwd_min_len_limit_hint),
+//                    getResources().getInteger(R.integer.minimum_password_length)
+//            ));
 
             SwitchMaterial passwordSwitch = getDialogView().findViewById(R.id.add_password);
             passwordSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
@@ -125,11 +117,18 @@ public class GetShareLinkPasswordDialogFragment extends RequestCustomDialogFragm
         });
     }
 
-    private void showErrorDialog(String msg) {
+    private void showErrorDialog(String errMsg) {
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext());
-        builder.setMessage(msg);
+        builder.setMessage(getErrorMsg(errMsg));
         builder.setPositiveButton(R.string.ok, (dialog, which) -> dialog.dismiss());
         builder.show();
+    }
+
+    private String getErrorMsg(String errMsg) {
+        if (errMsg.contains("Password is too short")) {
+            return getString(R.string.err_passwd_too_short);
+        }
+        return errMsg;
     }
 
     private boolean checkData() {
@@ -141,11 +140,6 @@ public class GetShareLinkPasswordDialogFragment extends RequestCustomDialogFragm
 
             if (TextUtils.isEmpty(password)) {
                 ToastUtils.showLong(R.string.password_empty);
-                return false;
-            }
-
-            if (password.length() < getResources().getInteger(R.integer.minimum_password_length)) {
-                ToastUtils.showLong(R.string.err_passwd_too_short);
                 return false;
             }
         }

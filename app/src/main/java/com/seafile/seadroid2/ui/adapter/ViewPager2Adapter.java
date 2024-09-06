@@ -5,6 +5,8 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
+import com.blankj.utilcode.util.CollectionUtils;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -42,6 +44,30 @@ public class ViewPager2Adapter extends FragmentStateAdapter {
         fragments.remove(position);
         fragmentIds.remove(position);
 //        createIds.add(fragmentIds.get(position));
+    }
+
+    public int removeByClass(Class<?> clz) {
+        int i = indexByClass(clz);
+        if (i == -1) {
+            return i;
+        }
+
+        removeFragment(i);
+
+        return i;
+    }
+
+    public int indexByClass(Class<?> clz) {
+        if (!CollectionUtils.isEmpty(fragments)) {
+            for (int i = 0; i < fragments.size(); i++) {
+                String n = fragments.get(i).getClass().getName();
+                if (clz.getName().equals(n)) {
+                    return i;
+                }
+            }
+        }
+
+        return -1;
     }
 
     @NonNull

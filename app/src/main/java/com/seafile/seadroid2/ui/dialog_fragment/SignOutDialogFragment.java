@@ -4,12 +4,10 @@ import android.os.Bundle;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.google.firebase.analytics.FirebaseAnalytics;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
-import com.seafile.seadroid2.config.AnalyticsEvent;
-import com.seafile.seadroid2.framework.util.AccountUtils;
+import com.seafile.seadroid2.account.AccountUtils;
 import com.seafile.seadroid2.ui.base.fragment.CustomDialogFragment;
 
 public class SignOutDialogFragment extends CustomDialogFragment {
@@ -35,12 +33,6 @@ public class SignOutDialogFragment extends CustomDialogFragment {
     @Override
     protected void onPositiveClick() {
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
-
-        //firebase - event -login
-        Bundle eventBundle = new Bundle();
-        eventBundle.putString(FirebaseAnalytics.Param.METHOD, SignOutDialogFragment.class.getSimpleName());
-        FirebaseAnalytics.getInstance(requireContext()).logEvent(AnalyticsEvent.SING_OUT, eventBundle);
-
 
         AccountUtils.logout(account);
 

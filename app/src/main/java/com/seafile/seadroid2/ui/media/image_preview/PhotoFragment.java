@@ -51,8 +51,7 @@ public class PhotoFragment extends BaseFragment {
     }
 
     public static PhotoFragment newInstance() {
-        PhotoFragment fragment = new PhotoFragment();
-        return fragment;
+        return new PhotoFragment();
     }
 
     @Override
@@ -103,7 +102,6 @@ public class PhotoFragment extends BaseFragment {
         }
 
         String url = getUrl();
-        SLogs.d(url);
         if (url == null) {
             photoView.setImageResource(R.drawable.icon_image_error_filled);
         } else {

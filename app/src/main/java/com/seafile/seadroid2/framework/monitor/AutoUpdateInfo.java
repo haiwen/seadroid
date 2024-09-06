@@ -1,8 +1,8 @@
 package com.seafile.seadroid2.framework.monitor;
 
 import com.google.common.base.Objects;
-import com.seafile.seadroid2.framework.datastore.sp.AppDataManager;
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.framework.datastore.sp_livedata.ClientEncryptSharePreferenceHelper;
 
 class AutoUpdateInfo {
     final Account account;
@@ -22,7 +22,7 @@ class AutoUpdateInfo {
     }
 
     public boolean canLocalDecrypt() {
-        return AppDataManager.isEncryptEnabled();
+        return ClientEncryptSharePreferenceHelper.isEncryptEnabled();
     }
 
     @Override
@@ -33,7 +33,7 @@ class AutoUpdateInfo {
             return false;
 
         AutoUpdateInfo that = (AutoUpdateInfo) obj;
-        if(that.account == null || that.repoID == null || that.repoName == null || that.parentDir == null || that.localPath == null) {
+        if (that.account == null || that.repoID == null || that.repoName == null || that.parentDir == null || that.localPath == null) {
             return false;
         }
 

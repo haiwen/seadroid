@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import io.reactivex.Single;
 import io.reactivex.functions.Consumer;
@@ -56,7 +57,6 @@ public class GetShareLinkPasswordViewModel extends BaseViewModel {
                 getRefreshLiveData().setValue(false);
             }
         });
-
     }
 
     public void createShareLink(String repoId, String path, String password, String expire_days, DirentPermissionModel permissions) {
@@ -81,10 +81,10 @@ public class GetShareLinkPasswordViewModel extends BaseViewModel {
         Single<DirentShareLinkModel> single;
         if (permissions != null) {
             requestDataMap.put("permissions", permissions);
-            single = HttpIO.getCurrentInstance().execute(DialogService.class).createMultiShareLink(requestDataMap);
-        } else {
-            single = HttpIO.getCurrentInstance().execute(DialogService.class).createShareLink(requestDataMap);
         }
+
+        single = HttpIO.getCurrentInstance().execute(DialogService.class).createMultiShareLink(requestDataMap);
+//            single = HttpIO.getCurrentInstance().execute(DialogService.class).createShareLink(requestDataMap);
 
         addSingleDisposable(single, new Consumer<DirentShareLinkModel>() {
             @Override

@@ -2,12 +2,15 @@ package com.seafile.seadroid2.framework.data.model.search;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.TextUtils;
 
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.data.model.BaseModel;
 import com.seafile.seadroid2.framework.util.Icons;
 import com.seafile.seadroid2.framework.util.Utils;
+
+import org.apache.commons.lang3.StringUtils;
 
 public class SearchModel extends BaseModel implements Parcelable {
 
@@ -27,9 +30,12 @@ public class SearchModel extends BaseModel implements Parcelable {
     public long last_modified;
     public long size;    // size of file, 0 if type is dir
 
-
     public String getTitle() {
-        return name;
+        String formatName = StringUtils.substringAfterLast(fullpath, '/');
+        if (TextUtils.isEmpty(formatName)) {
+            return name;
+        }
+        return formatName;
     }
 
     //    public String getSubtitle() {
@@ -45,8 +51,13 @@ public class SearchModel extends BaseModel implements Parcelable {
 
 
     public int getIcon() {
-        if (is_dir)
-            return R.drawable.baseline_folder_24;
+        if (is_dir) {
+            if (TextUtils.equals(name, repo_name)) {
+                return R.drawable.baseline_repo_24;
+            } else {
+                return R.drawable.baseline_folder_24;
+            }
+        }
         return Icons.getFileIcon(getTitle());
     }
 

@@ -17,10 +17,10 @@ import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.framework.data.db.entities.EncKeyCacheEntity;
 import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
 import com.seafile.seadroid2.framework.data.model.dirents.DirentFileModel;
-import com.seafile.seadroid2.framework.data.model.enums.TransferAction;
-import com.seafile.seadroid2.framework.data.model.enums.TransferDataSource;
-import com.seafile.seadroid2.framework.data.model.enums.TransferResult;
-import com.seafile.seadroid2.framework.data.model.enums.TransferStatus;
+import com.seafile.seadroid2.enums.TransferAction;
+import com.seafile.seadroid2.enums.TransferDataSource;
+import com.seafile.seadroid2.enums.TransferResult;
+import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.ExistingFileStrategy;
@@ -37,6 +37,7 @@ import com.seafile.seadroid2.ui.repo.RepoService;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.ui.activities.AllActivitiesFragment;
 import com.seafile.seadroid2.ui.repo.RepoQuickFragment;
+import com.seafile.seadroid2.ui.settings.TabSettingsFragment;
 import com.seafile.seadroid2.ui.star.StarredQuickFragment;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
@@ -114,17 +115,12 @@ public class MainViewModel extends BaseViewModel {
     private final List<Fragment> fragments = CollectionUtils.newUnmodifiableListNotNull(
             RepoQuickFragment.newInstance(),
             StarredQuickFragment.newInstance(),
-            AllActivitiesFragment.newInstance());
+            AllActivitiesFragment.newInstance(),
+            TabSettingsFragment.newInstance()
+    );
 
     public List<Fragment> getFragments() {
         return fragments;
-    }
-
-    public AllActivitiesFragment getActivityFragment() {
-        if (fragments == null || fragments.size() != 3) {
-            return null;
-        }
-        return (AllActivitiesFragment) fragments.get(2);
     }
 
     public MainViewModel() {
