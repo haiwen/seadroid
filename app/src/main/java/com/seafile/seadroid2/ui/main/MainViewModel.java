@@ -123,13 +123,6 @@ public class MainViewModel extends BaseViewModel {
         return fragments;
     }
 
-    public AllActivitiesFragment getActivityFragment() {
-        if (fragments == null || fragments.size() != 3) {
-            return null;
-        }
-        return (AllActivitiesFragment) fragments.get(2);
-    }
-
     public MainViewModel() {
         getNavContext();
     }

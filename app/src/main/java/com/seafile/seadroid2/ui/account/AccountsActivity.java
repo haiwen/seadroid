@@ -167,13 +167,8 @@ public class AccountsActivity extends BaseActivityWithVM<AccountViewModel> imple
         getViewModel().getServerInfoLiveData().observe(this, new Observer<ServerInfo>() {
             @Override
             public void onChanged(ServerInfo serverInfo) {
-                Account account = SupportAccountManager.getInstance().getCurrentAccount();
-
                 //finish main firstly
                 ActivityUtils.finishActivity(MainActivity.class);
-
-                //switch local account
-                AccountUtils.switchAccount(account);
 
                 //start splash
                 startActivity(new Intent(AccountsActivity.this, SplashActivity.class));
@@ -184,20 +179,26 @@ public class AccountsActivity extends BaseActivityWithVM<AccountViewModel> imple
     }
 
     private void onListItemClick(int position) {
-        Account account = accounts.get(position);
+        Account clickedAccount = accounts.get(position);
 
-        Account curLoggedinAccount = SupportAccountManager.getInstance().getCurrentAccount();
+        Account loggedAccount = SupportAccountManager.getInstance().getCurrentAccount();
 
-        if (account.is_checked && curLoggedinAccount != null) {
+        if (clickedAccount.is_checked && loggedAccount != null) {
             finish();
             return;
         }
 
-        if (!account.hasValidToken()) {
+        if (!clickedAccount.hasValidToken()) {
             // user already signed out, input password first
-            startEditAccountActivity(account);
+            startEditAccountActivity(clickedAccount);
         } else {
-            SupportAccountManager.getInstance().saveCurrentAccount(account.getSignature());
+
+            //save
+            SupportAccountManager.getInstance().saveCurrentAccount(clickedAccount.getSignature());
+
+            //switch account
+            AccountUtils.switchAccount(clickedAccount);
+
             startFilesActivity();
         }
     }

@@ -185,7 +185,7 @@ public class NavContext {
     /**
      * /a/b/c -> c
      */
-    public String getCurNameOfPath() {
+    public String getLastPathName() {
         BaseModel baseModel = getTopModel();
         if (baseModel == null) {
             return null;

@@ -25,7 +25,6 @@ import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.view.MenuCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
@@ -63,6 +62,7 @@ import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.ui.account.AccountsActivity;
+import com.seafile.seadroid2.ui.activities.AllActivitiesFragment;
 import com.seafile.seadroid2.ui.adapter.ViewPager2Adapter;
 import com.seafile.seadroid2.ui.base.BaseActivity;
 import com.seafile.seadroid2.ui.dialog_fragment.NewDirFileDialogFragment;
@@ -324,7 +324,7 @@ public class MainActivity extends BaseActivity {
         //tab
         if (menuItem.getItemId() == R.id.tabs_library) {
             if (getNavContext().inRepo()) {
-                setActionbarTitle(getNavContext().getCurNameOfPath());
+                setActionbarTitle(getNavContext().getLastPathName());
                 enableUpButton(true);
             } else {
                 enableUpButton(false);
@@ -332,21 +332,37 @@ public class MainActivity extends BaseActivity {
             }
 
             binding.pager.setCurrentItem(0);
-        } else if (menuItem.getItemId() == R.id.tabs_starred) {
+
+            return;
+        }
+        if (menuItem.getItemId() == R.id.tabs_starred) {
             enableUpButton(false);
             setActionbarTitle(getString(R.string.tabs_starred));
 
             binding.pager.setCurrentItem(1);
-        } else if (menuItem.getItemId() == R.id.tabs_activity) {
-            enableUpButton(false);
-            setActionbarTitle(getString(R.string.tabs_activity));
+            return;
+        }
 
-            binding.pager.setCurrentItem(2);
-        } else if (menuItem.getItemId() == R.id.tabs_settings) {
-            enableUpButton(false);
-            setActionbarTitle(getString(R.string.settings));
+        MenuItem activityMenuItem = binding.navBottomView.getMenu().findItem(R.id.tabs_activity);
+        if (null == activityMenuItem) {
+            if (menuItem.getItemId() == R.id.tabs_settings) {
+                enableUpButton(false);
+                setActionbarTitle(getString(R.string.settings));
 
-            binding.pager.setCurrentItem(3);
+                binding.pager.setCurrentItem(2);
+            }
+        } else {
+            if (menuItem.getItemId() == R.id.tabs_activity) {
+                enableUpButton(false);
+                setActionbarTitle(getString(R.string.tabs_activity));
+
+                binding.pager.setCurrentItem(2);
+            } else if (menuItem.getItemId() == R.id.tabs_settings) {
+                enableUpButton(false);
+                setActionbarTitle(getString(R.string.settings));
+
+                binding.pager.setCurrentItem(3);
+            }
         }
     }
 
@@ -364,13 +380,33 @@ public class MainActivity extends BaseActivity {
 
                 if (0 == position) {
                     binding.navBottomView.setSelectedItemId(R.id.tabs_library);
-                } else if (1 == position) {
-                    binding.navBottomView.setSelectedItemId(R.id.tabs_starred);
-                } else if (2 == position) {
-                    binding.navBottomView.setSelectedItemId(R.id.tabs_activity);
-                } else if (3 == position) {
-                    binding.navBottomView.setSelectedItemId(R.id.tabs_settings);
+                    return;
                 }
+
+                if (1 == position) {
+                    binding.navBottomView.setSelectedItemId(R.id.tabs_starred);
+                    return;
+                }
+
+                MenuItem activityMenuItem = binding.navBottomView.getMenu().findItem(R.id.tabs_activity);
+                if (null == activityMenuItem) {
+                    //means the server is not pro edition
+                    if (2 == position) {
+                        binding.navBottomView.setSelectedItemId(R.id.tabs_settings);
+                    }
+                } else {
+
+                    if (2 == position) {
+                        binding.navBottomView.setSelectedItemId(R.id.tabs_activity);
+                        return;
+                    }
+
+                    if (3 == position) {
+                        binding.navBottomView.setSelectedItemId(R.id.tabs_settings);
+                    }
+                }
+
+
             }
         });
     }
@@ -424,7 +460,7 @@ public class MainActivity extends BaseActivity {
         } else if (getNavContext().inRepoRoot()) {
             getActionBarToolbar().setTitle(getNavContext().getRepoModel().repo_name);
         } else {
-            String toolbarTitle = getNavContext().getCurNameOfPath();
+            String toolbarTitle = getNavContext().getLastPathName();
             getActionBarToolbar().setTitle(toolbarTitle);
         }
     }
@@ -463,11 +499,10 @@ public class MainActivity extends BaseActivity {
 
             // hide Activity tab
             ViewPager2Adapter adapter = (ViewPager2Adapter) binding.pager.getAdapter();
-            if (adapter != null && adapter.getItemCount() > 2) {
-                long hashCode = mainViewModel.getFragments().get(2).hashCode();
-                if (adapter.containsItem(hashCode)) {
-                    adapter.removeFragment(2);
-                    adapter.notifyItemRemoved(2);
+            if (adapter != null) {
+                int index = adapter.removeByClass(AllActivitiesFragment.class);
+                if (index != -1) {
+                    adapter.notifyItemRemoved(index);
                 }
             }
         }
@@ -530,7 +565,7 @@ public class MainActivity extends BaseActivity {
             //refresh back btn state
             enableUpButton(true);
 
-            setActionbarTitle(getNavContext().getCurNameOfPath());
+            setActionbarTitle(getNavContext().getLastPathName());
         } else {
             enableUpButton(false);
 

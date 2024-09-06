@@ -303,7 +303,6 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             }
         });
 
-
         binding.rv.setAdapter(adapter);
     }
 
