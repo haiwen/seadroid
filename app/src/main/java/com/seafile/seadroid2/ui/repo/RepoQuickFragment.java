@@ -33,7 +33,6 @@ import androidx.work.WorkInfo;
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.TimeUtils;
 import com.blankj.utilcode.util.ToastUtils;
-import com.chad.library.adapter4.BaseQuickAdapter;
 import com.github.panpf.recycler.sticky.StickyItemDecoration;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.common.collect.Maps;
@@ -341,6 +340,13 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
         mainViewModel.getOnForceRefreshRepoListLiveData().observe(getViewLifecycleOwner(), aBoolean -> {
             loadData(true);
+        });
+
+        mainViewModel.getOnSearchLiveData().observe(getViewLifecycleOwner(), new Observer<String>() {
+            @Override
+            public void onChanged(String s) {
+                adapter.notifySearchChanged(s);
+            }
         });
 
         Settings.FILE_LIST_VIEW_TYPE.observe(getViewLifecycleOwner(), new Observer<FileViewType>() {
@@ -873,7 +879,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             } else if (itemId == R.id.rename) {
                 rename(dirent.repo_id, dirent.full_path, dirent.name, "dir");
             } else if (itemId == R.id.download) {
-                BackgroundJobManagerImpl.getInstance().startDownloadChainWorker(new String[]{dirent.uid});
+                download(dirent);
             }
         });
 

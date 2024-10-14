@@ -589,7 +589,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             findPreference(SettingsManager.SETTINGS_PRIVACY_POLICY_KEY).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(@NonNull Preference preference) {
-                    SeaWebViewActivity.openUrl(requireContext(), Constants.URL_PRIVACY);
+                    SeaWebViewActivity.openUrlDirectly(requireContext(), Constants.URL_PRIVACY);
                     return true;
                 }
             });

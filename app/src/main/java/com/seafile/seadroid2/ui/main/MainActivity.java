@@ -14,7 +14,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.text.TextUtils;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -25,6 +24,7 @@ import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.appcompat.widget.SearchView;
 import androidx.core.view.MenuCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
@@ -76,8 +76,10 @@ import com.seafile.seadroid2.ui.search.Search2Activity;
 import com.seafile.seadroid2.ui.transfer_list.TransferActivity;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import io.reactivex.functions.Consumer;
 import kotlin.Pair;
@@ -319,7 +321,7 @@ public class MainActivity extends BaseActivity {
 
     private void onBottomNavigationSelected(MenuItem menuItem) {
         //Invalidate menu
-        supportInvalidateOptionsMenu();
+//        supportInvalidateOptionsMenu();
 
         //tab
         if (menuItem.getItemId() == R.id.tabs_library) {
@@ -332,9 +334,9 @@ public class MainActivity extends BaseActivity {
             }
 
             binding.pager.setCurrentItem(0);
-
             return;
         }
+
         if (menuItem.getItemId() == R.id.tabs_starred) {
             enableUpButton(false);
             setActionbarTitle(getString(R.string.tabs_starred));
@@ -377,38 +379,52 @@ public class MainActivity extends BaseActivity {
             @Override
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
-
-                if (0 == position) {
-                    binding.navBottomView.setSelectedItemId(R.id.tabs_library);
-                    return;
-                }
-
-                if (1 == position) {
-                    binding.navBottomView.setSelectedItemId(R.id.tabs_starred);
-                    return;
-                }
-
-                MenuItem activityMenuItem = binding.navBottomView.getMenu().findItem(R.id.tabs_activity);
-                if (null == activityMenuItem) {
-                    //means the server is not pro edition
-                    if (2 == position) {
-                        binding.navBottomView.setSelectedItemId(R.id.tabs_settings);
-                    }
-                } else {
-
-                    if (2 == position) {
-                        binding.navBottomView.setSelectedItemId(R.id.tabs_activity);
-                        return;
-                    }
-
-                    if (3 == position) {
-                        binding.navBottomView.setSelectedItemId(R.id.tabs_settings);
-                    }
-                }
-
-
+                onViewPageSelected(position);
             }
         });
+    }
+
+    private void onViewPageSelected(int position) {
+        if (0 == position) {
+            binding.navBottomView.setSelectedItemId(R.id.tabs_library);
+
+            if (menuBinding != null && menuBinding.search != null) {
+                menuBinding.search.setVisible(true);
+            }
+
+            if (menuBinding != null && menuBinding.sortGroup != null) {
+                menuBinding.sortGroup.setVisible(true);
+            }
+
+            return;
+        }
+
+        menuBinding.search.setVisible(false);
+        menuBinding.sortGroup.setVisible(false);
+
+        if (1 == position) {
+            binding.navBottomView.setSelectedItemId(R.id.tabs_starred);
+            return;
+        }
+
+        MenuItem activityMenuItem = binding.navBottomView.getMenu().findItem(R.id.tabs_activity);
+        if (null == activityMenuItem) {
+            //means the server is not pro edition
+            if (2 == position) {
+                binding.navBottomView.setSelectedItemId(R.id.tabs_settings);
+            }
+        } else {
+
+            if (2 == position) {
+                binding.navBottomView.setSelectedItemId(R.id.tabs_activity);
+                return;
+            }
+
+            if (3 == position) {
+                binding.navBottomView.setSelectedItemId(R.id.tabs_settings);
+            }
+        }
+
     }
 
     private void initViewModel() {
@@ -489,12 +505,12 @@ public class MainActivity extends BaseActivity {
         }
     };
 
-
     ////////////////////////////
     /// check server info
     ////////////////////////////
     private void requestServerInfo(boolean loadFromNet) {
-        if (!checkServerProEdition()) {
+        Optional<ServerInfo> optional = checkServerInfo();
+        if (!optional.isPresent() || !optional.get().isProEdition()) {
             binding.navBottomView.getMenu().removeItem(R.id.tabs_activity);
 
             // hide Activity tab
@@ -507,45 +523,22 @@ public class MainActivity extends BaseActivity {
             }
         }
 
-        if (!checkSearchEnabled()) {
-            // hide search menu
-            if (menuBinding != null && menuBinding.search != null)
-                menuBinding.search.setVisible(false);
-        }
-
         if (loadFromNet) {
+            //invalidate local account cache
             mainViewModel.getServerInfo();
         }
     }
 
     /**
-     * check if server is pro edition
-     *
-     * @return true, if server is pro edition
-     * false, otherwise.
+     * @return 0: is pro edition, 1: is search enable
      */
-    private boolean checkServerProEdition() {
+    private Optional<ServerInfo> checkServerInfo() {
         if (curAccount == null)
-            return false;
+            return Optional.empty();
 
         ServerInfo serverInfo = SupportAccountManager.getInstance().getServerInfo(curAccount);
-        return serverInfo.isProEdition();
+        return Optional.of(serverInfo);
     }
-
-    /**
-     * check if server supports searching feature
-     *
-     * @return true, if search enabled
-     * false, otherwise.
-     */
-    private boolean checkSearchEnabled() {
-        if (curAccount == null)
-            return false;
-
-        ServerInfo serverInfo = SupportAccountManager.getInstance().getServerInfo(curAccount);
-        return serverInfo.isSearchEnabled();
-    }
-
 
     private void finishAndStartAccountsActivity() {
         Intent newIntent = new Intent(this, AccountsActivity.class);
@@ -605,12 +598,39 @@ public class MainActivity extends BaseActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-
         menuBinding = MenuBinding.inflate(menu, getMenuInflater());
 
         MenuCompat.setGroupDividerEnabled(menu, true);
+
+        initSearchView();
         return true;
     }
+
+    /**
+     * to restore the state of Menu
+     */
+    private final HashMap<String, Boolean> menuIdState = new HashMap<>();
+
+    private void initSearchView() {
+        SearchView searchView = new SearchView(this);
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                searchView.clearFocus();
+                startSearchPage(query);
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                mainViewModel.getOnSearchLiveData().setValue(newText);
+                return false;
+            }
+        });
+        menuBinding.search.setActionView(searchView);
+    }
+
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
@@ -640,13 +660,6 @@ public class MainActivity extends BaseActivity {
 
         updateMenu();
 
-        // Global menus, e.g. Accounts, TransferTasks, Settings, are visible by default.
-        // So nothing need to be done here.
-
-        // Though search menu is also a global menu, its state was maintained dynamically at runtime.
-//        if (!checkServerProEdition())
-//            menuSearch.setVisible(false);
-
         return true;
     }
 
@@ -658,9 +671,15 @@ public class MainActivity extends BaseActivity {
             if (getNavContext().inRepo() && binding.pager.getCurrentItem() == INDEX_LIBRARY_TAB) {
                 getOnBackPressedDispatcher().onBackPressed();
             }
-        } else if (item.getItemId() == R.id.menu_action_search) {
-            Intent searchIntent = new Intent(this, Search2Activity.class);
-            startActivity(searchIntent);
+        } else if (item.getItemId() == R.id.menu_action_search_go) {
+            Optional<ServerInfo> optional = checkServerInfo();
+            if (optional.isPresent() && optional.get().isSearchEnabled()) {
+                SearchView searchView = (SearchView) menuBinding.search.getActionView();
+                if (searchView != null) {
+                    searchView.clearFocus();
+                    startSearchPage(searchView.getQuery().toString());
+                }
+            }
         } else if (item.getItemId() == R.id.create_repo) {
             showNewRepoDialog();
         } else if (item.getItemId() == R.id.add) {
@@ -707,6 +726,45 @@ public class MainActivity extends BaseActivity {
         if (menuBinding == null) {
             return;
         }
+
+        menuBinding.search.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
+            @Override
+            public boolean onMenuItemActionExpand(@NonNull MenuItem item) {
+
+                menuIdState.put("sortGroup", menuBinding.sortGroup.isVisible());
+                menuIdState.put("createRepo", menuBinding.createRepo.isVisible());
+                menuIdState.put("add", menuBinding.add.isVisible());
+                menuIdState.put("edit", menuBinding.edit.isVisible());
+                menuIdState.put("transferList", menuBinding.transferList.isVisible());
+
+                Optional<ServerInfo> optional = checkServerInfo();
+                if (optional.isPresent() && optional.get().isSearchEnabled()) {
+                    menuBinding.searchNext.setVisible(true);
+                }
+
+                menuBinding.sortGroup.setVisible(false);
+                menuBinding.createRepo.setVisible(false);
+                menuBinding.add.setVisible(false);
+                menuBinding.edit.setVisible(false);
+                menuBinding.transferList.setVisible(false);
+
+                return true;
+            }
+
+            @Override
+            public boolean onMenuItemActionCollapse(@NonNull MenuItem item) {
+                menuBinding.searchNext.setVisible(false);
+
+                menuBinding.sortGroup.setVisible(Boolean.TRUE.equals(menuIdState.get("sortGroup")));
+                menuBinding.createRepo.setVisible(Boolean.TRUE.equals(menuIdState.get("createRepo")));
+                menuBinding.add.setVisible(Boolean.TRUE.equals(menuIdState.get("add")));
+                menuBinding.edit.setVisible(Boolean.TRUE.equals(menuIdState.get("edit")));
+                menuBinding.transferList.setVisible(Boolean.TRUE.equals(menuIdState.get("transferList")));
+
+                invalidateMenu();
+                return true;
+            }
+        });
 
         //view type
         FileViewType viewType = Settings.FILE_LIST_VIEW_TYPE.queryValue();
@@ -755,6 +813,8 @@ public class MainActivity extends BaseActivity {
         public MenuItem viewGallery;
 
         public MenuItem search;
+        public MenuItem searchNext;
+
         public MenuItem createRepo;
         public MenuItem add;
         public MenuItem edit;
@@ -767,6 +827,7 @@ public class MainActivity extends BaseActivity {
             binding1.menu = menu;
 
             binding1.sortGroup = menu.findItem(R.id.menu_action_sort);
+
             binding1.sortByName = menu.findItem(R.id.menu_action_sort_by_name);
             binding1.sortByType = menu.findItem(R.id.menu_action_sort_by_type);
             binding1.sortBySize = menu.findItem(R.id.menu_action_sort_by_size);
@@ -779,6 +840,7 @@ public class MainActivity extends BaseActivity {
             binding1.viewGallery = menu.findItem(R.id.menu_action_view_gallery);
 
             binding1.search = menu.findItem(R.id.menu_action_search);
+            binding1.searchNext = menu.findItem(R.id.menu_action_search_go);
 
             binding1.createRepo = menu.findItem(R.id.create_repo);
             binding1.add = menu.findItem(R.id.add);
@@ -788,15 +850,11 @@ public class MainActivity extends BaseActivity {
         }
     }
 
-    @Override
-    public boolean onKeyUp(int keycode, KeyEvent e) {
-        if (keycode == KeyEvent.KEYCODE_MENU) {
-            if (menuBinding != null && menuBinding.menu != null) {
-//                menuBinding.menu.performIdentifierAction(android.R.id, 0);
-            }
+    private void startSearchPage(String query) {
+        Optional<ServerInfo> optional = checkServerInfo();
+        if (optional.isPresent() && optional.get().isSearchEnabled()) {
+            Search2Activity.start(this, query);
         }
-
-        return super.onKeyUp(keycode, e);
     }
 
     /**
@@ -817,16 +875,11 @@ public class MainActivity extends BaseActivity {
             if (nightMode == NightMode.FOLLOW_SYSTEM) {
                 NightMode applyMode;
                 int currentNightMode = newConfig.uiMode & Configuration.UI_MODE_NIGHT_MASK;
-                switch (currentNightMode) {
-                    case Configuration.UI_MODE_NIGHT_YES:
-                        applyMode = NightMode.ON;
-                        break;
-                    case Configuration.UI_MODE_NIGHT_NO:
-                    case Configuration.UI_MODE_NIGHT_UNDEFINED:
-                    default:
-                        applyMode = NightMode.OFF;
-                        break;
-                }
+                applyMode = switch (currentNightMode) {
+                    case Configuration.UI_MODE_NIGHT_YES -> NightMode.ON;
+                    case Configuration.UI_MODE_NIGHT_NO -> NightMode.OFF;
+                    default -> NightMode.FOLLOW_SYSTEM;
+                };
 
                 applyNightMode(applyMode);
             }
@@ -860,6 +913,7 @@ public class MainActivity extends BaseActivity {
     ////////////////////////////////
     // show dialog
     ////////////////////////////////
+    @Deprecated
     private void showSortFilesDialog() {
         SortFilesDialogFragment dialog = new SortFilesDialogFragment();
         dialog.setOnSortItemClickListener(new OnSortItemClickListener() {

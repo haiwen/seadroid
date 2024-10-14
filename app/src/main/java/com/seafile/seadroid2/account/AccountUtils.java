@@ -19,7 +19,6 @@ public class AccountUtils {
         // turn off the gesture lock anyway
         GestureLockSharePreferenceHelper.disable();
 
-        //TODO ?
         Settings.initUserSettings();
 
         NotificationUtils.cancelAll();
@@ -54,7 +53,6 @@ public class AccountUtils {
         if (account == null) {
             return;
         }
-
 
         NotificationUtils.cancelAll();
 

@@ -9,12 +9,9 @@ public class GestureLockSharePreferenceHelper {
     public static final long LOCK_EXPIRATION_MSECS = 5 * 60 * 1000;
 
     public static void disable() {
-        if (Settings.GESTURE_LOCK_SWITCH == null) {
-            return;
-        }
 
         //
-        Settings.GESTURE_LOCK_SWITCH.putValue(false);
+        Settings.SETTINGS_GESTURE.putValue(false);
 
         //
         GestureLockSharePreferenceHelper.updateLockTimeStamp(0L);
@@ -25,11 +22,8 @@ public class GestureLockSharePreferenceHelper {
      * would not be asked for gesture lock for a short period of time.
      */
     public static boolean isLockRequired() {
-        if (Settings.GESTURE_LOCK_SWITCH == null) {
-            return false;
-        }
 
-        Boolean isEnable = Settings.GESTURE_LOCK_SWITCH.queryValue();
+        Boolean isEnable = Settings.SETTINGS_GESTURE.queryValue();
         if (!isEnable) {
             return false;
         }
@@ -39,11 +33,7 @@ public class GestureLockSharePreferenceHelper {
             return false;
         }
 
-        if (Settings.GESTURE_LOCK_TIMESTAMP == null) {
-            return false;
-        }
-
-        long lock_timestamp = Settings.GESTURE_LOCK_TIMESTAMP.queryValue();
+        long lock_timestamp = Settings.SETTINGS_GESTURE_LOCK_TIMESTAMP.queryValue();
         if (lock_timestamp == 0) {
             return false;
         }
@@ -62,10 +52,7 @@ public class GestureLockSharePreferenceHelper {
     }
 
     public static void updateLockTimeStamp(long time) {
-        if (Settings.GESTURE_LOCK_TIMESTAMP == null) {
-            return;
-        }
 
-        Settings.GESTURE_LOCK_TIMESTAMP.putValue(time);
+        Settings.SETTINGS_GESTURE_LOCK_TIMESTAMP.putValue(time);
     }
 }

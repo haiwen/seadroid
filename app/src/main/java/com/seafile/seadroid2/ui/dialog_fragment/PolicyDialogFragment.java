@@ -36,7 +36,7 @@ public class PolicyDialogFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
 
-        View rootView = LayoutInflater.from(requireContext()).inflate(R.layout.layout_dialog_policy, null);
+        View rootView = getLayoutInflater().inflate(R.layout.layout_dialog_policy, null);
         TextView messageView = rootView.findViewById(R.id.text_view_message);
 
         TextView positiveView = rootView.findViewById(R.id.text_view_positive);
@@ -78,7 +78,7 @@ public class PolicyDialogFragment extends DialogFragment {
             @Override
             public void updateDrawState(TextPaint ds) {
                 super.updateDrawState(ds);
-                ds.setColor(ContextCompat.getColor(requireContext(), R.color.blue_700));
+                ds.setColor(ContextCompat.getColor(requireContext(), R.color.fancy_orange));
                 ds.setUnderlineText(false);
             }
 

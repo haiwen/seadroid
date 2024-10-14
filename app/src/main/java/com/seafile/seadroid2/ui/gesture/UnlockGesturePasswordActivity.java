@@ -77,7 +77,7 @@ public class UnlockGesturePasswordActivity extends BaseActivity implements Toolb
         finish();
     }
 
-    private Runnable mClearPatternRunnable = new Runnable() {
+    private final Runnable mClearPatternRunnable = new Runnable() {
         public void run() {
             mLockPatternView.clearPattern();
         }
@@ -153,7 +153,6 @@ public class UnlockGesturePasswordActivity extends BaseActivity implements Toolb
                         mHeadTextView.setText(R.string.lockscreen_access_pattern_hint);
                         mHeadTextView.setTextColor(Color.WHITE);
                     }
-
                 }
 
                 @Override

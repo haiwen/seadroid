@@ -83,7 +83,7 @@ public class DownloadFileScanWorker extends TransferWorker {
         }
 
         //
-        //download single dirent
+        //single download
         if (!TextUtils.isEmpty(transferId)) {
             List<FileTransferEntity> dbList = AppDatabase.getInstance().fileTransferDAO().getByUid(transferId);
 
@@ -104,7 +104,7 @@ public class DownloadFileScanWorker extends TransferWorker {
         }
 
 
-        //download multiple dirents
+        //multiple download
         if (direntIds != null && direntIds.length > 0) {
             List<String> ids = Arrays.asList(direntIds);
 

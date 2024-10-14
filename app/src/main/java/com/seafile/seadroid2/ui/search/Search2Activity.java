@@ -2,6 +2,7 @@ package com.seafile.seadroid2.ui.search;
 
 import android.app.Activity;
 import android.app.SearchManager;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -19,8 +20,10 @@ import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.annotation.OptIn;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.Observer;
+import androidx.media3.common.util.UnstableApi;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.blankj.utilcode.util.CollectionUtils;
@@ -72,6 +75,13 @@ public class Search2Activity extends BaseActivityWithVM<SearchViewModel> impleme
     private int page = 0;
     private final int PAGE_SIZE = 20;
 
+    public static void start(Context context, String search) {
+        Intent starter = new Intent(context, Search2Activity.class);
+        starter.putExtra(SearchManager.QUERY, search);
+        starter.setAction(Intent.ACTION_SEARCH);
+        context.startActivity(starter);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -83,6 +93,7 @@ public class Search2Activity extends BaseActivityWithVM<SearchViewModel> impleme
         initView(savedInstanceState);
         initViewModel();
         initAdapter();
+
 
         handleIntent(getIntent());
 
@@ -277,9 +288,12 @@ public class Search2Activity extends BaseActivityWithVM<SearchViewModel> impleme
 
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             String query = intent.getStringExtra(SearchManager.QUERY);
-            Log.d("SEARCH", "Search query was: $query");
-            binding.searchView.setText(query);
-            loadNext(query, true);
+            if (!TextUtils.isEmpty(query)) {
+                binding.searchView.setText(query);
+                binding.searchView.setSelection(query.length());
+                binding.searchView.clearFocus();
+                loadNext(query, true);
+            }
         }
     }
 
@@ -370,6 +384,7 @@ public class Search2Activity extends BaseActivityWithVM<SearchViewModel> impleme
         } else if (Utils.isVideoFile(fileName)) { // is video file
             final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
             builder.setItems(R.array.video_download_array, new DialogInterface.OnClickListener() {
+                @OptIn(markerClass = UnstableApi.class)
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     if (which == 0) {

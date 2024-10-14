@@ -6,9 +6,11 @@ import android.text.TextUtils;
 
 import androidx.annotation.StringRes;
 
-import com.google.android.gms.common.util.Base64Utils;
+import com.blankj.utilcode.util.EncodeUtils;
+import com.seafile.seadroid2.annotation.Unstable;
 import com.seafile.seadroid2.preferences.SettingsLiveData;
 
+@Unstable
 public class ParcelValueSettingLiveData<T> extends SettingsLiveData<T> {
 
     private final T defaultValue;
@@ -43,7 +45,7 @@ public class ParcelValueSettingLiveData<T> extends SettingsLiveData<T> {
 
         Parcel parcel = Parcel.obtain();
         try {
-            byte[] bs = Base64Utils.decode(string);
+            byte[] bs = EncodeUtils.base64Encode(string);
             parcel.unmarshall(bs, 0, bs.length);
             parcel.setDataPosition(0);
 
@@ -66,7 +68,7 @@ public class ParcelValueSettingLiveData<T> extends SettingsLiveData<T> {
         try {
             parcel.writeValue(value);
             byte[] bs = parcel.marshall();
-            String p = Base64Utils.encode(bs);
+            String p = EncodeUtils.base64Encode2String(bs);
             sharedPreferences.edit().putString(key, p).apply();
         } finally {
             parcel.recycle();

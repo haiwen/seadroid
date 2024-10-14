@@ -138,8 +138,7 @@ public class LockPatternUtils {
         final byte[] hash = LockPatternUtils.patternToHash(pattern);
         try {
             // Write the hash to file
-            RandomAccessFile raf = new RandomAccessFile(sLockPatternFilename,
-                    "rwd");
+            RandomAccessFile raf = new RandomAccessFile(sLockPatternFilename, "rwd");
             // Truncate the file if pattern is null, to clear the lock
             if (pattern == null) {
                 raf.setLength(0);
@@ -179,8 +178,7 @@ public class LockPatternUtils {
         }
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-1");
-            byte[] hash = md.digest(res);
-            return hash;
+            return md.digest(res);
         } catch (NoSuchAlgorithmException nsa) {
             return res;
         }
@@ -204,8 +202,7 @@ public class LockPatternUtils {
                 return true;
             }
             // Compare the hash from the file with the entered pattern's hash
-            return Arrays.equals(stored,
-                    LockPatternUtils.patternToHash(pattern));
+            return Arrays.equals(stored, LockPatternUtils.patternToHash(pattern));
         } catch (FileNotFoundException fnfe) {
             return true;
         } catch (IOException ioe) {

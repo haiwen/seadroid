@@ -25,8 +25,7 @@ public class LockPasswordUtils {
     private static SharedPreferences mSharedPreferences;
     private static Editor mEditor;
     private static File sLockPasswordFilename;
-    private static final AtomicBoolean sHaveNonZeroPasswordFile = new AtomicBoolean(
-            false);
+    private static final AtomicBoolean sHaveNonZeroPasswordFile = new AtomicBoolean(false);
     private static FileObserver sPasswordObserver;
 
     private static class PasswordFileObserver extends FileObserver {

@@ -179,7 +179,6 @@ public class SupportAccountManager {
         accountManager.setAuthToken(account, authTokenType, authToken);
     }
 
-
     public void setServerInfo(Account account, ServerInfo serverInfo) {
         setUserData(account.getAndroidAccount(), Authenticator.KEY_SERVER_URI, serverInfo.getUrl());
         setUserData(account.getAndroidAccount(), Authenticator.KEY_SERVER_VERSION, serverInfo.getVersion());

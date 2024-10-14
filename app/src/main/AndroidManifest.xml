@@ -118,6 +118,7 @@
             android:name=".ui.main.MainActivity"
             android:configChanges="uiMode|orientation|screenSize"
             android:exported="false"
+            android:windowSoftInputMode="adjustPan"
             android:launchMode="singleTop" />
 
         <activity

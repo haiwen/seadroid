@@ -61,7 +61,7 @@ public class FileSyncService extends Service {
             return;
         }
 
-        // /storage/emulated/0/Android/media/com.seafile.seadroid2.debug/Seafile
+        // /storage/emulated/0/Android/media/com.seafile.seadroid2(.debug)/Seafile
         String path = StorageManager.getInstance().getMediaDir().getAbsolutePath();
         IGNORE_PATHS.add(path);
 

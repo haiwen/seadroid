@@ -61,6 +61,7 @@ import io.reactivex.functions.Consumer;
 public class MainViewModel extends BaseViewModel {
     //    private final MutableLiveData<Pair<String, String>> OnNewFileDownloadLiveData = new MutableLiveData<>();
     private final MutableLiveData<Integer> OnResortListLiveData = new MutableLiveData<>();
+    private final MutableLiveData<String> _onSearchLiveData = new MutableLiveData<>();
 
     //force refresh repo/dirents
     private final MutableLiveData<Boolean> OnForceRefreshRepoListLiveData = new MutableLiveData<>();
@@ -72,12 +73,28 @@ public class MainViewModel extends BaseViewModel {
 
     private final MutableLiveData<Boolean> OnNavChangeListenerLiveData = new MutableLiveData<>();
 
+    private final MutableLiveData<Boolean> _searchViewExpandedLiveData = new MutableLiveData<>(false);
 
-    private final MutableLiveData<ServerInfo> ServerInfoLiveData = new MutableLiveData<>();
+    public MutableLiveData<Boolean> getSearchViewExpandedLiveData() {
+        return _searchViewExpandedLiveData;
+    }
+
+    public MutableLiveData<String> getSearchViewQueryLiveData() {
+        return _searchViewQueryLiveData;
+    }
+
+
+    private final MutableLiveData<String> _searchViewQueryLiveData = new MutableLiveData<>();
+    private final MutableLiveData<ServerInfo> _serverInfoLiveData = new MutableLiveData<>();
 
 //    public MutableLiveData<Pair<String, String>> getOnNewFileDownloadLiveData() {
 //        return OnNewFileDownloadLiveData;
 //    }
+
+
+    public MutableLiveData<String> getOnSearchLiveData() {
+        return _onSearchLiveData;
+    }
 
     public MutableLiveData<Boolean> getOnForceRefreshRepoListLiveData() {
         return OnForceRefreshRepoListLiveData;
@@ -96,7 +113,7 @@ public class MainViewModel extends BaseViewModel {
     }
 
     public MutableLiveData<ServerInfo> getServerInfoLiveData() {
-        return ServerInfoLiveData;
+        return _serverInfoLiveData;
     }
 
     public MutableLiveData<Integer> getOnResortListLiveData() {
@@ -223,6 +240,9 @@ public class MainViewModel extends BaseViewModel {
         });
     }
 
+    public void searchLocal(String key) {
+
+    }
 
     public void checkLocalDirent(Account account, Context context, RepoModel repoModel, String parentDir, List<Uri> uriList, Consumer<List<Uri>> consumer) {
         if (CollectionUtils.isEmpty(uriList)) {

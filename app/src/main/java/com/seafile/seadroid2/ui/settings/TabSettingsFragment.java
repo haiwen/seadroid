@@ -98,6 +98,7 @@ public class TabSettingsFragment extends RenameSharePreferenceFragmentCompat {
     private Preference mFolderBackupSelectFolder;
     private Preference mFolderBackupState;
 
+
     public static TabSettingsFragment newInstance() {
         return new TabSettingsFragment();
     }
@@ -138,6 +139,8 @@ public class TabSettingsFragment extends RenameSharePreferenceFragmentCompat {
 
     public void onFirstResume() {
         initPref();
+
+        initGestureConfig();
 
         initPrefLiveData();
 
@@ -366,7 +369,7 @@ public class TabSettingsFragment extends RenameSharePreferenceFragmentCompat {
                 policyPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(@NonNull Preference preference) {
-                        SeaWebViewActivity.openUrl(requireContext(), Constants.URL_PRIVACY);
+                        SeaWebViewActivity.openUrlDirectly(requireContext(), Constants.URL_PRIVACY);
                         return true;
                     }
                 });
@@ -389,6 +392,12 @@ public class TabSettingsFragment extends RenameSharePreferenceFragmentCompat {
         dialogFragment.show(getChildFragmentManager(), SignOutDialogFragment.class.getSimpleName());
     }
 
+    private void initGestureConfig() {
+        boolean isChecked = Settings.SETTINGS_GESTURE.queryValue();
+        gestureSwitch.setChecked(isChecked);
+//        Settings.USER_GESTURE_LOCK_SWITCH.putValue(isChecked);
+    }
+
     private void initPrefLiveData() {
         //////////////////
         /// user
@@ -407,21 +416,24 @@ public class TabSettingsFragment extends RenameSharePreferenceFragmentCompat {
             }
         });
 
-
-        Settings.GESTURE_LOCK_SWITCH.observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+        Settings.USER_GESTURE_LOCK_SWITCH.observe(getViewLifecycleOwner(), new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean aBoolean) {
+
                 if (aBoolean) {
                     // inverse checked status
                     Intent newIntent = new Intent(getActivity(), CreateGesturePasswordActivity.class);
                     newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     gestureLauncher.launch(newIntent);
+
                 } else {
                     LockPatternUtils mLockPatternUtils = new LockPatternUtils(getActivity());
                     mLockPatternUtils.clearLock();
 
-                    Settings.GESTURE_LOCK_TIMESTAMP.putValue(0L);
+                    Settings.SETTINGS_GESTURE_LOCK_TIMESTAMP.putValue(0L);
                 }
+
+                Settings.SETTINGS_GESTURE.putValue(aBoolean);
             }
         });
 
@@ -509,6 +521,7 @@ public class TabSettingsFragment extends RenameSharePreferenceFragmentCompat {
             }
         });
     }
+
 
     private void initWorkerListener() {
         BackgroundJobManagerImpl.getInstance().getWorkManager()

@@ -81,11 +81,14 @@ public class DataMigrationV303Activity extends AppCompatActivity {
                 Settings.getUserSharedPreferences().edit().putString(DataStoreKeys.DS_REPO_DIR_MAPPING, repoKV).commit();
             }
 
+
             //gesture lock
             boolean isGestureLockEnable = DataStoreManager.getCommonSharePreference().readBoolean(SettingsManager.GESTURE_LOCK_SWITCH_KEY);
-            Settings.GESTURE_LOCK_SWITCH.putValue(isGestureLockEnable);
+//            Settings.USER_GESTURE_LOCK_SWITCH.putValue(isGestureLockEnable);
+            Settings.SETTINGS_GESTURE.putValue(isGestureLockEnable);
             if (isGestureLockEnable) {
-                Settings.GESTURE_LOCK_TIMESTAMP.putValue(now);
+//                Settings.USER_GESTURE_LOCK_TIMESTAMP.putValue(now);
+                Settings.SETTINGS_GESTURE_LOCK_TIMESTAMP.putValue(now);
             }
 
             migrateAlbumSP();
