@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/edit"
+        android:icon="@drawable/baseline_repo_bold_24"
+        android:title="@string/tabs_library" />
+
+    <item
+        android:id="@+id/directory"
+        android:icon="@drawable/baseline_star_outline_24"
+        android:title="@string/tabs_starred" />
+
+    <item
+        android:id="@+id/profile"
+        android:icon="@drawable/baseline_activities_bold_24"
+        android:title="@string/tabs_activity" />
+
+    <item
+        android:id="@+id/comments"
+        android:icon="@drawable/baseline_settings_24"
+        android:title="@string/settings" />
+</menu>

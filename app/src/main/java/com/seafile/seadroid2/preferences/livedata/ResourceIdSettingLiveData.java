@@ -7,8 +7,10 @@ import androidx.annotation.AnyRes;
 import androidx.annotation.StringRes;
 
 import com.seafile.seadroid2.SeadroidApplication;
+import com.seafile.seadroid2.annotation.Unstable;
 import com.seafile.seadroid2.preferences.SettingsLiveData;
 
+@Unstable
 public class ResourceIdSettingLiveData extends SettingsLiveData<Integer> {
     public ResourceIdSettingLiveData(@StringRes int keyRes, @AnyRes int defaultValueRes) {
         this(null, keyRes, defaultValueRes);

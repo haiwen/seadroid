@@ -98,7 +98,7 @@ public class Utils {
         }
 
         String parent = path.substring(0, path.lastIndexOf("/"));
-        if (parent.equals("")) {
+        if (parent.isEmpty()) {
             return "/";
         } else
             return parent;
@@ -123,7 +123,7 @@ public class Utils {
 
     public static boolean isViewableImage(String name) {
         String suffix = name.substring(name.lastIndexOf('.') + 1).toLowerCase();
-        if (suffix.length() == 0)
+        if (suffix.isEmpty())
             return false;
         if (suffix.equals("svg"))
             // don't support svg preview
@@ -285,7 +285,7 @@ public class Utils {
     public static String getFileMimeType(String path) {
         String name = getFileNameFromPath(path);
         String suffix = name.substring(name.lastIndexOf('.') + 1).toLowerCase();
-        if (suffix.length() == 0) {
+        if (suffix.isEmpty()) {
             return MIME_APPLICATION_OCTET_STREAM;
         } else {
             String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(suffix);

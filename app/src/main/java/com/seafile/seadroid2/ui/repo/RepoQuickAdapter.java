@@ -2,7 +2,6 @@ package com.seafile.seadroid2.ui.repo;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +14,7 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.DiffUtil;
 
 import com.blankj.utilcode.util.CollectionUtils;
+import com.blankj.utilcode.util.EncodeUtils;
 import com.blankj.utilcode.util.FileUtils;
 import com.blankj.utilcode.util.SizeUtils;
 import com.seafile.seadroid2.R;
@@ -43,9 +43,13 @@ import com.seafile.seadroid2.ui.base.adapter.BaseMultiAdapter;
 import com.seafile.seadroid2.ui.viewholder.GroupItemViewHolder;
 import com.seafile.seadroid2.widget.AnimatedStateListDrawableCompatUtils;
 
+import org.checkerframework.checker.units.qual.A;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
     private final String SERVER = HttpIO.getCurrentInstance().getServerUrl();
@@ -272,7 +276,6 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         }
     }
 
-
     private void onBindDirents(DirentViewHolder holder, DirentModel model) {
         holder.binding.itemTitle.setText(model.name);
         holder.binding.itemSubtitle.setText(model.getSubtitle());
@@ -449,7 +452,8 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
     }
 
     private String convertThumbnailUrl(String repoId, String filePath, int size) {
-        return String.format(Locale.ROOT, "%sapi2/repos/%s/thumbnail/?p=%s&size=%d", SERVER, repoId, filePath, size);
+        String newFilePath = EncodeUtils.urlEncode(filePath);
+        return String.format(Locale.ROOT, "%sapi2/repos/%s/thumbnail/?p=%s&size=%d", SERVER, repoId, newFilePath, size);
     }
 
     public void setActionModeOn(boolean actionModeOn) {
@@ -553,18 +557,45 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         return -1;
     }
 
+    public void notifySearchChanged(String searchContent) {
+        this.searchContent = searchContent;
+
+        if (CollectionUtils.isEmpty(finalList)) {
+            submitList(finalList);
+            return;
+        }
+
+        List<BaseModel> filterList;
+        Predicate<? super BaseModel> predicate = getSearchFilter();
+        if (predicate != null) {
+            filterList = finalList.stream().filter(predicate).collect(Collectors.toList());
+        } else {
+            filterList = finalList;
+        }
+        notify(filterList);
+    }
+
+    private List<BaseModel> finalList;
+
     public void notifyDataChanged(List<BaseModel> list) {
         if (CollectionUtils.isEmpty(list)) {
-            submitList(list);
+            finalList = null;
+            submitList(null);
             return;
         }
 
+        finalList = new ArrayList<>(list);
         if (CollectionUtils.isEmpty(getItems())) {
-            submitList(list);
+            submitList(finalList);
             return;
         }
 
-        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new DiffUtil.Callback() {
+        notify(finalList);
+    }
+
+    private void notify(List<BaseModel> list) {
+        final List<BaseModel> newList = list;
+        final DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new DiffUtil.Callback() {
             @Override
             public int getOldListSize() {
                 return getItems().size();
@@ -572,19 +603,20 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
 
             @Override
             public int getNewListSize() {
-                return list.size();
+                return newList.size();
             }
 
             @Override
             public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
                 String oldClassName = getItems().get(oldItemPosition).getClass().getName();
-                String newClassName = list.get(newItemPosition).getClass().getName();
+                String newClassName = newList.get(newItemPosition).getClass().getName();
                 if (!oldClassName.equals(newClassName)) {
                     return false;
                 }
+
                 if (getItems().get(oldItemPosition) instanceof Account) {
                     Account newT = (Account) getItems().get(oldItemPosition);
-                    Account oldT = (Account) list.get(newItemPosition);
+                    Account oldT = (Account) newList.get(newItemPosition);
                     if (!TextUtils.equals(newT.email, oldT.email)) {
                         return false;
                     }
@@ -592,7 +624,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
 
                 if (getItems().get(oldItemPosition) instanceof RepoModel) {
                     RepoModel newT = (RepoModel) getItems().get(oldItemPosition);
-                    RepoModel oldT = (RepoModel) list.get(newItemPosition);
+                    RepoModel oldT = (RepoModel) newList.get(newItemPosition);
                     if (!TextUtils.equals(newT.repo_id, oldT.repo_id) || newT.group_id != oldT.group_id) {
                         return false;
                     }
@@ -600,7 +632,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
 
                 if (getItems().get(oldItemPosition) instanceof DirentModel) {
                     DirentModel newT = (DirentModel) getItems().get(oldItemPosition);
-                    DirentModel oldT = (DirentModel) list.get(newItemPosition);
+                    DirentModel oldT = (DirentModel) newList.get(newItemPosition);
                     return TextUtils.equals(newT.full_path, oldT.full_path);
                 }
 
@@ -610,14 +642,14 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
             @Override
             public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
                 String oldClassName = getItems().get(oldItemPosition).getClass().getName();
-                String newClassName = list.get(newItemPosition).getClass().getName();
+                String newClassName = newList.get(newItemPosition).getClass().getName();
                 if (!oldClassName.equals(newClassName)) {
                     return false;
                 }
 
                 if (getItems().get(oldItemPosition) instanceof RepoModel) {
                     RepoModel newT = (RepoModel) getItems().get(oldItemPosition);
-                    RepoModel oldT = (RepoModel) list.get(newItemPosition);
+                    RepoModel oldT = (RepoModel) newList.get(newItemPosition);
 
                     return TextUtils.equals(newT.repo_id, oldT.repo_id)
                             && TextUtils.equals(newT.repo_name, oldT.repo_name)
@@ -643,7 +675,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
 
                 if (getItems().get(oldItemPosition) instanceof Account) {
                     Account newT = (Account) getItems().get(oldItemPosition);
-                    Account oldT = (Account) list.get(newItemPosition);
+                    Account oldT = (Account) newList.get(newItemPosition);
                     return TextUtils.equals(newT.email, oldT.email)
                             && TextUtils.equals(newT.name, oldT.name)
                             && TextUtils.equals(newT.avatar_url, oldT.avatar_url)
@@ -652,7 +684,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
 
                 if (getItems().get(oldItemPosition) instanceof DirentModel) {
                     DirentModel newT = (DirentModel) getItems().get(oldItemPosition);
-                    DirentModel oldT = (DirentModel) list.get(newItemPosition);
+                    DirentModel oldT = (DirentModel) newList.get(newItemPosition);
                     return TextUtils.equals(newT.full_path, oldT.full_path)
                             && TextUtils.equals(newT.name, oldT.name)
                             && TextUtils.equals(newT.parent_dir, oldT.parent_dir)
@@ -686,7 +718,36 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
             }
         });
 
-        setItems(list);
+        setItems(newList);
         diffResult.dispatchUpdatesTo(this);
     }
+
+    public Predicate<? super BaseModel> getSearchFilter() {
+        if (TextUtils.isEmpty(searchContent)) {
+            return null;
+        }
+        return _searchFilter;
+    }
+
+    private String searchContent;
+    private final Predicate<? super BaseModel> _searchFilter = new Predicate<>() {
+        @Override
+        public boolean test(BaseModel baseModel) {
+            if (TextUtils.isEmpty(searchContent)) {
+                return true;
+            }
+
+            if (baseModel instanceof Account) {
+                return false;
+            } else if (baseModel instanceof GroupItemModel) {
+                return false;
+            } else if (baseModel instanceof RepoModel m) {
+                return m.repo_name.toLowerCase().contains(searchContent.toLowerCase());
+            } else if (baseModel instanceof DirentModel m) {
+                return m.name.toLowerCase().contains(searchContent.toLowerCase());
+            } else {
+                return false;
+            }
+        }
+    };
 }

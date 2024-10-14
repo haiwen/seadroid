@@ -37,14 +37,14 @@ import java.util.UUID;
 /**
  * Check the change status of the downloaded file
  */
-public class DownloadedFileCheckerWorker extends BaseUploadWorker {
-    public static final UUID UID = UUID.nameUUIDFromBytes(DownloadedFileCheckerWorker.class.getSimpleName().getBytes());
+public class DownloadedFileMonitorWorker extends BaseUploadWorker {
+    public static final UUID UID = UUID.nameUUIDFromBytes(DownloadedFileMonitorWorker.class.getSimpleName().getBytes());
 
 
     public static final String FILE_CHANGE_KEY = "download_file_change_key";
     private final FolderBackupNotificationHelper notificationHelper;
 
-    public DownloadedFileCheckerWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
+    public DownloadedFileMonitorWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
 
         notificationHelper = new FolderBackupNotificationHelper(context);
@@ -109,31 +109,31 @@ public class DownloadedFileCheckerWorker extends BaseUploadWorker {
         return Result.success(data);
     }
 
-    private void checkFile(Account account, FileTransferEntity downloadedTransferEntity) throws IOException, SeafException {
-        if (downloadedTransferEntity.transfer_status != TransferStatus.SUCCEEDED) {
-            SLogs.e("transfer_status is not success: " + downloadedTransferEntity.target_path);
+    private void checkFile(Account account, FileTransferEntity downloadedEntity) throws IOException, SeafException {
+        if (downloadedEntity.transfer_status != TransferStatus.SUCCEEDED) {
+            SLogs.e("transfer_status is not success: " + downloadedEntity.target_path);
             return;
         }
 
-        File file = new File(downloadedTransferEntity.target_path);
+        File file = new File(downloadedEntity.target_path);
         if (!file.exists()) {
-            SLogs.e("file is not exists: " + downloadedTransferEntity.target_path);
+            SLogs.e("file is not exists: " + downloadedEntity.target_path);
             return;
         }
 
-        List<DirentModel> direntList = AppDatabase.getInstance().direntDao().getListByFullPathSync(downloadedTransferEntity.repo_id, downloadedTransferEntity.full_path);
+        List<DirentModel> direntList = AppDatabase.getInstance().direntDao().getListByFullPathSync(downloadedEntity.repo_id, downloadedEntity.full_path);
         if (CollectionUtils.isEmpty(direntList)) {
             // db not exist
-            SLogs.e("db is not exists: " + downloadedTransferEntity.target_path);
+            SLogs.e("db is not exists: " + downloadedEntity.target_path);
             return;
         }
 
         //More judgment conditions may be required
 
-        DirentFileModel fileModel = getRemoteFile(downloadedTransferEntity.repo_id, downloadedTransferEntity.full_path);
+        DirentFileModel fileModel = getRemoteFile(downloadedEntity.repo_id, downloadedEntity.full_path);
         if (fileModel == null) {
             //remote not exists, delete local
-            SLogs.e("remote file is not exists: " + downloadedTransferEntity.target_path);
+            SLogs.e("remote file is not exists: " + downloadedEntity.target_path);
             return;
         }
 
@@ -141,29 +141,29 @@ public class DownloadedFileCheckerWorker extends BaseUploadWorker {
         FileTransferEntity transferEntity = new FileTransferEntity();
 
         //user attribute
-        transferEntity.repo_id = downloadedTransferEntity.repo_id;
-        transferEntity.repo_name = downloadedTransferEntity.repo_name;
-        transferEntity.related_account = downloadedTransferEntity.related_account;
+        transferEntity.repo_id = downloadedEntity.repo_id;
+        transferEntity.repo_name = downloadedEntity.repo_name;
+        transferEntity.related_account = downloadedEntity.related_account;
 
         //file
-        transferEntity.file_format = downloadedTransferEntity.file_format;
-        transferEntity.file_name = downloadedTransferEntity.file_name;
-        transferEntity.file_md5 = FileUtils.getFileMD5ToString(downloadedTransferEntity.target_path).toLowerCase();
+        transferEntity.file_format = downloadedEntity.file_format;
+        transferEntity.file_name = downloadedEntity.file_name;
+        transferEntity.file_md5 = FileUtils.getFileMD5ToString(downloadedEntity.target_path).toLowerCase();
         transferEntity.file_id = null;
-        transferEntity.file_size = FileUtils.getFileLength(downloadedTransferEntity.target_path);
+        transferEntity.file_size = FileUtils.getFileLength(downloadedEntity.target_path);
         transferEntity.file_original_modified_at = file.lastModified();
         transferEntity.file_strategy = ExistingFileStrategy.REPLACE;
-        transferEntity.mime_type = downloadedTransferEntity.mime_type;
+        transferEntity.mime_type = downloadedEntity.mime_type;
 
         //data
         transferEntity.data_source = TransferDataSource.FILE_BACKUP;
         transferEntity.transfer_result = TransferResult.NO_RESULT;
         transferEntity.transfer_status = TransferStatus.WAITING;
-        transferEntity.full_path = downloadedTransferEntity.target_path;
-        transferEntity.target_path = downloadedTransferEntity.full_path;
-        transferEntity.setParent_path(Utils.getParentPath(downloadedTransferEntity.full_path));
+        transferEntity.full_path = downloadedEntity.target_path;
+        transferEntity.target_path = downloadedEntity.full_path;
+        transferEntity.setParent_path(Utils.getParentPath(downloadedEntity.full_path));
 
-        //tranfer
+        //transfer: update remote file
         transferEntity.transfer_action = TransferAction.UPLOAD;
         transferEntity.transferred_size = 0;
         transferEntity.is_copy_to_local = true;

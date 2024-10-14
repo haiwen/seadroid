@@ -14,8 +14,8 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         compileSdk rootProject.ext.compileSdkVersion
 
-        versionCode 153
-        versionName "3.0.3"
+        versionCode 154
+        versionName "3.0.4"
         multiDexEnabled true
 
         resValue "string", "authorities", defaultConfig.applicationId + '.debug.cameraupload.provider'
@@ -243,7 +243,7 @@ android {
 
         //
         implementation 'com.blankj:utilcode:1.30.7'
-        
+
         //https://github.com/CymChad/BaseRecyclerViewAdapterHelper
         implementation "io.github.cymchad:BaseRecyclerViewAdapterHelper4:4.1.2"
 

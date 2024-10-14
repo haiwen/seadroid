@@ -24,13 +24,13 @@ import java.util.concurrent.ConcurrentMap;
 public class DefaultAppLock extends AbstractAppLock {
     public static final String DEBUG_TAG = "DefaultAppLock";
 
-    private Application currentApp; //Keep a reference to the app that invoked the locker
+    private final Application currentApp; //Keep a reference to the app that invoked the locker
     /**
      * by default, the returned map uses equality comparisons (the equals method) to determine equality for keys or values.
      * However, if weakKeys() was specified, the map uses identity (==) comparisons instead for keys.
      * Likewise, if weakValues() or softValues() was specified, the map uses identity (==) comparisons for values.
      */
-    private static ConcurrentMap<Object, Long> mCheckedActivities = new MapMaker()
+    private static final ConcurrentMap<Object, Long> mCheckedActivities = new MapMaker()
             .weakKeys()
             .makeMap();
 
@@ -88,7 +88,6 @@ public class DefaultAppLock extends AbstractAppLock {
         if (activity.getClass() == SplashActivity.class) {
             return;
         }
-
 
         if (GestureLockSharePreferenceHelper.isLockRequired()) {
             mCheckedActivities.put(activity, System.currentTimeMillis());

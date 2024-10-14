@@ -97,7 +97,7 @@ public class DownloadWorker extends BaseDownloadWorker {
         //count
         int pendingCount = AppDatabase.getInstance().fileTransferDAO().countPendingDownloadListSync(account.getSignature());
         if (pendingCount <= 0) {
-            SLogs.eDebug("没有要下载的");
+            SLogs.eDebug("download list is empty.");
             return Result.success(getFinishData(false));
         }
 

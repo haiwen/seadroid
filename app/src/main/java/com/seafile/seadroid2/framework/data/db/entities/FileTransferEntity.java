@@ -302,7 +302,18 @@ public class FileTransferEntity extends BaseModel {
                 '}';
     }
 
+    @NonNull
     public String getUID() {
+        if (TextUtils.isEmpty(related_account)) {
+            throw new IllegalArgumentException("related_account can not be null.");
+        }
+        if (null == transfer_action) {
+            throw new IllegalArgumentException("transfer_action can not be null.");
+        }
+        if (TextUtils.isEmpty(full_path)) {
+            throw new IllegalArgumentException("full_path can not be null.");
+        }
+
         return EncryptUtils.encryptMD5ToString(related_account + transfer_action + full_path).toLowerCase();
     }
 

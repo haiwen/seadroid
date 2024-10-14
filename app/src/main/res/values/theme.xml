@@ -13,6 +13,7 @@
 
         <item name="actionModeStyle">@style/App.ActionMode.LightTheme</item>
         <item name="textInputStyle">@style/App.Widget.TextInput</item>
+        <item name="searchViewStyle">@style/SearchViewStyle</item>
 
         <item name="materialButtonStyle">@style/App.Widget.Button</item>
         <item name="materialAlertDialogTheme">@style/AppCompatAlertDialogStyle</item>

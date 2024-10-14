@@ -8,12 +8,15 @@ import android.text.TextUtils;
 import android.view.View;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
+import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.widget.NestedScrollView;
 import androidx.webkit.WebSettingsCompat;
 import androidx.webkit.WebViewFeature;
 
@@ -22,22 +25,27 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.config.Constants;
+import com.seafile.seadroid2.databinding.ActivitySeaWebviewBinding;
+import com.seafile.seadroid2.databinding.ActivitySeaWebviewProBinding;
+import com.seafile.seadroid2.databinding.ToolbarActionbarProgressBarBinding;
+import com.seafile.seadroid2.enums.WebViewPreviewType;
 import com.seafile.seadroid2.ui.base.BaseActivity;
 import com.seafile.seadroid2.view.webview.PreloadWebView;
 import com.seafile.seadroid2.view.webview.SeaWebView;
 
+import java.io.Serializable;
+
 public class SeaWebViewActivity extends BaseActivity {
-    private LinearLayout mContainer;
+    private ActivitySeaWebviewBinding binding;
+    private ToolbarActionbarProgressBarBinding toolBinding;
+
     private SeaWebView mWebView;
-    private ProgressBar mProgressBar;
-    private Toolbar toolbar;
 
     private String targetUrl;
-    private String mRepoName, mRepoID, mFilePath;
-
 
     public static void openSdoc(Context context, String repoName, String repoID, String path) {
         Intent intent = new Intent(context, SeaWebViewActivity.class);
+        intent.putExtra("previewType", WebViewPreviewType.SDOC.name());
         intent.putExtra("repoName", repoName);
         intent.putExtra("repoID", repoID);
         intent.putExtra("filePath", path);
@@ -46,74 +54,81 @@ public class SeaWebViewActivity extends BaseActivity {
 
     public static void openUrl(Context context, String url) {
         Intent intent = new Intent(context, SeaWebViewActivity.class);
+        intent.putExtra("previewType", WebViewPreviewType.URL.name());
         intent.putExtra("targetUrl", url);
         ActivityUtils.startActivity(intent);
     }
 
     public static void openUrlDirectly(Context context, String url) {
         Intent intent = new Intent(context, SeaWebViewActivity.class);
+        intent.putExtra("previewType", WebViewPreviewType.URL.name());
         intent.putExtra("targetUrl", url);
-        intent.putExtra("isDirect", true);
+        intent.putExtra("requireToken", true);
         ActivityUtils.startActivity(intent);
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_sea_webview);
+
+        binding = ActivitySeaWebviewBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+
+        toolBinding = ToolbarActionbarProgressBarBinding.bind(binding.toolProgressBar.getRoot());
 
         Intent intent = getIntent();
 
-        targetUrl = intent.getStringExtra("targetUrl");
-        mRepoName = intent.getStringExtra("repoName");
-        mRepoID = intent.getStringExtra("repoID");
-        mFilePath = intent.getStringExtra("filePath");
+        if (!intent.hasExtra("previewType")) {
+            throw new IllegalArgumentException("need a previewType param");
+        }
 
-        if (TextUtils.isEmpty(targetUrl) && TextUtils.isEmpty(mFilePath)) {
-            throw new IllegalArgumentException("load url is null");
-        } else if (!TextUtils.isEmpty(mFilePath)) {
-            if (TextUtils.isEmpty(mRepoID)) {
+        String previewType = intent.getStringExtra("previewType");
+        if (!WebViewPreviewType.contains(previewType)) {
+            throw new IllegalArgumentException("need a previewType param");
+        }
+
+        WebViewPreviewType previewTypeEnum = WebViewPreviewType.valueOf(previewType);
+        if (previewTypeEnum == WebViewPreviewType.URL) {
+            targetUrl = intent.getStringExtra("targetUrl");
+        } else if (previewTypeEnum == WebViewPreviewType.SDOC) {
+            String repoName = intent.getStringExtra("repoName");
+            String repoId = intent.getStringExtra("repoID");
+            String path = intent.getStringExtra("filePath");
+
+            if (TextUtils.isEmpty(repoId)) {
                 throw new IllegalArgumentException("repoId is null");
             }
 
             Account account = SupportAccountManager.getInstance().getCurrentAccount();
             if (account != null) {
-                targetUrl = buildSdocUrl(account.server);
+                targetUrl = account.server + "lib/" + repoId + "/file" + path;
             } else {
                 throw new IllegalArgumentException("no login");
             }
         }
 
-        initOnBackPressedDispatcher();
-
         initUI();
 
         //let's go
-        if (intent.hasExtra("isDirect") && intent.getBooleanExtra("isDirect", false)) {
+        if (intent.hasExtra("requireToken") && intent.getBooleanExtra("requireToken", false)) {
             mWebView.loadDirectly(targetUrl);
         } else {
             mWebView.load(targetUrl);
         }
     }
 
-    private String buildSdocUrl(String server) {
-        return server + "lib/" + mRepoID + "/file" + mFilePath;
-    }
 
     private void initUI() {
-        mContainer = findViewById(R.id.container);
-        mProgressBar = findViewById(R.id.tool_progress_bar);
-
-        toolbar = findViewById(R.id.toolbar_actionbar);
+        Toolbar toolbar = toolBinding.toolbarActionbar;
         toolbar.setTitle("");
         setSupportActionBar(toolbar);
         toolbar.setNavigationOnClickListener(v -> {
             finish();
         });
 
-        if (checkRemoveDownloadMenuConfig()) {
-            toolbar.getMenu().removeItem(R.id.download);
-        }
+//        if (checkRemoveDownloadMenuConfig()) {
+//            toolbar.getMenu().removeItem(R.id.download);
+//        }
 
         mWebView = PreloadWebView.getInstance().getWebView(this);
 
@@ -121,35 +136,13 @@ public class SeaWebViewActivity extends BaseActivity {
             WebSettingsCompat.setAlgorithmicDarkeningAllowed(mWebView.getSettings(), true);
         }
 
-        LinearLayout.LayoutParams ll = new LinearLayout.LayoutParams(-1, -1);
-        ll.weight = 1;
+        NestedScrollView.LayoutParams ll = new NestedScrollView.LayoutParams(-1, -1);
         mWebView.setLayoutParams(ll);
-        mContainer.addView(mWebView);
+        binding.nsv.addView(mWebView);
 
         //chrome client
         mWebView.setWebChromeClient(mWebChromeClient);
 
-    }
-
-    private boolean checkRemoveDownloadMenuConfig() {
-        if (!targetUrl.startsWith("http")) {
-            //remove
-            return true;
-        }
-
-        if (!TextUtils.isEmpty(mFilePath) && !mFilePath.endsWith(Constants.Format.SDOC)) {
-            //In the current version, it is only allowed to download files in sdoc format, which can be modified later to meet other needs.
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public void onConfigurationChanged(@NonNull Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-    }
-
-    private void initOnBackPressedDispatcher() {
         getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
@@ -160,6 +153,24 @@ public class SeaWebViewActivity extends BaseActivity {
                 }
             }
         });
+    }
+
+//    private boolean checkRemoveDownloadMenuConfig() {
+//        if (!targetUrl.startsWith("http")) {
+//            //remove
+//            return true;
+//        }
+//
+//        if (!TextUtils.isEmpty(mFilePath) && !mFilePath.endsWith(Constants.Format.SDOC)) {
+//            //In the current version, it is only allowed to download files in sdoc format, which can be modified later to meet other needs.
+//            return true;
+//        }
+//        return false;
+//    }
+
+    @Override
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
     }
 
 //    @Override
@@ -187,21 +198,19 @@ public class SeaWebViewActivity extends BaseActivity {
         @Override
         public void onReceivedTitle(WebView view, String title) {
             super.onReceivedTitle(view, title);
-            if (toolbar != null) {
-                toolbar.setTitle(title);
-            }
+            toolBinding.toolbarActionbar.setTitle(title);
         }
     };
 
     private void setBarProgress(int p) {
-        mProgressBar.setProgress(p, true);
+        toolBinding.toolProgressBar.setProgress(p, true);
 
         if (p != 100) {
-            if (mProgressBar.getVisibility() != View.VISIBLE) {
-                mProgressBar.setVisibility(View.VISIBLE);
+            if (toolBinding.toolProgressBar.getVisibility() != View.VISIBLE) {
+                toolBinding.toolProgressBar.setVisibility(View.VISIBLE);
             }
         } else {
-            mProgressBar.setVisibility(View.GONE);
+            toolBinding.toolProgressBar.setVisibility(View.GONE);
         }
     }
 
@@ -234,7 +243,7 @@ public class SeaWebViewActivity extends BaseActivity {
             return;
         }
 
-        mContainer.removeView(mWebView);
+        binding.nsv.removeView(mWebView);
 
         mWebView.loadUrl("about:blank");
         mWebView.stopLoading();

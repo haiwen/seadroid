@@ -6,12 +6,13 @@ import androidx.annotation.ArrayRes;
 import androidx.annotation.StringRes;
 
 import com.seafile.seadroid2.SeadroidApplication;
+import com.seafile.seadroid2.annotation.Unstable;
 import com.seafile.seadroid2.preferences.SettingsLiveData;
 
 import java.util.Set;
 
+@Unstable
 public class StringSetSettingLiveData extends SettingsLiveData<Set<String>> {
-
 
     public StringSetSettingLiveData(@StringRes int keyRes, @ArrayRes int defaultValueRes) {
         this(null, keyRes, defaultValueRes);

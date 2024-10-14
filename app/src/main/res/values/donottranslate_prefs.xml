@@ -10,6 +10,8 @@
     <string name="pref_default_value_file_list_options">0</string>
     <string name="pref_key_file_list_sort_ascending">key_file_list_sort_ascending</string>
     <string name="pref_key_file_list_sort_folder_first">key_file_list_sort_folder_first</string>
+    <string name="pref_key_settings_gesture_lock">key_settings_gesture_lock</string>
+    <string name="pref_key_settings_gesture_lock_timestamp">key_settings_gesture_lock_timestamp</string>
 
     <!-- account -->
     <string name="pref_key_user_info">key_user_info</string>

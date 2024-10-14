@@ -392,7 +392,6 @@ public class Objs {
     ////////////////////////////
     public static Single<List<DirentModel>> getDirentsSingleFromServer(Account account, String repoId, String repoName, String parentDir) {
         Single<DirentWrapperModel> netSingle = HttpIO.getInstanceByAccount(account).execute(RepoService.class).getDirents(repoId, parentDir);
-//        Single<List<DirentModel>> dbSingle = AppDatabase.getInstance().direntDao().getListByParentPath(repoId, parentDir);
         return netSingle.flatMap(new Function<DirentWrapperModel, SingleSource<List<DirentModel>>>() {
             @Override
             public SingleSource<List<DirentModel>> apply(DirentWrapperModel direntWrapperModel) throws Exception {

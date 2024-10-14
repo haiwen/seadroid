@@ -19,7 +19,7 @@ import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePr
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.worker.download.DownloadFileScanWorker;
 import com.seafile.seadroid2.framework.worker.download.DownloadWorker;
-import com.seafile.seadroid2.framework.worker.download.DownloadedFileCheckerWorker;
+import com.seafile.seadroid2.framework.worker.download.DownloadedFileMonitorWorker;
 import com.seafile.seadroid2.framework.worker.upload.FolderBackupScannerWorker;
 import com.seafile.seadroid2.framework.worker.upload.MediaBackupScannerWorker;
 import com.seafile.seadroid2.framework.worker.upload.UploadFileManuallyWorker;
@@ -283,7 +283,7 @@ public class BackgroundJobManagerImpl {
         OneTimeWorkRequest fileRequest = getFileUploadRequest();
         OneTimeWorkRequest checkRequest = getCheckDownloadedFileRequest(filePath);
 
-        String workerName = DownloadedFileCheckerWorker.class.getSimpleName();
+        String workerName = DownloadedFileMonitorWorker.class.getSimpleName();
 
         getWorkManager().beginUniqueWork(workerName, ExistingWorkPolicy.REPLACE, checkRequest)
                 .then(fileRequest)
@@ -292,10 +292,10 @@ public class BackgroundJobManagerImpl {
 
     private OneTimeWorkRequest getCheckDownloadedFileRequest(String filePath) {
         Data data = new Data.Builder()
-                .putString(DownloadedFileCheckerWorker.FILE_CHANGE_KEY, filePath)
+                .putString(DownloadedFileMonitorWorker.FILE_CHANGE_KEY, filePath)
                 .build();
 
-        return oneTimeRequestBuilder(DownloadedFileCheckerWorker.class)
+        return oneTimeRequestBuilder(DownloadedFileMonitorWorker.class)
                 .setInputData(data)
                 .build();
     }
@@ -303,7 +303,7 @@ public class BackgroundJobManagerImpl {
 
     public void cancelDownloadWorker() {
         cancelById(DownloadWorker.UID);
-        cancelById(DownloadedFileCheckerWorker.UID);
+        cancelById(DownloadedFileMonitorWorker.UID);
         cancelById(DownloadFileScanWorker.UID);
     }
 

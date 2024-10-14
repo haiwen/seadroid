@@ -81,6 +81,6 @@ public class SeaWebView extends WebView {
     }
 
     public void loadDirectly(String targetUrl) {
-        mWebViewClient.goDirectly(targetUrl, this);
+        mWebViewClient.loadWithoutToken(targetUrl, this);
     }
 }

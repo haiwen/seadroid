@@ -63,14 +63,14 @@ public class SeaWebViewClient extends WebViewClient {
     private String mOriginTargetUrl;
 
     public void go(String targetUrl, WebView wb) {
-        goWithToken(targetUrl, wb, true);
+        loadWithToken(targetUrl, wb, true);
     }
 
-    public void goDirectly(String targetUrl, WebView wb) {
-        goWithToken(targetUrl, wb, false);
+    public void loadWithoutToken(String targetUrl, WebView wb) {
+        loadWithToken(targetUrl, wb, false);
     }
 
-    private void goWithToken(String targetUrl, WebView wb, boolean isRedirect) {
+    public void loadWithToken(String targetUrl, WebView wb, boolean isRedirect) {
         SLogs.d("targetUrl: " + targetUrl);
 
         mOriginTargetUrl = targetUrl;
