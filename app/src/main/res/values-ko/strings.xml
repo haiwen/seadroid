@@ -480,7 +480,6 @@
   <string name="notification_upload_started_title">파일 업로드 중...</string>
   <string name="notification_download_started_title">파일 다운로드 중...</string>
   <string name="notification_upload_completed">업로드를 끝냈습니다</string>
-  <string name="notification_upload_upload_in_progress">%1$d%% %2$s</string>
   <plurals name="notification_upload_info">
     <item quantity="other">파일 %1$d개 업로드 중(%2$d%%)</item>
   </plurals>
@@ -628,4 +627,6 @@
   <string name="menu_action_sort_by_last_modified">최근 수정</string>
   <string name="menu_action_sort_order_ascending">오름 차순</string>
   <string name="menu_action_sort_directories_first">폴더 먼저</string>
+  <!--sdoc-->
+  <!--end-->
 </resources>

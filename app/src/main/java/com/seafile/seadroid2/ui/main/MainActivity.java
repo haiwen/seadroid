@@ -639,15 +639,15 @@ public class MainActivity extends BaseActivity {
                 menuBinding.createRepo.setVisible(false);
                 if (getNavContext().hasParentWritePermission()) {
                     menuBinding.add.setEnabled(true);
-                    menuBinding.edit.setEnabled(true);
+                    menuBinding.select.setEnabled(true);
                 } else {
                     menuBinding.add.setEnabled(false);
-                    menuBinding.edit.setEnabled(false);
+                    menuBinding.select.setEnabled(false);
                 }
             } else {
                 menuBinding.createRepo.setVisible(true);
                 menuBinding.add.setVisible(false);
-                menuBinding.edit.setVisible(false);
+                menuBinding.select.setVisible(false);
             }
 
             menuBinding.sortGroup.setVisible(true);
@@ -655,7 +655,7 @@ public class MainActivity extends BaseActivity {
             menuBinding.sortGroup.setVisible(false);
             menuBinding.createRepo.setVisible(false);
             menuBinding.add.setVisible(false);
-            menuBinding.edit.setVisible(false);
+            menuBinding.select.setVisible(false);
         }
 
         updateMenu();
@@ -688,7 +688,7 @@ public class MainActivity extends BaseActivity {
             Intent newIntent = new Intent(this, TransferActivity.class);
             newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(newIntent);
-        } else if (item.getItemId() == R.id.edit) {
+        } else if (item.getItemId() == R.id.select) {
             if (binding.pager.getCurrentItem() == INDEX_LIBRARY_TAB) {
                 getReposFragment().startContextualActionMode();
             }
@@ -734,7 +734,7 @@ public class MainActivity extends BaseActivity {
                 menuIdState.put("sortGroup", menuBinding.sortGroup.isVisible());
                 menuIdState.put("createRepo", menuBinding.createRepo.isVisible());
                 menuIdState.put("add", menuBinding.add.isVisible());
-                menuIdState.put("edit", menuBinding.edit.isVisible());
+                menuIdState.put("select", menuBinding.select.isVisible());
                 menuIdState.put("transferList", menuBinding.transferList.isVisible());
 
                 Optional<ServerInfo> optional = checkServerInfo();
@@ -745,7 +745,7 @@ public class MainActivity extends BaseActivity {
                 menuBinding.sortGroup.setVisible(false);
                 menuBinding.createRepo.setVisible(false);
                 menuBinding.add.setVisible(false);
-                menuBinding.edit.setVisible(false);
+                menuBinding.select.setVisible(false);
                 menuBinding.transferList.setVisible(false);
 
                 return true;
@@ -758,7 +758,7 @@ public class MainActivity extends BaseActivity {
                 menuBinding.sortGroup.setVisible(Boolean.TRUE.equals(menuIdState.get("sortGroup")));
                 menuBinding.createRepo.setVisible(Boolean.TRUE.equals(menuIdState.get("createRepo")));
                 menuBinding.add.setVisible(Boolean.TRUE.equals(menuIdState.get("add")));
-                menuBinding.edit.setVisible(Boolean.TRUE.equals(menuIdState.get("edit")));
+                menuBinding.select.setVisible(Boolean.TRUE.equals(menuIdState.get("select")));
                 menuBinding.transferList.setVisible(Boolean.TRUE.equals(menuIdState.get("transferList")));
 
                 invalidateMenu();
@@ -817,7 +817,7 @@ public class MainActivity extends BaseActivity {
 
         public MenuItem createRepo;
         public MenuItem add;
-        public MenuItem edit;
+        public MenuItem select;
         public MenuItem transferList;
 
 
@@ -844,7 +844,7 @@ public class MainActivity extends BaseActivity {
 
             binding1.createRepo = menu.findItem(R.id.create_repo);
             binding1.add = menu.findItem(R.id.add);
-            binding1.edit = menu.findItem(R.id.edit);
+            binding1.select = menu.findItem(R.id.select);
             binding1.transferList = menu.findItem(R.id.transfer_tasks);
             return binding1;
         }

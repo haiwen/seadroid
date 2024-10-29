@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -39,6 +40,7 @@ import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.Authenticator;
 import com.seafile.seadroid2.config.Constants;
+import com.seafile.seadroid2.databinding.AccountDetailBinding;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.ssl.CertsManager;
 import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
@@ -52,19 +54,19 @@ public class AccountDetailActivity extends BaseActivityWithVM<AccountViewModel> 
 
     private final String TWO_FACTOR_AUTH = "two_factor_auth";
 
-    private TextView mStatusTv;
-    private Button mLoginBtn;
-    private EditText mServerEt;
-    private TextInputEditText mEmailEt;
-    private EditText mPasswdEt;
-    private CheckBox mHttpsCheckBox;
-    private TextView mSeaHubUrlHintTv;
-    private ImageView mClearEmailIv;
-    private TextInputLayout mAuthTokenInputLayout;
-    private EditText mAuthTokenEt;
+    private AccountDetailBinding binding;
+
+//    private TextView mStatusTv;
+//    private Button mLoginBtn;
+//    private EditText mServerEt;
+//    private TextInputEditText mEmailEt;
+//    private EditText mPasswdEt;
+//    private CheckBox mHttpsCheckBox;
+//    private TextView mSeaHubUrlHintTv;
+//    private TextInputLayout mAuthTokenInputLayout;
+//    private EditText mAuthTokenEt;
 
     private boolean serverTextHasFocus;
-    private CheckBox mRemDeviceCheckBox;
     private String mSessionKey;
 
     /**
@@ -73,27 +75,22 @@ public class AccountDetailActivity extends BaseActivityWithVM<AccountViewModel> 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.account_detail);
+
+        binding = AccountDetailBinding.inflate(getLayoutInflater());
+
+        setContentView(binding.getRoot());
+
+        initView();
+
+        initViewModel();
+    }
 
 
-        mStatusTv = findViewById(R.id.status_view);
-        mHttpsCheckBox = findViewById(R.id.https_checkbox);
-        mServerEt = findViewById(R.id.server_url);
-        mEmailEt = findViewById(R.id.email_address);
-        mPasswdEt = findViewById(R.id.password);
-        mSeaHubUrlHintTv = findViewById(R.id.seahub_url_hint);
+    private void initView() {
 
-        mClearEmailIv = findViewById(R.id.iv_delete_email);
-
-        mAuthTokenInputLayout = findViewById(R.id.auth_token_hint);
-        mAuthTokenEt = findViewById(R.id.auth_token);
-        mAuthTokenInputLayout.setVisibility(View.GONE);
-
-        mRemDeviceCheckBox = findViewById(R.id.remember_device);
-        mRemDeviceCheckBox.setVisibility(View.GONE);
-
-        mLoginBtn = findViewById(R.id.login_button);
-        mLoginBtn.setOnClickListener(v -> login());
+        binding.authTokenHint.setVisibility(View.GONE);
+        binding.rememberDevice.setVisibility(View.GONE);
+        binding.loginButton.setOnClickListener(v -> login());
 
         setupServerText();
 
@@ -114,21 +111,23 @@ public class AccountDetailActivity extends BaseActivityWithVM<AccountViewModel> 
             // isFromEdit = mAccountManager.getUserData(account, Authenticator.KEY_EMAIL);
 
             if (server.startsWith(Constants.Protocol.HTTPS))
-                mHttpsCheckBox.setChecked(true);
+                binding.httpsCheckbox.setChecked(true);
 
-            mServerEt.setText(server);
-            mEmailEt.setText(email);
-            mEmailEt.requestFocus();
-            mSeaHubUrlHintTv.setVisibility(View.GONE);
+            binding.serverUrl.setText(server);
+            binding.emailAddress.setText(email);
+            binding.emailAddress.requestFocus();
+
+            binding.seahubUrlHint.setVisibility(View.GONE);
         } else if (defaultServerUri != null) {
             if (defaultServerUri.startsWith(Constants.Protocol.HTTPS))
-                mHttpsCheckBox.setChecked(true);
-            mServerEt.setText(defaultServerUri);
-            mEmailEt.requestFocus();
+                binding.httpsCheckbox.setChecked(true);
+            binding.serverUrl.setText(defaultServerUri);
+            binding.emailAddress.requestFocus();
+
         } else {
-            mServerEt.setText(Constants.Protocol.HTTP);
+            binding.serverUrl.setText(Constants.Protocol.HTTP);
             int prefixLen = Constants.Protocol.HTTP.length();
-            mServerEt.setSelection(prefixLen, prefixLen);
+            binding.serverUrl.setSelection(prefixLen, prefixLen);
         }
 
 
@@ -138,66 +137,10 @@ public class AccountDetailActivity extends BaseActivityWithVM<AccountViewModel> 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle(R.string.login);
 
-        initListener();
-
-        initViewModel();
-    }
-
-    private void initListener() {
-        mEmailEt.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        binding.httpsCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (hasFocus && mEmailEt.getText().toString().trim().length() > 0) {
-                    mClearEmailIv.setVisibility(View.VISIBLE);
-                } else {
-                    mClearEmailIv.setVisibility(View.INVISIBLE);
-                }
-            }
-        });
-
-        mEmailEt.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (mEmailEt.getText().toString().trim().length() > 0) {
-                    mClearEmailIv.setVisibility(View.VISIBLE);
-                } else {
-                    mClearEmailIv.setVisibility(View.INVISIBLE);
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-            }
-        });
-
-
-        mClearEmailIv.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mEmailEt.setText("");
-            }
-        });
-
-        TextInputLayout passwordInputLayout = findViewById(R.id.password_hint);
-        passwordInputLayout.setEndIconOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mPasswdEt.getTransformationMethod() instanceof PasswordTransformationMethod) {
-                    mPasswdEt.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
-                    passwordInputLayout.setEndIconDrawable(R.drawable.icon_eye_open);
-                } else {
-                    passwordInputLayout.setEndIconDrawable(R.drawable.icon_eye_close);
-                    mPasswdEt.setTransformationMethod(PasswordTransformationMethod.getInstance());
-                }
-
-                String input = mPasswdEt.getText().toString().trim();
-                if (!TextUtils.isEmpty(input)) {
-                    mPasswdEt.setSelection(input.length());
-                }
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                refreshServerUrlPrefix();
             }
         });
     }
@@ -229,60 +172,84 @@ public class AccountDetailActivity extends BaseActivityWithVM<AccountViewModel> 
         });
     }
 
+    private void refreshServerUrlPrefix() {
+        boolean isHttps = binding.httpsCheckbox.isChecked();
+        String url = binding.serverUrl.getText().toString();
+        String prefix = isHttps ? Constants.Protocol.HTTPS : Constants.Protocol.HTTP;
+
+        String urlWithoutScheme = url.replace(Constants.Protocol.HTTPS, "").replace(Constants.Protocol.HTTP, "");
+
+        int oldOffset = binding.serverUrl.getSelectionStart();
+
+        // Change the text
+        binding.serverUrl.setText(String.format("%s%s", prefix, urlWithoutScheme));
+
+        if (serverTextHasFocus) {
+            // Change the cursor position since we changed the text
+            int offset;
+            if (isHttps) {
+                offset = oldOffset + 1;
+            } else {
+                offset = Math.max(0, oldOffset - 1);
+            }
+            binding.serverUrl.setSelection(offset, offset);
+        }
+    }
+
     private void onLoginException(Account account, SeafException err) {
         if (err == SeafException.sslException) {
-            mAuthTokenInputLayout.setVisibility(View.GONE);
-            mRemDeviceCheckBox.setVisibility(View.GONE);
+            binding.authTokenHint.setVisibility(View.GONE);
+            binding.rememberDevice.setVisibility(View.GONE);
 
-            MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
-            builder.setTitle(R.string.ssl_confirm_title);
-            builder.setMessage(getString(R.string.ssl_not_trusted,account.getServerHost()));
-            builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.dismiss();
-                }
-            });
-            builder.create().show();
+//            MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
+//            builder.setTitle(R.string.ssl_confirm_title);
+//            builder.setMessage(getString(R.string.ssl_not_trusted,account.getServerHost()));
+//            builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+//                @Override
+//                public void onClick(DialogInterface dialog, int which) {
+//                    dialog.dismiss();
+//                }
+//            });
+//            builder.create().show();
 
-//            SslConfirmDialog sslConfirmDialog = new SslConfirmDialog(account,
-//                    new SslConfirmDialog.Listener() {
-//                        @Override
-//                        public void onAccepted(boolean rememberChoice) {
-//                            CertsManager.instance().saveCertForAccount(account, rememberChoice);
-//                            login();
-//                        }
-//
-//                        @Override
-//                        public void onRejected() {
-//                            mStatusTv.setText(R.string.ssl_error);
-//                            mLoginBtn.setEnabled(true);
-//                        }
-//                    });
-//            sslConfirmDialog.show(getSupportFragmentManager(), SslConfirmDialog.FRAGMENT_TAG);
+            SslConfirmDialog sslConfirmDialog = new SslConfirmDialog(account,
+                    new SslConfirmDialog.Listener() {
+                        @Override
+                        public void onAccepted(boolean rememberChoice) {
+                            CertsManager.instance().saveCertForAccount(account, rememberChoice);
+                            login();
+                        }
+
+                        @Override
+                        public void onRejected() {
+                            binding.statusView.setText(R.string.ssl_error);
+                            binding.loginButton.setEnabled(true);
+                        }
+                    });
+            sslConfirmDialog.show(getSupportFragmentManager(), SslConfirmDialog.FRAGMENT_TAG);
         } else if (err == SeafException.twoFactorAuthTokenMissing) {
             // show auth token input box
-            mAuthTokenInputLayout.setVisibility(View.VISIBLE);
-            mRemDeviceCheckBox.setVisibility(View.VISIBLE);
-            mRemDeviceCheckBox.setChecked(false);
-            mAuthTokenEt.setError(getString(R.string.two_factor_auth_error));
+            binding.authTokenHint.setVisibility(View.VISIBLE);
+            binding.rememberDevice.setVisibility(View.VISIBLE);
+            binding.rememberDevice.setChecked(false);
+            binding.authToken.setError(getString(R.string.two_factor_auth_error));
         } else if (err == SeafException.twoFactorAuthTokenInvalid) {
             // show auth token input box
-            mAuthTokenInputLayout.setVisibility(View.VISIBLE);
-            mRemDeviceCheckBox.setVisibility(View.VISIBLE);
-            mRemDeviceCheckBox.setChecked(false);
-            mAuthTokenEt.setError(getString(R.string.two_factor_auth_invalid));
+            binding.authTokenHint.setVisibility(View.VISIBLE);
+            binding.rememberDevice.setVisibility(View.VISIBLE);
+            binding.rememberDevice.setChecked(false);
+            binding.authToken.setError(getString(R.string.two_factor_auth_invalid));
         } else if (err.getCode() == HttpURLConnection.HTTP_NOT_FOUND) {
-            mStatusTv.setText(R.string.invalid_server_address);
+            binding.statusView.setText(R.string.invalid_server_address);
         } else if (err.getCode() == HttpURLConnection.HTTP_BAD_REQUEST) {
-            mStatusTv.setText(R.string.err_wrong_user_or_passwd);
+            binding.statusView.setText(R.string.err_wrong_user_or_passwd);
         } else {
-            mAuthTokenInputLayout.setVisibility(View.GONE);
-            mRemDeviceCheckBox.setVisibility(View.GONE);
-            mStatusTv.setText(err.getMessage());
+            binding.authTokenHint.setVisibility(View.GONE);
+            binding.rememberDevice.setVisibility(View.GONE);
+            binding.statusView.setText(err.getMessage());
         }
 
-        mLoginBtn.setEnabled(true);
+        binding.loginButton.setEnabled(true);
     }
 
     private void onLoggedIn(Account loginAccount) {
@@ -300,7 +267,7 @@ public class AccountDetailActivity extends BaseActivityWithVM<AccountViewModel> 
         retData.putExtra(SeafileAuthenticatorActivity.ARG_NAME, loginAccount.getName());
         retData.putExtra(SeafileAuthenticatorActivity.ARG_AUTH_SESSION_KEY, loginAccount.getSessionKey());
         retData.putExtra(SeafileAuthenticatorActivity.ARG_SERVER_URI, loginAccount.getServer());
-        retData.putExtra(TWO_FACTOR_AUTH, mRemDeviceCheckBox.isChecked());
+        retData.putExtra(TWO_FACTOR_AUTH, binding.rememberDevice.isChecked());
         setResult(RESULT_OK, retData);
         finish();
     }
@@ -313,9 +280,9 @@ public class AccountDetailActivity extends BaseActivityWithVM<AccountViewModel> 
 
     @Override
     protected void onSaveInstanceState(Bundle savedInstanceState) {
-        savedInstanceState.putString("email", mEmailEt.getText().toString());
-        savedInstanceState.putString("password", mPasswdEt.getText().toString());
-        savedInstanceState.putBoolean("rememberDevice", mRemDeviceCheckBox.isChecked());
+        savedInstanceState.putString("email", binding.emailAddress.getText().toString());
+        savedInstanceState.putString("password", binding.password.getText().toString());
+        savedInstanceState.putBoolean("rememberDevice", binding.rememberDevice.isChecked());
         super.onSaveInstanceState(savedInstanceState);
     }
 
@@ -323,9 +290,9 @@ public class AccountDetailActivity extends BaseActivityWithVM<AccountViewModel> 
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
 
-        mEmailEt.setText((String) savedInstanceState.get("email"));
-        mPasswdEt.setText((String) savedInstanceState.get("password"));
-        mRemDeviceCheckBox.setChecked((boolean) savedInstanceState.get("rememberDevice"));
+        binding.emailAddress.setText((String) savedInstanceState.get("email"));
+        binding.password.setText((String) savedInstanceState.get("password"));
+        binding.rememberDevice.setChecked((boolean) savedInstanceState.get("rememberDevice"));
     }
 
     @Override
@@ -362,36 +329,8 @@ public class AccountDetailActivity extends BaseActivityWithVM<AccountViewModel> 
         return super.onOptionsItemSelected(item);
     }
 
-    public void onHttpsCheckboxClicked(View view) {
-        refreshServerUrlPrefix();
-    }
-
-    private void refreshServerUrlPrefix() {
-        boolean isHttps = mHttpsCheckBox.isChecked();
-        String url = mServerEt.getText().toString();
-        String prefix = isHttps ? Constants.Protocol.HTTPS : Constants.Protocol.HTTP;
-
-        String urlWithoutScheme = url.replace(Constants.Protocol.HTTPS, "").replace(Constants.Protocol.HTTP, "");
-
-        int oldOffset = mServerEt.getSelectionStart();
-
-        // Change the text
-        mServerEt.setText(String.format("%s%s", prefix, urlWithoutScheme));
-
-        if (serverTextHasFocus) {
-            // Change the cursor position since we changed the text
-            if (isHttps) {
-                int offset = oldOffset + 1;
-                mServerEt.setSelection(offset, offset);
-            } else {
-                int offset = Math.max(0, oldOffset - 1);
-                mServerEt.setSelection(offset, offset);
-            }
-        }
-    }
-
     private void setupServerText() {
-        mServerEt.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        binding.serverUrl.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 Log.d(DEBUG_TAG, "serverText has focus: " + (hasFocus ? "yes" : "no"));
@@ -399,7 +338,7 @@ public class AccountDetailActivity extends BaseActivityWithVM<AccountViewModel> 
             }
         });
 
-        mServerEt.addTextChangedListener(new TextWatcher() {
+        binding.serverUrl.addTextChangedListener(new TextWatcher() {
             private String old;
 
             @Override
@@ -408,19 +347,19 @@ public class AccountDetailActivity extends BaseActivityWithVM<AccountViewModel> 
 
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                old = mServerEt.getText().toString();
+                old = binding.serverUrl.getText().toString();
             }
 
             @Override
             public void afterTextChanged(Editable s) {
                 // Don't allow the user to edit the "https://" or "http://" part of the serverText
-                String url = mServerEt.getText().toString();
-                boolean isHttps = mHttpsCheckBox.isChecked();
+                String url = binding.serverUrl.getText().toString();
+                boolean isHttps = binding.httpsCheckbox.isChecked();
                 String prefix = isHttps ? Constants.Protocol.HTTPS : Constants.Protocol.HTTP;
                 if (!url.startsWith(prefix)) {
-                    int oldOffset = Math.max(prefix.length(), mServerEt.getSelectionStart());
-                    mServerEt.setText(old);
-                    mServerEt.setSelection(oldOffset, oldOffset);
+                    int oldOffset = Math.max(prefix.length(), binding.serverUrl.getSelectionStart());
+                    binding.serverUrl.setText(old);
+                    binding.serverUrl.setSelection(oldOffset, oldOffset);
                 }
             }
         });
@@ -428,48 +367,61 @@ public class AccountDetailActivity extends BaseActivityWithVM<AccountViewModel> 
 
 
     private void login() {
-        String serverURL = mServerEt.getText().toString().trim();
-        String email = mEmailEt.getText().toString().trim();
-        String passwd = mPasswdEt.getText().toString();
+        String serverURL = binding.serverUrl.getText().toString().trim();
+        String email = binding.emailAddress.getText().toString().trim();
+        String passwd = binding.password.getText().toString();
 
         if (!NetworkUtils.isConnected()) {
-            mStatusTv.setText(R.string.network_down);
+            binding.statusView.setText(R.string.network_down);
             return;
         }
 
-        if (serverURL.isEmpty()) {
-            mStatusTv.setText(R.string.err_server_andress_empty);
+        String urlWithoutScheme = serverURL.replace(Constants.Protocol.HTTPS, "").replace(Constants.Protocol.HTTP, "");
+        if (TextUtils.isEmpty(urlWithoutScheme)) {
+            binding.serverHint.setErrorEnabled(true);
+            binding.serverHint.setError(getResources().getString(R.string.err_server_andress_empty));
             return;
+        } else {
+            binding.serverHint.setError(null);
+            binding.serverHint.setErrorEnabled(false);
         }
 
         if (email.isEmpty()) {
-            mEmailEt.setError(getResources().getString(R.string.err_email_empty));
+            binding.emailHint.setErrorEnabled(true);
+            binding.emailHint.setError(getResources().getString(R.string.err_email_empty));
             return;
+        } else {
+            binding.serverHint.setError(null);
+            binding.serverHint.setErrorEnabled(false);
         }
 
         if (passwd.isEmpty()) {
-            mPasswdEt.setError(getResources().getString(R.string.err_passwd_empty));
+            binding.passwordHint.setErrorEnabled(true);
+            binding.passwordHint.setError(getResources().getString(R.string.err_passwd_empty));
             return;
+        } else {
+            binding.passwordHint.setError(null);
+            binding.passwordHint.setErrorEnabled(false);
         }
 
         String authToken = null;
-        if (mAuthTokenInputLayout.getVisibility() == View.VISIBLE) {
-            authToken = mAuthTokenEt.getText().toString().trim();
+        if (binding.authTokenHint.getVisibility() == View.VISIBLE) {
+            authToken = binding.authToken.getText().toString().trim();
             if (TextUtils.isEmpty(authToken)) {
-                mAuthTokenEt.setError(getResources().getString(R.string.two_factor_auth_token_empty));
+                binding.authToken.setError(getResources().getString(R.string.two_factor_auth_token_empty));
                 return;
             }
         }
 
         boolean rememberDevice = false;
-        if (mRemDeviceCheckBox.getVisibility() == View.VISIBLE) {
-            rememberDevice = mRemDeviceCheckBox.isChecked();
+        if (binding.rememberDevice.getVisibility() == View.VISIBLE) {
+            rememberDevice = binding.rememberDevice.isChecked();
         }
 
         try {
             serverURL = Utils.cleanServerURL(serverURL);
         } catch (MalformedURLException e) {
-            mStatusTv.setText(R.string.invalid_server_address);
+            binding.statusView.setText(R.string.invalid_server_address);
             Log.d(DEBUG_TAG, "Invalid URL " + serverURL);
             return;
         }

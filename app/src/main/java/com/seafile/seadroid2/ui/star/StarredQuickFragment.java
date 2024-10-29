@@ -26,24 +26,24 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.bottomsheetmenu.BottomSheetHelper;
 import com.seafile.seadroid2.bottomsheetmenu.BottomSheetMenuFragment;
 import com.seafile.seadroid2.bottomsheetmenu.OnMenuClickListener;
 import com.seafile.seadroid2.config.Constants;
+import com.seafile.seadroid2.databinding.LayoutFrameSwipeRvBinding;
+import com.seafile.seadroid2.framework.data.db.entities.StarredModel;
+import com.seafile.seadroid2.framework.data.model.ResultModel;
 import com.seafile.seadroid2.framework.datastore.DataManager;
+import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.base.fragment.BaseFragmentWithVM;
-import com.seafile.seadroid2.bottomsheetmenu.BottomSheetHelper;
-import com.seafile.seadroid2.databinding.LayoutFrameSwipeRvBinding;
-import com.seafile.seadroid2.framework.data.model.ResultModel;
-import com.seafile.seadroid2.framework.data.db.entities.StarredModel;
 import com.seafile.seadroid2.ui.file.FileActivity;
 import com.seafile.seadroid2.ui.main.MainActivity;
 import com.seafile.seadroid2.ui.main.MainViewModel;
 import com.seafile.seadroid2.ui.markdown.MarkdownActivity;
 import com.seafile.seadroid2.ui.media.image_preview.ImagePreviewActivity;
 import com.seafile.seadroid2.ui.media.player.exoplayer.CustomExoVideoPlayerActivity;
-import com.seafile.seadroid2.ui.webview.SeaWebViewActivity;
-import com.seafile.seadroid2.framework.util.Utils;
+import com.seafile.seadroid2.ui.sdoc.SDocWebViewActivity;
 import com.seafile.seadroid2.view.TipsViews;
 
 import java.io.File;
@@ -245,7 +245,7 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
 
         } else if (model.obj_name.endsWith(Constants.Format.DOT_SDOC)) {
 
-            SeaWebViewActivity.openSdoc(getContext(), model.repo_name, model.repo_id, model.path);
+            SDocWebViewActivity.openSdoc(getContext(), model.repo_name, model.repo_id, model.path);
 
         } else if (Utils.isVideoFile(model.obj_name)) {
 

@@ -61,9 +61,9 @@ import com.seafile.seadroid2.framework.util.Objs;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
-import com.seafile.seadroid2.framework.worker.download.DownloadWorker;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
+import com.seafile.seadroid2.framework.worker.download.DownloadWorker;
 import com.seafile.seadroid2.framework.worker.upload.UploadFileManuallyWorker;
 import com.seafile.seadroid2.framework.worker.upload.UploadFolderFileAutomaticallyWorker;
 import com.seafile.seadroid2.framework.worker.upload.UploadMediaFileAutomaticallyWorker;
@@ -82,8 +82,8 @@ import com.seafile.seadroid2.ui.main.MainViewModel;
 import com.seafile.seadroid2.ui.markdown.MarkdownActivity;
 import com.seafile.seadroid2.ui.media.image_preview.ImagePreviewActivity;
 import com.seafile.seadroid2.ui.media.player.exoplayer.CustomExoVideoPlayerActivity;
+import com.seafile.seadroid2.ui.sdoc.SDocWebViewActivity;
 import com.seafile.seadroid2.ui.selector.ObjSelectorActivity;
-import com.seafile.seadroid2.ui.webview.SeaWebViewActivity;
 import com.seafile.seadroid2.view.TipsViews;
 
 import java.io.File;
@@ -995,7 +995,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         }
 
         if (fileName.endsWith(Constants.Format.DOT_SDOC)) {
-            SeaWebViewActivity.openSdoc(getContext(), repoModel.repo_name, repoModel.repo_id, dirent.parent_dir + dirent.name);
+            SDocWebViewActivity.openSdoc(getContext(), repoModel.repo_name, repoModel.repo_id, dirent.parent_dir + dirent.name);
             return;
         }
 

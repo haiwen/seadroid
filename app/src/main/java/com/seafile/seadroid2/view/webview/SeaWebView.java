@@ -12,8 +12,9 @@ import androidx.annotation.Nullable;
 
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.view.NestedWebView;
 
-public class SeaWebView extends WebView {
+public class SeaWebView extends NestedWebView {
     public static final String PATH_ACCOUNT_LOGIN = "accounts/login/";
     public static String URL_LOGIN = null;
 
@@ -34,10 +35,10 @@ public class SeaWebView extends WebView {
         init();
     }
 
-    public SeaWebView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-        super(context, attrs, defStyleAttr, defStyleRes);
-        init();
-    }
+//    public SeaWebView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+//        super(context, attrs, defStyleAttr, defStyleRes);
+//        init();
+//    }
 
     @SuppressLint("SetJavaScriptEnabled")
     private void init() {

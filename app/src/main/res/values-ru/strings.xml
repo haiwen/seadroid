@@ -132,6 +132,7 @@
   <string name="error_when_load_starred">Ошибка загрузки отмеченных файлов.\n Нажмите, чтобы обновить</string>
   <string name="dir_empty">Эта папка пуста</string>
   <string name="no_repo">У вас еще нет библиотек</string>
+  <string name="no_album_type_data">У вас нет типов альбомов, доступных для предварительного просмотра.</string>
   <string name="no_app_available">Не найдено ни одно приложение</string>
   <string name="add_to_seafile">Добавить в Seafile</string>
   <string name="ok">ОК</string>
@@ -145,6 +146,7 @@
   <string name="not_supported">В настоящее время не поддерживается</string>
   <string name="not_supported_share">Этот тип обмена не поддерживается</string>
   <string name="edit">Изменить</string>
+  <string name="select">Выбрать</string>
   <string name="create_draft">Создать черновик</string>
   <string name="rename_draft">Переименовать черновик</string>
   <string name="del_draft">Удалить черновик</string>
@@ -275,6 +277,7 @@
   <string name="confirm">Подтвердить</string>
   <string name="repo_not_found">Невозможно найти эту библиотеку. Возможно, она была удалена или зашифрована</string>
   <string name="settings_account">Аккаунт</string>
+  <string name="settings_switch_account">Сменить аккаунт</string>
   <string name="settings_account_info_title">Информация о пользователе</string>
   <string name="settings_account_info_load_data">загрузка...</string>
   <string name="settings_account_space_title">Использовано пространства</string>
@@ -501,7 +504,6 @@
   <string name="notification_upload_started_title">Загрузка файлов...</string>
   <string name="notification_download_started_title">Скачивание файлов...</string>
   <string name="notification_upload_completed">Загрузка завершена</string>
-  <string name="notification_upload_upload_in_progress">%1$d%% %2$s</string>
   <plurals name="notification_upload_info">
     <item quantity="one">Загружается %1$d файл (%2$d%%)</item>
     <item quantity="few">Загружается %1$d файла (%2$d%%)</item>
@@ -655,4 +657,15 @@
   <string name="menu_action_sort_by_last_modified">Последнее изменение</string>
   <string name="menu_action_sort_order_ascending">Восходящий</string>
   <string name="menu_action_sort_directories_first">Сначала папки</string>
+  <!--sdoc-->
+  <string name="_size">Размер</string>
+  <string name="_last_modifier">Последний модификатор</string>
+  <string name="_last_modified_time">Время последнего изменения</string>
+  <string name="_file_collaborators">Соавторы файлов</string>
+  <string name="_file_status">Статус файла</string>
+  <string name="_in_progress">Выполняется</string>
+  <string name="_in_review">На рассмотрении</string>
+  <string name="_done">Завершено</string>
+  <string name="_outdated">Устаревший</string>
+  <!--end-->
 </resources>

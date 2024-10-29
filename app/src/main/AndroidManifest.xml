@@ -209,6 +209,8 @@
         <activity android:name=".ui.BugHandlerActivity" />
         <activity android:name=".ui.settings.SettingsAlbumBackupAdvancedActivity" />
         <activity android:name=".ui.data_migrate.DataMigrationV303Activity" />
+        <activity android:name=".ui.sdoc.SDocWebViewActivity" />
+        <activity android:name=".ui.sdoc.comments.SDocCommentsActivity" />
 
         <provider
             android:name=".provider.SeafileProvider"

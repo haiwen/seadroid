@@ -7,34 +7,31 @@
 
     <include layout="@layout/toolbar_actionbar" /> <!-- placeholder, empty except on L -->
 
-    <CheckBox
+    <com.google.android.material.checkbox.MaterialCheckBox
         android:id="@+id/https_checkbox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/app_padding_horizontal"
         android:layout_marginTop="@dimen/app_widget_top_margin_middle"
         android:layout_marginEnd="@dimen/app_padding_horizontal"
-        android:onClick="onHttpsCheckboxClicked"
         android:text="@string/accounts_https_hint"
         android:textSize="@dimen/cb_btn_txt_size" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/app_widget_top_margin_small"
         android:gravity="center"
         android:orientation="vertical"
-        android:paddingHorizontal="@dimen/app_padding_horizontal"
-        android:paddingTop="@dimen/form_padding_top"
-        android:paddingBottom="@dimen/form_padding_bottom">
+        android:paddingHorizontal="@dimen/app_padding_horizontal">
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/server_hint"
-
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/server_hint">
 
-            <EditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/server_url"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -44,86 +41,56 @@
                 android:textSize="@dimen/et_txt_size" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/email_hint"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/email_hint">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/email_address"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="@dimen/et_margin_bottom"
-                    android:importantForAutofill="auto"
-                    android:inputType="textEmailAddress"
-                    android:maxLines="1"
-                    android:textSize="@dimen/et_txt_size" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <ImageView
-                android:id="@+id/iv_delete_email"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
-                android:layout_marginRight="@dimen/margin_larger"
-                android:padding="@dimen/padding_normal"
-                android:src="@drawable/icon_delete"
-                android:visibility="invisible" />
-        </RelativeLayout>
-
-        <LinearLayout
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/email_hint"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
+            android:layout_marginTop="@dimen/app_widget_top_margin_small"
+            android:hint="@string/email_hint"
+            app:endIconDrawable="@drawable/clear_text"
+            app:endIconMode="clear_text">
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/password_hint"
-                android:layout_width="0dp"
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/email_address"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:hint="@string/passwd_hint"
-                android:orientation="horizontal"
-                app:passwordToggleDrawable="@drawable/icon_eye_close"
-                app:passwordToggleEnabled="true">
+                android:layout_marginBottom="@dimen/et_margin_bottom"
+                android:importantForAutofill="auto"
+                android:inputType="textEmailAddress"
+                android:textSize="@dimen/et_txt_size" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-                <EditText
-                    android:id="@+id/password"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="@dimen/et_margin_bottom"
-                    android:layout_weight="1"
-                    android:fontFamily="sans-serif"
-                    android:importantForAutofill="auto"
-                    android:inputType="textPassword" />
 
-            </com.google.android.material.textfield.TextInputLayout>
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/password_hint"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/app_widget_top_margin_small"
+            android:hint="@string/passwd_hint"
+            android:orientation="horizontal"
+            app:passwordToggleDrawable="@drawable/selector_password_toggle"
+            app:passwordToggleEnabled="true">
 
-            <ImageView
-                android:id="@+id/iv_delete_pwd"
-                android:layout_width="wrap_content"
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/password"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:padding="@dimen/padding_normal"
-                android:src="@drawable/icon_delete"
-                android:visibility="gone" />
+                android:layout_marginBottom="@dimen/et_margin_bottom"
+                android:importantForAutofill="auto"
+                android:inputType="textPassword" />
 
-        </LinearLayout>
+        </com.google.android.material.textfield.TextInputLayout>
+
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/auth_token_hint"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/app_widget_top_margin_small"
             android:hint="@string/two_factor_auth_token"
             android:visibility="gone">
 
-            <EditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/auth_token"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -148,10 +115,8 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/long_btn_height"
         android:layout_marginStart="@dimen/app_padding_horizontal"
-        android:layout_marginTop="@dimen/app_widget_top_margin_middle"
+        android:layout_marginTop="@dimen/app_widget_top_margin_large"
         android:layout_marginEnd="@dimen/app_padding_horizontal"
-        android:paddingTop="@dimen/long_btn_padding_top"
-        android:paddingBottom="@dimen/long_btn_padding_bottom"
         android:text="@string/login"
         android:textAllCaps="false"
         android:textColor="@color/white"
@@ -162,16 +127,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/app_padding_horizontal"
-        android:layout_marginTop="@dimen/app_widget_top_margin_small"
-        android:layout_marginEnd="@dimen/app_padding_horizontal"
-        android:text="" />
+        android:layout_marginTop="@dimen/app_widget_top_margin_large"
+        android:layout_marginEnd="@dimen/app_padding_horizontal" />
 
     <TextView
         android:id="@+id/seahub_url_hint"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/app_padding_horizontal"
-        android:layout_marginTop="@dimen/app_widget_top_margin_small"
+        android:layout_marginTop="@dimen/app_widget_top_margin_middle"
         android:layout_marginEnd="@dimen/app_padding_horizontal"
         android:text="@string/seahub_url_hint"
         android:textSize="@dimen/tv_txt_size" />

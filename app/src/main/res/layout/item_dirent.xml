@@ -102,15 +102,12 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-
     <com.google.android.material.divider.MaterialDivider
         android:id="@+id/divider"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="invisible"
+        android:visibility="visible"
         app:dividerColor="@color/divider_color"
-        app:dividerInsetStart="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:dividerInsetStart="@dimen/rv_item_icon_width"
+        app:layout_constraintBottom_toBottomOf="parent" />
 </com.seafile.seadroid2.widget.CheckableForegroundConstraintLayout>

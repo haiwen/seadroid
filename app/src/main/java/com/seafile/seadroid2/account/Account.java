@@ -67,6 +67,14 @@ public class Account extends BaseModel implements Parcelable, Comparable<Account
         this.login_time = Long.parseLong(loginTime);
     }
 
+    public void setServer(String server) {
+        this.server = server;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
     public long getUsageSpace() {
         return usage;
     }
@@ -124,20 +132,6 @@ public class Account extends BaseModel implements Parcelable, Comparable<Account
     }
 
 
-    public String getServerHost() {
-        String s = server.substring(server.indexOf("://") + 3);
-        return s.substring(0, s.indexOf('/'));
-    }
-
-    public String getServerDomainName() {
-        String dn = getServerHost();
-        // strip port, like :8000 in 192.168.1.116:8000
-        if (dn.contains(":"))
-            dn = dn.substring(0, dn.indexOf(':'));
-        return dn;
-    }
-
-
     public String getEmail() {
         return email;
     }
@@ -156,14 +150,33 @@ public class Account extends BaseModel implements Parcelable, Comparable<Account
     }
 
     /**
-     * https://dev.xxx.com/dev/ => https://dev.xxx.com
+     * @return DOMAIN/IP_ADDRESS(:PORT), <br/>like www.goo.gle, like 192.168.0.1:8000
+     */
+    public String getServerHost() {
+        String s = server.substring(server.indexOf("://") + 3);
+        return s.substring(0, s.indexOf('/'));
+    }
+
+    /**
+     * @return DOMAIN/IP_ADDRESS, <br/>like www.goo.gle, like 192.168.0.1
+     */
+    public String getServerDomainName() {
+        String dn = getServerHost();
+        // strip port, like :8000 in 192.168.1.116:8000
+        if (dn.contains(":"))
+            dn = dn.substring(0, dn.indexOf(':'));
+        return dn;
+    }
+
+    /**
+     * @return https://dev.xxx.com/dev/ => https://dev.xxx.com
      */
     public String getProtocolHost() {
         return URLs.getProtocolHost(server);
     }
 
     /**
-     * https://dev.xxx.com/dev/ => dev.xxx.com/dev
+     * @return https://dev.xxx.com/dev/ => dev.xxx.com/dev
      */
     public String getServerNoProtocol() {
         String result = server.substring(server.indexOf("://") + 3);

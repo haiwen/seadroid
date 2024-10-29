@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <PreferenceCategory
+
+    <com.seafile.seadroid2.widget.prefs.CardPreferenceCategory
         android:title="@string/settings_account"
         app:iconSpaceReserved="false">
 
-        <com.seafile.seadroid2.widget.TipTextPreference
+        <com.seafile.seadroid2.widget.prefs.TipTextPreference
             android:enabled="true"
             android:key="@string/pref_key_user_info"
             android:summary="@string/settings_account_info_load_data"
@@ -43,7 +44,7 @@
             android:summary="@string/settings_account_sign_out_hint"
             android:title="@string/settings_account_sign_out_title"
             app:iconSpaceReserved="false" />
-    </PreferenceCategory>
+    </com.seafile.seadroid2.widget.prefs.CardPreferenceCategory>
 
     <PreferenceCategory
         android:title="@string/security"

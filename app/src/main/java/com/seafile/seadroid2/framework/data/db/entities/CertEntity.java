@@ -3,6 +3,7 @@ package com.seafile.seadroid2.framework.data.db.entities;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
+@Deprecated
 @Entity(tableName = "cert_cache")
 public class CertEntity {
     @PrimaryKey(autoGenerate = true)

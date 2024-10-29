@@ -1,19 +1,14 @@
 package com.seafile.seadroid2.framework.monitor;
 
-import android.util.Log;
-
 import com.google.common.collect.Maps;
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.data.SeafCachedFile;
-import com.seafile.seadroid2.framework.data.SeafRepo;
-import com.seafile.seadroid2.framework.util.Utils;
+import com.seafile.seadroid2.framework.datastore.DataManager;
 
 import org.apache.commons.io.monitor.FileAlterationListener;
 import org.apache.commons.io.monitor.FileAlterationObserver;
 
 import java.io.File;
-import java.util.List;
 import java.util.Map;
 
 public class SeafileObserver implements FileAlterationListener {

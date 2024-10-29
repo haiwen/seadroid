@@ -9,6 +9,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.Spanned;
 import android.text.TextUtils;
+import android.view.View;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
@@ -70,6 +71,7 @@ import com.seafile.seadroid2.ui.gesture.CreateGesturePasswordActivity;
 import com.seafile.seadroid2.ui.main.MainActivity;
 import com.seafile.seadroid2.ui.selector.ObjSelectorActivity;
 import com.seafile.seadroid2.ui.webview.SeaWebViewActivity;
+import com.seafile.seadroid2.widget.prefs.ButtonPreference;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -176,8 +178,6 @@ public class TabSettingsFragment extends RenameSharePreferenceFragmentCompat {
 
         initAccountPref();
 
-        initClientEncryptPref();
-
         initSignOutPref();
 
         initAlbumBackupPref();
@@ -206,19 +206,15 @@ public class TabSettingsFragment extends RenameSharePreferenceFragmentCompat {
         gestureSwitch = findPreference(getString(R.string.pref_key_gesture_lock));
     }
 
-    private void initClientEncryptPref() {
-        Preference clientEncPref = findPreference(getString(R.string.pref_key_security_client_encrypt));
-        if (clientEncPref == null) {
-            return;
-        }
-
-        ServerInfo serverInfo = SupportAccountManager.getInstance().getServerInfo(currentAccount);
-        // Client side encryption for encrypted Library
-        clientEncPref.setVisible(serverInfo.canLocalDecrypt());
-    }
-
     private void initSignOutPref() {
         //sign out
+//       ButtonPreference buttonPreference = findPreference(getString(R.string.pref_key_sign_out));
+//        buttonPreference.getButton().setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                onPreferenceSignOutClicked();
+//            }
+//        });
         findPreference(getString(R.string.pref_key_sign_out)).setOnPreferenceClickListener(preference -> {
             onPreferenceSignOutClicked();
             return true;
@@ -434,13 +430,6 @@ public class TabSettingsFragment extends RenameSharePreferenceFragmentCompat {
                 }
 
                 Settings.SETTINGS_GESTURE.putValue(aBoolean);
-            }
-        });
-
-        Settings.CLIENT_ENCRYPT_SWITCH.observe(getViewLifecycleOwner(), new Observer<Boolean>() {
-            @Override
-            public void onChanged(Boolean aBoolean) {
-                SLogs.e("client encrypt switch：" + aBoolean);
             }
         });
 
@@ -715,7 +704,7 @@ public class TabSettingsFragment extends RenameSharePreferenceFragmentCompat {
         Account camAccount = CameraUploadManager.getInstance().getCameraAccount();
         RepoConfig repoConfig = AlbumBackupSharePreferenceHelper.readRepoConfig();
         if (camAccount != null && repoConfig != null) {
-            mAlbumBackupRepo.setSummary(camAccount.getSignature() + "/" + repoConfig.getRepoName());
+            mAlbumBackupRepo.setSummary(repoConfig.getRepoName());
         } else {
             mAlbumBackupRepo.setSummary(null);
         }
@@ -743,7 +732,7 @@ public class TabSettingsFragment extends RenameSharePreferenceFragmentCompat {
         RepoConfig repoConfig = FolderBackupSharePreferenceHelper.readRepoConfig();
 
         if (repoConfig != null && !TextUtils.isEmpty(repoConfig.getRepoName())) {
-            mFolderBackupSelectRepo.setSummary(repoConfig.getEmail() + "/" + repoConfig.getRepoName());
+            mFolderBackupSelectRepo.setSummary(repoConfig.getRepoName());
         } else {
             mFolderBackupSelectRepo.setSummary(getString(R.string.folder_backup_select_repo_hint));
         }

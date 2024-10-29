@@ -5,14 +5,11 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.MenuItem;
 import android.view.View;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
-import android.widget.FrameLayout;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 
-import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
@@ -21,10 +18,11 @@ import androidx.webkit.WebSettingsCompat;
 import androidx.webkit.WebViewFeature;
 
 import com.blankj.utilcode.util.ActivityUtils;
+import com.blankj.utilcode.util.ToastUtils;
+import com.google.android.material.navigation.NavigationBarView;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
-import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.databinding.ActivitySeaWebviewBinding;
 import com.seafile.seadroid2.databinding.ActivitySeaWebviewProBinding;
 import com.seafile.seadroid2.databinding.ToolbarActionbarProgressBarBinding;
@@ -33,8 +31,6 @@ import com.seafile.seadroid2.ui.base.BaseActivity;
 import com.seafile.seadroid2.view.webview.PreloadWebView;
 import com.seafile.seadroid2.view.webview.SeaWebView;
 
-import java.io.Serializable;
-
 public class SeaWebViewActivity extends BaseActivity {
     private ActivitySeaWebviewBinding binding;
     private ToolbarActionbarProgressBarBinding toolBinding;
@@ -42,15 +38,6 @@ public class SeaWebViewActivity extends BaseActivity {
     private SeaWebView mWebView;
 
     private String targetUrl;
-
-    public static void openSdoc(Context context, String repoName, String repoID, String path) {
-        Intent intent = new Intent(context, SeaWebViewActivity.class);
-        intent.putExtra("previewType", WebViewPreviewType.SDOC.name());
-        intent.putExtra("repoName", repoName);
-        intent.putExtra("repoID", repoID);
-        intent.putExtra("filePath", path);
-        ActivityUtils.startActivity(intent);
-    }
 
     public static void openUrl(Context context, String url) {
         Intent intent = new Intent(context, SeaWebViewActivity.class);

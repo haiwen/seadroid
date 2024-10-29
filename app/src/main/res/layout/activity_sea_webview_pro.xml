@@ -12,15 +12,16 @@
         android:fitsSystemWindows="true">
 
         <com.google.android.material.appbar.CollapsingToolbarLayout
-            app:toolbarId="@+id/toolbar_actionbar"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:fitsSystemWindows="true"
-            app:layout_scrollFlags="scroll|exitUntilCollapsed">
+            app:layout_scrollFlags="scroll|enterAlways"
+            app:toolbarId="@+id/toolbar_actionbar">
 
             <include
                 android:id="@+id/tool_progress_bar"
-                layout="@layout/toolbar_actionbar_progress_bar" />
+                layout="@layout/toolbar_actionbar_progress_bar"
+                app:layout_collapseMode="parallax" />
         </com.google.android.material.appbar.CollapsingToolbarLayout>
 
     </com.google.android.material.appbar.AppBarLayout>
@@ -29,27 +30,61 @@
         android:id="@+id/nsv"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fillViewport="false"
+        android:fillViewport="true"
         android:fitsSystemWindows="true"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
     </androidx.core.widget.NestedScrollView>
 
-    <!--    <LinearLayout-->
+    <!--    <com.google.android.material.bottomappbar.BottomAppBar-->
+    <!--        android:id="@+id/bottom_app_bar"-->
+    <!--        style="@style/Widget.Material3.BottomAppBar"-->
     <!--        android:layout_width="match_parent"-->
-    <!--        android:layout_height="match_parent"-->
-    <!--        android:orientation="vertical">-->
-    <!--        -->
-    <!--        <com.google.android.material.divider.MaterialDivider-->
-    <!--            android:layout_width="wrap_content"-->
-    <!--            android:layout_height="wrap_content"-->
-    <!--            app:dividerColor="@color/divider_color" />-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:layout_gravity="bottom"-->
+    <!--        app:hideOnScroll="true"-->
+    <!--        app:labelVisibilityMode="unlabeled"-->
+    <!--        app:menu="@menu/bottom_sdoc_menu" />-->
 
-    <!--        <com.google.android.material.bottomnavigation.BottomNavigationView-->
-    <!--            android:id="@+id/nav_bottom_view"-->
-    <!--            android:layout_width="match_parent"-->
-    <!--            android:layout_height="wrap_content"-->
-    <!--            app:labelVisibilityMode="unlabeled"-->
-    <!--            app:menu="@menu/bottom_sdoc_menu" />-->
-    <!--    </LinearLayout>-->
+
+    <LinearLayout
+        android:id="@+id/ll_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:orientation="vertical"
+        app:layout_behavior="com.seafile.seadroid2.view.HideBottomBehavior">
+
+        <com.google.android.material.divider.MaterialDivider
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:dividerColor="@color/divider_color" />
+
+        <com.google.android.material.button.MaterialButtonToggleGroup
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/sdoc_directory"
+                style="?attr/materialButtonOutlinedStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/navigate_to_directory" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/sdoc_profile"
+                style="?attr/materialButtonOutlinedStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/edit" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/sdoc_comment"
+                style="?attr/materialButtonOutlinedStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/period_of_validity" />
+        </com.google.android.material.button.MaterialButtonToggleGroup>
+    </LinearLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

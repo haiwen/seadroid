@@ -135,28 +135,20 @@ public class CameraUploadConfigActivity extends BaseActivity {
         SystemSwitchUtils.getInstance(this).syncSwitchUtils();
 
         for (Fragment fragment : fragmentList) {
-            if (fragment instanceof HowToUploadFragment) {
+            if (fragment instanceof HowToUploadFragment howToUploadFragment) {
 
-                HowToUploadFragment howToUploadFragment = (HowToUploadFragment) fragment;
                 AlbumBackupSharePreferenceHelper.writeAllowDataPlanSwitch(howToUploadFragment.getHowToUpload());
-            } else if (fragment instanceof WhatToUploadFragment) {
-
-                WhatToUploadFragment whatToUploadFragment = (WhatToUploadFragment) fragment;
+            } else if (fragment instanceof WhatToUploadFragment whatToUploadFragment) {
                 AlbumBackupSharePreferenceHelper.writeAllowVideoSwitch(whatToUploadFragment.getWhatToUpload());
 
-
-            } else if (fragment instanceof BucketsFragment) {
-
-                BucketsFragment bucketsFragment = (BucketsFragment) fragment;
+            } else if (fragment instanceof BucketsFragment bucketsFragment) {
                 List<String> selectedBuckets = bucketsFragment.getSelectedBuckets();
                 if (bucketsFragment.isAutoScanSelected()) {
                     selectedBuckets.clear();
                 }
 
                 AlbumBackupSharePreferenceHelper.writeBucketIds(selectedBuckets);
-            } else if (fragment instanceof ObjSelectorFragment) {
-
-                ObjSelectorFragment cloudLibrarySelectorFragment = (ObjSelectorFragment) fragment;
+            } else if (fragment instanceof ObjSelectorFragment cloudLibrarySelectorFragment) {
                 Pair<Account, RepoModel> pair = cloudLibrarySelectorFragment.getBackupInfo();
                 mAccount = pair.first;
                 repoModel = pair.second;

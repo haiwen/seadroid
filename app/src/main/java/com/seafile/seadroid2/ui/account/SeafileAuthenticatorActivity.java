@@ -18,30 +18,19 @@ import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ComponentActivity;
 import androidx.core.app.NavUtils;
 import androidx.core.app.TaskStackBuilder;
-import androidx.preference.Preference;
 
-import com.blankj.utilcode.util.ToastUtils;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Authenticator;
 import com.seafile.seadroid2.account.SupportAccountManager;
-import com.seafile.seadroid2.framework.datastore.sp.SettingsManager;
-import com.seafile.seadroid2.framework.util.Objs;
-import com.seafile.seadroid2.framework.util.SLogs;
-import com.seafile.seadroid2.ui.WidgetUtils;
-import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
 import com.seafile.seadroid2.config.Constants;
-import com.seafile.seadroid2.ui.markdown.MarkdownActivity;
-import com.seafile.seadroid2.ui.repo.RepoQuickFragment;
-import com.seafile.seadroid2.ui.webview.SeaWebViewActivity;
+import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
 
-import java.io.File;
 import java.util.Locale;
 
 /**

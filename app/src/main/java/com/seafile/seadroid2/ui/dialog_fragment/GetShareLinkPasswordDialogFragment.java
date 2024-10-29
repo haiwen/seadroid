@@ -7,7 +7,7 @@ import android.widget.LinearLayout;
 
 import com.blankj.utilcode.util.ToastUtils;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.switchmaterial.SwitchMaterial;
+import com.google.android.material.materialswitch.MaterialSwitch;
 import com.google.android.material.textfield.TextInputLayout;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.listener.OnCreateDirentShareLinkListener;
@@ -86,14 +86,14 @@ public class GetShareLinkPasswordDialogFragment extends RequestCustomDialogFragm
 //                    getResources().getInteger(R.integer.minimum_password_length)
 //            ));
 
-            SwitchMaterial passwordSwitch = getDialogView().findViewById(R.id.add_password);
+            MaterialSwitch passwordSwitch = getDialogView().findViewById(R.id.add_password);
             passwordSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
                 passwordTextInput.setVisibility(isChecked ? View.VISIBLE : View.GONE);
             });
 
             TextInputLayout daysTextInput = getDialogView().findViewById(R.id.days_text_input);
-            SwitchMaterial switchMaterial = getDialogView().findViewById(R.id.add_expiration);
-            switchMaterial.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            MaterialSwitch daysSwitch = getDialogView().findViewById(R.id.add_expiration);
+            daysSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
                 daysTextInput.setVisibility(isChecked ? View.VISIBLE : View.GONE);
             });
         }
@@ -133,7 +133,7 @@ public class GetShareLinkPasswordDialogFragment extends RequestCustomDialogFragm
 
     private boolean checkData() {
 
-        SwitchMaterial passwordSwitch = getDialogView().findViewById(R.id.add_password);
+        MaterialSwitch passwordSwitch = getDialogView().findViewById(R.id.add_password);
         if (passwordSwitch.isChecked()) {
             EditText editText = getDialogView().findViewById(R.id.password);
             String password = editText.getText().toString();
@@ -144,8 +144,8 @@ public class GetShareLinkPasswordDialogFragment extends RequestCustomDialogFragm
             }
         }
 
-        SwitchMaterial switchMaterial = getDialogView().findViewById(R.id.add_expiration);
-        if (switchMaterial.isChecked()) {
+        MaterialSwitch daysSwitch = getDialogView().findViewById(R.id.add_expiration);
+        if (daysSwitch.isChecked()) {
             EditText daysEditText = getDialogView().findViewById(R.id.days);
             String daysText = daysEditText.getText().toString();
 

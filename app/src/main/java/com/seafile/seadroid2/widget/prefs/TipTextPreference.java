@@ -1,15 +1,13 @@
-package com.seafile.seadroid2.widget;
+package com.seafile.seadroid2.widget.prefs;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceViewHolder;
 
-import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.R;
 
 public class TipTextPreference extends Preference {

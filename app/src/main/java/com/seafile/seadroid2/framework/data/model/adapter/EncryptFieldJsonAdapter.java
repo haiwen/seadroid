@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.framework.data.model.repo.deserializer;
+package com.seafile.seadroid2.framework.data.model.adapter;
 
 import android.text.TextUtils;
 

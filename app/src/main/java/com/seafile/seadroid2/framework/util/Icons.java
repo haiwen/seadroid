@@ -23,22 +23,22 @@ public class Icons {
             "py", "cpp", "h");
 
     public static int getFileIcon(String name) {
-        return getFileOldIcon(name);
-//        String suffix = FileUtils.getFileExtension(name);
-//        if (TextUtils.isEmpty(suffix)) {
-//            return R.drawable.icon_extended_file;
-//        }
-//
-//        if (codes.contains(suffix)) {
-//            return R.drawable.icon_extended_css;
-//        }
-//
-//        if (getSuffixIconMap().containsKey(suffix)) {
-//            return Objects.requireNonNull(getSuffixIconMap().get(suffix));
-//        }
-//
-//        String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(suffix);
-//        return getResIdForMimetype(mime);
+//        return getFileOldIcon(name);
+        String suffix = FileUtils.getFileExtension(name);
+        if (TextUtils.isEmpty(suffix)) {
+            return R.drawable.icon_extended_file;
+        }
+
+        if (codes.contains(suffix)) {
+            return R.drawable.icon_extended_css;
+        }
+
+        if (getSuffixIconMap().containsKey(suffix)) {
+            return Objects.requireNonNull(getSuffixIconMap().get(suffix));
+        }
+
+        String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(suffix);
+        return getResIdForMimetype(mime);
     }
 
     public static int getFileOldIcon(String name) {

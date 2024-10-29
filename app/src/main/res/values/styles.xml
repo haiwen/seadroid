@@ -57,6 +57,11 @@
         <item name="itemPaddingBottom">14dp</item>
     </style>
 
+    <style name="OverflowMenuStyle" parent="@style/Widget.Material3.PopupMenu.Overflow">
+        <item name="overlapAnchor">false</item>
+<!--        <item name="android:dropDownHorizontalOffset">-8dp</item>-->
+    </style>
+
     <style name="AppCompatAlertDialogStyle" parent="ThemeOverlay.Material3.MaterialAlertDialog">
         <item name="alertDialogStyle">@style/App.AlertDialog.Material3</item>
         <item name="materialAlertDialogTitleTextStyle">@style/AppCompatAlertDialog.TitleTextStyle
@@ -64,6 +69,9 @@
         <item name="buttonBarPositiveButtonStyle">@style/AppCompatAlertDialog.ButtonStyle</item>
         <item name="buttonBarNegativeButtonStyle">@style/AppCompatAlertDialog.ButtonStyle</item>
         <item name="buttonBarNeutralButtonStyle">@style/AppCompatAlertDialog.ButtonStyle</item>
+
+        <!-- todo -->
+<!--        <item name="android:windowElevation">0dp</item>-->
 
         <item name="colorPrimary">@color/white</item>
         <item name="colorSecondary">@color/md_theme_secondary</item>
@@ -97,39 +105,48 @@
         <item name="textAllCaps">false</item>
         <item name="android:textColor">@color/light_black</item>
         <item name="materialThemeOverlay">@style/ThemeOverlay.App.Button.OutlinedButton</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.Material3.MediumComponent</item>
     </style>
 
     <style name="ThemeOverlay.App.Button.OutlinedButton" parent="ThemeOverlay.Material3.Button">
-        <item name="colorPrimary">@color/white</item>
+        <item name="colorContainer">@color/white</item>
+        <item name="colorOnContainer">@color/md_theme_onPrimary</item>
     </style>
 
     <!-- Button -->
     <style name="App.Widget.Button" parent="Widget.Material3.Button">
         <item name="textAllCaps">false</item>
-        <item name="android:textColor">@color/white</item>
+        <item name="android:textAppearance">@style/TextAppearance.App.Button</item>
         <item name="materialThemeOverlay">@style/ThemeOverlay.App.Button</item>
-        <item name="backgroundColor">@color/md_theme_primary</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.Material3.MediumComponent</item>
+    </style>
+
+    <style name="TextAppearance.App.Button" parent="TextAppearance.Material3.TitleMedium">
+        <!--        <item name="fontFamily">@font/</item>-->
+        <!--        <item name="android:fontFamily">@font/</item>-->
+        <item name="android:textColor">@color/white</item>
     </style>
 
     <style name="ThemeOverlay.App.Button" parent="ThemeOverlay.Material3.Button">
-        <item name="colorPrimary">@color/md_theme_primary</item>
-        <item name="colorOnPrimary">@color/md_theme_onPrimary</item>
+        <item name="colorContainer">@color/md_theme_primary</item>
+        <item name="colorOnContainer">@color/md_theme_onPrimary</item>
     </style>
 
     <!-- TextInput -->
     <style name="App.Widget.TextInput" parent="Widget.Material3.TextInputLayout.OutlinedBox">
         <item name="materialThemeOverlay">@style/ThemeOverlay.App.TextInputLayout</item>
         <item name="hintTextColor">?attr/colorOnSurface</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.Material3.MediumComponent</item>
     </style>
 
     <style name="ThemeOverlay.App.TextInputLayout" parent="ThemeOverlay.Material3.TextInputEditText.OutlinedBox">
         <item name="colorPrimary">@color/item_title_color</item>
         <item name="colorOnSurface">@color/item_title_color</item>
         <item name="colorError">@color/red</item>
-        <item name="editTextStyle">@style/Widget.Material3.TextInputEditText.OutlinedBox</item>
     </style>
 
 
+    <!-- Preference -->
     <style name="Preference.Material3.SimpleMenuPreference" parent="Preference.SimpleMenuPreference">
         <item name="android:popupMenuStyle">
             @style/Widget.Material3.Preference.SimpleMenuPreference.PopupMenu

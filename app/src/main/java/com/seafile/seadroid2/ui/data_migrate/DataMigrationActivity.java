@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceManager;
 
 import com.blankj.utilcode.util.CollectionUtils;
+import com.blankj.utilcode.util.EncryptUtils;
 import com.blankj.utilcode.util.FileUtils;
 import com.blankj.utilcode.util.GsonUtils;
 import com.seafile.seadroid2.SeadroidApplication;
@@ -48,6 +49,7 @@ import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.ExistingFileStrategy;
 import com.seafile.seadroid2.framework.monitor.MonitorDBHelper;
+import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.ssl.CertsDBHelper;
 import com.seafile.seadroid2.ui.account.AccountService;
 import com.seafile.seadroid2.ui.camera_upload.CameraUploadDBHelper;
@@ -269,7 +271,6 @@ public class DataMigrationActivity extends AppCompatActivity {
 
     private void queryAlbumSPConfig() {
         SharedPreferences sharedPref = getSharedPreferences(DataStoreKeys.LATEST_ACCOUNT, Context.MODE_PRIVATE);
-
 
 
         String repoId = sharedPref.getString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_REPO_ID, null);
@@ -1008,9 +1009,13 @@ public class DataMigrationActivity extends AppCompatActivity {
         SLogs.d("--------------------" + table);
         for (CertEntity entity : list) {
             SLogs.d(entity.toString());
+
+            String keyPrefix = EncryptUtils.encryptMD5ToString(entity.url);
+            Settings.getCommonPreferences().edit().putString(DataStoreKeys.KEY_SERVER_CERT_INFO + "_" + keyPrefix, entity.cert).apply();
         }
 
-        AppDatabase.getInstance().certDAO().insertAll(list);
+        //Not stored in the database
+//        AppDatabase.getInstance().certDAO().insertAll(list);
         SLogs.d("--------------------" + table + " -> 完成");
 
     }

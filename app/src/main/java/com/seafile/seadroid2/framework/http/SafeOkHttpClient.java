@@ -2,16 +2,24 @@ package com.seafile.seadroid2.framework.http;
 
 import com.blankj.utilcode.util.CollectionUtils;
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.ssl.SSLSeafileSocketFactory;
+import com.seafile.seadroid2.ssl.SSLTrustManager;
 
+import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
@@ -58,18 +66,58 @@ public class SafeOkHttpClient extends BaseOkHttpClient {
     public OkHttpClient getOkClient() {
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
 
-        TrustManager[] trustManagers = getTrustManagers();
-        X509TrustManager trustManager = (X509TrustManager) trustManagers[0];
-        SSLSocketFactory sslSocketFactory = getTLSSocketFactory(trustManagers);
+        //https
+        if (account.getServer().startsWith("https://")) {
+            //ssl
+
+            SSLSocketFactory factory = SSLTrustManager.instance().getSSLSocketFactory(account);
+            TrustManager[] trustManagers = SSLTrustManager.instance().getTrustManagers(account);
+            X509TrustManager trustManager = (X509TrustManager) trustManagers[0];
+
+            builder.sslSocketFactory(factory, trustManager);
+
+            builder.hostnameVerifier(new HostnameVerifier() {
+                @Override
+                public boolean verify(String hostname, SSLSession session) {
+                    //check host
+                    if (account.getServerDomainName().equals(hostname)) {
+                        return true;
+                    }
+
+                    //check by default verifier
+                    HostnameVerifier verifier = HttpsURLConnection.getDefaultHostnameVerifier();
+                    return verifier.verify(hostname, session);
+                }
+            });
+        }
 
         // Add an interceptor to set SSL only for HTTPS
-        builder.addInterceptor(chain -> {
-            Request request = chain.request();
-            if (request.isHttps()) {
-                builder.sslSocketFactory(sslSocketFactory, trustManager);
-            }
-            return chain.proceed(request);
-        });
+//        builder.addInterceptor(chain -> {
+//            Request request = chain.request();
+//            if (request.isHttps()) {
+//                //ssl
+//                TrustManager[] trustManagers = getTrustManagers();
+//                X509TrustManager trustManager = (X509TrustManager) trustManagers[0];
+//                SSLSocketFactory sslSocketFactory = getTLSSocketFactory(trustManagers);
+//
+//                builder.sslSocketFactory(sslSocketFactory, trustManager);
+//
+//                builder.hostnameVerifier(new HostnameVerifier() {
+//                    @Override
+//                    public boolean verify(String hostname, SSLSession session) {
+//                        //check host
+//                        if (account.getServerDomainName().equals(hostname)) {
+//                            return true;
+//                        }
+//
+//                        //check by default verifier
+//                        HostnameVerifier verifier = HttpsURLConnection.getDefaultHostnameVerifier();
+//                        return verifier.verify(hostname, session);
+//                    }
+//                });
+//            }
+//            return chain.proceed(request);
+//        });
 
         builder.connectionSpecs(Arrays.asList(
                 ConnectionSpec.MODERN_TLS,

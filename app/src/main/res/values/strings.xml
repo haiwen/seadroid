@@ -158,6 +158,7 @@
     <string name="not_supported">Not supported at this time</string>
     <string name="not_supported_share">This type of share is not supported</string>
     <string name="edit">Edit</string>
+    <string name="select">Select</string>
     <string name="create_draft">Create draft</string>
     <string name="rename_draft">Rename draft</string>
     <string name="del_draft">Delete draft</string>
@@ -504,7 +505,7 @@
     <string name="notification_upload_started_title">Uploading files…</string>
     <string name="notification_download_started_title">Downloading files…</string>
     <string name="notification_upload_completed">Upload completed</string>
-    <string name="notification_upload_upload_in_progress">%1$d%% %2$s</string>
+    <string name="notification_upload_upload_in_progress" translatable="false">%1$d%% %2$s</string>
     <plurals name="notification_upload_info">
         <item quantity="one">Uploading %1$d file (%2$d%%)</item>
         <item quantity="other">Uploading %1$d files (%2$d%%)</item>
@@ -663,4 +664,20 @@
     <string name="menu_action_sort_by_last_modified">Last modified</string>
     <string name="menu_action_sort_order_ascending">Ascending</string>
     <string name="menu_action_sort_directories_first">Folders first</string>
+
+    <!-- sdoc -->
+    <string name="_size">Size</string>
+    <string name="_last_modifier">Last modifier</string>
+    <string name="_last_modified_time">Last modified time</string>
+    <string name="_reviewer">Reviewer</string>
+    <string name="_file_collaborators">File collaborators</string>
+    <string name="_file_status">File status</string>
+    <string name="_in_progress">In progress</string>
+    <string name="_in_review">In review</string>
+    <string name="_done">Done</string>
+    <string name="_outdated">Outdated</string>
+
+
+    <!-- end -->
+
 </resources>
