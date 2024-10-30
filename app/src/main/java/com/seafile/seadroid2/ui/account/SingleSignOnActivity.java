@@ -93,6 +93,7 @@ public class SingleSignOnActivity extends BaseActivity implements Toolbar.OnMenu
                 .replace("https://", "")
                 .replace("http://", "");
         if (TextUtils.isEmpty(serverUrl1)) {
+            ToastUtils.showLong(R.string.err_server_andress_empty);
             return false;
         }
 
