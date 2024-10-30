@@ -11,6 +11,7 @@ import android.widget.ProgressBar;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.blankj.utilcode.util.EncodeUtils;
 import com.blankj.utilcode.util.SizeUtils;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -42,16 +43,12 @@ public class PhotoFragment extends BaseFragment {
         this.onPhotoTapListener = onPhotoTapListener;
     }
 
-    public void setDirentModel(DirentModel direntModel) {
-        this.direntModel = direntModel;
-    }
-
-    public DirentModel getDirentModel() {
-        return direntModel;
-    }
-
-    public static PhotoFragment newInstance() {
-        return new PhotoFragment();
+    public static PhotoFragment newInstance(DirentModel direntModel) {
+        Bundle args = new Bundle();
+        args.putParcelable("dirent", direntModel);
+        PhotoFragment fragment = new PhotoFragment();
+        fragment.setArguments(args);
+        return fragment;
     }
 
     @Override
@@ -60,9 +57,16 @@ public class PhotoFragment extends BaseFragment {
 
         account = SupportAccountManager.getInstance().getCurrentAccount();
 
+        Bundle args = getArguments();
+        if (args == null) {
+            return;
+        }
+
+        direntModel = args.getParcelable("dirent");
         if (null == direntModel) {
             throw new IllegalArgumentException("DirentModel is null");
         }
+
     }
 
     @Nullable
@@ -139,6 +143,6 @@ public class PhotoFragment extends BaseFragment {
 
 //        return String.format("%srepo/%s/raw%s", account.getServer(), repoId, fileFullPath);
         int size = SizeUtils.dp2px(300);
-        return String.format("%sapi2/repos/%s/thumbnail/?p=%s&size=%s", account.getServer(), direntModel.repo_id, direntModel.full_path, size);
+        return String.format("%sapi2/repos/%s/thumbnail/?p=%s&size=%s", account.getServer(), direntModel.repo_id, EncodeUtils.urlEncode(direntModel.full_path), size);
     }
 }

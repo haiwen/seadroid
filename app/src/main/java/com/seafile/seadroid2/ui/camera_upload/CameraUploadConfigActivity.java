@@ -131,8 +131,6 @@ public class CameraUploadConfigActivity extends BaseActivity {
     }
 
     private void saveSettings() {
-        //TODO improve
-        SystemSwitchUtils.getInstance(this).syncSwitchUtils();
 
         for (Fragment fragment : fragmentList) {
             if (fragment instanceof HowToUploadFragment howToUploadFragment) {
@@ -162,6 +160,10 @@ public class CameraUploadConfigActivity extends BaseActivity {
                 AlbumBackupSharePreferenceHelper.writeRepoConfig(config);
             }
         }
+
+        //TODO improve
+//        CameraUploadManager.getInstance().setCameraAccount(mAccount);
+        SystemSwitchUtils.getInstance(this).syncSwitchUtils();
 
         Intent intent = new Intent();
         intent.putExtra(CAMERA_UPLOAD_REMOTE_LIBRARY, isChooseRepoPage);

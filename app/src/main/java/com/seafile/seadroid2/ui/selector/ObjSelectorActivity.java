@@ -283,8 +283,10 @@ public class ObjSelectorActivity extends BaseActivity {
             return;
         }
 
-        NewDirFileDialogFragment dialogFragment = NewDirFileDialogFragment.newInstance();
-        dialogFragment.initData(mNavContext.getRepoModel().repo_id, mNavContext.getNavPath(), true);
+
+        String rid = mNavContext.getRepoModel().repo_id;
+        String parentPath = mNavContext.getNavPath();
+        NewDirFileDialogFragment dialogFragment = NewDirFileDialogFragment.newInstance(rid, parentPath, true);
         dialogFragment.setRefreshListener(new OnRefreshDataListener() {
             @Override
             public void onActionStatus(boolean isDone) {

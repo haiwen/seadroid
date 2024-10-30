@@ -985,9 +985,9 @@ public class MainActivity extends BaseActivity {
             ToastUtils.showLong(R.string.library_read_only);
             return;
         }
+        String rid = getNavContext().getRepoModel().repo_id;
         String parentPath = getNavContext().getNavPath();
-        NewDirFileDialogFragment dialogFragment = NewDirFileDialogFragment.newInstance();
-        dialogFragment.initData(getNavContext().getRepoModel().repo_id, parentPath, true);
+        NewDirFileDialogFragment dialogFragment = NewDirFileDialogFragment.newInstance(rid, parentPath, true);
         dialogFragment.setRefreshListener(new OnRefreshDataListener() {
             @Override
             public void onActionStatus(boolean isDone) {
@@ -1005,9 +1005,9 @@ public class MainActivity extends BaseActivity {
             return;
         }
 
+        String rid = getNavContext().getRepoModel().repo_id;
         String parentPath = getNavContext().getNavPath();
-        NewDirFileDialogFragment dialogFragment = NewDirFileDialogFragment.newInstance();
-        dialogFragment.initData(getNavContext().getRepoModel().repo_id, parentPath, false);
+        NewDirFileDialogFragment dialogFragment = NewDirFileDialogFragment.newInstance(rid, parentPath, false);
         dialogFragment.setRefreshListener(new OnRefreshDataListener() {
             @Override
             public void onActionStatus(boolean isDone) {

@@ -41,6 +41,7 @@ import java.util.Locale;
  * It sends back to the Authenticator the result.
  */
 public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
+    public static final String SINGLE_SIGN_ON_SERVER_URL = "single sign on server url";
 
     public static final int SEACLOUD_CC = 0;
     public static final int SINGLE_SIGN_ON_LOGIN = 1;
@@ -127,7 +128,7 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
             Account account = new Account(getIntent().getStringExtra(SeafileAuthenticatorActivity.ARG_ACCOUNT_NAME), Constants.Account.ACCOUNT_TYPE);
 
             String serverUrl = SupportAccountManager.getInstance().getUserData(account, Authenticator.KEY_SERVER_URI);
-            intent.putExtra(SingleSignOnActivity.SINGLE_SIGN_ON_SERVER_URL, serverUrl);
+            intent.putExtra(SeafileAuthenticatorActivity.SINGLE_SIGN_ON_SERVER_URL, serverUrl);
             if (getIntent() != null) {
                 intent.putExtras(getIntent().getExtras());
             }

@@ -3,6 +3,7 @@ package com.seafile.seadroid2.ui.transfer_list;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -258,7 +259,11 @@ public abstract class TransferListFragment extends BaseFragment {
             return;
         }
 
-        if (!positionMap.containsKey(transferId)){
+        if (TextUtils.isEmpty(transferId)) {
+            return;
+        }
+
+        if (!positionMap.containsKey(transferId)) {
             return;
         }
 

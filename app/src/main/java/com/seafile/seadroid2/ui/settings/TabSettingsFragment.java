@@ -857,10 +857,12 @@ public class TabSettingsFragment extends RenameSharePreferenceFragmentCompat {
         @Override
         public void onActivityResult(ActivityResult o) {
             if (o.getResultCode() == RESULT_OK) {
-                updateAlbumBackupSelectedRepoSummary();
-
                 dispatchAlbumBackupWork(true);
+
+                updateAlbumBackupSelectedRepoSummary();
             } else {
+                dispatchAlbumBackupWork(false);
+
                 if (o.getData() != null) {
                     boolean isChooseRepo = o.getData().getBooleanExtra(CameraUploadConfigActivity.CAMERA_UPLOAD_REMOTE_LIBRARY, false);
                     boolean isChooseDir = o.getData().getBooleanExtra(CameraUploadConfigActivity.CAMERA_UPLOAD_LOCAL_DIRECTORIES, false);
@@ -874,7 +876,7 @@ public class TabSettingsFragment extends RenameSharePreferenceFragmentCompat {
                     mAlbumBackupSwitch.setChecked(false);
                 }
 
-                dispatchAlbumBackupWork(false);
+
             }
         }
     });
