@@ -114,11 +114,13 @@ public class Utils {
         return path.substring(path.lastIndexOf("/") + 1);
     }
 
+    public static final String[] _units = new String[]{"B", "KB", "MB", "GB", "TB"};
+    public static final DecimalFormat _decimalFormat = new DecimalFormat("#,##0.#");
+
     public static String readableFileSize(long size) {
         if (size <= 0) return "0 KB";
-        final String[] units = new String[]{"B", "KB", "MB", "GB", "TB"};
         int digitGroups = (int) (Math.log10(size) / Math.log10(1000));
-        return new DecimalFormat("#,##0.#").format(size / Math.pow(1000, digitGroups)) + " " + units[digitGroups];
+        return _decimalFormat.format(size / Math.pow(1000, digitGroups)) + " " + _units[digitGroups];
     }
 
     public static boolean isViewableImage(String name) {

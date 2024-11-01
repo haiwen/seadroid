@@ -271,18 +271,16 @@ public class ObjSelectorActivity extends BaseActivity {
         dialogFragment.show(getSupportFragmentManager(), PasswordDialogFragment.class.getSimpleName());
     }
 
-
     private void showNewDirDialog() {
         if (!mNavContext.inRepo()) {
             ToastUtils.showLong(R.string.choose_a_library);
             return;
         }
 
-        if (!mNavContext.hasWritePermissionWithRepo()) {
+        if (!mNavContext.isParentHasWritePermission()) {
             ToastUtils.showLong(R.string.library_read_only);
             return;
         }
-
 
         String rid = mNavContext.getRepoModel().repo_id;
         String parentPath = mNavContext.getNavPath();

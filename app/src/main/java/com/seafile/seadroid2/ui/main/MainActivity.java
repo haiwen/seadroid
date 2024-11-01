@@ -26,7 +26,6 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.SearchView;
 import androidx.core.view.MenuCompat;
-import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -68,9 +67,7 @@ import com.seafile.seadroid2.ui.base.BaseActivity;
 import com.seafile.seadroid2.ui.dialog_fragment.NewDirFileDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.NewRepoDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.PasswordDialogFragment;
-import com.seafile.seadroid2.ui.dialog_fragment.SortFilesDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.listener.OnRefreshDataListener;
-import com.seafile.seadroid2.ui.dialog_fragment.listener.OnSortItemClickListener;
 import com.seafile.seadroid2.ui.repo.RepoQuickFragment;
 import com.seafile.seadroid2.ui.search.Search2Activity;
 import com.seafile.seadroid2.ui.transfer_list.TransferActivity;
@@ -637,7 +634,7 @@ public class MainActivity extends BaseActivity {
         if (binding.pager.getCurrentItem() == INDEX_LIBRARY_TAB) {
             if (getNavContext().inRepo()) {
                 menuBinding.createRepo.setVisible(false);
-                if (getNavContext().hasParentWritePermission()) {
+                if (getNavContext().isParentHasWritePermission()) {
                     menuBinding.add.setEnabled(true);
                     menuBinding.select.setEnabled(true);
                 } else {
@@ -910,21 +907,6 @@ public class MainActivity extends BaseActivity {
         overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     }
 
-    ////////////////////////////////
-    // show dialog
-    ////////////////////////////////
-    @Deprecated
-    private void showSortFilesDialog() {
-        SortFilesDialogFragment dialog = new SortFilesDialogFragment();
-        dialog.setOnSortItemClickListener(new OnSortItemClickListener() {
-            @Override
-            public void onSortFileItemClick(DialogFragment dialog, int position) {
-                mainViewModel.getOnResortListLiveData().setValue(position);
-            }
-        });
-        dialog.show(getSupportFragmentManager(), SortFilesDialogFragment.class.getSimpleName());
-    }
-
     private void showPasswordDialog(RepoModel repoModel, String path) {
         PasswordDialogFragment dialogFragment = PasswordDialogFragment.newInstance();
         dialogFragment.initData(repoModel.repo_id, repoModel.repo_name);
@@ -981,10 +963,11 @@ public class MainActivity extends BaseActivity {
 
     //
     private void showNewDirDialog() {
-        if (!getNavContext().hasWritePermissionWithRepo()) {
+        if (!getNavContext().isParentHasWritePermission()) {
             ToastUtils.showLong(R.string.library_read_only);
             return;
         }
+
         String rid = getNavContext().getRepoModel().repo_id;
         String parentPath = getNavContext().getNavPath();
         NewDirFileDialogFragment dialogFragment = NewDirFileDialogFragment.newInstance(rid, parentPath, true);
@@ -1000,7 +983,7 @@ public class MainActivity extends BaseActivity {
     }
 
     private void showNewFileDialog() {
-        if (!getNavContext().hasWritePermissionWithRepo()) {
+        if (!getNavContext().isParentHasWritePermission()) {
             ToastUtils.showLong(R.string.library_read_only);
             return;
         }
@@ -1020,7 +1003,7 @@ public class MainActivity extends BaseActivity {
     }
 
     private void pickFile() {
-        if (!getNavContext().hasWritePermissionWithRepo()) {
+        if (!getNavContext().isParentHasWritePermission()) {
             ToastUtils.showLong(R.string.library_read_only);
             return;
         }

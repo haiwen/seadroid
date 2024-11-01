@@ -35,7 +35,7 @@ public class SafeOkHttpClient extends BaseOkHttpClient {
         super(account);
     }
 
-    private TrustManager[] getTrustManagers() {
+    public static TrustManager[] getTrustManagers() {
         try {
             TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
             trustManagerFactory.init((KeyStore) null);

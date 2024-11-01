@@ -309,7 +309,7 @@ public class FileActivity extends BaseActivityWithVM<FileViewModel> implements T
         } else if (seafException == SeafException.invalidPassword) {
             handlePassword();
         } else {
-            ToastUtils.showLong(String.format("Failed to download file \"%s\"", direntModel.name));
+            ToastUtils.showLong(String.format("Failed to download file \"%s\"", seafException.getMessage()));
 
             finishWithCancel();
         }

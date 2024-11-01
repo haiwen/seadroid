@@ -275,7 +275,7 @@ public class BaseViewModel extends ViewModel {
             return SeafException.sslException;
         }
 
-        return new SeafException(SeafException.CODE_ERROR, throwable.getMessage());
+        return new SeafException(SeafException.CODE_ERROR, throwable.getLocalizedMessage());
     }
 
     private SeafException checkResErrorBody(Response<?> resp) throws IOException {

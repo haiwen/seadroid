@@ -38,6 +38,7 @@ import com.seafile.seadroid2.framework.data.model.BaseModel;
 import com.seafile.seadroid2.framework.data.model.GroupItemModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.util.GlideApp;
+import com.seafile.seadroid2.framework.util.GlideRequests;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.ui.base.adapter.BaseMultiAdapter;
 import com.seafile.seadroid2.ui.viewholder.GroupItemViewHolder;
@@ -285,11 +286,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         if (repoEncrypted || !Utils.isViewableImage(model.name)) {
             holder.binding.itemIcon.setImageResource(model.getIcon());
         } else {
-            String url = convertThumbnailUrl(model.repo_id, model.full_path);
-            GlideApp.with(getContext())
-                    .load(url)
-                    .apply(GlideLoadConfig.getOptions())
-                    .into(holder.binding.itemIcon);
+            loadImage(model, holder.binding.itemIcon);
         }
 
         //action mode
@@ -379,11 +376,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
             holder.binding.itemIcon.setImageResource(model.getIcon());
         } else {
             holder.binding.itemIcon.setScaleType(ImageView.ScaleType.CENTER_CROP);
-            String url = convertMiddleUrl(model.repo_id, model.full_path);
-            GlideApp.with(getContext())
-                    .load(url)
-                    .apply(GlideLoadConfig.getOptions())
-                    .into(holder.binding.itemIcon);
+            loadImage(model, holder.binding.itemIcon);
         }
 
         //action mode
@@ -418,11 +411,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         if (repoEncrypted || !Utils.isViewableImage(model.name)) {
             holder.binding.itemIcon.setImageResource(model.getIcon());
         } else {
-            String url = convertMiddleUrl(model.repo_id, model.full_path);
-            GlideApp.with(getContext())
-                    .load(url)
-                    .apply(GlideLoadConfig.getOptions())
-                    .into(holder.binding.itemIcon);
+            loadImage(model, holder.binding.itemIcon);
         }
 
         //action mode
@@ -443,17 +432,31 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         }
     }
 
-    private String convertThumbnailUrl(String repoId, String filePath) {
-        return convertThumbnailUrl(repoId, filePath, 128);
+    private void loadImage(DirentModel direntModel, ImageView imageView) {
+
+        if (direntModel.name.toLowerCase().endsWith(".gif")) {
+            imageView.setImageResource(direntModel.getIcon());
+        } else {
+            String url = convertThumbnailUrl(direntModel);
+            GlideApp.with(getContext()).load(url)
+                    .apply(GlideLoadConfig.getOptions())
+                    .into(imageView);
+        }
+
+
     }
 
-    private String convertMiddleUrl(String repoId, String filePath) {
-        return convertThumbnailUrl(repoId, filePath, 256);
+    private String convertThumbnailUrl(DirentModel direntModel) {
+        return convertThumbnailUrl(direntModel, 128);
     }
 
-    private String convertThumbnailUrl(String repoId, String filePath, int size) {
-        String newFilePath = EncodeUtils.urlEncode(filePath);
-        return String.format(Locale.ROOT, "%sapi2/repos/%s/thumbnail/?p=%s&size=%d", SERVER, repoId, newFilePath, size);
+    private String convertMiddleUrl(DirentModel direntModel) {
+        return convertThumbnailUrl(direntModel, 256);
+    }
+
+    private String convertThumbnailUrl(DirentModel direntModel, int size) {
+        String newFilePath = EncodeUtils.urlEncode(direntModel.full_path);
+        return String.format(Locale.ROOT, "%sapi2/repos/%s/thumbnail/?p=%s&size=%d", SERVER, direntModel.repo_id, newFilePath, size);
     }
 
     public void setActionModeOn(boolean actionModeOn) {

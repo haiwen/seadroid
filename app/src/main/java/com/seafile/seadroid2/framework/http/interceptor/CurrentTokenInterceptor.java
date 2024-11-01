@@ -2,6 +2,7 @@ package com.seafile.seadroid2.framework.http.interceptor;
 
 import android.text.TextUtils;
 
+import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.TokenManager;
 
 import java.io.IOException;
@@ -26,7 +27,6 @@ public class CurrentTokenInterceptor implements Interceptor {
         if (!TextUtils.isEmpty(authToken)) {
             builder.addHeader("Authorization", "Token " + authToken);
         }
-
         return builder;
     }
 }

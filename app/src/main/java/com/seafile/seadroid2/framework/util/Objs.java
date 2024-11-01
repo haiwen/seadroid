@@ -412,10 +412,6 @@ public class Objs {
         }).flatMap(new Function<List<DirentModel>, SingleSource<List<DirentModel>>>() {
             @Override
             public SingleSource<List<DirentModel>> apply(List<DirentModel> netModels) throws Exception {
-                if (CollectionUtils.isEmpty(netModels)) {
-                    return Single.just(netModels);
-                }
-
                 Completable deleted = AppDatabase.getInstance().direntDao().deleteAllByParentPath(repoId, parentDir);
                 Single<Long> deleteAllByPathSingle = deleted.toSingleDefault(0L);
                 return deleteAllByPathSingle.flatMap(new Function<Long, SingleSource<List<DirentModel>>>() {
@@ -437,8 +433,7 @@ public class Objs {
                 return insertAllSingle.flatMap(new Function<Long, SingleSource<List<DirentModel>>>() {
                     @Override
                     public SingleSource<List<DirentModel>> apply(Long aLong) throws Exception {
-
-                        SLogs.d("Dirents本地数据库已更新");
+                        SLogs.d("The list has been inserted into the local database");
                         return Single.just(direntModels);
                     }
                 });

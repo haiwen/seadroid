@@ -569,8 +569,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         if (!getNavContext().inRepo()) {
             getNavContext().push(model);
             loadData(isForce());
-        } else if (model instanceof DirentModel) {
-            DirentModel direntModel = (DirentModel) model;
+        } else if (model instanceof DirentModel direntModel) {
             if (direntModel.isDir()) {
                 getNavContext().push(direntModel);
                 loadData(isForce());
@@ -762,7 +761,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             if (adapter == null) return true;
 
             // to hidden  "r" permissions  files or folder
-            if (!getNavContext().hasWritePermissionWithRepo()) {
+            if (!getNavContext().isParentHasWritePermission()) {
                 menu.findItem(R.id.action_mode_delete).setVisible(false);
                 menu.findItem(R.id.action_mode_move).setVisible(false);
             }

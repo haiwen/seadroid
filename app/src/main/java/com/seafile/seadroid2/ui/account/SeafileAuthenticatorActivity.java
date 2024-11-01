@@ -28,6 +28,7 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Authenticator;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.config.Constants;
+import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
 
@@ -225,12 +226,6 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
     private void finishLogin(Intent intent) {
         SLogs.d(DEBUG_TAG, "finishLogin");
 
-        //firebase - event -login
-        Bundle eventBundle = new Bundle();
-        eventBundle.putString(FirebaseAnalytics.Param.METHOD, "finishLogin");
-        FirebaseAnalytics.getInstance(this).logEvent(FirebaseAnalytics.Event.LOGIN, eventBundle);
-
-
         String newAccountName = intent.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
         String accountType = intent.getStringExtra(AccountManager.KEY_ACCOUNT_TYPE);
         String authToken = intent.getStringExtra(AccountManager.KEY_AUTHTOKEN);
@@ -299,7 +294,10 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
             SupportAccountManager.getInstance().setUserData(newAccount, Authenticator.KEY_SHIB, "shib");
         }
 
+        //save current account
         SupportAccountManager.getInstance().saveCurrentAccount(newAccountName);
+        //reset httpio instance
+        HttpIO.resetLoggedInInstance();
 
         // set sync settings
         ContentResolver.setIsSyncable(newAccount, CameraUploadManager.AUTHORITY, cameraIsSyncable);

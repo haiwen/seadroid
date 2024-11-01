@@ -68,6 +68,7 @@ public class Icons {
         suffixIconMap.put("markdown", R.drawable.icon_extended_md);
         suffixIconMap.put("txt", R.drawable.icon_extended_txt);
         suffixIconMap.put("png", R.drawable.icon_extended_png);
+        suffixIconMap.put("gif", R.drawable.icon_extended_png);
         suffixIconMap.put("psd", R.drawable.icon_extended_psd);
         suffixIconMap.put("ppt", R.drawable.icon_extended_ppt);
         suffixIconMap.put("sdoc", R.drawable.icon_extended_sdoc);
