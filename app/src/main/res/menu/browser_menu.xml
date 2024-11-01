@@ -57,7 +57,8 @@
                 <item
                     android:id="@+id/menu_action_sort_by_last_modified"
                     android:title="@string/menu_action_sort_by_last_modified" />
-
+            </group>
+            <group>
                 <item
                     android:id="@+id/menu_action_sort_ascending"
                     android:checkable="true"
@@ -66,7 +67,8 @@
                 <item
                     android:id="@+id/menu_action_sort_folder_first"
                     android:checkable="true"
-                    android:title="@string/menu_action_sort_directories_first" />
+                    android:title="@string/menu_action_sort_directories_first"
+                    android:visible="false" />
             </group>
         </menu>
     </item>
@@ -85,8 +87,8 @@
         app:showAsAction="never" />
 
     <item
-        android:id="@+id/edit"
-        android:title="@string/edit"
+        android:id="@+id/select"
+        android:title="@string/select"
         android:visible="true"
         app:showAsAction="never" />
 

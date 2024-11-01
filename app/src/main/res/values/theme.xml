@@ -18,6 +18,7 @@
         <item name="materialButtonStyle">@style/App.Widget.Button</item>
         <item name="materialAlertDialogTheme">@style/AppCompatAlertDialogStyle</item>
         <item name="bottomNavigationStyle">@style/App.Widget.BottomNavigationView</item>
+        <item name="actionOverflowMenuStyle">@style/OverflowMenuStyle</item>
 
         <item name="simpleMenuPreferenceStyle">@style/Preference.Material3.SimpleMenuPreference
         </item>

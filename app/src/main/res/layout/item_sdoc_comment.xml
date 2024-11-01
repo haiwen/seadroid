@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingVertical="8dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/rl"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/comment_user_avatar"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:contentDescription="@string/app_name"
+            android:src="@drawable/default_avatar"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:shapeAppearance="@style/ShapeCircleStyle" />
+
+        <TextView
+            android:id="@+id/comment_nick_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="@string/app_name"
+            android:textColor="@color/material_grey_900"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toStartOf="@+id/comment_more"
+            app:layout_constraintStart_toEndOf="@+id/comment_user_avatar"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/comment_time"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="4dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="@color/material_grey_600"
+            android:textSize="12sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/comment_more"
+            app:layout_constraintStart_toEndOf="@+id/comment_user_avatar"
+            app:layout_constraintTop_toBottomOf="@+id/comment_nick_name" />
+
+<!--        <ImageView-->
+<!--            android:id="@+id/comment_more"-->
+<!--            android:layout_width="32dp"-->
+<!--            android:layout_height="32dp"-->
+<!--            android:foreground="?selectableItemBackground"-->
+<!--            android:padding="8dp"-->
+<!--            android:src="@drawable/ic_more_level"-->
+<!--            app:layout_constraintEnd_toEndOf="parent"-->
+<!--            app:layout_constraintTop_toTopOf="parent" />-->
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <com.google.android.flexbox.FlexboxLayout
+        android:id="@+id/comment_content_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="40dp"
+        android:layout_marginTop="4dp"
+        android:paddingHorizontal="8dp"
+        android:paddingVertical="4dp"
+        app:flexWrap="wrap"
+        app:justifyContent="flex_start" />
+
+    <!--    <LinearLayout-->
+    <!--        android:layout_width="wrap_content"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:layout_marginStart="40dp"-->
+    <!--        android:layout_marginTop="4dp"-->
+    <!--        android:background="@drawable/shape_solid_e6ffed_radius_4"-->
+    <!--        android:orientation="vertical"-->
+    <!--        android:paddingHorizontal="8dp"-->
+    <!--        android:paddingVertical="4dp">-->
+
+    <!--        <TextView-->
+    <!--            android:id="@+id/comment_content_text"-->
+    <!--            android:layout_width="wrap_content"-->
+    <!--            android:layout_height="wrap_content"-->
+    <!--            android:padding="8dp"-->
+    <!--            android:text="@string/anonymous_user"-->
+    <!--            android:textColor="@color/gray_22"-->
+    <!--            android:textSize="14sp"-->
+    <!--            android:visibility="visible" />-->
+
+    <!--        <ImageView-->
+    <!--            android:id="@+id/comment_content_image"-->
+    <!--            android:layout_width="120dp"-->
+    <!--            android:layout_height="90dp"-->
+    <!--            android:padding="8dp"-->
+    <!--            android:src="@drawable/ic_more_level"-->
+    <!--            android:visibility="visible" />-->
+    <!--    </LinearLayout>-->
+</LinearLayout>

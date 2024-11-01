@@ -1,3 +1,4 @@
+
 package com.seafile.seadroid2.framework.http;
 
 import com.blankj.utilcode.util.CollectionUtils;
@@ -21,6 +22,10 @@ import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 
 public class UnsafeOkHttpClient extends BaseOkHttpClient {
+    public UnsafeOkHttpClient() {
+        super(null);
+    }
+
     public UnsafeOkHttpClient(Account account) {
         super(account);
     }
@@ -41,8 +46,7 @@ public class UnsafeOkHttpClient extends BaseOkHttpClient {
     }
     };
 
-    @Override
-    public OkHttpClient getOkClient() {
+    public OkHttpClient.Builder getBuilder() {
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
 
 
@@ -86,6 +90,12 @@ public class UnsafeOkHttpClient extends BaseOkHttpClient {
         builder.readTimeout(DEFAULT_TIME_OUT, TimeUnit.MILLISECONDS);
         builder.connectTimeout(DEFAULT_TIME_OUT, TimeUnit.MILLISECONDS);
 
+        return builder;
+    }
+
+    @Override
+    public OkHttpClient getOkClient() {
+        OkHttpClient.Builder builder = getBuilder();
         return builder.build();
     }
 

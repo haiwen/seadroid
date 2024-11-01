@@ -6,6 +6,7 @@ import android.text.TextUtils;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 
+import androidx.annotation.Nullable;
 import androidx.lifecycle.Observer;
 
 import com.blankj.utilcode.util.ToastUtils;
@@ -19,19 +20,29 @@ public class NewDirFileDialogFragment extends RequestCustomDialogFragmentWithVM<
     private String parentDir, repoId;
     private boolean isDir;
 
-    public static NewDirFileDialogFragment newInstance() {
-
+    public static NewDirFileDialogFragment newInstance(String repoId, String parentDir, boolean isDir) {
         Bundle args = new Bundle();
-
+        args.putString("repo_id", repoId);
+        args.putString("parent_dir", parentDir);
+        args.putBoolean("is_dir", isDir);
         NewDirFileDialogFragment fragment = new NewDirFileDialogFragment();
         fragment.setArguments(args);
         return fragment;
     }
 
-    public void initData(String repoId, String parentDir, boolean isDir) {
-        this.repoId = repoId;
-        this.parentDir = parentDir;
-        this.isDir = isDir;
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        Bundle args = getArguments();
+        if (args == null) {
+            return;
+        }
+
+        repoId = args.getString("repo_id");
+        parentDir = args.getString("parent_dir");
+        isDir = args.getBoolean("is_dir");
+
     }
 
     @Override
@@ -63,7 +74,7 @@ public class NewDirFileDialogFragment extends RequestCustomDialogFragmentWithVM<
     @Override
     protected void initView(LinearLayout containerView) {
         super.initView(containerView);
-        
+
         if (TextUtils.isEmpty(parentDir)) {
             throw new IllegalArgumentException("this dialogFragment need parentDir param");
         }

@@ -124,6 +124,7 @@
   <string name="load_dir_fail">加載此文件夾的內容失敗</string>
   <string name="not_supported_share">不支持此類分享</string>
   <string name="edit">編輯</string>
+  <string name="select">選擇</string>
   <string name="encrypt">加密</string>
   <string name="download_folder">下載該文件夾</string>
   <string name="download_folder_title">選擇你喜歡的選項</string>
@@ -288,7 +289,7 @@
   <string name="settings_camera_upload_data_plan_allowed">支持移動流量套餐上傳</string>
   <string name="settings_camera_upload_default_photos">默認只上傳圖片</string>
   <string name="settings_camera_upload_videos_allowed">支持視頻上傳</string>
-  <string name="settings_camera_upload_change_repo_title">更改上傳資料庫</string>
+  <string name="settings_camera_upload_change_repo_title">上傳資料庫</string>
   <string name="settings_camera_upload_repo_hint">請先選擇一個資料庫來上傳照片</string>
   <string name="settings_camera_upload_turn_on">打開照片上傳</string>
   <string name="settings_camera_upload_choose_dir">更改相冊</string>
@@ -480,4 +481,5 @@
   <!--Folder backup Preference-->
   <!--action-->
   <!--share link-->
+  <!--menu-->
 </resources>

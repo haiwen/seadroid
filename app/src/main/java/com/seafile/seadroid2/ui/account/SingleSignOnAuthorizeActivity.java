@@ -2,19 +2,14 @@ package com.seafile.seadroid2.ui.account;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.http.SslCertificate;
 import android.net.http.SslError;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-
-import androidx.appcompat.widget.Toolbar;
-import androidx.lifecycle.Observer;
-
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
 import android.view.MenuItem;
@@ -26,26 +21,21 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.LinearLayout;
 
+import androidx.appcompat.widget.Toolbar;
+import androidx.lifecycle.Observer;
+
 import com.blankj.utilcode.util.ToastUtils;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.account.AccountInfo;
-import com.seafile.seadroid2.framework.datastore.DataManager;
-import com.seafile.seadroid2.ssl.CertsManager;
-import com.seafile.seadroid2.ui.base.BaseActivity;
-import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
-import com.seafile.seadroid2.ui.dialog.SslConfirmDialog;
-import com.seafile.seadroid2.framework.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.framework.util.DeviceIdManager;
 import com.seafile.seadroid2.framework.util.Utils;
-
-import org.json.JSONException;
+import com.seafile.seadroid2.ssl.CertsManager;
+import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
+import com.seafile.seadroid2.ui.dialog.SslConfirmDialog;
 
 import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URLEncoder;
 import java.security.cert.X509Certificate;
@@ -87,13 +77,17 @@ public class SingleSignOnAuthorizeActivity extends BaseActivityWithVM<AccountVie
 
         initViewModel();
 
-        String url = getIntent().getStringExtra(SingleSignOnActivity.SINGLE_SIGN_ON_SERVER_URL);
+        String url = getIntent().getStringExtra(SeafileAuthenticatorActivity.SINGLE_SIGN_ON_SERVER_URL);
         CookieManager.getInstance().removeAllCookie();
         openAuthorizePage(url);
     }
 
     private void openAuthorizePage(String url) {
         Log.d(DEBUG_TAG, "server url is " + url);
+        if (TextUtils.isEmpty(url)) {
+            ToastUtils.showLong(R.string.err_server_andress_empty);
+            return;
+        }
 
         serverUrl = url;
 
@@ -238,48 +232,33 @@ public class SingleSignOnAuthorizeActivity extends BaseActivityWithVM<AccountVie
         public void onReceivedSslError(WebView view, final SslErrorHandler handler, SslError error) {
             Log.d(DEBUG_TAG, "onReceivedSslError " + error.getCertificate().toString());
 
-            MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(SingleSignOnAuthorizeActivity.this);
-            builder.setTitle(R.string.ssl_confirm_title);
-            builder.setMessage(getString(R.string.ssl_not_trusted, serverUrl));
-            builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    handler.cancel();
-                    displaySSLError();
-                    dialog.dismiss();
-                }
-            });
-            builder.create().show();
+            final Account account = new Account(serverUrl, null, null, null, null, false);
+            SslCertificate sslCert = error.getCertificate();
 
-//            final Account account = new Account(serverUrl, null, null, null, null, false);
-//            SslCertificate sslCert = error.getCertificate();
-//
-//            //todo notice main thread
-//            X509Certificate savedCert = CertsManager.instance().getCertificate(account);
-//
-//            if (Utils.isSameCert(sslCert, savedCert)) {
-//                Log.d(DEBUG_TAG, "trust this cert");
-//                handler.proceed();
-//            } else {
-//                Log.d(DEBUG_TAG, "cert is not trusted");
-//                SslConfirmDialog dialog = new SslConfirmDialog(account,
-//                        Utils.getX509CertFromSslCertHack(sslCert),
-//                        new SslConfirmDialog.Listener() {
-//                            @Override
-//                            public void onAccepted(boolean rememberChoice) {
-//                                CertsManager.instance().saveCertForAccount(account, rememberChoice);
-//                                // Ignore SSL certificate validate
-//                                handler.proceed();
-//                            }
-//
-//                            @Override
-//                            public void onRejected() {
-//                                displaySSLError();
-//                                handler.cancel();
-//                            }
-//                        });
-//                dialog.show(getSupportFragmentManager(), SslConfirmDialog.FRAGMENT_TAG);
-//            }
+            X509Certificate savedCert = CertsManager.instance().getCertificate(account);
+            if (Utils.isSameCert(sslCert, savedCert)) {
+                Log.d(DEBUG_TAG, "trust this cert");
+                handler.proceed();
+            } else {
+                Log.d(DEBUG_TAG, "cert is not trusted");
+                SslConfirmDialog dialog = new SslConfirmDialog(account,
+                        Utils.getX509CertFromSslCertHack(sslCert),
+                        new SslConfirmDialog.Listener() {
+                            @Override
+                            public void onAccepted(boolean rememberChoice) {
+                                CertsManager.instance().saveCertForAccount(account, rememberChoice);
+                                // Ignore SSL certificate validate
+                                handler.proceed();
+                            }
+
+                            @Override
+                            public void onRejected() {
+                                displaySSLError();
+                                handler.cancel();
+                            }
+                        });
+                dialog.show(getSupportFragmentManager(), SslConfirmDialog.FRAGMENT_TAG);
+            }
         }
 
         @Override

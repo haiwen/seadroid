@@ -14,5 +14,6 @@
         android:layout_marginHorizontal="16dp"
         android:text="@string/add_account"
         android:textAlignment="center"
+        android:textColor="@color/white"
         android:textSize="@dimen/long_btn_txt_size" />
 </LinearLayout>

@@ -21,6 +21,7 @@
     <dimen name="app_padding_horizontal">16dp</dimen>
     <dimen name="app_widget_top_margin_small">4dp</dimen>
     <dimen name="app_widget_top_margin_middle">8dp</dimen>
+    <dimen name="app_widget_top_margin_large">16dp</dimen>
 
     <!-- Title -->
     <dimen name="tv_title_txt_size">28sp</dimen> <!-- TextView -->

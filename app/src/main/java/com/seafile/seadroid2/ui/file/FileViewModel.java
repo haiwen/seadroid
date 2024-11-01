@@ -1,5 +1,7 @@
 package com.seafile.seadroid2.ui.file;
 
+import android.text.TextUtils;
+
 import androidx.lifecycle.MutableLiveData;
 
 import com.blankj.utilcode.util.CollectionUtils;
@@ -100,12 +102,16 @@ public class FileViewModel extends BaseViewModel {
                         .getListByFullPathsSync(repoModel.repo_id, CollectionUtils.newArrayList(direntModel.full_path), TransferAction.DOWNLOAD);
 
                 if (CollectionUtils.isEmpty(transferEntityList)) {
+                    if (TextUtils.isEmpty(direntModel.related_account)){
+                        direntModel.related_account = account.email;
+                    }
 
                     FileTransferEntity transferEntity = FileTransferEntity.convertDirentModel2This(repoModel.encrypted, direntModel);
                     //newest file id
                     transferEntity.file_id = direntModel.id;
                     transferEntity.file_size = direntModel.size;
                     transferEntity.target_path = destinationFile.getAbsolutePath();
+                    transferEntity.related_account = direntModel.related_account;
 
                     AppDatabase.getInstance().fileTransferDAO().insert(transferEntity);
 
@@ -147,6 +153,13 @@ public class FileViewModel extends BaseViewModel {
             @Override
             public void accept(Boolean abool) throws Exception {
                 download(account, direntModel, destinationFile);
+            }
+        }, new Consumer<Throwable>() {
+            @Override
+            public void accept(Throwable throwable) throws Exception {
+
+                SeafException seafException = getExceptionByThrowable(throwable);
+                getSeafExceptionLiveData().setValue(seafException);
             }
         });
     }

@@ -24,18 +24,17 @@ import javax.net.ssl.TrustManager;
  * Used to manually select TLS protocol versions.
  *
  * based on:
- * https://stackoverflow.com/questions/1037590/which-cipher-suites-to-enable-for-ssl-socket
+ * <a href="https://stackoverflow.com/questions/1037590/which-cipher-suites-to-enable-for-ssl-socket">https://stackoverflow.com/questions/1037590/which-cipher-suites-to-enable-for-ssl-socket</a>
  */
-@Deprecated
 public class SSLSeafileSocketFactory extends SSLSocketFactory {
 
-    private SSLContext context;
-    private String[] allowedCiphers;
-    private String[] allowedProtocols;
+    private final SSLContext sslContext;
+    private final String[] allowedCiphers;
+    private final String[] allowedProtocols;
 
     public SSLSeafileSocketFactory(KeyManager[] km, TrustManager[] tm, SecureRandom random) throws NoSuchAlgorithmException, KeyManagementException {
-        context = SSLContext.getInstance("TLS");
-        context.init(km, tm, random);
+        sslContext = SSLContext.getInstance("TLS");
+        sslContext.init(km, tm, random);
 
         allowedProtocols = getProtocolList();
         allowedCiphers = getCipherList();
@@ -52,7 +51,7 @@ public class SSLSeafileSocketFactory extends SSLSocketFactory {
     }
 
     public Socket createSocket(Socket s, String host, int port, boolean autoClose) throws IOException {
-        SSLSocketFactory factory = context.getSocketFactory();
+        SSLSocketFactory factory = sslContext.getSocketFactory();
         SSLSocket ss = (SSLSocket)factory.createSocket(s, host, port, autoClose);
 
         ss.setEnabledProtocols(allowedProtocols);
@@ -62,7 +61,7 @@ public class SSLSeafileSocketFactory extends SSLSocketFactory {
     }
 
     public Socket createSocket(InetAddress address, int port, InetAddress localAddress, int localPort) throws IOException {
-        SSLSocketFactory factory = context.getSocketFactory();
+        SSLSocketFactory factory = sslContext.getSocketFactory();
         SSLSocket ss = (SSLSocket)factory.createSocket(address, port, localAddress, localPort);
 
         ss.setEnabledProtocols(allowedProtocols);
@@ -72,7 +71,7 @@ public class SSLSeafileSocketFactory extends SSLSocketFactory {
     }
 
     public Socket createSocket(String host, int port, InetAddress localHost, int localPort) throws IOException {
-        SSLSocketFactory factory = context.getSocketFactory();
+        SSLSocketFactory factory = sslContext.getSocketFactory();
         SSLSocket ss = (SSLSocket)factory.createSocket(host, port, localHost, localPort);
 
         ss.setEnabledProtocols(allowedProtocols);
@@ -82,7 +81,7 @@ public class SSLSeafileSocketFactory extends SSLSocketFactory {
     }
 
     public Socket createSocket(InetAddress host, int port) throws IOException {
-        SSLSocketFactory factory = context.getSocketFactory();
+        SSLSocketFactory factory = sslContext.getSocketFactory();
         SSLSocket ss = (SSLSocket)factory.createSocket(host, port);
 
         ss.setEnabledProtocols(allowedProtocols);
@@ -92,7 +91,7 @@ public class SSLSeafileSocketFactory extends SSLSocketFactory {
     }
 
     public Socket createSocket(String host, int port) throws IOException {
-        SSLSocketFactory factory = context.getSocketFactory();
+        SSLSocketFactory factory = sslContext.getSocketFactory();
         SSLSocket ss = (SSLSocket)factory.createSocket(host, port);
 
         ss.setEnabledProtocols(allowedProtocols);
@@ -157,7 +156,7 @@ public class SSLSeafileSocketFactory extends SSLSocketFactory {
         }
 
         // now filter out any ciphers that aren't supported by this device
-        SSLSocketFactory factory = context.getSocketFactory();
+        SSLSocketFactory factory = sslContext.getSocketFactory();
         String[] availableCiphers = factory.getSupportedCipherSuites();
         ArrayList<String> available = new ArrayList<String>(Arrays.asList(availableCiphers));
 

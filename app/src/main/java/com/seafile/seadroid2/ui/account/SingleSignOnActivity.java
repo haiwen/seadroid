@@ -2,25 +2,30 @@ package com.seafile.seadroid2.ui.account;
 
 import android.content.Intent;
 import android.os.Bundle;
+
 import androidx.appcompat.widget.Toolbar;
+
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.blankj.utilcode.util.RegexUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.ui.base.BaseActivity;
+
+import java.util.Locale;
 
 /**
  * Single Sign-On welcome page
  * <p/>
  */
 public class SingleSignOnActivity extends BaseActivity implements Toolbar.OnMenuItemClickListener {
-    public static final String DEBUG_TAG = SingleSignOnActivity.class.getSimpleName();
+    public static final String DEBUG_TAG = "SingleSignOnActivity";
 
-    public static final String SINGLE_SIGN_ON_SERVER_URL = "single sign on server url";
     public static final String SINGLE_SIGN_ON_HTTPS_PREFIX = "https://";
 
     private Button mNextBtn;
@@ -44,8 +49,9 @@ public class SingleSignOnActivity extends BaseActivity implements Toolbar.OnMenu
             @Override
             public void onClick(View v) {
                 String url = getServerUrl();
-                if (isServerUrlValid(url))
+                if (isServerUrlValid(url)) {
                     openAuthorizePage(url);
+                }
             }
         });
 
@@ -56,7 +62,7 @@ public class SingleSignOnActivity extends BaseActivity implements Toolbar.OnMenu
         getSupportActionBar().setTitle(R.string.shib_login_title);
     }
 
-        @Override
+    @Override
     public boolean onMenuItemClick(MenuItem item) {
         return super.onOptionsItemSelected(item);
     }
@@ -72,13 +78,22 @@ public class SingleSignOnActivity extends BaseActivity implements Toolbar.OnMenu
     }
 
     private boolean isServerUrlValid(String serverUrl) {
-        if (serverUrl == null || serverUrl.isEmpty()) {
+        if (TextUtils.isEmpty(serverUrl)) {
             ToastUtils.showLong(R.string.shib_server_url_empty);
             return false;
         }
 
         if (!serverUrl.startsWith(SINGLE_SIGN_ON_HTTPS_PREFIX)) {
             ToastUtils.showLong(getString(R.string.shib_server_incorrect_prefix));
+            return false;
+        }
+
+        String serverUrl1 = serverUrl
+                .toLowerCase(Locale.ROOT)
+                .replace("https://", "")
+                .replace("http://", "");
+        if (TextUtils.isEmpty(serverUrl1)) {
+            ToastUtils.showLong(R.string.err_server_andress_empty);
             return false;
         }
 
@@ -91,8 +106,8 @@ public class SingleSignOnActivity extends BaseActivity implements Toolbar.OnMenu
     }
 
     private void openAuthorizePage(String serverUrl) {
-        Intent intent = new Intent(SingleSignOnActivity.this, SingleSignOnAuthorizeActivity.class);
-        intent.putExtra(SINGLE_SIGN_ON_SERVER_URL, serverUrl);
+        Intent intent = new Intent(this, SingleSignOnAuthorizeActivity.class);
+        intent.putExtra(SeafileAuthenticatorActivity.SINGLE_SIGN_ON_SERVER_URL, serverUrl);
         intent.putExtras(getIntent());
         startActivityForResult(intent, SINGLE_SIGN_ON_AUTH);
     }

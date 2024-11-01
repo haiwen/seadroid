@@ -15,9 +15,16 @@ import android.view.LayoutInflater;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.google.android.gms.common.internal.Objects;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.common.base.Preconditions;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.ComparisonChain;
+import com.google.common.collect.Ordering;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.databinding.DialogSslConfirmBinding;
 import com.seafile.seadroid2.framework.data.CertificateInfo;
 import com.seafile.seadroid2.ssl.SSLTrustManager;
 import com.seafile.seadroid2.ssl.SSLTrustManager.SslFailureReason;
@@ -41,15 +48,6 @@ public class SslConfirmDialog extends DialogFragment {
     private Account account;
     private Listener listener;
     private X509Certificate certificate;
-    private TextView messageText;
-    private TextView commonNameText;
-    // private TextView altSubjNamesText;
-    private TextView sha256Text;
-    private TextView sha1Text;
-    private TextView md5Text;
-    private TextView serialNumberText;
-    private TextView notBeforeText;
-    private TextView notAfterText;
 
     public SslConfirmDialog() {
     }
@@ -69,20 +67,10 @@ public class SslConfirmDialog extends DialogFragment {
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
+        DialogSslConfirmBinding binding = DialogSslConfirmBinding.inflate(getLayoutInflater());
+
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getActivity());
         builder.setTitle(getString(R.string.ssl_confirm_title));
-        LayoutInflater inflater = getActivity().getLayoutInflater();
-        LinearLayout view = (LinearLayout) inflater.inflate(R.layout.dialog_ssl_confirm, null);
-
-        messageText = (TextView) view.findViewById(R.id.message);
-        commonNameText = (TextView) view.findViewById(R.id.common_name);
-        // altSubjNamesText = (TextView) view.findViewById(R.id.alt_subj_name);
-        sha256Text = (TextView) view.findViewById(R.id.sha256);
-        sha1Text = (TextView) view.findViewById(R.id.sha1);
-        md5Text = (TextView) view.findViewById(R.id.md5);
-        serialNumberText = (TextView) view.findViewById(R.id.serial_number);
-        notBeforeText = (TextView) view.findViewById(R.id.not_before);
-        notAfterText = (TextView) view.findViewById(R.id.not_after);
 
         String host = null;
 
@@ -99,43 +87,45 @@ public class SslConfirmDialog extends DialogFragment {
         } catch (CertificateParsingException e) {
             e.printStackTrace();
         }
+
         String msg = "";
         if (reason == SslFailureReason.CERT_NOT_TRUSTED) {
             msg = getActivity().getString(R.string.ssl_confirm, host);
         } else {
             msg = getActivity().getString(R.string.ssl_confirm_cert_changed, host);
         }
-        messageText.setText(msg);
+
+        binding.message.setText(msg);
 
         if (cert != null) {
             CertificateInfo certInfo = new CertificateInfo(cert);
-            commonNameText.setText(certInfo.getSubjectName());
+            binding.commonName.setText(certInfo.getSubjectName());
             // String[] subjAltNames = certInfo.getSubjectAltNames();
             // altSubjNamesText.setText((subjAltNames.length > 0) ? StringUtils.join(subjAltNames, ", ") : "—");
-            sha256Text.setText(getActivity().getString(R.string.sha256, certInfo.getSignature("SHA-256")));
-            sha1Text.setText(getActivity().getString(R.string.sha1, certInfo.getSignature("SHA-1")));
-            md5Text.setText(getActivity().getString(R.string.md5, certInfo.getSignature("MD5")));
-            serialNumberText.setText(getActivity().getString(R.string.serial_number, certInfo.getSerialNumber()));
-            notBeforeText.setText(getActivity().getString(R.string.not_before, certInfo.getNotBefore().toLocaleString()));
-            notAfterText.setText(getActivity().getString(R.string.not_after, certInfo.getNotAfter().toLocaleString()));
+            binding.sha256.setText(getActivity().getString(R.string.sha256, certInfo.getSignature("SHA-256")));
+            binding.sha1.setText(getActivity().getString(R.string.sha1, certInfo.getSignature("SHA-1")));
+            binding.md5.setText(getActivity().getString(R.string.md5, certInfo.getSignature("MD5")));
+            binding.serialNumber.setText(getActivity().getString(R.string.serial_number, certInfo.getSerialNumber()));
+            binding.notBefore.setText(getActivity().getString(R.string.not_before, certInfo.getNotBefore().toLocaleString()));
+            binding.notAfter.setText(getActivity().getString(R.string.not_after, certInfo.getNotAfter().toLocaleString()));
         } else if (certificate != null) {
             CertificateInfo certInfo = new CertificateInfo(certificate);
-            commonNameText.setText(certInfo.getSubjectName());
-            sha256Text.setText(getActivity().getString(R.string.sha256, certInfo.getSignature("SHA-256")));
-            sha1Text.setText(getActivity().getString(R.string.sha1, certInfo.getSignature("SHA-1")));
-            md5Text.setText(getActivity().getString(R.string.md5, certInfo.getSignature("MD5")));
-            serialNumberText.setText(getActivity().getString(R.string.serial_number, certInfo.getSerialNumber()));
-            notBeforeText.setText(getActivity().getString(R.string.not_before, certInfo.getNotBefore().toLocaleString()));
-            notAfterText.setText(getActivity().getString(R.string.not_after, certInfo.getNotAfter().toLocaleString()));
+            binding.commonName.setText(certInfo.getSubjectName());
+            binding.sha256.setText(getActivity().getString(R.string.sha256, certInfo.getSignature("SHA-256")));
+            binding.sha1.setText(getActivity().getString(R.string.sha1, certInfo.getSignature("SHA-1")));
+            binding.md5.setText(getActivity().getString(R.string.md5, certInfo.getSignature("MD5")));
+            binding.serialNumber.setText(getActivity().getString(R.string.serial_number, certInfo.getSerialNumber()));
+            binding.notBefore.setText(getActivity().getString(R.string.not_before, certInfo.getNotBefore().toLocaleString()));
+            binding.notAfter.setText(getActivity().getString(R.string.not_after, certInfo.getNotAfter().toLocaleString()));
         } else {
             String not_available = getActivity().getString(R.string.not_available);
-            commonNameText.setText(not_available);
-            sha256Text.setText(not_available);
-            sha1Text.setText(not_available);
-            md5Text.setText(not_available);
-            serialNumberText.setText(not_available);
-            notBeforeText.setText(not_available);
-            notAfterText.setText(not_available);
+            binding.commonName.setText(not_available);
+            binding.sha256.setText(not_available);
+            binding.sha1.setText(not_available);
+            binding.md5.setText(not_available);
+            binding.serialNumber.setText(not_available);
+            binding.notBefore.setText(not_available);
+            binding.notAfter.setText(not_available);
         }
 
         builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
@@ -153,7 +143,8 @@ public class SslConfirmDialog extends DialogFragment {
                 listener.onRejected();
             }
         });
-        builder.setView(view);
+
+        builder.setView(binding.getRoot());
         return builder.show();
     }
 

@@ -8,9 +8,7 @@ import androidx.room.Entity;
 import com.google.gson.annotations.JsonAdapter;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.framework.data.model.BaseModel;
-import com.seafile.seadroid2.framework.data.model.repo.deserializer.EncryptFieldJsonAdapter;
-import com.seafile.seadroid2.framework.datastore.sp.SettingsManager;
-import com.seafile.seadroid2.framework.datastore.sp_livedata.ClientEncryptSharePreferenceHelper;
+import com.seafile.seadroid2.framework.data.model.adapter.EncryptFieldJsonAdapter;
 import com.seafile.seadroid2.framework.util.Utils;
 
 @Entity(tableName = "repos", primaryKeys = {"repo_id", "group_id"})
@@ -105,14 +103,21 @@ public class RepoModel extends BaseModel {
     }
 
 
+//    /**
+//     * If the result is true, and the decryption was successful,
+//     * there is definitely one row of data in the {@link EncKeyCacheEntity}
+//     */
+//    public boolean canLocalDecrypt() {
+//        return encrypted
+//                && enc_version == SettingsManager.REPO_ENC_VERSION
+//                && !TextUtils.isEmpty(magic)
+//                && ClientEncryptSharePreferenceHelper.isEncryptEnabled();
+//    }
+
     /**
-     * If the result is true, and the decryption was successful,
-     * there is definitely one row of data in the {@link EncKeyCacheEntity}
+     * new feature at 2024/10/22 with v3.0.5
      */
     public boolean canLocalDecrypt() {
-        return encrypted
-                && enc_version == SettingsManager.REPO_ENC_VERSION
-                && !TextUtils.isEmpty(magic)
-                && ClientEncryptSharePreferenceHelper.isEncryptEnabled();
+        return false;
     }
 }

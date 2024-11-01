@@ -33,7 +33,8 @@
 
     <style name="AppCompatAlertDialogStyle" parent="ThemeOverlay.Material3.MaterialAlertDialog">
         <item name="alertDialogStyle">@style/App.AlertDialog.Material3</item>
-        <item name="materialAlertDialogTitleTextStyle">@style/AppCompatAlertDialog.TitleTextStyle</item>
+        <item name="materialAlertDialogTitleTextStyle">@style/AppCompatAlertDialog.TitleTextStyle
+        </item>
         <item name="buttonBarPositiveButtonStyle">@style/AppCompatAlertDialog.ButtonStyle</item>
         <item name="buttonBarNegativeButtonStyle">@style/AppCompatAlertDialog.ButtonStyle</item>
         <item name="buttonBarNeutralButtonStyle">@style/AppCompatAlertDialog.ButtonStyle</item>
@@ -65,40 +66,6 @@
     <style name="ShapeAppearance.App.MediumComponent" parent="ShapeAppearance.Material3.MediumComponent">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">16dp</item>
-    </style>
-
-
-    <!-- Button.OutlinedButton -->
-    <style name="App.Widget.Button.OutlinedButton" parent="Widget.Material3.Button.OutlinedButton">
-        <item name="textAllCaps">false</item>
-        <item name="android:textColor">@color/light_gray</item>
-    </style>
-
-    <!-- Button -->
-    <style name="App.Widget.Button" parent="Widget.Material3.Button">
-        <item name="android:textColor">@color/white</item>
-        <item name="textAllCaps">false</item>
-        <item name="materialThemeOverlay">@style/ThemeOverlay.App.Button</item>
-        <item name="backgroundColor">@color/md_theme_primary</item>
-    </style>
-
-    <style name="ThemeOverlay.App.Button" parent="ThemeOverlay.Material3.Button">
-        <item name="colorPrimary">@color/md_theme_primary</item>
-        <item name="colorOnPrimary">@color/md_theme_onPrimary</item>
-    </style>
-
-
-    <!-- TextInput -->
-    <style name="App.Widget.TextInput" parent="Widget.Material3.TextInputLayout.OutlinedBox">
-        <item name="materialThemeOverlay">@style/ThemeOverlay.App.TextInputLayout</item>
-        <item name="hintTextColor">?attr/colorOnSurface</item>
-    </style>
-
-    <style name="ThemeOverlay.App.TextInputLayout" parent="ThemeOverlay.Material3.TextInputEditText.OutlinedBox">
-        <item name="colorPrimary">@color/item_title_color</item>
-        <item name="colorOnSurface">@color/item_title_color</item>
-        <item name="colorError">@color/red</item>
-        <item name="editTextStyle">@style/Widget.Material3.TextInputEditText.OutlinedBox</item>
     </style>
 
 

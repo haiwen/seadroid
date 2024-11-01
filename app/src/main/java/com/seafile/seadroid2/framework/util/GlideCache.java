@@ -1,6 +1,9 @@
 package com.seafile.seadroid2.framework.util;
 
 import android.content.Context;
+import android.webkit.CookieManager;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
 
 import androidx.annotation.NonNull;
 
@@ -14,12 +17,17 @@ import com.bumptech.glide.load.model.GlideUrl;
 import com.bumptech.glide.module.AppGlideModule;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.framework.http.HttpIO;
+import com.seafile.seadroid2.framework.http.UnsafeOkHttpClient;
 import com.seafile.seadroid2.framework.http.interceptor.CurrentTokenInterceptor;
 import com.seafile.seadroid2.framework.http.interceptor.HeaderInterceptor;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLSession;
 
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
@@ -28,6 +36,8 @@ import okhttp3.Response;
 
 @GlideModule
 public class GlideCache extends AppGlideModule {
+
+
     @Override
     public void applyOptions(@NonNull Context context, @NonNull GlideBuilder builder) {
         super.applyOptions(context, builder);
@@ -55,6 +65,26 @@ public class GlideCache extends AppGlideModule {
     }
 
     private OkHttpClient getClient() {
-        return new OkHttpClient.Builder().addInterceptor(new CurrentTokenInterceptor()).build();
+        UnsafeOkHttpClient unsafeOkHttpClient = new UnsafeOkHttpClient();
+        OkHttpClient.Builder builder = unsafeOkHttpClient.getBuilder();
+        builder.followRedirects(true);
+        builder.addInterceptor(new CurrentTokenInterceptor());
+//        builder.addInterceptor(new Interceptor() {
+//            @Override
+//            public Response intercept(Chain chain) throws IOException {
+//                Request request = chain.request();
+//                String url = request.url().toString();
+//
+//                String kie = CookieManager.getInstance().getCookie(URLs.getHost(url));
+//                Request.Builder requestBuilder = request.newBuilder();
+//                if (kie != null) {
+//                    requestBuilder.addHeader("Cookie", kie);
+//                }
+//
+//                Request newRequest = requestBuilder.build();
+//                return chain.proceed(newRequest);
+//            }
+//        });
+        return builder.build();
     }
 }

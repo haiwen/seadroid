@@ -3,6 +3,7 @@ package com.seafile.seadroid2.preferences;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.seafile.seadroid2.R;
@@ -52,6 +53,7 @@ public class Settings {
 //    public static SettingsLiveData<Long> USER_GESTURE_LOCK_TIMESTAMP;
 
 
+    @Deprecated
     public static SettingsLiveData<Boolean> CLIENT_ENCRYPT_SWITCH;
 
     //album backup
@@ -75,6 +77,7 @@ public class Settings {
     //cache
     public static SettingsLiveData<String> CACHE_SIZE;
 
+
     private static final List<SettingsLiveData<?>> REGISTER_LIST = new ArrayList<>();
 
     @Nullable
@@ -88,6 +91,20 @@ public class Settings {
         return sharedPreferences;
     }
 
+    @NonNull
+    public static SharedPreferences getSpecialUserSharedPreferences(Account specialAccount) {
+        return getSpecialUserSharedPreferences(specialAccount.getEncryptSignature());
+    }
+
+    @NonNull
+    public static SharedPreferences getSpecialUserSharedPreferences(String encryptSignature) {
+        return SharedPreferencesHelper.getSharedPreferences(encryptSignature);
+    }
+
+    @NonNull
+    public static SharedPreferences getCommonPreferences() {
+        return SharedPreferencesHelper.getSharedPreferences(null);
+    }
 
     /**
      * Initialization is required before use
@@ -146,6 +163,7 @@ public class Settings {
 
         //cache
         CACHE_SIZE = new StringSettingLiveData(_account.getEncryptSignature(), R.string.pref_key_cache_info, R.string.settings_account_info_load_data);
+
 
         REGISTER_LIST.add(USER_INFO);
         REGISTER_LIST.add(SPACE_INFO);

@@ -26,7 +26,6 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.SearchView;
 import androidx.core.view.MenuCompat;
-import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -68,9 +67,7 @@ import com.seafile.seadroid2.ui.base.BaseActivity;
 import com.seafile.seadroid2.ui.dialog_fragment.NewDirFileDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.NewRepoDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.PasswordDialogFragment;
-import com.seafile.seadroid2.ui.dialog_fragment.SortFilesDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.listener.OnRefreshDataListener;
-import com.seafile.seadroid2.ui.dialog_fragment.listener.OnSortItemClickListener;
 import com.seafile.seadroid2.ui.repo.RepoQuickFragment;
 import com.seafile.seadroid2.ui.search.Search2Activity;
 import com.seafile.seadroid2.ui.transfer_list.TransferActivity;
@@ -637,17 +634,17 @@ public class MainActivity extends BaseActivity {
         if (binding.pager.getCurrentItem() == INDEX_LIBRARY_TAB) {
             if (getNavContext().inRepo()) {
                 menuBinding.createRepo.setVisible(false);
-                if (getNavContext().hasParentWritePermission()) {
+                if (getNavContext().isParentHasWritePermission()) {
                     menuBinding.add.setEnabled(true);
-                    menuBinding.edit.setEnabled(true);
+                    menuBinding.select.setEnabled(true);
                 } else {
                     menuBinding.add.setEnabled(false);
-                    menuBinding.edit.setEnabled(false);
+                    menuBinding.select.setEnabled(false);
                 }
             } else {
                 menuBinding.createRepo.setVisible(true);
                 menuBinding.add.setVisible(false);
-                menuBinding.edit.setVisible(false);
+                menuBinding.select.setVisible(false);
             }
 
             menuBinding.sortGroup.setVisible(true);
@@ -655,7 +652,7 @@ public class MainActivity extends BaseActivity {
             menuBinding.sortGroup.setVisible(false);
             menuBinding.createRepo.setVisible(false);
             menuBinding.add.setVisible(false);
-            menuBinding.edit.setVisible(false);
+            menuBinding.select.setVisible(false);
         }
 
         updateMenu();
@@ -688,7 +685,7 @@ public class MainActivity extends BaseActivity {
             Intent newIntent = new Intent(this, TransferActivity.class);
             newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(newIntent);
-        } else if (item.getItemId() == R.id.edit) {
+        } else if (item.getItemId() == R.id.select) {
             if (binding.pager.getCurrentItem() == INDEX_LIBRARY_TAB) {
                 getReposFragment().startContextualActionMode();
             }
@@ -734,7 +731,7 @@ public class MainActivity extends BaseActivity {
                 menuIdState.put("sortGroup", menuBinding.sortGroup.isVisible());
                 menuIdState.put("createRepo", menuBinding.createRepo.isVisible());
                 menuIdState.put("add", menuBinding.add.isVisible());
-                menuIdState.put("edit", menuBinding.edit.isVisible());
+                menuIdState.put("select", menuBinding.select.isVisible());
                 menuIdState.put("transferList", menuBinding.transferList.isVisible());
 
                 Optional<ServerInfo> optional = checkServerInfo();
@@ -745,7 +742,7 @@ public class MainActivity extends BaseActivity {
                 menuBinding.sortGroup.setVisible(false);
                 menuBinding.createRepo.setVisible(false);
                 menuBinding.add.setVisible(false);
-                menuBinding.edit.setVisible(false);
+                menuBinding.select.setVisible(false);
                 menuBinding.transferList.setVisible(false);
 
                 return true;
@@ -758,7 +755,7 @@ public class MainActivity extends BaseActivity {
                 menuBinding.sortGroup.setVisible(Boolean.TRUE.equals(menuIdState.get("sortGroup")));
                 menuBinding.createRepo.setVisible(Boolean.TRUE.equals(menuIdState.get("createRepo")));
                 menuBinding.add.setVisible(Boolean.TRUE.equals(menuIdState.get("add")));
-                menuBinding.edit.setVisible(Boolean.TRUE.equals(menuIdState.get("edit")));
+                menuBinding.select.setVisible(Boolean.TRUE.equals(menuIdState.get("select")));
                 menuBinding.transferList.setVisible(Boolean.TRUE.equals(menuIdState.get("transferList")));
 
                 invalidateMenu();
@@ -817,7 +814,7 @@ public class MainActivity extends BaseActivity {
 
         public MenuItem createRepo;
         public MenuItem add;
-        public MenuItem edit;
+        public MenuItem select;
         public MenuItem transferList;
 
 
@@ -844,7 +841,7 @@ public class MainActivity extends BaseActivity {
 
             binding1.createRepo = menu.findItem(R.id.create_repo);
             binding1.add = menu.findItem(R.id.add);
-            binding1.edit = menu.findItem(R.id.edit);
+            binding1.select = menu.findItem(R.id.select);
             binding1.transferList = menu.findItem(R.id.transfer_tasks);
             return binding1;
         }
@@ -910,21 +907,6 @@ public class MainActivity extends BaseActivity {
         overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     }
 
-    ////////////////////////////////
-    // show dialog
-    ////////////////////////////////
-    @Deprecated
-    private void showSortFilesDialog() {
-        SortFilesDialogFragment dialog = new SortFilesDialogFragment();
-        dialog.setOnSortItemClickListener(new OnSortItemClickListener() {
-            @Override
-            public void onSortFileItemClick(DialogFragment dialog, int position) {
-                mainViewModel.getOnResortListLiveData().setValue(position);
-            }
-        });
-        dialog.show(getSupportFragmentManager(), SortFilesDialogFragment.class.getSimpleName());
-    }
-
     private void showPasswordDialog(RepoModel repoModel, String path) {
         PasswordDialogFragment dialogFragment = PasswordDialogFragment.newInstance();
         dialogFragment.initData(repoModel.repo_id, repoModel.repo_name);
@@ -981,13 +963,14 @@ public class MainActivity extends BaseActivity {
 
     //
     private void showNewDirDialog() {
-        if (!getNavContext().hasWritePermissionWithRepo()) {
+        if (!getNavContext().isParentHasWritePermission()) {
             ToastUtils.showLong(R.string.library_read_only);
             return;
         }
+
+        String rid = getNavContext().getRepoModel().repo_id;
         String parentPath = getNavContext().getNavPath();
-        NewDirFileDialogFragment dialogFragment = NewDirFileDialogFragment.newInstance();
-        dialogFragment.initData(getNavContext().getRepoModel().repo_id, parentPath, true);
+        NewDirFileDialogFragment dialogFragment = NewDirFileDialogFragment.newInstance(rid, parentPath, true);
         dialogFragment.setRefreshListener(new OnRefreshDataListener() {
             @Override
             public void onActionStatus(boolean isDone) {
@@ -1000,14 +983,14 @@ public class MainActivity extends BaseActivity {
     }
 
     private void showNewFileDialog() {
-        if (!getNavContext().hasWritePermissionWithRepo()) {
+        if (!getNavContext().isParentHasWritePermission()) {
             ToastUtils.showLong(R.string.library_read_only);
             return;
         }
 
+        String rid = getNavContext().getRepoModel().repo_id;
         String parentPath = getNavContext().getNavPath();
-        NewDirFileDialogFragment dialogFragment = NewDirFileDialogFragment.newInstance();
-        dialogFragment.initData(getNavContext().getRepoModel().repo_id, parentPath, false);
+        NewDirFileDialogFragment dialogFragment = NewDirFileDialogFragment.newInstance(rid, parentPath, false);
         dialogFragment.setRefreshListener(new OnRefreshDataListener() {
             @Override
             public void onActionStatus(boolean isDone) {
@@ -1020,7 +1003,7 @@ public class MainActivity extends BaseActivity {
     }
 
     private void pickFile() {
-        if (!getNavContext().hasWritePermissionWithRepo()) {
+        if (!getNavContext().isParentHasWritePermission()) {
             ToastUtils.showLong(R.string.library_read_only);
             return;
         }

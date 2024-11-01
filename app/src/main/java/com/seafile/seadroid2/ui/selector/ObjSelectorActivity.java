@@ -271,20 +271,20 @@ public class ObjSelectorActivity extends BaseActivity {
         dialogFragment.show(getSupportFragmentManager(), PasswordDialogFragment.class.getSimpleName());
     }
 
-
     private void showNewDirDialog() {
         if (!mNavContext.inRepo()) {
             ToastUtils.showLong(R.string.choose_a_library);
             return;
         }
 
-        if (!mNavContext.hasWritePermissionWithRepo()) {
+        if (!mNavContext.isParentHasWritePermission()) {
             ToastUtils.showLong(R.string.library_read_only);
             return;
         }
 
-        NewDirFileDialogFragment dialogFragment = NewDirFileDialogFragment.newInstance();
-        dialogFragment.initData(mNavContext.getRepoModel().repo_id, mNavContext.getNavPath(), true);
+        String rid = mNavContext.getRepoModel().repo_id;
+        String parentPath = mNavContext.getNavPath();
+        NewDirFileDialogFragment dialogFragment = NewDirFileDialogFragment.newInstance(rid, parentPath, true);
         dialogFragment.setRefreshListener(new OnRefreshDataListener() {
             @Override
             public void onActionStatus(boolean isDone) {

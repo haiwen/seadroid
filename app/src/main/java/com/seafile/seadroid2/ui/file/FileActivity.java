@@ -96,8 +96,9 @@ public class FileActivity extends BaseActivityWithVM<FileViewModel> implements T
         action = intent.getStringExtra("action");
         direntModel = intent.getParcelableExtra("dirent");
         if (null == direntModel) {
-            throw new IllegalArgumentException("missing args");
+            throw new IllegalArgumentException("missing dirent args");
         }
+
         repoId = direntModel.repo_id;
 
         destinationFile = getLocalDestinationFile(repoId, direntModel.repo_name, direntModel.full_path);
@@ -308,7 +309,7 @@ public class FileActivity extends BaseActivityWithVM<FileViewModel> implements T
         } else if (seafException == SeafException.invalidPassword) {
             handlePassword();
         } else {
-            ToastUtils.showLong(String.format("Failed to download file \"%s\"", direntModel.name));
+            ToastUtils.showLong(String.format("Failed to download file \"%s\"", seafException.getMessage()));
 
             finishWithCancel();
         }

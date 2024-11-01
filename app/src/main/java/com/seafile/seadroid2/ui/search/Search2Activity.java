@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -51,7 +50,7 @@ import com.seafile.seadroid2.ui.file.FileActivity;
 import com.seafile.seadroid2.ui.main.MainActivity;
 import com.seafile.seadroid2.ui.media.image_preview.ImagePreviewActivity;
 import com.seafile.seadroid2.ui.media.player.exoplayer.CustomExoVideoPlayerActivity;
-import com.seafile.seadroid2.ui.webview.SeaWebViewActivity;
+import com.seafile.seadroid2.ui.sdoc.SDocWebViewActivity;
 import com.seafile.seadroid2.view.TipsViews;
 
 import java.io.File;
@@ -376,7 +375,7 @@ public class Search2Activity extends BaseActivityWithVM<SearchViewModel> impleme
 
     private void open(RepoModel repoModel, SearchModel searchedFile, String fileName, String filePath) {
         if (fileName.endsWith(Constants.Format.DOT_SDOC)) {
-            SeaWebViewActivity.openSdoc(this, repoModel.repo_name, repoModel.repo_id, filePath);
+            SDocWebViewActivity.openSdoc(this, repoModel.repo_name, repoModel.repo_id, filePath);
         } else if (Utils.isViewableImage(fileName) && !repoModel.encrypted) {
             // Encrypted repo does not support gallery,
             // because pic thumbnail under encrypted repo was not supported at the server side

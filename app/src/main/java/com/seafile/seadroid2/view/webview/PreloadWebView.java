@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.MutableContextWrapper;
 import android.os.Looper;
 
+import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 
 import java.util.Stack;
@@ -35,7 +36,9 @@ public class PreloadWebView {
     }
 
     private SeaWebView buildWebView() {
-        return new SeaWebView(new MutableContextWrapper(SeadroidApplication.getAppContext()));
+        SeaWebView webView = new SeaWebView(new MutableContextWrapper(SeadroidApplication.getAppContext()));
+        webView.setId(R.id.webview);
+        return webView;
     }
 
     /**

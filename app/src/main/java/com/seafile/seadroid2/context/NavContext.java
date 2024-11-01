@@ -100,21 +100,23 @@ public class NavContext {
     /**
      * Get the parents model of the current Dirent, maybe RepoModel
      */
-    public boolean hasParentWritePermission() {
+    public boolean isParentHasWritePermission() {
         if (!inRepo()) {
+            //repo list page should not have permission verification
             throw new IllegalArgumentException("Please check your code");
         }
 
         if (inRepoRoot()) {
-            return hasWritePermissionWithRepo();
+            return getRepoModel().hasWritePermission();
         }
 
         BaseModel bd = navStack.elementAt(navStack.size() - 1);
         DirentModel d = (DirentModel) bd;
-        if (d != null) {
-            return d.hasWritePermission();
+        if (d == null) {
+            return false;
         }
-        return false;
+
+        return d.hasWritePermission();
     }
 
     public RepoModel getRepoModel() {
@@ -134,7 +136,6 @@ public class NavContext {
         }
         return navStack.peek();
     }
-
 
     /**
      * @return /a/b/c/d/e/
@@ -160,27 +161,6 @@ public class NavContext {
 
         return fullPath;
     }
-//
-//    /**
-//     * /a/b/c/d/e.txt -> e.txt
-//     */
-//    public String getLastNameOfPath() {
-//        String fullPath = getNavPath();
-//        if (TextUtils.isEmpty(fullPath)) {
-//            return null;
-//        }
-//
-//        if (!fullPath.contains("/")) {
-//            return fullPath;
-//        }
-//
-//        String[] slash = fullPath.split("/");
-//        if (slash.length == 0) {
-//            return null;
-//        }
-//
-//        return slash[slash.length - 1];
-//    }
 
     /**
      * /a/b/c -> c
@@ -201,24 +181,4 @@ public class NavContext {
 
         return null;
     }
-
-    //
-    public boolean hasWritePermissionWithRepo() {
-
-//        BaseModel baseModel = getTopModel();
-//        if (baseModel == null) {
-//            return false;
-//        }
-//
-//        if (baseModel instanceof RepoModel) {
-//            return ((RepoModel) baseModel).hasWritePermission();
-//        }
-//
-//        if (baseModel instanceof DirentModel) {
-//            return ((DirentModel) baseModel).hasWritePermission();
-//        }
-
-        return getRepoModel().hasWritePermission();
-    }
-
 }

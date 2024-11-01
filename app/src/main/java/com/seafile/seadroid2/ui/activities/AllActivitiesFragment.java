@@ -42,7 +42,7 @@ import com.seafile.seadroid2.ui.main.MainActivity;
 import com.seafile.seadroid2.ui.markdown.MarkdownActivity;
 import com.seafile.seadroid2.ui.media.image_preview.ImagePreviewActivity;
 import com.seafile.seadroid2.ui.media.player.exoplayer.CustomExoVideoPlayerActivity;
-import com.seafile.seadroid2.ui.webview.SeaWebViewActivity;
+import com.seafile.seadroid2.ui.sdoc.SDocWebViewActivity;
 import com.seafile.seadroid2.view.TipsViews;
 
 import java.io.File;
@@ -279,7 +279,7 @@ public class AllActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel>
 
         } else if (activityModel.name.endsWith(Constants.Format.DOT_SDOC)) {
 
-            SeaWebViewActivity.openSdoc(getContext(), activityModel.repo_name, activityModel.repo_id, activityModel.path);
+            SDocWebViewActivity.openSdoc(getContext(), activityModel.repo_name, activityModel.repo_id, activityModel.path);
 
         } else if (Utils.isVideoFile(activityModel.name)) {
 

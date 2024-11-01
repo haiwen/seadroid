@@ -143,6 +143,7 @@
   <string name="not_supported">暂未支持</string>
   <string name="not_supported_share">不支持此类分享</string>
   <string name="edit">编辑</string>
+  <string name="select">选择</string>
   <string name="create_draft">创建草稿</string>
   <string name="rename_draft">重命名草稿</string>
   <string name="del_draft">删除草稿</string>
@@ -335,7 +336,7 @@
   <string name="settings_camera_upload_data_plan_allowed">支持移动流量套餐上传</string>
   <string name="settings_camera_upload_default_photos">默认只上传图片</string>
   <string name="settings_camera_upload_videos_allowed">支持视频上传</string>
-  <string name="settings_camera_upload_change_repo_title">更改上传资料库</string>
+  <string name="settings_camera_upload_change_repo_title">上传资料库</string>
   <string name="settings_camera_upload_repo_hint">请先选择一个资料库来上传照片</string>
   <string name="settings_camera_upload_turn_on">打开照片上传</string>
   <string name="settings_camera_upload_choose_dir">更改相册</string>
@@ -551,7 +552,7 @@ Email: support@seafile.com<br>
   <string name="channel_name_album_backup">相册备份</string>
   <string name="channel_name_transfer">文件传输</string>
   <string name="above_quota">空间超额</string>
-  <string name="camera_upload_state">上传信息显示</string>
+  <string name="camera_upload_state">上传状态</string>
   <string name="waiting_state">上传等待中</string>
   <string name="Upload_completed">最后同步完成于</string>
   <string name="is_scanning">扫描中</string>
@@ -579,7 +580,7 @@ Email: support@seafile.com<br>
   <string name="settings_folder_backup_select_title">已选择备份文件夹</string>
   <string name="settings_folder_backup_traffic">网络模式</string>
   <string name="settings_folder_backup_traffic_hint">WIFI</string>
-  <string name="settings_folder_backup_library">备份到资料库</string>
+  <string name="settings_folder_backup_library">备份资料库</string>
   <string name="folder_backup_add">增加备份文件夹</string>
   <string name="folder_backup_cancel">取消备份</string>
   <string name="folder_backup_waiting_state">完成</string>
@@ -613,7 +614,7 @@ Email: support@seafile.com<br>
   <string name="off">关闭</string>
   <string name="on">开启</string>
   <string name="follow_system">跟随系统</string>
-  <string name="empty">空</string>
+  <string name="empty">暂无</string>
   <!--share link-->
   <string name="link_permission_set_permission">设置权限</string>
   <string name="link_permission_preview_and_download">预览和下载</string>
@@ -630,4 +631,15 @@ Email: support@seafile.com<br>
   <string name="menu_action_sort_by_last_modified">最后修改</string>
   <string name="menu_action_sort_order_ascending">升序</string>
   <string name="menu_action_sort_directories_first">文件夹优先</string>
+  <!--sdoc-->
+  <string name="_size">大小</string>
+  <string name="_last_modifier">修改者</string>
+  <string name="_last_modified_time">修改时间</string>
+  <string name="_file_collaborators">文件协作人</string>
+  <string name="_file_status">文件状态</string>
+  <string name="_in_progress">进行中</string>
+  <string name="_in_review">审核中</string>
+  <string name="_done">完成</string>
+  <string name="_outdated">已过期</string>
+  <!--end-->
 </resources>

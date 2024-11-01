@@ -4,21 +4,27 @@ import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.Map;
 
+import android.text.TextUtils;
 import android.util.Log;
 
+import com.blankj.utilcode.util.EncryptUtils;
 import com.google.common.collect.Maps;
+import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.framework.data.db.AppDatabase;
 import com.seafile.seadroid2.framework.data.db.entities.CertEntity;
+import com.seafile.seadroid2.framework.datastore.DataManager;
+import com.seafile.seadroid2.framework.datastore.DataStoreKeys;
+import com.seafile.seadroid2.framework.datastore.DataStoreManager;
+import com.seafile.seadroid2.framework.datastore.sp.SettingsManager;
 import com.seafile.seadroid2.framework.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.preferences.Settings;
+import com.seafile.seadroid2.preferences.SharedPreferencesHelper;
 
 /**
  * Save the ssl certificates the user has confirmed to trust
  */
 public final class CertsManager {
-    private static final String DEBUG_TAG = "CertsManager";
-
-    private final CertsDBHelper db = CertsDBHelper.getDatabaseHelper();
 
     private final Map<Account, X509Certificate> cachedCerts = Maps.newConcurrentMap();
 
@@ -42,26 +48,26 @@ public final class CertsManager {
         cachedCerts.put(account, cert);
 
         if (rememberChoice) {
-            ConcurrentAsyncTask.submit(new Runnable() {
-                @Override
-                public void run() {
-                    CertsHelper.saveCertificate(account.server,cert);
-//                    db.saveCertificate(account.server, cert);
-                }
-            });
+            // save cert info to shared preferences
+            String certBase64 = CertsHelper.getCertBase64(cert);
+            String keyPrefix = EncryptUtils.encryptMD5ToString(account.getServer());
+            Settings.getCommonPreferences().edit().putString(DataStoreKeys.KEY_SERVER_CERT_INFO + "_" + keyPrefix, certBase64).apply();
         }
-
-        Log.d(DEBUG_TAG, "saved cert for account " + account);
     }
+
 
     public X509Certificate getCertificate(Account account) {
         X509Certificate cert = cachedCerts.get(account);
         if (cert != null) {
             return cert;
         }
+        String keyPrefix = EncryptUtils.encryptMD5ToString(account.getServer());
+        String certBase64 = Settings.getCommonPreferences().getString(DataStoreKeys.KEY_SERVER_CERT_INFO + "_" + keyPrefix, null);
+        if (TextUtils.isEmpty(certBase64)) {
+            return null;
+        }
 
-//        cert = db.getCertificate(account.server);
-        cert = CertsHelper.getCertificate(account.server);
+        cert = CertsHelper.convertToCert(certBase64);
         if (cert != null) {
             cachedCerts.put(account, cert);
         }

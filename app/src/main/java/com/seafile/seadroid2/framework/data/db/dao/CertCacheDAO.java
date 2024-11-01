@@ -11,6 +11,7 @@ import java.util.List;
 
 import io.reactivex.Completable;
 
+@Deprecated
 @Dao
 public interface CertCacheDAO {
     @Insert(onConflict = OnConflictStrategy.REPLACE)

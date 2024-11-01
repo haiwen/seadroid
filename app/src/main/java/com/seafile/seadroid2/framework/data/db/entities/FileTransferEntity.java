@@ -191,6 +191,7 @@ public class FileTransferEntity extends BaseModel {
     public String repo_id;
     public String repo_name;
 
+    //who
     public String related_account;
 
     /**

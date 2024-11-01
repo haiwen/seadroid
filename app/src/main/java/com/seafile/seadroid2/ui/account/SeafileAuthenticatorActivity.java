@@ -18,30 +18,20 @@ import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ComponentActivity;
 import androidx.core.app.NavUtils;
 import androidx.core.app.TaskStackBuilder;
-import androidx.preference.Preference;
 
-import com.blankj.utilcode.util.ToastUtils;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Authenticator;
 import com.seafile.seadroid2.account.SupportAccountManager;
-import com.seafile.seadroid2.framework.datastore.sp.SettingsManager;
-import com.seafile.seadroid2.framework.util.Objs;
-import com.seafile.seadroid2.framework.util.SLogs;
-import com.seafile.seadroid2.ui.WidgetUtils;
-import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
 import com.seafile.seadroid2.config.Constants;
-import com.seafile.seadroid2.ui.markdown.MarkdownActivity;
-import com.seafile.seadroid2.ui.repo.RepoQuickFragment;
-import com.seafile.seadroid2.ui.webview.SeaWebViewActivity;
+import com.seafile.seadroid2.framework.http.HttpIO;
+import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
 
-import java.io.File;
 import java.util.Locale;
 
 /**
@@ -52,6 +42,7 @@ import java.util.Locale;
  * It sends back to the Authenticator the result.
  */
 public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
+    public static final String SINGLE_SIGN_ON_SERVER_URL = "single sign on server url";
 
     public static final int SEACLOUD_CC = 0;
     public static final int SINGLE_SIGN_ON_LOGIN = 1;
@@ -138,7 +129,7 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
             Account account = new Account(getIntent().getStringExtra(SeafileAuthenticatorActivity.ARG_ACCOUNT_NAME), Constants.Account.ACCOUNT_TYPE);
 
             String serverUrl = SupportAccountManager.getInstance().getUserData(account, Authenticator.KEY_SERVER_URI);
-            intent.putExtra(SingleSignOnActivity.SINGLE_SIGN_ON_SERVER_URL, serverUrl);
+            intent.putExtra(SeafileAuthenticatorActivity.SINGLE_SIGN_ON_SERVER_URL, serverUrl);
             if (getIntent() != null) {
                 intent.putExtras(getIntent().getExtras());
             }
@@ -235,12 +226,6 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
     private void finishLogin(Intent intent) {
         SLogs.d(DEBUG_TAG, "finishLogin");
 
-        //firebase - event -login
-        Bundle eventBundle = new Bundle();
-        eventBundle.putString(FirebaseAnalytics.Param.METHOD, "finishLogin");
-        FirebaseAnalytics.getInstance(this).logEvent(FirebaseAnalytics.Event.LOGIN, eventBundle);
-
-
         String newAccountName = intent.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
         String accountType = intent.getStringExtra(AccountManager.KEY_ACCOUNT_TYPE);
         String authToken = intent.getStringExtra(AccountManager.KEY_AUTHTOKEN);
@@ -309,7 +294,10 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
             SupportAccountManager.getInstance().setUserData(newAccount, Authenticator.KEY_SHIB, "shib");
         }
 
+        //save current account
         SupportAccountManager.getInstance().saveCurrentAccount(newAccountName);
+        //reset httpio instance
+        HttpIO.resetLoggedInInstance();
 
         // set sync settings
         ContentResolver.setIsSyncable(newAccount, CameraUploadManager.AUTHORITY, cameraIsSyncable);
