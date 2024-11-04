@@ -40,8 +40,10 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.blankj.utilcode.util.CollectionUtils;
+import com.blankj.utilcode.util.NetworkUtils;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
+import com.seafile.seadroid2.BuildConfig;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.account.Account;
@@ -101,6 +103,11 @@ import retrofit2.Response;
 public class SeafileProvider extends DocumentsProvider {
     public static final String DEBUG_TAG = "SeafileProvider";
 
+    public static final String PATH_SEPARATOR = "/";
+    public static final String AUTHORITY_OF_DOCUMENTS = BuildConfig.APPLICATION_ID + ".documents";
+
+    public static final Uri NOTIFICATION_URI = DocumentsContract.buildRootsUri(AUTHORITY_OF_DOCUMENTS);
+
     private static final String[] SUPPORTED_ROOT_PROJECTION = new String[]{
             Root.COLUMN_ROOT_ID,
             Root.COLUMN_FLAGS,
@@ -126,11 +133,9 @@ public class SeafileProvider extends DocumentsProvider {
      */
     private boolean returnCachedData = false;
 
-    private Set<Account> reachableAccounts = new ConcurrentSkipListSet<Account>();
+    private final Set<Account> reachableAccounts = new ConcurrentSkipListSet<Account>();
 
     private android.accounts.AccountManager androidAccountManager;
-
-    public static final Uri NOTIFICATION_URI = DocumentsContract.buildRootsUri(Utils.AUTHORITY_OF_DOCUMENTS);
 
     private final Map<String, RepoModel> REPO_MAP = new HashMap<>();
 
@@ -346,7 +351,7 @@ public class SeafileProvider extends DocumentsProvider {
 
         if (DocumentIdParser.isStarredFiles(documentId)) {
             includeStarredFilesRepo(result, account);
-        } else if (path.equals(Utils.PATH_SEPERATOR)) {
+        } else if (path.equals(PATH_SEPARATOR)) {
             // this is the base of the repository. this is special, as we give back the information
             // about the repository itself, not some directory in it.
             includeRepo(result, account, repoModel);
@@ -435,9 +440,9 @@ public class SeafileProvider extends DocumentsProvider {
         }
 
         //local don't exists
-
-        if (!Utils.isNetworkOn())
+        if (!NetworkUtils.isConnected()) {
             throw new FileNotFoundException();
+        }
 
         // open the file. this might involve talking to the seafile server. this will hang until
         // it is done.
@@ -915,7 +920,7 @@ public class SeafileProvider extends DocumentsProvider {
     private void fetchDirentAsync(Account account, RepoModel repoModel, final String path, MatrixCursor result) {
 
         String id = DocumentIdParser.buildId(account, repoModel.repo_id, path);
-        final Uri uri = DocumentsContract.buildChildDocumentsUri(Utils.AUTHORITY_OF_DOCUMENTS, id);
+        final Uri uri = DocumentsContract.buildChildDocumentsUri(AUTHORITY_OF_DOCUMENTS, id);
 
         result.setNotificationUri(getContext().getContentResolver(), uri);
 
@@ -952,7 +957,7 @@ public class SeafileProvider extends DocumentsProvider {
     private void fetchStarredAsync(Account account, MatrixCursor result) {
 
         String id = DocumentIdParser.buildStarredFilesId(account);
-        final Uri uri = DocumentsContract.buildChildDocumentsUri(Utils.AUTHORITY_OF_DOCUMENTS, id);
+        final Uri uri = DocumentsContract.buildChildDocumentsUri(AUTHORITY_OF_DOCUMENTS, id);
         result.setNotificationUri(getContext().getContentResolver(), uri);
 
         Single<List<StarredModel>> listSingle = Objs.getStarredSingleFromServer(account);
@@ -989,7 +994,7 @@ public class SeafileProvider extends DocumentsProvider {
      */
     private void fetchReposAsync(Account account, MatrixCursor result) {
         String id = DocumentIdParser.buildId(account, null, null);
-        final Uri uri = DocumentsContract.buildChildDocumentsUri(Utils.AUTHORITY_OF_DOCUMENTS, id);
+        final Uri uri = DocumentsContract.buildChildDocumentsUri(AUTHORITY_OF_DOCUMENTS, id);
         result.setNotificationUri(getContext().getContentResolver(), uri);
 
         Single<List<BaseModel>> resultSingle = Objs.getReposSingleFromServer(account);

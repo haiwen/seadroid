@@ -61,10 +61,10 @@ public class CopyMoveDialogFragment extends RequestCustomDialogFragmentWithVM<Co
         String strMsg = getString(strMsgId);
 
         String srcDir = Utils.pathJoin(ctx.srcRepoName, ctx.srcDir);
-        String srcDirPath = Utils.removeLastPathSeperator(srcDir);
+        String srcDirPath = Utils.removeLastPathSeparator(srcDir);
 
         String dstPath = Utils.pathJoin(ctx.dstRepoName, ctx.dstDir);
-        String dstDirPath = Utils.removeLastPathSeperator(dstPath);
+        String dstDirPath = Utils.removeLastPathSeparator(dstPath);
 
         //set message
         TextView tvMessage = containerView.findViewById(R.id.message_view);

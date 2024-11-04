@@ -32,11 +32,6 @@ android {
         }
     }
 
-    lintOptions {
-        abortOnError false
-        disable 'MissingTranslation'
-    }
-
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
@@ -323,6 +318,10 @@ android {
         testImplementation 'org.robolectric:robolectric:4.9'
 
 
+    }
+    lint {
+        abortOnError false
+        disable 'MissingTranslation'
     }
 
 }

@@ -1,27 +1,14 @@
 package com.seafile.seadroid2.ui.dialog;
 
 import android.annotation.SuppressLint;
-
-import androidx.appcompat.app.AlertDialog;
-
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.util.Log;
 
 import androidx.fragment.app.DialogFragment;
 
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-
-import com.google.android.gms.common.internal.Objects;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.common.base.Preconditions;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.ComparisonChain;
-import com.google.common.collect.Ordering;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.databinding.DialogSslConfirmBinding;

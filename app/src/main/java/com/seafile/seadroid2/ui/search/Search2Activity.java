@@ -26,6 +26,7 @@ import androidx.media3.common.util.UnstableApi;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.blankj.utilcode.util.CollectionUtils;
+import com.blankj.utilcode.util.NetworkUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.chad.library.adapter4.BaseQuickAdapter;
 import com.chad.library.adapter4.QuickAdapterHelper;
@@ -320,7 +321,7 @@ public class Search2Activity extends BaseActivityWithVM<SearchViewModel> impleme
     private String lastQuery = null;
 
     private void loadNext(String query, boolean isRefresh) {
-        if (!Utils.isNetworkOn()) {
+        if (!NetworkUtils.isConnected()) {
             ToastUtils.showLong(R.string.network_down);
             return;
         }
