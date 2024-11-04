@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.blankj.utilcode.util.NetworkUtils;
 import com.blankj.utilcode.util.RegexUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.R;
@@ -101,11 +102,15 @@ public class SingleSignOnActivity extends BaseActivity implements Toolbar.OnMenu
     }
 
     private String getServerUrl() {
-        String serverUrl = mServerUrlEt.getText().toString().trim();
-        return serverUrl;
+        return mServerUrlEt.getText().toString().trim();
     }
 
     private void openAuthorizePage(String serverUrl) {
+        if (!NetworkUtils.isConnected()) {
+            ToastUtils.showLong(R.string.network_down);
+            return;
+        }
+
         Intent intent = new Intent(this, SingleSignOnAuthorizeActivity.class);
         intent.putExtra(SeafileAuthenticatorActivity.SINGLE_SIGN_ON_SERVER_URL, serverUrl);
         intent.putExtras(getIntent());

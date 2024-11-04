@@ -21,6 +21,7 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.blankj.utilcode.util.BarUtils;
 import com.blankj.utilcode.util.CollectionUtils;
+import com.blankj.utilcode.util.NetworkUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.seafile.seadroid2.R;
@@ -288,7 +289,7 @@ public class ImagePreviewActivity extends BaseActivityWithVM<ImagePreviewViewMod
     }
 
     private void starFile() {
-        if (!Utils.isNetworkOn()) {
+        if (!NetworkUtils.isConnected()) {
             ToastUtils.showLong(R.string.network_down);
             return;
         }

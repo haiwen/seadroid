@@ -24,6 +24,7 @@ import android.widget.LinearLayout;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.Observer;
 
+import com.blankj.utilcode.util.NetworkUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
@@ -91,7 +92,7 @@ public class SingleSignOnAuthorizeActivity extends BaseActivityWithVM<AccountVie
 
         serverUrl = url;
 
-        if (!Utils.isNetworkOn()) {
+        if (!NetworkUtils.isConnected()) {
             ToastUtils.showLong(R.string.network_down);
             return;
         }

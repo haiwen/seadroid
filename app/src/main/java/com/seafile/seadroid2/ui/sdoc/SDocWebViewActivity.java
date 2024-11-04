@@ -2,10 +2,8 @@ package com.seafile.seadroid2.ui.sdoc;
 
 import android.content.Context;
 import android.content.Intent;
-
 import android.content.res.Configuration;
 import android.os.Bundle;
-
 import android.text.TextUtils;
 import android.view.View;
 import android.webkit.ValueCallback;
@@ -24,7 +22,6 @@ import androidx.webkit.WebViewFeature;
 import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.GsonUtils;
 import com.blankj.utilcode.util.ToastUtils;
-import com.google.android.gms.tasks.Continuation;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.annotation.Unstable;
@@ -44,11 +41,6 @@ import com.seafile.seadroid2.ui.webview.SeaWebViewActivity;
 import com.seafile.seadroid2.view.webview.PreloadWebView;
 import com.seafile.seadroid2.view.webview.SeaWebView;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import kotlin.Pair;
-
 @Unstable
 public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
     private ActivitySeaWebviewProBinding binding;
@@ -61,6 +53,9 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
 
     private SDocProfileConfigModel configModel;
 
+    /**
+     * not support, please use SeaWebViewActivity instead
+     */
     public static void openSdoc(Context context, String repoName, String repoID, String path) {
         Intent intent = new Intent(context, SeaWebViewActivity.class);
         intent.putExtra("previewType", WebViewPreviewType.SDOC.name());

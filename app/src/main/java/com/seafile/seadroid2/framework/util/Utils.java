@@ -1,14 +1,10 @@
 package com.seafile.seadroid2.framework.util;
 
 import android.app.Activity;
-import android.app.ActivityManager;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.BitmapFactory;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.net.NetworkInfo.DetailedState;
 import android.net.Uri;
 import android.net.http.SslCertificate;
 import android.os.Build;
@@ -43,7 +39,6 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -52,8 +47,7 @@ import java.util.Locale;
 public class Utils {
     public static final String MIME_APPLICATION_OCTET_STREAM = "application/octet-stream";
     public static final String AUTHORITY = BuildConfig.APPLICATION_ID;
-    public static final String AUTHORITY_OF_DOCUMENTS = BuildConfig.APPLICATION_ID + ".documents";
-    public static final String PATH_SEPERATOR = "/";
+
     // public static final String NOGROUP = "$nogroup";
     public static final String PERSONAL_REPO = "personal_repo";
     public static final String SHARED_REPO = "shared_repo";
@@ -168,33 +162,6 @@ public class Utils {
         return false;
     }
 
-    public static boolean isNetworkOn() {
-        ConnectivityManager connMgr = (ConnectivityManager) SeadroidApplication.getAppContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-        if (networkInfo == null) {
-            return false;
-        }
-        if (networkInfo.getType() == ConnectivityManager.TYPE_MOBILE) {
-            String extraInfo = networkInfo.getExtraInfo();
-            if (!TextUtils.isEmpty(extraInfo)) {
-                return true;
-            }
-        }
-        if (networkInfo.getType() == ConnectivityManager.TYPE_WIFI) {
-            return true;
-        }
-        return false;
-    }
-
-    public static boolean isWiFiOn() {
-        ConnectivityManager connMgr = (ConnectivityManager) SeadroidApplication.getAppContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo wifi = connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-        if (wifi != null && wifi.isAvailable() && wifi.getDetailedState() == DetailedState.CONNECTED) {
-            return true;
-        }
-        return false;
-    }
-
     public static String pathJoin(String first, String... rest) {
         StringBuilder result = new StringBuilder(first);
         for (String b : rest) {
@@ -213,7 +180,7 @@ public class Utils {
         return result.toString();
     }
 
-    public static String removeLastPathSeperator(String path) {
+    public static String removeLastPathSeparator(String path) {
         if (TextUtils.isEmpty(path)) return null;
 
         int size = path.length();
@@ -268,17 +235,6 @@ public class Utils {
             return SeadroidApplication.getAppContext().getString(R.string.just_now);
         }
     }
-
-    /**
-     * Translate create time
-     */
-    public static String translateTime() {
-        long now = System.currentTimeMillis();
-        Date d = new Date(now);
-        SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
-        return fmt.format(d);
-    }
-
 
     public static long now() {
         return System.currentTimeMillis();
@@ -545,22 +501,7 @@ public class Utils {
     }
 
 
-    public static boolean isServiceRunning(Context context, String ServiceName) {
-        if (TextUtils.isEmpty(ServiceName)) {
-            return false;
-        }
-        ActivityManager myManager = (ActivityManager) context
-                .getSystemService(Context.ACTIVITY_SERVICE);
-        ArrayList<ActivityManager.RunningServiceInfo> runningService = (ArrayList<ActivityManager.RunningServiceInfo>) myManager
-                .getRunningServices(30);
-        for (int i = 0; i < runningService.size(); i++) {
-            if (runningService.get(i).service.getClassName().toString()
-                    .equals(ServiceName)) {
-                return true;
-            }
-        }
-        return false;
-    }
+
 
     public static void startCameraSyncJob(Context context) {
 //        JobScheduler mJobScheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);

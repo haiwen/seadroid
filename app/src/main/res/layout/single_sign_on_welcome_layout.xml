@@ -32,7 +32,7 @@
         android:orientation="horizontal"
         android:paddingBottom="10dp">
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/single_sign_on_next_btn"
             android:layout_width="match_parent"
             android:layout_height="@dimen/long_btn_height"

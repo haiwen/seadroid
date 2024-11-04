@@ -14,7 +14,7 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         compileSdk rootProject.ext.compileSdkVersion
 
-        versionCode 155
+        versionCode 156
         versionName "3.0.5"
         multiDexEnabled true
 
@@ -30,11 +30,6 @@ android {
                 arguments["workmanager.inline"] = "false" // 禁用 WorkManager 的自动初始化
             }
         }
-    }
-
-    lintOptions {
-        abortOnError false
-        disable 'MissingTranslation'
     }
 
 
@@ -323,6 +318,10 @@ android {
         testImplementation 'org.robolectric:robolectric:4.9'
 
 
+    }
+    lint {
+        abortOnError false
+        disable 'MissingTranslation'
     }
 
 }
