@@ -352,7 +352,7 @@ public class SDocProfileDialog extends BottomSheetDialogFragment {
             case ColumnType.NUMBER:
                 return R.drawable.ic_number;
             case ColumnType.RATE:
-                return R.drawable.ic_star2;
+                return R.drawable.ic_star_32;
             case ColumnType.URL:
                 return R.drawable.ic_url;
             case ColumnType.LINK:
@@ -642,7 +642,7 @@ public class SDocProfileDialog extends BottomSheetDialogFragment {
             ColorStateList stateList = ColorStateList.valueOf(t);
 
             ltr.setImageTintList(stateList);
-            ltr.setImageResource(R.drawable.ic_star2);
+            ltr.setImageResource(R.drawable.ic_star_32);
 
             view.<FlexboxLayout>findViewById(R.id.flex_box).addView(ltr, flexLayoutParams);
         }

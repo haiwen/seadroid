@@ -20,7 +20,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scaleType="fitCenter"
-            android:src="@drawable/baseline_settings_24"
+            android:src="@drawable/baseline_repo_24"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -65,13 +65,13 @@
 
         <ImageView
             android:id="@+id/expandable_toggle_button"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:foreground="@drawable/selectable_item_background_oval"
             android:padding="12dp"
             android:src="@drawable/baseline_more_vert_24"
             android:visibility="visible"
-            app:tint="@color/item_title_color" />
+            app:tint="@color/item_subtitle_color" />
 
     </LinearLayout>
 

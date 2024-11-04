@@ -83,8 +83,8 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
 
     public Drawable getStarDrawable() {
         if (null == starDrawable) {
-            int DP_16 = SizeUtils.dp2px(16);
-            starDrawable = ContextCompat.getDrawable(getContext(), R.drawable.baseline_star_24);
+            int DP_16 = SizeUtils.dp2px(12);
+            starDrawable = ContextCompat.getDrawable(getContext(), R.drawable.ic_star_32);
             starDrawable.setBounds(0, 0, DP_16, DP_16);
             starDrawable.setTint(ContextCompat.getColor(getContext(), R.color.light_grey));
         }

@@ -265,6 +265,7 @@
     <color name="material_grey_400">#BDBDBD</color>
     <color name="material_grey_500">#9E9E9E</color>
     <color name="material_grey_600">#757575</color>
+    <color name="material_grey_666">#666666</color>
     <color name="material_grey_700">#616161</color>
     <color name="material_grey_800">#424242</color>
     <color name="material_grey_900">#212121</color>

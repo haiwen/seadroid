@@ -16,8 +16,10 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.media3.common.util.UnstableApi;
 
 import com.blankj.utilcode.util.ToastUtils;
 import com.chad.library.adapter4.BaseQuickAdapter;
@@ -26,6 +28,7 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.annotation.Unstable;
 import com.seafile.seadroid2.bottomsheetmenu.BottomSheetHelper;
 import com.seafile.seadroid2.bottomsheetmenu.BottomSheetMenuFragment;
 import com.seafile.seadroid2.bottomsheetmenu.OnMenuClickListener;
@@ -125,7 +128,7 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
 
         });
 
-        adapter.addOnItemChildClickListener(R.id.item_action, new BaseQuickAdapter.OnItemChildClickListener<StarredModel>() {
+        adapter.addOnItemChildClickListener(R.id.expandable_toggle_button, new BaseQuickAdapter.OnItemChildClickListener<StarredModel>() {
             @Override
             public void onItemClick(@NonNull BaseQuickAdapter<StarredModel, ?> baseQuickAdapter, @NonNull View view, int i) {
                 showBottomSheet(adapter.getItems().get(i));
@@ -225,6 +228,7 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
         }
     }
 
+    @OptIn(markerClass = Unstable.class)
     private void open(StarredModel model) {
         if (model.is_dir) {
             MainActivity.navToThis(requireContext(), model.repo_id, model.repo_name, model.path, model.is_dir);

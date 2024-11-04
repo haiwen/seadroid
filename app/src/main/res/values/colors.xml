@@ -24,6 +24,8 @@
     </color> <!-- color for dividers inside of slide expandable list item -->
     <color name="fancy_gray">#969696</color>
     <color name="fancy_dark_gray">#e1e2e3</color>
+
+    <color name="fancy_orange_light">#FFC783</color> <!-- theme color -->
     <color name="fancy_orange">#ea8201</color> <!-- theme color -->
     <color name="fancy_orange_dark">#CF7300</color> <!-- theme color -->
 
@@ -60,12 +62,13 @@
     <color name="divider_color">#F1F1F1</color>
 
     <color name="item_title_color">#333333</color>
-    <color name="item_subtitle_color">#888888</color>
+    <color name="item_subtitle_color">@color/material_grey_500</color>
     <color name="item_icon_tint_color">#A0A0A0</color>
 
     <color name="bar_background_color">#f9f9f9</color>
     <color name="bar_title_color">#191919</color>
     <color name="bar_icon_tint_color">#191919</color>
+    <color name="bottom_bar_icon_tint_color">@color/material_grey_666</color>
 
     <color name="toolbar_editor_background_color">@color/blue_500</color>
     <color name="toolbar_editor_title_color">@color/white</color>

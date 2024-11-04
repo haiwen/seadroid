@@ -51,6 +51,7 @@
         <item name="backgroundTint">@null</item>
         <item name="itemIconTint">@color/selector_color_primary</item>
         <item name="itemTextColor">@color/selector_color_primary</item>
+        <item name="itemRippleColor">@color/fancy_orange_light</item>
         <item name="labelVisibilityMode">labeled</item>
         <item name="android:minHeight">?actionBarSize</item>
         <item name="itemPaddingTop">8dp</item>
@@ -59,7 +60,7 @@
 
     <style name="OverflowMenuStyle" parent="@style/Widget.Material3.PopupMenu.Overflow">
         <item name="overlapAnchor">false</item>
-<!--        <item name="android:dropDownHorizontalOffset">-8dp</item>-->
+        <!--        <item name="android:dropDownHorizontalOffset">-8dp</item>-->
     </style>
 
     <style name="AppCompatAlertDialogStyle" parent="ThemeOverlay.Material3.MaterialAlertDialog">
@@ -71,7 +72,7 @@
         <item name="buttonBarNeutralButtonStyle">@style/AppCompatAlertDialog.ButtonStyle</item>
 
         <!-- todo -->
-<!--        <item name="android:windowElevation">0dp</item>-->
+        <!--        <item name="android:windowElevation">0dp</item>-->
 
         <item name="colorPrimary">@color/white</item>
         <item name="colorSecondary">@color/md_theme_secondary</item>

@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
         android:id="@+id/nav_to"
+        app:iconTint="#8a8a8a"
         android:icon="@drawable/icon_nav_to"
         android:title="@string/navigate_to_directory" />
 
     <item
         android:id="@+id/unstar"
-        android:icon="@drawable/icon_star"
+        app:iconTint="#8a8a8a"
+        android:icon="@drawable/baseline_star_outline_24"
         android:title="@string/unstar" />
 
 </menu>
