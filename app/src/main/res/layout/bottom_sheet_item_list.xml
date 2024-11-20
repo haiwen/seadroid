@@ -17,14 +17,12 @@
         tools:src="@drawable/ic_cancel" />
 
     <TextView
-        android:id="@+id/name"
+        android:id="@+id/text"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:ellipsize="end"
         android:maxLines="1"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="@color/item_title_color"
-        android:textSize="16sp"
         tools:text="List Item" />
 </LinearLayout>

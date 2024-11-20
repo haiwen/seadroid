@@ -75,7 +75,27 @@ public class Utils {
         }
     }
 
+    public static String getPathFromFullPath(String path) {
+        if (path == null) {
+            // the caller should not give null
+            Log.w(DEBUG_TAG, "path is null");
+            return null;
+        }
 
+        if (!path.contains("/")) {
+            return "/";
+        }
+
+        if (path.endsWith("/")) {
+            return path;
+        }
+
+        String parent = path.substring(0, path.lastIndexOf("/"));
+        if (parent.isEmpty()) {
+            return "/";
+        } else
+            return parent;
+    }
     public static String getParentPath(String path) {
         if (path == null) {
             // the caller should not give null

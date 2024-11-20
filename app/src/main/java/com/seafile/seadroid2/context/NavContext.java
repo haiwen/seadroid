@@ -54,7 +54,7 @@ public class NavContext {
         navStack.pop();
     }
 
-    public void navToPath(RepoModel repoModel, String full_path) {
+    public void switchToPath(RepoModel repoModel, String full_path) {
         navStack.clear();
 
         navStack.push(repoModel);

@@ -259,16 +259,22 @@
     <color name="material_brown_900">#3E2723</color>
 
     <color name="material_grey_50">#FAFAFA</color>
+    <color name="material_grey_88">#F8F8F8</color>
     <color name="material_grey_100">#F5F5F5</color>
     <color name="material_grey_200">#EEEEEE</color>
     <color name="material_grey_300">#E0E0E0</color>
     <color name="material_grey_400">#BDBDBD</color>
     <color name="material_grey_500">#9E9E9E</color>
+    <color name="material_grey_599">#999999</color>
     <color name="material_grey_600">#757575</color>
     <color name="material_grey_666">#666666</color>
     <color name="material_grey_700">#616161</color>
     <color name="material_grey_800">#424242</color>
     <color name="material_grey_900">#212121</color>
+
+    <color name="material_grey_824">#222222</color>
+    <color name="material_grey_919">#191919</color>
+    <color name="material_grey_911">#111111</color>
 
     <color name="material_blue_grey_50">#ECEFF1</color>
     <color name="material_blue_grey_100">#CFD8DC</color>

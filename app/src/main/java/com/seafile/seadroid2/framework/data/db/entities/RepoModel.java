@@ -11,6 +11,8 @@ import com.seafile.seadroid2.framework.data.model.BaseModel;
 import com.seafile.seadroid2.framework.data.model.adapter.EncryptFieldJsonAdapter;
 import com.seafile.seadroid2.framework.util.Utils;
 
+import org.apache.commons.lang3.StringUtils;
+
 @Entity(tableName = "repos", primaryKeys = {"repo_id", "group_id"})
 public class RepoModel extends BaseModel {
 
@@ -78,14 +80,20 @@ public class RepoModel extends BaseModel {
     }
 
     public int getIcon() {
-        if (encrypted)
+        if (encrypted) {
             return R.drawable.baseline_repo_encrypted_24;
-        if (!hasWritePermission())
+        } else if (isCustomPermission()) {
+            return R.drawable.baseline_repo_24;
+        } else if (!hasWritePermission()) {
             return R.drawable.baseline_repo_readonly_24;
+        }
 
         return R.drawable.baseline_repo_24;
     }
 
+    /**
+     * You'll also need to check if it's a custom permission
+     */
     public boolean hasWritePermission() {
         if (TextUtils.isEmpty(permission)) {
             return false;
@@ -99,9 +107,27 @@ public class RepoModel extends BaseModel {
             return false;
         }
 
-        return !TextUtils.isEmpty(permission) && permission.contains("w");
+        return permission.contains("w");
     }
 
+    /**
+     * if start with "custom-"
+     */
+    public boolean isCustomPermission() {
+        return !TextUtils.isEmpty(permission) && permission.startsWith("custom-");
+    }
+
+    /**
+     * please check {@link #isCustomPermission()} first
+     */
+    public int getCustomPermissionNum() {
+        if (!isCustomPermission()) {
+            throw new IllegalArgumentException("please check isCustomPermission() first");
+        }
+
+        String[] ss = StringUtils.split(permission, "-");
+        return Integer.parseInt(ss[1]);
+    }
 
 //    /**
 //     * If the result is true, and the decryption was successful,

@@ -47,7 +47,7 @@
 
     <group android:id="@+id/group_update">
         <item
-            android:id="@+id/update"
+            android:id="@+id/upload"
             android:icon="@drawable/ic_upload"
             android:title="@string/file_action_update" />
         <item

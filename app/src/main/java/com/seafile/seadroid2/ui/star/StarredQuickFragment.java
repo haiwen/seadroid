@@ -19,7 +19,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.media3.common.util.UnstableApi;
 
 import com.blankj.utilcode.util.ToastUtils;
 import com.chad.library.adapter4.BaseQuickAdapter;
@@ -29,9 +28,10 @@ import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.annotation.Unstable;
-import com.seafile.seadroid2.bottomsheetmenu.BottomSheetHelper;
-import com.seafile.seadroid2.bottomsheetmenu.BottomSheetMenuFragment;
-import com.seafile.seadroid2.bottomsheetmenu.OnMenuClickListener;
+import com.seafile.seadroid2.framework.datastore.sp.SettingsManager;
+import com.seafile.seadroid2.ui.bottomsheetmenu.BottomSheetHelper;
+import com.seafile.seadroid2.ui.bottomsheetmenu.BottomSheetMenuFragment;
+import com.seafile.seadroid2.ui.bottomsheetmenu.OnMenuClickListener;
 import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.databinding.LayoutFrameSwipeRvBinding;
 import com.seafile.seadroid2.framework.data.db.entities.StarredModel;
@@ -97,8 +97,6 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
         initViewModel();
     }
 
-    private boolean isForce = false;
-
     @Override
     public void onFirstResume() {
         super.onFirstResume();
@@ -106,8 +104,10 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
+    public void onOtherResume() {
+        super.onOtherResume();
+
+        boolean isForce = SettingsManager.getForceRefreshStarredListState();
         if (isForce) {
             reload();
         }
@@ -148,13 +148,6 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
     }
 
     private void initViewModel() {
-        mainViewModel.getOnForceRefreshStarredListLiveData().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
-            @Override
-            public void onChanged(Boolean aBoolean) {
-                isForce = aBoolean;
-            }
-        });
-
         getViewModel().getRefreshLiveData().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean aBoolean) {

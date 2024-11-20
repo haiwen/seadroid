@@ -2,7 +2,6 @@ package com.seafile.seadroid2.ui.main;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.Dialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -50,6 +49,7 @@ import com.seafile.seadroid2.enums.SortBy;
 import com.seafile.seadroid2.framework.data.ServerInfo;
 import com.seafile.seadroid2.framework.data.db.entities.EncKeyCacheEntity;
 import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
+import com.seafile.seadroid2.framework.data.db.entities.PermissionEntity;
 import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.data.model.dirents.DirentFileModel;
 import com.seafile.seadroid2.framework.file_monitor.FileSyncService;
@@ -69,7 +69,6 @@ import com.seafile.seadroid2.ui.dialog_fragment.NewRepoDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.PasswordDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.listener.OnRefreshDataListener;
 import com.seafile.seadroid2.ui.repo.RepoQuickFragment;
-import com.seafile.seadroid2.ui.search.Search2Activity;
 import com.seafile.seadroid2.ui.transfer_list.TransferActivity;
 
 import java.io.File;
@@ -287,7 +286,7 @@ public class MainActivity extends BaseActivity {
                                 // expired
                                 showPasswordDialog(repoModel, finalPath);
                             } else {
-                                getNavContext().navToPath(repoModel, finalPath);
+                                getNavContext().switchToPath(repoModel, finalPath);
                                 binding.pager.setCurrentItem(0);
                                 getReposFragment().loadData();
                                 refreshToolbarTitle();
@@ -296,7 +295,7 @@ public class MainActivity extends BaseActivity {
                     });
 
                 } else {
-                    getNavContext().navToPath(repoModel, finalPath);
+                    getNavContext().switchToPath(repoModel, finalPath);
                     binding.pager.setCurrentItem(0);
                     getReposFragment().loadData();
                     refreshToolbarTitle();
@@ -465,6 +464,19 @@ public class MainActivity extends BaseActivity {
 //                }
             }
         });
+
+        mainViewModel.getOnActionModeLiveData().observe(this, new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+
+                onShowRepoActionMode(aBoolean);
+
+            }
+        });
+    }
+
+    private void onShowRepoActionMode(boolean show) {
+        binding.pager.setUserInputEnabled(!show);
     }
 
     private void refreshToolbarTitle() {
@@ -545,7 +557,6 @@ public class MainActivity extends BaseActivity {
         finish();
     }
 
-
     ////////////////////////////
     /// menu
     ////////////////////////////
@@ -596,7 +607,6 @@ public class MainActivity extends BaseActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         menuBinding = MenuBinding.inflate(menu, getMenuInflater());
-
         MenuCompat.setGroupDividerEnabled(menu, true);
 
         initSearchView();
@@ -614,9 +624,7 @@ public class MainActivity extends BaseActivity {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                searchView.clearFocus();
-                startSearchPage(query);
-                return true;
+                return false;
             }
 
             @Override
@@ -625,6 +633,7 @@ public class MainActivity extends BaseActivity {
                 return false;
             }
         });
+        menuBinding.search.collapseActionView();
         menuBinding.search.setActionView(searchView);
     }
 
@@ -634,13 +643,28 @@ public class MainActivity extends BaseActivity {
         if (binding.pager.getCurrentItem() == INDEX_LIBRARY_TAB) {
             if (getNavContext().inRepo()) {
                 menuBinding.createRepo.setVisible(false);
-                if (getNavContext().isParentHasWritePermission()) {
-                    menuBinding.add.setEnabled(true);
-                    menuBinding.select.setEnabled(true);
-                } else {
-                    menuBinding.add.setEnabled(false);
-                    menuBinding.select.setEnabled(false);
-                }
+
+                //check custom permission
+                String repoId = getNavContext().getRepoModel().repo_id;
+                mainViewModel.getRepoModelFromLocal(repoId, new Consumer<Pair<RepoModel, PermissionEntity>>() {
+                    @Override
+                    public void accept(Pair<RepoModel, PermissionEntity> pair) throws Exception {
+                        if (pair.getFirst().isCustomPermission()) {
+                            PermissionEntity permission = pair.getSecond();
+                            if (permission != null) {
+                                menuBinding.add.setEnabled(permission.create);
+                                menuBinding.select.setEnabled(permission.modify);
+                            }
+                        } else if (getNavContext().isParentHasWritePermission()) {
+                            menuBinding.add.setEnabled(true);
+                            menuBinding.select.setEnabled(true);
+                        } else {
+                            menuBinding.add.setEnabled(false);
+                            menuBinding.select.setEnabled(false);
+                        }
+                    }
+                });
+
             } else {
                 menuBinding.createRepo.setVisible(true);
                 menuBinding.add.setVisible(false);
@@ -662,20 +686,10 @@ public class MainActivity extends BaseActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
         boolean isRet = true;
         if (item.getItemId() == android.R.id.home) {
             if (getNavContext().inRepo() && binding.pager.getCurrentItem() == INDEX_LIBRARY_TAB) {
                 getOnBackPressedDispatcher().onBackPressed();
-            }
-        } else if (item.getItemId() == R.id.menu_action_search_go) {
-            Optional<ServerInfo> optional = checkServerInfo();
-            if (optional.isPresent() && optional.get().isSearchEnabled()) {
-                SearchView searchView = (SearchView) menuBinding.search.getActionView();
-                if (searchView != null) {
-                    searchView.clearFocus();
-                    startSearchPage(searchView.getQuery().toString());
-                }
             }
         } else if (item.getItemId() == R.id.create_repo) {
             showNewRepoDialog();
@@ -734,11 +748,6 @@ public class MainActivity extends BaseActivity {
                 menuIdState.put("select", menuBinding.select.isVisible());
                 menuIdState.put("transferList", menuBinding.transferList.isVisible());
 
-                Optional<ServerInfo> optional = checkServerInfo();
-                if (optional.isPresent() && optional.get().isSearchEnabled()) {
-                    menuBinding.searchNext.setVisible(true);
-                }
-
                 menuBinding.sortGroup.setVisible(false);
                 menuBinding.createRepo.setVisible(false);
                 menuBinding.add.setVisible(false);
@@ -750,7 +759,6 @@ public class MainActivity extends BaseActivity {
 
             @Override
             public boolean onMenuItemActionCollapse(@NonNull MenuItem item) {
-                menuBinding.searchNext.setVisible(false);
 
                 menuBinding.sortGroup.setVisible(Boolean.TRUE.equals(menuIdState.get("sortGroup")));
                 menuBinding.createRepo.setVisible(Boolean.TRUE.equals(menuIdState.get("createRepo")));
@@ -810,7 +818,6 @@ public class MainActivity extends BaseActivity {
         public MenuItem viewGallery;
 
         public MenuItem search;
-        public MenuItem searchNext;
 
         public MenuItem createRepo;
         public MenuItem add;
@@ -837,20 +844,12 @@ public class MainActivity extends BaseActivity {
             binding1.viewGallery = menu.findItem(R.id.menu_action_view_gallery);
 
             binding1.search = menu.findItem(R.id.menu_action_search);
-            binding1.searchNext = menu.findItem(R.id.menu_action_search_go);
 
             binding1.createRepo = menu.findItem(R.id.create_repo);
             binding1.add = menu.findItem(R.id.add);
             binding1.select = menu.findItem(R.id.select);
             binding1.transferList = menu.findItem(R.id.transfer_tasks);
             return binding1;
-        }
-    }
-
-    private void startSearchPage(String query) {
-        Optional<ServerInfo> optional = checkServerInfo();
-        if (optional.isPresent() && optional.get().isSearchEnabled()) {
-            Search2Activity.start(this, query);
         }
     }
 
@@ -914,7 +913,7 @@ public class MainActivity extends BaseActivity {
             @Override
             public void onActionStatus(boolean isDone) {
                 if (isDone) {
-                    getNavContext().navToPath(repoModel, path);
+                    getNavContext().switchToPath(repoModel, path);
                     binding.pager.setCurrentItem(0);
                     getReposFragment().loadData();
                     refreshToolbarTitle();
@@ -1154,26 +1153,6 @@ public class MainActivity extends BaseActivity {
         }
     });
 
-    private Dialog dialog;
-
-    private void showProgressDialog() {
-        if (dialog == null) {
-            MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
-            builder.setView(R.layout.layout_dialog_progress_bar);
-            dialog = builder.create();
-        }
-
-        if (dialog.isShowing()) {
-            dialog.dismiss();
-        }
-        dialog.show();
-    }
-
-    private void dismissProgressDialog() {
-        if (dialog != null) {
-            dialog.dismiss();
-        }
-    }
 
     /////////////////////////////
     private void doSelectedMultiFile(List<Uri> uriList) {

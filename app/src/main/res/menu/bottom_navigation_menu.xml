@@ -8,7 +8,7 @@
 
     <item
         android:id="@+id/tabs_starred"
-        android:icon="@drawable/baseline_star_outline_24"
+        android:icon="@drawable/ic_star_32"
         android:title="@string/tabs_starred" />
 
     <item
@@ -18,6 +18,6 @@
 
     <item
         android:id="@+id/tabs_settings"
-        android:icon="@drawable/baseline_settings_24"
+        android:icon="@drawable/ic_setup_32"
         android:title="@string/settings" />
 </menu>

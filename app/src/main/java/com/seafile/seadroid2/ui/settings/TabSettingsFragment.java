@@ -239,9 +239,8 @@ public class TabSettingsFragment extends RenameSharePreferenceFragmentCompat {
             mAlbumBackupAdvanced.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(@NonNull Preference preference) {
-                    BackgroundJobManagerImpl.getInstance().startMediaChainWorker(true);
-//                    Intent intent = new Intent(requireActivity(), SettingsAlbumBackupAdvancedActivity.class);
-//                    albumBackupAdvanceLauncher.launch(intent);
+                    Intent intent = new Intent(requireActivity(), SettingsAlbumBackupAdvancedActivity.class);
+                    albumBackupAdvanceLauncher.launch(intent);
                     return true;
                 }
             });

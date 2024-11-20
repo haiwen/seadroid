@@ -17,7 +17,7 @@
             android:strokeLineJoin="round"
             android:strokeWidth="1"
             android:fillColor="#00000000"
-            android:strokeColor="@color/item_icon_tint_color"
+            android:strokeColor="#999999"
             android:strokeLineCap="round"/>
       </group>
       <group>
@@ -28,7 +28,7 @@
             android:strokeLineJoin="round"
             android:strokeWidth="1"
             android:fillColor="#00000000"
-            android:strokeColor="@color/item_icon_tint_color"
+            android:strokeColor="#999999"
             android:strokeLineCap="round"/>
       </group>
       <group>
@@ -39,7 +39,7 @@
             android:strokeLineJoin="round"
             android:strokeWidth="1"
             android:fillColor="#00000000"
-            android:strokeColor="@color/item_icon_tint_color"
+            android:strokeColor="#999999"
             android:strokeLineCap="round"/>
       </group>
       <group>
@@ -50,7 +50,7 @@
             android:strokeLineJoin="round"
             android:strokeWidth="1"
             android:fillColor="#00000000"
-            android:strokeColor="@color/item_icon_tint_color"
+            android:strokeColor="#999999"
             android:strokeLineCap="round"/>
       </group>
       <group>
@@ -61,7 +61,7 @@
             android:strokeLineJoin="round"
             android:strokeWidth="1"
             android:fillColor="#00000000"
-            android:strokeColor="@color/item_icon_tint_color"
+            android:strokeColor="#999999"
             android:strokeLineCap="round"/>
       </group>
     </group>
@@ -71,20 +71,20 @@
       android:strokeLineJoin="round"
       android:strokeWidth="1"
       android:fillColor="#00000000"
-      android:strokeColor="@color/item_icon_tint_color"
+      android:strokeColor="#999999"
       android:strokeLineCap="round"/>
   <path
       android:pathData="M14.75,16.167H18.75V18.833H14.75V16.167Z"
       android:strokeLineJoin="round"
       android:strokeWidth="1"
       android:fillColor="#00000000"
-      android:strokeColor="@color/item_icon_tint_color"
+      android:strokeColor="#999999"
       android:strokeLineCap="round"/>
   <path
       android:pathData="M15.417,16.167V14.833C15.417,14.097 16.014,13.5 16.75,13.5C17.487,13.5 18.084,14.097 18.084,14.833V16.167"
       android:strokeLineJoin="round"
       android:strokeWidth="1"
       android:fillColor="#00000000"
-      android:strokeColor="@color/item_icon_tint_color"
+      android:strokeColor="#999999"
       android:strokeLineCap="round"/>
 </vector>

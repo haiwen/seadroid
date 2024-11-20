@@ -10,22 +10,22 @@
         android:id="@+id/text_view_negative"
         android:layout_width="wrap_content"
         android:layout_height="?actionBarSize"
-        android:foreground="?selectableItemBackground"
+        android:foreground="@drawable/selection_control_ripple"
         android:gravity="center"
         android:paddingHorizontal="?attr/dialogPreferredPadding"
         android:text="@string/cancel"
-        android:textColor="@color/md_theme_primary" />
+        android:textColor="?attr/colorPrimary" />
 
     <TextView
         android:id="@+id/text_view_positive"
         android:layout_width="wrap_content"
         android:layout_height="?actionBarSize"
         android:layout_marginStart="4dp"
-        android:foreground="?selectableItemBackground"
+        android:foreground="@drawable/selection_control_ripple"
         android:gravity="center"
         android:paddingHorizontal="?attr/dialogPreferredPadding"
         android:text="@string/ok"
-        android:textColor="@color/md_theme_primary" />
+        android:textColor="?attr/colorPrimary" />
 
     <ProgressBar
         android:id="@+id/progress_bar"

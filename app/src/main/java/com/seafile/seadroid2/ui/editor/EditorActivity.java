@@ -181,25 +181,6 @@ public class EditorActivity extends BaseActivityWithVM<EditorViewModel> implemen
         });
     }
 
-    private Dialog dialog;
-
-    private void showProgressDialog() {
-
-        if (dialog == null) {
-            MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
-            builder.setView(R.layout.layout_dialog_progress_bar);
-            dialog = builder.create();
-        }
-
-        dialog.show();
-    }
-
-    private void dismissProgressDialog() {
-        if (dialog != null) {
-            dialog.dismiss();
-        }
-    }
-
     @Override
     public void onDetachedFromWindow() {
         mPerformEdit.clearHistory();

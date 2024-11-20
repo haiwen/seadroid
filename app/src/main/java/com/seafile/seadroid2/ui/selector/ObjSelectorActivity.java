@@ -188,7 +188,7 @@ public class ObjSelectorActivity extends BaseActivity {
         binding.rv.addItemDecoration(decoration);
 
         adapter = new RepoQuickAdapter();
-        adapter.setSelectType(RepoSelectType.DIRENT);
+        adapter.setSelectType(RepoSelectType.FOLDER);
         adapter.setFileViewType(FileViewType.LIST);
 
         adapter.setOnItemClickListener((baseQuickAdapter, view, i) -> {

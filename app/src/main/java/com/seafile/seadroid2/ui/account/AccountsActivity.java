@@ -203,28 +203,6 @@ public class AccountsActivity extends BaseActivityWithVM<AccountViewModel> imple
         }
     }
 
-    private Dialog dialog;
-
-    private void showProgressDialog() {
-
-        if (dialog == null) {
-            MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
-            builder.setView(R.layout.layout_dialog_progress_bar);
-            dialog = builder.create();
-        }
-
-        if (dialog.isShowing()) {
-            dialog.dismiss();
-        }
-        dialog.show();
-    }
-
-    private void dismissProgressDialog() {
-        if (dialog != null) {
-            dialog.dismiss();
-        }
-    }
-
     @Override
     protected void onDestroy() {
         Log.d(DEBUG_TAG, "onDestroy");

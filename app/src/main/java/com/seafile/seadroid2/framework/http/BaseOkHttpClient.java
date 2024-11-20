@@ -3,6 +3,7 @@ package com.seafile.seadroid2.framework.http;
 import android.text.TextUtils;
 
 import com.blankj.utilcode.util.NetworkUtils;
+import com.seafile.seadroid2.BuildConfig;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.framework.http.interceptor.HeaderInterceptor;
@@ -47,7 +48,7 @@ public abstract class BaseOkHttpClient {
         //print log
         HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
         loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BASIC);
-//        loggingInterceptor.setLevel(BuildConfig.DEBUG ? HttpLoggingInterceptor.Level.BODY : HttpLoggingInterceptor.Level.BASIC);
+        loggingInterceptor.setLevel(BuildConfig.DEBUG ? HttpLoggingInterceptor.Level.BODY : HttpLoggingInterceptor.Level.BASIC);
         interceptors.add(loggingInterceptor);
 
         if (account != null && !TextUtils.isEmpty(account.token)) {

@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.bottomsheetmenu;
+package com.seafile.seadroid2.ui.bottomsheetmenu;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.blankj.utilcode.util.CollectionUtils;
+import com.chad.library.adapter4.BaseQuickAdapter;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.seafile.seadroid2.R;
@@ -49,7 +50,7 @@ public class BottomSheetMenuFragment extends BottomSheetDialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(requireContext(), R.style.ThemeOverlay_Catalog_BottomSheetDialog_Scrollable);
-        bottomSheetDialog.setContentView(R.layout.layout_bottom_sheet_recycler_menu);
+        bottomSheetDialog.setContentView(R.layout.layout_bottom_sheet_menu_dialog);
         bottomSheetDialog.setDismissWithAnimation(true);
 
         View parentView = bottomSheetDialog.findViewById(R.id.bottom_sheet_container);
@@ -64,29 +65,37 @@ public class BottomSheetMenuFragment extends BottomSheetDialogFragment {
             TextView title = rootView.findViewById(R.id.title);
             title.setText(builder.title);
         }
-        
-        if (!CollectionUtils.isEmpty(builder.menuItems)) {
-            RecyclerView rv = rootView.findViewById(R.id.rv);
-            if (builder.columnCount == 1) {
-                rv.setLayoutManager(new LinearLayoutManager(requireContext()));
-            } else {
-                rv.setLayoutManager(new GridLayoutManager(requireContext(), builder.columnCount));
-            }
 
-            BottomSheetMenuAdapter adapter = new BottomSheetMenuAdapter(builder.menuItems, builder.columnCount);
-            adapter.setOnMenuClickListener(new OnMenuClickListener() {
-                @Override
-                public void onMenuClick(MenuItem menuItem) {
-                    dismiss();
-                    if (builder.onMenuClickListener != null) {
-                        builder.onMenuClickListener.onMenuClick(menuItem);
-                    }
-                }
-            });
-
-            rv.setAdapter(adapter);
+        if (CollectionUtils.isEmpty(builder.menuItems)) {
+            return;
         }
 
+        RecyclerView rv = rootView.findViewById(R.id.rv);
+        if (builder.columnCount == 1) {
+            rv.setLayoutManager(new LinearLayoutManager(requireContext()));
+        } else {
+            rv.setLayoutManager(new GridLayoutManager(requireContext(), builder.columnCount));
+        }
+
+        BottomSheetMenuAdapter adapter = getBottomSheetMenuAdapter();
+        adapter.submitList(builder.menuItems);
+
+        rv.setAdapter(adapter);
+
+    }
+
+    private @NonNull BottomSheetMenuAdapter getBottomSheetMenuAdapter() {
+        BottomSheetMenuAdapter adapter = new BottomSheetMenuAdapter(builder.columnCount);
+        adapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener<MenuItem>() {
+            @Override
+            public void onClick(@NonNull BaseQuickAdapter<MenuItem, ?> baseQuickAdapter, @NonNull View view, int i) {
+                dismiss();
+                if (builder.onMenuClickListener != null) {
+                    builder.onMenuClickListener.onMenuClick(adapter.getItem(i));
+                }
+            }
+        });
+        return adapter;
     }
 
 
@@ -122,7 +131,6 @@ public class BottomSheetMenuFragment extends BottomSheetDialogFragment {
             inflater.inflate(menuSheetId, menu);
 
             List<MenuItem> items = new ArrayList<MenuItem>(menu.size());
-
             for (int i = 0; i < menu.size(); i++) {
                 items.add(menu.getItem(i));
             }

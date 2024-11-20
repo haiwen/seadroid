@@ -1,11 +1,15 @@
 package com.seafile.seadroid2.ui.repo;
 
+import com.seafile.seadroid2.framework.data.db.entities.PermissionEntity;
 import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.data.model.ResultModel;
+import com.seafile.seadroid2.framework.data.model.permission.PermissionListWrapperModel;
+import com.seafile.seadroid2.framework.data.model.permission.PermissionWrapperModel;
 import com.seafile.seadroid2.framework.data.model.repo.Dirent2Model;
 import com.seafile.seadroid2.framework.data.model.repo.DirentWrapperModel;
 import com.seafile.seadroid2.framework.data.model.repo.RepoWrapperModel;
 
+import java.security.Permission;
 import java.util.Map;
 
 import io.reactivex.Single;
@@ -41,11 +45,9 @@ public interface RepoService {
     @GET("api/v2.1/repos/{repo_id}/dir/?with_thumbnail=true")
     Call<DirentWrapperModel> getDirentsSync(@Path("repo_id") String repoId, @Query("p") String path);
 
-    @Multipart
-    @POST("api/v2.1/starred-items/")
-    Single<Dirent2Model> star(@PartMap Map<String, RequestBody> map);
+    @GET("api/v2.1/repos/{repo_id}/custom-share-permissions/{permission_id}/")
+    Single<PermissionWrapperModel> getCustomSharePermissionById(@Path("repo_id") String repoId, @Path("permission_id") int id);
 
-    @DELETE("api/v2.1/starred-items/")
-    Single<ResultModel> unStar(@Query("repo_id") String repoId, @Query("path") String path);
-
+    @GET("api/v2.1/repos/{repo_id}/custom-share-permissions/")
+    Single<PermissionListWrapperModel> getCustomSharePermissions(@Path("repo_id") String repoId);
 }

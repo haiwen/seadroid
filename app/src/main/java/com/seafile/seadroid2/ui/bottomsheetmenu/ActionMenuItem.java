@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.bottomsheetmenu;
+package com.seafile.seadroid2.ui.bottomsheetmenu;
 
 /*
  * Copyright (C) 2010 The Android Open Source Project

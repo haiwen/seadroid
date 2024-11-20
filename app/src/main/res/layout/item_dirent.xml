@@ -20,17 +20,6 @@
         app:layout_constraintTop_toTopOf="parent"
         app:shapeAppearance="@style/ShapeCorner4Style" />
 
-    <ImageView
-        android:id="@+id/item_multi_select"
-        android:layout_width="@dimen/lv_multi_select_width"
-        android:layout_height="@dimen/lv_multi_select_height"
-        android:layout_alignParentStart="true"
-        android:layout_centerInParent="true"
-        android:paddingVertical="6dp"
-        android:src="@drawable/list_item_download_finished"
-        android:visibility="visible"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/item_icon" />
 
     <LinearLayout
         android:id="@+id/title_container"
@@ -40,7 +29,7 @@
         android:orientation="vertical"
         app:layout_constrainedWidth="true"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/expandable_toggle_button"
+        app:layout_constraintEnd_toStartOf="@+id/action_container"
         app:layout_constraintStart_toEndOf="@+id/item_icon"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -90,19 +79,37 @@
         </LinearLayout>
     </LinearLayout>
 
-    <ImageView
-        android:id="@+id/expandable_toggle_button"
+    <FrameLayout
+        android:id="@+id/action_container"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:contentDescription="@string/file_action_more"
-        android:foreground="@drawable/selection_control_ripple"
-        android:padding="8dp"
-        android:src="@drawable/baseline_more_vert_24"
-        android:visibility="visible"
+        android:layout_height="match_parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:tint="@color/item_subtitle_color" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/expandable_toggle_button"
+            android:layout_width="@dimen/lv_multi_select_width"
+            android:layout_height="@dimen/lv_multi_select_height"
+            android:layout_gravity="center"
+            android:contentDescription="@string/file_action_more"
+            android:foreground="@drawable/selection_control_ripple"
+            android:padding="8dp"
+            android:src="@drawable/baseline_more_vert_24"
+            android:visibility="visible"
+            app:tint="@color/item_subtitle_color" />
+
+
+        <ImageView
+            android:id="@+id/item_multi_select"
+            android:layout_width="@dimen/lv_multi_select_width"
+            android:layout_height="@dimen/lv_multi_select_height"
+            android:layout_gravity="center"
+            android:padding="6dp"
+            android:src="@drawable/ic_checkbox_checked"
+            android:visibility="visible" />
+    </FrameLayout>
+
 
     <com.google.android.material.divider.MaterialDivider
         android:id="@+id/divider"

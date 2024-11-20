@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -11,16 +12,16 @@
         android:id="@+id/icon"
         android:layout_width="48dp"
         android:layout_height="48dp"
-        android:layout_marginVertical="4dp"
         android:importantForAccessibility="no"
         android:padding="12dp"
+        app:tint="@color/material_grey_400"
         tools:src="@drawable/ic_cancel" />
 
     <TextView
-        android:id="@+id/name"
+        android:id="@+id/text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
+        android:layout_marginBottom="4dp"
         android:ellipsize="end"
         android:gravity="center"
         android:maxLines="1"

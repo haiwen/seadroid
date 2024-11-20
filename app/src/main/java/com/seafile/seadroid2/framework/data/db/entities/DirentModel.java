@@ -5,6 +5,7 @@ import android.os.Parcelable;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
@@ -18,6 +19,8 @@ import com.seafile.seadroid2.framework.data.model.search.SearchModel;
 import com.seafile.seadroid2.framework.util.Icons;
 import com.seafile.seadroid2.framework.util.Times;
 import com.seafile.seadroid2.framework.util.Utils;
+
+import org.apache.commons.lang3.StringUtils;
 
 @Entity(tableName = "dirents")
 public class DirentModel extends BaseModel implements Parcelable {
@@ -102,7 +105,9 @@ public class DirentModel extends BaseModel implements Parcelable {
 
     public int getIcon() {
         if (isDir()) {
-            if (!hasWritePermission()) {
+            if (isCustomPermission()) {
+                return R.drawable.baseline_folder_24;
+            } else if (!hasWritePermission()) {
                 return R.drawable.baseline_folder_read_only_24;
             } else {
                 return R.drawable.baseline_folder_24;
@@ -111,6 +116,9 @@ public class DirentModel extends BaseModel implements Parcelable {
         return Icons.getFileIcon(name);
     }
 
+    /**
+     * You'll also need to check if it's a custom permission
+     */
     public boolean hasWritePermission() {
         if (TextUtils.isEmpty(permission)) {
             return false;
@@ -127,6 +135,9 @@ public class DirentModel extends BaseModel implements Parcelable {
         return permission.contains("w");
     }
 
+    /**
+     * You'll also need to check if it's a custom permission
+     */
     public boolean hasDownloadPermission() {
         if (TextUtils.isEmpty(permission)) {
             return false;
@@ -141,6 +152,15 @@ public class DirentModel extends BaseModel implements Parcelable {
         }
 
         return true;
+    }
+
+    public boolean isCustomPermission() {
+        return !TextUtils.isEmpty(permission) && permission.startsWith("custom-");
+    }
+
+    public int getCustomPermissionNum() {
+        String[] ss = StringUtils.split(permission, "-");
+        return Integer.parseInt(ss[1]);
     }
 
     public static DirentModel convertStarredModelToThis(StarredModel starredModel) {

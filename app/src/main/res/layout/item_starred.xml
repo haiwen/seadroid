@@ -30,7 +30,7 @@
         android:orientation="vertical"
         app:layout_constrainedWidth="true"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/item_action"
+        app:layout_constraintEnd_toStartOf="@+id/expandable_toggle_button"
         app:layout_constraintStart_toEndOf="@+id/item_icon"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -66,7 +66,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:tint="@color/item_subtitle_color" />
-
 
     <com.google.android.material.divider.MaterialDivider
         android:layout_width="match_parent"

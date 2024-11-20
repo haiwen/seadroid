@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.seafile.seadroid2.bottomsheetmenu;
+package com.seafile.seadroid2.ui.bottomsheetmenu;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -29,7 +29,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-class ActionMenu implements android.view.Menu {
+public class ActionMenu implements android.view.Menu {
     private static final int[] sCategoryToOrder = new int[]{
             1, /* No category */
             4, /* CONTAINER */
@@ -58,7 +58,7 @@ class ActionMenu implements android.view.Menu {
     private boolean mIsQwerty;
     private ArrayList<ActionMenuItem> mItems;
 
-    ActionMenu(Context context) {
+    public ActionMenu(Context context) {
         mContext = context;
         mItems = new ArrayList<>();
     }

@@ -16,6 +16,7 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.framework.data.db.entities.EncKeyCacheEntity;
 import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
+import com.seafile.seadroid2.framework.data.db.entities.PermissionEntity;
 import com.seafile.seadroid2.framework.data.model.dirents.DirentFileModel;
 import com.seafile.seadroid2.enums.TransferAction;
 import com.seafile.seadroid2.enums.TransferDataSource;
@@ -56,7 +57,10 @@ import java.util.Optional;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
+import io.reactivex.SingleSource;
 import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
+import kotlin.Pair;
 
 public class MainViewModel extends BaseViewModel {
     //    private final MutableLiveData<Pair<String, String>> OnNewFileDownloadLiveData = new MutableLiveData<>();
@@ -65,7 +69,6 @@ public class MainViewModel extends BaseViewModel {
 
     //force refresh repo/dirents
     private final MutableLiveData<Boolean> OnForceRefreshRepoListLiveData = new MutableLiveData<>();
-    private final MutableLiveData<Boolean> OnForceRefreshStarredListLiveData = new MutableLiveData<>();
 
     //show swipeRefresh in Repo Fragment
     private final MutableLiveData<Boolean> OnShowRefreshLoadingInRepoLiveData = new MutableLiveData<>();
@@ -74,6 +77,11 @@ public class MainViewModel extends BaseViewModel {
     private final MutableLiveData<Boolean> OnNavChangeListenerLiveData = new MutableLiveData<>();
 
     private final MutableLiveData<Boolean> _searchViewExpandedLiveData = new MutableLiveData<>(false);
+    private final MutableLiveData<Boolean> _onActionModeLiveData = new MutableLiveData<>(false);
+
+    public MutableLiveData<Boolean> getOnActionModeLiveData() {
+        return _onActionModeLiveData;
+    }
 
     public MutableLiveData<Boolean> getSearchViewExpandedLiveData() {
         return _searchViewExpandedLiveData;
@@ -106,10 +114,6 @@ public class MainViewModel extends BaseViewModel {
 
     public MutableLiveData<Boolean> getOnNavContextChangeListenerLiveData() {
         return OnNavChangeListenerLiveData;
-    }
-
-    public MutableLiveData<Boolean> getOnForceRefreshStarredListLiveData() {
-        return OnForceRefreshStarredListLiveData;
     }
 
     public MutableLiveData<ServerInfo> getServerInfoLiveData() {
@@ -173,7 +177,7 @@ public class MainViewModel extends BaseViewModel {
                 if (consumer != null) {
                     if (CollectionUtils.isEmpty(repoModels)) {
                         //no data in sqlite, request RepoApi again
-                        requestRepoModelFromServer(repoId, consumer);
+                        getRepoModelFromRemote(repoId, consumer);
                     } else {
                         consumer.accept(repoModels.get(0));
                         getOnShowRefreshLoadingInRepoLiveData().setValue(false);
@@ -191,7 +195,7 @@ public class MainViewModel extends BaseViewModel {
         });
     }
 
-    private void requestRepoModelFromServer(String repoId, Consumer<RepoModel> consumer) {
+    private void getRepoModelFromRemote(String repoId, Consumer<RepoModel> consumer) {
         //from net
         Single<RepoWrapperModel> singleNet = HttpIO.getCurrentInstance().execute(RepoService.class).getRepos();
         addSingleDisposable(singleNet, new Consumer<RepoWrapperModel>() {
@@ -222,6 +226,58 @@ public class MainViewModel extends BaseViewModel {
                 getOnShowRefreshLoadingInRepoLiveData().setValue(false);
                 String msg = getErrorMsgByThrowable(throwable);
                 ToastUtils.showLong(msg);
+            }
+        });
+    }
+
+    public void getRepoModelFromLocal(String repoId, Consumer<Pair<RepoModel, PermissionEntity>> consumer) {
+        //from db
+        Single<List<RepoModel>> dbSingle = AppDatabase.getInstance().repoDao().getRepoById(repoId);
+        Single<Pair<RepoModel, PermissionEntity>> r = dbSingle.flatMap(new Function<List<RepoModel>, SingleSource<Pair<RepoModel, PermissionEntity>>>() {
+            @Override
+            public SingleSource<Pair<RepoModel, PermissionEntity>> apply(List<RepoModel> repoModels) throws Exception {
+                if (CollectionUtils.isEmpty(repoModels)) {
+                    return null;
+                }
+
+                RepoModel repoModel = repoModels.get(0);
+                if (TextUtils.isEmpty(repoModel.permission)) {
+                    return Single.just(new Pair<>(repoModel, null));
+                }
+
+                if (!repoModel.isCustomPermission()) {
+                    return Single.just(new Pair<>(repoModel, null));
+                }
+
+                int pNum = repoModel.getCustomPermissionNum();
+
+                Single<List<PermissionEntity>> pSingle = AppDatabase.getInstance().permissionDAO().getByIdAsync(repoId, pNum);
+
+                return pSingle.flatMap(new Function<List<PermissionEntity>, SingleSource<Pair<RepoModel, PermissionEntity>>>() {
+                    @Override
+                    public SingleSource<Pair<RepoModel, PermissionEntity>> apply(List<PermissionEntity> permissionEntities) throws Exception {
+                        if (CollectionUtils.isEmpty(permissionEntities)) {
+                            return Single.just(new Pair<>(repoModel, null));
+                        }
+
+                        return Single.just(new Pair<>(repoModel, permissionEntities.get(0)));
+                    }
+                });
+            }
+        });
+
+
+        addSingleDisposable(r, new Consumer<Pair<RepoModel, PermissionEntity>>() {
+            @Override
+            public void accept(Pair<RepoModel, PermissionEntity> pair) throws Exception {
+                if (consumer != null) {
+                    consumer.accept(pair);
+                }
+            }
+        }, new Consumer<Throwable>() {
+            @Override
+            public void accept(Throwable throwable) throws Exception {
+                SLogs.e(throwable);
             }
         });
     }

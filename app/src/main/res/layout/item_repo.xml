@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.seafile.seadroid2.widget.CheckableForegroundConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -27,7 +27,7 @@
         android:orientation="vertical"
         app:layout_constrainedWidth="true"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/expandable_toggle_button"
+        app:layout_constraintEnd_toStartOf="@+id/action_container"
         app:layout_constraintStart_toEndOf="@+id/item_icon"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -47,31 +47,34 @@
             tools:text="@string/app_name" />
     </LinearLayout>
 
-    <ImageView
-        android:id="@+id/expandable_toggle_button"
+    <FrameLayout
+        android:id="@+id/action_container"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:contentDescription="@string/file_action_more"
-        android:foreground="@drawable/selection_control_ripple"
-        android:padding="8dp"
-        android:src="@drawable/baseline_more_vert_24"
-        android:visibility="visible"
+        android:layout_height="match_parent"
+        app:layout_constraintStart_toEndOf="@+id/text_container"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:tint="@color/item_subtitle_color" />
+        app:layout_constraintTop_toTopOf="parent">
 
-    <ImageView
-        android:id="@+id/item_select_view"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/cuc_repo_selected"
-        android:visibility="visible"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        <ImageView
+            android:id="@+id/expandable_toggle_button"
+            android:layout_width="@dimen/lv_multi_select_width"
+            android:layout_height="@dimen/lv_multi_select_height"
+            android:contentDescription="@string/file_action_more"
+            android:foreground="@drawable/selection_control_ripple"
+            android:padding="8dp"
+            android:src="@drawable/baseline_more_vert_24"
+            android:visibility="visible"
+            app:tint="@color/item_subtitle_color" />
+
+        <ImageView
+            android:id="@+id/item_multi_select"
+            android:layout_width="@dimen/lv_multi_select_width"
+            android:layout_height="@dimen/lv_multi_select_height"
+            android:layout_gravity="center"
+            android:padding="6dp"
+            android:src="@drawable/ic_checkbox_checked" />
+    </FrameLayout>
 
     <com.google.android.material.divider.MaterialDivider
         android:id="@+id/divider"
@@ -81,4 +84,4 @@
         app:dividerColor="@color/divider_color"
         app:dividerInsetStart="@dimen/rv_item_icon_width"
         app:layout_constraintBottom_toBottomOf="parent" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+</com.seafile.seadroid2.widget.CheckableForegroundConstraintLayout>

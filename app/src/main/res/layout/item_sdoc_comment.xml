@@ -54,15 +54,15 @@
             app:layout_constraintStart_toEndOf="@+id/comment_user_avatar"
             app:layout_constraintTop_toBottomOf="@+id/comment_nick_name" />
 
-<!--        <ImageView-->
-<!--            android:id="@+id/comment_more"-->
-<!--            android:layout_width="32dp"-->
-<!--            android:layout_height="32dp"-->
-<!--            android:foreground="?selectableItemBackground"-->
-<!--            android:padding="8dp"-->
-<!--            android:src="@drawable/ic_more_level"-->
-<!--            app:layout_constraintEnd_toEndOf="parent"-->
-<!--            app:layout_constraintTop_toTopOf="parent" />-->
+        <ImageView
+            android:id="@+id/comment_more"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:foreground="?selectableItemBackground"
+            android:padding="8dp"
+            android:src="@drawable/baseline_more_vert_24"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <com.google.android.flexbox.FlexboxLayout

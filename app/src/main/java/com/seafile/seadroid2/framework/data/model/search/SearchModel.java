@@ -30,6 +30,10 @@ public class SearchModel extends BaseModel implements Parcelable {
     public long last_modified;
     public long size;    // size of file, 0 if type is dir
 
+    public boolean isDir() {
+        return is_dir;
+    }
+
     public String getTitle() {
         String formatName = StringUtils.substringAfterLast(fullpath, '/');
         if (TextUtils.isEmpty(formatName)) {
@@ -46,7 +50,8 @@ public class SearchModel extends BaseModel implements Parcelable {
 //    }
 
     public String getSubtitle() {
-        return repo_name;
+        String p = Utils.getPathFromFullPath(fullpath);
+        return repo_name + p;
     }
 
 
@@ -69,6 +74,7 @@ public class SearchModel extends BaseModel implements Parcelable {
         d.name = model.name;
         d.repo_id = model.repo_id;
         d.repo_name = model.repo_name;
+        d.last_modified_at = model.last_modified;
         d.size = model.size;
         return d;
     }
