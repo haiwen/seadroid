@@ -193,5 +193,9 @@ public class BottomSheetMenuFragment extends BottomSheetDialogFragment {
         public void show(FragmentManager fragmentManager) {
             build().show(fragmentManager, BottomSheetMenuFragment.class.getSimpleName());
         }
+
+        public void show(FragmentManager fragmentManager, String tag) {
+            build().show(fragmentManager, tag);
+        }
     }
 }

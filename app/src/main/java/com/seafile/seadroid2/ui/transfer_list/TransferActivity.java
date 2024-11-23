@@ -29,8 +29,6 @@ public class TransferActivity extends BaseActivity implements Toolbar.OnMenuItem
     private TransferListLayoutBinding binding;
     private final List<Fragment> fragments = new ArrayList<>();
 
-    private Menu overFlowMenu = null;
-
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
@@ -156,16 +154,6 @@ public class TransferActivity extends BaseActivity implements Toolbar.OnMenuItem
 
     }
 
-    @Override
-    public boolean onKeyUp(int keyCode, KeyEvent event) {
-        switch (keyCode) {
-            case KeyEvent.KEYCODE_MENU:
-                if (overFlowMenu != null) {
-                    overFlowMenu.performIdentifierAction(R.id.transfer_overflow_menu, 0);
-                }
-        }
-        return super.onKeyUp(keyCode, event);
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

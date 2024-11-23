@@ -7,12 +7,14 @@
         android:icon="@drawable/baseline_search_24"
         android:title="@string/search_menu_item"
         app:actionViewClass="androidx.appcompat.widget.SearchView"
+        app:iconTint="@color/bar_icon_tint_color"
         app:showAsAction="ifRoom|collapseActionView" />
 
     <item
         android:id="@+id/menu_action_sort"
         android:icon="@drawable/baseline_sort_24"
         android:title="@string/menu_action_view_and_sort"
+        app:iconTint="@color/bar_icon_tint_color"
         app:showAsAction="ifRoom">
         <menu>
             <group

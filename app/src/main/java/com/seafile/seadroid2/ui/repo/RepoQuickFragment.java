@@ -44,7 +44,8 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
-import com.seafile.seadroid2.framework.data.db.entities.PermissionEntity;
+import com.seafile.seadroid2.enums.ActionModeCallbackType;
+import com.seafile.seadroid2.framework.data.model.repo.RepoPermissionWrapper;
 import com.seafile.seadroid2.framework.datastore.sp.SettingsManager;
 import com.seafile.seadroid2.ui.bottomsheetmenu.BottomSheetMenuAdapter;
 import com.seafile.seadroid2.config.AbsLayoutItemType;
@@ -95,13 +96,14 @@ import com.seafile.seadroid2.ui.selector.ObjSelectorActivity;
 import com.seafile.seadroid2.view.TipsViews;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import io.reactivex.functions.Consumer;
-import kotlin.Pair;
 
 public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     private static final String KEY_REPO_SCROLL_POSITION = "repo_scroll_position";
@@ -242,16 +244,25 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         adapter.setOnItemClickListener((baseQuickAdapter, view, i) -> {
             if (adapter.isOnActionMode()) {
                 //toggle
-                toggleAdapterItemSelectedOnLongClick(i);
+                toggleAdapterItemSelectedState(i);
 
                 //update bar title
-                updateContextualActionBar();
+                startOrUpdateContextualActionBar();
 
                 BaseModel baseModel = adapter.getItems().get(i);
+                List<BaseModel> selected = adapter.getSelectedList();
                 if (baseModel instanceof RepoModel m) {
-                    getViewModel().inflateRepoMenuWithPermission(requireContext(), m, getDisableMenuIds(), getWillBeRemovedMenuIds(), isPermissionForce(m.repo_id));
+                    if (CollectionUtils.isEmpty(selected)) {
+                        getViewModel().inflateRepoMenu(requireContext());
+                    } else {
+                        getViewModel().inflateRepoMenuWithParams(requireContext(), m, getDisableMenuIds(), getWillBeRemovedMenuIds(), isPermissionForce(m.repo_id));
+                    }
                 } else if (baseModel instanceof DirentModel m) {
-                    getViewModel().inflateDirentMenuWithPermission(requireContext(), m, getDisableMenuIds(), getWillBeRemovedMenuIds(), isPermissionForce(m.repo_id));
+                    if (CollectionUtils.isEmpty(selected)) {
+                        getViewModel().inflateDirentMenu(requireContext());
+                    } else {
+                        getViewModel().inflateDirentMenuWithParams(requireContext(), CollectionUtils.newArrayList(m), m.is_checked, getDisableMenuIds(), getWillBeRemovedMenuIds(), isPermissionForce(m.repo_id));
+                    }
                 }
 
                 return;
@@ -277,22 +288,13 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 return true;
             }
 
-            //start action mode
-            startContextualActionMode();
+            adapter.setOnActionMode(true);
 
-            //toggle
-            toggleAdapterItemSelectedOnLongClick(i);
+            //toggle this item
+            toggleAdapterItemSelectedState(i);
 
-            //It's actually updating the title of the ActionBar
-            updateContextualActionBar();
+            startOrUpdateContextualActionBar();
 
-            BaseModel baseModel = adapter.getItems().get(i);
-            if (baseModel instanceof RepoModel m) {
-                getViewModel().inflateRepoMenuWithPermission(requireContext(), m, getDisableMenuIds(), getWillBeRemovedMenuIds(), isPermissionForce(m.repo_id));
-            } else if (baseModel instanceof DirentModel m) {
-                getViewModel().inflateDirentMenuWithPermission(requireContext(), m, getDisableMenuIds(), getWillBeRemovedMenuIds(), isPermissionForce(m.repo_id));
-
-            }
             return true;
         });
 
@@ -328,7 +330,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
             closeActionMode();
 
-            SettingsManager.setForceRefreshStarredListState();
+            SettingsManager.setForceRefreshStarredListState(true);
         });
 
         getViewModel().getObjListLiveData().observe(getViewLifecycleOwner(), repoModels -> {
@@ -364,10 +366,10 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             }
         });
 
-        mainViewModel.getOnActionModeLiveData().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+        mainViewModel.getOnActionModeLiveData().observe(getViewLifecycleOwner(), new Observer<ActionModeCallbackType>() {
             @Override
-            public void onChanged(Boolean aBoolean) {
-                onShowActionMode(aBoolean);
+            public void onChanged(ActionModeCallbackType callbackType) {
+                onShowActionMode(callbackType);
             }
         });
         searchViewModel.getSearchListLiveData().observe(getViewLifecycleOwner(), new Observer<List<SearchModel>>() {
@@ -424,10 +426,32 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         }
 
         if (selectedList.size() == 1) {
+            BaseModel baseModel = selectedList.get(0);
+            if (baseModel instanceof RepoModel m) {
+
+            } else if (baseModel instanceof DirentModel m) {
+                if (m.isDir()){
+                    return CollectionUtils.newArrayList(R.id.upload);
+                }
+            }
+
             return null;
         }
 
-        return CollectionUtils.newArrayList(R.id.share, R.id.export, R.id.open, R.id.rename, R.id.upload);
+        long selectedRepoModelCount = selectedList.stream().filter(f -> f instanceof RepoModel).count();
+        long selectedFolderCount = selectedList.stream()
+                .filter(f -> f instanceof DirentModel)
+                .map(m -> (DirentModel) m)
+                .filter(p -> p.isDir())
+                .count();
+
+        if (selectedRepoModelCount > 0) {
+            return CollectionUtils.newArrayList(R.id.share, R.id.export, R.id.open, R.id.rename, R.id.upload, R.id.delete);
+        } else if (selectedFolderCount > 0) {
+            return CollectionUtils.newArrayList(R.id.share, R.id.export, R.id.open, R.id.rename, R.id.upload);
+        } else {
+            return CollectionUtils.newArrayList(R.id.share, R.id.export, R.id.open, R.id.rename);
+        }
     }
 
     private List<Integer> getWillBeRemovedMenuIds() {
@@ -485,8 +509,6 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             return;
         }
 
-        View decorView = requireActivity().getWindow().getDecorView();
-        FrameLayout content = decorView.findViewById(android.R.id.content);
 
         floatingView = getLayoutInflater().inflate(R.layout.layout_bottom_sheet_menu_view, null, false);
 
@@ -515,6 +537,9 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
         FrameLayout.LayoutParams p = new FrameLayout.LayoutParams(-1, -2);
         p.gravity = Gravity.BOTTOM;
+
+        View decorView = requireActivity().getWindow().getDecorView();
+        FrameLayout content = decorView.findViewById(android.R.id.content);
         content.addView(floatingView, p);
     }
 
@@ -560,25 +585,69 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         }
     }
 
-    private void onShowActionMode(boolean isShow) {
-        int p = Constants.DP.DP_32 * 4;
-        if (isShow) {
+    private void onShowActionMode(ActionModeCallbackType callbackType) {
 
-        } else {
-            p = 0;
+        if (callbackType == ActionModeCallbackType.CREATE) {
+            int p = Constants.DP.DP_32 * 4;
+            binding.rv.setPadding(0, 0, 0, p);
+        } else if (callbackType == ActionModeCallbackType.DESTORY) {
+            int p = 0;
+            binding.rv.setPadding(0, 0, 0, p);
         }
 
-        binding.rv.setPadding(0, 0, 0, p);
-
-        if (isShow) {
+        if (callbackType == ActionModeCallbackType.CREATE) {
             if (!adapter.isOnActionMode()) {
                 adapter.setOnActionMode(true);
             }
-        } else {
 
+            //select repo list
+            List<BaseModel> models = adapter.getSelectedList();
+            if (!getNavContext().inRepo()) {
+                if (CollectionUtils.isEmpty(models)) {
+                    //click the select item of MenuItem
+                    getViewModel().inflateRepoMenu(requireContext());
+                } else {
+                    //When press and hold to select some list item, only one can be selected
+                    RepoModel repoModel = (RepoModel) models.get(0);
+                    getViewModel().inflateRepoMenuWithParams(requireContext(), repoModel, getDisableMenuIds(), getWillBeRemovedMenuIds(), isPermissionForce(repoModel.repo_id));
+                }
+            } else {
+                if (CollectionUtils.isEmpty(models)) {
+                    getViewModel().inflateDirentMenu(requireContext());
+                } else {
+                    DirentModel direntModel = (DirentModel) models.get(0);
+                    getViewModel().inflateDirentMenuWithParams(requireContext(), CollectionUtils.newArrayList(direntModel), true, getDisableMenuIds(), getWillBeRemovedMenuIds(), isPermissionForce(direntModel.repo_id));
+                }
+            }
+        } else if (callbackType == ActionModeCallbackType.SELECT_ALL) {
+            //
+            List<BaseModel> baseModels = adapter.getSelectedList();
+
+            if (!getNavContext().inRepo()) {
+                List<RepoModel> repoModels = baseModels.stream().map(baseModel -> (RepoModel) baseModel).collect(Collectors.toList());
+                getViewModel().inflateRepoMenuWithParams(requireContext(), repoModels, true, getDisableMenuIds(), getWillBeRemovedMenuIds(), false);
+            } else {
+                List<DirentModel> direntModels = baseModels.stream().map(baseModel -> (DirentModel) baseModel).collect(Collectors.toList());
+                getViewModel().inflateDirentMenuWithParams(requireContext(), direntModels, true, getDisableMenuIds(), getWillBeRemovedMenuIds(), false);
+            }
+
+
+        } else if (callbackType == ActionModeCallbackType.SELECT_NONE) {
+            //clear menu permission list
+            getViewModel().clearCachePermissionMap();
+
+            //
+            if (!getNavContext().inRepo()) {
+                getViewModel().inflateRepoMenu(requireContext());
+            } else {
+                getViewModel().inflateDirentMenu(requireContext());
+            }
+        } else if (callbackType == ActionModeCallbackType.DESTORY) {
             removeFloatingView();
             closeActionMode();
-
+        } else {
+            removeFloatingView();
+            closeActionMode();
         }
     }
 
@@ -841,10 +910,10 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                     getNavContext().switchToPath(getNavContext().getRepoModel(), searchModel.fullpath);
                     loadData(isForce());
                 } else {
-                    getViewModel().getRepoModelAndPermissionEntity(searchModel.repo_id, isPermissionForce(searchModel.repo_id), new Consumer<Pair<RepoModel, PermissionEntity>>() {
+                    getViewModel().getRepoModelAndPermissionEntity(searchModel.repo_id, isPermissionForce(searchModel.repo_id), new Consumer<RepoPermissionWrapper>() {
                         @Override
-                        public void accept(Pair<RepoModel, PermissionEntity> pair) throws Exception {
-                            getNavContext().switchToPath(pair.getFirst(), searchModel.fullpath);
+                        public void accept(RepoPermissionWrapper wrapper) throws Exception {
+                            getNavContext().switchToPath(wrapper.repoModel, searchModel.fullpath);
                             loadData(isForce());
                         }
                     });
@@ -980,7 +1049,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         super.onDestroy();
     }
 
-    private void toggleAdapterItemSelectedOnLongClick(int i) {
+    private void toggleAdapterItemSelectedState(int i) {
         BaseModel baseModel = adapter.getItems().get(i);
         if (baseModel instanceof RepoModel repoModel) {
             repoModel.is_checked = !repoModel.is_checked;
@@ -1002,25 +1071,18 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         }
     }
 
-    public void startContextualActionMode() {
-        //action mode on
-        if (actionMode == null) {
-            // start the actionMode
-            actionMode = activity.startSupportActionMode(new ActionModeCallback());
-        }
-    }
 
     /**
-     * update state of contextual action bar (CAB)
+     * start or update state of contextual action bar (CAB)
      */
-    public void updateContextualActionBar() {
+    public void startOrUpdateContextualActionBar() {
         if (actionMode == null) {
             // there are some selected items, start the actionMode
             actionMode = activity.startSupportActionMode(new ActionModeCallback());
-        } else {
-            int count = adapter.getSelectedList().size();
-            actionMode.setTitle(getResources().getQuantityString(R.plurals.transfer_list_items_selected, count, count));
         }
+
+        int count = adapter.getSelectedList().size();
+        actionMode.setTitle(getResources().getQuantityString(R.plurals.transfer_list_items_selected, count, count));
     }
 
     /**
@@ -1038,7 +1100,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             inflater.inflate(R.menu.repos_fragment_menu, menu);
             if (adapter == null) return true;
 
-            mainViewModel.getOnActionModeLiveData().setValue(true);
+            mainViewModel.getOnActionModeLiveData().setValue(ActionModeCallbackType.CREATE);
 
 //            // to hidden  "r" permissions  files or folder
 //            if (!getNavContext().isParentHasWritePermission()) {
@@ -1078,23 +1140,18 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             int itemId = item.getItemId();
             if (itemId == R.id.action_mode_select_all) {
                 adapter.setItemSelected(!allItemsSelected);
-                updateContextualActionBar();
+
+                startOrUpdateContextualActionBar();
+
+                if (!allItemsSelected) {
+                    mainViewModel.getOnActionModeLiveData().setValue(ActionModeCallbackType.SELECT_ALL);
+                } else {
+                    mainViewModel.getOnActionModeLiveData().setValue(ActionModeCallbackType.SELECT_NONE);
+                }
 
                 allItemsSelected = !allItemsSelected;
             }
-//            else if (itemId == R.id.action_mode_delete) {
-//                deleteDirents(selectedDirents);
-//            } else if (itemId == R.id.action_mode_copy) {
-//                DirentModel dirent = selectedDirents.get(0);
-//                copyFiles(dirent.repo_id, dirent.repo_name, dirent.parent_dir, selectedDirents);
-//            } else if (itemId == R.id.action_mode_move) {
-//                DirentModel dirent = selectedDirents.get(0);
-//                moveFiles(dirent.repo_id, dirent.repo_name, dirent.parent_dir, selectedDirents);
-//            } else if (itemId == R.id.action_mode_download) {
-//                downloadDirents(selectedDirents);
-//            } else {
-//                return false;
-//            }
+
 
             return true;
         }
@@ -1103,7 +1160,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         public void onDestroyActionMode(ActionMode mode) {
             if (adapter == null) return;
 
-            mainViewModel.getOnActionModeLiveData().setValue(false);
+            mainViewModel.getOnActionModeLiveData().setValue(ActionModeCallbackType.DESTORY);
         }
 
     }
@@ -1492,6 +1549,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         }
 
         List<DirentModel> direntModels = dirents.stream().map(m -> (DirentModel) m).collect(Collectors.toList());
+
         DirentModel dirent = direntModels.get(0);
 
         RepoModel targetedModel = getNavContext().getRepoModel();

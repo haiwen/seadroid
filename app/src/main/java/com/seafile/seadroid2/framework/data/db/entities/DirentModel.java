@@ -154,6 +154,9 @@ public class DirentModel extends BaseModel implements Parcelable {
         return true;
     }
 
+    /**
+     * is start with "custom-" ?
+     */
     public boolean isCustomPermission() {
         return !TextUtils.isEmpty(permission) && permission.startsWith("custom-");
     }

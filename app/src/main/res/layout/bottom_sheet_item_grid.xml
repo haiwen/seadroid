@@ -14,7 +14,7 @@
         android:layout_height="48dp"
         android:importantForAccessibility="no"
         android:padding="12dp"
-        app:tint="@color/material_grey_400"
+        app:tint="@color/bar_icon_tint_color"
         tools:src="@drawable/ic_cancel" />
 
     <TextView

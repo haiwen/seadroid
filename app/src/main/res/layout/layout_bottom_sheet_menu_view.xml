@@ -5,7 +5,7 @@
     android:id="@+id/bottom_drawer_2"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/white"
+    android:background="@color/bar_background_color"
     android:orientation="vertical">
 
     <com.google.android.material.divider.MaterialDivider

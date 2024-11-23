@@ -7,8 +7,8 @@
             <gradient
                 android:angle="360"
                 android:centerY="0.5"
-                android:endColor="@color/progress_bar_background_color"
-                android:startColor="@color/progress_bar_background_color" />
+                android:endColor="@color/toolbar_progress_bar_background_color"
+                android:startColor="@color/toolbar_progress_bar_background_color" />
         </shape>
     </item>
 
@@ -20,8 +20,8 @@
                 <gradient
                     android:angle="360"
                     android:centerY="0.5"
-                    android:endColor="@color/progress_bar_second_color"
-                    android:startColor="@color/progress_bar_second_color" />
+                    android:endColor="@color/toolbar_progress_bar_second_color"
+                    android:startColor="@color/toolbar_progress_bar_second_color" />
             </shape>
         </clip>
     </item>

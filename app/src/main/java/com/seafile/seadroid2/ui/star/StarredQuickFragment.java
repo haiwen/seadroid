@@ -107,10 +107,18 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
     public void onOtherResume() {
         super.onOtherResume();
 
-        boolean isForce = SettingsManager.getForceRefreshStarredListState();
-        if (isForce) {
+        if (isForce()) {
             reload();
         }
+    }
+
+    private boolean isForce() {
+        boolean isForce = SettingsManager.getForceRefreshStarredListState();
+        if (isForce) {
+            SettingsManager.setForceRefreshStarredListState(false);
+        }
+
+        return isForce;
     }
 
     private void initAdapter() {
@@ -206,7 +214,7 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
             builder.removeMenu(R.id.nav_to);
         }
 
-        builder.show(getChildFragmentManager());
+        builder.show(getChildFragmentManager(), StarredQuickFragment.class.getSimpleName());
     }
 
     private void navTo(StarredModel starredModel) {

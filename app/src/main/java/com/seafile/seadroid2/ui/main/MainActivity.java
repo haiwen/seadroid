@@ -16,6 +16,7 @@ import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResult;
@@ -43,14 +44,17 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.context.NavContext;
 import com.seafile.seadroid2.databinding.ActivityMainBinding;
+import com.seafile.seadroid2.enums.ActionModeCallbackType;
 import com.seafile.seadroid2.enums.FileViewType;
 import com.seafile.seadroid2.enums.NightMode;
 import com.seafile.seadroid2.enums.SortBy;
 import com.seafile.seadroid2.framework.data.ServerInfo;
+import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.data.db.entities.EncKeyCacheEntity;
 import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
 import com.seafile.seadroid2.framework.data.db.entities.PermissionEntity;
 import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
+import com.seafile.seadroid2.framework.data.model.BaseModel;
 import com.seafile.seadroid2.framework.data.model.dirents.DirentFileModel;
 import com.seafile.seadroid2.framework.file_monitor.FileSyncService;
 import com.seafile.seadroid2.framework.helper.NightModeHelper;
@@ -375,12 +379,14 @@ public class MainActivity extends BaseActivity {
             @Override
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
+
                 onViewPageSelected(position);
             }
         });
     }
 
     private void onViewPageSelected(int position) {
+
         if (0 == position) {
             binding.navBottomView.setSelectedItemId(R.id.tabs_library);
 
@@ -395,6 +401,9 @@ public class MainActivity extends BaseActivity {
             return;
         }
 
+        if (menuBinding.search.isActionViewExpanded()) {
+            menuBinding.search.collapseActionView();
+        }
         menuBinding.search.setVisible(false);
         menuBinding.sortGroup.setVisible(false);
 
@@ -465,18 +474,23 @@ public class MainActivity extends BaseActivity {
             }
         });
 
-        mainViewModel.getOnActionModeLiveData().observe(this, new Observer<Boolean>() {
+        mainViewModel.getOnActionModeLiveData().observe(this, new Observer<ActionModeCallbackType>() {
             @Override
-            public void onChanged(Boolean aBoolean) {
+            public void onChanged(ActionModeCallbackType callbackType) {
 
-                onShowRepoActionMode(aBoolean);
+                onShowRepoActionMode(callbackType);
 
             }
         });
     }
 
-    private void onShowRepoActionMode(boolean show) {
-        binding.pager.setUserInputEnabled(!show);
+    private void onShowRepoActionMode(ActionModeCallbackType type) {
+        if (type == ActionModeCallbackType.CREATE) {
+            binding.pager.setUserInputEnabled(false);
+        } else if (type == ActionModeCallbackType.DESTORY) {
+            binding.pager.setUserInputEnabled(true);
+        }
+
     }
 
     private void refreshToolbarTitle() {
@@ -633,6 +647,7 @@ public class MainActivity extends BaseActivity {
                 return false;
             }
         });
+
         menuBinding.search.collapseActionView();
         menuBinding.search.setActionView(searchView);
     }
@@ -644,35 +659,21 @@ public class MainActivity extends BaseActivity {
             if (getNavContext().inRepo()) {
                 menuBinding.createRepo.setVisible(false);
 
-                //check custom permission
-                String repoId = getNavContext().getRepoModel().repo_id;
-                mainViewModel.getRepoModelFromLocal(repoId, new Consumer<Pair<RepoModel, PermissionEntity>>() {
+                checkCurrentPathHasWritePermission(new java.util.function.Consumer<Boolean>() {
                     @Override
-                    public void accept(Pair<RepoModel, PermissionEntity> pair) throws Exception {
-                        if (pair.getFirst().isCustomPermission()) {
-                            PermissionEntity permission = pair.getSecond();
-                            if (permission != null) {
-                                menuBinding.add.setEnabled(permission.create);
-                                menuBinding.select.setEnabled(permission.modify);
-                            }
-                        } else if (getNavContext().isParentHasWritePermission()) {
-                            menuBinding.add.setEnabled(true);
-                            menuBinding.select.setEnabled(true);
-                        } else {
-                            menuBinding.add.setEnabled(false);
-                            menuBinding.select.setEnabled(false);
-                        }
+                    public void accept(Boolean aBoolean) {
+                        menuBinding.add.setEnabled(aBoolean);
                     }
                 });
-
             } else {
                 menuBinding.createRepo.setVisible(true);
                 menuBinding.add.setVisible(false);
-                menuBinding.select.setVisible(false);
             }
 
+            menuBinding.select.setVisible(true);
             menuBinding.sortGroup.setVisible(true);
         } else {
+            menuBinding.search.setVisible(false);
             menuBinding.sortGroup.setVisible(false);
             menuBinding.createRepo.setVisible(false);
             menuBinding.add.setVisible(false);
@@ -701,7 +702,7 @@ public class MainActivity extends BaseActivity {
             startActivity(newIntent);
         } else if (item.getItemId() == R.id.select) {
             if (binding.pager.getCurrentItem() == INDEX_LIBRARY_TAB) {
-                getReposFragment().startContextualActionMode();
+                getReposFragment().startOrUpdateContextualActionBar();
             }
         } else if (item.getItemId() == R.id.menu_action_view_list) {
             Settings.FILE_LIST_VIEW_TYPE.putValue(FileViewType.LIST);
@@ -960,54 +961,102 @@ public class MainActivity extends BaseActivity {
         }).show();
     }
 
-    //
-    private void showNewDirDialog() {
-        if (!getNavContext().isParentHasWritePermission()) {
-            ToastUtils.showLong(R.string.library_read_only);
+    private void checkCurrentPathHasWritePermission(java.util.function.Consumer<Boolean> consumer) {
+        BaseModel baseModel = getNavContext().getTopModel();
+        if (null == baseModel) {
             return;
         }
 
-        String rid = getNavContext().getRepoModel().repo_id;
-        String parentPath = getNavContext().getNavPath();
-        NewDirFileDialogFragment dialogFragment = NewDirFileDialogFragment.newInstance(rid, parentPath, true);
-        dialogFragment.setRefreshListener(new OnRefreshDataListener() {
+        if (baseModel instanceof RepoModel m) {
+            if (!m.isCustomPermission()) {
+                consumer.accept(m.hasWritePermission());
+            } else {
+                mainViewModel.getPermissionFromLocal(m.repo_id, m.getCustomPermissionNum(), new Consumer<PermissionEntity>() {
+                    @Override
+                    public void accept(PermissionEntity entity) throws Exception {
+                        consumer.accept(entity != null && entity.create);
+                    }
+                });
+            }
+        } else if (baseModel instanceof DirentModel m) {
+            if (!m.isCustomPermission()) {
+                consumer.accept(m.hasWritePermission());
+            } else {
+                mainViewModel.getPermissionFromLocal(m.repo_id, m.getCustomPermissionNum(), new Consumer<PermissionEntity>() {
+                    @Override
+                    public void accept(PermissionEntity entity) throws Exception {
+                        consumer.accept(entity != null && entity.create);
+                    }
+                });
+            }
+        }
+    }
+
+    //
+    private void showNewDirDialog() {
+        checkCurrentPathHasWritePermission(new java.util.function.Consumer<Boolean>() {
             @Override
-            public void onActionStatus(boolean isDone) {
-                if (isDone) {
-                    mainViewModel.getOnForceRefreshRepoListLiveData().setValue(true);
+            public void accept(Boolean aBoolean) {
+                if (!aBoolean) {
+                    ToastUtils.showLong(R.string.library_read_only);
+                    return;
                 }
+
+                String rid = getNavContext().getRepoModel().repo_id;
+                String parentPath = getNavContext().getNavPath();
+                NewDirFileDialogFragment dialogFragment = NewDirFileDialogFragment.newInstance(rid, parentPath, true);
+                dialogFragment.setRefreshListener(new OnRefreshDataListener() {
+                    @Override
+                    public void onActionStatus(boolean isDone) {
+                        if (isDone) {
+                            mainViewModel.getOnForceRefreshRepoListLiveData().setValue(true);
+                        }
+                    }
+                });
+                dialogFragment.show(getSupportFragmentManager(), NewDirFileDialogFragment.class.getSimpleName());
             }
         });
-        dialogFragment.show(getSupportFragmentManager(), NewDirFileDialogFragment.class.getSimpleName());
     }
 
     private void showNewFileDialog() {
-        if (!getNavContext().isParentHasWritePermission()) {
-            ToastUtils.showLong(R.string.library_read_only);
-            return;
-        }
-
-        String rid = getNavContext().getRepoModel().repo_id;
-        String parentPath = getNavContext().getNavPath();
-        NewDirFileDialogFragment dialogFragment = NewDirFileDialogFragment.newInstance(rid, parentPath, false);
-        dialogFragment.setRefreshListener(new OnRefreshDataListener() {
+        checkCurrentPathHasWritePermission(new java.util.function.Consumer<Boolean>() {
             @Override
-            public void onActionStatus(boolean isDone) {
-                if (isDone) {
-                    mainViewModel.getOnForceRefreshRepoListLiveData().setValue(true);
+            public void accept(Boolean aBoolean) {
+                if (!aBoolean) {
+                    ToastUtils.showLong(R.string.library_read_only);
+                    return;
                 }
+
+
+                String rid = getNavContext().getRepoModel().repo_id;
+                String parentPath = getNavContext().getNavPath();
+                NewDirFileDialogFragment dialogFragment = NewDirFileDialogFragment.newInstance(rid, parentPath, false);
+                dialogFragment.setRefreshListener(new OnRefreshDataListener() {
+                    @Override
+                    public void onActionStatus(boolean isDone) {
+                        if (isDone) {
+                            mainViewModel.getOnForceRefreshRepoListLiveData().setValue(true);
+                        }
+                    }
+                });
+                dialogFragment.show(getSupportFragmentManager(), NewDirFileDialogFragment.class.getSimpleName());
             }
         });
-        dialogFragment.show(getSupportFragmentManager(), NewDirFileDialogFragment.class.getSimpleName());
     }
 
     private void pickFile() {
-        if (!getNavContext().isParentHasWritePermission()) {
-            ToastUtils.showLong(R.string.library_read_only);
-            return;
-        }
+        checkCurrentPathHasWritePermission(new java.util.function.Consumer<Boolean>() {
+            @Override
+            public void accept(Boolean aBoolean) {
+                if (!aBoolean) {
+                    ToastUtils.showLong(R.string.library_read_only);
+                    return;
+                }
 
-        takeFile(false);
+                takeFile(false);
+            }
+        });
+
     }
 
 

@@ -2,14 +2,15 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
 
-    <style name="ToolBarStyle" parent="">
+    <style name="ToolBarStyle" parent="Widget.Material3.Toolbar">
+        <item name="colorControlNormal">@color/bar_icon_tint_color</item>
         <item name="popupTheme">@style/ThemeOverlay.Material3.Dark</item>
         <item name="theme">@style/ThemeOverlay.Material3.Dark</item>
         <item name="android:background">@color/bar_background_color</item>
         <item name="titleTextColor">@color/bar_title_color</item>
         <item name="colorSurface">@color/white</item>
         <item name="navigationIcon">@drawable/baseline_arrow_back_24</item>
-        <item name="navigationIconTint">@color/bar_title_color</item>
+        <item name="navigationIconTint">@color/bar_icon_tint_color</item>
     </style>
 
     <style name="TabLayoutStyle" parent="Widget.Material3.TabLayout">

@@ -92,7 +92,7 @@ public class RepoModel extends BaseModel {
     }
 
     /**
-     * You'll also need to check if it's a custom permission
+     * You should to check if it's a custom permission firstly
      */
     public boolean hasWritePermission() {
         if (TextUtils.isEmpty(permission)) {

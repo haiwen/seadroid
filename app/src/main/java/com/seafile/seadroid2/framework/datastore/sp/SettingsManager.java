@@ -104,8 +104,8 @@ public final class SettingsManager {
     //force refresh starred list state
     public static final String ON_FORCE_REFRESH_STARRED_LIST_KEY = "on_force_refresh_starred_list";
 
-    public static void setForceRefreshStarredListState() {
-        Settings.getCommonPreferences().edit().putBoolean(ON_FORCE_REFRESH_STARRED_LIST_KEY, true).apply();
+    public static void setForceRefreshStarredListState(boolean state) {
+        Settings.getCommonPreferences().edit().putBoolean(ON_FORCE_REFRESH_STARRED_LIST_KEY, state).apply();
     }
 
     public static boolean getForceRefreshStarredListState() {

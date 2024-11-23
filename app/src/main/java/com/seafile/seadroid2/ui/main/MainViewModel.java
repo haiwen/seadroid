@@ -14,6 +14,7 @@ import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.enums.ActionModeCallbackType;
 import com.seafile.seadroid2.framework.data.db.entities.EncKeyCacheEntity;
 import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
 import com.seafile.seadroid2.framework.data.db.entities.PermissionEntity;
@@ -22,6 +23,8 @@ import com.seafile.seadroid2.enums.TransferAction;
 import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.enums.TransferResult;
 import com.seafile.seadroid2.enums.TransferStatus;
+import com.seafile.seadroid2.framework.data.model.permission.PermissionListWrapperModel;
+import com.seafile.seadroid2.framework.data.model.permission.PermissionWrapperModel;
 import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.ExistingFileStrategy;
@@ -51,9 +54,11 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
@@ -77,9 +82,9 @@ public class MainViewModel extends BaseViewModel {
     private final MutableLiveData<Boolean> OnNavChangeListenerLiveData = new MutableLiveData<>();
 
     private final MutableLiveData<Boolean> _searchViewExpandedLiveData = new MutableLiveData<>(false);
-    private final MutableLiveData<Boolean> _onActionModeLiveData = new MutableLiveData<>(false);
+    private final MutableLiveData<ActionModeCallbackType> _onActionModeLiveData = new MutableLiveData<>();
 
-    public MutableLiveData<Boolean> getOnActionModeLiveData() {
+    public MutableLiveData<ActionModeCallbackType> getOnActionModeLiveData() {
         return _onActionModeLiveData;
     }
 
@@ -230,6 +235,77 @@ public class MainViewModel extends BaseViewModel {
         });
     }
 
+    public void getPermissionFromLocal(String repoId, int pNum, Consumer<PermissionEntity> consumer) {
+        Single<List<PermissionEntity>> pSingle = AppDatabase.getInstance().permissionDAO().getWithAsync(repoId, pNum);
+        Single<PermissionEntity> s = pSingle.flatMap(new Function<List<PermissionEntity>, SingleSource<PermissionEntity>>() {
+            @Override
+            public SingleSource<PermissionEntity> apply(List<PermissionEntity> pList) throws Exception {
+
+                if (CollectionUtils.isEmpty(pList)) {
+                    return null;
+                }
+
+                return Single.just(pList.get(0));
+            }
+        }).flatMap(new Function<PermissionEntity, SingleSource<PermissionEntity>>() {
+            @Override
+            public SingleSource<PermissionEntity> apply(PermissionEntity entity) throws Exception {
+                Single<List<PermissionEntity>> r = getLoadRepoPermissionFromRemoteSingle(repoId);
+
+                return r.flatMap(new Function<List<PermissionEntity>, SingleSource<? extends PermissionEntity>>() {
+                    @Override
+                    public SingleSource<? extends PermissionEntity> apply(List<PermissionEntity> permissionEntities) throws Exception {
+                        if (CollectionUtils.isEmpty(permissionEntities)) {
+                            return null;
+
+                        }
+                        Optional<PermissionEntity> p = permissionEntities.stream().filter(f -> f.id == pNum).findFirst();
+                        if (p.isPresent()) {
+                            return Single.just(p.get());
+                        }
+                        return null;
+                    }
+                });
+            }
+        });
+
+        addSingleDisposable(s, new Consumer<PermissionEntity>() {
+            @Override
+            public void accept(PermissionEntity entity) throws Exception {
+                if (consumer != null) {
+                    consumer.accept(entity);
+                }
+            }
+        });
+    }
+
+
+    private Single<List<PermissionEntity>> getLoadRepoPermissionFromRemoteSingle(String repoId) {
+        Single<PermissionListWrapperModel> single = HttpIO.getCurrentInstance().execute(RepoService.class).getCustomSharePermissions(repoId);
+        return single.flatMap(new Function<PermissionListWrapperModel, SingleSource<List<PermissionEntity>>>() {
+            @Override
+            public SingleSource<List<PermissionEntity>> apply(PermissionListWrapperModel wrapperModel) throws Exception {
+
+                List<PermissionEntity> list = CollectionUtils.newArrayList();
+
+                for (PermissionWrapperModel model : wrapperModel.permission_list) {
+                    list.add(new PermissionEntity(repoId, model));
+                }
+
+                Completable insertCompletable = AppDatabase.getInstance().permissionDAO().insertAllAsync(list);
+                Single<Long> insertAllSingle = insertCompletable.toSingleDefault(0L);
+                return insertAllSingle.flatMap(new Function<Long, SingleSource<List<PermissionEntity>>>() {
+                    @Override
+                    public SingleSource<List<PermissionEntity>> apply(Long aLong) throws Exception {
+                        SLogs.d("The list has been inserted into the local database");
+                        return Single.just(list);
+                    }
+                });
+            }
+        });
+    }
+
+
     public void getRepoModelFromLocal(String repoId, Consumer<Pair<RepoModel, PermissionEntity>> consumer) {
         //from db
         Single<List<RepoModel>> dbSingle = AppDatabase.getInstance().repoDao().getRepoById(repoId);
@@ -251,7 +327,7 @@ public class MainViewModel extends BaseViewModel {
 
                 int pNum = repoModel.getCustomPermissionNum();
 
-                Single<List<PermissionEntity>> pSingle = AppDatabase.getInstance().permissionDAO().getByIdAsync(repoId, pNum);
+                Single<List<PermissionEntity>> pSingle = AppDatabase.getInstance().permissionDAO().getWithAsync(repoId, pNum);
 
                 return pSingle.flatMap(new Function<List<PermissionEntity>, SingleSource<Pair<RepoModel, PermissionEntity>>>() {
                     @Override

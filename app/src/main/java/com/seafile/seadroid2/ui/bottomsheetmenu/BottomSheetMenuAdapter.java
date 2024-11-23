@@ -35,11 +35,12 @@ public class BottomSheetMenuAdapter extends BaseAdapter<MenuItem, BottomSheetMen
 
         holder.name.setEnabled(menuItem.isEnabled());
         holder.itemView.setClickable(menuItem.isEnabled());
+
         int color;
         if (menuItem.isEnabled()) {
-            color = ContextCompat.getColor(getContext(), R.color.material_grey_600);
+            color = ContextCompat.getColor(getContext(), R.color.bottom_sheet_pop_enable_color);
         } else {
-            color = ContextCompat.getColor(getContext(), R.color.material_grey_400);
+            color = ContextCompat.getColor(getContext(), R.color.bottom_sheet_pop_disable_color);
         }
         holder.icon.setImageTintList(ColorStateList.valueOf(color));
 

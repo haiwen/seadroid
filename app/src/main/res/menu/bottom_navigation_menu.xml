@@ -3,21 +3,21 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/tabs_library"
-        android:icon="@drawable/baseline_repo_bold_24"
+        android:icon="@drawable/baseline_repo_bold_32"
         android:title="@string/tabs_library" />
 
     <item
         android:id="@+id/tabs_starred"
-        android:icon="@drawable/ic_star_32"
+        android:icon="@drawable/baseline_starred_32"
         android:title="@string/tabs_starred" />
 
     <item
         android:id="@+id/tabs_activity"
-        android:icon="@drawable/baseline_activities_bold_24"
+        android:icon="@drawable/baseline_activities_32"
         android:title="@string/tabs_activity" />
 
     <item
         android:id="@+id/tabs_settings"
-        android:icon="@drawable/ic_setup_32"
+        android:icon="@drawable/baseline_settings_32"
         android:title="@string/settings" />
 </menu>

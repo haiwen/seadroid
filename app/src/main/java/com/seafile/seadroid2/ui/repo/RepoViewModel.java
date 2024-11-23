@@ -5,6 +5,7 @@ import android.text.TextUtils;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.MutableLiveData;
 
 import com.blankj.utilcode.util.CollectionUtils;
@@ -14,6 +15,9 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.annotation.Todo;
+import com.seafile.seadroid2.annotation.Unstable;
+import com.seafile.seadroid2.framework.data.model.repo.RepoPermissionWrapper;
 import com.seafile.seadroid2.ui.bottomsheetmenu.ActionMenu;
 import com.seafile.seadroid2.context.NavContext;
 import com.seafile.seadroid2.enums.FileViewType;
@@ -41,9 +45,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import io.reactivex.Completable;
@@ -307,296 +309,386 @@ public class RepoViewModel extends BaseViewModel {
     }
 
 
-    public void getRepoModelAndPermissionEntity(String repoId, boolean isForce, Consumer<Pair<RepoModel, PermissionEntity>> consumer) {
-        Single<Pair<RepoModel, PermissionEntity>> r = getRepoModelAndPermissionEntitySingle(repoId, isForce);
-        addSingleDisposable(r, new Consumer<Pair<RepoModel, PermissionEntity>>() {
+    public void getRepoModelAndPermissionEntity(String repoId, boolean isForce, Consumer<RepoPermissionWrapper> consumer) {
+        Single<Pair<RepoModel, List<PermissionEntity>>> r = getRepoModelAndAllPermissionSingle(repoId, isForce);
+        addSingleDisposable(r, new Consumer<Pair<RepoModel, List<PermissionEntity>>>() {
             @Override
-            public void accept(Pair<RepoModel, PermissionEntity> repoModelPermissionEntityPair) throws Exception {
+            public void accept(Pair<RepoModel, List<PermissionEntity>> pair) throws Exception {
                 if (consumer != null) {
-                    consumer.accept(repoModelPermissionEntityPair);
+                    if (CollectionUtils.isEmpty(pair.getSecond())) {
+                        consumer.accept(new RepoPermissionWrapper(pair.getFirst(), null));
+                        return;
+                    }
+
+                    List<PermissionEntity> list = pair.getSecond();
+
+                    RepoModel repoModel = pair.getFirst();
+                    Optional<PermissionEntity> permission = list.stream().filter(f -> f.id == repoModel.getCustomPermissionNum()).findFirst();
+
+                    if (!permission.isPresent()) {
+                        consumer.accept(new RepoPermissionWrapper(pair.getFirst(), null));
+                        return;
+                    }
+
+                    consumer.accept(new RepoPermissionWrapper(pair.getFirst(), permission.get()));
                 }
             }
         });
     }
 
     /**
-     * get repoModel and permissionEntity from local, if not exist, get from remote.
-     * if isForce is true, get from remote directly and save to db
+     * do not use
+     * <li>get the list of libraries first.</li>
+     * <li>obtain the corresponding local permission data from the library list</li>
+     * <li>if the length of the local permission data list and the library list are the same, the data will be returned directly</li>
+     * <li>if not, send multiple requests to the server concurrently to obtain the permission list data</li>
+     * <li>merge the permission list data and the library list data to return</li>
      */
-    private Single<Pair<RepoModel, PermissionEntity>> getRepoModelAndPermissionEntitySingle(String repoId, boolean isForce) {
-        Single<List<RepoModel>> dbSingle = AppDatabase.getInstance().repoDao().getRepoById(repoId);
-        return dbSingle.flatMap(new Function<List<RepoModel>, SingleSource<Pair<RepoModel, PermissionEntity>>>() {
+    @Unstable
+    @Todo
+    private Single<List<RepoPermissionWrapper>> getMultipleRepoModelAndRelatePermissionDataSingle(List<String> repoIds, boolean isForce) {
+        Single<List<RepoModel>> dbSingle = AppDatabase.getInstance().repoDao().getRepoListByIds(repoIds);
+        return dbSingle.flatMap(new Function<List<RepoModel>, SingleSource<List<RepoPermissionWrapper>>>() {
             @Override
-            public SingleSource<Pair<RepoModel, PermissionEntity>> apply(List<RepoModel> repoModels) throws Exception {
+            public SingleSource<List<RepoPermissionWrapper>> apply(List<RepoModel> repoModels) throws Exception {
                 if (CollectionUtils.isEmpty(repoModels)) {
-                    return null;
-                }
-
-                RepoModel repoModel = repoModels.get(0);
-                if (TextUtils.isEmpty(repoModel.permission)) {
-                    //This issue doesn't actually happen, but it's still checked again from the remote check
-                    return Single.just(new Pair<>(repoModel, null));
-                }
-
-                if (!repoModel.isCustomPermission()) {
-
-                    //Optionally
-                    PermissionEntity permission = convertCustomPermission(repoModel.repo_id, repoModel.permission);
-
-                    return Single.just(new Pair<>(repoModel, permission));
+                    return Single.error(new IllegalArgumentException("No RepoModels found for the given repoIds"));
                 }
 
                 if (isForce) {
-
-                    //get permission from remote
-                    return Single.just(new Pair<>(repoModel, null));
+                    // return empty list
+                    List<RepoPermissionWrapper> wrappers = repoModels.stream()
+                            .map(model -> new RepoPermissionWrapper(model, null))
+                            .collect(Collectors.toList());
+                    return Single.just(wrappers);
                 }
 
-                int pNum = repoModel.getCustomPermissionNum();
-
-                //get special number permission from db
-                Single<List<PermissionEntity>> pSingle = AppDatabase.getInstance().permissionDAO().getByIdAsync(repoId, pNum);
-
-                return pSingle.flatMap(new Function<List<PermissionEntity>, SingleSource<Pair<RepoModel, PermissionEntity>>>() {
-                    @Override
-                    public SingleSource<Pair<RepoModel, PermissionEntity>> apply(List<PermissionEntity> permissionEntities) throws Exception {
-
-                        //no data in local db
-                        if (CollectionUtils.isEmpty(permissionEntities)) {
-                            return Single.just(new Pair<>(repoModel, null));
-                        }
-
-                        //get first permission
-                        return Single.just(new Pair<>(repoModel, permissionEntities.get(0)));
-                    }
-                });
+                return handleRepoPermissions(repoModels);
             }
-        }).flatMap(new Function<Pair<RepoModel, PermissionEntity>, SingleSource<Pair<RepoModel, PermissionEntity>>>() {
-            @Override
-            public SingleSource<Pair<RepoModel, PermissionEntity>> apply(Pair<RepoModel, PermissionEntity> pair) throws Exception {
-                if (pair.getSecond() != null) {
-                    return Single.just(pair);
-                }
-
-                Single<List<PermissionEntity>> permissionSingle = getLoadRepoPermissionFromRemoteSingle(repoId);
-                return permissionSingle.flatMap(new Function<List<PermissionEntity>, SingleSource<Pair<RepoModel, PermissionEntity>>>() {
-                    @Override
-                    public SingleSource<Pair<RepoModel, PermissionEntity>> apply(List<PermissionEntity> remotePermissionEntities) throws Exception {
-                        if (CollectionUtils.isEmpty(remotePermissionEntities)) {
-                            return Single.just(pair);
-                        }
-
-                        Optional<PermissionEntity> f = remotePermissionEntities.stream().filter(p -> p.id == pair.getFirst().getCustomPermissionNum()).findFirst();
-                        return Single.just(new Pair<>(pair.getFirst(), f.get()));
-                    }
-                });
-            }
+        }).onErrorResumeNext(throwable -> {
+            // 错误处理，记录日志或返回默认值
+            SLogs.e("Error in getRepoModelAndAllPermissionSingle2", throwable);
+            return Single.error(throwable);
         });
     }
 
+    @Unstable
+    @Todo
+    private Single<List<RepoPermissionWrapper>> handleRepoPermissions(List<RepoModel> repoModels) {
+        List<Integer> customPermissionIds = repoModels.stream()
+                .filter(RepoModel::isCustomPermission)
+                .map(RepoModel::getCustomPermissionNum)
+                .collect(Collectors.toList());
 
-    public HashMap<String, Set<String>> getPermissionObjMap() {
-        return _permissionObjMap;
+        if (customPermissionIds.isEmpty()) {
+            // 如果没有自定义权限，直接返回默认权限
+            List<RepoPermissionWrapper> wrappers = repoModels.stream()
+                    .map(repo -> new RepoPermissionWrapper(repo,
+                            new PermissionEntity(repo.repo_id, repo.permission)))
+                    .collect(Collectors.toList());
+            return Single.just(wrappers);
+        }
+
+        Single<List<PermissionEntity>> pSingle = AppDatabase.getInstance().permissionDAO().getByIdsAsync(customPermissionIds);
+        return pSingle.map(permissionEntities -> mapPermissionsToWrappers(repoModels, permissionEntities, customPermissionIds));
     }
+
+    @Unstable
+    @Todo
+    private List<RepoPermissionWrapper> mapPermissionsToWrappers(List<RepoModel> repoModels,
+                                                                 List<PermissionEntity> permissionEntities,
+                                                                 List<Integer> customPermissionIds) {
+        boolean isValid = customPermissionIds.size() == permissionEntities.size();
+        List<RepoPermissionWrapper> wrappers = new ArrayList<>();
+
+        for (RepoModel model : repoModels) {
+            if (model.isCustomPermission()) {
+                Optional<PermissionEntity> matchedPermission = permissionEntities.stream()
+                        .filter(entity -> TextUtils.equals(entity.repo_id, model.repo_id))
+                        .findFirst();
+                wrappers.add(new RepoPermissionWrapper(model, matchedPermission.orElse(null)));
+            } else {
+                wrappers.add(new RepoPermissionWrapper(model,
+                        new PermissionEntity(model.repo_id, model.permission)));
+            }
+        }
+
+        // 如果权限不完整，需从远程加载
+        if (!isValid) {
+            wrappers.forEach(wrapper -> {
+                if (wrapper.getPermission() == null) {
+                    wrapper.setPermission(null);
+                }
+            });
+        }
+
+        return wrappers;
+    }
+
+    /**
+     * get the repoModel and repoMode‘s PermissionEntity from local, if not exist, get from remote.
+     * if isForce is true, get from remote directly and save to db
+     */
+    private Single<Pair<RepoModel, List<PermissionEntity>>> getRepoModelAndAllPermissionSingle(String repoId, boolean isForce) {
+        Single<List<RepoModel>> dbSingle = AppDatabase.getInstance().repoDao().getRepoById(repoId);
+        return dbSingle.flatMap(new Function<List<RepoModel>, SingleSource<Pair<RepoModel, List<PermissionEntity>>>>() {
+                    @Override
+                    public SingleSource<Pair<RepoModel, List<PermissionEntity>>> apply(List<RepoModel> repoModels) throws Exception {
+                        if (CollectionUtils.isEmpty(repoModels)) {
+                            return null;
+                        }
+
+                        RepoModel repoModel = repoModels.get(0);
+                        if (TextUtils.isEmpty(repoModel.permission)) {
+                            //This issue doesn't actually happen, but it's still checked again from the remote check
+                            return Single.just(new Pair<>(repoModel, null));
+                        }
+
+                        if (isForce) {
+                            //get permission from remote
+                            return Single.just(new Pair<>(repoModel, null));
+                        }
+
+                        //get special number permission from db
+                        Single<List<PermissionEntity>> pSingle = AppDatabase.getInstance().permissionDAO().getByRepoIdAsync(repoId);
+
+                        return pSingle.flatMap((Function<List<PermissionEntity>, SingleSource<Pair<RepoModel, List<PermissionEntity>>>>) pList -> {
+
+                            //no data in local db
+                            if (CollectionUtils.isEmpty(pList)) {
+                                return Single.just(new Pair<>(repoModel, null));
+                            }
+
+                            //get first permission
+                            return Single.just(new Pair<>(repoModel, pList));
+                        });
+                    }
+                })
+                //from remote
+                .flatMap((Function<Pair<RepoModel, List<PermissionEntity>>, SingleSource<Pair<RepoModel, List<PermissionEntity>>>>) pair -> {
+                    if (pair.getSecond() != null) {
+                        return Single.just(pair);
+                    }
+
+                    Single<List<PermissionEntity>> permissionSingle = getLoadRepoPermissionFromRemoteSingle(repoId);
+                    return permissionSingle.flatMap((Function<List<PermissionEntity>, SingleSource<Pair<RepoModel, List<PermissionEntity>>>>) remoteList -> {
+                        if (CollectionUtils.isEmpty(remoteList)) {
+                            return Single.just(pair);
+                        }
+
+                        return Single.just(new Pair<>(pair.getFirst(), remoteList));
+                    });
+                });
+    }
+
+    /**
+     * <pre>
+     *     <"rw", PermissionEntity(permission,ids)>
+     *     <"r", PermissionEntity(permission,ids)>
+     *     <"custom-48", PermissionEntity(permission,ids)>
+     *     <"custom-49", PermissionEntity(permission,ids)>
+     * </pre>
+     */
+    private final HashMap<String, PermissionEntity> _permissionMap = new HashMap<>();
 
     public HashMap<String, PermissionEntity> getPermissionStackMap() {
         return _permissionMap;
     }
 
-    //
-    private final HashMap<String, Set<String>> _permissionObjMap = new HashMap<>();
-    private final HashMap<String, PermissionEntity> _permissionMap = new HashMap<>();
+    public void inflateRepoMenu(Context context) {
+        getPermissionStackMap().clear();
+        toParseMenu(context, R.menu.bottom_sheet_op_repo, null, CollectionUtils.newArrayList(R.id.unstar));
+    }
 
-    public void inflateRepoMenuWithPermission(Context context, RepoModel repoModel, List<Integer> disableMenuIds, List<Integer> removedMenuIds, boolean isForce) {
+    /**
+     * @param repoModels
+     */
+    public void inflateRepoMenuWithParams(Context context, List<RepoModel> repoModels, boolean is_checked, List<Integer> disableMenuIds, List<Integer> removedMenuIds, boolean isForce) {
+        if (CollectionUtils.isEmpty(repoModels)) {
+            return;
+        }
+
+        int menuId = R.menu.bottom_sheet_op_repo;
+        if (!is_checked) {
+            multipleRemoveCachedRepoPermissionMapData(repoModels);
+
+            toParseMenu(context, menuId, disableMenuIds, removedMenuIds);
+            return;
+        }
+
+        if (repoModels.size() == 1) {
+            inflateRepoMenuWithParams(context, repoModels.get(0), disableMenuIds, removedMenuIds, isForce);
+        } else {
+            List<PermissionEntity> permissionEntities = CollectionUtils.newArrayList();
+            for (RepoModel repoModel : repoModels) {
+                //NOTICE this is a special permission("r"), not a real permission
+                //because: currently, multiple repo lists cannot be deleted at the same time
+                //it will be fixed later
+                permissionEntities.add(new PermissionEntity(repoModel.repo_id, "r"));
+            }
+
+            multipleCacheRepoPermissionMapData(repoModels, permissionEntities);
+
+            toParseMenu(context, menuId, disableMenuIds, removedMenuIds);
+        }
+    }
+
+    public void inflateRepoMenuWithParams(Context context, RepoModel repoModel, List<Integer> disableMenuIds, List<Integer> removedMenuIds, boolean isForce) {
+        int menuId = R.menu.bottom_sheet_op_repo;
+
         if (!repoModel.is_checked) {
             //remove permission
             removeCachedPermissionMapData(repoModel.permission, repoModel.repo_id);
 
-            List<PermissionEntity> list = new ArrayList<>(getPermissionStackMap().values());
-
-            int menuId = R.menu.bottom_sheet_op_repo;
-            List<MenuItem> items = parseMenu(context, menuId, list, disableMenuIds, removedMenuIds);
-
-            getMenuItemListLiveData().setValue(items);
-
+            toParseMenu(context, menuId, disableMenuIds, removedMenuIds);
             return;
         }
 
-
-        Single<Pair<RepoModel, PermissionEntity>> r = getRepoModelAndPermissionEntitySingle(repoModel.repo_id, isForce);
-
-        addSingleDisposable(r, new Consumer<Pair<RepoModel, PermissionEntity>>() {
+        Single<Pair<RepoModel, List<PermissionEntity>>> r = getRepoModelAndAllPermissionSingle(repoModel.repo_id, isForce);
+        addSingleDisposable(r, new Consumer<Pair<RepoModel, List<PermissionEntity>>>() {
             @Override
-            public void accept(Pair<RepoModel, PermissionEntity> pair) throws Exception {
-                if (null == pair) {
-                    getSeafExceptionLiveData().setValue(SeafException.unknownException);
-                    return;
-                }
+            public void accept(Pair<RepoModel, List<PermissionEntity>> pair) throws Exception {
 
-                RepoModel repoModel = pair.getFirst();
-                PermissionEntity entity;
-                if (!repoModel.isCustomPermission()) {
-                    entity = convertCustomPermission(repoModel.repo_id, repoModel.permission);
-                } else {
-                    entity = pair.getSecond();
-                }
+                multipleCacheRepoPermissionMapData(CollectionUtils.newArrayList(repoModel), pair.getSecond());
 
-                cachePermissionMapData(repoModel.permission, repoModel.repo_id, entity);
-
-
-                List<PermissionEntity> list = new ArrayList<>(getPermissionStackMap().values());
-                int menuId = R.menu.bottom_sheet_op_repo;
-                List<MenuItem> items = parseMenu(context, menuId, list, disableMenuIds, removedMenuIds);
-
-                getMenuItemListLiveData().setValue(items);
+                toParseMenu(context, menuId, disableMenuIds, removedMenuIds);
             }
         });
     }
 
+    public void inflateDirentMenu(Context context) {
+        getPermissionStackMap().clear();
 
-    public void inflateDirentMenuWithPermission(Context context, DirentModel direntModel, List<Integer> disableMenuIds, List<Integer> removedMenuIds, boolean isForce) {
+        toParseMenu(context, R.menu.bottom_sheet_op_dirent, null, CollectionUtils.newArrayList(R.id.unstar));
+    }
+
+    public void inflateDirentMenuWithParams(Context context, List<DirentModel> direntModels, boolean isChecked, List<Integer> disableMenuIds, List<Integer> removedMenuIds, boolean isForce) {
+        if (CollectionUtils.isEmpty(direntModels)) {
+            return;
+        }
+
         int menuId = R.menu.bottom_sheet_op_dirent;
 
-
-        if (!direntModel.is_checked) {
+        if (!isChecked) {
             //remove permission
-            removeCachedPermissionMapData(direntModel.permission, direntModel.uid);
+            multipleRemoveCachedDirentPermissionMapData(direntModels);
 
-            List<PermissionEntity> tempList1 = new ArrayList<>(getPermissionStackMap().values());
-            List<MenuItem> items = parseMenu(context, menuId, tempList1, disableMenuIds, removedMenuIds);
-            getMenuItemListLiveData().setValue(items);
+            toParseMenu(context, menuId, disableMenuIds, removedMenuIds);
             return;
         }
 
-        if (!direntModel.isCustomPermission()) {
-            PermissionEntity entity = convertCustomPermission(direntModel.repo_id, direntModel.permission);
-            cachePermissionMapData(direntModel.permission, direntModel.uid, entity);
+        String repo_id = direntModels.get(0).repo_id;
 
-            List<PermissionEntity> tempList = new ArrayList<>(getPermissionStackMap().values());
-            List<MenuItem> items = parseMenu(context, menuId, tempList, disableMenuIds, removedMenuIds);
-            getMenuItemListLiveData().setValue(items);
-            return;
-        }
-
-
-        //
-        Single<Pair<RepoModel, PermissionEntity>> r = getRepoModelAndPermissionEntitySingle(direntModel.repo_id, isForce);
-        addSingleDisposable(r, new Consumer<Pair<RepoModel, PermissionEntity>>() {
+        Single<Pair<RepoModel, List<PermissionEntity>>> r = getRepoModelAndAllPermissionSingle(repo_id, isForce);
+        addSingleDisposable(r, new Consumer<Pair<RepoModel, List<PermissionEntity>>>() {
             @Override
-            public void accept(Pair<RepoModel, PermissionEntity> pair) throws Exception {
+            public void accept(Pair<RepoModel, List<PermissionEntity>> pair) throws Exception {
                 RepoModel repoModel = pair.getFirst();
-                PermissionEntity entity;
-                if (!repoModel.isCustomPermission()) {
-                    entity = convertCustomPermission(repoModel.repo_id, repoModel.permission);
-                } else {
-                    entity = pair.getSecond();
-                }
+                List<PermissionEntity> permissionList = pair.getSecond();
 
-                cachePermissionMapData(direntModel.permission, direntModel.uid, entity);
+                multipleCacheDirentPermissionMapData(direntModels, permissionList);
 
-                List<PermissionEntity> list = new ArrayList<>(getPermissionStackMap().values());
-                List<MenuItem> items = parseMenu(context, menuId, list, disableMenuIds, removedMenuIds);
-                getMenuItemListLiveData().setValue(items);
+                toParseMenu(context, menuId, disableMenuIds, removedMenuIds);
             }
         });
     }
 
     public void clearCachePermissionMap() {
-        getPermissionObjMap().clear();
         getPermissionStackMap().clear();
     }
 
+    private void multipleRemoveCachedDirentPermissionMapData(List<DirentModel> direntModels) {
+        if (CollectionUtils.isEmpty(direntModels)) {
+            return;
+        }
+
+        for (DirentModel direntModel : direntModels) {
+            removeCachedPermissionMapData(direntModel.permission, direntModel.uid);
+        }
+    }
+
+    private void multipleRemoveCachedRepoPermissionMapData(List<RepoModel> repoModels) {
+        if (CollectionUtils.isEmpty(repoModels)) {
+            return;
+        }
+        for (RepoModel repoModel : repoModels) {
+            removeCachedPermissionMapData(repoModel.permission, repoModel.repo_id);
+        }
+    }
+
     private void removeCachedPermissionMapData(String permission, String id) {
-        if (!getPermissionObjMap().containsKey(permission)) {
+        if (!getPermissionStackMap().containsKey(permission)) {
             return;
         }
 
-        Set<String> set = getPermissionObjMap().get(permission);
-        if (set == null) {
+        PermissionEntity entity = getPermissionStackMap().get(permission);
+        if (entity == null) {
             return;
         }
 
-        if (!set.contains(id)) {
+        if (!entity.hasId(id)) {
             return;
         }
 
-        set.remove(id);
+        entity.removeById(id);
 
         //
-        if (set.isEmpty()) {
+        if (entity.isEmptyIds()) {
             getPermissionStackMap().remove(permission);
         }
     }
 
-    private void cachePermissionMapData(String permission, String id, PermissionEntity entity) {
+    private void multipleCacheDirentPermissionMapData(List<DirentModel> models, List<PermissionEntity> entities) {
+        if (CollectionUtils.isEmpty(models)) {
+            return;
+        }
+
+        for (DirentModel model : models) {
+            if (!model.isCustomPermission()) {
+                cachePermissionMapData(model.permission, model, new PermissionEntity(model.repo_id, model.permission));
+            } else {
+                entities.stream().filter(f -> f.id == model.getCustomPermissionNum()).findFirst().ifPresent(entity -> cachePermissionMapData(model.permission, model, entity));
+            }
+        }
+    }
+
+    private void multipleCacheRepoPermissionMapData(List<RepoModel> models, List<PermissionEntity> entities) {
+        if (CollectionUtils.isEmpty(models)) {
+            return;
+        }
+
+        for (RepoModel model : models) {
+            if (!model.isCustomPermission()) {
+                cachePermissionMapData(model.permission, model, new PermissionEntity(model.repo_id, model.permission));
+            } else {
+                entities.stream().filter(f -> f.id == model.getCustomPermissionNum()).findFirst().ifPresent(entity -> cachePermissionMapData(model.permission, model, entity));
+            }
+        }
+    }
+
+    private void cachePermissionMapData(String permission, BaseModel baseModel, @NonNull PermissionEntity entity) {
         if (!getPermissionStackMap().containsKey(permission)) {
-            getPermissionStackMap().put(permission, entity);
-        }
-
-        if (getPermissionObjMap().containsKey(permission)) {
-            Objects.requireNonNull(getPermissionObjMap().get(permission)).add(id);
+            entity.cacheBaseModel(baseModel);
         } else {
-            getPermissionObjMap().put(permission, CollectionUtils.newHashSet(id));
-        }
-    }
-
-    private PermissionEntity convertCustomPermission(String repoId, String p) {
-
-        PermissionEntity permission = new PermissionEntity();
-        permission.name = p;
-        permission.id = -1;
-        permission.repo_id = repoId;
-
-        if ("cloud-edit".equals(p)) {
-            //用户可以通过浏览器在线查看和编辑，文件不能被下载。
-            permission.create = true;
-            permission.upload = false;
-            permission.download = false;
-            permission.preview = true;
-            permission.copy = true;
-            permission.delete = true;
-            permission.modify = true;
-            permission.download_external_link = false;
-
-        } else if ("preview".equals(p)) {
-            //用户只能通过浏览器在线查看，文件不能被下载。
-            permission.create = false;
-            permission.upload = false;
-            permission.download = false;
-            permission.preview = true;
-            permission.copy = false;
-            permission.delete = false;
-            permission.modify = false;
-            permission.download_external_link = false;
-        } else if ("r".equals(p)) {
-            //用户可以查看、下载和同步文件
-            permission.create = false;
-            permission.upload = false;
-            permission.download = true;
-            permission.preview = true;
-            permission.copy = true;
-            permission.delete = false;
-            permission.modify = false;
-            permission.download_external_link = false;
-        } else if ("rw".equals(p)) {
-            permission.create = true;
-            permission.upload = true;
-            permission.download = true;
-            permission.preview = true;
-            permission.copy = true;
-            permission.delete = true;
-            permission.modify = true;
-            permission.download_external_link = true;
+            PermissionEntity entity1 = getPermissionStackMap().get(permission);
+            assert entity1 != null;
+            entity1.cacheBaseModel(baseModel);
         }
 
-        return permission;
+        getPermissionStackMap().put(permission, entity);
     }
 
-    private List<MenuItem> parseMenu(Context context, int menuId, List<PermissionEntity> list, List<Integer> disableMenuIds, List<Integer> removedMenuIds) {
+    private void toParseMenu(Context context, int menuId, List<Integer> disableMenuIds, List<Integer> removedMenuIds) {
+        List<PermissionEntity> permissionList = new ArrayList<>(getPermissionStackMap().values());
+        List<MenuItem> items = parseMenu(context, menuId, permissionList, disableMenuIds, removedMenuIds);
+        getMenuItemListLiveData().setValue(items);
+    }
+
+    private List<MenuItem> parseMenu(Context context, int menuId, List<PermissionEntity> permissionList, List<Integer> disableMenuIds, List<Integer> removedMenuIds) {
         List<MenuItem> items = inflateMenu(context, menuId);
 
         //if no permission list, disable all menu
-        if (CollectionUtils.isEmpty(list)) {
+        if (CollectionUtils.isEmpty(permissionList)) {
             for (MenuItem item : items) {
                 item.setEnabled(false);
             }
@@ -619,31 +711,31 @@ public class RepoViewModel extends BaseViewModel {
             }
 
             if (item.getItemId() == R.id.rename) {
-                long l = list.stream().filter(f -> !f.modify).count();
+                long l = permissionList.stream().filter(f -> !f.modify).count();
                 item.setEnabled(!(l > 0));
             } else if (item.getItemId() == R.id.move) {
-                long l = list.stream().filter(f -> !f.modify).count();
+                long l = permissionList.stream().filter(f -> !f.modify).count();
                 item.setEnabled(!(l > 0));
             } else if (item.getItemId() == R.id.copy) {
-                long l = list.stream().filter(f -> !f.copy).count();
+                long l = permissionList.stream().filter(f -> !f.copy).count();
                 item.setEnabled(!(l > 0));
             } else if (item.getItemId() == R.id.delete) {
-                long l = list.stream().filter(f -> !f.delete).count();
+                long l = permissionList.stream().filter(f -> !f.delete).count();
                 item.setEnabled(!(l > 0));
             } else if (item.getItemId() == R.id.upload) {
-                long l = list.stream().filter(f -> !f.upload).count();
+                long l = permissionList.stream().filter(f -> !f.upload).count();
                 item.setEnabled(!(l > 0));
             } else if (item.getItemId() == R.id.download) {
-                long l = list.stream().filter(f -> !f.download).count();
+                long l = permissionList.stream().filter(f -> !f.download).count();
                 item.setEnabled(!(l > 0));
             } else if (item.getItemId() == R.id.share) {
-                long l = list.stream().filter(f -> !f.download_external_link).count();
+                long l = permissionList.stream().filter(f -> !f.download_external_link).count();
                 item.setEnabled(!(l > 0));
             } else if (item.getItemId() == R.id.export) {
-                long l = list.stream().filter(f -> !f.download).count();
+                long l = permissionList.stream().filter(f -> !f.download).count();
                 item.setEnabled(!(l > 0));
             } else if (item.getItemId() == R.id.open) {
-                long l = list.stream().filter(f -> !f.download).count();
+                long l = permissionList.stream().filter(f -> !f.download).count();
                 item.setEnabled(!(l > 0));
             }
 
@@ -670,22 +762,7 @@ public class RepoViewModel extends BaseViewModel {
                 List<PermissionEntity> list = CollectionUtils.newArrayList();
 
                 for (PermissionWrapperModel model : wrapperModel.permission_list) {
-                    PermissionEntity permission = new PermissionEntity();
-                    permission.id = model.id;
-                    permission.name = model.name;
-                    permission.description = model.description;
-
-                    permission.create = model.permission.create;
-                    permission.upload = model.permission.upload;
-                    permission.download = model.permission.download;
-                    permission.copy = model.permission.copy;
-                    permission.delete = model.permission.delete;
-                    permission.modify = model.permission.modify;
-                    permission.download_external_link = model.permission.download_external_link;
-                    permission.preview = model.permission.preview;
-                    permission.repo_id = repoId;
-
-                    list.add(permission);
+                    list.add(new PermissionEntity(repoId, model));
                 }
 
                 Completable insertCompletable = AppDatabase.getInstance().permissionDAO().insertAllAsync(list);

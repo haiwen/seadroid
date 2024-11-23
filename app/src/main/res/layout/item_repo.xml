@@ -12,6 +12,7 @@
         android:id="@+id/item_icon"
         android:layout_width="@dimen/rv_item_icon_width"
         android:layout_height="@dimen/rv_item_icon_width"
+        android:contentDescription="@null"
         android:padding="12dp"
         android:src="@drawable/baseline_repo_24"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -51,9 +52,9 @@
         android:id="@+id/action_container"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        app:layout_constraintStart_toEndOf="@+id/text_container"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/text_container"
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageView

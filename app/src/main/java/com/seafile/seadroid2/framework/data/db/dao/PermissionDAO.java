@@ -4,10 +4,7 @@ import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
-import androidx.room.Update;
 
-import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
-import com.seafile.seadroid2.framework.data.db.entities.PermissionEntity;
 import com.seafile.seadroid2.framework.data.db.entities.PermissionEntity;
 
 import java.util.List;
@@ -18,14 +15,18 @@ import io.reactivex.Single;
 @Dao
 public interface PermissionDAO {
 
-    @Query("select * from permissions where repo_id = :repoId and id = :id limit 1")
-    List<PermissionEntity> getByIdSync(String repoId, int id);
+    @Query("select * from permissions where id = :id limit 1")
+    List<PermissionEntity> getByIdSync(int id);
+
+    @Query("select * from permissions where id IN (:ids)")
+    Single<List<PermissionEntity>> getByIdsAsync(List<Integer> ids);
 
     @Query("select * from permissions where repo_id = :repoId and id = :id limit 1")
-    Single<List<PermissionEntity>> getByIdAsync(String repoId, int id);
+    Single<List<PermissionEntity>> getWithAsync(String repoId, int id);
 
     @Query("select * from permissions where repo_id = :repoId")
     Single<List<PermissionEntity>> getByRepoIdAsync(String repoId);
+
 
 
     @Query("DELETE FROM permissions")
