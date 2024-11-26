@@ -4,6 +4,7 @@ import android.content.Context;
 
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
+import com.seafile.seadroid2.preferences.Settings;
 
 /**
  * Access the app settings
@@ -98,4 +99,16 @@ public final class SettingsManager {
     public static final long DECRYPTION_EXPIRATION_TIME = 1000 * 60 * 60 * 24;//1 days
 
     public static final int REPO_ENC_VERSION = 2;
+
+
+    //force refresh starred list state
+    public static final String ON_FORCE_REFRESH_STARRED_LIST_KEY = "on_force_refresh_starred_list";
+
+    public static void setForceRefreshStarredListState(boolean state) {
+        Settings.getCommonPreferences().edit().putBoolean(ON_FORCE_REFRESH_STARRED_LIST_KEY, state).apply();
+    }
+
+    public static boolean getForceRefreshStarredListState() {
+        return Settings.getCommonPreferences().getBoolean(ON_FORCE_REFRESH_STARRED_LIST_KEY, false);
+    }
 }

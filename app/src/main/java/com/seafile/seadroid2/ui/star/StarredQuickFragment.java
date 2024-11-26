@@ -16,6 +16,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -26,9 +27,11 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
-import com.seafile.seadroid2.bottomsheetmenu.BottomSheetHelper;
-import com.seafile.seadroid2.bottomsheetmenu.BottomSheetMenuFragment;
-import com.seafile.seadroid2.bottomsheetmenu.OnMenuClickListener;
+import com.seafile.seadroid2.annotation.Unstable;
+import com.seafile.seadroid2.framework.datastore.sp.SettingsManager;
+import com.seafile.seadroid2.ui.bottomsheetmenu.BottomSheetHelper;
+import com.seafile.seadroid2.ui.bottomsheetmenu.BottomSheetMenuFragment;
+import com.seafile.seadroid2.ui.bottomsheetmenu.OnMenuClickListener;
 import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.databinding.LayoutFrameSwipeRvBinding;
 import com.seafile.seadroid2.framework.data.db.entities.StarredModel;
@@ -94,8 +97,6 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
         initViewModel();
     }
 
-    private boolean isForce = false;
-
     @Override
     public void onFirstResume() {
         super.onFirstResume();
@@ -103,11 +104,21 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        if (isForce) {
+    public void onOtherResume() {
+        super.onOtherResume();
+
+        if (isForce()) {
             reload();
         }
+    }
+
+    private boolean isForce() {
+        boolean isForce = SettingsManager.getForceRefreshStarredListState();
+        if (isForce) {
+            SettingsManager.setForceRefreshStarredListState(false);
+        }
+
+        return isForce;
     }
 
     private void initAdapter() {
@@ -125,7 +136,7 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
 
         });
 
-        adapter.addOnItemChildClickListener(R.id.item_action, new BaseQuickAdapter.OnItemChildClickListener<StarredModel>() {
+        adapter.addOnItemChildClickListener(R.id.expandable_toggle_button, new BaseQuickAdapter.OnItemChildClickListener<StarredModel>() {
             @Override
             public void onItemClick(@NonNull BaseQuickAdapter<StarredModel, ?> baseQuickAdapter, @NonNull View view, int i) {
                 showBottomSheet(adapter.getItems().get(i));
@@ -145,13 +156,6 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
     }
 
     private void initViewModel() {
-        mainViewModel.getOnForceRefreshStarredListLiveData().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
-            @Override
-            public void onChanged(Boolean aBoolean) {
-                isForce = aBoolean;
-            }
-        });
-
         getViewModel().getRefreshLiveData().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean aBoolean) {
@@ -210,7 +214,7 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
             builder.removeMenu(R.id.nav_to);
         }
 
-        builder.show(getChildFragmentManager());
+        builder.show(getChildFragmentManager(), StarredQuickFragment.class.getSimpleName());
     }
 
     private void navTo(StarredModel starredModel) {
@@ -225,6 +229,7 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
         }
     }
 
+    @OptIn(markerClass = Unstable.class)
     private void open(StarredModel model) {
         if (model.is_dir) {
             MainActivity.navToThis(requireContext(), model.repo_id, model.repo_name, model.path, model.is_dir);

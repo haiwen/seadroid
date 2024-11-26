@@ -19,8 +19,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.chad.library.adapter4.QuickAdapterHelper;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.bottomsheetmenu.BottomSheetHelper;
-import com.seafile.seadroid2.bottomsheetmenu.BottomSheetMenuFragment;
+import com.seafile.seadroid2.ui.bottomsheetmenu.BottomSheetHelper;
+import com.seafile.seadroid2.ui.bottomsheetmenu.BottomSheetMenuFragment;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
 import com.seafile.seadroid2.ui.base.BaseActivity;
 

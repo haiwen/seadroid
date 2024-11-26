@@ -24,6 +24,9 @@ public interface RepoDAO {
     @Query("select * from repos where repo_id = :repo_id limit 1")
     Single<List<RepoModel>> getRepoById(String repo_id);
 
+    @Query("select * from repos where repo_id IN (:ids)")
+    Single<List<RepoModel>> getRepoListByIds(List<String> ids);
+
     @Query("select * from repos where repo_id = :repo_id limit 1")
     List<RepoModel> getByIdSync(String repo_id);
 

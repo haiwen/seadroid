@@ -3,13 +3,12 @@
     <!-- background -->
     <item android:id="@android:id/background">
         <shape>
-            <corners android:radius="5dip" />
+            <corners android:radius="2dip" />
             <gradient
                 android:angle="360"
-                android:centerColor="#E3E3E3"
                 android:centerY="0.5"
-                android:endColor="#FFFFFF"
-                android:startColor="#FFFFFF" />
+                android:endColor="@color/toolbar_progress_bar_background_color"
+                android:startColor="@color/toolbar_progress_bar_background_color" />
         </shape>
     </item>
 
@@ -17,13 +16,12 @@
     <item android:id="@android:id/progress">
         <clip>
             <shape>
-                <corners android:radius="5dip" />
+                <corners android:radius="2dip" />
                 <gradient
                     android:angle="360"
-                    android:centerColor="@color/fancy_dark_black"
                     android:centerY="0.5"
-                    android:endColor="@color/fancy_dark_black"
-                    android:startColor="@color/fancy_dark_black" />
+                    android:endColor="@color/toolbar_progress_bar_second_color"
+                    android:startColor="@color/toolbar_progress_bar_second_color" />
             </shape>
         </clip>
     </item>

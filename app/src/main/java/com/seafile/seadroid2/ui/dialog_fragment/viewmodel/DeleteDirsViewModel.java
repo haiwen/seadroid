@@ -33,8 +33,27 @@ public class DeleteDirsViewModel extends BaseViewModel {
         return ActionLiveData;
     }
 
+    public void delete(List<String> direntIds, boolean isDeleteLocalFile) {
+        Single<List<DirentModel>> dSingle = AppDatabase.getInstance().direntDao().getListByIdsAsync(direntIds);
+        addSingleDisposable(dSingle, new Consumer<List<DirentModel>>() {
+            @Override
+            public void accept(List<DirentModel> dirents) throws Exception {
+                deleteDirents(dirents, isDeleteLocalFile);
+            }
+        }, new Consumer<Throwable>() {
+            @Override
+            public void accept(Throwable throwable) throws Exception {
+                getRefreshLiveData().setValue(false);
+                getActionLiveData().setValue(true);
 
-    public void deleteDirents(String related_account, List<DirentModel> dirents, boolean isDeleteLocalFile) {
+                String string = getErrorMsgByThrowable(throwable);
+                DeleteDirentModel d = new DeleteDirentModel();
+                d.error_msg = string;
+            }
+        });
+    }
+
+    private void deleteDirents(List<DirentModel> dirents, boolean isDeleteLocalFile) {
         getRefreshLiveData().setValue(true);
 
         Flowable<DeleteDirentModel> flowable;
@@ -43,8 +62,7 @@ public class DeleteDirsViewModel extends BaseViewModel {
                     .flatMapSingle(new Function<DirentModel, SingleSource<DeleteDirentModel>>() {
                         @Override
                         public SingleSource<DeleteDirentModel> apply(DirentModel dirent) throws Exception {
-                            String obj = dirent.isDir() ? "dir" : "file";
-                            return HttpIO.getCurrentInstance().execute(DialogService.class).deleteDirent(dirent.repo_id, obj, dirent.full_path);
+                            return HttpIO.getCurrentInstance().execute(DialogService.class).deleteDirent(dirent.repo_id, dirent.type, dirent.full_path);
                         }
                     });
         } else {
@@ -89,8 +107,7 @@ public class DeleteDirsViewModel extends BaseViewModel {
                                         }
                                     }
 
-                                    String obj = dirent.isDir() ? "dir" : "file";
-                                    return HttpIO.getCurrentInstance().execute(DialogService.class).deleteDirent(dirent.repo_id, obj, dirent.full_path);
+                                    return HttpIO.getCurrentInstance().execute(DialogService.class).deleteDirent(dirent.repo_id, dirent.type, dirent.full_path);
                                 }
                             });
                         }

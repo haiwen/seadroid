@@ -1,5 +1,7 @@
 package com.seafile.seadroid2.ui.search;
 
+import android.text.TextUtils;
+
 import androidx.lifecycle.MutableLiveData;
 
 import com.blankj.utilcode.util.CollectionUtils;
@@ -23,17 +25,21 @@ public class SearchViewModel extends BaseViewModel {
 
     private final MutableLiveData<List<SearchModel>> mListLiveData = new MutableLiveData<>();
 
-    public MutableLiveData<List<SearchModel>> getListLiveData() {
+    public MutableLiveData<List<SearchModel>> getSearchListLiveData() {
         return mListLiveData;
     }
 
-    public void loadNext(String q, int pageNo, int pageSize) {
+    public void searchNext(String q, int pageNo, int pageSize) {
+        if (TextUtils.isEmpty(q)){
+            return;
+        }
+
         getRefreshLiveData().setValue(true);
         Single<SearchWrapperModel> single = HttpIO.getCurrentInstance().execute(SearchService.class).search("all", q, "all", pageNo, pageSize);
         addSingleDisposable(single, new Consumer<SearchWrapperModel>() {
             @Override
             public void accept(SearchWrapperModel searchWrapperModel) throws Exception {
-                getListLiveData().setValue(searchWrapperModel.results);
+                getSearchListLiveData().setValue(searchWrapperModel.results);
                 getRefreshLiveData().setValue(false);
             }
         }, new Consumer<Throwable>() {

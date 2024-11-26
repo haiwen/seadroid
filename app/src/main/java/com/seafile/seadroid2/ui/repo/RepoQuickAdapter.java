@@ -1,7 +1,9 @@
 package com.seafile.seadroid2.ui.repo;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.graphics.drawable.Drawable;
+import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -36,17 +38,16 @@ import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.data.model.BaseModel;
 import com.seafile.seadroid2.framework.data.model.GroupItemModel;
+import com.seafile.seadroid2.framework.data.model.search.SearchModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.util.GlideApp;
-import com.seafile.seadroid2.framework.util.GlideRequests;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.ui.base.adapter.BaseMultiAdapter;
 import com.seafile.seadroid2.ui.viewholder.GroupItemViewHolder;
 import com.seafile.seadroid2.widget.AnimatedStateListDrawableCompatUtils;
 
-import org.checkerframework.checker.units.qual.A;
-
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Predicate;
@@ -55,7 +56,7 @@ import java.util.stream.Collectors;
 public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
     private final String SERVER = HttpIO.getCurrentInstance().getServerUrl();
 
-    private boolean actionModeOn;
+    private boolean onActionMode;
 
     private boolean repoEncrypted = false;
     private FileViewType fileViewType = FileViewType.LIST;
@@ -83,8 +84,8 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
 
     public Drawable getStarDrawable() {
         if (null == starDrawable) {
-            int DP_16 = SizeUtils.dp2px(16);
-            starDrawable = ContextCompat.getDrawable(getContext(), R.drawable.baseline_star_24);
+            int DP_16 = SizeUtils.dp2px(12);
+            starDrawable = ContextCompat.getDrawable(getContext(), R.drawable.ic_star_32);
             starDrawable.setBounds(0, 0, DP_16, DP_16);
             starDrawable.setTint(ContextCompat.getColor(getContext(), R.color.light_grey));
         }
@@ -139,7 +140,14 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
 
             @Override
             public void onBind(@NonNull RepoViewHolder viewHolder, int i, @Nullable BaseModel baseModel) {
-                onBindRepos(viewHolder, (RepoModel) baseModel);
+                onBind(viewHolder, i, baseModel, Collections.emptyList());
+            }
+
+            @Override
+            public void onBind(@NonNull RepoViewHolder holder, int position, @Nullable BaseModel item, @NonNull List<?> payloads) {
+
+                onBindRepos(holder, (RepoModel) item, payloads);
+
             }
         }).addItemType(AbsLayoutItemType.DIRENT_LIST, new OnMultiItem<BaseModel, DirentViewHolder>() {
             @NonNull
@@ -151,7 +159,12 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
 
             @Override
             public void onBind(@NonNull DirentViewHolder viewHolder, int i, @Nullable BaseModel baseModel) {
-                onBindDirents(viewHolder, (DirentModel) baseModel);
+                onBind(viewHolder, i, baseModel, Collections.emptyList());
+            }
+
+            @Override
+            public void onBind(@NonNull DirentViewHolder holder, int position, @Nullable BaseModel item, @NonNull List<?> payloads) {
+                onBindDirents(holder, (DirentModel) item, payloads);
             }
         }).addItemType(AbsLayoutItemType.DIRENT_GRID, new OnMultiItem<BaseModel, DirentGridViewHolder>() {
             @NonNull
@@ -163,7 +176,12 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
 
             @Override
             public void onBind(@NonNull DirentGridViewHolder viewHolder, int i, @Nullable BaseModel baseModel) {
-                onBindDirentsGrid(viewHolder, (DirentModel) baseModel);
+                onBind(viewHolder, i, baseModel, Collections.emptyList());
+            }
+
+            @Override
+            public void onBind(@NonNull DirentGridViewHolder holder, int position, @Nullable BaseModel item, @NonNull List<?> payloads) {
+                onBindDirentsGrid(holder, (DirentModel) item, payloads);
             }
         }).addItemType(AbsLayoutItemType.DIRENT_GALLERY, new OnMultiItem<BaseModel, DirentGalleryViewHolder>() {
             @NonNull
@@ -175,7 +193,25 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
 
             @Override
             public void onBind(@NonNull DirentGalleryViewHolder viewHolder, int i, @Nullable BaseModel baseModel) {
-                onBindDirentsGallery(viewHolder, (DirentModel) baseModel);
+                onBind(viewHolder, i, baseModel, Collections.emptyList());
+            }
+
+            @Override
+            public void onBind(@NonNull DirentGalleryViewHolder holder, int position, @Nullable BaseModel item, @NonNull List<?> payloads) {
+                onBindDirentsGallery(holder, (DirentModel) item, payloads);
+
+            }
+        }).addItemType(AbsLayoutItemType.SEARCH, new OnMultiItem<BaseModel, DirentViewHolder>() {
+            @NonNull
+            @Override
+            public DirentViewHolder onCreate(@NonNull Context context, @NonNull ViewGroup viewGroup, int i) {
+                ItemDirentBinding binding = ItemDirentBinding.inflate(LayoutInflater.from(context), viewGroup, false);
+                return new DirentViewHolder(binding);
+            }
+
+            @Override
+            public void onBind(@NonNull DirentViewHolder viewHolder, int i, @Nullable BaseModel baseModel) {
+                onBindSearch(viewHolder, (SearchModel) baseModel);
             }
         }).addItemType(AbsLayoutItemType.NOT_SUPPORTED, new OnMultiItem<BaseModel, UnsupportedViewHolder>() {
             @NonNull
@@ -186,7 +222,13 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
             }
 
             @Override
-            public void onBind(@NonNull UnsupportedViewHolder viewHolder, int i, @Nullable BaseModel baseModel) {
+            public void onBind(@NonNull UnsupportedViewHolder unsupportedViewHolder, int i, @Nullable BaseModel baseModel) {
+
+            }
+
+            @Override
+            public void onBind(@NonNull UnsupportedViewHolder holder, int position, @Nullable BaseModel item, @NonNull List<?> payloads) {
+                super.onBind(holder, position, item, payloads);
             }
         }).onItemViewType(new OnItemViewTypeListener<BaseModel>() {
             @Override
@@ -203,6 +245,8 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
                     } else {
                         return AbsLayoutItemType.DIRENT_GALLERY;
                     }
+                } else if (list.get(i) instanceof SearchModel) {
+                    return AbsLayoutItemType.SEARCH;
                 } else if (list.get(i) instanceof Account) {
                     return AbsLayoutItemType.ACCOUNT;
                 }
@@ -212,7 +256,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
     }
 
     private void onBindAccount(AccountViewHolder holder, BaseModel model) {
-        holder.binding.getRoot().setBackground(null);
+//        holder.binding.getRoot().setBackground(null);
 
         Account account = (Account) model;
 
@@ -256,18 +300,41 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
 //        holder.binding.listSeparatorItemActionText.setRotation(model.is_checked ? 90 : 270);
     }
 
-    private void onBindRepos(RepoViewHolder holder, RepoModel model) {
+    private void onBindRepos(RepoViewHolder holder, RepoModel model, @NonNull List<?> payloads) {
+        if (!CollectionUtils.isEmpty(payloads)) {
+            Bundle bundle = (Bundle) payloads.get(0);
+            boolean isChecked = bundle.getBoolean("is_check");
+
+//            holder.binding.getRoot().setChecked(model.is_checked);
+
+            if (isChecked) {
+                holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_checked);
+            } else {
+                holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_unchecked);
+            }
+            return;
+        }
+
         holder.binding.itemTitle.setText(model.repo_name);
         holder.binding.itemSubtitle.setText(model.getSubtitle());
         holder.binding.itemIcon.setImageResource(model.getIcon());
+//        holder.binding.getRoot().setBackground(AnimatedStateListDrawableCompatUtils.createDrawableCompat(getContext()));
 
-        if (selectType.ordinal() >= RepoSelectType.ONLY_REPO.ordinal()) {
-            holder.binding.itemSelectView.setVisibility(model.is_checked ? View.VISIBLE : View.INVISIBLE);
-            holder.binding.expandableToggleButton.setVisibility(View.INVISIBLE);
+        if (selectType.ordinal() == RepoSelectType.ONLY_REPO.ordinal() || onActionMode) {
+//            holder.binding.getRoot().setChecked(model.is_checked);
+
+            holder.binding.itemMultiSelect.setVisibility(View.VISIBLE);
+            if (model.is_checked) {
+                holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_checked);
+            } else {
+                holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_unchecked);
+            }
         } else {
-            holder.binding.expandableToggleButton.setVisibility(View.VISIBLE);
-            holder.binding.itemSelectView.setVisibility(View.GONE);
+            holder.binding.itemMultiSelect.setVisibility(View.GONE);
+//            holder.binding.getRoot().setChecked(false);
         }
+
+        holder.binding.expandableToggleButton.setVisibility(View.GONE);
 
         holder.binding.itemTitle.setCompoundDrawablePadding(Constants.DP.DP_4);
         if (model.starred) {
@@ -277,11 +344,25 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         }
     }
 
-    private void onBindDirents(DirentViewHolder holder, DirentModel model) {
+    private void onBindDirents(DirentViewHolder holder, DirentModel model, @NonNull List<?> payloads) {
+        if (!CollectionUtils.isEmpty(payloads)) {
+            Bundle bundle = (Bundle) payloads.get(0);
+            boolean isChecked = bundle.getBoolean("is_check");
+
+//            holder.binding.getRoot().setChecked(model.is_checked);
+
+            if (isChecked) {
+                holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_checked);
+            } else {
+                holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_unchecked);
+            }
+            return;
+        }
+
         holder.binding.itemTitle.setText(model.name);
         holder.binding.itemSubtitle.setText(model.getSubtitle());
 
-        holder.binding.getRoot().setBackground(AnimatedStateListDrawableCompatUtils.createDrawableCompat(getContext()));
+//        holder.binding.getRoot().setBackground(AnimatedStateListDrawableCompatUtils.createDrawableCompat(getContext()));
 
         if (repoEncrypted || !Utils.isViewableImage(model.name)) {
             holder.binding.itemIcon.setImageResource(model.getIcon());
@@ -290,22 +371,20 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         }
 
         //action mode
-        if (actionModeOn) {
+        if (onActionMode) {
+//            holder.binding.getRoot().setChecked(model.is_checked);
+
             holder.binding.itemMultiSelect.setVisibility(View.VISIBLE);
-
-            holder.binding.getRoot().setChecked(model.is_checked);
-
             if (model.is_checked) {
-                holder.binding.itemMultiSelect.setImageResource(R.drawable.multi_select_item_checked);
+                holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_checked);
             } else {
-                holder.binding.itemMultiSelect.setImageResource(R.drawable.multi_select_item_unchecked);
+                holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_unchecked);
             }
         } else {
             holder.binding.itemMultiSelect.setVisibility(View.GONE);
-            holder.binding.itemMultiSelect.setImageResource(R.drawable.multi_select_item_unchecked);
+            holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_unchecked);
 
-            holder.binding.getRoot().setChecked(false);
-
+//            holder.binding.getRoot().setChecked(false);
         }
 
         holder.binding.itemDownloadStatusProgressbar.setVisibility(View.GONE);
@@ -314,8 +393,11 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         if (selectType.ordinal() < RepoSelectType.ONLY_ACCOUNT.ordinal()) {
             holder.binding.itemTitle.setTextColor(ContextCompat.getColor(getContext(), R.color.item_title_color));
             holder.binding.itemSubtitle.setTextColor(ContextCompat.getColor(getContext(), R.color.item_subtitle_color));
-
-            holder.binding.expandableToggleButton.setVisibility(View.VISIBLE);
+//            if (onActionMode) {
+//                holder.binding.expandableToggleButton.setVisibility(View.GONE);
+//            } else {
+//                holder.binding.expandableToggleButton.setVisibility(View.VISIBLE);
+//            }
         } else {
 
             if (!model.isDir()) {
@@ -326,8 +408,9 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
                 holder.binding.itemSubtitle.setTextColor(ContextCompat.getColor(getContext(), R.color.item_subtitle_color));
             }
 
-            holder.binding.expandableToggleButton.setVisibility(View.INVISIBLE);
+//            holder.binding.expandableToggleButton.setVisibility(View.INVISIBLE);
         }
+        holder.binding.expandableToggleButton.setVisibility(View.GONE);
 
         if (model.isDir()) {
             holder.binding.itemDownloadStatusProgressbar.setVisibility(View.GONE);
@@ -360,10 +443,24 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         }
     }
 
-    private void onBindDirentsGrid(DirentGridViewHolder holder, DirentModel model) {
+    private void onBindDirentsGrid(DirentGridViewHolder holder, DirentModel model, @NonNull List<?> payloads) {
+        if (!CollectionUtils.isEmpty(payloads)) {
+            Bundle bundle = (Bundle) payloads.get(0);
+            boolean isChecked = bundle.getBoolean("is_check");
+
+//            holder.binding.getRoot().setChecked(model.is_checked);
+
+            if (isChecked) {
+                holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_checked);
+            } else {
+                holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_unchecked);
+            }
+            return;
+        }
+
         holder.binding.itemTitle.setText(model.name);
 
-        holder.binding.getRoot().setBackground(AnimatedStateListDrawableCompatUtils.createDrawableCompat(getContext()));
+//        holder.binding.getRoot().setBackground(AnimatedStateListDrawableCompatUtils.createDrawableCompat(getContext()));
 
         if (model.isDir()) {
             holder.binding.itemOutline.setVisibility(View.GONE);
@@ -380,20 +477,20 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         }
 
         //action mode
-        if (actionModeOn) {
+        if (onActionMode) {
             holder.binding.itemMultiSelect.setVisibility(View.VISIBLE);
-            holder.binding.getRoot().setChecked(model.is_checked);
+//            holder.binding.getRoot().setChecked(model.is_checked);
 
             if (model.is_checked) {
-                holder.binding.itemMultiSelect.setImageResource(R.drawable.multi_select_item_checked);
+                holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_checked);
             } else {
-                holder.binding.itemMultiSelect.setImageResource(R.drawable.multi_select_item_unchecked);
+                holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_unchecked);
             }
         } else {
             holder.binding.itemMultiSelect.setVisibility(View.GONE);
-            holder.binding.itemMultiSelect.setImageResource(R.drawable.multi_select_item_unchecked);
+            holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_unchecked);
 
-            holder.binding.getRoot().setChecked(false);
+//            holder.binding.getRoot().setChecked(false);
         }
 
         if (model.starred) {
@@ -403,10 +500,21 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         }
     }
 
-    private void onBindDirentsGallery(DirentGalleryViewHolder holder, DirentModel model) {
-//        holder.binding.itemTitle.setText(model.name);
+    private void onBindDirentsGallery(DirentGalleryViewHolder holder, DirentModel model, @NonNull List<?> payloads) {
+        if (!CollectionUtils.isEmpty(payloads)) {
+            Bundle bundle = (Bundle) payloads.get(0);
+            boolean isChecked = bundle.getBoolean("is_check");
 
-        holder.binding.getRoot().setBackground(AnimatedStateListDrawableCompatUtils.createDrawableCompat(getContext()));
+//            holder.binding.getRoot().setChecked(model.is_checked);
+
+            if (isChecked) {
+                holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_checked);
+            } else {
+                holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_unchecked);
+            }
+            return;
+        }
+//        holder.binding.getRoot().setBackground(AnimatedStateListDrawableCompatUtils.createDrawableCompat(getContext()));
 
         if (repoEncrypted || !Utils.isViewableImage(model.name)) {
             holder.binding.itemIcon.setImageResource(model.getIcon());
@@ -415,21 +523,45 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         }
 
         //action mode
-        if (actionModeOn) {
+        if (onActionMode) {
             holder.binding.itemMultiSelect.setVisibility(View.VISIBLE);
-            holder.binding.getRoot().setChecked(model.is_checked);
+//            holder.binding.getRoot().setChecked(model.is_checked);
 
             if (model.is_checked) {
-                holder.binding.itemMultiSelect.setImageResource(R.drawable.multi_select_item_checked);
+                holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_checked);
             } else {
-                holder.binding.itemMultiSelect.setImageResource(R.drawable.multi_select_item_unchecked);
+                holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_unchecked);
             }
         } else {
-            holder.binding.getRoot().setChecked(false);
+//            holder.binding.getRoot().setChecked(false);
 
             holder.binding.itemMultiSelect.setVisibility(View.GONE);
-            holder.binding.itemMultiSelect.setImageResource(R.drawable.multi_select_item_unchecked);
+            holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_unchecked);
         }
+    }
+
+    private void onBindSearch(DirentViewHolder holder, SearchModel model) {
+        holder.binding.itemTitle.setText(model.name);
+        holder.binding.itemSubtitle.setText(model.getSubtitle());
+
+//        holder.binding.getRoot().setBackground(AnimatedStateListDrawableCompatUtils.createDrawableCompat(getContext()));
+
+        if (repoEncrypted || !Utils.isViewableImage(model.name)) {
+            holder.binding.itemIcon.setImageResource(model.getIcon());
+        } else {
+            DirentModel direntModel = new DirentModel();
+            direntModel.full_path = model.fullpath;
+            direntModel.repo_id = model.repo_id;
+            loadImage(direntModel, holder.binding.itemIcon);
+        }
+
+        holder.binding.expandableToggleButton.setVisibility(View.GONE);
+        holder.binding.itemMultiSelect.setVisibility(View.GONE);
+        holder.binding.itemDownloadStatusProgressbar.setVisibility(View.GONE);
+        holder.binding.itemDownloadStatus.setVisibility(View.GONE);
+
+        holder.binding.itemTitle.setCompoundDrawables(null, null, null, null);
+
     }
 
     private void loadImage(DirentModel direntModel, ImageView imageView) {
@@ -459,41 +591,41 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         return String.format(Locale.ROOT, "%sapi2/repos/%s/thumbnail/?p=%s&size=%d", SERVER, direntModel.repo_id, newFilePath, size);
     }
 
-    public void setActionModeOn(boolean actionModeOn) {
-        this.actionModeOn = actionModeOn;
+    public void setOnActionMode(boolean on) {
+        this.onActionMode = on;
 
-        if (!actionModeOn) {
+        if (!on) {
             setItemSelected(false);
         }
 
         notifyItemRangeChanged(0, getItemCount());
     }
 
-    public boolean getActionMode() {
-        return actionModeOn;
+    public boolean isOnActionMode() {
+        return onActionMode;
     }
 
     public void setItemSelected(boolean itemSelected) {
         for (BaseModel item : getItems()) {
-            if (item instanceof DirentModel) {
-                DirentModel model = (DirentModel) item;
-                model.is_checked = itemSelected;
+
+            if (item instanceof GroupItemModel) {
+                continue;
+            } else if (item instanceof Account) {
+                continue;
+            } else if (item instanceof SearchModel) {
+                continue;
             }
+
+            item.is_checked = itemSelected;
         }
 
-        notifyItemRangeChanged(0, getItemCount());
+        Bundle bundle = new Bundle();
+        bundle.putBoolean("is_check", itemSelected);
+        notifyItemRangeChanged(0, getItemCount(), bundle);
     }
 
-    public List<DirentModel> getSelectedList() {
-        List<DirentModel> list = new ArrayList<>();
-        for (BaseModel item : getItems()) {
-            if (item instanceof DirentModel model) {
-                if (model.is_checked) {
-                    list.add(model);
-                }
-            }
-        }
-        return list;
+    public List<BaseModel> getSelectedList() {
+        return getItems().stream().filter(f -> f.is_checked).collect(Collectors.toList());
     }
 
     /**
@@ -560,18 +692,16 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         return -1;
     }
 
-    public void notifySearchChanged(String searchContent) {
+    public void filterListBySearchKeyword(String searchContent) {
         this.searchContent = searchContent;
 
         if (CollectionUtils.isEmpty(finalList)) {
-            submitList(finalList);
             return;
         }
 
         List<BaseModel> filterList;
-        Predicate<? super BaseModel> predicate = getSearchFilter();
-        if (predicate != null) {
-            filterList = finalList.stream().filter(predicate).collect(Collectors.toList());
+        if (!TextUtils.isEmpty(searchContent)) {
+            filterList = finalList.stream().filter(_searchFilter).collect(Collectors.toList());
         } else {
             filterList = finalList;
         }
@@ -639,6 +769,12 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
                     return TextUtils.equals(newT.full_path, oldT.full_path);
                 }
 
+                if (getItems().get(oldItemPosition) instanceof SearchModel) {
+                    SearchModel newT = (SearchModel) getItems().get(oldItemPosition);
+                    SearchModel oldT = (SearchModel) newList.get(newItemPosition);
+                    return TextUtils.equals(newT.fullpath, oldT.fullpath);
+                }
+
                 return true;
             }
 
@@ -685,6 +821,24 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
                             && TextUtils.equals(newT.server, oldT.server);
                 }
 
+                if (getItems().get(oldItemPosition) instanceof SearchModel) {
+                    SearchModel newT = (SearchModel) getItems().get(oldItemPosition);
+                    SearchModel oldT = (SearchModel) newList.get(newItemPosition);
+                    return TextUtils.equals(newT.fullpath, oldT.fullpath)
+                            && TextUtils.equals(newT.name, oldT.name)
+                            && newT.is_dir == oldT.is_dir
+                            && newT.size == oldT.size
+                            && newT.last_modified == oldT.last_modified
+                            && TextUtils.equals(newT.repo_id, oldT.repo_id)
+                            && TextUtils.equals(newT.repo_name, oldT.repo_name)
+                            && TextUtils.equals(newT.repo_owner_email, oldT.repo_owner_email)
+                            && TextUtils.equals(newT.repo_owner_name, oldT.repo_owner_name)
+                            && TextUtils.equals(newT.repo_owner_contact_email, oldT.repo_owner_contact_email)
+                            && TextUtils.equals(newT.thumbnail_url, oldT.thumbnail_url)
+                            && TextUtils.equals(newT.repo_type, oldT.repo_type)
+                            && TextUtils.equals(newT.content_highlight, oldT.content_highlight);
+                }
+
                 if (getItems().get(oldItemPosition) instanceof DirentModel) {
                     DirentModel newT = (DirentModel) getItems().get(oldItemPosition);
                     DirentModel oldT = (DirentModel) newList.get(newItemPosition);
@@ -723,13 +877,6 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
 
         setItems(newList);
         diffResult.dispatchUpdatesTo(this);
-    }
-
-    public Predicate<? super BaseModel> getSearchFilter() {
-        if (TextUtils.isEmpty(searchContent)) {
-            return null;
-        }
-        return _searchFilter;
     }
 
     private String searchContent;

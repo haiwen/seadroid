@@ -4,8 +4,10 @@ import android.text.TextUtils;
 
 import androidx.lifecycle.MutableLiveData;
 
+import com.blankj.utilcode.util.CollectionUtils;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
+import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
 import com.seafile.seadroid2.framework.data.model.ResultModel;
@@ -13,8 +15,19 @@ import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.ui.dialog_fragment.DialogService;
 import com.seafile.seadroid2.ui.folder_backup.RepoConfig;
 
+import org.reactivestreams.Publisher;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Flow;
+
+import io.reactivex.Flowable;
 import io.reactivex.Single;
+import io.reactivex.SingleSource;
+import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
+import kotlin.Pair;
 
 public class DeleteRepoViewModel extends BaseViewModel {
     private final MutableLiveData<ResultModel> ActionLiveData = new MutableLiveData<>();
@@ -23,20 +36,33 @@ public class DeleteRepoViewModel extends BaseViewModel {
         return ActionLiveData;
     }
 
-    public void deleteRepo(String repoId) {
+    public void deleteRepo(List<String> repoIds) {
+        if (CollectionUtils.isEmpty(repoIds)) {
+            return;
+        }
         getRefreshLiveData().setValue(true);
 
-        Single<String> single = HttpIO.getCurrentInstance().execute(DialogService.class).deleteRepo(repoId);
-        addSingleDisposable(single, new Consumer<String>() {
+        List<Flowable<Pair<String, String>>> flowableList = new ArrayList<>();
+        for (String repoId : repoIds) {
+            flowableList.add(getDeleteFlowable(repoId));
+        }
+
+        Flowable<Pair<String, String>> mergedFlowable = Flowable.mergeDelayError(flowableList, 5, Flowable.bufferSize());
+        addFlowableDisposable(mergedFlowable, new Consumer<Pair<String, String>>() {
             @Override
-            public void accept(String resultModel) throws Exception {
-                getRefreshLiveData().setValue(false);
+            public void accept(Pair<String, String> pair) throws Exception {
+
+                SLogs.d("DeleteRepoViewModel deleteRepo result: repoId = " + pair.getFirst() + ", result = " + pair.getSecond());
+
+
+                String repoId = pair.getFirst();
+                String o = pair.getSecond();
 
                 ResultModel resultModel1 = new ResultModel();
-                if (TextUtils.equals("success", resultModel)) {
+                if (TextUtils.equals("success", o)) {
                     resultModel1.success = true;
                 } else {
-                    resultModel1.error_msg = resultModel;
+                    resultModel1.error_msg = o;
                 }
 
                 if (resultModel1.success) {
@@ -52,8 +78,6 @@ public class DeleteRepoViewModel extends BaseViewModel {
                         FolderBackupSharePreferenceHelper.writeBackupSwitch(false);
                     }
                 }
-
-                getActionLiveData().setValue(resultModel1);
             }
         }, new Consumer<Throwable>() {
             @Override
@@ -64,7 +88,24 @@ public class DeleteRepoViewModel extends BaseViewModel {
                 resultModel.error_msg = getErrorMsgByThrowable(throwable);
                 getActionLiveData().setValue(resultModel);
             }
+        }, new Action() {
+            @Override
+            public void run() throws Exception {
+                //todo 检查一下getActionLiveData
+                getRefreshLiveData().setValue(false);
+                getActionLiveData().setValue(new ResultModel());
+            }
         });
+    }
+
+    private Flowable<Pair<String, String>> getDeleteFlowable(String repoId) {
+        Single<String> single = HttpIO.getCurrentInstance().execute(DialogService.class).deleteRepo(repoId);
+        return single.flatMap(new Function<String, SingleSource<Pair<String, String>>>() {
+            @Override
+            public SingleSource<Pair<String, String>> apply(String s) throws Exception {
+                return Single.just(new Pair<>(repoId, s));
+            }
+        }).toFlowable();
     }
 
 

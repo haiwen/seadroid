@@ -8,8 +8,8 @@
 
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/item_avatar"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
+        android:layout_width="@dimen/lv_icon_width"
+        android:layout_height="@dimen/lv_icon_height"
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
         android:src="@drawable/default_avatar"
@@ -23,12 +23,30 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="6dp"
         app:layout_constrainedWidth="true"
         app:layout_constraintEnd_toStartOf="@+id/item_time"
         app:layout_constraintHorizontal_bias="0"
         app:layout_constraintStart_toEndOf="@+id/item_avatar"
         app:layout_constraintTop_toTopOf="parent"
+        tools:text="@string/app_name" />
+
+    <TextView
+        android:id="@+id/item_desc"
+        style="@style/ListItemSubTitleStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:background="@drawable/shape_solid_grey103_r2"
+        android:paddingHorizontal="4dp"
+        android:paddingVertical="2dp"
+        android:textColor="@color/material_grey_666"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintBottom_toBottomOf="@+id/item_nick_name"
+        app:layout_constraintEnd_toStartOf="@+id/item_time"
+        app:layout_constraintHorizontal_bias="0"
+        app:layout_constraintStart_toEndOf="@+id/item_nick_name"
+        app:layout_constraintTop_toTopOf="@+id/item_nick_name"
         tools:text="@string/app_name" />
 
     <TextView
@@ -43,20 +61,25 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:text="@string/app_name" />
 
+
     <TextView
-        android:id="@+id/item_desc"
-        style="@style/ListItemSubTitleStyle"
+        android:id="@+id/item_detail"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="4dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="8dp"
+        android:ellipsize="end"
+        android:maxLines="3"
+        android:text="@string/app_name"
+        android:textSize="14sp"
         app:layout_constrainedWidth="true"
+        app:layout_constraintBottom_toTopOf="@+id/divider"
         app:layout_constraintEnd_toStartOf="@+id/item_repo_name"
         app:layout_constraintHorizontal_bias="0"
         app:layout_constraintStart_toEndOf="@+id/item_avatar"
-        app:layout_constraintTop_toBottomOf="@+id/item_nick_name"
-        tools:text="@string/app_name" />
-
+        app:layout_constraintTop_toBottomOf="@+id/item_desc" />
 
     <TextView
         android:id="@+id/item_repo_name"
@@ -65,32 +88,16 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="4dp"
         android:layout_marginEnd="16dp"
-        android:ellipsize="end"
-        android:maxLines="1"
-        android:textColor="@color/fancy_orange"
-        android:textSize="14sp"
-        app:layout_constrainedWidth="true"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0"
-        app:layout_constraintTop_toBottomOf="@+id/item_time" />
-
-    <TextView
-        android:id="@+id/item_detail"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="4dp"
-        android:layout_marginEnd="16dp"
         android:layout_marginBottom="8dp"
         android:ellipsize="end"
-        android:maxLines="3"
-        android:textSize="14sp"
+        android:maxLines="1"
+        android:text="@string/app_name"
+        android:textColor="@color/fancy_orange"
+        android:textSize="12sp"
         app:layout_constrainedWidth="true"
-        app:layout_constraintBottom_toTopOf="@+id/divider"
-        app:layout_constraintEnd_toStartOf="@+id/item_repo_name"
-        app:layout_constraintHorizontal_bias="0"
-        app:layout_constraintStart_toEndOf="@+id/item_avatar"
-        app:layout_constraintTop_toBottomOf="@+id/item_desc" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0" />
 
     <com.google.android.material.divider.MaterialDivider
         android:id="@+id/divider"

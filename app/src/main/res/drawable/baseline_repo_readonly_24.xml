@@ -17,7 +17,7 @@
             android:strokeLineJoin="round"
             android:strokeWidth="1"
             android:fillColor="#00000000"
-            android:strokeColor="@color/item_icon_tint_color"
+            android:strokeColor="#999999"
             android:strokeLineCap="round"/>
       </group>
       <group>
@@ -28,7 +28,7 @@
             android:strokeLineJoin="round"
             android:strokeWidth="1"
             android:fillColor="#00000000"
-            android:strokeColor="@color/item_icon_tint_color"
+            android:strokeColor="#999999"
             android:strokeLineCap="round"/>
       </group>
       <group>
@@ -39,7 +39,7 @@
             android:strokeLineJoin="round"
             android:strokeWidth="1"
             android:fillColor="#00000000"
-            android:strokeColor="@color/item_icon_tint_color"
+            android:strokeColor="#999999"
             android:strokeLineCap="round"/>
       </group>
       <group>
@@ -50,7 +50,7 @@
             android:strokeLineJoin="round"
             android:strokeWidth="1"
             android:fillColor="#00000000"
-            android:strokeColor="@color/item_icon_tint_color"
+            android:strokeColor="#999999"
             android:strokeLineCap="round"/>
       </group>
       <group>
@@ -61,7 +61,7 @@
             android:strokeLineJoin="round"
             android:strokeWidth="1"
             android:fillColor="#00000000"
-            android:strokeColor="@color/item_icon_tint_color"
+            android:strokeColor="#999999"
             android:strokeLineCap="round"/>
       </group>
     </group>
@@ -71,27 +71,27 @@
       android:strokeLineJoin="round"
       android:strokeWidth="1"
       android:fillColor="#00000000"
-      android:strokeColor="@color/item_icon_tint_color"
+      android:strokeColor="#999999"
       android:strokeLineCap="round"/>
   <path
       android:pathData="M10.083,20.074C11.831,20.074 13.249,18.656 13.249,16.908C13.249,15.159 11.831,13.742 10.083,13.742C8.334,13.742 6.917,15.159 6.917,16.908C6.917,18.656 8.334,20.074 10.083,20.074Z"
       android:strokeLineJoin="round"
       android:strokeWidth="1"
       android:fillColor="#00000000"
-      android:strokeColor="@color/item_icon_tint_color"
+      android:strokeColor="#999999"
       android:strokeLineCap="round"/>
   <path
       android:pathData="M8.683,16.924C8.683,16.142 9.317,15.508 10.099,15.508"
       android:strokeLineJoin="round"
       android:strokeWidth="1"
       android:fillColor="#00000000"
-      android:strokeColor="@color/item_icon_tint_color"
+      android:strokeColor="#999999"
       android:strokeLineCap="round"/>
   <path
       android:pathData="M18.315,20.074C20.063,20.074 21.481,18.656 21.481,16.908C21.481,15.159 20.063,13.742 18.315,13.742C16.566,13.742 15.148,15.159 15.148,16.908C15.148,18.656 16.566,20.074 18.315,20.074Z"
       android:strokeLineJoin="round"
       android:strokeWidth="1"
       android:fillColor="#00000000"
-      android:strokeColor="@color/item_icon_tint_color"
+      android:strokeColor="#999999"
       android:strokeLineCap="round"/>
 </vector>

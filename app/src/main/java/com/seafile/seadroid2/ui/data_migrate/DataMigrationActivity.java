@@ -26,7 +26,6 @@ import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.databinding.ActivityDataMigrationBinding;
 import com.seafile.seadroid2.framework.data.DatabaseHelper;
 import com.seafile.seadroid2.framework.data.db.AppDatabase;
-import com.seafile.seadroid2.framework.data.db.entities.CertEntity;
 import com.seafile.seadroid2.framework.data.db.entities.EncKeyCacheEntity;
 import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
 import com.seafile.seadroid2.framework.data.db.entities.FolderBackupMonitorEntity;
@@ -986,32 +985,23 @@ public class DataMigrationActivity extends AppCompatActivity {
                 null    // The sort order
         );
 
-        List<CertEntity> list = CollectionUtils.newArrayList();
 
         try {
             c.moveToFirst();
             while (!c.isAfterLast()) {
-                CertEntity item = new CertEntity();
                 int urlIndex = c.getColumnIndexOrThrow("url");
                 int certIndex = c.getColumnIndexOrThrow("cert");
 
-                item.url = c.getString(urlIndex);
-                item.cert = c.getString(certIndex);
+                String url = c.getString(urlIndex);
+                String cert = c.getString(certIndex);
 
                 c.moveToNext();
 
-                list.add(item);
+                String keyPrefix = EncryptUtils.encryptMD5ToString(url);
+                Settings.getCommonPreferences().edit().putString(DataStoreKeys.KEY_SERVER_CERT_INFO + "_" + keyPrefix, cert).apply();
             }
         } finally {
             c.close();
-        }
-
-        SLogs.d("--------------------" + table);
-        for (CertEntity entity : list) {
-            SLogs.d(entity.toString());
-
-            String keyPrefix = EncryptUtils.encryptMD5ToString(entity.url);
-            Settings.getCommonPreferences().edit().putString(DataStoreKeys.KEY_SERVER_CERT_INFO + "_" + keyPrefix, entity.cert).apply();
         }
 
         //Not stored in the database

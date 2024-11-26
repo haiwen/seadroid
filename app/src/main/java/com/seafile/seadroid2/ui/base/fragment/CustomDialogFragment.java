@@ -77,11 +77,11 @@ public abstract class CustomDialogFragment extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-        rootView = LayoutInflater.from(requireContext()).inflate(R.layout.layout_dialog_container, null);
+        rootView = getLayoutInflater().inflate(R.layout.layout_dialog_container, null);
         LinearLayout containerView = rootView.findViewById(R.id.container);
 
         //
-        LayoutInflater.from(requireContext()).inflate(getLayoutId(), containerView);
+        getLayoutInflater().inflate(getLayoutId(), containerView);
 
         //action bar
         positiveView = rootView.findViewById(R.id.text_view_positive);

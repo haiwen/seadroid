@@ -2,7 +2,7 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <com.seafile.seadroid2.widget.prefs.CardPreferenceCategory
+    <PreferenceCategory
         android:title="@string/settings_account"
         app:iconSpaceReserved="false">
 
@@ -44,7 +44,7 @@
             android:summary="@string/settings_account_sign_out_hint"
             android:title="@string/settings_account_sign_out_title"
             app:iconSpaceReserved="false" />
-    </com.seafile.seadroid2.widget.prefs.CardPreferenceCategory>
+    </PreferenceCategory>
 
     <PreferenceCategory
         android:title="@string/security"

@@ -19,8 +19,8 @@
         android:layout_height="wrap_content"
         android:indeterminate="false"
         android:max="100"
-        android:maxHeight="2dp"
-        android:minHeight="2dp"
+        android:maxHeight="1dp"
+        android:minHeight="1dp"
         android:progress="10"
         android:progressDrawable="@drawable/seekbar_for_webview_style" />
 

@@ -52,7 +52,11 @@ public class BaseViewModel extends ViewModel {
     private final MutableLiveData<Boolean> RefreshLiveData = new MutableLiveData<>(false);
     private final MutableLiveData<Pair<Integer, SeafException>> ExceptionLiveData = new MutableLiveData<>();
     private final MutableLiveData<SeafException> SeafExceptionLiveData = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> ShowLoadingDialogLiveData = new MutableLiveData<>(false);
 
+    public MutableLiveData<Boolean> getShowLoadingDialogLiveData() {
+        return ShowLoadingDialogLiveData;
+    }
 
     public MutableLiveData<Boolean> getRefreshLiveData() {
         return RefreshLiveData;

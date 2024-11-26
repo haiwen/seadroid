@@ -1,23 +1,10 @@
 package com.seafile.seadroid2.ssl;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.security.cert.X509Certificate;
-import java.util.List;
-
 import android.content.Context;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Base64;
 
-import com.blankj.utilcode.util.CollectionUtils;
 import com.seafile.seadroid2.SeadroidApplication;
-import com.seafile.seadroid2.framework.data.db.AppDatabase;
-import com.seafile.seadroid2.framework.data.db.entities.CertEntity;
 
 public class CertsDBHelper extends SQLiteOpenHelper {
     // If you change the database schema, you must increment the database version.

@@ -37,11 +37,14 @@ public class CopyMoveDialogFragment extends RequestCustomDialogFragmentWithVM<Co
     @Override
     public int getDialogTitleRes() {
         if (ctx != null) {
-            if (ctx.isdir) {
-                return ctx.isCopy() ? R.string.copy_folder_ing : R.string.move_folder_ing;
-            } else {
-                return ctx.isCopy() ? R.string.copy_file_ing : R.string.move_file_ing;
-            }
+//            if (ctx.isdir) {
+//                return ctx.isCopy() ? R.string.copy_folder_ing : R.string.move_folder_ing;
+//            } else {
+//                return ctx.isCopy() ? R.string.copy_file_ing : R.string.move_file_ing;
+//            }
+
+            return ctx.isCopy() ? R.string.copy_file_ing : R.string.move_file_ing;
+
         }
         return super.getDialogTitleRes();
 
@@ -52,11 +55,13 @@ public class CopyMoveDialogFragment extends RequestCustomDialogFragmentWithVM<Co
         super.initView(containerView);
 
         int strMsgId;
-        if (ctx.isdir) {
-            strMsgId = ctx.isCopy() ? R.string.copy_file_from : R.string.move_file_from;
-        } else {
-            strMsgId = ctx.isCopy() ? R.string.copy_file_from : R.string.move_file_from;
-        }
+//        if (ctx.isdir) {
+//            strMsgId = ctx.isCopy() ? R.string.copy_file_from : R.string.move_file_from;
+//        } else {
+//            strMsgId = ctx.isCopy() ? R.string.copy_file_from : R.string.move_file_from;
+//        }
+
+        strMsgId = ctx.isCopy() ? R.string.copy_file_from : R.string.move_file_from;
 
         String strMsg = getString(strMsgId);
 

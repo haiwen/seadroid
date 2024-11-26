@@ -2,14 +2,15 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
 
-    <style name="ToolBarStyle" parent="">
+    <style name="ToolBarStyle" parent="Widget.Material3.Toolbar">
+        <item name="colorControlNormal">@color/bar_icon_tint_color</item>
         <item name="popupTheme">@style/ThemeOverlay.Material3.Dark</item>
         <item name="theme">@style/ThemeOverlay.Material3.Dark</item>
         <item name="android:background">@color/bar_background_color</item>
         <item name="titleTextColor">@color/bar_title_color</item>
         <item name="colorSurface">@color/white</item>
         <item name="navigationIcon">@drawable/baseline_arrow_back_24</item>
-        <item name="navigationIconTint">@color/bar_title_color</item>
+        <item name="navigationIconTint">@color/bar_icon_tint_color</item>
     </style>
 
     <style name="TabLayoutStyle" parent="Widget.Material3.TabLayout">
@@ -80,16 +81,4 @@
         <item name="android:textColor">#ff000000</item>
         <item name="android:textSize">14sp</item>
     </style>
-
-    <style name="PolicyDialog" parent="android:style/Theme.Dialog">
-        <item name="android:windowFrame">@null</item>
-        <item name="android:windowNoTitle">true</item>
-        <item name="android:windowBackground">@color/transparent</item>
-        <item name="android:windowIsFloating">true</item>
-        <item name="android:windowContentOverlay">@null</item>
-        <item name="android:windowIsTranslucent">true</item>
-        <item name="android:backgroundDimEnabled">true</item>
-        <item name="android:backgroundDimAmount">0.4</item>
-    </style>
-
 </resources>

@@ -1,37 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/main_layout"
+    android:id="@+id/coordinator_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_height="match_parent">
 
-    <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/toolbar_actionbar"
-        style="@style/ToolBarStyle"
+    <LinearLayout
+        android:id="@+id/main_layout"
         android:layout_width="match_parent"
-        android:layout_height="?actionBarSize"
-        app:title="@string/libraries" />
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-    <com.google.android.material.divider.MaterialDivider
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:dividerColor="@color/divider_color" />
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar_actionbar"
+            style="@style/ToolBarStyle"
+            android:layout_width="match_parent"
+            android:layout_height="?actionBarSize"
+            app:title="@string/libraries" />
 
-    <androidx.viewpager2.widget.ViewPager2
-        android:id="@+id/pager"
+        <com.google.android.material.divider.MaterialDivider
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:dividerColor="@color/divider_color" />
+
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/pager"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <com.google.android.material.divider.MaterialDivider
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:dividerColor="@color/divider_color" />
+
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/nav_bottom_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:menu="@menu/bottom_navigation_menu" />
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/bottom_drawer"
+        style="@style/Widget.Material3.BottomSheet"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
-
-    <com.google.android.material.divider.MaterialDivider
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:dividerColor="@color/divider_color" />
-
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/nav_bottom_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:menu="@menu/bottom_navigation_menu" />
-</LinearLayout>
+        android:layout_height="400dp"
+        android:layout_gravity="bottom"
+        android:background="@color/material_blue_grey_500"
+        app:behavior_hideable="false"
+        app:behavior_peekHeight="200dp"
+        app:layout_behavior="@string/bottom_sheet_behavior" />
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

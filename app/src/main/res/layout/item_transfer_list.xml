@@ -25,13 +25,15 @@
 
     <ImageView
         android:id="@+id/transfer_file_icon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/file_image"
+        android:layout_width="@dimen/lv_icon_width"
+        android:layout_height="@dimen/lv_icon_height"
+        android:src="@drawable/icon_format_file"
+        android:layout_marginTop="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/content_container"
         app:layout_constraintStart_toEndOf="@+id/item_multi_select"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.1" />
 
     <LinearLayout
         android:id="@+id/content_container"
@@ -123,23 +125,18 @@
                 app:layout_constraintTop_toTopOf="parent"
                 tools:text="5 hours ago" />
 
-            <FrameLayout
+            <ImageView
                 android:id="@+id/expandable_toggle_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_alignParentBottom="true"
-                android:foreground="?selectableItemBackground"
+                android:contentDescription="@string/file_action_more"
+                android:foreground="@drawable/selection_control_ripple"
+                android:padding="8dp"
+                android:src="@drawable/baseline_more_vert_24"
                 android:visibility="visible"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent">
-
-                <ImageView
-                    android:layout_width="@dimen/lv_iv_action_width"
-                    android:layout_height="@dimen/lv_item_height"
-                    android:src="@drawable/baseline_expandable_24" />
-            </FrameLayout>
-
+                app:layout_constraintEnd_toEndOf="parent"
+                app:tint="@color/item_subtitle_color" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </LinearLayout>
 

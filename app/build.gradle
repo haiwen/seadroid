@@ -14,8 +14,8 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         compileSdk rootProject.ext.compileSdkVersion
 
-        versionCode 156
-        versionName "3.0.5"
+        versionCode 157
+        versionName "3.0.6"
         multiDexEnabled true
 
         resValue "string", "authorities", defaultConfig.applicationId + '.debug.cameraupload.provider'
@@ -114,7 +114,7 @@ android {
                         if (output.outputFile != null && output.outputFile.name.endsWith('.apk')) {
                             def versionName = defaultConfig.versionName
 
-                            def outputFileName = "${versionName}_snapshot_build_temp.apk"
+                            def outputFileName = "${versionName}_patch_build_temp.apk"
                             outputFileName = outputFileName.replace(" ", "_")
                             output.outputFileName = outputFileName
 
@@ -135,7 +135,7 @@ android {
                                     versionName = prefix + "(" + suffix + ")"
                                 }
 
-                                def newOutputFileName = "seafile_${versionName}_build${versionCode}_snapshot${buildCount}.apk"
+                                def newOutputFileName = "seafile_${versionName}_build${versionCode}_patch${buildCount}.apk"
                                 newOutputFileName = newOutputFileName.replace(" ", "_").replace("-", "_")
                                 def apkFile = output.outputFile
                                 def newApkFile = new File(apkFile.parent, newOutputFileName)

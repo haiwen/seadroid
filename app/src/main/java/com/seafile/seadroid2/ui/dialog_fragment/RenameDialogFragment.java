@@ -1,34 +1,60 @@
 package com.seafile.seadroid2.ui.dialog_fragment;
 
+import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 
+import androidx.annotation.Nullable;
 import androidx.lifecycle.Observer;
 
 import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
 import com.seafile.seadroid2.ui.base.fragment.RequestCustomDialogFragmentWithVM;
 import com.seafile.seadroid2.framework.data.model.dirents.FileCreateModel;
 import com.seafile.seadroid2.ui.dialog_fragment.viewmodel.RenameRepoViewModel;
 
-public class RenameDialogFragment extends RequestCustomDialogFragmentWithVM<RenameRepoViewModel> {
-    private String curName, repoId, curPath, type;
+import java.util.ArrayList;
+import java.util.List;
 
-    public static RenameDialogFragment newInstance() {
-        return new RenameDialogFragment();
-    }
+public class RenameDialogFragment extends RequestCustomDialogFragmentWithVM<RenameRepoViewModel> {
 
     /**
-     * @param type "repo" or "dir" or "file"
+     * "repo" or "dir" or "file"
      */
-    public void initData(String curName, String curPath, String repoId, String type) {
-        this.curName = curName;
-        this.curPath = curPath;
-        this.repoId = repoId;
-        this.type = type;
+    private String type;
+    private String curName, repoId, curPath;
+
+    public static RenameDialogFragment newInstance(String curName, String curPath, String repoId, String type) {
+
+        RenameDialogFragment fragment = new RenameDialogFragment();
+        Bundle bundle = new Bundle();
+        bundle.putString("name", curName);
+        bundle.putString("path", curPath);
+        bundle.putString("repoId", repoId);
+        bundle.putString("type", type);
+        fragment.setArguments(bundle);
+        return fragment;
     }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        Bundle bundle = getArguments();
+
+        if (bundle == null || !bundle.containsKey("repoId")) {
+            throw new RuntimeException("need a dirent param");
+        }
+
+        curName = bundle.getString("name");
+        curPath = bundle.getString("path");
+        repoId = bundle.getString("repoId");
+        type = bundle.getString("type");
+    }
+
 
     @Override
     protected int getLayoutId() {

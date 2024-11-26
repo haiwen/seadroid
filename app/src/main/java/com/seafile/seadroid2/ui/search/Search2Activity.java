@@ -157,7 +157,7 @@ public class Search2Activity extends BaseActivityWithVM<SearchViewModel> impleme
             }
         });
 
-        getViewModel().getListLiveData().observe(this, new Observer<List<SearchModel>>() {
+        getViewModel().getSearchListLiveData().observe(this, new Observer<List<SearchModel>>() {
             @Override
             public void onChanged(List<SearchModel> result) {
                 if (CollectionUtils.isEmpty(result)) {
@@ -348,7 +348,7 @@ public class Search2Activity extends BaseActivityWithVM<SearchViewModel> impleme
 
         page++;
 
-        getViewModel().loadNext(query, page, PAGE_SIZE);
+        getViewModel().searchNext(query, page, PAGE_SIZE);
     }
 
     public void onItemClick(SearchModel searchedFile) {

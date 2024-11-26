@@ -1,5 +1,6 @@
 package com.seafile.seadroid2.ui.base;
 
+import android.app.Dialog;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -8,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.framework.helper.NightModeHelper;
 
@@ -46,5 +48,33 @@ public class BaseActivity extends AppCompatActivity {
     public void setContentView(int layoutResID) {
         super.setContentView(layoutResID);
         getActionBarToolbar();
+    }
+
+    private Dialog dialog;
+
+    public void showProgressDialog(boolean isShow) {
+        if (isShow) {
+            showProgressDialog();
+        } else {
+            dismissProgressDialog();
+        }
+    }
+
+    public void showProgressDialog() {
+        if (dialog == null) {
+            MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
+            builder.setView(R.layout.layout_dialog_progress_bar);
+            dialog = builder.create();
+        }
+
+        if (!dialog.isShowing()) {
+            dialog.show();
+        }
+    }
+
+    public void dismissProgressDialog() {
+        if (dialog != null && dialog.isShowing()) {
+            dialog.dismiss();
+        }
     }
 }

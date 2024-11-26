@@ -8,18 +8,22 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.Observer;
 
+import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.ui.base.fragment.RequestCustomDialogFragmentWithVM;
 import com.seafile.seadroid2.framework.data.model.ResultModel;
 import com.seafile.seadroid2.ui.dialog_fragment.viewmodel.DeleteRepoViewModel;
 
-public class DeleteRepoDialogFragment extends RequestCustomDialogFragmentWithVM<DeleteRepoViewModel> {
-    private String repoId;
+import java.util.ArrayList;
+import java.util.List;
 
-    public static DeleteRepoDialogFragment newInstance(String repoId) {
+public class DeleteRepoDialogFragment extends RequestCustomDialogFragmentWithVM<DeleteRepoViewModel> {
+    private List<String> repoIds;
+
+    public static DeleteRepoDialogFragment newInstance(List<String> repoIds) {
         Bundle args = new Bundle();
-        args.putString("repoId", repoId);
+        args.putStringArrayList("repo_ids", new ArrayList<>(repoIds));
         DeleteRepoDialogFragment fragment = new DeleteRepoDialogFragment();
         fragment.setArguments(args);
         return fragment;
@@ -28,18 +32,14 @@ public class DeleteRepoDialogFragment extends RequestCustomDialogFragmentWithVM<
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() == null) {
+
+        if (getArguments() == null || !getArguments().containsKey("repo_ids")) {
             throw new IllegalArgumentException("this dialogFragment need Arguments");
         }
 
-        if (!getArguments().containsKey("repoId")) {
-            throw new IllegalArgumentException("this dialogFragment need repoId param");
-        }
-
-        repoId = getArguments().getString("repoId", null);
-
-        if (TextUtils.isEmpty(repoId)) {
-            throw new IllegalArgumentException("this dialogFragment need repoId param");
+        repoIds = getArguments().getStringArrayList("repo_ids");
+        if (CollectionUtils.isEmpty(repoIds)) {
+            throw new IllegalArgumentException("need repoIds param");
         }
     }
 
@@ -55,7 +55,7 @@ public class DeleteRepoDialogFragment extends RequestCustomDialogFragmentWithVM<
 
     @Override
     protected void onPositiveClick() {
-        getViewModel().deleteRepo(repoId);
+        getViewModel().deleteRepo(repoIds);
     }
 
     @Override

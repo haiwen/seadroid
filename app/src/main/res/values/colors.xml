@@ -2,7 +2,6 @@
 <resources>
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
-    <color name="whitegrey">#FFF2F2F2</color>
     <color name="grey">#6E6E6E</color>
     <color name="red">#FF0000</color>
     <color name="light_grey">#BDBDBD</color>
@@ -24,6 +23,8 @@
     </color> <!-- color for dividers inside of slide expandable list item -->
     <color name="fancy_gray">#969696</color>
     <color name="fancy_dark_gray">#e1e2e3</color>
+
+    <color name="fancy_orange_light">#FFC783</color> <!-- theme color -->
     <color name="fancy_orange">#ea8201</color> <!-- theme color -->
     <color name="fancy_orange_dark">#CF7300</color> <!-- theme color -->
 
@@ -43,7 +44,6 @@
     <color name="md_theme_surface">#FFFBFE</color>
     <color name="md_theme_onSurface">#1C1B1F</color>
 
-
     <!--editor-->
     <color name="blue_200">#FF90CAF9</color>
     <color name="blue_500">#FF2196F3</color>
@@ -55,20 +55,33 @@
     <color name="file_picker_title">#4A4A4A</color>
     <color name="file_picker_des">#86848B</color>
 
-    <!-- view color -->
+    <!-- primary background color -->
+    <color name="window_background_color">@color/material_grey_50</color>
+    <color name="bar_background_color">@color/material_grey_100</color>
+    <color name="bar_title_color">@color/material_grey_900</color>
+    <color name="bar_icon_tint_color">@color/material_grey_900</color>
+
+    <!-- bottom navigation bar icon tint color -->
+    <color name="bottom_bar_icon_tint_color">@color/material_grey_599</color>
+
+    <!-- bottom sheet popup view -->
+    <color name="bottom_sheet_pop_enable_color">@color/material_grey_599</color>
+    <color name="bottom_sheet_pop_disable_color">@color/material_grey_300</color>
+
+    <!-- toolbar bar color -->
+    <color name="toolbar_progress_bar_background_color">@color/material_grey_50</color>
+    <color name="toolbar_progress_bar_second_color">@color/material_grey_500</color>
     <color name="toolbar_divider_color">#E3E3E3</color>
-    <color name="divider_color">#F1F1F1</color>
-
-    <color name="item_title_color">#333333</color>
-    <color name="item_subtitle_color">#888888</color>
-    <color name="item_icon_tint_color">#A0A0A0</color>
-
-    <color name="bar_background_color">#f9f9f9</color>
-    <color name="bar_title_color">#191919</color>
-    <color name="bar_icon_tint_color">#191919</color>
-
     <color name="toolbar_editor_background_color">@color/blue_500</color>
     <color name="toolbar_editor_title_color">@color/white</color>
+
+    <!-- divider color -->
+    <color name="divider_color">#F1F1F1</color>
+
+    <!-- view color -->
+    <color name="item_title_color">#212529</color>
+    <color name="item_subtitle_color">@color/material_grey_599</color>
+    <color name="item_icon_tint_color">#A0A0A0</color>
 
     <color name="alert_dialog_background_color">#f2f2f2</color>
     <color name="alert_dialog_onsurface_color">#191919</color>

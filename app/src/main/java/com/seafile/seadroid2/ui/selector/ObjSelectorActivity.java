@@ -21,13 +21,14 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.config.AbsLayoutItemType;
 import com.seafile.seadroid2.context.NavContext;
+import com.seafile.seadroid2.databinding.ActivitySelectorObjBinding;
 import com.seafile.seadroid2.enums.FileViewType;
 import com.seafile.seadroid2.enums.RepoSelectType;
 import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.data.db.entities.EncKeyCacheEntity;
+import com.seafile.seadroid2.framework.data.db.entities.PermissionEntity;
 import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.data.model.BaseModel;
-import com.seafile.seadroid2.databinding.ActivitySelectorObjBinding;
 import com.seafile.seadroid2.ui.base.BaseActivity;
 import com.seafile.seadroid2.ui.dialog_fragment.NewDirFileDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.PasswordDialogFragment;
@@ -188,7 +189,7 @@ public class ObjSelectorActivity extends BaseActivity {
         binding.rv.addItemDecoration(decoration);
 
         adapter = new RepoQuickAdapter();
-        adapter.setSelectType(RepoSelectType.DIRENT);
+        adapter.setSelectType(RepoSelectType.FOLDER);
         adapter.setFileViewType(FileViewType.LIST);
 
         adapter.setOnItemClickListener((baseQuickAdapter, view, i) -> {
@@ -271,29 +272,43 @@ public class ObjSelectorActivity extends BaseActivity {
         dialogFragment.show(getSupportFragmentManager(), PasswordDialogFragment.class.getSimpleName());
     }
 
+    private void checkCurrentPathHasWritePermission(java.util.function.Consumer<Boolean> consumer) {
+        DirentModel direntModel = mNavContext.getTopDirentModel();
+        if (!direntModel.isCustomPermission()) {
+            consumer.accept(direntModel.hasWritePermission());
+        } else {
+            viewModel.getPermissionFromLocal(direntModel.repo_id, direntModel.getCustomPermissionNum(), new Consumer<PermissionEntity>() {
+                @Override
+                public void accept(PermissionEntity entity) throws Exception {
+                    consumer.accept(entity != null && entity.create);
+                }
+            });
+        }
+    }
+
+
     private void showNewDirDialog() {
         if (!mNavContext.inRepo()) {
             ToastUtils.showLong(R.string.choose_a_library);
             return;
         }
-
-        if (!mNavContext.isParentHasWritePermission()) {
-            ToastUtils.showLong(R.string.library_read_only);
-            return;
-        }
-
-        String rid = mNavContext.getRepoModel().repo_id;
-        String parentPath = mNavContext.getNavPath();
-        NewDirFileDialogFragment dialogFragment = NewDirFileDialogFragment.newInstance(rid, parentPath, true);
-        dialogFragment.setRefreshListener(new OnRefreshDataListener() {
+        checkCurrentPathHasWritePermission(new java.util.function.Consumer<Boolean>() {
             @Override
-            public void onActionStatus(boolean isDone) {
-                if (isDone) {
-                    loadData();
-                }
+            public void accept(Boolean aBoolean) {
+                String rid = mNavContext.getRepoModel().repo_id;
+                String parentPath = mNavContext.getNavPath();
+                NewDirFileDialogFragment dialogFragment = NewDirFileDialogFragment.newInstance(rid, parentPath, true);
+                dialogFragment.setRefreshListener(new OnRefreshDataListener() {
+                    @Override
+                    public void onActionStatus(boolean isDone) {
+                        if (isDone) {
+                            loadData();
+                        }
+                    }
+                });
+                dialogFragment.show(getSupportFragmentManager(), NewDirFileDialogFragment.class.getSimpleName());
             }
         });
-        dialogFragment.show(getSupportFragmentManager(), NewDirFileDialogFragment.class.getSimpleName());
     }
 
     private void loadData() {

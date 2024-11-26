@@ -38,6 +38,9 @@ public interface DirentDAO {
     @Query("select * from dirents where uid in ( :uids )")
     List<DirentModel> getListByIdsSync(List<String> uids);
 
+    @Query("select * from dirents where uid in ( :uids )")
+    Single<List<DirentModel>> getListByIdsAsync(List<String> uids);
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(DirentModel model);
 

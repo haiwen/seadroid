@@ -59,7 +59,7 @@ public class StarredViewModel extends BaseViewModel {
     }
 
     public void unStarItem(String repoId, String path) {
-        Single<ResultModel> flowable = HttpIO.getCurrentInstance().execute(StarredService.class).unStarItem(repoId, path);
+        Single<ResultModel> flowable = HttpIO.getCurrentInstance().execute(StarredService.class).unStar(repoId, path);
         addSingleDisposable(flowable, new Consumer<ResultModel>() {
             @Override
             public void accept(ResultModel resultModel) throws Exception {

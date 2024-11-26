@@ -11,6 +11,8 @@ public class AbsLayoutItemType {
     public static final int DIRENT_GRID = 12;
     public static final int DIRENT_GALLERY = 13;
 
+    public static final int SEARCH = 50;
+
     public static final int ACTIVITY = 20;
 
     public static final int GROUP_ITEM = 30;

@@ -12,7 +12,9 @@ import java.util.Stack;
 public class NavContext {
     private final Stack<BaseModel> navStack = new Stack<>();
 
-    // repoId = xxx, path = /
+    /**
+     * repoId = xxx, path = /
+     */
     public boolean inRepoRoot() {
         return navStack.size() == 1;
     }
@@ -54,7 +56,7 @@ public class NavContext {
         navStack.pop();
     }
 
-    public void navToPath(RepoModel repoModel, String full_path) {
+    public void switchToPath(RepoModel repoModel, String full_path) {
         navStack.clear();
 
         navStack.push(repoModel);
@@ -97,27 +99,26 @@ public class NavContext {
         return (DirentModel) navStack.peek();
     }
 
-    /**
-     * Get the parents model of the current Dirent, maybe RepoModel
-     */
-    public boolean isParentHasWritePermission() {
-        if (!inRepo()) {
-            //repo list page should not have permission verification
-            throw new IllegalArgumentException("Please check your code");
-        }
-
-        if (inRepoRoot()) {
-            return getRepoModel().hasWritePermission();
-        }
-
-        BaseModel bd = navStack.elementAt(navStack.size() - 1);
-        DirentModel d = (DirentModel) bd;
-        if (d == null) {
-            return false;
-        }
-
-        return d.hasWritePermission();
-    }
+//    /**
+//     * Get the parents model of the current Dirent, maybe RepoModel
+//     */
+//    public boolean isParentHasWritePermission() {
+//        if (!inRepo()) {
+//            //repo list page should not have permission verification
+//            throw new IllegalArgumentException("Please check your code");
+//        }
+//
+//        if (inRepoRoot()) {
+//            return getRepoModel().hasWritePermission();
+//        }
+//
+//        BaseModel bd = navStack.elementAt(navStack.size() - 1);
+//        if (bd instanceof DirentModel d) {
+//            return d.hasWritePermission();
+//        } else {
+//            return false;
+//        }
+//    }
 
     public RepoModel getRepoModel() {
         if (navStack.empty()) {

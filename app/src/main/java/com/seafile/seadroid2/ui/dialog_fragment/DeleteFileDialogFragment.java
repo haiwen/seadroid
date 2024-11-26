@@ -1,8 +1,11 @@
 package com.seafile.seadroid2.ui.dialog_fragment;
 
+import android.os.Bundle;
+import android.os.Parcelable;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
 import androidx.lifecycle.Observer;
 
 import com.blankj.utilcode.util.CollectionUtils;
@@ -17,22 +20,29 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DeleteFileDialogFragment extends RequestCustomDialogFragmentWithVM<DeleteDirsViewModel> {
-    private List<DirentModel> dirents;
-    private boolean isDir;
+    private List<String> dirents;
+    private boolean isDir = false;
 
-    public static DeleteFileDialogFragment newInstance() {
-        return new DeleteFileDialogFragment();
+    public static DeleteFileDialogFragment newInstance(List<String> direntIds) {
+        DeleteFileDialogFragment fragment = new DeleteFileDialogFragment();
+        Bundle bundle = new Bundle();
+        bundle.putStringArrayList("dirent_ids", new ArrayList<>(direntIds));
+        fragment.setArguments(bundle);
+        return fragment;
     }
 
-    public void initData(DirentModel dirent) {
-        this.dirents = new ArrayList<>();
-        dirents.add(dirent);
-        isDir = dirent.isDir();
-    }
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-    public void initData(List<DirentModel> dirents) {
-        this.dirents = dirents;
-        isDir = false;
+        Bundle bundle = getArguments();
+
+        if (bundle == null || !bundle.containsKey("dirent_ids")) {
+            throw new RuntimeException("need a dirent_ids param");
+        }
+
+        dirents = bundle.getStringArrayList("dirent_ids");
+
     }
 
     @Override
@@ -47,8 +57,7 @@ public class DeleteFileDialogFragment extends RequestCustomDialogFragmentWithVM<
             return;
         }
 
-        Account account = SupportAccountManager.getInstance().getCurrentAccount();
-        getViewModel().deleteDirents(account.getSignature(), dirents, false);
+        getViewModel().delete(dirents, false);
     }
 
     @Override

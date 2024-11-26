@@ -2,6 +2,7 @@ package com.seafile.seadroid2.framework.data.model;
 
 import androidx.room.Ignore;
 
+import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
 import com.seafile.seadroid2.ui.data_migrate.DataMigrationActivity;
 
@@ -28,7 +29,7 @@ public class BaseModel {
     /**
      * @see com.seafile.seadroid2.config.Constants.DataStatus
      */
-    public int data_status = 0;
+    public int data_status = Constants.DataStatus.NORMAL;
 
     @Ignore
     public boolean is_checked = false;

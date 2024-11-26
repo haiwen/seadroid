@@ -3,25 +3,25 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/edit"
-        android:icon="@drawable/baseline_repo_bold_24"
+        android:icon="@drawable/baseline_more_vert_24"
         android:title="@string/tabs_library"
         app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/directory"
-        android:icon="@drawable/baseline_star_outline_24"
+        android:icon="@drawable/baseline_more_vert_24"
         android:title="@string/tabs_starred"
         app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/profile"
-        android:icon="@drawable/baseline_activities_bold_24"
+        android:icon="@drawable/baseline_more_vert_24"
         android:title="@string/tabs_activity"
         app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/comments"
-        android:icon="@drawable/baseline_settings_24"
+        android:icon="@drawable/baseline_more_vert_24"
         android:title="@string/settings"
         app:showAsAction="ifRoom" />
 </menu>

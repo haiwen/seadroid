@@ -5,21 +5,12 @@ import java.util.List;
 import java.util.Map;
 
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.blankj.utilcode.util.EncryptUtils;
 import com.google.common.collect.Maps;
-import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.framework.data.db.AppDatabase;
-import com.seafile.seadroid2.framework.data.db.entities.CertEntity;
-import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.datastore.DataStoreKeys;
-import com.seafile.seadroid2.framework.datastore.DataStoreManager;
-import com.seafile.seadroid2.framework.datastore.sp.SettingsManager;
-import com.seafile.seadroid2.framework.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.preferences.Settings;
-import com.seafile.seadroid2.preferences.SharedPreferencesHelper;
 
 /**
  * Save the ssl certificates the user has confirmed to trust

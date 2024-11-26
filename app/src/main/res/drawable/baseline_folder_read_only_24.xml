@@ -10,15 +10,13 @@
             <group>
                 <clip-path android:pathData="M2,22H22V2H2V22Z" />
                 <path
-                    android:fillColor="#00000000"
                     android:pathData="M3.667,4.574H9.496C9.651,4.574 9.794,4.661 9.866,4.799L11.87,8.655C11.941,8.793 12.084,8.879 12.239,8.879H19.917C20.607,8.879 21.167,9.439 21.167,10.129V18.66C21.167,19.12 20.794,19.493 20.333,19.493H3.667C3.207,19.493 2.833,19.12 2.833,18.66V5.408C2.833,4.947 3.207,4.574 3.667,4.574Z"
                     android:strokeWidth="1"
-                    android:strokeColor="@color/item_icon_tint_color" />
+                    android:strokeColor="#999999"/>
                 <path
-                    android:fillColor="#00000000"
                     android:pathData="M10.865,6.689H20.047C20.851,6.689 21.167,6.903 21.167,7.691V9.932"
                     android:strokeWidth="1"
-                    android:strokeColor="@color/item_icon_tint_color" />
+                    android:strokeColor="#999999"/>
             </group>
         </group>
     </group>
