@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/tabs_library"
-        android:icon="@drawable/baseline_repo_bold_32"
+        android:icon="@drawable/baseline_libraries_32"
         android:title="@string/tabs_library" />
 
     <item

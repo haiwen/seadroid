@@ -25,13 +25,15 @@
 
     <ImageView
         android:id="@+id/transfer_file_icon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/file_image"
+        android:layout_width="@dimen/lv_icon_width"
+        android:layout_height="@dimen/lv_icon_height"
+        android:src="@drawable/icon_format_file"
+        android:layout_marginTop="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/content_container"
         app:layout_constraintStart_toEndOf="@+id/item_multi_select"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.1" />
 
     <LinearLayout
         android:id="@+id/content_container"

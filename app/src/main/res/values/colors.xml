@@ -57,16 +57,16 @@
 
     <!-- primary background color -->
     <color name="window_background_color">@color/material_grey_50</color>
-    <color name="bar_background_color">@color/material_grey_88</color>
+    <color name="bar_background_color">@color/material_grey_100</color>
     <color name="bar_title_color">@color/material_grey_900</color>
     <color name="bar_icon_tint_color">@color/material_grey_900</color>
 
     <!-- bottom navigation bar icon tint color -->
-    <color name="bottom_bar_icon_tint_color">@color/material_grey_600</color>
+    <color name="bottom_bar_icon_tint_color">@color/material_grey_599</color>
 
     <!-- bottom sheet popup view -->
-    <color name="bottom_sheet_pop_enable_color">@color/bar_title_color</color>
-    <color name="bottom_sheet_pop_disable_color">@color/material_grey_500</color>
+    <color name="bottom_sheet_pop_enable_color">@color/material_grey_599</color>
+    <color name="bottom_sheet_pop_disable_color">@color/material_grey_300</color>
 
     <!-- toolbar bar color -->
     <color name="toolbar_progress_bar_background_color">@color/material_grey_50</color>
@@ -79,7 +79,7 @@
     <color name="divider_color">#F1F1F1</color>
 
     <!-- view color -->
-    <color name="item_title_color">#333333</color>
+    <color name="item_title_color">#212529</color>
     <color name="item_subtitle_color">@color/material_grey_599</color>
     <color name="item_icon_tint_color">#A0A0A0</color>
 

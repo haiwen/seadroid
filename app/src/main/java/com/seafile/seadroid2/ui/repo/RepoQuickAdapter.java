@@ -256,7 +256,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
     }
 
     private void onBindAccount(AccountViewHolder holder, BaseModel model) {
-        holder.binding.getRoot().setBackground(null);
+//        holder.binding.getRoot().setBackground(null);
 
         Account account = (Account) model;
 
@@ -305,11 +305,10 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
             Bundle bundle = (Bundle) payloads.get(0);
             boolean isChecked = bundle.getBoolean("is_check");
 
-            holder.binding.getRoot().setChecked(model.is_checked);
+//            holder.binding.getRoot().setChecked(model.is_checked);
 
             if (isChecked) {
                 holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_checked);
-//                holder.binding.itemMultiSelect.setImageTintList(ColorStateList.valueOf(R.color.bar_disable_color));
             } else {
                 holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_unchecked);
             }
@@ -319,10 +318,10 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         holder.binding.itemTitle.setText(model.repo_name);
         holder.binding.itemSubtitle.setText(model.getSubtitle());
         holder.binding.itemIcon.setImageResource(model.getIcon());
-        holder.binding.getRoot().setBackground(AnimatedStateListDrawableCompatUtils.createDrawableCompat(getContext()));
+//        holder.binding.getRoot().setBackground(AnimatedStateListDrawableCompatUtils.createDrawableCompat(getContext()));
 
         if (selectType.ordinal() == RepoSelectType.ONLY_REPO.ordinal() || onActionMode) {
-            holder.binding.getRoot().setChecked(model.is_checked);
+//            holder.binding.getRoot().setChecked(model.is_checked);
 
             holder.binding.itemMultiSelect.setVisibility(View.VISIBLE);
             if (model.is_checked) {
@@ -332,7 +331,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
             }
         } else {
             holder.binding.itemMultiSelect.setVisibility(View.GONE);
-            holder.binding.getRoot().setChecked(false);
+//            holder.binding.getRoot().setChecked(false);
         }
 
         holder.binding.expandableToggleButton.setVisibility(View.GONE);
@@ -350,7 +349,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
             Bundle bundle = (Bundle) payloads.get(0);
             boolean isChecked = bundle.getBoolean("is_check");
 
-            holder.binding.getRoot().setChecked(model.is_checked);
+//            holder.binding.getRoot().setChecked(model.is_checked);
 
             if (isChecked) {
                 holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_checked);
@@ -363,7 +362,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         holder.binding.itemTitle.setText(model.name);
         holder.binding.itemSubtitle.setText(model.getSubtitle());
 
-        holder.binding.getRoot().setBackground(AnimatedStateListDrawableCompatUtils.createDrawableCompat(getContext()));
+//        holder.binding.getRoot().setBackground(AnimatedStateListDrawableCompatUtils.createDrawableCompat(getContext()));
 
         if (repoEncrypted || !Utils.isViewableImage(model.name)) {
             holder.binding.itemIcon.setImageResource(model.getIcon());
@@ -373,7 +372,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
 
         //action mode
         if (onActionMode) {
-            holder.binding.getRoot().setChecked(model.is_checked);
+//            holder.binding.getRoot().setChecked(model.is_checked);
 
             holder.binding.itemMultiSelect.setVisibility(View.VISIBLE);
             if (model.is_checked) {
@@ -385,7 +384,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
             holder.binding.itemMultiSelect.setVisibility(View.GONE);
             holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_unchecked);
 
-            holder.binding.getRoot().setChecked(false);
+//            holder.binding.getRoot().setChecked(false);
         }
 
         holder.binding.itemDownloadStatusProgressbar.setVisibility(View.GONE);
@@ -449,7 +448,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
             Bundle bundle = (Bundle) payloads.get(0);
             boolean isChecked = bundle.getBoolean("is_check");
 
-            holder.binding.getRoot().setChecked(model.is_checked);
+//            holder.binding.getRoot().setChecked(model.is_checked);
 
             if (isChecked) {
                 holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_checked);
@@ -461,7 +460,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
 
         holder.binding.itemTitle.setText(model.name);
 
-        holder.binding.getRoot().setBackground(AnimatedStateListDrawableCompatUtils.createDrawableCompat(getContext()));
+//        holder.binding.getRoot().setBackground(AnimatedStateListDrawableCompatUtils.createDrawableCompat(getContext()));
 
         if (model.isDir()) {
             holder.binding.itemOutline.setVisibility(View.GONE);
@@ -480,7 +479,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         //action mode
         if (onActionMode) {
             holder.binding.itemMultiSelect.setVisibility(View.VISIBLE);
-            holder.binding.getRoot().setChecked(model.is_checked);
+//            holder.binding.getRoot().setChecked(model.is_checked);
 
             if (model.is_checked) {
                 holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_checked);
@@ -491,7 +490,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
             holder.binding.itemMultiSelect.setVisibility(View.GONE);
             holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_unchecked);
 
-            holder.binding.getRoot().setChecked(false);
+//            holder.binding.getRoot().setChecked(false);
         }
 
         if (model.starred) {
@@ -506,7 +505,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
             Bundle bundle = (Bundle) payloads.get(0);
             boolean isChecked = bundle.getBoolean("is_check");
 
-            holder.binding.getRoot().setChecked(model.is_checked);
+//            holder.binding.getRoot().setChecked(model.is_checked);
 
             if (isChecked) {
                 holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_checked);
@@ -515,7 +514,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
             }
             return;
         }
-        holder.binding.getRoot().setBackground(AnimatedStateListDrawableCompatUtils.createDrawableCompat(getContext()));
+//        holder.binding.getRoot().setBackground(AnimatedStateListDrawableCompatUtils.createDrawableCompat(getContext()));
 
         if (repoEncrypted || !Utils.isViewableImage(model.name)) {
             holder.binding.itemIcon.setImageResource(model.getIcon());
@@ -526,7 +525,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         //action mode
         if (onActionMode) {
             holder.binding.itemMultiSelect.setVisibility(View.VISIBLE);
-            holder.binding.getRoot().setChecked(model.is_checked);
+//            holder.binding.getRoot().setChecked(model.is_checked);
 
             if (model.is_checked) {
                 holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_checked);
@@ -534,7 +533,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
                 holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_unchecked);
             }
         } else {
-            holder.binding.getRoot().setChecked(false);
+//            holder.binding.getRoot().setChecked(false);
 
             holder.binding.itemMultiSelect.setVisibility(View.GONE);
             holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_unchecked);
@@ -545,7 +544,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         holder.binding.itemTitle.setText(model.name);
         holder.binding.itemSubtitle.setText(model.getSubtitle());
 
-        holder.binding.getRoot().setBackground(AnimatedStateListDrawableCompatUtils.createDrawableCompat(getContext()));
+//        holder.binding.getRoot().setBackground(AnimatedStateListDrawableCompatUtils.createDrawableCompat(getContext()));
 
         if (repoEncrypted || !Utils.isViewableImage(model.name)) {
             holder.binding.itemIcon.setImageResource(model.getIcon());

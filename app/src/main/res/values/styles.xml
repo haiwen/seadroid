@@ -8,8 +8,10 @@
         <item name="android:background">@color/bar_background_color</item>
         <item name="titleTextColor">@color/bar_title_color</item>
         <item name="colorSurface">@color/white</item>
+        <item name="android:textSize">14sp</item>
         <item name="navigationIcon">@drawable/baseline_arrow_back_24</item>
         <item name="navigationIconTint">@color/bar_title_color</item>
+        <item name="titleTextAppearance">?attr/textAppearanceTitleMedium</item>
     </style>
 
     <style name="ToolBarStyle.Editor" parent="">
@@ -45,6 +47,7 @@
         <item name="android:background">@color/bar_background_color</item>
         <item name="background">@color/bar_background_color</item>
         <item name="android:textColor">@color/bar_title_color</item>
+        <item name="titleTextStyle">@style/TextAppearance.Material3.ActionBar.Subtitle</item>
     </style>
 
 
@@ -166,7 +169,7 @@
 
     <style name="Widget.Material3.Preference.SimpleMenuPreference.PopupMenu" parent="Widget.Preference.SimpleMenuPreference.PopupMenu">
         <item name="android:popupBackground">@drawable/m3_popupmenu_background_overlay</item>
-        <item name="android:background">@color/white</item>
+        <item name="android:background">@color/white</item>"
     </style>
 
     <style name="Preference.Material3.SwitchPreferenceCompat" parent="Preference.SwitchPreferenceCompat.Material">

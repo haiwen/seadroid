@@ -60,7 +60,7 @@
     <color name="bar_icon_tint_color">@color/material_grey_200</color>
 
     <!-- bottom navigation bar icon tint color -->
-    <color name="bottom_bar_icon_tint_color">@color/material_grey_500</color>
+    <color name="bottom_bar_icon_tint_color">@color/material_grey_599</color>
 
     <!-- bottom sheet popup view -->
     <color name="bottom_sheet_pop_enable_color">@color/bar_title_color</color>
