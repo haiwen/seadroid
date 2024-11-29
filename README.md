@@ -47,10 +47,16 @@ For those who are using maven build structures, checkout the project from [maven
 
 ### Contribute your translation
 
-Please submit translations via Transifex: https://www.transifex.com/haiwen/seadroid/
+Please submit translations via Transifex:
 
 Steps:
 
-1. Create a free account on Transifex (https://www.transifex.com/).
-2. Send a request to join the language translation.
-3. After accepted by the project maintainer, then you can upload your file or translate online.
+1. Visit the webpage of Transifex ([https://explore.transifex.com/haiwen/seadroid/](https://explore.transifex.com/haiwen/seadroid/)).
+
+2. Click the "Join this project" button in the bottom right corner.
+
+3. Use an email or GitHub account(recommended) to create an account.
+
+4. Select a language and click 'Join project' to join the language translation.
+
+5. After accepted by the project maintainer, then you can upload your file or translate online.
