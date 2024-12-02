@@ -166,25 +166,12 @@ public class TransferActivity extends BaseActivity implements Toolbar.OnMenuItem
     }
 
     @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        // MenuItem cancel = menu.findItem(R.id.cancel_transfer_tasks);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            finish();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
     public boolean onMenuItemClick(MenuItem item) {
         int whichTab = binding.slidingTabs.getSelectedTabPosition();
 
-        if (item.getItemId() == R.id.cancel_transfer_tasks) {
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+        } else if (item.getItemId() == R.id.cancel_transfer_tasks) {
             if (whichTab == 0) {
                 getDownloadFragment().cancelAllTasks();
             } else {

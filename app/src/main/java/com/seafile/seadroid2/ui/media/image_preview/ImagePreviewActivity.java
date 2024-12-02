@@ -50,20 +50,20 @@ public class ImagePreviewActivity extends BaseActivityWithVM<ImagePreviewViewMod
 
     public static Intent startThisFromStarred(Context context, StarredModel starredModel) {
         Intent intent = new Intent(context, ImagePreviewActivity.class);
-        intent.putExtra("dirent", StarredModel.converterThis2DirentModel(starredModel));
+        intent.putExtra("dirent", StarredModel.convert2DirentModel(starredModel));
         return intent;
     }
 
     public static Intent startThisFromActivity(Context context, ActivityModel starredModel) {
         Intent intent = new Intent(context, ImagePreviewActivity.class);
-        intent.putExtra("dirent", ActivityModel.converterThis2DirentModel(starredModel));
+        intent.putExtra("dirent", ActivityModel.convert2DirentModel(starredModel));
         return intent;
     }
 
 
     public static void startThisFromSearch(Context context, SearchModel starredModel) {
         Intent intent = new Intent(context, ImagePreviewActivity.class);
-        intent.putExtra("dirent", SearchModel.converterThis2DirentModel(starredModel));
+        intent.putExtra("dirent", SearchModel.convert2DirentModel(starredModel));
         context.startActivity(intent);
     }
 
@@ -145,8 +145,12 @@ public class ImagePreviewActivity extends BaseActivityWithVM<ImagePreviewViewMod
         getViewModel().getStarLiveData().observe(this, new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean aBoolean) {
+                isDataOperated = true;
+
                 if (aBoolean) {
-                    isDataOperated = true;
+
+                }else{
+
                 }
                 ToastUtils.showLong(aBoolean ? R.string.star_file_succeed : R.string.star_file_failed);
             }
@@ -159,6 +163,7 @@ public class ImagePreviewActivity extends BaseActivityWithVM<ImagePreviewViewMod
                 if (CollectionUtils.isEmpty(direntModels)) {
                     direntModels = CollectionUtils.newArrayList(currentDirent);
                 }
+
                 direntList = direntModels;
 
                 notifyFragmentList();

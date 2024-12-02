@@ -24,6 +24,7 @@ import com.blankj.utilcode.util.GsonUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.annotation.Todo;
 import com.seafile.seadroid2.annotation.Unstable;
 import com.seafile.seadroid2.databinding.ActivitySeaWebviewProBinding;
 import com.seafile.seadroid2.databinding.ToolbarActionbarProgressBarBinding;
@@ -41,7 +42,7 @@ import com.seafile.seadroid2.ui.webview.SeaWebViewActivity;
 import com.seafile.seadroid2.view.webview.PreloadWebView;
 import com.seafile.seadroid2.view.webview.SeaWebView;
 
-@Unstable
+@Todo
 public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
     private ActivitySeaWebviewProBinding binding;
     private ToolbarActionbarProgressBarBinding toolBinding;
@@ -57,7 +58,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
      * not support, please use SeaWebViewActivity instead
      */
     public static void openSdoc(Context context, String repoName, String repoID, String path) {
-        Intent intent = new Intent(context, SeaWebViewActivity.class);
+        Intent intent = new Intent(context, SDocWebViewActivity.class);
         intent.putExtra("previewType", WebViewPreviewType.SDOC.name());
         intent.putExtra("repoName", repoName);
         intent.putExtra("repoID", repoID);

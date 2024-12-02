@@ -211,6 +211,7 @@
         <activity android:name=".ui.data_migrate.DataMigrationV303Activity" />
         <activity android:name=".ui.sdoc.SDocWebViewActivity" />
         <activity android:name=".ui.sdoc.comments.SDocCommentsActivity" />
+        <activity android:name=".ui.media.image_preview2.CarouselImagePreviewActivity" />
 
         <provider
             android:name=".provider.SeafileProvider"

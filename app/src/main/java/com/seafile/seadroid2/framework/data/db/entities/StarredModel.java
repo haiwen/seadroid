@@ -60,7 +60,7 @@ public class StarredModel extends BaseModel implements Parcelable {
         return TextUtils.equals("/", path) && is_dir;
     }
 
-    public static DirentModel converterThis2DirentModel(StarredModel model) {
+    public static DirentModel convert2DirentModel(StarredModel model) {
         DirentModel d = new DirentModel();
         d.full_path = model.path;
         d.type = model.is_dir ? "dir" : "file";
@@ -68,6 +68,7 @@ public class StarredModel extends BaseModel implements Parcelable {
         d.name = model.obj_name;
         d.repo_id = model.repo_id;
         d.repo_name = model.repo_name;
+        d.parent_dir = Utils.getParentPath(model.path);
         return d;
     }
 

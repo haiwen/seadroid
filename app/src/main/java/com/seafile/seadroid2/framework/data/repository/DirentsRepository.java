@@ -27,7 +27,7 @@ public class DirentsRepository {
 
     public Single<List<DirentModel>> getDirents(String repoId, String parent_dir) {
         // 先尝试从数据库中获取数据
-        Single<List<DirentModel>> localData = dao.getListByParentPath(repoId, parent_dir)
+        Single<List<DirentModel>> localData = dao.getListByParentPathAsync(repoId, parent_dir)
                 .onErrorResumeNext(throwable -> Single.just(Collections.emptyList()));
 
         // 发起网络请求并保存到数据库

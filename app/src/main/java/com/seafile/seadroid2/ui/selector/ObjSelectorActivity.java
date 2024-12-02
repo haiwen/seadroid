@@ -273,25 +273,45 @@ public class ObjSelectorActivity extends BaseActivity {
     }
 
     private void checkCurrentPathHasWritePermission(java.util.function.Consumer<Boolean> consumer) {
-        DirentModel direntModel = mNavContext.getTopDirentModel();
-        if (!direntModel.isCustomPermission()) {
-            consumer.accept(direntModel.hasWritePermission());
-        } else {
-            viewModel.getPermissionFromLocal(direntModel.repo_id, direntModel.getCustomPermissionNum(), new Consumer<PermissionEntity>() {
-                @Override
-                public void accept(PermissionEntity entity) throws Exception {
-                    consumer.accept(entity != null && entity.create);
-                }
-            });
-        }
-    }
+        BaseModel model = mNavContext.getTopModel();
 
+        String repo_id = null;
+        int pNum = 0;
+        if (model instanceof RepoModel m) {
+            if (!m.isCustomPermission()) {
+                consumer.accept(m.hasWritePermission());
+                return;
+            } else {
+                repo_id = m.repo_id;
+                pNum = m.getCustomPermissionNum();
+            }
+        } else if (model instanceof DirentModel m) {
+            if (!m.isCustomPermission()) {
+                consumer.accept(m.hasWritePermission());
+                return;
+            } else {
+                repo_id = m.repo_id;
+                pNum = m.getCustomPermissionNum();
+            }
+        } else {
+            consumer.accept(false);
+            return;
+        }
+
+        viewModel.getPermissionFromLocal(repo_id, pNum, new Consumer<PermissionEntity>() {
+            @Override
+            public void accept(PermissionEntity entity) throws Exception {
+                consumer.accept(entity != null && entity.create);
+            }
+        });
+    }
 
     private void showNewDirDialog() {
         if (!mNavContext.inRepo()) {
             ToastUtils.showLong(R.string.choose_a_library);
             return;
         }
+
         checkCurrentPathHasWritePermission(new java.util.function.Consumer<Boolean>() {
             @Override
             public void accept(Boolean aBoolean) {

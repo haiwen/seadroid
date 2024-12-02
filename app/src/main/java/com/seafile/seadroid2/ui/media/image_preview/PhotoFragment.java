@@ -10,48 +10,60 @@ import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.webkit.CookieManagerCompat;
-import androidx.webkit.UserAgentMetadata;
 
 import com.blankj.utilcode.util.EncodeUtils;
 import com.blankj.utilcode.util.SizeUtils;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.engine.GlideException;
-import com.bumptech.glide.load.resource.gif.GifDrawable;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.Target;
 import com.github.chrisbanes.photoview.OnPhotoTapListener;
-import com.github.chrisbanes.photoview.PhotoView;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.compat.ContextCompatKt;
 import com.seafile.seadroid2.databinding.FragmentPhotoViewBinding;
 import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.util.GlideApp;
-import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.ui.base.fragment.BaseFragment;
 
 import java.io.File;
-import java.util.Locale;
 
 public class PhotoFragment extends BaseFragment {
 
     private Account account;
-    private DirentModel direntModel;
+
+    private String repoId, repoName, fullPath;
 
     private OnPhotoTapListener onPhotoTapListener;
     private FragmentPhotoViewBinding binding;
+    private boolean isLight = true;
 
     public void setOnPhotoTapListener(OnPhotoTapListener onPhotoTapListener) {
         this.onPhotoTapListener = onPhotoTapListener;
     }
 
+    public static PhotoFragment newInstance(String repoId, String repoName, String fullPath) {
+
+        Bundle args = new Bundle();
+        args.putString("repoId", repoId);
+        args.putString("repoName", repoName);
+        args.putString("fullPath", fullPath);
+
+        PhotoFragment fragment = new PhotoFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     public static PhotoFragment newInstance(DirentModel direntModel) {
         Bundle args = new Bundle();
-        args.putParcelable("dirent", direntModel);
+
+        args.putString("repoId", direntModel.repo_id);
+        args.putString("repoName", direntModel.repo_name);
+        args.putString("fullPath", direntModel.full_path);
         PhotoFragment fragment = new PhotoFragment();
         fragment.setArguments(args);
         return fragment;
@@ -68,11 +80,13 @@ public class PhotoFragment extends BaseFragment {
             return;
         }
 
-        direntModel = args.getParcelable("dirent");
-        if (null == direntModel) {
-            throw new IllegalArgumentException("DirentModel is null");
+        if (!args.containsKey("repoId")) {
+            throw new IllegalStateException("repoId is null");
         }
 
+        repoId = args.getString("repoId");
+        repoName = args.getString("repoName");
+        fullPath = args.getString("fullPath");
     }
 
     @Nullable
@@ -86,14 +100,21 @@ public class PhotoFragment extends BaseFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-
         binding.photoView.setZoomable(true);
         binding.photoView.setZoomTransitionDuration(300);
-        binding.photoView.setMaximumScale(5f);
-        binding.photoView.setMinimumScale(0.8f);
+        binding.photoView.setMaximumScale(3f);
+        binding.photoView.setMinimumScale(1f);
         binding.photoView.setOnPhotoTapListener(new OnPhotoTapListener() {
             @Override
             public void onPhotoTap(ImageView view, float x, float y) {
+                if (!isLight){
+                    binding.rootLayout.setBackgroundColor(ContextCompatKt.getColorCompat(requireContext(),R.color.material_grey_100));
+                }else{
+                    binding.rootLayout.setBackgroundColor(ContextCompatKt.getColorCompat(requireContext(),R.color.material_grey_919));
+                }
+
+                isLight =!isLight;
+
                 if (onPhotoTapListener != null) {
                     onPhotoTapListener.onPhotoTap(view, x, y);
                 }
@@ -102,7 +123,7 @@ public class PhotoFragment extends BaseFragment {
 
         ProgressBar progressBar = view.findViewById(R.id.progress_bar);
 
-        File file = DataManager.getLocalRepoFile(account, direntModel.repo_id, direntModel.repo_name, direntModel.full_path);
+        File file = DataManager.getLocalRepoFile(account, repoId, repoName, fullPath);
         if (file.exists()) {
             progressBar.setVisibility(View.GONE);
 
@@ -142,6 +163,47 @@ public class PhotoFragment extends BaseFragment {
                 .into(binding.photoView);
     }
 
+    private void loadImage() {
+
+        File file = DataManager.getLocalRepoFile(account, repoId, repoName, fullPath);
+        if (file.exists()) {
+            binding.progressBar.setVisibility(View.GONE);
+
+            GlideApp.with(requireContext())
+                    .load(file)
+                    .into(binding.photoView);
+            return;
+        }
+
+        String url = getUrl();
+        if (url == null) {
+            binding.photoView.setImageResource(R.drawable.icon_image_error_filled);
+            return;
+        }
+
+        RequestOptions opt = new RequestOptions()
+                .skipMemoryCache(true)
+                .error(R.drawable.icon_image_error_filled)
+                .diskCacheStrategy(DiskCacheStrategy.NONE);
+        GlideApp.with(requireContext())
+                .load(url)
+                .apply(opt)
+                .fitCenter()
+                .listener(new RequestListener<Drawable>() {
+                    @Override
+                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                        binding.progressBar.setVisibility(View.GONE);
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                        binding.progressBar.setVisibility(View.GONE);
+                        return false;
+                    }
+                })
+                .into(binding.photoView);
+    }
 
     private String getUrl() {
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
@@ -157,6 +219,6 @@ public class PhotoFragment extends BaseFragment {
 
 //        return String.format("%srepo/%s/raw%s", account.getServer(), repoId, fileFullPath);
         int size = SizeUtils.dp2px(300);
-        return String.format("%sapi2/repos/%s/thumbnail/?p=%s&size=%s", account.getServer(), direntModel.repo_id, EncodeUtils.urlEncode(direntModel.full_path), size);
+        return String.format("%sapi2/repos/%s/thumbnail/?p=%s&size=%s", account.getServer(), repoId, EncodeUtils.urlEncode(fullPath), size);
     }
 }

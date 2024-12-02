@@ -89,6 +89,7 @@ import com.seafile.seadroid2.ui.main.MainActivity;
 import com.seafile.seadroid2.ui.main.MainViewModel;
 import com.seafile.seadroid2.ui.markdown.MarkdownActivity;
 import com.seafile.seadroid2.ui.media.image_preview.ImagePreviewActivity;
+import com.seafile.seadroid2.ui.media.image_preview2.CarouselImagePreviewActivity;
 import com.seafile.seadroid2.ui.media.player.exoplayer.CustomExoVideoPlayerActivity;
 import com.seafile.seadroid2.ui.sdoc.SDocWebViewActivity;
 import com.seafile.seadroid2.ui.search.SearchViewModel;
@@ -96,12 +97,10 @@ import com.seafile.seadroid2.ui.selector.ObjSelectorActivity;
 import com.seafile.seadroid2.view.TipsViews;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import io.reactivex.functions.Consumer;
 
@@ -430,7 +429,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             if (baseModel instanceof RepoModel m) {
 
             } else if (baseModel instanceof DirentModel m) {
-                if (m.isDir()){
+                if (m.isDir()) {
                     return CollectionUtils.newArrayList(R.id.upload);
                 }
             }
@@ -901,7 +900,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             }
         } else if (model instanceof SearchModel searchModel) {
 
-            DirentModel direntModel = SearchModel.converterThis2DirentModel(searchModel);
+            DirentModel direntModel = SearchModel.convert2DirentModel(searchModel);
             if (direntModel.isDir()) {
                 String repoId = getNavContext().getRepoModel().repo_id;
 
@@ -1179,7 +1178,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         // because pic thumbnail under encrypted repo was not supported at the server side
         if (Utils.isViewableImage(fileName) && !repoModel.encrypted) {
 
-            Intent getIntent = ImagePreviewActivity.startThisFromRepo(requireContext(), dirent);
+            Intent getIntent = CarouselImagePreviewActivity.startThisFromRepo(requireContext(), dirent);
             imagePreviewActivityLauncher.launch(getIntent);
 
             return;

@@ -47,7 +47,7 @@ public class ActivityModel extends BaseModel {
     }
 
 
-    public static DirentModel converterThis2DirentModel(ActivityModel model){
+    public static DirentModel convert2DirentModel(ActivityModel model){
         DirentModel d = new DirentModel();
         d.full_path = model.path;
         d.type = model.obj_type;
@@ -55,7 +55,7 @@ public class ActivityModel extends BaseModel {
         d.name = model.name;
         d.repo_id = model.repo_id;
         d.repo_name = model.repo_name;
-
+        d.parent_dir = Utils.getParentPath(model.path);
         return d;
     }
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.seafile.seadroid2.ui.media.image_preview;
+package com.seafile.seadroid2.ui.media.image_preview2;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.StringRes;
@@ -22,7 +22,7 @@ import androidx.annotation.StringRes;
 /**
  * A data class that holds all information related to an item inside a Carousel.
  */
-class CarouselItem {
+public class CarouselItem {
 
   @DrawableRes
   private final int drawableRes;

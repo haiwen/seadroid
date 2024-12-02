@@ -14,9 +14,24 @@
  * limitations under the License.
  */
 
-package com.seafile.seadroid2.ui.media.image_preview;
+package com.seafile.seadroid2.ui.media.image_preview2;
 
-/** An interface for items in a carousel. */
-interface CarouselItemListener {
-  void onItemClicked(CarouselItem item, int position);
+
+import android.view.View;
+import android.widget.ImageView;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.seafile.seadroid2.R;
+
+public class CarouselItemViewHolder extends RecyclerView.ViewHolder {
+
+    public final ImageView imageView;
+
+    CarouselItemViewHolder(@NonNull View itemView) {
+        super(itemView);
+        imageView = itemView.findViewById(R.id.image_view);
+    }
+
 }

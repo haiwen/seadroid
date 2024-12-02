@@ -60,6 +60,7 @@
     <color name="bar_background_color">@color/material_grey_100</color>
     <color name="bar_title_color">@color/material_grey_900</color>
     <color name="bar_icon_tint_color">@color/material_grey_900</color>
+    <color name="bar_background_translucent_color">@color/material_grey_100_translucent</color>
 
     <!-- bottom navigation bar icon tint color -->
     <color name="bottom_bar_icon_tint_color">@color/material_grey_599</color>

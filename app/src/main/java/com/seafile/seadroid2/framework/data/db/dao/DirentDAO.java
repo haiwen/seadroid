@@ -20,17 +20,19 @@ public interface DirentDAO {
     Single<List<DirentModel>> getListByAccount(String related_account);
 
     @Query("select * from dirents where parent_dir = :parent_dir and repo_id = :repo_id")
-    Single<List<DirentModel>> getListByParentPath(String repo_id, String parent_dir);
-
-    @Query("select * from dirents where parent_dir = :parent_dir and repo_id = :repo_id")
-    Single<List<DirentModel>> getImageListByParentPath(String repo_id, String parent_dir);
-
+    Single<List<DirentModel>> getListByParentPathAsync(String repo_id, String parent_dir);
 
     @Query("select * from dirents where parent_dir = :parent_dir and repo_id = :repo_id")
     List<DirentModel> getListByParentPathSync(String repo_id, String parent_dir);
 
+    @Query("select * from dirents where type='file' and parent_dir = :parent_dir and repo_id = :repo_id")
+    Single<List<DirentModel>> getFileListByParentPath(String repo_id, String parent_dir);
+
+    /**
+     * get special one by full_path
+     */
     @Query("select * from dirents where full_path = :full_path and repo_id = :repo_id")
-    Single<List<DirentModel>> getListByFullPath(String repo_id, String full_path);
+    Single<List<DirentModel>> getListByFullPathAsync(String repo_id, String full_path);
 
     @Query("select * from dirents where full_path = :full_path and repo_id = :repo_id limit 1")
     List<DirentModel> getListByFullPathSync(String repo_id, String full_path);

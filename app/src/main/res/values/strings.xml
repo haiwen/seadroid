@@ -664,6 +664,7 @@
     <string name="menu_action_sort_by_last_modified">Last modified</string>
     <string name="menu_action_sort_order_ascending">Ascending</string>
     <string name="menu_action_sort_directories_first">Folders first</string>
+    <string name="menu_detail">Detail</string>
 
     <!-- sdoc -->
     <string name="_size">Size</string>
