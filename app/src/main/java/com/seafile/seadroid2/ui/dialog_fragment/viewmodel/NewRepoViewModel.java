@@ -40,7 +40,7 @@ public class NewRepoViewModel extends BaseViewModel {
         if (!TextUtils.isEmpty(password)) {
             requestDataMap.put("passwd", password);
         }
-        Map<String, RequestBody> bodyMap = generateRequestBody(requestDataMap);
+        Map<String, RequestBody> bodyMap = genRequestBody(requestDataMap);
         Single<RepoModel> single = HttpIO.getCurrentInstance().execute(DialogService.class).createRepo(bodyMap);
         addSingleDisposable(single, new Consumer<RepoModel>() {
             @Override

@@ -32,7 +32,7 @@
         android:title="@string/file_action_rename" />
     <item
         android:id="@id/delete"
-        android:icon="@drawable/action_delete"
+        android:icon="@drawable/baseline_delete_24"
         android:title="@string/file_action_delete" />
     <item
         android:id="@id/copy"

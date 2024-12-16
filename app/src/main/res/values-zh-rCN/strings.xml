@@ -3,6 +3,7 @@
   <string name="welcome_to_seafile">欢迎使用Seafile</string>
   <string name="select_account">请选择一个账户开始使用</string>
   <string name="edit_account">编辑帐户</string>
+  <string name="ignore">忽略</string>
   <string name="delete_account">删除帐户</string>
   <string name="delete">删除</string>
   <string name="deleted">已删除</string>
@@ -615,6 +616,7 @@ Email: support@seafile.com<br>
   <string name="on">开启</string>
   <string name="follow_system">跟随系统</string>
   <string name="empty">暂无</string>
+  <string name="empty_data">暂无数据</string>
   <!--share link-->
   <string name="link_permission_set_permission">设置权限</string>
   <string name="link_permission_preview_and_download">预览和下载</string>
@@ -631,15 +633,19 @@ Email: support@seafile.com<br>
   <string name="menu_action_sort_by_last_modified">最后修改</string>
   <string name="menu_action_sort_order_ascending">升序</string>
   <string name="menu_action_sort_directories_first">文件夹优先</string>
+  <string name="menu_detail">详情</string>
   <!--sdoc-->
   <string name="_size">大小</string>
   <string name="_last_modifier">修改者</string>
   <string name="_last_modified_time">修改时间</string>
+  <string name="_reviewer">文件审核人</string>
   <string name="_file_collaborators">文件协作人</string>
   <string name="_file_status">文件状态</string>
   <string name="_in_progress">进行中</string>
   <string name="_in_review">审核中</string>
-  <string name="_done">完成</string>
+  <string name="_done">已完成</string>
   <string name="_outdated">已过期</string>
+  <string name="mark_resolve">标记为已解决</string>
+  <string name="delete_confirm">你确定想要删除此条内容？</string>
   <!--end-->
 </resources>

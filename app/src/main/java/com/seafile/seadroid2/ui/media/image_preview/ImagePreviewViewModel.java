@@ -14,11 +14,16 @@ import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.data.model.ResultModel;
 import com.seafile.seadroid2.framework.data.model.repo.Dirent2Model;
+import com.seafile.seadroid2.framework.data.model.sdoc.FileDetailModel;
+import com.seafile.seadroid2.framework.data.model.sdoc.MetadataConfigModel;
+import com.seafile.seadroid2.framework.data.model.sdoc.FileProfileConfigModel;
+import com.seafile.seadroid2.framework.data.model.user.UserWrapperModel;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
+import com.seafile.seadroid2.ui.sdoc.DocsCommentService;
 import com.seafile.seadroid2.ui.star.StarredService;
 
 import java.util.HashMap;
@@ -29,8 +34,8 @@ import java.util.stream.Collectors;
 import io.reactivex.Single;
 import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function3;
 import okhttp3.RequestBody;
-import prettify.parser.Util;
 
 public class ImagePreviewViewModel extends BaseViewModel {
     private final MutableLiveData<List<DirentModel>> ListLiveData = new MutableLiveData<>();
@@ -49,6 +54,43 @@ public class ImagePreviewViewModel extends BaseViewModel {
         return ListLiveData;
     }
 
+    private final MutableLiveData<FileProfileConfigModel> _fileProfileConfigLiveData = new MutableLiveData<>();
+
+    public MutableLiveData<FileProfileConfigModel> getFileDetailLiveData() {
+        return _fileProfileConfigLiveData;
+    }
+
+    public void getFileDetail(String repoId, String path) {
+        getRefreshLiveData().setValue(true);
+
+        Single<UserWrapperModel> userSingle = HttpIO.getCurrentInstance().execute(DocsCommentService.class).getRelatedUsers(repoId);
+        Single<MetadataConfigModel> metadataSingle = HttpIO.getCurrentInstance().execute(DocsCommentService.class).getMetadata(repoId);
+        Single<FileDetailModel> detailSingle = HttpIO.getCurrentInstance().execute(DocsCommentService.class).getFileDetail(repoId, path);
+
+        Single<FileProfileConfigModel> s = Single.zip(detailSingle, userSingle, metadataSingle, new Function3<FileDetailModel, UserWrapperModel, MetadataConfigModel, FileProfileConfigModel>() {
+            @Override
+            public FileProfileConfigModel apply(FileDetailModel docDetailModel, UserWrapperModel userWrapperModel, MetadataConfigModel metadataConfigModel) throws Exception {
+                FileProfileConfigModel configModel = new FileProfileConfigModel();
+                configModel.setDetail(docDetailModel);
+                configModel.setUsers(userWrapperModel);
+                configModel.setMetadata(metadataConfigModel);
+                return configModel;
+            }
+        });
+
+        addSingleDisposable(s, new Consumer<FileProfileConfigModel>() {
+            @Override
+            public void accept(FileProfileConfigModel fileProfileConfigModel) throws Exception {
+                getFileDetailLiveData().setValue(fileProfileConfigModel);
+                getRefreshLiveData().setValue(false);
+            }
+        }, new Consumer<Throwable>() {
+            @Override
+            public void accept(Throwable throwable) throws Exception {
+                getRefreshLiveData().setValue(false);
+            }
+        });
+    }
 
     public void getRepoModelFromDB(String repoId, Consumer<RepoModel> consumer) {
         //from db
@@ -170,7 +212,7 @@ public class ImagePreviewViewModel extends BaseViewModel {
         Map<String, String> requestDataMap = new HashMap<>();
         requestDataMap.put("repo_id", repoId);
         requestDataMap.put("path", path);
-        Map<String, RequestBody> bodyMap = generateRequestBody(requestDataMap);
+        Map<String, RequestBody> bodyMap = genRequestBody(requestDataMap);
 
         Single<Dirent2Model> single = HttpIO.getCurrentInstance().execute(StarredService.class).star(bodyMap);
         addSingleDisposable(single, new Consumer<Dirent2Model>() {

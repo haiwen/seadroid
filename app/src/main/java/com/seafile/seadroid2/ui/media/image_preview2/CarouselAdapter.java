@@ -21,24 +21,28 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.blankj.utilcode.util.EncodeUtils;
 import com.blankj.utilcode.util.ScreenUtils;
 import com.blankj.utilcode.util.SizeUtils;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
+import com.google.common.base.Strings;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.util.GlideApp;
 
-public class CarouselAdapter extends ListAdapter<DirentModel, CarouselItemViewHolder> {
+public class CarouselAdapter extends ListAdapter<DirentModel, CarouselAdapter.CarouselItemViewHolder> {
 
     private static final DiffUtil.ItemCallback<DirentModel> DIFF_CALLBACK =
             new DiffUtil.ItemCallback<>() {
@@ -110,6 +114,7 @@ public class CarouselAdapter extends ListAdapter<DirentModel, CarouselItemViewHo
 
     private void bind(CarouselItemViewHolder holder, int pos) {
         DirentModel model = getItem(pos);
+//        holder.textView.setText(pos + "");
 
         holder.itemView.setOnClickListener(v -> {
             listener.onItemClicked(model, pos);
@@ -156,5 +161,19 @@ public class CarouselAdapter extends ListAdapter<DirentModel, CarouselItemViewHo
 //        return String.format("%srepo/%s/raw%s", account.getServer(), repoId, fileFullPath);
         int size = SizeUtils.dp2px(300);
         return String.format("%sapi2/repos/%s/thumbnail/?p=%s&size=%s", account.getServer(), repoId, EncodeUtils.urlEncode(fullPath), size);
+    }
+
+
+    public static class CarouselItemViewHolder extends RecyclerView.ViewHolder {
+
+        public final ImageView imageView;
+        public final TextView textView;
+
+        CarouselItemViewHolder(@NonNull View itemView) {
+            super(itemView);
+            imageView = itemView.findViewById(R.id.image_view);
+            textView = itemView.findViewById(R.id.text_view);
+        }
+
     }
 }

@@ -8,6 +8,7 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.account.AccountUtils;
+import com.seafile.seadroid2.ssl.CertsManager;
 import com.seafile.seadroid2.ui.base.fragment.CustomDialogFragment;
 
 public class SignOutDialogFragment extends CustomDialogFragment {
@@ -34,6 +35,7 @@ public class SignOutDialogFragment extends CustomDialogFragment {
     protected void onPositiveClick() {
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
 
+        CertsManager.instance().deleteCertForAccount(account);
         AccountUtils.logout(account);
 
         refreshData();

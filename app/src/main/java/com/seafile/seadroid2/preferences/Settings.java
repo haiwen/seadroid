@@ -49,6 +49,8 @@ public class Settings {
     public static SettingsLiveData<String> SPACE_INFO;
     public static SettingsLiveData<NightMode> NIGHT_MODE;
     public static SettingsLiveData<NightMode> APP_NIGHT_MODE;
+
+    @Deprecated
     public static SettingsLiveData<Boolean> USER_GESTURE_LOCK_SWITCH;
 //    public static SettingsLiveData<Long> USER_GESTURE_LOCK_TIMESTAMP;
 
@@ -137,9 +139,9 @@ public class Settings {
         SPACE_INFO = new StringSettingLiveData(_account.getEncryptSignature(), R.string.pref_key_user_space, R.string.settings_account_info_load_data);
         NIGHT_MODE = new EnumSettingLiveData<>(NightMode.class, _account.getEncryptSignature(), R.string.pref_key_night_mode, R.string.pref_default_value_night_mode);
         APP_NIGHT_MODE = new EnumSettingLiveData<>(NightMode.class, _account.getEncryptSignature(), R.string.pref_key_current_night_mode, R.string.pref_default_value_night_mode);
-        CLIENT_ENCRYPT_SWITCH = new BooleanSettingLiveData(_account.getEncryptSignature(), R.string.pref_key_security_client_encrypt);
+//        CLIENT_ENCRYPT_SWITCH = new BooleanSettingLiveData(_account.getEncryptSignature(), R.string.pref_key_security_client_encrypt);
 
-        USER_GESTURE_LOCK_SWITCH = new BooleanSettingLiveData(_account.getEncryptSignature(), R.string.pref_key_gesture_lock);
+//        USER_GESTURE_LOCK_SWITCH = new BooleanSettingLiveData(_account.getEncryptSignature(), R.string.pref_key_gesture_lock);
 //        USER_GESTURE_LOCK_TIMESTAMP = new LongSettingLiveData(_account.getEncryptSignature(), R.string.pref_key_gesture_lock_timestamp, R.string.pref_default_value_key_gesture_lock_timestamp);
 
 
@@ -169,9 +171,9 @@ public class Settings {
         REGISTER_LIST.add(SPACE_INFO);
         REGISTER_LIST.add(NIGHT_MODE);
         REGISTER_LIST.add(APP_NIGHT_MODE);
-        REGISTER_LIST.add(USER_GESTURE_LOCK_SWITCH);
+//        REGISTER_LIST.add(USER_GESTURE_LOCK_SWITCH);
 //        REGISTER_LIST.add(USER_GESTURE_LOCK_TIMESTAMP);
-        REGISTER_LIST.add(CLIENT_ENCRYPT_SWITCH);
+//        REGISTER_LIST.add(CLIENT_ENCRYPT_SWITCH);
         REGISTER_LIST.add(ALBUM_BACKUP_SWITCH);
         REGISTER_LIST.add(ALBUM_BACKUP_SELECTED_REPO);
         REGISTER_LIST.add(ALBUM_BACKUP_STATE);

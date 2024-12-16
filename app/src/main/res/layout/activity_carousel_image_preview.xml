@@ -32,6 +32,7 @@
         android:layout_height="wrap_content"
         android:background="@color/bar_background_translucent_color"
         android:clipToPadding="false"
+        android:paddingTop="4dp"
         app:layout_constraintBottom_toTopOf="@+id/gallery_tool_bar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -44,7 +45,6 @@
         android:gravity="center_horizontal"
         android:orientation="horizontal"
         android:paddingTop="4dp"
-        android:paddingBottom="8dp"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -54,12 +54,11 @@
             android:id="@+id/gallery_download_photo"
             android:layout_width="36dp"
             android:layout_height="36dp"
-            android:layout_marginEnd="12dp"
             android:foreground="?selectableItemBackground"
             android:scaleType="centerInside"
             android:src="@drawable/action_download"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="@+id/gallery_delete_photo"
+            app:layout_constraintEnd_toStartOf="@+id/gallery_delete_photo"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:tint="@color/material_grey_599" />
@@ -68,10 +67,9 @@
             android:id="@+id/gallery_delete_photo"
             android:layout_width="36dp"
             android:layout_height="36dp"
-            android:layout_marginEnd="12dp"
             android:foreground="?selectableItemBackground"
             android:scaleType="centerInside"
-            android:src="@drawable/action_delete"
+            android:src="@drawable/baseline_delete_24"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/gallery_star_photo"
             app:layout_constraintStart_toEndOf="@+id/gallery_download_photo"
@@ -82,7 +80,6 @@
             android:id="@+id/gallery_star_photo"
             android:layout_width="36dp"
             android:layout_height="36dp"
-            android:layout_marginEnd="12dp"
             android:foreground="?selectableItemBackground"
             android:scaleType="centerInside"
             android:src="@drawable/baseline_star_outline_24"
@@ -98,7 +95,7 @@
             android:layout_height="36dp"
             android:foreground="?selectableItemBackground"
             android:scaleType="centerInside"
-            android:src="@drawable/action_share"
+            android:src="@drawable/baseline_share_24"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/gallery_star_photo"
@@ -106,22 +103,4 @@
             app:tint="@color/material_grey_599" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/fancy_orange"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <View
-        android:layout_width="1dp"
-        android:layout_height="match_parent"
-        android:background="@color/fancy_orange"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

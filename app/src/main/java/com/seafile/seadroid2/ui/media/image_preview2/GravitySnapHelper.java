@@ -49,7 +49,7 @@ public class GravitySnapHelper extends LinearSnapHelper {
     private OrientationHelper horizontalHelper;
     private SnapListener listener;
     private RecyclerView recyclerView;
-    private RecyclerView.OnScrollListener scrollListener = new RecyclerView.OnScrollListener() {
+    private final RecyclerView.OnScrollListener scrollListener = new RecyclerView.OnScrollListener() {
         @Override
         public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
             super.onScrollStateChanged(recyclerView, newState);
@@ -582,8 +582,9 @@ public class GravitySnapHelper extends LinearSnapHelper {
                             - helper.getDecoratedEnd(currentView));
                 }
             } else {
-                currentViewDistance = Math.abs(helper.getDecoratedStart(currentView)
-                        + (helper.getDecoratedMeasurement(currentView) / 2) - center);
+                int ds = helper.getDecoratedStart(currentView);
+                int dm = helper.getDecoratedMeasurement(currentView);
+                currentViewDistance = Math.abs(ds + (dm / 2) - center);
             }
             if (currentViewDistance < distanceToTarget) {
                 distanceToTarget = currentViewDistance;

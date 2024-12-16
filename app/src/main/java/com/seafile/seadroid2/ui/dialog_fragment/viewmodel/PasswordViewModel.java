@@ -135,7 +135,7 @@ public class PasswordViewModel extends BaseViewModel {
 
         Map<String, String> requestDataMap = new HashMap<>();
         requestDataMap.put("password", password);
-        Map<String, RequestBody> bodyMap = generateRequestBody(requestDataMap);
+        Map<String, RequestBody> bodyMap = genRequestBody(requestDataMap);
 
         Single<ResultModel> netSingle = HttpIO.getCurrentInstance().execute(DialogService.class).setPassword(repoModel.repo_id, bodyMap);
 

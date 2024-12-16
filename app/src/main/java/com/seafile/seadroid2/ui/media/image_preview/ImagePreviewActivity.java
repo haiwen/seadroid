@@ -34,6 +34,7 @@ import java.util.Locale;
 
 import io.reactivex.functions.Consumer;
 
+@Deprecated
 public class ImagePreviewActivity extends BaseActivityWithVM<ImagePreviewViewModel> {
     private ActivityImagePreviewBinding binding;
     private ViewPager2Adapter adapter;

@@ -21,6 +21,7 @@ import com.blankj.utilcode.util.FileUtils;
 import com.blankj.utilcode.util.SizeUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.config.AbsLayoutItemType;
 import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.config.GlideLoadConfig;
@@ -54,7 +55,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
-    private final String SERVER = HttpIO.getCurrentInstance().getServerUrl();
+
 
     private boolean onActionMode;
 
@@ -570,12 +571,16 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
             imageView.setImageResource(direntModel.getIcon());
         } else {
             String url = convertThumbnailUrl(direntModel);
-            GlideApp.with(getContext()).load(url)
-                    .apply(GlideLoadConfig.getOptions())
-                    .into(imageView);
+            if (TextUtils.isEmpty(url)) {
+                GlideApp.with(getContext()).load(R.drawable.file_image)
+                        .apply(GlideLoadConfig.getOptions())
+                        .into(imageView);
+            } else {
+                GlideApp.with(getContext()).load(url)
+                        .apply(GlideLoadConfig.getOptions())
+                        .into(imageView);
+            }
         }
-
-
     }
 
     private String convertThumbnailUrl(DirentModel direntModel) {
@@ -586,9 +591,30 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         return convertThumbnailUrl(direntModel, 256);
     }
 
+    private String server_url;
+
+    private String getServerUrl() {
+        if (!TextUtils.isEmpty(server_url)) {
+            return server_url;
+        }
+
+        boolean isLogin = SupportAccountManager.getInstance().isLogin();
+        if (!isLogin) {
+            return null;
+        }
+
+        server_url = HttpIO.getCurrentInstance().getServerUrl();
+        return server_url;
+    }
+
     private String convertThumbnailUrl(DirentModel direntModel, int size) {
+        String serverUrl = getServerUrl();
+        if (TextUtils.isEmpty(serverUrl)) {
+            return null;
+        }
+
         String newFilePath = EncodeUtils.urlEncode(direntModel.full_path);
-        return String.format(Locale.ROOT, "%sapi2/repos/%s/thumbnail/?p=%s&size=%d", SERVER, direntModel.repo_id, newFilePath, size);
+        return String.format(Locale.ROOT, "%sapi2/repos/%s/thumbnail/?p=%s&size=%d", serverUrl, direntModel.repo_id, newFilePath, size);
     }
 
     public void setOnActionMode(boolean on) {

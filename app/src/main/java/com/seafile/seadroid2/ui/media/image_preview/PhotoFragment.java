@@ -40,7 +40,7 @@ public class PhotoFragment extends BaseFragment {
 
     private OnPhotoTapListener onPhotoTapListener;
     private FragmentPhotoViewBinding binding;
-    private boolean isLight = true;
+
 
     public void setOnPhotoTapListener(OnPhotoTapListener onPhotoTapListener) {
         this.onPhotoTapListener = onPhotoTapListener;
@@ -107,14 +107,6 @@ public class PhotoFragment extends BaseFragment {
         binding.photoView.setOnPhotoTapListener(new OnPhotoTapListener() {
             @Override
             public void onPhotoTap(ImageView view, float x, float y) {
-                if (!isLight){
-                    binding.rootLayout.setBackgroundColor(ContextCompatKt.getColorCompat(requireContext(),R.color.material_grey_100));
-                }else{
-                    binding.rootLayout.setBackgroundColor(ContextCompatKt.getColorCompat(requireContext(),R.color.material_grey_919));
-                }
-
-                isLight =!isLight;
-
                 if (onPhotoTapListener != null) {
                     onPhotoTapListener.onPhotoTap(view, x, y);
                 }

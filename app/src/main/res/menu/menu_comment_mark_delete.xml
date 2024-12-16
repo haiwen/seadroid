@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/mark_resolve"
+        android:icon="@drawable/baseline_mark_32"
+        android:title="@string/mark_resolve" />
+    <item
+        android:id="@+id/delete"
+        android:icon="@drawable/baseline_delete_24"
+        android:title="@string/delete" />
+</menu>

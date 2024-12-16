@@ -10,6 +10,7 @@ import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.preferences.Settings;
+import com.seafile.seadroid2.ssl.CertsManager;
 import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
 
 public class AccountUtils {

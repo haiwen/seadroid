@@ -1,5 +1,6 @@
 package com.seafile.seadroid2.ui.selector;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -19,6 +20,7 @@ import com.chad.library.adapter4.QuickAdapterHelper;
 import com.github.panpf.recycler.sticky.StickyItemDecoration;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.config.AbsLayoutItemType;
 import com.seafile.seadroid2.context.NavContext;
 import com.seafile.seadroid2.databinding.ActivitySelectorObjBinding;
@@ -68,6 +70,12 @@ public class ObjSelectorActivity extends BaseActivity {
     private ObjSelectorViewModel viewModel;
     private Account mAccount;
 
+    public static Intent getStartIntent(Context context) {
+        Intent intent = new Intent(context, ObjSelectorActivity.class);
+        intent.putExtra(ObjSelectorActivity.DATA_ACCOUNT, SupportAccountManager.getInstance().getCurrentAccount());
+        return intent;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -112,7 +120,7 @@ public class ObjSelectorActivity extends BaseActivity {
             mStep = STEP_CHOOSE_REPO;
         }
 
-        loadData();
+        checkLoginState();
     }
 
     private void initView() {
@@ -144,6 +152,16 @@ public class ObjSelectorActivity extends BaseActivity {
                 finish();
             }
         });
+    }
+
+    private void checkLoginState() {
+        boolean isLogin = SupportAccountManager.getInstance().isLogin();
+        if (!isLogin) {
+            binding.ok.setEnabled(false);
+            binding.newFolder.setEnabled(false);
+        }
+
+        loadData();
     }
 
     private void onOkClick() {

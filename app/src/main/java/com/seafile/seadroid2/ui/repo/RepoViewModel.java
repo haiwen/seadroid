@@ -852,7 +852,7 @@ public class RepoViewModel extends BaseViewModel {
             requestDataMap.put("repo_id", repoId);
             requestDataMap.put("path", path);
 
-            Map<String, RequestBody> bodyMap = generateRequestBody(requestDataMap);
+            Map<String, RequestBody> bodyMap = genRequestBody(requestDataMap);
             Single<Dirent2Model> single = HttpIO.getCurrentInstance().execute(StarredService.class).star(bodyMap);
 
             return single.toFlowable();

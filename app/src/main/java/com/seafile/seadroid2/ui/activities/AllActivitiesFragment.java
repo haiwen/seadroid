@@ -40,7 +40,7 @@ import com.seafile.seadroid2.ui.dialog_fragment.PasswordDialogFragment;
 import com.seafile.seadroid2.ui.file.FileActivity;
 import com.seafile.seadroid2.ui.main.MainActivity;
 import com.seafile.seadroid2.ui.markdown.MarkdownActivity;
-import com.seafile.seadroid2.ui.media.image_preview.ImagePreviewActivity;
+import com.seafile.seadroid2.ui.media.image_preview2.CarouselImagePreviewActivity;
 import com.seafile.seadroid2.ui.media.player.exoplayer.CustomExoVideoPlayerActivity;
 import com.seafile.seadroid2.ui.sdoc.SDocWebViewActivity;
 import com.seafile.seadroid2.view.TipsViews;
@@ -274,7 +274,7 @@ public class AllActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel>
 
         } else if (Utils.isViewableImage(activityModel.name)) {
 
-            Intent getIntent = ImagePreviewActivity.startThisFromActivity(requireContext(), activityModel);
+            Intent getIntent = CarouselImagePreviewActivity.startThisFromActivity(requireContext(), activityModel);
             imagePreviewActivityLauncher.launch(getIntent);
 
         } else if (activityModel.name.endsWith(Constants.Format.DOT_SDOC)) {

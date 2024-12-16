@@ -27,6 +27,7 @@
             android:summaryOn="@string/gesture_lock_on"
             android:title="@string/gesture_lock"
             app:iconSpaceReserved="false"
+            app:isPreferenceVisible="false"
             app:useSimpleSummaryProvider="true" />
 
         <rikka.preference.SimpleMenuPreference

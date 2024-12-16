@@ -38,7 +38,7 @@ public class RenameRepoViewModel extends BaseViewModel {
 
         Map<String, String> requestDataMap = new HashMap<>();
         requestDataMap.put("repo_name", repoName);
-        Map<String, RequestBody> bodyMap = generateRequestBody(requestDataMap);
+        Map<String, RequestBody> bodyMap = genRequestBody(requestDataMap);
 
         Single<String> single = HttpIO.getCurrentInstance().execute(DialogService.class).renameRepo(repoId, bodyMap);
 
@@ -64,7 +64,7 @@ public class RenameRepoViewModel extends BaseViewModel {
         Map<String, String> requestDataMap = new HashMap<>();
         requestDataMap.put("operation", "rename");
         requestDataMap.put("newname", newName);
-        Map<String, RequestBody> bodyMap = generateRequestBody(requestDataMap);
+        Map<String, RequestBody> bodyMap = genRequestBody(requestDataMap);
 
         Single<String> single = HttpIO.getCurrentInstance().execute(DialogService.class).renameDir(repoId, curPath, bodyMap);
 
@@ -90,7 +90,7 @@ public class RenameRepoViewModel extends BaseViewModel {
         Map<String, String> requestDataMap = new HashMap<>();
         requestDataMap.put("operation", "rename");
         requestDataMap.put("newname", newName);
-        Map<String, RequestBody> bodyMap = generateRequestBody(requestDataMap);
+        Map<String, RequestBody> bodyMap = genRequestBody(requestDataMap);
 
         Single<FileCreateModel> single = HttpIO.getCurrentInstance().execute(DialogService.class).renameFile(repoId, curPath, bodyMap);
 

@@ -43,6 +43,16 @@ public abstract class BaseOkHttpClient {
 
     protected List<Interceptor> getInterceptors() {
 
+        List<Interceptor> interceptors = getInterceptorsWithoutToken();
+        if (account != null && !TextUtils.isEmpty(account.token)) {
+            interceptors.add(new HeaderInterceptor(account.token));
+        }
+
+        return interceptors;
+    }
+
+    protected List<Interceptor> getInterceptorsWithoutToken() {
+
         List<Interceptor> interceptors = new ArrayList<>();
 
         //print log
@@ -51,9 +61,6 @@ public abstract class BaseOkHttpClient {
         loggingInterceptor.setLevel(BuildConfig.DEBUG ? HttpLoggingInterceptor.Level.BODY : HttpLoggingInterceptor.Level.BASIC);
         interceptors.add(loggingInterceptor);
 
-        if (account != null && !TextUtils.isEmpty(account.token)) {
-            interceptors.add(new HeaderInterceptor(account.token));
-        }
 //        interceptors.add(new AddCookiesInterceptor());
 //        interceptors.add(new ReceivedCookiesInterceptor());
 

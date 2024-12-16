@@ -485,24 +485,25 @@ public abstract class BaseUploadWorker extends TransferWorker {
                     .build();
             newCall = HttpIO.getCurrentInstance().getOkHttpClient().getOkClient().newCall(request);
 
-            Response response = newCall.execute();
+            String str;
+            try (Response response = newCall.execute()) {
+                if (!response.isSuccessful()) {
+                    String b = response.body() != null ? response.body().string() : null;
+                    SLogs.d("result，failed：" + b);
 
-            if (!response.isSuccessful()) {
-                String b = response.body() != null ? response.body().string() : null;
-                SLogs.d("result，failed：" + b);
+                    //
+                    newCall.cancel();
 
-                //
-                newCall.cancel();
+                    //[text={"error": "Out of quota.\n"}]
+                    if (b != null && b.toLowerCase().contains("out of quota")) {
+                        throw SeafException.OUT_OF_QUOTA;
+                    }
 
-                //[text={"error": "Out of quota.\n"}]
-                if (b != null && b.toLowerCase().contains("out of quota")) {
-                    throw SeafException.OUT_OF_QUOTA;
+                    throw SeafException.networkException;
                 }
 
-                throw SeafException.networkException;
+                str = response.body().string();
             }
-
-            String str = response.body().string();
             String fileId = str.replace("\"", "");
             SLogs.d("result，file ID：" + str);
 
@@ -511,7 +512,6 @@ public abstract class BaseUploadWorker extends TransferWorker {
             throw e;
         }
     }
-
 
     private void uploadBlockFile(Account account, RepoModel repoModel, FileTransferEntity transferEntity) throws SeafException, IOException, JSONException {
         if (isStopped()) {

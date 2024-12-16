@@ -14,7 +14,7 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         compileSdk rootProject.ext.compileSdkVersion
 
-        versionCode 158
+        versionCode 160
         versionName "3.0.7"
         multiDexEnabled true
 
@@ -184,14 +184,11 @@ android {
         // Firebase
         implementation platform('com.google.firebase:firebase-bom:33.2.0')
         implementation 'com.google.firebase:firebase-crashlytics'
-        implementation 'com.google.firebase:firebase-analytics'
 
         //media3
         final def media3_version = '1.4.1'
         implementation "androidx.media3:media3-exoplayer:$media3_version"
         implementation "androidx.media3:media3-ui:$media3_version"
-
-//        implementation 'com.github.rubensousa:gravitysnaphelper:2.2.2'
 
         implementation 'androidx.core:core-ktx:1.13.1'
         implementation 'androidx.core:core-splashscreen:1.0.1'
@@ -238,6 +235,17 @@ android {
 
         //https://github.com/KunMinX/UnPeek-LiveData
         implementation 'com.kunminx.arch:unpeek-livedata:7.8.0'
+
+        implementation 'org.commonmark:commonmark:0.21.0'
+//        implementation 'org.commonmark:commonmark-ext-gfm-tables:0.21.0'  // 如果需要表格支持
+        implementation 'org.commonmark:commonmark-ext-autolink:0.21.0'   // 如果需要自动链接支持
+
+        //https://github.com/lzyzsd/JsBridge
+        implementation 'com.github.lzyzsd:jsbridge:1.0.4'
+
+//        https://github.com/rubensousa/GravitySnapHelper
+//        implementation 'com.github.rubensousa:gravitysnaphelper:2.2.2'
+
 
         //
         implementation 'com.blankj:utilcode:1.30.7'
@@ -289,20 +297,20 @@ android {
         implementation 'com.github.yydcdut.RxMarkdown:markdown-processor:v0.1.3'
 
 
-//        //markdown
+        //https://noties.io/Markwon/
 //        final def markwon_version = '4.6.2'
 //        implementation "io.noties.markwon:core:$markwon_version"
 //        implementation "io.noties.markwon:editor:$markwon_version"
-//        implementation "io.noties.markwon:ext-latex:$markwon_version"
 //        implementation "io.noties.markwon:ext-strikethrough:$markwon_version"
 //        implementation "io.noties.markwon:ext-tables:$markwon_version"
 //        implementation "io.noties.markwon:ext-tasklist:$markwon_version"
+//        implementation "io.noties.markwon:ext-latex:$markwon_version"
 //        implementation "io.noties.markwon:html:$markwon_version"
 //        implementation "io.noties.markwon:image:$markwon_version"
 //        implementation "io.noties.markwon:image-glide:$markwon_version"
-//        implementation "io.noties.markwon:inline-parser:$markwon_version"
 //        implementation "io.noties.markwon:linkify:$markwon_version"
-//        implementation "io.noties.markwon:syntax-highlight:$markwon_version"
+//        implementation "io.noties.markwon:inline-parser:$markwon_version"
+//        implementation "io.noties.markwon:recycler:$markwon_version"
 
 
         implementation 'com.madgag.spongycastle:core:1.54.0.0'

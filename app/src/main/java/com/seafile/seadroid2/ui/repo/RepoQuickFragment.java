@@ -88,7 +88,6 @@ import com.seafile.seadroid2.ui.file.FileActivity;
 import com.seafile.seadroid2.ui.main.MainActivity;
 import com.seafile.seadroid2.ui.main.MainViewModel;
 import com.seafile.seadroid2.ui.markdown.MarkdownActivity;
-import com.seafile.seadroid2.ui.media.image_preview.ImagePreviewActivity;
 import com.seafile.seadroid2.ui.media.image_preview2.CarouselImagePreviewActivity;
 import com.seafile.seadroid2.ui.media.player.exoplayer.CustomExoVideoPlayerActivity;
 import com.seafile.seadroid2.ui.sdoc.SDocWebViewActivity;
@@ -1178,7 +1177,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         // because pic thumbnail under encrypted repo was not supported at the server side
         if (Utils.isViewableImage(fileName) && !repoModel.encrypted) {
 
-            Intent getIntent = CarouselImagePreviewActivity.startThisFromRepo(requireContext(), dirent);
+            Intent getIntent = CarouselImagePreviewActivity.startThisFromObjs(requireContext(), dirent);
             imagePreviewActivityLauncher.launch(getIntent);
 
             return;

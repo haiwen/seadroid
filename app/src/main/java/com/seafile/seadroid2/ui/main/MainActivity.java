@@ -37,7 +37,6 @@ import com.blankj.utilcode.util.TimeUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.navigation.NavigationBarView;
-import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
@@ -159,11 +158,7 @@ public class MainActivity extends BaseActivity {
         if (account != null) {
             FirebaseCrashlytics crashlytics = FirebaseCrashlytics.getInstance();
             crashlytics.setUserId(account.getSignature());
-
-            FirebaseAnalytics analytics = FirebaseAnalytics.getInstance(this);
-            analytics.setUserId(account.getSignature());
         }
-
     }
 
     private void initOnBackPressedDispatcher() {

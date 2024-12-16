@@ -96,4 +96,6 @@
 
     <!--  player mask color  -->
     <color name="player_mask_background_color">#88000000</color>
+
+    <color name="comment_resolved_color">@color/material_grey_103</color>
 </resources>

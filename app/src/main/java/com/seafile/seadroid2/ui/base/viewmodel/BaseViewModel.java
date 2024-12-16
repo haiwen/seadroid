@@ -13,6 +13,7 @@ import com.seafile.seadroid2.BuildConfig;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SeafException;
+import com.seafile.seadroid2.annotation.Todo;
 import com.seafile.seadroid2.framework.data.model.ResultModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.util.SLogs;
@@ -118,7 +119,19 @@ public class BaseViewModel extends ViewModel {
         }
     }
 
-    public Map<String, RequestBody> generateRequestBody(Map<String, String> requestDataMap) {
+
+    @Todo
+    public Map<String, RequestBody> genObjRequestBody(Map<String, Object> params) {
+        Map<String, RequestBody> requestBodyMap = new HashMap<>();
+        for (Map.Entry<String, Object> entry : params.entrySet()) {
+            String value = entry.getValue().toString();
+            RequestBody requestBody = RequestBody.create(MediaType.parse("multipart/form-data"), value);
+            requestBodyMap.put(entry.getKey(), requestBody);
+        }
+        return requestBodyMap;
+    }
+
+    public Map<String, RequestBody> genRequestBody(Map<String, String> requestDataMap) {
         Map<String, RequestBody> requestBodyMap = new HashMap<>();
         if (requestDataMap == null || requestDataMap.isEmpty()) {
             requestBodyMap.put("x-test", RequestBody.create(MediaType.parse("multipart/form-data"), "test"));

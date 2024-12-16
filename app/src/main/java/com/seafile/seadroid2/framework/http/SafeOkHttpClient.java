@@ -2,6 +2,7 @@ package com.seafile.seadroid2.framework.http;
 
 import com.blankj.utilcode.util.CollectionUtils;
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.ssl.CertsManager;
 import com.seafile.seadroid2.ssl.SSLSeafileSocketFactory;
 import com.seafile.seadroid2.ssl.SSLTrustManager;
 
@@ -12,6 +13,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -31,8 +33,28 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 
 public class SafeOkHttpClient extends BaseOkHttpClient {
+    private final List<Interceptor> _interceptors = new ArrayList<>();
+
     public SafeOkHttpClient(Account account) {
         super(account);
+
+        _interceptors.addAll(getInterceptors());
+    }
+
+    public SafeOkHttpClient(Account account, boolean isCustomToken) {
+        super(account);
+
+        if (isCustomToken) {
+            _interceptors.addAll(getInterceptorsWithoutToken());
+        } else {
+            _interceptors.addAll(getInterceptors());
+        }
+    }
+
+    public void addInterceptors(List<Interceptor> s) {
+        if (s != null) {
+            _interceptors.addAll(s);
+        }
     }
 
     public static TrustManager[] getTrustManagers() {
@@ -69,24 +91,15 @@ public class SafeOkHttpClient extends BaseOkHttpClient {
         //https
         if (account.getServer().startsWith("https://")) {
             //ssl
-
             SSLSocketFactory factory = SSLTrustManager.instance().getSSLSocketFactory(account);
             TrustManager[] trustManagers = SSLTrustManager.instance().getTrustManagers(account);
             X509TrustManager trustManager = (X509TrustManager) trustManagers[0];
 
             builder.sslSocketFactory(factory, trustManager);
-
             builder.hostnameVerifier(new HostnameVerifier() {
                 @Override
                 public boolean verify(String hostname, SSLSession session) {
-                    //check host
-                    if (account.getServerDomainName().equals(hostname)) {
-                        return true;
-                    }
-
-                    //check by default verifier
-                    HostnameVerifier verifier = HttpsURLConnection.getDefaultHostnameVerifier();
-                    return verifier.verify(hostname, session);
+                    return true;
                 }
             });
         }
@@ -129,9 +142,8 @@ public class SafeOkHttpClient extends BaseOkHttpClient {
         builder.networkInterceptors().add(REWRITE_CACHE_CONTROL_INTERCEPTOR);
 
         //add interceptors
-        List<Interceptor> interceptors = getInterceptors();
-        if (!CollectionUtils.isEmpty(interceptors)) {
-            for (Interceptor i : interceptors) {
+        if (!CollectionUtils.isEmpty(_interceptors)) {
+            for (Interceptor i : _interceptors) {
                 builder.interceptors().add(i);
             }
         }

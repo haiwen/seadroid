@@ -8,6 +8,8 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import com.github.lzyzsd.jsbridge.BridgeWebView;
+import com.github.lzyzsd.jsbridge.BridgeWebViewClient;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.framework.util.SLogs;
@@ -16,7 +18,11 @@ import com.seafile.seadroid2.framework.util.Token2SessionConverts;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SeaWebViewClient extends WebViewClient {
+public class SeaWebViewClient extends BridgeWebViewClient {
+    public SeaWebViewClient(BridgeWebView webView) {
+        super(webView);
+    }
+
     @Override
     public boolean shouldOverrideUrlLoading(WebView wb, WebResourceRequest request) {
         String url = request.getUrl().toString();
@@ -71,8 +77,6 @@ public class SeaWebViewClient extends WebViewClient {
     }
 
     public void loadWithToken(String targetUrl, WebView wb, boolean isRedirect) {
-        SLogs.d("targetUrl: " + targetUrl);
-
         mOriginTargetUrl = targetUrl;
 
         if (isRedirect) {
@@ -83,9 +87,12 @@ public class SeaWebViewClient extends WebViewClient {
                 map.put("Authorization", "Token " + account.token);
             }
 
-            wb.loadUrl(buildUrl(mOriginTargetUrl), map);
+            String rUrl = buildUrl(mOriginTargetUrl);
+            SLogs.d("targetUrl: " + rUrl);
+            wb.loadUrl(rUrl, map);
         } else {
             wb.loadUrl(mOriginTargetUrl);
+            SLogs.d("targetUrl: " + mOriginTargetUrl);
         }
     }
 

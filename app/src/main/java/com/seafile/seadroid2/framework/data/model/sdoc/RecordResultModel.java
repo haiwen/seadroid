@@ -37,6 +37,7 @@ public class RecordResultModel implements Parcelable {
     public String _suffix;
     public String _description;
     public List<String> _owner;
+    public List<String> _reviewer;
 
     @JsonAdapter(RecordResultDeserializer.class)
     public Map<String, Object> dynamicFields;
@@ -49,6 +50,7 @@ public class RecordResultModel implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeStringList(this._collaborators);
+        dest.writeStringList(this._reviewer);
         dest.writeString(this._creator);
         dest.writeString(this._ctime);
         dest.writeString(this._file_creator);
@@ -80,6 +82,7 @@ public class RecordResultModel implements Parcelable {
 
     protected RecordResultModel(Parcel in) {
         this._collaborators = in.createStringArrayList();
+        this._reviewer = in.createStringArrayList();
         this._creator = in.readString();
         this._ctime = in.readString();
         this._file_creator = in.readString();

@@ -17,7 +17,7 @@ import com.seafile.seadroid2.preferences.Settings;
  */
 public final class CertsManager {
 
-    private final Map<Account, X509Certificate> cachedCerts = Maps.newConcurrentMap();
+    private final Map<String, X509Certificate> cachedCerts = Maps.newConcurrentMap();
 
     private static CertsManager instance;
 
@@ -36,7 +36,7 @@ public final class CertsManager {
         }
 
         final X509Certificate cert = certs.get(0);
-        cachedCerts.put(account, cert);
+        cachedCerts.put(account.getServer(), cert);
 
         if (rememberChoice) {
             // save cert info to shared preferences
@@ -46,12 +46,23 @@ public final class CertsManager {
         }
     }
 
+    public void deleteCertForAccount(final Account account) {
+        if (account == null) {
+            return;
+        }
+
+        cachedCerts.remove(account.getServer());
+
+        String keyPrefix = EncryptUtils.encryptMD5ToString(account.getServer());
+        Settings.getCommonPreferences().edit().remove(DataStoreKeys.KEY_SERVER_CERT_INFO + "_" + keyPrefix).apply();
+    }
 
     public X509Certificate getCertificate(Account account) {
-        X509Certificate cert = cachedCerts.get(account);
+        X509Certificate cert = cachedCerts.get(account.getServer());
         if (cert != null) {
             return cert;
         }
+
         String keyPrefix = EncryptUtils.encryptMD5ToString(account.getServer());
         String certBase64 = Settings.getCommonPreferences().getString(DataStoreKeys.KEY_SERVER_CERT_INFO + "_" + keyPrefix, null);
         if (TextUtils.isEmpty(certBase64)) {
@@ -60,7 +71,7 @@ public final class CertsManager {
 
         cert = CertsHelper.convertToCert(certBase64);
         if (cert != null) {
-            cachedCerts.put(account, cert);
+            cachedCerts.put(account.getServer(), cert);
         }
 
         return cert;

@@ -85,7 +85,7 @@ public class TabSettingsFragment extends RenameSharePreferenceFragmentCompat {
     private final Account currentAccount = SupportAccountManager.getInstance().getCurrentAccount();
 
     private SettingsFragmentViewModel viewModel;
-    private SwitchPreferenceCompat gestureSwitch;
+//    private SwitchPreferenceCompat gestureSwitch;
 
     // album backup
     private SwitchPreferenceCompat mAlbumBackupSwitch;
@@ -142,7 +142,7 @@ public class TabSettingsFragment extends RenameSharePreferenceFragmentCompat {
     public void onFirstResume() {
         initPref();
 
-        initGestureConfig();
+//        initGestureConfig();
 
         initPrefLiveData();
 
@@ -203,7 +203,7 @@ public class TabSettingsFragment extends RenameSharePreferenceFragmentCompat {
             });
         }
 
-        gestureSwitch = findPreference(getString(R.string.pref_key_gesture_lock));
+//        gestureSwitch = findPreference(getString(R.string.pref_key_gesture_lock));
     }
 
     private void initSignOutPref() {
@@ -388,8 +388,8 @@ public class TabSettingsFragment extends RenameSharePreferenceFragmentCompat {
     }
 
     private void initGestureConfig() {
-        boolean isChecked = Settings.SETTINGS_GESTURE.queryValue();
-        gestureSwitch.setChecked(isChecked);
+//        boolean isChecked = Settings.SETTINGS_GESTURE.queryValue();
+//        gestureSwitch.setChecked(isChecked);
 //        Settings.USER_GESTURE_LOCK_SWITCH.putValue(isChecked);
     }
 
@@ -411,26 +411,26 @@ public class TabSettingsFragment extends RenameSharePreferenceFragmentCompat {
             }
         });
 
-        Settings.USER_GESTURE_LOCK_SWITCH.observe(getViewLifecycleOwner(), new Observer<Boolean>() {
-            @Override
-            public void onChanged(Boolean aBoolean) {
-
-                if (aBoolean) {
-                    // inverse checked status
-                    Intent newIntent = new Intent(getActivity(), CreateGesturePasswordActivity.class);
-                    newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    gestureLauncher.launch(newIntent);
-
-                } else {
-                    LockPatternUtils mLockPatternUtils = new LockPatternUtils(getActivity());
-                    mLockPatternUtils.clearLock();
-
-                    Settings.SETTINGS_GESTURE_LOCK_TIMESTAMP.putValue(0L);
-                }
-
-                Settings.SETTINGS_GESTURE.putValue(aBoolean);
-            }
-        });
+//        Settings.USER_GESTURE_LOCK_SWITCH.observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+//            @Override
+//            public void onChanged(Boolean aBoolean) {
+//
+//                if (aBoolean) {
+//                    // inverse checked status
+//                    Intent newIntent = new Intent(getActivity(), CreateGesturePasswordActivity.class);
+//                    newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//                    gestureLauncher.launch(newIntent);
+//
+//                } else {
+//                    LockPatternUtils mLockPatternUtils = new LockPatternUtils(getActivity());
+//                    mLockPatternUtils.clearLock();
+//
+//                    Settings.SETTINGS_GESTURE_LOCK_TIMESTAMP.putValue(0L);
+//                }
+//
+//                Settings.SETTINGS_GESTURE.putValue(aBoolean);
+//            }
+//        });
 
         //////////////////
         /// album backup
@@ -880,14 +880,14 @@ public class TabSettingsFragment extends RenameSharePreferenceFragmentCompat {
         }
     });
 
-    private final ActivityResultLauncher<Intent> gestureLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
-        @Override
-        public void onActivityResult(ActivityResult o) {
-            if (o.getResultCode() != RESULT_OK) {
-                gestureSwitch.setChecked(false);
-            }
-        }
-    });
+//    private final ActivityResultLauncher<Intent> gestureLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+//        @Override
+//        public void onActivityResult(ActivityResult o) {
+//            if (o.getResultCode() != RESULT_OK) {
+//                gestureSwitch.setChecked(false);
+//            }
+//        }
+//    });
 
     private final ActivityResultLauncher<String[]> multiplePermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), new ActivityResultCallback<Map<String, Boolean>>() {
         @Override

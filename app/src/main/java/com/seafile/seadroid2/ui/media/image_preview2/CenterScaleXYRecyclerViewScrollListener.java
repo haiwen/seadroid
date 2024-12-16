@@ -102,9 +102,9 @@ public class CenterScaleXYRecyclerViewScrollListener extends RecyclerView.OnScro
             float scale = maxScale - (distanceFromCenter / maxDistance) * (maxScale - minScale);
             scale = Math.max(minScale, scale); // 确保不小于最小缩放比例
 
-            if (i == firstVisiblePosition) {
-                SLogs.d("firstVisiblePosition: " + firstVisiblePosition + ", itemWidth: " + itemWidth + ", left: " + left + ", viewCenterX: " + viewCenterX + ", centerX: " + centerX + ", distanceFromCenter: " + distanceFromCenter + ", scale: " + scale);
-            }
+//            if (i == firstVisiblePosition) {
+//                SLogs.d("firstVisiblePosition: " + firstVisiblePosition + ", itemWidth: " + itemWidth + ", left: " + left + ", viewCenterX: " + viewCenterX + ", centerX: " + centerX + ", distanceFromCenter: " + distanceFromCenter + ", scale: " + scale);
+//            }
 
             float alpha = 1.0f - (distanceFromCenter / maxDistance) * 0.8f; // 透明度范围 1.0 到 0.6
             alpha = Math.max(0.8f, alpha);

@@ -23,7 +23,8 @@ class LinearEdgeDecoration(
         val position = layoutParams.viewAdapterPosition
         val itemCount = layoutManager.itemCount
 
-        if (position == RecyclerView.NO_POSITION || itemCount == 0
+        if (position == RecyclerView.NO_POSITION
+            || itemCount == 0
             || (position > 0 && position < itemCount - 1)
         ) {
             return

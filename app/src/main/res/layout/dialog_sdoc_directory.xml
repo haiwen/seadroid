@@ -19,6 +19,6 @@
             style="@style/Widget.FastRecyclerView.Style"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            tools:listitem="@layout/item_sdoc_directory" />
+            tools:listitem="@layout/item_sdoc_outline" />
     </androidx.core.widget.NestedScrollView>
 </LinearLayout>

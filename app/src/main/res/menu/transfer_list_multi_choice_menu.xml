@@ -10,7 +10,7 @@
 
     <item
         android:id="@+id/action_mode_delete"
-        android:icon="@drawable/baseline_transfer_delete_24"
+        android:icon="@drawable/baseline_delete_24"
         android:title="@string/file_action_delete"
         app:showAsAction="ifRoom" />
 
