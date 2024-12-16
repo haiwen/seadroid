@@ -132,6 +132,14 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setTitle(null);
+
+            toolbar.setNavigationOnClickListener(v -> {
+                if (isDataOperated) {
+                    setResult(RESULT_OK);
+                }
+                finish();
+            });
+
         }
 
         getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
