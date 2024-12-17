@@ -1,7 +1,6 @@
 package com.seafile.seadroid2.ui.repo;
 
 import android.content.Context;
-import android.content.res.ColorStateList;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -44,8 +43,13 @@ import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.util.GlideApp;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.ui.base.adapter.BaseMultiAdapter;
+import com.seafile.seadroid2.ui.repo.vh.AccountViewHolder;
+import com.seafile.seadroid2.ui.repo.vh.DirentGalleryViewHolder;
+import com.seafile.seadroid2.ui.repo.vh.DirentGridViewHolder;
+import com.seafile.seadroid2.ui.repo.vh.DirentViewHolder;
+import com.seafile.seadroid2.ui.repo.vh.RepoViewHolder;
+import com.seafile.seadroid2.ui.repo.vh.UnsupportedViewHolder;
 import com.seafile.seadroid2.ui.viewholder.GroupItemViewHolder;
-import com.seafile.seadroid2.widget.AnimatedStateListDrawableCompatUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;

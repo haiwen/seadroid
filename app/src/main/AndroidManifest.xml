@@ -212,6 +212,7 @@
         <activity android:name=".ui.sdoc.SDocWebViewActivity" />
         <activity android:name=".ui.docs_comment.DocsCommentsActivity" />
         <activity android:name=".ui.media.image_preview2.CarouselImagePreviewActivity" />
+        <activity android:name=".ui.media.image_preview2.OnlyImagePreviewActivity" />
 
         <provider
             android:name=".provider.SeafileProvider"

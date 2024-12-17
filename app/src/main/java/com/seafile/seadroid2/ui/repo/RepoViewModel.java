@@ -308,7 +308,6 @@ public class RepoViewModel extends BaseViewModel {
         return _menuItemListLiveData;
     }
 
-
     public void getRepoModelAndPermissionEntity(String repoId, boolean isForce, Consumer<RepoPermissionWrapper> consumer) {
         Single<Pair<RepoModel, List<PermissionEntity>>> r = getRepoModelAndAllPermissionSingle(repoId, isForce);
         addSingleDisposable(r, new Consumer<Pair<RepoModel, List<PermissionEntity>>>() {

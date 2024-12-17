@@ -46,7 +46,6 @@ public abstract class BaseNotification {
             hasPermission = i == android.content.pm.PackageManager.PERMISSION_GRANTED;
         }
 
-
         init();
     }
 

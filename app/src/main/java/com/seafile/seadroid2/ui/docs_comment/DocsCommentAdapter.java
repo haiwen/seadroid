@@ -29,6 +29,7 @@ import com.seafile.seadroid2.framework.data.model.docs_comment.DocsCommentModel;
 import com.seafile.seadroid2.framework.util.GlideApp;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.ui.base.adapter.BaseAdapter;
+import com.seafile.seadroid2.ui.media.image_preview2.OnlyImagePreviewActivity;
 import com.seafile.seadroid2.view.rich_edittext.RichEditText;
 import com.seafile.seadroid2.widget.SimpleMarkdownParser;
 import com.yydcdut.markdown.MarkdownConfiguration;
@@ -37,6 +38,7 @@ import com.yydcdut.markdown.MarkdownTextView;
 import com.yydcdut.markdown.loader.DefaultLoader;
 import com.yydcdut.markdown.syntax.text.TextFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -130,11 +132,9 @@ public class DocsCommentAdapter extends BaseAdapter<DocsCommentModel, DocsCommen
         fileBinding.uploadImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                List<String> ll = commentList.stream().filter(f -> f.type == 1).map(m -> m.content).collect(Collectors.toList());
-//                MediaPlayerModel model = new MediaPlayerModel();
-//                model.index = position;
-//                model.urls = ll;
-//                MediaPlayerActivity.startThis(getContext(), model);
+
+                OnlyImagePreviewActivity.startThis(getContext(), url);
+
             }
         });
 

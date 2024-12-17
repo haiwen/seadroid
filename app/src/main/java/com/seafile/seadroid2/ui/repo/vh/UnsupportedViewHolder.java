@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.ui.repo;
+package com.seafile.seadroid2.ui.repo.vh;
 
 import androidx.annotation.NonNull;
 

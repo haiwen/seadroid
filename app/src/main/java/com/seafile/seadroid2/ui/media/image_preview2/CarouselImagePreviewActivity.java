@@ -68,6 +68,13 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
     private String repoId, repoName, parentDir, name;
     private boolean load_other_images_in_same_directory = false;
 
+//    public static Intent startThisFromDocsComment(Context context, String url) {
+//        Intent intent = new Intent(context, CarouselImagePreviewActivity.class);
+//        intent.putExtra("image_url", url);//Load other images in the same folder
+//        intent.putExtra("load_other_images_in_same_directory", false);//Load other images in the same folder
+//        return intent;
+//    }
+
     public static Intent startThisFromObjs(Context context, DirentModel direntModel) {
         Intent intent = new Intent(context, CarouselImagePreviewActivity.class);
         intent.putExtra("repo_id", direntModel.repo_id);
@@ -139,7 +146,6 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
                 }
                 finish();
             });
-
         }
 
         getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
@@ -154,6 +160,7 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
 
         initParams();
         initView();
+
 
         initAdapter();
         initCarouselAdapter();
@@ -175,9 +182,11 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
             throw new RuntimeException("repoId is empty");
         }
 
+
         repoName = intent.getStringExtra("repo_name");
         parentDir = intent.getStringExtra("parent_dir");
         name = intent.getStringExtra("name");
+
         load_other_images_in_same_directory = intent.getBooleanExtra("load_other_images_in_same_directory", false);
     }
 

@@ -2,6 +2,7 @@ package com.seafile.seadroid2.ui.media.image_preview;
 
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,6 +38,7 @@ public class PhotoFragment extends BaseFragment {
     private Account account;
 
     private String repoId, repoName, fullPath;
+    private String imageUrl;
 
     private OnPhotoTapListener onPhotoTapListener;
     private FragmentPhotoViewBinding binding;
@@ -44,6 +46,14 @@ public class PhotoFragment extends BaseFragment {
 
     public void setOnPhotoTapListener(OnPhotoTapListener onPhotoTapListener) {
         this.onPhotoTapListener = onPhotoTapListener;
+    }
+
+    public static PhotoFragment newInstance(String url) {
+        Bundle args = new Bundle();
+        args.putString("image_url", url);
+        PhotoFragment fragment = new PhotoFragment();
+        fragment.setArguments(args);
+        return fragment;
     }
 
     public static PhotoFragment newInstance(String repoId, String repoName, String fullPath) {
@@ -80,13 +90,14 @@ public class PhotoFragment extends BaseFragment {
             return;
         }
 
-        if (!args.containsKey("repoId")) {
-            throw new IllegalStateException("repoId is null");
-        }
-
         repoId = args.getString("repoId");
         repoName = args.getString("repoName");
         fullPath = args.getString("fullPath");
+        imageUrl = args.getString("image_url");
+
+        if (TextUtils.isEmpty(repoId) && TextUtils.isEmpty(imageUrl)) {
+            throw new IllegalStateException("the args is invalid");
+        }
     }
 
     @Nullable
@@ -113,49 +124,14 @@ public class PhotoFragment extends BaseFragment {
             }
         });
 
-        ProgressBar progressBar = view.findViewById(R.id.progress_bar);
-
-        File file = DataManager.getLocalRepoFile(account, repoId, repoName, fullPath);
-        if (file.exists()) {
-            progressBar.setVisibility(View.GONE);
-
-            GlideApp.with(requireContext())
-                    .load(file)
-                    .into(binding.photoView);
-            return;
-        }
-
-        String url = getUrl();
-        if (url == null) {
-            binding.photoView.setImageResource(R.drawable.icon_image_error_filled);
-            return;
-        }
-
-        RequestOptions opt = new RequestOptions()
-                .skipMemoryCache(true)
-                .error(R.drawable.icon_image_error_filled)
-                .diskCacheStrategy(DiskCacheStrategy.NONE);
-        GlideApp.with(requireContext())
-                .load(url)
-                .apply(opt)
-                .fitCenter()
-                .listener(new RequestListener<Drawable>() {
-                    @Override
-                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-                        binding.progressBar.setVisibility(View.GONE);
-                        return false;
-                    }
-
-                    @Override
-                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                        binding.progressBar.setVisibility(View.GONE);
-                        return false;
-                    }
-                })
-                .into(binding.photoView);
+        loadImage();
     }
 
     private void loadImage() {
+        if (!TextUtils.isEmpty(imageUrl)) {
+            glideLoad(imageUrl);
+            return;
+        }
 
         File file = DataManager.getLocalRepoFile(account, repoId, repoName, fullPath);
         if (file.exists()) {
@@ -173,6 +149,10 @@ public class PhotoFragment extends BaseFragment {
             return;
         }
 
+        glideLoad(url);
+    }
+
+    private void glideLoad(String url) {
         RequestOptions opt = new RequestOptions()
                 .skipMemoryCache(true)
                 .error(R.drawable.icon_image_error_filled)
