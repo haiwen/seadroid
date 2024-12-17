@@ -118,17 +118,6 @@ public class DocsCommentAdapter extends BaseAdapter<DocsCommentModel, DocsCommen
 
     public void appendImageToFlex(FlexboxLayout parent, List<RichEditText.RichContentModel> commentList, String url, int position) {
         LayoutImageBinding fileBinding = LayoutImageBinding.inflate(LayoutInflater.from(getContext()));
-        fileBinding.uploadImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
-
-        FlexboxLayout.LayoutParams f = new FlexboxLayout.LayoutParams(IMAGE_WIDTH, IMAGE_WIDTH);
-        f.setMargins(DP_4, DP_4, DP_4, DP_4);
-        fileBinding.getRoot().setLayoutParams(f);
-
-        GlideApp.with(getContext())
-                .load(url)
-                .apply(GlideLoadConfig.getOptions())
-                .into(fileBinding.uploadImage);
-
         fileBinding.uploadImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -138,8 +127,15 @@ public class DocsCommentAdapter extends BaseAdapter<DocsCommentModel, DocsCommen
             }
         });
 
+        GlideApp.with(getContext())
+                .load(url)
+                .apply(GlideLoadConfig.getOptions())
+                .into(fileBinding.uploadImage);
 
-        parent.addView(fileBinding.getRoot());
+        FlexboxLayout.LayoutParams f = new FlexboxLayout.LayoutParams(IMAGE_WIDTH, IMAGE_WIDTH);
+        f.setMargins(DP_4, DP_4, DP_4, DP_4);
+
+        parent.addView(fileBinding.getRoot(),f);
     }
 
 
