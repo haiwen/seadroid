@@ -82,7 +82,6 @@ public class SDocOutlineRemoteDialog extends BottomSheetDialogFragment {
             @Override
             public void onClick(@NonNull BaseQuickAdapter<OutlineItemModel, ?> baseQuickAdapter, @NonNull View view, int i) {
                 OutlineItemModel outlineItemModel = adapter.getItems().get(i);
-                ToastUtils.showLong(outlineItemModel.text);
                 dismiss();
             }
         });
