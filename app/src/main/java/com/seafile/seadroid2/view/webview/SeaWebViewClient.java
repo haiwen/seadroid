@@ -102,19 +102,6 @@ public class SeaWebViewClient extends BridgeWebViewClient {
         }
 
         return Token2SessionConverts.buildUrl(url);
-
-//        // Optimise the code here:
-//        // The expiry time of each cookie field is not consistent,
-//        // and it is possible to be redirected to the login page when opening the link
-//        String cookieStr = SupportCookieManager.getCookie(url);
-//        String u = url;
-//        if (TextUtils.isEmpty(cookieStr)) {
-//            u = Token2SessionConverts.buildUrl(url);
-//            Log.d(getClass().getSimpleName(), "link redirect to -> " + u);
-//        } else {
-//            Log.d(getClass().getSimpleName(), "link to -> " + u);
-//        }
-//        return u;
     }
 
 }
