@@ -66,29 +66,7 @@ public class SDocOutlineRemoteDialog extends BottomSheetDialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(requireContext());
-//        bottomSheetDialog.setContentView(binding.getRoot());
-//
-//        View bottomSheetInternal = bottomSheetDialog.findViewById(R.id.design_bottom_sheet);
-////        BottomSheetBehavior.from(bottomSheetInternal).setPeekHeight(800);
-//
-//        View bottomSheetContent = bottomSheetInternal.findViewById(R.id.bottom_drawer_2);
-//        ViewUtils.doOnApplyWindowInsets(bottomSheetContent, new ViewUtils.OnApplyWindowInsetsListener() {
-//            @Override
-//            public WindowInsetsCompat onApplyWindowInsets(View view, WindowInsetsCompat insets, ViewUtils.RelativePadding initialPadding) {
-//                // Add the inset in the inner NestedScrollView instead to make the edge-to-edge behavior
-//                // consistent - i.e., the extra padding will only show at the bottom of all content, i.e.,
-//                // only when you can no longer scroll down to show more content.
-//                ViewCompat.setPaddingRelative(bottomSheetContent,
-//                        initialPadding.start,
-//                        initialPadding.top,
-//                        initialPadding.end,
-//                        initialPadding.bottom + insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom);
-//                return insets;
-//            }
-//        });
-
-        return bottomSheetDialog;
+        return new BottomSheetDialog(requireContext());
     }
 
     @Override

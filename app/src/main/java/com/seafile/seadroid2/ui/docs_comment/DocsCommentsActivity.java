@@ -283,15 +283,11 @@ public class DocsCommentsActivity extends BaseMediaSelectorActivity<DocsCommentV
         binding.richEditText.insertImage(o);
 
         ContentResolver contentResolver = getContentResolver();
-// https://dev.seafile.com/seafhttp/repos/bc1db6db-afa8-4e85-8479-6eb3f50f3d1c/files/images/sdoc/e4c22460-e99d-4687-9081-1f30d156625d/image-UFB28ta7TVOskNE0uAZ_Ww.jpeg/?op=download
-// https://dev.seafile.com/seahub/lib/bc1db6db-afa8-4e85-8479-6eb3f50f3d1c/file/images/sdoc/e4c22460-e99d-4687-9081-1f30d156625d/image-UFB28ta7TVOskNE0uAZ_Ww.jpeg
-// https://dev.seafile.com/seafhttp/files/73372487-3bb8-4f1d-925e-6e21bb72305c/image-UFB28ta7TVOskNE0uAZ_Ww.jpeg
-// https://dev.seafile.com/seafhttp/files/b1d6e2d7-8b28-4a8e-af93-f3ca70bf51ea/image-UFB28ta7TVOskNE0uAZ_Ww.jpeg
-// https://dev.seafile.com/seahub/api/v2.1/seadoc/download-image/e4c22460-e99d-4687-9081-1f30d156625d/image-UFB28ta7TVOskNE0uAZ_Ww.jpeg
+
         //upload file
         getViewModel().uploadFile(contentResolver, o, pageOptionsModel.docUuid, pageOptionsModel.seadocAccessToken, new Consumer<String>() {
             @Override
-            public void accept(String absUrl) throws Exception {
+            public void accept(String absUrl) {
                 binding.richEditText.updateUploadState(o.toString(), absUrl);
             }
         }, new Consumer<String>() {
@@ -325,6 +321,7 @@ public class DocsCommentsActivity extends BaseMediaSelectorActivity<DocsCommentV
             return;
         }
 
+        // 0 is root comment
         getViewModel().postComment(pageOptionsModel, sb.toString(), "0");
     }
 }

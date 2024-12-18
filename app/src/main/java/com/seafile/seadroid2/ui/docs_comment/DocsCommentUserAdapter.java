@@ -11,10 +11,12 @@ import androidx.annotation.Nullable;
 
 import com.bumptech.glide.Glide;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.annotation.Todo;
 import com.seafile.seadroid2.databinding.ItemUserAvatarBinding;
 import com.seafile.seadroid2.framework.data.model.user.UserModel;
 import com.seafile.seadroid2.ui.base.adapter.BaseAdapter;
 
+@Todo
 public class DocsCommentUserAdapter extends BaseAdapter<UserModel, DocsCommentUserViewHolder> {
     @Override
     protected void onBindViewHolder(@NonNull DocsCommentUserViewHolder holder, int i, @Nullable UserModel model) {

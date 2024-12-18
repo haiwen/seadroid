@@ -354,7 +354,6 @@ public class DocsCommentViewModel extends BaseViewModel {
             models.add(m);
         }
 
-//![](https://dev.seafile.com/seahub/api/v2.1/seadoc/download-image/e4c22460-e99d-4687-9081-1f30d156625d/image-eEy2ClPsSV6nlef3v1FW-g.jpg)
         String sss = org.apache.commons.lang3.StringUtils.substring(s, start + 4, end);
         String content = sss.trim();// URLEncoder.encode(,"utf-8");
         if (!TextUtils.isEmpty(content) && !TextUtils.equals("null", content.toLowerCase(Locale.getDefault()))) {
@@ -439,7 +438,6 @@ public class DocsCommentViewModel extends BaseViewModel {
     }
 
 
-    //{"relative_path":["/image-UFB28ta7TVOskNE0uAZ_Ww.jpeg"]}
     public void uploadFile(ContentResolver contentResolver, Uri uri, String docUid, String token, Consumer<String> consumer, Consumer<String> errorCallBack) {
         String fileName = ContentResolvers.getFileNameFromUri(contentResolver, uri);
 
@@ -462,8 +460,6 @@ public class DocsCommentViewModel extends BaseViewModel {
                     String sName = resultModel.relative_path.get(0);
                     String sUrl = HttpIO.getCurrentInstance().getServerUrl();
                     String absUrl = Utils.pathJoin(sUrl, "api", "v2.1", "seadoc", "download-image", docUid, sName);
-
-                    //https://dev.seafile.com/seahub/api/v2.1/seadoc/download-image/e4c22460-e99d-4687-9081-1f30d156625d/+::
 
                     consumer.accept(absUrl);
                 }

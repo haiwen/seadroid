@@ -93,7 +93,6 @@ public class DocsCommentAdapter extends BaseAdapter<DocsCommentModel, DocsCommen
     }
 
 
-    //![](https://dev.seafile.com/e-Hek4ng6iRbCw7h-bXsc6jA.png)\n是是是\n
     private void addViews(DocsCommentViewHolder holder, DocsCommentModel model) {
         int index = 0;
         for (RichEditText.RichContentModel commentModel : model.commentList) {
