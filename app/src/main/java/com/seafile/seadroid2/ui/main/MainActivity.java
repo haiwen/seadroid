@@ -57,6 +57,7 @@ import com.seafile.seadroid2.framework.data.model.BaseModel;
 import com.seafile.seadroid2.framework.data.model.dirents.DirentFileModel;
 import com.seafile.seadroid2.framework.file_monitor.FileSyncService;
 import com.seafile.seadroid2.framework.helper.NightModeHelper;
+import com.seafile.seadroid2.framework.util.GlideApp;
 import com.seafile.seadroid2.framework.util.PermissionUtil;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.TakeCameras;
@@ -505,7 +506,7 @@ public class MainActivity extends BaseActivity {
     private void bindService() {
         Intent syncIntent = new Intent(this, FileSyncService.class);
         bindService(syncIntent, syncConnection, Context.BIND_AUTO_CREATE);
-        startService(syncIntent);
+//        startService(syncIntent); //It doesn't need to run in the background
     }
 
     private final ServiceConnection syncConnection = new ServiceConnection() {
@@ -1208,7 +1209,7 @@ public class MainActivity extends BaseActivity {
 
             mainViewModel.checkLocalDirent(curAccount, this, repoModel, parent_dir, uriList, new Consumer<List<Uri>>() {
                 @Override
-                public void accept(List<Uri> newUris) throws Exception {
+                public void accept(List<Uri> newUris) {
 
                     dismissProgressDialog();
 

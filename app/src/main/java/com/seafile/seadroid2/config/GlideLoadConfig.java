@@ -1,5 +1,8 @@
 package com.seafile.seadroid2.config;
 
+import androidx.annotation.DrawableRes;
+
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.model.GlideUrl;
 import com.bumptech.glide.load.model.LazyHeaders;
 import com.bumptech.glide.request.RequestOptions;
@@ -38,10 +41,31 @@ public class GlideLoadConfig {
                 .override(WidgetUtils.getThumbnailWidth(), WidgetUtils.getThumbnailWidth());
     }
 
+    private final static RequestOptions _cacheableThumbnailOptions = new RequestOptions()
+            .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
+            .error(R.drawable.icon_image_error_filled)
+            .override(128);
+
+    /**
+     * Get cacheable thumbnail options, width and height are both 128
+     */
+    public static RequestOptions getCacheableThumbnailOptions() {
+        return _cacheableThumbnailOptions;
+    }
+
     public static RequestOptions getOptions() {
         return new RequestOptions()
+                .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
                 .fallback(R.drawable.file_image)
                 .placeholder(R.drawable.file_image);
+    }
+
+
+    public static RequestOptions getCustomDrawableOptions(@DrawableRes int resId) {
+        return new RequestOptions()
+                .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
+                .fallback(resId)
+                .placeholder(resId);
     }
 
     public static RequestOptions getOptions(String key) {

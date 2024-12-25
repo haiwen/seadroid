@@ -41,11 +41,16 @@ public class TransferEvent {
     /**
      * because of an OUT_OF_QUOTA error, the current upload worker was canceled
      */
-    public static final String EVENT_CANCEL_OUT_OF_QUOTA = "transfer_cancel_with_out_of_quota";
+    public static final String EVENT_CANCEL_WITH_OUT_OF_QUOTA = "transfer_cancel_with_out_of_quota";
 
     /**
      * because of an NETWORK error, the current upload worker was canceled
      */
     public static final String EVENT_CANCEL_WITH_NETWORK_ERR = "transfer_cancel_with_network_err";
+
+    /**
+     * Manual or passive cancellation
+     */
+    public static final String EVENT_CANCEL_WITH_BY_STOPPED = "transfer_cancel_with_stopped";
 
 }

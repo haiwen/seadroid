@@ -8,6 +8,7 @@ import com.seafile.seadroid2.BuildConfig;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 
 import java.util.List;
 
@@ -122,6 +123,8 @@ public class CameraUploadManager {
             ContentResolver.cancelSync(account.getAndroidAccount(), AUTHORITY);
             ContentResolver.setIsSyncable(account.getAndroidAccount(), AUTHORITY, 0);
         }
+
+        BackgroundJobManagerImpl.getInstance().cancelAllMediaWorker();
     }
 
     /**

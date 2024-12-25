@@ -101,7 +101,7 @@ public class UploadListFragment extends TransferListFragment {
         Data progressData = workInfo.getProgress();
         String progressEvent = progressData.getString(TransferWorker.KEY_DATA_EVENT);
 
-        if (TransferEvent.EVENT_CANCEL_OUT_OF_QUOTA.equals(progressEvent)) {
+        if (TransferEvent.EVENT_CANCEL_WITH_OUT_OF_QUOTA.equals(progressEvent)) {
             refreshData();
         } else if (TransferEvent.EVENT_TRANSFERRING.equals(progressEvent)) {
 
@@ -112,7 +112,6 @@ public class UploadListFragment extends TransferListFragment {
             long totalSize = progressData.getLong(TransferWorker.KEY_DATA_TOTAL_SIZE, 0);
 
             SLogs.d("upload: " + fileName + ", percent：" + percent + ", total_size：" + totalSize + ", dataSource: " + dataSource);
-
 
             if (TextUtils.equals(transferId, lastTransferId)) {
                 notifyProgressById(transferId, transferredSize, percent, progressEvent);

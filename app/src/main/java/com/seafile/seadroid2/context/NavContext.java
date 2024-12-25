@@ -5,7 +5,9 @@ import android.text.TextUtils;
 import com.seafile.seadroid2.framework.data.model.BaseModel;
 import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
+import com.seafile.seadroid2.framework.data.model.ContextModel;
 import com.seafile.seadroid2.framework.util.Utils;
+import com.seafile.seadroid2.preferences.ContextStackPreferenceHelper;
 
 import java.util.Stack;
 
@@ -32,6 +34,9 @@ public class NavContext {
         }
     }
 
+    /**
+     * Push a model to the stack
+     */
     public void push(BaseModel model) {
         if (model instanceof RepoModel) {
             //clear
@@ -39,12 +44,68 @@ public class NavContext {
 
             //push
             navStack.push(model);
+
+            saveToSp();
+
         } else if (model instanceof DirentModel) {
             //stack
             navStack.push(model);
+            saveToSp();
+
         } else {
             throw new IllegalArgumentException("model must be RepoMode or DirentsModel.");
         }
+    }
+
+    public void restoreNavContextFromSp() {
+
+        navStack.clear();
+
+        Stack<ContextModel> stack = ContextStackPreferenceHelper.getStack();
+        if (stack != null && !stack.isEmpty()) {
+            for (ContextModel contextModel : stack) {
+                if (contextModel.type.equals("repo")) {
+                    RepoModel repoModel = new RepoModel();
+                    repoModel.repo_id = contextModel.repo_id;
+                    repoModel.repo_name = contextModel.repo_name;
+                    navStack.push(repoModel);
+                } else if (contextModel.type.equals("dirent")) {
+                    DirentModel direntModel = new DirentModel();
+                    direntModel.repo_id = contextModel.repo_id;
+                    direntModel.repo_name = contextModel.repo_name;
+                    direntModel.full_path = contextModel.full_path;
+                    direntModel.parent_dir = Utils.getParentPath(direntModel.full_path);
+                    direntModel.name = Utils.getFileNameFromPath(contextModel.full_path);
+                    direntModel.uid = direntModel.getUID();
+                    navStack.push(direntModel);
+                }
+            }
+        }
+
+    }
+
+    private void saveToSp() {
+        Stack<ContextModel> stack = new Stack<>();
+        if (!navStack.isEmpty()) {
+            for (BaseModel baseModel : navStack) {
+                ContextModel contextModel = new ContextModel();
+
+                if (baseModel instanceof RepoModel e) {
+                    contextModel.repo_id = e.repo_id;
+                    contextModel.repo_name = e.repo_name;
+                    contextModel.type = "repo";
+                    contextModel.full_path = "/";
+                } else if (baseModel instanceof DirentModel e) {
+                    contextModel.repo_id = e.repo_id;
+                    contextModel.repo_name = e.repo_name;
+                    contextModel.type = "dirent";
+                    contextModel.full_path = e.full_path;
+                }
+                stack.add(contextModel);
+            }
+        }
+
+        ContextStackPreferenceHelper.saveStack(stack);
     }
 
     public void pop() {
@@ -54,6 +115,9 @@ public class NavContext {
 
         //stack
         navStack.pop();
+
+        saveToSp();
+
     }
 
     public void switchToPath(RepoModel repoModel, String full_path) {
@@ -87,6 +151,8 @@ public class NavContext {
         for (DirentModel model : stack) {
             navStack.push(model);
         }
+
+        saveToSp();
     }
 
     /**

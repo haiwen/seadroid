@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.ui.media.image_preview2;
+package com.seafile.seadroid2.view.snap_recyclerview;
 
 import android.util.DisplayMetrics;
 import android.view.Gravity;
@@ -215,8 +215,8 @@ public class GravitySnapHelper extends LinearSnapHelper {
                     // The associated RecyclerView has been removed so there is no action to take.
                     return;
                 }
-                int[] snapDistances = calculateDistanceToFinalSnap(recyclerView.getLayoutManager(),
-                        targetView);
+
+                int[] snapDistances = calculateDistanceToFinalSnap(recyclerView.getLayoutManager(), targetView);
                 final int dx = snapDistances[0];
                 final int dy = snapDistances[1];
                 final int time = calculateTimeForDeceleration(Math.max(Math.abs(dx), Math.abs(dy)));
@@ -468,18 +468,19 @@ public class GravitySnapHelper extends LinearSnapHelper {
     private boolean scrollTo(int position, boolean smooth) {
         if (recyclerView.getLayoutManager() != null) {
             if (smooth) {
-                RecyclerView.SmoothScroller smoothScroller
-                        = createScroller(recyclerView.getLayoutManager());
+                RecyclerView.SmoothScroller smoothScroller = createScroller(recyclerView.getLayoutManager());
                 if (smoothScroller != null) {
                     smoothScroller.setTargetPosition(position);
                     recyclerView.getLayoutManager().startSmoothScroll(smoothScroller);
                     return true;
                 }
             } else {
-                RecyclerView.ViewHolder viewHolder
-                        = recyclerView.findViewHolderForAdapterPosition(position);
+//                recyclerView.getLayoutManager().scrollToPosition(position);
+//                return true;
+                RecyclerView.ViewHolder viewHolder = recyclerView.findViewHolderForAdapterPosition(position);
                 if (viewHolder != null) {
-                    int[] distances = calculateDistanceToFinalSnap(recyclerView.getLayoutManager(),
+                    int[] distances = calculateDistanceToFinalSnap(
+                            recyclerView.getLayoutManager(),
                             viewHolder.itemView);
                     recyclerView.scrollBy(distances[0], distances[1]);
                     return true;

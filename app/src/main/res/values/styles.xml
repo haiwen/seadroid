@@ -201,6 +201,10 @@
         <item name="cornerSize">4dp</item>
     </style>
 
+    <style name="ShapeCorner2Style">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">2dp</item>
+    </style>
     <!-- BottomSheet DayNight -->
     <style name="ThemeOverlay.Catalog.BottomSheetDialog.Scrollable" parent="Theme.Material3.DayNight.BottomSheetDialog">
         <item name="bottomSheetStyle">@style/Widget.Catalog.BottomSheet.Modal.Scrollable</item>

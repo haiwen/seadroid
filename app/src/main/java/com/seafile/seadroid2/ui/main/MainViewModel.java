@@ -28,6 +28,7 @@ import com.seafile.seadroid2.framework.data.model.permission.PermissionWrapperMo
 import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.ExistingFileStrategy;
+import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
 import com.seafile.seadroid2.context.NavContext;
 import com.seafile.seadroid2.framework.data.ServerInfo;

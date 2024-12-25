@@ -176,14 +176,6 @@ public abstract class TransferListFragment extends BaseFragment {
 
         builder.removeMenu(R.id.upload);
         builder.removeMenu(R.id.download);
-        builder.removeMenu(R.id.pause);
-
-        //not supported yet
-//        if (getTransferAction() == TransferAction.DOWNLOAD) {
-//            builder.removeMenu(R.id.upload);
-//        } else if (getTransferAction() == TransferAction.UPLOAD) {
-//            builder.removeMenu(R.id.download);
-//        }
 
         builder.show(getChildFragmentManager());
     }

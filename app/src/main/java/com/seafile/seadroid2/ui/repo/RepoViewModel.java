@@ -240,6 +240,7 @@ public class RepoViewModel extends BaseViewModel {
     private void loadDirentsFromRemote(Account account, NavContext context) {
         if (!NetworkUtils.isConnected()) {
             getRefreshLiveData().setValue(false);
+            getSeafExceptionLiveData().setValue(SeafException.networkException);
             return;
         }
 

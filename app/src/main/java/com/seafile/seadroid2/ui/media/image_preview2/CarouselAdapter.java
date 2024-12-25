@@ -31,18 +31,24 @@ import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.blankj.utilcode.util.EncodeUtils;
+import com.blankj.utilcode.util.EncryptUtils;
 import com.blankj.utilcode.util.ScreenUtils;
 import com.blankj.utilcode.util.SizeUtils;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.signature.ObjectKey;
 import com.google.common.base.Strings;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
+import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.util.GlideApp;
+import com.seafile.seadroid2.framework.util.ThumbnailUtils;
 
 public class CarouselAdapter extends ListAdapter<DirentModel, CarouselAdapter.CarouselItemViewHolder> {
+
+    boolean isLogin = SupportAccountManager.getInstance().isLogin();
 
     private static final DiffUtil.ItemCallback<DirentModel> DIFF_CALLBACK =
             new DiffUtil.ItemCallback<>() {
@@ -129,40 +135,49 @@ public class CarouselAdapter extends ListAdapter<DirentModel, CarouselAdapter.Ca
         holder.imageView.setVisibility(View.VISIBLE);
         holder.itemView.getLayoutParams().width = itemWidth;
 
-        String url = getUrl(model.repo_id, model.full_path);
-        if (url == null) {
-            holder.imageView.setImageResource(R.drawable.icon_image_error_filled);
+
+        String thumbnailUrl = convertThumbnailUrl(model.repo_id, model.full_path);
+        if (TextUtils.isEmpty(thumbnailUrl)) {
+            holder.imageView.setImageResource(R.drawable.shape_solid_grey100_radius_4);
             return;
         }
-
-        RequestOptions opt = new RequestOptions()
-                .skipMemoryCache(true)
-                .error(R.drawable.icon_image_error_filled)
-                .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC);
+        String thumbKey = EncryptUtils.encryptMD5ToString(thumbnailUrl);
         GlideApp.with(holder.imageView)
-                .load(url)
+                .load(thumbnailUrl)
+                .signature(new ObjectKey(thumbKey))
                 .apply(opt)
                 .fitCenter()
                 .into(holder.imageView);
     }
 
-    private String getUrl(String repoId, String fullPath) {
-        Account account = SupportAccountManager.getInstance().getCurrentAccount();
-        if (account == null) {
+    private final RequestOptions opt = new RequestOptions()
+            .placeholder(R.drawable.shape_solid_grey100_radius_4)
+            .fallback(R.drawable.shape_solid_grey100_radius_4)
+            .error(R.drawable.icon_format_pic)
+            .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC);
+
+    private String convertThumbnailUrl(String repoId, String fullPath) {
+        String serverUrl = getServerUrl();
+        if (TextUtils.isEmpty(serverUrl)) {
             return null;
         }
 
-//        //https://dev.seafile.com/seafhttp/repos/4809a6f3-250c-4435-bdd8-b68f34c128d1/files//6f64603fd19f9ec45d05ec379e69e22.gif/?op=download
-//        //https://dev.seafile.com/seahub/repo/4809a6f3-250c-4435-bdd8-b68f34c128d1/raw/6f64603fd19f9ec45d05ec379e69e22.gif
-//        if (direntModel.name.toLowerCase().endsWith(".gif")) {
-//            return String.format(Locale.ROOT, "%srepo/%s/raw/%s", account.getServer(), direntModel.repo_id, direntModel.name);
-//        }
-
-//        return String.format("%srepo/%s/raw%s", account.getServer(), repoId, fileFullPath);
-        int size = SizeUtils.dp2px(300);
-        return String.format("%sapi2/repos/%s/thumbnail/?p=%s&size=%s", account.getServer(), repoId, EncodeUtils.urlEncode(fullPath), size);
+        return ThumbnailUtils.convertThumbnailUrl(serverUrl, repoId, fullPath);
     }
 
+    private String serverUrl;
+
+    private String getServerUrl() {
+        if (!isLogin) {
+            return null;
+        }
+
+        if (TextUtils.isEmpty(serverUrl)) {
+            serverUrl = HttpIO.getCurrentInstance().getServerUrl();
+        }
+
+        return serverUrl;
+    }
 
     public static class CarouselItemViewHolder extends RecyclerView.ViewHolder {
 

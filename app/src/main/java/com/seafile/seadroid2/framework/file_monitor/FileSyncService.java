@@ -294,6 +294,7 @@ public class FileSyncService extends Service {
     public void onDestroy() {
         super.onDestroy();
 
+        SLogs.e("file monitor service destroy");
         stopFolderMonitor();
 
         //

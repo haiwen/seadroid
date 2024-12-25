@@ -6,43 +6,47 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.MimeTypeMap;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.Observer;
 
-import com.blankj.utilcode.util.EncodeUtils;
-import com.blankj.utilcode.util.SizeUtils;
+import com.blankj.utilcode.util.EncryptUtils;
+import com.blankj.utilcode.util.FileUtils;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
+import com.bumptech.glide.load.resource.gif.GifDrawable;
 import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.Target;
+import com.bumptech.glide.signature.ObjectKey;
 import com.github.chrisbanes.photoview.OnPhotoTapListener;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.account.SupportAccountManager;
-import com.seafile.seadroid2.compat.ContextCompatKt;
+import com.seafile.seadroid2.SeafException;
+import com.seafile.seadroid2.config.OriGlideUrl;
 import com.seafile.seadroid2.databinding.FragmentPhotoViewBinding;
 import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
-import com.seafile.seadroid2.framework.datastore.DataManager;
+import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
 import com.seafile.seadroid2.framework.util.GlideApp;
-import com.seafile.seadroid2.ui.base.fragment.BaseFragment;
+import com.seafile.seadroid2.framework.util.GlideRequest;
+import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.util.ThumbnailUtils;
+import com.seafile.seadroid2.ui.base.fragment.BaseFragmentWithVM;
+import com.seafile.seadroid2.ui.media.PhotoViewModel;
 
-import java.io.File;
+import kotlin.Pair;
 
-public class PhotoFragment extends BaseFragment {
-
-    private Account account;
+public class PhotoFragment extends BaseFragmentWithVM<PhotoViewModel> {
 
     private String repoId, repoName, fullPath;
     private String imageUrl;
 
     private OnPhotoTapListener onPhotoTapListener;
     private FragmentPhotoViewBinding binding;
-
+    private String serverUrl;
 
     public void setOnPhotoTapListener(OnPhotoTapListener onPhotoTapListener) {
         this.onPhotoTapListener = onPhotoTapListener;
@@ -56,34 +60,24 @@ public class PhotoFragment extends BaseFragment {
         return fragment;
     }
 
-    public static PhotoFragment newInstance(String repoId, String repoName, String fullPath) {
-
+    public static PhotoFragment newInstance(String serverUrl, String repoId, String repoName, String fullPath) {
         Bundle args = new Bundle();
         args.putString("repoId", repoId);
         args.putString("repoName", repoName);
         args.putString("fullPath", fullPath);
-
+        args.putString("serverUrl", serverUrl);
         PhotoFragment fragment = new PhotoFragment();
         fragment.setArguments(args);
         return fragment;
     }
 
-    public static PhotoFragment newInstance(DirentModel direntModel) {
-        Bundle args = new Bundle();
-
-        args.putString("repoId", direntModel.repo_id);
-        args.putString("repoName", direntModel.repo_name);
-        args.putString("fullPath", direntModel.full_path);
-        PhotoFragment fragment = new PhotoFragment();
-        fragment.setArguments(args);
-        return fragment;
+    public static PhotoFragment newInstance(String serverUrl, DirentModel direntModel) {
+        return newInstance(serverUrl, direntModel.repo_id, direntModel.repo_name, direntModel.full_path);
     }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        account = SupportAccountManager.getInstance().getCurrentAccount();
 
         Bundle args = getArguments();
         if (args == null) {
@@ -94,6 +88,7 @@ public class PhotoFragment extends BaseFragment {
         repoName = args.getString("repoName");
         fullPath = args.getString("fullPath");
         imageUrl = args.getString("image_url");
+        serverUrl = args.getString("serverUrl");
 
         if (TextUtils.isEmpty(repoId) && TextUtils.isEmpty(imageUrl)) {
             throw new IllegalStateException("the args is invalid");
@@ -124,52 +119,83 @@ public class PhotoFragment extends BaseFragment {
             }
         });
 
-        loadImage();
-    }
+        intViewModel();
 
-    private void loadImage() {
         if (!TextUtils.isEmpty(imageUrl)) {
-            glideLoad(imageUrl);
-            return;
+            loadSingleUrl(imageUrl);
+        } else {
+            loadThumbnailAndRequestRawUrl();
         }
-
-        File file = DataManager.getLocalRepoFile(account, repoId, repoName, fullPath);
-        if (file.exists()) {
-            binding.progressBar.setVisibility(View.GONE);
-
-            GlideApp.with(requireContext())
-                    .load(file)
-                    .into(binding.photoView);
-            return;
-        }
-
-        String url = getUrl();
-        if (url == null) {
-            binding.photoView.setImageResource(R.drawable.icon_image_error_filled);
-            return;
-        }
-
-        glideLoad(url);
     }
 
-    private void glideLoad(String url) {
-        RequestOptions opt = new RequestOptions()
-                .skipMemoryCache(true)
-                .error(R.drawable.icon_image_error_filled)
-                .diskCacheStrategy(DiskCacheStrategy.NONE);
-        GlideApp.with(requireContext())
+    private void intViewModel() {
+        getViewModel().getSeafExceptionLiveData().observe(getViewLifecycleOwner(), new Observer<SeafException>() {
+            @Override
+            public void onChanged(SeafException e) {
+                binding.photoView.setImageResource(R.drawable.icon_image_error_filled);
+                binding.progressBar.setVisibility(View.GONE);
+            }
+        });
+
+        getViewModel().getCheckLocalLiveData().observe(getViewLifecycleOwner(), new Observer<Pair<DirentModel, FileTransferEntity>>() {
+            @Override
+            public void onChanged(Pair<DirentModel, FileTransferEntity> pair) {
+                DirentModel direntModel = pair.getFirst();
+
+                if (direntModel == null) {
+                    binding.photoView.setImageResource(R.drawable.icon_image_error_filled);
+                    binding.progressBar.setVisibility(View.GONE);
+                    return;
+                }
+
+                FileTransferEntity transferEntity = pair.getSecond();
+                if (transferEntity != null && FileUtils.isFileExists(transferEntity.target_path)) {
+                    //no exists local file
+                    if (isGif(fullPath)) {
+                        loadOriGifUrl(transferEntity.target_path);
+                    } else {
+                        loadOriUrl(transferEntity.target_path);
+                    }
+                } else {
+                    if (isGif(fullPath)) {
+                        getViewModel().download(direntModel);
+                    } else {
+                        getViewModel().requestOriginalUrl(direntModel);
+                    }
+                }
+            }
+        });
+
+        getViewModel().getOriginalUrlLiveData().observe(getViewLifecycleOwner(), new Observer<String>() {
+            @Override
+            public void onChanged(String oriUrl) {
+                loadOriUrl(oriUrl);
+            }
+        });
+
+        getViewModel().getDownloadedPathLiveData().observe(getViewLifecycleOwner(), new Observer<String>() {
+            @Override
+            public void onChanged(String rawPath) {
+                loadSingleUrl(rawPath);
+            }
+        });
+    }
+
+    private void loadSingleUrl(String url) {
+        GlideApp.with(this)
                 .load(url)
-                .apply(opt)
-                .fitCenter()
+                .error(R.drawable.icon_image_error_filled)
+                .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
+                .transition(DrawableTransitionOptions.withCrossFade())
                 .listener(new RequestListener<Drawable>() {
                     @Override
-                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                    public boolean onLoadFailed(@Nullable GlideException e, @Nullable Object model, @NonNull Target<Drawable> target, boolean isFirstResource) {
                         binding.progressBar.setVisibility(View.GONE);
                         return false;
                     }
 
                     @Override
-                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                    public boolean onResourceReady(@NonNull Drawable resource, @NonNull Object model, Target<Drawable> target, @NonNull DataSource dataSource, boolean isFirstResource) {
                         binding.progressBar.setVisibility(View.GONE);
                         return false;
                     }
@@ -177,20 +203,100 @@ public class PhotoFragment extends BaseFragment {
                 .into(binding.photoView);
     }
 
-    private String getUrl() {
-        Account account = SupportAccountManager.getInstance().getCurrentAccount();
-        if (account == null) {
+    private void loadThumbnailAndRequestRawUrl() {
+        getViewModel().checkLocal(repoId, fullPath);
+    }
+
+    private void loadOriUrl(String oriUrl) {
+        String thumbnailUrl = convertThumbnailUrl(fullPath);
+        String thumbKey = EncryptUtils.encryptMD5ToString(thumbnailUrl);
+        // load thumbnail first
+        GlideRequest<Drawable> thumbnailRequest = GlideApp.with(this)
+                .load(thumbnailUrl)
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .signature(new ObjectKey(thumbKey))
+                .addListener(new RequestListener<Drawable>() {
+                    @Override
+                    public boolean onLoadFailed(@Nullable GlideException e, @Nullable Object model, @NonNull Target<Drawable> target, boolean isFirstResource) {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onResourceReady(@NonNull Drawable resource, @NonNull Object model, Target<Drawable> target, @NonNull DataSource dataSource, boolean isFirstResource) {
+//                        SLogs.e("缩略图：" + dataSource.name() + ": " + isFirstResource + ": " + thumbKey + ": " + thumbnailUrl);
+                        return false;
+                    }
+                });
+
+        String oriCacheKey = EncryptUtils.encryptMD5ToString(repoId + fullPath);
+        GlideApp.with(this)
+                .load(new OriGlideUrl(oriUrl, oriCacheKey))
+                .thumbnail(thumbnailRequest)
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .error(R.drawable.icon_image_error_filled)
+                .fallback(R.drawable.icon_image_error_filled)
+                .transition(DrawableTransitionOptions.withCrossFade())
+                .listener(new RequestListener<Drawable>() {
+                    @Override
+                    public boolean onLoadFailed(@Nullable GlideException e, @Nullable Object model, @NonNull Target<Drawable> target, boolean isFirstResource) {
+                        binding.progressBar.setVisibility(View.GONE);
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onResourceReady(@NonNull Drawable resource, @NonNull Object model, Target<Drawable> target, @NonNull DataSource dataSource, boolean isFirstResource) {
+                        binding.progressBar.setVisibility(View.GONE);
+                        // 图片加载成功
+//                        SLogs.e("原图：" + dataSource.name() + ": " + isFirstResource + ": " + oriCacheKey + ": " + oriUrl);
+                        return false;
+                    }
+                })
+                .into(binding.photoView);
+    }
+
+
+    private void loadOriGifUrl(String rawUrl) {
+        GlideApp.with(this)
+                .asGif()
+                .load(rawUrl)
+                .diskCacheStrategy(DiskCacheStrategy.NONE)//
+                .error(R.drawable.icon_image_error_filled)
+                .fallback(R.drawable.icon_image_error_filled)
+                .placeholder(binding.photoView.getDrawable())
+                .listener(new RequestListener<GifDrawable>() {
+                    @Override
+                    public boolean onLoadFailed(@Nullable GlideException e, @Nullable Object model, @NonNull Target<GifDrawable> target, boolean isFirstResource) {
+                        binding.progressBar.setVisibility(View.GONE);
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onResourceReady(@NonNull GifDrawable resource, @NonNull Object model, Target<GifDrawable> target, @NonNull DataSource dataSource, boolean isFirstResource) {
+                        binding.progressBar.setVisibility(View.GONE);
+                        // 图片加载成功
+                        SLogs.e(dataSource.name() + ": " + isFirstResource + ": " + rawUrl);
+                        return false;
+                    }
+                })
+                .into(binding.photoView);
+    }
+
+    private boolean isGif(String fileName) {
+        if (TextUtils.isEmpty(fileName)) {
+            return false;
+        }
+
+        String f = MimeTypeMap.getFileExtensionFromUrl(fileName);
+        String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(f);
+        return mime != null && mime.equalsIgnoreCase("image/gif");
+    }
+
+    private String convertThumbnailUrl(String fullPath) {
+        if (TextUtils.isEmpty(serverUrl)) {
             return null;
         }
 
-//        //https://dev.seafile.com/seafhttp/repos/4809a6f3-250c-4435-bdd8-b68f34c128d1/files//6f64603fd19f9ec45d05ec379e69e22.gif/?op=download
-//        //https://dev.seafile.com/seahub/repo/4809a6f3-250c-4435-bdd8-b68f34c128d1/raw/6f64603fd19f9ec45d05ec379e69e22.gif
-//        if (direntModel.name.toLowerCase().endsWith(".gif")) {
-//            return String.format(Locale.ROOT, "%srepo/%s/raw/%s", account.getServer(), direntModel.repo_id, direntModel.name);
-//        }
-
-//        return String.format("%srepo/%s/raw%s", account.getServer(), repoId, fileFullPath);
-        int size = SizeUtils.dp2px(300);
-        return String.format("%sapi2/repos/%s/thumbnail/?p=%s&size=%s", account.getServer(), repoId, EncodeUtils.urlEncode(fullPath), size);
+        return ThumbnailUtils.convertThumbnailUrl(serverUrl, repoId, fullPath);
     }
+
 }

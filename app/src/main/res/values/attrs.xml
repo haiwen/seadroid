@@ -71,4 +71,19 @@
     <declare-styleable name="MaxHeightScrollView">
         <attr name="max_height" format="dimension" />
     </declare-styleable>
+
+    <declare-styleable name="GravitySnapRecyclerView">
+        <attr name="snapGravity" format="enum">
+            <enum name="start" value="0" />
+            <enum name="top" value="1" />
+            <enum name="end" value="2" />
+            <enum name="bottom" value="3" />
+            <enum name="center" value="4" />
+        </attr>
+        <attr name="snapEnabled" format="boolean" />
+        <attr name="snapLastItem" format="boolean" />
+        <attr name="snapToPadding" format="boolean" />
+        <attr name="snapScrollMsPerInch" format="float" />
+        <attr name="snapMaxFlingSizeFraction" format="float" />
+    </declare-styleable>
 </resources>

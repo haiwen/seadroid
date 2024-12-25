@@ -5,11 +5,9 @@ import static androidx.core.text.HtmlCompat.FROM_HTML_MODE_LEGACY;
 
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.Spanned;
 import android.text.TextUtils;
-import android.view.View;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
@@ -37,13 +35,10 @@ import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.bus.TransferBusHelper;
 import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.enums.NetworkMode;
-import com.seafile.seadroid2.enums.NightMode;
 import com.seafile.seadroid2.enums.TransferDataSource;
-import com.seafile.seadroid2.framework.data.ServerInfo;
 import com.seafile.seadroid2.framework.datastore.StorageManager;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
-import com.seafile.seadroid2.framework.helper.NightModeHelper;
 import com.seafile.seadroid2.framework.util.PermissionUtil;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
@@ -53,7 +48,6 @@ import com.seafile.seadroid2.framework.worker.upload.FolderBackupScannerWorker;
 import com.seafile.seadroid2.framework.worker.upload.MediaBackupScannerWorker;
 import com.seafile.seadroid2.framework.worker.upload.UploadFolderFileAutomaticallyWorker;
 import com.seafile.seadroid2.framework.worker.upload.UploadMediaFileAutomaticallyWorker;
-import com.seafile.seadroid2.gesturelock.LockPatternUtils;
 import com.seafile.seadroid2.preferences.RenameSharePreferenceFragmentCompat;
 import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.ui.account.AccountsActivity;
@@ -67,11 +61,9 @@ import com.seafile.seadroid2.ui.dialog_fragment.listener.OnRefreshDataListener;
 import com.seafile.seadroid2.ui.folder_backup.FolderBackupConfigActivity;
 import com.seafile.seadroid2.ui.folder_backup.FolderBackupSelectedPathActivity;
 import com.seafile.seadroid2.ui.folder_backup.RepoConfig;
-import com.seafile.seadroid2.ui.gesture.CreateGesturePasswordActivity;
 import com.seafile.seadroid2.ui.main.MainActivity;
 import com.seafile.seadroid2.ui.selector.ObjSelectorActivity;
 import com.seafile.seadroid2.ui.webview.SeaWebViewActivity;
-import com.seafile.seadroid2.widget.prefs.ButtonPreference;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -445,9 +437,10 @@ public class TabSettingsFragment extends RenameSharePreferenceFragmentCompat {
                 } else {
                     mAlbumBackupSwitch.setChecked(false);
                     AlbumBackupSharePreferenceHelper.writeRepoConfig(null);
+                    switchAlbumBackupState(false);
+                    dispatchAlbumBackupWork(false);
                 }
 
-                switchAlbumBackupState(aBoolean);
             }
         });
 
@@ -557,14 +550,18 @@ public class TabSettingsFragment extends RenameSharePreferenceFragmentCompat {
         Data outData = workInfo.getOutputData();
         String outDataEvent = outData.getString(TransferWorker.KEY_DATA_EVENT);
         String outDataType = outData.getString(TransferWorker.KEY_DATA_TYPE);
+
+        //scan end
         if (TextUtils.equals(String.valueOf(TransferDataSource.ALBUM_BACKUP), outDataType)) {
             if (TransferEvent.EVENT_SCAN_END.equals(outDataEvent)) {
-                mAlbumBackupState.setSummary(R.string.done);
+//                mAlbumBackupState.setSummary(R.string.done);
+                SLogs.e("album scan end");
                 return;
             }
         } else if (TextUtils.equals(String.valueOf(TransferDataSource.FOLDER_BACKUP), outDataType)) {
             if (TransferEvent.EVENT_SCAN_END.equals(outDataEvent)) {
-                mFolderBackupState.setSummary(R.string.done);
+//                mFolderBackupState.setSummary(R.string.done);
+                SLogs.e("folder scan end");
                 return;
             }
         }
@@ -598,14 +595,18 @@ public class TabSettingsFragment extends RenameSharePreferenceFragmentCompat {
         if (TextUtils.equals(String.valueOf(TransferDataSource.ALBUM_BACKUP), outDataType)) {
             if (TransferEvent.EVENT_FINISH.equals(outDataEvent)) {
                 mAlbumBackupState.setSummary(R.string.settings_cuc_finish_title);
-            } else if (TransferEvent.EVENT_CANCEL_OUT_OF_QUOTA.equals(outDataEvent)) {
+            } else if (TransferEvent.EVENT_CANCEL_WITH_OUT_OF_QUOTA.equals(outDataEvent)) {
                 mAlbumBackupState.setSummary(R.string.above_quota);
+            } else if (TransferEvent.EVENT_CANCEL_WITH_BY_STOPPED.equals(outDataEvent)) {
+                mAlbumBackupState.setSummary(R.string.canceled);
             }
         } else if (TextUtils.equals(String.valueOf(TransferDataSource.FOLDER_BACKUP), outDataType)) {
             if (TransferEvent.EVENT_FINISH.equals(outDataEvent)) {
                 mFolderBackupState.setSummary(R.string.folder_backup_waiting_state);
-            } else if (TransferEvent.EVENT_CANCEL_OUT_OF_QUOTA.equals(outDataEvent)) {
+            } else if (TransferEvent.EVENT_CANCEL_WITH_OUT_OF_QUOTA.equals(outDataEvent)) {
                 mFolderBackupState.setSummary(R.string.above_quota);
+            } else if (TransferEvent.EVENT_CANCEL_WITH_BY_STOPPED.equals(outDataEvent)) {
+                mFolderBackupState.setSummary(R.string.canceled);
             }
         } else {
             checkProgressData(workInfo);
@@ -696,6 +697,10 @@ public class TabSettingsFragment extends RenameSharePreferenceFragmentCompat {
         mAlbumBackupState.setVisible(isEnable);
         mAlbumBackupAdvanced.setVisible(isEnable);
 
+        if (!isEnable) {
+            mAlbumBackupState.setSummary(null);
+        }
+
         updateAlbumBackupSelectedRepoSummary();
     }
 
@@ -723,6 +728,10 @@ public class TabSettingsFragment extends RenameSharePreferenceFragmentCompat {
         mFolderBackupSelectRepo.setVisible(isEnable);
         mFolderBackupSelectFolder.setVisible(isEnable);
         mFolderBackupState.setVisible(isEnable);
+
+        if (!isEnable) {
+            mFolderBackupState.setSummary(null);
+        }
 
         updateFolderBackupSelectedRepoAndFolderSummary();
     }
@@ -856,10 +865,12 @@ public class TabSettingsFragment extends RenameSharePreferenceFragmentCompat {
         @Override
         public void onActivityResult(ActivityResult o) {
             if (o.getResultCode() == RESULT_OK) {
+                //The dispatch function needs to be put first
                 dispatchAlbumBackupWork(true);
 
-                updateAlbumBackupSelectedRepoSummary();
+                switchAlbumBackupState(true);
             } else {
+                //The dispatch function needs to be put first
                 dispatchAlbumBackupWork(false);
 
                 if (o.getData() != null) {

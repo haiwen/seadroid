@@ -64,16 +64,14 @@ public class ImagePreviewViewModel extends BaseViewModel {
         getRefreshLiveData().setValue(true);
 
         Single<UserWrapperModel> userSingle = HttpIO.getCurrentInstance().execute(DocsCommentService.class).getRelatedUsers(repoId);
-        Single<MetadataConfigModel> metadataSingle = HttpIO.getCurrentInstance().execute(DocsCommentService.class).getMetadata(repoId);
         Single<FileDetailModel> detailSingle = HttpIO.getCurrentInstance().execute(DocsCommentService.class).getFileDetail(repoId, path);
 
-        Single<FileProfileConfigModel> s = Single.zip(detailSingle, userSingle, metadataSingle, new Function3<FileDetailModel, UserWrapperModel, MetadataConfigModel, FileProfileConfigModel>() {
+        Single<FileProfileConfigModel> s = Single.zip(detailSingle, userSingle, new BiFunction<FileDetailModel, UserWrapperModel, FileProfileConfigModel>() {
             @Override
-            public FileProfileConfigModel apply(FileDetailModel docDetailModel, UserWrapperModel userWrapperModel, MetadataConfigModel metadataConfigModel) throws Exception {
+            public FileProfileConfigModel apply(FileDetailModel docDetailModel, UserWrapperModel userWrapperModel) throws Exception {
                 FileProfileConfigModel configModel = new FileProfileConfigModel();
                 configModel.setDetail(docDetailModel);
                 configModel.setUsers(userWrapperModel);
-                configModel.setMetadata(metadataConfigModel);
                 return configModel;
             }
         });
@@ -86,34 +84,12 @@ public class ImagePreviewViewModel extends BaseViewModel {
             }
         }, new Consumer<Throwable>() {
             @Override
-            public void accept(Throwable throwable) throws Exception {
+            public void accept(Throwable throwable) {
                 getRefreshLiveData().setValue(false);
             }
         });
     }
 
-    public void getRepoModelFromDB(String repoId, Consumer<RepoModel> consumer) {
-        //from db
-        Single<List<RepoModel>> singleDb = AppDatabase.getInstance().repoDao().getRepoById(repoId);
-        addSingleDisposable(singleDb, new Consumer<List<RepoModel>>() {
-            @Override
-            public void accept(List<RepoModel> repoModels) throws Exception {
-                if (consumer != null) {
-                    if (CollectionUtils.isEmpty(repoModels)) {
-                        //no data in sqlite, request RepoApi again
-                        consumer.accept(null);
-                    } else {
-                        consumer.accept(repoModels.get(0));
-                    }
-                }
-            }
-        }, new Consumer<Throwable>() {
-            @Override
-            public void accept(Throwable throwable) throws Exception {
-                SLogs.e(throwable);
-            }
-        });
-    }
 
     public void load(String repoId, String parentPath, String name, boolean isLoadOtherImagesInSameDirectory) {
         if (TextUtils.isEmpty(repoId) || TextUtils.isEmpty(parentPath) || TextUtils.isEmpty(name)) {

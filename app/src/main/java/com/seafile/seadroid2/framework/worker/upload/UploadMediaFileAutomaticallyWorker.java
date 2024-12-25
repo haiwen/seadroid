@@ -22,12 +22,14 @@ import com.seafile.seadroid2.enums.TransferAction;
 import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.enums.TransferResult;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
+import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.notification.AlbumBackupNotificationHelper;
 import com.seafile.seadroid2.framework.notification.base.BaseTransferNotificationHelper;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
+import com.seafile.seadroid2.ui.folder_backup.RepoConfig;
 
 import java.util.List;
 import java.util.UUID;
@@ -54,9 +56,24 @@ public class UploadMediaFileAutomaticallyWorker extends BaseUploadWorker {
         return albumNotificationHelper;
     }
 
+    boolean isFirstShow = true;
+    private void startShowNotification(){
+        if (!isFirstShow) {
+            return;
+        }
+
+        //send start transfer event
+        sendEvent(TransferEvent.EVENT_TRANSFERRING, TransferDataSource.ALBUM_BACKUP);
+
+        // show foreground notification
+        ForegroundInfo foregroundInfo = albumNotificationHelper.getForegroundNotification();
+        showForegroundAsync(foregroundInfo);
+    }
+
     @NonNull
     @Override
     public ListenableWorker.Result doWork() {
+        SLogs.d("start upload media worker");
 
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
         if (account == null) {
@@ -66,17 +83,14 @@ public class UploadMediaFileAutomaticallyWorker extends BaseUploadWorker {
             return ListenableWorker.Result.success();
         }
 
-        boolean isEnable = AlbumBackupSharePreferenceHelper.readBackupSwitch();
-        if (!isEnable) {
-            return ListenableWorker.Result.success();
+        boolean canExec = can();
+        if (!canExec) {
+            return Result.success();
         }
 
-        //send start transfer event
-        sendEvent(TransferEvent.EVENT_TRANSFERRING, TransferDataSource.ALBUM_BACKUP);
-
-        // show foreground notification
-        ForegroundInfo foregroundInfo = albumNotificationHelper.getForegroundNotification();
-        showForegroundAsync(foregroundInfo);
+        if (repoConfig == null) {
+            return Result.success();
+        }
 
         //
         String finishFlagEvent = null;
@@ -85,8 +99,6 @@ public class UploadMediaFileAutomaticallyWorker extends BaseUploadWorker {
             if (isStopped()) {
                 break;
             }
-
-            SLogs.d("start upload media worker");
 
             List<FileTransferEntity> transferList = AppDatabase
                     .getInstance()
@@ -99,11 +111,15 @@ public class UploadMediaFileAutomaticallyWorker extends BaseUploadWorker {
                 break;
             }
 
-            FileTransferEntity transferEntity = transferList.get(0);
+            startShowNotification();
 
             isUploaded = true;
-            try {
 
+            FileTransferEntity transferEntity = transferList.get(0);
+            transferEntity.repo_id = repoConfig.getRepoID();
+            transferEntity.repo_name = repoConfig.getRepoName();
+
+            try {
                 transferFile(account, transferEntity);
 
                 sendTransferEvent(transferEntity, true);
@@ -113,9 +129,11 @@ public class UploadMediaFileAutomaticallyWorker extends BaseUploadWorker {
 
                 TransferResult transferResult = onException(transferEntity, e);
 
-                notifyError(transferResult);
+                if (!isStopped()) {
+                    notifyError(transferResult);
 
-                sendTransferEvent(transferEntity, false);
+                    sendTransferEvent(transferEntity, false);
+                }
 
                 String finishFlag = isInterrupt(transferResult);
                 if (!TextUtils.isEmpty(finishFlag)) {
@@ -155,5 +173,21 @@ public class UploadMediaFileAutomaticallyWorker extends BaseUploadWorker {
                 .putString(TransferWorker.KEY_DATA_TYPE, String.valueOf(TransferDataSource.ALBUM_BACKUP))
                 .build();
         return Result.success(outputData);
+    }
+
+    private RepoConfig repoConfig;
+
+    private boolean can() {
+        boolean isTurnOn = AlbumBackupSharePreferenceHelper.readBackupSwitch();
+        if (!isTurnOn) {
+            return false;
+        }
+
+        repoConfig = AlbumBackupSharePreferenceHelper.readRepoConfig();
+        if (repoConfig == null) {
+            return false;
+        }
+
+        return true;
     }
 }

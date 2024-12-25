@@ -2,6 +2,7 @@ package com.seafile.seadroid2.framework.worker;
 
 import android.text.TextUtils;
 
+import androidx.work.BackoffPolicy;
 import androidx.work.Constraints;
 import androidx.work.Data;
 import androidx.work.ExistingWorkPolicy;
@@ -149,6 +150,7 @@ public class BackgroundJobManagerImpl {
 
         return oneTimeRequestBuilder(UploadMediaFileAutomaticallyWorker.class)
                 .setConstraints(constraints)
+                .setBackoffCriteria(BackoffPolicy.LINEAR, 5, TimeUnit.SECONDS)
                 .setInitialDelay(1, TimeUnit.SECONDS)
                 .setId(UploadMediaFileAutomaticallyWorker.UID)
                 .build();
@@ -204,6 +206,7 @@ public class BackgroundJobManagerImpl {
 
         return oneTimeRequestBuilder(UploadFolderFileAutomaticallyWorker.class)
                 .setConstraints(constraints)
+                .setBackoffCriteria(BackoffPolicy.LINEAR, 5, TimeUnit.SECONDS)
                 .setInitialDelay(1, TimeUnit.SECONDS)
                 .setId(UploadFolderFileAutomaticallyWorker.UID)
                 .build();

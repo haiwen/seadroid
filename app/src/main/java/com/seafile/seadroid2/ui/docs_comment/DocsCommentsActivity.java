@@ -1,6 +1,5 @@
 package com.seafile.seadroid2.ui.docs_comment;
 
-import android.animation.ValueAnimator;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -11,15 +10,12 @@ import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
-import android.view.animation.Animation;
-import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.KeyboardUtils;
@@ -28,8 +24,6 @@ import com.chad.library.adapter4.BaseQuickAdapter;
 import com.chad.library.adapter4.QuickAdapterHelper;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.databinding.ActivityDocCommentBinding;
 import com.seafile.seadroid2.databinding.ToolbarActionbarBinding;
 import com.seafile.seadroid2.framework.data.model.docs_comment.DocsCommentModel;
@@ -37,10 +31,6 @@ import com.seafile.seadroid2.framework.data.model.docs_comment.DocsCommentsWrapp
 import com.seafile.seadroid2.framework.data.model.sdoc.SDocPageOptionsModel;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.ui.base.BaseMediaSelectorActivity;
-import com.seafile.seadroid2.ui.bottomsheetmenu.BottomSheetHelper;
-import com.seafile.seadroid2.ui.bottomsheetmenu.BottomSheetMenuFragment;
-import com.seafile.seadroid2.ui.bottomsheetmenu.OnMenuClickListener;
-import com.seafile.seadroid2.ui.sdoc.DocsCommentViewModel;
 import com.seafile.seadroid2.view.rich_edittext.RichEditText;
 
 import java.util.List;

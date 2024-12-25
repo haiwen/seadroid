@@ -126,8 +126,8 @@ public class FolderBackupScannerWorker extends TransferWorker {
     }
 
     private boolean checkCanScan() {
-        boolean isOpenBackup = FolderBackupSharePreferenceHelper.readBackupSwitch();
-        if (!isOpenBackup) {
+        boolean isTurnOn = FolderBackupSharePreferenceHelper.readBackupSwitch();
+        if (!isTurnOn) {
             return false;
         }
 
@@ -212,7 +212,7 @@ public class FolderBackupScannerWorker extends TransferWorker {
 
         List<FileTransferEntity> tList = CollectionUtils.newArrayList();
         for (File file : subFiles) {
-            FileTransferEntity fEntity = FileTransferEntity.convert2ThisForUploadFileSyncWorker(account, repoModel, file, backupPath);
+            FileTransferEntity fEntity = FileTransferEntity.convert2ThisForUploadFileSyncWorker(account, file, backupPath);
             if (fEntity != null) {
                 tList.add(fEntity);
             }

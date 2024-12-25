@@ -16,8 +16,13 @@ import androidx.recyclerview.widget.DiffUtil;
 
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.EncodeUtils;
+import com.blankj.utilcode.util.EncryptUtils;
 import com.blankj.utilcode.util.FileUtils;
 import com.blankj.utilcode.util.SizeUtils;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.signature.ObjectKey;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
@@ -41,6 +46,8 @@ import com.seafile.seadroid2.framework.data.model.GroupItemModel;
 import com.seafile.seadroid2.framework.data.model.search.SearchModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.util.GlideApp;
+import com.seafile.seadroid2.framework.util.GlideOptions;
+import com.seafile.seadroid2.framework.util.ThumbnailUtils;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.ui.base.adapter.BaseMultiAdapter;
 import com.seafile.seadroid2.ui.repo.vh.AccountViewHolder;
@@ -369,7 +376,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
 
 //        holder.binding.getRoot().setBackground(AnimatedStateListDrawableCompatUtils.createDrawableCompat(getContext()));
 
-        if (repoEncrypted || !Utils.isViewableImage(model.name)) {
+        if (model.isDir() || repoEncrypted || (!Utils.isViewableImage(model.name) && !Utils.isVideoFile(model.name))) {
             holder.binding.itemIcon.setImageResource(model.getIcon());
         } else {
             loadImage(model, holder.binding.itemIcon);
@@ -473,7 +480,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
             holder.binding.itemOutline.setVisibility(View.VISIBLE);
         }
 
-        if (repoEncrypted || !Utils.isViewableImage(model.name)) {
+        if (model.isDir() || repoEncrypted || (!Utils.isViewableImage(model.name) && !Utils.isVideoFile(model.name))) {
             holder.binding.itemIcon.setScaleType(ImageView.ScaleType.FIT_CENTER);
             holder.binding.itemIcon.setImageResource(model.getIcon());
         } else {
@@ -521,7 +528,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         }
 //        holder.binding.getRoot().setBackground(AnimatedStateListDrawableCompatUtils.createDrawableCompat(getContext()));
 
-        if (repoEncrypted || !Utils.isViewableImage(model.name)) {
+        if (model.isDir() || repoEncrypted || (!Utils.isViewableImage(model.name) && !Utils.isVideoFile(model.name))) {
             holder.binding.itemIcon.setImageResource(model.getIcon());
         } else {
             loadImage(model, holder.binding.itemIcon);
@@ -551,7 +558,8 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
 
 //        holder.binding.getRoot().setBackground(AnimatedStateListDrawableCompatUtils.createDrawableCompat(getContext()));
 
-        if (repoEncrypted || !Utils.isViewableImage(model.name)) {
+
+        if (repoEncrypted || (!Utils.isViewableImage(model.name) && !Utils.isVideoFile(model.name))) {
             holder.binding.itemIcon.setImageResource(model.getIcon());
         } else {
             DirentModel direntModel = new DirentModel();
@@ -570,39 +578,32 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
     }
 
     private void loadImage(DirentModel direntModel, ImageView imageView) {
-
-        if (direntModel.name.toLowerCase().endsWith(".gif")) {
-            imageView.setImageResource(direntModel.getIcon());
-        } else {
-            String url = convertThumbnailUrl(direntModel);
-            if (TextUtils.isEmpty(url)) {
-                GlideApp.with(getContext()).load(R.drawable.file_image)
-                        .apply(GlideLoadConfig.getOptions())
-                        .into(imageView);
-            } else {
-                GlideApp.with(getContext()).load(url)
-                        .apply(GlideLoadConfig.getOptions())
-                        .into(imageView);
-            }
+        String thumbnailUrl = convertThumbnailUrl(direntModel);
+        if (TextUtils.isEmpty(thumbnailUrl)) {
+            GlideApp.with(getContext())
+                    .load(direntModel.getIcon())
+                    .apply(GlideLoadConfig.getCacheableThumbnailOptions())
+                    .into(imageView);
+            return;
         }
-    }
 
-    private String convertThumbnailUrl(DirentModel direntModel) {
-        return convertThumbnailUrl(direntModel, 128);
-    }
+        String thumbKey = EncryptUtils.encryptMD5ToString(thumbnailUrl);
 
-    private String convertMiddleUrl(DirentModel direntModel) {
-        return convertThumbnailUrl(direntModel, 256);
+        GlideApp.with(getContext())
+                .load(thumbnailUrl)
+                .signature(new ObjectKey(thumbKey))
+                .apply(GlideLoadConfig.getCustomDrawableOptions(direntModel.getIcon()))
+                .into(imageView);
     }
 
     private String server_url;
+    private final boolean isLogin = SupportAccountManager.getInstance().isLogin();
 
     private String getServerUrl() {
         if (!TextUtils.isEmpty(server_url)) {
             return server_url;
         }
 
-        boolean isLogin = SupportAccountManager.getInstance().isLogin();
         if (!isLogin) {
             return null;
         }
@@ -611,14 +612,12 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         return server_url;
     }
 
-    private String convertThumbnailUrl(DirentModel direntModel, int size) {
+    private String convertThumbnailUrl(DirentModel direntModel) {
         String serverUrl = getServerUrl();
         if (TextUtils.isEmpty(serverUrl)) {
             return null;
         }
-
-        String newFilePath = EncodeUtils.urlEncode(direntModel.full_path);
-        return String.format(Locale.ROOT, "%sapi2/repos/%s/thumbnail/?p=%s&size=%d", serverUrl, direntModel.repo_id, newFilePath, size);
+        return ThumbnailUtils.convertThumbnailUrl(serverUrl, direntModel.repo_id, direntModel.full_path);
     }
 
     public void setOnActionMode(boolean on) {

@@ -38,7 +38,7 @@ public interface DocsCommentService {
     Single<MetadataConfigModel> getMetadata(@Path("repo_id") String repoId);
 
     @GET("api/v2.1/repos/{repo_id}/metadata/record/")
-    Single<FileRecordWrapperModel> getRecords(@Path("repo_id") String repoId, @Query("parent_dir") String parentDir, @Query("name") String name);
+    Single<FileRecordWrapperModel> getRecords(@Path("repo_id") String repoId, @Query("parent_dir") String parentDir, @Query("name") String name, @Query("file_name") String fileName);
 
     //
     @GET("api/v1/docs/{uuid}/comment/")

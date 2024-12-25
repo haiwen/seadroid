@@ -683,6 +683,8 @@
 
     <string name="mark_resolve">Mark as resolved</string>
     <string name="delete_confirm">Are you sure you want to delete this item?</string>
+
+    <string name="canceled">Canceled</string>
     <!-- end -->
 
 </resources>

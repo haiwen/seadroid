@@ -45,8 +45,7 @@ public class GlideCache extends AppGlideModule {
         File[] externalMediaDirs = SeadroidApplication.getAppContext().getExternalMediaDirs();
         String rootPath = externalMediaDirs[0].getAbsolutePath();
         File dirPath = new File(rootPath + "/GlideCache/");
-        builder.setDiskCache(new DiskLruCacheFactory(dirPath.getAbsolutePath(), 1024 * 1024 * 100));
-        GlideApp.tearDown();
+        builder.setDiskCache(new DiskLruCacheFactory(dirPath.getAbsolutePath(), 1024 * 1024 * 500));
     }
 
     @Override

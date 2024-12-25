@@ -28,7 +28,7 @@
             android:background="@drawable/shape_stroke_radius_solid_translucent"
             android:foreground="?selectableItemBackground"
             android:scaleType="centerInside"
-            android:src="@drawable/action_download"
+            android:src="@drawable/baseline_download_24"
             app:shapeAppearance="@style/ShapeCircleStyle"
             app:tint="@color/white" />
 
@@ -40,7 +40,7 @@
             android:background="@drawable/shape_stroke_radius_solid_translucent"
             android:foreground="?selectableItemBackground"
             android:scaleType="centerInside"
-            android:src="@drawable/action_delete"
+            android:src="@drawable/baseline_delete_24"
             app:shapeAppearance="@style/ShapeCircleStyle"
             app:tint="@color/white" />
 
@@ -52,7 +52,7 @@
             android:background="@drawable/shape_stroke_radius_solid_translucent"
             android:foreground="?selectableItemBackground"
             android:scaleType="centerInside"
-            android:src="@drawable/baseline_star_outline_24"
+            android:src="@drawable/baseline_starred_outline_24"
             app:shapeAppearance="@style/ShapeCircleStyle"
             app:tint="@color/white" />
 
@@ -63,7 +63,7 @@
             android:background="@drawable/shape_stroke_radius_solid_translucent"
             android:foreground="?selectableItemBackground"
             android:scaleType="centerInside"
-            android:src="@drawable/action_share"
+            android:src="@drawable/baseline_share_24"
             app:shapeAppearance="@style/ShapeCircleStyle"
             app:tint="@color/white" />
 

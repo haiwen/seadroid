@@ -13,7 +13,6 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
-import com.blankj.utilcode.util.ToastUtils;
 import com.chad.library.adapter4.BaseQuickAdapter;
 import com.chad.library.adapter4.QuickAdapterHelper;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
@@ -22,12 +21,12 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.databinding.DialogSdocDirectoryBinding;
 import com.seafile.seadroid2.framework.data.model.sdoc.OutlineItemModel;
 import com.seafile.seadroid2.framework.data.model.sdoc.SDocPageOptionsModel;
-import com.seafile.seadroid2.ui.sdoc.DocsCommentViewModel;
+import com.seafile.seadroid2.ui.sdoc.SDocViewModel;
 
 import java.util.List;
 
 public class SDocOutlineRemoteDialog extends BottomSheetDialogFragment {
-    private DocsCommentViewModel viewModel;
+    private SDocViewModel viewModel;
 
     private SDocPageOptionsModel pageOptionsModel;
 
@@ -51,7 +50,7 @@ public class SDocOutlineRemoteDialog extends BottomSheetDialogFragment {
         }
 
         pageOptionsModel = getArguments().getParcelable("pageOption");
-        viewModel = new ViewModelProvider(this).get(DocsCommentViewModel.class);
+        viewModel = new ViewModelProvider(this).get(SDocViewModel.class);
     }
 
 

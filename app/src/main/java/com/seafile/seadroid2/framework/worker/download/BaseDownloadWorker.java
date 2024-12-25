@@ -90,7 +90,7 @@ public abstract class BaseDownloadWorker extends TransferWorker {
         } else if (result == TransferResult.FILE_NOT_FOUND) {
 //            finishFlagEvent = null;
         } else if (result == TransferResult.OUT_OF_QUOTA) {
-            finishFlagEvent = TransferEvent.EVENT_CANCEL_OUT_OF_QUOTA;
+            finishFlagEvent = TransferEvent.EVENT_CANCEL_WITH_OUT_OF_QUOTA;
         } else if (result == TransferResult.NETWORK_CONNECTION) {
             finishFlagEvent = TransferEvent.EVENT_CANCEL_WITH_NETWORK_ERR;
         } else if (result == TransferResult.SSL_EXCEPTION) {

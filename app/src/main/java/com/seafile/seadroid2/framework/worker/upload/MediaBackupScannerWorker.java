@@ -97,7 +97,6 @@ public class MediaBackupScannerWorker extends TransferWorker {
             return Result.success(getOutData());
         }
 
-        //todo
         String title = getApplicationContext().getString(R.string.settings_camera_upload_info_title);
         String subTitle = getApplicationContext().getString(R.string.is_scanning);
 
@@ -517,7 +516,7 @@ public class MediaBackupScannerWorker extends TransferWorker {
 
             String parentPath = Utils.pathJoin(parent, "/");
 
-            FileTransferEntity fileTransferEntity = FileTransferEntity.convert2ThisForUploadMediaSyncWorker(account, repoConfig.getRepoID(), repoConfig.getRepoName(), file, parentPath, absPathPair.getThird(), isRemoteExists);
+            FileTransferEntity fileTransferEntity = FileTransferEntity.convert2ThisForUploadMediaSyncWorker(account, file, parentPath, absPathPair.getThird(), isRemoteExists);
             transferList.add(fileTransferEntity);
         }
 

@@ -130,8 +130,11 @@ public interface FileTransferDAO {
     @Query("select * from file_transfer_list where repo_id = :repoId and transfer_action = :transfer_action order by created_at asc limit :limit offset :offset")
     List<FileTransferEntity> getPageListSync(String repoId, TransferAction transfer_action, int limit, int offset);
 
-    @Query("select * from file_transfer_list where related_account = :related_account and transfer_action = :transferAction and full_path = :full_path and data_status = 0  order by created_at")
-    List<FileTransferEntity> getListByFullPathSync(String related_account, TransferAction transferAction, String full_path);
+    @Query("select * from file_transfer_list where repo_id = :repoId and transfer_action = :transferAction and full_path = :full_path and data_status = 0  order by created_at")
+    List<FileTransferEntity> getListByFullPathSync(String repoId, TransferAction transferAction, String full_path);
+
+    @Query("select * from file_transfer_list where repo_id = :repoId and transfer_action = :transferAction and full_path = :full_path and data_status = 0  order by created_at")
+    Single<List<FileTransferEntity>> getListByFullPathAsync(String repoId, TransferAction transferAction, String full_path);
 
     @Query("select COUNT(*) from file_transfer_list where repo_id = :repoId and full_path = :fullPath and transfer_action = :transfer_action and data_source = :feature and data_status = 0 ")
     int checkOneByFullPath(String repoId, String fullPath, TransferAction transfer_action, TransferDataSource feature);

@@ -19,8 +19,23 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class SeaWebViewClient extends BridgeWebViewClient {
+
+    private OnWebPageListener onWebPageListener;
+
+    public void setOnWebPageListener(OnWebPageListener onWebPageListener) {
+        this.onWebPageListener = onWebPageListener;
+    }
+
     public SeaWebViewClient(BridgeWebView webView) {
         super(webView);
+    }
+
+    @Override
+    public void onPageFinished(WebView view, String url) {
+        super.onPageFinished(view, url);
+        if (onWebPageListener != null) {
+            onWebPageListener.onPageFinished(view, url);
+        }
     }
 
     @Override

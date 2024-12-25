@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.ui.sdoc;
+package com.seafile.seadroid2.ui.docs_comment;
 
 import android.content.ContentResolver;
 import android.net.Uri;
@@ -8,7 +8,6 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.blankj.utilcode.util.CloneUtils;
 import com.blankj.utilcode.util.CollectionUtils;
-import com.blankj.utilcode.util.RegexUtils;
 import com.blankj.utilcode.util.TimeUtils;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
@@ -31,6 +30,7 @@ import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.StringUtils;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
+import com.seafile.seadroid2.ui.sdoc.DocsCommentService;
 import com.seafile.seadroid2.view.rich_edittext.RichEditText;
 
 import java.util.Comparator;
@@ -53,164 +53,15 @@ import okhttp3.RequestBody;
 
 public class DocsCommentViewModel extends BaseViewModel {
 
-    private final MutableLiveData<FileProfileConfigModel> _fileProfileConfigLiveData = new MutableLiveData<>();
-    private final MutableLiveData<FileRecordWrapperModel> _fileRecordLiveData = new MutableLiveData<>();
     private final MutableLiveData<DocsCommentsWrapperModel> _fileCommentLiveData = new MutableLiveData<>();
-    private final MutableLiveData<List<OutlineItemModel>> _sdocElementListLiveData = new MutableLiveData<>();
     private final MutableLiveData<Boolean> _postCommentLiveData = new MutableLiveData<>();
 
     public MutableLiveData<Boolean> getPostCommentLiveData() {
         return _postCommentLiveData;
     }
 
-    public MutableLiveData<FileProfileConfigModel> getFileDetailLiveData() {
-        return _fileProfileConfigLiveData;
-    }
-
-    public MutableLiveData<FileRecordWrapperModel> getSdocRecordLiveData() {
-        return _fileRecordLiveData;
-    }
-
     public MutableLiveData<DocsCommentsWrapperModel> getSdocCommentLiveData() {
         return _fileCommentLiveData;
-    }
-
-    public MutableLiveData<List<OutlineItemModel>> getSdocElementLiveData() {
-        return _sdocElementListLiveData;
-    }
-
-    public void loadFileConfig(String repoId, String path) {
-        Single<UserWrapperModel> userSingle = HttpIO.getCurrentInstance().execute(DocsCommentService.class).getRelatedUsers(repoId);
-        Single<MetadataConfigModel> metadataSingle = HttpIO.getCurrentInstance().execute(DocsCommentService.class).getMetadata(repoId);
-        Single<FileDetailModel> detailSingle = HttpIO.getCurrentInstance().execute(DocsCommentService.class).getFileDetail(repoId, path);
-
-        Single<FileProfileConfigModel> s = Single.zip(detailSingle, userSingle, metadataSingle, new Function3<FileDetailModel, UserWrapperModel, MetadataConfigModel, FileProfileConfigModel>() {
-            @Override
-            public FileProfileConfigModel apply(FileDetailModel docDetailModel, UserWrapperModel userWrapperModel, MetadataConfigModel metadataConfigModel) throws Exception {
-                FileProfileConfigModel configModel = new FileProfileConfigModel();
-                configModel.setDetail(docDetailModel);
-                configModel.setUsers(userWrapperModel);
-                configModel.setMetadata(metadataConfigModel);
-                return configModel;
-            }
-        });
-
-        addSingleDisposable(s, new Consumer<FileProfileConfigModel>() {
-            @Override
-            public void accept(FileProfileConfigModel fileProfileConfigModel) throws Exception {
-                getFileDetailLiveData().setValue(fileProfileConfigModel);
-            }
-        });
-    }
-
-    public void loadRecords(String repoId, String path) {
-        if (TextUtils.isEmpty(path) || TextUtils.equals("/", path)) {
-            return;
-        }
-
-        String parent_dir;
-        String name;
-
-        // 1. /a/b/c/t.txt
-        // 2. /a/t.txt
-        // 3. /t.txt
-        // 4. t.txt
-        // 5. /
-        if (path.contains("/")) {
-            parent_dir = path.substring(0, path.lastIndexOf("/"));
-            name = path.substring(path.lastIndexOf("/") + 1);
-        } else {
-            parent_dir = null;
-            name = path;
-        }
-
-        if (TextUtils.isEmpty(parent_dir)) {
-            parent_dir = "/";
-        }
-
-        Single<FileRecordWrapperModel> single = HttpIO.getCurrentInstance().execute(DocsCommentService.class).getRecords(repoId, parent_dir, name);
-        addSingleDisposable(single, new Consumer<FileRecordWrapperModel>() {
-            @Override
-            public void accept(FileRecordWrapperModel fileRecordWrapperModel) throws Exception {
-                getSdocRecordLiveData().setValue(fileRecordWrapperModel);
-            }
-        });
-    }
-
-    public static final List<String> _AllowedElementTypes = List.of("header1", "header2", "header3");
-
-    public void loadSdocElements(SDocPageOptionsModel pageOptionsModel) {
-        if (TextUtils.isEmpty(pageOptionsModel.seadocServerUrl)) {
-            return;
-        }
-        getRefreshLiveData().setValue(true);
-
-        String sdocServerUrl = pageOptionsModel.seadocServerUrl;
-        if (!sdocServerUrl.endsWith("/")) {
-            sdocServerUrl = sdocServerUrl + "/";
-        }
-
-        Account curAccount = SupportAccountManager.getInstance().getCurrentAccount();
-        Account partialAccount = CloneUtils.deepClone(curAccount, Account.class);
-        partialAccount.setToken(pageOptionsModel.seadocAccessToken);
-        partialAccount.setServer(sdocServerUrl);
-
-        Single<SDocOutlineWrapperModel> single = HttpIO.getInstanceByAccount(partialAccount).execute(DocsCommentService.class).getElements(pageOptionsModel.docUuid);
-        addSingleDisposable(single, new Consumer<SDocOutlineWrapperModel>() {
-            @Override
-            public void accept(SDocOutlineWrapperModel wrapperModel) throws Exception {
-
-                if (wrapperModel == null || wrapperModel.elements == null) {
-                    getSdocElementLiveData().setValue(null);
-                    return;
-                }
-
-                List<OutlineItemModel> newList = wrapperModel.elements.stream().filter(new Predicate<OutlineItemModel>() {
-                    @Override
-                    public boolean test(OutlineItemModel sDocModel) {
-                        if (!_AllowedElementTypes.contains(sDocModel.type)) {
-                            return false;
-                        }
-
-                        if (TextUtils.isEmpty(sDocModel.text) && CollectionUtils.isEmpty(sDocModel.children)) {
-                            return false;
-                        }
-
-                        return true;
-                    }
-                }).map(new Function<OutlineItemModel, OutlineItemModel>() {
-                    @Override
-                    public OutlineItemModel apply(OutlineItemModel sDocModel) {
-                        if (!TextUtils.isEmpty(sDocModel.text)) {
-                            return sDocModel;
-                        }
-
-                        if (CollectionUtils.isEmpty(sDocModel.children)) {
-                            return sDocModel;
-                        }
-
-                        String text = "";
-                        for (OutlineItemModel child : sDocModel.children) {
-                            if (!TextUtils.isEmpty(child.text)) {
-                                String nt = StringUtils.trim(child.text, "\n").trim();
-                                text = text.concat(nt);
-                            }
-                        }
-                        sDocModel.text = text;
-                        return sDocModel;
-                    }
-                }).collect(Collectors.toList());
-
-                getSdocElementLiveData().setValue(newList);
-                getRefreshLiveData().setValue(false);
-            }
-        }, new Consumer<Throwable>() {
-            @Override
-            public void accept(Throwable throwable) throws Exception {
-                SLogs.e(throwable);
-                getRefreshLiveData().setValue(false);
-            }
-        });
     }
 
     public void loadDocComments(SDocPageOptionsModel pageOptionsModel) {
@@ -374,7 +225,7 @@ public class DocsCommentViewModel extends BaseViewModel {
         return models;
     }
 
-    public void markResolve(String sdocServerUrl,String token, String sdocUid, long commentId, Consumer<Long> consumer) {
+    public void markResolve(String sdocServerUrl, String token, String sdocUid, long commentId, Consumer<Long> consumer) {
         getRefreshLiveData().setValue(true);
 
         if (!sdocServerUrl.endsWith("/")) {
@@ -406,7 +257,7 @@ public class DocsCommentViewModel extends BaseViewModel {
         });
     }
 
-    public void delete(String sdocServerUrl,String token, String sdocUid, long commentId, Consumer<Long> consumer) {
+    public void delete(String sdocServerUrl, String token, String sdocUid, long commentId, Consumer<Long> consumer) {
         getRefreshLiveData().setValue(true);
 
         if (!sdocServerUrl.endsWith("/")) {

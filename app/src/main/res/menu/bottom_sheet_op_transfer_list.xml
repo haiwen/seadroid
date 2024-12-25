@@ -6,17 +6,12 @@
         android:title="@string/delete" />
 
     <item
-        android:id="@+id/download"
+        android:id="@id/download"
         android:icon="@drawable/action_download"
         android:title="@string/redownload_file" />
 
     <item
-        android:id="@+id/upload"
+        android:id="@id/upload"
         android:icon="@drawable/action_update"
         android:title="@string/re_upload" />
-
-    <item
-        android:id="@+id/pause"
-        android:icon="@drawable/delete"
-        android:title="@string/pause" />
 </menu>

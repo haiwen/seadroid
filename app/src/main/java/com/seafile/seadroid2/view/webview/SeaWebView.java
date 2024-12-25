@@ -6,6 +6,7 @@ import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.webkit.CookieManager;
 import android.webkit.WebSettings;
+import android.webkit.WebView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -90,6 +91,11 @@ public class SeaWebView extends NestedWebView {
         this.setWebViewClient(mWebViewClient);
 
         registerCommonHandler();
+    }
+
+    public void setOnWebPageListener(OnWebPageListener onWebPageListener) {
+        mWebViewClient.setOnWebPageListener(onWebPageListener);
+        this.setWebViewClient(mWebViewClient);
     }
 
     public void load(String targetUrl) {

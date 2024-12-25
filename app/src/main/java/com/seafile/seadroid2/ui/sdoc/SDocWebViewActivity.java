@@ -27,7 +27,6 @@ import com.github.lzyzsd.jsbridge.CallBackFunction;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
-import com.seafile.seadroid2.annotation.Todo;
 import com.seafile.seadroid2.databinding.ActivitySeaWebviewProBinding;
 import com.seafile.seadroid2.databinding.ToolbarActionbarProgressBarBinding;
 import com.seafile.seadroid2.enums.WebViewPreviewType;
@@ -42,11 +41,11 @@ import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
 import com.seafile.seadroid2.ui.docs_comment.DocsCommentsActivity;
 import com.seafile.seadroid2.ui.file_profile.FileProfileDialog;
 import com.seafile.seadroid2.ui.sdoc.outline.SDocOutlineDialog;
+import com.seafile.seadroid2.view.webview.OnWebPageListener;
 import com.seafile.seadroid2.view.webview.PreloadWebView;
 import com.seafile.seadroid2.view.webview.SeaWebView;
 
-@Todo
-public class SDocWebViewActivity extends BaseActivityWithVM<DocsCommentViewModel> {
+public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
     private ActivitySeaWebviewProBinding binding;
     private ToolbarActionbarProgressBarBinding toolBinding;
 
@@ -56,6 +55,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<DocsCommentViewModel
     private String targetUrl;
 
     private FileProfileConfigModel configModel;
+    private SDocPageOptionsModel pageOptionsData;
 
     /**
      * not support, please use SeaWebViewActivity instead
@@ -85,10 +85,15 @@ public class SDocWebViewActivity extends BaseActivityWithVM<DocsCommentViewModel
 
         initViewModel();
 
+        mWebView.setOnWebPageListener(new OnWebPageListener() {
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                canLoadPageConfigData();
+            }
+        });
+
         //let's go
         mWebView.load(targetUrl);
-
-        getViewModel().loadFileConfig(repoId, path);
     }
 
     private void init() {
@@ -187,6 +192,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<DocsCommentViewModel
                 hideProgressBar();
             }
         });
+
         getViewModel().getSdocRecordLiveData().observe(this, new Observer<FileRecordWrapperModel>() {
             @Override
             public void onChanged(FileRecordWrapperModel fileRecordWrapperModel) {
@@ -195,7 +201,6 @@ public class SDocWebViewActivity extends BaseActivityWithVM<DocsCommentViewModel
             }
         });
     }
-
 
     private void showOutlineDialog() {
         readSDocOutlineList(new Consumer<String>() {
@@ -229,12 +234,22 @@ public class SDocWebViewActivity extends BaseActivityWithVM<DocsCommentViewModel
             return;
         }
 
-        if (configModel.metadata.enabled) {
-            getViewModel().loadRecords(repoId, path);
-        } else {
-            FileProfileDialog dialog = FileProfileDialog.newInstance(configModel.detail, configModel.users.user_list);
-            dialog.show(getSupportFragmentManager(), FileProfileDialog.class.getSimpleName());
-        }
+        readSDocPageOptionsData(new Consumer<SDocPageOptionsModel>() {
+            @Override
+            public void accept(SDocPageOptionsModel model) {
+                if (model.enableMetadataManagement) {
+                    if (configModel != null && configModel.metadataConfigModel != null && configModel.metadataConfigModel.enabled) {
+                        getViewModel().loadRecords(repoId, path);
+                    } else if (configModel != null) {
+                        FileProfileDialog dialog = FileProfileDialog.newInstance(configModel.detail, configModel.users.user_list);
+                        dialog.show(getSupportFragmentManager(), FileProfileDialog.class.getSimpleName());
+                    }
+                } else {
+                    FileProfileDialog dialog = FileProfileDialog.newInstance(configModel.detail, configModel.users.user_list);
+                    dialog.show(getSupportFragmentManager(), FileProfileDialog.class.getSimpleName());
+                }
+            }
+        });
     }
 
     private void showCommentsActivity() {
@@ -247,6 +262,10 @@ public class SDocWebViewActivity extends BaseActivityWithVM<DocsCommentViewModel
     }
 
     private void readSDocPageOptionsData(Consumer<SDocPageOptionsModel> continuation) {
+        if (pageOptionsData != null) {
+            continuation.accept(pageOptionsData);
+            return;
+        }
         String js =
                 "(function() {" +
                         "   if (window.app && window.app.pageOptions) {" +
@@ -260,9 +279,9 @@ public class SDocWebViewActivity extends BaseActivityWithVM<DocsCommentViewModel
             public void onReceiveValue(String value) {
                 if (!TextUtils.isEmpty(value)) {
                     value = StringUtils.deString(value).replace("\\", "");
-                    SDocPageOptionsModel configModel1 = GsonUtils.fromJson(value, SDocPageOptionsModel.class);
-                    if (configModel1 != null) {
-                        continuation.accept(configModel1);
+                    pageOptionsData = GsonUtils.fromJson(value, SDocPageOptionsModel.class);
+                    if (pageOptionsData != null) {
+                        continuation.accept(pageOptionsData);
                     } else {
                         SLogs.e("read sodc page options data from web, an exception occurred in the parsing data");
                         SLogs.e(value);
@@ -398,6 +417,16 @@ public class SDocWebViewActivity extends BaseActivityWithVM<DocsCommentViewModel
         if (configModel != null && curProgress == 100) {
             toolBinding.toolProgressBar.setVisibility(View.GONE);
         }
+    }
+
+    private void canLoadPageConfigData() {
+        readSDocPageOptionsData(new Consumer<SDocPageOptionsModel>() {
+            @Override
+            public void accept(SDocPageOptionsModel model) {
+                getViewModel().loadFileDetail(repoId, path, model.enableMetadataManagement);
+            }
+        });
+
     }
 
     @Override

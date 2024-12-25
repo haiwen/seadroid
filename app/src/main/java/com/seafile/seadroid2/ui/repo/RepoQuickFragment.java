@@ -150,7 +150,11 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = LayoutFastRvBinding.inflate(inflater, container, false);
-        binding.swipeRefreshLayout.setOnRefreshListener(() -> loadData(true));
+
+        binding.swipeRefreshLayout.setOnRefreshListener(() -> {
+            removeScrolledPosition();
+            loadData(true);
+        });
 
         return binding.getRoot();
     }
@@ -172,8 +176,18 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     @Override
     public void onFirstResume() {
         super.onFirstResume();
+
+        restoreNavContext();
+
         loadData(true);
     }
+
+    private void restoreNavContext() {
+        NavContext navContext = getNavContext();
+        navContext.restoreNavContextFromSp();
+        mainViewModel.getOnNavContextChangeListenerLiveData().setValue(true);
+    }
+
 
     @Override
     public void onOtherResume() {
@@ -192,6 +206,15 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 .build();
 
         binding.rv.addItemDecoration(decoration);
+        binding.rv.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                if (RecyclerView.SCROLL_STATE_IDLE == newState){
+                    saveScrollPosition();
+                }
+            }
+        });
 
         //layout manager
         binding.rv.setLayoutManager(getGridLayoutManager());
@@ -298,7 +321,6 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
         binding.rv.setAdapter(adapter);
     }
-
 
     private void initViewModel() {
         getViewModel().getRefreshLiveData().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
@@ -713,7 +735,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         }
 
         //If SPAN_COUNT is updated, then the data in the ScrollPosition is meaningless
-        removeScrollPositionExcludeRoot();
+        removeScrolledPositionExcludeRoot();
 
         lastViewType = newViewType;
     }
@@ -811,7 +833,6 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     }
 
     public void loadData(boolean forceRefresh) {
-        removeCurrentScrollPosition();
 
         if (forceRefresh) {
             long now = TimeUtils.getNowMills();
@@ -855,9 +876,9 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         if (FileViewType.GALLERY == type) {
             showErrorView(R.string.no_album_type_data);
         } else if (getNavContext().inRepo()) {
-            showErrorView(R.string.no_repo);
-        } else {
             showErrorView(R.string.dir_empty);
+        } else {
+            showErrorView(R.string.no_repo);
         }
     }
 
@@ -877,6 +898,12 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     private void showErrorView(String msg) {
         adapter.submitList(null);
         TextView tipView = TipsViews.getTipTextView(requireContext());
+        tipView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                reloadData();
+            }
+        });
         tipView.setText(msg);
         adapter.setStateView(tipView);
         adapter.setStateViewEnable(true);
@@ -884,8 +911,6 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
     private void navTo(BaseModel model) {
         //save
-        saveScrollPosition();
-
         if (model instanceof RepoModel model1) {
             getNavContext().push(model1);
 
@@ -928,7 +953,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 adapter.setOnActionMode(false);
             } else {
                 //
-                removeCurrentScrollPosition();
+                removeScrolledPosition();
                 //
                 getNavContext().pop();
                 getViewModel().loadData(getNavContext(), false);
@@ -986,8 +1011,9 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
         final int index = gridLayoutManager.findFirstVisibleItemPosition();
         final ScrollState state = new ScrollState(index, top);
+        SLogs.d(state.toString());
 
-        removeCurrentScrollPosition();
+        removeScrolledPosition();
 
         if (!getNavContext().inRepo()) {
             scrollPositions.put(KEY_REPO_SCROLL_POSITION, state);
@@ -997,7 +1023,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         }
     }
 
-    private void removeScrollPositionExcludeRoot() {
+    private void removeScrolledPositionExcludeRoot() {
         if (!scrollPositions.isEmpty()) {
             ScrollState rootState = scrollPositions.get(KEY_REPO_SCROLL_POSITION);
             scrollPositions.clear();
@@ -1005,7 +1031,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         }
     }
 
-    private void removeCurrentScrollPosition() {
+    private void removeScrolledPosition() {
         if (!getNavContext().inRepo()) {
             scrollPositions.remove(KEY_REPO_SCROLL_POSITION);
         } else {

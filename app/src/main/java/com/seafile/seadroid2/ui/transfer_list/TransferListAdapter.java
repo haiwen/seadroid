@@ -97,8 +97,12 @@ public class TransferListAdapter extends BaseAdapter<FileTransferEntity, Transfe
         }
 
         //target path
-        String targetPath = Utils.pathJoin(entity.repo_name, entity.getParent_path());
-        holder.binding.transferTargetPath.setText(targetPath);
+        if (!TextUtils.isEmpty(entity.repo_name)) {
+            String targetPath = Utils.pathJoin(entity.repo_name, entity.getParent_path());
+            holder.binding.transferTargetPath.setText(targetPath);
+        } else {
+            holder.binding.transferTargetPath.setText(entity.getParent_path());
+        }
 
         //file name
         holder.binding.transferFileName.setText(entity.file_name);
