@@ -2,15 +2,15 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:gravity="end|center_vertical"
     android:layout_marginVertical="8dp"
+    android:gravity="end|center_vertical"
     android:orientation="horizontal">
 
     <TextView
         android:id="@+id/text_view_negative"
         android:layout_width="wrap_content"
         android:layout_height="?actionBarSize"
-        android:foreground="@drawable/selection_control_ripple"
+        android:background="@drawable/ripple_icon_middle"
         android:gravity="center"
         android:paddingHorizontal="?attr/dialogPreferredPadding"
         android:text="@string/cancel"
@@ -21,7 +21,7 @@
         android:layout_width="wrap_content"
         android:layout_height="?actionBarSize"
         android:layout_marginStart="4dp"
-        android:foreground="@drawable/selection_control_ripple"
+        android:background="@drawable/ripple_icon_middle"
         android:gravity="center"
         android:paddingHorizontal="?attr/dialogPreferredPadding"
         android:text="@string/ok"

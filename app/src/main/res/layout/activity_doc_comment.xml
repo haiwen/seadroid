@@ -54,6 +54,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@color/bar_background_color"
             android:gravity="bottom">
 
             <ImageView
@@ -61,7 +62,7 @@
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:layout_marginEnd="8dp"
-                android:foreground="?selectableItemBackground"
+                android:background="@drawable/ripple_icon_middle"
                 android:padding="12dp"
                 android:src="@drawable/ic_picture" />
 
@@ -88,11 +89,9 @@
                 android:id="@+id/submit"
                 android:layout_width="wrap_content"
                 android:layout_height="48dp"
-                android:layout_marginStart="12dp"
-                android:layout_marginEnd="8dp"
-                android:foreground="?selectableItemBackground"
+                android:background="@drawable/ripple_icon_middle"
                 android:gravity="center"
-                android:paddingHorizontal="4dp"
+                android:paddingHorizontal="16dp"
                 android:text="@string/confirm"
                 android:textColor="@color/fancy_orange"
                 android:textSize="16sp" />

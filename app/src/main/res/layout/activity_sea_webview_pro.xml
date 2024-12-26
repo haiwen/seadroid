@@ -62,18 +62,17 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:foreground="@drawable/selection_control_ripple"
+                android:foreground="@drawable/ripple_icon_middle"
                 android:scaleType="centerInside"
                 android:src="@drawable/baseline_outline_24"
                 app:tint="@color/bottom_bar_icon_tint_color" />
 
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/sdoc_profile"
-
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:foreground="@drawable/selection_control_ripple"
+                android:foreground="@drawable/ripple_icon_middle"
                 android:scaleType="centerInside"
                 android:src="@drawable/baseline_info_24"
                 app:tint="@color/bottom_bar_icon_tint_color" />
@@ -83,7 +82,7 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:foreground="@drawable/selection_control_ripple"
+                android:foreground="@drawable/ripple_icon_middle"
                 android:scaleType="centerInside"
                 android:src="@drawable/baseline_comment_24"
                 app:tint="@color/bottom_bar_icon_tint_color" />

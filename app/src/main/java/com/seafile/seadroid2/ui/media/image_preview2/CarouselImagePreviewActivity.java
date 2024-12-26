@@ -247,12 +247,12 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
             }
         });
 
-        getViewModel().getStarLiveData().observe(this, new Observer<Boolean>() {
+        getViewModel().getStarredLiveData().observe(this, new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean aBoolean) {
                 isDataOperated = true;
 
-                ToastUtils.showLong(aBoolean ? R.string.star_file_succeed : R.string.star_file_failed);
+//                ToastUtils.showLong(aBoolean ? R.string.star_file_succeed : R.string.star_file_failed);
 
                 int index = binding.pager.getCurrentItem();
                 direntList.get(index).starred = aBoolean;
@@ -298,13 +298,18 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
     }
 
     private final LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
-    private final GravitySnapHelper gravitySnapHelper = new GravitySnapHelper(Gravity.CENTER);
+    private final GravitySnapHelper snapHelper = new GravitySnapHelper(Gravity.CENTER);
 
     private void initCarouselRecyclerView() {
         carouselAdapter = new CarouselAdapter(this, new CarouselAdapter.CarouselItemListener() {
             @Override
             public void onItemClicked(DirentModel item, int snapPosition) {
-                gravitySnapHelper.smoothScrollToPosition(snapPosition);
+                if (snapHelper.getCurrentSnappedPosition() == snapPosition) {
+                    ToastUtils.showLong("same");
+                    return;
+                }
+
+                snapHelper.smoothScrollToPosition(snapPosition);
             }
         });
 
@@ -317,11 +322,11 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
         int sidePadding = (screenWidth - carouselItemWidth) / 2 - carouselItemMargin * 2;//170-4=166
         binding.recyclerView.addItemDecoration(new LinearEdgeDecoration(sidePadding, sidePadding, RecyclerView.HORIZONTAL, false));
 
-        gravitySnapHelper.attachToRecyclerView(binding.recyclerView);
+        snapHelper.attachToRecyclerView(binding.recyclerView);
     }
 
     private void bindPager() {
-        bindPager(binding.pager, gravitySnapHelper);
+        bindPager(binding.pager, snapHelper);
     }
 
     private int whoScroll = -1;
@@ -547,6 +552,10 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
         }
 
         DirentModel direntModel = getSelectedDirent();
+        if (direntModel == null) {
+            return;
+        }
+
         if (direntModel.starred) {
             getViewModel().unStar(direntModel.repo_id, direntModel.full_path);
         } else {

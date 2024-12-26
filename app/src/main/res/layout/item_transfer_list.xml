@@ -130,7 +130,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:contentDescription="@string/file_action_more"
-                android:foreground="@drawable/selection_control_ripple"
+                android:foreground="@drawable/ripple_icon_little"
                 android:padding="8dp"
                 android:src="@drawable/baseline_more_vert_24"
                 android:visibility="visible"

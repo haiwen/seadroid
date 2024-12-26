@@ -57,7 +57,7 @@
         <item name="backgroundTint">@null</item>
         <item name="itemIconTint">@color/selector_color_primary</item>
         <item name="itemTextColor">@color/selector_color_primary</item>
-        <item name="itemRippleColor">@color/fancy_orange_light</item>
+        <item name="itemRippleColor">@color/fancy_orange_translucent</item>
         <item name="labelVisibilityMode">labeled</item>
         <item name="android:minHeight">?actionBarSize</item>
         <item name="itemPaddingTop">8dp</item>

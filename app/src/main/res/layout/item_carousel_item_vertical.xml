@@ -7,21 +7,16 @@
     android:layout_height="wrap_content"
     android:layout_marginStart="@dimen/carousel_item_margin"
     android:layout_marginEnd="@dimen/carousel_item_margin"
-    android:foreground="?attr/selectableItemBackground"
     android:paddingVertical="4dp">
 
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/image_view"
         android:layout_width="@dimen/carousel_item_width"
         android:layout_height="@dimen/carousel_item_height"
+        android:foreground="?attr/selectableItemBackground"
         android:scaleType="centerCrop"
         android:src="@drawable/icon"
         app:shapeAppearance="@style/ShapeCorner4Style"
         tools:ignore="ContentDescription" />
 
-    <TextView
-        android:id="@+id/text_view"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"/>
 </FrameLayout>

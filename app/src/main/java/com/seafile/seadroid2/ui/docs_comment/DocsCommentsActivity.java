@@ -24,6 +24,7 @@ import com.chad.library.adapter4.BaseQuickAdapter;
 import com.chad.library.adapter4.QuickAdapterHelper;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.databinding.ActivityDocCommentBinding;
 import com.seafile.seadroid2.databinding.ToolbarActionbarBinding;
 import com.seafile.seadroid2.framework.data.model.docs_comment.DocsCommentModel;
@@ -40,8 +41,6 @@ import io.reactivex.functions.Consumer;
 public class DocsCommentsActivity extends BaseMediaSelectorActivity<DocsCommentViewModel> {
     private ActivityDocCommentBinding binding;
     private ToolbarActionbarBinding bindingOfToolbar;
-
-    private Toolbar toolbar;
 
     private DocsCommentAdapter adapter;
     private DocsCommentUserAdapter userAdapter;
@@ -85,7 +84,7 @@ public class DocsCommentsActivity extends BaseMediaSelectorActivity<DocsCommentV
     private final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
 
     private void initView() {
-        toolbar = bindingOfToolbar.toolbarActionbar;
+        Toolbar toolbar = bindingOfToolbar.toolbarActionbar;
 
         toolbar.setTitle("");
         setSupportActionBar(toolbar);
@@ -141,8 +140,14 @@ public class DocsCommentsActivity extends BaseMediaSelectorActivity<DocsCommentV
                 //remove all
                 binding.richEditText.removeAllViews();
 
-
                 refreshData();
+            }
+        });
+
+        getViewModel().getSeafExceptionLiveData().observe(this, new Observer<SeafException>() {
+            @Override
+            public void onChanged(SeafException e) {
+                ToastUtils.showLong(e.getMessage());
             }
         });
 

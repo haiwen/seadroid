@@ -122,7 +122,7 @@ public class CarouselAdapter extends ListAdapter<DirentModel, CarouselAdapter.Ca
         DirentModel model = getItem(pos);
 //        holder.textView.setText(pos + "");
 
-        holder.itemView.setOnClickListener(v -> {
+        holder.imageView.setOnClickListener(v -> {
             listener.onItemClicked(model, pos);
         });
 

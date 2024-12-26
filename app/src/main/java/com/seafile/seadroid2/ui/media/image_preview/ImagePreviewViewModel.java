@@ -7,7 +7,6 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.ToastUtils;
-import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.framework.data.db.AppDatabase;
 import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
@@ -15,10 +14,8 @@ import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.data.model.ResultModel;
 import com.seafile.seadroid2.framework.data.model.repo.Dirent2Model;
 import com.seafile.seadroid2.framework.data.model.sdoc.FileDetailModel;
-import com.seafile.seadroid2.framework.data.model.sdoc.MetadataConfigModel;
 import com.seafile.seadroid2.framework.data.model.sdoc.FileProfileConfigModel;
 import com.seafile.seadroid2.framework.data.model.user.UserWrapperModel;
-import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.framework.http.HttpIO;
@@ -34,24 +31,23 @@ import java.util.stream.Collectors;
 import io.reactivex.Single;
 import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Consumer;
-import io.reactivex.functions.Function3;
 import okhttp3.RequestBody;
 
 public class ImagePreviewViewModel extends BaseViewModel {
-    private final MutableLiveData<List<DirentModel>> ListLiveData = new MutableLiveData<>();
-    private final MutableLiveData<Boolean> StarLiveData = new MutableLiveData<>();
+    private final MutableLiveData<List<DirentModel>> _imageListLiveData = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> _starredLiveData = new MutableLiveData<>();
     private final MutableLiveData<Pair<RepoModel, List<DirentModel>>> _repoAndListLiveData = new MutableLiveData<>();
 
     public MutableLiveData<Pair<RepoModel, List<DirentModel>>> getRepoAndListLiveData() {
         return _repoAndListLiveData;
     }
 
-    public MutableLiveData<Boolean> getStarLiveData() {
-        return StarLiveData;
+    public MutableLiveData<Boolean> getStarredLiveData() {
+        return _starredLiveData;
     }
 
-    public MutableLiveData<List<DirentModel>> getListLiveData() {
-        return ListLiveData;
+    public MutableLiveData<List<DirentModel>> getImageListLiveData() {
+        return _imageListLiveData;
     }
 
     private final MutableLiveData<FileProfileConfigModel> _fileProfileConfigLiveData = new MutableLiveData<>();
@@ -145,7 +141,7 @@ public class ImagePreviewViewModel extends BaseViewModel {
 
     public void loadData(String repoID, String parentPath) {
         if (TextUtils.isEmpty(parentPath)) {
-            getListLiveData().setValue(CollectionUtils.newArrayList());
+            getImageListLiveData().setValue(CollectionUtils.newArrayList());
             return;
         }
 
@@ -158,7 +154,7 @@ public class ImagePreviewViewModel extends BaseViewModel {
                         .filter(f -> !f.isDir() && Utils.isViewableImage(f.name))
                         .collect(Collectors.toList());
 
-                getListLiveData().setValue(ds);
+                getImageListLiveData().setValue(ds);
             }
         });
     }
@@ -196,14 +192,13 @@ public class ImagePreviewViewModel extends BaseViewModel {
             public void accept(Dirent2Model resultModel) throws Exception {
                 getRefreshLiveData().setValue(false);
 
-                getStarLiveData().setValue(true);
-                ToastUtils.showLong(R.string.star_file_succeed);
+                getStarredLiveData().setValue(true);
             }
         }, new Consumer<Throwable>() {
             @Override
             public void accept(Throwable throwable) throws Exception {
                 getRefreshLiveData().setValue(false);
-                getStarLiveData().setValue(false);
+
                 String errMsg = getErrorMsgByThrowable(throwable);
                 ToastUtils.showLong(errMsg);
             }
@@ -219,12 +214,13 @@ public class ImagePreviewViewModel extends BaseViewModel {
             public void accept(ResultModel resultModel) throws Exception {
                 getRefreshLiveData().setValue(false);
 
-                getStarLiveData().setValue(false);
+                getStarredLiveData().setValue(false);
             }
         }, new Consumer<Throwable>() {
             @Override
             public void accept(Throwable throwable) throws Exception {
                 getRefreshLiveData().setValue(false);
+
                 String errMsg = getErrorMsgByThrowable(throwable);
                 ToastUtils.showLong(errMsg);
             }

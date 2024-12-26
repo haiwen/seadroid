@@ -19,7 +19,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scaleType="centerCrop"
-            android:src="@drawable/selectable_item_background_oval"
             app:shapeAppearance="?shapeAppearanceSmallComponent" />
 
         <ImageView

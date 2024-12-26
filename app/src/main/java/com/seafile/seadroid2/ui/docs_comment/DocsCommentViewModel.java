@@ -9,6 +9,7 @@ import androidx.lifecycle.MutableLiveData;
 import com.blankj.utilcode.util.CloneUtils;
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.TimeUtils;
+import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.framework.data.model.ResultModel;
@@ -362,7 +363,7 @@ public class DocsCommentViewModel extends BaseViewModel {
             @Override
             public void accept(Throwable throwable) throws Exception {
                 getRefreshLiveData().setValue(false);
-
+                getSeafExceptionLiveData().setValue(getExceptionByThrowable(throwable));
             }
         });
     }

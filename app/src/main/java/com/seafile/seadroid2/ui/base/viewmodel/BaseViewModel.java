@@ -263,11 +263,16 @@ public class BaseViewModel extends ViewModel {
                 return SeafException.notFoundException;
             }
 
+
             //HTTP_STATUS_REPO_PASSWORD_REQUIRED
             if (440 == httpException.code()) {
                 return SeafException.invalidPassword;
             }
 
+//            //500: HTTP_INTERNAL_ERROR
+//            if (HttpURLConnection.HTTP_INTERNAL_ERROR == httpException.code()) {
+//                return SeafException.networkException;
+//            }
 
             if (resp != null) {
                 try {

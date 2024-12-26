@@ -92,7 +92,7 @@
             android:layout_height="@dimen/lv_multi_select_height"
             android:layout_gravity="center"
             android:contentDescription="@string/file_action_more"
-            android:foreground="@drawable/selection_control_ripple"
+            android:foreground="@drawable/ripple_icon_little"
             android:padding="8dp"
             android:src="@drawable/baseline_more_vert_24"
             android:visibility="visible"
