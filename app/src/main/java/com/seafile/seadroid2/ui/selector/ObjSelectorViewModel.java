@@ -63,9 +63,9 @@ public class ObjSelectorViewModel extends BaseViewModel {
     }
 
     /**
-     * @param isFilter Filter out encrypted and read-only repo
+     * @param isFilterUnavailable Filter out encrypted and read-only repo
      */
-    public void loadReposFromNet(Account account, boolean isFilter) {
+    public void loadReposFromNet(Account account, boolean isFilterUnavailable) {
         getRefreshLiveData().setValue(true);
         Single<RepoWrapperModel> singleNet = HttpIO.getInstanceByAccount(account).execute(RepoService.class).getRepos();
 
@@ -78,7 +78,7 @@ public class ObjSelectorViewModel extends BaseViewModel {
                     return;
                 }
 
-                List<BaseModel> list = Objs.parseRepoListForAdapter(repoWrapperModel.repos, account.getSignature(), isFilter);
+                List<BaseModel> list = Objs.parseRepoListForAdapter(repoWrapperModel.repos, account.getSignature(), isFilterUnavailable);
                 getObjsListLiveData().setValue(list);
                 getRefreshLiveData().setValue(false);
             }

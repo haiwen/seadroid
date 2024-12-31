@@ -94,6 +94,10 @@ public class DirentModel extends BaseModel implements Parcelable {
         return TextUtils.equals(type, "dir");
     }
 
+    public String getName() {
+        return name;
+    }
+
     public String getSubtitle() {
         if (TextUtils.isEmpty(timestamp)) {
             timestamp = Utils.translateCommitTime(mtime * 1000);

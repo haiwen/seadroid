@@ -87,28 +87,49 @@ public class RepoViewModel extends BaseViewModel {
     }
 
 
-    public void loadData(NavContext context, boolean forceRefresh) {
+    public void loadData(NavContext context, RefreshStatusEnum refreshStatus) {
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
         if (account == null) {
             return;
         }
 
-        if (!context.inRepo()) {
-            loadReposFromLocal(account, forceRefresh);
-        } else if (forceRefresh) {
-            loadDirentsFromRemote(account, context);
-        } else {
-            FileViewType fileViewType = Settings.FILE_LIST_VIEW_TYPE.queryValue();
-            if (FileViewType.GALLERY == fileViewType) {
-                loadDirentsFromLocalWithGalleryViewType(account, context);
+        //force refresh
+        if (RefreshStatusEnum.REMOTE == refreshStatus) {
+            if (context.inRepo()) {
+                loadDirentsFromRemote(account, context);
             } else {
-                loadDirentsFromLocal(account, context);
+                loadReposFromRemote(account);
             }
+        } else if (RefreshStatusEnum.LOCAL_BEFORE_REMOTE == refreshStatus) {
+            if (context.inRepo()) {
+                FileViewType fileViewType = Settings.FILE_LIST_VIEW_TYPE.queryValue();
+                if (FileViewType.GALLERY == fileViewType) {
+                    loadDirentsFromLocalWithGalleryViewType(account, context, true);
+                } else {
+                    loadDirentsFromLocal(account, context, true);
+                }
+            } else {
+                loadReposFromLocal(account, refreshStatus);//same to ONLY_LOCAL
+            }
+        } else if (RefreshStatusEnum.ONLY_LOCAL == refreshStatus) {
+            if (context.inRepo()) {
+                FileViewType fileViewType = Settings.FILE_LIST_VIEW_TYPE.queryValue();
+                if (FileViewType.GALLERY == fileViewType) {
+                    loadDirentsFromLocalWithGalleryViewType(account, context, false);
+                } else {
+                    loadDirentsFromLocal(account, context, false);
+                }
+            } else {
+                loadReposFromLocal(account, refreshStatus);//here
+            }
+        } else {
+            //RefreshStatusEnum.NO: do nothing
         }
+
     }
 
-    private void loadReposFromLocal(Account account, boolean isForce) {
-        if (isForce) {
+    private void loadReposFromLocal(Account account, RefreshStatusEnum refreshStatus) {
+        if (RefreshStatusEnum.REMOTE == refreshStatus) {
             getRefreshLiveData().setValue(true);
         }
 
@@ -125,7 +146,7 @@ public class RepoViewModel extends BaseViewModel {
                 List<BaseModel> list = Objs.parseRepoListForAdapter(repoModels, account.getSignature(), false);
                 getObjListLiveData().setValue(list);
 
-                if (isForce) {
+                if (RefreshStatusEnum.REMOTE == refreshStatus) {
                     loadReposFromRemote(account);
                 } else {
                     getRefreshLiveData().setValue(false);
@@ -164,11 +185,11 @@ public class RepoViewModel extends BaseViewModel {
         });
     }
 
-    private void loadDirentsFromLocalWithGalleryViewType(Account account, NavContext context) {
+    private void loadDirentsFromLocalWithGalleryViewType(Account account, NavContext navContext, boolean isLoadRemoteData) {
         getRefreshLiveData().setValue(true);
 
-        String repoId = context.getRepoModel().repo_id;
-        String parentDir = context.getNavPath();
+        String repoId = navContext.getRepoModel().repo_id;
+        String parentDir = navContext.getNavPath();
 
         Single<List<DirentModel>> direntDBSingle = AppDatabase.getInstance().direntDao().getListByParentPathAsync(repoId, parentDir);
         addSingleDisposable(direntDBSingle, new Consumer<List<DirentModel>>() {
@@ -182,8 +203,8 @@ public class RepoViewModel extends BaseViewModel {
                     }
                 }
 
-                if (CollectionUtils.isEmpty(rets)) {
-                    loadDirentsFromRemote(account, context);
+                if (isLoadRemoteData || CollectionUtils.isEmpty(rets)) {
+                    loadDirentsFromRemote(account, navContext);
                 } else {
                     getObjListLiveData().setValue(Objs.parseLocalDirents(rets));
                     getRefreshLiveData().setValue(false);
@@ -192,11 +213,14 @@ public class RepoViewModel extends BaseViewModel {
         });
     }
 
-    private void loadDirentsFromLocal(Account account, NavContext context) {
+    private void loadDirentsFromLocal(Account account, NavContext navContext, boolean isLoadRemoteData) {
         getRefreshLiveData().setValue(true);
 
-        String repoId = context.getRepoModel().repo_id;
-        String parentDir = context.getNavPath();
+        String repoId = navContext.getRepoModel().repo_id;
+        String parentDir = navContext.getNavPath();
+        if (!parentDir.endsWith("/")) {
+            parentDir = parentDir + "/";
+        }
 
         Single<List<DirentModel>> direntDBSingle = AppDatabase.getInstance().direntDao().getListByParentPathAsync(repoId, parentDir);
         Single<List<FileTransferEntity>> curParentDownloadedList = AppDatabase.getInstance().fileTransferDAO().getDownloadedListByParentAsync(repoId, parentDir);
@@ -227,11 +251,16 @@ public class RepoViewModel extends BaseViewModel {
         addSingleDisposable(resultSingle, new Consumer<List<DirentModel>>() {
             @Override
             public void accept(List<DirentModel> direntModels) throws Exception {
+
                 if (CollectionUtils.isEmpty(direntModels)) {
-                    loadDirentsFromRemote(account, context);
+                    loadDirentsFromRemote(account, navContext);
                 } else {
                     getObjListLiveData().setValue(Objs.parseLocalDirents(direntModels));
-                    getRefreshLiveData().setValue(false);
+                    if (isLoadRemoteData) {
+                        loadDirentsFromRemote(account, navContext);
+                    } else {
+                        getRefreshLiveData().setValue(false);
+                    }
                 }
             }
         });
@@ -250,6 +279,10 @@ public class RepoViewModel extends BaseViewModel {
 
         if ("/".equals(parentDir)) {
             loadPermissionFromRemote(repoId);
+        }
+
+        if (!parentDir.endsWith("/")) {
+            parentDir = parentDir + "/";
         }
 
         Single<List<DirentModel>> resultSingle = Objs.getDirentsSingleFromServer(account, repoId, repoName, parentDir);

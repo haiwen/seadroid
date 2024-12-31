@@ -70,6 +70,12 @@ public class TransferActivity extends BaseActivity implements Toolbar.OnMenuItem
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setTitle(R.string.transfer_tasks);
         }
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
 
         /** this is hacky to explicitly call onNewIntent()
          * because it was never called when start the TransferActivity
@@ -140,7 +146,7 @@ public class TransferActivity extends BaseActivity implements Toolbar.OnMenuItem
         viewPager2Adapter.addFragments(fragments);
         binding.pager.setAdapter(viewPager2Adapter);
         binding.pager.setOffscreenPageLimit(1);
-
+        binding.pager.setUserInputEnabled(false);
 
         String[] tabs = getResources().getStringArray(R.array.transfer_list_titles);
 

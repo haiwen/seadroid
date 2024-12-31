@@ -28,6 +28,7 @@ import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLHandshakeException;
@@ -193,7 +194,6 @@ public class BaseViewModel extends ViewModel {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(onNext, throwable, onComplete));
     }
-
 
     public <T> void addCompletableDisposable(Completable completable, Action action) {
         compositeDisposable.add(completable

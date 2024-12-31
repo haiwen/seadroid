@@ -23,6 +23,7 @@
   <string name="move_folder">移动文件夹</string>
   <string name="delete_dir">删除文件夹</string>
   <string name="name_hint">名称</string>
+  <string name="server">服务器</string>
   <string name="server_hint">云盘网址</string>
   <string name="email_hint">邮箱或用户名</string>
   <string name="passwd_hint">密码</string>
@@ -316,6 +317,8 @@
   <string name="next_button_label">下一个</string>
   <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
   <string name="skip_button_label">跳过</string>
+  <!--Display mode-->
+  <string name="settings_display_mode">显示模式</string>
   <!--contacts  upload-->
   <string name="settings_contacts_upload_info_title">通讯录备份</string>
   <string name="settings_contacts_upload_turn_on">启用通讯录备份</string>
@@ -560,6 +563,8 @@ Email: support@seafile.com<br>
   <string name="is_uploading">上传中</string>
   <string name="network_unavailable">网络不可用</string>
   <string name="network_error">网络异常</string>
+  <string name="error_image_load">加载失败</string>
+  <string name="retry_with_click">点击重试</string>
   <string name="required_password">需要密码</string>
   <string name="weak_password">密码太弱</string>
   <!--Folder backup Preference-->
@@ -645,7 +650,9 @@ Email: support@seafile.com<br>
   <string name="_in_review">审核中</string>
   <string name="_done">已完成</string>
   <string name="_outdated">已过期</string>
+  <string name="_tags">标签</string>
   <string name="mark_resolve">标记为已解决</string>
   <string name="delete_confirm">你确定想要删除此条内容？</string>
+  <string name="canceled">已取消</string>
   <!--end-->
 </resources>

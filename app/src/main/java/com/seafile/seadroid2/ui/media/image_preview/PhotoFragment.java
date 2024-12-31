@@ -3,11 +3,13 @@ package com.seafile.seadroid2.ui.media.image_preview;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.text.style.ClickableSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.MimeTypeMap;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -15,6 +17,7 @@ import androidx.lifecycle.Observer;
 
 import com.blankj.utilcode.util.EncryptUtils;
 import com.blankj.utilcode.util.FileUtils;
+import com.blankj.utilcode.util.SpanUtils;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.engine.GlideException;
@@ -26,6 +29,7 @@ import com.bumptech.glide.signature.ObjectKey;
 import com.github.chrisbanes.photoview.OnPhotoTapListener;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
+import com.seafile.seadroid2.compat.ContextCompatKt;
 import com.seafile.seadroid2.config.OriGlideUrl;
 import com.seafile.seadroid2.databinding.FragmentPhotoViewBinding;
 import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
@@ -35,17 +39,17 @@ import com.seafile.seadroid2.framework.util.GlideRequest;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.ThumbnailUtils;
 import com.seafile.seadroid2.ui.base.fragment.BaseFragmentWithVM;
-import com.seafile.seadroid2.ui.media.PhotoViewModel;
 
 import kotlin.Pair;
 
 public class PhotoFragment extends BaseFragmentWithVM<PhotoViewModel> {
 
+    private FragmentPhotoViewBinding binding;
+
     private String repoId, repoName, fullPath;
     private String imageUrl;
 
     private OnPhotoTapListener onPhotoTapListener;
-    private FragmentPhotoViewBinding binding;
     private String serverUrl;
 
     public void setOnPhotoTapListener(OnPhotoTapListener onPhotoTapListener) {
@@ -106,6 +110,21 @@ public class PhotoFragment extends BaseFragmentWithVM<PhotoViewModel> {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        TextView descTextView = binding.errorView.findViewById(R.id.desc);
+        SpanUtils.with(descTextView)
+                .append(getString(R.string.error_image_load))
+                .setForegroundColor(ContextCompatKt.getColorCompat(requireContext(), R.color.black))
+                .append(",")
+                .append("  ")
+                .append(getString(R.string.retry_with_click))
+                .setClickSpan(ContextCompatKt.getColorCompat(requireContext(), R.color.fancy_orange), true, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        load();
+                    }
+                })
+                .create();
+
         binding.photoView.setZoomable(true);
         binding.photoView.setZoomTransitionDuration(300);
         binding.photoView.setMaximumScale(3f);
@@ -121,19 +140,16 @@ public class PhotoFragment extends BaseFragmentWithVM<PhotoViewModel> {
 
         intViewModel();
 
-        if (!TextUtils.isEmpty(imageUrl)) {
-            loadSingleUrl(imageUrl);
-        } else {
-            loadThumbnailAndRequestRawUrl();
-        }
+        load();
     }
+
 
     private void intViewModel() {
         getViewModel().getSeafExceptionLiveData().observe(getViewLifecycleOwner(), new Observer<SeafException>() {
             @Override
             public void onChanged(SeafException e) {
-                binding.photoView.setImageResource(R.drawable.icon_image_error_filled);
                 binding.progressBar.setVisibility(View.GONE);
+                binding.errorView.setVisibility(View.VISIBLE);
             }
         });
 
@@ -157,11 +173,12 @@ public class PhotoFragment extends BaseFragmentWithVM<PhotoViewModel> {
                         loadOriUrl(transferEntity.target_path);
                     }
                 } else {
-                    if (isGif(fullPath)) {
-                        getViewModel().download(direntModel);
-                    } else {
-                        getViewModel().requestOriginalUrl(direntModel);
-                    }
+//                    if (isGif(fullPath)) {
+//                        getViewModel().download(direntModel);
+//                    } else {
+//                        getViewModel().requestOriginalUrl(direntModel);
+//                    }
+                    getViewModel().download(direntModel);
                 }
             }
         });
@@ -176,21 +193,41 @@ public class PhotoFragment extends BaseFragmentWithVM<PhotoViewModel> {
         getViewModel().getDownloadedPathLiveData().observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(String rawPath) {
-                loadSingleUrl(rawPath);
+                if (isGif(fullPath)) {
+                    loadOriGifUrl(rawPath);
+                } else {
+                    loadOriUrl(rawPath);
+                }
             }
         });
     }
 
-    private void loadSingleUrl(String url) {
+    private void load() {
+        if (binding.progressBar.getVisibility() == View.GONE) {
+            binding.progressBar.setVisibility(View.VISIBLE);
+        }
+
+        if (binding.errorView.getVisibility() == View.VISIBLE) {
+            binding.errorView.setVisibility(View.GONE);
+        }
+
+        if (!TextUtils.isEmpty(imageUrl)) {
+            loadUrl(imageUrl);
+        } else {
+            loadThumbnailAndRequestRawUrl();
+        }
+    }
+
+    private void loadUrl(String url) {
         GlideApp.with(this)
                 .load(url)
-                .error(R.drawable.icon_image_error_filled)
                 .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
                 .transition(DrawableTransitionOptions.withCrossFade())
                 .listener(new RequestListener<Drawable>() {
                     @Override
                     public boolean onLoadFailed(@Nullable GlideException e, @Nullable Object model, @NonNull Target<Drawable> target, boolean isFirstResource) {
                         binding.progressBar.setVisibility(View.GONE);
+                        binding.errorView.setVisibility(View.VISIBLE);
                         return false;
                     }
 
@@ -208,38 +245,37 @@ public class PhotoFragment extends BaseFragmentWithVM<PhotoViewModel> {
     }
 
     private void loadOriUrl(String oriUrl) {
-        String thumbnailUrl = convertThumbnailUrl(fullPath);
-        String thumbKey = EncryptUtils.encryptMD5ToString(thumbnailUrl);
-        // load thumbnail first
-        GlideRequest<Drawable> thumbnailRequest = GlideApp.with(this)
-                .load(thumbnailUrl)
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .signature(new ObjectKey(thumbKey))
-                .addListener(new RequestListener<Drawable>() {
-                    @Override
-                    public boolean onLoadFailed(@Nullable GlideException e, @Nullable Object model, @NonNull Target<Drawable> target, boolean isFirstResource) {
-                        return false;
-                    }
+//        String thumbnailUrl = convertThumbnailUrl(fullPath);
+//        String thumbKey = EncryptUtils.encryptMD5ToString(thumbnailUrl);
+//        // load thumbnail first
+//        GlideRequest<Drawable> thumbnailRequest = GlideApp.with(this)
+//                .load(thumbnailUrl)
+//                .diskCacheStrategy(DiskCacheStrategy.ALL)
+//                .signature(new ObjectKey(thumbKey))
+//                .addListener(new RequestListener<Drawable>() {
+//                    @Override
+//                    public boolean onLoadFailed(@Nullable GlideException e, @Nullable Object model, @NonNull Target<Drawable> target, boolean isFirstResource) {
+//                        return false;
+//                    }
+//
+//                    @Override
+//                    public boolean onResourceReady(@NonNull Drawable resource, @NonNull Object model, Target<Drawable> target, @NonNull DataSource dataSource, boolean isFirstResource) {
+////                        SLogs.e("缩略图：" + dataSource.name() + ": " + isFirstResource + ": " + thumbKey + ": " + thumbnailUrl);
+//                        return false;
+//                    }
+//                });
 
-                    @Override
-                    public boolean onResourceReady(@NonNull Drawable resource, @NonNull Object model, Target<Drawable> target, @NonNull DataSource dataSource, boolean isFirstResource) {
-//                        SLogs.e("缩略图：" + dataSource.name() + ": " + isFirstResource + ": " + thumbKey + ": " + thumbnailUrl);
-                        return false;
-                    }
-                });
-
-        String oriCacheKey = EncryptUtils.encryptMD5ToString(repoId + fullPath);
+//        String oriCacheKey = EncryptUtils.encryptMD5ToString(repoId + fullPath);
+        //new OriGlideUrl()
         GlideApp.with(this)
-                .load(new OriGlideUrl(oriUrl, oriCacheKey))
-                .thumbnail(thumbnailRequest)
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .error(R.drawable.icon_image_error_filled)
-                .fallback(R.drawable.icon_image_error_filled)
+                .load(oriUrl)
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
                 .transition(DrawableTransitionOptions.withCrossFade())
                 .listener(new RequestListener<Drawable>() {
                     @Override
                     public boolean onLoadFailed(@Nullable GlideException e, @Nullable Object model, @NonNull Target<Drawable> target, boolean isFirstResource) {
                         binding.progressBar.setVisibility(View.GONE);
+                        binding.errorView.setVisibility(View.VISIBLE);
                         return false;
                     }
 
@@ -260,13 +296,12 @@ public class PhotoFragment extends BaseFragmentWithVM<PhotoViewModel> {
                 .asGif()
                 .load(rawUrl)
                 .diskCacheStrategy(DiskCacheStrategy.NONE)//
-                .error(R.drawable.icon_image_error_filled)
-                .fallback(R.drawable.icon_image_error_filled)
                 .placeholder(binding.photoView.getDrawable())
                 .listener(new RequestListener<GifDrawable>() {
                     @Override
                     public boolean onLoadFailed(@Nullable GlideException e, @Nullable Object model, @NonNull Target<GifDrawable> target, boolean isFirstResource) {
                         binding.progressBar.setVisibility(View.GONE);
+                        binding.errorView.setVisibility(View.VISIBLE);
                         return false;
                     }
 

@@ -146,7 +146,6 @@ public class CarouselAdapter extends ListAdapter<DirentModel, CarouselAdapter.Ca
                 .load(thumbnailUrl)
                 .signature(new ObjectKey(thumbKey))
                 .apply(opt)
-                .fitCenter()
                 .into(holder.imageView);
     }
 

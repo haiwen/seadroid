@@ -78,8 +78,8 @@ public interface FileTransferDAO {
     @Query("update file_transfer_list set transfer_status = 'CANCELLED', transfer_result = 'CANCELLED', data_status = -1, transferred_size = 0 where data_source in ('FILE_BACKUP','FOLDER_BACKUP')")
     void cancelAllWithFileBackup();
 
-    @Query("select * from file_transfer_list where related_account = :related_account and data_source in ( :feats ) and data_status = 0  order by created_at asc")
-    Single<List<FileTransferEntity>> getListByFeatAsync(String related_account, List<TransferDataSource> feats);
+    @Query("select * from file_transfer_list where related_account = :related_account and data_source in ( :feats ) and data_status = 0 order by created_at asc")
+    Single<List<FileTransferEntity>> getListByDataSourceAsync(String related_account, List<TransferDataSource> feats);
 
     @Query("select * from file_transfer_list where related_account = :related_account and transfer_action = :transfer_action and is_auto_transfer = 1 and transfer_status in ('IN_PROGRESS', 'WAITING') and data_source = :feature and data_status = 0  order by created_at asc limit 1")
     List<FileTransferEntity> getOnePendingTransferSync(String related_account, TransferAction transfer_action, TransferDataSource feature);
@@ -87,9 +87,6 @@ public interface FileTransferDAO {
     @Query("select COUNT(*) from file_transfer_list where related_account = :related_account and transfer_action = :transfer_action and is_auto_transfer = 1 and transfer_status in ('IN_PROGRESS', 'WAITING') and data_source = :feature and data_status = 0")
     int countPendingTransferSync(String related_account, TransferAction transfer_action, TransferDataSource feature);
 
-
-    @Query("select * from file_transfer_list where related_account = :related_account and transfer_action = :transfer_action and is_auto_transfer = 1 and transfer_status in ('IN_PROGRESS', 'WAITING') and data_status = 0 order by created_at asc limit :limit offset :offset")
-    List<FileTransferEntity> getPagePendingListTransferSync(String related_account, TransferAction transfer_action, int limit, int offset);
 
     @Query("select * from file_transfer_list where transfer_action = :transfer_action and is_auto_transfer = 1 and transfer_status in ('IN_PROGRESS', 'WAITING') and data_source = :feature and data_status = 0  order by created_at asc limit 1")
     List<FileTransferEntity> getOnePendingTransferAllAccountSync(TransferAction transfer_action, TransferDataSource feature);
@@ -100,12 +97,20 @@ public interface FileTransferDAO {
     @Query("select COUNT(*)  from file_transfer_list where related_account = :related_account and is_auto_transfer = 1 and transfer_action = 'DOWNLOAD' and transfer_status in ('IN_PROGRESS', 'WAITING') and data_status = 0")
     int countPendingDownloadListSync(String related_account);
 
+    @Query("select * from file_transfer_list where related_account = :related_account and transfer_action = :transfer_action and is_auto_transfer = 1 and transfer_status in ('IN_PROGRESS', 'WAITING') and data_status = 0 order by created_at asc limit :limit offset :offset")
+    List<FileTransferEntity> getPagePendingListTransferSync(String related_account, TransferAction transfer_action, int limit, int offset);
 
     @Query("select * from file_transfer_list where related_account = :related_account and transfer_action = 'UPLOAD' and data_source in ('FOLDER_BACKUP','FILE_BACKUP','ALBUM_BACKUP') and data_status = 0 order by modified_at desc limit :limit offset :offset")
     List<FileTransferEntity> getPageUploadListSync(String related_account, int limit, int offset);
 
+    @Query("select * from file_transfer_list where related_account = :related_account and transfer_action = 'UPLOAD' and data_source in ('FOLDER_BACKUP','FILE_BACKUP','ALBUM_BACKUP') and data_status = 0 order by modified_at desc limit :limit offset :offset")
+    Single<List<FileTransferEntity>> getPageUploadListAsync(String related_account, int limit, int offset);
+
     @Query("select * from file_transfer_list where related_account = :related_account and transfer_action = 'DOWNLOAD' and data_status = 0  order by modified_at desc limit :limit offset :offset")
     List<FileTransferEntity> getPageDownloadListSync(String related_account, int limit, int offset);
+
+    @Query("select * from file_transfer_list where related_account = :related_account and transfer_action = 'DOWNLOAD' and data_status = 0  order by modified_at desc limit :limit offset :offset")
+    Single<List<FileTransferEntity>> getPageDownloadListAsync(String related_account, int limit, int offset);
 
     @Query("select * from file_transfer_list where related_account = :related_account and transfer_action = :transferAction and target_path = :target_path and data_status = 0  order by created_at desc limit 1")
     List<FileTransferEntity> getByTargetPathSync(String related_account, TransferAction transferAction, String target_path);

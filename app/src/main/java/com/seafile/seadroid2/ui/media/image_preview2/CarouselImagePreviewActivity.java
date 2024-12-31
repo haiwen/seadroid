@@ -71,7 +71,6 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
     private List<DirentModel> carouselDirentList;
     private boolean isHide = false;
     private boolean isNightMode = false;
-    private boolean isDataOperated = false;
 
     private String repoId, repoName, parentDir, name;
     private boolean load_other_images_in_same_directory = false;
@@ -158,9 +157,8 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
             getSupportActionBar().setTitle(null);
 
             toolbar.setNavigationOnClickListener(v -> {
-                if (isDataOperated) {
-                    setResult(RESULT_OK);
-                }
+                setResult(RESULT_OK);
+
                 finish();
             });
         }
@@ -168,9 +166,8 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
         getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                if (isDataOperated) {
-                    setResult(RESULT_OK);
-                }
+                setResult(RESULT_OK);
+
                 finish();
             }
         });
@@ -211,9 +208,7 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
     private void initView() {
         View.OnClickListener onClickListener = v -> {
             int id = v.getId();
-            if (id == R.id.gallery_download_photo) {
-                downloadFile();
-            } else if (id == R.id.gallery_delete_photo) {
+            if (id == R.id.gallery_delete_photo) {
                 deleteFile();
             } else if (id == R.id.gallery_star_photo) {
                 starFile();
@@ -222,7 +217,6 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
             }
         };
 
-        binding.galleryDownloadPhoto.setOnClickListener(onClickListener);
         binding.galleryDeletePhoto.setOnClickListener(onClickListener);
         binding.galleryStarPhoto.setOnClickListener(onClickListener);
         binding.gallerySharePhoto.setOnClickListener(onClickListener);
@@ -250,8 +244,6 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
         getViewModel().getStarredLiveData().observe(this, new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean aBoolean) {
-                isDataOperated = true;
-
 //                ToastUtils.showLong(aBoolean ? R.string.star_file_succeed : R.string.star_file_failed);
 
                 int index = binding.pager.getCurrentItem();
@@ -523,8 +515,6 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
             @Override
             public void onActionStatus(boolean isDone) {
                 if (isDone) {
-                    isDataOperated = true;
-
                     direntList.remove(position);
                     adapter.removeFragment(position);
                     adapter.notifyItemRemoved(position);
@@ -566,14 +556,6 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
     private void shareFile() {
         DirentModel direntModel = getSelectedDirent();
         Objs.showCreateShareLinkDialog(this, getSupportFragmentManager(), direntModel, false);
-    }
-
-
-    private void downloadFile() {
-        isDataOperated = true;
-
-        DirentModel direntModel = getSelectedDirent();
-        getViewModel().download(direntModel.repo_id, direntModel.full_path);
     }
 
 
@@ -654,7 +636,6 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
             public void onActionStatus(boolean isDone) {
                 if (isDone) {
                     ToastUtils.showLong(copyMoveContext.isCopy() ? R.string.copied_successfully : R.string.moved_successfully);
-                    isDataOperated = true;
                 }
             }
         });

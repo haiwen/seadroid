@@ -162,14 +162,14 @@ public class FileSyncService extends Service {
 
     private void startFolderMonitor() {
         boolean isBackupEnable = FolderBackupSharePreferenceHelper.readBackupSwitch();
-        if (isBackupEnable){
+        if (isBackupEnable) {
             List<String> pathList = FolderBackupSharePreferenceHelper.readBackupPathsAsList();
             boolean isFound = pathList.stream().anyMatch(IGNORE_PATHS::contains);
             if (!isFound) {
                 pathList.add(IGNORE_PATHS.get(0));
             }
             startFolderMonitor(pathList);
-        }else{
+        } else {
             resetFolderMonitor();
         }
     }

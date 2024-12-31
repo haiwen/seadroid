@@ -26,7 +26,7 @@ import java.util.List;
 public class FolderBackupConfigActivity extends BaseActivity {
     public static final String FOLDER_BACKUP_SELECT_TYPE = "folder_backup_select_type";
     public static final String BACKUP_SELECT_PATHS = "backup_select_paths";
-    private RepoModel repoModel;
+
     private Account mAccount;
     private boolean isChooseFolderPage;
     private boolean isChooseRepoPage;
@@ -75,7 +75,7 @@ public class FolderBackupConfigActivity extends BaseActivity {
 
         initFragment();
     }
-
+    
     private void initFragment() {
         String selectMode = getIntent().getStringExtra(FOLDER_BACKUP_SELECT_TYPE);
         isChooseFolderPage = "folder".equals(selectMode);
@@ -101,7 +101,8 @@ public class FolderBackupConfigActivity extends BaseActivity {
 
         Pair<Account, RepoModel> pair = objSelectorFragment.getBackupInfo();
         mAccount = pair.first;
-        repoModel = pair.second;
+        RepoModel repoModel = pair.second;
+
 
         Intent intent = new Intent();
 

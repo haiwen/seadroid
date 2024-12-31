@@ -52,19 +52,6 @@
         app:layout_constraintStart_toStartOf="parent">
 
         <com.google.android.material.imageview.ShapeableImageView
-            android:id="@+id/gallery_download_photo"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:background="@drawable/ripple_icon_middle"
-            android:scaleType="centerInside"
-            android:src="@drawable/baseline_download_24"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/gallery_delete_photo"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:tint="@color/material_grey_599" />
-
-        <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/gallery_delete_photo"
             android:layout_width="36dp"
             android:layout_height="36dp"
@@ -73,7 +60,7 @@
             android:src="@drawable/baseline_delete_24"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/gallery_star_photo"
-            app:layout_constraintStart_toEndOf="@+id/gallery_download_photo"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:tint="@color/material_grey_599" />
 

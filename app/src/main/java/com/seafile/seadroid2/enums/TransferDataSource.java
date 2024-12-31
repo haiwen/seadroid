@@ -9,6 +9,7 @@ public enum TransferDataSource {
     FOLDER_BACKUP,
 
     /**
+     * (manually)
      * share_to_seafile/upload_from_local
      */
     FILE_BACKUP,

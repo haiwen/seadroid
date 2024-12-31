@@ -203,6 +203,9 @@ android {
         implementation "androidx.webkit:webkit:1.12.1"
         implementation 'com.google.android.flexbox:flexbox:3.0.0'
 
+        implementation "androidx.paging:paging-runtime:3.3.5"
+        implementation "androidx.paging:paging-rxjava3:3.3.5"
+
         //https://github.com/material-components/material-components-android
         implementation "com.google.android.material:material:1.12.0"
 

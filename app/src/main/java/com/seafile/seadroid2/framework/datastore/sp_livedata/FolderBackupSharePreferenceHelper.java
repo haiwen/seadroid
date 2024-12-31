@@ -17,6 +17,8 @@ import com.seafile.seadroid2.ui.folder_backup.RepoConfig;
 
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Map;
+import java.util.function.BiConsumer;
 
 public class FolderBackupSharePreferenceHelper {
 
@@ -153,6 +155,23 @@ public class FolderBackupSharePreferenceHelper {
 
         String k = SettingsManager.FOLDER_BACKUP_LAST_TIME_PREFIX + EncryptUtils.encryptMD5ToString(absPath);
         sp.edit().putLong(k, System.currentTimeMillis()).apply();
+    }
+
+    public static void clearLastScanTimeForAllPath() {
+        SharedPreferences sp = Settings.getUserSharedPreferences();
+        if (sp == null) {
+            return;
+        }
+
+        Map<String, ?> m = sp.getAll();
+        m.forEach(new BiConsumer<String, Object>() {
+            @Override
+            public void accept(String key, Object o) {
+                if (key.startsWith(SettingsManager.FOLDER_BACKUP_LAST_TIME_PREFIX)) {
+                    sp.edit().remove(key).apply();
+                }
+            }
+        });
     }
 
     public static void clearLastScanTimeForPath(String absPath) {

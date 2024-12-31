@@ -16,7 +16,6 @@ import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResult;
@@ -57,7 +56,6 @@ import com.seafile.seadroid2.framework.data.model.BaseModel;
 import com.seafile.seadroid2.framework.data.model.dirents.DirentFileModel;
 import com.seafile.seadroid2.framework.file_monitor.FileSyncService;
 import com.seafile.seadroid2.framework.helper.NightModeHelper;
-import com.seafile.seadroid2.framework.util.GlideApp;
 import com.seafile.seadroid2.framework.util.PermissionUtil;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.TakeCameras;
@@ -288,7 +286,7 @@ public class MainActivity extends BaseActivity {
                             } else {
                                 getNavContext().switchToPath(repoModel, finalPath);
                                 binding.pager.setCurrentItem(0);
-                                getReposFragment().loadData();
+                                getReposFragment().loadDataAsFirst();
                                 refreshToolbarTitle();
                             }
                         }
@@ -297,7 +295,7 @@ public class MainActivity extends BaseActivity {
                 } else {
                     getNavContext().switchToPath(repoModel, finalPath);
                     binding.pager.setCurrentItem(0);
-                    getReposFragment().loadData();
+                    getReposFragment().loadDataAsFirst();
                     refreshToolbarTitle();
                 }
             }
@@ -370,7 +368,7 @@ public class MainActivity extends BaseActivity {
         viewPager2Adapter.addFragments(fragments);
         binding.pager.setOffscreenPageLimit(fragments.size());
         binding.pager.setAdapter(viewPager2Adapter);
-        binding.pager.setUserInputEnabled(true);
+        binding.pager.setUserInputEnabled(false);
         binding.pager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageSelected(int position) {
@@ -435,7 +433,7 @@ public class MainActivity extends BaseActivity {
                 if (binding.pager.getCurrentItem() == 0) {
                     RepoQuickFragment fragment = (RepoQuickFragment) mainViewModel.getFragments().get(0);
                     fragment.clearExpireRefreshMap();
-                    fragment.loadData();
+                    fragment.loadDataAsFirst();
                 }
             }
         });
@@ -912,7 +910,7 @@ public class MainActivity extends BaseActivity {
                 if (isDone) {
                     getNavContext().switchToPath(repoModel, path);
                     binding.pager.setCurrentItem(0);
-                    getReposFragment().loadData();
+                    getReposFragment().loadDataAsFirst();
                     refreshToolbarTitle();
                 }
             }
@@ -1235,7 +1233,7 @@ public class MainActivity extends BaseActivity {
             String fullPath = Utils.pathJoin(parent_dir, fileName);
 
             RepoModel repoModel = getNavContext().getRepoModel();
-            mainViewModel.checkRemoteDirent(this, repoModel.repo_id, fullPath, new Consumer<DirentFileModel>() {
+            mainViewModel.checkRemoteDirent(repoModel.repo_id, fullPath, new Consumer<DirentFileModel>() {
                 @Override
                 public void accept(DirentFileModel direntFileModel) throws Exception {
                     if (direntFileModel != null) {

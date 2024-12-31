@@ -3,6 +3,7 @@
   <string name="welcome_to_seafile">Добро пожаловать в Seafile</string>
   <string name="select_account">Чтобы начать, выберите аккаунт</string>
   <string name="edit_account">Редактировать</string>
+  <string name="ignore">Игнорировать</string>
   <string name="delete_account">Удалить</string>
   <string name="delete">Удалить</string>
   <string name="deleted">Удалено</string>
@@ -641,6 +642,7 @@
   <string name="on">Включено</string>
   <string name="follow_system">Как в системе</string>
   <string name="empty">Пустой</string>
+  <string name="empty_data">Пустые данные</string>
   <!--share link-->
   <string name="link_permission_set_permission">Установить разрешение</string>
   <string name="link_permission_preview_and_download">Предварительный просмотр и загрузка</string>
@@ -657,15 +659,19 @@
   <string name="menu_action_sort_by_last_modified">Последнее изменение</string>
   <string name="menu_action_sort_order_ascending">Восходящий</string>
   <string name="menu_action_sort_directories_first">Сначала папки</string>
+  <string name="menu_detail">Подробно</string>
   <!--sdoc-->
   <string name="_size">Размер</string>
   <string name="_last_modifier">Последний модификатор</string>
   <string name="_last_modified_time">Время последнего изменения</string>
+  <string name="_reviewer">Рецензент</string>
   <string name="_file_collaborators">Соавторы файлов</string>
   <string name="_file_status">Статус файла</string>
   <string name="_in_progress">Выполняется</string>
   <string name="_in_review">На рассмотрении</string>
   <string name="_done">Завершено</string>
   <string name="_outdated">Устаревший</string>
+  <string name="mark_resolve">Отметить как решенное</string>
+  <string name="delete_confirm">Вы уверены, что хотите удалить этот элемент?</string>
   <!--end-->
 </resources>

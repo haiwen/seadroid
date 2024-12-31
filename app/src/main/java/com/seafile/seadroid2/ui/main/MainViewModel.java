@@ -42,6 +42,7 @@ import com.seafile.seadroid2.ui.repo.RepoService;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.ui.activities.AllActivitiesFragment;
 import com.seafile.seadroid2.ui.repo.RepoQuickFragment;
+import com.seafile.seadroid2.ui.settings.TabSettings2Fragment;
 import com.seafile.seadroid2.ui.settings.TabSettingsFragment;
 import com.seafile.seadroid2.ui.star.StarredQuickFragment;
 import com.seafile.seadroid2.framework.util.SLogs;
@@ -419,7 +420,7 @@ public class MainViewModel extends BaseViewModel {
         });
     }
 
-    public void checkRemoteDirent(Context context, String repoId, String fullPath, Consumer<DirentFileModel> consumer) throws IOException {
+    public void checkRemoteDirent(String repoId, String fullPath, Consumer<DirentFileModel> consumer) throws IOException {
         Single<DirentFileModel> detailSingle = HttpIO.getCurrentInstance()
                 .execute(FileService.class)
                 .getFileDetail(repoId, fullPath);
@@ -468,22 +469,30 @@ public class MainViewModel extends BaseViewModel {
         });
     }
 
+    /**
+     * <ol>
+     *     <li>copy the file to the app's internal cache(/0/Android/media/package_name/Seafile/...).</li>
+     *     <li>generate the FileTransferEntity, and insert into DB.</li>
+     *     <li>start UploadFileManuallyWorker</li>
+     *     <li>it will be deleted when UploadFileManuallyWorker end</li>
+     * <ol/>
+     */
     public void addUploadTask(Account account, Context context, RepoModel repoModel, String parentDir, Uri sourceUri, boolean isReplace, Consumer<FileTransferEntity> consumer) {
         ToastUtils.showLong(R.string.upload_waiting);
 
         Single<File> single = getCopyFileSingle(account, context, sourceUri, repoModel.repo_id, repoModel.repo_name, isReplace);
         addSingleDisposable(single, new Consumer<File>() {
             @Override
-            public void accept(File file) throws Exception {
-                addUploadTask(account, repoModel, parentDir, file.getAbsolutePath(), isReplace, consumer);
+            public void accept(File appLocalCacheFile) throws Exception {
+                addUploadTask(account, repoModel, parentDir, appLocalCacheFile.getAbsolutePath(), isReplace, consumer);
             }
         });
     }
 
-    private FileTransferEntity getUploadTransferEntity(Account account, RepoModel repoModel, String parentDir, String localFilePath, boolean isReplace) {
+    private FileTransferEntity getUploadTransferEntity(Account account, RepoModel repoModel, String parentDir, String appLocalCacheFilePath, boolean isReplace) {
         FileTransferEntity entity = new FileTransferEntity();
 
-        File file = new File(localFilePath);
+        File file = new File(appLocalCacheFilePath);
         if (!file.exists()) {
             return null;
         }
@@ -516,12 +525,12 @@ public class MainViewModel extends BaseViewModel {
         return entity;
     }
 
-    public void addUploadTask(Account account, RepoModel repoModel, String parentDir, String localFilePath, boolean isReplace, Consumer<FileTransferEntity> consumer) {
+    public void addUploadTask(Account account, RepoModel repoModel, String parentDir, String appLocalCacheFile, boolean isReplace, Consumer<FileTransferEntity> consumer) {
         Single<FileTransferEntity> single = Single.create(new SingleOnSubscribe<FileTransferEntity>() {
             @Override
             public void subscribe(SingleEmitter<FileTransferEntity> emitter) throws Exception {
 
-                FileTransferEntity entity = getUploadTransferEntity(account, repoModel, parentDir, localFilePath, isReplace);
+                FileTransferEntity entity = getUploadTransferEntity(account, repoModel, parentDir, appLocalCacheFile, isReplace);
 
                 AppDatabase.getInstance().fileTransferDAO().insert(entity);
 

@@ -106,8 +106,12 @@ public class FileTransferEntity extends BaseModel {
      * <br>
      * eg. /storage/emulated/0/DCIM/xxx.jpg or /storage/emulated/0/Downloads/xxx.txt (locally)
      * </p>
+     * <p><b>UPLOAD (FILE_BACKUP Manually) </b></p>
+     * <p>
+     * full_path is the absolute path to the file stored locally
      * <br>
-     * <br>
+     * eg. /storage/emulated/0/Android/media/(package_name)/Seafile/(repo_name)/
+     * </p>
      * <p><b>DOWNLOAD</b></p>
      * <p> full_path is the relative path to the file in the repository. <br>
      * eg. /a/b/c/d.txt (in remote repo)</p>

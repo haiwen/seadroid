@@ -7,7 +7,7 @@ import com.seafile.seadroid2.framework.util.SLogs;
 import java.net.URL;
 
 public class OriGlideUrl extends GlideUrl {
-    private String oriKey;
+    private String oriCacheKey;
 
     public OriGlideUrl(URL url) {
         super(url);
@@ -17,9 +17,9 @@ public class OriGlideUrl extends GlideUrl {
         super(url);
     }
 
-    public OriGlideUrl(String url, String oriKey) {
+    public OriGlideUrl(String url, String oriCacheKey) {
         super(url);
-        this.oriKey = oriKey;
+        this.oriCacheKey = oriCacheKey;
     }
 
 
@@ -33,6 +33,6 @@ public class OriGlideUrl extends GlideUrl {
 
     @Override
     public String getCacheKey() {
-        return oriKey;
+        return oriCacheKey;
     }
 }

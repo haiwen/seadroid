@@ -178,7 +178,7 @@ public class FolderBackupScannerWorker extends TransferWorker {
             FolderBackupSharePreferenceHelper.writeLastScanTimeForPath(backupPath);
 
             if (CollectionUtils.isEmpty(localFiles)) {
-                SLogs.e("没有新增、更新的文件: " + backupPath);
+                SLogs.e("文件夹备份：没有新增、更新的文件: " + backupPath);
                 continue;
             }
             SLogs.e("新文件: " + localFiles.size());

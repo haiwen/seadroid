@@ -96,7 +96,6 @@ public class ImagePreviewViewModel extends BaseViewModel {
 
         Single<List<RepoModel>> repoSingle = AppDatabase.getInstance().repoDao().getRepoById(repoId);
 
-
         Single<List<DirentModel>> fileSingle;
         if (isLoadOtherImagesInSameDirectory) {
             fileSingle = AppDatabase.getInstance().direntDao().getFileListByParentPath(repoId, parentPath);

@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.ui.media;
+package com.seafile.seadroid2.ui.media.image_preview;
 
 import android.text.TextUtils;
 
@@ -18,7 +18,6 @@ import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
 import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.util.SLogs;
-import com.seafile.seadroid2.framework.worker.ExistingFileStrategy;
 import com.seafile.seadroid2.listener.FileTransferProgressListener;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
 import com.seafile.seadroid2.ui.file.FileService;
@@ -132,6 +131,8 @@ public class PhotoViewModel extends BaseViewModel {
 
                 dlink = dlink.substring(0, i) + "/" + URLEncoder.encode(dlink.substring(i + 1), "UTF-8");
 
+//                _originalUrlLiveData.postValue(dlink);
+
                 return Single.just(dlink);
             }
         }).flatMap(new Function<String, SingleSource<FileTransferEntity>>() {
@@ -209,19 +210,11 @@ public class PhotoViewModel extends BaseViewModel {
                     try (InputStream inputStream = responseBody.byteStream();
                          FileOutputStream fileOutputStream = new FileOutputStream(tempFile)) {
 
-                        long totalBytesRead = 0;
-
                         int bytesRead;
                         byte[] buffer = new byte[SEGMENT_SIZE];
                         while ((bytesRead = inputStream.read(buffer, 0, buffer.length)) != -1) {
                             fileOutputStream.write(buffer, 0, bytesRead);
-                            totalBytesRead += bytesRead;
-
-                            int p = fileTransferProgressListener.onProgress(totalBytesRead, fileSize);
-                            SLogs.e(transferEntity.file_name + ", progress: " + p);
                         }
-                        int p = fileTransferProgressListener.onProgress(fileSize, fileSize);
-                        SLogs.e(transferEntity.file_name + ", progress: " + p);
                     }
 
                     //important

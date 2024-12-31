@@ -137,7 +137,8 @@ public class BackgroundJobManagerImpl {
 
     private OneTimeWorkRequest getMediaUploadRequest() {
         NetworkType networkType = NetworkType.UNMETERED;
-        if (AlbumBackupSharePreferenceHelper.readAllowDataPlanSwitch()) {
+        boolean isAllowData = AlbumBackupSharePreferenceHelper.readAllowDataPlanSwitch();
+        if (isAllowData) {
             networkType = NetworkType.CONNECTED;
         }
 

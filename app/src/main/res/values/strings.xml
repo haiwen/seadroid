@@ -25,6 +25,7 @@
     <string name="move_folder">Move folder</string>
     <string name="delete_dir">Delete folder</string>
     <string name="name_hint">Name</string>
+    <string name="server">Server</string>
     <string name="server_hint">Server address</string>
     <string name="email_hint">Email or Username</string>
     <string name="passwd_hint">Password</string>
@@ -335,6 +336,10 @@
     <string name="next_button_label">Next</string>
     <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
     <string name="skip_button_label">Skip</string>
+
+    <!-- Display mode -->
+    <string name="settings_display_mode">Display mode</string>
+
     <!--contacts  upload-->
     <string name="settings_contacts_upload_info_title">Contacts backup</string>
     <string name="settings_contacts_upload_turn_on">Enable contacts backup</string>
@@ -589,6 +594,8 @@
     <string name="is_uploading">Uploading</string>
     <string name="network_unavailable">Network unavailable</string>
     <string name="network_error">Network error</string>
+    <string name="error_image_load">Load failed</string>
+    <string name="retry_with_click">click to retry</string>
 
     <string name="required_password">Password is required.</string>
     <string name="weak_password">Password is too weak.</string>

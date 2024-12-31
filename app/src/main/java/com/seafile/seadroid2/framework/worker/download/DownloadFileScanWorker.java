@@ -172,33 +172,30 @@ public class DownloadFileScanWorker extends TransferWorker {
         }
 
         RepoModel repoModel = repoModels.get(0);
-        DirentFileModel direntFileModel = fetchFile(direntModel);
-        if (direntFileModel == null) {
-            return;
-        }
 
-        FileTransferEntity transferEntity = FileTransferEntity.convertDirentModel2This(repoModel.canLocalDecrypt(), direntModel);
-
-        //newest file id
-        transferEntity.file_id = direntFileModel.id;
-        transferEntity.file_size = direntFileModel.size;
-        transferEntity.target_path = DataManager.getLocalRepoFile(account, transferEntity).getAbsolutePath();
-
-
-        List<FileTransferEntity> existsList = AppDatabase.getInstance().fileTransferDAO().getListByFullPathsSync(direntModel.repo_id, CollectionUtils.newArrayList(transferEntity.full_path), TransferAction.DOWNLOAD);
-
+        List<FileTransferEntity> existsList = AppDatabase.getInstance().fileTransferDAO().getListByFullPathsSync(direntModel.repo_id, CollectionUtils.newArrayList(direntModel.full_path), TransferAction.DOWNLOAD);
         if (!CollectionUtils.isEmpty(existsList)) {
+
+            DirentFileModel direntFileModel = fetchFile(direntModel);
+            if (direntFileModel == null) {
+                return;
+            }
+
             FileTransferEntity existEntity = existsList.get(0);
             if (TransferStatus.SUCCEEDED == existEntity.transfer_status) {
-                if (TextUtils.equals(existsList.get(0).file_id, transferEntity.file_id)) {
-                    //it's the same file，do not insert into db.
-                    SLogs.d("file download: skip file(local exists): " + transferEntity.full_path);
-                    ToastUtils.showLong(R.string.download_finished);
+                if (TextUtils.equals(existsList.get(0).file_id, direntFileModel.id)) {
+                    SLogs.d("file download: skip file(local exists): " + existEntity.full_path);
                     return;
                 }
             }
         }
 
+
+        FileTransferEntity transferEntity = FileTransferEntity.convertDirentModel2This(repoModel.canLocalDecrypt(), direntModel);
+        //newest file id
+        transferEntity.file_id = direntModel.id;
+        transferEntity.file_size = direntModel.size;
+        transferEntity.target_path = DataManager.getLocalRepoFile(account, transferEntity).getAbsolutePath();
         transferEntity.transfer_status = TransferStatus.WAITING;
         transferEntity.transfer_result = TransferResult.NO_RESULT;
         transferEntity.transferred_size = 0;

@@ -69,10 +69,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import rikka.preference.SimpleMenuPreference;
 
-public class TabSettingsFragment extends RenameSharePreferenceFragmentCompat {
+public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
 
     private final Account currentAccount = SupportAccountManager.getInstance().getCurrentAccount();
 
@@ -93,8 +94,8 @@ public class TabSettingsFragment extends RenameSharePreferenceFragmentCompat {
     private Preference mFolderBackupState;
 
 
-    public static TabSettingsFragment newInstance() {
-        return new TabSettingsFragment();
+    public static TabSettings2Fragment newInstance() {
+        return new TabSettings2Fragment();
     }
 
     @Override
@@ -107,10 +108,10 @@ public class TabSettingsFragment extends RenameSharePreferenceFragmentCompat {
 
     @Override
     public void onCreatePreferences(@Nullable Bundle savedInstanceState, @Nullable String rootKey) {
-        //NOTICE: super firstly
+        //NOTICE: super()
         super.onCreatePreferences(savedInstanceState, rootKey);
 
-        setPreferencesFromResource(R.xml.prefs_settings, rootKey);
+        setPreferencesFromResource(R.xml.prefs_settings_2, rootKey);
         SimpleMenuPreference.setLightFixEnabled(true);
     }
 
@@ -392,7 +393,15 @@ public class TabSettingsFragment extends RenameSharePreferenceFragmentCompat {
         Settings.USER_INFO.observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(String s) {
-                findPreference(getString(R.string.pref_key_user_info)).setSummary(s);
+                findPreference(getString(R.string.pref_key_user_info)).setTitle(s);
+
+            }
+        });
+
+        Settings.USER_SERVER_INFO.observe(getViewLifecycleOwner(), new Observer<String>() {
+            @Override
+            public void onChanged(String s) {
+                findPreference(getString(R.string.pref_key_user_server)).setSummary(s);
             }
         });
 
@@ -831,18 +840,6 @@ public class TabSettingsFragment extends RenameSharePreferenceFragmentCompat {
                     Account account = data.getParcelableExtra(ObjSelectorActivity.DATA_ACCOUNT);
 
                     repoConfig = new RepoConfig(repoId, repoName, account.getEmail(), account.getSignature());
-
-                    //check for RepoConfig that already exists
-                    RepoConfig currentRepoConfig = FolderBackupSharePreferenceHelper.readRepoConfig();
-                    if (currentRepoConfig != null) {
-                        //means the repo config is changed, need to clear the last scan time for all paths
-                        if (!repoConfig.getRepoID().equals(currentRepoConfig.getRepoID())) {
-                            FolderBackupSharePreferenceHelper.clearLastScanTimeForAllPath();
-                        }
-                    }
-                } else {
-                    //clear the repo config, which means need to clear the last scan time for all paths
-                    FolderBackupSharePreferenceHelper.clearLastScanTimeForAllPath();
                 }
 
                 FolderBackupSharePreferenceHelper.writeRepoConfig(repoConfig);

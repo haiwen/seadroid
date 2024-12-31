@@ -23,18 +23,21 @@ import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.chad.library.adapter4.BaseQuickAdapter;
 import com.chad.library.adapter4.QuickAdapterHelper;
+import com.chad.library.adapter4.loadState.LoadState;
+import com.chad.library.adapter4.loadState.trailing.TrailingLoadStateAdapter;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.ui.bottomsheetmenu.BottomSheetHelper;
-import com.seafile.seadroid2.ui.bottomsheetmenu.BottomSheetMenuFragment;
 import com.seafile.seadroid2.databinding.LayoutFrameSwipeRvBinding;
-import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
 import com.seafile.seadroid2.enums.TransferAction;
 import com.seafile.seadroid2.enums.TransferStatus;
+import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
+import com.seafile.seadroid2.ui.base.adapter.LoadMoreAdapter;
 import com.seafile.seadroid2.ui.base.fragment.BaseFragment;
+import com.seafile.seadroid2.ui.bottomsheetmenu.BottomSheetHelper;
+import com.seafile.seadroid2.ui.bottomsheetmenu.BottomSheetMenuFragment;
 import com.seafile.seadroid2.view.TipsViews;
 
 import java.util.List;
@@ -49,7 +52,11 @@ public abstract class TransferListFragment extends BaseFragment {
     protected TransferActivity activity = null;
     private LinearLayoutManager layoutManager;
     private TransferListViewModel viewModel;
-    private ConcurrentHashMap<String, Integer> positionMap;
+    private final ConcurrentHashMap<String, Integer> positionMap = new ConcurrentHashMap<>();
+
+    private int pageIndex = 0;
+    private final int pageSize = 10;
+    private QuickAdapterHelper helper;
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -89,11 +96,20 @@ public abstract class TransferListFragment extends BaseFragment {
     @Override
     public void onFirstResume() {
         super.onFirstResume();
-        refreshData();
+        loadNext(true);
     }
 
     private void initAdapter() {
         adapter = new TransferListAdapter();
+        TextView tipView = TipsViews.getTipTextView(requireContext());
+        if (getTransferAction() == TransferAction.DOWNLOAD) {
+            tipView.setText(R.string.no_download_tasks);
+        } else {
+            tipView.setText(R.string.no_upload_tasks);
+        }
+        adapter.setStateView(tipView);
+        adapter.setStateViewEnable(false);
+
         adapter.setTransferAction(getTransferAction());
         adapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener<FileTransferEntity>() {
             @Override
@@ -106,6 +122,7 @@ public abstract class TransferListFragment extends BaseFragment {
                 }
             }
         });
+
         adapter.setOnItemLongClickListener(new BaseQuickAdapter.OnItemLongClickListener<FileTransferEntity>() {
             @Override
             public boolean onLongClick(@NonNull BaseQuickAdapter<FileTransferEntity, ?> baseQuickAdapter, @NonNull View view, int i) {
@@ -134,13 +151,29 @@ public abstract class TransferListFragment extends BaseFragment {
             showBottomSheet(adapter.getItems().get(i));
         });
 
+        LoadMoreAdapter loadMoreAdapter = new LoadMoreAdapter();
+        loadMoreAdapter.setOnLoadMoreListener(new TrailingLoadStateAdapter.OnTrailingListener() {
+            @Override
+            public void onLoad() {
+                loadNext(false);
+            }
 
-//        LogicLoadMoreAdapter loadMoreAdapter = getLogicLoadMoreAdapter();
+            @Override
+            public void onFailRetry() {
+            }
 
-        QuickAdapterHelper helper = new QuickAdapterHelper.Builder(adapter)
+            @Override
+            public boolean isAllowLoading() {
+                return !binding.swipeRefreshLayout.isRefreshing();
+            }
+        });
+
+        helper = new QuickAdapterHelper.Builder(adapter)
+                .setTrailingLoadStateAdapter(loadMoreAdapter)
                 .build();
         binding.rv.setAdapter(helper.getAdapter());
     }
+
 
     private void initViewModel() {
         getViewModel().getRefreshLiveData().observe(getViewLifecycleOwner(), aBoolean -> binding.swipeRefreshLayout.setRefreshing(aBoolean));
@@ -149,15 +182,44 @@ public abstract class TransferListFragment extends BaseFragment {
         getViewModel().getTransferListLiveData().observe(getViewLifecycleOwner(), new Observer<List<FileTransferEntity>>() {
             @Override
             public void onChanged(List<FileTransferEntity> list) {
-                positionMap = new ConcurrentHashMap<>(list.size());
-
-                for (int i = 0; i < list.size(); i++) {
-                    positionMap.put(list.get(i).uid, i);
-                }
-
-                notifyDataChanged(list);
+                submitData(list);
             }
         });
+    }
+
+    private void submitData(List<FileTransferEntity> list) {
+        if (CollectionUtils.isEmpty(list)) {
+            if (pageIndex <= 1) {
+                adapter.setStateViewEnable(true);
+            }
+            return;
+        }
+
+        if (pageIndex == 1) {
+            for (int i = 0; i < list.size(); i++) {
+                positionMap.put(list.get(i).uid, i);
+            }
+            adapter.submitList(list);
+
+        } else {
+            int start = adapter.getItemCount();
+            int end = start + list.size();
+
+            for (int i = start; i < end; i++) {
+                int index = i - start;
+                positionMap.put(list.get(index).uid, i);
+            }
+            adapter.addAll(list);
+        }
+
+        if (list.size() < pageSize) {
+            helper.setTrailingLoadState(new LoadState.NotLoading(true));
+            if (helper.getTrailingLoadStateAdapter() != null) {
+                helper.getTrailingLoadStateAdapter().checkDisableLoadMoreIfNotFullPage();
+            }
+        } else {
+            helper.setTrailingLoadState(new LoadState.NotLoading(false));
+        }
     }
 
     public void showBottomSheet(FileTransferEntity entity) {
@@ -239,17 +301,21 @@ public abstract class TransferListFragment extends BaseFragment {
     public abstract void restartSelectedItems(List<FileTransferEntity> list);
 
     protected void refreshData() {
+        pageIndex = 0;
         loadNext(true);
     }
 
     private void loadNext(boolean isShowRefresh) {
-        getViewModel().loadData(getTransferAction(), isShowRefresh);
+        pageIndex++;
+
+        if (pageIndex <= 1) {
+            positionMap.clear();
+        }
+
+        getViewModel().loadData(getTransferAction(), pageIndex, pageSize, isShowRefresh);
     }
 
     public void notifyProgressById(String transferId, long transferredSize, int percent, String event) {
-        if (positionMap == null) {
-            return;
-        }
 
         if (TextUtils.isEmpty(transferId)) {
             return;
@@ -294,32 +360,6 @@ public abstract class TransferListFragment extends BaseFragment {
         int lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition();
 
         return position >= firstVisibleItemPosition && position <= lastVisibleItemPosition;
-    }
-
-
-    private void notifyDataChanged(List<FileTransferEntity> list) {
-        if (CollectionUtils.isEmpty(list)) {
-            showEmptyTip();
-        } else {
-            adapter.submitList(list);
-        }
-    }
-
-    private void showEmptyTip() {
-        if (getTransferAction() == TransferAction.DOWNLOAD) {
-            showAdapterTip(R.string.no_download_tasks);
-        } else {
-            showAdapterTip(R.string.no_upload_tasks);
-        }
-    }
-
-    private void showAdapterTip(int textRes) {
-        adapter.submitList(null);
-        TextView tipView = TipsViews.getTipTextView(requireContext());
-        tipView.setText(textRes);
-        tipView.setOnClickListener(v -> refreshData());
-        adapter.setStateView(tipView);
-        adapter.setStateViewEnable(true);
     }
 
     public void cancelSelectItems() {
