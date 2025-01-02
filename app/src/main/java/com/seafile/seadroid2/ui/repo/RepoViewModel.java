@@ -109,7 +109,7 @@ public class RepoViewModel extends BaseViewModel {
                     loadDirentsFromLocal(account, context, true);
                 }
             } else {
-                loadReposFromLocal(account, refreshStatus);//same to ONLY_LOCAL
+                loadReposFromLocal(account, true);
             }
         } else if (RefreshStatusEnum.ONLY_LOCAL == refreshStatus) {
             if (context.inRepo()) {
@@ -120,7 +120,7 @@ public class RepoViewModel extends BaseViewModel {
                     loadDirentsFromLocal(account, context, false);
                 }
             } else {
-                loadReposFromLocal(account, refreshStatus);//here
+                loadReposFromLocal(account, false);
             }
         } else {
             //RefreshStatusEnum.NO: do nothing
@@ -128,8 +128,8 @@ public class RepoViewModel extends BaseViewModel {
 
     }
 
-    private void loadReposFromLocal(Account account, RefreshStatusEnum refreshStatus) {
-        if (RefreshStatusEnum.REMOTE == refreshStatus) {
+    private void loadReposFromLocal(Account account, boolean isLoadRemoteData) {
+        if (isLoadRemoteData) {
             getRefreshLiveData().setValue(true);
         }
 
@@ -146,7 +146,7 @@ public class RepoViewModel extends BaseViewModel {
                 List<BaseModel> list = Objs.parseRepoListForAdapter(repoModels, account.getSignature(), false);
                 getObjListLiveData().setValue(list);
 
-                if (RefreshStatusEnum.REMOTE == refreshStatus) {
+                if (isLoadRemoteData) {
                     loadReposFromRemote(account);
                 } else {
                     getRefreshLiveData().setValue(false);

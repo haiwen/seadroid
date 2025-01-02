@@ -176,7 +176,7 @@ public class TransferListViewModel extends BaseViewModel {
     }
 
 
-    public void removeSpecialDownloadListTask(List<FileTransferEntity> list, Consumer<Boolean> consumer) {
+    public void removeSpecialDownloadListTask(List<FileTransferEntity> list, boolean isDeleteLocalFile, Consumer<Boolean> consumer) {
         Single<Boolean> single = Single.create(new SingleOnSubscribe<Boolean>() {
             @Override
             public void subscribe(SingleEmitter<Boolean> emitter) throws Exception {
@@ -185,7 +185,9 @@ public class TransferListViewModel extends BaseViewModel {
                     //delete record
                     AppDatabase.getInstance().fileTransferDAO().deleteOne(entity);
 
-                    FileUtils.delete(entity.target_path);
+                    if (isDeleteLocalFile) {
+                        FileUtils.delete(entity.target_path);
+                    }
                     SLogs.d("deleted : " + entity.target_path);
                 }
 

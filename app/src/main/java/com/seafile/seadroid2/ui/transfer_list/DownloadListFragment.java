@@ -162,7 +162,7 @@ public class DownloadListFragment extends TransferListFragment {
 
         BackgroundJobManagerImpl.getInstance().cancelDownloadWorker();
 
-        getViewModel().removeSpecialDownloadListTask(list, new Consumer<Boolean>() {
+        getViewModel().removeSpecialDownloadListTask(list, isDeleteLocalFile, new Consumer<Boolean>() {
             @Override
             public void accept(Boolean aBoolean) {
 
