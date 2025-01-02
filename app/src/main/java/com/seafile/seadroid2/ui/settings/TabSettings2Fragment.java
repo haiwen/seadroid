@@ -69,7 +69,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 
 import rikka.preference.SimpleMenuPreference;
 
@@ -774,7 +773,7 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
         if (!CollectionUtils.isEmpty(pathList) && repoConfig != null) {
             TransferBusHelper.startFileMonitor();
 
-            BackgroundJobManagerImpl.getInstance().startFolderChainWorker(true);
+            BackgroundJobManagerImpl.getInstance().startFolderAutoBackupWorkerChain(true);
         }
     }
 
@@ -866,7 +865,7 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
 
             updateAlbumBackupSelectedRepoSummary();
 
-            BackgroundJobManagerImpl.getInstance().startMediaChainWorker(true);
+            BackgroundJobManagerImpl.getInstance().startMediaWorkerChain(true);
         }
     });
 

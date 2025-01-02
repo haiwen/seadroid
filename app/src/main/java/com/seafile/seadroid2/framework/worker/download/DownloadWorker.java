@@ -119,7 +119,7 @@ public class DownloadWorker extends BaseDownloadWorker {
             List<FileTransferEntity> list = AppDatabase
                     .getInstance()
                     .fileTransferDAO()
-                    .getOnePendingDownloadByActionSync(account.getSignature());
+                    .getOnePendingDownloadByAccountSync(account.getSignature());
             if (CollectionUtils.isEmpty(list)) {
                 break;
             }

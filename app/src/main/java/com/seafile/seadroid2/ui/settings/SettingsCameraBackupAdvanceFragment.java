@@ -81,7 +81,7 @@ public class SettingsCameraBackupAdvanceFragment extends PreferenceFragmentCompa
                 boolean isCustom = (Boolean) newValue;
                 AlbumBackupManager.writeAllowDataPlanSwitch(isCustom);
 
-                BackgroundJobManagerImpl.getInstance().startMediaChainWorker(isCustom);
+                BackgroundJobManagerImpl.getInstance().startMediaWorkerChain(isCustom);
 
                 return true;
             }
@@ -98,7 +98,7 @@ public class SettingsCameraBackupAdvanceFragment extends PreferenceFragmentCompa
                 boolean isCustom = (Boolean) newValue;
                 AlbumBackupManager.writeAllowVideoSwitch(isCustom);
 
-                BackgroundJobManagerImpl.getInstance().startMediaChainWorker(isCustom);
+                BackgroundJobManagerImpl.getInstance().startMediaWorkerChain(isCustom);
 
                 return true;
             }
@@ -146,7 +146,7 @@ public class SettingsCameraBackupAdvanceFragment extends PreferenceFragmentCompa
             List<String> selectedBuckets = new ArrayList<>();
             AlbumBackupManager.writeBucketIds(selectedBuckets);
 
-            BackgroundJobManagerImpl.getInstance().startMediaChainWorker(false);
+            BackgroundJobManagerImpl.getInstance().startMediaWorkerChain(false);
 
             refreshPreferenceView();
         }
@@ -193,7 +193,7 @@ public class SettingsCameraBackupAdvanceFragment extends PreferenceFragmentCompa
                 return;
             }
 
-            BackgroundJobManagerImpl.getInstance().startMediaChainWorker(true);
+            BackgroundJobManagerImpl.getInstance().startMediaWorkerChain(true);
 
             refreshPreferenceView();
         }

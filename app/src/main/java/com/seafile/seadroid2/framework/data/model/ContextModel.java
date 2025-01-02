@@ -10,4 +10,5 @@ public class ContextModel {
      * parent_dir + name
      */
     public String full_path;
+    public String permission;
 }

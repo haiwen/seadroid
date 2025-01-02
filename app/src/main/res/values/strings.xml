@@ -466,11 +466,13 @@
     <!--Transfer List-->
     <string name="transfer_list_network_error">Network connection error, please try again later!</string>
     <string name="transfer_list_cancel_all">Cancel all tasks</string>
+    <string name="transfer_list_cancel_all_desc">Cancel all ongoing file transfer tasks; they will be restored to continue transferring files when the restart button is clicked.</string>
     <string name="transfer_list_restart_all">Restart</string>
     <string name="transfer_list_retry_failed_tasks">Retry failed tasks</string>
     <string name="transfer_list_restart_cancelled_tasks">Restart cancelled tasks</string>
     <string name="transfer_list_clear_failed_tasks">Clear failed tasks</string>
     <string name="transfer_list_clear_all_tasks">Clear all tasks</string>
+    <string name="transfer_list_clear_all_tasks_desc">Remove all transfer records; if it is a download, it will delete all download records (optionally: local files as well). If it is an upload, it will only delete the upload records, but the corresponding target files will not be re-uploaded in the future.</string>
     <string name="transfer_list_clear_finished_tasks">Clear finished tasks</string>
     <string name="transfer_tabs_downloads">Download List</string>
     <string name="transfer_tabs_uploads">Upload List</string>

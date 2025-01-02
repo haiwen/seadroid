@@ -14,6 +14,8 @@
         <item name="android:windowBackground">@color/window_background_color</item>
 
         <item name="actionModeStyle">@style/App.ActionMode.LightTheme</item>
+        <item name="actionModeCloseDrawable">@drawable/baseline_close_24</item>
+
         <item name="textInputStyle">@style/App.Widget.TextInput</item>
         <item name="searchViewStyle">@style/SearchViewStyle</item>
 

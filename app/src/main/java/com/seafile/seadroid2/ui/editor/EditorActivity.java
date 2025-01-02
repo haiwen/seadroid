@@ -1,6 +1,5 @@
 package com.seafile.seadroid2.ui.editor;
 
-import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,7 +8,6 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.Nullable;
@@ -18,7 +16,6 @@ import androidx.lifecycle.Observer;
 
 import com.blankj.utilcode.util.EncryptUtils;
 import com.blankj.utilcode.util.ToastUtils;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.framework.util.SLogs;
@@ -97,9 +94,9 @@ public class EditorActivity extends BaseActivityWithVM<EditorViewModel> implemen
             @Override
             public void onChanged(Boolean aBoolean) {
                 if (aBoolean) {
-                    showProgressDialog();
+                    showLoadingDialog();
                 } else {
-                    dismissProgressDialog();
+                    dismissLoadingDialog();
                 }
             }
         });

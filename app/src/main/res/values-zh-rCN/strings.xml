@@ -445,11 +445,13 @@ Email: support@seafile.com<br>
   <!--Transfer List-->
   <string name="transfer_list_network_error">网络连接错误，请稍后重试！</string>
   <string name="transfer_list_cancel_all">取消所有任务</string>
+  <string name="transfer_list_cancel_all_desc">取消所有正在进行的文件传输任务；单击重新启动按钮时，它们将被恢复以继续传输文件。</string>
   <string name="transfer_list_restart_all">重新开始</string>
   <string name="transfer_list_retry_failed_tasks">重试失败的任务</string>
   <string name="transfer_list_restart_cancelled_tasks">重试取消的任务</string>
   <string name="transfer_list_clear_failed_tasks">清除失败的任务</string>
   <string name="transfer_list_clear_all_tasks">清除所有任务</string>
+  <string name="transfer_list_clear_all_tasks_desc">删除所有传输记录；如果是下载，它将删除所有下载记录（可选：本地文件也是）。如果是上传，它只会删除上传记录，但以后不会重新上传相应的目标文件。</string>
   <string name="transfer_list_clear_finished_tasks">清除完成的任务</string>
   <string name="transfer_tabs_downloads">下载列表</string>
   <string name="transfer_tabs_uploads">上传列表</string>

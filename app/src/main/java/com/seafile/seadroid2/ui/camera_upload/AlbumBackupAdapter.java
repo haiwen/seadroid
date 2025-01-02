@@ -6,7 +6,6 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SyncResult;
 import android.os.Bundle;
-import android.util.Log;
 
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
@@ -50,14 +49,14 @@ public class AlbumBackupAdapter extends AbstractThreadedSyncAdapter {
     public void onSyncCanceled(Thread thread) {
         super.onSyncCanceled(thread);
         SLogs.e("onSyncCanceled ->" + thread.getName());
-        BackgroundJobManagerImpl.getInstance().cancelAllMediaWorker();
+        BackgroundJobManagerImpl.getInstance().cancelMediaWorker();
     }
 
     @Override
     public void onSyncCanceled() {
         super.onSyncCanceled();
         SLogs.e("onSyncCanceled");
-        BackgroundJobManagerImpl.getInstance().cancelAllMediaWorker();
+        BackgroundJobManagerImpl.getInstance().cancelMediaWorker();
     }
 
     @Override
@@ -89,6 +88,6 @@ public class AlbumBackupAdapter extends AbstractThreadedSyncAdapter {
 
         //start
         boolean isForce = extras.getBoolean(ContentResolver.SYNC_EXTRAS_MANUAL);
-        BackgroundJobManagerImpl.getInstance().startMediaChainWorker(isForce);
+        BackgroundJobManagerImpl.getInstance().startMediaWorkerChain(isForce);
     }
 }

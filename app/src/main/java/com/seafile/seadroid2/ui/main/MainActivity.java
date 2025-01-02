@@ -42,7 +42,6 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.context.NavContext;
 import com.seafile.seadroid2.databinding.ActivityMainBinding;
-import com.seafile.seadroid2.enums.ActionModeCallbackType;
 import com.seafile.seadroid2.enums.FileViewType;
 import com.seafile.seadroid2.enums.NightMode;
 import com.seafile.seadroid2.enums.SortBy;
@@ -467,25 +466,9 @@ public class MainActivity extends BaseActivity {
 //                }
             }
         });
-
-        mainViewModel.getOnActionModeLiveData().observe(this, new Observer<ActionModeCallbackType>() {
-            @Override
-            public void onChanged(ActionModeCallbackType callbackType) {
-
-                onShowRepoActionMode(callbackType);
-
-            }
-        });
     }
 
-    private void onShowRepoActionMode(ActionModeCallbackType type) {
-        if (type == ActionModeCallbackType.CREATE) {
-            binding.pager.setUserInputEnabled(false);
-        } else if (type == ActionModeCallbackType.DESTORY) {
-            binding.pager.setUserInputEnabled(true);
-        }
 
-    }
 
     private void refreshToolbarTitle() {
         if (!getNavContext().inRepo()) {
@@ -1199,7 +1182,7 @@ public class MainActivity extends BaseActivity {
 
     /////////////////////////////
     private void doSelectedMultiFile(List<Uri> uriList) {
-        showProgressDialog();
+        showLoadingDialog();
 
         try {
             RepoModel repoModel = getNavContext().getRepoModel();
@@ -1209,13 +1192,13 @@ public class MainActivity extends BaseActivity {
                 @Override
                 public void accept(List<Uri> newUris) {
 
-                    dismissProgressDialog();
+                    dismissLoadingDialog();
 
                     if (!CollectionUtils.isEmpty(newUris)) {
                         ToastUtils.showLong(R.string.added_to_upload_tasks);
 
                         //start worker
-                        BackgroundJobManagerImpl.getInstance().startFileUploadWorker();
+                        BackgroundJobManagerImpl.getInstance().startFileManualUploadWorker();
                     }
                 }
             });
@@ -1226,7 +1209,7 @@ public class MainActivity extends BaseActivity {
     }
 
     private void doSelectSingleFile(Uri uri) {
-        showProgressDialog();
+        showLoadingDialog();
         try {
             String fileName = Utils.getFilenameFromUri(this, uri);
             String parent_dir = getNavContext().getNavPath();
@@ -1242,7 +1225,7 @@ public class MainActivity extends BaseActivity {
                         addUploadTask(repoModel, getNavContext().getNavPath(), uri, false);
                     }
 
-                    dismissProgressDialog();
+                    dismissLoadingDialog();
                 }
             });
         } catch (Exception e) {

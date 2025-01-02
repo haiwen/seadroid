@@ -23,6 +23,7 @@
   <string name="move_folder">Переместить папку</string>
   <string name="delete_dir">Удалить папку</string>
   <string name="name_hint">Имя</string>
+  <string name="server">Сервер</string>
   <string name="server_hint">Адрес сервера</string>
   <string name="email_hint">Эл. почта или логин</string>
   <string name="passwd_hint">Пароль</string>
@@ -328,6 +329,8 @@
   <string name="next_button_label">Далее</string>
   <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
   <string name="skip_button_label">Пропустить</string>
+  <!--Display mode-->
+  <string name="settings_display_mode">Режим отображения</string>
   <!--contacts  upload-->
   <string name="settings_contacts_upload_info_title">Резервное копирование контактов</string>
   <string name="settings_contacts_upload_turn_on">Включить резервное копирование контактов</string>
@@ -586,6 +589,8 @@
   <string name="is_uploading">Загрузка</string>
   <string name="network_unavailable">Сеть недоступна</string>
   <string name="network_error">Ошибка сети</string>
+  <string name="error_image_load">Загрузка не удалась</string>
+  <string name="retry_with_click">нажмите, чтобы повторить попытку</string>
   <string name="required_password">Необходим пароль.</string>
   <string name="weak_password">Пароль слишком слабый.</string>
   <!--Folder backup Preference-->
@@ -671,7 +676,9 @@
   <string name="_in_review">На рассмотрении</string>
   <string name="_done">Завершено</string>
   <string name="_outdated">Устаревший</string>
+  <string name="_tags">Теги</string>
   <string name="mark_resolve">Отметить как решенное</string>
   <string name="delete_confirm">Вы уверены, что хотите удалить этот элемент?</string>
+  <string name="canceled">Отменено</string>
   <!--end-->
 </resources>

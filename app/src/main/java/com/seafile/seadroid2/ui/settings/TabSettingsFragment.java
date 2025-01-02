@@ -765,7 +765,7 @@ public class TabSettingsFragment extends RenameSharePreferenceFragmentCompat {
         if (!CollectionUtils.isEmpty(pathList) && repoConfig != null) {
             TransferBusHelper.startFileMonitor();
 
-            BackgroundJobManagerImpl.getInstance().startFolderChainWorker(true);
+            BackgroundJobManagerImpl.getInstance().startFolderAutoBackupWorkerChain(true);
         }
     }
 
@@ -869,7 +869,7 @@ public class TabSettingsFragment extends RenameSharePreferenceFragmentCompat {
 
             updateAlbumBackupSelectedRepoSummary();
 
-            BackgroundJobManagerImpl.getInstance().startMediaChainWorker(true);
+            BackgroundJobManagerImpl.getInstance().startMediaWorkerChain(true);
         }
     });
 

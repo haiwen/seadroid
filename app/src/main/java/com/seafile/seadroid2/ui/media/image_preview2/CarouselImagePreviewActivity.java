@@ -227,9 +227,9 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
             @Override
             public void onChanged(Boolean aBoolean) {
                 if (aBoolean) {
-                    showProgressDialog();
+                    showLoadingDialog();
                 } else {
-                    dismissProgressDialog();
+                    dismissLoadingDialog();
                 }
             }
         });

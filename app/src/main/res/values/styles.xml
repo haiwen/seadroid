@@ -72,6 +72,7 @@
 
         <item name="android:background">@color/bar_background_color</item>
         <item name="android:popupBackground">@color/bar_background_color</item>
+
     </style>
 
     <style name="AppCompatAlertDialogStyle" parent="ThemeOverlay.Material3.MaterialAlertDialog">

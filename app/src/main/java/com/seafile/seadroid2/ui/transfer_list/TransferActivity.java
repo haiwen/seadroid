@@ -18,6 +18,8 @@ import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.databinding.TransferListLayoutBinding;
+import com.seafile.seadroid2.enums.TransferAction;
+import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.notification.base.NotificationUtils;
 import com.seafile.seadroid2.ui.adapter.ViewPager2Adapter;
 import com.seafile.seadroid2.ui.base.BaseActivity;
@@ -191,6 +193,19 @@ public class TransferActivity extends BaseActivity implements Toolbar.OnMenuItem
                 getUploadFragment().removeAllTasks();
             }
         }
+//        else if (item.getItemId() == R.id.retry_all_cancelled_transfer_tasks) {
+//            if (whichTab == 0) {
+//                getDownloadFragment().restartAllSpecialStatusTasks(TransferAction.DOWNLOAD, TransferStatus.CANCELLED);
+//            } else {
+//                getUploadFragment().restartAllSpecialStatusTasks(TransferAction.UPLOAD, TransferStatus.CANCELLED);
+//            }
+//        } else if (item.getItemId() == R.id.retry_all_cancelled_transfer_tasks) {
+//            if (whichTab == 0) {
+//                getDownloadFragment().restartAllSpecialStatusTasks(TransferAction.DOWNLOAD, TransferStatus.FAILED);
+//            } else {
+//                getUploadFragment().restartAllSpecialStatusTasks(TransferAction.UPLOAD, TransferStatus.FAILED);
+//            }
+//        }
 
         return super.onOptionsItemSelected(item);
     }

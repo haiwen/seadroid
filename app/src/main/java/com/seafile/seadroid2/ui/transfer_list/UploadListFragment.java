@@ -14,6 +14,7 @@ import androidx.work.WorkInfo;
 import com.blankj.utilcode.util.ToastUtils;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
 import com.seafile.seadroid2.enums.TransferAction;
 import com.seafile.seadroid2.enums.TransferDataSource;
@@ -148,7 +149,7 @@ public class UploadListFragment extends TransferListFragment {
             @Override
             public void onClick(DialogInterface dialog, int which) {
 
-                BackgroundJobManagerImpl.getInstance().cancelAllFolderUploadWorker();
+                BackgroundJobManagerImpl.getInstance().cancelFolderAutoUploadWorker();
 
                 getViewModel().removeSpecialUploadListTask(list, new Consumer<Boolean>() {
                     @Override
@@ -156,13 +157,18 @@ public class UploadListFragment extends TransferListFragment {
                         //todo 检查此处逻辑
 //                        BackgroundJobManagerImpl.getInstance().startFolderUploadWorker();
 
+                        //You never know which item a user will select, so we need to remove them one by one, and then resort.
+                        for (FileTransferEntity fileTransferEntity : list) {
+                            removeSpecialEntity(fileTransferEntity.uid);
+                        }
+
+                        getViewModel().getShowLoadingDialogLiveData().setValue(false);
+
                         ToastUtils.showLong(R.string.deleted);
-
-                        dialog.dismiss();
-
-                        refreshData();
                     }
                 });
+
+                dialog.dismiss();
             }
         });
     }
@@ -175,8 +181,8 @@ public class UploadListFragment extends TransferListFragment {
             public void accept(Boolean aBoolean) throws Exception {
 
                 //todo 检查此处逻辑
-                BackgroundJobManagerImpl.getInstance().startFolderChainWorker(true);
-                BackgroundJobManagerImpl.getInstance().startMediaChainWorker(true);
+                BackgroundJobManagerImpl.getInstance().startFolderAutoBackupWorkerChain(true);
+                BackgroundJobManagerImpl.getInstance().startMediaWorkerChain(true);
             }
         });
     }
@@ -186,8 +192,8 @@ public class UploadListFragment extends TransferListFragment {
      */
     public void cancelAllTasks() {
 
-        BackgroundJobManagerImpl.getInstance().cancelAllFolderUploadWorker();
-        BackgroundJobManagerImpl.getInstance().cancelAllMediaWorker();
+        BackgroundJobManagerImpl.getInstance().cancelFolderAutoUploadWorker();
+        BackgroundJobManagerImpl.getInstance().cancelMediaWorker();
 
         getViewModel().cancelAllUploadTask(new Consumer<Boolean>() {
             @Override
@@ -204,12 +210,11 @@ public class UploadListFragment extends TransferListFragment {
      * remove all download tasks
      */
     public void removeAllTasks() {
-        //todo
         showConfirmDialog(new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 //
-                BackgroundJobManagerImpl.getInstance().cancelAllFolderUploadWorker();
+                BackgroundJobManagerImpl.getInstance().cancelFolderAutoUploadWorker();
 
                 //
                 getViewModel().removeAllUploadTask(new Consumer<Boolean>() {
@@ -226,7 +231,7 @@ public class UploadListFragment extends TransferListFragment {
     }
 
     private void showConfirmDialog(DialogInterface.OnClickListener listener) {
-        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext());
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext());
         builder.setTitle(R.string.delete);
         builder.setMessage(R.string.delete_records);
         builder.setPositiveButton(R.string.ok, listener);
@@ -234,6 +239,5 @@ public class UploadListFragment extends TransferListFragment {
         builder.setNegativeButton(R.string.cancel, (dialog, which) -> dialog.dismiss());
         builder.show();
     }
-
 }
 

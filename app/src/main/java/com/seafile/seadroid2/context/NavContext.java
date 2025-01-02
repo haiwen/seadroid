@@ -68,6 +68,7 @@ public class NavContext {
                     RepoModel repoModel = new RepoModel();
                     repoModel.repo_id = contextModel.repo_id;
                     repoModel.repo_name = contextModel.repo_name;
+                    repoModel.permission = contextModel.permission;
                     navStack.push(repoModel);
                 } else if (contextModel.type.equals("dirent")) {
                     DirentModel direntModel = new DirentModel();
@@ -77,6 +78,7 @@ public class NavContext {
                     direntModel.parent_dir = Utils.getParentPath(direntModel.full_path);
                     direntModel.name = Utils.getFileNameFromPath(contextModel.full_path);
                     direntModel.uid = direntModel.getUID();
+                    direntModel.permission = contextModel.permission;
                     navStack.push(direntModel);
                 }
             }
@@ -95,11 +97,13 @@ public class NavContext {
                     contextModel.repo_name = e.repo_name;
                     contextModel.type = "repo";
                     contextModel.full_path = "/";
+                    contextModel.permission = e.permission;
                 } else if (baseModel instanceof DirentModel e) {
                     contextModel.repo_id = e.repo_id;
                     contextModel.repo_name = e.repo_name;
                     contextModel.type = "dirent";
                     contextModel.full_path = e.full_path;
+                    contextModel.permission = e.permission;
                 }
                 stack.add(contextModel);
             }

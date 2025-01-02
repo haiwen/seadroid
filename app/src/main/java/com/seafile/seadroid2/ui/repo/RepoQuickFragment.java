@@ -334,7 +334,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
                 MainActivity mainActivity = (MainActivity) getActivity();
                 if (mainActivity != null) {
-                    mainActivity.showProgressDialog(aBoolean);
+                    mainActivity.showLoadingDialog(aBoolean);
                 }
             }
         });
@@ -384,12 +384,6 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             }
         });
 
-        mainViewModel.getOnActionModeLiveData().observe(getViewLifecycleOwner(), new Observer<ActionModeCallbackType>() {
-            @Override
-            public void onChanged(ActionModeCallbackType callbackType) {
-                onShowActionMode(callbackType);
-            }
-        });
         searchViewModel.getSearchListLiveData().observe(getViewLifecycleOwner(), new Observer<List<SearchModel>>() {
             @Override
             public void onChanged(List<SearchModel> searchModels) {
@@ -1161,13 +1155,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             inflater.inflate(R.menu.repos_fragment_menu, menu);
             if (adapter == null) return true;
 
-            mainViewModel.getOnActionModeLiveData().setValue(ActionModeCallbackType.CREATE);
-
-//            // to hidden  "r" permissions  files or folder
-//            if (!getNavContext().isParentHasWritePermission()) {
-//                menu.findItem(R.id.action_mode_delete).setVisible(false);
-//                menu.findItem(R.id.action_mode_move).setVisible(false);
-//            }
+            onShowActionMode(ActionModeCallbackType.CREATE);
             return true;
         }
 
@@ -1202,13 +1190,13 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             if (itemId == R.id.action_mode_select_all) {
                 adapter.setItemSelected(!allItemsSelected);
 
-                startOrUpdateContextualActionBar();
-
                 if (!allItemsSelected) {
-                    mainViewModel.getOnActionModeLiveData().setValue(ActionModeCallbackType.SELECT_ALL);
+                    onShowActionMode(ActionModeCallbackType.SELECT_ALL);
                 } else {
-                    mainViewModel.getOnActionModeLiveData().setValue(ActionModeCallbackType.SELECT_NONE);
+                    onShowActionMode(ActionModeCallbackType.SELECT_NONE);
                 }
+
+                startOrUpdateContextualActionBar();
 
                 allItemsSelected = !allItemsSelected;
             }
@@ -1221,7 +1209,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         public void onDestroyActionMode(ActionMode mode) {
             if (adapter == null) return;
 
-            mainViewModel.getOnActionModeLiveData().setValue(ActionModeCallbackType.DESTORY);
+            onShowActionMode(ActionModeCallbackType.DESTORY);
         }
 
     }

@@ -14,7 +14,6 @@ import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
-import com.seafile.seadroid2.enums.ActionModeCallbackType;
 import com.seafile.seadroid2.framework.data.db.entities.EncKeyCacheEntity;
 import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
 import com.seafile.seadroid2.framework.data.db.entities.PermissionEntity;
@@ -28,7 +27,6 @@ import com.seafile.seadroid2.framework.data.model.permission.PermissionWrapperMo
 import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.ExistingFileStrategy;
-import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
 import com.seafile.seadroid2.context.NavContext;
 import com.seafile.seadroid2.framework.data.ServerInfo;
@@ -42,7 +40,6 @@ import com.seafile.seadroid2.ui.repo.RepoService;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.ui.activities.AllActivitiesFragment;
 import com.seafile.seadroid2.ui.repo.RepoQuickFragment;
-import com.seafile.seadroid2.ui.settings.TabSettings2Fragment;
 import com.seafile.seadroid2.ui.settings.TabSettingsFragment;
 import com.seafile.seadroid2.ui.star.StarredQuickFragment;
 import com.seafile.seadroid2.framework.util.SLogs;
@@ -56,7 +53,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -84,11 +80,6 @@ public class MainViewModel extends BaseViewModel {
     private final MutableLiveData<Boolean> OnNavChangeListenerLiveData = new MutableLiveData<>();
 
     private final MutableLiveData<Boolean> _searchViewExpandedLiveData = new MutableLiveData<>(false);
-    private final MutableLiveData<ActionModeCallbackType> _onActionModeLiveData = new MutableLiveData<>();
-
-    public MutableLiveData<ActionModeCallbackType> getOnActionModeLiveData() {
-        return _onActionModeLiveData;
-    }
 
     public MutableLiveData<Boolean> getSearchViewExpandedLiveData() {
         return _searchViewExpandedLiveData;
@@ -548,7 +539,7 @@ public class MainViewModel extends BaseViewModel {
                 }
 
                 //start worker
-                BackgroundJobManagerImpl.getInstance().startFileUploadWorker();
+                BackgroundJobManagerImpl.getInstance().startFileManualUploadWorker();
 
                 if (consumer != null) {
                     consumer.accept(transferEntity);

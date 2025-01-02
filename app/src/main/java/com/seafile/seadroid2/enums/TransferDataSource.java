@@ -4,7 +4,8 @@ public enum TransferDataSource {
     ALBUM_BACKUP,
 
     /**
-     *
+     * (automatically)
+     * folder backup
      */
     FOLDER_BACKUP,
 

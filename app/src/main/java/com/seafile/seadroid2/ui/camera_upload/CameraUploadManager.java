@@ -124,7 +124,7 @@ public class CameraUploadManager {
             ContentResolver.setIsSyncable(account.getAndroidAccount(), AUTHORITY, 0);
         }
 
-        BackgroundJobManagerImpl.getInstance().cancelAllMediaWorker();
+        BackgroundJobManagerImpl.getInstance().cancelMediaWorker();
     }
 
     /**

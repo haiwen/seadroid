@@ -164,7 +164,7 @@ public class ShareToSeafileViewModel extends BaseViewModel {
         addSingleDisposable(booleanSingle, new Consumer<Boolean>() {
             @Override
             public void accept(Boolean aBoolean) throws Exception {
-                BackgroundJobManagerImpl.getInstance().startFileUploadWorker();
+                BackgroundJobManagerImpl.getInstance().startFileManualUploadWorker();
 
                 getActionLiveData().setValue(true);
             }

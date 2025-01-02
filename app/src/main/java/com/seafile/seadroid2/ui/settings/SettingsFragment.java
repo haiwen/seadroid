@@ -629,7 +629,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 refreshFolderBackNetworkMode(which);
 
                 //restart
-                BackgroundJobManagerImpl.getInstance().startFolderChainWorker(true);
+                BackgroundJobManagerImpl.getInstance().startFolderAutoBackupWorkerChain(true);
 
             }
         });
@@ -716,10 +716,10 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     private void switchCameraWorker(boolean isChecked) {
         if (isChecked) {
             CameraUploadManager.getInstance().setCameraAccount(currentAccount);
-            BackgroundJobManagerImpl.getInstance().startMediaChainWorker(true);
+            BackgroundJobManagerImpl.getInstance().startMediaWorkerChain(true);
         } else {
             CameraUploadManager.getInstance().disableCameraUpload();
-            BackgroundJobManagerImpl.getInstance().cancelAllMediaWorker();
+            BackgroundJobManagerImpl.getInstance().cancelMediaWorker();
         }
     }
 
@@ -733,7 +733,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         setFolderPreferencesVisible(isFolderAutomaticBackup);
 
         if (!isFolderAutomaticBackup) {
-            BackgroundJobManagerImpl.getInstance().cancelAllFolderUploadWorker();
+            BackgroundJobManagerImpl.getInstance().cancelFolderAutoUploadWorker();
             if (fileSyncService != null) {
 //                fileSyncService.stopFolderMonitor();
             }
@@ -759,7 +759,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 //                fileSyncService.startFolderMonitor();
             }
 
-            BackgroundJobManagerImpl.getInstance().startFolderChainWorker(true);
+            BackgroundJobManagerImpl.getInstance().startFolderAutoBackupWorkerChain(true);
         }
     }
 
