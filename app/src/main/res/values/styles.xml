@@ -178,6 +178,10 @@
         <item name="android:widgetLayout">@layout/preference_widget_material_switch_m3</item>
     </style>
 
+    <style name="Widget.PreferenceCategory" parent="Preference.Category">
+        <item name="android:divider">@null</item>
+        <item name="android:dividerHeight">0dp</item>
+    </style>
     <!-- Notifications -->
     <style name="NotificationTitle" parent="@android:style/TextAppearance">
         <item name="android:textColor">#ff000000</item>
@@ -229,6 +233,27 @@
         <item name="android:maxLines">@integer/list_item_title_max_lines</item>
         <item name="android:ellipsize">end</item>
         <item name="android:textSize">@dimen/lv_subtitle_txt_size</item>
+        <item name="android:textColor">@color/item_subtitle_color</item>
+    </style>
+
+    <style name="Preference.Title">
+        <item name="android:layout_marginEnd">8dp</item>
+        <item name="android:text">@string/app_name</item>
+        <item name="android:layout_marginStart">16dp</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:maxLines">@integer/list_item_title_max_lines</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/item_title_color</item>
+    </style>
+
+    <style name="Preference.Summary">
+        <item name="android:layout_marginEnd">8dp</item>
+        <item name="android:text">@string/app_name</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:maxLines">@integer/list_item_title_max_lines</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:textSize">14sp</item>
         <item name="android:textColor">@color/item_subtitle_color</item>
     </style>
 

@@ -30,7 +30,7 @@
             app:isPreferenceVisible="false"
             app:useSimpleSummaryProvider="true" />
 
-        <rikka.preference.SimpleMenuPreference
+        <com.seafile.seadroid2.widget.prefs.SimpleMenuPreference
             android:defaultValue="@string/pref_default_value_night_mode"
             android:entries="@array/pref_entry_values_night_mode_visualization"
             android:entryValues="@array/pref_entry_values_night_mode"
@@ -114,7 +114,7 @@
             android:title="@string/settings_folder_backup_switch_title"
             app:iconSpaceReserved="false" />
 
-        <rikka.preference.SimpleMenuPreference
+        <com.seafile.seadroid2.widget.prefs.SimpleMenuPreference
             android:defaultValue="@string/pref_key_default_value_folder_backup_network_mode"
             android:entries="@array/pref_entry_values_folder_backup_network_mode_visualization"
             android:entryValues="@array/pref_entry_values_folder_backup_network_mode"

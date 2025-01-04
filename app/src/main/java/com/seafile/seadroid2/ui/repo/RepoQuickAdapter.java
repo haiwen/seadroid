@@ -1,6 +1,7 @@
 package com.seafile.seadroid2.ui.repo;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -319,11 +320,15 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
 
 //            holder.binding.getRoot().setChecked(model.is_checked);
 
+            int color;
             if (isChecked) {
+                color = ContextCompat.getColor(getContext(), R.color.fancy_orange);
                 holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_checked);
             } else {
+                color = ContextCompat.getColor(getContext(), R.color.material_grey_666);
                 holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_unchecked);
             }
+            holder.binding.itemMultiSelect.setImageTintList(ColorStateList.valueOf(color));
             return;
         }
 
@@ -332,19 +337,27 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         holder.binding.itemIcon.setImageResource(model.getIcon());
 //        holder.binding.getRoot().setBackground(AnimatedStateListDrawableCompatUtils.createDrawableCompat(getContext()));
 
+        int color;
         if (selectType.ordinal() == RepoSelectType.ONLY_REPO.ordinal() || onActionMode) {
 //            holder.binding.getRoot().setChecked(model.is_checked);
 
             holder.binding.itemMultiSelect.setVisibility(View.VISIBLE);
+
             if (model.is_checked) {
+                color = ContextCompat.getColor(getContext(), R.color.fancy_orange);
                 holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_checked);
             } else {
+                color = ContextCompat.getColor(getContext(), R.color.material_grey_666);
                 holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_unchecked);
             }
+            holder.binding.itemMultiSelect.setImageTintList(ColorStateList.valueOf(color));
         } else {
+            color = ContextCompat.getColor(getContext(), R.color.material_grey_666);
             holder.binding.itemMultiSelect.setVisibility(View.GONE);
 //            holder.binding.getRoot().setChecked(false);
         }
+        holder.binding.itemMultiSelect.setImageTintList(ColorStateList.valueOf(color));
+
 
         holder.binding.expandableToggleButton.setVisibility(View.GONE);
 
@@ -357,17 +370,15 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
     }
 
     private void onBindDirents(DirentViewHolder holder, DirentModel model, @NonNull List<?> payloads) {
+        int color;
+
         if (!CollectionUtils.isEmpty(payloads)) {
             Bundle bundle = (Bundle) payloads.get(0);
             boolean isChecked = bundle.getBoolean("is_check");
 
 //            holder.binding.getRoot().setChecked(model.is_checked);
 
-            if (isChecked) {
-                holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_checked);
-            } else {
-                holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_unchecked);
-            }
+            updateItemMultiSelectViewWithPayload(holder.binding.itemMultiSelect, isChecked);
             return;
         }
 
@@ -383,21 +394,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         }
 
         //action mode
-        if (onActionMode) {
-//            holder.binding.getRoot().setChecked(model.is_checked);
-
-            holder.binding.itemMultiSelect.setVisibility(View.VISIBLE);
-            if (model.is_checked) {
-                holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_checked);
-            } else {
-                holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_unchecked);
-            }
-        } else {
-            holder.binding.itemMultiSelect.setVisibility(View.GONE);
-            holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_unchecked);
-
-//            holder.binding.getRoot().setChecked(false);
-        }
+        updateItemMultiSelectView(holder.binding.itemMultiSelect, model.is_checked);
 
         holder.binding.itemDownloadStatusProgressbar.setVisibility(View.GONE);
         holder.binding.itemDownloadStatus.setVisibility(View.GONE);
@@ -456,19 +453,16 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
     }
 
     private void onBindDirentsGrid(DirentGridViewHolder holder, DirentModel model, @NonNull List<?> payloads) {
+        int color;
         if (!CollectionUtils.isEmpty(payloads)) {
             Bundle bundle = (Bundle) payloads.get(0);
             boolean isChecked = bundle.getBoolean("is_check");
 
 //            holder.binding.getRoot().setChecked(model.is_checked);
-
-            if (isChecked) {
-                holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_checked);
-            } else {
-                holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_unchecked);
-            }
+            updateItemMultiSelectViewWithPayload(holder.binding.itemMultiSelect, isChecked);
             return;
         }
+
 
         holder.binding.itemTitle.setText(model.name);
 
@@ -489,21 +483,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         }
 
         //action mode
-        if (onActionMode) {
-            holder.binding.itemMultiSelect.setVisibility(View.VISIBLE);
-//            holder.binding.getRoot().setChecked(model.is_checked);
-
-            if (model.is_checked) {
-                holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_checked);
-            } else {
-                holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_unchecked);
-            }
-        } else {
-            holder.binding.itemMultiSelect.setVisibility(View.GONE);
-            holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_unchecked);
-
-//            holder.binding.getRoot().setChecked(false);
-        }
+        updateItemMultiSelectView(holder.binding.itemMultiSelect, model.is_checked);
 
         if (model.starred) {
             holder.binding.itemTitle.setCompoundDrawables(null, null, getStarDrawable(), null);
@@ -513,17 +493,13 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
     }
 
     private void onBindDirentsGallery(DirentGalleryViewHolder holder, DirentModel model, @NonNull List<?> payloads) {
+        int color;
         if (!CollectionUtils.isEmpty(payloads)) {
             Bundle bundle = (Bundle) payloads.get(0);
             boolean isChecked = bundle.getBoolean("is_check");
 
 //            holder.binding.getRoot().setChecked(model.is_checked);
-
-            if (isChecked) {
-                holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_checked);
-            } else {
-                holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_unchecked);
-            }
+            updateItemMultiSelectViewWithPayload(holder.binding.itemMultiSelect, isChecked);
             return;
         }
 //        holder.binding.getRoot().setBackground(AnimatedStateListDrawableCompatUtils.createDrawableCompat(getContext()));
@@ -534,22 +510,43 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
             loadImage(model, holder.binding.itemIcon);
         }
 
+        updateItemMultiSelectView(holder.binding.itemMultiSelect, model.is_checked);
+    }
+
+    private void updateItemMultiSelectViewWithPayload(ImageView imageView, boolean isChecked) {
+        int color;
+
+        if (isChecked) {
+            color = ContextCompat.getColor(getContext(), R.color.fancy_orange);
+            imageView.setImageResource(R.drawable.ic_checkbox_checked);
+        } else {
+            color = ContextCompat.getColor(getContext(), R.color.material_grey_666);
+            imageView.setImageResource(R.drawable.ic_checkbox_unchecked);
+        }
+        imageView.setImageTintList(ColorStateList.valueOf(color));
+    }
+
+    private void updateItemMultiSelectView(ImageView imageView, boolean isChecked) {
+        int color;
         //action mode
         if (onActionMode) {
-            holder.binding.itemMultiSelect.setVisibility(View.VISIBLE);
+            imageView.setVisibility(View.VISIBLE);
 //            holder.binding.getRoot().setChecked(model.is_checked);
 
-            if (model.is_checked) {
-                holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_checked);
+            if (isChecked) {
+                color = ContextCompat.getColor(getContext(), R.color.fancy_orange);
+                imageView.setImageResource(R.drawable.ic_checkbox_checked);
             } else {
-                holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_unchecked);
+                color = ContextCompat.getColor(getContext(), R.color.bottom_sheet_pop_disable_color);
+                imageView.setImageResource(R.drawable.ic_checkbox_unchecked);
             }
         } else {
 //            holder.binding.getRoot().setChecked(false);
-
-            holder.binding.itemMultiSelect.setVisibility(View.GONE);
-            holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_unchecked);
+            color = ContextCompat.getColor(getContext(), R.color.bottom_sheet_pop_disable_color);
+            imageView.setVisibility(View.GONE);
+            imageView.setImageResource(R.drawable.ic_checkbox_unchecked);
         }
+        imageView.setImageTintList(ColorStateList.valueOf(color));
     }
 
     private void onBindSearch(DirentViewHolder holder, SearchModel model) {

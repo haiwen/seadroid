@@ -107,7 +107,8 @@
             android:layout_gravity="center"
             android:padding="6dp"
             android:src="@drawable/ic_checkbox_checked"
-            android:visibility="visible" />
+            android:visibility="visible"
+            app:tint="@color/fancy_orange" />
     </FrameLayout>
 
     <com.google.android.material.divider.MaterialDivider

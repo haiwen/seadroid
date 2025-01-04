@@ -259,8 +259,8 @@ android {
         //https://github.com/panpf/stickyitemdecoration
         implementation "io.github.panpf.stickyitemdecoration:stickyitemdecoration:1.0.2"
 
-        //preference
-        implementation 'dev.rikka.rikkax.preference:simplemenu-preference:1.0.3'
+        //Thanks: https://github.com/RikkaApps
+        //implementation 'dev.rikka.rikkax.preference:simplemenu-preference:1.0.3'
 
         //https://github.com/michaellee123/LiveEventBus
         implementation 'com.github.michaellee123:LiveEventBus:1.8.14'

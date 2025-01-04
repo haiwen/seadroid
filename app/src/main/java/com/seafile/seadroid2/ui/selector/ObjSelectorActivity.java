@@ -319,7 +319,12 @@ public class ObjSelectorActivity extends BaseActivity {
         viewModel.getPermissionFromLocal(repo_id, pNum, new Consumer<PermissionEntity>() {
             @Override
             public void accept(PermissionEntity entity) throws Exception {
-                consumer.accept(entity != null && entity.create);
+                if (!entity.isValid()) {
+                    consumer.accept(false);
+                    return;
+                }
+
+                consumer.accept(entity.create);
             }
         });
     }
@@ -330,22 +335,21 @@ public class ObjSelectorActivity extends BaseActivity {
             return;
         }
 
-        checkCurrentPathHasWritePermission(new java.util.function.Consumer<Boolean>() {
-            @Override
-            public void accept(Boolean aBoolean) {
-                String rid = mNavContext.getRepoModel().repo_id;
-                String parentPath = mNavContext.getNavPath();
-                NewDirFileDialogFragment dialogFragment = NewDirFileDialogFragment.newInstance(rid, parentPath, true);
-                dialogFragment.setRefreshListener(new OnRefreshDataListener() {
-                    @Override
-                    public void onActionStatus(boolean isDone) {
-                        if (isDone) {
-                            loadData();
-                        }
+        checkCurrentPathHasWritePermission(aBoolean -> {
+
+
+            String rid = mNavContext.getRepoModel().repo_id;
+            String parentPath = mNavContext.getNavPath();
+            NewDirFileDialogFragment dialogFragment = NewDirFileDialogFragment.newInstance(rid, parentPath, true);
+            dialogFragment.setRefreshListener(new OnRefreshDataListener() {
+                @Override
+                public void onActionStatus(boolean isDone) {
+                    if (isDone) {
+                        loadData();
                     }
-                });
-                dialogFragment.show(getSupportFragmentManager(), NewDirFileDialogFragment.class.getSimpleName());
-            }
+                }
+            });
+            dialogFragment.show(getSupportFragmentManager(), NewDirFileDialogFragment.class.getSimpleName());
         });
     }
 

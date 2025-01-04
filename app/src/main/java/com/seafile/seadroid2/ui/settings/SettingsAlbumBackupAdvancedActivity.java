@@ -39,7 +39,7 @@ public class SettingsAlbumBackupAdvancedActivity extends BaseActivity implements
             getSupportActionBar().setTitle(R.string.settings_camera_upload_advanced_feature_title);
         }
 
-        FragmentUtils.add(getSupportFragmentManager(), SettingsAlbumBackupAdvancedFragment.newInstance(), R.id.settings_fragment_container);
+        FragmentUtils.add(getSupportFragmentManager(), SettingsAlbumBackupAdvanced2Fragment.newInstance(), R.id.settings_fragment_container);
 
         getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
             @Override

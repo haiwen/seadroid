@@ -31,6 +31,7 @@ public class NaturalOrderComparator implements Comparator<Object> {
         if (TextUtils.isEmpty(name1) || TextUtils.isEmpty(name2)) {
             return -1;
         }
+
         int len1 = name1.length();
         int len2 = name2.length();
         int i1 = 0, i2 = 0;
@@ -54,6 +55,16 @@ public class NaturalOrderComparator implements Comparator<Object> {
             } else {
                 // 否则按字符比较
                 if (c1 != c2) {
+
+                    // If c1 is lowercase and c2 is uppercase, c1 should come first
+                    if (Character.isLowerCase(c1) && Character.isUpperCase(c2)) {
+                        return -1;
+                    }
+                    // If c1 is uppercase and c2 is lowercase, c2 should come first
+                    if (Character.isUpperCase(c1) && Character.isLowerCase(c2)) {
+                        return 1;
+                    }
+
                     return c1 - c2;
                 }
                 i1++;

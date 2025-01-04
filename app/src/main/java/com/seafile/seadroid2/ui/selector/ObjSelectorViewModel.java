@@ -12,6 +12,7 @@ import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.data.db.entities.EncKeyCacheEntity;
 import com.seafile.seadroid2.framework.data.db.entities.PermissionEntity;
 import com.seafile.seadroid2.framework.data.model.permission.PermissionListWrapperModel;
+import com.seafile.seadroid2.framework.data.model.permission.PermissionParentModel;
 import com.seafile.seadroid2.framework.data.model.permission.PermissionWrapperModel;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
 import com.seafile.seadroid2.context.NavContext;
@@ -124,13 +125,13 @@ public class ObjSelectorViewModel extends BaseViewModel {
 
 
     public void getPermissionFromLocal(String repoId, int pNum, Consumer<PermissionEntity> consumer) {
-        Single<List<PermissionEntity>> pSingle = AppDatabase.getInstance().permissionDAO().getWithAsync(repoId, pNum);
+        Single<List<PermissionEntity>> pSingle = AppDatabase.getInstance().permissionDAO().getByRepoAndIdAsync(repoId, pNum);
         Single<PermissionEntity> s = pSingle.flatMap(new Function<List<PermissionEntity>, SingleSource<PermissionEntity>>() {
             @Override
             public SingleSource<PermissionEntity> apply(List<PermissionEntity> pList) throws Exception {
 
                 if (CollectionUtils.isEmpty(pList)) {
-                    return null;
+                    return Single.just(new PermissionEntity());
                 }
 
                 return Single.just(pList.get(0));
@@ -138,20 +139,21 @@ public class ObjSelectorViewModel extends BaseViewModel {
         }).flatMap(new Function<PermissionEntity, SingleSource<PermissionEntity>>() {
             @Override
             public SingleSource<PermissionEntity> apply(PermissionEntity entity) throws Exception {
-                Single<List<PermissionEntity>> r = getLoadRepoPermissionFromRemoteSingle(repoId);
 
-                return r.flatMap(new Function<List<PermissionEntity>, SingleSource<? extends PermissionEntity>>() {
+                if (entity.isValid()) {
+                    return Single.just(entity);
+                }
+
+                Single<PermissionEntity> r = getLoadRepoPermissionFromRemoteSingle(repoId, pNum);
+                return r.flatMap(new Function<PermissionEntity, SingleSource<PermissionEntity>>() {
                     @Override
-                    public SingleSource<? extends PermissionEntity> apply(List<PermissionEntity> permissionEntities) throws Exception {
-                        if (CollectionUtils.isEmpty(permissionEntities)) {
-                            return null;
+                    public SingleSource<PermissionEntity> apply(PermissionEntity permission) throws Exception {
 
+                        if (permission == null) {
+                            return Single.just(new PermissionEntity());
                         }
-                        Optional<PermissionEntity> p = permissionEntities.stream().filter(f -> f.id == pNum).findFirst();
-                        if (p.isPresent()) {
-                            return Single.just(p.get());
-                        }
-                        return null;
+
+                        return Single.just(permission);
                     }
                 });
             }
@@ -168,27 +170,20 @@ public class ObjSelectorViewModel extends BaseViewModel {
     }
 
 
-    private Single<List<PermissionEntity>> getLoadRepoPermissionFromRemoteSingle(String repoId) {
-        Single<PermissionListWrapperModel> single = HttpIO.getCurrentInstance().execute(RepoService.class).getCustomSharePermissions(repoId);
-        return single.flatMap(new Function<PermissionListWrapperModel, SingleSource<List<PermissionEntity>>>() {
+    private Single<PermissionEntity> getLoadRepoPermissionFromRemoteSingle(String repoId, int pNum) {
+        Single<PermissionWrapperModel> single = HttpIO.getCurrentInstance().execute(RepoService.class).getCustomSharePermissionById(repoId, pNum);
+        return single.flatMap(new Function<PermissionWrapperModel, SingleSource<PermissionEntity>>() {
             @Override
-            public SingleSource<List<PermissionEntity>> apply(PermissionListWrapperModel wrapperModel) throws Exception {
-
-                List<PermissionEntity> list = CollectionUtils.newArrayList();
-
-                for (PermissionWrapperModel model : wrapperModel.permission_list) {
-                    list.add(new PermissionEntity(repoId, model));
+            public SingleSource<PermissionEntity> apply(PermissionWrapperModel wrapperModel) throws Exception {
+                if (wrapperModel == null || wrapperModel.permission == null) {
+                    return Single.just(new PermissionEntity());
                 }
+                PermissionEntity permission = new PermissionEntity(repoId, wrapperModel.permission);
 
-                Completable insertCompletable = AppDatabase.getInstance().permissionDAO().insertAllAsync(list);
-                Single<Long> insertAllSingle = insertCompletable.toSingleDefault(0L);
-                return insertAllSingle.flatMap(new Function<Long, SingleSource<List<PermissionEntity>>>() {
-                    @Override
-                    public SingleSource<List<PermissionEntity>> apply(Long aLong) throws Exception {
-                        SLogs.d("The list has been inserted into the local database");
-                        return Single.just(list);
-                    }
-                });
+                AppDatabase.getInstance().permissionDAO().insert(permission);
+                SLogs.d("The list has been inserted into the local database");
+
+                return Single.just(permission);
             }
         });
     }

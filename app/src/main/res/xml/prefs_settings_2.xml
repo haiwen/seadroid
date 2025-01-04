@@ -2,8 +2,10 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <PreferenceCategory
+    <com.seafile.seadroid2.widget.prefs.CardPreferenceCategory
         android:title="@string/settings_account_info_title"
+        app:allowDividerAbove="false"
+        app:allowDividerBelow="false"
         app:iconSpaceReserved="false">
 
         <com.seafile.seadroid2.widget.prefs.TextTitleSummaryPreference
@@ -11,22 +13,31 @@
             android:key="@string/pref_key_user_info"
             android:summary="@string/settings_switch_account"
             android:title="@string/settings_account_info_load_data"
+            app:backgroundColor="@color/pref_background_color"
+            app:backgroundRadius="8dp"
+            app:dividerColor="@color/pref_divider_color"
+            app:dividerPosition="bottom"
             app:iconSpaceReserved="false"
-            app:radiusShape="top" />
+            app:radiusPosition="top" />
 
         <com.seafile.seadroid2.widget.prefs.TextTitleSummaryPreference
             android:key="@string/pref_key_user_server"
             android:summary="@string/settings_account_info_load_data"
             android:title="@string/server"
+            app:backgroundColor="@color/pref_background_color"
+            app:dividerColor="@color/pref_divider_color"
+            app:dividerPosition="bottom"
             app:iconSpaceReserved="false"
-            app:radiusShape="none" />
+            app:radiusPosition="none" />
 
         <com.seafile.seadroid2.widget.prefs.TextTitleSummaryPreference
             android:key="@string/pref_key_user_space"
             android:summary="@string/settings_account_info_load_data"
             android:title="@string/settings_account_space_title"
+            app:backgroundColor="@color/pref_background_color"
+            app:backgroundRadius="8dp"
             app:iconSpaceReserved="false"
-            app:radiusShape="bottom" />
+            app:radiusPosition="bottom" />
 
         <SwitchPreferenceCompat
             android:defaultValue="false"
@@ -39,137 +50,193 @@
             app:useSimpleSummaryProvider="true" />
 
 
-    </PreferenceCategory>
+    </com.seafile.seadroid2.widget.prefs.CardPreferenceCategory>
 
 
-    <PreferenceCategory
+    <com.seafile.seadroid2.widget.prefs.CardPreferenceCategory
         android:title="@string/settings_display_mode"
+        app:allowDividerAbove="false"
+        app:allowDividerBelow="false"
         app:iconSpaceReserved="false">
 
-        <rikka.preference.SimpleMenuPreference
+        <com.seafile.seadroid2.widget.prefs.SimpleMenuPreference
             android:defaultValue="@string/pref_default_value_night_mode"
             android:entries="@array/pref_entry_values_night_mode_visualization"
             android:entryValues="@array/pref_entry_values_night_mode"
             android:key="@string/pref_key_night_mode"
             android:title="@string/settings_night_mode_title"
+            app:backgroundColor="@color/pref_background_color"
+            app:backgroundRadius="8dp"
             app:iconSpaceReserved="false"
             app:isPreferenceVisible="true"
+            app:radiusPosition="all"
             app:useSimpleSummaryProvider="true" />
-    </PreferenceCategory>
+    </com.seafile.seadroid2.widget.prefs.CardPreferenceCategory>
 
-    <PreferenceCategory
+    <com.seafile.seadroid2.widget.prefs.CardPreferenceCategory
         android:title="@string/settings_camera_upload_info_title"
+        app:allowDividerAbove="false"
+        app:allowDividerBelow="false"
         app:iconSpaceReserved="false">
 
-        <SwitchPreferenceCompat
+        <com.seafile.seadroid2.widget.prefs.TextSwitchPreference
             android:defaultValue="false"
             android:key="@string/pref_key_album_backup_switch"
             android:summaryOff="@string/settings_camera_upload_service_stopped"
             android:summaryOn="@string/settings_camera_upload_service_started"
             android:title="@string/settings_camera_upload_turn_on"
-            app:iconSpaceReserved="false" />
+            app:backgroundColor="@color/pref_background_color"
+            app:backgroundRadius="8dp"
+            app:dividerColor="@color/pref_divider_color"
+            app:dividerPosition="bottom"
+            app:iconSpaceReserved="false"
+            app:radiusPosition="top" />
 
         <com.seafile.seadroid2.widget.prefs.TextTitleSummaryPreference
             android:key="@string/pref_key_album_backup_repo_select"
             android:summary="@string/settings_camera_upload_repo_hint"
             android:title="@string/settings_camera_upload_change_repo_title"
+            app:backgroundColor="@color/pref_background_color"
+            app:dividerColor="@color/pref_divider_color"
+            app:dividerPosition="bottom"
             app:iconSpaceReserved="false"
             app:isPreferenceVisible="false"
-            app:radiusShape="none" />
+            app:radiusPosition="none" />
 
         <com.seafile.seadroid2.widget.prefs.TextMorePreference
             android:key="@string/pref_key_album_backup_advanced"
             android:summary="@string/settings_camera_upload_advanced_feature_subtitle"
             android:title="@string/settings_camera_upload_advanced_feature_title"
+            app:backgroundColor="@color/pref_background_color"
+            app:dividerColor="@color/pref_divider_color"
+            app:dividerPosition="bottom"
             app:iconSpaceReserved="false"
             app:isPreferenceVisible="false"
-            app:radiusShape="none" />
+            app:radiusPosition="none" />
 
         <com.seafile.seadroid2.widget.prefs.TextTitleSummaryPreference
             android:key="@string/pref_key_album_backup_state"
             android:summary="@string/folder_backup_waiting_state"
             android:title="@string/camera_upload_state"
+            app:backgroundColor="@color/pref_background_color"
+            app:backgroundRadius="8dp"
             app:iconSpaceReserved="false"
             app:isPreferenceVisible="false"
-            app:radiusShape="bottom" />
-    </PreferenceCategory>
+            app:radiusPosition="bottom" />
+    </com.seafile.seadroid2.widget.prefs.CardPreferenceCategory>
 
-    <PreferenceCategory
+    <com.seafile.seadroid2.widget.prefs.CardPreferenceCategory
         android:title="@string/settings_folder_backup_info_title"
+        app:allowDividerAbove="false"
+        app:allowDividerBelow="false"
         app:iconSpaceReserved="false">
 
-        <SwitchPreferenceCompat
+        <com.seafile.seadroid2.widget.prefs.TextSwitchPreference
             android:defaultValue="false"
             android:key="@string/pref_key_folder_backup_switch"
             android:summaryOff="@string/settings_folder_backup_service_stopped"
             android:summaryOn="@string/settings_folder_backup_service_started"
             android:title="@string/settings_folder_backup_switch_title"
-            app:iconSpaceReserved="false" />
+            app:backgroundColor="@color/pref_background_color"
+            app:backgroundRadius="8dp"
+            app:dividerColor="@color/pref_divider_color"
+            app:dividerPosition="bottom"
+            app:iconSpaceReserved="false"
+            app:radiusPosition="top" />
 
-        <rikka.preference.SimpleMenuPreference
+        <com.seafile.seadroid2.widget.prefs.SimpleMenuPreference
             android:defaultValue="@string/pref_key_default_value_folder_backup_network_mode"
             android:entries="@array/pref_entry_values_folder_backup_network_mode_visualization"
             android:entryValues="@array/pref_entry_values_folder_backup_network_mode"
             android:key="@string/pref_key_folder_backup_network_mode"
             android:summary="@string/pref_key_default_summary_folder_backup_network_mode"
             android:title="@string/settings_folder_backup_traffic"
+            app:backgroundColor="@color/pref_background_color"
+            app:dividerColor="@color/pref_divider_color"
+            app:dividerPosition="bottom"
             app:iconSpaceReserved="false"
             app:isPreferenceVisible="false"
+            app:radiusPosition="none"
             app:useSimpleSummaryProvider="true" />
 
-        <Preference
+        <com.seafile.seadroid2.widget.prefs.TextTitleSummaryPreference
             android:key="@string/pref_key_folder_backup_repo_select"
             android:summary="@string/folder_backup_select_repo_hint"
             android:title="@string/settings_folder_backup_library"
+            app:backgroundColor="@color/pref_background_color"
+            app:dividerColor="@color/pref_divider_color"
+            app:dividerPosition="bottom"
             app:iconSpaceReserved="false"
-            app:isPreferenceVisible="false" />
+            app:isPreferenceVisible="false"
+            app:radiusPosition="none" />
 
-        <Preference
+        <com.seafile.seadroid2.widget.prefs.TextTitleSummaryPreference
             android:key="@string/pref_key_folder_backup_folder_select"
             android:summary="@string/settings_folder_backup_select_hint"
             android:title="@string/settings_folder_backup_select_title"
+            app:backgroundColor="@color/pref_background_color"
+            app:dividerColor="@color/pref_divider_color"
+            app:dividerPosition="bottom"
             app:iconSpaceReserved="false"
-            app:isPreferenceVisible="false" />
+            app:isPreferenceVisible="false"
+            app:radiusPosition="none" />
 
-        <Preference
+        <com.seafile.seadroid2.widget.prefs.TextTitleSummaryPreference
             android:key="@string/pref_key_folder_backup_state"
             android:summary="@string/folder_backup_waiting_state"
             android:title="@string/folder_backup_state"
+            app:backgroundColor="@color/pref_background_color"
+            app:backgroundRadius="8dp"
             app:iconSpaceReserved="false"
-            app:isPreferenceVisible="false" />
-    </PreferenceCategory>
+            app:isPreferenceVisible="false"
+            app:radiusPosition="bottom" />
+    </com.seafile.seadroid2.widget.prefs.CardPreferenceCategory>
 
-    <PreferenceCategory
+    <com.seafile.seadroid2.widget.prefs.CardPreferenceCategory
         android:title="@string/settings_storage_title"
-        app:allowDividerAbove="true"
+        app:allowDividerAbove="false"
+        app:allowDividerBelow="false"
         app:iconSpaceReserved="false">
         <com.seafile.seadroid2.widget.prefs.TextTitleSummaryPreference
             android:key="@string/pref_key_cache_info"
             android:title="@string/settings_cache_title"
+            app:backgroundColor="@color/pref_background_color"
+            app:backgroundRadius="8dp"
+            app:dividerColor="@color/pref_divider_color"
+            app:dividerPosition="bottom"
             app:iconSpaceReserved="false"
-            app:radiusShape="top" />
+            app:radiusPosition="top" />
         <com.seafile.seadroid2.widget.prefs.TextTitleSummaryPreference
             android:key="@string/pref_key_cache_location"
             android:title="@string/settings_cache_location_title"
+            app:backgroundColor="@color/pref_background_color"
+            app:dividerColor="@color/pref_divider_color"
+            app:dividerPosition="bottom"
             app:iconSpaceReserved="false"
-            app:radiusShape="none" />
+            app:radiusPosition="none" />
         <com.seafile.seadroid2.widget.prefs.TextTitleSummaryPreference
             android:key="@string/pref_key_cache_clear"
             android:title="@string/settings_clear_cache_title"
+            app:backgroundColor="@color/pref_background_color"
+            app:backgroundRadius="8dp"
             app:iconSpaceReserved="false"
-            app:radiusShape="bottom" />
-    </PreferenceCategory>
+            app:radiusPosition="bottom" />
+    </com.seafile.seadroid2.widget.prefs.CardPreferenceCategory>
 
-    <PreferenceCategory
+    <com.seafile.seadroid2.widget.prefs.CardPreferenceCategory
         android:title="@string/security"
+        app:allowDividerAbove="false"
+        app:allowDividerBelow="false"
         app:iconSpaceReserved="false">
 
         <com.seafile.seadroid2.widget.prefs.TextTitleSummaryPreference
             android:key="@string/pref_key_security_clear_password"
             android:summary="@string/clear_password_hint"
             android:title="@string/clear_password_title"
+            app:backgroundColor="@color/pref_background_color"
+            app:backgroundRadius="8dp"
             app:iconSpaceReserved="false"
-            app:radiusShape="all" />
+            app:radiusPosition="all" />
 
         <SwitchPreferenceCompat
             android:defaultValue="false"
@@ -180,38 +247,55 @@
             app:iconSpaceReserved="false"
             app:isPreferenceVisible="false" />
 
-    </PreferenceCategory>
+    </com.seafile.seadroid2.widget.prefs.CardPreferenceCategory>
 
-    <PreferenceCategory
+    <com.seafile.seadroid2.widget.prefs.CardPreferenceCategory
         android:title="@string/settings_about_title"
+        app:allowDividerAbove="false"
+        app:allowDividerBelow="false"
         app:iconSpaceReserved="false">
 
         <com.seafile.seadroid2.widget.prefs.TextMorePreference
             android:key="@string/pref_key_about_privacy"
             android:title="@string/settings_about_privacy_policy"
+            app:backgroundColor="@color/pref_background_color"
+            app:backgroundRadius="8dp"
+            app:dividerColor="@color/pref_divider_color"
+            app:dividerPosition="bottom"
             app:iconSpaceReserved="false"
-            app:radiusShape="top" />
+            app:radiusPosition="top" />
 
         <com.seafile.seadroid2.widget.prefs.TextTitleSummaryPreference
             android:key="@string/pref_key_about_version"
             android:title="@string/settings_about_version_title"
+            app:backgroundColor="@color/pref_background_color"
+            app:dividerColor="@color/pref_divider_color"
+            app:dividerPosition="bottom"
             app:iconSpaceReserved="false"
-            app:radiusShape="none" />
+            app:radiusPosition="none" />
 
         <com.seafile.seadroid2.widget.prefs.TextMorePreference
             android:key="@string/pref_key_about_author"
             android:title="@string/settings_about_author_title"
+            app:backgroundColor="@color/pref_background_color"
+            app:backgroundRadius="8dp"
             app:iconSpaceReserved="false"
-            app:radiusShape="bottom" />
+            app:radiusPosition="bottom" />
 
-    </PreferenceCategory>
+    </com.seafile.seadroid2.widget.prefs.CardPreferenceCategory>
 
-    <PreferenceCategory app:iconSpaceReserved="false">
+    <com.seafile.seadroid2.widget.prefs.CardPreferenceCategory
+        app:allowDividerAbove="false"
+        app:allowDividerBelow="false"
+        app:iconSpaceReserved="false">
         <com.seafile.seadroid2.widget.prefs.TextMorePreference
             android:key="@string/pref_key_sign_out"
             android:summary="@string/settings_account_sign_out_hint"
             android:title="@string/settings_account_sign_out_title"
+            app:backgroundColor="@color/pref_background_color"
+            app:backgroundRadius="8dp"
             app:iconSpaceReserved="false"
-            app:radiusShape="all" />
-    </PreferenceCategory>
+            app:radiusPosition="all"
+            app:titleTextColor="@color/fancy_orange" />
+    </com.seafile.seadroid2.widget.prefs.CardPreferenceCategory>
 </PreferenceScreen>

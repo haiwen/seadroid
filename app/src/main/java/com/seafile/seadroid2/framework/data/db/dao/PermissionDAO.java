@@ -21,12 +21,11 @@ public interface PermissionDAO {
     @Query("select * from permissions where id IN (:ids)")
     Single<List<PermissionEntity>> getByIdsAsync(List<Integer> ids);
 
-    @Query("select * from permissions where repo_id = :repoId and id = :id limit 1")
-    Single<List<PermissionEntity>> getWithAsync(String repoId, int id);
-
     @Query("select * from permissions where repo_id = :repoId")
     Single<List<PermissionEntity>> getByRepoIdAsync(String repoId);
 
+    @Query("select * from permissions where repo_id = :repoId and id = :pid limit 1")
+    Single<List<PermissionEntity>> getByRepoAndIdAsync(String repoId, int pid);
 
 
     @Query("DELETE FROM permissions")

@@ -64,13 +64,13 @@ import com.seafile.seadroid2.ui.folder_backup.RepoConfig;
 import com.seafile.seadroid2.ui.main.MainActivity;
 import com.seafile.seadroid2.ui.selector.ObjSelectorActivity;
 import com.seafile.seadroid2.ui.webview.SeaWebViewActivity;
+import com.seafile.seadroid2.widget.prefs.SimpleMenuPreference;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import rikka.preference.SimpleMenuPreference;
 
 public class TabSettingsFragment extends RenameSharePreferenceFragmentCompat {
 

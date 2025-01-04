@@ -469,7 +469,6 @@ public class MainActivity extends BaseActivity {
     }
 
 
-
     private void refreshToolbarTitle() {
         if (!getNavContext().inRepo()) {
             getActionBarToolbar().setTitle(R.string.libraries);
@@ -948,22 +947,24 @@ public class MainActivity extends BaseActivity {
             if (!m.isCustomPermission()) {
                 consumer.accept(m.hasWritePermission());
             } else {
-                mainViewModel.getPermissionFromLocal(m.repo_id, m.getCustomPermissionNum(), new Consumer<PermissionEntity>() {
-                    @Override
-                    public void accept(PermissionEntity entity) throws Exception {
-                        consumer.accept(entity != null && entity.create);
+                mainViewModel.getPermissionFromLocal(m.repo_id, m.getCustomPermissionNum(), entity -> {
+                    if (entity == null) {
+                        consumer.accept(false);
+                        return;
                     }
+                    consumer.accept(entity.create);
                 });
             }
         } else if (baseModel instanceof DirentModel m) {
             if (!m.isCustomPermission()) {
                 consumer.accept(m.hasWritePermission());
             } else {
-                mainViewModel.getPermissionFromLocal(m.repo_id, m.getCustomPermissionNum(), new Consumer<PermissionEntity>() {
-                    @Override
-                    public void accept(PermissionEntity entity) throws Exception {
-                        consumer.accept(entity != null && entity.create);
+                mainViewModel.getPermissionFromLocal(m.repo_id, m.getCustomPermissionNum(), entity -> {
+                    if (entity == null) {
+                        consumer.accept(false);
+                        return;
                     }
+                    consumer.accept(entity.create);
                 });
             }
         }

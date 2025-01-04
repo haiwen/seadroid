@@ -23,7 +23,7 @@ import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.enums.TransferResult;
 import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.data.model.permission.PermissionListWrapperModel;
-import com.seafile.seadroid2.framework.data.model.permission.PermissionWrapperModel;
+import com.seafile.seadroid2.framework.data.model.permission.PermissionParentModel;
 import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.ExistingFileStrategy;
@@ -40,7 +40,7 @@ import com.seafile.seadroid2.ui.repo.RepoService;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.ui.activities.AllActivitiesFragment;
 import com.seafile.seadroid2.ui.repo.RepoQuickFragment;
-import com.seafile.seadroid2.ui.settings.TabSettingsFragment;
+import com.seafile.seadroid2.ui.settings.TabSettings2Fragment;
 import com.seafile.seadroid2.ui.star.StarredQuickFragment;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
@@ -53,6 +53,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -135,7 +136,7 @@ public class MainViewModel extends BaseViewModel {
             RepoQuickFragment.newInstance(),
             StarredQuickFragment.newInstance(),
             AllActivitiesFragment.newInstance(),
-            TabSettingsFragment.newInstance()
+            TabSettings2Fragment.newInstance()
     );
 
     public List<Fragment> getFragments() {
@@ -229,124 +230,19 @@ public class MainViewModel extends BaseViewModel {
     }
 
     public void getPermissionFromLocal(String repoId, int pNum, Consumer<PermissionEntity> consumer) {
-        Single<List<PermissionEntity>> pSingle = AppDatabase.getInstance().permissionDAO().getWithAsync(repoId, pNum);
-        Single<PermissionEntity> s = pSingle.flatMap(new Function<List<PermissionEntity>, SingleSource<PermissionEntity>>() {
+        Single<List<PermissionEntity>> pSingle = AppDatabase.getInstance().permissionDAO().getByRepoAndIdAsync(repoId, pNum);
+        addSingleDisposable(pSingle, new Consumer<List<PermissionEntity>>() {
             @Override
-            public SingleSource<PermissionEntity> apply(List<PermissionEntity> pList) throws Exception {
+            public void accept(List<PermissionEntity> permissionEntities) throws Exception {
 
-                if (CollectionUtils.isEmpty(pList)) {
-                    return null;
-                }
-
-                return Single.just(pList.get(0));
-            }
-        }).flatMap(new Function<PermissionEntity, SingleSource<PermissionEntity>>() {
-            @Override
-            public SingleSource<PermissionEntity> apply(PermissionEntity entity) throws Exception {
-                Single<List<PermissionEntity>> r = getLoadRepoPermissionFromRemoteSingle(repoId);
-
-                return r.flatMap(new Function<List<PermissionEntity>, SingleSource<? extends PermissionEntity>>() {
-                    @Override
-                    public SingleSource<? extends PermissionEntity> apply(List<PermissionEntity> permissionEntities) throws Exception {
-                        if (CollectionUtils.isEmpty(permissionEntities)) {
-                            return null;
-
-                        }
-                        Optional<PermissionEntity> p = permissionEntities.stream().filter(f -> f.id == pNum).findFirst();
-                        if (p.isPresent()) {
-                            return Single.just(p.get());
-                        }
-                        return null;
-                    }
-                });
-            }
-        });
-
-        addSingleDisposable(s, new Consumer<PermissionEntity>() {
-            @Override
-            public void accept(PermissionEntity entity) throws Exception {
                 if (consumer != null) {
-                    consumer.accept(entity);
-                }
-            }
-        });
-    }
-
-
-    private Single<List<PermissionEntity>> getLoadRepoPermissionFromRemoteSingle(String repoId) {
-        Single<PermissionListWrapperModel> single = HttpIO.getCurrentInstance().execute(RepoService.class).getCustomSharePermissions(repoId);
-        return single.flatMap(new Function<PermissionListWrapperModel, SingleSource<List<PermissionEntity>>>() {
-            @Override
-            public SingleSource<List<PermissionEntity>> apply(PermissionListWrapperModel wrapperModel) throws Exception {
-
-                List<PermissionEntity> list = CollectionUtils.newArrayList();
-
-                for (PermissionWrapperModel model : wrapperModel.permission_list) {
-                    list.add(new PermissionEntity(repoId, model));
-                }
-
-                Completable insertCompletable = AppDatabase.getInstance().permissionDAO().insertAllAsync(list);
-                Single<Long> insertAllSingle = insertCompletable.toSingleDefault(0L);
-                return insertAllSingle.flatMap(new Function<Long, SingleSource<List<PermissionEntity>>>() {
-                    @Override
-                    public SingleSource<List<PermissionEntity>> apply(Long aLong) throws Exception {
-                        SLogs.d("The list has been inserted into the local database");
-                        return Single.just(list);
+                    if (CollectionUtils.isEmpty(permissionEntities)) {
+                        consumer.accept(null);
+                    } else {
+                        consumer.accept(permissionEntities.get(0));
                     }
-                });
-            }
-        });
-    }
 
-
-    public void getRepoModelFromLocal(String repoId, Consumer<Pair<RepoModel, PermissionEntity>> consumer) {
-        //from db
-        Single<List<RepoModel>> dbSingle = AppDatabase.getInstance().repoDao().getRepoById(repoId);
-        Single<Pair<RepoModel, PermissionEntity>> r = dbSingle.flatMap(new Function<List<RepoModel>, SingleSource<Pair<RepoModel, PermissionEntity>>>() {
-            @Override
-            public SingleSource<Pair<RepoModel, PermissionEntity>> apply(List<RepoModel> repoModels) throws Exception {
-                if (CollectionUtils.isEmpty(repoModels)) {
-                    return null;
                 }
-
-                RepoModel repoModel = repoModels.get(0);
-                if (TextUtils.isEmpty(repoModel.permission)) {
-                    return Single.just(new Pair<>(repoModel, null));
-                }
-
-                if (!repoModel.isCustomPermission()) {
-                    return Single.just(new Pair<>(repoModel, null));
-                }
-
-                int pNum = repoModel.getCustomPermissionNum();
-
-                Single<List<PermissionEntity>> pSingle = AppDatabase.getInstance().permissionDAO().getWithAsync(repoId, pNum);
-
-                return pSingle.flatMap(new Function<List<PermissionEntity>, SingleSource<Pair<RepoModel, PermissionEntity>>>() {
-                    @Override
-                    public SingleSource<Pair<RepoModel, PermissionEntity>> apply(List<PermissionEntity> permissionEntities) throws Exception {
-                        if (CollectionUtils.isEmpty(permissionEntities)) {
-                            return Single.just(new Pair<>(repoModel, null));
-                        }
-
-                        return Single.just(new Pair<>(repoModel, permissionEntities.get(0)));
-                    }
-                });
-            }
-        });
-
-
-        addSingleDisposable(r, new Consumer<Pair<RepoModel, PermissionEntity>>() {
-            @Override
-            public void accept(Pair<RepoModel, PermissionEntity> pair) throws Exception {
-                if (consumer != null) {
-                    consumer.accept(pair);
-                }
-            }
-        }, new Consumer<Throwable>() {
-            @Override
-            public void accept(Throwable throwable) throws Exception {
-                SLogs.e(throwable);
             }
         });
     }

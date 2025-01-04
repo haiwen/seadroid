@@ -96,6 +96,7 @@ public class Utils {
         } else
             return parent;
     }
+
     public static String getParentPath(String path) {
         if (path == null) {
             // the caller should not give null
@@ -104,6 +105,10 @@ public class Utils {
         }
 
         if (!path.contains("/")) {
+            return "/";
+        }
+
+        if ("/".equals(path)) {
             return "/";
         }
 
@@ -519,8 +524,6 @@ public class Utils {
             decorView.setSystemUiVisibility(uiOptions);
         }
     }
-
-
 
 
     public static void startCameraSyncJob(Context context) {
