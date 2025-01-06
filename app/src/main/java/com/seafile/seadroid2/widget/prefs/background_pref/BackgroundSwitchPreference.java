@@ -74,8 +74,10 @@ public abstract class BackgroundSwitchPreference extends SwitchPreferenceCompat 
         Drawable drawable = BackgroundShapeUtils.genBackgroundDrawable(radiusPosition, backgroundColor, backgroundRadius);
         holder.itemView.setBackground(drawable);
 
-        TextView textView = (TextView) holder.findViewById(android.R.id.title);
-        textView.setTextColor(titleTextColor);
+        TextView titleTextView = (TextView) holder.findViewById(android.R.id.title);
+        if (titleTextView != null) {
+            titleTextView.setTextColor(titleTextColor);
+        }
 
         MaterialDivider topDivider = (MaterialDivider) holder.findViewById(R.id.top_divider);
         MaterialDivider bottomDivider = (MaterialDivider) holder.findViewById(R.id.bottom_divider);

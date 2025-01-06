@@ -97,12 +97,12 @@ public class AllActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel>
 
     private void initAdapter() {
         adapter = new ActivityAdapter();
+
         TextView tipView = TipsViews.getTipTextView(requireContext());
         tipView.setText(R.string.no_starred_file);
         tipView.setOnClickListener(v -> reload());
         adapter.setStateView(tipView);
         adapter.setStateViewEnable(false);
-        adapter.setAnimationEnable(true);
 
         adapter.setOnItemClickListener((baseQuickAdapter, view, i) -> {
             ActivityModel activityModel = (ActivityModel) adapter.getItems().get(i);

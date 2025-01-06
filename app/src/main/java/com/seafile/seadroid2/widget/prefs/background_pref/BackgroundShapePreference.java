@@ -46,6 +46,7 @@ public abstract class BackgroundShapePreference extends Preference {
     public abstract int getLayoutId();
 
     private int titleTextColor = 0;
+    private int summaryTextColor = 0;
     //default all
     private int radiusPosition = 0;
     private int backgroundColor = 0;
@@ -60,6 +61,7 @@ public abstract class BackgroundShapePreference extends Preference {
                     R.styleable.PrefShape, defStyleAttr, 0);
 
             titleTextColor = typedArray.getColor(R.styleable.PrefShape_titleTextColor, ContextCompat.getColor(getContext(), R.color.item_title_color));
+            summaryTextColor = typedArray.getColor(R.styleable.PrefShape_summaryTextColor, ContextCompat.getColor(getContext(), R.color.item_subtitle_color));
             radiusPosition = typedArray.getInt(R.styleable.PrefShape_radiusPosition, 0);
 
             backgroundColor = typedArray.getColor(R.styleable.PrefShape_backgroundColor, ContextCompat.getColor(getContext(), R.color.bar_background_color));
@@ -81,8 +83,16 @@ public abstract class BackgroundShapePreference extends Preference {
         Drawable drawable = BackgroundShapeUtils.genBackgroundDrawable(radiusPosition, backgroundColor, backgroundRadius);
         holder.itemView.setBackground(drawable);
 
-        TextView textView = (TextView) holder.findViewById(android.R.id.title);
-        textView.setTextColor(titleTextColor);
+        TextView titleTextView = (TextView) holder.findViewById(android.R.id.title);
+        if (titleTextView != null) {
+            titleTextView.setTextColor(titleTextColor);
+        }
+
+        TextView summaryTextView = (TextView) holder.findViewById(android.R.id.summary);
+        if (summaryTextView != null) {
+            summaryTextView.setTextColor(summaryTextColor);
+        }
+
 
         MaterialDivider topDivider = (MaterialDivider) holder.findViewById(R.id.top_divider);
         MaterialDivider bottomDivider = (MaterialDivider) holder.findViewById(R.id.bottom_divider);
@@ -127,6 +137,7 @@ public abstract class BackgroundShapePreference extends Preference {
         this.dividerPosition = dividerPosition;
         notifyChanged();
     }
+
     public void setTitleTextColor(int titleTextColor) {
         this.titleTextColor = titleTextColor;
         notifyChanged();

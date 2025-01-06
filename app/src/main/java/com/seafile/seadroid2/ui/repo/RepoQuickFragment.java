@@ -901,9 +901,20 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
     private void navToForSearch(SearchModel searchModel) {
         if (searchModel.isDir() && "/".equals(searchModel.fullpath)) {
-            RepoModel repoModel = SearchModel.convert2RepoModel(searchModel);
-            getNavContext().push(repoModel);
-            loadDataAsFirst();
+            getViewModel().getRepoModelEntity(searchModel.repo_id, new Consumer<RepoModel>() {
+                @Override
+                public void accept(RepoModel repoModel) throws Exception {
+                    if (repoModel == null) {
+                        ToastUtils.showLong(R.string.repo_not_found);
+                        return;
+                    }
+
+                    getNavContext().push(repoModel);
+                    loadDataAsFirst();
+                }
+            });
+
+
         } else {
             DirentModel direntModel = SearchModel.convert2DirentModel(searchModel);
             if (direntModel.isDir()) {

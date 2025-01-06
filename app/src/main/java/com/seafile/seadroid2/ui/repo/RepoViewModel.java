@@ -426,6 +426,21 @@ public class RepoViewModel extends BaseViewModel {
         });
     }
 
+    public void getRepoModelEntity(String repoId, Consumer<RepoModel> consumer) {
+        Single<List<RepoModel>> r = AppDatabase.getInstance().repoDao().getRepoById(repoId);
+        addSingleDisposable(r, new Consumer<List<RepoModel>>() {
+            @Override
+            public void accept(List<RepoModel> rs) throws Exception {
+                if (consumer != null) {
+                    if (CollectionUtils.isEmpty(rs)) {
+                        consumer.accept(null);
+                    } else {
+                        consumer.accept(rs.get(0));
+                    }
+                }
+            }
+        });
+    }
 
     public void getRepoModelAndPermissionEntity(String repoId, Consumer<Pair<RepoModel, PermissionEntity>> consumer) {
         Single<Pair<RepoModel, PermissionEntity>> r = getRepoModelAndAllPermissionSingle(repoId);
@@ -618,7 +633,7 @@ public class RepoViewModel extends BaseViewModel {
     public void inflateDirentMenu(Context context) {
         removeNonRepoPermission();
 
-        toParseMenu(context, R.menu.bottom_sheet_op_dirent, null,null, CollectionUtils.newArrayList(R.id.unstar));
+        toParseMenu(context, R.menu.bottom_sheet_op_dirent, null, null, CollectionUtils.newArrayList(R.id.unstar));
     }
 
     public void inflateDirentMenuWithSelected(Context context, List<DirentModel> selectedDirentList, List<Integer> disableMenuIds, List<Integer> removedMenuIds) {

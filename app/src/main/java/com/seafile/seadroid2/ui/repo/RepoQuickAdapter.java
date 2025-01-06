@@ -320,15 +320,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
 
 //            holder.binding.getRoot().setChecked(model.is_checked);
 
-            int color;
-            if (isChecked) {
-                color = ContextCompat.getColor(getContext(), R.color.fancy_orange);
-                holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_checked);
-            } else {
-                color = ContextCompat.getColor(getContext(), R.color.material_grey_666);
-                holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_unchecked);
-            }
-            holder.binding.itemMultiSelect.setImageTintList(ColorStateList.valueOf(color));
+           updateItemMultiSelectViewWithPayload(holder.binding.itemMultiSelect,isChecked);
             return;
         }
 
@@ -347,12 +339,12 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
                 color = ContextCompat.getColor(getContext(), R.color.fancy_orange);
                 holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_checked);
             } else {
-                color = ContextCompat.getColor(getContext(), R.color.material_grey_666);
+                color = ContextCompat.getColor(getContext(), R.color.bottom_sheet_pop_disable_color);
                 holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_unchecked);
             }
             holder.binding.itemMultiSelect.setImageTintList(ColorStateList.valueOf(color));
         } else {
-            color = ContextCompat.getColor(getContext(), R.color.material_grey_666);
+            color = ContextCompat.getColor(getContext(), R.color.bottom_sheet_pop_disable_color);
             holder.binding.itemMultiSelect.setVisibility(View.GONE);
 //            holder.binding.getRoot().setChecked(false);
         }
@@ -370,8 +362,6 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
     }
 
     private void onBindDirents(DirentViewHolder holder, DirentModel model, @NonNull List<?> payloads) {
-        int color;
-
         if (!CollectionUtils.isEmpty(payloads)) {
             Bundle bundle = (Bundle) payloads.get(0);
             boolean isChecked = bundle.getBoolean("is_check");
@@ -520,7 +510,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
             color = ContextCompat.getColor(getContext(), R.color.fancy_orange);
             imageView.setImageResource(R.drawable.ic_checkbox_checked);
         } else {
-            color = ContextCompat.getColor(getContext(), R.color.material_grey_666);
+            color = ContextCompat.getColor(getContext(), R.color.bottom_sheet_pop_disable_color);
             imageView.setImageResource(R.drawable.ic_checkbox_unchecked);
         }
         imageView.setImageTintList(ColorStateList.valueOf(color));

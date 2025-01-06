@@ -89,6 +89,7 @@
 
     <declare-styleable name="PrefShape">
         <attr name="titleTextColor" format="color" />
+        <attr name="summaryTextColor" format="color" />
         <attr name="backgroundRadius" format="dimension" />
         <attr name="backgroundColor" format="color" />
         <attr name="dividerColor" format="color" />

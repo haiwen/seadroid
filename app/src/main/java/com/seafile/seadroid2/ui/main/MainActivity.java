@@ -1047,14 +1047,37 @@ public class MainActivity extends BaseActivity {
     private int permission_media_select_type = -1;
 
     private void takePhoto() {
-        permission_media_select_type = 0;
-        cameraPermissionLauncher.launch(Manifest.permission.CAMERA);
+        checkCurrentPathHasWritePermission(new java.util.function.Consumer<Boolean>() {
+            @Override
+            public void accept(Boolean aBoolean) {
+                if (!aBoolean) {
+                    ToastUtils.showLong(R.string.library_read_only);
+                    return;
+                }
+
+                permission_media_select_type = 0;
+                cameraPermissionLauncher.launch(Manifest.permission.CAMERA);
+            }
+        });
+
     }
 
     private void takeVideo() {
-        permission_media_select_type = 1;
-        cameraPermissionLauncher.launch(Manifest.permission.CAMERA);
+        checkCurrentPathHasWritePermission(new java.util.function.Consumer<Boolean>() {
+            @Override
+            public void accept(Boolean aBoolean) {
+                if (!aBoolean) {
+                    ToastUtils.showLong(R.string.library_read_only);
+                    return;
+                }
+
+                permission_media_select_type = 1;
+                cameraPermissionLauncher.launch(Manifest.permission.CAMERA);
+            }
+        });
+
     }
+
 
     private void takeFile(boolean isSingleSelect) {
         String[] mimeTypes = new String[]{"*/*"};
