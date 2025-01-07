@@ -7,10 +7,10 @@ import androidx.room.Entity;
 import androidx.room.Ignore;
 
 import com.seafile.seadroid2.framework.data.model.BaseModel;
+import com.seafile.seadroid2.framework.data.model.permission.PermissionParentModel;
 import com.seafile.seadroid2.framework.data.model.permission.PermissionWrapperModel;
 
 import java.util.HashMap;
-import java.util.Set;
 
 @Entity(tableName = "permissions", primaryKeys = {"repo_id", "id"})
 public class PermissionEntity extends BaseModel {
@@ -32,74 +32,29 @@ public class PermissionEntity extends BaseModel {
     public boolean modify;
     public boolean download_external_link;
 
-
-    /**
-     * key -> repo_id or dirent_id(uid)
-     */
-    @Ignore
-    public HashMap<String, BaseModel> cachedMap;
-
-    public boolean hasId(String id) {
-        if (cachedMap == null) {
-            return false;
-        }
-
-        return cachedMap.containsKey(id);
-    }
-
-    public void cacheBaseModel(BaseModel model) {
-        if (cachedMap == null) {
-            cachedMap = new HashMap<>();
-            return;
-        }
-
-        if (model instanceof RepoModel m) {
-            cachedMap.put(m.repo_id, m);
-        } else if (model instanceof DirentModel m) {
-            cachedMap.put(m.uid, m);
-        }
-    }
-
-    public void removeById(String id) {
-        if (cachedMap == null) {
-            return;
-        }
-
-        cachedMap.remove(id);
-    }
-
-    public void removeByModel(BaseModel model) {
-        if (cachedMap == null) {
-            return;
-        }
-
-        if (model instanceof RepoModel m) {
-            cachedMap.remove(m.repo_id);
-        } else if (model instanceof DirentModel m) {
-            cachedMap.remove(m.uid);
-        }
-    }
-
-    public boolean isEmptyIds() {
-        return cachedMap == null || cachedMap.isEmpty();
-    }
-
     public PermissionEntity() {
     }
 
-    public PermissionEntity(@NonNull String repoId, @NonNull PermissionWrapperModel model) {
-        this.id = model.id;
-        this.name = model.name;
-        this.description = model.description;
+    /**
+     * @return false if the permission is empty
+     */
+    public boolean isValid() {
+        return !TextUtils.isEmpty(repo_id);
+    }
 
-        this.create = model.permission.create;
-        this.upload = model.permission.upload;
-        this.download = model.permission.download;
-        this.copy = model.permission.copy;
-        this.delete = model.permission.delete;
-        this.modify = model.permission.modify;
-        this.download_external_link = model.permission.download_external_link;
-        this.preview = model.permission.preview;
+    public PermissionEntity(@NonNull String repoId, @NonNull PermissionParentModel p) {
+        this.id = p.id;
+        this.name = p.name;
+        this.description = p.description;
+
+        this.create = p.permission.create;
+        this.upload = p.permission.upload;
+        this.download = p.permission.download;
+        this.copy = p.permission.copy;
+        this.delete = p.permission.delete;
+        this.modify = p.permission.modify;
+        this.download_external_link = p.permission.download_external_link;
+        this.preview = p.permission.preview;
         this.repo_id = repoId;
     }
 

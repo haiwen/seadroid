@@ -3,15 +3,12 @@ package com.seafile.seadroid2.ui.base;
 import android.app.Dialog;
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.framework.helper.NightModeHelper;
 
 /**
  * A base activity that handles common functionality in the app. This includes Action Bar tweaks.
@@ -50,31 +47,31 @@ public class BaseActivity extends AppCompatActivity {
         getActionBarToolbar();
     }
 
-    private Dialog dialog;
+    private Dialog loadingDialog;
 
-    public void showProgressDialog(boolean isShow) {
+    public void showLoadingDialog(boolean isShow) {
         if (isShow) {
-            showProgressDialog();
+            showLoadingDialog();
         } else {
-            dismissProgressDialog();
+            dismissLoadingDialog();
         }
     }
 
-    public void showProgressDialog() {
-        if (dialog == null) {
+    public void showLoadingDialog() {
+        if (loadingDialog == null) {
             MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
             builder.setView(R.layout.layout_dialog_progress_bar);
-            dialog = builder.create();
+            loadingDialog = builder.create();
         }
 
-        if (!dialog.isShowing()) {
-            dialog.show();
+        if (!loadingDialog.isShowing()) {
+            loadingDialog.show();
         }
     }
 
-    public void dismissProgressDialog() {
-        if (dialog != null && dialog.isShowing()) {
-            dialog.dismiss();
+    public void dismissLoadingDialog() {
+        if (loadingDialog != null && loadingDialog.isShowing()) {
+            loadingDialog.dismiss();
         }
     }
 }

@@ -3,7 +3,6 @@ package com.seafile.seadroid2.ui.account;
 import android.accounts.AccountManagerCallback;
 import android.accounts.AccountManagerFuture;
 import android.accounts.OnAccountsUpdateListener;
-import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -21,7 +20,6 @@ import androidx.lifecycle.Observer;
 
 import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.AppUtils;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.framework.data.ServerInfo;
 import com.seafile.seadroid2.framework.datastore.sp.AppDataManager;
@@ -157,9 +155,9 @@ public class AccountsActivity extends BaseActivityWithVM<AccountViewModel> imple
             @Override
             public void onChanged(Boolean aBoolean) {
                 if (aBoolean) {
-                    showProgressDialog();
+                    showLoadingDialog();
                 } else {
-                    dismissProgressDialog();
+                    dismissLoadingDialog();
                 }
             }
         });

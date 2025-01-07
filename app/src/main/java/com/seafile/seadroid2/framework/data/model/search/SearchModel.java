@@ -6,6 +6,7 @@ import android.text.TextUtils;
 
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
+import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.data.model.BaseModel;
 import com.seafile.seadroid2.framework.util.Icons;
 import com.seafile.seadroid2.framework.util.Utils;
@@ -66,7 +67,23 @@ public class SearchModel extends BaseModel implements Parcelable {
         return Icons.getFileIcon(getTitle());
     }
 
-    public static DirentModel converterThis2DirentModel(SearchModel model) {
+    public static RepoModel convert2RepoModel(SearchModel model) {
+        RepoModel d = new RepoModel();
+        d.type = model.repo_type;
+        d.repo_id = model.repo_id;
+        d.repo_name = model.repo_name;
+        d.related_account = "";//?
+//        d.last_modified = model.last_modified;
+        d.size = model.size;
+
+        d.owner_email = model.repo_owner_email;
+        d.owner_name = model.repo_owner_name;
+        d.owner_contact_email = model.repo_owner_contact_email;
+
+        return d;
+    }
+
+    public static DirentModel convert2DirentModel(SearchModel model) {
         DirentModel d = new DirentModel();
         d.full_path = model.fullpath;
         d.type = model.is_dir ? "dir" : "file";
@@ -76,6 +93,7 @@ public class SearchModel extends BaseModel implements Parcelable {
         d.repo_name = model.repo_name;
         d.last_modified_at = model.last_modified;
         d.size = model.size;
+        d.parent_dir = Utils.getParentPath(model.fullpath);
         return d;
     }
 

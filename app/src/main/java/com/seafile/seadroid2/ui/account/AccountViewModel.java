@@ -17,6 +17,8 @@ import com.seafile.seadroid2.framework.data.model.server.ServerInfoModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.account.AccountUtils;
 import com.seafile.seadroid2.framework.util.DeviceIdManager;
+import com.seafile.seadroid2.preferences.ContextStackPreferenceHelper;
+import com.seafile.seadroid2.ssl.CertsManager;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
 import com.seafile.seadroid2.ui.dialog_fragment.SignOutDialogFragment;
 import com.seafile.seadroid2.ui.main.MainService;
@@ -181,7 +183,7 @@ public class AccountViewModel extends BaseViewModel {
         body.put("client_version", appVersion);
         body.put("platform_version", Build.VERSION.RELEASE);
 
-        Map<String, RequestBody> requestBody = generateRequestBody(body);
+        Map<String, RequestBody> requestBody = genRequestBody(body);
 
         return HttpIO.getInstanceByAccount(tempAccount).execute(AccountService.class).login(headers, requestBody);
     }
@@ -214,9 +216,6 @@ public class AccountViewModel extends BaseViewModel {
         });
     }
 
-    /**
-     * @see SignOutDialogFragment#onPositiveClick()
-     */
     public void deleteAccount(Account account) {
         Account curAccount = SupportAccountManager.getInstance().getCurrentAccount();
 
@@ -224,6 +223,9 @@ public class AccountViewModel extends BaseViewModel {
         if (curAccount != null && curAccount.equals(account)) {
             //
             AccountUtils.logout(account);
+        } else {
+            HttpIO.removeInstanceByAccount(account);
+            CertsManager.instance().deleteCertForAccount(account);
         }
 
         //delete local account

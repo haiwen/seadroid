@@ -17,10 +17,16 @@ import androidx.recyclerview.widget.DiffUtil;
 
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.EncodeUtils;
+import com.blankj.utilcode.util.EncryptUtils;
 import com.blankj.utilcode.util.FileUtils;
 import com.blankj.utilcode.util.SizeUtils;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.signature.ObjectKey;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.config.AbsLayoutItemType;
 import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.config.GlideLoadConfig;
@@ -41,10 +47,17 @@ import com.seafile.seadroid2.framework.data.model.GroupItemModel;
 import com.seafile.seadroid2.framework.data.model.search.SearchModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.util.GlideApp;
+import com.seafile.seadroid2.framework.util.GlideOptions;
+import com.seafile.seadroid2.framework.util.ThumbnailUtils;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.ui.base.adapter.BaseMultiAdapter;
+import com.seafile.seadroid2.ui.repo.vh.AccountViewHolder;
+import com.seafile.seadroid2.ui.repo.vh.DirentGalleryViewHolder;
+import com.seafile.seadroid2.ui.repo.vh.DirentGridViewHolder;
+import com.seafile.seadroid2.ui.repo.vh.DirentViewHolder;
+import com.seafile.seadroid2.ui.repo.vh.RepoViewHolder;
+import com.seafile.seadroid2.ui.repo.vh.UnsupportedViewHolder;
 import com.seafile.seadroid2.ui.viewholder.GroupItemViewHolder;
-import com.seafile.seadroid2.widget.AnimatedStateListDrawableCompatUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -54,7 +67,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
-    private final String SERVER = HttpIO.getCurrentInstance().getServerUrl();
+
 
     private boolean onActionMode;
 
@@ -307,11 +320,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
 
 //            holder.binding.getRoot().setChecked(model.is_checked);
 
-            if (isChecked) {
-                holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_checked);
-            } else {
-                holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_unchecked);
-            }
+           updateItemMultiSelectViewWithPayload(holder.binding.itemMultiSelect,isChecked);
             return;
         }
 
@@ -320,19 +329,27 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         holder.binding.itemIcon.setImageResource(model.getIcon());
 //        holder.binding.getRoot().setBackground(AnimatedStateListDrawableCompatUtils.createDrawableCompat(getContext()));
 
+        int color;
         if (selectType.ordinal() == RepoSelectType.ONLY_REPO.ordinal() || onActionMode) {
 //            holder.binding.getRoot().setChecked(model.is_checked);
 
             holder.binding.itemMultiSelect.setVisibility(View.VISIBLE);
+
             if (model.is_checked) {
+                color = ContextCompat.getColor(getContext(), R.color.fancy_orange);
                 holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_checked);
             } else {
+                color = ContextCompat.getColor(getContext(), R.color.bottom_sheet_pop_disable_color);
                 holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_unchecked);
             }
+            holder.binding.itemMultiSelect.setImageTintList(ColorStateList.valueOf(color));
         } else {
+            color = ContextCompat.getColor(getContext(), R.color.bottom_sheet_pop_disable_color);
             holder.binding.itemMultiSelect.setVisibility(View.GONE);
 //            holder.binding.getRoot().setChecked(false);
         }
+        holder.binding.itemMultiSelect.setImageTintList(ColorStateList.valueOf(color));
+
 
         holder.binding.expandableToggleButton.setVisibility(View.GONE);
 
@@ -351,11 +368,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
 
 //            holder.binding.getRoot().setChecked(model.is_checked);
 
-            if (isChecked) {
-                holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_checked);
-            } else {
-                holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_unchecked);
-            }
+            updateItemMultiSelectViewWithPayload(holder.binding.itemMultiSelect, isChecked);
             return;
         }
 
@@ -364,28 +377,14 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
 
 //        holder.binding.getRoot().setBackground(AnimatedStateListDrawableCompatUtils.createDrawableCompat(getContext()));
 
-        if (repoEncrypted || !Utils.isViewableImage(model.name)) {
+        if (model.isDir() || repoEncrypted || (!Utils.isViewableImage(model.name) && !Utils.isVideoFile(model.name))) {
             holder.binding.itemIcon.setImageResource(model.getIcon());
         } else {
             loadImage(model, holder.binding.itemIcon);
         }
 
         //action mode
-        if (onActionMode) {
-//            holder.binding.getRoot().setChecked(model.is_checked);
-
-            holder.binding.itemMultiSelect.setVisibility(View.VISIBLE);
-            if (model.is_checked) {
-                holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_checked);
-            } else {
-                holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_unchecked);
-            }
-        } else {
-            holder.binding.itemMultiSelect.setVisibility(View.GONE);
-            holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_unchecked);
-
-//            holder.binding.getRoot().setChecked(false);
-        }
+        updateItemMultiSelectView(holder.binding.itemMultiSelect, model.is_checked);
 
         holder.binding.itemDownloadStatusProgressbar.setVisibility(View.GONE);
         holder.binding.itemDownloadStatus.setVisibility(View.GONE);
@@ -444,19 +443,16 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
     }
 
     private void onBindDirentsGrid(DirentGridViewHolder holder, DirentModel model, @NonNull List<?> payloads) {
+        int color;
         if (!CollectionUtils.isEmpty(payloads)) {
             Bundle bundle = (Bundle) payloads.get(0);
             boolean isChecked = bundle.getBoolean("is_check");
 
 //            holder.binding.getRoot().setChecked(model.is_checked);
-
-            if (isChecked) {
-                holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_checked);
-            } else {
-                holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_unchecked);
-            }
+            updateItemMultiSelectViewWithPayload(holder.binding.itemMultiSelect, isChecked);
             return;
         }
+
 
         holder.binding.itemTitle.setText(model.name);
 
@@ -468,7 +464,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
             holder.binding.itemOutline.setVisibility(View.VISIBLE);
         }
 
-        if (repoEncrypted || !Utils.isViewableImage(model.name)) {
+        if (model.isDir() || repoEncrypted || (!Utils.isViewableImage(model.name) && !Utils.isVideoFile(model.name))) {
             holder.binding.itemIcon.setScaleType(ImageView.ScaleType.FIT_CENTER);
             holder.binding.itemIcon.setImageResource(model.getIcon());
         } else {
@@ -477,21 +473,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         }
 
         //action mode
-        if (onActionMode) {
-            holder.binding.itemMultiSelect.setVisibility(View.VISIBLE);
-//            holder.binding.getRoot().setChecked(model.is_checked);
-
-            if (model.is_checked) {
-                holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_checked);
-            } else {
-                holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_unchecked);
-            }
-        } else {
-            holder.binding.itemMultiSelect.setVisibility(View.GONE);
-            holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_unchecked);
-
-//            holder.binding.getRoot().setChecked(false);
-        }
+        updateItemMultiSelectView(holder.binding.itemMultiSelect, model.is_checked);
 
         if (model.starred) {
             holder.binding.itemTitle.setCompoundDrawables(null, null, getStarDrawable(), null);
@@ -501,43 +483,60 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
     }
 
     private void onBindDirentsGallery(DirentGalleryViewHolder holder, DirentModel model, @NonNull List<?> payloads) {
+        int color;
         if (!CollectionUtils.isEmpty(payloads)) {
             Bundle bundle = (Bundle) payloads.get(0);
             boolean isChecked = bundle.getBoolean("is_check");
 
 //            holder.binding.getRoot().setChecked(model.is_checked);
-
-            if (isChecked) {
-                holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_checked);
-            } else {
-                holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_unchecked);
-            }
+            updateItemMultiSelectViewWithPayload(holder.binding.itemMultiSelect, isChecked);
             return;
         }
 //        holder.binding.getRoot().setBackground(AnimatedStateListDrawableCompatUtils.createDrawableCompat(getContext()));
 
-        if (repoEncrypted || !Utils.isViewableImage(model.name)) {
+        if (model.isDir() || repoEncrypted || (!Utils.isViewableImage(model.name) && !Utils.isVideoFile(model.name))) {
             holder.binding.itemIcon.setImageResource(model.getIcon());
         } else {
             loadImage(model, holder.binding.itemIcon);
         }
 
+        updateItemMultiSelectView(holder.binding.itemMultiSelect, model.is_checked);
+    }
+
+    private void updateItemMultiSelectViewWithPayload(ImageView imageView, boolean isChecked) {
+        int color;
+
+        if (isChecked) {
+            color = ContextCompat.getColor(getContext(), R.color.fancy_orange);
+            imageView.setImageResource(R.drawable.ic_checkbox_checked);
+        } else {
+            color = ContextCompat.getColor(getContext(), R.color.bottom_sheet_pop_disable_color);
+            imageView.setImageResource(R.drawable.ic_checkbox_unchecked);
+        }
+        imageView.setImageTintList(ColorStateList.valueOf(color));
+    }
+
+    private void updateItemMultiSelectView(ImageView imageView, boolean isChecked) {
+        int color;
         //action mode
         if (onActionMode) {
-            holder.binding.itemMultiSelect.setVisibility(View.VISIBLE);
+            imageView.setVisibility(View.VISIBLE);
 //            holder.binding.getRoot().setChecked(model.is_checked);
 
-            if (model.is_checked) {
-                holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_checked);
+            if (isChecked) {
+                color = ContextCompat.getColor(getContext(), R.color.fancy_orange);
+                imageView.setImageResource(R.drawable.ic_checkbox_checked);
             } else {
-                holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_unchecked);
+                color = ContextCompat.getColor(getContext(), R.color.bottom_sheet_pop_disable_color);
+                imageView.setImageResource(R.drawable.ic_checkbox_unchecked);
             }
         } else {
 //            holder.binding.getRoot().setChecked(false);
-
-            holder.binding.itemMultiSelect.setVisibility(View.GONE);
-            holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_unchecked);
+            color = ContextCompat.getColor(getContext(), R.color.bottom_sheet_pop_disable_color);
+            imageView.setVisibility(View.GONE);
+            imageView.setImageResource(R.drawable.ic_checkbox_unchecked);
         }
+        imageView.setImageTintList(ColorStateList.valueOf(color));
     }
 
     private void onBindSearch(DirentViewHolder holder, SearchModel model) {
@@ -546,7 +545,8 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
 
 //        holder.binding.getRoot().setBackground(AnimatedStateListDrawableCompatUtils.createDrawableCompat(getContext()));
 
-        if (repoEncrypted || !Utils.isViewableImage(model.name)) {
+
+        if (repoEncrypted || (!Utils.isViewableImage(model.name) && !Utils.isVideoFile(model.name))) {
             holder.binding.itemIcon.setImageResource(model.getIcon());
         } else {
             DirentModel direntModel = new DirentModel();
@@ -565,30 +565,46 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
     }
 
     private void loadImage(DirentModel direntModel, ImageView imageView) {
-
-        if (direntModel.name.toLowerCase().endsWith(".gif")) {
-            imageView.setImageResource(direntModel.getIcon());
-        } else {
-            String url = convertThumbnailUrl(direntModel);
-            GlideApp.with(getContext()).load(url)
-                    .apply(GlideLoadConfig.getOptions())
+        String thumbnailUrl = convertThumbnailUrl(direntModel);
+        if (TextUtils.isEmpty(thumbnailUrl)) {
+            GlideApp.with(getContext())
+                    .load(direntModel.getIcon())
+                    .apply(GlideLoadConfig.getCacheableThumbnailOptions())
                     .into(imageView);
+            return;
         }
 
+        String thumbKey = EncryptUtils.encryptMD5ToString(thumbnailUrl);
 
+        GlideApp.with(getContext())
+                .load(thumbnailUrl)
+                .signature(new ObjectKey(thumbKey))
+                .apply(GlideLoadConfig.getCustomDrawableOptions(direntModel.getIcon()))
+                .into(imageView);
+    }
+
+    private String server_url;
+    private final boolean isLogin = SupportAccountManager.getInstance().isLogin();
+
+    private String getServerUrl() {
+        if (!TextUtils.isEmpty(server_url)) {
+            return server_url;
+        }
+
+        if (!isLogin) {
+            return null;
+        }
+
+        server_url = HttpIO.getCurrentInstance().getServerUrl();
+        return server_url;
     }
 
     private String convertThumbnailUrl(DirentModel direntModel) {
-        return convertThumbnailUrl(direntModel, 128);
-    }
-
-    private String convertMiddleUrl(DirentModel direntModel) {
-        return convertThumbnailUrl(direntModel, 256);
-    }
-
-    private String convertThumbnailUrl(DirentModel direntModel, int size) {
-        String newFilePath = EncodeUtils.urlEncode(direntModel.full_path);
-        return String.format(Locale.ROOT, "%sapi2/repos/%s/thumbnail/?p=%s&size=%d", SERVER, direntModel.repo_id, newFilePath, size);
+        String serverUrl = getServerUrl();
+        if (TextUtils.isEmpty(serverUrl)) {
+            return null;
+        }
+        return ThumbnailUtils.convertThumbnailUrl(serverUrl, direntModel.repo_id, direntModel.full_path);
     }
 
     public void setOnActionMode(boolean on) {

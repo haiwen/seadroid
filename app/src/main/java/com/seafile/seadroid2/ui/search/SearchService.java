@@ -12,6 +12,7 @@ import retrofit2.http.Query;
 
 public interface SearchService {
 
+    //search_ftypes
     @GET("api2/search/")
     Single<SearchWrapperModel> search(@Query("search_repo") String repoId,
                                       @Query("q") String q,

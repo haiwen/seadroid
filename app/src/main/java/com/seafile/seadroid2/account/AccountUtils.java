@@ -9,17 +9,25 @@ import com.seafile.seadroid2.framework.datastore.sp_livedata.GestureLockSharePre
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
+import com.seafile.seadroid2.preferences.ContextStackPreferenceHelper;
 import com.seafile.seadroid2.preferences.Settings;
+import com.seafile.seadroid2.ssl.CertsManager;
 import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
 
 public class AccountUtils {
 
     public static void logout(Account account) {
 
-        // turn off the gesture lock anyway
+        // turn off the gesture lock
         GestureLockSharePreferenceHelper.disable();
 
         Settings.initUserSettings();
+
+        // clear
+        ContextStackPreferenceHelper.clearStack();
+
+        //
+        CertsManager.instance().deleteCertForAccount(account);
 
         NotificationUtils.cancelAll();
 
@@ -55,6 +63,9 @@ public class AccountUtils {
         }
 
         NotificationUtils.cancelAll();
+
+        // clear
+        ContextStackPreferenceHelper.clearStack();
 
         //
         Settings.initUserSettings();

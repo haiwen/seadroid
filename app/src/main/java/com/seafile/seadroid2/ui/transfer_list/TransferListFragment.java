@@ -23,18 +23,21 @@ import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.chad.library.adapter4.BaseQuickAdapter;
 import com.chad.library.adapter4.QuickAdapterHelper;
+import com.chad.library.adapter4.loadState.LoadState;
+import com.chad.library.adapter4.loadState.trailing.TrailingLoadStateAdapter;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.ui.bottomsheetmenu.BottomSheetHelper;
-import com.seafile.seadroid2.ui.bottomsheetmenu.BottomSheetMenuFragment;
 import com.seafile.seadroid2.databinding.LayoutFrameSwipeRvBinding;
-import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
 import com.seafile.seadroid2.enums.TransferAction;
 import com.seafile.seadroid2.enums.TransferStatus;
+import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
+import com.seafile.seadroid2.ui.base.adapter.LoadMoreAdapter;
 import com.seafile.seadroid2.ui.base.fragment.BaseFragment;
+import com.seafile.seadroid2.ui.bottomsheetmenu.BottomSheetHelper;
+import com.seafile.seadroid2.ui.bottomsheetmenu.BottomSheetMenuFragment;
 import com.seafile.seadroid2.view.TipsViews;
 
 import java.util.List;
@@ -49,7 +52,15 @@ public abstract class TransferListFragment extends BaseFragment {
     protected TransferActivity activity = null;
     private LinearLayoutManager layoutManager;
     private TransferListViewModel viewModel;
-    private ConcurrentHashMap<String, Integer> positionMap;
+
+    /**
+     * key is uid, value is position
+     */
+    private final ConcurrentHashMap<String, Integer> positionMap = new ConcurrentHashMap<>();
+
+    private int pageIndex = 0;
+    private final int pageSize = 100;
+    private QuickAdapterHelper helper;
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -89,11 +100,20 @@ public abstract class TransferListFragment extends BaseFragment {
     @Override
     public void onFirstResume() {
         super.onFirstResume();
-        refreshData();
+        loadNext(true);
     }
 
     private void initAdapter() {
         adapter = new TransferListAdapter();
+        TextView tipView = TipsViews.getTipTextView(requireContext());
+        if (getTransferAction() == TransferAction.DOWNLOAD) {
+            tipView.setText(R.string.no_download_tasks);
+        } else {
+            tipView.setText(R.string.no_upload_tasks);
+        }
+        adapter.setStateView(tipView);
+        adapter.setStateViewEnable(false);
+
         adapter.setTransferAction(getTransferAction());
         adapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener<FileTransferEntity>() {
             @Override
@@ -106,6 +126,7 @@ public abstract class TransferListFragment extends BaseFragment {
                 }
             }
         });
+
         adapter.setOnItemLongClickListener(new BaseQuickAdapter.OnItemLongClickListener<FileTransferEntity>() {
             @Override
             public boolean onLongClick(@NonNull BaseQuickAdapter<FileTransferEntity, ?> baseQuickAdapter, @NonNull View view, int i) {
@@ -134,30 +155,82 @@ public abstract class TransferListFragment extends BaseFragment {
             showBottomSheet(adapter.getItems().get(i));
         });
 
+        LoadMoreAdapter loadMoreAdapter = new LoadMoreAdapter();
+        loadMoreAdapter.setOnLoadMoreListener(new TrailingLoadStateAdapter.OnTrailingListener() {
+            @Override
+            public void onLoad() {
+                loadNext(false);
+            }
 
-//        LogicLoadMoreAdapter loadMoreAdapter = getLogicLoadMoreAdapter();
+            @Override
+            public void onFailRetry() {
+            }
 
-        QuickAdapterHelper helper = new QuickAdapterHelper.Builder(adapter)
+            @Override
+            public boolean isAllowLoading() {
+                return !binding.swipeRefreshLayout.isRefreshing();
+            }
+        });
+
+        helper = new QuickAdapterHelper.Builder(adapter)
+                .setTrailingLoadStateAdapter(loadMoreAdapter)
                 .build();
         binding.rv.setAdapter(helper.getAdapter());
     }
 
+
     private void initViewModel() {
         getViewModel().getRefreshLiveData().observe(getViewLifecycleOwner(), aBoolean -> binding.swipeRefreshLayout.setRefreshing(aBoolean));
 
+        getViewModel().getShowLoadingDialogLiveData().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+                showLoadingDialog(aBoolean);
+            }
+        });
 
         getViewModel().getTransferListLiveData().observe(getViewLifecycleOwner(), new Observer<List<FileTransferEntity>>() {
             @Override
             public void onChanged(List<FileTransferEntity> list) {
-                positionMap = new ConcurrentHashMap<>(list.size());
-
-                for (int i = 0; i < list.size(); i++) {
-                    positionMap.put(list.get(i).uid, i);
-                }
-
-                notifyDataChanged(list);
+                submitData(list);
             }
         });
+    }
+
+    private void submitData(List<FileTransferEntity> list) {
+        if (CollectionUtils.isEmpty(list)) {
+            if (pageIndex <= 1) {
+                adapter.setStateViewEnable(true);
+                adapter.submitList(null);
+            }
+            return;
+        }
+
+        if (pageIndex == 1) {
+            for (int i = 0; i < list.size(); i++) {
+                positionMap.put(list.get(i).uid, i);
+            }
+            adapter.submitList(list);
+
+        } else {
+            int start = adapter.getItemCount();
+            int end = start + list.size();
+
+            for (int i = start; i < end; i++) {
+                int index = i - start;
+                positionMap.put(list.get(index).uid, i);
+            }
+            adapter.addAll(list);
+        }
+
+        if (list.size() < pageSize) {
+            helper.setTrailingLoadState(new LoadState.NotLoading(true));
+            if (helper.getTrailingLoadStateAdapter() != null) {
+                helper.getTrailingLoadStateAdapter().checkDisableLoadMoreIfNotFullPage();
+            }
+        } else {
+            helper.setTrailingLoadState(new LoadState.NotLoading(false));
+        }
     }
 
     public void showBottomSheet(FileTransferEntity entity) {
@@ -176,49 +249,112 @@ public abstract class TransferListFragment extends BaseFragment {
 
         builder.removeMenu(R.id.upload);
         builder.removeMenu(R.id.download);
-        builder.removeMenu(R.id.pause);
-
-        //not supported yet
-//        if (getTransferAction() == TransferAction.DOWNLOAD) {
-//            builder.removeMenu(R.id.upload);
-//        } else if (getTransferAction() == TransferAction.UPLOAD) {
-//            builder.removeMenu(R.id.download);
-//        }
 
         builder.show(getChildFragmentManager());
     }
 
     protected void onBottomSheetFileDelete(FileTransferEntity entity) {
-        showDeleteConfirmDialog(entity);
+        if (TransferAction.DOWNLOAD == getTransferAction()) {
+            showDeleteDownloadConfirmDialog(entity);
+        } else {
+            showDeleteUploadConfirmDialog(entity);
+        }
     }
 
-    private void showDeleteConfirmDialog(FileTransferEntity entity) {
-        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext());
-        builder.setTitle(R.string.delete);
+    private void showDeleteDownloadConfirmDialog(FileTransferEntity entity) {
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext());
+        builder.setTitle(R.string.delete_records);
 
-        if (getTransferAction() == TransferAction.DOWNLOAD) {
-            builder.setMessage(R.string.delete_records_and_file);
-        } else {//do not delete file when upload
-            builder.setMessage(R.string.delete_records);
-        }
+        String deleteFile = getString(R.string.delete_local_file_sametime);
+        CharSequence[] sequences = new CharSequence[1];
+        sequences[0] = deleteFile;
+        boolean[] booleans = new boolean[1];
+        booleans[0] = true;
+        builder.setMultiChoiceItems(sequences, booleans, new DialogInterface.OnMultiChoiceClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+                booleans[which] = isChecked;
+            }
+        });
 
         builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                getViewModel().deleteTransferData(entity, getTransferAction(), new Consumer<Boolean>() {
+                getViewModel().getShowLoadingDialogLiveData().setValue(true);
+
+                getViewModel().deleteTransferData(entity, booleans[0], getTransferAction(), new Consumer<Boolean>() {
                     @Override
                     public void accept(Boolean aBoolean) throws Exception {
                         ToastUtils.showLong(R.string.deleted);
-                        dialog.dismiss();
 
-                        refreshData();
+                        removeSpecialEntity(entity.uid);
+
+                        getViewModel().getShowLoadingDialogLiveData().setValue(false);
                     }
                 });
+                dialog.dismiss();
             }
         });
 
         builder.setNegativeButton(R.string.cancel, (dialog, which) -> dialog.dismiss());
         builder.show();
+    }
+
+    private void showDeleteUploadConfirmDialog(FileTransferEntity entity) {
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext());
+        builder.setTitle(R.string.delete_records);
+
+        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                getViewModel().getShowLoadingDialogLiveData().setValue(true);
+
+                getViewModel().deleteTransferData(entity, false, getTransferAction(), new Consumer<Boolean>() {
+                    @Override
+                    public void accept(Boolean aBoolean) throws Exception {
+                        ToastUtils.showLong(R.string.deleted);
+
+                        removeSpecialEntity(entity.uid);
+
+                        getViewModel().getShowLoadingDialogLiveData().setValue(false);
+                    }
+                });
+                dialog.dismiss();
+            }
+        });
+
+        builder.setNegativeButton(R.string.cancel, (dialog, which) -> dialog.dismiss());
+        builder.show();
+    }
+
+    public void restartAllSpecialStatusTasks(TransferAction transferAction, TransferStatus transferStatus) {
+        getViewModel().restartSpecialStatusTask(transferAction, transferStatus, new Consumer<Boolean>() {
+            @Override
+            public void accept(Boolean aBoolean) {
+                if (aBoolean) {
+                    if (TransferAction.DOWNLOAD == transferAction) {
+                        //
+                        BackgroundJobManagerImpl.getInstance().cancelDownloadWorker();
+
+                        //
+                        BackgroundJobManagerImpl.getInstance().startDownloadChainWorker();
+                    } else {
+
+                        //
+                        BackgroundJobManagerImpl.getInstance().cancelMediaWorker();
+                        BackgroundJobManagerImpl.getInstance().cancelFolderAutoUploadWorker();
+                        BackgroundJobManagerImpl.getInstance().cancelFileManualUploadWorker();
+
+                        //
+                        BackgroundJobManagerImpl.getInstance().startMediaWorkerChain(false);
+                        BackgroundJobManagerImpl.getInstance().startFolderAutoBackupWorkerChain(false);
+                        BackgroundJobManagerImpl.getInstance().startFileManualUploadWorker();
+                    }
+                } else {
+                    ToastUtils.showLong(R.string.done);
+                }
+            }
+        });
     }
 
     private void toggleAdapterItemSelectedOnLongClick(int i) {
@@ -233,31 +369,55 @@ public abstract class TransferListFragment extends BaseFragment {
         adapter.notifyItemChanged(i);
     }
 
-    public void startContextualActionMode() {
-        if (actionMode == null) {
-            // start the actionMode
-            actionMode = activity.startSupportActionMode(new ActionModeCallback());
-        }
-    }
-
     public abstract TransferAction getTransferAction();
 
     public abstract void deleteSelectedItems(List<FileTransferEntity> list);
 
     public abstract void restartSelectedItems(List<FileTransferEntity> list);
 
+    public ConcurrentHashMap<String, Integer> getPositionMap() {
+        return positionMap;
+    }
+
+    protected void removeSpecialEntity(String uid) {
+        Integer integer = positionMap.get(uid);
+        if (integer == null) {
+            return;
+        }
+
+        adapter.notifyItemRemoved(integer);
+        adapter.getItems().remove(integer.intValue());
+
+        resort();
+    }
+
+    protected void resort() {
+        //
+        positionMap.clear();
+
+
+        List<FileTransferEntity> list = adapter.getItems();
+        for (int i = 0; i < list.size(); i++) {
+            positionMap.put(list.get(i).uid, i);
+        }
+    }
+
     protected void refreshData() {
+        pageIndex = 0;
         loadNext(true);
     }
 
     private void loadNext(boolean isShowRefresh) {
-        getViewModel().loadData(getTransferAction(), isShowRefresh);
+        pageIndex++;
+
+        if (pageIndex <= 1) {
+            positionMap.clear();
+        }
+
+        getViewModel().loadData(getTransferAction(), pageIndex, pageSize, isShowRefresh);
     }
 
     public void notifyProgressById(String transferId, long transferredSize, int percent, String event) {
-        if (positionMap == null) {
-            return;
-        }
 
         if (TextUtils.isEmpty(transferId)) {
             return;
@@ -304,32 +464,6 @@ public abstract class TransferListFragment extends BaseFragment {
         return position >= firstVisibleItemPosition && position <= lastVisibleItemPosition;
     }
 
-
-    private void notifyDataChanged(List<FileTransferEntity> list) {
-        if (CollectionUtils.isEmpty(list)) {
-            showEmptyTip();
-        } else {
-            adapter.submitList(list);
-        }
-    }
-
-    private void showEmptyTip() {
-        if (getTransferAction() == TransferAction.DOWNLOAD) {
-            showAdapterTip(R.string.no_download_tasks);
-        } else {
-            showAdapterTip(R.string.no_upload_tasks);
-        }
-    }
-
-    private void showAdapterTip(int textRes) {
-        adapter.submitList(null);
-        TextView tipView = TipsViews.getTipTextView(requireContext());
-        tipView.setText(textRes);
-        tipView.setOnClickListener(v -> refreshData());
-        adapter.setStateView(tipView);
-        adapter.setStateViewEnable(true);
-    }
-
     public void cancelSelectItems() {
         if (adapter == null) return;
 
@@ -338,6 +472,14 @@ public abstract class TransferListFragment extends BaseFragment {
         if (actionMode != null) {
             actionMode.finish();
             actionMode = null;
+        }
+    }
+
+
+    public void startContextualActionMode() {
+        if (actionMode == null) {
+            // start the actionMode
+            actionMode = activity.startSupportActionMode(new ActionModeCallback());
         }
     }
 

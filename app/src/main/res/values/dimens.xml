@@ -190,4 +190,8 @@
     <dimen name="font_size_large">22sp</dimen>
 
     <dimen name="gallery_icon_show">292.6dp</dimen>
+
+    <dimen name="carousel_item_width">20dp</dimen>
+    <dimen name="carousel_item_height">40dp</dimen>
+    <dimen name="carousel_item_margin">2dp</dimen>
 </resources>

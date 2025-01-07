@@ -115,7 +115,7 @@ public class SslConfirmDialog extends DialogFragment {
             binding.notAfter.setText(not_available);
         }
 
-        builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(R.string.ignore, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 Log.d(DEBUG_TAG, "listener.onAccepted is called");
@@ -123,7 +123,7 @@ public class SslConfirmDialog extends DialogFragment {
             }
         });
 
-        builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 Log.d(DEBUG_TAG, "listener.onRejected is called");

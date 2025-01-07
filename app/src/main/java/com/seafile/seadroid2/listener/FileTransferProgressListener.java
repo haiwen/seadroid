@@ -43,8 +43,24 @@ public class FileTransferProgressListener {
 
         fileTransferEntity.transferred_size = cur;
 
-        int percent = (int) ((float) cur / (float) total * 100);
+        int percent = calcu(cur, total);
         progressListener.onProgressNotify(fileTransferEntity, percent, cur, total);
+    }
+
+    public int onProgress(long cur, long total) {
+
+        long nowt = System.currentTimeMillis();
+        if (nowt - temp < 1000) {
+            return -1;
+        }
+
+        temp = nowt;
+        return calcu(cur, total);
+    }
+
+    public int calcu(long cur, long total) {
+        int percent = (int) ((float) cur / (float) total * 100);
+        return percent;
     }
 
     public interface TransferProgressListener {

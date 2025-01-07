@@ -1,25 +1,15 @@
 package com.seafile.seadroid2.ui.repo;
 
-import com.seafile.seadroid2.framework.data.db.entities.PermissionEntity;
 import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
-import com.seafile.seadroid2.framework.data.model.ResultModel;
 import com.seafile.seadroid2.framework.data.model.permission.PermissionListWrapperModel;
+import com.seafile.seadroid2.framework.data.model.permission.PermissionParentModel;
 import com.seafile.seadroid2.framework.data.model.permission.PermissionWrapperModel;
-import com.seafile.seadroid2.framework.data.model.repo.Dirent2Model;
 import com.seafile.seadroid2.framework.data.model.repo.DirentWrapperModel;
 import com.seafile.seadroid2.framework.data.model.repo.RepoWrapperModel;
 
-import java.security.Permission;
-import java.util.Map;
-
 import io.reactivex.Single;
-import okhttp3.RequestBody;
 import retrofit2.Call;
-import retrofit2.http.DELETE;
 import retrofit2.http.GET;
-import retrofit2.http.Multipart;
-import retrofit2.http.POST;
-import retrofit2.http.PartMap;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 

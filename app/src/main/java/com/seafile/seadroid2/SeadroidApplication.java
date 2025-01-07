@@ -46,7 +46,8 @@ public class SeadroidApplication extends Application {
 
 
         // set gesture lock if available
-        AppLockManager.getInstance().enableDefaultAppLockIfAvailable(this);
+        //
+//        AppLockManager.getInstance().enableDefaultAppLockIfAvailable(this);
 
         LiveEventBus.config()
                 .autoClear(true)

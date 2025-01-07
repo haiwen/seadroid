@@ -23,13 +23,13 @@ import androidx.core.app.ComponentActivity;
 import androidx.core.app.NavUtils;
 import androidx.core.app.TaskStackBuilder;
 
-import com.google.firebase.analytics.FirebaseAnalytics;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Authenticator;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.preferences.ContextStackPreferenceHelper;
 import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
 
 import java.util.Locale;
@@ -294,6 +294,8 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
             SupportAccountManager.getInstance().setUserData(newAccount, Authenticator.KEY_SHIB, "shib");
         }
 
+        //
+        ContextStackPreferenceHelper.clearStack();
         //save current account
         SupportAccountManager.getInstance().saveCurrentAccount(newAccountName);
         //reset httpio instance

@@ -106,8 +106,12 @@ public class FileTransferEntity extends BaseModel {
      * <br>
      * eg. /storage/emulated/0/DCIM/xxx.jpg or /storage/emulated/0/Downloads/xxx.txt (locally)
      * </p>
+     * <p><b>UPLOAD (FILE_BACKUP Manually) </b></p>
+     * <p>
+     * full_path is the absolute path to the file stored locally
      * <br>
-     * <br>
+     * eg. /storage/emulated/0/Android/media/(package_name)/Seafile/(repo_name)/
+     * </p>
      * <p><b>DOWNLOAD</b></p>
      * <p> full_path is the relative path to the file in the repository. <br>
      * eg. /a/b/c/d.txt (in remote repo)</p>
@@ -361,44 +365,6 @@ public class FileTransferEntity extends BaseModel {
         return entity;
     }
 
-    public static FileTransferEntity convertDirentFileModel2This(RepoModel repoModel, String full_path, boolean is_auto_transfer, DirentFileModel direntModel) {
-        FileTransferEntity entity = new FileTransferEntity();
-        entity.full_path = full_path;
-//        entity.target_path = direntModel.full_path;
-        entity.data_source = TransferDataSource.DOWNLOAD;
-        entity.repo_id = repoModel.repo_id;
-        entity.repo_name = repoModel.repo_name;
-        entity.related_account = repoModel.related_account;
-
-
-        entity.file_id = direntModel.id;
-        entity.setParent_path(Utils.getParentPath(full_path));
-        entity.file_name = direntModel.name;
-        entity.file_format = FileTools.getFileExtension(entity.full_path);
-        entity.mime_type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(entity.file_format);
-        entity.file_size = direntModel.size;
-        entity.file_md5 = null;
-
-        entity.is_auto_transfer = is_auto_transfer;
-
-//        entity.is_block = repoModel.canLocalDecrypt();
-        entity.file_strategy = ExistingFileStrategy.AUTO;
-
-        entity.is_copy_to_local = true;
-
-        long now = System.currentTimeMillis();
-        entity.created_at = now;
-        entity.modified_at = direntModel.mtime * 1000;
-        entity.action_end_at = 0L;
-
-        entity.transfer_action = TransferAction.DOWNLOAD;
-        entity.transfer_status = TransferStatus.WAITING;
-        entity.transfer_result = TransferResult.NO_RESULT;
-
-        entity.uid = entity.getUID();
-
-        return entity;
-    }
 
 
     public static FileTransferEntity convertDirentRecursiveModel2This(RepoModel repoModel, DirentRecursiveFileModel model) {
@@ -444,7 +410,7 @@ public class FileTransferEntity extends BaseModel {
         return entity;
     }
 
-    public static FileTransferEntity convert2ThisForUploadFileSyncWorker(Account account, RepoModel repoModel, File file, String backupPath) {
+    public static FileTransferEntity convert2ThisForUploadFileSyncWorker(Account account, File file, String backupPath) {
         if (!file.isFile()) {
             return null;
         }
@@ -466,8 +432,8 @@ public class FileTransferEntity extends BaseModel {
         entity.mime_type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(entity.file_format);
 
 //        entity.is_block = repoModel.encrypted;
-        entity.repo_id = repoModel.repo_id;
-        entity.repo_name = repoModel.repo_name;
+//        entity.repo_id = repoModel.repo_id;
+//        entity.repo_name = repoModel.repo_name;
         entity.related_account = account.getSignature();
         entity.data_source = TransferDataSource.FOLDER_BACKUP;
         entity.created_at = System.currentTimeMillis();
@@ -489,7 +455,7 @@ public class FileTransferEntity extends BaseModel {
     }
 
 
-    public static FileTransferEntity convert2ThisForUploadMediaSyncWorker(Account account, String repo_id, String repo_name, File file, String parenPath, long dateAdd, boolean isRemoteExists) {
+    public static FileTransferEntity convert2ThisForUploadMediaSyncWorker(Account account, File file, String parenPath, long dateAdd, boolean isRemoteExists) {
         long now = System.currentTimeMillis();
 
         FileTransferEntity entity = new FileTransferEntity();
@@ -502,8 +468,8 @@ public class FileTransferEntity extends BaseModel {
         entity.file_md5 = FileUtils.getFileMD5ToString(entity.full_path).toLowerCase();
         entity.mime_type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(entity.file_format);
 //        entity.is_block = false; //album backup is not store in encrypted repo.
-        entity.repo_id = repo_id;
-        entity.repo_name = repo_name;
+//        entity.repo_id = repo_id;
+//        entity.repo_name = repo_name;
         entity.related_account = account.getSignature();
         entity.created_at = now;
         entity.modified_at = now;

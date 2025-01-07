@@ -17,13 +17,15 @@ import androidx.core.view.NestedScrollingChild3;
 import androidx.core.view.NestedScrollingChildHelper;
 import androidx.core.view.ViewCompat;
 
+import com.github.lzyzsd.jsbridge.BridgeWebView;
+
 import org.jetbrains.annotations.Nullable;
 
 /**
  * WebView compatible with CoordinatorLayout by snachmsm
  * The implementation based on NestedScrollView of design library androidx v1.0.1
  */
-public class NestedWebView extends WebView implements NestedScrollingChild3 {
+public class NestedWebView extends BridgeWebView implements NestedScrollingChild3 {
 
     private static final String TAG = "NestedWebView";
     private static final int INVALID_POINTER = -1;

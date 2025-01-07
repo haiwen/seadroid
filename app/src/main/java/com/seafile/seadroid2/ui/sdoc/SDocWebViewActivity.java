@@ -6,6 +6,7 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
+import android.webkit.ConsoleMessage;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
@@ -22,26 +23,28 @@ import androidx.webkit.WebViewFeature;
 import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.GsonUtils;
 import com.blankj.utilcode.util.ToastUtils;
+import com.github.lzyzsd.jsbridge.CallBackFunction;
+import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
-import com.seafile.seadroid2.annotation.Unstable;
 import com.seafile.seadroid2.databinding.ActivitySeaWebviewProBinding;
 import com.seafile.seadroid2.databinding.ToolbarActionbarProgressBarBinding;
 import com.seafile.seadroid2.enums.WebViewPreviewType;
+import com.seafile.seadroid2.framework.data.model.sdoc.FileProfileConfigModel;
+import com.seafile.seadroid2.framework.data.model.sdoc.FileRecordWrapperModel;
+import com.seafile.seadroid2.framework.data.model.sdoc.OutlineItemModel;
 import com.seafile.seadroid2.framework.data.model.sdoc.SDocPageOptionsModel;
-import com.seafile.seadroid2.framework.data.model.sdoc.SDocProfileConfigModel;
-import com.seafile.seadroid2.framework.data.model.sdoc.SDocRecordWrapperModel;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.StringUtils;
+import com.seafile.seadroid2.listener.OnItemClickListener;
 import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
-import com.seafile.seadroid2.ui.sdoc.comments.SDocCommentsActivity;
-import com.seafile.seadroid2.ui.sdoc.directory.SDocDirectoryDialog;
-import com.seafile.seadroid2.ui.sdoc.profile.SDocProfileDialog;
-import com.seafile.seadroid2.ui.webview.SeaWebViewActivity;
+import com.seafile.seadroid2.ui.docs_comment.DocsCommentsActivity;
+import com.seafile.seadroid2.ui.file_profile.FileProfileDialog;
+import com.seafile.seadroid2.ui.sdoc.outline.SDocOutlineDialog;
+import com.seafile.seadroid2.view.webview.OnWebPageListener;
 import com.seafile.seadroid2.view.webview.PreloadWebView;
 import com.seafile.seadroid2.view.webview.SeaWebView;
 
-@Unstable
 public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
     private ActivitySeaWebviewProBinding binding;
     private ToolbarActionbarProgressBarBinding toolBinding;
@@ -51,13 +54,14 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
     private String path;
     private String targetUrl;
 
-    private SDocProfileConfigModel configModel;
+    private FileProfileConfigModel configModel;
+    private SDocPageOptionsModel pageOptionsData;
 
     /**
      * not support, please use SeaWebViewActivity instead
      */
     public static void openSdoc(Context context, String repoName, String repoID, String path) {
-        Intent intent = new Intent(context, SeaWebViewActivity.class);
+        Intent intent = new Intent(context, SDocWebViewActivity.class);
         intent.putExtra("previewType", WebViewPreviewType.SDOC.name());
         intent.putExtra("repoName", repoName);
         intent.putExtra("repoID", repoID);
@@ -74,16 +78,22 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
 
         toolBinding = ToolbarActionbarProgressBarBinding.bind(binding.toolProgressBar.getRoot());
 
-        init();
 
         initUI();
 
+        init();
+
         initViewModel();
+
+        mWebView.setOnWebPageListener(new OnWebPageListener() {
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                canLoadPageConfigData();
+            }
+        });
 
         //let's go
         mWebView.load(targetUrl);
-
-        getViewModel().initSDocConfig(repoId, path);
     }
 
     private void init() {
@@ -101,6 +111,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         WebViewPreviewType previewTypeEnum = WebViewPreviewType.valueOf(previewType);
 
         if (previewTypeEnum == WebViewPreviewType.SDOC) {
+
             String repoName = intent.getStringExtra("repoName");
             repoId = intent.getStringExtra("repoID");
             path = intent.getStringExtra("filePath");
@@ -118,7 +129,6 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         } else {
             throw new IllegalArgumentException("previewType is not SDOC");
         }
-
     }
 
     private void initUI() {
@@ -131,21 +141,22 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
 
         mWebView = PreloadWebView.getInstance().getWebView(this);
 
+
         if (WebViewFeature.isFeatureSupported(WebViewFeature.ALGORITHMIC_DARKENING)) {
             WebSettingsCompat.setAlgorithmicDarkeningAllowed(mWebView.getSettings(), true);
         }
+
+        //chrome client
+        mWebView.setWebChromeClient(mWebChromeClient);
 
         NestedScrollView.LayoutParams ll = new NestedScrollView.LayoutParams(-1, -1);
         mWebView.setLayoutParams(ll);
         binding.nsv.addView(mWebView);
 
-        //chrome client
-        mWebView.setWebChromeClient(mWebChromeClient);
-
-        binding.sdocDirectory.setOnClickListener(new View.OnClickListener() {
+        binding.sdocOutline.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showDirectoryDialog();
+                showOutlineDialog();
             }
         });
         binding.sdocProfile.setOnClickListener(new View.OnClickListener() {
@@ -174,32 +185,46 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
     }
 
     private void initViewModel() {
-        getViewModel().getFileDetailLiveData().observe(this, new Observer<SDocProfileConfigModel>() {
+        getViewModel().getFileDetailLiveData().observe(this, new Observer<FileProfileConfigModel>() {
             @Override
-            public void onChanged(SDocProfileConfigModel sDocProfileConfigModel) {
-                configModel = sDocProfileConfigModel;
+            public void onChanged(FileProfileConfigModel fileProfileConfigModel) {
+                configModel = fileProfileConfigModel;
                 hideProgressBar();
             }
         });
-        getViewModel().getSdocRecordLiveData().observe(this, new Observer<SDocRecordWrapperModel>() {
+
+        getViewModel().getSdocRecordLiveData().observe(this, new Observer<FileRecordWrapperModel>() {
             @Override
-            public void onChanged(SDocRecordWrapperModel sDocRecordWrapperModel) {
-                SDocProfileDialog dialog = SDocProfileDialog.newInstance(configModel.detail, sDocRecordWrapperModel, configModel.users.user_list);
-                dialog.show(getSupportFragmentManager(), SDocProfileDialog.class.getSimpleName());
+            public void onChanged(FileRecordWrapperModel fileRecordWrapperModel) {
+                FileProfileDialog dialog = FileProfileDialog.newInstance(configModel.detail, fileRecordWrapperModel, configModel.users.user_list, false);
+                dialog.show(getSupportFragmentManager(), FileProfileDialog.class.getSimpleName());
             }
         });
     }
 
-    private void showDirectoryDialog() {
-        getSDocConfigData(new Consumer<SDocPageOptionsModel>() {
+    private void showOutlineDialog() {
+        readSDocOutlineList(new Consumer<String>() {
             @Override
-            public void accept(SDocPageOptionsModel model) {
-                if (TextUtils.isEmpty(model.seadocServerUrl) || TextUtils.isEmpty(model.docUuid)) {
-                    return;
-                }
+            public void accept(String s) {
+                SDocOutlineDialog dialog = SDocOutlineDialog.newInstance(s);
+                dialog.setOnItemClickListener(new OnItemClickListener<OutlineItemModel>() {
+                    @Override
+                    public void onItemClick(OutlineItemModel outlineItemModel, int position) {
 
-                SDocDirectoryDialog dialog = SDocDirectoryDialog.newInstance(model);
-                dialog.show(getSupportFragmentManager(), SDocDirectoryDialog.class.getSimpleName());
+                        callJsOutline(outlineItemModel);
+                    }
+                });
+                dialog.show(getSupportFragmentManager(), SDocOutlineDialog.class.getSimpleName());
+            }
+        });
+    }
+
+    private void callJsOutline(OutlineItemModel outlineItemModel) {
+        String param = GsonUtils.toJson(outlineItemModel);
+        mWebView.callJsFunction("sdoc.outline.data.select", param, new CallBackFunction() {
+            @Override
+            public void onCallBack(String data) {
+                SLogs.e(data);
             }
         });
     }
@@ -209,24 +234,38 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
             return;
         }
 
-        if (configModel.metadata.enabled) {
-            getViewModel().getRecords(repoId, path);
-        } else {
-            SDocProfileDialog dialog = SDocProfileDialog.newInstance(configModel.detail, configModel.users.user_list);
-            dialog.show(getSupportFragmentManager(), SDocProfileDialog.class.getSimpleName());
-        }
-    }
-
-    private void showCommentsActivity() {
-        getSDocConfigData(new Consumer<SDocPageOptionsModel>() {
+        readSDocPageOptionsData(new Consumer<SDocPageOptionsModel>() {
             @Override
             public void accept(SDocPageOptionsModel model) {
-                SDocCommentsActivity.start(SDocWebViewActivity.this, model);
+                if (model.enableMetadataManagement) {
+                    if (configModel != null && configModel.metadataConfigModel != null && configModel.metadataConfigModel.enabled) {
+                        getViewModel().loadRecords(repoId, path);
+                    } else if (configModel != null) {
+                        FileProfileDialog dialog = FileProfileDialog.newInstance(configModel.detail, configModel.users.user_list);
+                        dialog.show(getSupportFragmentManager(), FileProfileDialog.class.getSimpleName());
+                    }
+                } else {
+                    FileProfileDialog dialog = FileProfileDialog.newInstance(configModel.detail, configModel.users.user_list);
+                    dialog.show(getSupportFragmentManager(), FileProfileDialog.class.getSimpleName());
+                }
             }
         });
     }
 
-    private void getSDocConfigData(Consumer<SDocPageOptionsModel> continuation) {
+    private void showCommentsActivity() {
+        readSDocPageOptionsData(new Consumer<SDocPageOptionsModel>() {
+            @Override
+            public void accept(SDocPageOptionsModel model) {
+                DocsCommentsActivity.start(SDocWebViewActivity.this, model);
+            }
+        });
+    }
+
+    private void readSDocPageOptionsData(Consumer<SDocPageOptionsModel> continuation) {
+        if (pageOptionsData != null) {
+            continuation.accept(pageOptionsData);
+            return;
+        }
         String js =
                 "(function() {" +
                         "   if (window.app && window.app.pageOptions) {" +
@@ -238,20 +277,79 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         mWebView.evaluateJavascript(js, new ValueCallback<String>() {
             @Override
             public void onReceiveValue(String value) {
-                SLogs.e(value);
                 if (!TextUtils.isEmpty(value)) {
                     value = StringUtils.deString(value).replace("\\", "");
-                    SDocPageOptionsModel configModel1 = GsonUtils.fromJson(value, SDocPageOptionsModel.class);
-                    if (configModel1 != null) {
-                        continuation.accept(configModel1);
-                        SLogs.d("获取的 PageOption 对象数据: " + configModel1);
+                    pageOptionsData = GsonUtils.fromJson(value, SDocPageOptionsModel.class);
+                    if (pageOptionsData != null) {
+                        continuation.accept(pageOptionsData);
                     } else {
-                        SLogs.d("获取的 PageOption 对象数据是空的");
+                        SLogs.e("read sodc page options data from web, an exception occurred in the parsing data");
+                        SLogs.e(value);
+                        ToastUtils.showShort(R.string.unknow_error);
                     }
 
                 } else {
+                    SLogs.e("read sodc page options data from web: " + value);
+                    ToastUtils.showShort(R.string.unknow_error);
+                }
+            }
+        });
+    }
+
+    private void readSDocOutlineList(Consumer<String> continuation) {
+        String js =
+                "(function() {" +
+                        "   if (window.seadroid && window.seadroid.outlines) {" +
+                        "       return JSON.stringify(window.seadroid.outlines);" +
+                        "   } else {" +
+                        "       return null;" +
+                        "   }" +
+                        "})();";
+        mWebView.evaluateJavascript(js, new ValueCallback<String>() {
+            @Override
+            public void onReceiveValue(String value) {
+                if (TextUtils.isEmpty(value)) {
+                    SLogs.e(value);
+                    ToastUtils.showShort(R.string.empty_data);
+                    continuation.accept(value);
+                    return;
+                }
+
+                value = StringUtils.deStringReturnNonNull(value).replace("\\", "");
+                if (continuation != null) {
+                    continuation.accept(value);
+                }
+            }
+        });
+    }
+
+    @Deprecated
+    private void readSeafileTokenData(Consumer<String> continuation) {
+        String js =
+                "(function() {" +
+                        "   if (window.seafile && window.seafile.accessToken) {" +
+                        "       return JSON.stringify(window.seafile.accessToken);" +
+                        "   } else {" +
+                        "       return null;" +
+                        "   }" +
+                        "})();";
+        mWebView.evaluateJavascript(js, new ValueCallback<String>() {
+            @Override
+            public void onReceiveValue(String value) {
+                SLogs.e(value);
+                if (TextUtils.isEmpty(value)) {
                     SLogs.d("doc uuid is empty.");
-                    ToastUtils.showShort("doc uuid is empty.");
+                    ToastUtils.showShort("outline is empty.");
+                    return;
+                }
+
+                value = StringUtils.deStringReturnNonNull(value).replace("\\", "");
+                value = StringUtils.deStringReturnNonNull(value);
+
+                if (continuation != null) {
+                    continuation.accept(value);
+                } else {
+
                 }
             }
         });
@@ -275,7 +373,31 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         @Override
         public void onReceivedTitle(WebView view, String title) {
             super.onReceivedTitle(view, title);
-            toolBinding.toolbarActionbar.setTitle(title);
+//            toolBinding.toolbarActionbar.setTitle(title);
+        }
+
+        @Override
+        public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
+            if (consoleMessage != null) {
+                switch (consoleMessage.messageLevel()) {
+                    case ERROR:
+                        SLogs.e("web e log: line: " + consoleMessage.lineNumber() + ", message: " + consoleMessage.message());
+                        break;
+                    case DEBUG:
+                        SLogs.d("web d log: line: " + consoleMessage.lineNumber() + ", message: " + consoleMessage.message());
+                        break;
+                    case WARNING:
+                        SLogs.w("web w log: line: " + consoleMessage.lineNumber() + ", message: " + consoleMessage.message());
+                        break;
+                    case TIP:
+                        SLogs.i("web i log: line: " + consoleMessage.lineNumber() + ", message: " + consoleMessage.message());
+                        break;
+                    default:
+                        SLogs.e("web default log: line: " + consoleMessage.lineNumber() + ", message: " + consoleMessage.message());
+                        break;
+                }
+            }
+            return super.onConsoleMessage(consoleMessage);
         }
     };
 
@@ -295,6 +417,16 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         if (configModel != null && curProgress == 100) {
             toolBinding.toolProgressBar.setVisibility(View.GONE);
         }
+    }
+
+    private void canLoadPageConfigData() {
+        readSDocPageOptionsData(new Consumer<SDocPageOptionsModel>() {
+            @Override
+            public void accept(SDocPageOptionsModel model) {
+                getViewModel().loadFileDetail(repoId, path, model.enableMetadataManagement);
+            }
+        });
+
     }
 
     @Override

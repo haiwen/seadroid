@@ -80,6 +80,14 @@ public class HttpIO {
         return INSTANCE;
     }
 
+    public static void removeInstanceByAccount(Account account) {
+        if (account == null) {
+            return;
+        }
+
+        IO_MAP.remove(account.getSignature());
+    }
+
     /**
      * Not logged in/Log in to another server
      */
@@ -153,6 +161,7 @@ public class HttpIO {
 
     private Retrofit createRetrofit() {
         Retrofit.Builder rBuilder = new Retrofit.Builder();
+
         rBuilder.baseUrl(getServerUrl());
         rBuilder.addConverterFactory(ConverterFactory.create());
         rBuilder.addCallAdapterFactory(RxJava2CallAdapterFactory.create());
@@ -161,7 +170,6 @@ public class HttpIO {
 
         return rBuilder.build();
     }
-
 
     public void downloadBinarySync(String url, File destinationFile, ProgressListener callback) throws IOException {
         OkHttpClient client = getOkHttpClient().getOkClient();
@@ -178,7 +186,6 @@ public class HttpIO {
 
             try (BinaryFileDownloader fileDownloader = new BinaryFileDownloader(client, fileWriter)) {
                 fileDownloader.download(url);
-
             } catch (Exception e) {
                 if (callback != null) {
                     callback.isCancelled();

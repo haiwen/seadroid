@@ -13,4 +13,6 @@
     <item name="move" type="id"/>
     <item name="upload" type="id"/>
     <item name="download" type="id"/>
+    <item name="info" type="id"/>
+
 </resources>

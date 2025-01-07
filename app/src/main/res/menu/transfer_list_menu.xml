@@ -4,13 +4,30 @@
 
     <item
         android:id="@+id/cancel_transfer_tasks"
+        android:contentDescription="@string/transfer_list_cancel_all_desc"
         android:title="@string/transfer_list_cancel_all"
         android:visible="true"
         app:showAsAction="never" />
 
     <item
         android:id="@+id/clear_all_transfer_tasks"
+        android:contentDescription="@string/transfer_list_clear_all_tasks_desc"
         android:title="@string/transfer_list_clear_all_tasks"
         android:visible="true"
         app:showAsAction="never" />
+
+<!--    <item-->
+<!--        android:id="@+id/retry_all_cancelled_transfer_tasks"-->
+<!--        android:contentDescription="@string/transfer_list_restart_cancelled_tasks"-->
+<!--        android:title="@string/transfer_list_restart_cancelled_tasks"-->
+<!--        android:visible="true"-->
+<!--        app:showAsAction="never" />-->
+
+<!--    <item-->
+<!--        android:id="@+id/retry_all_failed_transfer_tasks"-->
+<!--        android:contentDescription="@string/transfer_list_retry_failed_tasks"-->
+<!--        android:title="@string/transfer_list_retry_failed_tasks"-->
+<!--        android:visible="true"-->
+<!--        app:showAsAction="never" />-->
+
 </menu>

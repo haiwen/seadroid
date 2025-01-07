@@ -103,7 +103,7 @@ public class Account extends BaseModel implements Parcelable, Comparable<Account
 
     /**
      * in fact, the value should be less than 0.
-     * however, in some cases, it may be 0, and should also return unlimited.
+     * however, in some cases, it may be 0, and should also return non-limit.
      * even if the non-limit is returned, App does not need to verify "Out of quota" status.
      * and the "Out of quota" error will be returned in the file upload result.
      */

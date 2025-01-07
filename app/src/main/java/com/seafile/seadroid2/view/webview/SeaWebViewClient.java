@@ -8,6 +8,8 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import com.github.lzyzsd.jsbridge.BridgeWebView;
+import com.github.lzyzsd.jsbridge.BridgeWebViewClient;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.framework.util.SLogs;
@@ -16,7 +18,26 @@ import com.seafile.seadroid2.framework.util.Token2SessionConverts;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SeaWebViewClient extends WebViewClient {
+public class SeaWebViewClient extends BridgeWebViewClient {
+
+    private OnWebPageListener onWebPageListener;
+
+    public void setOnWebPageListener(OnWebPageListener onWebPageListener) {
+        this.onWebPageListener = onWebPageListener;
+    }
+
+    public SeaWebViewClient(BridgeWebView webView) {
+        super(webView);
+    }
+
+    @Override
+    public void onPageFinished(WebView view, String url) {
+        super.onPageFinished(view, url);
+        if (onWebPageListener != null) {
+            onWebPageListener.onPageFinished(view, url);
+        }
+    }
+
     @Override
     public boolean shouldOverrideUrlLoading(WebView wb, WebResourceRequest request) {
         String url = request.getUrl().toString();
@@ -71,8 +92,6 @@ public class SeaWebViewClient extends WebViewClient {
     }
 
     public void loadWithToken(String targetUrl, WebView wb, boolean isRedirect) {
-        SLogs.d("targetUrl: " + targetUrl);
-
         mOriginTargetUrl = targetUrl;
 
         if (isRedirect) {
@@ -83,9 +102,12 @@ public class SeaWebViewClient extends WebViewClient {
                 map.put("Authorization", "Token " + account.token);
             }
 
-            wb.loadUrl(buildUrl(mOriginTargetUrl), map);
+            String rUrl = buildUrl(mOriginTargetUrl);
+            SLogs.d("targetUrl: " + rUrl);
+            wb.loadUrl(rUrl, map);
         } else {
             wb.loadUrl(mOriginTargetUrl);
+            SLogs.d("targetUrl: " + mOriginTargetUrl);
         }
     }
 
@@ -95,19 +117,6 @@ public class SeaWebViewClient extends WebViewClient {
         }
 
         return Token2SessionConverts.buildUrl(url);
-
-//        // Optimise the code here:
-//        // The expiry time of each cookie field is not consistent,
-//        // and it is possible to be redirected to the login page when opening the link
-//        String cookieStr = SupportCookieManager.getCookie(url);
-//        String u = url;
-//        if (TextUtils.isEmpty(cookieStr)) {
-//            u = Token2SessionConverts.buildUrl(url);
-//            Log.d(getClass().getSimpleName(), "link redirect to -> " + u);
-//        } else {
-//            Log.d(getClass().getSimpleName(), "link to -> " + u);
-//        }
-//        return u;
     }
 
 }

@@ -3,6 +3,7 @@
   <string name="welcome_to_seafile">欢迎使用Seafile</string>
   <string name="select_account">请选择一个账户开始使用</string>
   <string name="edit_account">编辑帐户</string>
+  <string name="ignore">忽略</string>
   <string name="delete_account">删除帐户</string>
   <string name="delete">删除</string>
   <string name="deleted">已删除</string>
@@ -22,6 +23,7 @@
   <string name="move_folder">移动文件夹</string>
   <string name="delete_dir">删除文件夹</string>
   <string name="name_hint">名称</string>
+  <string name="server">服务器</string>
   <string name="server_hint">云盘网址</string>
   <string name="email_hint">邮箱或用户名</string>
   <string name="passwd_hint">密码</string>
@@ -315,6 +317,8 @@
   <string name="next_button_label">下一个</string>
   <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
   <string name="skip_button_label">跳过</string>
+  <!--Display mode-->
+  <string name="settings_display_mode">显示模式</string>
   <!--contacts  upload-->
   <string name="settings_contacts_upload_info_title">通讯录备份</string>
   <string name="settings_contacts_upload_turn_on">启用通讯录备份</string>
@@ -441,11 +445,13 @@ Email: support@seafile.com<br>
   <!--Transfer List-->
   <string name="transfer_list_network_error">网络连接错误，请稍后重试！</string>
   <string name="transfer_list_cancel_all">取消所有任务</string>
+  <string name="transfer_list_cancel_all_desc">取消所有正在进行的文件传输任务；单击重新启动按钮时，它们将被恢复以继续传输文件。</string>
   <string name="transfer_list_restart_all">重新开始</string>
   <string name="transfer_list_retry_failed_tasks">重试失败的任务</string>
   <string name="transfer_list_restart_cancelled_tasks">重试取消的任务</string>
   <string name="transfer_list_clear_failed_tasks">清除失败的任务</string>
   <string name="transfer_list_clear_all_tasks">清除所有任务</string>
+  <string name="transfer_list_clear_all_tasks_desc">删除所有传输记录；如果是下载，它将删除所有下载记录（可选：本地文件也是）。如果是上传，它只会删除上传记录，但以后不会重新上传相应的目标文件。</string>
   <string name="transfer_list_clear_finished_tasks">清除完成的任务</string>
   <string name="transfer_tabs_downloads">下载列表</string>
   <string name="transfer_tabs_uploads">上传列表</string>
@@ -559,6 +565,8 @@ Email: support@seafile.com<br>
   <string name="is_uploading">上传中</string>
   <string name="network_unavailable">网络不可用</string>
   <string name="network_error">网络异常</string>
+  <string name="error_image_load">加载失败</string>
+  <string name="retry_with_click">点击重试</string>
   <string name="required_password">需要密码</string>
   <string name="weak_password">密码太弱</string>
   <!--Folder backup Preference-->
@@ -615,6 +623,7 @@ Email: support@seafile.com<br>
   <string name="on">开启</string>
   <string name="follow_system">跟随系统</string>
   <string name="empty">暂无</string>
+  <string name="empty_data">暂无数据</string>
   <!--share link-->
   <string name="link_permission_set_permission">设置权限</string>
   <string name="link_permission_preview_and_download">预览和下载</string>
@@ -631,15 +640,21 @@ Email: support@seafile.com<br>
   <string name="menu_action_sort_by_last_modified">最后修改</string>
   <string name="menu_action_sort_order_ascending">升序</string>
   <string name="menu_action_sort_directories_first">文件夹优先</string>
+  <string name="menu_detail">详情</string>
   <!--sdoc-->
   <string name="_size">大小</string>
   <string name="_last_modifier">修改者</string>
   <string name="_last_modified_time">修改时间</string>
+  <string name="_reviewer">文件审核人</string>
   <string name="_file_collaborators">文件协作人</string>
   <string name="_file_status">文件状态</string>
   <string name="_in_progress">进行中</string>
   <string name="_in_review">审核中</string>
-  <string name="_done">完成</string>
+  <string name="_done">已完成</string>
   <string name="_outdated">已过期</string>
+  <string name="_tags">标签</string>
+  <string name="mark_resolve">标记为已解决</string>
+  <string name="delete_confirm">你确定想要删除此条内容？</string>
+  <string name="canceled">已取消</string>
   <!--end-->
 </resources>

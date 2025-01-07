@@ -11,9 +11,11 @@ import androidx.lifecycle.Observer;
 import androidx.work.Data;
 import androidx.work.WorkInfo;
 
+import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
 import com.seafile.seadroid2.enums.TransferAction;
 import com.seafile.seadroid2.enums.TransferDataSource;
@@ -124,37 +126,58 @@ public class DownloadListFragment extends TransferListFragment {
     }
 
     private void showDeleteConfirmDialog(List<FileTransferEntity> list) {
-        showConfirmDialog(new DialogInterface.OnClickListener() {
+        if (CollectionUtils.isEmpty(list)) {
+            return;
+        }
+
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext());
+        builder.setTitle(R.string.delete_records);
+
+        String deleteFile = getString(R.string.delete_local_file_sametime);
+        CharSequence[] sequences = new CharSequence[1];
+        sequences[0] = deleteFile;
+        boolean[] booleans = new boolean[1];
+        booleans[0] = true;
+        builder.setMultiChoiceItems(sequences, booleans, new DialogInterface.OnMultiChoiceClickListener() {
             @Override
-            public void onClick(DialogInterface dialog, int which) {
-
-                BackgroundJobManagerImpl.getInstance().cancelDownloadWorker();
-
-                getViewModel().removeSpecialDownloadListTask(list, new Consumer<Boolean>() {
-                    @Override
-                    public void accept(Boolean aBoolean) throws Exception {
-
-                        BackgroundJobManagerImpl.getInstance().startDownloadChainWorker();
-
-                        ToastUtils.showLong(R.string.deleted);
-
-                        dialog.dismiss();
-
-                        refreshData();
-                    }
-                });
+            public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+                booleans[which] = isChecked;
             }
         });
-    }
 
-    private void showConfirmDialog(DialogInterface.OnClickListener listener) {
-        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext());
-        builder.setTitle(R.string.delete);
-        builder.setMessage(R.string.delete_records_and_file);
-        builder.setPositiveButton(R.string.ok, listener);
+        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                doDeleteSelectedItem(list, booleans[0]);
+                dialog.dismiss();
+            }
+        });
 
         builder.setNegativeButton(R.string.cancel, (dialog, which) -> dialog.dismiss());
         builder.show();
+    }
+
+    private void doDeleteSelectedItem(List<FileTransferEntity> list, boolean isDeleteLocalFile) {
+        getViewModel().getShowLoadingDialogLiveData().setValue(true);
+
+        BackgroundJobManagerImpl.getInstance().cancelDownloadWorker();
+
+        getViewModel().removeSpecialDownloadListTask(list, isDeleteLocalFile, new Consumer<Boolean>() {
+            @Override
+            public void accept(Boolean aBoolean) {
+
+                BackgroundJobManagerImpl.getInstance().startDownloadChainWorker();
+
+                //You never know which item a user will select, so we need to remove them one by one, and then resort.
+                for (FileTransferEntity fileTransferEntity : list) {
+                    removeSpecialEntity(fileTransferEntity.uid);
+                }
+
+                getViewModel().getShowLoadingDialogLiveData().setValue(false);
+
+                ToastUtils.showLong(R.string.deleted);
+            }
+        });
     }
 
     @Override
@@ -163,18 +186,9 @@ public class DownloadListFragment extends TransferListFragment {
             @Override
             public void accept(Boolean aBoolean) throws Exception {
                 ToastUtils.showLong(R.string.transfer_list_restart_all);
-            }
-        });
-
-        getViewModel().restartUpload(list, new Consumer<Boolean>() {
-            @Override
-            public void accept(Boolean aBoolean) throws Exception {
-
-                //
                 BackgroundJobManagerImpl.getInstance().startDownloadChainWorker();
             }
         });
-
     }
 
     /**
@@ -197,10 +211,24 @@ public class DownloadListFragment extends TransferListFragment {
      * remove all download tasks
      */
     public void removeAllTasks() {
-        showConfirmDialog(new DialogInterface.OnClickListener() {
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext());
+        builder.setTitle(R.string.delete_records);
+
+        String deleteFile = getString(R.string.delete_local_file_sametime);
+        CharSequence[] sequences = new CharSequence[1];
+        sequences[0] = deleteFile;
+        boolean[] booleans = new boolean[1];
+        booleans[0] = true;
+        builder.setMultiChoiceItems(sequences, booleans, new DialogInterface.OnMultiChoiceClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+                booleans[which] = isChecked;
+            }
+        });
+
+        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-
                 //cancel worker
                 BackgroundJobManagerImpl.getInstance().cancelDownloadWorker();
 
@@ -211,10 +239,15 @@ public class DownloadListFragment extends TransferListFragment {
 
                         refreshData();
                     }
-                });
+                }, booleans[0]);
             }
         });
 
+        builder.setNegativeButton(R.string.cancel, (dialog, which) -> dialog.dismiss());
+        builder.show();
+
+
     }
+
 }
 

@@ -47,6 +47,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLEncoder;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -97,7 +98,7 @@ public class DownloadWorker extends BaseDownloadWorker {
         //count
         int pendingCount = AppDatabase.getInstance().fileTransferDAO().countPendingDownloadListSync(account.getSignature());
         if (pendingCount <= 0) {
-            SLogs.eDebug("download list is empty.");
+            SLogs.i("download list is empty.");
             return Result.success(getFinishData(false));
         }
 
@@ -119,7 +120,7 @@ public class DownloadWorker extends BaseDownloadWorker {
             List<FileTransferEntity> list = AppDatabase
                     .getInstance()
                     .fileTransferDAO()
-                    .getOnePendingDownloadByActionSync(account.getSignature());
+                    .getOnePendingDownloadByAccountSync(account.getSignature());
             if (CollectionUtils.isEmpty(list)) {
                 break;
             }
@@ -150,7 +151,7 @@ public class DownloadWorker extends BaseDownloadWorker {
             }
         }
 
-        SLogs.d("all task run");
+        SLogs.i("all task run");
 
         //
         if (isDownloaded) {
@@ -174,7 +175,7 @@ public class DownloadWorker extends BaseDownloadWorker {
     private final FileTransferProgressListener.TransferProgressListener progressListener = new FileTransferProgressListener.TransferProgressListener() {
         @Override
         public void onProgressNotify(FileTransferEntity fileTransferEntity, int percent, long transferredSize, long totalSize) {
-            SLogs.d(fileTransferEntity.file_name + " -> progress：" + percent);
+            SLogs.i(fileTransferEntity.file_name + " -> progress：" + percent);
 
             int diff = AppDatabase.getInstance().fileTransferDAO().countPendingDownloadListSync(fileTransferEntity.related_account);
 
@@ -190,7 +191,7 @@ public class DownloadWorker extends BaseDownloadWorker {
     };
 
     private void transferFile(Account account, FileTransferEntity transferEntity) throws Exception {
-        SLogs.d("download start：" + transferEntity.full_path);
+        SLogs.i("download start：" + transferEntity.full_path);
 
         //show notification
         int diff = AppDatabase.getInstance().fileTransferDAO().countPendingDownloadListSync(transferEntity.related_account);
@@ -200,7 +201,7 @@ public class DownloadWorker extends BaseDownloadWorker {
         List<RepoModel> repoModels = AppDatabase.getInstance().repoDao().getByIdSync(transferEntity.repo_id);
 
         if (CollectionUtils.isEmpty(repoModels)) {
-            SLogs.d("no repo for repoId: " + transferEntity.repo_id);
+            SLogs.i("no repo for repoId: " + transferEntity.repo_id);
             return;
         }
 
@@ -224,13 +225,13 @@ public class DownloadWorker extends BaseDownloadWorker {
         File localFile = DataManager.getLocalRepoFile(account, transferEntity);
 
         if (localFile.exists() && transferEntity.file_strategy == ExistingFileStrategy.SKIP) {
-            SLogs.d("skip this file, file_strategy is SKIP ：" + localFile.getAbsolutePath());
+            SLogs.i("skip this file, file_strategy is SKIP ：" + localFile.getAbsolutePath());
             return;
         }
 
         download(transferEntity, dlink, localFile);
 
-        SLogs.d("download finish：" + transferEntity.full_path);
+        SLogs.i("download finish：" + transferEntity.full_path);
     }
 
     private Pair<String, String> getDownloadLink(FileTransferEntity transferEntity, boolean isReUsed) throws SeafException, IOException {
@@ -267,8 +268,6 @@ public class DownloadWorker extends BaseDownloadWorker {
     }
 
     private void download(FileTransferEntity fileTransferEntity, String dlink, File localFile) throws Exception {
-
-
         fileTransferProgressListener.setFileTransferEntity(fileTransferEntity);
 
         fileTransferEntity.transfer_status = TransferStatus.IN_PROGRESS;
@@ -293,8 +292,8 @@ public class DownloadWorker extends BaseDownloadWorker {
 
             long fileSize = responseBody.contentLength();
             if (fileSize == -1) {
-                SLogs.d("download file error -> contentLength is -1");
-                SLogs.d(localFile.getAbsolutePath());
+                SLogs.e("download file error -> contentLength is -1");
+                SLogs.e(localFile.getAbsolutePath());
 
                 fileSize = fileTransferEntity.file_size;
 
@@ -328,10 +327,12 @@ public class DownloadWorker extends BaseDownloadWorker {
 
             //important
             tempFile.renameTo(localFile);
+//            Path path = java.nio.file.Files.move(tempFile.toPath(), localFile.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+//            boolean isSuccess = path.toFile().exists();
 
             if (localFile.length() != fileSize) {
-                SLogs.d("download file error -> localFile.size != downloadedSize");
-                SLogs.d(localFile.getAbsolutePath());
+                SLogs.e("download file error -> localFile.size != downloadedSize");
+                SLogs.e(localFile.getAbsolutePath());
                 updateEntityErrorState(fileTransferEntity);
             } else {
                 updateEntitySuccessState(fileTransferEntity, localFile);
@@ -393,7 +394,7 @@ public class DownloadWorker extends BaseDownloadWorker {
 
         File localFile = DataManager.getLocalRepoFile(account, transferEntity);
         if (localFile.exists() && transferEntity.file_strategy == ExistingFileStrategy.SKIP) {
-            SLogs.d("skip this file, file_strategy is SKIP ：" + localFile.getAbsolutePath());
+            SLogs.i("skip this file, file_strategy is SKIP ：" + localFile.getAbsolutePath());
             return;
         }
 
@@ -498,7 +499,7 @@ public class DownloadWorker extends BaseDownloadWorker {
             responseBody.close();
 
             if (localFile.length() != tempFileSize) {
-                SLogs.d("Rename file error : " + localFile.getAbsolutePath());
+                SLogs.i("Rename file error : " + localFile.getAbsolutePath());
                 throw SeafException.networkException;
             }
 

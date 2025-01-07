@@ -126,8 +126,8 @@ public class FolderBackupScannerWorker extends TransferWorker {
     }
 
     private boolean checkCanScan() {
-        boolean isOpenBackup = FolderBackupSharePreferenceHelper.readBackupSwitch();
-        if (!isOpenBackup) {
+        boolean isTurnOn = FolderBackupSharePreferenceHelper.readBackupSwitch();
+        if (!isTurnOn) {
             return false;
         }
 
@@ -178,7 +178,7 @@ public class FolderBackupScannerWorker extends TransferWorker {
             FolderBackupSharePreferenceHelper.writeLastScanTimeForPath(backupPath);
 
             if (CollectionUtils.isEmpty(localFiles)) {
-                SLogs.e("没有新增、更新的文件: " + backupPath);
+                SLogs.e("文件夹备份：没有新增、更新的文件: " + backupPath);
                 continue;
             }
             SLogs.e("新文件: " + localFiles.size());
@@ -212,7 +212,7 @@ public class FolderBackupScannerWorker extends TransferWorker {
 
         List<FileTransferEntity> tList = CollectionUtils.newArrayList();
         for (File file : subFiles) {
-            FileTransferEntity fEntity = FileTransferEntity.convert2ThisForUploadFileSyncWorker(account, repoModel, file, backupPath);
+            FileTransferEntity fEntity = FileTransferEntity.convert2ThisForUploadFileSyncWorker(account, file, backupPath);
             if (fEntity != null) {
                 tList.add(fEntity);
             }

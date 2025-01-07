@@ -36,55 +36,57 @@
 
     </androidx.core.widget.NestedScrollView>
 
-    <!--    <com.google.android.material.bottomappbar.BottomAppBar-->
-    <!--        android:id="@+id/bottom_app_bar"-->
-    <!--        style="@style/Widget.Material3.BottomAppBar"-->
-    <!--        android:layout_width="match_parent"-->
-    <!--        android:layout_height="wrap_content"-->
-    <!--        android:layout_gravity="bottom"-->
-    <!--        app:hideOnScroll="true"-->
-    <!--        app:labelVisibilityMode="unlabeled"-->
-    <!--        app:menu="@menu/bottom_sdoc_menu" />-->
-
-
     <LinearLayout
         android:id="@+id/ll_bottom"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="?actionBarSize"
         android:layout_gravity="bottom"
+        android:background="@color/bar_background_color"
+        android:gravity="center_horizontal"
         android:orientation="vertical"
+        android:visibility="visible"
         app:layout_behavior="com.seafile.seadroid2.view.HideBottomBehavior">
 
         <com.google.android.material.divider.MaterialDivider
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:dividerColor="@color/divider_color" />
 
-        <com.google.android.material.button.MaterialButtonToggleGroup
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp">
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/sdoc_directory"
-                style="?attr/materialButtonOutlinedStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/navigate_to_directory" />
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/sdoc_outline"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:foreground="@drawable/ripple_icon_middle"
+                android:scaleType="centerInside"
+                android:src="@drawable/baseline_outline_24"
+                app:tint="@color/bottom_bar_icon_tint_color" />
 
-            <com.google.android.material.button.MaterialButton
+            <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/sdoc_profile"
-                style="?attr/materialButtonOutlinedStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/edit" />
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:foreground="@drawable/ripple_icon_middle"
+                android:scaleType="centerInside"
+                android:src="@drawable/baseline_info_24"
+                app:tint="@color/bottom_bar_icon_tint_color" />
 
-            <com.google.android.material.button.MaterialButton
+            <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/sdoc_comment"
-                style="?attr/materialButtonOutlinedStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/period_of_validity" />
-        </com.google.android.material.button.MaterialButtonToggleGroup>
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:foreground="@drawable/ripple_icon_middle"
+                android:scaleType="centerInside"
+                android:src="@drawable/baseline_comment_24"
+                app:tint="@color/bottom_bar_icon_tint_color" />
+        </LinearLayout>
     </LinearLayout>
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

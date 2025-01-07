@@ -1,5 +1,6 @@
 package com.seafile.seadroid2.ui.selector;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -19,6 +20,7 @@ import com.chad.library.adapter4.QuickAdapterHelper;
 import com.github.panpf.recycler.sticky.StickyItemDecoration;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.config.AbsLayoutItemType;
 import com.seafile.seadroid2.context.NavContext;
 import com.seafile.seadroid2.databinding.ActivitySelectorObjBinding;
@@ -68,6 +70,12 @@ public class ObjSelectorActivity extends BaseActivity {
     private ObjSelectorViewModel viewModel;
     private Account mAccount;
 
+    public static Intent getStartIntent(Context context) {
+        Intent intent = new Intent(context, ObjSelectorActivity.class);
+        intent.putExtra(ObjSelectorActivity.DATA_ACCOUNT, SupportAccountManager.getInstance().getCurrentAccount());
+        return intent;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -112,7 +120,7 @@ public class ObjSelectorActivity extends BaseActivity {
             mStep = STEP_CHOOSE_REPO;
         }
 
-        loadData();
+        checkLoginState();
     }
 
     private void initView() {
@@ -144,6 +152,16 @@ public class ObjSelectorActivity extends BaseActivity {
                 finish();
             }
         });
+    }
+
+    private void checkLoginState() {
+        boolean isLogin = SupportAccountManager.getInstance().isLogin();
+        if (!isLogin) {
+            binding.ok.setEnabled(false);
+            binding.newFolder.setEnabled(false);
+        }
+
+        loadData();
     }
 
     private void onOkClick() {
@@ -273,41 +291,65 @@ public class ObjSelectorActivity extends BaseActivity {
     }
 
     private void checkCurrentPathHasWritePermission(java.util.function.Consumer<Boolean> consumer) {
-        DirentModel direntModel = mNavContext.getTopDirentModel();
-        if (!direntModel.isCustomPermission()) {
-            consumer.accept(direntModel.hasWritePermission());
-        } else {
-            viewModel.getPermissionFromLocal(direntModel.repo_id, direntModel.getCustomPermissionNum(), new Consumer<PermissionEntity>() {
-                @Override
-                public void accept(PermissionEntity entity) throws Exception {
-                    consumer.accept(entity != null && entity.create);
-                }
-            });
-        }
-    }
+        BaseModel model = mNavContext.getTopModel();
 
+        String repo_id = null;
+        int pNum = 0;
+        if (model instanceof RepoModel m) {
+            if (!m.isCustomPermission()) {
+                consumer.accept(m.hasWritePermission());
+                return;
+            } else {
+                repo_id = m.repo_id;
+                pNum = m.getCustomPermissionNum();
+            }
+        } else if (model instanceof DirentModel m) {
+            if (!m.isCustomPermission()) {
+                consumer.accept(m.hasWritePermission());
+                return;
+            } else {
+                repo_id = m.repo_id;
+                pNum = m.getCustomPermissionNum();
+            }
+        } else {
+            consumer.accept(false);
+            return;
+        }
+
+        viewModel.getPermissionFromLocal(repo_id, pNum, new Consumer<PermissionEntity>() {
+            @Override
+            public void accept(PermissionEntity entity) throws Exception {
+                if (!entity.isValid()) {
+                    consumer.accept(false);
+                    return;
+                }
+
+                consumer.accept(entity.create);
+            }
+        });
+    }
 
     private void showNewDirDialog() {
         if (!mNavContext.inRepo()) {
             ToastUtils.showLong(R.string.choose_a_library);
             return;
         }
-        checkCurrentPathHasWritePermission(new java.util.function.Consumer<Boolean>() {
-            @Override
-            public void accept(Boolean aBoolean) {
-                String rid = mNavContext.getRepoModel().repo_id;
-                String parentPath = mNavContext.getNavPath();
-                NewDirFileDialogFragment dialogFragment = NewDirFileDialogFragment.newInstance(rid, parentPath, true);
-                dialogFragment.setRefreshListener(new OnRefreshDataListener() {
-                    @Override
-                    public void onActionStatus(boolean isDone) {
-                        if (isDone) {
-                            loadData();
-                        }
+
+        checkCurrentPathHasWritePermission(aBoolean -> {
+
+
+            String rid = mNavContext.getRepoModel().repo_id;
+            String parentPath = mNavContext.getNavPath();
+            NewDirFileDialogFragment dialogFragment = NewDirFileDialogFragment.newInstance(rid, parentPath, true);
+            dialogFragment.setRefreshListener(new OnRefreshDataListener() {
+                @Override
+                public void onActionStatus(boolean isDone) {
+                    if (isDone) {
+                        loadData();
                     }
-                });
-                dialogFragment.show(getSupportFragmentManager(), NewDirFileDialogFragment.class.getSimpleName());
-            }
+                }
+            });
+            dialogFragment.show(getSupportFragmentManager(), NewDirFileDialogFragment.class.getSimpleName());
         });
     }
 

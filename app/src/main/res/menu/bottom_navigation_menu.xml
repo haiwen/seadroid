@@ -8,7 +8,7 @@
 
     <item
         android:id="@+id/tabs_starred"
-        android:icon="@drawable/baseline_starred_32"
+        android:icon="@drawable/baseline_starred_filled_32"
         android:title="@string/tabs_starred" />
 
     <item

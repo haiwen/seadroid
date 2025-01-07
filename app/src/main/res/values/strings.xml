@@ -5,6 +5,7 @@
     <string name="welcome_to_seafile">Welcome to Seafile</string>
     <string name="select_account">Choose an account to start</string>
     <string name="edit_account">Edit</string>
+    <string name="ignore">Ignore</string>
     <string name="delete_account">Delete</string>
     <string name="delete">Delete</string>
     <string name="deleted">Deleted</string>
@@ -24,6 +25,7 @@
     <string name="move_folder">Move folder</string>
     <string name="delete_dir">Delete folder</string>
     <string name="name_hint">Name</string>
+    <string name="server">Server</string>
     <string name="server_hint">Server address</string>
     <string name="email_hint">Email or Username</string>
     <string name="passwd_hint">Password</string>
@@ -334,6 +336,10 @@
     <string name="next_button_label">Next</string>
     <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
     <string name="skip_button_label">Skip</string>
+
+    <!-- Display mode -->
+    <string name="settings_display_mode">Display mode</string>
+
     <!--contacts  upload-->
     <string name="settings_contacts_upload_info_title">Contacts backup</string>
     <string name="settings_contacts_upload_turn_on">Enable contacts backup</string>
@@ -460,11 +466,13 @@
     <!--Transfer List-->
     <string name="transfer_list_network_error">Network connection error, please try again later!</string>
     <string name="transfer_list_cancel_all">Cancel all tasks</string>
+    <string name="transfer_list_cancel_all_desc">Cancel all ongoing file transfer tasks; they will be restored to continue transferring files when the restart button is clicked.</string>
     <string name="transfer_list_restart_all">Restart</string>
     <string name="transfer_list_retry_failed_tasks">Retry failed tasks</string>
     <string name="transfer_list_restart_cancelled_tasks">Restart cancelled tasks</string>
     <string name="transfer_list_clear_failed_tasks">Clear failed tasks</string>
     <string name="transfer_list_clear_all_tasks">Clear all tasks</string>
+    <string name="transfer_list_clear_all_tasks_desc">Remove all transfer records; if it is a download, it will delete all download records (optionally: local files as well). If it is an upload, it will only delete the upload records, but the corresponding target files will not be re-uploaded in the future.</string>
     <string name="transfer_list_clear_finished_tasks">Clear finished tasks</string>
     <string name="transfer_tabs_downloads">Download List</string>
     <string name="transfer_tabs_uploads">Upload List</string>
@@ -588,6 +596,8 @@
     <string name="is_uploading">Uploading</string>
     <string name="network_unavailable">Network unavailable</string>
     <string name="network_error">Network error</string>
+    <string name="error_image_load">Load failed</string>
+    <string name="retry_with_click">click to retry</string>
 
     <string name="required_password">Password is required.</string>
     <string name="weak_password">Password is too weak.</string>
@@ -647,6 +657,7 @@
     <string name="on">On</string>
     <string name="follow_system">Follow system</string>
     <string name="empty">Empty</string>
+    <string name="empty_data">Empty data</string>
     <!-- share link -->
     <string name="link_permission_set_permission">Set permission</string>
     <string name="link_permission_preview_and_download">Preview and download</string>
@@ -664,6 +675,7 @@
     <string name="menu_action_sort_by_last_modified">Last modified</string>
     <string name="menu_action_sort_order_ascending">Ascending</string>
     <string name="menu_action_sort_directories_first">Folders first</string>
+    <string name="menu_detail">Detail</string>
 
     <!-- sdoc -->
     <string name="_size">Size</string>
@@ -676,8 +688,12 @@
     <string name="_in_review">In review</string>
     <string name="_done">Done</string>
     <string name="_outdated">Outdated</string>
+    <string name="_tags">Tags</string>
 
+    <string name="mark_resolve">Mark as resolved</string>
+    <string name="delete_confirm">Are you sure you want to delete this item?</string>
 
+    <string name="canceled">Canceled</string>
     <!-- end -->
 
 </resources>

@@ -27,6 +27,7 @@ import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
+import com.seafile.seadroid2.ui.folder_backup.RepoConfig;
 
 import java.util.List;
 import java.util.UUID;
@@ -65,35 +66,45 @@ public class UploadFolderFileAutomaticallyWorker extends BaseUploadWorker {
         super.onStopped();
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            SLogs.e("文件夹备份已停止：" + getStopReason());
+            SLogs.e("Folder backup stopped, reason：" + getStopReason());
         }
+    }
+
+    private boolean isFirstShow = true;
+    private void startShowNotification(){
+        if (!isFirstShow) {
+            return;
+        }
+
+        isFirstShow = false;
+        ForegroundInfo foregroundInfo = notificationManager.getForegroundNotification();
+        showForegroundAsync(foregroundInfo);
+
+
+        sendEvent(TransferEvent.EVENT_TRANSFERRING, TransferDataSource.FILE_BACKUP);
     }
 
     private Result start() {
 //        notificationManager.cancel();
+        SLogs.d("start upload file worker");
 
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
         if (account == null) {
             return Result.success();
         }
 
-        boolean isEnable = FolderBackupSharePreferenceHelper.readBackupSwitch();
-        if (!isEnable) {
+        boolean canExec = can();
+        if (!canExec) {
             return Result.success();
         }
 
+        if (repoConfig == null) {
+            return Result.success();
+        }
+
+
         boolean isUploaded = false;
-
-
-        ForegroundInfo foregroundInfo = notificationManager.getForegroundNotification();
-        showForegroundAsync(foregroundInfo);
-
-//        notificationManager.showNotification();
-
         String finishFlagEvent = null;
-
-        SLogs.d("start upload file worker");
-        sendEvent(TransferEvent.EVENT_TRANSFERRING, TransferDataSource.FILE_BACKUP);
 
         while (true) {
             if (isStopped()) {
@@ -113,8 +124,13 @@ public class UploadFolderFileAutomaticallyWorker extends BaseUploadWorker {
                 break;
             }
 
-            FileTransferEntity transferEntity = transferList.get(0);
+            startShowNotification();
+
             isUploaded = true;
+
+            FileTransferEntity transferEntity = transferList.get(0);
+            transferEntity.repo_id = repoConfig.getRepoID();
+            transferEntity.repo_name = repoConfig.getRepoName();
 
             try {
                 transferFile(account, transferEntity);
@@ -126,15 +142,19 @@ public class UploadFolderFileAutomaticallyWorker extends BaseUploadWorker {
 
                 TransferResult transferResult = onException(transferEntity, e);
 
-                notifyError(transferResult);
+                if (!isStopped()) {
 
-                sendTransferEvent(transferEntity, false);
+                    notifyError(transferResult);
+
+                    sendTransferEvent(transferEntity, false);
+                }
 
                 String finishFlag = isInterrupt(transferResult);
                 if (!TextUtils.isEmpty(finishFlag)) {
                     finishFlagEvent = finishFlag;
                     break;
                 }
+
             }
         }
 
@@ -168,6 +188,27 @@ public class UploadFolderFileAutomaticallyWorker extends BaseUploadWorker {
                 .putString(TransferWorker.KEY_DATA_TYPE, String.valueOf(TransferDataSource.FOLDER_BACKUP))
                 .build();
         return Result.success(outputData);
+    }
+
+    private RepoConfig repoConfig;
+
+    private boolean can() {
+        boolean isTurnOn = FolderBackupSharePreferenceHelper.readBackupSwitch();
+        if (!isTurnOn) {
+            return false;
+        }
+
+        List<String> backupPaths = FolderBackupSharePreferenceHelper.readBackupPathsAsList();
+        if (CollectionUtils.isEmpty(backupPaths)) {
+            return false;
+        }
+
+        repoConfig = FolderBackupSharePreferenceHelper.readRepoConfig();
+        if (repoConfig == null) {
+            return false;
+        }
+
+        return true;
     }
 
 }

@@ -96,9 +96,9 @@ public class UploadFileManuallyWorker extends BaseUploadWorker {
                 boolean isAmple = calcQuota(CollectionUtils.newArrayList(transferEntity));
                 if (!isAmple) {
                     getGeneralNotificationHelper().showErrorNotification(R.string.above_quota, R.string.settings_folder_backup_info_title);
-                    AppDatabase.getInstance().fileTransferDAO().cancelWithFileBackup(TransferResult.OUT_OF_QUOTA);
+                    AppDatabase.getInstance().fileTransferDAO().cancelWithFileBackup(transferEntity.related_account, TransferResult.OUT_OF_QUOTA);
 
-                    finishFlagEvent = TransferEvent.EVENT_CANCEL_OUT_OF_QUOTA;
+                    finishFlagEvent = TransferEvent.EVENT_CANCEL_WITH_OUT_OF_QUOTA;
                     break;
                 }
             } catch (Exception e) {

@@ -39,6 +39,10 @@ public class SupportAccountManager {
         accountManager = android.accounts.AccountManager.get(SeadroidApplication.getAppContext());
     }
 
+    public boolean isLogin() {
+        return getCurrentAccount() != null;
+    }
+
     @NonNull
     public List<Account> getAccountList() {
         List<Account> list = new ArrayList<>();

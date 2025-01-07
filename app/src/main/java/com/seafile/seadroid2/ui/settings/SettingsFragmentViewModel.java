@@ -63,14 +63,13 @@ public class SettingsFragmentViewModel extends BaseViewModel {
             public void accept(AccountInfo accountInfo) throws Exception {
                 getRefreshLiveData().setValue(false);
 
-                String dn = accountInfo.getDisplayName();
-                String df = accountInfo.getSpaceUsed();
-
                 // fixme ?
                 Settings.USER_INFO.putValue("");
                 Settings.SPACE_INFO.putValue("");
-                Settings.USER_INFO.putValue(dn);
-                Settings.SPACE_INFO.putValue(df);
+                Settings.USER_SERVER_INFO.putValue("");
+                Settings.USER_INFO.putValue(accountInfo.getName());
+                Settings.USER_SERVER_INFO.putValue(accountInfo.getServer());
+                Settings.SPACE_INFO.putValue(accountInfo.getSpaceUsed());
             }
         });
     }

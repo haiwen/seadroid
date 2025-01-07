@@ -36,4 +36,6 @@ public class DataStoreKeys {
     public static final String KEY_DARK_MODE = "key_dark_mode";
 
     public static final String KEY_SERVER_CERT_INFO = "key_server_cert_info";
+
+    public static final String KEY_NAV_CONTEXT_STACK = "key_nav_context_stack";
 }

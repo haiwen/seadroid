@@ -917,12 +917,16 @@ public class SeafileProvider extends DocumentsProvider {
      * @param path      the path of the directory.
      * @param result    Cursor object over which to signal the client.
      */
-    private void fetchDirentAsync(Account account, RepoModel repoModel, final String path, MatrixCursor result) {
+    private void fetchDirentAsync(Account account, RepoModel repoModel, String path, MatrixCursor result) {
 
         String id = DocumentIdParser.buildId(account, repoModel.repo_id, path);
         final Uri uri = DocumentsContract.buildChildDocumentsUri(AUTHORITY_OF_DOCUMENTS, id);
 
         result.setNotificationUri(getContext().getContentResolver(), uri);
+
+        if (!path.endsWith("/")) {
+            path = path + "/";
+        }
 
         Single<List<DirentModel>> resultSingle = Objs.getDirentsSingleFromServer(account, repoModel.repo_id, repoModel.repo_name, path);
         Disposable disposable = resultSingle.subscribeOn(Schedulers.io())

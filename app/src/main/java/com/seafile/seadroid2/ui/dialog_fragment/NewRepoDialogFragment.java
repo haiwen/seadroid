@@ -6,6 +6,7 @@ import android.view.View;
 import android.widget.LinearLayout;
 
 import com.blankj.utilcode.util.ToastUtils;
+import com.google.android.material.materialswitch.MaterialSwitch;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -30,7 +31,7 @@ public class NewRepoDialogFragment extends RequestCustomDialogFragmentWithVM<New
     public void initView(LinearLayout containerView) {
         super.initView(containerView);
         
-        SwitchMaterial materialSwitch = getDialogView().findViewById(R.id.widget_switch);
+        MaterialSwitch materialSwitch = getDialogView().findViewById(R.id.widget_switch);
         TextInputLayout pwd1 = getDialogView().findViewById(R.id.new_repo_input_layout_pwd_1);
         TextInputLayout pwd2 = getDialogView().findViewById(R.id.new_repo_input_layout_pwd_2);
         pwd1.setHint(String.format(
@@ -71,7 +72,7 @@ public class NewRepoDialogFragment extends RequestCustomDialogFragmentWithVM<New
         }
 
         TextInputEditText name = getDialogView().findViewById(R.id.new_repo_edit_name);
-        SwitchMaterial materialSwitch = getDialogView().findViewById(R.id.widget_switch);
+        MaterialSwitch materialSwitch = getDialogView().findViewById(R.id.widget_switch);
         if (materialSwitch.isChecked()) {
             TextInputEditText pwd1 = getDialogView().findViewById(R.id.new_repo_edit_pwd_1);
             String pwd1Str = pwd1.getText() == null ? "" : pwd1.getText().toString();
@@ -92,7 +93,7 @@ public class NewRepoDialogFragment extends RequestCustomDialogFragmentWithVM<New
             return false;
         }
 
-        SwitchMaterial materialSwitch = getDialogView().findViewById(R.id.widget_switch);
+        MaterialSwitch materialSwitch = getDialogView().findViewById(R.id.widget_switch);
         if (!materialSwitch.isChecked()) {
             return true;
         }

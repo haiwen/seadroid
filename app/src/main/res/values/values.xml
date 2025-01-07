@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="simple_menu_dialog_max_width">600dp</dimen>
+    <dimen name="simple_menu_margin">15dp</dimen>
+    <dimen name="simple_menu_unit">56dp</dimen>
+    <integer name="config_activityDefaultDur">220</integer>
+    <integer name="config_activityShortDur">550</integer>
+    <integer name="simple_menu_max_units">5</integer>
+    <style name="Animation.Preference.SimpleMenuCenter" parent="android:Animation">
+        <item name="android:windowEnterAnimation">@null</item>
+        <item name="android:windowExitAnimation">@anim/shrink_fade_out_center</item>
+    </style>
+    <style name="Preference.SimpleMenuPreference" parent="Preference.Material">
+        <item name="android:layout">@layout/preference_simplemenu</item>
+        <item name="android:popupMenuStyle">@style/Widget.Preference.SimpleMenuPreference.PopupMenu</item>
+        <item name="android:popupTheme">@style/ThemeOverlay.Preference.SimpleMenuPreference.PopupMenu</item>
+    </style>
+    <style name="ThemeOverlay.Preference.SimpleMenuPreference.PopupMenu" parent="android:ThemeOverlay">
+        <item name="popupBackgroundRadius">4dp</item>
+    </style>
+    <style name="Widget.Preference.SimpleMenuPreference.PopupMenu" parent="android:Widget">
+        <item name="android:popupBackground">@drawable/simple_menu_background</item>
+
+        <item name="listMarginHorizontal">@dimen/simple_menu_margin</item>
+        <item name="listMarginVertical">8dp</item>
+        <item name="listItemPadding">16dp</item>
+        <item name="listElevation">8dp</item>
+
+        <item name="dialogMarginHorizontal">16dp</item>
+        <item name="dialogMarginVertical">24dp</item>
+        <item name="dialogItemPadding">24dp</item>
+        <item name="dialogElevation">24dp</item>
+        <item name="dialogMaxWidth">@dimen/simple_menu_dialog_max_width</item>
+
+        <item name="unit">@dimen/simple_menu_unit</item>
+        <item name="maxUnits">@integer/simple_menu_max_units</item>
+    </style>
+    <declare-styleable name="ForegroundCheckTextView">
+        <attr name="android:foregroundGravity"/>
+        <attr name="android:foreground"/>
+        <attr format="boolean" name="foregroundInsidePadding"/>
+    </declare-styleable>
+    <declare-styleable name="SimpleMenuPopup">
+
+        <attr format="dimension" name="listMarginHorizontal"/>
+        <attr format="dimension" name="listMarginVertical"/>
+        <attr format="dimension" name="listItemPadding"/>
+        <attr format="dimension" name="listElevation"/>
+
+        <attr format="dimension" name="dialogMarginHorizontal"/>
+        <attr format="dimension" name="dialogMarginVertical"/>
+        <attr format="dimension" name="dialogItemPadding"/>
+        <attr format="dimension" name="dialogElevation"/>
+        <attr format="dimension" name="dialogMaxWidth"/>
+
+        <attr format="dimension" name="unit"/>
+        <attr format="integer" name="maxUnits"/>
+    </declare-styleable>
+    <declare-styleable name="SimpleMenuPreference">
+        <attr name="android:popupMenuStyle"/>
+        <attr name="android:popupTheme"/>
+        <attr format="dimension" name="popupBackgroundRadius"/>
+    </declare-styleable>
+    <declare-styleable name="Theme">
+        <!-- Default style for simple menu preferences. -->
+        <attr format="reference" name="simpleMenuPreferenceStyle"/>
+    </declare-styleable>
+</resources>

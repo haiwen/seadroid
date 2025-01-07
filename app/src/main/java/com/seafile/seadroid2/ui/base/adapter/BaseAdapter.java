@@ -8,6 +8,4 @@ public abstract class BaseAdapter<M, VH extends BaseViewHolder> extends BaseQuic
     public void d(String d) {
         SLogs.d(this.getClass().getSimpleName() + " => " + d);
     }
-
-
 }

@@ -18,7 +18,6 @@ import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePr
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
-import com.seafile.seadroid2.framework.worker.observer.MediaContentObserver;
 import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
 
 import org.apache.commons.io.monitor.FileAlterationListener;
@@ -118,10 +117,10 @@ public class FileSyncService extends Service {
         BackgroundJobManagerImpl.getInstance().startDownloadChainWorker();
 
         //folder backup upload worker
-        BackgroundJobManagerImpl.getInstance().startFolderChainWorker(false);
+        BackgroundJobManagerImpl.getInstance().startFolderAutoBackupWorkerChain(false);
 
         //file upload backup
-        BackgroundJobManagerImpl.getInstance().startFileUploadWorker();
+        BackgroundJobManagerImpl.getInstance().startFileManualUploadWorker();
 
         //bus
         TransferBusHelper.getTransferObserver().observeForever(transferOpTypeObserver);
@@ -142,7 +141,7 @@ public class FileSyncService extends Service {
 
             resetFolderMonitor();
 
-            BackgroundJobManagerImpl.getInstance().cancelAllFolderUploadWorker();
+            BackgroundJobManagerImpl.getInstance().cancelFolderAutoUploadWorker();
         }
     }
 
@@ -162,14 +161,14 @@ public class FileSyncService extends Service {
 
     private void startFolderMonitor() {
         boolean isBackupEnable = FolderBackupSharePreferenceHelper.readBackupSwitch();
-        if (isBackupEnable){
+        if (isBackupEnable) {
             List<String> pathList = FolderBackupSharePreferenceHelper.readBackupPathsAsList();
             boolean isFound = pathList.stream().anyMatch(IGNORE_PATHS::contains);
             if (!isFound) {
                 pathList.add(IGNORE_PATHS.get(0));
             }
             startFolderMonitor(pathList);
-        }else{
+        } else {
             resetFolderMonitor();
         }
     }
@@ -233,7 +232,7 @@ public class FileSyncService extends Service {
                 BackgroundJobManagerImpl.getInstance().startCheckDownloadedFileChainWorker(file.getAbsolutePath());
             }
         } else {
-            BackgroundJobManagerImpl.getInstance().startFolderChainWorker(true);
+            BackgroundJobManagerImpl.getInstance().startFolderAutoBackupWorkerChain(true);
         }
     }
 
@@ -294,6 +293,7 @@ public class FileSyncService extends Service {
     public void onDestroy() {
         super.onDestroy();
 
+        SLogs.e("file monitor service destroy");
         stopFolderMonitor();
 
         //

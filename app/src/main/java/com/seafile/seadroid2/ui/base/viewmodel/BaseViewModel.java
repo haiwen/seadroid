@@ -13,6 +13,7 @@ import com.seafile.seadroid2.BuildConfig;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SeafException;
+import com.seafile.seadroid2.annotation.Todo;
 import com.seafile.seadroid2.framework.data.model.ResultModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.util.SLogs;
@@ -27,6 +28,7 @@ import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLHandshakeException;
@@ -118,7 +120,19 @@ public class BaseViewModel extends ViewModel {
         }
     }
 
-    public Map<String, RequestBody> generateRequestBody(Map<String, String> requestDataMap) {
+
+    @Todo
+    public Map<String, RequestBody> genObjRequestBody(Map<String, Object> params) {
+        Map<String, RequestBody> requestBodyMap = new HashMap<>();
+        for (Map.Entry<String, Object> entry : params.entrySet()) {
+            String value = entry.getValue().toString();
+            RequestBody requestBody = RequestBody.create(MediaType.parse("multipart/form-data"), value);
+            requestBodyMap.put(entry.getKey(), requestBody);
+        }
+        return requestBodyMap;
+    }
+
+    public Map<String, RequestBody> genRequestBody(Map<String, String> requestDataMap) {
         Map<String, RequestBody> requestBodyMap = new HashMap<>();
         if (requestDataMap == null || requestDataMap.isEmpty()) {
             requestBodyMap.put("x-test", RequestBody.create(MediaType.parse("multipart/form-data"), "test"));
@@ -180,7 +194,6 @@ public class BaseViewModel extends ViewModel {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(onNext, throwable, onComplete));
     }
-
 
     public <T> void addCompletableDisposable(Completable completable, Action action) {
         compositeDisposable.add(completable
@@ -250,11 +263,16 @@ public class BaseViewModel extends ViewModel {
                 return SeafException.notFoundException;
             }
 
+
             //HTTP_STATUS_REPO_PASSWORD_REQUIRED
             if (440 == httpException.code()) {
                 return SeafException.invalidPassword;
             }
 
+//            //500: HTTP_INTERNAL_ERROR
+//            if (HttpURLConnection.HTTP_INTERNAL_ERROR == httpException.code()) {
+//                return SeafException.networkException;
+//            }
 
             if (resp != null) {
                 try {

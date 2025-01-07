@@ -25,27 +25,31 @@
         android:icon="@drawable/action_open"
         android:title="@string/file_action_open" />
 
-
     <item
         android:id="@id/rename"
         android:icon="@drawable/action_rename"
         android:title="@string/file_action_rename" />
+
     <item
         android:id="@id/delete"
-        android:icon="@drawable/action_delete"
+        android:icon="@drawable/baseline_delete_24"
         android:title="@string/file_action_delete" />
+
     <item
         android:id="@id/copy"
         android:icon="@drawable/action_copy"
         android:title="@string/file_action_copy" />
+
     <item
         android:id="@id/move"
         android:icon="@drawable/action_move"
         android:title="@string/file_action_move" />
+
     <item
         android:id="@id/upload"
         android:icon="@drawable/ic_upload"
         android:title="@string/file_action_update" />
+
     <item
         android:id="@id/download"
         android:icon="@drawable/ic_download"

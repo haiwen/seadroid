@@ -41,6 +41,7 @@ import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.ui.dialog_fragment.AppChoiceDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.GetShareLinkPasswordDialogFragment;
 import com.seafile.seadroid2.ui.repo.RepoService;
+import com.seafile.seadroid2.ui.comparator.NaturalOrderComparator;
 import com.seafile.seadroid2.ui.star.StarredService;
 
 import java.io.File;
@@ -170,7 +171,7 @@ public class Objs {
         });
     }
 
-    public static List<BaseModel> parseRepoListForAdapter(List<RepoModel> list, String related_account, boolean isFilter) {
+    public static List<BaseModel> parseRepoListForAdapter(List<RepoModel> list, String related_account, boolean isFilterUnavailable) {
         if (CollectionUtils.isEmpty(list)) {
             return Collections.emptyList();
         }
@@ -179,7 +180,7 @@ public class Objs {
             list.get(i).related_account = related_account;
         }
 
-        if (isFilter) {
+        if (isFilterUnavailable) {
             list = list.stream().filter(f -> !f.encrypted && f.hasWritePermission()).collect(Collectors.toList());
         }
 
@@ -332,41 +333,32 @@ public class Objs {
         boolean isAscending = Settings.FILE_LIST_SORT_ASCENDING.queryValue();
 
         if (SortBy.NAME == by) {
-            newRepos = repos.stream().sorted(new Comparator<RepoModel>() {
-                @Override
-                public int compare(RepoModel o1, RepoModel o2) {
-                    if (isAscending) {
-                        return o1.repo_name.compareTo(o2.repo_name);
-                    }
-                    return -o1.repo_name.compareTo(o2.repo_name);
-                }
-            }).collect(Collectors.toList());
+            if (isAscending) {
+                newRepos = repos.stream().sorted(new NaturalOrderComparator()).collect(Collectors.toList());
+            } else {
+                newRepos = repos.stream().sorted(new NaturalOrderComparator().reversed()).collect(Collectors.toList());
+            }
         } else if (SortBy.TYPE == by) {
             //todo not supported
         } else if (SortBy.SIZE == by) {
             newRepos = repos.stream().sorted(new Comparator<RepoModel>() {
                 @Override
                 public int compare(RepoModel o1, RepoModel o2) {
-                    if (o1.size == o2.size) {
-                        return 0;
-                    }
                     if (isAscending) {
-                        return o1.size < o2.size ? -1 : 1;
+                        return Long.compare(o1.size, o2.size);
                     }
-                    return o1.size > o2.size ? -1 : 1;
+                    return -Long.compare(o1.size, o2.size);
                 }
             }).collect(Collectors.toList());
         } else if (SortBy.LAST_MODIFIED == by) {
             newRepos = repos.stream().sorted(new Comparator<RepoModel>() {
                 @Override
                 public int compare(RepoModel o1, RepoModel o2) {
-                    if (o1.last_modified_long == o2.last_modified_long) {
-                        return 0;
-                    }
+
                     if (isAscending) {
-                        return o1.last_modified_long < o2.last_modified_long ? -1 : 1;
+                        return Long.compare(o1.last_modified_long, o2.last_modified_long);
                     }
-                    return o1.last_modified_long > o2.last_modified_long ? -1 : 1;
+                    return -Long.compare(o1.last_modified_long, o2.last_modified_long);
                 }
             }).collect(Collectors.toList());
         }
@@ -614,15 +606,11 @@ public class Objs {
         boolean isAscending = Settings.FILE_LIST_SORT_ASCENDING.queryValue();
 
         if (SortBy.NAME == by) {
-            newList = list.stream().sorted(new Comparator<DirentModel>() {
-                @Override
-                public int compare(DirentModel o1, DirentModel o2) {
-                    if (isAscending) {
-                        return o1.name.compareTo(o2.name);
-                    }
-                    return -o1.name.compareTo(o2.name);
-                }
-            }).collect(Collectors.toList());
+            if (isAscending) {
+                newList = list.stream().sorted(new NaturalOrderComparator()).collect(Collectors.toList());
+            } else {
+                newList = list.stream().sorted(new NaturalOrderComparator().reversed()).collect(Collectors.toList());
+            }
         } else if (SortBy.TYPE == by) {
             //todo not supported
         } else if (SortBy.SIZE == by) {
@@ -646,7 +634,6 @@ public class Objs {
                 }
             }).collect(Collectors.toList());
         }
-
         return newList;
     }
 

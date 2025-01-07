@@ -39,7 +39,7 @@ public class NewDirViewModel extends BaseViewModel {
         Map<String, String> requestDataMap = new HashMap<>();
         requestDataMap.put("operation", "mkdir");
 
-        Map<String, RequestBody> bodyMap = generateRequestBody(requestDataMap);
+        Map<String, RequestBody> bodyMap = genRequestBody(requestDataMap);
 
         Single<String> single = HttpIO.getCurrentInstance().execute(DialogService.class).createDir(repo_id, p, bodyMap);
         addSingleDisposable(single, new Consumer<String>() {
@@ -77,7 +77,7 @@ public class NewDirViewModel extends BaseViewModel {
         Map<String, String> requestDataMap = new HashMap<>();
         requestDataMap.put("operation", "create");
 
-        Map<String, RequestBody> bodyMap = generateRequestBody(requestDataMap);
+        Map<String, RequestBody> bodyMap = genRequestBody(requestDataMap);
 
         Single<FileCreateModel> single = HttpIO.getCurrentInstance().execute(DialogService.class).createFile(repo_id, filePathName, bodyMap);
         addSingleDisposable(single, new Consumer<FileCreateModel>() {

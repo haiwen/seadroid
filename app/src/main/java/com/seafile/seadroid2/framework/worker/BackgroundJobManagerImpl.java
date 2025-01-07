@@ -2,6 +2,7 @@ package com.seafile.seadroid2.framework.worker;
 
 import android.text.TextUtils;
 
+import androidx.work.BackoffPolicy;
 import androidx.work.Constraints;
 import androidx.work.Data;
 import androidx.work.ExistingWorkPolicy;
@@ -107,8 +108,8 @@ public class BackgroundJobManagerImpl {
     ///////////////////
     /// media worker
     ///////////////////
-    public void startMediaChainWorker(boolean isForce) {
-        cancelAllMediaWorker();
+    public void startMediaWorkerChain(boolean isForce) {
+        cancelMediaWorker();
 
         OneTimeWorkRequest scanRequest = getMediaScanRequest(isForce);
         OneTimeWorkRequest uploadRequest = getMediaUploadRequest();
@@ -136,7 +137,8 @@ public class BackgroundJobManagerImpl {
 
     private OneTimeWorkRequest getMediaUploadRequest() {
         NetworkType networkType = NetworkType.UNMETERED;
-        if (AlbumBackupSharePreferenceHelper.readAllowDataPlanSwitch()) {
+        boolean isAllowData = AlbumBackupSharePreferenceHelper.readAllowDataPlanSwitch();
+        if (isAllowData) {
             networkType = NetworkType.CONNECTED;
         }
 
@@ -149,13 +151,14 @@ public class BackgroundJobManagerImpl {
 
         return oneTimeRequestBuilder(UploadMediaFileAutomaticallyWorker.class)
                 .setConstraints(constraints)
+                .setBackoffCriteria(BackoffPolicy.LINEAR, 5, TimeUnit.SECONDS)
                 .setInitialDelay(1, TimeUnit.SECONDS)
                 .setId(UploadMediaFileAutomaticallyWorker.UID)
                 .build();
     }
 
     //cancel media
-    public void cancelAllMediaWorker() {
+    public void cancelMediaWorker() {
         cancelById(UploadMediaFileAutomaticallyWorker.UID);
         cancelById(MediaBackupScannerWorker.UID);
     }
@@ -163,8 +166,8 @@ public class BackgroundJobManagerImpl {
     ///////////////////
     /// upload folder
     ///////////////////
-    public void startFolderChainWorker(boolean isForce) {
-        cancelAllFolderUploadWorker();
+    public void startFolderAutoBackupWorkerChain(boolean isForce) {
+        cancelFolderAutoUploadWorker();
 
         OneTimeWorkRequest scanRequest = getFolderScanRequest(isForce);
         OneTimeWorkRequest uploadRequest = getFolderUploadRequest();
@@ -204,12 +207,13 @@ public class BackgroundJobManagerImpl {
 
         return oneTimeRequestBuilder(UploadFolderFileAutomaticallyWorker.class)
                 .setConstraints(constraints)
+                .setBackoffCriteria(BackoffPolicy.LINEAR, 5, TimeUnit.SECONDS)
                 .setInitialDelay(1, TimeUnit.SECONDS)
                 .setId(UploadFolderFileAutomaticallyWorker.UID)
                 .build();
     }
 
-    public void cancelAllFolderUploadWorker() {
+    public void cancelFolderAutoUploadWorker() {
         cancelById(FolderBackupScannerWorker.UID);
         cancelById(UploadFolderFileAutomaticallyWorker.UID);
     }
@@ -217,7 +221,7 @@ public class BackgroundJobManagerImpl {
     ///////////////////
     /// upload file
     ///////////////////
-    public void startFileUploadWorker() {
+    public void startFileManualUploadWorker() {
         String workerName = UploadFileManuallyWorker.class.getSimpleName();
         OneTimeWorkRequest request = getFileUploadRequest();
         getWorkManager().enqueueUniqueWork(workerName, ExistingWorkPolicy.KEEP, request);
@@ -227,6 +231,10 @@ public class BackgroundJobManagerImpl {
         return oneTimeRequestBuilder(UploadFileManuallyWorker.class)
                 .setId(UploadFileManuallyWorker.UID)
                 .build();
+    }
+
+    public void cancelFileManualUploadWorker() {
+        cancelById(UploadFileManuallyWorker.UID);
     }
 
     ///////////////////

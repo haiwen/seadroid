@@ -12,15 +12,17 @@ import androidx.lifecycle.Observer;
 
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
-import com.seafile.seadroid2.ui.base.fragment.BaseFragmentWithVM;
+import com.seafile.seadroid2.annotation.NotSupport;
 import com.seafile.seadroid2.databinding.LayoutFrameSwipeRvBinding;
 import com.seafile.seadroid2.framework.data.model.activities.ActivityModel;
+import com.seafile.seadroid2.ui.base.fragment.BaseFragmentWithVM;
 import com.seafile.seadroid2.view.TipsViews;
 
 import java.util.List;
 
 import kotlin.Pair;
 
+@NotSupport
 @Deprecated
 public class MineActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel> {
 

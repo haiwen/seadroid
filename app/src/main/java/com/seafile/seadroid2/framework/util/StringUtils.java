@@ -129,13 +129,36 @@ public class StringUtils {
     }
 
     /**
-     * <blockquote><pre>
-     * ""string"" => "string"
-     * </pre></blockquote>
+     * <blockquote>
+     * <pre>
+     *  ""string"" => "string"
+     *  null => null
+     *  "" => ""
+     * </pre>
+     * </blockquote>
      */
     public static String deString(String input) {
         if (TextUtils.isEmpty(input)) {
             return input;
+        }
+
+        input = trim(input, "\"");
+
+        return input;
+    }
+
+    /**
+     * <blockquote>
+     * <pre>
+     * ""string"" => "string"
+     * null => ""
+     * "" => ""
+     * </pre>
+     * </blockquote>
+     */
+    public static String deStringReturnNonNull(String input) {
+        if (TextUtils.isEmpty(input)) {
+            return "";
         }
 
         input = trim(input, "\"");
@@ -151,7 +174,7 @@ public class StringUtils {
         }
         return sum;
     }
-    
+
     public static int getHexStringAsciiSum(String input) {
 
         byte[] bytes = hexStringToByteArray(input);
@@ -172,5 +195,19 @@ public class StringUtils {
                             + Character.digit(s.charAt(i + 1), 16));
         }
         return data;
+    }
+
+    /**
+     * => org.apache.commons.lang3.StringUtils#countMatches(c,c)
+     */
+    public static int countMatches(String inputStr, String matchStr) {
+        if (TextUtils.isEmpty(inputStr)) {
+            return 0;
+        }
+        if (TextUtils.isEmpty(matchStr)) {
+            return 0;
+        }
+
+        return org.apache.commons.lang3.StringUtils.countMatches(inputStr, matchStr);
     }
 }

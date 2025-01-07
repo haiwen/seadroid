@@ -1,40 +1,24 @@
 package com.seafile.seadroid2.ui.account;
 
-import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.text.method.HideReturnsTransformationMethod;
-import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
 import android.util.Pair;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.TextView;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.NavUtils;
 import androidx.core.app.TaskStackBuilder;
 import androidx.lifecycle.Observer;
 
-import com.blankj.utilcode.constant.RegexConstants;
 import com.blankj.utilcode.util.NetworkUtils;
-import com.blankj.utilcode.util.RegexUtils;
-import com.google.android.material.button.MaterialButton;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
@@ -150,9 +134,9 @@ public class AccountDetailActivity extends BaseActivityWithVM<AccountViewModel> 
             @Override
             public void onChanged(Boolean aBoolean) {
                 if (aBoolean) {
-                    showProgressDialog();
+                    showLoadingDialog();
                 } else {
-                    dismissProgressDialog();
+                    dismissLoadingDialog();
                 }
             }
         });
@@ -274,7 +258,7 @@ public class AccountDetailActivity extends BaseActivityWithVM<AccountViewModel> 
 
     @Override
     protected void onDestroy() {
-        dismissProgressDialog();
+        dismissLoadingDialog();
         super.onDestroy();
     }
 

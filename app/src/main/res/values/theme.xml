@@ -11,9 +11,13 @@
         <item name="windowActionModeOverlay">true</item>
         <item name="windowNoTitle">true</item>
 
+        <item name="swipeRefreshLayoutProgressSpinnerBackgroundColor">@color/swipe_refresh_background_color</item>
+
         <item name="android:windowBackground">@color/window_background_color</item>
 
         <item name="actionModeStyle">@style/App.ActionMode.LightTheme</item>
+        <item name="actionModeCloseDrawable">@drawable/baseline_close_24</item>
+
         <item name="textInputStyle">@style/App.Widget.TextInput</item>
         <item name="searchViewStyle">@style/SearchViewStyle</item>
 
@@ -28,6 +32,9 @@
             @style/Preference.Material3.SwitchPreferenceCompat
         </item>
         <item name="switchPreferenceStyle">@style/Preference.Material3.SwitchPreferenceCompat</item>
+
+        <!-- Another way to hide the divider line of the PreferenceCategory -->
+        <!--        <item name="preferenceCategoryStyle">@style/Widget.PreferenceCategory</item>-->
 
         <item name="colorAccent">@color/fancy_orange</item>
         <!-- Primary -->

@@ -6,20 +6,19 @@ import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.FileUtils;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
-import com.seafile.seadroid2.framework.data.db.AppDatabase;
-import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
 import com.seafile.seadroid2.enums.TransferAction;
 import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.enums.TransferResult;
 import com.seafile.seadroid2.enums.TransferStatus;
+import com.seafile.seadroid2.framework.data.db.AppDatabase;
+import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
+import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.framework.worker.upload.UploadFileManuallyWorker;
 import com.seafile.seadroid2.framework.worker.upload.UploadFolderFileAutomaticallyWorker;
 import com.seafile.seadroid2.framework.worker.upload.UploadMediaFileAutomaticallyWorker;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
-import com.seafile.seadroid2.framework.util.SLogs;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.Completable;
@@ -33,28 +32,44 @@ import io.reactivex.functions.Function;
 
 public class TransferListViewModel extends BaseViewModel {
 
+    private Account account;
     private final MutableLiveData<List<FileTransferEntity>> mTransferListLiveData = new MutableLiveData<>();
 
     public MutableLiveData<List<FileTransferEntity>> getTransferListLiveData() {
         return mTransferListLiveData;
     }
 
-    public void loadData(TransferAction transferAction, boolean isShowRefresh) {
+    public void loadData(TransferAction transferAction, int pageIndex, int pageSize, boolean isShowRefresh) {
         if (isShowRefresh) {
             getRefreshLiveData().setValue(true);
         }
 
-        Account account = SupportAccountManager.getInstance().getCurrentAccount();
+        if (account == null) {
+            account = SupportAccountManager.getInstance().getCurrentAccount();
+        }
 
         if (account == null) {
             getRefreshLiveData().setValue(false);
             return;
         }
 
-        Single<List<FileTransferEntity>> single = queryPageData(account, transferAction);
+        int offset = (pageIndex - 1) * pageSize;
 
-        addSingleDisposable(single, pair -> {
-            getTransferListLiveData().setValue(pair);
+        Single<List<FileTransferEntity>> single;
+        if (TransferAction.UPLOAD == transferAction) {
+            single = AppDatabase
+                    .getInstance()
+                    .fileTransferDAO()
+                    .getPageUploadListAsync(account.getSignature(), pageSize, offset);
+        } else {
+            single = AppDatabase
+                    .getInstance()
+                    .fileTransferDAO()
+                    .getPageDownloadListAsync(account.getSignature(), pageSize, offset);
+        }
+
+        addSingleDisposable(single, list -> {
+            getTransferListLiveData().setValue(list);
 
             if (isShowRefresh) {
                 getRefreshLiveData().setValue(false);
@@ -62,44 +77,8 @@ public class TransferListViewModel extends BaseViewModel {
         });
     }
 
-    private Single<List<FileTransferEntity>> queryPageData(Account account, TransferAction transferAction) {
-        return Single.create(new SingleOnSubscribe<List<FileTransferEntity>>() {
-            @Override
-            public void subscribe(SingleEmitter<List<FileTransferEntity>> emitter) throws Exception {
 
-                int pageSize = 100;
-
-                List<FileTransferEntity> list = new ArrayList<>();
-                for (int page = 1; page <= 10; page++) {
-                    int offset = (page - 1) * pageSize;
-
-                    List<FileTransferEntity> temp;
-                    if (TransferAction.UPLOAD == transferAction) {
-                        temp = AppDatabase
-                                .getInstance()
-                                .fileTransferDAO()
-                                .getPageUploadListSync(account.getSignature(), pageSize, offset);
-                    } else {
-                        temp = AppDatabase
-                                .getInstance()
-                                .fileTransferDAO()
-                                .getPageDownloadListSync(account.getSignature(), pageSize, offset);
-                    }
-
-                    if (CollectionUtils.isEmpty(temp)) {
-                        break;
-                    }
-
-                    list.addAll(temp);
-                }
-
-                SLogs.e("本次查询的大小：" + list.size());
-                emitter.onSuccess(list);
-            }
-        });
-    }
-
-    public void deleteTransferData(FileTransferEntity fileTransferEntity, TransferAction transferAction, Consumer<Boolean> consumer) {
+    public void deleteTransferData(FileTransferEntity fileTransferEntity, boolean isDeleteLocalFile, TransferAction transferAction, Consumer<Boolean> consumer) {
 
         Single<Boolean> single = Single.create(new SingleOnSubscribe<Boolean>() {
             @Override
@@ -110,7 +89,15 @@ public class TransferListViewModel extends BaseViewModel {
                         BackgroundJobManagerImpl.getInstance().cancelDownloadWorker();
                     }
 
+                    if (isDeleteLocalFile) {
+                        FileUtils.delete(fileTransferEntity.target_path);
+                    }
+
                     AppDatabase.getInstance().fileTransferDAO().deleteOne(fileTransferEntity);
+
+                    BackgroundJobManagerImpl.getInstance().startDownloadChainWorker();
+
+
                 } else if (TransferDataSource.FILE_BACKUP == fileTransferEntity.data_source) {
                     if (fileTransferEntity.transfer_status == TransferStatus.IN_PROGRESS) {
                         BackgroundJobManagerImpl.getInstance().cancelById(UploadFileManuallyWorker.UID);
@@ -119,31 +106,34 @@ public class TransferListViewModel extends BaseViewModel {
                     AppDatabase.getInstance().fileTransferDAO().deleteOne(fileTransferEntity);
                     FileUtils.delete(fileTransferEntity.full_path);
 
-                    BackgroundJobManagerImpl.getInstance().startFileUploadWorker();
+                    BackgroundJobManagerImpl.getInstance().startFileManualUploadWorker();
 
                 } else if (TransferDataSource.FOLDER_BACKUP == fileTransferEntity.data_source) {
+                    //
                     BackgroundJobManagerImpl.getInstance().cancelById(UploadFolderFileAutomaticallyWorker.UID);
 
+                    //Delete data logically, not physically.
                     fileTransferEntity.data_status = -1;
                     fileTransferEntity.transfer_result = TransferResult.NO_RESULT;
                     fileTransferEntity.transfer_status = TransferStatus.CANCELLED;
                     fileTransferEntity.transferred_size = 0;
 
-                    AppDatabase.getInstance().fileTransferDAO().insert(fileTransferEntity);
+                    AppDatabase.getInstance().fileTransferDAO().update(fileTransferEntity);
 
-                    BackgroundJobManagerImpl.getInstance().startFolderChainWorker(true);
+                    BackgroundJobManagerImpl.getInstance().startFolderAutoBackupWorkerChain(true);
 
                 } else if (TransferDataSource.ALBUM_BACKUP == fileTransferEntity.data_source) {
                     BackgroundJobManagerImpl.getInstance().cancelById(UploadMediaFileAutomaticallyWorker.UID);
 
+                    //Delete data logically, not physically.
                     fileTransferEntity.data_status = -1;
                     fileTransferEntity.transfer_result = TransferResult.NO_RESULT;
                     fileTransferEntity.transfer_status = TransferStatus.CANCELLED;
                     fileTransferEntity.transferred_size = 0;
 
-                    AppDatabase.getInstance().fileTransferDAO().insert(fileTransferEntity);
+                    AppDatabase.getInstance().fileTransferDAO().update(fileTransferEntity);
 
-                    BackgroundJobManagerImpl.getInstance().startMediaChainWorker(true);
+                    BackgroundJobManagerImpl.getInstance().startMediaWorkerChain(true);
                 }
                 emitter.onSuccess(true);
             }
@@ -152,10 +142,6 @@ public class TransferListViewModel extends BaseViewModel {
         addSingleDisposable(single, new Consumer<Boolean>() {
             @Override
             public void accept(Boolean aBoolean) throws Exception {
-                if (transferAction == TransferAction.DOWNLOAD) {
-                    FileUtils.delete(fileTransferEntity.target_path);
-                }
-
                 consumer.accept(true);
             }
         });
@@ -163,8 +149,8 @@ public class TransferListViewModel extends BaseViewModel {
 
     public void cancelAllUploadTask(Consumer<Boolean> consumer) {
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
-        List<TransferDataSource> dataSources = CollectionUtils.newArrayList(TransferDataSource.ALBUM_BACKUP, TransferDataSource.FOLDER_BACKUP);
-        Completable completable = AppDatabase.getInstance().fileTransferDAO().cancelByDataSource(account.getSignature(), dataSources);
+        List<TransferDataSource> dataSources = CollectionUtils.newArrayList(TransferDataSource.ALBUM_BACKUP, TransferDataSource.FILE_BACKUP, TransferDataSource.FOLDER_BACKUP);
+        Completable completable = AppDatabase.getInstance().fileTransferDAO().cancelAllByDataSource(account.getSignature(), dataSources);
         addCompletableDisposable(completable, new Action() {
             @Override
             public void run() throws Exception {
@@ -175,8 +161,12 @@ public class TransferListViewModel extends BaseViewModel {
 
     public void cancelAllDownloadTask(Consumer<Boolean> consumer) {
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
+        if (account == null) {
+            return;
+        }
+
         List<TransferDataSource> dataSources = CollectionUtils.newArrayList(TransferDataSource.DOWNLOAD);
-        Completable completable = AppDatabase.getInstance().fileTransferDAO().cancelByDataSource(account.getSignature(), dataSources);
+        Completable completable = AppDatabase.getInstance().fileTransferDAO().cancelAllByDataSource(account.getSignature(), dataSources);
         addCompletableDisposable(completable, new Action() {
             @Override
             public void run() throws Exception {
@@ -185,29 +175,63 @@ public class TransferListViewModel extends BaseViewModel {
         });
     }
 
-    public void removeAllDownloadTask(Consumer<Boolean> consumer) {
+
+    public void removeSpecialDownloadListTask(List<FileTransferEntity> list, boolean isDeleteLocalFile, Consumer<Boolean> consumer) {
+        Single<Boolean> single = Single.create(new SingleOnSubscribe<Boolean>() {
+            @Override
+            public void subscribe(SingleEmitter<Boolean> emitter) throws Exception {
+
+                for (FileTransferEntity entity : list) {
+                    //delete record
+                    AppDatabase.getInstance().fileTransferDAO().deleteOne(entity);
+
+                    if (isDeleteLocalFile) {
+                        FileUtils.delete(entity.target_path);
+                    }
+                    SLogs.d("deleted : " + entity.target_path);
+                }
+
+                emitter.onSuccess(true);
+            }
+        });
+
+        addSingleDisposable(single, new Consumer<Boolean>() {
+            @Override
+            public void accept(Boolean aBoolean) throws Exception {
+                if (consumer != null) {
+                    consumer.accept(true);
+                }
+            }
+        });
+    }
+
+    public void removeAllDownloadTask(Consumer<Boolean> consumer, boolean isDeleteLocalFile) {
         getRefreshLiveData().setValue(true);
 
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
+        if (account == null) {
+            getRefreshLiveData().setValue(false);
+            return;
+        }
+
         List<TransferDataSource> features = CollectionUtils.newArrayList(TransferDataSource.DOWNLOAD);
-        Single<List<FileTransferEntity>> single = AppDatabase.getInstance().fileTransferDAO().getListByFeatAsync(account.getSignature(), features);
+        //query all data, including deleted data, based on different users
+        Single<List<FileTransferEntity>> single = AppDatabase.getInstance().fileTransferDAO().getListByDataSourceAsync(account.getSignature(), features);
 
         Single<Boolean> single1 = single.flatMap(new Function<List<FileTransferEntity>, SingleSource<Boolean>>() {
             @Override
-            public SingleSource<Boolean> apply(List<FileTransferEntity> entities) throws Exception {
+            public SingleSource<Boolean> apply(List<FileTransferEntity> transferList) throws Exception {
                 return Single.create(new SingleOnSubscribe<Boolean>() {
                     @Override
                     public void subscribe(SingleEmitter<Boolean> emitter) throws Exception {
-
-                        AppDatabase.getInstance().fileTransferDAO().deleteAllByAction(account.getSignature(), TransferAction.DOWNLOAD);
-
-                        for (FileTransferEntity entity : entities) {
-                            //delete record
-                            if (entity.transfer_action == TransferAction.DOWNLOAD) {
+                        if (isDeleteLocalFile) {
+                            for (FileTransferEntity entity : transferList) {
                                 FileUtils.delete(entity.target_path);
                                 SLogs.d("deleted : " + entity.target_path);
                             }
                         }
+
+                        AppDatabase.getInstance().fileTransferDAO().deleteAllByAction(account.getSignature(), TransferAction.DOWNLOAD);
 
                         emitter.onSuccess(true);
                     }
@@ -232,38 +256,11 @@ public class TransferListViewModel extends BaseViewModel {
 
                 for (FileTransferEntity entity : list) {
                     entity.data_status = -1;
-                    entity.transfer_result = TransferResult.NO_RESULT;
                     entity.transfer_status = TransferStatus.CANCELLED;
+                    entity.transfer_result = TransferResult.USER_CANCELLED;
                     entity.transferred_size = 0;
 
-                    AppDatabase.getInstance().fileTransferDAO().insert(entity);
-                }
-
-                emitter.onSuccess(true);
-            }
-        });
-
-        addSingleDisposable(single, new Consumer<Boolean>() {
-            @Override
-            public void accept(Boolean aBoolean) throws Exception {
-                if (consumer != null) {
-                    consumer.accept(true);
-                }
-            }
-        });
-    }
-
-    public void removeSpecialDownloadListTask(List<FileTransferEntity> list, Consumer<Boolean> consumer) {
-        Single<Boolean> single = Single.create(new SingleOnSubscribe<Boolean>() {
-            @Override
-            public void subscribe(SingleEmitter<Boolean> emitter) throws Exception {
-
-                for (FileTransferEntity entity : list) {
-                    //delete record
-                    AppDatabase.getInstance().fileTransferDAO().deleteOne(entity);
-
-                    FileUtils.delete(entity.target_path);
-                    SLogs.d("deleted : " + entity.target_path);
+                    AppDatabase.getInstance().fileTransferDAO().update(entity);
                 }
 
                 emitter.onSuccess(true);
@@ -281,27 +278,59 @@ public class TransferListViewModel extends BaseViewModel {
     }
 
     public void removeAllUploadTask(Consumer<Boolean> consumer) {
-        getRefreshLiveData().setValue(true);
+        getShowLoadingDialogLiveData().setValue(true);
 
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
-        List<TransferDataSource> features = CollectionUtils.newArrayList(TransferDataSource.FILE_BACKUP, TransferDataSource.FOLDER_BACKUP);
-        Single<List<FileTransferEntity>> single = AppDatabase.getInstance().fileTransferDAO().getListByFeatAsync(account.getSignature(), features);
 
+        Completable completable = AppDatabase.getInstance().fileTransferDAO().removeAllUploadByAccount(account.getSignature());
+        addCompletableDisposable(completable, new Action() {
+            @Override
+            public void run() throws Exception {
+                if (consumer != null) {
+                    consumer.accept(true);
+                }
+
+                getShowLoadingDialogLiveData().setValue(false);
+            }
+        });
+
+    }
+
+    public void restartSpecialStatusTask(TransferAction transferAction, TransferStatus transferStatus, Consumer<Boolean> consumer) {
+        getShowLoadingDialogLiveData().setValue(true);
+
+        Account account = SupportAccountManager.getInstance().getCurrentAccount();
+        if (account == null) {
+            getShowLoadingDialogLiveData().setValue(false);
+            return;
+        }
+
+        Single<List<FileTransferEntity>> single = AppDatabase.getInstance().fileTransferDAO().getByActionAndStatusAsync(account.getSignature(), transferAction, transferStatus);
         Single<Boolean> single1 = single.flatMap(new Function<List<FileTransferEntity>, SingleSource<Boolean>>() {
             @Override
-            public SingleSource<Boolean> apply(List<FileTransferEntity> entities) throws Exception {
+            public SingleSource<Boolean> apply(List<FileTransferEntity> list) throws Exception {
+
+                if (CollectionUtils.isEmpty(list)) {
+                    return Single.just(false);
+                }
+
                 return Single.create(new SingleOnSubscribe<Boolean>() {
                     @Override
                     public void subscribe(SingleEmitter<Boolean> emitter) throws Exception {
-                        AppDatabase.getInstance().fileTransferDAO().cancelAllWithFileBackup();
 
-                        for (FileTransferEntity entity : entities) {
-                            if (entity.transfer_action == TransferAction.DOWNLOAD) {
+                        for (FileTransferEntity entity : list) {
+                            if (transferAction == TransferAction.DOWNLOAD) {
                                 FileUtils.delete(entity.target_path);
                                 SLogs.d("deleted : " + entity.target_path);
                             }
-                        }
 
+                            entity.transfer_status = TransferStatus.WAITING;
+                            entity.transfer_result = TransferResult.NO_RESULT;
+                            entity.transferred_size = 0;
+                            entity.action_end_at = 0;
+
+                            AppDatabase.getInstance().fileTransferDAO().update(entity);
+                        }
                         emitter.onSuccess(true);
                     }
                 });
@@ -310,12 +339,14 @@ public class TransferListViewModel extends BaseViewModel {
 
         addSingleDisposable(single1, new Consumer<Boolean>() {
             @Override
-            public void accept(Boolean b) throws Exception {
+            public void accept(Boolean aBoolean) throws Exception {
                 if (consumer != null) {
-                    consumer.accept(true);
+                    consumer.accept(aBoolean);
                 }
+                getShowLoadingDialogLiveData().setValue(false);
             }
         });
+
     }
 
     public void restartUpload(List<FileTransferEntity> list, Consumer<Boolean> consumer) {

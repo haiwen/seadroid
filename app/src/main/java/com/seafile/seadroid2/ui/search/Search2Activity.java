@@ -33,7 +33,6 @@ import com.chad.library.adapter4.QuickAdapterHelper;
 import com.chad.library.adapter4.loadState.LoadState;
 import com.chad.library.adapter4.loadState.trailing.TrailingLoadStateAdapter;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.firebase.analytics.FirebaseAnalytics;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
@@ -49,7 +48,7 @@ import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
 import com.seafile.seadroid2.ui.base.adapter.LogicLoadMoreAdapter;
 import com.seafile.seadroid2.ui.file.FileActivity;
 import com.seafile.seadroid2.ui.main.MainActivity;
-import com.seafile.seadroid2.ui.media.image_preview.ImagePreviewActivity;
+import com.seafile.seadroid2.ui.media.image_preview2.CarouselImagePreviewActivity;
 import com.seafile.seadroid2.ui.media.player.exoplayer.CustomExoVideoPlayerActivity;
 import com.seafile.seadroid2.ui.sdoc.SDocWebViewActivity;
 import com.seafile.seadroid2.view.TipsViews;
@@ -66,6 +65,7 @@ import io.reactivex.functions.Consumer;
 /**
  * Search Activity
  */
+@Deprecated
 public class Search2Activity extends BaseActivityWithVM<SearchViewModel> implements Toolbar.OnMenuItemClickListener {
     private ActivitySearch2Binding binding;
 
@@ -96,12 +96,6 @@ public class Search2Activity extends BaseActivityWithVM<SearchViewModel> impleme
 
 
         handleIntent(getIntent());
-
-        //firebase - event -login
-        Bundle eventBundle = new Bundle();
-        eventBundle.putString(FirebaseAnalytics.Param.METHOD, Search2Activity.class.getSimpleName());
-        FirebaseAnalytics.getInstance(this).logEvent(FirebaseAnalytics.Event.SEARCH, eventBundle);
-
     }
 
     private void initView(Bundle bundle) {
@@ -380,7 +374,8 @@ public class Search2Activity extends BaseActivityWithVM<SearchViewModel> impleme
         } else if (Utils.isViewableImage(fileName) && !repoModel.encrypted) {
             // Encrypted repo does not support gallery,
             // because pic thumbnail under encrypted repo was not supported at the server side
-            ImagePreviewActivity.startThisFromSearch(this, searchedFile);
+            Intent intent = CarouselImagePreviewActivity.startThisFromSearch(this, searchedFile);
+            startActivity(intent);
         } else if (Utils.isVideoFile(fileName)) { // is video file
             final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
             builder.setItems(R.array.video_download_array, new DialogInterface.OnClickListener() {

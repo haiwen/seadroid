@@ -3,6 +3,7 @@
   <string name="welcome_to_seafile">Добро пожаловать в Seafile</string>
   <string name="select_account">Чтобы начать, выберите аккаунт</string>
   <string name="edit_account">Редактировать</string>
+  <string name="ignore">Игнорировать</string>
   <string name="delete_account">Удалить</string>
   <string name="delete">Удалить</string>
   <string name="deleted">Удалено</string>
@@ -22,6 +23,7 @@
   <string name="move_folder">Переместить папку</string>
   <string name="delete_dir">Удалить папку</string>
   <string name="name_hint">Имя</string>
+  <string name="server">Сервер</string>
   <string name="server_hint">Адрес сервера</string>
   <string name="email_hint">Эл. почта или логин</string>
   <string name="passwd_hint">Пароль</string>
@@ -327,6 +329,8 @@
   <string name="next_button_label">Далее</string>
   <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
   <string name="skip_button_label">Пропустить</string>
+  <!--Display mode-->
+  <string name="settings_display_mode">Режим отображения</string>
   <!--contacts  upload-->
   <string name="settings_contacts_upload_info_title">Резервное копирование контактов</string>
   <string name="settings_contacts_upload_turn_on">Включить резервное копирование контактов</string>
@@ -585,6 +589,8 @@
   <string name="is_uploading">Загрузка</string>
   <string name="network_unavailable">Сеть недоступна</string>
   <string name="network_error">Ошибка сети</string>
+  <string name="error_image_load">Загрузка не удалась</string>
+  <string name="retry_with_click">нажмите, чтобы повторить попытку</string>
   <string name="required_password">Необходим пароль.</string>
   <string name="weak_password">Пароль слишком слабый.</string>
   <!--Folder backup Preference-->
@@ -641,6 +647,7 @@
   <string name="on">Включено</string>
   <string name="follow_system">Как в системе</string>
   <string name="empty">Пустой</string>
+  <string name="empty_data">Пустые данные</string>
   <!--share link-->
   <string name="link_permission_set_permission">Установить разрешение</string>
   <string name="link_permission_preview_and_download">Предварительный просмотр и загрузка</string>
@@ -657,15 +664,21 @@
   <string name="menu_action_sort_by_last_modified">Последнее изменение</string>
   <string name="menu_action_sort_order_ascending">Восходящий</string>
   <string name="menu_action_sort_directories_first">Сначала папки</string>
+  <string name="menu_detail">Подробно</string>
   <!--sdoc-->
   <string name="_size">Размер</string>
   <string name="_last_modifier">Последний модификатор</string>
   <string name="_last_modified_time">Время последнего изменения</string>
+  <string name="_reviewer">Рецензент</string>
   <string name="_file_collaborators">Соавторы файлов</string>
   <string name="_file_status">Статус файла</string>
   <string name="_in_progress">Выполняется</string>
   <string name="_in_review">На рассмотрении</string>
   <string name="_done">Завершено</string>
   <string name="_outdated">Устаревший</string>
+  <string name="_tags">Теги</string>
+  <string name="mark_resolve">Отметить как решенное</string>
+  <string name="delete_confirm">Вы уверены, что хотите удалить этот элемент?</string>
+  <string name="canceled">Отменено</string>
   <!--end-->
 </resources>

@@ -49,6 +49,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.nio.file.Files;
 import java.security.NoSuchAlgorithmException;
@@ -102,7 +103,14 @@ public abstract class BaseUploadWorker extends TransferWorker {
             return TransferResult.SSL_EXCEPTION;
         } else if (e instanceof SocketTimeoutException) {
             return TransferResult.NETWORK_CONNECTION;
+        } else if (e instanceof SocketException) {
+//            SocketException exception = (SocketException) e;
+//            SLogs.e(exception);
+            return TransferResult.USER_CANCELLED;
         } else if (e instanceof IOException) {
+            if (TextUtils.equals("Canceled", e.getMessage())) {
+                return TransferResult.USER_CANCELLED;
+            }
             return TransferResult.NETWORK_CONNECTION;
         }
 
@@ -140,7 +148,7 @@ public abstract class BaseUploadWorker extends TransferWorker {
         } else if (result == TransferResult.FILE_NOT_FOUND) {
 //            finishFlagEvent = null;
         } else if (result == TransferResult.OUT_OF_QUOTA) {
-            finishFlagEvent = TransferEvent.EVENT_CANCEL_OUT_OF_QUOTA;
+            finishFlagEvent = TransferEvent.EVENT_CANCEL_WITH_OUT_OF_QUOTA;
         } else if (result == TransferResult.NETWORK_CONNECTION) {
             finishFlagEvent = TransferEvent.EVENT_CANCEL_WITH_NETWORK_ERR;
         } else if (result == TransferResult.SSL_EXCEPTION) {
@@ -151,6 +159,8 @@ public abstract class BaseUploadWorker extends TransferWorker {
             finishFlagEvent = TransferEvent.EVENT_FINISH;
         } else if (result == TransferResult.UNKNOWN) {
             finishFlagEvent = TransferEvent.EVENT_FINISH;
+        } else if (result == TransferResult.USER_CANCELLED) {
+            finishFlagEvent = TransferEvent.EVENT_CANCEL_WITH_BY_STOPPED;
         }
 
         return finishFlagEvent;
@@ -361,6 +371,11 @@ public abstract class BaseUploadWorker extends TransferWorker {
 
 //        cancelNotification();
 
+        SLogs.e("BaseUploadWorker onStopped");
+        currentTransferEntity.transfer_status = TransferStatus.CANCELLED;
+        currentTransferEntity.transfer_result = TransferResult.USER_CANCELLED;
+        AppDatabase.getInstance().fileTransferDAO().update(currentTransferEntity);
+
         if (newCall != null && !newCall.isCanceled()) {
             newCall.cancel();
         }
@@ -376,59 +391,67 @@ public abstract class BaseUploadWorker extends TransferWorker {
         showForegroundAsync(f);
     }
 
+    private FileTransferEntity currentTransferEntity;
+
     public void transferFile(Account account, FileTransferEntity transferEntity) throws IOException, SeafException, JSONException {
         SLogs.d("start transfer, full_path: " + transferEntity.full_path);
 
+        currentTransferEntity = transferEntity;
 
         List<RepoModel> repoModels = AppDatabase.getInstance().repoDao().getByIdSync(transferEntity.repo_id);
 
         if (CollectionUtils.isEmpty(repoModels)) {
-            SLogs.d("no repo for repoId: " + transferEntity.repo_id);
+            SLogs.d("no repo for repoId: " + currentTransferEntity.repo_id);
 
-            transferEntity.transfer_status = TransferStatus.FAILED;
-            transferEntity.transfer_result = TransferResult.CANCELLED;
-            AppDatabase.getInstance().fileTransferDAO().update(transferEntity);
+            currentTransferEntity.transfer_status = TransferStatus.FAILED;
+            currentTransferEntity.transfer_result = TransferResult.CANCELLED;
+            AppDatabase.getInstance().fileTransferDAO().update(currentTransferEntity);
             return;
         }
 
         //update modified_at field
-        transferEntity.modified_at = System.currentTimeMillis();
-        AppDatabase.getInstance().fileTransferDAO().update(transferEntity);
-        notifyProgress(transferEntity.file_name, 0);
-        SLogs.d("start transfer, target_path: " + transferEntity.target_path);
+        currentTransferEntity.modified_at = System.currentTimeMillis();
+        AppDatabase.getInstance().fileTransferDAO().update(currentTransferEntity);
+//
+        //show notification
+        notifyProgress(currentTransferEntity.file_name, 0);
+        SLogs.d("start transfer, target_path: " + currentTransferEntity.target_path);
 
         RepoModel repo = repoModels.get(0);
-        if (repo.canLocalDecrypt()) {
-            uploadBlockFile(account, repo, transferEntity);
-        } else {
-            uploadFile(account, repo, transferEntity);
-        }
+        uploadFile(account, repo);
+
+//        RepoModel repo = repoModels.get(0);
+//        if (repo.canLocalDecrypt()) {
+//            uploadBlockFile(account, repo, transferEntity);
+//        } else {
+//            uploadFile(account, repo, transferEntity);
+//        }
     }
 
     /**
      * upload file
      */
-    private void uploadFile(Account account, RepoModel repoModel, FileTransferEntity transferEntity) throws IOException, SeafException {
+    private void uploadFile(Account account, RepoModel repoModel) throws IOException, SeafException {
         if (isStopped()) {
             return;
         }
 
-        File file = new File(transferEntity.full_path);
+        File file = new File(currentTransferEntity.full_path);
         if (!file.exists()) {
             throw SeafException.notFoundException;
         }
 
-        ExistingFileStrategy fileStrategy = transferEntity.file_strategy;
+        ExistingFileStrategy fileStrategy = currentTransferEntity.file_strategy;
         if (fileStrategy == ExistingFileStrategy.AUTO) {
-            fileStrategy = checkRemoteFileExists(account, repoModel, transferEntity);
+            fileStrategy = checkRemoteFileExists(account, repoModel, currentTransferEntity);
         }
 
         if (fileStrategy == ExistingFileStrategy.SKIP) {
-            SLogs.d("folder backup: skip file(remote exists): " + transferEntity.target_path);
+            SLogs.d("folder backup: skip file(remote exists): " + currentTransferEntity.target_path);
 
-            transferEntity.transfer_status = TransferStatus.SUCCEEDED;
-            transferEntity.transfer_result = TransferResult.TRANSMITTED;
-            AppDatabase.getInstance().fileTransferDAO().update(transferEntity);
+            currentTransferEntity.transfer_status = TransferStatus.SUCCEEDED;
+            currentTransferEntity.transfer_result = TransferResult.TRANSMITTED;
+            AppDatabase.getInstance().fileTransferDAO().update(currentTransferEntity);
 
             return;
         }
@@ -437,8 +460,8 @@ public abstract class BaseUploadWorker extends TransferWorker {
         MultipartBody.Builder builder = new MultipartBody.Builder();
         builder.setType(MultipartBody.FORM);
 
-        if (transferEntity.file_strategy == ExistingFileStrategy.REPLACE) {
-            builder.addFormDataPart("target_file", transferEntity.target_path);
+        if (currentTransferEntity.file_strategy == ExistingFileStrategy.REPLACE) {
+            builder.addFormDataPart("target_file", currentTransferEntity.target_path);
         } else {
             //parent_dir: / is repo root
             builder.addFormDataPart("parent_dir", "/");
@@ -446,7 +469,7 @@ public abstract class BaseUploadWorker extends TransferWorker {
 
 //            parent_dir is the root directory.
 //            when select the root of the repo, relative_path is null.
-            String dir = transferEntity.getParent_path();
+            String dir = currentTransferEntity.getParent_path();
             dir = StringUtils.removeStart(dir, "/");
 //
             builder.addFormDataPart("relative_path", dir);
@@ -454,11 +477,11 @@ public abstract class BaseUploadWorker extends TransferWorker {
 
 
         //
-        fileTransferProgressListener.setFileTransferEntity(transferEntity);
+        fileTransferProgressListener.setFileTransferEntity(currentTransferEntity);
 
         //db
-        transferEntity.transfer_status = TransferStatus.IN_PROGRESS;
-        AppDatabase.getInstance().fileTransferDAO().update(transferEntity);
+        currentTransferEntity.transfer_status = TransferStatus.IN_PROGRESS;
+        AppDatabase.getInstance().fileTransferDAO().update(currentTransferEntity);
 
 
         ProgressRequestBody progressRequestBody = new ProgressRequestBody(file, fileTransferProgressListener);
@@ -467,7 +490,7 @@ public abstract class BaseUploadWorker extends TransferWorker {
         RequestBody requestBody = builder.build();
 
         //get upload link
-        String uploadUrl = getFileUploadUrl(transferEntity.repo_id, transferEntity.getParent_path(), transferEntity.file_strategy == ExistingFileStrategy.REPLACE);
+        String uploadUrl = getFileUploadUrl(currentTransferEntity.repo_id, currentTransferEntity.getParent_path(), currentTransferEntity.file_strategy == ExistingFileStrategy.REPLACE);
         if (TextUtils.isEmpty(uploadUrl)) {
             throw SeafException.networkException;
         }
@@ -485,33 +508,33 @@ public abstract class BaseUploadWorker extends TransferWorker {
                     .build();
             newCall = HttpIO.getCurrentInstance().getOkHttpClient().getOkClient().newCall(request);
 
-            Response response = newCall.execute();
+            String str;
+            try (Response response = newCall.execute()) {
+                if (!response.isSuccessful()) {
+                    String b = response.body() != null ? response.body().string() : null;
+                    SLogs.d("result，failed：" + b);
 
-            if (!response.isSuccessful()) {
-                String b = response.body() != null ? response.body().string() : null;
-                SLogs.d("result，failed：" + b);
+                    //
+                    newCall.cancel();
 
-                //
-                newCall.cancel();
+                    //[text={"error": "Out of quota.\n"}]
+                    if (b != null && b.toLowerCase().contains("out of quota")) {
+                        throw SeafException.OUT_OF_QUOTA;
+                    }
 
-                //[text={"error": "Out of quota.\n"}]
-                if (b != null && b.toLowerCase().contains("out of quota")) {
-                    throw SeafException.OUT_OF_QUOTA;
+                    throw SeafException.networkException;
                 }
 
-                throw SeafException.networkException;
+                str = response.body().string();
             }
-
-            String str = response.body().string();
             String fileId = str.replace("\"", "");
             SLogs.d("result，file ID：" + str);
 
-            updateSuccess(transferEntity, fileId, file);
+            updateSuccess(fileId, file);
         } catch (Exception e) {
             throw e;
         }
     }
-
 
     private void uploadBlockFile(Account account, RepoModel repoModel, FileTransferEntity transferEntity) throws SeafException, IOException, JSONException {
         if (isStopped()) {
@@ -744,37 +767,35 @@ public abstract class BaseUploadWorker extends TransferWorker {
 
             String fileId = response.body().string();
 
-            updateSuccess(transferEntity, fileId, file);
+            updateSuccess(fileId, file);
         } catch (Exception e) {
             throw e;
         }
     }
 
-    private void updateSuccess(FileTransferEntity transferEntity, String fileId, File file) {
+    private void updateSuccess(String fileId, File file) {
         //db
-        transferEntity.file_id = fileId;
-        transferEntity.transferred_size = file.length();
-        transferEntity.action_end_at = System.currentTimeMillis();
-        transferEntity.modified_at = transferEntity.action_end_at;
-        transferEntity.file_original_modified_at = file.lastModified();
-        transferEntity.transfer_result = TransferResult.TRANSMITTED;
-        transferEntity.transfer_status = TransferStatus.SUCCEEDED;
+        currentTransferEntity.file_id = fileId;
+        currentTransferEntity.transferred_size = file.length();
+        currentTransferEntity.action_end_at = System.currentTimeMillis();
+        currentTransferEntity.modified_at = currentTransferEntity.action_end_at;
+        currentTransferEntity.file_original_modified_at = file.lastModified();
+        currentTransferEntity.transfer_result = TransferResult.TRANSMITTED;
+        currentTransferEntity.transfer_status = TransferStatus.SUCCEEDED;
 
-        AppDatabase.getInstance().fileTransferDAO().update(transferEntity);
+        AppDatabase.getInstance().fileTransferDAO().update(currentTransferEntity);
 
         //update
-        List<DirentModel> direntList = AppDatabase.getInstance().direntDao().getListByFullPathSync(transferEntity.repo_id, transferEntity.full_path);
+        List<DirentModel> direntList = AppDatabase.getInstance().direntDao().getListByFullPathSync(currentTransferEntity.repo_id, currentTransferEntity.full_path);
         if (!CollectionUtils.isEmpty(direntList)) {
             DirentModel direntModel = direntList.get(0);
-            direntModel.last_modified_at = transferEntity.modified_at;
+            direntModel.last_modified_at = currentTransferEntity.modified_at;
             direntModel.id = fileId;
-            direntModel.size = transferEntity.file_size;
-            direntModel.transfer_status = transferEntity.transfer_status;
+            direntModel.size = currentTransferEntity.file_size;
+            direntModel.transfer_status = currentTransferEntity.transfer_status;
 
             AppDatabase.getInstance().direntDao().update(direntModel);
         }
-
-
     }
 
     private final int BUFFER_SIZE = 2 * 1024 * 1024;

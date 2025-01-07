@@ -14,7 +14,6 @@ import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
-import com.seafile.seadroid2.enums.ActionModeCallbackType;
 import com.seafile.seadroid2.framework.data.db.entities.EncKeyCacheEntity;
 import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
 import com.seafile.seadroid2.framework.data.db.entities.PermissionEntity;
@@ -24,7 +23,7 @@ import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.enums.TransferResult;
 import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.data.model.permission.PermissionListWrapperModel;
-import com.seafile.seadroid2.framework.data.model.permission.PermissionWrapperModel;
+import com.seafile.seadroid2.framework.data.model.permission.PermissionParentModel;
 import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.ExistingFileStrategy;
@@ -41,7 +40,7 @@ import com.seafile.seadroid2.ui.repo.RepoService;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.ui.activities.AllActivitiesFragment;
 import com.seafile.seadroid2.ui.repo.RepoQuickFragment;
-import com.seafile.seadroid2.ui.settings.TabSettingsFragment;
+import com.seafile.seadroid2.ui.settings.TabSettings2Fragment;
 import com.seafile.seadroid2.ui.star.StarredQuickFragment;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
@@ -82,11 +81,6 @@ public class MainViewModel extends BaseViewModel {
     private final MutableLiveData<Boolean> OnNavChangeListenerLiveData = new MutableLiveData<>();
 
     private final MutableLiveData<Boolean> _searchViewExpandedLiveData = new MutableLiveData<>(false);
-    private final MutableLiveData<ActionModeCallbackType> _onActionModeLiveData = new MutableLiveData<>();
-
-    public MutableLiveData<ActionModeCallbackType> getOnActionModeLiveData() {
-        return _onActionModeLiveData;
-    }
 
     public MutableLiveData<Boolean> getSearchViewExpandedLiveData() {
         return _searchViewExpandedLiveData;
@@ -142,7 +136,7 @@ public class MainViewModel extends BaseViewModel {
             RepoQuickFragment.newInstance(),
             StarredQuickFragment.newInstance(),
             AllActivitiesFragment.newInstance(),
-            TabSettingsFragment.newInstance()
+            TabSettings2Fragment.newInstance()
     );
 
     public List<Fragment> getFragments() {
@@ -236,124 +230,19 @@ public class MainViewModel extends BaseViewModel {
     }
 
     public void getPermissionFromLocal(String repoId, int pNum, Consumer<PermissionEntity> consumer) {
-        Single<List<PermissionEntity>> pSingle = AppDatabase.getInstance().permissionDAO().getWithAsync(repoId, pNum);
-        Single<PermissionEntity> s = pSingle.flatMap(new Function<List<PermissionEntity>, SingleSource<PermissionEntity>>() {
+        Single<List<PermissionEntity>> pSingle = AppDatabase.getInstance().permissionDAO().getByRepoAndIdAsync(repoId, pNum);
+        addSingleDisposable(pSingle, new Consumer<List<PermissionEntity>>() {
             @Override
-            public SingleSource<PermissionEntity> apply(List<PermissionEntity> pList) throws Exception {
+            public void accept(List<PermissionEntity> permissionEntities) throws Exception {
 
-                if (CollectionUtils.isEmpty(pList)) {
-                    return null;
-                }
-
-                return Single.just(pList.get(0));
-            }
-        }).flatMap(new Function<PermissionEntity, SingleSource<PermissionEntity>>() {
-            @Override
-            public SingleSource<PermissionEntity> apply(PermissionEntity entity) throws Exception {
-                Single<List<PermissionEntity>> r = getLoadRepoPermissionFromRemoteSingle(repoId);
-
-                return r.flatMap(new Function<List<PermissionEntity>, SingleSource<? extends PermissionEntity>>() {
-                    @Override
-                    public SingleSource<? extends PermissionEntity> apply(List<PermissionEntity> permissionEntities) throws Exception {
-                        if (CollectionUtils.isEmpty(permissionEntities)) {
-                            return null;
-
-                        }
-                        Optional<PermissionEntity> p = permissionEntities.stream().filter(f -> f.id == pNum).findFirst();
-                        if (p.isPresent()) {
-                            return Single.just(p.get());
-                        }
-                        return null;
-                    }
-                });
-            }
-        });
-
-        addSingleDisposable(s, new Consumer<PermissionEntity>() {
-            @Override
-            public void accept(PermissionEntity entity) throws Exception {
                 if (consumer != null) {
-                    consumer.accept(entity);
-                }
-            }
-        });
-    }
-
-
-    private Single<List<PermissionEntity>> getLoadRepoPermissionFromRemoteSingle(String repoId) {
-        Single<PermissionListWrapperModel> single = HttpIO.getCurrentInstance().execute(RepoService.class).getCustomSharePermissions(repoId);
-        return single.flatMap(new Function<PermissionListWrapperModel, SingleSource<List<PermissionEntity>>>() {
-            @Override
-            public SingleSource<List<PermissionEntity>> apply(PermissionListWrapperModel wrapperModel) throws Exception {
-
-                List<PermissionEntity> list = CollectionUtils.newArrayList();
-
-                for (PermissionWrapperModel model : wrapperModel.permission_list) {
-                    list.add(new PermissionEntity(repoId, model));
-                }
-
-                Completable insertCompletable = AppDatabase.getInstance().permissionDAO().insertAllAsync(list);
-                Single<Long> insertAllSingle = insertCompletable.toSingleDefault(0L);
-                return insertAllSingle.flatMap(new Function<Long, SingleSource<List<PermissionEntity>>>() {
-                    @Override
-                    public SingleSource<List<PermissionEntity>> apply(Long aLong) throws Exception {
-                        SLogs.d("The list has been inserted into the local database");
-                        return Single.just(list);
+                    if (CollectionUtils.isEmpty(permissionEntities)) {
+                        consumer.accept(null);
+                    } else {
+                        consumer.accept(permissionEntities.get(0));
                     }
-                });
-            }
-        });
-    }
 
-
-    public void getRepoModelFromLocal(String repoId, Consumer<Pair<RepoModel, PermissionEntity>> consumer) {
-        //from db
-        Single<List<RepoModel>> dbSingle = AppDatabase.getInstance().repoDao().getRepoById(repoId);
-        Single<Pair<RepoModel, PermissionEntity>> r = dbSingle.flatMap(new Function<List<RepoModel>, SingleSource<Pair<RepoModel, PermissionEntity>>>() {
-            @Override
-            public SingleSource<Pair<RepoModel, PermissionEntity>> apply(List<RepoModel> repoModels) throws Exception {
-                if (CollectionUtils.isEmpty(repoModels)) {
-                    return null;
                 }
-
-                RepoModel repoModel = repoModels.get(0);
-                if (TextUtils.isEmpty(repoModel.permission)) {
-                    return Single.just(new Pair<>(repoModel, null));
-                }
-
-                if (!repoModel.isCustomPermission()) {
-                    return Single.just(new Pair<>(repoModel, null));
-                }
-
-                int pNum = repoModel.getCustomPermissionNum();
-
-                Single<List<PermissionEntity>> pSingle = AppDatabase.getInstance().permissionDAO().getWithAsync(repoId, pNum);
-
-                return pSingle.flatMap(new Function<List<PermissionEntity>, SingleSource<Pair<RepoModel, PermissionEntity>>>() {
-                    @Override
-                    public SingleSource<Pair<RepoModel, PermissionEntity>> apply(List<PermissionEntity> permissionEntities) throws Exception {
-                        if (CollectionUtils.isEmpty(permissionEntities)) {
-                            return Single.just(new Pair<>(repoModel, null));
-                        }
-
-                        return Single.just(new Pair<>(repoModel, permissionEntities.get(0)));
-                    }
-                });
-            }
-        });
-
-
-        addSingleDisposable(r, new Consumer<Pair<RepoModel, PermissionEntity>>() {
-            @Override
-            public void accept(Pair<RepoModel, PermissionEntity> pair) throws Exception {
-                if (consumer != null) {
-                    consumer.accept(pair);
-                }
-            }
-        }, new Consumer<Throwable>() {
-            @Override
-            public void accept(Throwable throwable) throws Exception {
-                SLogs.e(throwable);
             }
         });
     }
@@ -418,7 +307,7 @@ public class MainViewModel extends BaseViewModel {
         });
     }
 
-    public void checkRemoteDirent(Context context, String repoId, String fullPath, Consumer<DirentFileModel> consumer) throws IOException {
+    public void checkRemoteDirent(String repoId, String fullPath, Consumer<DirentFileModel> consumer) throws IOException {
         Single<DirentFileModel> detailSingle = HttpIO.getCurrentInstance()
                 .execute(FileService.class)
                 .getFileDetail(repoId, fullPath);
@@ -467,22 +356,30 @@ public class MainViewModel extends BaseViewModel {
         });
     }
 
+    /**
+     * <ol>
+     *     <li>copy the file to the app's internal cache(/0/Android/media/package_name/Seafile/...).</li>
+     *     <li>generate the FileTransferEntity, and insert into DB.</li>
+     *     <li>start UploadFileManuallyWorker</li>
+     *     <li>it will be deleted when UploadFileManuallyWorker end</li>
+     * <ol/>
+     */
     public void addUploadTask(Account account, Context context, RepoModel repoModel, String parentDir, Uri sourceUri, boolean isReplace, Consumer<FileTransferEntity> consumer) {
         ToastUtils.showLong(R.string.upload_waiting);
 
         Single<File> single = getCopyFileSingle(account, context, sourceUri, repoModel.repo_id, repoModel.repo_name, isReplace);
         addSingleDisposable(single, new Consumer<File>() {
             @Override
-            public void accept(File file) throws Exception {
-                addUploadTask(account, repoModel, parentDir, file.getAbsolutePath(), isReplace, consumer);
+            public void accept(File appLocalCacheFile) throws Exception {
+                addUploadTask(account, repoModel, parentDir, appLocalCacheFile.getAbsolutePath(), isReplace, consumer);
             }
         });
     }
 
-    private FileTransferEntity getUploadTransferEntity(Account account, RepoModel repoModel, String parentDir, String localFilePath, boolean isReplace) {
+    private FileTransferEntity getUploadTransferEntity(Account account, RepoModel repoModel, String parentDir, String appLocalCacheFilePath, boolean isReplace) {
         FileTransferEntity entity = new FileTransferEntity();
 
-        File file = new File(localFilePath);
+        File file = new File(appLocalCacheFilePath);
         if (!file.exists()) {
             return null;
         }
@@ -515,12 +412,12 @@ public class MainViewModel extends BaseViewModel {
         return entity;
     }
 
-    public void addUploadTask(Account account, RepoModel repoModel, String parentDir, String localFilePath, boolean isReplace, Consumer<FileTransferEntity> consumer) {
+    public void addUploadTask(Account account, RepoModel repoModel, String parentDir, String appLocalCacheFile, boolean isReplace, Consumer<FileTransferEntity> consumer) {
         Single<FileTransferEntity> single = Single.create(new SingleOnSubscribe<FileTransferEntity>() {
             @Override
             public void subscribe(SingleEmitter<FileTransferEntity> emitter) throws Exception {
 
-                FileTransferEntity entity = getUploadTransferEntity(account, repoModel, parentDir, localFilePath, isReplace);
+                FileTransferEntity entity = getUploadTransferEntity(account, repoModel, parentDir, appLocalCacheFile, isReplace);
 
                 AppDatabase.getInstance().fileTransferDAO().insert(entity);
 
@@ -538,7 +435,7 @@ public class MainViewModel extends BaseViewModel {
                 }
 
                 //start worker
-                BackgroundJobManagerImpl.getInstance().startFileUploadWorker();
+                BackgroundJobManagerImpl.getInstance().startFileManualUploadWorker();
 
                 if (consumer != null) {
                     consumer.accept(transferEntity);

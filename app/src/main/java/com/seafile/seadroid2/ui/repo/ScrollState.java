@@ -8,4 +8,12 @@ public class ScrollState {
         this.index = index;
         this.top = top;
     }
+
+    @Override
+    public String toString() {
+        return "ScrollState{" +
+                "index=" + index +
+                ", top=" + top +
+                '}';
+    }
 }
