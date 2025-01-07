@@ -38,12 +38,11 @@ public class Logs {
     /**
      * will delete log files that have not been modified for a period of time
      */
-    private static final long MAX_TIME = 30L * 24 * 60 * 60 * 1000;
+    private static final long MAX_TIME = 30L * 24 * 60 * 60 * 1000;// 30 days
 
     public static void init() {
         LogConfiguration config = new LogConfiguration.Builder()
-                .logLevel(BuildConfig.DEBUG ? LogLevel.ALL
-                        : LogLevel.ERROR)
+                .logLevel(BuildConfig.DEBUG ? LogLevel.ALL : LogLevel.INFO)
                 .tag(LOG_TAG)
 //                .enableThreadInfo()
 //                .enableStackTrace(2)

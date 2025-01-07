@@ -26,6 +26,9 @@ public class AccountUtils {
         // clear
         ContextStackPreferenceHelper.clearStack();
 
+        //
+        CertsManager.instance().deleteCertForAccount(account);
+
         NotificationUtils.cancelAll();
 
         // sign out operations

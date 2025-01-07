@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.framework.worker.observer;
+package com.seafile.seadroid2.framework.file_monitor;
 
 import org.apache.commons.io.IOCase;
 import org.apache.commons.io.monitor.FileAlterationObserver;

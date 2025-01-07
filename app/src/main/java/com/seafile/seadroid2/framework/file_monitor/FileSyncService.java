@@ -18,7 +18,6 @@ import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePr
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
-import com.seafile.seadroid2.framework.worker.observer.MediaContentObserver;
 import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
 
 import org.apache.commons.io.monitor.FileAlterationListener;

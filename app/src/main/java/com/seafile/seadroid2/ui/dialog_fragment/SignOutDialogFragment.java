@@ -35,7 +35,6 @@ public class SignOutDialogFragment extends CustomDialogFragment {
     protected void onPositiveClick() {
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
 
-        CertsManager.instance().deleteCertForAccount(account);
         AccountUtils.logout(account);
 
         refreshData();

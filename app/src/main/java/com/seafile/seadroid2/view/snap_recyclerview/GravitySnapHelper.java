@@ -475,8 +475,6 @@ public class GravitySnapHelper extends LinearSnapHelper {
                     return true;
                 }
             } else {
-//                recyclerView.getLayoutManager().scrollToPosition(position);
-//                return true;
                 RecyclerView.ViewHolder viewHolder = recyclerView.findViewHolderForAdapterPosition(position);
                 if (viewHolder != null) {
                     int[] distances = calculateDistanceToFinalSnap(

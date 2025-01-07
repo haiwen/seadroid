@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.framework.worker.observer;
+package com.seafile.seadroid2.framework.file_monitor;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -6,10 +6,10 @@ import android.database.ContentObserver;
 import android.net.Uri;
 import android.os.Handler;
 import android.provider.MediaStore;
+import android.widget.Toast;
 
-import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
+import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.framework.util.SLogs;
-import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
 
 /**
@@ -39,7 +39,9 @@ public class MediaContentObserver extends ContentObserver {
     public void onChange(boolean selfChange) {
         super.onChange(selfChange);
 
-        SLogs.d("A new file is detected and the Media task begins");
+        String newVer = MediaStore.getVersion(SeadroidApplication.getAppContext());
+        SLogs.e("媒体库新版本："+newVer);
+        SLogs.e("A new file is detected and the Media task begins");
         CameraUploadManager.getInstance().performFullSync();
     }
 

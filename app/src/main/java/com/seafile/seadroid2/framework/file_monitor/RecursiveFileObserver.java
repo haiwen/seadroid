@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.framework.worker.observer;
+package com.seafile.seadroid2.framework.file_monitor;
 
 import android.os.Build;
 import android.os.FileObserver;

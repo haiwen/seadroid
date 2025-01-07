@@ -65,13 +65,11 @@ public class AlbumBackupAdapter extends AbstractThreadedSyncAdapter {
                               ContentProviderClient provider,
                               SyncResult syncResult) {
 
-        SLogs.e("onPerformSync!");
+        boolean isForce = extras.getBoolean(ContentResolver.SYNC_EXTRAS_MANUAL);
+        SLogs.e("albumBackupAdapter - onPerformSync, isForce -> " + isForce);
         Account seafileAccount = SupportAccountManager.getInstance().getSeafileAccount(account);
 
-        /**
-         * this should never occur, as camera upload is supposed to be disabled once the camera upload
-         * account signs out.
-         */
+        // this should never occur, as camera upload is supposed to be disabled once the camera upload account signs out.
         if (!seafileAccount.hasValidToken()) {
             SLogs.e("This account has no auth token. Disable camera upload.");
             syncResult.stats.numAuthExceptions++;
@@ -86,8 +84,7 @@ public class AlbumBackupAdapter extends AbstractThreadedSyncAdapter {
             return;
         }
 
-        //start
-        boolean isForce = extras.getBoolean(ContentResolver.SYNC_EXTRAS_MANUAL);
+        // start
         BackgroundJobManagerImpl.getInstance().startMediaWorkerChain(isForce);
     }
 }

@@ -17,6 +17,7 @@ import com.seafile.seadroid2.framework.data.model.server.ServerInfoModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.account.AccountUtils;
 import com.seafile.seadroid2.framework.util.DeviceIdManager;
+import com.seafile.seadroid2.preferences.ContextStackPreferenceHelper;
 import com.seafile.seadroid2.ssl.CertsManager;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
 import com.seafile.seadroid2.ui.dialog_fragment.SignOutDialogFragment;
@@ -224,9 +225,9 @@ public class AccountViewModel extends BaseViewModel {
             AccountUtils.logout(account);
         } else {
             HttpIO.removeInstanceByAccount(account);
+            CertsManager.instance().deleteCertForAccount(account);
         }
 
-        CertsManager.instance().deleteCertForAccount(account);
         //delete local account
         SupportAccountManager.getInstance().removeAccount(account.getAndroidAccount(), null, null);
 
