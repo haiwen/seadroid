@@ -45,6 +45,7 @@ import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.enums.ActionModeCallbackType;
+import com.seafile.seadroid2.enums.RefreshStatusEnum;
 import com.seafile.seadroid2.framework.data.db.entities.PermissionEntity;
 import com.seafile.seadroid2.framework.datastore.sp.SettingsManager;
 import com.seafile.seadroid2.ui.bottomsheetmenu.BottomSheetMenuAdapter;
@@ -88,7 +89,7 @@ import com.seafile.seadroid2.ui.file.FileActivity;
 import com.seafile.seadroid2.ui.main.MainViewModel;
 import com.seafile.seadroid2.ui.markdown.MarkdownActivity;
 import com.seafile.seadroid2.ui.media.image_preview2.CarouselImagePreviewActivity;
-import com.seafile.seadroid2.ui.media.player.exoplayer.CustomExoVideoPlayerActivity;
+import com.seafile.seadroid2.ui.media.player.CustomExoVideoPlayerActivity;
 import com.seafile.seadroid2.ui.sdoc.SDocWebViewActivity;
 import com.seafile.seadroid2.ui.search.SearchViewModel;
 import com.seafile.seadroid2.ui.selector.ObjSelectorActivity;
@@ -102,13 +103,11 @@ import java.util.stream.Collectors;
 
 import io.reactivex.functions.Consumer;
 import kotlin.Pair;
+import kotlin.ranges.IntRange;
 
 public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     private static final String KEY_REPO_SCROLL_POSITION = "repo_scroll_position";
     private static final String KEY_REPO_LIST = "key_repo_list";
-
-    private final HashMap<String, Long> mRefreshStatusExpireTimeMap = new HashMap<>();
-    private final HashMap<String, Long> mPermissionRefreshStatusExpireTimeMap = new HashMap<>();
 
     private LayoutFastRvBinding binding;
     private RepoQuickAdapter adapter;
@@ -151,7 +150,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
         binding.swipeRefreshLayout.setOnRefreshListener(() -> {
             removeScrolledPosition();
-            loadData(RefreshStatusEnum.LOCAL_BEFORE_REMOTE);
+            preloadData(RefreshStatusEnum.LOCAL_BEFORE_REMOTE);
         });
 
         return binding.getRoot();
@@ -161,9 +160,9 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        initAdapter();
-
         initRv();
+
+        initAdapter();
 
         initViewModel();
 
@@ -177,7 +176,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
         restoreNavContext();
 
-        loadData(isForce(true));
+        preloadData();
     }
 
     private void restoreNavContext() {
@@ -191,16 +190,16 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     public void onOtherResume() {
         super.onOtherResume();
 
-        loadData(isForce(false));
+        preloadData();
 
     }
 
     private void initRv() {
         StickyItemDecoration decoration = new StickyItemDecoration.Builder()
                 .itemType(AbsLayoutItemType.GROUP_ITEM)
-//                .invisibleOriginItemWhenStickyItemShowing(false)
-//                .disabledScrollUpStickyItem(false)
-//                .showInContainer(binding.stickyContainer)
+                .invisibleOriginItemWhenStickyItemShowing(false)
+                .disabledScrollUpStickyItem(false)
+                .showInContainer(binding.stickyContainer)
                 .build();
 
         binding.rv.addItemDecoration(decoration);
@@ -261,6 +260,16 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         adapter.setFileViewType(lastViewType);
 
         adapter.setOnItemClickListener((baseQuickAdapter, view, i) -> {
+            BaseModel baseModel = adapter.getItems().get(i);
+            if (baseModel instanceof GroupItemModel groupItemModel) {
+                groupItemModel.is_expanded = !groupItemModel.is_expanded;
+                adapter.set(i, groupItemModel);
+
+                expandRepoItem(groupItemModel, i);
+                return;
+            }
+
+
             if (adapter.isOnActionMode()) {
                 //toggle
                 toggleAdapterItemSelectedState(i);
@@ -270,7 +279,6 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
                 List<BaseModel> selectedList = adapter.getSelectedList();
 
-                BaseModel baseModel = adapter.getItems().get(i);
                 if (baseModel instanceof RepoModel) {
                     List<RepoModel> selectedModels = selectedList.stream().map(b -> (RepoModel) b).collect(Collectors.toList());
                     getViewModel().inflateRepoMenuWithSelected(requireContext(), selectedModels, getDisableMenuIds(), getWillBeRemovedMenuIds());
@@ -282,21 +290,19 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 return;
             }
 
-            BaseModel baseModel = adapter.getItems().get(i);
-            if (baseModel instanceof RepoModel repoModel) {
-                if (repoModel.encrypted) {
-                    decrypt(repoModel);
-                } else {
-                    navTo(baseModel);
-                }
-            } else if (baseModel instanceof DirentModel) {
-                navTo(baseModel);
-            } else if (baseModel instanceof SearchModel) {
-                navTo(baseModel);
-            }
+            navTo(baseModel);
         });
 
         adapter.setOnItemLongClickListener((baseQuickAdapter, view, i) -> {
+
+            BaseModel baseModel = adapter.getItems().get(i);
+            if (baseModel instanceof GroupItemModel){
+                return true;
+            } else if (baseModel instanceof SearchModel) {
+                return true;
+            } else if (baseModel instanceof Account) {
+                return true;
+            }
             //return
             if (adapter.isOnActionMode()) {
                 return true;
@@ -313,6 +319,14 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         });
 
         binding.rv.setAdapter(adapter);
+    }
+
+    private void expandRepoItem(GroupItemModel groupItemModel, int position) {
+        if (!groupItemModel.is_expanded) {
+            adapter.removeAtRange(new IntRange(position + 1, position + groupItemModel.getRepoList().size()));
+        } else {
+            adapter.addAll(position + 1, groupItemModel.getRepoList());
+        }
     }
 
     private void initViewModel() {
@@ -339,6 +353,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
             closeActionMode();
 
+            // notify starred list need to change
             SettingsManager.setForceRefreshStarredListState(true);
         });
 
@@ -741,12 +756,13 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
         if (workInfo != null && workInfo.getState().isFinished()) {
             Data data = workInfo.getOutputData();
-            String transferState = data.getString(TransferWorker.KEY_DATA_EVENT);
-//            int pendingTransferCount = data.getInt(TransferWorker.KEY_DATA_PARAM, -1);
-            String dataType = data.getString(TransferWorker.KEY_DATA_TYPE);
-            SLogs.e(dataType + " -> " + transferState);
-            if (TransferEvent.EVENT_FINISH.equals(transferState)) {
-                loadData(isForce());
+            String transferEvent = data.getString(TransferWorker.KEY_DATA_STATUS);
+            String exceptionMsg = data.getString(TransferWorker.KEY_DATA_RESULT);
+            String dataSource = data.getString(TransferWorker.KEY_DATA_SOURCE);
+
+            SLogs.e(dataSource + " -> " + transferEvent + " -> " + exceptionMsg);
+            if (TransferEvent.EVENT_FINISH.equals(transferEvent) && TextUtils.isEmpty(exceptionMsg)) {
+                preloadData(isForce(TransferEvent.EVENT_FINISH.toLowerCase()));
             }
         }
     }
@@ -756,24 +772,38 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     }
 
 
-    private final long THROTTLE_FORCE_ALL_MS = 1000 * 60 * 5; // 5秒
-    private final long THROTTLE_FORCE_LOCAL_MS = 5000; // 5秒
+    private final long THROTTLE_FORCE_ALL_MS = 1000 * 60 * 5; // 5m
+    private final long THROTTLE_FORCE_LOCAL_MS = 5000; // 10s
+    private final HashMap<String, Long> mRefreshStatusExpireTimeMap = new HashMap<>();
+    private final HashMap<String, Long> mFeatureRefreshStatusTimeMap = new HashMap<>();
 
     private RefreshStatusEnum isForce() {
-        return isForce(false);
+        return isForce(null);
     }
 
     /**
      * It will not be refreshed within 2 seconds,
-     * only local data will be refreshed within 5 seconds,
+     * only local data will be refreshed within 10 seconds,
      * and be forced to refresh in other cases
      */
-    private RefreshStatusEnum isForce(boolean isFirst) {
-        if (isFirst) {
-            return RefreshStatusEnum.LOCAL_BEFORE_REMOTE;
+    private RefreshStatusEnum isForce(String feat) {
+        long now = TimeUtils.getNowMills();
+
+        if (!TextUtils.isEmpty(feat)) {
+            Long featLastMill = mFeatureRefreshStatusTimeMap.getOrDefault(feat, 0L);
+            if (featLastMill == null || featLastMill == 0L) {
+                mFeatureRefreshStatusTimeMap.put(feat, now);
+                return RefreshStatusEnum.REMOTE;
+            }
+
+            long d = now - featLastMill;
+            if (d < THROTTLE_FORCE_LOCAL_MS) { // 10s
+                return RefreshStatusEnum.NO;
+            }
+
+            return RefreshStatusEnum.REMOTE;
         }
 
-        long now = TimeUtils.getNowMills();
         Long lastMills;
         if (!getNavContext().inRepo()) {
             lastMills = mRefreshStatusExpireTimeMap.get(KEY_REPO_LIST);
@@ -783,22 +813,54 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         }
 
         if (lastMills == null) {
-            return RefreshStatusEnum.REMOTE;
+            return RefreshStatusEnum.LOCAL_BEFORE_REMOTE;
         }
 
-        if (now - lastMills > THROTTLE_FORCE_ALL_MS) {
-            return RefreshStatusEnum.REMOTE;
+        long d = now - lastMills;
+        if (d < THROTTLE_FORCE_LOCAL_MS) { // 5s
+            return RefreshStatusEnum.NO;
         }
 
-        if (now - lastMills > THROTTLE_FORCE_LOCAL_MS) {
-            return RefreshStatusEnum.REMOTE;
+        if (d < THROTTLE_FORCE_ALL_MS) { // 5m
+            return RefreshStatusEnum.ONLY_LOCAL;
         }
 
-        return RefreshStatusEnum.NO;
+        return RefreshStatusEnum.LOCAL_BEFORE_REMOTE;
     }
 
     public void loadDataAsFirst() {
         loadData(RefreshStatusEnum.LOCAL_BEFORE_REMOTE);
+    }
+
+    private void preloadData() {
+        preloadData(isForce());
+    }
+
+    private void preloadData(RefreshStatusEnum refreshStatus) {
+        if (!getNavContext().inRepo()) {
+            loadData(refreshStatus);
+            return;
+        }
+
+        RepoModel repoModel = getNavContext().getRepoModel();
+        if (repoModel == null) {
+            loadData(refreshStatus);
+            return;
+        }
+
+        checkAndDecryptRepoEncrypt(repoModel, new java.util.function.Consumer<Boolean>() {
+            @Override
+            public void accept(Boolean aBoolean) {
+                if (aBoolean) {
+                    loadData(refreshStatus);
+                } else {
+                    if (refreshStatus == RefreshStatusEnum.REMOTE) {
+                        binding.swipeRefreshLayout.setRefreshing(false);
+                    }
+                    loadData(RefreshStatusEnum.NO);
+                }
+            }
+        });
     }
 
     public void loadData(RefreshStatusEnum refreshStatus) {
@@ -811,10 +873,11 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             } else {
                 key = KEY_REPO_LIST;
             }
+
+            //
             mRefreshStatusExpireTimeMap.put(key, now);
 
-            //force refresh permission list
-            mPermissionRefreshStatusExpireTimeMap.clear();
+            mFeatureRefreshStatusTimeMap.clear();
         }
 
         getViewModel().loadData(getNavContext(), refreshStatus);
@@ -884,13 +947,17 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     private void navTo(BaseModel model) {
         //save
         if (model instanceof RepoModel model1) {
-            getNavContext().push(model1);
+            if (model1.encrypted) {
+                decrypt(model1);
+            } else {
+                getNavContext().push(model1);
 
-            loadDataAsFirst();
+                loadData(isForce());
+            }
         } else if (model instanceof DirentModel direntModel) {
             if (direntModel.isDir()) {
                 getNavContext().push(direntModel);
-                loadDataAsFirst();
+                loadData(isForce());
             } else {
                 open(direntModel);
             }
@@ -951,7 +1018,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 getNavContext().pop();
 
                 //there may be some issues: no data in some cases.
-                loadData(RefreshStatusEnum.ONLY_LOCAL);
+                preloadData(RefreshStatusEnum.ONLY_LOCAL);
 
                 //notify navContext changed
                 mainViewModel.getOnNavContextChangeListenerLiveData().setValue(true);
@@ -959,6 +1026,38 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             return true;
         }
         return false;
+    }
+
+    private void checkAndDecryptRepoEncrypt(RepoModel repoModel, final java.util.function.Consumer<Boolean> checkBack) {
+        if (!repoModel.encrypted) {
+            checkBack.accept(true);
+            return;
+        }
+
+        getViewModel().getEncCacheDB(repoModel.repo_id, new Consumer<EncKeyCacheEntity>() {
+            @Override
+            public void accept(EncKeyCacheEntity encKeyCacheEntity) {
+                long now = TimeUtils.getNowMills();
+
+                if (encKeyCacheEntity == null ||
+                        encKeyCacheEntity.expire_time_long == 0 ||
+                        now > encKeyCacheEntity.expire_time_long) {
+                    showPasswordDialogCallback(repoModel, new OnResultListener<RepoModel>() {
+                        @Override
+                        public void onResultData(RepoModel uRepoModel) {
+                            if (checkBack != null) {
+                                checkBack.accept(uRepoModel != null);
+                            }
+                        }
+                    });
+                } else {
+                    // decrypted, can use
+                    if (checkBack != null) {
+                        checkBack.accept(true);
+                    }
+                }
+            }
+        });
     }
 
     private void decrypt(RepoModel repoModel) {
@@ -974,7 +1073,10 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 if (encKeyCacheEntity.expire_time_long == 0) {
                     showPasswordDialog(repoModel);
                 } else if (now < encKeyCacheEntity.expire_time_long) {
-                    navTo(repoModel);
+
+                    getNavContext().push(repoModel);
+                    loadData(isForce());
+
                 } else {
                     showPasswordDialog(repoModel);
                 }
@@ -983,15 +1085,21 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     }
 
     private void showPasswordDialog(RepoModel repoModel) {
-        PasswordDialogFragment dialogFragment = PasswordDialogFragment.newInstance();
-        dialogFragment.initData(repoModel.repo_id, repoModel.repo_name);
-        dialogFragment.setResultListener(new OnResultListener<RepoModel>() {
+        showPasswordDialogCallback(repoModel, new OnResultListener<RepoModel>() {
             @Override
             public void onResultData(RepoModel uRepoModel) {
+                if (uRepoModel == null) {
+                    return;
+                }
+
                 navTo(uRepoModel);
             }
         });
+    }
 
+    private void showPasswordDialogCallback(RepoModel repoModel, OnResultListener<RepoModel> resultListener) {
+        PasswordDialogFragment dialogFragment = PasswordDialogFragment.newInstance(repoModel.repo_id, repoModel.repo_name);
+        dialogFragment.setResultListener(resultListener);
         dialogFragment.show(getChildFragmentManager(), PasswordDialogFragment.class.getSimpleName());
     }
 
@@ -1294,8 +1402,8 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                     ToastUtils.showLong(R.string.rename_successful);
                 }
 
-                loadData(RefreshStatusEnum.REMOTE);
                 closeActionMode();
+                loadData(RefreshStatusEnum.REMOTE);
             }
         });
         dialogFragment.show(getChildFragmentManager(), RenameDialogFragment.class.getSimpleName());
