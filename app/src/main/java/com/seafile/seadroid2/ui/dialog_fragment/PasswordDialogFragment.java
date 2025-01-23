@@ -8,6 +8,7 @@ import android.text.method.PasswordTransformationMethod;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 
+import androidx.annotation.Nullable;
 import androidx.lifecycle.Observer;
 
 import com.google.android.material.textfield.TextInputLayout;
@@ -30,18 +31,25 @@ public class PasswordDialogFragment extends RequestCustomDialogFragmentWithVM<Pa
         this.resultListener = resultListener;
     }
 
-    public static PasswordDialogFragment newInstance() {
-
+    public static PasswordDialogFragment newInstance(String repoId, String repoName) {
         Bundle args = new Bundle();
-
+        args.putString("repoId", repoId);
+        args.putString("repoName", repoName);
         PasswordDialogFragment fragment = new PasswordDialogFragment();
         fragment.setArguments(args);
         return fragment;
     }
 
-    public void initData(String repoId, String repoName) {
-        this.repoId = repoId;
-        this.repoName = repoName;
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        Bundle args = getArguments();
+        if (args != null) {
+            repoId = args.getString("repoId");
+            repoName = args.getString("repoName");
+        } else {
+            throw new IllegalArgumentException("this dialogFragment need repoId param");
+        }
     }
 
     @Override
@@ -52,6 +60,16 @@ public class PasswordDialogFragment extends RequestCustomDialogFragmentWithVM<Pa
     @Override
     public String getDialogTitleString() {
         return repoName;
+    }
+
+    @Override
+    protected void onNegativeClicked() {
+
+        if (resultListener != null) {
+            resultListener.onResultData(null);
+        }
+
+        super.onNegativeClicked();
     }
 
     @Override

@@ -48,7 +48,7 @@ public class StarredViewModel extends BaseViewModel {
                 getRefreshLiveData().setValue(false);
                 SeafException seafException = getExceptionByThrowable(throwable);
 
-                if (seafException == SeafException.remoteWipedException) {
+                if (seafException == SeafException.REMOTE_WIPED_EXCEPTION) {
                     //post a request
                     completeRemoteWipe();
                 }

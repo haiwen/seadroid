@@ -8,18 +8,14 @@ import com.blankj.utilcode.util.CollectionUtils;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.util.SLogs;
-import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
 import com.seafile.seadroid2.framework.data.model.ResultModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.ui.dialog_fragment.DialogService;
 import com.seafile.seadroid2.ui.folder_backup.RepoConfig;
 
-import org.reactivestreams.Publisher;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Flow;
 
 import io.reactivex.Flowable;
 import io.reactivex.Single;
@@ -68,13 +64,13 @@ public class DeleteRepoViewModel extends BaseViewModel {
                 if (resultModel1.success) {
                     //check album backup repo config
                     RepoConfig albumRepoConfig = AlbumBackupSharePreferenceHelper.readRepoConfig();
-                    if (albumRepoConfig != null && TextUtils.equals(repoId, albumRepoConfig.getRepoID())) {
+                    if (albumRepoConfig != null && TextUtils.equals(repoId, albumRepoConfig.getRepoId())) {
                         AlbumBackupSharePreferenceHelper.writeBackupSwitch(false);
                     }
 
                     //check folder backup repo config
                     RepoConfig folderRepoConfig = FolderBackupSharePreferenceHelper.readRepoConfig();
-                    if (folderRepoConfig != null && TextUtils.equals(repoId, folderRepoConfig.getRepoID())) {
+                    if (folderRepoConfig != null && TextUtils.equals(repoId, folderRepoConfig.getRepoId())) {
                         FolderBackupSharePreferenceHelper.writeBackupSwitch(false);
                     }
                 }

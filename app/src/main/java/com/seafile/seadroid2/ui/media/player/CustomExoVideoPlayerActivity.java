@@ -1,18 +1,13 @@
-package com.seafile.seadroid2.ui.media.player.exoplayer;
+package com.seafile.seadroid2.ui.media.player;
 
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.view.View;
-import android.view.WindowInsets;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
-import androidx.core.view.WindowInsetsCompat;
-import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.lifecycle.Observer;
 import androidx.media3.common.AudioAttributes;
 import androidx.media3.common.C;
@@ -27,7 +22,6 @@ import androidx.media3.datasource.HttpDataSource;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.exoplayer.source.ProgressiveMediaSource;
-import androidx.media3.ui.DefaultTimeBar;
 import androidx.media3.ui.TimeBar;
 
 import com.blankj.utilcode.util.AppUtils;
@@ -37,7 +31,6 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.databinding.ActivityExoPlayerBinding;
 import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
-import com.seafile.seadroid2.ui.media.player.PlayerViewModel;
 import com.seafile.seadroid2.view.ExoPlayerView;
 
 import java.util.Locale;

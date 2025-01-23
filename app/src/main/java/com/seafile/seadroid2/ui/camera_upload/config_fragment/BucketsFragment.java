@@ -88,7 +88,7 @@ public class BucketsFragment extends Fragment {
         for (int i = 0; i < this.buckets.size(); i++) {
             GalleryBucketUtils.Bucket b = this.buckets.get(i);
             if (!currentBucketList.isEmpty())
-                selectedBuckets[i] = currentBucketList.contains(b.id);
+                selectedBuckets[i] = currentBucketList.contains(b.bucketId);
             else
                 selectedBuckets[i] = b.isCameraBucket;
         }
@@ -199,7 +199,7 @@ public class BucketsFragment extends Fragment {
                 holder = (ViewHolder) convertView.getTag();
             }
             holder.imageview.setId(position);
-            holder.text.setText(buckets.get(position).name);
+            holder.text.setText(buckets.get(position).bucketName);
             holder.imageview.setOnClickListener(new View.OnClickListener() {
 
                 public void onClick(View v) {
@@ -234,7 +234,7 @@ public class BucketsFragment extends Fragment {
         List<String> ret = new ArrayList<>();
         for (int i = 0; i < buckets.size(); i++) {
             if (selectedBuckets[i]) {
-                ret.add(buckets.get(i).id);
+                ret.add(buckets.get(i).bucketId);
             }
         }
 

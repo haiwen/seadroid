@@ -341,13 +341,13 @@ public abstract class TransferListFragment extends BaseFragment {
                     } else {
 
                         //
-                        BackgroundJobManagerImpl.getInstance().cancelMediaWorker();
-                        BackgroundJobManagerImpl.getInstance().cancelFolderAutoUploadWorker();
+                        BackgroundJobManagerImpl.getInstance().cancelMediaBackupWorker();
+                        BackgroundJobManagerImpl.getInstance().cancelFolderBackupWorker();
                         BackgroundJobManagerImpl.getInstance().cancelFileManualUploadWorker();
 
                         //
-                        BackgroundJobManagerImpl.getInstance().startMediaWorkerChain(false);
-                        BackgroundJobManagerImpl.getInstance().startFolderAutoBackupWorkerChain(false);
+                        BackgroundJobManagerImpl.getInstance().startMediaBackupWorkerChain(false);
+                        BackgroundJobManagerImpl.getInstance().startFolderBackupWorkerChain(false);
                         BackgroundJobManagerImpl.getInstance().startFileManualUploadWorker();
                     }
                 } else {
@@ -432,21 +432,21 @@ public abstract class TransferListFragment extends BaseFragment {
             return;
         }
 
-        if (TransferEvent.EVENT_TRANSFER_FAILED.equals(event)) {
+        if (TransferEvent.EVENT_FILE_TRANSFER_FAILED.equals(event)) {
             adapter.getItems().get(position).transferred_size = transferredSize;
             adapter.getItems().get(position).transfer_status = TransferStatus.FAILED;
-        } else if (TransferEvent.EVENT_TRANSFER_SUCCESS.equals(event)) {
+        } else if (TransferEvent.EVENT_FILE_TRANSFER_SUCCESS.equals(event)) {
             adapter.getItems().get(position).transferred_size = transferredSize;
             adapter.getItems().get(position).transfer_status = TransferStatus.SUCCEEDED;
-        } else if (TransferEvent.EVENT_TRANSFERRING.equals(event)) {
+        } else if (TransferEvent.EVENT_FILE_IN_TRANSFER.equals(event)) {
             adapter.getItems().get(position).transferred_size = transferredSize;
             adapter.getItems().get(position).transfer_status = TransferStatus.IN_PROGRESS;
         }
 
 //        if (isItemVisible(position)) {
         Bundle bundle = new Bundle();
-        bundle.putInt(TransferWorker.KEY_DATA_PROGRESS, percent);
-        bundle.putLong(TransferWorker.KEY_DATA_TRANSFERRED_SIZE, transferredSize);
+        bundle.putInt(TransferWorker.KEY_TRANSFER_PROGRESS, percent);
+        bundle.putLong(TransferWorker.KEY_TRANSFER_TRANSFERRED_SIZE, transferredSize);
         adapter.notifyItemChanged(position, bundle);
 //        }
     }

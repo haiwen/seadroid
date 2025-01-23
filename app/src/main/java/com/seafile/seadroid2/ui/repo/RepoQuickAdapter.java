@@ -48,7 +48,9 @@ import com.seafile.seadroid2.framework.data.model.search.SearchModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.util.GlideApp;
 import com.seafile.seadroid2.framework.util.GlideOptions;
+import com.seafile.seadroid2.framework.util.StringUtils;
 import com.seafile.seadroid2.framework.util.ThumbnailUtils;
+import com.seafile.seadroid2.framework.util.URLs;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.ui.base.adapter.BaseMultiAdapter;
 import com.seafile.seadroid2.ui.repo.vh.AccountViewHolder;
@@ -293,15 +295,6 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
     }
 
     private void onBindGroup(int position, GroupItemViewHolder holder, GroupItemModel model, List<?> payloads) {
-
-//        if (!CollectionUtils.isEmpty(payloads)) {
-//            Bundle bundle = (Bundle) payloads.get(0);
-//            boolean isChecked = bundle.getBoolean("is_checked");
-//
-//            holder.binding.listSeparatorItemActionText.setRotation(isChecked ? 90 : 270);
-//            return;
-//        }
-
         if (!TextUtils.isEmpty(model.title)) {
             if ("Organization".equals(model.title)) {
                 holder.binding.itemGroupTitle.setText(R.string.shared_with_all);
@@ -310,7 +303,15 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
             }
         }
 
-//        holder.binding.listSeparatorItemActionText.setRotation(model.is_checked ? 90 : 270);
+        if (selectType.ordinal() >= RepoSelectType.ONLY_ACCOUNT.ordinal()) {
+            holder.binding.itemGroupExpand.setRotation(0);
+            holder.binding.itemGroupExpand.setVisibility(View.GONE);
+            holder.binding.getRoot().setClickable(false);
+        } else {
+            holder.binding.itemGroupExpand.setVisibility(View.VISIBLE);
+            holder.binding.itemGroupExpand.setRotation(model.is_expanded ? 270 : 90);
+            holder.binding.getRoot().setClickable(true);
+        }
     }
 
     private void onBindRepos(RepoViewHolder holder, RepoModel model, @NonNull List<?> payloads) {
@@ -320,7 +321,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
 
 //            holder.binding.getRoot().setChecked(model.is_checked);
 
-           updateItemMultiSelectViewWithPayload(holder.binding.itemMultiSelect,isChecked);
+            updateItemMultiSelectViewWithPayload(holder.binding.itemMultiSelect, isChecked);
             return;
         }
 
@@ -540,11 +541,15 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
     }
 
     private void onBindSearch(DirentViewHolder holder, SearchModel model) {
-        holder.binding.itemTitle.setText(model.name);
-        holder.binding.itemSubtitle.setText(model.getSubtitle());
-
 //        holder.binding.getRoot().setBackground(AnimatedStateListDrawableCompatUtils.createDrawableCompat(getContext()));
 
+        if (!model.isDir()) {
+            String displayName = URLs.getFileNameFromFullPath(model.fullpath);
+            holder.binding.itemTitle.setText(displayName);
+        } else {
+            holder.binding.itemTitle.setText(model.name);
+        }
+        holder.binding.itemSubtitle.setText(model.getSubtitle());
 
         if (repoEncrypted || (!Utils.isViewableImage(model.name) && !Utils.isVideoFile(model.name))) {
             holder.binding.itemIcon.setImageResource(model.getIcon());

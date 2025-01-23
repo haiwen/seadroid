@@ -148,7 +148,7 @@ public class DataManager {
 
     public static List<String> getRepoNameMaps(Account account) {
 
-        String names = Settings.getUserSharedPreferences().getString(DataStoreKeys.DS_REPO_DIR_MAPPING, null);
+        String names = Settings.getCurrentAccountSharedPreferences().getString(DataStoreKeys.DS_REPO_DIR_MAPPING, null);
 //        String names = DataStoreManager.getInstanceByUser(account.getSignature()).readString(DataStoreKeys.DS_REPO_DIR_MAPPING);
         Type listType = new TypeToken<List<String>>() {
         }.getType();
@@ -215,7 +215,7 @@ public class DataManager {
             list.add(repo_id + DataStoreKeys.SEPARATOR + uniqueRepoName);
             String v = GsonUtils.toJson(list);
 
-            Settings.getUserSharedPreferences().edit().putString(DataStoreKeys.DS_REPO_DIR_MAPPING, v).commit();
+            Settings.getCurrentAccountSharedPreferences().edit().putString(DataStoreKeys.DS_REPO_DIR_MAPPING, v).commit();
 //            DataStoreManager.getInstanceByUser(account.getSignature()).writeString(DataStoreKeys.DS_REPO_DIR_MAPPING, v);
         }
 

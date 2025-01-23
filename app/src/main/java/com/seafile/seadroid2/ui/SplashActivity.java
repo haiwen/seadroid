@@ -15,6 +15,8 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.enums.NightMode;
 import com.seafile.seadroid2.framework.datastore.sp.AppDataManager;
+import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
+import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
 import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.ui.account.AccountsActivity;
 import com.seafile.seadroid2.ui.base.BaseActivity;
@@ -84,6 +86,11 @@ public class SplashActivity extends BaseActivity {
 
             finish();
         } else {
+
+            // notice:
+            // when the app restarts, reset last scan time, so that it will scan all file again
+            FolderBackupSharePreferenceHelper.resetLastScanTime();
+            AlbumBackupSharePreferenceHelper.resetLastScanTime();
 
             MainActivity.startThis(this);
             finish();

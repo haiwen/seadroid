@@ -15,6 +15,7 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.enums.RefreshStatusEnum;
 import com.seafile.seadroid2.framework.data.model.permission.PermissionWrapperModel;
 import com.seafile.seadroid2.ui.bottomsheetmenu.ActionMenu;
 import com.seafile.seadroid2.context.NavContext;
@@ -43,7 +44,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import io.reactivex.Flowable;
@@ -188,7 +188,7 @@ public class RepoViewModel extends BaseViewModel {
                     return;
                 }
 
-                List<BaseModel> list = Objs.parseRepoListForAdapter(repoModels, account.getSignature(), false);
+                List<BaseModel> list = Objs.convertToAdapterList(repoModels, false);
                 getObjListLiveData().setValue(list);
 
                 if (isLoadRemoteData) {
@@ -201,7 +201,6 @@ public class RepoViewModel extends BaseViewModel {
     }
 
     private void loadReposFromRemote(Account account) {
-
         removeAllPermission();
 
         if (!NetworkUtils.isConnected()) {
@@ -224,7 +223,7 @@ public class RepoViewModel extends BaseViewModel {
                 getRefreshLiveData().setValue(false);
 
                 SeafException seafException = getExceptionByThrowable(throwable);
-                if (seafException == SeafException.remoteWipedException) {
+                if (seafException == SeafException.REMOTE_WIPED_EXCEPTION) {
                     //post a request
                     completeRemoteWipe();
                 }
@@ -332,10 +331,11 @@ public class RepoViewModel extends BaseViewModel {
             @Override
             public void accept(List<DirentModel> direntModels) throws Exception {
 
+                getObjListLiveData().setValue(Objs.parseLocalDirents(direntModels));
+
                 if (isLoadRemoteData) {
                     loadDirentsFromRemote(account, navContext);
                 } else {
-                    getObjListLiveData().setValue(Objs.parseLocalDirents(direntModels));
                     getRefreshLiveData().setValue(false);
                 }
             }
@@ -345,7 +345,7 @@ public class RepoViewModel extends BaseViewModel {
     private void loadDirentsFromRemote(Account account, NavContext navContext) {
         if (!NetworkUtils.isConnected()) {
             getRefreshLiveData().setValue(false);
-            getSeafExceptionLiveData().setValue(SeafException.networkException);
+            getSeafExceptionLiveData().setValue(SeafException.NETWORK_EXCEPTION);
             return;
         }
 
@@ -417,7 +417,7 @@ public class RepoViewModel extends BaseViewModel {
                 getRefreshLiveData().setValue(false);
 
                 SeafException seafException = getExceptionByThrowable(throwable);
-                if (seafException == SeafException.remoteWipedException) {
+                if (seafException == SeafException.REMOTE_WIPED_EXCEPTION) {
                     //post a request
                     completeRemoteWipe();
                 }
@@ -479,7 +479,7 @@ public class RepoViewModel extends BaseViewModel {
             public SingleSource<Pair<RepoModel, PermissionEntity>> apply(Pair<RepoModel, PermissionEntity> pair) throws Exception {
 
                 if (pair.getFirst() == null) {
-                    return Single.error(SeafException.notFoundException);
+                    return Single.error(SeafException.NOT_FOUND_EXCEPTION);
                 }
 
                 if (pair.getSecond().isValid()) {

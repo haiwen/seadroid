@@ -2,24 +2,18 @@ package com.seafile.seadroid2.framework.http;
 
 import com.blankj.utilcode.util.CollectionUtils;
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.ssl.CertsManager;
-import com.seafile.seadroid2.ssl.SSLSeafileSocketFactory;
 import com.seafile.seadroid2.ssl.SSLTrustManager;
 
-import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocketFactory;
@@ -30,7 +24,6 @@ import javax.net.ssl.X509TrustManager;
 import okhttp3.ConnectionSpec;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
-import okhttp3.Request;
 
 public class SafeOkHttpClient extends BaseOkHttpClient {
     private final List<Interceptor> _interceptors = new ArrayList<>();

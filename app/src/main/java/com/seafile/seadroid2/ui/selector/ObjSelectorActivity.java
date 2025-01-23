@@ -207,7 +207,7 @@ public class ObjSelectorActivity extends BaseActivity {
         binding.rv.addItemDecoration(decoration);
 
         adapter = new RepoQuickAdapter();
-        adapter.setSelectType(RepoSelectType.FOLDER);
+        adapter.setSelectType(RepoSelectType.DIR);
         adapter.setFileViewType(FileViewType.LIST);
 
         adapter.setOnItemClickListener((baseQuickAdapter, view, i) -> {
@@ -276,8 +276,7 @@ public class ObjSelectorActivity extends BaseActivity {
     }
 
     private void showPasswordDialog(RepoModel repoModel) {
-        PasswordDialogFragment dialogFragment = PasswordDialogFragment.newInstance();
-        dialogFragment.initData(repoModel.repo_id, repoModel.repo_name);
+        PasswordDialogFragment dialogFragment = PasswordDialogFragment.newInstance(repoModel.repo_id, repoModel.repo_name);
         dialogFragment.setResultListener(new OnResultListener<RepoModel>() {
             @Override
             public void onResultData(RepoModel uRepoModel) {

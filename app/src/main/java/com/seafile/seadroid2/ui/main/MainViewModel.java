@@ -20,10 +20,7 @@ import com.seafile.seadroid2.framework.data.db.entities.PermissionEntity;
 import com.seafile.seadroid2.framework.data.model.dirents.DirentFileModel;
 import com.seafile.seadroid2.enums.TransferAction;
 import com.seafile.seadroid2.enums.TransferDataSource;
-import com.seafile.seadroid2.enums.TransferResult;
 import com.seafile.seadroid2.enums.TransferStatus;
-import com.seafile.seadroid2.framework.data.model.permission.PermissionListWrapperModel;
-import com.seafile.seadroid2.framework.data.model.permission.PermissionParentModel;
 import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.ExistingFileStrategy;
@@ -53,18 +50,13 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
-import io.reactivex.SingleSource;
 import io.reactivex.functions.Consumer;
-import io.reactivex.functions.Function;
-import kotlin.Pair;
 
 public class MainViewModel extends BaseViewModel {
     //    private final MutableLiveData<Pair<String, String>> OnNewFileDownloadLiveData = new MutableLiveData<>();
@@ -196,7 +188,7 @@ public class MainViewModel extends BaseViewModel {
 
     private void getRepoModelFromRemote(String repoId, Consumer<RepoModel> consumer) {
         //from net
-        Single<RepoWrapperModel> singleNet = HttpIO.getCurrentInstance().execute(RepoService.class).getRepos();
+        Single<RepoWrapperModel> singleNet = HttpIO.getCurrentInstance().execute(RepoService.class).getReposAsync();
         addSingleDisposable(singleNet, new Consumer<RepoWrapperModel>() {
             @Override
             public void accept(RepoWrapperModel repoWrapperModel) throws Exception {
@@ -261,9 +253,6 @@ public class MainViewModel extends BaseViewModel {
         });
     }
 
-    public void searchLocal(String key) {
-
-    }
 
     public void checkLocalDirent(Account account, Context context, RepoModel repoModel, String parentDir, List<Uri> uriList, Consumer<List<Uri>> consumer) {
         if (CollectionUtils.isEmpty(uriList)) {
@@ -364,67 +353,51 @@ public class MainViewModel extends BaseViewModel {
      *     <li>it will be deleted when UploadFileManuallyWorker end</li>
      * <ol/>
      */
-    public void addUploadTask(Account account, Context context, RepoModel repoModel, String parentDir, Uri sourceUri, boolean isReplace, Consumer<FileTransferEntity> consumer) {
+    public void addUploadTask(Account account, Context context, RepoModel repoModel, String parentDir, Uri sourceUri, String fileName, boolean isReplace, Consumer<FileTransferEntity> consumer) {
         ToastUtils.showLong(R.string.upload_waiting);
 
-        Single<File> single = getCopyFileSingle(account, context, sourceUri, repoModel.repo_id, repoModel.repo_name, isReplace);
-        addSingleDisposable(single, new Consumer<File>() {
+        //content://com.android.providers.media.documents/document/image:1000182224
+        FileTransferEntity entity = getUploadTransferEntityByUri(context, account, repoModel, parentDir, sourceUri, fileName, isReplace);
+        insertUploadTask(entity, new Consumer<FileTransferEntity>() {
             @Override
-            public void accept(File appLocalCacheFile) throws Exception {
-                addUploadTask(account, repoModel, parentDir, appLocalCacheFile.getAbsolutePath(), isReplace, consumer);
+            public void accept(FileTransferEntity fileTransferEntity) throws Exception {
+                SLogs.e("addUploadTask uri: complete");
+            }
+        });
+
+//        Single<File> single = getCopyFileSingle(account, context, sourceUri, repoModel.repo_id, repoModel.repo_name, isReplace);
+//        addSingleDisposable(single, new Consumer<File>() {
+//            @Override
+//            public void accept(File appLocalCacheFile) throws Exception {
+//                addUploadTask(account, repoModel, parentDir, appLocalCacheFile.getAbsolutePath(), isReplace, consumer);
+//            }
+//        });
+    }
+
+    public void addUploadTask(Account account, RepoModel repoModel, String parentDir, String appLocalCachedFile, boolean isReplace, Consumer<FileTransferEntity> consumer) {
+        FileTransferEntity entity = getUploadTransferEntity(account, repoModel, parentDir, appLocalCachedFile, isReplace);
+        insertUploadTask(entity, new Consumer<FileTransferEntity>() {
+            @Override
+            public void accept(FileTransferEntity fileTransferEntity) throws Exception {
+                SLogs.e("addUploadTask file: complete");
             }
         });
     }
 
-    private FileTransferEntity getUploadTransferEntity(Account account, RepoModel repoModel, String parentDir, String appLocalCacheFilePath, boolean isReplace) {
-        FileTransferEntity entity = new FileTransferEntity();
-
-        File file = new File(appLocalCacheFilePath);
-        if (!file.exists()) {
-            return null;
+    public void insertUploadTask(FileTransferEntity fileTransferEntity, Consumer<FileTransferEntity> consumer) {
+        if (fileTransferEntity == null) {
+            return;
         }
 
-        entity.full_path = file.getAbsolutePath();
-        entity.target_path = Utils.pathJoin(parentDir, file.getName());
-        entity.setParent_path(parentDir);
-
-        entity.file_name = file.getName();
-        entity.file_size = file.length();
-        entity.file_format = FileUtils.getFileExtension(entity.full_path);
-        entity.file_md5 = FileUtils.getFileMD5ToString(entity.full_path).toLowerCase();
-        entity.mime_type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(entity.file_format);
-
-        entity.repo_id = repoModel.repo_id;
-        entity.repo_name = repoModel.repo_name;
-        entity.related_account = account.getSignature();
-        entity.data_source = TransferDataSource.FILE_BACKUP;
-        entity.created_at = System.currentTimeMillis();
-        entity.modified_at = entity.created_at;
-        entity.file_original_modified_at = file.lastModified();
-        entity.action_end_at = 0;
-        entity.file_strategy = isReplace ? ExistingFileStrategy.REPLACE : ExistingFileStrategy.KEEP;
-        entity.is_copy_to_local = false;
-        entity.transfer_action = TransferAction.UPLOAD;
-        entity.transfer_result = TransferResult.NO_RESULT;
-        entity.transfer_status = TransferStatus.WAITING;
-
-        entity.uid = entity.getUID();
-        return entity;
-    }
-
-    public void addUploadTask(Account account, RepoModel repoModel, String parentDir, String appLocalCacheFile, boolean isReplace, Consumer<FileTransferEntity> consumer) {
         Single<FileTransferEntity> single = Single.create(new SingleOnSubscribe<FileTransferEntity>() {
             @Override
             public void subscribe(SingleEmitter<FileTransferEntity> emitter) throws Exception {
 
-                FileTransferEntity entity = getUploadTransferEntity(account, repoModel, parentDir, appLocalCacheFile, isReplace);
-
-                AppDatabase.getInstance().fileTransferDAO().insert(entity);
-
-                emitter.onSuccess(entity);
-
+                AppDatabase.getInstance().fileTransferDAO().insert(fileTransferEntity);
+                emitter.onSuccess(fileTransferEntity);
             }
         });
+
 
         addSingleDisposable(single, new Consumer<FileTransferEntity>() {
             @Override
@@ -448,4 +421,84 @@ public class MainViewModel extends BaseViewModel {
             }
         });
     }
+
+    private FileTransferEntity getUploadTransferEntityByUri(Context context, Account account, RepoModel repoModel, String parentDir, Uri uri, String fileName, boolean isReplace) {
+        FileTransferEntity entity = new FileTransferEntity();
+
+        if (uri == null || TextUtils.isEmpty(uri.toString())) {
+            return null;
+        }
+
+        String mime = Utils.getMimeType(context, uri);
+        long size = Utils.getFileSize(context, uri);
+        long lastModifiedTime = Utils.getFileCreateTime(context, uri);
+
+        entity.full_path = uri.toString();
+        entity.target_path = Utils.pathJoin(parentDir, fileName);
+        entity.setParent_path(parentDir);
+
+        entity.file_name = fileName;
+        entity.file_size = size;
+        entity.file_format = FileUtils.getFileExtension(fileName);
+        entity.file_md5 = null;
+        entity.mime_type = mime;
+
+        //notice
+        entity.repo_id = repoModel.repo_id;
+        entity.repo_name = repoModel.repo_name;
+        entity.related_account = account.getSignature();
+
+        entity.data_source = TransferDataSource.FILE_BACKUP;
+        entity.created_at = System.currentTimeMillis();
+        entity.modified_at = entity.created_at;
+        entity.file_original_modified_at = lastModifiedTime;
+        entity.action_end_at = 0;
+        entity.file_strategy = isReplace ? ExistingFileStrategy.REPLACE : ExistingFileStrategy.KEEP;
+        entity.is_copy_to_local = false;
+        entity.transfer_action = TransferAction.UPLOAD;
+        entity.result = null;
+        entity.transfer_status = TransferStatus.WAITING;
+
+        entity.uid = entity.getUID();
+        return entity;
+    }
+
+    private FileTransferEntity getUploadTransferEntity(Account account, RepoModel repoModel, String parentDir, String appLocalCacheFilePath, boolean isReplace) {
+        FileTransferEntity entity = new FileTransferEntity();
+
+        File file = new File(appLocalCacheFilePath);
+        if (!file.exists()) {
+            return null;
+        }
+
+        entity.full_path = file.getAbsolutePath();
+        entity.target_path = Utils.pathJoin(parentDir, file.getName());
+        entity.setParent_path(parentDir);
+
+        entity.file_name = file.getName();
+        entity.file_size = file.length();
+        entity.file_format = FileUtils.getFileExtension(entity.full_path);
+        entity.file_md5 = FileUtils.getFileMD5ToString(entity.full_path).toLowerCase();
+        entity.mime_type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(entity.file_format);
+
+        //notice
+        entity.repo_id = repoModel.repo_id;
+        entity.repo_name = repoModel.repo_name;
+        entity.related_account = account.getSignature();
+
+        entity.data_source = TransferDataSource.FILE_BACKUP;
+        entity.created_at = System.currentTimeMillis();
+        entity.modified_at = entity.created_at;
+        entity.file_original_modified_at = file.lastModified();
+        entity.action_end_at = 0;
+        entity.file_strategy = isReplace ? ExistingFileStrategy.REPLACE : ExistingFileStrategy.KEEP;
+        entity.is_copy_to_local = false;
+        entity.transfer_action = TransferAction.UPLOAD;
+        entity.result = null;
+        entity.transfer_status = TransferStatus.WAITING;
+
+        entity.uid = entity.getUID();
+        return entity;
+    }
+
 }

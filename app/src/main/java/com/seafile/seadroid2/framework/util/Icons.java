@@ -62,13 +62,18 @@ public class Icons {
         suffixIconMap.put("mp3", R.drawable.icon_format_music);
         suffixIconMap.put("mov", R.drawable.icon_format_video);
         suffixIconMap.put("css", R.drawable.icon_format_css);
+        suffixIconMap.put("draw", R.drawable.icon_format_draw);
 
         //code
         return suffixIconMap;
     }
 
     /**
-     * https://stackoverflow.com/questions/4212861/what-is-a-correct-mime-type-for-docx-pptx-etc
+     * mimetype:
+     * <a href="https://www.iana.org/assignments/media-types/media-types.xhtml">media-types.xhtml</a>
+     * <br>
+     * office:
+     * <a href="https://stackoverflow.com/questions/4212861/what-is-a-correct-mime-type-for-docx-pptx-etc">What is a correct MIME type for .docx, .pptx, etc.?</a>
      */
     private static int getResIdForMimetype(String mimetype) {
         if (TextUtils.isEmpty(mimetype)) {
@@ -85,20 +90,18 @@ public class Icons {
             return R.drawable.icon_format_music;
         } else if (mimetype.contains("video/")) {
             return R.drawable.icon_format_video;
-        } else if (mimetype.contains("msword") || mimetype.contains("ms-word")) {
+        } else if (mimetype.contains("ms-word") || mimetype.contains("msword")) {
             return R.drawable.icon_format_word;
-        } else if (mimetype.contains("mspowerpoint") || mimetype.contains("ms-powerpoint")) {
+        } else if (mimetype.contains("ms-powerpoint") || mimetype.contains("mspowerpoint")) {
             return R.drawable.icon_format_ppt;
-        } else if (mimetype.contains("msexcel") || mimetype.contains("ms-excel")) {
+        } else if (mimetype.contains("ms-excel") || mimetype.contains("msexcel")) {
             return R.drawable.icon_format_excel;
-        } else if (mimetype.contains("openxmlformats-officedocument")) {
-            if (mimetype.contains("wordprocessingml")) {
-                return R.drawable.icon_format_word;
-            } else if (mimetype.contains("spreadsheetml")) {
-                return R.drawable.icon_format_excel;
-            } else if (mimetype.contains("presentationml")) {
-                return R.drawable.icon_format_ppt;
-            }
+        } else if (mimetype.contains("vnd.openxmlformats-officedocument.wordprocessingml")) {
+            return R.drawable.icon_format_word;
+        } else if (mimetype.contains("vnd.openxmlformats-officedocument.spreadsheetml")) {
+            return R.drawable.icon_format_excel;
+        } else if (mimetype.contains("vnd.openxmlformats-officedocument.presentationml")) {
+            return R.drawable.icon_format_ppt;
         } else if (mimetype.equals("application/vnd.android.package-archive")) {
             return R.drawable.icon_format_file;
         } else if (mimetype.equals("application/zip")) {
@@ -107,6 +110,8 @@ public class Icons {
             return R.drawable.icon_format_file;
         } else if (mimetype.equals("application/x-iwork-pages-sffpages")) {
             return R.drawable.icon_format_file;
+        } else if (mimetype.equals("application/vnd.chemdraw+xml")) {
+            return R.drawable.icon_format_draw;
         }
 
         return R.drawable.icon_format_file;

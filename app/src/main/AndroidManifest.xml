@@ -197,7 +197,7 @@
         <activity android:name=".ui.folder_backup.FolderBackupSelectedPathActivity" />
 
         <activity
-            android:name=".ui.media.player.exoplayer.CustomExoVideoPlayerActivity"
+            android:name=".ui.media.player.CustomExoVideoPlayerActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:screenOrientation="sensor" />
 
@@ -272,16 +272,16 @@
             android:name=".framework.file_monitor.FileSyncService"
             android:exported="false" />
 
-        <receiver
-            android:name=".BootAutostart"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
-            </intent-filter>
-        </receiver>
+<!--        <receiver-->
+<!--            android:name=".BootAutostart"-->
+<!--            android:exported="true">-->
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.BOOT_COMPLETED" />-->
+<!--            </intent-filter>-->
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />-->
+<!--            </intent-filter>-->
+<!--        </receiver>-->
     </application>
     <queries>
         <intent>

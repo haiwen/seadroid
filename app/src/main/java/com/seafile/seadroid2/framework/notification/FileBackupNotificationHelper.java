@@ -27,7 +27,7 @@ public class FileBackupNotificationHelper extends BaseTransferNotificationHelper
 
     @Override
     public String getDefaultTitle() {
-        return context.getString(R.string.settings_folder_backup_info_title);
+        return context.getString(R.string.settings_file_backup_info_title);
     }
 
     @Override

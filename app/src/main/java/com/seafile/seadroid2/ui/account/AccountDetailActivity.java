@@ -176,12 +176,16 @@ public class AccountDetailActivity extends BaseActivityWithVM<AccountViewModel> 
             } else {
                 offset = Math.max(0, oldOffset - 1);
             }
+
+            if (offset > binding.serverUrl.getText().length()) {
+                return;
+            }
             binding.serverUrl.setSelection(offset, offset);
         }
     }
 
     private void onLoginException(Account account, SeafException err) {
-        if (err == SeafException.sslException) {
+        if (err == SeafException.SSL_EXCEPTION) {
             binding.authTokenHint.setVisibility(View.GONE);
             binding.rememberDevice.setVisibility(View.GONE);
 
@@ -211,13 +215,13 @@ public class AccountDetailActivity extends BaseActivityWithVM<AccountViewModel> 
                         }
                     });
             sslConfirmDialog.show(getSupportFragmentManager(), SslConfirmDialog.FRAGMENT_TAG);
-        } else if (err == SeafException.twoFactorAuthTokenMissing) {
+        } else if (err == SeafException.TWO_FACTOR_AUTH_TOKEN_MISSING_EXCEPTION) {
             // show auth token input box
             binding.authTokenHint.setVisibility(View.VISIBLE);
             binding.rememberDevice.setVisibility(View.VISIBLE);
             binding.rememberDevice.setChecked(false);
             binding.authToken.setError(getString(R.string.two_factor_auth_error));
-        } else if (err == SeafException.twoFactorAuthTokenInvalid) {
+        } else if (err == SeafException.TWO_FACTOR_AUTH_TOKEN_INVALID_EXCEPTION) {
             // show auth token input box
             binding.authTokenHint.setVisibility(View.VISIBLE);
             binding.rememberDevice.setVisibility(View.VISIBLE);

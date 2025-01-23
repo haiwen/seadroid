@@ -54,7 +54,7 @@ public class ShareToSeafileViewModel extends BaseViewModel {
                 Call<DirentWrapperModel> call = HttpIO.getInstanceByAccount(account).execute(RepoService.class).getDirentsSync(repoId, targetDir);
                 Response<DirentWrapperModel> res = call.execute();
                 if (!res.isSuccessful()) {
-                    emitter.onError(SeafException.networkException);
+                    emitter.onError(SeafException.NETWORK_EXCEPTION);
                     return;
                 }
 

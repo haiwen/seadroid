@@ -17,10 +17,8 @@ import com.seafile.seadroid2.framework.data.model.server.ServerInfoModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.account.AccountUtils;
 import com.seafile.seadroid2.framework.util.DeviceIdManager;
-import com.seafile.seadroid2.preferences.ContextStackPreferenceHelper;
 import com.seafile.seadroid2.ssl.CertsManager;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
-import com.seafile.seadroid2.ui.dialog_fragment.SignOutDialogFragment;
 import com.seafile.seadroid2.ui.main.MainService;
 
 import java.util.HashMap;
@@ -124,7 +122,7 @@ public class AccountViewModel extends BaseViewModel {
 
                 AccountInfo accountInfo = accountInfoResponse.body();
                 if (accountInfo == null) {
-                    throw SeafException.networkException;
+                    throw SeafException.NETWORK_EXCEPTION;
                 }
 
                 // Update the account info

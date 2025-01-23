@@ -147,7 +147,7 @@ public class DataMigrationActivity extends AppCompatActivity {
 
             Response<RepoWrapperModel> response = HttpIO.getInstanceByAccount(account)
                     .execute(RepoService.class)
-                    .getReposCall()
+                    .getReposSync()
                     .execute();
             if (!response.isSuccessful()) {
                 return;
@@ -389,7 +389,7 @@ public class DataMigrationActivity extends AppCompatActivity {
                 transferEntity.data_source = TransferDataSource.ALBUM_BACKUP;
                 transferEntity.transfer_action = TransferAction.UPLOAD;
                 transferEntity.transfer_status = TransferStatus.SUCCEEDED;
-                transferEntity.transfer_result = TransferResult.TRANSMITTED;
+                transferEntity.result = TransferResult.TRANSMITTED.name();
 
                 transferEntity.file_id = null;
                 transferEntity.file_original_modified_at = FileUtils.getFileLastModified(transferEntity.full_path);
@@ -496,7 +496,7 @@ public class DataMigrationActivity extends AppCompatActivity {
 
                 transferEntity.data_source = TransferDataSource.FOLDER_BACKUP;
                 transferEntity.transfer_action = TransferAction.UPLOAD;
-                transferEntity.transfer_result = TransferResult.TRANSMITTED;
+                transferEntity.result = TransferResult.TRANSMITTED.name();
                 transferEntity.transfer_status = TransferStatus.SUCCEEDED;
 
                 transferEntity.uid = transferEntity.getUID();
@@ -691,7 +691,7 @@ public class DataMigrationActivity extends AppCompatActivity {
 
                 String path = c.getString(pathIndex);
 
-                transferEntity.transfer_result = TransferResult.TRANSMITTED;
+                transferEntity.result = TransferResult.TRANSMITTED.name();
                 transferEntity.transfer_status = TransferStatus.SUCCEEDED;
                 if (path.startsWith("/")) {
                     transferEntity.transfer_action = TransferAction.DOWNLOAD;

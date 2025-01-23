@@ -6,9 +6,10 @@ import android.database.ContentObserver;
 import android.net.Uri;
 import android.os.Handler;
 import android.provider.MediaStore;
-import android.widget.Toast;
+import android.text.TextUtils;
 
 import com.seafile.seadroid2.SeadroidApplication;
+import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
 
@@ -39,16 +40,21 @@ public class MediaContentObserver extends ContentObserver {
     public void onChange(boolean selfChange) {
         super.onChange(selfChange);
 
-        String newVer = MediaStore.getVersion(SeadroidApplication.getAppContext());
-        SLogs.e("媒体库新版本："+newVer);
-        SLogs.e("A new file is detected and the Media task begins");
-        CameraUploadManager.getInstance().performFullSync();
-    }
+        String newVersion = MediaStore.getVersion(SeadroidApplication.getAppContext());
+        String lastVersion = AlbumBackupSharePreferenceHelper.readLastMediaVersion();
 
-//    @Override
-//    public void onChange(boolean selfChange, Uri changeUri) {
-//
-//    }
+        SLogs.e("媒体库版本：newVersion -> " + newVersion + ", lastVersion -> " + lastVersion);
+        SLogs.e("A new file is detected and the Media task begins");
+
+        if (TextUtils.equals(newVersion, lastVersion)) {
+            CameraUploadManager.getInstance().performSync(false);
+        } else {
+            //
+            AlbumBackupSharePreferenceHelper.writeLastMediaVersion(newVersion);
+            //
+            CameraUploadManager.getInstance().performSync(true);
+        }
+    }
 
     public void register() {
         if (mContext != null) {

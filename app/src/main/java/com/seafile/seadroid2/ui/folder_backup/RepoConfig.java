@@ -1,7 +1,6 @@
 package com.seafile.seadroid2.ui.folder_backup;
 
 import com.google.common.base.Objects;
-import com.seafile.seadroid2.account.Account;
 
 import java.io.Serializable;
 
@@ -27,11 +26,11 @@ public class RepoConfig implements Serializable {
         return email;
     }
 
-    public void setRepoID(String repoID) {
+    public void setRepoId(String repoID) {
         this.repoID = repoID;
     }
 
-    public String getRepoID() {
+    public String getRepoId() {
         return repoID;
     }
 

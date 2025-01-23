@@ -46,13 +46,10 @@ public interface FileService {
     Call<List<DirentRecursiveFileModel>> getDirRecursiveFileCall(@Path("repo_id") String repoId, @Query("p") String path);
 
     @GET("api2/repos/{repo_id}/file/?op=download")
-    Call<String> getFileDownloadLink(@Path("repo_id") String repoId, @Query("p") String path);
+    Call<String> getFileDownloadLinkSync(@Path("repo_id") String repoId, @Query("p") String p, @Query("reuse") int reuse);
 
     @GET("api2/repos/{repo_id}/file/?op=download")
-    Single<String> getFileDownloadLinkAsync(@Path("repo_id") String repoId, @Query("p") String path);
-
-    @GET("api2/repos/{repo_id}/file/?op=download")
-    Call<String> getFileDownloadLinkSync(@Path("repo_id") String repoId, @Query("p") String path);
+    Single<String> getFileDownloadLinkAsync(@Path("repo_id") String repoId, @Query("p") String p, @Query("reuse") int reuse);
 
     @GET("api2/repos/{repo_id}/file/?op=downloadblks")
     Call<FileBlocks> getFileBlockDownloadLink(@Path("repo_id") String repoId, @Query("p") String path);

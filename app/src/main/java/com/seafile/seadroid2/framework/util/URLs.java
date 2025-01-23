@@ -16,6 +16,25 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class URLs {
+    /**
+     * @return /a/b/logo.png -> logo.png
+     */
+    @Nullable
+    public static String getFileNameFromFullPath(String url) {
+        if (TextUtils.isEmpty(url)) {
+            return null;
+        }
+        if (!url.contains("/")) {
+            return url;
+        }
+
+        String[] paths = url.split("/");
+        if (paths.length == 0) {
+            return null;
+        }
+
+        return paths[paths.length - 1];
+    }
 
     /**
      * Gets the original file name
@@ -65,6 +84,7 @@ public class URLs {
 
     /**
      * lowerCase
+     *
      * @return png if url is xxx/xxx/logo.png@100px|100
      */
     public static String getFileFormat(String url) {

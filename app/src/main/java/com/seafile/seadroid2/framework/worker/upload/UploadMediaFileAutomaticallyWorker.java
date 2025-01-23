@@ -1,5 +1,6 @@
 package com.seafile.seadroid2.framework.worker.upload;
 
+import android.app.ForegroundServiceStartNotAllowedException;
 import android.content.Context;
 import android.os.Build;
 import android.text.TextUtils;
@@ -14,17 +15,16 @@ import androidx.work.WorkerParameters;
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.framework.data.db.AppDatabase;
 import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
-import com.seafile.seadroid2.enums.TransferAction;
 import com.seafile.seadroid2.enums.TransferDataSource;
-import com.seafile.seadroid2.enums.TransferResult;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
-import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.notification.AlbumBackupNotificationHelper;
 import com.seafile.seadroid2.framework.notification.base.BaseTransferNotificationHelper;
+import com.seafile.seadroid2.framework.util.ExceptionUtils;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
@@ -43,31 +43,31 @@ import java.util.UUID;
 public class UploadMediaFileAutomaticallyWorker extends BaseUploadWorker {
     public static final UUID UID = UUID.nameUUIDFromBytes(UploadMediaFileAutomaticallyWorker.class.getSimpleName().getBytes());
 
-    private final AlbumBackupNotificationHelper albumNotificationHelper;
+    private final AlbumBackupNotificationHelper notificationManager;
 
     public UploadMediaFileAutomaticallyWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
 
-        albumNotificationHelper = new AlbumBackupNotificationHelper(context);
+        notificationManager = new AlbumBackupNotificationHelper(context);
     }
 
     @Override
     public BaseTransferNotificationHelper getNotification() {
-        return albumNotificationHelper;
+        return notificationManager;
     }
 
-    boolean isFirstShow = true;
-    private void startShowNotification(){
-        if (!isFirstShow) {
-            return;
+    private void showNotification() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            try {
+                ForegroundInfo foregroundInfo = notificationManager.getForegroundNotification();
+                showForegroundAsync(foregroundInfo);
+            } catch (ForegroundServiceStartNotAllowedException e) {
+                SLogs.e(e.getMessage());
+            }
+        } else {
+            ForegroundInfo foregroundInfo = notificationManager.getForegroundNotification();
+            showForegroundAsync(foregroundInfo);
         }
-
-        //send start transfer event
-        sendEvent(TransferEvent.EVENT_TRANSFERRING, TransferDataSource.ALBUM_BACKUP);
-
-        // show foreground notification
-        ForegroundInfo foregroundInfo = albumNotificationHelper.getForegroundNotification();
-        showForegroundAsync(foregroundInfo);
     }
 
     @NonNull
@@ -77,102 +77,126 @@ public class UploadMediaFileAutomaticallyWorker extends BaseUploadWorker {
 
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
         if (account == null) {
-
-            notifyError(TransferResult.ACCOUNT_NOT_FOUND);
-
             return ListenableWorker.Result.success();
         }
 
-        boolean canExec = can();
-        if (!canExec) {
+
+        boolean canContinue = can();
+        if (!canContinue) {
             return Result.success();
         }
 
-        if (repoConfig == null) {
-            return Result.success();
+        //get total count: WAITING, IN_PROGRESS, FAILED
+        long totalPendingCount = getCurrentPendingCount(account, TransferDataSource.ALBUM_BACKUP);
+        if (totalPendingCount <= 0) {
+            return Result.success(getOutputData(null));
         }
 
-        //
-        String finishFlagEvent = null;
-        boolean isUploaded = false;
+        showNotification();
+
+        // This exception is a type of interruptible program, and a normal exception does not interrupt the transfer task
+        // see BaseUploadWorker#isInterrupt()
+        String interruptibleExceptionMsg = null;
+        boolean isFirst = true;
+
         while (true) {
             if (isStopped()) {
                 break;
             }
 
-            List<FileTransferEntity> transferList = AppDatabase
-                    .getInstance()
-                    .fileTransferDAO()
-                    .getOnePendingTransferSync(account.getSignature(),
-                            TransferAction.UPLOAD,
-                            TransferDataSource.ALBUM_BACKUP
-                    );
-            if (CollectionUtils.isEmpty(transferList)) {
+            List<FileTransferEntity> transferList = getList(isFirst, account);
+            if (isFirst) {
+                isFirst = false;
+
+                if (CollectionUtils.isEmpty(transferList)) {
+                    continue;
+                }
+            } else if (CollectionUtils.isEmpty(transferList)) {
                 break;
             }
 
-            startShowNotification();
-
-            isUploaded = true;
-
-            FileTransferEntity transferEntity = transferList.get(0);
-            transferEntity.repo_id = repoConfig.getRepoID();
-            transferEntity.repo_name = repoConfig.getRepoName();
-
             try {
-                transferFile(account, transferEntity);
+                for (FileTransferEntity fileTransferEntity : transferList) {
+                    // Upload to the default repo
+                    fileTransferEntity.repo_id = repoConfig.getRepoId();
+                    fileTransferEntity.repo_name = repoConfig.getRepoName();
+                    fileTransferEntity.result = null;// reset result
 
-                sendTransferEvent(transferEntity, true);
+                    try {
+                        transfer(account, fileTransferEntity, totalPendingCount);
+
+                    } catch (Exception e) {
+                        SeafException seafException = ExceptionUtils.getExceptionByThrowable(e);
+                        //Is there an interruption in the transmission in some cases?
+                        boolean isInterrupt = isInterrupt(seafException);
+                        if (isInterrupt) {
+                            SLogs.e("上传文件时发生了异常，已中断传输");
+                            notifyError(seafException);
+
+                            // notice this, see BaseUploadWorker#isInterrupt()
+                            throw e;
+                        } else {
+                            SLogs.e("上传文件时发生了异常，继续下一个传输");
+                        }
+
+                    }
+                }
             } catch (Exception e) {
-                SLogs.e("upload media file failed: ", e);
-                isUploaded = false;
+                SLogs.e("upload file file failed: ", e);
+                interruptibleExceptionMsg = e.getMessage();
 
-                TransferResult transferResult = onException(transferEntity, e);
-
-                if (!isStopped()) {
-                    notifyError(transferResult);
-
-                    sendTransferEvent(transferEntity, false);
-                }
-
-                String finishFlag = isInterrupt(transferResult);
-                if (!TextUtils.isEmpty(finishFlag)) {
-                    finishFlagEvent = finishFlag;
-                    break;
-                }
+                break;
             }
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             if (getStopReason() >= WorkInfo.STOP_REASON_CANCELLED_BY_APP) {
-                isUploaded = false;
+                interruptibleExceptionMsg = SeafException.USER_CANCELLED_EXCEPTION.getMessage();
             }
         }
 
-        //
-        if (isUploaded) {
+        //get FAILED count
+        long pendingCount = getCurrentPendingCount(account, TransferDataSource.ALBUM_BACKUP);
+        if (pendingCount == 0) {
             ToastUtils.showLong(R.string.upload_finished);
         }
 
         SLogs.e("UploadMediaFileAutomaticallyWorker all task run");
-        if (finishFlagEvent == null) {
-            finishFlagEvent = TransferEvent.EVENT_FINISH;
+
+        return Result.success(getOutputData(interruptibleExceptionMsg));
+    }
+
+    private Data getOutputData(String exceptionMsg) {
+        return new Data.Builder()
+                .putString(TransferWorker.KEY_DATA_SOURCE, TransferDataSource.ALBUM_BACKUP.name())
+                .putString(TransferWorker.KEY_DATA_STATUS, TransferEvent.EVENT_FINISH)
+                .putString(TransferWorker.KEY_DATA_RESULT, exceptionMsg)
+                .build();
+    }
+
+
+    private List<FileTransferEntity> getList(boolean isFirst, Account account) {
+        List<FileTransferEntity> transferList;
+        if (isFirst) {
+            //get all: FAILED
+            transferList = AppDatabase.getInstance()
+                    .fileTransferDAO()
+                    .getOneFailedPendingTransferSync(
+                            account.getSignature(),
+                            TransferDataSource.ALBUM_BACKUP
+                    );
+        } else {
+            //get one: WAITING, IN_PROGRESS
+            transferList = AppDatabase.getInstance()
+                    .fileTransferDAO()
+                    .getOnePendingTransferSync(
+                            account.getSignature(),
+                            TransferDataSource.ALBUM_BACKUP
+                    );
         }
 
-//        int pendingCount = AppDatabase
-//                .getInstance()
-//                .fileTransferDAO()
-//                .countPendingTransferSync(account.getSignature(),
-//                        TransferAction.UPLOAD,
-//                        TransferDataSource.ALBUM_BACKUP
-//                );
 
-        Data outputData = new Data.Builder()
-                .putString(TransferWorker.KEY_DATA_EVENT, finishFlagEvent)
-                .putBoolean(TransferWorker.KEY_DATA_PARAM, isUploaded)
-                .putString(TransferWorker.KEY_DATA_TYPE, String.valueOf(TransferDataSource.ALBUM_BACKUP))
-                .build();
-        return Result.success(outputData);
+        return transferList;
     }
 
     private RepoConfig repoConfig;
@@ -185,6 +209,10 @@ public class UploadMediaFileAutomaticallyWorker extends BaseUploadWorker {
 
         repoConfig = AlbumBackupSharePreferenceHelper.readRepoConfig();
         if (repoConfig == null) {
+            return false;
+        }
+
+        if (TextUtils.isEmpty(repoConfig.getRepoId())) {
             return false;
         }
 

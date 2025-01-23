@@ -49,7 +49,7 @@ import com.seafile.seadroid2.ui.base.adapter.LogicLoadMoreAdapter;
 import com.seafile.seadroid2.ui.file.FileActivity;
 import com.seafile.seadroid2.ui.main.MainActivity;
 import com.seafile.seadroid2.ui.media.image_preview2.CarouselImagePreviewActivity;
-import com.seafile.seadroid2.ui.media.player.exoplayer.CustomExoVideoPlayerActivity;
+import com.seafile.seadroid2.ui.media.player.CustomExoVideoPlayerActivity;
 import com.seafile.seadroid2.ui.sdoc.SDocWebViewActivity;
 import com.seafile.seadroid2.view.TipsViews;
 
@@ -143,7 +143,7 @@ public class Search2Activity extends BaseActivityWithVM<SearchViewModel> impleme
             public void onChanged(SeafException e) {
                 page--;
 
-                if (e == SeafException.notFoundException) {
+                if (e == SeafException.NOT_FOUND_EXCEPTION) {
                     showAdapterTip(R.string.search_server_not_support);
                 } else {
                     showAdapterTip(e.getMessage());

@@ -81,7 +81,7 @@ public class SettingsCameraBackupAdvanceFragment extends PreferenceFragmentCompa
                 boolean isCustom = (Boolean) newValue;
                 AlbumBackupManager.writeAllowDataPlanSwitch(isCustom);
 
-                BackgroundJobManagerImpl.getInstance().startMediaWorkerChain(isCustom);
+                BackgroundJobManagerImpl.getInstance().startMediaBackupWorkerChain(isCustom);
 
                 return true;
             }
@@ -98,7 +98,7 @@ public class SettingsCameraBackupAdvanceFragment extends PreferenceFragmentCompa
                 boolean isCustom = (Boolean) newValue;
                 AlbumBackupManager.writeAllowVideoSwitch(isCustom);
 
-                BackgroundJobManagerImpl.getInstance().startMediaWorkerChain(isCustom);
+                BackgroundJobManagerImpl.getInstance().startMediaBackupWorkerChain(isCustom);
 
                 return true;
             }
@@ -146,7 +146,7 @@ public class SettingsCameraBackupAdvanceFragment extends PreferenceFragmentCompa
             List<String> selectedBuckets = new ArrayList<>();
             AlbumBackupManager.writeBucketIds(selectedBuckets);
 
-            BackgroundJobManagerImpl.getInstance().startMediaWorkerChain(false);
+            BackgroundJobManagerImpl.getInstance().startMediaBackupWorkerChain(false);
 
             refreshPreferenceView();
         }
@@ -164,8 +164,8 @@ public class SettingsCameraBackupAdvanceFragment extends PreferenceFragmentCompa
         allBuckets.addAll(bucketsSet);
 
         for (GalleryBucketUtils.Bucket bucket : allBuckets) {
-            if (bucketIds.contains(bucket.id)) {
-                bucketNames.add(bucket.name);
+            if (bucketIds.contains(bucket.bucketId)) {
+                bucketNames.add(bucket.bucketName);
             }
         }
 
@@ -193,7 +193,7 @@ public class SettingsCameraBackupAdvanceFragment extends PreferenceFragmentCompa
                 return;
             }
 
-            BackgroundJobManagerImpl.getInstance().startMediaWorkerChain(true);
+            BackgroundJobManagerImpl.getInstance().startMediaBackupWorkerChain(true);
 
             refreshPreferenceView();
         }

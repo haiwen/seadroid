@@ -79,7 +79,7 @@ public class Crypto {
      */
     private static byte[] generateMagic(String repoID, String password, int version) throws NoSuchAlgorithmException, InvalidKeySpecException, UnsupportedEncodingException, SeafException, NoSuchPaddingException, InvalidAlgorithmParameterException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
         if (version != 1 && version != 2) {
-            throw SeafException.unsupportedEncVersion;
+            throw SeafException.UNSUPPORTED_ENC_VERSION;
         }
 
         return deriveKey(repoID + password, version);
@@ -106,7 +106,7 @@ public class Crypto {
             diff |= genMagic[i] ^ repoMagic[i];
         }
 
-        if (diff != 0) throw SeafException.invalidPassword;
+        if (diff != 0) throw SeafException.INVALID_PASSWORD;
     }
 
     /**

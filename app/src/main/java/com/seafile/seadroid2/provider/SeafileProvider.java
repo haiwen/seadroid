@@ -513,7 +513,7 @@ public class SeafileProvider extends DocumentsProvider {
             if (httpIo == null) {
                 throw new FileNotFoundException();
             }
-            Call<String> urlCall = httpIo.execute(FileService.class).getFileDownloadLinkSync(repo.repo_id, path);
+            Call<String> urlCall = httpIo.execute(FileService.class).getFileDownloadLinkSync(repo.repo_id, path, 1);
 
             Response<String> res = urlCall.execute();
             if (!res.isSuccessful()) {

@@ -25,7 +25,7 @@ public class EditorViewModel extends BaseViewModel {
             public void subscribe(SingleEmitter<String> emitter) throws Exception {
                 String content = FileIOUtils.readFile2String(path);
                 if (content == null) {
-                    emitter.onError(SeafException.unknownException);
+                    emitter.onError(SeafException.UNKNOWN_EXCEPTION);
                 } else {
                     emitter.onSuccess(content);
                 }

@@ -15,21 +15,16 @@ import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.framework.crypto.Crypto;
-import com.seafile.seadroid2.framework.data.Block;
 import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
-import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
 import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.framework.datastore.DataManager;
-import com.seafile.seadroid2.framework.data.FileBlocks;
-import com.seafile.seadroid2.framework.datastore.StorageManager;
 import com.seafile.seadroid2.framework.data.db.AppDatabase;
-import com.seafile.seadroid2.framework.data.db.entities.EncKeyCacheEntity;
 import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
 import com.seafile.seadroid2.enums.TransferResult;
 import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.notification.base.BaseNotification;
+import com.seafile.seadroid2.framework.util.ExceptionUtils;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.framework.worker.ExistingFileStrategy;
@@ -38,7 +33,6 @@ import com.seafile.seadroid2.framework.worker.TransferWorker;
 import com.seafile.seadroid2.listener.FileTransferProgressListener;
 import com.seafile.seadroid2.framework.notification.DownloadNotificationHelper;
 import com.seafile.seadroid2.ui.file.FileService;
-import com.seafile.seadroid2.framework.worker.body.MonitoredFileOutputStream;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -48,7 +42,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLEncoder;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -96,90 +89,118 @@ public class DownloadWorker extends BaseDownloadWorker {
         }
 
         //count
-        int pendingCount = AppDatabase.getInstance().fileTransferDAO().countPendingDownloadListSync(account.getSignature());
-        if (pendingCount <= 0) {
+        int totalPendingCount = AppDatabase.getInstance().fileTransferDAO().countPendingDownloadListSync(account.getSignature());
+        if (totalPendingCount <= 0) {
             SLogs.i("download list is empty.");
-            return Result.success(getFinishData(false));
+            return Result.success(getFinishData(null));
         }
 
         ForegroundInfo foregroundInfo = notificationHelper.getForegroundNotification();
         showForegroundAsync(foregroundInfo);
 
         //tip
-        String tip = getApplicationContext().getResources().getQuantityString(R.plurals.transfer_download_started, pendingCount, pendingCount);
+        String tip = getApplicationContext().getResources().getQuantityString(R.plurals.transfer_download_started, totalPendingCount, totalPendingCount);
         ToastUtils.showLong(tip);
 
         //start download
-        boolean isDownloaded = false;
+
+        String interruptibleExceptionMsg = null;
+        boolean isFirst = true;
+
         while (true) {
 
             if (isStopped()) {
                 break;
             }
 
-            List<FileTransferEntity> list = AppDatabase
-                    .getInstance()
-                    .fileTransferDAO()
-                    .getOnePendingDownloadByAccountSync(account.getSignature());
-            if (CollectionUtils.isEmpty(list)) {
+
+            List<FileTransferEntity> transferList = getList(isFirst, account);
+            if (isFirst) {
+                isFirst = false;
+
+                if (CollectionUtils.isEmpty(transferList)) {
+                    continue;
+                }
+            } else if (CollectionUtils.isEmpty(transferList)) {
                 break;
             }
 
-            isDownloaded = true;
-
-            FileTransferEntity transferEntity = list.get(0);
-
             try {
-                transferFile(account, transferEntity);
 
-                sendTransferEvent(transferEntity, true);
+                for (FileTransferEntity fileTransferEntity : transferList) {
+
+                    try {
+                        transferFile(account, fileTransferEntity, totalPendingCount);
+                    } catch (Exception e) {
+                        SeafException seafException = ExceptionUtils.getExceptionByThrowable(e);
+                        //Is there an interruption in the transmission in some cases?
+                        boolean isInterrupt = isInterrupt(seafException);
+                        if (isInterrupt) {
+                            SLogs.e("上传文件时发生了异常，已中断传输");
+                            notifyError(seafException);
+
+                            // notice this, see BaseUploadWorker#isInterrupt()
+                            throw e;
+                        } else {
+                            SLogs.e("上传文件时发生了异常，继续下一个传输");
+                        }
+                    }
+                }
 
             } catch (Exception e) {
-                isDownloaded = false;
 
-                TransferResult transferResult = onException(transferEntity, e);
+                SLogs.e("upload file file failed: ", e);
+                interruptibleExceptionMsg = e.getMessage();
 
-                //
-                notifyError(transferResult);
-
-                sendTransferEvent(transferEntity, false);
-
-                String finishFlag = isInterrupt(transferResult);
-                if (!TextUtils.isEmpty(finishFlag)) {
-                    break;
-                }
+                break;
             }
         }
 
         SLogs.i("all task run");
 
         //
-        if (isDownloaded) {
+        if (TextUtils.isEmpty(interruptibleExceptionMsg)) {
             ToastUtils.showLong(R.string.download_finished);
         }
 
-        return Result.success(getFinishData(isDownloaded));
+        return Result.success(getFinishData(interruptibleExceptionMsg));
     }
 
-    private Data getFinishData(boolean isDownloaded) {
+    private Data getFinishData(String exceptionMsg) {
         return new Data.Builder()
-                .putString(TransferWorker.KEY_DATA_EVENT, TransferEvent.EVENT_FINISH)
-                .putBoolean(TransferWorker.KEY_DATA_PARAM, isDownloaded)
-                .putString(TransferWorker.KEY_DATA_TYPE, String.valueOf(TransferDataSource.DOWNLOAD))
+                .putString(TransferWorker.KEY_DATA_SOURCE, TransferDataSource.DOWNLOAD.name())
+                .putString(TransferWorker.KEY_DATA_STATUS, TransferEvent.EVENT_FINISH)
+                .putString(TransferWorker.KEY_DATA_RESULT, exceptionMsg)
                 .build();
     }
 
-    /**
-     *
-     */
+    private List<FileTransferEntity> getList(boolean isFirst, Account account) {
+        List<FileTransferEntity> transferList;
+        if (isFirst) {
+            //get all: FAILED
+            transferList = AppDatabase.getInstance()
+                    .fileTransferDAO()
+                    .getOnePendingFailedDownloadByAccountSync(
+                            account.getSignature()
+                    );
+        } else {
+            //get one: WAITING, IN_PROGRESS
+            transferList = AppDatabase.getInstance()
+                    .fileTransferDAO()
+                    .getOnePendingDownloadByAccountSync(account.getSignature());
+        }
+
+        return transferList;
+    }
+
     private final FileTransferProgressListener.TransferProgressListener progressListener = new FileTransferProgressListener.TransferProgressListener() {
         @Override
         public void onProgressNotify(FileTransferEntity fileTransferEntity, int percent, long transferredSize, long totalSize) {
             SLogs.i(fileTransferEntity.file_name + " -> progress：" + percent);
 
-            int diff = AppDatabase.getInstance().fileTransferDAO().countPendingDownloadListSync(fileTransferEntity.related_account);
+//            int diff = AppDatabase.getInstance().fileTransferDAO().countPendingDownloadListSync(fileTransferEntity.related_account);
 
-            ForegroundInfo foregroundInfo = notificationHelper.getForegroundProgressNotification(fileTransferEntity.file_name, percent, diff);
+            ForegroundInfo foregroundInfo = notificationHelper.getForegroundProgressNotification(fileTransferEntity.file_name, percent);
             showForegroundAsync(foregroundInfo);
 
             //
@@ -190,29 +211,39 @@ public class DownloadWorker extends BaseDownloadWorker {
         }
     };
 
-    private void transferFile(Account account, FileTransferEntity transferEntity) throws Exception {
+    private void transferFile(Account account, FileTransferEntity transferEntity, long totalPendingCount) throws Exception {
         SLogs.i("download start：" + transferEntity.full_path);
 
         //show notification
-        int diff = AppDatabase.getInstance().fileTransferDAO().countPendingDownloadListSync(transferEntity.related_account);
-        ForegroundInfo foregroundInfo = notificationHelper.getForegroundProgressNotification(transferEntity.file_name, 0, diff);
+//        int diff = AppDatabase.getInstance().fileTransferDAO().countPendingDownloadListSync(transferEntity.related_account);
+        ForegroundInfo foregroundInfo = notificationHelper.getForegroundProgressNotification(transferEntity.file_name, 0);
         showForegroundAsync(foregroundInfo);
 
-        List<RepoModel> repoModels = AppDatabase.getInstance().repoDao().getByIdSync(transferEntity.repo_id);
-
-        if (CollectionUtils.isEmpty(repoModels)) {
-            SLogs.i("no repo for repoId: " + transferEntity.repo_id);
-            return;
-        }
-
-        //update modified_at field
-        transferEntity.modified_at = System.currentTimeMillis();
-        AppDatabase.getInstance().fileTransferDAO().update(transferEntity);
-
-        if (repoModels.get(0).canLocalDecrypt()) {
-            downloadFileByBlock(account, transferEntity);
-        } else {
+        try {
             downloadFile(account, transferEntity);
+
+            sendFinishEvent(account, transferEntity, totalPendingCount);
+
+        } catch (Exception e) {
+            SLogs.e("download file failed -> " + transferEntity.full_path);
+
+            SeafException seafException = ExceptionUtils.getExceptionByThrowable(e);
+
+            updateToFailed(transferEntity, seafException.getMessage());
+
+            //send an event, update transfer entity first.
+            sendFinishEvent(account, transferEntity, totalPendingCount);
+
+            //Is there an interruption in the transmission in some cases?
+            boolean isInterrupt = isInterrupt(seafException);
+            if (isInterrupt) {
+                SLogs.e("上传文件时发生了异常，已中断传输");
+                notifyError(seafException);
+                throw e;
+            } else {
+
+            }
+
         }
     }
 
@@ -222,6 +253,8 @@ public class DownloadWorker extends BaseDownloadWorker {
         String dlink = pair.first;
         String fileId = pair.second;
 
+        //fileId = 0000000000000000000000000000000000000000
+
         File localFile = DataManager.getLocalRepoFile(account, transferEntity);
 
         if (localFile.exists() && transferEntity.file_strategy == ExistingFileStrategy.SKIP) {
@@ -229,7 +262,7 @@ public class DownloadWorker extends BaseDownloadWorker {
             return;
         }
 
-        download(transferEntity, dlink, localFile);
+        download(account, transferEntity, dlink, localFile);
 
         SLogs.i("download finish：" + transferEntity.full_path);
     }
@@ -237,17 +270,17 @@ public class DownloadWorker extends BaseDownloadWorker {
     private Pair<String, String> getDownloadLink(FileTransferEntity transferEntity, boolean isReUsed) throws SeafException, IOException {
         retrofit2.Response<String> res = HttpIO.getCurrentInstance()
                 .execute(FileService.class)
-                .getFileDownloadLink(transferEntity.repo_id, transferEntity.full_path)
+                .getFileDownloadLinkSync(transferEntity.repo_id, transferEntity.full_path, isReUsed ? 1 : 0)
                 .execute();
 
         if (!res.isSuccessful()) {
-            throw SeafException.networkException;
+            throw SeafException.REQUEST_TRANSFER_URL_EXCEPTION;
         }
 
         String fileId = res.headers().get("oid");
         String dlink = res.body();
         if (dlink == null) {
-            throw SeafException.networkException;
+            throw SeafException.REQUEST_TRANSFER_URL_EXCEPTION;
         }
 
         dlink = StringUtils.replace(dlink, "\"", "");
@@ -263,11 +296,11 @@ public class DownloadWorker extends BaseDownloadWorker {
         if (dlink.startsWith("http") && fileId != null) {
             return new Pair<>(dlink, fileId);
         } else {
-            throw SeafException.illFormatException;
+            throw SeafException.ILL_FORMAT_EXCEPTION;
         }
     }
 
-    private void download(FileTransferEntity fileTransferEntity, String dlink, File localFile) throws Exception {
+    private void download(Account account, FileTransferEntity fileTransferEntity, String dlink, File localFile) throws Exception {
         fileTransferProgressListener.setFileTransferEntity(fileTransferEntity);
 
         fileTransferEntity.transfer_status = TransferStatus.IN_PROGRESS;
@@ -282,24 +315,29 @@ public class DownloadWorker extends BaseDownloadWorker {
 
         try (Response response = newCall.execute()) {
             if (!response.isSuccessful()) {
-                throw SeafException.networkException;
+                int code = response.code();
+                String b = response.body() != null ? response.body().string() : null;
+                SLogs.d("upload failed：" + b);
+
+                //
+                newCall.cancel();
+
+                throw ExceptionUtils.parseErrorJson(code, b);
             }
 
             ResponseBody responseBody = response.body();
             if (responseBody == null) {
-                throw SeafException.networkException;
+                int code = response.code();
+                throw ExceptionUtils.parseErrorJson(code, null);
             }
 
             long fileSize = responseBody.contentLength();
             if (fileSize == -1) {
-                SLogs.e("download file error -> contentLength is -1");
-                SLogs.e(localFile.getAbsolutePath());
-
+                SLogs.e("download file error -> contentLength is -1, " + localFile.getAbsolutePath());
                 fileSize = fileTransferEntity.file_size;
-
-//                updateEntityErrorState(fileTransferEntity);
-//                return;
             }
+
+            //todo 检查剩余空间
 
             File tempFile = DataManager.createTempFile();
             try (InputStream inputStream = responseBody.byteStream();
@@ -311,7 +349,7 @@ public class DownloadWorker extends BaseDownloadWorker {
                 byte[] buffer = new byte[SEGMENT_SIZE];
                 while ((bytesRead = inputStream.read(buffer, 0, buffer.length)) != -1) {
                     if (isStopped()) {
-                        throw SeafException.userCancelledException;
+                        throw SeafException.USER_CANCELLED_EXCEPTION;
                     }
 
                     fileOutputStream.write(buffer, 0, bytesRead);
@@ -326,29 +364,37 @@ public class DownloadWorker extends BaseDownloadWorker {
             }
 
             //important
-            tempFile.renameTo(localFile);
-//            Path path = java.nio.file.Files.move(tempFile.toPath(), localFile.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-//            boolean isSuccess = path.toFile().exists();
+//            tempFile.renameTo(localFile);
+            Path path = java.nio.file.Files.move(tempFile.toPath(), localFile.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+            boolean isSuccess = path.toFile().exists();
 
-            if (localFile.length() != fileSize) {
-                SLogs.e("download file error -> localFile.size != downloadedSize");
-                SLogs.e(localFile.getAbsolutePath());
-                updateEntityErrorState(fileTransferEntity);
-            } else {
-                updateEntitySuccessState(fileTransferEntity, localFile);
+            if (isSuccess) {
+                updateToSuccess(fileTransferEntity, localFile);
             }
         }
     }
 
-    private void updateEntityErrorState(FileTransferEntity fileTransferEntity) {
+    public boolean isInterrupt(SeafException result) {
+        if (result.equals(SeafException.INVALID_PASSWORD) ||
+                result.equals(SeafException.SSL_EXCEPTION) ||
+                result.equals(SeafException.NOT_FOUND_LOGGED_USER_EXCEPTION) ||
+                result.equals(SeafException.NOT_FOUND_USER_EXCEPTION) ||
+                result.equals(SeafException.NOT_FOUND_DIR_EXCEPTION) ||
+                result.equals(SeafException.USER_CANCELLED_EXCEPTION)) {
+            return true;
+        }
+        return false;
+    }
+
+    private void updateToFailed(FileTransferEntity fileTransferEntity, String transferResult) {
         fileTransferEntity.transfer_status = TransferStatus.FAILED;
-        fileTransferEntity.transfer_result = TransferResult.FILE_ERROR;
+        fileTransferEntity.result = transferResult;
         AppDatabase.getInstance().fileTransferDAO().update(fileTransferEntity);
     }
 
-    private void updateEntitySuccessState(FileTransferEntity fileTransferEntity, File localFile) {
+    private void updateToSuccess(FileTransferEntity fileTransferEntity, File localFile) {
         fileTransferEntity.transferred_size = localFile.length();
-        fileTransferEntity.transfer_result = TransferResult.TRANSMITTED;
+        fileTransferEntity.result = TransferResult.TRANSMITTED.name();
         fileTransferEntity.transfer_status = TransferStatus.SUCCEEDED;
         fileTransferEntity.action_end_at = System.currentTimeMillis();
         fileTransferEntity.file_original_modified_at = fileTransferEntity.action_end_at;//now
@@ -371,146 +417,13 @@ public class DownloadWorker extends BaseDownloadWorker {
 
     }
 
-    ///////////////block///////////////
-    private FileBlocks getDownloadBlockList(FileTransferEntity transferEntity) throws Exception {
-        retrofit2.Response<FileBlocks> res = HttpIO.getCurrentInstance()
-                .execute(FileService.class)
-                .getFileBlockDownloadLink(transferEntity.repo_id, transferEntity.full_path)
-                .execute();
-
-        if (!res.isSuccessful()) {
-            throw SeafException.networkException;
-        }
-
-        FileBlocks fileBlocks = res.body();
-        if (fileBlocks == null) {
-            throw SeafException.networkException;
-        }
-
-        return fileBlocks;
-    }
-
-    private void downloadFileByBlock(Account account, FileTransferEntity transferEntity) throws Exception {
-
-        File localFile = DataManager.getLocalRepoFile(account, transferEntity);
-        if (localFile.exists() && transferEntity.file_strategy == ExistingFileStrategy.SKIP) {
-            SLogs.i("skip this file, file_strategy is SKIP ：" + localFile.getAbsolutePath());
-            return;
-        }
-
-        FileBlocks fileBlocks = getDownloadBlockList(transferEntity);
-
-        List<EncKeyCacheEntity> encKeyCacheEntityList = AppDatabase.getInstance().encKeyCacheDAO().getOneByRepoIdSync(transferEntity.repo_id);
-
-        if (CollectionUtils.isEmpty(encKeyCacheEntityList)) {
-            throw SeafException.decryptException;
-        }
-        EncKeyCacheEntity entity = encKeyCacheEntityList.get(0);
-
-        final String encKey = entity.enc_key;
-        final String encIv = entity.enc_iv;
-        if (TextUtils.isEmpty(encKey) || TextUtils.isEmpty(encIv)) {
-            throw SeafException.decryptException;
-        }
-
-        //TODO
-//        if (CollectionUtils.isEmpty(fileBlocks.blocks)) {
-//            if (!localFile.createNewFile()) {
-//                SLogs.w( "Failed to create file " + localFile.getName());
-//                return;
-//            }
-//
-//            addCachedFile(repoName, repoID, path, fileBlocks.fileID, localFile);
-//            return localFile;
-//        }
-
-        fileTransferProgressListener.setFileTransferEntity(transferEntity);
-
-        List<File> tempFileList = new ArrayList<>();
-        for (Block blk : fileBlocks.getBlocks()) {
-            File tempBlock = new File(StorageManager.getInstance().getTempDir(), blk.blockId);
-
-            retrofit2.Response<String> blockRes = HttpIO.getCurrentInstance()
-                    .execute(FileService.class)
-                    .getBlockDownloadLink(transferEntity.repo_id, fileBlocks.getFileId(), blk.blockId)
-                    .execute();
-
-            if (!blockRes.isSuccessful()) {
-                throw SeafException.networkException;
-            }
-
-            String dlink = blockRes.body();
-            dlink = StringUtils.replace(dlink, "\"", "");
-
-            downloadBlock(fileBlocks, blk.blockId, dlink, tempBlock, transferEntity.file_size);
-
-            final byte[] bytes = org.apache.commons.io.FileUtils.readFileToByteArray(tempBlock);
-            final byte[] decryptedBlock = Crypto.decrypt(bytes, encKey, encIv);
-            org.apache.commons.io.FileUtils.writeByteArrayToFile(localFile, decryptedBlock, true);
-
-            tempFileList.add(tempBlock);
-        }
-
-        //remove cache file
-        tempFileList.forEach(File::delete);
-
-        //
-        updateEntitySuccessState(transferEntity, localFile);
-    }
-
-
-    private void downloadBlock(FileBlocks fileBlocks, String blockId, String dlink, File localFile, long fileSize) throws Exception {
-        InputStream inputStream = null;
-        MonitoredFileOutputStream monitoredFileOutputStream = null;
-        try {
-
-            Request request = new Request.Builder()
-                    .url(dlink)
-                    .get()
-                    .build();
-            Call newCall = HttpIO.getCurrentInstance().getOkHttpClient().getOkClient().newCall(request);
-
-            Response response = newCall.execute();
-
-            if (!response.isSuccessful()) {
-                throw SeafException.networkException;
-            }
-
-            ResponseBody responseBody = response.body();
-            if (responseBody == null) {
-                throw SeafException.networkException;
-            }
-
-            long tempFileSize = responseBody.contentLength();
-
-            inputStream = responseBody.byteStream();
-            monitoredFileOutputStream = new MonitoredFileOutputStream(fileBlocks, blockId, localFile, fileSize, fileTransferProgressListener);
-
-
-            int bytesRead;
-            byte[] buffer = new byte[SEGMENT_SIZE];
-            while ((bytesRead = inputStream.read(buffer, 0, buffer.length)) != -1) {
-                if (isStopped()) {
-                    throw SeafException.userCancelledException;
-                }
-                monitoredFileOutputStream.write(buffer, 0, bytesRead);
-            }
-
-            responseBody.close();
-
-            if (localFile.length() != tempFileSize) {
-                SLogs.i("Rename file error : " + localFile.getAbsolutePath());
-                throw SeafException.networkException;
-            }
-
-        } finally {
-            if (monitoredFileOutputStream != null) {
-                monitoredFileOutputStream.close();
-            }
-            if (inputStream != null) {
-                inputStream.close();
-            }
+    public void notifyError(SeafException seafException) {
+        if (seafException == SeafException.NETWORK_EXCEPTION) {
+            getGeneralNotificationHelper().showErrorNotification(R.string.network_error, R.string.download);
+        } else if (seafException == SeafException.NOT_FOUND_USER_EXCEPTION) {
+            getGeneralNotificationHelper().showErrorNotification(R.string.saf_account_not_found_exception, R.string.download);
+        } else {
+            getGeneralNotificationHelper().showErrorNotification(seafException.getMessage(), R.string.download);
         }
     }
-
 }

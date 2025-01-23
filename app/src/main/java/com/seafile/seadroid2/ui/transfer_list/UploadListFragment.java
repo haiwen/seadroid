@@ -14,7 +14,6 @@ import androidx.work.WorkInfo;
 import com.blankj.utilcode.util.ToastUtils;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
 import com.seafile.seadroid2.enums.TransferAction;
 import com.seafile.seadroid2.enums.TransferDataSource;
@@ -91,26 +90,27 @@ public class UploadListFragment extends TransferListFragment {
         }
 
         Data outData = workInfo.getOutputData();
-        String outEvent = outData.getString(TransferWorker.KEY_DATA_EVENT);
-        boolean isUploaded = outData.getBoolean(TransferWorker.KEY_DATA_PARAM, false);
+        String outEvent = outData.getString(TransferWorker.KEY_DATA_STATUS);
+        String outExceptionMsg = outData.getString(TransferWorker.KEY_DATA_RESULT);
 
-        if (TransferEvent.EVENT_FINISH.equals(outEvent) && isUploaded) {
+        if (TransferEvent.EVENT_FINISH.equals(outEvent)) {
+//            if (!TextUtils.isEmpty(outExceptionMsg)){
+//            }else {
+//            }
             refreshData();
             return;
         }
 
         Data progressData = workInfo.getProgress();
-        String progressEvent = progressData.getString(TransferWorker.KEY_DATA_EVENT);
+        String progressEvent = progressData.getString(TransferWorker.KEY_DATA_STATUS);
 
-        if (TransferEvent.EVENT_CANCEL_WITH_OUT_OF_QUOTA.equals(progressEvent)) {
-            refreshData();
-        } else if (TransferEvent.EVENT_TRANSFERRING.equals(progressEvent)) {
+        if (TransferEvent.EVENT_FILE_IN_TRANSFER.equals(progressEvent)) {
 
-            String transferId = progressData.getString(TransferWorker.DATA_TRANSFER_ID_KEY);
-            String fileName = progressData.getString(TransferWorker.DATA_TRANSFER_NAME_KEY);
-            int percent = progressData.getInt(TransferWorker.KEY_DATA_PROGRESS, 0);
-            long transferredSize = progressData.getLong(TransferWorker.KEY_DATA_TRANSFERRED_SIZE, 0);
-            long totalSize = progressData.getLong(TransferWorker.KEY_DATA_TOTAL_SIZE, 0);
+            String transferId = progressData.getString(TransferWorker.KEY_TRANSFER_ID);
+            String fileName = progressData.getString(TransferWorker.KEY_TRANSFER_NAME);
+            int percent = progressData.getInt(TransferWorker.KEY_TRANSFER_PROGRESS, 0);
+            long transferredSize = progressData.getLong(TransferWorker.KEY_TRANSFER_TRANSFERRED_SIZE, 0);
+            long totalSize = progressData.getLong(TransferWorker.KEY_TRANSFER_TOTAL_SIZE, 0);
 
             SLogs.d("upload: " + fileName + ", percent：" + percent + ", total_size：" + totalSize + ", dataSource: " + dataSource);
 
@@ -120,21 +120,21 @@ public class UploadListFragment extends TransferListFragment {
                 lastTransferId = transferId;
             }
 
-        } else if (TransferEvent.EVENT_TRANSFER_SUCCESS.equals(progressEvent)) {
-            String transferId = progressData.getString(TransferWorker.DATA_TRANSFER_ID_KEY);
-            String fileName = progressData.getString(TransferWorker.DATA_TRANSFER_NAME_KEY);
-            long transferredSize = progressData.getLong(TransferWorker.KEY_DATA_TRANSFERRED_SIZE, 0);
-            long totalSize = progressData.getLong(TransferWorker.KEY_DATA_TOTAL_SIZE, 0);
+        } else if (TransferEvent.EVENT_FILE_TRANSFER_SUCCESS.equals(progressEvent)) {
+            String transferId = progressData.getString(TransferWorker.KEY_TRANSFER_ID);
+            String fileName = progressData.getString(TransferWorker.KEY_TRANSFER_NAME);
+            long transferredSize = progressData.getLong(TransferWorker.KEY_TRANSFER_TRANSFERRED_SIZE, 0);
+            long totalSize = progressData.getLong(TransferWorker.KEY_TRANSFER_TOTAL_SIZE, 0);
 
             SLogs.d("upload finish: " + fileName + ", total_size：" + totalSize + ", dataSource: " + dataSource);
 
             notifyProgressById(transferId, transferredSize, 100, progressEvent);
 
-        } else if (TransferEvent.EVENT_TRANSFER_FAILED.equals(progressEvent)) {
-            String transferId = progressData.getString(TransferWorker.DATA_TRANSFER_ID_KEY);
-            String fileName = progressData.getString(TransferWorker.DATA_TRANSFER_NAME_KEY);
-            long transferredSize = progressData.getLong(TransferWorker.KEY_DATA_TRANSFERRED_SIZE, 0);
-            long totalSize = progressData.getLong(TransferWorker.KEY_DATA_TOTAL_SIZE, 0);
+        } else if (TransferEvent.EVENT_FILE_TRANSFER_FAILED.equals(progressEvent)) {
+            String transferId = progressData.getString(TransferWorker.KEY_TRANSFER_ID);
+            String fileName = progressData.getString(TransferWorker.KEY_TRANSFER_NAME);
+            long transferredSize = progressData.getLong(TransferWorker.KEY_TRANSFER_TRANSFERRED_SIZE, 0);
+            long totalSize = progressData.getLong(TransferWorker.KEY_TRANSFER_TOTAL_SIZE, 0);
 
             SLogs.d("upload failed: " + fileName + ", total_size：" + totalSize + ", dataSource: " + dataSource);
 
@@ -149,7 +149,7 @@ public class UploadListFragment extends TransferListFragment {
             @Override
             public void onClick(DialogInterface dialog, int which) {
 
-                BackgroundJobManagerImpl.getInstance().cancelFolderAutoUploadWorker();
+                BackgroundJobManagerImpl.getInstance().cancelFolderBackupWorker();
 
                 getViewModel().removeSpecialUploadListTask(list, new Consumer<Boolean>() {
                     @Override
@@ -181,8 +181,8 @@ public class UploadListFragment extends TransferListFragment {
             public void accept(Boolean aBoolean) throws Exception {
 
                 //todo 检查此处逻辑
-                BackgroundJobManagerImpl.getInstance().startFolderAutoBackupWorkerChain(true);
-                BackgroundJobManagerImpl.getInstance().startMediaWorkerChain(true);
+                BackgroundJobManagerImpl.getInstance().startFolderBackupWorkerChain(true);
+                BackgroundJobManagerImpl.getInstance().startMediaBackupWorkerChain(true);
             }
         });
     }
@@ -192,8 +192,8 @@ public class UploadListFragment extends TransferListFragment {
      */
     public void cancelAllTasks() {
 
-        BackgroundJobManagerImpl.getInstance().cancelFolderAutoUploadWorker();
-        BackgroundJobManagerImpl.getInstance().cancelMediaWorker();
+        BackgroundJobManagerImpl.getInstance().cancelFolderBackupWorker();
+        BackgroundJobManagerImpl.getInstance().cancelMediaBackupWorker();
 
         getViewModel().cancelAllUploadTask(new Consumer<Boolean>() {
             @Override
@@ -214,7 +214,7 @@ public class UploadListFragment extends TransferListFragment {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 //
-                BackgroundJobManagerImpl.getInstance().cancelFolderAutoUploadWorker();
+                BackgroundJobManagerImpl.getInstance().cancelFolderBackupWorker();
 
                 //
                 getViewModel().removeAllUploadTask(new Consumer<Boolean>() {

@@ -148,7 +148,7 @@ public class SingleSignOnAuthorizeActivity extends BaseActivityWithVM<AccountVie
     }
 
     private void onLoginException(Account account, SeafException err) {
-        if (err == SeafException.sslException) {
+        if (err == SeafException.SSL_EXCEPTION) {
             SslConfirmDialog dialog = new SslConfirmDialog(account,
                     new SslConfirmDialog.Listener() {
                         @Override

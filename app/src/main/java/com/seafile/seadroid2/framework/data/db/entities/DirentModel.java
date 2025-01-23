@@ -22,6 +22,8 @@ import com.seafile.seadroid2.framework.util.Utils;
 
 import org.apache.commons.lang3.StringUtils;
 
+import prettify.parser.Util;
+
 @Entity(tableName = "dirents")
 public class DirentModel extends BaseModel implements Parcelable {
 
@@ -96,6 +98,10 @@ public class DirentModel extends BaseModel implements Parcelable {
 
     public String getName() {
         return name;
+    }
+
+    public String getFullName() {
+        return Utils.pathJoin(parent_dir, name);
     }
 
     public String getSubtitle() {

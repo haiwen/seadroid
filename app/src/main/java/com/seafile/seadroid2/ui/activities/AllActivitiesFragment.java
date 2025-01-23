@@ -41,7 +41,7 @@ import com.seafile.seadroid2.ui.file.FileActivity;
 import com.seafile.seadroid2.ui.main.MainActivity;
 import com.seafile.seadroid2.ui.markdown.MarkdownActivity;
 import com.seafile.seadroid2.ui.media.image_preview2.CarouselImagePreviewActivity;
-import com.seafile.seadroid2.ui.media.player.exoplayer.CustomExoVideoPlayerActivity;
+import com.seafile.seadroid2.ui.media.player.CustomExoVideoPlayerActivity;
 import com.seafile.seadroid2.ui.sdoc.SDocWebViewActivity;
 import com.seafile.seadroid2.view.TipsViews;
 
@@ -317,8 +317,7 @@ public class AllActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel>
 
 
     private void showPasswordDialog(RepoModel repoModel, ActivityModel activityModel) {
-        PasswordDialogFragment dialogFragment = PasswordDialogFragment.newInstance();
-        dialogFragment.initData(repoModel.repo_id, repoModel.repo_name);
+        PasswordDialogFragment dialogFragment = PasswordDialogFragment.newInstance(repoModel.repo_id, repoModel.repo_name);
         dialogFragment.setRefreshListener(isDone -> {
             if (isDone) {
                 navTo(repoModel, activityModel);

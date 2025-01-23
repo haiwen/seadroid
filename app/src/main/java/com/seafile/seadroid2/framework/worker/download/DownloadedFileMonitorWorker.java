@@ -1,6 +1,8 @@
 package com.seafile.seadroid2.framework.worker.download;
 
+import android.app.ForegroundServiceStartNotAllowedException;
 import android.content.Context;
+import android.os.Build;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
@@ -14,12 +16,9 @@ import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.framework.data.db.AppDatabase;
-import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
-import com.seafile.seadroid2.framework.data.model.dirents.DirentFileModel;
 import com.seafile.seadroid2.enums.TransferAction;
 import com.seafile.seadroid2.enums.TransferDataSource;
-import com.seafile.seadroid2.enums.TransferResult;
 import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.notification.FolderBackupNotificationHelper;
 import com.seafile.seadroid2.framework.util.SLogs;
@@ -42,17 +41,17 @@ public class DownloadedFileMonitorWorker extends BaseUploadWorker {
 
 
     public static final String FILE_CHANGE_KEY = "download_file_change_key";
-    private final FolderBackupNotificationHelper notificationHelper;
+    private final FolderBackupNotificationHelper notificationManager;
 
     public DownloadedFileMonitorWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
 
-        notificationHelper = new FolderBackupNotificationHelper(context);
+        notificationManager = new FolderBackupNotificationHelper(context);
     }
 
     @Override
     public FolderBackupNotificationHelper getNotification() {
-        return notificationHelper;
+        return notificationManager;
     }
 
     @NonNull
@@ -68,6 +67,8 @@ public class DownloadedFileMonitorWorker extends BaseUploadWorker {
         if (account == null) {
             return Result.success();
         }
+
+        showNotification();
 
         String filePath = getInputData().getString(FILE_CHANGE_KEY);
         SLogs.d("DownloadCheckerWorker filePath: " + filePath);
@@ -93,49 +94,67 @@ public class DownloadedFileMonitorWorker extends BaseUploadWorker {
             return Result.success();
         }
 
-        ForegroundInfo foregroundInfo = notificationHelper.getForegroundNotification();
+        ForegroundInfo foregroundInfo = notificationManager.getForegroundNotification();
         showForegroundAsync(foregroundInfo);
 
         try {
-            checkFile(account, transferEntityList.get(0));
+            checkFile(account, transferEntityList.get(0), filePath);
         } catch (IOException | SeafException e) {
             return Result.failure();
         }
 
         //Send a completion event
         Data data = new Data.Builder()
-                .putString(TransferWorker.KEY_DATA_EVENT, outEvent)
+                .putString(TransferWorker.KEY_DATA_STATUS, outEvent)
                 .build();
         return Result.success(data);
     }
 
-    private void checkFile(Account account, FileTransferEntity downloadedEntity) throws IOException, SeafException {
+    private void showNotification(){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            try {
+                ForegroundInfo foregroundInfo = notificationManager.getForegroundNotification();
+                showForegroundAsync(foregroundInfo);
+            } catch (ForegroundServiceStartNotAllowedException e) {
+                SLogs.e(e.getMessage());
+            }
+        } else {
+            ForegroundInfo foregroundInfo = notificationManager.getForegroundNotification();
+            showForegroundAsync(foregroundInfo);
+        }
+    }
+
+    private void checkFile(Account account, FileTransferEntity downloadedEntity, String changedFilePath) throws IOException, SeafException {
         if (downloadedEntity.transfer_status != TransferStatus.SUCCEEDED) {
             SLogs.e("transfer_status is not success: " + downloadedEntity.target_path);
             return;
         }
 
-        File file = new File(downloadedEntity.target_path);
+        File file = new File(changedFilePath);
         if (!file.exists()) {
-            SLogs.e("file is not exists: " + downloadedEntity.target_path);
+            SLogs.e("DownloadedFileMonitorWorker -> file is not exists: " + downloadedEntity.target_path);
             return;
         }
 
-        List<DirentModel> direntList = AppDatabase.getInstance().direntDao().getListByFullPathSync(downloadedEntity.repo_id, downloadedEntity.full_path);
-        if (CollectionUtils.isEmpty(direntList)) {
-            // db not exist
-            SLogs.e("db is not exists: " + downloadedEntity.target_path);
+        //compare the local database data with the md5 value of the file if it is the same
+        String localMd5 = FileUtils.getFileMD5ToString(changedFilePath).toLowerCase();
+        if (TextUtils.equals(downloadedEntity.file_md5, localMd5)) {
             return;
         }
 
-        //More judgment conditions may be required
-
-        DirentFileModel fileModel = getRemoteFile(downloadedEntity.repo_id, downloadedEntity.full_path);
-        if (fileModel == null) {
-            //remote not exists, delete local
-            SLogs.e("remote file is not exists: " + downloadedEntity.target_path);
+        //if file is not TextFile and file size not changed, do not update
+        boolean isTextFile = Utils.isTextFile(file);
+        if (file.length() == downloadedEntity.file_size && !isTextFile) {
             return;
         }
+
+//        //More judgment conditions may be required
+//        DirentFileModel fileModel = getRemoteFile(downloadedEntity.repo_id, downloadedEntity.full_path);
+//        if (fileModel == null) {
+//            //remote not exists, delete local
+//            SLogs.e("remote file is not exists: " + downloadedEntity.target_path);
+//            return;
+//        }
 
         //insert upload entity
         FileTransferEntity transferEntity = new FileTransferEntity();
@@ -148,7 +167,7 @@ public class DownloadedFileMonitorWorker extends BaseUploadWorker {
         //file
         transferEntity.file_format = downloadedEntity.file_format;
         transferEntity.file_name = downloadedEntity.file_name;
-        transferEntity.file_md5 = FileUtils.getFileMD5ToString(downloadedEntity.target_path).toLowerCase();
+        transferEntity.file_md5 = localMd5;
         transferEntity.file_id = null;
         transferEntity.file_size = FileUtils.getFileLength(downloadedEntity.target_path);
         transferEntity.file_original_modified_at = file.lastModified();
@@ -157,8 +176,9 @@ public class DownloadedFileMonitorWorker extends BaseUploadWorker {
 
         //data
         transferEntity.data_source = TransferDataSource.FILE_BACKUP;
-        transferEntity.transfer_result = TransferResult.NO_RESULT;
+        transferEntity.result = null;
         transferEntity.transfer_status = TransferStatus.WAITING;
+        //notice here
         transferEntity.full_path = downloadedEntity.target_path;
         transferEntity.target_path = downloadedEntity.full_path;
         transferEntity.setParent_path(Utils.getParentPath(downloadedEntity.full_path));

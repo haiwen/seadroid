@@ -117,7 +117,7 @@ public class FileSyncService extends Service {
         BackgroundJobManagerImpl.getInstance().startDownloadChainWorker();
 
         //folder backup upload worker
-        BackgroundJobManagerImpl.getInstance().startFolderAutoBackupWorkerChain(false);
+        BackgroundJobManagerImpl.getInstance().startFolderBackupWorkerChain(false);
 
         //file upload backup
         BackgroundJobManagerImpl.getInstance().startFileManualUploadWorker();
@@ -141,7 +141,7 @@ public class FileSyncService extends Service {
 
             resetFolderMonitor();
 
-            BackgroundJobManagerImpl.getInstance().cancelFolderAutoUploadWorker();
+            BackgroundJobManagerImpl.getInstance().cancelFolderBackupWorker();
         }
     }
 
@@ -232,7 +232,7 @@ public class FileSyncService extends Service {
                 BackgroundJobManagerImpl.getInstance().startCheckDownloadedFileChainWorker(file.getAbsolutePath());
             }
         } else {
-            BackgroundJobManagerImpl.getInstance().startFolderAutoBackupWorkerChain(true);
+            BackgroundJobManagerImpl.getInstance().startFolderBackupWorkerChain(true);
         }
     }
 

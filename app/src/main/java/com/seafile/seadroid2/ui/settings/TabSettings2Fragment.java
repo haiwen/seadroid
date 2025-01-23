@@ -3,7 +3,6 @@ package com.seafile.seadroid2.ui.settings;
 import static android.app.Activity.RESULT_OK;
 import static androidx.core.text.HtmlCompat.FROM_HTML_MODE_LEGACY;
 
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -24,12 +23,12 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
-import androidx.preference.SwitchPreferenceCompat;
 import androidx.work.Data;
 import androidx.work.WorkInfo;
 
 import com.blankj.utilcode.util.AppUtils;
 import com.blankj.utilcode.util.CollectionUtils;
+import com.blankj.utilcode.util.NetworkUtils;
 import com.blankj.utilcode.util.TimeUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -40,6 +39,7 @@ import com.seafile.seadroid2.bus.TransferBusHelper;
 import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.enums.NetworkMode;
 import com.seafile.seadroid2.enums.TransferDataSource;
+import com.seafile.seadroid2.enums.TransferResult;
 import com.seafile.seadroid2.framework.datastore.StorageManager;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
@@ -505,6 +505,8 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
             @Override
             public void onChanged(NetworkMode netWorkMode) {
                 SLogs.e("folder network：" + netWorkMode.name());
+
+                BackgroundJobManagerImpl.getInstance().restartFolderBackupWorker();
             }
         });
 
@@ -576,26 +578,43 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
         }
 
         Data outData = workInfo.getOutputData();
-        String outDataEvent = outData.getString(TransferWorker.KEY_DATA_EVENT);
-        String outDataType = outData.getString(TransferWorker.KEY_DATA_TYPE);
+        String outDataEvent = outData.getString(TransferWorker.KEY_DATA_STATUS);
+        String outDataType = outData.getString(TransferWorker.KEY_DATA_SOURCE);
+        String outResult = outData.getString(TransferWorker.KEY_DATA_RESULT);
 
         //scan end
-        if (TextUtils.equals(String.valueOf(TransferDataSource.ALBUM_BACKUP), outDataType)) {
+        if (TextUtils.equals(TransferDataSource.ALBUM_BACKUP.name(), outDataType)) {
             if (TransferEvent.EVENT_SCAN_END.equals(outDataEvent)) {
 //                mAlbumBackupState.setSummary(R.string.done);
                 SLogs.e("album scan end");
+                if (TextUtils.isEmpty(outResult)) {
+                    mAlbumBackupState.setSummary(R.string.settings_cuc_finish_title);
+                } else if (TextUtils.equals(TransferResult.WAITING.name(), outResult)) {
+                    mAlbumBackupState.setSummary(R.string.waiting_state);
+                } else {
+                    mAlbumBackupState.setSummary(R.string.settings_cuc_finish_title);
+                }
+
                 return;
             }
-        } else if (TextUtils.equals(String.valueOf(TransferDataSource.FOLDER_BACKUP), outDataType)) {
+        } else if (TextUtils.equals(TransferDataSource.FOLDER_BACKUP.name(), outDataType)) {
             if (TransferEvent.EVENT_SCAN_END.equals(outDataEvent)) {
 //                mFolderBackupState.setSummary(R.string.done);
                 SLogs.e("folder scan end");
+                if (TextUtils.isEmpty(outResult)) {
+                    mFolderBackupState.setSummary(R.string.folder_backup_waiting_state);
+                } else if (TextUtils.equals(TransferResult.WAITING.name(), outResult)) {
+                    mFolderBackupState.setSummary(R.string.waiting_state);
+                } else {
+                    mFolderBackupState.setSummary(R.string.folder_backup_waiting_state);
+                }
+
                 return;
             }
         }
 
         Data progressData = workInfo.getProgress();
-        String pDataEvent = progressData.getString(TransferWorker.KEY_DATA_EVENT);
+        String pDataEvent = progressData.getString(TransferWorker.KEY_DATA_STATUS);
         if (TextUtils.isEmpty(pDataEvent)) {
             return;
         }
@@ -617,24 +636,21 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
         }
 
         Data outData = workInfo.getOutputData();
-        String outDataEvent = outData.getString(TransferWorker.KEY_DATA_EVENT);
-        String outDataType = outData.getString(TransferWorker.KEY_DATA_TYPE);
+        String outDataSource = outData.getString(TransferWorker.KEY_DATA_SOURCE);
+        String outDataEvent = outData.getString(TransferWorker.KEY_DATA_STATUS);
+        String outDataExceptionMsg = outData.getString(TransferWorker.KEY_DATA_RESULT);
 
-        if (TextUtils.equals(String.valueOf(TransferDataSource.ALBUM_BACKUP), outDataType)) {
-            if (TransferEvent.EVENT_FINISH.equals(outDataEvent)) {
+        if (TextUtils.equals(TransferDataSource.ALBUM_BACKUP.name(), outDataSource)) {
+            if (!TextUtils.isEmpty(outDataExceptionMsg)) {
+                mAlbumBackupState.setSummary(outDataExceptionMsg);
+            } else {
                 mAlbumBackupState.setSummary(R.string.settings_cuc_finish_title);
-            } else if (TransferEvent.EVENT_CANCEL_WITH_OUT_OF_QUOTA.equals(outDataEvent)) {
-                mAlbumBackupState.setSummary(R.string.above_quota);
-            } else if (TransferEvent.EVENT_CANCEL_WITH_BY_STOPPED.equals(outDataEvent)) {
-                mAlbumBackupState.setSummary(R.string.canceled);
             }
-        } else if (TextUtils.equals(String.valueOf(TransferDataSource.FOLDER_BACKUP), outDataType)) {
-            if (TransferEvent.EVENT_FINISH.equals(outDataEvent)) {
+        } else if (TextUtils.equals(TransferDataSource.FOLDER_BACKUP.name(), outDataSource)) {
+            if (!TextUtils.isEmpty(outDataExceptionMsg)) {
+                mFolderBackupState.setSummary(outDataExceptionMsg);
+            } else {
                 mFolderBackupState.setSummary(R.string.folder_backup_waiting_state);
-            } else if (TransferEvent.EVENT_CANCEL_WITH_OUT_OF_QUOTA.equals(outDataEvent)) {
-                mFolderBackupState.setSummary(R.string.above_quota);
-            } else if (TransferEvent.EVENT_CANCEL_WITH_BY_STOPPED.equals(outDataEvent)) {
-                mFolderBackupState.setSummary(R.string.canceled);
             }
         } else {
             checkProgressData(workInfo);
@@ -647,17 +663,31 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
         }
 
         Data progressData = workInfo.getProgress();
-        String dataType = progressData.getString(TransferWorker.KEY_DATA_TYPE);
-        String progressEvent = progressData.getString(TransferWorker.KEY_DATA_EVENT);
-        String progressFileName = progressData.getString(TransferWorker.DATA_TRANSFER_NAME_KEY);
+        String dataSource = progressData.getString(TransferWorker.KEY_DATA_SOURCE);
+        String progressEvent = progressData.getString(TransferWorker.KEY_DATA_STATUS);
+        String progressFileName = progressData.getString(TransferWorker.KEY_TRANSFER_NAME);
 
-        if (TextUtils.equals(String.valueOf(TransferDataSource.ALBUM_BACKUP), dataType)) {
-            if (TransferEvent.EVENT_TRANSFERRING.equals(progressEvent)) {
-                viewModel.countAlbumBackupPendingList(requireContext());
+        if (TextUtils.equals(TransferDataSource.ALBUM_BACKUP.name(), dataSource)) {
+            if (TransferEvent.EVENT_FILE_TRANSFER_SUCCESS.equals(progressEvent) ||
+                    TransferEvent.EVENT_FILE_TRANSFER_FAILED.equals(progressEvent)) {
+
+                long totalCount = progressData.getLong(TransferWorker.KEY_TRANSFER_TOTAL_COUNT, 0L);
+                long pendingCount = progressData.getLong(TransferWorker.KEY_TRANSFER_PENDING_COUNT, 0L);
+                mAlbumBackupState.setSummary(pendingCount + " / " + totalCount);
+
+            } else if (TransferEvent.EVENT_FILE_IN_TRANSFER.equals(progressEvent)) {
+//                viewModel.countAlbumBackupPendingList(requireContext());
             }
-        } else if (TextUtils.equals(String.valueOf(TransferDataSource.FOLDER_BACKUP), dataType)) {
-            if (TransferEvent.EVENT_TRANSFERRING.equals(progressEvent)) {
-                viewModel.countFolderBackupPendingList(requireContext());
+        } else if (TextUtils.equals(TransferDataSource.FOLDER_BACKUP.name(), dataSource)) {
+
+            if (TransferEvent.EVENT_FILE_TRANSFER_SUCCESS.equals(progressEvent) ||
+                    TransferEvent.EVENT_FILE_TRANSFER_FAILED.equals(progressEvent)) {
+                long totalCount = progressData.getLong(TransferWorker.KEY_TRANSFER_TOTAL_COUNT, 0L);
+                long pendingCount = progressData.getLong(TransferWorker.KEY_TRANSFER_PENDING_COUNT, 0L);
+                mFolderBackupState.setSummary(pendingCount + " / " + totalCount);
+
+            } else if (TransferEvent.EVENT_FILE_IN_TRANSFER.equals(progressEvent)) {
+//                viewModel.countFolderBackupPendingList(requireContext());
             }
         }
     }
@@ -669,14 +699,14 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
         // Cache size
         calculateCacheSize();
 
-        //
-        if (mAlbumBackupSwitch.isChecked()) {
-            viewModel.countAlbumBackupPendingList(requireContext());
-        }
-
-        if (mFolderBackupSwitch.isChecked()) {
-            viewModel.countFolderBackupPendingList(requireContext());
-        }
+//        //
+//        if (mAlbumBackupSwitch.isChecked()) {
+//            viewModel.countAlbumBackupPendingList(requireContext());
+//        }
+//
+//        if (mFolderBackupSwitch.isChecked()) {
+//            viewModel.countFolderBackupPendingList(requireContext());
+//        }
     }
 
     //0 : no one
@@ -741,16 +771,18 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
     }
 
     private void updateAlbumBackupSelectedRepoSummary() {
-        Account camAccount = CameraUploadManager.getInstance().getCameraAccount();
+//        Account camAccount = CameraUploadManager.getInstance().getCameraAccount();
         RepoConfig repoConfig = AlbumBackupSharePreferenceHelper.readRepoConfig();
-        if (camAccount != null && repoConfig != null) {
+        if (repoConfig != null) {
             mAlbumBackupRepo.setSummary(repoConfig.getRepoName());
         } else {
-            mAlbumBackupRepo.setSummary(null);
+            mAlbumBackupRepo.setSummary(getString(R.string.folder_backup_select_repo_hint));
         }
     }
 
     private void dispatchAlbumBackupWork(boolean isEnable) {
+        AlbumBackupSharePreferenceHelper.resetLastScanTime();
+
         if (isEnable) {
             CameraUploadManager.getInstance().setCameraAccount(currentAccount);
             CameraUploadManager.getInstance().performSync();
@@ -798,8 +830,14 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
     }
 
     private void dispatchFolderBackupWork(boolean isEnable) {
+
+        //reset scan time
+        FolderBackupSharePreferenceHelper.resetLastScanTime();
+
         if (!isEnable) {
             TransferBusHelper.resetFileMonitor();
+
+            FolderBackupSharePreferenceHelper.resetLastScanTime();
             return;
         }
 
@@ -809,7 +847,11 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
         if (!CollectionUtils.isEmpty(pathList) && repoConfig != null) {
             TransferBusHelper.startFileMonitor();
 
-            BackgroundJobManagerImpl.getInstance().startFolderAutoBackupWorkerChain(true);
+            BackgroundJobManagerImpl.getInstance().startFolderBackupWorkerChain(false);
+        } else {
+            TransferBusHelper.resetFileMonitor();
+
+            BackgroundJobManagerImpl.getInstance().cancelFolderBackupWorker();
         }
     }
 
@@ -901,7 +943,7 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
 
             updateAlbumBackupSelectedRepoSummary();
 
-            BackgroundJobManagerImpl.getInstance().startMediaWorkerChain(true);
+            BackgroundJobManagerImpl.getInstance().startMediaBackupWorkerChain(true);
         }
     });
 

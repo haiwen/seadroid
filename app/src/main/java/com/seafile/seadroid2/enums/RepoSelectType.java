@@ -11,7 +11,7 @@ public enum RepoSelectType {
     NOT_SELECTABLE(-1),
     ONLY_ACCOUNT(0),
     ONLY_REPO(1),
-    FOLDER(2);
+    DIR(2);
 
     RepoSelectType(int i) {
 

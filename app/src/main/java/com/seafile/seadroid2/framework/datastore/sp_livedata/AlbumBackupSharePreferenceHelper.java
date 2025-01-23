@@ -34,7 +34,7 @@ public class AlbumBackupSharePreferenceHelper {
     }
 
     public static void writeLastScanTime(long time) {
-        SharedPreferences sp = Settings.getUserSharedPreferences();
+        SharedPreferences sp = Settings.getCurrentAccountSharedPreferences();
         if (sp == null) {
             return;
         }
@@ -42,13 +42,35 @@ public class AlbumBackupSharePreferenceHelper {
         sp.edit().putLong(SettingsManager.CAMERA_BACKUP_LAST_TIME, time).apply();
     }
 
+    public static void resetLastScanTime() {
+        writeLastScanTime(0L);
+    }
+
+    public static long readLastScanTimeMills() {
+        SharedPreferences sp = Settings.getCurrentAccountSharedPreferences();
+        if (sp == null) {
+            return 0L;
+        }
+
+        return sp.getLong(SettingsManager.CAMERA_BACKUP_LAST_TIME, 0L);
+    }
+
+    public static void writeLastMediaVersion(String version) {
+        SharedPreferences sp = Settings.getCurrentAccountSharedPreferences();
+        if (sp == null) {
+            return;
+        }
+
+        sp.edit().putString(SettingsManager.CAMERA_BACKUP_LAST_MEDIA_VERSION, version).apply();
+    }
+
     @Nullable
-    public static Long readLastScanTime() {
-        SharedPreferences sp = Settings.getUserSharedPreferences();
+    public static String readLastMediaVersion() {
+        SharedPreferences sp = Settings.getCurrentAccountSharedPreferences();
         if (sp == null) {
             return null;
         }
-        return sp.getLong(SettingsManager.CAMERA_BACKUP_LAST_TIME, 0L);
+        return sp.getString(SettingsManager.CAMERA_BACKUP_LAST_MEDIA_VERSION, null);
     }
 
 

@@ -1,5 +1,10 @@
 package com.seafile.seadroid2.framework.data.model.dirents;
 
+import android.text.TextUtils;
+
+import com.seafile.seadroid2.framework.util.Utils;
+
+
 public class DirentRecursiveFileModel {
     public String name;
     public String parent_dir;
@@ -21,5 +26,14 @@ public class DirentRecursiveFileModel {
 
     public String modifier_name;
     public String modifier_contact_email;
+
+    public boolean isDir() {
+        return TextUtils.equals(type, "dir");
+    }
+
+    public String getFullFileName() {
+        return Utils.pathJoin(parent_dir, name);
+    }
+
 
 }

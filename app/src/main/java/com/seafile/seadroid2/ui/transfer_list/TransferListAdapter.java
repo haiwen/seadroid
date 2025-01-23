@@ -76,8 +76,8 @@ public class TransferListAdapter extends BaseAdapter<FileTransferEntity, Transfe
         }
 
         Bundle bundle = (Bundle) payloads.get(0);
-        long transferredSize = bundle.getLong(TransferWorker.KEY_DATA_TRANSFERRED_SIZE, 0);
-        int percent = bundle.getInt(TransferWorker.KEY_DATA_PROGRESS, 0);
+        long transferredSize = bundle.getLong(TransferWorker.KEY_TRANSFER_TRANSFERRED_SIZE, 0);
+        int percent = bundle.getInt(TransferWorker.KEY_TRANSFER_PROGRESS, 0);
         onBindPayloadHolder(holder, item, transferredSize, percent);
     }
 
@@ -178,15 +178,15 @@ public class TransferListAdapter extends BaseAdapter<FileTransferEntity, Transfe
             holder.binding.transferFileState.setText(null);
         }
 
-        if (TransferResult.NO_RESULT == entity.transfer_result) {
+        if (TextUtils.isEmpty(entity.result)) {
             holder.binding.transferFileErrorState.setVisibility(View.GONE);
             holder.binding.transferFileErrorState.setText(null);
-        } else if (TransferResult.TRANSMITTED == entity.transfer_result) {
+        } else if (TextUtils.equals(entity.result, TransferResult.TRANSMITTED.name())) {
             holder.binding.transferFileErrorState.setVisibility(View.GONE);
             holder.binding.transferFileErrorState.setText(null);
         } else {
             holder.binding.transferFileErrorState.setVisibility(View.VISIBLE);
-            holder.binding.transferFileErrorState.setText(entity.transfer_result.toString());
+            holder.binding.transferFileErrorState.setText(entity.result);
         }
 
         if (isRed) {
@@ -277,7 +277,6 @@ public class TransferListAdapter extends BaseAdapter<FileTransferEntity, Transfe
                         && newT.modified_at == oldT.modified_at
                         && newT.action_end_at == oldT.action_end_at
                         && newT.transfer_status == oldT.transfer_status
-                        && newT.transfer_result == oldT.transfer_result
                         && newT.transfer_action == oldT.transfer_action;
 
             }

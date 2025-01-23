@@ -4,6 +4,7 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.FileUtils;
+import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.enums.TransferAction;
@@ -114,26 +115,26 @@ public class TransferListViewModel extends BaseViewModel {
 
                     //Delete data logically, not physically.
                     fileTransferEntity.data_status = -1;
-                    fileTransferEntity.transfer_result = TransferResult.NO_RESULT;
+                    fileTransferEntity.result = SeafException.USER_CANCELLED_EXCEPTION.getMessage();
                     fileTransferEntity.transfer_status = TransferStatus.CANCELLED;
                     fileTransferEntity.transferred_size = 0;
 
                     AppDatabase.getInstance().fileTransferDAO().update(fileTransferEntity);
 
-                    BackgroundJobManagerImpl.getInstance().startFolderAutoBackupWorkerChain(true);
+                    BackgroundJobManagerImpl.getInstance().startFolderBackupWorkerChain(true);
 
                 } else if (TransferDataSource.ALBUM_BACKUP == fileTransferEntity.data_source) {
                     BackgroundJobManagerImpl.getInstance().cancelById(UploadMediaFileAutomaticallyWorker.UID);
 
                     //Delete data logically, not physically.
                     fileTransferEntity.data_status = -1;
-                    fileTransferEntity.transfer_result = TransferResult.NO_RESULT;
+                    fileTransferEntity.result = SeafException.USER_CANCELLED_EXCEPTION.getMessage();
                     fileTransferEntity.transfer_status = TransferStatus.CANCELLED;
                     fileTransferEntity.transferred_size = 0;
 
                     AppDatabase.getInstance().fileTransferDAO().update(fileTransferEntity);
 
-                    BackgroundJobManagerImpl.getInstance().startMediaWorkerChain(true);
+                    BackgroundJobManagerImpl.getInstance().startMediaBackupWorkerChain(true);
                 }
                 emitter.onSuccess(true);
             }
@@ -150,7 +151,7 @@ public class TransferListViewModel extends BaseViewModel {
     public void cancelAllUploadTask(Consumer<Boolean> consumer) {
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
         List<TransferDataSource> dataSources = CollectionUtils.newArrayList(TransferDataSource.ALBUM_BACKUP, TransferDataSource.FILE_BACKUP, TransferDataSource.FOLDER_BACKUP);
-        Completable completable = AppDatabase.getInstance().fileTransferDAO().cancelAllByDataSource(account.getSignature(), dataSources);
+        Completable completable = AppDatabase.getInstance().fileTransferDAO().cancelAllByDataSource(account.getSignature(), dataSources, SeafException.USER_CANCELLED_EXCEPTION.getMessage());
         addCompletableDisposable(completable, new Action() {
             @Override
             public void run() throws Exception {
@@ -166,7 +167,7 @@ public class TransferListViewModel extends BaseViewModel {
         }
 
         List<TransferDataSource> dataSources = CollectionUtils.newArrayList(TransferDataSource.DOWNLOAD);
-        Completable completable = AppDatabase.getInstance().fileTransferDAO().cancelAllByDataSource(account.getSignature(), dataSources);
+        Completable completable = AppDatabase.getInstance().fileTransferDAO().cancelAllByDataSource(account.getSignature(), dataSources, SeafException.USER_CANCELLED_EXCEPTION.getMessage());
         addCompletableDisposable(completable, new Action() {
             @Override
             public void run() throws Exception {
@@ -257,7 +258,7 @@ public class TransferListViewModel extends BaseViewModel {
                 for (FileTransferEntity entity : list) {
                     entity.data_status = -1;
                     entity.transfer_status = TransferStatus.CANCELLED;
-                    entity.transfer_result = TransferResult.USER_CANCELLED;
+                    entity.result = SeafException.USER_CANCELLED_EXCEPTION.getMessage();
                     entity.transferred_size = 0;
 
                     AppDatabase.getInstance().fileTransferDAO().update(entity);
@@ -282,7 +283,7 @@ public class TransferListViewModel extends BaseViewModel {
 
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
 
-        Completable completable = AppDatabase.getInstance().fileTransferDAO().removeAllUploadByAccount(account.getSignature());
+        Completable completable = AppDatabase.getInstance().fileTransferDAO().removeAllUploadByAccount(account.getSignature(), SeafException.USER_CANCELLED_EXCEPTION.getMessage());
         addCompletableDisposable(completable, new Action() {
             @Override
             public void run() throws Exception {
@@ -325,7 +326,7 @@ public class TransferListViewModel extends BaseViewModel {
                             }
 
                             entity.transfer_status = TransferStatus.WAITING;
-                            entity.transfer_result = TransferResult.NO_RESULT;
+                            entity.result = null;
                             entity.transferred_size = 0;
                             entity.action_end_at = 0;
 
@@ -360,7 +361,7 @@ public class TransferListViewModel extends BaseViewModel {
                     }
 
                     entity.transfer_status = TransferStatus.WAITING;
-                    entity.transfer_result = TransferResult.NO_RESULT;
+                    entity.result = null;
                     entity.transferred_size = 0;
                     entity.action_end_at = 0;
 
@@ -397,7 +398,7 @@ public class TransferListViewModel extends BaseViewModel {
                     }
 
                     entity.transfer_status = TransferStatus.WAITING;
-                    entity.transfer_result = TransferResult.NO_RESULT;
+                    entity.result = null;
                     entity.transferred_size = 0;
                     entity.action_end_at = 0;
 
