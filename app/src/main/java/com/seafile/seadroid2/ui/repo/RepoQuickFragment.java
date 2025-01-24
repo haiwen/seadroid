@@ -95,7 +95,11 @@ import com.seafile.seadroid2.ui.search.SearchViewModel;
 import com.seafile.seadroid2.ui.selector.ObjSelectorActivity;
 import com.seafile.seadroid2.view.TipsViews;
 
+import org.apache.commons.io.output.StringBuilderWriter;
+
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -150,7 +154,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
         binding.swipeRefreshLayout.setOnRefreshListener(() -> {
             removeScrolledPosition();
-            preloadData(RefreshStatusEnum.LOCAL_BEFORE_REMOTE);
+            preloadData(RefreshStatusEnum.REMOTE);
         });
 
         return binding.getRoot();
@@ -296,7 +300,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         adapter.setOnItemLongClickListener((baseQuickAdapter, view, i) -> {
 
             BaseModel baseModel = adapter.getItems().get(i);
-            if (baseModel instanceof GroupItemModel){
+            if (baseModel instanceof GroupItemModel) {
                 return true;
             } else if (baseModel instanceof SearchModel) {
                 return true;
@@ -321,12 +325,16 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         binding.rv.setAdapter(adapter);
     }
 
+    private final Map<String, Boolean> _groupExpandMap = new HashMap<>();
+
     private void expandRepoItem(GroupItemModel groupItemModel, int position) {
-        if (!groupItemModel.is_expanded) {
-            adapter.removeAtRange(new IntRange(position + 1, position + groupItemModel.getRepoList().size()));
-        } else {
+        if (groupItemModel.is_expanded) {
             adapter.addAll(position + 1, groupItemModel.getRepoList());
+        } else {
+            adapter.removeAtRange(new IntRange(position + 1, position + groupItemModel.getRepoList().size()));
         }
+
+        _groupExpandMap.put(groupItemModel.title, groupItemModel.is_expanded);
     }
 
     private void initViewModel() {
@@ -883,12 +891,33 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         getViewModel().loadData(getNavContext(), refreshStatus);
     }
 
-    private void notifyDataChanged(List<BaseModel> repoModels) {
-        if (CollectionUtils.isEmpty(repoModels)) {
+    private void notifyDataChanged(List<BaseModel> models) {
+        if (CollectionUtils.isEmpty(models)) {
             showEmptyTip();
         } else {
-            adapter.notifyDataChanged(repoModels);
+            adapter.notifyDataChanged(checkListByGroup(models));
         }
+    }
+
+    private List<BaseModel> checkListByGroup(List<BaseModel> models) {
+        List<BaseModel> newList = new ArrayList<>();
+        GroupItemModel lastGroup = null;
+        for (BaseModel model : models) {
+            if (model instanceof GroupItemModel g) {
+                if (_groupExpandMap.containsKey(g.title)) {
+                    g.is_expanded = Boolean.TRUE.equals(_groupExpandMap.get(g.title));
+                }
+                lastGroup = g;
+                newList.add(g);
+            } else if (model instanceof RepoModel r) {
+                if (lastGroup != null && lastGroup.is_expanded) {
+                    newList.add(r);
+                }
+            } else {
+                newList.add(model);
+            }
+        }
+        return newList;
     }
 
     private void search(String keyword) {

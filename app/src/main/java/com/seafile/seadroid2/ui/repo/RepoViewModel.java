@@ -189,11 +189,13 @@ public class RepoViewModel extends BaseViewModel {
                 }
 
                 List<BaseModel> list = Objs.convertToAdapterList(repoModels, false);
-                getObjListLiveData().setValue(list);
-
                 if (isLoadRemoteData) {
+                    if (!CollectionUtils.isEmpty(list)) {
+                        getObjListLiveData().setValue(list);
+                    }
                     loadReposFromRemote(account);
                 } else {
+                    getObjListLiveData().setValue(list);
                     getRefreshLiveData().setValue(false);
                 }
             }
@@ -331,11 +333,15 @@ public class RepoViewModel extends BaseViewModel {
             @Override
             public void accept(List<DirentModel> direntModels) throws Exception {
 
-                getObjListLiveData().setValue(Objs.parseLocalDirents(direntModels));
+                List<BaseModel> bs = Objs.parseLocalDirents(direntModels);
 
                 if (isLoadRemoteData) {
+                    if (!CollectionUtils.isEmpty(bs)) {
+                        getObjListLiveData().setValue(new ArrayList<>(bs));
+                    }
                     loadDirentsFromRemote(account, navContext);
                 } else {
+                    getObjListLiveData().setValue(new ArrayList<>(bs));
                     getRefreshLiveData().setValue(false);
                 }
             }
