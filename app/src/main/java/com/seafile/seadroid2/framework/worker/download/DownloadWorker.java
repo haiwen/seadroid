@@ -414,7 +414,6 @@ public class DownloadWorker extends BaseDownloadWorker {
 
             AppDatabase.getInstance().direntDao().insert(direntModel);
         }
-
     }
 
     public void notifyError(SeafException seafException) {

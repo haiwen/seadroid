@@ -381,7 +381,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         if (model.isDir() || repoEncrypted || (!Utils.isViewableImage(model.name) && !Utils.isVideoFile(model.name))) {
             holder.binding.itemIcon.setImageResource(model.getIcon());
         } else {
-            loadImage(model, holder.binding.itemIcon);
+            loadImage(model, holder.binding.itemIcon, smallSize);
         }
 
         //action mode
@@ -470,7 +470,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
             holder.binding.itemIcon.setImageResource(model.getIcon());
         } else {
             holder.binding.itemIcon.setScaleType(ImageView.ScaleType.CENTER_CROP);
-            loadImage(model, holder.binding.itemIcon);
+            loadImage(model, holder.binding.itemIcon, largeSize);
         }
 
         //action mode
@@ -498,7 +498,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         if (model.isDir() || repoEncrypted || (!Utils.isViewableImage(model.name) && !Utils.isVideoFile(model.name))) {
             holder.binding.itemIcon.setImageResource(model.getIcon());
         } else {
-            loadImage(model, holder.binding.itemIcon);
+            loadImage(model, holder.binding.itemIcon, largeSize);
         }
 
         updateItemMultiSelectView(holder.binding.itemMultiSelect, model.is_checked);
@@ -557,7 +557,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
             DirentModel direntModel = new DirentModel();
             direntModel.full_path = model.fullpath;
             direntModel.repo_id = model.repo_id;
-            loadImage(direntModel, holder.binding.itemIcon);
+            loadImage(direntModel, holder.binding.itemIcon, smallSize);
         }
 
         holder.binding.expandableToggleButton.setVisibility(View.GONE);
@@ -566,11 +566,13 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         holder.binding.itemDownloadStatus.setVisibility(View.GONE);
 
         holder.binding.itemTitle.setCompoundDrawables(null, null, null, null);
-
     }
 
-    private void loadImage(DirentModel direntModel, ImageView imageView) {
-        String thumbnailUrl = convertThumbnailUrl(direntModel);
+    private final int largeSize = 512;
+    private final int smallSize = 128;
+
+    private void loadImage(DirentModel direntModel, ImageView imageView, int size) {
+        String thumbnailUrl = convertThumbnailUrl(direntModel, size);
         if (TextUtils.isEmpty(thumbnailUrl)) {
             GlideApp.with(getContext())
                     .load(direntModel.getIcon())
@@ -604,12 +606,12 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         return server_url;
     }
 
-    private String convertThumbnailUrl(DirentModel direntModel) {
+    private String convertThumbnailUrl(DirentModel direntModel, int size) {
         String serverUrl = getServerUrl();
         if (TextUtils.isEmpty(serverUrl)) {
             return null;
         }
-        return ThumbnailUtils.convertThumbnailUrl(serverUrl, direntModel.repo_id, direntModel.full_path);
+        return ThumbnailUtils.convertThumbnailUrl(serverUrl, direntModel.repo_id, direntModel.full_path, size);
     }
 
     public void setOnActionMode(boolean on) {
