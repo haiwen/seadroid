@@ -2,13 +2,11 @@ package com.seafile.seadroid2.framework.util;
 
 import android.content.Context;
 import android.net.Uri;
-import android.os.Environment;
 
 import androidx.core.content.FileProvider;
 
 import com.blankj.utilcode.util.PathUtils;
 import com.blankj.utilcode.util.TimeUtils;
-import com.google.android.gms.common.util.DataUtils;
 import com.seafile.seadroid2.BuildConfig;
 
 import java.io.File;
