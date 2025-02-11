@@ -11,4 +11,5 @@ public class ContextModel {
      */
     public String full_path;
     public String permission;
+    public boolean encrypted;
 }

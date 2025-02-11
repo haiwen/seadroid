@@ -50,6 +50,8 @@ public final class SettingsManager {
     public static final String CAMERA_UPLOAD_BUCKETS_KEY = gAppContext.getString(R.string.key_camera_upload_advanced_buckets_select);
     public static final String CAMERA_UPLOAD_STATE = gAppContext.getString(R.string.key_camera_upload_state);
     public static final String CAMERA_BACKUP_LAST_TIME = "camera_backup_last_time";
+    public static final String CAMERA_BACKUP_LAST_MEDIA_VERSION = "camera_backup_last_media_version";
+
 
     //ABOUT
     public static final String SETTINGS_ABOUT_VERSION_KEY = gAppContext.getString(R.string.key_about_version);
@@ -96,7 +98,7 @@ public final class SettingsManager {
     //
     public static final String PRIVACY_POLICY_CONFIRMED = "privacy_policy_confirmed";
 
-    public static final long DECRYPTION_EXPIRATION_TIME = 1000 * 60 * 60 * 24;//1 days
+    public static final long DECRYPTION_EXPIRATION_TIME = 1000 * 60 * 60;// 1h
 
     public static final int REPO_ENC_VERSION = 2;
 

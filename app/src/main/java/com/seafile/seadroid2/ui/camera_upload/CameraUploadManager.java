@@ -43,31 +43,19 @@ public class CameraUploadManager {
         }
 
         ContentResolver.requestSync(cameraAccount.getAndroidAccount(), AUTHORITY, Bundle.EMPTY);
-
     }
 
-    /**
-     * Initiate a camera sync immediately, upload all media files again.
-     */
-    public void performFullSync() {
-        Bundle b = new Bundle();
-        b.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
-        Log.d(CameraUploadManager.class.getName(), "performFullSync()~");
+    public void performSync(boolean isForce) {
 
+        Log.d(CameraUploadManager.class.getName(), "performSyncByStatus()");
+
+        Bundle b = new Bundle();
+        b.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, isForce);
         Account cameraAccount = getCameraAccount();
         if (cameraAccount != null) {
             ContentResolver.requestSync(cameraAccount.getAndroidAccount(), AUTHORITY, b);
         }
     }
-
-    public void performFullSyncIfEnable() {
-        if (!isCameraUploadEnabled()) {
-            return;
-        }
-
-        performFullSync();
-    }
-
 
     /**
      * Is camera upload enabled?
@@ -124,7 +112,7 @@ public class CameraUploadManager {
             ContentResolver.setIsSyncable(account.getAndroidAccount(), AUTHORITY, 0);
         }
 
-        BackgroundJobManagerImpl.getInstance().cancelMediaWorker();
+        BackgroundJobManagerImpl.getInstance().cancelMediaBackupWorker();
     }
 
     /**

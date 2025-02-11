@@ -5,9 +5,11 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
+import android.text.TextUtils;
 
 import com.blankj.utilcode.util.CollectionUtils;
 import com.seafile.seadroid2.framework.datastore.StorageManager;
+import com.seafile.seadroid2.framework.util.SLogs;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,36 +29,49 @@ public class GalleryBucketUtils {
      * <br>
      * - <a href="https://stackoverflow.com/questions/6248887/android-device-specific-camera-path-issue">https://stackoverflow.com/questions/6248887/android-device-specific-camera-path-issue</a>
      */
-    public static final List<String> CAMERA_BUCKET_NAMES_LIST = CollectionUtils.newArrayList("Camera", "100ANDRO", "100MEDIA");
+    public static final List<String> CAMERA_BUCKET_NAMES_LIST = CollectionUtils.newArrayList("CAMERA", "100ANDRO", "100MEDIA");
 
     public static class Bucket {
-        public String id;
-        public String name;
-        public String imageId;
-        public String videoId;
+        public String bucketId;
+        public String bucketName;
 
+        //media uri info
+
+        /**
+         * media id is the image or video id in the media store
+         */
+        public String mediaId; // image or video id
+        public boolean isImage;
         public Uri uri;
-        public String isImages;
 
         public boolean isCameraBucket;
 
+        /**
+         * <b>
+         * the equals here only work for deduplication, you can't use this function to compare whether the data is exactly the same
+         * </b>
+         */
         @Override
         public boolean equals(Object obj) {
-            if (this == obj)
+            if (this == obj) {
                 return true;
-            if (obj == null || (obj.getClass() != this.getClass()))
+            }
+
+            if (obj == null || (obj.getClass() != this.getClass())) {
                 return false;
+            }
 
             Bucket a = (Bucket) obj;
-            if (a.name == null || name == null)
+            if (a.bucketName == null || bucketName == null) {
                 return false;
+            }
 
-            return Objects.equals(a.name, name) && Objects.equals(a.id, id);
+            return Objects.equals(a.bucketName, bucketName) && Objects.equals(a.bucketId, bucketId);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(name, id);
+            return Objects.hash(bucketName, bucketId);
         }
     }
 
@@ -69,26 +84,27 @@ public class GalleryBucketUtils {
      * @return the list of buckets.
      */
     public static List<Bucket> getMediaBuckets(Context context) {
-        List<Bucket> video;
-        List<Bucket> image;
+        List<Bucket> videos;
+        List<Bucket> images;
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
             //TODO 测试 android 10以下版本
-            video = getVideoBucketsBelowAndroid10Api29(context);
-            image = getImageBucketsBelowAndroid10Api29(context);
+            videos = getVideoBucketsBelowAndroid10Api29(context);
+            images = getImageBucketsBelowAndroid10Api29(context);
         } else {
-            video = getVideoBuckets(context);
-            image = getImageBuckets(context);
+            videos = getVideoBuckets(context);
+            images = getImageBuckets(context);
         }
 
         List<Bucket> merged = new ArrayList<>();
-        merged.addAll(video);
-        merged.addAll(image);
+        merged.addAll(videos);
+        merged.addAll(images);
         return merged.stream().distinct().collect(Collectors.toList());
     }
 
     private static List<Bucket> getVideoBucketsBelowAndroid10Api29(Context context) {
         Uri images = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
         String[] projection = new String[]{
+                MediaStore.Video.Media._ID,
                 MediaStore.Video.Media.BUCKET_ID,
                 MediaStore.Video.Media.BUCKET_DISPLAY_NAME,
                 MediaStore.Video.Media.DATA
@@ -109,26 +125,33 @@ public class GalleryBucketUtils {
             return buckets;
         }
 
+        String localCacheAbsPath = StorageManager.getInstance().getMediaDir().getAbsolutePath();
+
         try {
             while (cursor.moveToNext()) {
                 Bucket b = new Bucket();
 
-                b.id = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.BUCKET_ID));
-                b.name = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.BUCKET_DISPLAY_NAME));
+                b.mediaId = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Video.Media._ID));
+                b.bucketId = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.BUCKET_ID));
+                b.bucketName = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.BUCKET_DISPLAY_NAME));
 
-                if (b.name == null) {
+                if (TextUtils.isEmpty(b.bucketName)) {
+                    SLogs.i("skip bucket media -> video media id: " + b.mediaId + ", because bucket display name is null");
                     continue;
                 }
 
-                b.isCameraBucket = CAMERA_BUCKET_NAMES_LIST.contains(b.name.toLowerCase());
+                b.isCameraBucket = CAMERA_BUCKET_NAMES_LIST.contains(b.bucketName.toUpperCase());
 
                 Uri baseUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
-                b.uri = Uri.withAppendedPath(baseUri, b.videoId);
+                b.uri = Uri.withAppendedPath(baseUri, b.mediaId);
 
                 // ignore buckets created by Seadroid
-                String file = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATA));
-                if (file == null || !file.startsWith(StorageManager.getInstance().getMediaDir().getAbsolutePath()))
-                    buckets.add(b);
+                String localPath = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATA));
+                if (localPath != null && localPath.startsWith(localCacheAbsPath)) {
+                    continue;
+                }
+
+                buckets.add(b);
             }
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
@@ -142,10 +165,10 @@ public class GalleryBucketUtils {
     private static List<Bucket> getImageBucketsBelowAndroid10Api29(Context context) {
         Uri images = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
         String[] projection = new String[]{
+                MediaStore.Images.Media._ID,
                 MediaStore.Images.Media.BUCKET_ID,
                 MediaStore.Images.Media.BUCKET_DISPLAY_NAME,
-                MediaStore.Video.Media.DATA,
-                MediaStore.Images.Media._ID
+                MediaStore.Images.Media.DATA
         };
 
         String BUCKET_ORDER_BY = MediaStore.Images.Media.BUCKET_DISPLAY_NAME + " ASC";
@@ -163,26 +186,33 @@ public class GalleryBucketUtils {
             return buckets;
         }
 
+        String localCacheAbsPath = StorageManager.getInstance().getMediaDir().getAbsolutePath();
+
         try {
             while (cursor.moveToNext()) {
                 Bucket b = new Bucket();
-                b.id = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.BUCKET_ID));
-                b.name = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.BUCKET_DISPLAY_NAME));
-                b.imageId = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID));
 
-                if (b.name == null) {
+                b.bucketId = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.BUCKET_ID));
+                b.bucketName = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.BUCKET_DISPLAY_NAME));
+                b.mediaId = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID));
+
+                if (TextUtils.isEmpty(b.bucketName)) {
+                    SLogs.i("skip bucket media -> image media id: " + b.mediaId + ", because bucket display name is null");
                     continue;
                 }
 
                 Uri baseUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-                b.uri = Uri.withAppendedPath(baseUri, b.imageId);
+                b.uri = Uri.withAppendedPath(baseUri, b.mediaId);
 
-                b.isCameraBucket = CAMERA_BUCKET_NAMES_LIST.contains(b.name.toLowerCase());
+                b.isCameraBucket = CAMERA_BUCKET_NAMES_LIST.contains(b.bucketName.toUpperCase());
 
                 // ignore buckets created by Seadroid
-                String file = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATA));
-                if (file == null || !file.startsWith(StorageManager.getInstance().getMediaDir().getAbsolutePath()))
-                    buckets.add(b);
+                String localPath = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA));
+                if (localPath != null && localPath.startsWith(localCacheAbsPath)) {
+                    continue;
+                }
+
+                buckets.add(b);
             }
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
@@ -198,7 +228,7 @@ public class GalleryBucketUtils {
         String[] projection = new String[]{
                 MediaStore.Video.Media._ID,
                 MediaStore.Video.Media.BUCKET_ID,
-                MediaStore.Video.Media.BUCKET_DISPLAY_NAME,
+                MediaStore.Video.Media.BUCKET_DISPLAY_NAME
         };
         String sortOrder = MediaStore.Video.Media.DATE_ADDED + " DESC";
         Cursor cursor = context.getContentResolver().query(images,
@@ -221,17 +251,20 @@ public class GalleryBucketUtils {
                 int idIndex = cursor.getColumnIndexOrThrow(projection[1]);
                 int nameIndex = cursor.getColumnIndexOrThrow(projection[2]);
 
-                b.videoId = cursor.getString(mediaIdIndex);
-                b.id = cursor.getString(idIndex);
-                b.name = cursor.getString(nameIndex);
+                b.isImage = false;
+                b.mediaId = cursor.getString(mediaIdIndex);
+                b.bucketId = cursor.getString(idIndex);
+                b.bucketName = cursor.getString(nameIndex);
 
                 Uri baseUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
-                b.uri = Uri.withAppendedPath(baseUri, b.videoId);
+                b.uri = Uri.withAppendedPath(baseUri, b.mediaId);
 
-                if (b.name == null) {
+                if (TextUtils.isEmpty(b.bucketName)) {
+                    SLogs.i("skip bucket media -> video media id: " + b.mediaId + ", because bucket display name is null");
                     continue;
                 }
-                b.isCameraBucket = CAMERA_BUCKET_NAMES_LIST.contains(b.name.toLowerCase());
+
+                b.isCameraBucket = CAMERA_BUCKET_NAMES_LIST.contains(b.bucketName.toUpperCase());
 
                 buckets.add(b);
             }
@@ -241,7 +274,7 @@ public class GalleryBucketUtils {
             cursor.close();
         }
 
-        return buckets.stream().distinct().collect(Collectors.toList());
+        return buckets;
     }
 
     private static List<Bucket> getImageBuckets(Context context) {
@@ -272,18 +305,20 @@ public class GalleryBucketUtils {
                 int idIndex = cursor.getColumnIndexOrThrow(projection[1]);
                 int nameIndex = cursor.getColumnIndexOrThrow(projection[2]);
 
-                b.imageId = cursor.getString(mediaIdIndex);
-                b.id = cursor.getString(idIndex);
-                b.name = cursor.getString(nameIndex);
+                b.isImage = true;
+                b.mediaId = cursor.getString(mediaIdIndex); // media id
+                b.bucketId = cursor.getString(idIndex);// bucket id
+                b.bucketName = cursor.getString(nameIndex);// bucket display name
 
                 Uri baseUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-                b.uri = Uri.withAppendedPath(baseUri, b.imageId);
+                b.uri = Uri.withAppendedPath(baseUri, b.mediaId);
 
-                if (b.name == null) {
+                if (TextUtils.isEmpty(b.bucketName)) {
+                    SLogs.i("skip bucket media -> image media id: " + b.mediaId + ", because bucket display name is null");
                     continue;
                 }
 
-                b.isCameraBucket = CAMERA_BUCKET_NAMES_LIST.contains(b.name.toLowerCase());
+                b.isCameraBucket = CAMERA_BUCKET_NAMES_LIST.contains(b.bucketName.toUpperCase());
 
                 buckets.add(b);
             }
@@ -293,8 +328,6 @@ public class GalleryBucketUtils {
             cursor.close();
         }
 
-        return buckets.stream()
-                .distinct()
-                .collect(Collectors.toList());
+        return buckets;
     }
 }

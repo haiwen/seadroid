@@ -69,6 +69,7 @@ public class NavContext {
                     repoModel.repo_id = contextModel.repo_id;
                     repoModel.repo_name = contextModel.repo_name;
                     repoModel.permission = contextModel.permission;
+                    repoModel.encrypted = contextModel.encrypted;
                     navStack.push(repoModel);
                 } else if (contextModel.type.equals("dirent")) {
                     DirentModel direntModel = new DirentModel();
@@ -98,6 +99,7 @@ public class NavContext {
                     contextModel.type = "repo";
                     contextModel.full_path = "/";
                     contextModel.permission = e.permission;
+                    contextModel.encrypted = e.encrypted;
                 } else if (baseModel instanceof DirentModel e) {
                     contextModel.repo_id = e.repo_id;
                     contextModel.repo_name = e.repo_name;

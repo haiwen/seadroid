@@ -157,8 +157,8 @@ public class SettingsAlbumBackupAdvancedFragment extends RenameSharePreferenceFr
         allBuckets.addAll(bucketsSet);
 
         for (GalleryBucketUtils.Bucket bucket : allBuckets) {
-            if (bucketIds.contains(bucket.id)) {
-                bucketNames.add(bucket.name);
+            if (bucketIds.contains(bucket.bucketId)) {
+                bucketNames.add(bucket.bucketName);
             }
         }
 

@@ -32,10 +32,11 @@ import com.seafile.seadroid2.framework.util.SLogs;
         FileTransferEntity.class,
         StarredModel.class,
         PermissionEntity.class,
-}, version = 3, exportSchema = false)
+}, version = 4, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
     private static final String DATABASE_NAME = "seafile_room.db";
     private static volatile AppDatabase _instance;
+
     public static AppDatabase getInstance() {
         if (_instance == null) {
             synchronized (AppDatabase.class) {
@@ -44,6 +45,7 @@ public abstract class AppDatabase extends RoomDatabase {
                             .databaseBuilder(SeadroidApplication.getAppContext(), AppDatabase.class, DATABASE_NAME)
                             .addMigrations(MIGRATION_1_2)
                             .addMigrations(MIGRATION_2_3)
+                            .addMigrations(MIGRATION_3_4)
                             .build();
                 }
             }
@@ -86,6 +88,19 @@ public abstract class AppDatabase extends RoomDatabase {
                     "'v' INTEGER NOT NULL DEFAULT 1, " +
                     "data_status INTEGER NOT NULL DEFAULT 0, " +
                     "PRIMARY KEY(repo_id, id))");
+        }
+    };
+    static final Migration MIGRATION_3_4 = new Migration(3, 4) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            // 1. 添加 transfer_result2 列
+            database.execSQL("ALTER TABLE file_transfer_list ADD COLUMN result TEXT");
+
+            // 2. 将 transfer_result 的枚举值迁移到 transfer_result2
+            database.execSQL("UPDATE file_transfer_list SET result = transfer_result");
+
+            // 3. 如果需要，删除旧的 transfer_result 列
+            // database.execSQL("ALTER TABLE file_transfer_list DROP COLUMN transfer_result");
         }
     };
 

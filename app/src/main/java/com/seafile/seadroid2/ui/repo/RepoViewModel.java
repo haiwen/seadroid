@@ -15,6 +15,7 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.enums.RefreshStatusEnum;
 import com.seafile.seadroid2.framework.data.model.permission.PermissionWrapperModel;
 import com.seafile.seadroid2.ui.bottomsheetmenu.ActionMenu;
 import com.seafile.seadroid2.context.NavContext;
@@ -43,11 +44,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import io.reactivex.Flowable;
 import io.reactivex.Single;
+import io.reactivex.SingleEmitter;
+import io.reactivex.SingleOnSubscribe;
 import io.reactivex.SingleSource;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
@@ -188,12 +190,14 @@ public class RepoViewModel extends BaseViewModel {
                     return;
                 }
 
-                List<BaseModel> list = Objs.parseRepoListForAdapter(repoModels, account.getSignature(), false);
-                getObjListLiveData().setValue(list);
-
+                List<BaseModel> list = Objs.convertToAdapterList(repoModels, false);
                 if (isLoadRemoteData) {
+                    if (!CollectionUtils.isEmpty(list)) {
+                        getObjListLiveData().setValue(list);
+                    }
                     loadReposFromRemote(account);
                 } else {
+                    getObjListLiveData().setValue(list);
                     getRefreshLiveData().setValue(false);
                 }
             }
@@ -201,7 +205,6 @@ public class RepoViewModel extends BaseViewModel {
     }
 
     private void loadReposFromRemote(Account account) {
-
         removeAllPermission();
 
         if (!NetworkUtils.isConnected()) {
@@ -224,7 +227,7 @@ public class RepoViewModel extends BaseViewModel {
                 getRefreshLiveData().setValue(false);
 
                 SeafException seafException = getExceptionByThrowable(throwable);
-                if (seafException == SeafException.remoteWipedException) {
+                if (seafException == SeafException.REMOTE_WIPED_EXCEPTION) {
                     //post a request
                     completeRemoteWipe();
                 }
@@ -233,7 +236,68 @@ public class RepoViewModel extends BaseViewModel {
         });
     }
 
-    private Single<List<DirentModel>> getLoadDirentsFromLocalSingle(Account account, NavContext navContext) {
+
+    private void loadDirentsFromLocalWithGalleryViewType(Account account, NavContext navContext, boolean isLoadRemoteData) {
+        getRefreshLiveData().setValue(true);
+
+        Single<List<DirentModel>> r = getSingleForLoadDirentsFromLocal(account, navContext);
+
+        addSingleDisposable(r, new Consumer<List<DirentModel>>() {
+            @Override
+            public void accept(List<DirentModel> direntModels) throws Exception {
+
+                List<DirentModel> rets = CollectionUtils.newArrayList();
+                for (DirentModel direntModel : direntModels) {
+                    if (Utils.isViewableImage(direntModel.name) || Utils.isVideoFile(direntModel.name)) {
+                        rets.add(direntModel);
+                    }
+                }
+
+                if (isLoadRemoteData) {
+                    loadDirentsFromRemote(account, navContext);
+                } else {
+                    getObjListLiveData().setValue(Objs.parseLocalDirents(rets));
+                    getRefreshLiveData().setValue(false);
+                }
+            }
+        });
+    }
+
+    private void loadDirentsFromLocal(Account account, NavContext navContext, boolean isLoadRemoteData) {
+        getRefreshLiveData().setValue(true);
+
+        Single<List<BaseModel>> r = getSingleForLoadDirentsFromLocal(account, navContext)
+                .flatMap(new Function<List<DirentModel>, SingleSource<List<BaseModel>>>() {
+                    @Override
+                    public SingleSource<List<BaseModel>> apply(List<DirentModel> direntModels) throws Exception {
+                        return Single.create(new SingleOnSubscribe<List<BaseModel>>() {
+                            @Override
+                            public void subscribe(SingleEmitter<List<BaseModel>> emitter) throws Exception {
+                                List<BaseModel> bs = Objs.parseLocalDirents(direntModels);
+                                emitter.onSuccess(bs);
+                            }
+                        });
+                    }
+                });
+
+        addSingleDisposable(r, new Consumer<List<BaseModel>>() {
+            @Override
+            public void accept(List<BaseModel> results) throws Exception {
+
+                if (isLoadRemoteData) {
+                    if (!CollectionUtils.isEmpty(results)) {
+                        getObjListLiveData().setValue(results);
+                    }
+                    loadDirentsFromRemote(account, navContext);
+                } else {
+                    getObjListLiveData().setValue(results);
+                    getRefreshLiveData().setValue(false);
+                }
+            }
+        });
+    }
+
+    private Single<List<DirentModel>> getSingleForLoadDirentsFromLocal(Account account, NavContext navContext) {
         RepoModel repoModel = navContext.getRepoModel();
 
         String repoId = repoModel.repo_id;
@@ -298,54 +362,10 @@ public class RepoViewModel extends BaseViewModel {
         });
     }
 
-    private void loadDirentsFromLocalWithGalleryViewType(Account account, NavContext navContext, boolean isLoadRemoteData) {
-        getRefreshLiveData().setValue(true);
-
-        Single<List<DirentModel>> r = getLoadDirentsFromLocalSingle(account, navContext);
-        addSingleDisposable(r, new Consumer<List<DirentModel>>() {
-            @Override
-            public void accept(List<DirentModel> direntModels) throws Exception {
-
-                List<DirentModel> rets = CollectionUtils.newArrayList();
-                for (DirentModel direntModel : direntModels) {
-                    if (Utils.isViewableImage(direntModel.name) || Utils.isVideoFile(direntModel.name)) {
-                        rets.add(direntModel);
-                    }
-                }
-
-                if (isLoadRemoteData) {
-                    loadDirentsFromRemote(account, navContext);
-                } else {
-                    getObjListLiveData().setValue(Objs.parseLocalDirents(rets));
-                    getRefreshLiveData().setValue(false);
-                }
-            }
-        });
-    }
-
-    private void loadDirentsFromLocal(Account account, NavContext navContext, boolean isLoadRemoteData) {
-        getRefreshLiveData().setValue(true);
-
-        Single<List<DirentModel>> r = getLoadDirentsFromLocalSingle(account, navContext);
-
-        addSingleDisposable(r, new Consumer<List<DirentModel>>() {
-            @Override
-            public void accept(List<DirentModel> direntModels) throws Exception {
-
-                if (isLoadRemoteData) {
-                    loadDirentsFromRemote(account, navContext);
-                } else {
-                    getObjListLiveData().setValue(Objs.parseLocalDirents(direntModels));
-                    getRefreshLiveData().setValue(false);
-                }
-            }
-        });
-    }
-
     private void loadDirentsFromRemote(Account account, NavContext navContext) {
         if (!NetworkUtils.isConnected()) {
             getRefreshLiveData().setValue(false);
-            getSeafExceptionLiveData().setValue(SeafException.networkException);
+            getSeafExceptionLiveData().setValue(SeafException.NETWORK_EXCEPTION);
             return;
         }
 
@@ -417,7 +437,7 @@ public class RepoViewModel extends BaseViewModel {
                 getRefreshLiveData().setValue(false);
 
                 SeafException seafException = getExceptionByThrowable(throwable);
-                if (seafException == SeafException.remoteWipedException) {
+                if (seafException == SeafException.REMOTE_WIPED_EXCEPTION) {
                     //post a request
                     completeRemoteWipe();
                 }
@@ -443,7 +463,7 @@ public class RepoViewModel extends BaseViewModel {
     }
 
     public void getRepoModelAndPermissionEntity(String repoId, Consumer<Pair<RepoModel, PermissionEntity>> consumer) {
-        Single<Pair<RepoModel, PermissionEntity>> r = getRepoModelAndAllPermissionSingle(repoId);
+        Single<Pair<RepoModel, PermissionEntity>> r = getSingleForLoadRepoModelAndAllPermission(repoId);
         addSingleDisposable(r, new Consumer<Pair<RepoModel, PermissionEntity>>() {
             @Override
             public void accept(Pair<RepoModel, PermissionEntity> pair) throws Exception {
@@ -457,7 +477,7 @@ public class RepoViewModel extends BaseViewModel {
     /**
      * get the repoModel and repoMode‘s PermissionEntity from local, if not exist, get from remote.
      */
-    private Single<Pair<RepoModel, PermissionEntity>> getRepoModelAndAllPermissionSingle(String repoId) {
+    private Single<Pair<RepoModel, PermissionEntity>> getSingleForLoadRepoModelAndAllPermission(String repoId) {
         Single<List<RepoModel>> repoSingle = AppDatabase.getInstance().repoDao().getRepoById(repoId);
         return repoSingle.flatMap(new Function<List<RepoModel>, SingleSource<Pair<RepoModel, PermissionEntity>>>() {
             @Override
@@ -479,7 +499,7 @@ public class RepoViewModel extends BaseViewModel {
             public SingleSource<Pair<RepoModel, PermissionEntity>> apply(Pair<RepoModel, PermissionEntity> pair) throws Exception {
 
                 if (pair.getFirst() == null) {
-                    return Single.error(SeafException.notFoundException);
+                    return Single.error(SeafException.NOT_FOUND_EXCEPTION);
                 }
 
                 if (pair.getSecond().isValid()) {
@@ -505,7 +525,7 @@ public class RepoViewModel extends BaseViewModel {
                     return Single.just(pair);
                 }
 
-                Single<PermissionEntity> permissionSingle = getLoadRepoPermissionFromRemoteSingle(repoId, pair.getFirst().getCustomPermissionNum());
+                Single<PermissionEntity> permissionSingle = getSingleForLoadRepoPermissionFromRemote(repoId, pair.getFirst().getCustomPermissionNum());
                 return permissionSingle.flatMap(new Function<PermissionEntity, SingleSource<Pair<RepoModel, PermissionEntity>>>() {
                     @Override
                     public SingleSource<Pair<RepoModel, PermissionEntity>> apply(PermissionEntity p1) throws Exception {
@@ -524,7 +544,7 @@ public class RepoViewModel extends BaseViewModel {
     /**
      * get the repoModel and repoMode‘s PermissionEntity from local, if not exist, get from remote.
      */
-    private Single<PermissionEntity> getRepoModelAndPermissionSingle(String repoId, int pNum) {
+    private Single<PermissionEntity> getSingleForLoadRepoModelAndPermission(String repoId, int pNum) {
         //get permission from db by special number
 
         Single<List<PermissionEntity>> pSingle = AppDatabase.getInstance().permissionDAO().getByRepoAndIdAsync(repoId, pNum);
@@ -543,7 +563,7 @@ public class RepoViewModel extends BaseViewModel {
                     return Single.just(p);
                 }
 
-                Single<PermissionEntity> permissionSingle = getLoadRepoPermissionFromRemoteSingle(repoId, pNum);
+                Single<PermissionEntity> permissionSingle = getSingleForLoadRepoPermissionFromRemote(repoId, pNum);
                 return permissionSingle.flatMap(new Function<PermissionEntity, SingleSource<PermissionEntity>>() {
                     @Override
                     public SingleSource<PermissionEntity> apply(PermissionEntity p1) throws Exception {
@@ -555,7 +575,7 @@ public class RepoViewModel extends BaseViewModel {
 
     }
 
-    private Single<PermissionEntity> getLoadRepoPermissionFromRemoteSingle(String repoId, int pNum) {
+    private Single<PermissionEntity> getSingleForLoadRepoPermissionFromRemote(String repoId, int pNum) {
         Single<PermissionWrapperModel> single = HttpIO.getCurrentInstance().execute(RepoService.class).getCustomSharePermissionById(repoId, pNum);
         return single.flatMap(new Function<PermissionWrapperModel, SingleSource<PermissionEntity>>() {
             @Override
@@ -595,7 +615,7 @@ public class RepoViewModel extends BaseViewModel {
             RepoModel repoModel = selectedRepoModels.get(0);
             if (repoModel.isCustomPermission()) {
                 getRefreshLiveData().setValue(true);
-                Single<PermissionEntity> r = getRepoModelAndPermissionSingle(repoModel.repo_id, repoModel.getCustomPermissionNum());
+                Single<PermissionEntity> r = getSingleForLoadRepoModelAndPermission(repoModel.repo_id, repoModel.getCustomPermissionNum());
                 addSingleDisposable(r, new Consumer<PermissionEntity>() {
                     @Override
                     public void accept(PermissionEntity permission) throws Exception {
@@ -803,13 +823,13 @@ public class RepoViewModel extends BaseViewModel {
                     continue;
                 }
 
-                singles.add(getStarSingle(m.repo_id, "/", isStar));
+                singles.add(getSingleForStar(m.repo_id, "/", isStar));
             } else if (baseModel instanceof DirentModel m) {
                 if (isStar == m.starred) {
                     continue;
                 }
 
-                singles.add(getStarSingle(m.repo_id, m.full_path, isStar));
+                singles.add(getSingleForStar(m.repo_id, m.full_path, isStar));
             }
         }
 
@@ -845,7 +865,7 @@ public class RepoViewModel extends BaseViewModel {
 
     }
 
-    private Flowable<?> getStarSingle(String repoId, String path, boolean isStar) {
+    private Flowable<?> getSingleForStar(String repoId, String path, boolean isStar) {
         if (isStar) {
             Map<String, String> requestDataMap = new HashMap<>();
             requestDataMap.put("repo_id", repoId);

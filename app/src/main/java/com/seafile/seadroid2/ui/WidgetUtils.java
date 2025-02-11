@@ -59,8 +59,7 @@ public class WidgetUtils {
 
         Uri uri = FileProvider.getUriForFile(context, BuildConfig.FILE_PROVIDER_AUTHORITIES, file);
         openIntent.setDataAndType(uri, mime);
-        openIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-
+        openIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
         boolean isAvailable = isIntentAvailable(context, openIntent);
         if (isAvailable) {
             context.startActivity(openIntent);

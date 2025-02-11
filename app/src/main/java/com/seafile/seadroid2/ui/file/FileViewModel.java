@@ -20,7 +20,6 @@ import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
-import com.seafile.seadroid2.framework.util.TransferUtils;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 
 import java.io.File;
@@ -69,7 +68,7 @@ public class FileViewModel extends BaseViewModel {
             @Override
             public Triple<RepoModel, DirentFileModel, FileTransferEntity> apply(DirentFileModel direntFileModel, List<RepoModel> repoModels, List<FileTransferEntity> fileTransferEntity) throws Exception {
                 if (CollectionUtils.isEmpty(repoModels)) {
-                    throw SeafException.notFoundException;
+                    throw SeafException.NOT_FOUND_EXCEPTION;
                 }
 
                 return new Triple<>(repoModels.get(0), direntFileModel, CollectionUtils.isEmpty(fileTransferEntity) ? null : fileTransferEntity.get(0));
@@ -102,7 +101,7 @@ public class FileViewModel extends BaseViewModel {
                         .getListByFullPathsSync(repoModel.repo_id, CollectionUtils.newArrayList(direntModel.full_path), TransferAction.DOWNLOAD);
 
                 if (CollectionUtils.isEmpty(transferEntityList)) {
-                    if (TextUtils.isEmpty(direntModel.related_account)){
+                    if (TextUtils.isEmpty(direntModel.related_account)) {
                         direntModel.related_account = account.email;
                     }
 
@@ -122,9 +121,9 @@ public class FileViewModel extends BaseViewModel {
                 FileTransferEntity dbEntity = transferEntityList.get(0);
 
                 //re-download
-                if (dbEntity.transfer_result == TransferResult.TRANSMITTED) {
+                if (TextUtils.equals(TransferResult.TRANSMITTED.name(), dbEntity.result)) {
                     dbEntity.action_end_at = 0;
-                    dbEntity.transfer_result = TransferResult.NO_RESULT;
+                    dbEntity.result = null;
                     dbEntity.transfer_status = TransferStatus.WAITING;
 
                     AppDatabase.getInstance().fileTransferDAO().insert(dbEntity);
@@ -136,7 +135,7 @@ public class FileViewModel extends BaseViewModel {
                 //in DownloadWorker downloading queue
                 if (dbEntity.is_auto_transfer) {
                     dbEntity.is_auto_transfer = false;
-                    dbEntity.transfer_result = TransferResult.NO_RESULT;
+                    dbEntity.result = null;
                     dbEntity.transfer_status = TransferStatus.WAITING;
 
                     //stop download worker
@@ -166,7 +165,7 @@ public class FileViewModel extends BaseViewModel {
 
     public void download(Account account, DirentModel direntModel, File destinationFile) {
 
-        Single<String> urlSingle = HttpIO.getCurrentInstance().execute(FileService.class).getFileDownloadLinkAsync(direntModel.repo_id, direntModel.full_path);
+        Single<String> urlSingle = HttpIO.getCurrentInstance().execute(FileService.class).getFileDownloadLinkAsync(direntModel.repo_id, direntModel.full_path, 1);
 
         addSingleDisposable(urlSingle, new Consumer<String>() {
             @Override
@@ -222,13 +221,13 @@ public class FileViewModel extends BaseViewModel {
 
                     FileTransferEntity dbEntity = transferEntityList.get(0);
                     if (seafException != null) {
-                        dbEntity.transfer_result = TransferUtils.convertException2TransferResult(seafException);
+                        dbEntity.result = seafException.getMessage();
                         dbEntity.transfer_status = TransferStatus.FAILED;
                         dbEntity.file_md5 = null;
                         dbEntity.transferred_size = 0;
                         dbEntity.target_path = null;
                     } else {
-                        dbEntity.transfer_result = TransferResult.TRANSMITTED;
+                        dbEntity.result = TransferResult.TRANSMITTED.name();
                         dbEntity.transfer_status = TransferStatus.SUCCEEDED;
                         dbEntity.file_md5 = FileUtils.getFileMD5ToString(destinationFile).toLowerCase();
                         dbEntity.transferred_size = destinationFile.length();
@@ -271,7 +270,7 @@ public class FileViewModel extends BaseViewModel {
                 if (!CollectionUtils.isEmpty(transferList)) {
                     FileTransferEntity entity = transferList.get(0);
 
-                    entity.transfer_result = TransferResult.CANCELLED;
+                    entity.result = SeafException.USER_CANCELLED_EXCEPTION.getMessage();
                     entity.transfer_status = TransferStatus.CANCELLED;
                     entity.transferred_size = 0;
 

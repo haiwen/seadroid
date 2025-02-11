@@ -548,8 +548,8 @@ public class TabSettingsFragment extends RenameSharePreferenceFragmentCompat {
         }
 
         Data outData = workInfo.getOutputData();
-        String outDataEvent = outData.getString(TransferWorker.KEY_DATA_EVENT);
-        String outDataType = outData.getString(TransferWorker.KEY_DATA_TYPE);
+        String outDataEvent = outData.getString(TransferWorker.KEY_DATA_STATUS);
+        String outDataType = outData.getString(TransferWorker.KEY_DATA_SOURCE);
 
         //scan end
         if (TextUtils.equals(String.valueOf(TransferDataSource.ALBUM_BACKUP), outDataType)) {
@@ -567,7 +567,7 @@ public class TabSettingsFragment extends RenameSharePreferenceFragmentCompat {
         }
 
         Data progressData = workInfo.getProgress();
-        String pDataEvent = progressData.getString(TransferWorker.KEY_DATA_EVENT);
+        String pDataEvent = progressData.getString(TransferWorker.KEY_DATA_STATUS);
         if (TextUtils.isEmpty(pDataEvent)) {
             return;
         }
@@ -589,24 +589,21 @@ public class TabSettingsFragment extends RenameSharePreferenceFragmentCompat {
         }
 
         Data outData = workInfo.getOutputData();
-        String outDataEvent = outData.getString(TransferWorker.KEY_DATA_EVENT);
-        String outDataType = outData.getString(TransferWorker.KEY_DATA_TYPE);
+        String outDataSource = outData.getString(TransferWorker.KEY_DATA_SOURCE);
+        String outDataStatus = outData.getString(TransferWorker.KEY_DATA_STATUS);
+        String outDataExceptionMsg = outData.getString(TransferWorker.KEY_DATA_RESULT);
 
-        if (TextUtils.equals(String.valueOf(TransferDataSource.ALBUM_BACKUP), outDataType)) {
-            if (TransferEvent.EVENT_FINISH.equals(outDataEvent)) {
+        if (TextUtils.equals(TransferDataSource.ALBUM_BACKUP.name(), outDataSource)) {
+            if (!TextUtils.isEmpty(outDataExceptionMsg)) {
+                mAlbumBackupState.setSummary(outDataExceptionMsg);
+            } else {
                 mAlbumBackupState.setSummary(R.string.settings_cuc_finish_title);
-            } else if (TransferEvent.EVENT_CANCEL_WITH_OUT_OF_QUOTA.equals(outDataEvent)) {
-                mAlbumBackupState.setSummary(R.string.above_quota);
-            } else if (TransferEvent.EVENT_CANCEL_WITH_BY_STOPPED.equals(outDataEvent)) {
-                mAlbumBackupState.setSummary(R.string.canceled);
             }
-        } else if (TextUtils.equals(String.valueOf(TransferDataSource.FOLDER_BACKUP), outDataType)) {
-            if (TransferEvent.EVENT_FINISH.equals(outDataEvent)) {
+        } else if (TextUtils.equals(TransferDataSource.FOLDER_BACKUP.name(), outDataSource)) {
+            if (!TextUtils.isEmpty(outDataExceptionMsg)) {
+                mFolderBackupState.setSummary(outDataExceptionMsg);
+            } else {
                 mFolderBackupState.setSummary(R.string.folder_backup_waiting_state);
-            } else if (TransferEvent.EVENT_CANCEL_WITH_OUT_OF_QUOTA.equals(outDataEvent)) {
-                mFolderBackupState.setSummary(R.string.above_quota);
-            } else if (TransferEvent.EVENT_CANCEL_WITH_BY_STOPPED.equals(outDataEvent)) {
-                mFolderBackupState.setSummary(R.string.canceled);
             }
         } else {
             checkProgressData(workInfo);
@@ -619,17 +616,32 @@ public class TabSettingsFragment extends RenameSharePreferenceFragmentCompat {
         }
 
         Data progressData = workInfo.getProgress();
-        String dataType = progressData.getString(TransferWorker.KEY_DATA_TYPE);
-        String progressEvent = progressData.getString(TransferWorker.KEY_DATA_EVENT);
-        String progressFileName = progressData.getString(TransferWorker.DATA_TRANSFER_NAME_KEY);
+        String dataSource = progressData.getString(TransferWorker.KEY_DATA_SOURCE);
+        String progressEvent = progressData.getString(TransferWorker.KEY_DATA_STATUS);
+        String progressFileName = progressData.getString(TransferWorker.KEY_TRANSFER_NAME);
 
-        if (TextUtils.equals(String.valueOf(TransferDataSource.ALBUM_BACKUP), dataType)) {
-            if (TransferEvent.EVENT_TRANSFERRING.equals(progressEvent)) {
-                viewModel.countAlbumBackupPendingList(requireContext());
+        if (TextUtils.equals(TransferDataSource.ALBUM_BACKUP.name(), dataSource)) {
+            if (TransferEvent.EVENT_FILE_TRANSFER_SUCCESS.equals(progressEvent) ||
+                    TransferEvent.EVENT_FILE_TRANSFER_FAILED.equals(progressEvent)) {
+
+                long totalCount = progressData.getLong(TransferWorker.KEY_TRANSFER_TOTAL_COUNT, 0L);
+                long pendingCount = progressData.getLong(TransferWorker.KEY_TRANSFER_PENDING_COUNT, 0L);
+                mAlbumBackupState.setSummary(pendingCount + "/" + totalCount);
+
+            } else if (TransferEvent.EVENT_FILE_IN_TRANSFER.equals(progressEvent)) {
+//                viewModel.countAlbumBackupPendingList(requireContext());
             }
-        } else if (TextUtils.equals(String.valueOf(TransferDataSource.FOLDER_BACKUP), dataType)) {
-            if (TransferEvent.EVENT_TRANSFERRING.equals(progressEvent)) {
-                viewModel.countFolderBackupPendingList(requireContext());
+        } else if (TextUtils.equals(TransferDataSource.FOLDER_BACKUP.name(), dataSource)) {
+
+            if (TransferEvent.EVENT_FILE_TRANSFER_SUCCESS.equals(progressEvent) ||
+                    TransferEvent.EVENT_FILE_TRANSFER_FAILED.equals(progressEvent)) {
+
+                long totalCount = progressData.getLong(TransferWorker.KEY_TRANSFER_TOTAL_COUNT, 0L);
+                long pendingCount = progressData.getLong(TransferWorker.KEY_TRANSFER_PENDING_COUNT, 0L);
+                mFolderBackupState.setSummary(pendingCount + "/" + totalCount);
+
+            } else if (TransferEvent.EVENT_FILE_IN_TRANSFER.equals(progressEvent)) {
+//                viewModel.countFolderBackupPendingList(requireContext());
             }
         }
     }
@@ -765,7 +777,7 @@ public class TabSettingsFragment extends RenameSharePreferenceFragmentCompat {
         if (!CollectionUtils.isEmpty(pathList) && repoConfig != null) {
             TransferBusHelper.startFileMonitor();
 
-            BackgroundJobManagerImpl.getInstance().startFolderAutoBackupWorkerChain(true);
+            BackgroundJobManagerImpl.getInstance().startFolderBackupWorkerChain(true);
         }
     }
 
@@ -836,7 +848,7 @@ public class TabSettingsFragment extends RenameSharePreferenceFragmentCompat {
                     RepoConfig currentRepoConfig = FolderBackupSharePreferenceHelper.readRepoConfig();
                     if (currentRepoConfig != null) {
                         //means the repo config is changed, need to clear the last scan time for all paths
-                        if (!repoConfig.getRepoID().equals(currentRepoConfig.getRepoID())) {
+                        if (!repoConfig.getRepoId().equals(currentRepoConfig.getRepoId())) {
                             FolderBackupSharePreferenceHelper.clearLastScanTimeForAllPath();
                         }
                     }
@@ -869,7 +881,7 @@ public class TabSettingsFragment extends RenameSharePreferenceFragmentCompat {
 
             updateAlbumBackupSelectedRepoSummary();
 
-            BackgroundJobManagerImpl.getInstance().startMediaWorkerChain(true);
+            BackgroundJobManagerImpl.getInstance().startMediaBackupWorkerChain(true);
         }
     });
 

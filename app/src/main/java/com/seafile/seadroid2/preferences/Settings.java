@@ -84,7 +84,7 @@ public class Settings {
     private static final List<SettingsLiveData<?>> REGISTER_LIST = new ArrayList<>();
 
     @Nullable
-    public static SharedPreferences getUserSharedPreferences() {
+    public static SharedPreferences getCurrentAccountSharedPreferences() {
         if (sharedPreferences == null) {
             if (_account == null) {
                 return null;

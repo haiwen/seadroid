@@ -36,20 +36,23 @@ public class FolderBackupSharePreferenceHelper {
         return Settings.FOLDER_BACKUP_SWITCH.queryValue();
     }
 
-    @Nullable
-    public static Long readLastScanTime() {
-        SharedPreferences sp = Settings.getUserSharedPreferences();
+    public static long readLastScanTime() {
+        SharedPreferences sp = Settings.getCurrentAccountSharedPreferences();
         if (sp == null) {
-            return null;
+            return 0L;
         }
         return sp.getLong(SettingsManager.FOLDER_BACKUP_LAST_TIME, 0);
     }
 
     public static void writeLastScanTime(long time) {
-        SharedPreferences sp = Settings.getUserSharedPreferences();
+        SharedPreferences sp = Settings.getCurrentAccountSharedPreferences();
         if (sp != null) {
             sp.edit().putLong(SettingsManager.FOLDER_BACKUP_LAST_TIME, time).apply();
         }
+    }
+
+    public static void resetLastScanTime() {
+        writeLastScanTime(0L);
     }
 
     //"WIFI" or "WIFI_AND_MOBILE"
@@ -138,7 +141,7 @@ public class FolderBackupSharePreferenceHelper {
 
     @Nullable
     public static Long readLastScanTimeForPath(String absPath) {
-        SharedPreferences sp = Settings.getUserSharedPreferences();
+        SharedPreferences sp = Settings.getCurrentAccountSharedPreferences();
         if (sp == null) {
             return null;
         }
@@ -148,7 +151,7 @@ public class FolderBackupSharePreferenceHelper {
     }
 
     public static void writeLastScanTimeForPath(String absPath) {
-        SharedPreferences sp = Settings.getUserSharedPreferences();
+        SharedPreferences sp = Settings.getCurrentAccountSharedPreferences();
         if (sp == null) {
             return;
         }
@@ -158,7 +161,7 @@ public class FolderBackupSharePreferenceHelper {
     }
 
     public static void clearLastScanTimeForAllPath() {
-        SharedPreferences sp = Settings.getUserSharedPreferences();
+        SharedPreferences sp = Settings.getCurrentAccountSharedPreferences();
         if (sp == null) {
             return;
         }
@@ -175,7 +178,7 @@ public class FolderBackupSharePreferenceHelper {
     }
 
     public static void clearLastScanTimeForPath(String absPath) {
-        SharedPreferences sp = Settings.getUserSharedPreferences();
+        SharedPreferences sp = Settings.getCurrentAccountSharedPreferences();
         if (sp == null) {
             return;
         }
@@ -185,7 +188,7 @@ public class FolderBackupSharePreferenceHelper {
     }
 
     public static void writeSkipHiddenFiles(boolean isSkip) {
-        SharedPreferences sp = Settings.getUserSharedPreferences();
+        SharedPreferences sp = Settings.getCurrentAccountSharedPreferences();
         if (sp == null) {
             return;
         }
@@ -197,7 +200,7 @@ public class FolderBackupSharePreferenceHelper {
      * Is it necessary to filter hidden files when the folder backup service is turned on
      */
     public static boolean isFolderBackupSkipHiddenFiles() {
-        SharedPreferences sp = Settings.getUserSharedPreferences();
+        SharedPreferences sp = Settings.getCurrentAccountSharedPreferences();
         if (sp == null) {
             return true;
         }

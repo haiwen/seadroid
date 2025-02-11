@@ -95,7 +95,7 @@ public class PhotoViewModel extends BaseViewModel {
     public void requestOriginalUrl(DirentModel direntModel) {
         Single<String> downloadUrlSingle = HttpIO.getCurrentInstance()
                 .execute(FileService.class)
-                .getFileDownloadLinkAsync(direntModel.repo_id, direntModel.full_path);
+                .getFileDownloadLinkAsync(direntModel.repo_id, direntModel.full_path, 1);
 
         addSingleDisposable(downloadUrlSingle, new Consumer<String>() {
             @Override
@@ -117,7 +117,7 @@ public class PhotoViewModel extends BaseViewModel {
     public void download(DirentModel direntModel) {
         Single<String> downloadUrlSingle = HttpIO.getCurrentInstance()
                 .execute(FileService.class)
-                .getFileDownloadLinkAsync(direntModel.repo_id, direntModel.full_path);
+                .getFileDownloadLinkAsync(direntModel.repo_id, direntModel.full_path, 1);
 
         Single<String> downloadedFilePathSingle = downloadUrlSingle.flatMap(new Function<String, SingleSource<String>>() {
             @Override
@@ -140,7 +140,7 @@ public class PhotoViewModel extends BaseViewModel {
             public SingleSource<FileTransferEntity> apply(String s) throws Exception {
                 if (TextUtils.isEmpty(s)) {
                     //download url is null
-                    throw SeafException.networkException;
+                    throw SeafException.NETWORK_EXCEPTION;
                 }
 
                 FileTransferEntity transferEntity = FileTransferEntity.convertDirentModel2This(false, direntModel);
@@ -188,13 +188,13 @@ public class PhotoViewModel extends BaseViewModel {
 
                 try (Response response = newCall.execute()) {
                     if (!response.isSuccessful()) {
-                        emitter.onError(SeafException.networkException);
+                        emitter.onError(SeafException.NETWORK_EXCEPTION);
                         return;
                     }
 
                     ResponseBody responseBody = response.body();
                     if (responseBody == null) {
-                        emitter.onError(SeafException.networkException);
+                        emitter.onError(SeafException.NETWORK_EXCEPTION);
                         return;
                     }
 
@@ -225,7 +225,7 @@ public class PhotoViewModel extends BaseViewModel {
                         transferEntity.transferred_size = fileSize;
                         transferEntity.action_end_at = System.currentTimeMillis();
                         transferEntity.file_original_modified_at = transferEntity.action_end_at;
-                        transferEntity.transfer_result = TransferResult.TRANSMITTED;
+                        transferEntity.result = TransferResult.TRANSMITTED.name();
                         transferEntity.transfer_status = TransferStatus.SUCCEEDED;
 
                         transferEntity.file_md5 = FileUtils.getFileMD5ToString(transferEntity.target_path).toLowerCase();
@@ -236,11 +236,11 @@ public class PhotoViewModel extends BaseViewModel {
                     } else {
                         SLogs.e("move file failed: " + path);
 
-                        transferEntity.transfer_result = TransferResult.FILE_ERROR;
+                        transferEntity.result = SeafException.IO_EXCEPTION.getMessage();
                         transferEntity.transfer_status = TransferStatus.FAILED;
                         AppDatabase.getInstance().fileTransferDAO().update(transferEntity);
 
-                        emitter.onError(SeafException.transferFileException);
+                        emitter.onError(SeafException.TRANSFER_FILE_EXCEPTION);
                     }
                 } catch (Exception e) {
                     emitter.onError(e);

@@ -11,14 +11,13 @@ import com.seafile.seadroid2.framework.data.db.AppDatabase;
 import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.data.db.entities.EncKeyCacheEntity;
 import com.seafile.seadroid2.framework.data.db.entities.PermissionEntity;
-import com.seafile.seadroid2.framework.data.model.permission.PermissionListWrapperModel;
-import com.seafile.seadroid2.framework.data.model.permission.PermissionParentModel;
+import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.data.model.permission.PermissionWrapperModel;
+import com.seafile.seadroid2.framework.data.model.repo.RepoWrapperModel;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
 import com.seafile.seadroid2.context.NavContext;
 import com.seafile.seadroid2.framework.data.model.BaseModel;
 import com.seafile.seadroid2.framework.data.model.repo.DirentWrapperModel;
-import com.seafile.seadroid2.framework.data.model.repo.RepoWrapperModel;
 import com.seafile.seadroid2.ui.repo.RepoService;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.util.Objs;
@@ -26,9 +25,7 @@ import com.seafile.seadroid2.framework.util.SLogs;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
-import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.SingleSource;
 import io.reactivex.functions.Consumer;
@@ -68,9 +65,9 @@ public class ObjSelectorViewModel extends BaseViewModel {
      */
     public void loadReposFromNet(Account account, boolean isFilterUnavailable) {
         getRefreshLiveData().setValue(true);
-        Single<RepoWrapperModel> singleNet = HttpIO.getInstanceByAccount(account).execute(RepoService.class).getRepos();
 
-        addSingleDisposable(singleNet, new Consumer<RepoWrapperModel>() {
+        Single<RepoWrapperModel> single = HttpIO.getInstanceByAccount(account).execute(RepoService.class).getReposAsync();
+        addSingleDisposable(single, new Consumer<RepoWrapperModel>() {
             @Override
             public void accept(RepoWrapperModel repoWrapperModel) throws Exception {
                 if (repoWrapperModel == null || CollectionUtils.isEmpty(repoWrapperModel.repos)) {
@@ -78,9 +75,9 @@ public class ObjSelectorViewModel extends BaseViewModel {
                     getRefreshLiveData().setValue(false);
                     return;
                 }
-
-                List<BaseModel> list = Objs.parseRepoListForAdapter(repoWrapperModel.repos, account.getSignature(), isFilterUnavailable);
-                getObjsListLiveData().setValue(list);
+                List<RepoModel> list1 = Objs.convertRemoteListToLocalList(repoWrapperModel.repos, account.getSignature());
+                List<BaseModel> list2 = Objs.convertToAdapterList(list1, isFilterUnavailable);
+                getObjsListLiveData().setValue(list2);
                 getRefreshLiveData().setValue(false);
             }
         }, new Consumer<Throwable>() {
@@ -97,7 +94,7 @@ public class ObjSelectorViewModel extends BaseViewModel {
         String repoId = context.getRepoModel().repo_id;
         String parentDir = context.getNavPath();
 
-        Single<DirentWrapperModel> singleNet = HttpIO.getInstanceByAccount(account).execute(RepoService.class).getDirents(repoId, parentDir);
+        Single<DirentWrapperModel> singleNet = HttpIO.getInstanceByAccount(account).execute(RepoService.class).getDirentsAsync(repoId, parentDir);
         addSingleDisposable(singleNet, new Consumer<DirentWrapperModel>() {
             @Override
             public void accept(DirentWrapperModel direntWrapperModel) throws Exception {
@@ -114,9 +111,9 @@ public class ObjSelectorViewModel extends BaseViewModel {
             }
         }, new Consumer<Throwable>() {
             @Override
-            public void accept(Throwable throwable) throws Exception {
+            public void accept(Throwable throwable) {
                 getRefreshLiveData().setValue(false);
-                getExceptionLiveData().setValue(new Pair<>(400, SeafException.networkException));
+                getExceptionLiveData().setValue(new Pair<>(400, SeafException.NETWORK_EXCEPTION));
                 String msg = getErrorMsgByThrowable(throwable);
                 ToastUtils.showLong(msg);
             }

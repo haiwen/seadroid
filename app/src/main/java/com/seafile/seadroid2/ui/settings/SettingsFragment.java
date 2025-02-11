@@ -239,8 +239,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         }
 
         Data outData = workInfo.getOutputData();
-        String outDataEvent = outData.getString(TransferWorker.KEY_DATA_EVENT);
-        String outDataType = outData.getString(TransferWorker.KEY_DATA_TYPE);
+        String outDataEvent = outData.getString(TransferWorker.KEY_DATA_STATUS);
+        String outDataType = outData.getString(TransferWorker.KEY_DATA_SOURCE);
         if (String.valueOf(TransferDataSource.ALBUM_BACKUP).equals(outDataType)) {
             if (TransferEvent.EVENT_SCAN_END.equals(outDataEvent)) {
                 mCameraBackupState.setSummary(R.string.waiting);
@@ -254,7 +254,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         }
 
         Data progressData = workInfo.getProgress();
-        String pDataEvent = progressData.getString(TransferWorker.KEY_DATA_EVENT);
+        String pDataEvent = progressData.getString(TransferWorker.KEY_DATA_STATUS);
         if (TextUtils.isEmpty(pDataEvent)) {
             return;
         }
@@ -276,8 +276,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         }
 
         Data outData = workInfo.getOutputData();
-        String outDataEvent = outData.getString(TransferWorker.KEY_DATA_EVENT);
-        String outDataType = outData.getString(TransferWorker.KEY_DATA_TYPE);
+        String outDataEvent = outData.getString(TransferWorker.KEY_DATA_STATUS);
+        String outDataType = outData.getString(TransferWorker.KEY_DATA_SOURCE);
         if (String.valueOf(TransferDataSource.ALBUM_BACKUP).equals(outDataType)) {
             if (TransferEvent.EVENT_FINISH.equals(outDataEvent)) {
                 mCameraBackupState.setSummary(R.string.settings_cuc_finish_title);
@@ -292,27 +292,27 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
 
         Data progressData = workInfo.getProgress();
-        String dataType = progressData.getString(TransferWorker.KEY_DATA_TYPE);
-        String progressEvent = progressData.getString(TransferWorker.KEY_DATA_EVENT);
-        String progressFileName = progressData.getString(TransferWorker.DATA_TRANSFER_NAME_KEY);
+        String dataType = progressData.getString(TransferWorker.KEY_DATA_SOURCE);
+        String progressEvent = progressData.getString(TransferWorker.KEY_DATA_STATUS);
+        String progressFileName = progressData.getString(TransferWorker.KEY_TRANSFER_NAME);
 
         if (TextUtils.isEmpty(dataType)) {
             return;
         }
 
-        if (String.valueOf(TransferDataSource.ALBUM_BACKUP).equals(dataType)) {
-            if (TransferEvent.EVENT_CANCEL_WITH_OUT_OF_QUOTA.equals(progressEvent)) {
-                mCameraBackupState.setSummary(R.string.above_quota);
-            } else if (TransferEvent.EVENT_TRANSFERRING.equals(progressEvent)) {
-                viewModel.countAlbumBackupPendingList(requireContext());
-            }
-        } else if (String.valueOf(TransferDataSource.FOLDER_BACKUP).equals(dataType)) {
-            if (TransferEvent.EVENT_CANCEL_WITH_OUT_OF_QUOTA.equals(progressEvent)) {
-                mFolderBackupState.setSummary(R.string.above_quota);
-            } else if (TransferEvent.EVENT_TRANSFERRING.equals(progressEvent)) {
-                viewModel.countFolderBackupPendingList(requireContext());
-            }
-        }
+//        if (String.valueOf(TransferDataSource.ALBUM_BACKUP).equals(dataType)) {
+//            if (TransferEvent.EVENT_CANCEL_WITH_OUT_OF_QUOTA.equals(progressEvent)) {
+//                mCameraBackupState.setSummary(R.string.above_quota);
+//            } else if (TransferEvent.EVENT_FILE_IN_TRANSFER.equals(progressEvent)) {
+//                viewModel.countAlbumBackupPendingList(requireContext());
+//            }
+//        } else if (String.valueOf(TransferDataSource.FOLDER_BACKUP).equals(dataType)) {
+//            if (TransferEvent.EVENT_CANCEL_WITH_OUT_OF_QUOTA.equals(progressEvent)) {
+//                mFolderBackupState.setSummary(R.string.above_quota);
+//            } else if (TransferEvent.EVENT_FILE_IN_TRANSFER.equals(progressEvent)) {
+//                viewModel.countFolderBackupPendingList(requireContext());
+//            }
+//        }
     }
 
     private void loadData() {
@@ -629,7 +629,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 refreshFolderBackNetworkMode(which);
 
                 //restart
-                BackgroundJobManagerImpl.getInstance().startFolderAutoBackupWorkerChain(true);
+                BackgroundJobManagerImpl.getInstance().startFolderBackupWorkerChain(true);
 
             }
         });
@@ -716,10 +716,10 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     private void switchCameraWorker(boolean isChecked) {
         if (isChecked) {
             CameraUploadManager.getInstance().setCameraAccount(currentAccount);
-            BackgroundJobManagerImpl.getInstance().startMediaWorkerChain(true);
+            BackgroundJobManagerImpl.getInstance().startMediaBackupWorkerChain(true);
         } else {
             CameraUploadManager.getInstance().disableCameraUpload();
-            BackgroundJobManagerImpl.getInstance().cancelMediaWorker();
+            BackgroundJobManagerImpl.getInstance().cancelMediaBackupWorker();
         }
     }
 
@@ -733,7 +733,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         setFolderPreferencesVisible(isFolderAutomaticBackup);
 
         if (!isFolderAutomaticBackup) {
-            BackgroundJobManagerImpl.getInstance().cancelFolderAutoUploadWorker();
+            BackgroundJobManagerImpl.getInstance().cancelFolderBackupWorker();
             if (fileSyncService != null) {
 //                fileSyncService.stopFolderMonitor();
             }
@@ -759,7 +759,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 //                fileSyncService.startFolderMonitor();
             }
 
-            BackgroundJobManagerImpl.getInstance().startFolderAutoBackupWorkerChain(true);
+            BackgroundJobManagerImpl.getInstance().startFolderBackupWorkerChain(true);
         }
     }
 

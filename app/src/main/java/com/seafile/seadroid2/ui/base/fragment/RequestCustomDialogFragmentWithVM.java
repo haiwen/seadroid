@@ -57,6 +57,10 @@ public abstract class RequestCustomDialogFragmentWithVM<VM extends BaseViewModel
 
     protected abstract void onPositiveClick();
 
+    protected void onNegativeClicked() {
+
+    }
+
     private View rootView;
 
     public View getDialogView() {
@@ -116,7 +120,13 @@ public abstract class RequestCustomDialogFragmentWithVM<VM extends BaseViewModel
         }
 
         if (negativeView != null) {
-            negativeView.setOnClickListener(v -> dismiss());
+            negativeView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onNegativeClicked();
+                    dismiss();
+                }
+            });
         }
 
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireActivity());

@@ -108,7 +108,7 @@ public class ImagePreviewViewModel extends BaseViewModel {
             @Override
             public Pair<RepoModel, List<DirentModel>> apply(List<RepoModel> models, List<DirentModel> direntModels) throws Exception {
                 if (CollectionUtils.isEmpty(models)) {
-                    throw SeafException.notFoundException;
+                    throw SeafException.NOT_FOUND_EXCEPTION;
                 }
 
                 RepoModel repoModel = models.get(0);

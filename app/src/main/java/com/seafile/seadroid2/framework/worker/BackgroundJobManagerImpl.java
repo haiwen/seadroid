@@ -106,16 +106,16 @@ public class BackgroundJobManagerImpl {
     }
 
     ///////////////////
-    /// media worker
-    ///////////////////
-    public void startMediaWorkerChain(boolean isForce) {
-        cancelMediaWorker();
 
-        OneTimeWorkRequest scanRequest = getMediaScanRequest(isForce);
-        OneTimeWorkRequest uploadRequest = getMediaUploadRequest();
+    /// media worker
+    /// ////////////////
+    public void startMediaBackupWorkerChain(boolean isForce) {
+        cancelMediaBackupWorker();
+
+        OneTimeWorkRequest scanRequest = getMediaScannerWorkerRequest(isForce);
+        OneTimeWorkRequest uploadRequest = getMediaUploadWorkerRequest();
 
         String workerName = MediaBackupScannerWorker.class.getSimpleName();
-
 
         getWorkManager()
                 .beginUniqueWork(workerName, ExistingWorkPolicy.KEEP, scanRequest)
@@ -123,7 +123,7 @@ public class BackgroundJobManagerImpl {
                 .enqueue();
     }
 
-    private OneTimeWorkRequest getMediaScanRequest(boolean isForce) {
+    private OneTimeWorkRequest getMediaScannerWorkerRequest(boolean isForce) {
         Data data = new Data.Builder()
                 .putBoolean(TransferWorker.DATA_FORCE_TRANSFER_KEY, isForce)
                 .build();
@@ -135,7 +135,7 @@ public class BackgroundJobManagerImpl {
                 .build();
     }
 
-    private OneTimeWorkRequest getMediaUploadRequest() {
+    private OneTimeWorkRequest getMediaUploadWorkerRequest() {
         NetworkType networkType = NetworkType.UNMETERED;
         boolean isAllowData = AlbumBackupSharePreferenceHelper.readAllowDataPlanSwitch();
         if (isAllowData) {
@@ -157,20 +157,26 @@ public class BackgroundJobManagerImpl {
                 .build();
     }
 
+    public void restartMediaBackupWorker() {
+        cancelMediaBackupWorker();
+        startMediaBackupWorkerChain(false);
+    }
+
     //cancel media
-    public void cancelMediaWorker() {
+    public void cancelMediaBackupWorker() {
         cancelById(UploadMediaFileAutomaticallyWorker.UID);
         cancelById(MediaBackupScannerWorker.UID);
     }
 
     ///////////////////
-    /// upload folder
-    ///////////////////
-    public void startFolderAutoBackupWorkerChain(boolean isForce) {
-        cancelFolderAutoUploadWorker();
 
-        OneTimeWorkRequest scanRequest = getFolderScanRequest(isForce);
-        OneTimeWorkRequest uploadRequest = getFolderUploadRequest();
+    /// upload folder
+    /// ////////////////
+    public void startFolderBackupWorkerChain(boolean isForce) {
+        cancelFolderBackupWorker();
+
+        OneTimeWorkRequest scanRequest = getFolderBackupScanWorkerRequest(isForce);
+        OneTimeWorkRequest uploadRequest = getFolderBackupUploadWorkerRequest();
 
         String workerName = FolderBackupScannerWorker.class.getSimpleName();
 
@@ -180,7 +186,7 @@ public class BackgroundJobManagerImpl {
                 .enqueue();
     }
 
-    private OneTimeWorkRequest getFolderScanRequest(boolean isForce) {
+    private OneTimeWorkRequest getFolderBackupScanWorkerRequest(boolean isForce) {
         Data data = new Data.Builder()
                 .putBoolean(TransferWorker.DATA_FORCE_TRANSFER_KEY, isForce)
                 .build();
@@ -192,7 +198,7 @@ public class BackgroundJobManagerImpl {
                 .build();
     }
 
-    private OneTimeWorkRequest getFolderUploadRequest() {
+    private OneTimeWorkRequest getFolderBackupUploadWorkerRequest() {
         NetworkType networkType = NetworkType.UNMETERED;
         if (FolderBackupSharePreferenceHelper.readDataPlanAllowed()) {
             networkType = NetworkType.CONNECTED;
@@ -213,14 +219,20 @@ public class BackgroundJobManagerImpl {
                 .build();
     }
 
-    public void cancelFolderAutoUploadWorker() {
+    public void restartFolderBackupWorker() {
+        cancelFolderBackupWorker();
+        startFolderBackupWorkerChain(false);
+    }
+
+    public void cancelFolderBackupWorker() {
         cancelById(FolderBackupScannerWorker.UID);
         cancelById(UploadFolderFileAutomaticallyWorker.UID);
     }
 
     ///////////////////
+
     /// upload file
-    ///////////////////
+    /// ////////////////
     public void startFileManualUploadWorker() {
         String workerName = UploadFileManuallyWorker.class.getSimpleName();
         OneTimeWorkRequest request = getFileUploadRequest();
@@ -239,11 +251,11 @@ public class BackgroundJobManagerImpl {
 
     ///////////////////
     /// download
-    ///////////////////
+    /// ////////////////
     public OneTimeWorkRequest getDownloadScanRequest(String transferId, String[] direntIds) {
         Data.Builder builder = new Data.Builder();
         if (!TextUtils.isEmpty(transferId)) {
-            builder.putString(DownloadFileScanWorker.DATA_TRANSFER_ID_KEY, transferId);
+            builder.putString(DownloadFileScanWorker.KEY_TRANSFER_ID, transferId);
         }
         if (direntIds != null && direntIds.length > 0) {
             builder.putStringArray(TransferWorker.DATA_DIRENT_LIST_KEY, direntIds);

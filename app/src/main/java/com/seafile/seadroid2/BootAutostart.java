@@ -12,6 +12,7 @@ import com.seafile.seadroid2.framework.util.Utils;
  * the Seadroid app has been upgraded to a new version.
  * It can be used to start up background services.
  */
+@Deprecated
 public class BootAutostart extends BroadcastReceiver {
     private static final String DEBUG_TAG = "BootAutostart";
 

@@ -13,16 +13,16 @@ import androidx.room.PrimaryKey;
 import com.blankj.utilcode.util.EncryptUtils;
 import com.blankj.utilcode.util.FileUtils;
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.framework.data.model.BaseModel;
-import com.seafile.seadroid2.framework.data.model.dirents.DirentFileModel;
-import com.seafile.seadroid2.framework.data.model.dirents.DirentRecursiveFileModel;
 import com.seafile.seadroid2.enums.TransferAction;
 import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.enums.TransferResult;
 import com.seafile.seadroid2.enums.TransferStatus;
+import com.seafile.seadroid2.framework.data.model.BaseModel;
+import com.seafile.seadroid2.framework.data.model.dirents.DirentRecursiveFileModel;
 import com.seafile.seadroid2.framework.util.FileTools;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.ExistingFileStrategy;
+import com.seafile.seadroid2.framework.worker.upload.MediaBackupScannerWorker;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -104,7 +104,7 @@ public class FileTransferEntity extends BaseModel {
      * <p>
      * full_path is the absolute path to the file stored locally ("/storage/emulated/0/").
      * <br>
-     * eg. /storage/emulated/0/DCIM/xxx.jpg or /storage/emulated/0/Downloads/xxx.txt (locally)
+     * eg. /storage/emulated/0/DCIM/xxx.jpg or /storage/emulated/0/Downloads/xxx.txt
      * </p>
      * <p><b>UPLOAD (FILE_BACKUP Manually) </b></p>
      * <p>
@@ -112,6 +112,9 @@ public class FileTransferEntity extends BaseModel {
      * <br>
      * eg. /storage/emulated/0/Android/media/(package_name)/Seafile/(repo_name)/
      * </p>
+     * or uri
+     * <p>content://com.android.providers.media.documents/document/image:1000182224</p>
+     *
      * <p><b>DOWNLOAD</b></p>
      * <p> full_path is the relative path to the file in the repository. <br>
      * eg. /a/b/c/d.txt (in remote repo)</p>
@@ -206,6 +209,14 @@ public class FileTransferEntity extends BaseModel {
 
     public String file_name;
 
+    public String getFileName() {
+        return file_name;
+    }
+
+    public String getFullFileName() {
+        return Utils.pathJoin(parent_path, file_name);
+    }
+
     @Nullable
     public String file_format;
 
@@ -291,7 +302,13 @@ public class FileTransferEntity extends BaseModel {
     /**
      * Result from last transfer operation.
      */
-    public TransferResult transfer_result = TransferResult.NO_RESULT;
+    @Deprecated
+    public TransferResult transfer_result = null;
+
+    /**
+     * Transfer the results. If it fails, content is failed reason.
+     */
+    public String result;
 
     @Override
     public String toString() {
@@ -303,10 +320,13 @@ public class FileTransferEntity extends BaseModel {
                 ", full_path='" + full_path + '\'' +
                 ", transfer_action=" + transfer_action +
                 ", transfer_status=" + transfer_status +
-                ", transfer_result=" + transfer_result +
+                ", result=" + result +
                 '}';
     }
 
+    /**
+     * md5(related_account + transfer_action + full_path)
+     */
     @NonNull
     public String getUID() {
         if (TextUtils.isEmpty(related_account)) {
@@ -355,16 +375,16 @@ public class FileTransferEntity extends BaseModel {
         entity.created_at = now;
         entity.modified_at = direntModel.mtime * 1000;
         entity.action_end_at = 0L;
+        entity.transferred_size = 0;
 
         entity.transfer_action = TransferAction.DOWNLOAD;
         entity.transfer_status = TransferStatus.WAITING;
-        entity.transfer_result = TransferResult.NO_RESULT;
+        entity.result = null;
 
         entity.uid = entity.getUID();
 
         return entity;
     }
-
 
 
     public static FileTransferEntity convertDirentRecursiveModel2This(RepoModel repoModel, DirentRecursiveFileModel model) {
@@ -400,10 +420,11 @@ public class FileTransferEntity extends BaseModel {
         entity.created_at = now;
         entity.modified_at = now;
         entity.action_end_at = 0L;
+        entity.transferred_size = 0;
 
         entity.transfer_action = TransferAction.DOWNLOAD;
         entity.transfer_status = TransferStatus.WAITING;
-        entity.transfer_result = TransferResult.NO_RESULT;
+        entity.result = null;
 
         entity.uid = entity.getUID();
 
@@ -435,19 +456,20 @@ public class FileTransferEntity extends BaseModel {
 //        entity.repo_id = repoModel.repo_id;
 //        entity.repo_name = repoModel.repo_name;
         entity.related_account = account.getSignature();
-        entity.data_source = TransferDataSource.FOLDER_BACKUP;
         entity.created_at = System.currentTimeMillis();
         entity.modified_at = entity.created_at;
         entity.file_original_modified_at = file.lastModified();
         entity.action_end_at = 0;
+        entity.transferred_size = 0;
 
         entity.is_auto_transfer = true;
 
-        entity.file_strategy = ExistingFileStrategy.AUTO;
+        entity.file_strategy = ExistingFileStrategy.REPLACE;
         entity.is_copy_to_local = false;
         entity.transfer_action = TransferAction.UPLOAD;
-        entity.transfer_result = TransferResult.NO_RESULT;
+        entity.result = null;
         entity.transfer_status = TransferStatus.WAITING;
+        entity.data_source = TransferDataSource.FOLDER_BACKUP;
 
         entity.uid = entity.getUID();
 
@@ -455,43 +477,47 @@ public class FileTransferEntity extends BaseModel {
     }
 
 
-    public static FileTransferEntity convert2ThisForUploadMediaSyncWorker(Account account, File file, String parenPath, long dateAdd, boolean isRemoteExists) {
+    public static FileTransferEntity convert2ThisForUploadMediaSyncWorker(Account account, File file, String parenPath, long dateAdd, DirentModel remoteDirent) {
         long now = System.currentTimeMillis();
+
+        String p = Utils.pathJoin("/", MediaBackupScannerWorker.BASE_DIR, "/", parenPath, "/");
 
         FileTransferEntity entity = new FileTransferEntity();
         entity.full_path = file.getAbsolutePath();
-        entity.target_path = Utils.pathJoin(parenPath, file.getName());
-        entity.setParent_path(parenPath);
+        entity.target_path = Utils.pathJoin(p, file.getName());
+        entity.setParent_path(p);
         entity.file_name = file.getName();
         entity.file_size = file.length();
         entity.file_format = FileTools.getFileExtension(entity.full_path);
         entity.file_md5 = FileUtils.getFileMD5ToString(entity.full_path).toLowerCase();
         entity.mime_type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(entity.file_format);
-//        entity.is_block = false; //album backup is not store in encrypted repo.
-//        entity.repo_id = repo_id;
+//        entity.is_block = false; // album backup is not store in encrypted repo.
+//        entity.repo_id = repo_id; // What is a repoid, it needs to be configured according to the local configuration
 //        entity.repo_name = repo_name;
         entity.related_account = account.getSignature();
         entity.created_at = now;
         entity.modified_at = now;
         entity.file_original_modified_at = dateAdd;
         entity.action_end_at = 0;
+        entity.transferred_size = 0;
 
         entity.is_auto_transfer = true;
 
         entity.file_strategy = ExistingFileStrategy.AUTO;
         entity.is_copy_to_local = false;
-        entity.data_source = TransferDataSource.ALBUM_BACKUP;
 
-        if (isRemoteExists) {
+
+        if (remoteDirent != null) {
             entity.transfer_action = TransferAction.UPLOAD;
-            entity.transfer_result = TransferResult.TRANSMITTED;
+            entity.result = TransferResult.TRANSMITTED.name();
             entity.transfer_status = TransferStatus.SUCCEEDED;
         } else {
             entity.transfer_action = TransferAction.UPLOAD;
-            entity.transfer_result = TransferResult.NO_RESULT;
+            entity.result = null;
             entity.transfer_status = TransferStatus.WAITING;
         }
 
+        entity.data_source = TransferDataSource.ALBUM_BACKUP;
 
         entity.uid = entity.getUID();
 
@@ -517,23 +543,25 @@ public class FileTransferEntity extends BaseModel {
         entity.modified_at = now;
         entity.file_original_modified_at = dateAdd;
         entity.action_end_at = 0;
+        entity.transferred_size = 0;
 
         entity.is_auto_transfer = true;
 
         entity.file_strategy = is_update ? ExistingFileStrategy.REPLACE : ExistingFileStrategy.KEEP;
         entity.is_copy_to_local = false;
-        entity.data_source = TransferDataSource.FILE_BACKUP;
+
 
         if (isRemoteExists) {
             entity.transfer_action = TransferAction.UPLOAD;
-            entity.transfer_result = TransferResult.TRANSMITTED;
+            entity.result = TransferResult.TRANSMITTED.name();
             entity.transfer_status = TransferStatus.SUCCEEDED;
         } else {
             entity.transfer_action = TransferAction.UPLOAD;
-            entity.transfer_result = TransferResult.NO_RESULT;
+            entity.result = null;
             entity.transfer_status = TransferStatus.WAITING;
         }
 
+        entity.data_source = TransferDataSource.FILE_BACKUP;
 
         entity.uid = entity.getUID();
 

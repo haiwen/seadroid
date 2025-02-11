@@ -631,6 +631,7 @@
     <string name="folder_backup_select_repo_hint">Select a library</string>
     <string name="folder_backup_select_repo_update">Update backup library</string>
     <string name="UncaughtExceptionHandler_err">The application stopped running</string>
+    <string name="settings_file_backup_info_title">Backup file</string>
 
     <!--action-->
     <string name="pause">Pause</string>

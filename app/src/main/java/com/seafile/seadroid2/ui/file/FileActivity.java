@@ -5,7 +5,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Pair;
 import android.view.MenuItem;
 import android.view.View;
 
@@ -165,7 +164,7 @@ public class FileActivity extends BaseActivityWithVM<FileViewModel> implements T
                 } else if (ExistingFileStrategy.ASK == strategy) {
                     showFileExistDialog(destinationFile);
                 } else if (ExistingFileStrategy.NOT_FOUND_IN_REMOTE == strategy) {
-                    onFileDownloadFailed(SeafException.notFoundException);
+                    onFileDownloadFailed(SeafException.NOT_FOUND_EXCEPTION);
                 }
             }
         });
@@ -301,12 +300,12 @@ public class FileActivity extends BaseActivityWithVM<FileViewModel> implements T
     private void onFileDownloadFailed(SeafException seafException) {
         binding.opCancel.setEnabled(false);
 
-        if (seafException == SeafException.notFoundException) {
+        if (seafException == SeafException.NOT_FOUND_EXCEPTION) {
             // file deleted
             ToastUtils.showLong(String.format("The file \"%s\" has been deleted", direntModel.name));
 
             finishWithCancel();
-        } else if (seafException == SeafException.invalidPassword) {
+        } else if (seafException == SeafException.INVALID_PASSWORD) {
             handlePassword();
         } else {
             ToastUtils.showLong(String.format("Failed to download file \"%s\"", seafException.getMessage()));
@@ -322,8 +321,7 @@ public class FileActivity extends BaseActivityWithVM<FileViewModel> implements T
     }
 
     private void handlePassword() {
-        PasswordDialogFragment dialogFragment = PasswordDialogFragment.newInstance();
-        dialogFragment.initData(repoModel.repo_id, repoModel.repo_name);
+        PasswordDialogFragment dialogFragment = PasswordDialogFragment.newInstance(repoModel.repo_id, repoModel.repo_name);
         dialogFragment.setResultListener(new OnResultListener<RepoModel>() {
             @Override
             public void onResultData(RepoModel newRepoModel) {

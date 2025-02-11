@@ -49,14 +49,14 @@ public class AlbumBackupAdapter extends AbstractThreadedSyncAdapter {
     public void onSyncCanceled(Thread thread) {
         super.onSyncCanceled(thread);
         SLogs.e("onSyncCanceled ->" + thread.getName());
-        BackgroundJobManagerImpl.getInstance().cancelMediaWorker();
+        BackgroundJobManagerImpl.getInstance().cancelMediaBackupWorker();
     }
 
     @Override
     public void onSyncCanceled() {
         super.onSyncCanceled();
         SLogs.e("onSyncCanceled");
-        BackgroundJobManagerImpl.getInstance().cancelMediaWorker();
+        BackgroundJobManagerImpl.getInstance().cancelMediaBackupWorker();
     }
 
     @Override
@@ -85,6 +85,6 @@ public class AlbumBackupAdapter extends AbstractThreadedSyncAdapter {
         }
 
         // start
-        BackgroundJobManagerImpl.getInstance().startMediaWorkerChain(isForce);
+        BackgroundJobManagerImpl.getInstance().startMediaBackupWorkerChain(isForce);
     }
 }

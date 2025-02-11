@@ -394,11 +394,19 @@ public class MainActivity extends BaseActivity {
             return;
         }
 
-        if (menuBinding.search.isActionViewExpanded()) {
-            menuBinding.search.collapseActionView();
+        if (menuBinding != null) {
+            if (menuBinding.search != null) {
+                if (menuBinding.search.isActionViewExpanded()) {
+                    menuBinding.search.collapseActionView();
+                }
+                menuBinding.search.setVisible(false);
+            }
+
+            if (menuBinding.sortGroup != null) {
+                menuBinding.sortGroup.setVisible(false);
+            }
         }
-        menuBinding.search.setVisible(false);
-        menuBinding.sortGroup.setVisible(false);
+
 
         if (1 == position) {
             binding.navBottomView.setSelectedItemId(R.id.tabs_starred);
@@ -481,8 +489,9 @@ public class MainActivity extends BaseActivity {
     }
 
     /////////////////////
+
     /// service
-    /////////////////////
+    /// //////////////////
     private void bindService() {
         Intent syncIntent = new Intent(this, FileSyncService.class);
         bindService(syncIntent, syncConnection, Context.BIND_AUTO_CREATE);
@@ -884,8 +893,7 @@ public class MainActivity extends BaseActivity {
     }
 
     private void showPasswordDialog(RepoModel repoModel, String path) {
-        PasswordDialogFragment dialogFragment = PasswordDialogFragment.newInstance();
-        dialogFragment.initData(repoModel.repo_id, repoModel.repo_name);
+        PasswordDialogFragment dialogFragment = PasswordDialogFragment.newInstance(repoModel.repo_id, repoModel.repo_name);
         dialogFragment.setRefreshListener(new OnRefreshDataListener() {
             @Override
             public void onActionStatus(boolean isDone) {
@@ -1159,6 +1167,12 @@ public class MainActivity extends BaseActivity {
             if (CollectionUtils.isEmpty(o)) {
                 return;
             }
+
+            for (Uri uri : o) {
+                int takeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION;
+                getContentResolver().takePersistableUriPermission(uri, takeFlags);
+            }
+
             if (o.size() == 1) {
                 doSelectSingleFile(o.get(0));
             } else {
@@ -1233,20 +1247,20 @@ public class MainActivity extends BaseActivity {
     }
 
     private void doSelectSingleFile(Uri uri) {
-        showLoadingDialog();
+//        showLoadingDialog();
         try {
             String fileName = Utils.getFilenameFromUri(this, uri);
             String parent_dir = getNavContext().getNavPath();
-            String fullPath = Utils.pathJoin(parent_dir, fileName);
+            String destinationPath = Utils.pathJoin(parent_dir, fileName);
 
             RepoModel repoModel = getNavContext().getRepoModel();
-            mainViewModel.checkRemoteDirent(repoModel.repo_id, fullPath, new Consumer<DirentFileModel>() {
+            mainViewModel.checkRemoteDirent(repoModel.repo_id, destinationPath, new Consumer<DirentFileModel>() {
                 @Override
                 public void accept(DirentFileModel direntFileModel) throws Exception {
                     if (direntFileModel != null) {
                         showFileExistDialog(uri, fileName);
                     } else {
-                        addUploadTask(repoModel, getNavContext().getNavPath(), uri, false);
+                        addUploadTask(repoModel, getNavContext().getNavPath(), uri, fileName, false);
                     }
 
                     dismissLoadingDialog();
@@ -1257,7 +1271,7 @@ public class MainActivity extends BaseActivity {
         }
     }
 
-    private void showFileExistDialog(final Uri file, String fileName) {
+    private void showFileExistDialog(final Uri uri, String fileName) {
 
         RepoModel repoModel = getNavContext().getRepoModel();
 
@@ -1268,7 +1282,7 @@ public class MainActivity extends BaseActivity {
         builder.setPositiveButton(getString(R.string.upload_replace), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                addUploadTask(repoModel, getNavContext().getNavPath(), file, true);
+                addUploadTask(repoModel, getNavContext().getNavPath(), uri, fileName, true);
             }
         });
 
@@ -1282,7 +1296,7 @@ public class MainActivity extends BaseActivity {
         builder.setNegativeButton(getString(R.string.upload_keep_both), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                addUploadTask(repoModel, getNavContext().getNavPath(), file, false);
+                addUploadTask(repoModel, getNavContext().getNavPath(), uri, fileName, false);
             }
         });
 
@@ -1294,9 +1308,9 @@ public class MainActivity extends BaseActivity {
     /// task
     ////////////////////////////
 
-    private void addUploadTask(RepoModel repoModel, String targetDir, String localFilePath) {
+    private void addUploadTask(RepoModel repoModel, String targetDir, String localFile) {
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
-        mainViewModel.addUploadTask(account, repoModel, targetDir, localFilePath, false, new Consumer<FileTransferEntity>() {
+        mainViewModel.addUploadTask(account, repoModel, targetDir, localFile, false, new Consumer<FileTransferEntity>() {
             @Override
             public void accept(FileTransferEntity transferEntity) throws Exception {
 //                if (StringUtils.startsWith(transferEntity.mime_type, "image/")) {
@@ -1308,11 +1322,11 @@ public class MainActivity extends BaseActivity {
         });
     }
 
-    private void addUploadTask(RepoModel repoModel, String targetDir, Uri sourceUri, boolean isReplace) {
+    private void addUploadTask(RepoModel repoModel, String targetDir, Uri sourceUri, String fileName, boolean isReplace) {
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
-        mainViewModel.addUploadTask(account, this, repoModel, targetDir, sourceUri, isReplace, new Consumer<FileTransferEntity>() {
+        mainViewModel.addUploadTask(account, this, repoModel, targetDir, sourceUri, fileName, isReplace, new Consumer<FileTransferEntity>() {
             @Override
-            public void accept(FileTransferEntity fileTransferEntity) throws Exception {
+            public void accept(FileTransferEntity fileTransferEntity) {
                 ToastUtils.showLong(R.string.added_to_upload_tasks);
             }
         });

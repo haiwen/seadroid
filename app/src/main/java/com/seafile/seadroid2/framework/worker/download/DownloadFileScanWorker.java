@@ -11,7 +11,6 @@ import androidx.work.WorkerParameters;
 
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.FileUtils;
-import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
@@ -68,9 +67,9 @@ public class DownloadFileScanWorker extends TransferWorker {
             return Result.success();
         }
 
-        // just only for cancel db.
+        // only cancel db. not delete db.
         String[] removeIds = getInputData().getStringArray(DATA_CANCEL_IDS);
-        String transferId = getInputData().getString(DATA_TRANSFER_ID_KEY);
+        String transferId = getInputData().getString(KEY_TRANSFER_ID);
         String[] direntIds = getInputData().getStringArray(DATA_DIRENT_LIST_KEY);
 
         if (!TextUtils.isEmpty(transferId) || (direntIds != null && direntIds.length > 0)) {
@@ -99,7 +98,7 @@ public class DownloadFileScanWorker extends TransferWorker {
 
             dbEntity.transfer_status = TransferStatus.IN_PROGRESS;
             dbEntity.transferred_size = 0;
-            dbEntity.transfer_result = TransferResult.NO_RESULT;
+            dbEntity.result = null;
             AppDatabase.getInstance().fileTransferDAO().update(dbEntity);
         }
 
@@ -115,11 +114,11 @@ public class DownloadFileScanWorker extends TransferWorker {
 
             for (DirentModel direntModel : direntModels) {
                 try {
-                    if (!direntModel.isDir()) {
-                        insertIntoDbWhenDirentIsFile(account, direntModel);
-                    } else {
+                    if (direntModel.isDir()) {
                         List<DirentRecursiveFileModel> list = fetchRecursiveFiles(direntModel);
                         insertIntoDbWhenDirentIsDir(account, direntModel, list);
+                    } else {
+                        insertIntoDbWhenDirentIsFile(account, direntModel);
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -133,8 +132,8 @@ public class DownloadFileScanWorker extends TransferWorker {
 
     private Data getFinishData() {
         return new Data.Builder()
-                .putString(TransferWorker.KEY_DATA_EVENT, TransferEvent.EVENT_SCAN_END)
-                .putString(TransferWorker.KEY_DATA_TYPE, String.valueOf(TransferDataSource.DOWNLOAD))
+                .putString(TransferWorker.KEY_DATA_STATUS, TransferEvent.EVENT_SCAN_END)
+                .putString(TransferWorker.KEY_DATA_SOURCE, String.valueOf(TransferDataSource.DOWNLOAD))
                 .build();
     }
 
@@ -190,14 +189,13 @@ public class DownloadFileScanWorker extends TransferWorker {
             }
         }
 
-
         FileTransferEntity transferEntity = FileTransferEntity.convertDirentModel2This(repoModel.canLocalDecrypt(), direntModel);
         //newest file id
         transferEntity.file_id = direntModel.id;
         transferEntity.file_size = direntModel.size;
         transferEntity.target_path = DataManager.getLocalRepoFile(account, transferEntity).getAbsolutePath();
         transferEntity.transfer_status = TransferStatus.WAITING;
-        transferEntity.transfer_result = TransferResult.NO_RESULT;
+        transferEntity.result = null;
         transferEntity.transferred_size = 0;
 
         //insert

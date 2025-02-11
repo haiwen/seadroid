@@ -97,12 +97,65 @@ public class Objs {
         });
     }
 
-
     ////////////////////////////
     //////repo
     ////////////////////////////
     public static Single<List<BaseModel>> getReposSingleFromServer(Account account) {
-        Single<RepoWrapperModel> netSingle = HttpIO.getInstanceByAccount(account).execute(RepoService.class).getRepos();
+        Single<RepoWrapperModel> netSingle = HttpIO.getInstanceByAccount(account).execute(RepoService.class).getReposAsync();
+        Single<List<RepoModel>> dbListSingle = AppDatabase.getInstance().repoDao().getListByAccount(account.getSignature());
+
+        return Single.zip(netSingle, dbListSingle, new BiFunction<RepoWrapperModel, List<RepoModel>, List<RepoModel>>() {
+            @Override
+            public List<RepoModel> apply(RepoWrapperModel repoWrapperModel, List<RepoModel> dbModels) throws Exception {
+                //get data from server and convert to local data
+
+                return Objs.convertRemoteListToLocalList(repoWrapperModel.repos, account.getSignature());
+            }
+        }).flatMap(new Function<List<RepoModel>, SingleSource<List<RepoModel>>>() {
+            @Override
+            public SingleSource<List<RepoModel>> apply(List<RepoModel> localList) throws Exception {
+                // delete local db
+                Completable deleteCompletable = AppDatabase.getInstance().repoDao().deleteAll();
+                Single<Long> deleteSingle = deleteCompletable.toSingleDefault(0L);
+
+                return deleteSingle.flatMap(new Function<Long, SingleSource<List<RepoModel>>>() {
+                    @Override
+                    public SingleSource<List<RepoModel>> apply(Long aLong) throws Exception {
+                        return Single.just(localList);
+                    }
+                });
+            }
+        }).flatMap(new Function<List<RepoModel>, SingleSource<List<RepoModel>>>() {
+            @Override
+            public SingleSource<List<RepoModel>> apply(List<RepoModel> localList) throws Exception {
+                //insert into db
+
+                if (CollectionUtils.isEmpty(localList)) {
+                    return Single.just(localList);
+                }
+
+                Completable insertCompletable = AppDatabase.getInstance().repoDao().insertAll(localList);
+                Single<Long> longSingle = insertCompletable.toSingleDefault(0L);
+                return longSingle.flatMap(new Function<Long, SingleSource<List<RepoModel>>>() {
+                    @Override
+                    public SingleSource<List<RepoModel>> apply(Long aLong) throws Exception {
+                        return Single.just(localList);
+                    }
+                });
+            }
+        }).flatMap(new Function<List<RepoModel>, SingleSource<List<BaseModel>>>() {
+            @Override
+            public SingleSource<List<BaseModel>> apply(List<RepoModel> localList) throws Exception {
+                //parse to adapter list data
+
+                List<BaseModel> models = Objs.convertToAdapterList(localList, false);
+                return Single.just(models);
+            }
+        });
+    }
+
+    public static Single<List<BaseModel>> getReposSingleFromServerOld(Account account) {
+        Single<RepoWrapperModel> netSingle = HttpIO.getInstanceByAccount(account).execute(RepoService.class).getReposAsync();
         Single<List<RepoModel>> dbListSingle = AppDatabase.getInstance().repoDao().getListByAccount(account.getSignature());
 
         return Single.zip(netSingle, dbListSingle, new BiFunction<RepoWrapperModel, List<RepoModel>, Triple<RepoWrapperModel, List<RepoModel>, List<RepoModel>>>() {
@@ -110,7 +163,7 @@ public class Objs {
             public Triple<RepoWrapperModel, List<RepoModel>, List<RepoModel>> apply(RepoWrapperModel repoWrapperModel, List<RepoModel> dbModels) throws Exception {
                 //get data from server and local
 
-                List<RepoModel> net2dbList = Objs.parseRepoListForDB(repoWrapperModel.repos, account.getSignature());
+                List<RepoModel> net2dbList = Objs.parseRepoListForDbOld(repoWrapperModel.repos, account.getSignature());
 
                 //diffs.first = delete list
                 //diffs.second = insert db list
@@ -165,13 +218,59 @@ public class Objs {
             public SingleSource<List<BaseModel>> apply(RepoWrapperModel repoWrapperModel) throws Exception {
                 //parse to adapter list data
 
-                List<BaseModel> models = Objs.parseRepoListForAdapter(repoWrapperModel.repos, account.getSignature(), false);
+                List<BaseModel> models = Objs.parseRepoListForAdapterOld(repoWrapperModel.repos, account.getSignature(), false);
                 return Single.just(models);
             }
         });
     }
 
-    public static List<BaseModel> parseRepoListForAdapter(List<RepoModel> list, String related_account, boolean isFilterUnavailable) {
+    public static List<BaseModel> convertToAdapterList(List<RepoModel> list, boolean isFilterUnavailable) {
+        if (CollectionUtils.isEmpty(list)) {
+            return Collections.emptyList();
+        }
+
+        if (isFilterUnavailable) {
+            list = list.stream().filter(f -> !f.encrypted && f.hasWritePermission()).collect(Collectors.toList());
+        }
+
+        List<BaseModel> newRvList = CollectionUtils.newArrayList();
+
+        TreeMap<String, List<RepoModel>> treeMap = groupRepos(list);
+
+        //mine
+        List<RepoModel> mineList = treeMap.get(RepoType.TYPE_MINE);
+        if (!CollectionUtils.isEmpty(mineList)) {
+            List<RepoModel> sortedList = sortRepos(mineList);
+            newRvList.add(new GroupItemModel(R.string.personal, sortedList));
+            newRvList.addAll(sortedList);
+        }
+
+        //shared
+        List<RepoModel> sharedList = treeMap.get(RepoType.TYPE_SHARED);
+        if (!CollectionUtils.isEmpty(sharedList)) {
+            List<RepoModel> sortedList = sortRepos(sharedList);
+
+            newRvList.add(new GroupItemModel(R.string.shared, sortedList));
+            newRvList.addAll(sortedList);
+        }
+
+        for (String key : treeMap.keySet()) {
+            if (TextUtils.equals(key, RepoType.TYPE_MINE)) {
+            } else if (TextUtils.equals(key, RepoType.TYPE_SHARED)) {
+            } else {
+                List<RepoModel> groupList = treeMap.get(key);
+                if (!CollectionUtils.isEmpty(groupList)) {
+                    List<RepoModel> sortedList = sortRepos(groupList);
+                    newRvList.add(new GroupItemModel(key, sortedList));
+                    newRvList.addAll(sortedList);
+                }
+            }
+        }
+
+        return newRvList;
+    }
+
+    public static List<BaseModel> parseRepoListForAdapterOld(List<RepoModel> list, String related_account, boolean isFilterUnavailable) {
         if (CollectionUtils.isEmpty(list)) {
             return Collections.emptyList();
         }
@@ -232,7 +331,20 @@ public class Objs {
         return newRvList;
     }
 
-    public static List<RepoModel> parseRepoListForDB(List<RepoModel> list, String related_account) {
+    public static List<RepoModel> convertRemoteListToLocalList(List<RepoModel> remoteList, String related_account) {
+        if (CollectionUtils.isEmpty(remoteList)) {
+            return Collections.emptyList();
+        }
+
+        for (RepoModel repoModel : remoteList) {
+            repoModel.related_account = related_account;
+            repoModel.last_modified_long = Times.convertMtime2Long(repoModel.last_modified);
+        }
+
+        return remoteList;
+    }
+
+    public static List<RepoModel> parseRepoListForDbOld(List<RepoModel> list, String related_account) {
         if (CollectionUtils.isEmpty(list)) {
             return Collections.emptyList();
         }
@@ -384,7 +496,7 @@ public class Objs {
     ////////////////////////////
     public static Single<List<DirentModel>> getDirentsSingleFromServer(Account account, String repoId, String repoName, String parentDir) {
 
-        Single<DirentWrapperModel> netSingle = HttpIO.getInstanceByAccount(account).execute(RepoService.class).getDirents(repoId, parentDir);
+        Single<DirentWrapperModel> netSingle = HttpIO.getInstanceByAccount(account).execute(RepoService.class).getDirentsAsync(repoId, parentDir);
         return netSingle.flatMap(new Function<DirentWrapperModel, SingleSource<List<DirentModel>>>() {
             @Override
             public SingleSource<List<DirentModel>> apply(DirentWrapperModel direntWrapperModel) throws Exception {

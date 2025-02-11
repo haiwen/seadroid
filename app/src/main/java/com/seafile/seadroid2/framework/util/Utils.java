@@ -10,6 +10,7 @@ import android.net.http.SslCertificate;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.LocaleList;
+import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.text.TextUtils;
@@ -21,6 +22,7 @@ import android.webkit.MimeTypeMap;
 import com.seafile.seadroid2.BuildConfig;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
+import com.seafile.seadroid2.annotation.NotSupport;
 import com.seafile.seadroid2.config.Constants;
 
 import org.json.JSONObject;
@@ -146,8 +148,13 @@ public class Utils {
         String suffix = name.substring(name.lastIndexOf('.') + 1).toLowerCase();
         if (suffix.isEmpty())
             return false;
+
         if (suffix.equals("svg"))
             // don't support svg preview
+            return false;
+
+        if (suffix.equals("psd"))
+            // don't support psd preview
             return false;
 
         String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(suffix);
@@ -190,6 +197,10 @@ public class Utils {
     public static String pathJoin(String first, String... rest) {
         StringBuilder result = new StringBuilder(first);
         for (String b : rest) {
+            if (TextUtils.isEmpty(b)) {
+                continue;
+            }
+
             boolean resultEndsWithSlash = result.toString().endsWith("/");
             boolean bStartWithSlash = b.startsWith("/");
             if (resultEndsWithSlash && bStartWithSlash) {
@@ -302,26 +313,74 @@ public class Utils {
         return displayName;
     }
 
+    @NotSupport
+    @Deprecated
     public static String getPath(Context context, Uri uri) throws URISyntaxException {
         if ("content".equalsIgnoreCase(uri.getScheme())) {
             String[] projection = {"_data"};
-            Cursor cursor = null;
+//            String[] projection = {MediaStore.Files.FileColumns.DATA};
 
-            try {
-                cursor = context.getContentResolver().query(uri, projection, null, null, null);
-                int column_index = cursor
-                        .getColumnIndexOrThrow("_data");
-                if (cursor.moveToFirst()) {
-                    return cursor.getString(column_index);
+            Cursor cursor = context.getContentResolver().query(uri, projection, null, null, null);
+            if (cursor != null) {
+                try {
+                    if (cursor.moveToFirst()) {
+                        int column_index = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATA);
+                        return cursor.getString(column_index);
+                    }
+                } catch (Exception e) {
+                    // Eat it
+                    SLogs.e(e);
+                } finally {
+                    cursor.close();
                 }
-            } catch (Exception e) {
-                // Eat it
             }
+
+
         } else if ("file".equalsIgnoreCase(uri.getScheme())) {
             return uri.getPath();
         }
 
         return null;
+    }
+
+    public static String getMimeType(Context context, Uri uri) {
+        return context.getContentResolver().getType(uri);
+    }
+
+    public static long getFileSize(Context context, Uri uri) {
+        long size = -1;
+        Cursor cursor = context.getContentResolver().query(uri, null, null, null, null);
+        if (cursor != null) {
+            try {
+                if (cursor.moveToFirst()) {
+                    int sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE);
+                    if (!cursor.isNull(sizeIndex)) {
+                        size = cursor.getLong(sizeIndex);
+                    }
+                }
+            } finally {
+                cursor.close();
+            }
+        }
+        return size;
+    }
+
+    public static long getFileCreateTime(Context context, Uri uri) {
+        String[] projection = {DocumentsContract.Document.COLUMN_LAST_MODIFIED};
+        Cursor cursor = context.getContentResolver().query(uri, projection, null, null, null);
+        if (cursor != null) {
+            try {
+                if (cursor.moveToFirst()) {
+                    int lastModifiedIndex = cursor.getColumnIndex(DocumentsContract.Document.COLUMN_LAST_MODIFIED);
+                    if (!cursor.isNull(lastModifiedIndex)) {
+                        return cursor.getLong(lastModifiedIndex);
+                    }
+                }
+            } finally {
+                cursor.close();
+            }
+        }
+        return -1; // 如果无法获取创建时间，返回 -1
     }
 
     public static String getStackTrace(Exception e) {

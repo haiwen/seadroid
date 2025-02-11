@@ -1,15 +1,25 @@
 package com.seafile.seadroid2.ui.comparator;
 
-import android.text.TextUtils;
-
 import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
 
-import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.text.Collator;
 import java.util.Comparator;
+import java.util.Locale;
 
 public class NaturalOrderComparator implements Comparator<Object> {
+    private Collator collator;
+
+    public NaturalOrderComparator() {
+        Locale preferred = Locale.getDefault();
+        try {
+            collator = Collator.getInstance(preferred);
+        } catch (Exception e) {
+            collator = Collator.getInstance(Locale.ROOT);
+        }
+        this.collator.setStrength(Collator.SECONDARY); // 忽略大小写和重音
+    }
 
     @Override
     public Comparator<Object> reversed() {
@@ -18,20 +28,30 @@ public class NaturalOrderComparator implements Comparator<Object> {
 
     @Override
     public int compare(Object s1, Object s2) {
-        String name1 = "";
-        String name2 = "";
-        if (s1 instanceof RepoModel m1 && s2 instanceof RepoModel m2) {
-            name1 = m1.repo_name;
-            name2 = m2.repo_name;
-        } else if (s1 instanceof DirentModel m1 && s2 instanceof DirentModel m2) {
-            name1 = m1.name;
-            name2 = m2.name;
-        }
+        if (s1 == null && s2 == null) return 0; // all null
+        if (s1 == null) return -1;
+        if (s2 == null) return 1;
 
-        if (TextUtils.isEmpty(name1) || TextUtils.isEmpty(name2)) {
-            return -1;
-        }
+        // 类型检查和名称提取
+        String name1 = extractName(s1);
+        String name2 = extractName(s2);
 
+        if (name1 == null && name2 == null) return 0;
+        if (name1 == null) return -1;
+        if (name2 == null) return 1;
+
+        if (isEmpty(name1) && isEmpty(name2)) return 0;
+        if (isEmpty(name1)) return -1;
+        if (isEmpty(name2)) return 1;
+
+        return compareNatural(name1, name2);
+    }
+
+    public static boolean isEmpty(CharSequence str) {
+        return str == null || str.length() == 0;
+    }
+
+    private int compareNatural(String name1, String name2) {
         int len1 = name1.length();
         int len2 = name2.length();
         int i1 = 0, i2 = 0;
@@ -42,8 +62,8 @@ public class NaturalOrderComparator implements Comparator<Object> {
 
             // If it's all numbers, the entire number part is extracted for comparison
             if (Character.isDigit(c1) && Character.isDigit(c2)) {
-                BigDecimal num1 = extractNumber(name1, i1);
-                BigDecimal num2 = extractNumber(name2, i2);
+                BigInteger num1 = extractNumber(name1, i1);
+                BigInteger num2 = extractNumber(name2, i2);
                 int cmp = num1.compareTo(num2);
                 if (cmp != 0) {
                     return cmp;
@@ -52,36 +72,59 @@ public class NaturalOrderComparator implements Comparator<Object> {
                 // Skip the part of the number that has been processed
                 i1 = skipDigits(name1, i1);
                 i2 = skipDigits(name2, i2);
-            } else {
-                // 否则按字符比较
-                if (c1 != c2) {
-
-                    // If c1 is lowercase and c2 is uppercase, c1 should come first
-                    if (Character.isLowerCase(c1) && Character.isUpperCase(c2)) {
-                        return -1;
-                    }
-                    // If c1 is uppercase and c2 is lowercase, c2 should come first
-                    if (Character.isUpperCase(c1) && Character.isLowerCase(c2)) {
-                        return 1;
-                    }
-
-                    return c1 - c2;
-                }
-                i1++;
-                i2++;
+                continue;
             }
+
+            // **确保数字排在字母前**
+            if (Character.isDigit(c1)) return -1;
+            if (Character.isDigit(c2)) return 1;
+
+            //
+            int casePriority = compareCasePriority(c1, c2);
+            if (casePriority != 0) {
+                return casePriority;
+            }
+
+            // 使用 Collator 比较字符（忽略大小写和重音）
+            int cmp = collator.compare(Character.toString(c1), Character.toString(c2));
+            if (cmp != 0) {
+                return cmp;
+            }
+
+            i1++;
+            i2++;
+
         }
 
         // If the previous parts are all the same, compare by length
-        return len1 - len2;
+        return Integer.compare(len1, len2);
     }
 
-    private BigDecimal extractNumber(String s, int start) {
+    private int compareCasePriority(char c1, char c2) {
+        boolean isLower1 = Character.isLowerCase(c1);
+        boolean isLower2 = Character.isLowerCase(c2);
+
+        // 小写优先逻辑
+        if (isLower1 && !isLower2) return -1;
+        if (!isLower1 && isLower2) return 1;
+
+        // 同大小写状态时保持原始顺序
+        return Character.compare(c1, c2);
+    }
+
+    private String extractName(Object obj) {
+        if (obj instanceof RepoModel) return ((RepoModel) obj).repo_name;
+        if (obj instanceof DirentModel) return ((DirentModel) obj).name;
+        if (obj instanceof String) return (String) obj;
+        throw new IllegalArgumentException("Unsupported type: " + obj.getClass().getName());
+    }
+
+    private BigInteger extractNumber(String s, int start) {
         int end = start;
         while (end < s.length() && Character.isDigit(s.charAt(end))) {
             end++;
         }
-        return new BigDecimal(s.substring(start, end));
+        return new BigInteger(s.substring(start, end));
     }
 
     private int skipDigits(String s, int start) {
@@ -89,10 +132,5 @@ public class NaturalOrderComparator implements Comparator<Object> {
             start++;
         }
         return start;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        return false;
     }
 }
