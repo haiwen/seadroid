@@ -13,13 +13,12 @@ import androidx.room.PrimaryKey;
 import com.blankj.utilcode.util.EncryptUtils;
 import com.blankj.utilcode.util.FileUtils;
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.framework.data.model.BaseModel;
-import com.seafile.seadroid2.framework.data.model.dirents.DirentFileModel;
-import com.seafile.seadroid2.framework.data.model.dirents.DirentRecursiveFileModel;
 import com.seafile.seadroid2.enums.TransferAction;
 import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.enums.TransferResult;
 import com.seafile.seadroid2.enums.TransferStatus;
+import com.seafile.seadroid2.framework.data.model.BaseModel;
+import com.seafile.seadroid2.framework.data.model.dirents.DirentRecursiveFileModel;
 import com.seafile.seadroid2.framework.util.FileTools;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.ExistingFileStrategy;
@@ -28,8 +27,6 @@ import com.seafile.seadroid2.framework.worker.upload.MediaBackupScannerWorker;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
-
-import prettify.parser.Util;
 
 @Entity(tableName = "file_transfer_list", indices = {
         @Index(value = {"uid", "full_path", "related_account"}, unique = true, name = "index_transfer_path")

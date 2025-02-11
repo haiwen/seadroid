@@ -5,24 +5,21 @@ import android.os.Parcelable;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 import com.blankj.utilcode.util.EncryptUtils;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.data.model.BaseModel;
 import com.seafile.seadroid2.framework.data.model.activities.ActivityModel;
-import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.data.model.search.SearchModel;
 import com.seafile.seadroid2.framework.util.Icons;
 import com.seafile.seadroid2.framework.util.Times;
 import com.seafile.seadroid2.framework.util.Utils;
 
 import org.apache.commons.lang3.StringUtils;
-
-import prettify.parser.Util;
 
 @Entity(tableName = "dirents")
 public class DirentModel extends BaseModel implements Parcelable {
