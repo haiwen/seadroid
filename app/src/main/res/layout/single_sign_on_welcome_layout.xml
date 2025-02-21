@@ -15,7 +15,7 @@
         android:hint="@string/server_hint">
 
         <EditText
-            android:id="@+id/single_sign_on_server_url_et"
+            android:id="@+id/server_edit_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:importantForAutofill="auto"
@@ -33,7 +33,7 @@
         android:paddingBottom="10dp">
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/single_sign_on_next_btn"
+            android:id="@+id/next_btn"
             android:layout_width="match_parent"
             android:layout_height="@dimen/long_btn_height"
             android:onClick="login"

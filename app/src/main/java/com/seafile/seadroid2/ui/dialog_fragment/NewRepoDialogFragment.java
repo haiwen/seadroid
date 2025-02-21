@@ -11,6 +11,7 @@ import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.framework.util.StringUtils;
 import com.seafile.seadroid2.ui.base.fragment.RequestCustomDialogFragmentWithVM;
 import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.ui.dialog_fragment.viewmodel.NewRepoViewModel;
@@ -76,10 +77,13 @@ public class NewRepoDialogFragment extends RequestCustomDialogFragmentWithVM<New
         if (materialSwitch.isChecked()) {
             TextInputEditText pwd1 = getDialogView().findViewById(R.id.new_repo_edit_pwd_1);
             String pwd1Str = pwd1.getText() == null ? "" : pwd1.getText().toString();
+
             String nameStr = name.getText() == null ? "" : name.getText().toString();
+            nameStr = StringUtils.trimEnd(nameStr, " ");
             getViewModel().createNewRepo(nameStr, "", pwd1Str);
         } else {
             String nameStr = name.getText() == null ? "" : name.getText().toString();
+            nameStr = StringUtils.trimEnd(nameStr, " ");
             getViewModel().createNewRepo(nameStr, "", "");
         }
     }

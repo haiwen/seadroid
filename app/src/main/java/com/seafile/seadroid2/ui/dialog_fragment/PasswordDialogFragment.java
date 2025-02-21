@@ -144,7 +144,6 @@ public class PasswordDialogFragment extends RequestCustomDialogFragmentWithVM<Pa
         });
     }
 
-
     private boolean checkData() {
         EditText editText = getDialogView().findViewById(R.id.password);
         Editable editable = editText.getText();
@@ -153,13 +152,6 @@ public class PasswordDialogFragment extends RequestCustomDialogFragmentWithVM<Pa
             return false;
         }
 
-        if (editable.length() < Constants.PASSWORD_MINIMUM_LENGTH) {
-            setInputError(R.id.password_hint, getString(R.string.err_passwd_too_short));
-            return false;
-        }
-
         return true;
     }
-
-
 }

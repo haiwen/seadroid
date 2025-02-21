@@ -72,6 +72,19 @@ public class WidgetUtils {
         }
     }
 
+    public static void openUrlByLocalBrowser(Context context, String url) {
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.addFlags(FLAG_ACTIVITY_NEW_TASK);
+        intent.setData(Uri.parse(url));
+
+        boolean isAvailable = isIntentAvailable(context, intent);
+        if (isAvailable) {
+            context.startActivity(intent);
+        } else {
+            ToastUtils.showLong(R.string.activity_not_found);
+        }
+    }
+
     private static boolean isIntentAvailable(Context context, Intent intent) {
         if (Build.VERSION.SDK_INT < 30) {
             return context.getPackageManager().resolveActivity(intent, 0) != null;

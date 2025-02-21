@@ -11,6 +11,7 @@ import androidx.lifecycle.Observer;
 
 import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.framework.util.StringUtils;
 import com.seafile.seadroid2.ui.base.fragment.RequestCustomDialogFragmentWithVM;
 import com.seafile.seadroid2.framework.data.model.ResultModel;
 import com.seafile.seadroid2.framework.data.model.dirents.FileCreateModel;
@@ -63,7 +64,9 @@ public class NewDirFileDialogFragment extends RequestCustomDialogFragmentWithVM<
 
         EditText name = getDialogView().findViewById(R.id.new_file_name);
         String pathName = name.getText().toString();
-        pathName = parentDir + "/" + pathName;
+        pathName = (parentDir + "/" + pathName);
+        pathName = StringUtils.trimEnd(pathName, " ");
+
         if (isDir) {
             getViewModel().createNewDir(pathName, repoId);
         } else {
@@ -135,6 +138,16 @@ public class NewDirFileDialogFragment extends RequestCustomDialogFragmentWithVM<
         EditText editText = getDialogView().findViewById(R.id.new_file_name);
         Editable editable = editText.getText();
         if (editable == null || editable.length() == 0) {
+            if (isDir) {
+                ToastUtils.showLong(R.string.dir_name_empty);
+            } else {
+                ToastUtils.showLong(R.string.file_name_empty);
+            }
+            return false;
+        }
+
+        String t = editable.toString().trim();
+        if (TextUtils.isEmpty(t)) {
             if (isDir) {
                 ToastUtils.showLong(R.string.dir_name_empty);
             } else {

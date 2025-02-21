@@ -108,9 +108,9 @@
             android:name=".ui.account.AccountsActivity"
             android:launchMode="singleTop" />
 
-        <activity android:name=".ui.account.SingleSignOnActivity" />
+        <activity android:name=".ui.account.sso.SingleSignOnActivity" />
 
-        <activity android:name=".ui.account.SingleSignOnAuthorizeActivity" />
+        <activity android:name=".ui.account.sso.SingleSignOnAuthorizeActivity" />
 
         <activity android:name=".ui.settings.SettingsActivity" />
 

@@ -19,8 +19,6 @@
 
 package com.seafile.seadroid2.provider;
 
-import static android.os.ParcelFileDescriptor.MODE_WRITE_ONLY;
-
 import android.accounts.OnAccountsUpdateListener;
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
@@ -418,19 +416,21 @@ public class SeafileProvider extends DocumentsProvider {
             throw new FileNotFoundException();
         }
 
-
         int accessMode = ParcelFileDescriptor.parseMode(mode);
-        boolean writeOnly = (accessMode & MODE_WRITE_ONLY) != 0;
-        if (writeOnly) {
-            //So far write operations are not supported.
-            throw new UnsupportedOperationException();
-        }
+        boolean isWriteMode =
+                (accessMode & ParcelFileDescriptor.MODE_WRITE_ONLY) != 0
+                ||
+                (accessMode & ParcelFileDescriptor.MODE_READ_WRITE) != 0;
 
         //TODO check sync_time and modified_at
 
         //check local
         File file = DataManager.getLocalRepoFile(account, repoModel.repo_id, repoModel.repo_name, path);
         if (file.exists()) {
+            if (isWriteMode && !file.canWrite()) {
+                throw new UnsupportedOperationException();
+            }
+
             try {
                 return makeParcelFileDescriptor(file, mode);
             } catch (IOException e) {

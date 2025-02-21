@@ -12,6 +12,7 @@ import androidx.lifecycle.Observer;
 import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
+import com.seafile.seadroid2.framework.util.StringUtils;
 import com.seafile.seadroid2.ui.base.fragment.RequestCustomDialogFragmentWithVM;
 import com.seafile.seadroid2.framework.data.model.dirents.FileCreateModel;
 import com.seafile.seadroid2.ui.dialog_fragment.viewmodel.RenameRepoViewModel;
@@ -81,6 +82,7 @@ public class RenameDialogFragment extends RequestCustomDialogFragmentWithVM<Rena
 
         EditText editText = getDialogView().findViewById(R.id.new_file_name);
         String newName = editText.getText().toString();
+        newName = StringUtils.trimEnd(newName, " ");
 
         //TODO 更新本地数据库数据 、DataStore、SP
         if (TextUtils.equals("repo", type)) {
@@ -154,6 +156,7 @@ public class RenameDialogFragment extends RequestCustomDialogFragmentWithVM<Rena
         }
 
         String newName = editable.toString();
+        newName =  StringUtils.trim(newName," ");
         if (TextUtils.equals(curName, newName)) {
             return false;
         }

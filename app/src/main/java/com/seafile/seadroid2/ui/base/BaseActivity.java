@@ -49,6 +49,14 @@ public class BaseActivity extends AppCompatActivity {
 
     private Dialog loadingDialog;
 
+    public boolean isDialogShowing() {
+        if (loadingDialog == null) {
+            return false;
+        }
+
+        return loadingDialog.isShowing();
+    }
+
     public void showLoadingDialog(boolean isShow) {
         if (isShow) {
             showLoadingDialog();
