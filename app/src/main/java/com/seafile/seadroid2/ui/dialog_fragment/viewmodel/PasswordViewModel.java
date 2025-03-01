@@ -58,7 +58,7 @@ public class PasswordViewModel extends BaseViewModel {
                 if (CollectionUtils.isEmpty(repoModels) || TextUtils.isEmpty(repoModels.get(0).magic)) {
                     getRepoModel(repoId, new Consumer<RepoModel>() {
                         @Override
-                        public void accept(RepoModel uRepoModel) throws Exception {
+                        public void accept(RepoModel uRepoModel) {
                             verify(uRepoModel, password);
                         }
                     });
@@ -76,7 +76,7 @@ public class PasswordViewModel extends BaseViewModel {
 
         Single<RepoModel> sr = Single.zip(singleNet, singleDb, new BiFunction<RepoModel, List<RepoModel>, RepoModel>() {
             @Override
-            public RepoModel apply(RepoModel netRepoModel, List<RepoModel> localRepoModels) throws Exception {
+            public RepoModel apply(RepoModel netRepoModel, List<RepoModel> localRepoModels) {
 
                 if (CollectionUtils.isEmpty(localRepoModels)) {
                     return null;
@@ -141,7 +141,7 @@ public class PasswordViewModel extends BaseViewModel {
 
         Single<Exception> insertEncSingle = Single.create(new SingleOnSubscribe<Exception>() {
             @Override
-            public void subscribe(SingleEmitter<Exception> emitter) throws Exception {
+            public void subscribe(SingleEmitter<Exception> emitter) {
                 try {
                     EncKeyCacheEntity entity = new EncKeyCacheEntity();
                     entity.repo_id = repoModel.repo_id;
@@ -181,7 +181,7 @@ public class PasswordViewModel extends BaseViewModel {
 
                 return insertEncSingle.flatMap(new Function<Exception, SingleSource<TResultModel<RepoModel>>>() {
                     @Override
-                    public SingleSource<TResultModel<RepoModel>> apply(Exception exception) throws Exception {
+                    public SingleSource<TResultModel<RepoModel>> apply(Exception exception) {
                         if (exception != SeafException.SUCCESS) {
                             tResultModel.error_msg = getErrorMsgByThrowable(exception);
                         } else {
@@ -193,7 +193,6 @@ public class PasswordViewModel extends BaseViewModel {
                 });
             }
         });
-
 
         addSingleDisposable(single, tResultModel -> {
             getRefreshLiveData().setValue(false);
@@ -211,7 +210,7 @@ public class PasswordViewModel extends BaseViewModel {
         //local decrypt
         Single<Exception> verifySingle = Single.create(new SingleOnSubscribe<Exception>() {
             @Override
-            public void subscribe(SingleEmitter<Exception> emitter) throws Exception {
+            public void subscribe(SingleEmitter<Exception> emitter) {
                 try {
                     Crypto.verifyRepoPassword(repoModel.repo_id, password, repoModel.enc_version, repoModel.magic);
 
@@ -233,7 +232,7 @@ public class PasswordViewModel extends BaseViewModel {
 
         Single<Exception> insertEncSingle = Single.create(new SingleOnSubscribe<Exception>() {
             @Override
-            public void subscribe(SingleEmitter<Exception> emitter) throws Exception {
+            public void subscribe(SingleEmitter<Exception> emitter) {
                 try {
                     Pair<String, String> pair = Crypto.generateKey(password, repoModel.random_key, repoModel.enc_version);
 
@@ -261,7 +260,7 @@ public class PasswordViewModel extends BaseViewModel {
 
         Single<Exception> longSingle = verifySingle.flatMap(new Function<Exception, SingleSource<Exception>>() {
             @Override
-            public SingleSource<Exception> apply(Exception exception) throws Exception {
+            public SingleSource<Exception> apply(Exception exception) {
                 if (exception != SeafException.SUCCESS) {
                     return Single.just(exception);
                 }
@@ -272,7 +271,7 @@ public class PasswordViewModel extends BaseViewModel {
 
         addSingleDisposable(longSingle, new Consumer<Exception>() {
             @Override
-            public void accept(Exception exception) throws Exception {
+            public void accept(Exception exception) {
                 TResultModel<RepoModel> resultModel = new TResultModel<>();
                 if (exception != SeafException.SUCCESS) {
                     resultModel.error_msg = getErrorMsgByThrowable(exception);

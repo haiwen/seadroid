@@ -1,6 +1,8 @@
 package com.seafile.seadroid2.ui.account;
 
 import com.seafile.seadroid2.account.AccountInfo;
+import com.seafile.seadroid2.framework.data.model.SSOLinkModel;
+import com.seafile.seadroid2.framework.data.model.SSOStatusModel;
 import com.seafile.seadroid2.framework.data.model.TokenModel;
 
 import java.util.Map;
@@ -15,7 +17,6 @@ import retrofit2.http.Multipart;
 import retrofit2.http.POST;
 import retrofit2.http.PartMap;
 import retrofit2.http.Path;
-import retrofit2.http.Query;
 
 public interface AccountService {
 
@@ -33,4 +34,10 @@ public interface AccountService {
 
     @GET("api2/account/info/")
     Call<AccountInfo> getAccountInfoCall();
+
+    @POST("api2/client-sso-link/")
+    Single<SSOLinkModel> getSsoLink();
+
+    @GET("api2/client-sso-link/{token}/")
+    Single<SSOStatusModel> getSsoStatus(@Path("token") String token);
 }

@@ -14,8 +14,8 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         compileSdk rootProject.ext.compileSdkVersion
 
-        versionCode 162
-        versionName "3.0.8"
+        versionCode 163
+        versionName "3.0.9"
         multiDexEnabled true
 
         resValue "string", "authorities", defaultConfig.applicationId + '.debug.cameraupload.provider'
@@ -194,7 +194,7 @@ android {
         implementation 'androidx.core:core-splashscreen:1.0.1'
         implementation "androidx.appcompat:appcompat:1.7.0"
         implementation "androidx.activity:activity:1.9.3"
-        implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+        implementation 'androidx.constraintlayout:constraintlayout:2.2.0'
         implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
         implementation "androidx.preference:preference:1.2.1"
 //        implementation "androidx.datastore:datastore-preferences:1.0.0"

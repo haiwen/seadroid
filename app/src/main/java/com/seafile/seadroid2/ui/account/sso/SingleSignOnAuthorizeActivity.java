@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.ui.account;
+package com.seafile.seadroid2.ui.account.sso;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -33,6 +33,8 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.framework.util.DeviceIdManager;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.ssl.CertsManager;
+import com.seafile.seadroid2.ui.account.AccountViewModel;
+import com.seafile.seadroid2.ui.account.SeafileAuthenticatorActivity;
 import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
 import com.seafile.seadroid2.ui.dialog.SslConfirmDialog;
 
