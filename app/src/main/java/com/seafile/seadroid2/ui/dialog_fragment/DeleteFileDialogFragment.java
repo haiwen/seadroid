@@ -57,7 +57,7 @@ public class DeleteFileDialogFragment extends RequestCustomDialogFragmentWithVM<
             return;
         }
 
-        getViewModel().delete(dirents, false);
+        getViewModel().delete(dirents);
     }
 
     @Override

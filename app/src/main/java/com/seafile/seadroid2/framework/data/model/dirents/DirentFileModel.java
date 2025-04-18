@@ -26,4 +26,11 @@ public class DirentFileModel extends ResultModel {
     public long getMtimeInMills() {
         return mtime * 1000;
     }
+
+    public DirentFileModel() {
+    }
+
+    public DirentFileModel(String errMsg) {
+        this.error_msg = errMsg;
+    }
 }

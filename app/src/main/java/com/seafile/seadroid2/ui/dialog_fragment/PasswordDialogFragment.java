@@ -14,10 +14,9 @@ import androidx.lifecycle.Observer;
 import com.google.android.material.textfield.TextInputLayout;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
+import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.data.model.TResultModel;
 import com.seafile.seadroid2.ui.base.fragment.RequestCustomDialogFragmentWithVM;
-import com.seafile.seadroid2.config.Constants;
-import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
 import com.seafile.seadroid2.ui.dialog_fragment.listener.OnResultListener;
 import com.seafile.seadroid2.ui.dialog_fragment.viewmodel.PasswordViewModel;
 

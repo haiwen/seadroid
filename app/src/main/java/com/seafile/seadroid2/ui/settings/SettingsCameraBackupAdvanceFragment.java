@@ -81,7 +81,7 @@ public class SettingsCameraBackupAdvanceFragment extends PreferenceFragmentCompa
                 boolean isCustom = (Boolean) newValue;
                 AlbumBackupManager.writeAllowDataPlanSwitch(isCustom);
 
-                BackgroundJobManagerImpl.getInstance().startMediaBackupWorkerChain(isCustom);
+                BackgroundJobManagerImpl.getInstance().startMediaBackupChain(isCustom);
 
                 return true;
             }
@@ -98,7 +98,7 @@ public class SettingsCameraBackupAdvanceFragment extends PreferenceFragmentCompa
                 boolean isCustom = (Boolean) newValue;
                 AlbumBackupManager.writeAllowVideoSwitch(isCustom);
 
-                BackgroundJobManagerImpl.getInstance().startMediaBackupWorkerChain(isCustom);
+                BackgroundJobManagerImpl.getInstance().startMediaBackupChain(isCustom);
 
                 return true;
             }
@@ -146,7 +146,7 @@ public class SettingsCameraBackupAdvanceFragment extends PreferenceFragmentCompa
             List<String> selectedBuckets = new ArrayList<>();
             AlbumBackupManager.writeBucketIds(selectedBuckets);
 
-            BackgroundJobManagerImpl.getInstance().startMediaBackupWorkerChain(false);
+            BackgroundJobManagerImpl.getInstance().startMediaBackupChain(false);
 
             refreshPreferenceView();
         }
@@ -155,9 +155,12 @@ public class SettingsCameraBackupAdvanceFragment extends PreferenceFragmentCompa
     private void refreshPreferenceView() {
         List<String> bucketNames = new ArrayList<>();
 
-
         List<String> bucketIds = AlbumBackupManager.readBucketIds();
         List<GalleryBucketUtils.Bucket> tempBuckets = GalleryBucketUtils.getMediaBuckets(getActivity().getApplicationContext());
+        if (tempBuckets == null) {
+            return;
+        }
+
         LinkedHashSet<GalleryBucketUtils.Bucket> bucketsSet = new LinkedHashSet<>(tempBuckets.size());
         bucketsSet.addAll(tempBuckets);
         List<GalleryBucketUtils.Bucket> allBuckets = new ArrayList<>(bucketsSet.size());
@@ -193,7 +196,7 @@ public class SettingsCameraBackupAdvanceFragment extends PreferenceFragmentCompa
                 return;
             }
 
-            BackgroundJobManagerImpl.getInstance().startMediaBackupWorkerChain(true);
+            BackgroundJobManagerImpl.getInstance().startMediaBackupChain(true);
 
             refreshPreferenceView();
         }

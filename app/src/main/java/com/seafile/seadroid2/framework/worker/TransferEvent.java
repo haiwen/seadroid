@@ -10,7 +10,7 @@ public class TransferEvent {
      * a scan-end event<br/>
      * <b>NOTICE: This event will be sent in Result.success(data) instead of in setProgressAsync()<b/>
      */
-    public static final String EVENT_SCAN_END = "scan_end";
+    public static final String EVENT_SCAN_FINISH = "scan_end";
 
     /**
      * A file is being transferred to the target platform
@@ -28,8 +28,7 @@ public class TransferEvent {
     public static final String EVENT_FILE_TRANSFER_FAILED = "file_transfer_failed";
 
     /**
-     * The transfer worker is complete.<br/>
-     * <b>NOTICE: This event will be sent in Result.success(data) instead of in setProgressAsync()<b/>
+     * The transfer worker is complete.
      */
-    public static final String EVENT_FINISH = "transfer_finish";
+    public static final String EVENT_TRANSFER_FINISH = "transfer_finish";
 }

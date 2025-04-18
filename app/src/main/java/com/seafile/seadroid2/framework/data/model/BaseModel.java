@@ -3,14 +3,14 @@ package com.seafile.seadroid2.framework.data.model;
 import androidx.room.Ignore;
 
 import com.seafile.seadroid2.config.Constants;
-import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
+import com.seafile.seadroid2.framework.data.db.entities.FileBackupStatusEntity;
 import com.seafile.seadroid2.ui.data_migrate.DataMigrationActivity;
 
 public class BaseModel {
     /**
      * <h3>data version control</h3>
      * <p>when v = 0, In some entities, this represents pre-migration legacy data.
-     * eg. {@link FileTransferEntity}.</p>
+     * eg. {@link FileBackupStatusEntity}.</p>
      * <br>
      * <p>
      * <b>notice</b>: Some values may have invalid or null, please check before using them.</p>

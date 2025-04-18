@@ -1,25 +1,12 @@
 package com.seafile.seadroid2.ui.settings;
 
-import android.content.Context;
-
-import androidx.work.WorkInfo;
-
-import com.blankj.utilcode.util.CollectionUtils;
-import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountInfo;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.framework.data.ServerInfo;
-import com.seafile.seadroid2.framework.data.db.AppDatabase;
-import com.seafile.seadroid2.enums.TransferAction;
-import com.seafile.seadroid2.enums.TransferDataSource;
-import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.data.model.server.ServerInfoModel;
 import com.seafile.seadroid2.framework.datastore.StorageManager;
 import com.seafile.seadroid2.framework.http.HttpIO;
-import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
-import com.seafile.seadroid2.framework.worker.upload.UploadFolderFileAutomaticallyWorker;
-import com.seafile.seadroid2.framework.worker.upload.UploadMediaFileAutomaticallyWorker;
 import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.ui.account.AccountService;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
@@ -70,67 +57,6 @@ public class SettingsFragmentViewModel extends BaseViewModel {
                 Settings.USER_INFO.putValue(accountInfo.getName());
                 Settings.USER_SERVER_INFO.putValue(accountInfo.getServer());
                 Settings.SPACE_INFO.putValue(accountInfo.getSpaceUsed());
-            }
-        });
-    }
-
-    public void countFolderBackupPendingList(Context context) {
-        Account account = SupportAccountManager.getInstance().getCurrentAccount();
-        if (account == null) {
-            return;
-        }
-
-        Single<Integer> folderBackupInProgressCountSingle = AppDatabase
-                .getInstance()
-                .fileTransferDAO()
-                .getCount(account.getSignature(),
-                        TransferAction.UPLOAD,
-                        TransferDataSource.FOLDER_BACKUP,
-                        CollectionUtils.newArrayList(TransferStatus.IN_PROGRESS, TransferStatus.WAITING));
-        addSingleDisposable(folderBackupInProgressCountSingle, new Consumer<Integer>() {
-            @Override
-            public void accept(Integer s) throws Exception {
-                if (s == 0) {
-                    Settings.FOLDER_BACKUP_STATE.putValue(context.getString(R.string.folder_backup_waiting_state));
-                } else {
-                    WorkInfo workInfo = BackgroundJobManagerImpl.getInstance().getWorkInfoById(UploadFolderFileAutomaticallyWorker.UID);
-                    if (workInfo != null && WorkInfo.State.ENQUEUED == workInfo.getState()) {
-                        Settings.FOLDER_BACKUP_STATE.putValue(context.getString(R.string.waiting));
-                    } else {
-                        Settings.FOLDER_BACKUP_STATE.putValue(String.valueOf(s));
-                    }
-                }
-            }
-        });
-    }
-
-    public void countAlbumBackupPendingList(Context context) {
-        Account account = SupportAccountManager.getInstance().getCurrentAccount();
-        if (account == null) {
-            return;
-        }
-
-        Single<Integer> folderBackupInProgressCountSingle = AppDatabase
-                .getInstance()
-                .fileTransferDAO()
-                .getCount(account.getSignature(),
-                        TransferAction.UPLOAD,
-                        TransferDataSource.ALBUM_BACKUP,
-                        CollectionUtils.newArrayList(TransferStatus.IN_PROGRESS, TransferStatus.WAITING));
-
-        addSingleDisposable(folderBackupInProgressCountSingle, new Consumer<Integer>() {
-            @Override
-            public void accept(Integer s) {
-                if (s == 0) {
-                    Settings.ALBUM_BACKUP_STATE.putValue(context.getString(R.string.settings_cuc_finish_title));
-                } else {
-                    WorkInfo workInfo = BackgroundJobManagerImpl.getInstance().getWorkInfoById(UploadMediaFileAutomaticallyWorker.UID);
-                    if (workInfo != null && WorkInfo.State.ENQUEUED == workInfo.getState()) {
-                        Settings.ALBUM_BACKUP_STATE.putValue(context.getString(R.string.waiting));
-                    } else {
-                        Settings.ALBUM_BACKUP_STATE.putValue(String.valueOf(s));
-                    }
-                }
             }
         });
     }

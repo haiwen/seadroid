@@ -122,10 +122,6 @@ public class HttpIO {
         return httpIo;
     }
 
-    public Account getAccount() {
-        return account;
-    }
-
     /**
      * get server url
      */
@@ -159,7 +155,13 @@ public class HttpIO {
         return retrofit.create(clazz);
     }
 
+    private Retrofit retrofit;
+
     private Retrofit createRetrofit() {
+        if (retrofit != null) {
+            return retrofit;
+        }
+
         Retrofit.Builder rBuilder = new Retrofit.Builder();
 
         rBuilder.baseUrl(getServerUrl());
@@ -168,7 +170,8 @@ public class HttpIO {
 
         rBuilder.client(getOkHttpClient().getOkClient());
 
-        return rBuilder.build();
+        retrofit = rBuilder.build();
+        return retrofit;
     }
 
     public void downloadBinarySync(String url, File destinationFile, ProgressListener callback) throws IOException {
@@ -221,4 +224,5 @@ public class HttpIO {
             }
         }, BackpressureStrategy.BUFFER);
     }
+
 }

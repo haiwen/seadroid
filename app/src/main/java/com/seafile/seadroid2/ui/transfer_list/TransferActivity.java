@@ -27,7 +27,7 @@ import com.seafile.seadroid2.ui.base.BaseActivity;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TransferActivity extends BaseActivity implements Toolbar.OnMenuItemClickListener {
+public class TransferActivity extends BaseActivity {
     private TransferListLayoutBinding binding;
     private final List<Fragment> fragments = new ArrayList<>();
 
@@ -118,24 +118,6 @@ public class TransferActivity extends BaseActivity implements Toolbar.OnMenuItem
             return;
         }
 
-        ActionMode downloadActionMode = getDownloadFragment().getActionMode();
-        ActionMode uploadActionMode = getUploadFragment().getActionMode();
-
-        if (downloadActionMode == null && uploadActionMode == null) {
-            return;
-        }
-
-        //
-        if (downloadActionMode != null && uploadActionMode == null) {
-            downloadActionMode.finish();
-            getDownloadFragment().cancelSelectItems();
-        }
-
-        if (uploadActionMode != null && downloadActionMode == null) {
-            uploadActionMode.finish();
-            getUploadFragment().cancelSelectItems();
-        }
-
         supportInvalidateOptionsMenu();
     }
 
@@ -163,36 +145,37 @@ public class TransferActivity extends BaseActivity implements Toolbar.OnMenuItem
     }
 
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//
+//        Toolbar toolbar = getActionBarToolbar();
+//        toolbar.inflateMenu(R.menu.transfer_list_menu);
+//        toolbar.setOnMenuItemClickListener(this);
+//
+//        return true;
+//    }
 
-        Toolbar toolbar = getActionBarToolbar();
-        toolbar.inflateMenu(R.menu.transfer_list_menu);
-        toolbar.setOnMenuItemClickListener(this);
-
-        return true;
-    }
-
-    @Override
-    public boolean onMenuItemClick(MenuItem item) {
-        int whichTab = binding.slidingTabs.getSelectedTabPosition();
-
-        if (item.getItemId() == android.R.id.home) {
-            finish();
-        } else if (item.getItemId() == R.id.cancel_transfer_tasks) {
-            if (whichTab == 0) {
-                getDownloadFragment().cancelAllTasks();
-            } else {
-                getUploadFragment().cancelAllTasks();
-            }
-        } else if (item.getItemId() == R.id.clear_all_transfer_tasks) {
-            // clear all
-            if (whichTab == 0) {
-                getDownloadFragment().removeAllTasks();
-            } else {
-                getUploadFragment().removeAllTasks();
-            }
-        }
+//    @Override
+//    public boolean onMenuItemClick(MenuItem item) {
+//        int whichTab = binding.slidingTabs.getSelectedTabPosition();
+//        if (item.getItemId() == android.R.id.home) {
+//            finish();
+//        }
+//        else if (item.getItemId() == R.id.cancel_transfer_tasks) {
+//            if (whichTab == 0) {
+//                getDownloadFragment().cancelAllTasks();
+//            } else {
+//                getUploadFragment().cancelAllTasks();
+//            }
+//        }
+//        else if (item.getItemId() == R.id.clear_all_transfer_tasks) {
+//            // clear all
+//            if (whichTab == 0) {
+//                getDownloadFragment().removeAllTasks();
+//            } else {
+//                getUploadFragment().removeAllTasks();
+//            }
+//        }
 //        else if (item.getItemId() == R.id.retry_all_cancelled_transfer_tasks) {
 //            if (whichTab == 0) {
 //                getDownloadFragment().restartAllSpecialStatusTasks(TransferAction.DOWNLOAD, TransferStatus.CANCELLED);
@@ -206,9 +189,8 @@ public class TransferActivity extends BaseActivity implements Toolbar.OnMenuItem
 //                getUploadFragment().restartAllSpecialStatusTasks(TransferAction.UPLOAD, TransferStatus.FAILED);
 //            }
 //        }
-
-        return super.onOptionsItemSelected(item);
-    }
+//        return super.onOptionsItemSelected(item);
+//    }
 
     public DownloadListFragment getDownloadFragment() {
         return (DownloadListFragment) getFragment(0);

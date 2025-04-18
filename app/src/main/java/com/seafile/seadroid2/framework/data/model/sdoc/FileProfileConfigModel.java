@@ -2,10 +2,26 @@ package com.seafile.seadroid2.framework.data.model.sdoc;
 
 import com.seafile.seadroid2.framework.data.model.user.UserWrapperModel;
 
+import java.util.List;
+
 public class FileProfileConfigModel {
     public UserWrapperModel users;
     public FileDetailModel detail;
     public MetadataConfigModel metadataConfigModel;
+
+    public FileRecordWrapperModel recordWrapperModel;
+    public FileTagWrapperModel tagWrapperModel;
+
+    public void setTagWrapperModel(FileTagWrapperModel tagWrapperModel) {
+        this.tagWrapperModel = tagWrapperModel;
+    }
+
+    public void setRecordWrapperModel(FileRecordWrapperModel recordWrapperModel) {
+        this.recordWrapperModel = recordWrapperModel;
+    }
+
+    public List<SDocTagModel> tags;
+
 
     public MetadataConfigModel getMetadataConfigModel() {
         return metadataConfigModel;

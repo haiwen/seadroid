@@ -12,6 +12,7 @@ import java.util.Map;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
 import okhttp3.RequestBody;
+import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
 import retrofit2.http.GET;
@@ -54,6 +55,12 @@ public interface DialogService {
     @Multipart
     @POST("api/v2.1/repos/{repo_id}/set-password/")
     Single<ResultModel> setPassword(@Path("repo_id") String repoId, @PartMap Map<String, RequestBody> map);
+
+    @POST("api/v2.1/repos/{repo_id}/set-password/")
+    Single<ResultModel> setPassword2(@Path("repo_id") String repoId, @Body Map<String, String> map);
+
+    @POST("api/v2.1/repos/{repo_id}/set-password/")
+    Call<ResultModel> setPasswordSync(@Path("repo_id") String repoId, @Body Map<String, String> map);
 
     @DELETE("api/v2.1/repos/{repo_id}/{obj}/")
     Single<DeleteDirentModel> deleteDirent(@Path("repo_id") String repoId, @Path("obj") String obj, @Query("p") String path);

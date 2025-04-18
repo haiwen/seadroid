@@ -44,9 +44,7 @@ import java.net.URLEncoder;
 import java.security.cert.X509Certificate;
 
 /**
- * Single sign on Authorize page
- * use cookie to get authorized data
- * <p/>
+ * Single sign on Authorize page, use cookie to get authorized data
  */
 public class SingleSignOnAuthorizeActivity extends BaseActivityWithVM<AccountViewModel> implements Toolbar.OnMenuItemClickListener {
     public static final String DEBUG_TAG = SingleSignOnAuthorizeActivity.class.getSimpleName();
@@ -230,7 +228,6 @@ public class SingleSignOnAuthorizeActivity extends BaseActivityWithVM<AccountVie
             showPageLoading(false);
         }
 
-
         @Override
         public void onReceivedSslError(WebView view, final SslErrorHandler handler, SslError error) {
             Log.d(DEBUG_TAG, "onReceivedSslError " + error.getCertificate().toString());
@@ -273,7 +270,7 @@ public class SingleSignOnAuthorizeActivity extends BaseActivityWithVM<AccountVie
             if (cookie == null)
                 return;
 
-            Account account = null;
+            Account account;
             try {
                 account = parseAccount(Utils.cleanServerURL(serverUrl), cookie);
                 if (account == null) {
@@ -291,7 +288,6 @@ public class SingleSignOnAuthorizeActivity extends BaseActivityWithVM<AccountVie
      * The cookie value is like seahub_shib="foo@test.com@bd8cc1138", where
      * foo@test.com is username and bd8cc1138 is api token"
      */
-
     private Account parseAccount(String url, String cookie) {
         if (url == null || cookie.isEmpty())
             return null;
@@ -305,7 +301,6 @@ public class SingleSignOnAuthorizeActivity extends BaseActivityWithVM<AccountVie
 
         if (email.isEmpty() || token.isEmpty())
             return null;
-
         Log.d(DEBUG_TAG, "email: " + email);
         Log.d(DEBUG_TAG, "token: " + token);
 

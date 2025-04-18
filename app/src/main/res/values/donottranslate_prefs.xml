@@ -50,6 +50,9 @@
     <string name="pref_key_album_backup_repo_select">key_album_backup_repo</string>
     <string name="pref_key_album_backup_state">key_album_backup_state</string>
 
+    <string name="pref_key_transfer_upload_state">key_album_transfer_upload_state</string>
+    <string name="pref_key_transfer_download_state">key_album_transfer_download_state</string>
+
     <string name="pref_key_album_backup_advanced">key_album_backup_advance</string>
     <string name="pref_key_album_backup_advanced_data_plan_switch">key_album_backup_advanced_allow_data_plan_switch</string>
     <string name="pref_key_album_backup_advanced_allow_video_switch">key_album_backup_advanced_allow_videos_upload_switch</string>

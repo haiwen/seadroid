@@ -44,9 +44,6 @@ public class PermissionUtil {
     }
 
     public static String[] getStoragePermissions() {
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-//            return new String[]{Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_VIDEO};
-//        } else
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             return new String[]{Manifest.permission.MANAGE_EXTERNAL_STORAGE};
         } else {
@@ -88,10 +85,6 @@ public class PermissionUtil {
                     })
                     .setPositiveButton(R.string.ok, (dialog, which) -> {
                         dialog.dismiss();
-
-//                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-//                            multiplePermissionLauncher.launch(new String[]{Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_VIDEO});
-//                        } else
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                             storagePermissionLauncher.launch(getManageAllFilesIntent(context));
                         } else {

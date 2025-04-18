@@ -24,7 +24,7 @@ public class AccountUtils {
         Settings.initUserSettings();
 
         // clear
-        ContextStackPreferenceHelper.clearStack();
+        ContextStackPreferenceHelper.clear();
 
         //
         CertsManager.instance().deleteCertForAccount(account);
@@ -65,7 +65,7 @@ public class AccountUtils {
         NotificationUtils.cancelAll();
 
         // clear
-        ContextStackPreferenceHelper.clearStack();
+        ContextStackPreferenceHelper.clear();
 
         //
         Settings.initUserSettings();

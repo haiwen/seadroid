@@ -37,7 +37,6 @@ public class ColumnType {
     public static final String CREATOR = "creator";
     public static final String LAST_MODIFIER = "last-modifier";
 
-
     public final static List<String> ENABLE_TYPE_LIST = CollectionUtils.newArrayList(
             TEXT,
             COLLABORATOR,

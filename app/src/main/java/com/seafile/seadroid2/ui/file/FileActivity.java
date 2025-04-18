@@ -12,33 +12,32 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.Observer;
 
 import com.blankj.utilcode.util.FileUtils;
+import com.blankj.utilcode.util.NetworkUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
-import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
-import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
-import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
 import com.seafile.seadroid2.databinding.FileActivityBinding;
+import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
+import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.data.db.entities.StarredModel;
 import com.seafile.seadroid2.framework.data.model.activities.ActivityModel;
 import com.seafile.seadroid2.framework.data.model.dirents.DirentFileModel;
 import com.seafile.seadroid2.framework.data.model.search.SearchModel;
 import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.util.Icons;
+import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.ExistingFileStrategy;
 import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
 import com.seafile.seadroid2.ui.dialog_fragment.PasswordDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.listener.OnResultListener;
-import com.seafile.seadroid2.framework.util.SLogs;
-import com.seafile.seadroid2.framework.util.Utils;
 
 import java.io.File;
 
 import io.reactivex.functions.Consumer;
-import kotlin.Triple;
 
 /**
  * Display a file
@@ -46,12 +45,13 @@ import kotlin.Triple;
 public class FileActivity extends BaseActivityWithVM<FileViewModel> implements Toolbar.OnMenuItemClickListener {
 
     private FileActivityBinding binding;
-    private RepoModel repoModel;
+
     private File destinationFile;
     private String repoId;
     private String action;
 
     private DirentModel direntModel;
+    private Account account;
 
     public static Intent start(Context context, DirentModel direntModel, String action) {
         Intent starter = new Intent(context, FileActivity.class);
@@ -101,7 +101,7 @@ public class FileActivity extends BaseActivityWithVM<FileViewModel> implements T
         repoId = direntModel.repo_id;
 
         destinationFile = getLocalDestinationFile(repoId, direntModel.repo_name, direntModel.full_path);
-
+        account = SupportAccountManager.getInstance().getCurrentAccount();
         //
         binding.progressBar.setIndeterminate(true);
 
@@ -109,7 +109,12 @@ public class FileActivity extends BaseActivityWithVM<FileViewModel> implements T
 
         initViewModel();
 
-        loadData();
+        if (NetworkUtils.isConnected()) {
+            loadData();
+        } else {
+            ToastUtils.showLong(R.string.network_error);
+            finishWithCancel();
+        }
     }
 
 
@@ -133,39 +138,31 @@ public class FileActivity extends BaseActivityWithVM<FileViewModel> implements T
         getViewModel().getOutFileLiveData().observe(this, new Observer<File>() {
             @Override
             public void onChanged(File outFile) {
-                onFileDownloaded(outFile, true);
-            }
-        });
-
-        getViewModel().getCancelLiveData().observe(this, new Observer<Boolean>() {
-            @Override
-            public void onChanged(Boolean aBoolean) {
-                ToastUtils.showLong(R.string.download_cancelled);
-                finishWithCancel();
+                getViewModel().saveToDb(account, direntModel, destinationFile, new Consumer<Boolean>() {
+                    @Override
+                    public void accept(Boolean aBoolean) throws Exception {
+                        onFileDownloaded(outFile, true);
+                    }
+                });
             }
         });
     }
 
     private void loadData() {
-        getViewModel().loadFileDetail(repoId, direntModel.full_path, new Consumer<Triple<RepoModel, DirentFileModel, FileTransferEntity>>() {
+        getViewModel().loadFileDetail(repoId, direntModel.full_path, new Consumer<DirentFileModel>() {
             @Override
-            public void accept(Triple<RepoModel, DirentFileModel, FileTransferEntity> triple) throws Exception {
-                repoModel = triple.getFirst();
-                DirentFileModel direntFileModel = triple.getSecond();
-                FileTransferEntity fileTransfer = triple.getThird();
+            public void accept(DirentFileModel direntFileModel) throws Exception {
+                if (direntFileModel == null) {
+                    ToastUtils.showLong(R.string.file_not_found);
+                    finishWithCancel();
+                    return;
+                }
 
+                direntModel.id = direntFileModel.id;
+                direntModel.mtime = direntFileModel.mtime;
                 direntModel.size = direntFileModel.size;
 
-                ExistingFileStrategy strategy = checkFileStrategy(direntFileModel, fileTransfer);
-                if (ExistingFileStrategy.APPEND == strategy) {
-                    getViewModel().preDownload(repoModel, direntModel, destinationFile);
-                } else if (ExistingFileStrategy.SKIP == strategy) {
-                    onFileDownloaded(destinationFile, false);
-                } else if (ExistingFileStrategy.ASK == strategy) {
-                    showFileExistDialog(destinationFile);
-                } else if (ExistingFileStrategy.NOT_FOUND_IN_REMOTE == strategy) {
-                    onFileDownloadFailed(SeafException.NOT_FOUND_EXCEPTION);
-                }
+                getViewModel().download(account, direntModel, destinationFile);
             }
         });
     }
@@ -191,76 +188,28 @@ public class FileActivity extends BaseActivityWithVM<FileViewModel> implements T
     }
 
     private void cancelDownload() {
-        getViewModel().cancelDownload(direntModel.repo_id, direntModel.full_path);
+        getViewModel().disposeAll();
+        ToastUtils.showLong(R.string.download_cancelled);
+        finishWithCancel();
     }
 
-    private ExistingFileStrategy checkFileStrategy(DirentFileModel direntFileModel, FileTransferEntity fileTransferEntity) {
+    private ExistingFileStrategy checkFileStrategy(DirentFileModel direntFileModel) {
         if (null == direntFileModel || TextUtils.isEmpty(direntFileModel.id)) {
             //has been deleted in remote repo
             return ExistingFileStrategy.NOT_FOUND_IN_REMOTE;
         }
 
-        //locally not exists
-        if (!destinationFile.exists()) {
-            return ExistingFileStrategy.APPEND;
-        }
-
-        if (fileTransferEntity != null && fileTransferEntity.file_id.equals(direntModel.id)) {
-            // IMPROVE: might be better to use MD5 or other ways.
-
-            //Ask the user how to deal with it
-            return ExistingFileStrategy.SKIP;
-        }
-
-        long fileLastModified = FileUtils.getFileLastModified(destinationFile);
-        long direntLastModified = direntFileModel.getMtimeInMills();
-
-        if (direntLastModified > fileLastModified) {
+        if (FileUtils.isFileExists(destinationFile)) {
             return ExistingFileStrategy.ASK;
-        } else if (fileLastModified > direntLastModified) {
-            return ExistingFileStrategy.APPEND;
         }
 
-        //Ask the user how to deal with it
-        return ExistingFileStrategy.ASK;
+        return ExistingFileStrategy.REPLACE;
     }
 
     private File getLocalDestinationFile(String repoId, String repoName, String fullPathInRepo) {
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
 
-        File localFile = DataManager.getLocalRepoFile(account, repoId, repoName, fullPathInRepo);
-        return localFile;
-    }
-
-    private void showFileExistDialog(final File destinationFile) {
-        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
-        builder.setTitle(R.string.overwrite_existing_file_title);
-        builder.setMessage(R.string.overwrite_existing_file_msg);
-
-        builder.setNeutralButton(R.string.close, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                finish();
-            }
-        });
-
-        builder.setNegativeButton(R.string.keep_both, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-
-                onFileDownloaded(destinationFile, false);
-            }
-        });
-
-        builder.setPositiveButton(R.string.replace_local_file, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-
-                getViewModel().preDownload(repoModel, direntModel, destinationFile);
-            }
-        });
-        builder.show();
+        return DataManager.getLocalRepoFile(account, repoId, repoName, fullPathInRepo);
     }
 
 
@@ -321,7 +270,7 @@ public class FileActivity extends BaseActivityWithVM<FileViewModel> implements T
     }
 
     private void handlePassword() {
-        PasswordDialogFragment dialogFragment = PasswordDialogFragment.newInstance(repoModel.repo_id, repoModel.repo_name);
+        PasswordDialogFragment dialogFragment = PasswordDialogFragment.newInstance(direntModel.repo_id, direntModel.repo_name);
         dialogFragment.setResultListener(new OnResultListener<RepoModel>() {
             @Override
             public void onResultData(RepoModel newRepoModel) {

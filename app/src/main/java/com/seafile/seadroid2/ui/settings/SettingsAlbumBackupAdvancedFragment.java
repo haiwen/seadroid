@@ -151,6 +151,10 @@ public class SettingsAlbumBackupAdvancedFragment extends RenameSharePreferenceFr
 
         List<String> bucketIds = AlbumBackupSharePreferenceHelper.readBucketIds();
         List<GalleryBucketUtils.Bucket> tempBuckets = GalleryBucketUtils.getMediaBuckets(SeadroidApplication.getAppContext());
+        if (tempBuckets == null) {
+            return;
+        }
+
         LinkedHashSet<GalleryBucketUtils.Bucket> bucketsSet = new LinkedHashSet<>(tempBuckets.size());
         bucketsSet.addAll(tempBuckets);
         List<GalleryBucketUtils.Bucket> allBuckets = new ArrayList<>(bucketsSet.size());

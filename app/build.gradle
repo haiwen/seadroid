@@ -14,8 +14,8 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         compileSdk rootProject.ext.compileSdkVersion
 
-        versionCode 163
-        versionName "3.0.9"
+        versionCode 164
+        versionName "3.0.10"
         multiDexEnabled true
 
         resValue "string", "authorities", defaultConfig.applicationId + '.debug.cameraupload.provider'
@@ -180,6 +180,8 @@ android {
     dependencies {
         implementation fileTree(include: ['*.jar'], dir: 'libs')
 
+        debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.14'
+
         implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
         // Firebase
         implementation platform('com.google.firebase:firebase-bom:33.2.0')
@@ -291,8 +293,8 @@ android {
 //        implementation 'com.nostra13.universalimageloader:universal-image-loader:1.9.3'
 
 
-        //https://github.com/Baseflow/PhotoView
-        implementation 'com.github.Chrisbanes:PhotoView:2.3.0'
+        //thanks: https://github.com/Baseflow/PhotoView
+//        implementation 'com.github.Chrisbanes:PhotoView:2.3.0'
 
         //https://jitpack.io
 //        implementation 'com.github.zhwanng:XXPermissions:1.0.2'

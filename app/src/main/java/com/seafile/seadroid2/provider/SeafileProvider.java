@@ -19,6 +19,7 @@
 
 package com.seafile.seadroid2.provider;
 
+import android.accounts.NetworkErrorException;
 import android.accounts.OnAccountsUpdateListener;
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
@@ -29,6 +30,7 @@ import android.graphics.Point;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.CancellationSignal;
+import android.os.Handler;
 import android.os.ParcelFileDescriptor;
 import android.provider.DocumentsContract;
 import android.provider.DocumentsContract.Document;
@@ -44,6 +46,7 @@ import com.bumptech.glide.request.RequestOptions;
 import com.seafile.seadroid2.BuildConfig;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
+import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.framework.data.db.AppDatabase;
@@ -51,6 +54,7 @@ import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.data.db.entities.StarredModel;
 import com.seafile.seadroid2.framework.data.model.BaseModel;
+import com.seafile.seadroid2.framework.data.model.repo.DirentWrapperModel;
 import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.util.ConcurrentAsyncTask;
@@ -60,9 +64,11 @@ import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.listener.ProgressListener;
 import com.seafile.seadroid2.ui.file.FileService;
+import com.seafile.seadroid2.ui.repo.RepoService;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.checkerframework.checker.units.qual.A;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -135,23 +141,23 @@ public class SeafileProvider extends DocumentsProvider {
 
     private android.accounts.AccountManager androidAccountManager;
 
-    private final Map<String, RepoModel> REPO_MAP = new HashMap<>();
-
-    private RepoModel getRepoModelSync(String repoId) throws FileNotFoundException {
-        if (!REPO_MAP.containsKey(repoId)) {
-            List<RepoModel> repoModels = AppDatabase.getInstance().repoDao().getByIdSync(repoId);
-            if (CollectionUtils.isEmpty(repoModels)) {
-                throw new FileNotFoundException();
-            }
-
-            RepoModel repoModel = repoModels.get(0);
-
-            REPO_MAP.put(repoId, repoModel);
-            return repoModel;
-        }
-        return REPO_MAP.get(repoId);
-
-    }
+//    private final Map<String, RepoModel> REPO_MAP = new HashMap<>();
+//
+//    private RepoModel getRepoModelSync(String repoId) throws FileNotFoundException {
+//        if (!REPO_MAP.containsKey(repoId)) {
+//            List<RepoModel> repoModels = AppDatabase.getInstance().repoDao().getByIdSync(repoId);
+//            if (CollectionUtils.isEmpty(repoModels)) {
+//                throw new FileNotFoundException();
+//            }
+//
+//            RepoModel repoModel = repoModels.get(0);
+//
+//            REPO_MAP.put(repoId, repoModel);
+//            return repoModel;
+//        }
+//        return REPO_MAP.get(repoId);
+//
+//    }
 
     private final OnAccountsUpdateListener accountListener = new OnAccountsUpdateListener() {
         @Override
@@ -280,8 +286,11 @@ public class SeafileProvider extends DocumentsProvider {
             // directory in the given repository.
 
             // the android API asks us to be quick, so just use the cache.
-
-            RepoModel repoModel = getRepoModelSync(repoId);
+            List<RepoModel> repoModels = AppDatabase.getInstance().repoDao().getByIdSync(repoId);
+            if (CollectionUtils.isEmpty(repoModels)) {
+                throw new FileNotFoundException();
+            }
+            final RepoModel repoModel = repoModels.get(0);
             if (repoModel == null) {
                 throw new FileNotFoundException();
             }
@@ -342,7 +351,11 @@ public class SeafileProvider extends DocumentsProvider {
         }
 
         // the android API asks us to be quick, so just use the cache.
-        RepoModel repoModel = getRepoModelSync(repoId);
+        List<RepoModel> repoModels = AppDatabase.getInstance().repoDao().getByIdSync(repoId);
+        if (CollectionUtils.isEmpty(repoModels)) {
+            throw new IllegalArgumentException();
+        }
+        RepoModel repoModel = repoModels.get(0);
         if (repoModel == null) {
             throw new FileNotFoundException();
         }
@@ -404,33 +417,42 @@ public class SeafileProvider extends DocumentsProvider {
     @Override
     public ParcelFileDescriptor openDocument(final String documentId, final String mode, final CancellationSignal signal) throws FileNotFoundException {
         Account account = DocumentIdParser.getAccountFromId(documentId);
+
         String path = DocumentIdParser.getPathFromId(documentId);
-        String repoId = DocumentIdParser.getRepoIdFromId(documentId);
-
-        RepoModel repoModel = getRepoModelSync(repoId);
-        if (repoModel == null) {
-            throw new FileNotFoundException();
-        }
-
         if (TextUtils.isEmpty(path)) {
-            throw new FileNotFoundException();
+            throw new IllegalArgumentException();
         }
 
-        int accessMode = ParcelFileDescriptor.parseMode(mode);
-        boolean isWriteMode =
-                (accessMode & ParcelFileDescriptor.MODE_WRITE_ONLY) != 0
-                ||
-                (accessMode & ParcelFileDescriptor.MODE_READ_WRITE) != 0;
+        String repoId = DocumentIdParser.getRepoIdFromId(documentId);
+        List<RepoModel> repoModels = AppDatabase.getInstance().repoDao().getByIdSync(repoId);
+        if (CollectionUtils.isEmpty(repoModels)) {
+            throw new IllegalArgumentException();
+        }
+        final RepoModel repoModel = repoModels.get(0);
+        if (repoModel == null) {
+            throw new IllegalArgumentException();
+        }
 
-        //TODO check sync_time and modified_at
 
-        //check local
+        final boolean isWrite = (mode.indexOf('w') != -1);
+        final int accessMode = ParcelFileDescriptor.parseMode(mode);
+
+//        if (isWrite) {
+//            try {
+//                File tempFile = DataManager.createTempFile();
+//                ParcelFileDescriptor pfd = ParcelFileDescriptor.open(tempFile,
+//                        ParcelFileDescriptor.MODE_WRITE_ONLY
+//                                | ParcelFileDescriptor.MODE_CREATE
+//                                | ParcelFileDescriptor.MODE_TRUNCATE);
+//                OpenDocumentWriteWatcher.scheduleUploadAfterClose(getContext(), account, repoModel.repo_id, repoModel.repo_name, path, tempFile, documentId);
+//                return pfd;
+//            } catch (IOException e) {
+//                throw new FileNotFoundException("Failed to open document with id " + documentId +
+//                        " and mode " + mode);
+//            }
+//        } else {
         File file = DataManager.getLocalRepoFile(account, repoModel.repo_id, repoModel.repo_name, path);
         if (file.exists()) {
-            if (isWriteMode && !file.canWrite()) {
-                throw new UnsupportedOperationException();
-            }
-
             try {
                 return makeParcelFileDescriptor(file, mode);
             } catch (IOException e) {
@@ -444,8 +466,7 @@ public class SeafileProvider extends DocumentsProvider {
             throw new FileNotFoundException();
         }
 
-        // open the file. this might involve talking to the seafile server. this will hang until
-        // it is done.
+        // open the file. this might involve talking to the seafile server. this will hang until it is done.
         final Future<ParcelFileDescriptor> future = ConcurrentAsyncTask.submit(new Callable<ParcelFileDescriptor>() {
 
             @Override
@@ -477,6 +498,7 @@ public class SeafileProvider extends DocumentsProvider {
             Log.d(DEBUG_TAG, "could not open file", e);
             throw new FileNotFoundException();
         }
+//        }
     }
 
     /**
@@ -513,6 +535,7 @@ public class SeafileProvider extends DocumentsProvider {
             if (httpIo == null) {
                 throw new FileNotFoundException();
             }
+
             Call<String> urlCall = httpIo.execute(FileService.class).getFileDownloadLinkSync(repo.repo_id, path, 1);
 
             Response<String> res = urlCall.execute();
@@ -576,11 +599,14 @@ public class SeafileProvider extends DocumentsProvider {
             throw new FileNotFoundException();
         }
 
-        RepoModel repoModel = getRepoModelSync(repoId);
-        if (repoModel == null) {
-            throw new FileNotFoundException();
+        List<RepoModel> repoModels = AppDatabase.getInstance().repoDao().getByIdSync(repoId);
+        if (CollectionUtils.isEmpty(repoModels)) {
+            throw new IllegalArgumentException();
         }
-
+        final RepoModel repoModel = repoModels.get(0);
+        if (repoModel == null) {
+            throw new IllegalArgumentException();
+        }
 
         final ParcelFileDescriptor[] pair;
         try {
@@ -662,58 +688,55 @@ public class SeafileProvider extends DocumentsProvider {
         return new AssetFileDescriptor(pair[0], 0, AssetFileDescriptor.UNKNOWN_LENGTH);
     }
 
+    //TODO
 //    @Override
 //    public String createDocument(String parentDocumentId, String mimeType, String displayName) throws FileNotFoundException {
 //        Log.d(DEBUG_TAG, "createDocument: " + parentDocumentId + "; " + mimeType + "; " + displayName);
 //
-//        if (!Utils.isNetworkOn())
+//        if (!NetworkUtils.isConnected())
 //            throw new FileNotFoundException();
 //
+//        Account account = DocumentIdParser.getAccountFromId(parentDocumentId);
+//
 //        String repoId = DocumentIdParser.getRepoIdFromId(parentDocumentId);
-//        if (repoId.isEmpty()) {
-//            throw new FileNotFoundException();
+//        if (TextUtils.isEmpty(repoId)) {
+//            throw new IllegalArgumentException();
 //        }
 //
 //        String parentPath = DocumentIdParser.getPathFromId(parentDocumentId);
-//        DataManager dm = createDataManager(parentDocumentId);
-//
-//        try {
-//
-//            dm.getReposFromServer(); // refresh cache
-//            SeafRepo repo = dm.getCachedRepoByID(repoId);
-//
-//            List<SeafDirent> list = dm.getDirentsFromServer(repoId, parentPath);
-//            if (list == null) {
-//                throw new SeafException(0, SeadroidApplication.getAppContext().getString(R.string.saf_write_diretory_exception));
-//            }
-//
-//            // first check if target already exist. if yes, abort
-//            for (SeafDirent e : list) {
-//                if (e.getTitle().equals(displayName)) {
-//                    throw new SeafException(0, SeadroidApplication.getAppContext().getString(R.string.saf_file_exist));
-//                }
-//            }
-//
-//            if (repo == null || !repo.hasWritePermission()) {
-//                throw new SeafException(0, SeadroidApplication.getAppContext().getString(R.string.saf_write_diretory_exception));
-//            } else if (mimeType == null) {
-//                // bad mime type given by caller
-//                throw new SeafException(0, SeadroidApplication.getAppContext().getString(R.string.saf_bad_mime_type));
-//            } else if (mimeType.equals(Document.MIME_TYPE_DIR)) {
-//                dm.createNewDir(repoId, parentPath, displayName);
-//            } else {
-//                dm.createNewFile(repoId, parentPath, displayName);
-//            }
-//
-//            // update parent dirent cache
-//            dm.getDirentsFromServer(repoId, parentPath);
-//
-//            return DocumentIdParser.buildId(dm.getAccount(), repoId, Utils.pathJoin(parentPath, displayName));
-//
-//        } catch (SeafException e) {
-//            Log.d(DEBUG_TAG, "could not create file/dir", e);
+//        if (TextUtils.isEmpty(parentPath)) {
 //            throw new FileNotFoundException();
 //        }
+//
+//        List<RepoModel> repos = AppDatabase.getInstance().repoDao().getRepoByIdSync(repoId);
+//        RepoModel repoModel = repos.get(0);
+//
+////            Call<DirentWrapperModel> call = HttpIO.getCurrentInstance().execute(RepoService.class).getDirentsSync(repoId, parentPath);
+////            Response<DirentWrapperModel> res = call.execute();
+////            List<DirentModel> list = res.body().dirent_list;
+////            // first check if target already exist. if yes, abort
+////            for (DirentModel d : list) {
+////                if (d.name.equals(displayName)) {
+////                    throw new SeafException(0, SeadroidApplication.getAppContext().getString(R.string.saf_file_exist));
+////                }
+////            }
+////
+////            if (repoModel == null || !repoModel.hasWritePermission()) {
+////                throw new SeafException(0, SeadroidApplication.getAppContext().getString(R.string.saf_write_diretory_exception));
+////            } else if (mimeType == null) {
+////                // bad mime type given by caller
+////                throw new SeafException(0, SeadroidApplication.getAppContext().getString(R.string.saf_bad_mime_type));
+////            } else if (mimeType.equals(Document.MIME_TYPE_DIR)) {
+//////                dm.createNewDir(repoId, parentPath, displayName);
+////            } else {
+//////                DataManager.createNewFile(repoId, parentPath, displayName);
+////            }
+//
+//        // update parent dirent cache
+////            dm.getDirentsFromServer(repoId, parentPath);
+//
+//        return DocumentIdParser.buildId(account, repoId, Utils.pathJoin(parentPath, displayName));
+//
 //    }
 
 

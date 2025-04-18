@@ -8,6 +8,19 @@ import com.seafile.seadroid2.framework.util.Utils;
 public class DirentRecursiveFileModel {
     public String name;
     public String parent_dir;
+
+    public String getParent_dir() {
+        if (TextUtils.isEmpty(parent_dir)) {
+            parent_dir = "/";
+        }
+
+        if (!parent_dir.endsWith("/")) {
+            parent_dir += "/";
+        }
+
+        return parent_dir;
+    }
+
     //net data id(file_id/folder_id)
     //when file is empty, id is 0000000000000000000000000000000000000000
     public String id;

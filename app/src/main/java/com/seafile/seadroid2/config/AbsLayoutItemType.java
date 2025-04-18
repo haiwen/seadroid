@@ -6,6 +6,9 @@ public class AbsLayoutItemType {
      */
     public static final int NOT_SUPPORTED = -1;
 
+    //
+    public static final int BLANK = -2;
+
     public static final int REPO = 10;
     public static final int DIRENT_LIST = 11;
     public static final int DIRENT_GRID = 12;
@@ -18,5 +21,8 @@ public class AbsLayoutItemType {
     public static final int GROUP_ITEM = 30;
 
     public static final int ACCOUNT = 40;
+
+    public static final int LOCAL_LIST = 100;
+    public static final int DB_LIST = 101;
 
 }

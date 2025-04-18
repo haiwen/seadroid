@@ -424,6 +424,7 @@
         ]]>
     </string>
     <string name="settings_advance_feature_title">ADVANCED FEATURES</string>
+    <string name="settings_transfer_title">UPLOAD &amp; DOWNLOAD</string>
     <string name="settings_storage_title">CACHE STORAGE</string>
     <string name="settings_cache_title">Cache size</string>
     <string name="settings_clear_cache_title">Clear cache</string>
@@ -615,6 +616,7 @@
     <string name="select_backup_folder">Select a backup folder</string>
     <string name="select_backup_libraries">Select a backup libraries</string>
     <string name="folder_backup_completed">The folder is backed up</string>
+    <string name="get_permission_failed">Failed to get %s permission, some features may be affected</string>
     <string name="get_storage_permission_failed">Failed to get storage permission</string>
     <string name="authorization_storage_permission">Authorization denied permanently, please grant storage permission manually.</string>
     <string name="settings_folder_backup_select_hint">0</string>
@@ -690,11 +692,22 @@
     <string name="_done">Done</string>
     <string name="_outdated">Outdated</string>
     <string name="_tags">Tags</string>
+    <string name="_location">Location</string>
+
 
     <string name="mark_resolve">Mark as resolved</string>
     <string name="delete_confirm">Are you sure you want to delete this item?</string>
 
     <string name="canceled">Canceled</string>
+
+    <string name="image_capture_time">Capture time</string>
+    <string name="image_dimensions">Dimensions</string>
+    <string name="image_color_space_rgb" translatable="false">RGB</string>
+    <string name="image_color_space_uncalibrated">Uncalibrated</string>
+    <string name="image_color_space_undefined">Undefined</string>
     <!-- end -->
+
+    <string name="transfer_default_state">0</string>
+
 
 </resources>

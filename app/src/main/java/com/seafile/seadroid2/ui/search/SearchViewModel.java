@@ -5,6 +5,8 @@ import android.text.TextUtils;
 import androidx.lifecycle.MutableLiveData;
 
 import com.blankj.utilcode.util.CollectionUtils;
+import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.framework.data.db.AppDatabase;
 import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.data.model.search.SearchModel;
@@ -30,15 +32,30 @@ public class SearchViewModel extends BaseViewModel {
     }
 
     public void searchNext(String q, int pageNo, int pageSize) {
-        if (TextUtils.isEmpty(q)){
+        if (TextUtils.isEmpty(q)) {
             return;
         }
 
         getRefreshLiveData().setValue(true);
+
+        Account account = SupportAccountManager.getInstance().getCurrentAccount();
         Single<SearchWrapperModel> single = HttpIO.getCurrentInstance().execute(SearchService.class).search("all", q, "all", pageNo, pageSize);
         addSingleDisposable(single, new Consumer<SearchWrapperModel>() {
             @Override
             public void accept(SearchWrapperModel searchWrapperModel) throws Exception {
+
+                if (searchWrapperModel == null) {
+                    getSearchListLiveData().setValue(CollectionUtils.newArrayList());
+                    getRefreshLiveData().setValue(false);
+                    return;
+                }
+
+                if (searchWrapperModel.results != null) {
+                    for (SearchModel result : searchWrapperModel.results) {
+                        result.related_account = account.getSignature();
+                    }
+                }
+
                 getSearchListLiveData().setValue(searchWrapperModel.results);
                 getRefreshLiveData().setValue(false);
             }

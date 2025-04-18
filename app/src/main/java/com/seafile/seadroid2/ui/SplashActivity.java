@@ -1,6 +1,7 @@
 package com.seafile.seadroid2.ui;
 
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
 
 import androidx.activity.result.ActivityResult;
@@ -13,6 +14,7 @@ import androidx.core.splashscreen.SplashScreen;
 import com.blankj.utilcode.util.ActivityUtils;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.compat.AppCompatKt;
 import com.seafile.seadroid2.enums.NightMode;
 import com.seafile.seadroid2.framework.datastore.sp.AppDataManager;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
@@ -38,7 +40,6 @@ public class SplashActivity extends BaseActivity {
 
         initAppNightMode();
 
-
         SplashScreen splashScreen = SplashScreen.installSplashScreen(this);
 
         super.onCreate(savedInstanceState);
@@ -57,9 +58,15 @@ public class SplashActivity extends BaseActivity {
     private void initAppNightMode() {
         //
         Settings.initUserSettings();
-        if (Settings.APP_NIGHT_MODE != null) {
-            NightMode nightMode = Settings.APP_NIGHT_MODE.queryValue();
-            AppCompatDelegate.setDefaultNightMode(nightMode.ordinal());
+
+        if (Settings.NIGHT_MODE != null) {
+            NightMode nightMode = Settings.NIGHT_MODE.queryValue();
+            if (nightMode == NightMode.FOLLOW_SYSTEM) {
+                int lastNightMode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+                AppCompatDelegate.setDefaultNightMode(lastNightMode);
+            } else {
+                AppCompatDelegate.setDefaultNightMode(nightMode.ordinal());
+            }
         } else {
             AppCompatDelegate.setDefaultNightMode(NightMode.FOLLOW_SYSTEM.ordinal());
         }

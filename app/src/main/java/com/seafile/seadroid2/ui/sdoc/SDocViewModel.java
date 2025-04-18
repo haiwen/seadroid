@@ -51,11 +51,11 @@ public class SDocViewModel extends BaseViewModel {
 
     public void loadFileDetail(String repoId, String path, boolean isMetadataEnable) {
 
-        Single<UserWrapperModel> userSingle = HttpIO.getCurrentInstance().execute(DocsCommentService.class).getRelatedUsers(repoId);
+        Single<UserWrapperModel> userSingle = HttpIO.getCurrentInstance().execute(SDocService.class).getRelatedUsers(repoId);
 
         //Even if isMetadataEnable is enabled, you still need to check whether the enable field of MetadataConfigModel is available
-        Single<MetadataConfigModel> metadataSingle = HttpIO.getCurrentInstance().execute(DocsCommentService.class).getMetadata(repoId);
-        Single<FileDetailModel> detailSingle = HttpIO.getCurrentInstance().execute(DocsCommentService.class).getFileDetail(repoId, path);
+        Single<MetadataConfigModel> metadataSingle = HttpIO.getCurrentInstance().execute(SDocService.class).getMetadata(repoId);
+        Single<FileDetailModel> detailSingle = HttpIO.getCurrentInstance().execute(SDocService.class).getFileDetail(repoId, path);
 
         Single<FileProfileConfigModel> s;
         if (isMetadataEnable) {
@@ -114,7 +114,7 @@ public class SDocViewModel extends BaseViewModel {
             parent_dir = "/";
         }
 
-        Single<FileRecordWrapperModel> single = HttpIO.getCurrentInstance().execute(DocsCommentService.class).getRecords(repoId, parent_dir, name, name);
+        Single<FileRecordWrapperModel> single = HttpIO.getCurrentInstance().execute(SDocService.class).getRecords(repoId, parent_dir, name, name);
         addSingleDisposable(single, new Consumer<FileRecordWrapperModel>() {
             @Override
             public void accept(FileRecordWrapperModel fileRecordWrapperModel) throws Exception {

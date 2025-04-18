@@ -11,6 +11,8 @@ import androidx.lifecycle.Observer;
 
 import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.util.StringUtils;
 import com.seafile.seadroid2.ui.base.fragment.RequestCustomDialogFragmentWithVM;
@@ -26,15 +28,28 @@ public class RenameDialogFragment extends RequestCustomDialogFragmentWithVM<Rena
      * "repo" or "dir" or "file"
      */
     private String type;
-    private String curName, repoId, curPath;
+    private String curName, repoId, repoName, curPath;
 
-    public static RenameDialogFragment newInstance(String curName, String curPath, String repoId, String type) {
+    public static RenameDialogFragment newInstance(String curName, String repoId, String type) {
+
+        RenameDialogFragment fragment = new RenameDialogFragment();
+        Bundle bundle = new Bundle();
+        bundle.putString("name", curName);
+        bundle.putString("path", "/");
+        bundle.putString("repoId", repoId);
+        bundle.putString("type", type);
+        fragment.setArguments(bundle);
+        return fragment;
+    }
+
+    public static RenameDialogFragment newInstance(String curName, String curPath, String repoId, String repoName, String type) {
 
         RenameDialogFragment fragment = new RenameDialogFragment();
         Bundle bundle = new Bundle();
         bundle.putString("name", curName);
         bundle.putString("path", curPath);
         bundle.putString("repoId", repoId);
+        bundle.putString("repoName", repoName);
         bundle.putString("type", type);
         fragment.setArguments(bundle);
         return fragment;
@@ -53,6 +68,11 @@ public class RenameDialogFragment extends RequestCustomDialogFragmentWithVM<Rena
         curName = bundle.getString("name");
         curPath = bundle.getString("path");
         repoId = bundle.getString("repoId");
+        if (bundle.containsKey("repoName")) {
+            repoName = bundle.getString("repoName");
+        } else {
+            repoName = curName;
+        }
         type = bundle.getString("type");
     }
 
@@ -84,13 +104,13 @@ public class RenameDialogFragment extends RequestCustomDialogFragmentWithVM<Rena
         String newName = editText.getText().toString();
         newName = StringUtils.trimEnd(newName, " ");
 
-        //TODO 更新本地数据库数据 、DataStore、SP
+        Account account = SupportAccountManager.getInstance().getCurrentAccount();
         if (TextUtils.equals("repo", type)) {
-            getViewModel().renameRepo(newName, repoId);
+            getViewModel().renameRepo(account, repoName, newName, repoId);
         } else if (TextUtils.equals("dir", type)) {
-            getViewModel().renameDir(repoId, curPath, newName);
+            getViewModel().renameDir(account, repoId, repoName, curPath, curName, newName);
         } else if (TextUtils.equals("file", type)) {
-            getViewModel().renameFile(repoId, curPath, newName);
+            getViewModel().renameFile(account, repoId, repoName, curPath, curName, newName);
         }
     }
 
@@ -156,7 +176,7 @@ public class RenameDialogFragment extends RequestCustomDialogFragmentWithVM<Rena
         }
 
         String newName = editable.toString();
-        newName =  StringUtils.trim(newName," ");
+        newName = StringUtils.trim(newName, " ");
         if (TextUtils.equals(curName, newName)) {
             return false;
         }

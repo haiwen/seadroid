@@ -3,10 +3,9 @@ package com.seafile.seadroid2.framework.worker.upload;
 import android.app.ForegroundServiceStartNotAllowedException;
 import android.content.Context;
 import android.os.Build;
-import android.text.TextUtils;
+import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-import androidx.work.Data;
 import androidx.work.ForegroundInfo;
 import androidx.work.WorkInfo;
 import androidx.work.WorkerParameters;
@@ -17,16 +16,15 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
-import com.seafile.seadroid2.enums.TransferResult;
-import com.seafile.seadroid2.framework.data.db.AppDatabase;
-import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
 import com.seafile.seadroid2.enums.TransferDataSource;
+import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.notification.FolderBackupNotificationHelper;
 import com.seafile.seadroid2.framework.notification.base.BaseTransferNotificationHelper;
 import com.seafile.seadroid2.framework.util.ExceptionUtils;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
+import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
 import com.seafile.seadroid2.ui.folder_backup.RepoConfig;
@@ -41,12 +39,12 @@ import java.util.UUID;
  * @see BackgroundJobManagerImpl#TAG_ALL
  * @see BackgroundJobManagerImpl#TAG_TRANSFER
  */
-public class UploadFolderFileAutomaticallyWorker extends BaseUploadWorker {
-    public static final UUID UID = UUID.nameUUIDFromBytes(UploadFolderFileAutomaticallyWorker.class.getSimpleName().getBytes());
+public class FolderBackupUploadWorker extends BaseUploadWorker {
+    public static final UUID UID = UUID.nameUUIDFromBytes(FolderBackupUploadWorker.class.getSimpleName().getBytes());
 
     private final FolderBackupNotificationHelper notificationManager;
 
-    public UploadFolderFileAutomaticallyWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
+    public FolderBackupUploadWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
 
         notificationManager = new FolderBackupNotificationHelper(context);
@@ -72,7 +70,6 @@ public class UploadFolderFileAutomaticallyWorker extends BaseUploadWorker {
         }
     }
 
-
     private void showNotification() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             try {
@@ -89,87 +86,71 @@ public class UploadFolderFileAutomaticallyWorker extends BaseUploadWorker {
 
 
     private Result start() {
-//        notificationManager.cancel();
         SLogs.d("start upload file worker");
 
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
         if (account == null) {
-            return Result.success();
+            return returnSuccess();
         }
 
         boolean canContinue = can();
         if (!canContinue) {
-            return Result.success();
+            return returnSuccess();
         }
 
-        if (repoConfig == null) {
-            return Result.success();
-        }
 
-        //get total count: WAITING, IN_PROGRESS, FAILED
-        long totalPendingCount = getCurrentPendingCount(account, TransferDataSource.FOLDER_BACKUP);
+        //
+        int totalPendingCount = GlobalTransferCacheList.FOLDER_BACKUP_QUEUE.getPendingCount();
         if (totalPendingCount <= 0) {
-            return Result.success(getOutputData(null));
+            return returnSuccess();
         }
 
         //
         showNotification();
+        //send a upload event
+//        sendActionEvent(TransferDataSource.FOLDER_BACKUP, TransferEvent.EVENT_UPLOADING);
 
         // This exception is a type of interruptible program, and a normal exception does not interrupt the transfer task
         // see BaseUploadWorker#isInterrupt()
         String interruptibleExceptionMsg = null;
-        boolean isFirst = true;
 
         while (true) {
             if (isStopped()) {
                 break;
             }
 
-            List<FileTransferEntity> transferList = getList(isFirst, account);
-            if (isFirst) {
-                isFirst = false;
-
-                if (CollectionUtils.isEmpty(transferList)) {
-                    continue;
-                }
-            } else if (CollectionUtils.isEmpty(transferList)) {
-                break;
-            }
-
             try {
-                for (FileTransferEntity fileTransferEntity : transferList) {
-                    // Upload to the default repo
-                    fileTransferEntity.repo_id = repoConfig.getRepoId();
-                    fileTransferEntity.repo_name = repoConfig.getRepoName();
-                    fileTransferEntity.result = null;// reset result
-
-                    try {
-                        transfer(account, fileTransferEntity, totalPendingCount);
-
-                    } catch (Exception e) {
-                        SeafException seafException = ExceptionUtils.getExceptionByThrowable(e);
-                        //Is there an interruption in the transmission in some cases?
-                        boolean isInterrupt = isInterrupt(seafException);
-                        if (isInterrupt) {
-                            SLogs.e("上传文件时发生了异常，已中断传输");
-                            notifyError(seafException);
-
-                            // notice this, see BaseUploadWorker#isInterrupt()
-                            throw e;
-                        } else {
-                            SLogs.e("上传文件时发生了异常，继续下一个传输");
-                        }
-
-                    }
+                TransferModel transferModel = GlobalTransferCacheList.FOLDER_BACKUP_QUEUE.pick();
+                if (transferModel == null) {
+                    break;
                 }
+
+                try {
+
+                    transfer(account, transferModel);
+
+                } catch (Exception e) {
+                    SeafException seafException = ExceptionUtils.parseByThrowable(e);
+                    //Is there an interruption in the transmission in some cases?
+                    boolean isInterrupt = isInterrupt(seafException);
+                    if (isInterrupt) {
+                        SLogs.e("An exception occurred and the transmission has been interrupted");
+                        notifyError(seafException);
+
+                        // notice this, see BaseUploadWorker#isInterrupt()
+                        throw e;
+                    } else {
+                        SLogs.e("An exception occurred and the next transfer will continue");
+                    }
+
+                }
+
             } catch (Exception e) {
                 SLogs.e("upload file file failed: ", e);
                 interruptibleExceptionMsg = e.getMessage();
 
                 break;
             }
-
-
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -178,50 +159,24 @@ public class UploadFolderFileAutomaticallyWorker extends BaseUploadWorker {
             }
         }
 
-        //get FAILED count
-        long pendingCount = getCurrentPendingCount(account, TransferDataSource.FOLDER_BACKUP);
-        if (pendingCount == 0) {
-            ToastUtils.showLong(R.string.upload_finished);
-        }
+        SLogs.e("folder backup: all task run");
+        ToastUtils.showLong(R.string.upload_finished);
 
-        SLogs.e("UploadFolderFileAutomaticallyWorker all task run");
-
-        Data outputData = getOutputData(interruptibleExceptionMsg);
-        return Result.success(outputData);
+        //
+        Bundle b = new Bundle();
+        b.putString(TransferWorker.KEY_DATA_RESULT, interruptibleExceptionMsg);
+        b.putInt(TransferWorker.KEY_TRANSFER_COUNT, totalPendingCount);
+        sendWorkerEvent(TransferDataSource.FOLDER_BACKUP, TransferEvent.EVENT_TRANSFER_FINISH, b);
+        return Result.success();
     }
 
-    private Data getOutputData(String exceptionMsg) {
-        return new Data.Builder()
-                .putString(TransferWorker.KEY_DATA_SOURCE, TransferDataSource.FOLDER_BACKUP.name())
-                .putString(TransferWorker.KEY_DATA_STATUS, TransferEvent.EVENT_FINISH)
-                .putString(TransferWorker.KEY_DATA_RESULT, exceptionMsg)
-                .build();
-    }
-
-    private List<FileTransferEntity> getList(boolean isFirst, Account account) {
-        List<FileTransferEntity> transferList;
-        if (isFirst) {
-            //get all: FAILED
-            transferList = AppDatabase.getInstance()
-                    .fileTransferDAO()
-                    .getOneFailedPendingTransferSync(
-                            account.getSignature(),
-                            TransferDataSource.FOLDER_BACKUP
-                    );
-        } else {
-            //get one: WAITING, IN_PROGRESS
-            transferList = AppDatabase.getInstance()
-                    .fileTransferDAO()
-                    .getOnePendingTransferSync(
-                            account.getSignature(),
-                            TransferDataSource.FOLDER_BACKUP
-                    );
-        }
-
-        return transferList;
-    }
 
     private RepoConfig repoConfig;
+
+    protected Result returnSuccess() {
+        sendWorkerEvent(TransferDataSource.FOLDER_BACKUP, TransferEvent.EVENT_TRANSFER_FINISH);
+        return Result.success();
+    }
 
     private boolean can() {
         boolean isTurnOn = FolderBackupSharePreferenceHelper.readBackupSwitch();

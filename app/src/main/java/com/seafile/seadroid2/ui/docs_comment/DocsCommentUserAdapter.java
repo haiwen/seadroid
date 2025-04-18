@@ -16,7 +16,7 @@ import com.seafile.seadroid2.databinding.ItemUserAvatarBinding;
 import com.seafile.seadroid2.framework.data.model.user.UserModel;
 import com.seafile.seadroid2.ui.base.adapter.BaseAdapter;
 
-@Todo
+@Todo("uncompleted feature")
 public class DocsCommentUserAdapter extends BaseAdapter<UserModel, DocsCommentUserViewHolder> {
     @Override
     protected void onBindViewHolder(@NonNull DocsCommentUserViewHolder holder, int i, @Nullable UserModel model) {

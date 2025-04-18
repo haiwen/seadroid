@@ -6,7 +6,7 @@ import com.seafile.seadroid2.annotation.Todo;
 import com.seafile.seadroid2.databinding.ItemUserAvatarBinding;
 import com.seafile.seadroid2.ui.base.viewholder.BaseViewHolder;
 
-@Todo
+@Todo("uncompleted feature")
 public class DocsCommentUserViewHolder extends BaseViewHolder {
 
     public ItemUserAvatarBinding binding;

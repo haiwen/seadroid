@@ -1,6 +1,7 @@
 package com.seafile.seadroid2.ui.media.image_preview;
 
 import android.text.TextUtils;
+import android.webkit.MimeTypeMap;
 
 import androidx.lifecycle.MutableLiveData;
 
@@ -9,18 +10,23 @@ import com.blankj.utilcode.util.FileUtils;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
-import com.seafile.seadroid2.enums.TransferAction;
-import com.seafile.seadroid2.enums.TransferResult;
-import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.data.db.AppDatabase;
 import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
-import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
+import com.seafile.seadroid2.framework.data.db.entities.FileCacheStatusEntity;
+import com.seafile.seadroid2.framework.data.model.sdoc.FileDetailModel;
+import com.seafile.seadroid2.framework.data.model.sdoc.FileProfileConfigModel;
+import com.seafile.seadroid2.framework.data.model.sdoc.FileRecordWrapperModel;
+import com.seafile.seadroid2.framework.data.model.sdoc.FileTagWrapperModel;
+import com.seafile.seadroid2.framework.data.model.sdoc.MetadataConfigModel;
+import com.seafile.seadroid2.framework.data.model.user.UserWrapperModel;
 import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.listener.FileTransferProgressListener;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
 import com.seafile.seadroid2.ui.file.FileService;
+import com.seafile.seadroid2.ui.sdoc.SDocService;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -29,16 +35,16 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.URLEncoder;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.SingleSource;
-import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
-import kotlin.Pair;
+import io.reactivex.functions.Function3;
 import okhttp3.Call;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -48,7 +54,7 @@ public class PhotoViewModel extends BaseViewModel {
     private final MutableLiveData<String> _downloadedUrlLiveData = new MutableLiveData<>();
     private final MutableLiveData<String> _originalUrlLiveData = new MutableLiveData<>();
 
-    private final MutableLiveData<Pair<DirentModel, FileTransferEntity>> _checkLocalLiveData = new MutableLiveData<>();
+    private final MutableLiveData<DirentModel> _checkLocalLiveData = new MutableLiveData<>();
 
     public MutableLiveData<String> getDownloadedPathLiveData() {
         return _downloadedUrlLiveData;
@@ -58,32 +64,118 @@ public class PhotoViewModel extends BaseViewModel {
         return _originalUrlLiveData;
     }
 
-    public MutableLiveData<Pair<DirentModel, FileTransferEntity>> getCheckLocalLiveData() {
+    public MutableLiveData<DirentModel> getCheckLocalLiveData() {
         return _checkLocalLiveData;
+    }
+
+    private final MutableLiveData<FileProfileConfigModel> _fileProfileConfigLiveData = new MutableLiveData<>();
+
+    public MutableLiveData<FileProfileConfigModel> getFileDetailLiveData() {
+        return _fileProfileConfigLiveData;
+    }
+
+    public void getFileDetailModel(String repoId, String path) {
+        getSecondRefreshLiveData().setValue(true);
+
+        Single<UserWrapperModel> userSingle = HttpIO.getCurrentInstance().execute(SDocService.class).getRelatedUsers(repoId);
+        Single<FileDetailModel> detailSingle = HttpIO.getCurrentInstance().execute(SDocService.class).getFileDetail(repoId, path);
+        Single<MetadataConfigModel> metadataSingle = HttpIO.getCurrentInstance().execute(SDocService.class).getMetadata(repoId).onErrorReturnItem(new MetadataConfigModel());
+
+        Single<FileProfileConfigModel> s = Single.zip(metadataSingle, detailSingle, userSingle, new Function3<MetadataConfigModel, FileDetailModel, UserWrapperModel, FileProfileConfigModel>() {
+            @Override
+            public FileProfileConfigModel apply(MetadataConfigModel metadataConfigModel, FileDetailModel fileDetailModel, UserWrapperModel userWrapperModel) throws Exception {
+                FileProfileConfigModel configModel = new FileProfileConfigModel();
+                configModel.setMetadataConfigModel(metadataConfigModel);
+                configModel.setDetail(fileDetailModel);
+                configModel.setUsers(userWrapperModel);
+                return configModel;
+            }
+        }).flatMap(new Function<FileProfileConfigModel, SingleSource<FileProfileConfigModel>>() {
+            @Override
+            public SingleSource<FileProfileConfigModel> apply(FileProfileConfigModel fileProfileConfigModel) throws Exception {
+                List<Single<?>> singles = new ArrayList<>();
+
+                if (fileProfileConfigModel.metadataConfigModel.enabled) {
+
+                    String parent_dir;
+                    String name;
+
+                    // 1. /a/b/c/t.txt
+                    // 2. /a/t.txt
+                    // 3. /t.txt
+                    // 4. t.txt
+                    // 5. /
+                    if (path.contains("/")) {
+                        parent_dir = path.substring(0, path.lastIndexOf("/"));
+                        name = path.substring(path.lastIndexOf("/") + 1);
+                    } else {
+                        parent_dir = null;
+                        name = path;
+                    }
+
+                    if (TextUtils.isEmpty(parent_dir)) {
+                        parent_dir = "/";
+                    }
+
+
+                    Single<FileRecordWrapperModel> recordSingle = HttpIO.getCurrentInstance().execute(SDocService.class).getRecords(repoId, parent_dir, name, name);
+                    singles.add(recordSingle);
+                }
+
+                if (fileProfileConfigModel.metadataConfigModel.tags_enabled) {
+                    Single<FileTagWrapperModel> tagSingle = HttpIO.getCurrentInstance().execute(SDocService.class).getTags(repoId);
+                    singles.add(tagSingle);
+                }
+
+                if (singles.isEmpty()) {
+                    return Single.just(fileProfileConfigModel);
+                }
+
+                return Single.zip(singles, new Function<Object[], FileProfileConfigModel>() {
+                    @Override
+                    public FileProfileConfigModel apply(Object[] results) throws Exception {
+                        if (fileProfileConfigModel.metadataConfigModel.enabled) {
+                            FileRecordWrapperModel r = (FileRecordWrapperModel) results[0];
+                            fileProfileConfigModel.setRecordWrapperModel(r);
+                        }
+
+                        if (fileProfileConfigModel.metadataConfigModel.tags_enabled) {
+                            FileTagWrapperModel t = (FileTagWrapperModel) results[1];
+                            fileProfileConfigModel.setTagWrapperModel(t);
+                        }
+
+                        return fileProfileConfigModel;
+                    }
+                });
+            }
+        });
+
+
+        addSingleDisposable(s, new Consumer<FileProfileConfigModel>() {
+            @Override
+            public void accept(FileProfileConfigModel fileProfileConfigModel) throws Exception {
+                getSecondRefreshLiveData().setValue(false);
+                getFileDetailLiveData().setValue(fileProfileConfigModel);
+            }
+        }, new Consumer<Throwable>() {
+            @Override
+            public void accept(Throwable throwable) {
+                getSecondRefreshLiveData().setValue(false);
+            }
+        });
     }
 
     public void checkLocal(String repoId, String fullPath) {
         Single<List<DirentModel>> direntSingle = AppDatabase.getInstance().direntDao().getListByFullPathAsync(repoId, fullPath);
-        Single<List<FileTransferEntity>> transferSingle = AppDatabase.getInstance().fileTransferDAO().getListByFullPathAsync(repoId, TransferAction.DOWNLOAD, fullPath);
-        Single<Pair<DirentModel, FileTransferEntity>> rSingle = Single.zip(direntSingle, transferSingle, new BiFunction<List<DirentModel>, List<FileTransferEntity>, Pair<DirentModel, FileTransferEntity>>() {
+        addSingleDisposable(direntSingle, new Consumer<List<DirentModel>>() {
             @Override
-            public Pair<DirentModel, FileTransferEntity> apply(List<DirentModel> direntModels, List<FileTransferEntity> fileTransferEntities) throws Exception {
-                if (CollectionUtils.isEmpty(direntModels)) {
-                    return null;
+            public void accept(List<DirentModel> direntModel) throws Exception {
+                if (CollectionUtils.isEmpty(direntModel)) {
+                    getCheckLocalLiveData().setValue(new DirentModel());
+                    return;
                 }
 
-                if (CollectionUtils.isEmpty(fileTransferEntities)) {
-                    return new Pair<>(direntModels.get(0), null);
-                }
-
-                return new Pair<>(direntModels.get(0), fileTransferEntities.get(0));
-            }
-        });
-
-        addSingleDisposable(rSingle, new Consumer<Pair<DirentModel, FileTransferEntity>>() {
-            @Override
-            public void accept(Pair<DirentModel, FileTransferEntity> pair) throws Exception {
-                getCheckLocalLiveData().setValue(pair);
+                getCheckLocalLiveData().setValue(direntModel.get(0));
             }
         });
 
@@ -130,27 +222,22 @@ public class PhotoViewModel extends BaseViewModel {
                 }
 
                 dlink = dlink.substring(0, i) + "/" + URLEncoder.encode(dlink.substring(i + 1), "UTF-8");
-
-//                _originalUrlLiveData.postValue(dlink);
-
                 return Single.just(dlink);
             }
-        }).flatMap(new Function<String, SingleSource<FileTransferEntity>>() {
+        }).flatMap(new Function<String, SingleSource<File>>() {
             @Override
-            public SingleSource<FileTransferEntity> apply(String s) throws Exception {
+            public SingleSource<File> apply(String s) throws Exception {
                 if (TextUtils.isEmpty(s)) {
                     //download url is null
                     throw SeafException.NETWORK_EXCEPTION;
                 }
 
-                FileTransferEntity transferEntity = FileTransferEntity.convertDirentModel2This(false, direntModel);
-
-                return getDownloadSingle(transferEntity, s);
+                return getDownloadSingle(direntModel, s);
             }
-        }).flatMap(new Function<FileTransferEntity, SingleSource<String>>() {
+        }).flatMap(new Function<File, SingleSource<String>>() {
             @Override
-            public SingleSource<String> apply(FileTransferEntity transferEntity) throws Exception {
-                return Single.just(transferEntity.target_path);
+            public SingleSource<String> apply(File file) throws Exception {
+                return Single.just(file.getAbsolutePath());
             }
         });
 
@@ -168,16 +255,13 @@ public class PhotoViewModel extends BaseViewModel {
         });
     }
 
-    private Single<FileTransferEntity> getDownloadSingle(FileTransferEntity transferEntity, String dlink) {
-        return Single.create(new SingleOnSubscribe<FileTransferEntity>() {
+    private Single<File> getDownloadSingle(DirentModel direntModel, String dlink) {
+        return Single.create(new SingleOnSubscribe<File>() {
             @Override
-            public void subscribe(SingleEmitter<FileTransferEntity> emitter) throws Exception {
+            public void subscribe(SingleEmitter<File> emitter) throws Exception {
 
                 Account currentAccount = SupportAccountManager.getInstance().getCurrentAccount();
-                File localFile = DataManager.getLocalRepoFile(currentAccount, transferEntity);
-
-                transferEntity.target_path = localFile.getAbsolutePath();
-                AppDatabase.getInstance().fileTransferDAO().insert(transferEntity);
+                File destinationFile = DataManager.getLocalRepoFile(currentAccount, direntModel.repo_id, direntModel.repo_name, direntModel.full_path);
 
                 Request request = new Request.Builder()
                         .url(dlink)
@@ -201,9 +285,9 @@ public class PhotoViewModel extends BaseViewModel {
                     long fileSize = responseBody.contentLength();
                     if (fileSize == -1) {
                         SLogs.d("download file error -> contentLength is -1");
-                        SLogs.d(localFile.getAbsolutePath());
+                        SLogs.d(destinationFile.getAbsolutePath());
 
-                        fileSize = transferEntity.file_size;
+                        fileSize = direntModel.size;
                     }
 
                     File tempFile = DataManager.createTempFile();
@@ -217,29 +301,24 @@ public class PhotoViewModel extends BaseViewModel {
                         }
                     }
 
-                    //important
-                    Path path = java.nio.file.Files.move(tempFile.toPath(), localFile.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                    if (!java.nio.file.Files.exists(tempFile.toPath())) {
+                        emitter.onError(SeafException.TRANSFER_FILE_EXCEPTION);
+                        return;
+                    }
+
+                    Path path = java.nio.file.Files.move(tempFile.toPath(), destinationFile.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
                     boolean isSuccess = path.toFile().exists();
+
+                    java.nio.file.Files.deleteIfExists(tempFile.toPath());
+
                     if (isSuccess) {
+                        FileCacheStatusEntity entity = getSaveEntity(direntModel, destinationFile);
+                        AppDatabase.getInstance().fileCacheStatusDAO().insert(entity);
+
                         SLogs.e("move file success: " + path);
-                        transferEntity.transferred_size = fileSize;
-                        transferEntity.action_end_at = System.currentTimeMillis();
-                        transferEntity.file_original_modified_at = transferEntity.action_end_at;
-                        transferEntity.result = TransferResult.TRANSMITTED.name();
-                        transferEntity.transfer_status = TransferStatus.SUCCEEDED;
-
-                        transferEntity.file_md5 = FileUtils.getFileMD5ToString(transferEntity.target_path).toLowerCase();
-
-                        AppDatabase.getInstance().fileTransferDAO().update(transferEntity);
-
-                        emitter.onSuccess(transferEntity);
+                        emitter.onSuccess(destinationFile);
                     } else {
                         SLogs.e("move file failed: " + path);
-
-                        transferEntity.result = SeafException.IO_EXCEPTION.getMessage();
-                        transferEntity.transfer_status = TransferStatus.FAILED;
-                        AppDatabase.getInstance().fileTransferDAO().update(transferEntity);
-
                         emitter.onError(SeafException.TRANSFER_FILE_EXCEPTION);
                     }
                 } catch (Exception e) {
@@ -247,6 +326,30 @@ public class PhotoViewModel extends BaseViewModel {
                 }
             }
         });
+    }
+
+
+    public FileCacheStatusEntity getSaveEntity(DirentModel direntModel, File destinationFile) {
+        FileCacheStatusEntity entity = new FileCacheStatusEntity();
+        entity.v = 2;//new version
+        entity.repo_id = direntModel.repo_id;
+        entity.repo_name = direntModel.repo_name;
+        entity.related_account = direntModel.related_account;
+        entity.file_id = direntModel.id;
+        entity.full_path = direntModel.full_path;
+        entity.target_path = destinationFile.getAbsolutePath();
+        entity.setParent_path(Utils.getParentPath(entity.full_path));
+
+        entity.file_name = direntModel.name;
+        entity.file_size = destinationFile.length();
+        entity.file_format = FileUtils.getFileExtension(entity.full_path);
+        entity.file_md5 = FileUtils.getFileMD5ToString(destinationFile).toLowerCase();
+        entity.mime_type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(entity.file_format);
+        entity.created_at = System.currentTimeMillis();
+        entity.modified_at = entity.created_at;
+
+        entity.uid = entity.getUID();
+        return entity;
     }
 
 }

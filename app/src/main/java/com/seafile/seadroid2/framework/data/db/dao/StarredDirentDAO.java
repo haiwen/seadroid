@@ -28,4 +28,8 @@ public interface StarredDirentDAO {
 
     @Query("DELETE FROM starred_dirents where related_account = :account")
     Completable deleteAllByAccount(String account);
+
+    @Query("UPDATE starred_dirents SET repo_name = :newRepoName WHERE repo_id = :repoId")
+    void updateRepoNameByRepoId(String repoId, String newRepoName);
+
 }

@@ -31,7 +31,7 @@
             android:layout_width="@dimen/lv_multi_select_width"
             android:layout_height="@dimen/lv_multi_select_height"
             android:paddingVertical="6dp"
-            android:src="@drawable/list_item_download_finished"
+            android:src="@drawable/ic_checkbox_checked"
             android:visibility="visible"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -53,6 +53,16 @@
         android:layout_marginBottom="8dp"
         android:gravity="center_vertical"
         android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/item_download_status"
+            android:layout_width="@dimen/lv_download_icon_width"
+            android:layout_height="@dimen/lv_download_icon_height"
+            android:layout_marginTop="1dp"
+            android:layout_marginEnd="@dimen/lv_download_icon_margin_right"
+            android:contentDescription="@null"
+            android:src="@drawable/list_item_download_finished"
+            android:visibility="visible" />
 
         <TextView
             android:id="@+id/item_title"

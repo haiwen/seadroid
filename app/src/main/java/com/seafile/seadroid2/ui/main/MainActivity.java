@@ -23,6 +23,7 @@ import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.SearchView;
 import androidx.core.view.MenuCompat;
 import androidx.fragment.app.Fragment;
@@ -40,21 +41,21 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.bus.BusHelper;
+import com.seafile.seadroid2.context.GlobalNavContext;
 import com.seafile.seadroid2.context.NavContext;
 import com.seafile.seadroid2.databinding.ActivityMainBinding;
 import com.seafile.seadroid2.enums.FileViewType;
 import com.seafile.seadroid2.enums.NightMode;
+import com.seafile.seadroid2.enums.RefreshStatusEnum;
 import com.seafile.seadroid2.enums.SortBy;
 import com.seafile.seadroid2.framework.data.ServerInfo;
 import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.data.db.entities.EncKeyCacheEntity;
-import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
-import com.seafile.seadroid2.framework.data.db.entities.PermissionEntity;
 import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.data.model.BaseModel;
 import com.seafile.seadroid2.framework.data.model.dirents.DirentFileModel;
 import com.seafile.seadroid2.framework.file_monitor.FileSyncService;
-import com.seafile.seadroid2.framework.helper.NightModeHelper;
 import com.seafile.seadroid2.framework.util.PermissionUtil;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.TakeCameras;
@@ -84,7 +85,6 @@ import kotlin.Pair;
 public class MainActivity extends BaseActivity {
 
     public static final int INDEX_LIBRARY_TAB = 0;
-    private int last_orientation;
 
     private ActivityMainBinding binding;
     private FileSyncService syncService;
@@ -92,9 +92,9 @@ public class MainActivity extends BaseActivity {
 
     private Account curAccount;
 
-    private NavContext getNavContext() {
-        return mainViewModel.getNavContext();
-    }
+//    private NavContext getCurrentNavContext() {
+//        return GlobalNavContext.getCurrentNavContext();
+//    }
 
     private RepoQuickFragment getReposFragment() {
         return (RepoQuickFragment) mainViewModel.getFragments().get(0);
@@ -113,7 +113,8 @@ public class MainActivity extends BaseActivity {
             }
         }
 
-        last_orientation = getResources().getConfiguration().orientation;
+        lastOrientation = getResources().getConfiguration().orientation;
+        lastNightMode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
 
         mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
 
@@ -144,7 +145,16 @@ public class MainActivity extends BaseActivity {
         //service
         bindService();
 
+        restoreNavContext();
+
         requestServerInfo(true);
+    }
+
+    private void restoreNavContext() {
+
+        GlobalNavContext.restore();
+
+        refreshActionbar();
     }
 
     private void initSettings() {
@@ -182,17 +192,15 @@ public class MainActivity extends BaseActivity {
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
 
+        requestPermissions();
+    }
 
-        // handle notification permission on API level >= 33
+    private void requestPermissions() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            // request notification permission first and then prompt for storage permissions
-            // storage permissions handled in onRequestPermissionsResult
-
-            notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
-            return;
+            startMultiplePermissionLauncher.launch(new String[]{Manifest.permission.POST_NOTIFICATIONS, Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_VIDEO});
+        } else {
+            PermissionUtil.requestExternalStoragePermission(this, multiplePermissionLauncher, manageStoragePermissionLauncher);
         }
-
-        PermissionUtil.requestExternalStoragePermission(this, multiplePermissionLauncher, manageStoragePermissionLauncher);
     }
 
     public static void startThis(Activity context) {
@@ -224,9 +232,19 @@ public class MainActivity extends BaseActivity {
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
-
+        if (isBound) {
+            unbindService(syncConnection);
+            isBound = false;
+            syncService = null;
+        }
         BackgroundJobManagerImpl.getInstance().cancelAllJobs();
+
+        super.onDestroy();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
     }
 
     @Override
@@ -283,18 +301,18 @@ public class MainActivity extends BaseActivity {
                                 // expired
                                 showPasswordDialog(repoModel, finalPath);
                             } else {
-                                getNavContext().switchToPath(repoModel, finalPath);
+                                GlobalNavContext.switchToPath(repoModel, finalPath);
                                 binding.pager.setCurrentItem(0);
-                                getReposFragment().loadDataAsFirst();
+                                getReposFragment().loadData(RefreshStatusEnum.LOCAL_THEN_REMOTE);
                                 refreshToolbarTitle();
                             }
                         }
                     });
 
                 } else {
-                    getNavContext().switchToPath(repoModel, finalPath);
+                    GlobalNavContext.switchToPath(repoModel, finalPath);
                     binding.pager.setCurrentItem(0);
-                    getReposFragment().loadDataAsFirst();
+                    getReposFragment().loadData(RefreshStatusEnum.LOCAL_THEN_REMOTE);
                     refreshToolbarTitle();
                 }
             }
@@ -318,8 +336,8 @@ public class MainActivity extends BaseActivity {
 
         //tab
         if (menuItem.getItemId() == R.id.tabs_library) {
-            if (getNavContext().inRepo()) {
-                setActionbarTitle(getNavContext().getLastPathName());
+            if (GlobalNavContext.getCurrentNavContext().inRepo()) {
+                setActionbarTitle(GlobalNavContext.getCurrentNavContext().getLastPathName());
                 enableUpButton(true);
             } else {
                 enableUpButton(false);
@@ -391,6 +409,7 @@ public class MainActivity extends BaseActivity {
                 menuBinding.sortGroup.setVisible(true);
             }
 
+            invalidateMenu();
             return;
         }
 
@@ -410,6 +429,8 @@ public class MainActivity extends BaseActivity {
 
         if (1 == position) {
             binding.navBottomView.setSelectedItemId(R.id.tabs_starred);
+
+            invalidateMenu();
             return;
         }
 
@@ -431,20 +452,11 @@ public class MainActivity extends BaseActivity {
             }
         }
 
+
+        invalidateMenu();
     }
 
     private void initViewModel() {
-        mainViewModel.getOnForceRefreshRepoListLiveData().observe(this, new Observer<Boolean>() {
-            @Override
-            public void onChanged(Boolean aBoolean) {
-                if (binding.pager.getCurrentItem() == 0) {
-                    RepoQuickFragment fragment = (RepoQuickFragment) mainViewModel.getFragments().get(0);
-                    fragment.clearExpireRefreshMap();
-                    fragment.loadDataAsFirst();
-                }
-            }
-        });
-
         mainViewModel.getServerInfoLiveData().observe(this, new Observer<ServerInfo>() {
             @Override
             public void onChanged(ServerInfo serverInfo) {
@@ -452,9 +464,9 @@ public class MainActivity extends BaseActivity {
             }
         });
 
-        mainViewModel.getOnNavContextChangeListenerLiveData().observe(this, new Observer<Boolean>() {
+        BusHelper.getNavContextObserver().observe(this, new Observer<NavContext>() {
             @Override
-            public void onChanged(Boolean aBoolean) {
+            public void onChanged(NavContext context) {
                 refreshActionbar();
             }
         });
@@ -470,7 +482,7 @@ public class MainActivity extends BaseActivity {
             @Override
             public void onChanged(NightMode nightMode) {
 //                if (checkCanApply(nightMode)) {
-                applyNightMode(nightMode);
+                onUserApplyNightMode(nightMode);
 //                }
             }
         });
@@ -478,26 +490,26 @@ public class MainActivity extends BaseActivity {
 
 
     private void refreshToolbarTitle() {
-        if (!getNavContext().inRepo()) {
+        if (!GlobalNavContext.getCurrentNavContext().inRepo()) {
             getActionBarToolbar().setTitle(R.string.libraries);
-        } else if (getNavContext().inRepoRoot()) {
-            getActionBarToolbar().setTitle(getNavContext().getRepoModel().repo_name);
+        } else if (GlobalNavContext.getCurrentNavContext().inRepoRoot()) {
+            getActionBarToolbar().setTitle(GlobalNavContext.getCurrentNavContext().getRepoModel().repo_name);
         } else {
-            String toolbarTitle = getNavContext().getLastPathName();
+            String toolbarTitle = GlobalNavContext.getCurrentNavContext().getLastPathName();
             getActionBarToolbar().setTitle(toolbarTitle);
         }
     }
 
-    /////////////////////
-
-    /// service
-    /// //////////////////
+    // service
     private void bindService() {
-        Intent syncIntent = new Intent(this, FileSyncService.class);
-        bindService(syncIntent, syncConnection, Context.BIND_AUTO_CREATE);
-//        startService(syncIntent); //It doesn't need to run in the background
+        if (!isBound) {
+            Intent syncIntent = new Intent(this, FileSyncService.class);
+            bindService(syncIntent, syncConnection, Context.BIND_AUTO_CREATE);
+            isBound = true;
+        }
     }
 
+    private boolean isBound = false;
     private final ServiceConnection syncConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -509,13 +521,12 @@ public class MainActivity extends BaseActivity {
         @Override
         public void onServiceDisconnected(ComponentName name) {
             syncService = null;
+            isBound = false;
             SLogs.d("FileSyncService disconnected");
         }
     };
 
-    ////////////////////////////
-    /// check server info
-    ////////////////////////////
+    // check server info
     private void requestServerInfo(boolean loadFromNet) {
         Optional<ServerInfo> optional = checkServerInfo();
         if (!optional.isPresent() || !optional.get().isProEdition()) {
@@ -550,34 +561,28 @@ public class MainActivity extends BaseActivity {
 
     private void finishAndStartAccountsActivity() {
         Intent newIntent = new Intent(this, AccountsActivity.class);
-//        newIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(newIntent);
         finish();
     }
 
-    ////////////////////////////
-    /// menu
-    ////////////////////////////
+    // menu
     private void refreshActionbar() {
-        if (getNavContext().inRepo()) {
-
-            //refresh back btn state
-            enableUpButton(true);
-
-            setActionbarTitle(getNavContext().getLastPathName());
-        } else {
-            enableUpButton(false);
-
-            if (binding.pager.getCurrentItem() == 0) {
-                setActionbarTitle(getString(R.string.tabs_library));
-            } else if (binding.pager.getCurrentItem() == 1) {
-                setActionbarTitle(getString(R.string.tabs_starred));
-            } else if (binding.pager.getCurrentItem() == 2) {
-                setActionbarTitle(getString(R.string.tabs_activity));
+        if (binding.pager.getCurrentItem() == 0) {
+            if (GlobalNavContext.getCurrentNavContext().inRepo()) {
+                //refresh back btn state
+                enableUpButton(true);
+                setActionbarTitle(GlobalNavContext.getCurrentNavContext().getLastPathName());
             } else {
-                setActionbarTitle(getString(R.string.settings));
+                enableUpButton(false);
+                setActionbarTitle(getString(R.string.tabs_library));
             }
+        } else if (binding.pager.getCurrentItem() == 1) {
+            setActionbarTitle(getString(R.string.tabs_starred));
+        } else if (binding.pager.getCurrentItem() == 2) {
+            setActionbarTitle(getString(R.string.tabs_activity));
+        } else {
+            setActionbarTitle(getString(R.string.settings));
         }
 
         //refresh toolbar menu
@@ -641,7 +646,7 @@ public class MainActivity extends BaseActivity {
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         if (binding.pager.getCurrentItem() == INDEX_LIBRARY_TAB) {
-            if (getNavContext().inRepo()) {
+            if (GlobalNavContext.getCurrentNavContext().inRepo()) {
                 menuBinding.createRepo.setVisible(false);
 
                 checkCurrentPathHasWritePermission(new java.util.function.Consumer<Boolean>() {
@@ -674,17 +679,13 @@ public class MainActivity extends BaseActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         boolean isRet = true;
         if (item.getItemId() == android.R.id.home) {
-            if (getNavContext().inRepo() && binding.pager.getCurrentItem() == INDEX_LIBRARY_TAB) {
+            if (GlobalNavContext.getCurrentNavContext().inRepo() && binding.pager.getCurrentItem() == INDEX_LIBRARY_TAB) {
                 getOnBackPressedDispatcher().onBackPressed();
             }
         } else if (item.getItemId() == R.id.create_repo) {
             showNewRepoDialog();
         } else if (item.getItemId() == R.id.add) {
             showAddFileDialog();
-        } else if (item.getItemId() == R.id.transfer_tasks) {
-            Intent newIntent = new Intent(this, TransferActivity.class);
-            newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            startActivity(newIntent);
         } else if (item.getItemId() == R.id.select) {
             if (binding.pager.getCurrentItem() == INDEX_LIBRARY_TAB) {
                 getReposFragment().startOrUpdateContextualActionBar();
@@ -732,13 +733,11 @@ public class MainActivity extends BaseActivity {
                 menuIdState.put("createRepo", menuBinding.createRepo.isVisible());
                 menuIdState.put("add", menuBinding.add.isVisible());
                 menuIdState.put("select", menuBinding.select.isVisible());
-                menuIdState.put("transferList", menuBinding.transferList.isVisible());
 
                 menuBinding.sortGroup.setVisible(false);
                 menuBinding.createRepo.setVisible(false);
                 menuBinding.add.setVisible(false);
                 menuBinding.select.setVisible(false);
-                menuBinding.transferList.setVisible(false);
 
                 return true;
             }
@@ -750,7 +749,6 @@ public class MainActivity extends BaseActivity {
                 menuBinding.createRepo.setVisible(Boolean.TRUE.equals(menuIdState.get("createRepo")));
                 menuBinding.add.setVisible(Boolean.TRUE.equals(menuIdState.get("add")));
                 menuBinding.select.setVisible(Boolean.TRUE.equals(menuIdState.get("select")));
-                menuBinding.transferList.setVisible(Boolean.TRUE.equals(menuIdState.get("transferList")));
 
                 invalidateMenu();
                 return true;
@@ -808,7 +806,6 @@ public class MainActivity extends BaseActivity {
         public MenuItem createRepo;
         public MenuItem add;
         public MenuItem select;
-        public MenuItem transferList;
 
 
         public static MenuBinding inflate(Menu menu, MenuInflater inflater) {
@@ -834,10 +831,12 @@ public class MainActivity extends BaseActivity {
             binding1.createRepo = menu.findItem(R.id.create_repo);
             binding1.add = menu.findItem(R.id.add);
             binding1.select = menu.findItem(R.id.select);
-            binding1.transferList = menu.findItem(R.id.transfer_tasks);
             return binding1;
         }
     }
+
+    private int lastNightMode; // 在类顶部声明
+    private int lastOrientation;
 
     /**
      * @see MainActivity -> android:configChanges="uiMode|orientation|screenSize"
@@ -845,40 +844,53 @@ public class MainActivity extends BaseActivity {
     @Override
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        if (last_orientation != newConfig.orientation) {
+        if (lastOrientation != newConfig.orientation) {
 //            if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
 //                ToastUtils.showLong("LANDSCAPE");
 //            } else {
 //                ToastUtils.showLong("PORTRAIT");
 //            }
-            last_orientation = newConfig.orientation;
-        } else {
-            NightMode nightMode = Settings.NIGHT_MODE.queryValue();
-            if (nightMode == NightMode.FOLLOW_SYSTEM) {
-                NightMode applyMode;
-                int currentNightMode = newConfig.uiMode & Configuration.UI_MODE_NIGHT_MASK;
-                applyMode = switch (currentNightMode) {
-                    case Configuration.UI_MODE_NIGHT_YES -> NightMode.ON;
-                    case Configuration.UI_MODE_NIGHT_NO -> NightMode.OFF;
-                    default -> NightMode.FOLLOW_SYSTEM;
-                };
+            lastOrientation = newConfig.orientation;
+        }
 
-                applyNightMode(applyMode);
+        int newNightMode = newConfig.uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        if (newNightMode != lastNightMode) {
+            lastNightMode = newNightMode;
+            if (newNightMode == Configuration.UI_MODE_NIGHT_NO) {
+                onSystemApplyNightMode(NightMode.OFF);
+            } else if (newNightMode == Configuration.UI_MODE_NIGHT_YES) {
+                onSystemApplyNightMode(NightMode.ON);
             }
         }
     }
 
-
-    private void applyNightMode(NightMode nightMode) {
+    private void onUserApplyNightMode(NightMode nightMode) {
         if (nightMode == null) {
             return;
         }
 
-        NightModeHelper.syncTo(nightMode);
+        AppCompatDelegate.setDefaultNightMode(nightMode.ordinal());
+        Settings.NIGHT_MODE.putValue(nightMode);
 
         restartThis();
     }
 
+    private void onSystemApplyNightMode(NightMode futureNightMode) {
+        if (futureNightMode == null) {
+            return;
+        }
+
+        NightMode localMode = Settings.NIGHT_MODE.queryValue();
+        if (localMode != NightMode.FOLLOW_SYSTEM) {
+            return;
+        }
+
+        AppCompatDelegate.setDefaultNightMode(futureNightMode.ordinal());
+
+        restartThis();
+    }
+
+    //todo replace by recreate()
     private void restartThis() {
         Intent intent = getPackageManager().getLaunchIntentForPackage(getPackageName());
         if (intent == null) {
@@ -898,9 +910,9 @@ public class MainActivity extends BaseActivity {
             @Override
             public void onActionStatus(boolean isDone) {
                 if (isDone) {
-                    getNavContext().switchToPath(repoModel, path);
+                    GlobalNavContext.switchToPath(repoModel, path);
                     binding.pager.setCurrentItem(0);
-                    getReposFragment().loadDataAsFirst();
+                    getReposFragment().loadData(RefreshStatusEnum.LOCAL_THEN_REMOTE);
                     refreshToolbarTitle();
                 }
             }
@@ -946,7 +958,7 @@ public class MainActivity extends BaseActivity {
     }
 
     private void checkCurrentPathHasWritePermission(java.util.function.Consumer<Boolean> consumer) {
-        BaseModel baseModel = getNavContext().getTopModel();
+        BaseModel baseModel = GlobalNavContext.getCurrentNavContext().getTopModel();
         if (null == baseModel) {
             return;
         }
@@ -988,8 +1000,8 @@ public class MainActivity extends BaseActivity {
                     return;
                 }
 
-                String rid = getNavContext().getRepoModel().repo_id;
-                String parentPath = getNavContext().getNavPath();
+                String rid = GlobalNavContext.getCurrentNavContext().getRepoModel().repo_id;
+                String parentPath = GlobalNavContext.getCurrentNavContext().getNavPath();
                 NewDirFileDialogFragment dialogFragment = NewDirFileDialogFragment.newInstance(rid, parentPath, true);
                 dialogFragment.setRefreshListener(new OnRefreshDataListener() {
                     @Override
@@ -1014,8 +1026,8 @@ public class MainActivity extends BaseActivity {
                 }
 
 
-                String rid = getNavContext().getRepoModel().repo_id;
-                String parentPath = getNavContext().getNavPath();
+                String rid = GlobalNavContext.getCurrentNavContext().getRepoModel().repo_id;
+                String parentPath = GlobalNavContext.getCurrentNavContext().getNavPath();
                 NewDirFileDialogFragment dialogFragment = NewDirFileDialogFragment.newInstance(rid, parentPath, false);
                 dialogFragment.setRefreshListener(new OnRefreshDataListener() {
                     @Override
@@ -1044,11 +1056,6 @@ public class MainActivity extends BaseActivity {
         });
 
     }
-
-
-    ////////////////////////////
-    /// Launcher
-    ////////////////////////////
 
     //0 camera
     //1 video
@@ -1121,13 +1128,24 @@ public class MainActivity extends BaseActivity {
         }
     });
 
-    private final ActivityResultLauncher<String> notificationPermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestPermission(), new ActivityResultCallback<Boolean>() {
+    private final ActivityResultLauncher<String[]> startMultiplePermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), new ActivityResultCallback<Map<String, Boolean>>() {
         @Override
-        public void onActivityResult(Boolean result) {
+        public void onActivityResult(Map<String, Boolean> o) {
+            if (o.isEmpty()) {
+                return;
+            }
 
-            //if result is false, the app can't display notifications
+            boolean mediaIsRefuse = false;
+            for (Map.Entry<String, Boolean> e : o.entrySet()) {
+                if (Boolean.FALSE.equals(e.getValue()) && !TextUtils.equals(Manifest.permission.POST_NOTIFICATIONS, e.getKey())) {
+                    mediaIsRefuse = true;
+                }
+            }
 
-            //continue
+            if (mediaIsRefuse) {
+                ToastUtils.showLong(getString(R.string.get_permission_failed, "IMAGE/VIDEO"));
+            }
+
             PermissionUtil.requestExternalStoragePermission(MainActivity.this, multiplePermissionLauncher, manageStoragePermissionLauncher);
         }
     });
@@ -1182,7 +1200,6 @@ public class MainActivity extends BaseActivity {
     });
 
 
-    //    private Uri tempTakePhotoUri;
     private Pair<Uri, File> uriPair;
     private final ActivityResultLauncher<Uri> takePhotoLauncher = registerForActivityResult(new ActivityResultContracts.TakePicture(), new ActivityResultCallback<Boolean>() {
         @Override
@@ -1200,9 +1217,9 @@ public class MainActivity extends BaseActivity {
             Uri uri = uriPair.getFirst();
             File file = uriPair.getSecond();
 
-            RepoModel repoModel = getNavContext().getRepoModel();
+            RepoModel repoModel = GlobalNavContext.getCurrentNavContext().getRepoModel();
 
-            addUploadTask(repoModel, getNavContext().getNavPath(), file.getAbsolutePath());
+            addUploadTask(repoModel, GlobalNavContext.getCurrentNavContext().getNavPath(), file.getAbsolutePath());
         }
     });
 
@@ -1217,63 +1234,60 @@ public class MainActivity extends BaseActivity {
         }
     });
 
-
-    /////////////////////////////
     private void doSelectedMultiFile(List<Uri> uriList) {
         showLoadingDialog();
 
-        try {
-            RepoModel repoModel = getNavContext().getRepoModel();
-            String parent_dir = getNavContext().getNavPath();
+        RepoModel repoModel = GlobalNavContext.getCurrentNavContext().getRepoModel();
+        String parent_dir = GlobalNavContext.getCurrentNavContext().getNavPath();
+        mainViewModel.multipleCheckRemoteDirent(this, curAccount, repoModel.repo_id, repoModel.repo_name, parent_dir, uriList, new java.util.function.Consumer<Boolean>() {
+            @Override
+            public void accept(Boolean aBoolean) {
+                dismissLoadingDialog();
 
-            mainViewModel.checkLocalDirent(curAccount, this, repoModel, parent_dir, uriList, new Consumer<List<Uri>>() {
-                @Override
-                public void accept(List<Uri> newUris) {
+                if (aBoolean) {
+                    ToastUtils.showLong(R.string.added_to_upload_tasks);
 
-                    dismissLoadingDialog();
-
-                    if (!CollectionUtils.isEmpty(newUris)) {
-                        ToastUtils.showLong(R.string.added_to_upload_tasks);
-
-                        //start worker
-                        BackgroundJobManagerImpl.getInstance().startFileManualUploadWorker();
-                    }
+                    //start worker
+                    BackgroundJobManagerImpl.getInstance().startFileUploadWorker();
                 }
-            });
-
-        } catch (Exception e) {
-            SLogs.e("Could not open requested document", e);
-        }
+            }
+        });
     }
 
     private void doSelectSingleFile(Uri uri) {
-//        showLoadingDialog();
-        try {
-            String fileName = Utils.getFilenameFromUri(this, uri);
-            String parent_dir = getNavContext().getNavPath();
-            String destinationPath = Utils.pathJoin(parent_dir, fileName);
-
-            RepoModel repoModel = getNavContext().getRepoModel();
-            mainViewModel.checkRemoteDirent(repoModel.repo_id, destinationPath, new Consumer<DirentFileModel>() {
-                @Override
-                public void accept(DirentFileModel direntFileModel) throws Exception {
-                    if (direntFileModel != null) {
-                        showFileExistDialog(uri, fileName);
-                    } else {
-                        addUploadTask(repoModel, getNavContext().getNavPath(), uri, fileName, false);
-                    }
-
-                    dismissLoadingDialog();
-                }
-            });
-        } catch (Exception e) {
-            SLogs.e("Could not open requested document", e);
+        if (uri == null) {
+            return;
         }
+
+        String appCacheUriPrefix = "content://" + getPackageName() + ".documents";
+        if (uri.toString().startsWith(appCacheUriPrefix)) {
+            return;
+        }
+
+        showLoadingDialog();
+
+        String fileName = Utils.getFilenameFromUri(this, uri);
+        String parent_dir = GlobalNavContext.getCurrentNavContext().getNavPath();
+        String destinationPath = Utils.pathJoin(parent_dir, fileName);
+
+        RepoModel repoModel = GlobalNavContext.getCurrentNavContext().getRepoModel();
+        mainViewModel.checkRemoteDirent(repoModel.repo_id, destinationPath, new java.util.function.Consumer<DirentFileModel>() {
+            @Override
+            public void accept(DirentFileModel direntFileModel) {
+                if (direntFileModel != null) {
+                    showFileExistDialog(uri, fileName);
+                } else {
+                    addUploadTask(repoModel, GlobalNavContext.getCurrentNavContext().getNavPath(), uri, fileName, false);
+                }
+
+                dismissLoadingDialog();
+            }
+        });
     }
 
     private void showFileExistDialog(final Uri uri, String fileName) {
 
-        RepoModel repoModel = getNavContext().getRepoModel();
+        RepoModel repoModel = GlobalNavContext.getCurrentNavContext().getRepoModel();
 
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
         builder.setTitle(getString(R.string.upload_file_exist));
@@ -1282,7 +1296,7 @@ public class MainActivity extends BaseActivity {
         builder.setPositiveButton(getString(R.string.upload_replace), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                addUploadTask(repoModel, getNavContext().getNavPath(), uri, fileName, true);
+                addUploadTask(repoModel, GlobalNavContext.getCurrentNavContext().getNavPath(), uri, fileName, true);
             }
         });
 
@@ -1296,40 +1310,29 @@ public class MainActivity extends BaseActivity {
         builder.setNegativeButton(getString(R.string.upload_keep_both), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                addUploadTask(repoModel, getNavContext().getNavPath(), uri, fileName, false);
+                addUploadTask(repoModel, GlobalNavContext.getCurrentNavContext().getNavPath(), uri, fileName, false);
             }
         });
 
         builder.show();
     }
 
-
-    ////////////////////////////
-    /// task
-    ////////////////////////////
-
+    // task
     private void addUploadTask(RepoModel repoModel, String targetDir, String localFile) {
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
-        mainViewModel.addUploadTask(account, repoModel, targetDir, localFile, false, new Consumer<FileTransferEntity>() {
-            @Override
-            public void accept(FileTransferEntity transferEntity) throws Exception {
-//                if (StringUtils.startsWith(transferEntity.mime_type, "image/")) {
-//                } else if (StringUtils.startsWith(transferEntity.mime_type, "video/")) {
-//                }
+        mainViewModel.addUploadTask(this, account, repoModel, localFile, targetDir, false);
 
-                ToastUtils.showLong(R.string.added_to_upload_tasks);
-            }
-        });
+        ToastUtils.showLong(R.string.added_to_upload_tasks);
+        BackgroundJobManagerImpl.getInstance().startFileUploadWorker();
     }
 
     private void addUploadTask(RepoModel repoModel, String targetDir, Uri sourceUri, String fileName, boolean isReplace) {
+        //
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
-        mainViewModel.addUploadTask(account, this, repoModel, targetDir, sourceUri, fileName, isReplace, new Consumer<FileTransferEntity>() {
-            @Override
-            public void accept(FileTransferEntity fileTransferEntity) {
-                ToastUtils.showLong(R.string.added_to_upload_tasks);
-            }
-        });
+        mainViewModel.addUploadTask(this, account, repoModel, sourceUri, targetDir, fileName, isReplace);
+
+        ToastUtils.showLong(R.string.added_to_upload_tasks);
+        BackgroundJobManagerImpl.getInstance().startFileUploadWorker();
 
     }
 }

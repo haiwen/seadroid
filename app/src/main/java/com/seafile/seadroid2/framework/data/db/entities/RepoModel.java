@@ -13,6 +13,8 @@ import com.seafile.seadroid2.framework.util.Utils;
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.Objects;
+
 @Entity(tableName = "repos", primaryKeys = {"repo_id", "group_id"})
 public class RepoModel extends BaseModel {
 
@@ -145,5 +147,71 @@ public class RepoModel extends BaseModel {
      */
     public boolean canLocalDecrypt() {
         return false;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        RepoModel repoModel = (RepoModel) o;
+        return group_id == repoModel.group_id
+                && encrypted == repoModel.encrypted
+                && size == repoModel.size
+                && starred == repoModel.starred
+                && monitored == repoModel.monitored
+                && is_admin == repoModel.is_admin
+                && last_modified_long == repoModel.last_modified_long
+                && enc_version == repoModel.enc_version
+                && file_count == repoModel.file_count
+                && Objects.equals(repo_id, repoModel.repo_id)
+                && Objects.equals(repo_name, repoModel.repo_name)
+                && Objects.equals(type, repoModel.type)
+                && Objects.equals(group_name, repoModel.group_name)
+                && Objects.equals(owner_name, repoModel.owner_name)
+                && Objects.equals(owner_email, repoModel.owner_email)
+                && Objects.equals(owner_contact_email, repoModel.owner_contact_email)
+//                && Objects.equals(modifier_email, repoModel.modifier_email)
+//                && Objects.equals(modifier_name, repoModel.modifier_name)
+//                && Objects.equals(modifier_contact_email, repoModel.modifier_contact_email)
+                && Objects.equals(related_account, repoModel.related_account)
+                && Objects.equals(last_modified, repoModel.last_modified)
+                && Objects.equals(permission, repoModel.permission)
+                && Objects.equals(salt, repoModel.salt)
+                && Objects.equals(status, repoModel.status)
+                && Objects.equals(root, repoModel.root)
+                && Objects.equals(magic, repoModel.magic)
+                && Objects.equals(random_key, repoModel.random_key);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(
+                repo_id,
+                repo_name,
+                type,
+                group_id,
+                group_name,
+                owner_name,
+                owner_email,
+                owner_contact_email,
+//                modifier_email,
+//                modifier_name,
+//                modifier_contact_email,
+                related_account,
+                last_modified,
+                encrypted,
+                size,
+                starred,
+                permission,
+                monitored,
+                is_admin,
+                salt,
+                status,
+                last_modified_long,
+                root,
+                magic,
+                random_key,
+                enc_version,
+                file_count);
     }
 }

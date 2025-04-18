@@ -27,11 +27,15 @@ public interface EncKeyCacheDAO {
     void insertAllSync(List<EncKeyCacheEntity> entities);
 
     @Query("select * from enc_key_cache where repo_id = :repoId limit 1")
-    List<EncKeyCacheEntity> getOneByRepoIdSync(String repoId);
+    List<EncKeyCacheEntity> getListByRepoIdSync(String repoId);
 
     @Query("select * from enc_key_cache where repo_id = :repoId limit 1")
     Single<List<EncKeyCacheEntity>> getListByRepoIdAsync(String repoId);
 
     @Query("DELETE FROM enc_key_cache")
     Completable deleteAll();
+
+
+    @Query("DELETE FROM enc_key_cache where related_account = :related_account")
+    Completable deleteSpecialAccountData(String related_account);
 }

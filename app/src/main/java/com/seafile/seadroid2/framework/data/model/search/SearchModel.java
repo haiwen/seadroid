@@ -13,10 +13,13 @@ import com.seafile.seadroid2.framework.util.Utils;
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.Objects;
+
 public class SearchModel extends BaseModel implements Parcelable {
 
     public boolean is_dir;
     public String fullpath;
+    public String related_account;
     public String repo_id;
     public String repo_name;
     public String repo_owner_email;
@@ -88,13 +91,26 @@ public class SearchModel extends BaseModel implements Parcelable {
         d.full_path = model.fullpath;
         d.type = model.is_dir ? "dir" : "file";
 
-        d.name = model.name;
+        d.name = Utils.getFileNameFromPath(model.fullpath);
         d.repo_id = model.repo_id;
         d.repo_name = model.repo_name;
         d.last_modified_at = model.last_modified;
         d.size = model.size;
         d.parent_dir = Utils.getParentPath(model.fullpath);
         return d;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SearchModel that = (SearchModel) o;
+        return is_dir == that.is_dir && last_modified == that.last_modified && size == that.size && Objects.equals(fullpath, that.fullpath) && Objects.equals(repo_id, that.repo_id) && Objects.equals(repo_name, that.repo_name) && Objects.equals(repo_owner_email, that.repo_owner_email) && Objects.equals(repo_owner_name, that.repo_owner_name) && Objects.equals(repo_owner_contact_email, that.repo_owner_contact_email) && Objects.equals(thumbnail_url, that.thumbnail_url) && Objects.equals(repo_type, that.repo_type) && Objects.equals(name, that.name) && Objects.equals(content_highlight, that.content_highlight);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(is_dir, fullpath, repo_id, repo_name, repo_owner_email, repo_owner_name, repo_owner_contact_email, thumbnail_url, repo_type, name, content_highlight, last_modified, size);
     }
 
     @Override
@@ -106,6 +122,7 @@ public class SearchModel extends BaseModel implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeByte(this.is_dir ? (byte) 1 : (byte) 0);
         dest.writeString(this.fullpath);
+        dest.writeString(this.related_account);
         dest.writeString(this.repo_id);
         dest.writeString(this.repo_name);
         dest.writeString(this.repo_owner_email);
@@ -122,6 +139,7 @@ public class SearchModel extends BaseModel implements Parcelable {
     public void readFromParcel(Parcel source) {
         this.is_dir = source.readByte() != 0;
         this.fullpath = source.readString();
+        this.related_account = source.readString();
         this.repo_id = source.readString();
         this.repo_name = source.readString();
         this.repo_owner_email = source.readString();
@@ -141,6 +159,7 @@ public class SearchModel extends BaseModel implements Parcelable {
     protected SearchModel(Parcel in) {
         this.is_dir = in.readByte() != 0;
         this.fullpath = in.readString();
+        this.related_account = in.readString();
         this.repo_id = in.readString();
         this.repo_name = in.readString();
         this.repo_owner_email = in.readString();

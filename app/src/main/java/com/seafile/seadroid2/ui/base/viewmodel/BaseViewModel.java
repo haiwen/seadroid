@@ -43,25 +43,31 @@ import retrofit2.HttpException;
 import retrofit2.Response;
 
 public class BaseViewModel extends ViewModel {
-    private final MutableLiveData<Boolean> RefreshLiveData = new MutableLiveData<>(false);
-    private final MutableLiveData<Pair<Integer, SeafException>> ExceptionLiveData = new MutableLiveData<>();
-    private final MutableLiveData<SeafException> SeafExceptionLiveData = new MutableLiveData<>();
-    private final MutableLiveData<Boolean> ShowLoadingDialogLiveData = new MutableLiveData<>(false);
+    private final MutableLiveData<Boolean> _refreshLiveData = new MutableLiveData<>(false);
+    private final MutableLiveData<Boolean> _secondRefreshLiveData = new MutableLiveData<>(false);
+
+    private final MutableLiveData<Pair<Integer, SeafException>> _exceptionLiveData = new MutableLiveData<>();
+    private final MutableLiveData<SeafException> _seafExceptionLiveData = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> _showLoadingDialogLiveData = new MutableLiveData<>(false);
 
     public MutableLiveData<Boolean> getShowLoadingDialogLiveData() {
-        return ShowLoadingDialogLiveData;
+        return _showLoadingDialogLiveData;
     }
 
     public MutableLiveData<Boolean> getRefreshLiveData() {
-        return RefreshLiveData;
+        return _refreshLiveData;
+    }
+
+    public MutableLiveData<Boolean> getSecondRefreshLiveData() {
+        return _secondRefreshLiveData;
     }
 
     public MutableLiveData<Pair<Integer, SeafException>> getExceptionLiveData() {
-        return ExceptionLiveData;
+        return _exceptionLiveData;
     }
 
     public MutableLiveData<SeafException> getSeafExceptionLiveData() {
-        return SeafExceptionLiveData;
+        return _seafExceptionLiveData;
     }
 
     public void showRefresh() {
@@ -112,18 +118,7 @@ public class BaseViewModel extends ViewModel {
         }
     }
 
-
-    @Todo
-    public Map<String, RequestBody> genObjRequestBody(Map<String, Object> params) {
-        Map<String, RequestBody> requestBodyMap = new HashMap<>();
-        for (Map.Entry<String, Object> entry : params.entrySet()) {
-            String value = entry.getValue().toString();
-            RequestBody requestBody = RequestBody.create(MediaType.parse("multipart/form-data"), value);
-            requestBodyMap.put(entry.getKey(), requestBody);
-        }
-        return requestBodyMap;
-    }
-
+    @Todo("it need to be optimized")
     public Map<String, RequestBody> genRequestBody(Map<String, String> requestDataMap) {
         Map<String, RequestBody> requestBodyMap = new HashMap<>();
         if (requestDataMap == null || requestDataMap.isEmpty()) {
@@ -224,7 +219,7 @@ public class BaseViewModel extends ViewModel {
     }
 
     public SeafException getExceptionByThrowable(Throwable throwable) throws IOException {
-        return ExceptionUtils.getExceptionByThrowable(throwable);
+        return ExceptionUtils.parseByThrowable(throwable);
     }
 
     public SeafException getExceptionByThrowableForLogin(Throwable throwable, boolean withAuthToken) throws IOException {
@@ -249,7 +244,7 @@ public class BaseViewModel extends ViewModel {
             }
         }
 
-        return ExceptionUtils.getExceptionByThrowable(throwable);
+        return ExceptionUtils.parseByThrowable(throwable);
     }
 
 

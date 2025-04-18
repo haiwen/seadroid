@@ -2,12 +2,12 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <item
-        android:id="@+id/cancel_transfer_tasks"
-        android:contentDescription="@string/transfer_list_cancel_all_desc"
-        android:title="@string/transfer_list_cancel_all"
-        android:visible="true"
-        app:showAsAction="never" />
+<!--    <item-->
+<!--        android:id="@+id/cancel_transfer_tasks"-->
+<!--        android:contentDescription="@string/transfer_list_cancel_all_desc"-->
+<!--        android:title="@string/transfer_list_cancel_all"-->
+<!--        android:visible="true"-->
+<!--        app:showAsAction="never" />-->
 
     <item
         android:id="@+id/clear_all_transfer_tasks"

@@ -5,6 +5,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.ui.base.fragment.CustomDialogFragment;
 import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.data.DatabaseHelper;
@@ -35,7 +37,8 @@ public class ClearPasswordDialogFragment extends RequestCustomDialogFragmentWith
 
     @Override
     protected void onPositiveClick() {
-        getViewModel().clear(new Consumer<Boolean>() {
+        Account account = SupportAccountManager.getInstance().getCurrentAccount();
+        getViewModel().clear(account, new Consumer<Boolean>() {
             @Override
             public void accept(Boolean aBoolean) throws Exception {
                 refreshData();
