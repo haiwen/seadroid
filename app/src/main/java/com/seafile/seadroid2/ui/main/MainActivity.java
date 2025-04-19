@@ -529,7 +529,7 @@ public class MainActivity extends BaseActivity {
     // check server info
     private void requestServerInfo(boolean loadFromNet) {
         Optional<ServerInfo> optional = checkServerInfo();
-        if (!optional.isPresent() || !optional.get().isProEdition()) {
+        if (optional.isEmpty() || !optional.get().isProEdition()) {
             binding.navBottomView.getMenu().removeItem(R.id.tabs_activity);
 
             // hide Activity tab

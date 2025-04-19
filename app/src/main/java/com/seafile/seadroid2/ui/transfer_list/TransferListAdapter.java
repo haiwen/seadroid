@@ -66,9 +66,7 @@ public class TransferListAdapter extends BaseMultiAdapter<Object> {
                 }
 
                 Bundle bundle = (Bundle) payloads.get(0);
-                long transferredSize = bundle.getLong(TransferWorker.KEY_TRANSFER_TRANSFERRED_SIZE, 0);
-                long totalSize = bundle.getLong(TransferWorker.KEY_TRANSFER_TOTAL_SIZE, 0);
-                onBindDbListPayloadHolder(holder, transferredSize, totalSize);
+                onBindLocalListPayloadHolder(holder, bundle);
             }
         })
                 .addItemType(AbsLayoutItemType.DB_LIST, new OnMultiItem<Object, TransferItemViewHolder>() {
@@ -241,6 +239,22 @@ public class TransferListAdapter extends BaseMultiAdapter<Object> {
         holder.binding.transferFileSize.setText(sizeStr);
     }
 
+    private void onBindLocalListPayloadHolder(TransferItemViewHolder holder, Bundle bundle) {
+        if (bundle.containsKey(TransferWorker.KEY_TRANSFER_TRANSFERRED_SIZE)) {
+            long transferredSize = bundle.getLong(TransferWorker.KEY_TRANSFER_TRANSFERRED_SIZE, 0);
+            long totalSize = bundle.getLong(TransferWorker.KEY_TRANSFER_TOTAL_SIZE, 0);
+
+            String sizeStr = Utils.readableFileSize(totalSize);
+
+            sizeStr = String.format("%s / %s", Utils.readableFileSize(transferredSize), sizeStr);
+            holder.binding.transferFileSize.setText(sizeStr);
+
+            int p = calc(transferredSize, totalSize);
+            holder.binding.transferFileProgressBar.setProgress(p);
+        }
+    }
+
+
     private void onBindDbList(TransferItemViewHolder holder, FileBackupStatusEntity entity) {
         holder.binding.itemMultiSelect.setVisibility(View.GONE);
         holder.binding.itemMultiSelect.setImageResource(R.drawable.multi_select_item_unchecked);
@@ -265,16 +279,6 @@ public class TransferListAdapter extends BaseMultiAdapter<Object> {
         holder.binding.transferFileSize.setText(Utils.readableFileSize(entity.file_size));
     }
 
-    private void onBindDbListPayloadHolder(TransferItemViewHolder holder, long transferredSize, long totalSize) {
-//
-        String sizeStr = Utils.readableFileSize(totalSize);
-
-        sizeStr = String.format("%s / %s", Utils.readableFileSize(transferredSize), sizeStr);
-        holder.binding.transferFileSize.setText(sizeStr);
-
-        int p = calc(transferredSize, totalSize);
-        holder.binding.transferFileProgressBar.setProgress(p);
-    }
 
     public int calc(long cur, long total) {
         return (int) ((float) cur / (float) total * 100);

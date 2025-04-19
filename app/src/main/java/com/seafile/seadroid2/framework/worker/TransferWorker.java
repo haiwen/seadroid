@@ -34,6 +34,7 @@ public abstract class TransferWorker extends BaseWorker {
     public static final String KEY_TRANSFER_ID = "key_transfer_id";
     public static final String KEY_TRANSFER_TRANSFERRED_SIZE = "key_transfer_transferred_size";
     public static final String KEY_TRANSFER_TOTAL_SIZE = "key_transfer_total_size";
+
     public static final String KEY_TRANSFER_COUNT = "key_transfer_count";
 
     public static final String DATA_DIRENT_LIST_KEY = "data_dirent_list_key";

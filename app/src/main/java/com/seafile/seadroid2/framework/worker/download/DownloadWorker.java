@@ -68,8 +68,6 @@ import okhttp3.ResponseBody;
  * @see BackgroundJobManagerImpl#TAG_TRANSFER
  */
 public class DownloadWorker extends BaseDownloadWorker {
-    public static final UUID UID = UUID.nameUUIDFromBytes(DownloadWorker.class.getSimpleName().getBytes());
-
     private final DownloadNotificationHelper notificationHelper;
     private final FileTransferProgressListener transferProgressListener;
     private TransferModel currentTransferModel;

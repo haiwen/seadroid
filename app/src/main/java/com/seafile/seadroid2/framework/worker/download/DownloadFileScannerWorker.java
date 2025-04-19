@@ -44,8 +44,6 @@ import java.util.UUID;
  * @see BackgroundJobManagerImpl#TAG_TRANSFER
  */
 public class DownloadFileScannerWorker extends TransferWorker {
-    public static final UUID UID = UUID.nameUUIDFromBytes(DownloadFileScannerWorker.class.getSimpleName().getBytes());
-
     private final DownloadNotificationHelper notificationHelper;
 
     public DownloadFileScannerWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
@@ -63,15 +61,13 @@ public class DownloadFileScannerWorker extends TransferWorker {
         }
 
         String direntIdStr = getInputData().getString(DATA_DIRENT_LIST_KEY);
-        if (!TextUtils.isEmpty(direntIdStr)) {
-            ForegroundInfo foregroundInfo = notificationHelper.getForegroundNotification(R.string.download_waiting);
-            showForegroundAsync(foregroundInfo);
-        }
-
-        //multiple download
         if (TextUtils.isEmpty(direntIdStr)) {
             return returnSuccess();
         }
+
+        //show notification
+        ForegroundInfo foregroundInfo = notificationHelper.getForegroundNotification(R.string.download_waiting);
+        showForegroundAsync(foregroundInfo);
 
         //send a scan event
         sendWorkerEvent(TransferDataSource.DOWNLOAD, TransferEvent.EVENT_SCANNING);
@@ -93,7 +89,7 @@ public class DownloadFileScannerWorker extends TransferWorker {
                     insertIntoDbWhenDirentIsFile(account, direntModel);
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                SLogs.e(e);
             }
         }
 

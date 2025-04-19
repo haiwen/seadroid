@@ -27,6 +27,7 @@ import com.seafile.seadroid2.databinding.LayoutFrameSwipeRvBinding;
 import com.seafile.seadroid2.enums.TransferAction;
 import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.enums.TransferStatus;
+import com.seafile.seadroid2.framework.worker.TransferWorker;
 import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
@@ -240,14 +241,14 @@ public abstract class TransferListFragment extends BaseFragment {
             if (transferModel.transfer_status == TransferStatus.IN_PROGRESS) {
                 BackgroundJobManagerImpl.getInstance().cancelDownloadWorker();
             }
-            
+
             GlobalTransferCacheList.DOWNLOAD_QUEUE.remove(transferModel.getId());
 
             if (isDeleteLocalFile) {
                 FileUtils.delete(transferModel.target_path);
             }
 
-            BackgroundJobManagerImpl.getInstance().startDownloadChain();
+            BackgroundJobManagerImpl.getInstance().startDownloadWorker();
 
         } else if (TransferDataSource.FILE_BACKUP == transferModel.data_source) {
             GlobalTransferCacheList.FILE_UPLOAD_QUEUE.remove(transferModel.getId());
@@ -335,9 +336,6 @@ public abstract class TransferListFragment extends BaseFragment {
         return null;
     }
 
-    /**
-     * @param transferId is UploadModel.getId()
-     */
     public void notifyProgressById(TransferModel progressTransferModel, String event) {
         if (progressTransferModel == null) {
             return;
@@ -353,6 +351,7 @@ public abstract class TransferListFragment extends BaseFragment {
             return;
         }
 
+        Bundle bundle = null;
         if (TransferEvent.EVENT_FILE_TRANSFER_FAILED.equals(event)) {
             transferModel.transferred_size = 0;
             transferModel.transfer_status = TransferStatus.FAILED;
@@ -366,7 +365,16 @@ public abstract class TransferListFragment extends BaseFragment {
             transferModel.transferred_size = progressTransferModel.transferred_size;
             transferModel.transfer_status = TransferStatus.IN_PROGRESS;
 
+            bundle = new Bundle();
+            bundle.putLong(TransferWorker.KEY_TRANSFER_TRANSFERRED_SIZE, progressTransferModel.transferred_size);
+            bundle.putLong(TransferWorker.KEY_TRANSFER_TOTAL_SIZE, progressTransferModel.file_size);
         }
-        adapter.set(i, transferModel);
+
+        adapter.getItems().set(i, transferModel);
+        if (bundle != null) {
+            adapter.notifyItemChanged(i, bundle);
+        } else {
+            adapter.notifyItemChanged(i);
+        }
     }
 }

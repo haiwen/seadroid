@@ -306,6 +306,7 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
 
             }
         });
+
         binding.pager.setOffscreenPageLimit(7);
         binding.pager.setAdapter(adapter);
 

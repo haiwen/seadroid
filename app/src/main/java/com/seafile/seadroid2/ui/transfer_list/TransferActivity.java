@@ -140,8 +140,6 @@ public class TransferActivity extends BaseActivity {
                 tab.setText(tabs[position]);
             }
         }).attach();
-
-
     }
 
 
