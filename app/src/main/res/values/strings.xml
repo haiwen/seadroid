@@ -707,7 +707,7 @@
     <string name="image_color_space_undefined">Undefined</string>
     <!-- end -->
 
-    <string name="transfer_default_state">0</string>
+    <string name="transfer_default_state" translatable="false">0</string>
 
 
 </resources>

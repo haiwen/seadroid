@@ -403,6 +403,7 @@ Email: support@seafile.com<br>
 <h5>Copyright ©2013-2023 Seafile Ltd.</h5>
 ]]></string>
   <string name="settings_advance_feature_title">高级特性</string>
+  <string name="settings_transfer_title">上传 &amp; 下载</string>
   <string name="settings_storage_title">缓存存储</string>
   <string name="settings_cache_title">缓存大小</string>
   <string name="settings_clear_cache_title">清空缓存</string>
@@ -443,7 +444,7 @@ Email: support@seafile.com<br>
   <string name="shib_login_title">统一登录</string>
   <string name="shib_loading">加载中...</string>
   <!--Transfer List-->
-  <string name="transfer_list_network_error">网络连接错误，请稍后重试！</string>
+  <string name="transfer_list_network_error">网络连接错误，请稍后重试</string>
   <string name="transfer_list_cancel_all">取消所有任务</string>
   <string name="transfer_list_cancel_all_desc">取消所有正在进行的文件传输任务；单击重新启动按钮时，它们将被恢复以继续传输文件。</string>
   <string name="transfer_list_restart_all">重新开始</string>
@@ -582,6 +583,7 @@ Email: support@seafile.com<br>
   <string name="select_backup_folder">选择备份文件夹</string>
   <string name="select_backup_libraries">选择备份资料库</string>
   <string name="folder_backup_completed">文件夹已备份</string>
+  <string name="get_permission_failed">未能获取 %s 权限，一些功能可能会受到影响</string>
   <string name="get_storage_permission_failed">无法获取存储权限</string>
   <string name="authorization_storage_permission">存储权限已永久拒绝授权，请手动授予权限。</string>
   <string name="settings_folder_backup_select_hint">0</string>
@@ -612,8 +614,8 @@ Email: support@seafile.com<br>
   <string name="done">完成</string>
   <string name="success">成功</string>
   <string name="failed">失败</string>
-  <string name="uploading">上传中</string>
-  <string name="downloading">下载中</string>
+  <string name="uploading">正在上传</string>
+  <string name="downloading">正在下载</string>
   <string name="replace_all">替换所有</string>
   <string name="replace">替换</string>
   <string name="replace_local_file">替换本地文件</string>

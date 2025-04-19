@@ -459,11 +459,13 @@
   <!--Transfer List-->
   <string name="transfer_list_network_error">Ошибка подключения к сети, пожалуйста, повторите позже!</string>
   <string name="transfer_list_cancel_all">Отменить все задачи</string>
+  <string name="transfer_list_cancel_all_desc">Отменить все текущие задачи по передаче файлов; они будут восстановлены для продолжения передачи файлов при нажатии кнопки перезапуска.</string>
   <string name="transfer_list_restart_all">Перезапустить</string>
   <string name="transfer_list_retry_failed_tasks">Повтор неудачных задач</string>
   <string name="transfer_list_restart_cancelled_tasks">Перезапустить отменённые задачи</string>
   <string name="transfer_list_clear_failed_tasks">Удалить неудачные задачи</string>
   <string name="transfer_list_clear_all_tasks">Удалить все задачи</string>
+  <string name="transfer_list_clear_all_tasks_desc">Удалить все записи о передачах; если это скачивание, будут удалены все записи скачиваний (необязательно: также локальные файлы). Если это загрузка, будут удалены только записи загрузок, но соответствующие целевые файлы не будут повторно загружены в будущем.</string>
   <string name="transfer_list_clear_finished_tasks">Удалить завершённые задачи</string>
   <string name="transfer_tabs_downloads">Список загрузок</string>
   <string name="transfer_tabs_uploads">Список закачек</string>
@@ -622,6 +624,7 @@
   <string name="folder_backup_select_repo_hint">Выбрать библиотеку</string>
   <string name="folder_backup_select_repo_update">Обновить библиотеку для резервных копий</string>
   <string name="UncaughtExceptionHandler_err">Приложение перестало работать</string>
+  <string name="settings_file_backup_info_title">Файл резервной копии</string>
   <!--action-->
   <string name="pause">Пауза</string>
   <string name="paused">Остановлено</string>
