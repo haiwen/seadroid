@@ -598,6 +598,7 @@ Email: support@seafile.com<br>
   <string name="folder_backup_select_repo_hint">选择资料库</string>
   <string name="folder_backup_select_repo_update">已更新备份资料库</string>
   <string name="UncaughtExceptionHandler_err">应用已停止运行</string>
+  <string name="settings_file_backup_info_title">文件备份</string>
   <!--action-->
   <string name="pause">暂停</string>
   <string name="paused">已暂停</string>
@@ -653,8 +654,13 @@ Email: support@seafile.com<br>
   <string name="_done">已完成</string>
   <string name="_outdated">已过期</string>
   <string name="_tags">标签</string>
+  <string name="_location">位置</string>
   <string name="mark_resolve">标记为已解决</string>
   <string name="delete_confirm">你确定想要删除此条内容？</string>
   <string name="canceled">已取消</string>
+  <string name="image_capture_time">拍摄时间</string>
+  <string name="image_dimensions">尺寸</string>
+  <string name="image_color_space_uncalibrated">未校准</string>
+  <string name="image_color_space_undefined">未定义</string>
   <!--end-->
 </resources>

@@ -9,6 +9,7 @@ import com.seafile.seadroid2.framework.data.model.adapter.RecordResultDeserializ
 
 import java.time.OffsetDateTime;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -39,8 +40,14 @@ public class RecordResultModel implements Parcelable {
     public List<String> _owner;
     public List<String> _reviewer;
 
-    @JsonAdapter(RecordResultDeserializer.class)
-    public Map<String, Object> dynamicFields;
+    public String _tag_color;
+    public String _tag_name;
+
+    public Object _location;
+    public Object _tags;
+
+//    @JsonAdapter(RecordResultDeserializer.class)
+//    public Map<String, Object> dynamicFields;
 
     @Override
     public int describeContents() {
@@ -69,12 +76,16 @@ public class RecordResultModel implements Parcelable {
         dest.writeString(this._status);
         dest.writeString(this._suffix);
         dest.writeString(this._description);
+        dest.writeString(this._tag_color);
+        dest.writeString(this._tag_name);
         dest.writeStringList(this._owner);
-        dest.writeInt(this.dynamicFields.size());
-        for (Map.Entry<String, Object> entry : this.dynamicFields.entrySet()) {
-            dest.writeString(entry.getKey());
-            dest.writeValue(entry.getValue());
-        }
+        dest.writeValue(this._location);
+        dest.writeValue(this._tags);
+//        dest.writeInt(this.dynamicFields.size());
+//        for (Map.Entry<String, Object> entry : this.dynamicFields.entrySet()) {
+//            dest.writeString(entry.getKey());
+//            dest.writeValue(entry.getValue());
+//        }
     }
 
     public RecordResultModel() {
@@ -101,14 +112,18 @@ public class RecordResultModel implements Parcelable {
         this._status = in.readString();
         this._suffix = in.readString();
         this._description = in.readString();
+        this._tag_color = in.readString();
+        this._tag_name = in.readString();
         this._owner = in.createStringArrayList();
+        this._location = in.readValue(Object.class.getClassLoader());
+        this._tags = in.readValue(Object.class.getClassLoader());
         int dynamicFieldsSize = in.readInt();
-        this.dynamicFields = new HashMap<String, Object>(dynamicFieldsSize);
-        for (int i = 0; i < dynamicFieldsSize; i++) {
-            String key = in.readString();
-            Object value = in.readParcelable(Object.class.getClassLoader());
-            this.dynamicFields.put(key, value);
-        }
+//        this.dynamicFields = new HashMap<String, Object>(dynamicFieldsSize);
+//        for (int i = 0; i < dynamicFieldsSize; i++) {
+//            String key = in.readString();
+//            Object value = in.readParcelable(Object.class.getClassLoader());
+//            this.dynamicFields.put(key, value);
+//        }
     }
 
     public static final Parcelable.Creator<RecordResultModel> CREATOR = new Parcelable.Creator<RecordResultModel>() {

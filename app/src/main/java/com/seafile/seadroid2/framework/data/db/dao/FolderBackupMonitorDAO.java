@@ -10,6 +10,7 @@ import java.util.List;
 
 import io.reactivex.Completable;
 
+@Deprecated
 @Dao
 public interface FolderBackupMonitorDAO {
     @Insert(onConflict = OnConflictStrategy.REPLACE)

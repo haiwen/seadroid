@@ -493,7 +493,7 @@ public class Utils {
 
     /**
      * SslCertificate class does not has a public getter for the underlying
-     * X509Certificate, we can only do this by hack. This only works for andorid 4.0+
+     * X509Certificate, we can only do this by hack. This only works for android 4.0+
      *
      * @see https://groups.google.com/forum/#!topic/android-developers/eAPJ6b7mrmg
      */
@@ -633,5 +633,56 @@ public class Utils {
     }
 
     public static final String EXCEPTION_TYPE_CRASH = "crash_exception";
+
+
+    /**
+     * Convert latitude to a fixed format
+     * @return eg: "N50°1'33""
+     */
+    public static String convertLatitude(double lat) {
+        String direction = lat >= 0 ? "N" : "S";
+        return convertCoordinate(Math.abs(lat), direction);
+    }
+
+    public static String convertLatitude(String lat) {
+        if (TextUtils.isEmpty(lat)) {
+            return "";
+        }
+        double parsedLat = Double.parseDouble(lat);
+        return convertLatitude(parsedLat);
+    }
+
+    /**
+     * Convert longitude to a fixed format
+     * @return eg: "E116°18'26""
+     */
+    public static String convertLongitude(double lng) {
+        String direction = lng >= 0 ? "E" : "W";
+        return convertCoordinate(Math.abs(lng), direction);
+    }
+
+    public static String convertLongitude(String lng) {
+        if (TextUtils.isEmpty(lng)) {
+            return "";
+        }
+        double parsedLat = Double.parseDouble(lng);
+        return convertLongitude(parsedLat);
+    }
+
+    /**
+     * 将经纬度值转换为固定格式
+     *
+     * @param coordinate 经纬度值
+     * @param direction  方向（N/S/E/W）
+     * @return 格式化后的字符串
+     */
+    private static String convertCoordinate(double coordinate, String direction) {
+        int degrees = (int) coordinate;
+        double remaining = coordinate - degrees;
+        int minutes = (int) (remaining * 60);
+        double seconds = (remaining * 60 - minutes) * 60;
+
+        return String.format("%s%d°%d'%.0f\"", direction, degrees, minutes, seconds);
+    }
 }
 

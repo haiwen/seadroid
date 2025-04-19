@@ -127,7 +127,7 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
 
         if (getIntent().getBooleanExtra(ARG_SHIB, false)) {
 
-            Intent intent = new Intent(this, SingleSignOnAuthorizeActivity.class);
+            Intent intent = new Intent(this, AccountDetailActivity.class);
             Account account = new Account(getIntent().getStringExtra(SeafileAuthenticatorActivity.ARG_ACCOUNT_NAME), Constants.Account.ACCOUNT_TYPE);
 
             String serverUrl = SupportAccountManager.getInstance().getUserData(account, Authenticator.KEY_SERVER_URI);
@@ -297,7 +297,7 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
         }
 
         //
-        ContextStackPreferenceHelper.clearStack();
+        ContextStackPreferenceHelper.clear();
         //save current account
         SupportAccountManager.getInstance().saveCurrentAccount(newAccountName);
         //reset httpio instance

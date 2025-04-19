@@ -14,12 +14,15 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.data.model.BaseModel;
 import com.seafile.seadroid2.framework.data.model.activities.ActivityModel;
+import com.seafile.seadroid2.framework.data.model.dirents.DirentFileModel;
 import com.seafile.seadroid2.framework.data.model.search.SearchModel;
 import com.seafile.seadroid2.framework.util.Icons;
 import com.seafile.seadroid2.framework.util.Times;
 import com.seafile.seadroid2.framework.util.Utils;
 
 import org.apache.commons.lang3.StringUtils;
+
+import java.util.Objects;
 
 @Entity(tableName = "dirents")
 public class DirentModel extends BaseModel implements Parcelable {
@@ -77,10 +80,11 @@ public class DirentModel extends BaseModel implements Parcelable {
 //    public String transfer_id;
 //    public String transfer_target_path;
 
+    @Deprecated
     public TransferStatus transfer_status;
 
     @Ignore
-    public String local_file_path;
+    public String local_file_id;
 
     @Ignore
     private String timestamp;
@@ -178,7 +182,9 @@ public class DirentModel extends BaseModel implements Parcelable {
             return null;
         }
         DirentModel direntModel = new DirentModel();
+
         direntModel.full_path = starredModel.path;
+        direntModel.related_account = starredModel.related_account;
         direntModel.repo_id = starredModel.repo_id;
         direntModel.repo_name = starredModel.repo_name;
         direntModel.type = starredModel.is_dir ? "dir" : "file";
@@ -198,12 +204,41 @@ public class DirentModel extends BaseModel implements Parcelable {
         return direntModel;
     }
 
+    public static DirentModel convertDetailModelToThis(DirentFileModel model, String full_path, String repo_id, String repo_name) {
+        if (model == null) {
+            return null;
+        }
+
+        DirentModel direntModel = new DirentModel();
+        direntModel.full_path = full_path;
+        direntModel.repo_id = repo_id;
+        direntModel.repo_name = repo_name;
+        direntModel.type = model.type;
+        direntModel.mtime = model.getMtimeInMills();
+        direntModel.parent_dir = Utils.getParentPath(full_path);
+        direntModel.name = model.name;
+        direntModel.last_modified_at = Times.convertMtime2Long(model.last_modified);
+        direntModel.modifier_email = model.last_modifier_email;
+        direntModel.modifier_name = model.last_modifier_name;
+        direntModel.modifier_contact_email = model.last_modifier_contact_email;
+
+        direntModel.size = model.size;
+        direntModel.permission = model.permission;
+        direntModel.id = model.id;
+        direntModel.starred = model.starred;
+
+        direntModel.uid = direntModel.getUID();
+
+        return direntModel;
+    }
+
     public static DirentModel convertActivityModelToThis(ActivityModel model) {
         if (model == null) {
             return null;
         }
 
         DirentModel direntModel = new DirentModel();
+        direntModel.related_account = model.related_account;
         direntModel.full_path = model.path;
         direntModel.repo_id = model.repo_id;
         direntModel.repo_name = model.repo_name;
@@ -230,6 +265,7 @@ public class DirentModel extends BaseModel implements Parcelable {
         }
 
         DirentModel direntModel = new DirentModel();
+        direntModel.related_account = searchModel.related_account;
         direntModel.full_path = searchModel.fullpath;
         direntModel.repo_id = searchModel.repo_id;
         direntModel.repo_name = searchModel.repo_name;
@@ -242,6 +278,80 @@ public class DirentModel extends BaseModel implements Parcelable {
 
         direntModel.uid = direntModel.getUID();
         return direntModel;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        DirentModel that = (DirentModel) o;
+        return mtime == that.mtime
+                && starred == that.starred
+                && size == that.size
+//                && is_locked == that.is_locked
+//                && is_freezed == that.is_freezed
+//                && locked_by_me == that.locked_by_me
+//                && lock_time == that.lock_time
+                && last_modified_at == that.last_modified_at
+                && Objects.equals(uid, that.uid)
+                && Objects.equals(full_path, that.full_path)
+                && Objects.equals(name, that.name)
+                && Objects.equals(parent_dir, that.parent_dir)
+                && Objects.equals(id, that.id)
+                && Objects.equals(type, that.type)
+                && Objects.equals(permission, that.permission)
+                && Objects.equals(dir_id, that.dir_id)
+                && Objects.equals(related_account, that.related_account)
+                && Objects.equals(repo_id, that.repo_id)
+                && Objects.equals(repo_name, that.repo_name)
+//                && Objects.equals(lock_owner, that.lock_owner)
+//                && Objects.equals(lock_owner_name, that.lock_owner_name)
+//                && Objects.equals(lock_owner_contact_email, that.lock_owner_contact_email)
+//                && Objects.equals(modifier_email, that.modifier_email)
+//                && Objects.equals(modifier_name, that.modifier_name)
+//                && Objects.equals(modifier_contact_email, that.modifier_contact_email)
+//                && Objects.equals(encoded_thumbnail_src, that.encoded_thumbnail_src)
+//                && Objects.equals(local_file_path, that.local_file_path)
+                && Objects.equals(timestamp, that.timestamp);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(uid, full_path,
+                name,
+                parent_dir,
+                id,
+                type,
+                mtime,
+                permission,
+                starred,
+                dir_id,
+                related_account,
+                repo_id,
+                repo_name,
+                size,
+//                is_locked, is_freezed,
+//                locked_by_me, lock_time,
+//                lock_owner, lock_owner_name,
+//                lock_owner_contact_email, modifier_email,
+//                modifier_name, modifier_contact_email, encoded_thumbnail_src,
+//                last_modified_at, transfer_status,
+//                local_file_path,
+                timestamp);
+    }
+
+    @Override
+    public String toString() {
+        return "DirentModel{" +
+                "uid='" + uid + '\'' +
+                ", full_path='" + full_path + '\'' +
+                ", name='" + name + '\'' +
+                ", id='" + id + '\'' +
+                ", type='" + type + '\'' +
+                ", permission='" + permission + '\'' +
+                ", starred=" + starred +
+                ", repo_id='" + repo_id + '\'' +
+                '}';
     }
 
     @Override
@@ -277,7 +387,6 @@ public class DirentModel extends BaseModel implements Parcelable {
         dest.writeString(this.modifier_contact_email);
         dest.writeString(this.encoded_thumbnail_src);
         dest.writeLong(this.last_modified_at);
-        dest.writeInt(this.transfer_status == null ? -1 : this.transfer_status.ordinal());
         dest.writeString(this.timestamp);
     }
 
@@ -309,7 +418,6 @@ public class DirentModel extends BaseModel implements Parcelable {
         this.encoded_thumbnail_src = source.readString();
         this.last_modified_at = source.readLong();
         int tmpTransfer_status = source.readInt();
-        this.transfer_status = tmpTransfer_status == -1 ? null : TransferStatus.values()[tmpTransfer_status];
         this.timestamp = source.readString();
     }
 
@@ -344,7 +452,6 @@ public class DirentModel extends BaseModel implements Parcelable {
         this.encoded_thumbnail_src = in.readString();
         this.last_modified_at = in.readLong();
         int tmpTransfer_status = in.readInt();
-        this.transfer_status = tmpTransfer_status == -1 ? null : TransferStatus.values()[tmpTransfer_status];
         this.timestamp = in.readString();
     }
 

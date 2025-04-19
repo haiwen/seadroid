@@ -112,8 +112,6 @@
 
         <activity android:name=".ui.account.sso.SingleSignOnAuthorizeActivity" />
 
-        <activity android:name=".ui.settings.SettingsActivity" />
-
         <activity
             android:name=".ui.main.MainActivity"
             android:configChanges="uiMode|orientation|screenSize"

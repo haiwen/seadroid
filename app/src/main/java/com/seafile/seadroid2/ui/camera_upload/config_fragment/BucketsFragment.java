@@ -81,6 +81,9 @@ public class BucketsFragment extends Fragment {
         mRadioGroup.setOnCheckedChangeListener(onCheckedChangeListener);
 
         buckets = GalleryBucketUtils.getMediaBuckets(getActivity().getApplicationContext());
+        if (buckets == null) {
+            return rootView;
+        }
 
         selectedBuckets = new boolean[buckets.size()];
 

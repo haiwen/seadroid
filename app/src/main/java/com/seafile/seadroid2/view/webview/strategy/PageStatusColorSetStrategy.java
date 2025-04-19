@@ -12,7 +12,7 @@ import com.seafile.seadroid2.view.webview.IWebViewActionStrategy;
 
 
 @Unstable
-@Todo
+@Todo("uncompleted feature")
 public class PageStatusColorSetStrategy implements IWebViewActionStrategy {
     private Context context;
 

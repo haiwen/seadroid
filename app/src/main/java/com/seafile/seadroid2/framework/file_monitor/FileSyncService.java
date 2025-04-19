@@ -10,14 +10,18 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.Observer;
 
 import com.blankj.utilcode.util.CollectionUtils;
-import com.seafile.seadroid2.bus.TransferBusHelper;
+import com.blankj.utilcode.util.EncryptUtils;
+import com.seafile.seadroid2.bus.BusHelper;
+import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.enums.TransferOpType;
+import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.datastore.StorageManager;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
+import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
 
 import org.apache.commons.io.monitor.FileAlterationListener;
@@ -25,6 +29,7 @@ import org.apache.commons.io.monitor.FileAlterationObserver;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -89,11 +94,17 @@ public class FileSyncService extends Service {
         return mBinder;
     }
 
-    private final IBinder mBinder = new FileSyncService.FileSyncBinder();
+    private final IBinder mBinder = new FileSyncService.FileSyncBinder(this);
 
-    public class FileSyncBinder extends Binder {
+    public static class FileSyncBinder extends Binder {
+        private final WeakReference<FileSyncService> serviceRef;
+
+        public FileSyncBinder(FileSyncService service) {
+            this.serviceRef = new WeakReference<>(service);
+        }
+
         public FileSyncService getService() {
-            return FileSyncService.this;
+            return serviceRef.get();
         }
     }
 
@@ -106,24 +117,31 @@ public class FileSyncService extends Service {
         //start local path and app cache path listener
         startFolderMonitor();
 
-        //Detect updates to local media file
+        registerMediaContentObserver();
+        startWorkers();
+        observeTransferBus();
+    }
+
+    private void registerMediaContentObserver() {
         mediaContentObserver = new MediaContentObserver(getBaseContext(), new Handler());
         mediaContentObserver.register();
+    }
 
-        //media upload worker
+    private void startWorkers() {
         CameraUploadManager.getInstance().performSync();
+        BackgroundJobManagerImpl.getInstance().startDownloadChain();
+        BackgroundJobManagerImpl.getInstance().startFolderBackupChain(false);
+        BackgroundJobManagerImpl.getInstance().startFileUploadWorker();
+    }
 
-        //download worker
-        BackgroundJobManagerImpl.getInstance().startDownloadChainWorker();
+    private void observeTransferBus() {
+        BusHelper.getTransferObserver().observeForever(transferOpTypeObserver);
+    }
 
-        //folder backup upload worker
-        BackgroundJobManagerImpl.getInstance().startFolderBackupWorkerChain(false);
-
-        //file upload backup
-        BackgroundJobManagerImpl.getInstance().startFileManualUploadWorker();
-
-        //bus
-        TransferBusHelper.getTransferObserver().observeForever(transferOpTypeObserver);
+    @Override
+    public void onTaskRemoved(Intent rootIntent) {
+        super.onTaskRemoved(rootIntent);
+        destroy();
     }
 
     private final Observer<TransferOpType> transferOpTypeObserver = new Observer<TransferOpType>() {
@@ -185,6 +203,8 @@ public class FileSyncService extends Service {
                 fileMonitor.stop();
             } catch (Exception e) {
                 SLogs.w("FileSyncService", e);
+            } finally {
+                fileMonitor = null;
             }
         }
     }
@@ -229,11 +249,30 @@ public class FileSyncService extends Service {
         // The file has changed: /storage/emulated/0/Android/media/com.seafile.seadroid2/Seafile
         if (file.getAbsolutePath().startsWith(IGNORE_PATHS.get(0))) {
             if ("change".equals(action)) {
-                BackgroundJobManagerImpl.getInstance().startCheckDownloadedFileChainWorker(file.getAbsolutePath());
+                onAppCacheFileChanged(file);
             }
         } else {
-            BackgroundJobManagerImpl.getInstance().startFolderBackupWorkerChain(true);
+            BackgroundJobManagerImpl.getInstance().startFolderBackupChain(true);
         }
+    }
+
+    private void onAppCacheFileChanged(File file) {
+        TransferModel transferModel = new TransferModel();
+        transferModel.file_name = file.getName();
+        transferModel.file_size = file.length();
+        transferModel.full_path = file.getAbsolutePath();
+        transferModel.data_source = TransferDataSource.DOWNLOAD;
+
+        //repo data will be set in worker
+//        transferModel.related_account = fileCacheStatusEntity.related_account;
+//        transferModel.repo_id = fileCacheStatusEntity.repo_id;
+//        transferModel.repo_name = fileCacheStatusEntity.repo_name;
+
+        String id = EncryptUtils.encryptMD5ToString(file.getAbsolutePath());
+        transferModel.setId(id);
+        GlobalTransferCacheList.CHANGED_FILE_MONITOR_QUEUE.put(transferModel);
+        BackgroundJobManagerImpl.getInstance().startCheckDownloadedFileChain();
+
     }
 
     private class FolderStateChangedListener implements FileAlterationListener {
@@ -293,15 +332,20 @@ public class FileSyncService extends Service {
     public void onDestroy() {
         super.onDestroy();
 
+        destroy();
+    }
+
+    private void destroy() {
         SLogs.e("file monitor service destroy");
         stopFolderMonitor();
 
         //
-        TransferBusHelper.getTransferObserver().removeObserver(transferOpTypeObserver);
+        BusHelper.getTransferObserver().removeObserver(transferOpTypeObserver);
 
         //
         if (mediaContentObserver != null) {
             mediaContentObserver.unregister();
+            mediaContentObserver = null;
         }
     }
 

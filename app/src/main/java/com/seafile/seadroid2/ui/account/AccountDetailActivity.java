@@ -39,17 +39,6 @@ public class AccountDetailActivity extends BaseActivityWithVM<AccountViewModel> 
     private final String TWO_FACTOR_AUTH = "two_factor_auth";
 
     private AccountDetailBinding binding;
-
-//    private TextView mStatusTv;
-//    private Button mLoginBtn;
-//    private EditText mServerEt;
-//    private TextInputEditText mEmailEt;
-//    private EditText mPasswdEt;
-//    private CheckBox mHttpsCheckBox;
-//    private TextView mSeaHubUrlHintTv;
-//    private TextInputLayout mAuthTokenInputLayout;
-//    private EditText mAuthTokenEt;
-
     private boolean serverTextHasFocus;
     private String mSessionKey;
 

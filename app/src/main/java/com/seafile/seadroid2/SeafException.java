@@ -35,6 +35,7 @@ public class SeafException extends Exception {
     public static final SeafException TWO_FACTOR_AUTH_TOKEN_INVALID_EXCEPTION = new SeafException(14, SeadroidApplication.getAppContext().getString(R.string.two_factor_auth_invalid));
 
     public static final SeafException NOT_FOUND_EXCEPTION = new SeafException(404, "not found");
+    public static final SeafException NOT_FOUND_FILE_EXCEPTION = new SeafException(441, "File does not exist");
     public static final SeafException NOT_FOUND_USER_EXCEPTION = new SeafException(20, "not found user");
     public static final SeafException NOT_FOUND_LOGGED_USER_EXCEPTION = new SeafException(21, "the signed-in user was not found");
     public static final SeafException NOT_FOUND_DIR_EXCEPTION = new SeafException(23, "parent dir doesn't exist");

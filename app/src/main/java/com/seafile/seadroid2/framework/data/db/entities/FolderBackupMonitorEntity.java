@@ -3,6 +3,7 @@ package com.seafile.seadroid2.framework.data.db.entities;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
+@Deprecated
 @Entity(tableName = "folder_monitor_cache")
 public class FolderBackupMonitorEntity {
     @PrimaryKey(autoGenerate = true)

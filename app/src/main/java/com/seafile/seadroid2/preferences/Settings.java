@@ -49,7 +49,6 @@ public class Settings {
     public static SettingsLiveData<String> SPACE_INFO;
     public static SettingsLiveData<String> USER_SERVER_INFO;
     public static SettingsLiveData<NightMode> NIGHT_MODE;
-    public static SettingsLiveData<NightMode> APP_NIGHT_MODE;
 
     @Deprecated
     public static SettingsLiveData<Boolean> USER_GESTURE_LOCK_SWITCH;
@@ -77,6 +76,8 @@ public class Settings {
     public static SettingsLiveData<String> FOLDER_BACKUP_SELECTED_FOLDERS;
     public static SettingsLiveData<String> FOLDER_BACKUP_STATE;
 
+    public static SettingsLiveData<String> TRANSFER_DOWNLOAD_STATE;
+    public static SettingsLiveData<String> TRANSFER_UPLOAD_STATE;
     //cache
     public static SettingsLiveData<String> CACHE_SIZE;
 
@@ -140,7 +141,6 @@ public class Settings {
         SPACE_INFO = new StringSettingLiveData(_account.getEncryptSignature(), R.string.pref_key_user_space, R.string.settings_account_info_load_data);
         USER_SERVER_INFO = new StringSettingLiveData(_account.getEncryptSignature(), R.string.pref_key_user_server, Resources.ID_NULL);
         NIGHT_MODE = new EnumSettingLiveData<>(NightMode.class, _account.getEncryptSignature(), R.string.pref_key_night_mode, R.string.pref_default_value_night_mode);
-        APP_NIGHT_MODE = new EnumSettingLiveData<>(NightMode.class, _account.getEncryptSignature(), R.string.pref_key_current_night_mode, R.string.pref_default_value_night_mode);
 //        CLIENT_ENCRYPT_SWITCH = new BooleanSettingLiveData(_account.getEncryptSignature(), R.string.pref_key_security_client_encrypt);
 
 //        USER_GESTURE_LOCK_SWITCH = new BooleanSettingLiveData(_account.getEncryptSignature(), R.string.pref_key_gesture_lock);
@@ -165,6 +165,10 @@ public class Settings {
         FOLDER_BACKUP_SELECTED_FOLDERS = new StringSettingLiveData(_account.getEncryptSignature(), R.string.pref_key_folder_backup_folder_select, Resources.ID_NULL);
         FOLDER_BACKUP_NETWORK_MODE = new EnumSettingLiveData<>(NetworkMode.class, _account.getEncryptSignature(), R.string.pref_key_folder_backup_network_mode, R.string.pref_key_default_value_folder_backup_network_mode);
 
+        TRANSFER_DOWNLOAD_STATE = new StringSettingLiveData(_account.getEncryptSignature(), R.string.pref_key_transfer_download_state, R.string.transfer_default_state);
+        TRANSFER_UPLOAD_STATE = new StringSettingLiveData(_account.getEncryptSignature(), R.string.pref_key_transfer_upload_state, R.string.transfer_default_state);
+
+
         //cache
         CACHE_SIZE = new StringSettingLiveData(_account.getEncryptSignature(), R.string.pref_key_cache_info, R.string.settings_account_info_load_data);
 
@@ -173,7 +177,6 @@ public class Settings {
         REGISTER_LIST.add(SPACE_INFO);
         REGISTER_LIST.add(USER_SERVER_INFO);
         REGISTER_LIST.add(NIGHT_MODE);
-        REGISTER_LIST.add(APP_NIGHT_MODE);
 //        REGISTER_LIST.add(USER_GESTURE_LOCK_SWITCH);
 //        REGISTER_LIST.add(USER_GESTURE_LOCK_TIMESTAMP);
 //        REGISTER_LIST.add(CLIENT_ENCRYPT_SWITCH);
@@ -190,6 +193,9 @@ public class Settings {
         REGISTER_LIST.add(FOLDER_BACKUP_NETWORK_MODE);
         REGISTER_LIST.add(FOLDER_BACKUP_SELECTED_REPO);
         REGISTER_LIST.add(FOLDER_BACKUP_SELECTED_FOLDERS);
+        REGISTER_LIST.add(TRANSFER_DOWNLOAD_STATE);
+        REGISTER_LIST.add(TRANSFER_UPLOAD_STATE);
+
         REGISTER_LIST.add(CACHE_SIZE);
     }
 

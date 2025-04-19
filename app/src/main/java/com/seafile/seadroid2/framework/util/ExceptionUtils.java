@@ -23,7 +23,7 @@ import retrofit2.HttpException;
 import retrofit2.Response;
 
 public class ExceptionUtils {
-    public static SeafException getExceptionByThrowable(Throwable throwable) {
+    public static SeafException parseByThrowable(Throwable throwable) {
         if (throwable == null) {
             return SeafException.UNKNOWN_EXCEPTION;
         }
@@ -43,51 +43,15 @@ public class ExceptionUtils {
                 }
             }
 
-            //401
-            if (HttpURLConnection.HTTP_UNAUTHORIZED == httpException.code()) {
-                return SeafException.NOT_FOUND_LOGGED_USER_EXCEPTION;
-            }
-
-            //504
-            if (HttpURLConnection.HTTP_GATEWAY_TIMEOUT == httpException.code()) {
-                if (NetworkUtils.isConnected()) {
-                    ToastUtils.showLong(R.string.transfer_list_network_error);
-                } else {
-                    ToastUtils.showLong(R.string.network_unavailable);
-                }
-
-                return SeafException.NETWORK_EXCEPTION;
-            }
-
-            //403, need to re-logg-in
-            if (HttpURLConnection.HTTP_FORBIDDEN == httpException.code()) {
-                return SeafException.NOT_FOUND_LOGGED_USER_EXCEPTION;
-            }
-
-            //404
-            if (HttpURLConnection.HTTP_NOT_FOUND == httpException.code()) {
-                return SeafException.NOT_FOUND_EXCEPTION;
-            }
-
-            //HTTP_STATUS_REPO_PASSWORD_REQUIRED
-            if (440 == httpException.code()) {
-                return SeafException.INVALID_PASSWORD;
-            }
-
-            //500: HTTP_INTERNAL_ERROR
-            if (HttpURLConnection.HTTP_INTERNAL_ERROR == httpException.code()) {
-                return SeafException.SERVER_INTERNAL_ERROR;
-            }
-
             if (resp != null) {
                 try {
-                    ResponseBody body = resp.errorBody();
-                    return parseErrorJson(httpException.code(), body == null ? null : body.string());
+                    try (ResponseBody body = resp.errorBody()) {
+                        return parse(httpException.code(), body == null ? null : body.string());
+                    }
                 } catch (IOException e) {
                     SLogs.e(e);
-                    return parseErrorJson(httpException.code(), null);
+                    return parse(httpException.code(), null);
                 }
-
             }
         }
 
@@ -109,16 +73,70 @@ public class ExceptionUtils {
             return SeafException.SSL_EXCEPTION;
         }
 
-        if (throwable instanceof SecurityException){
+        if (throwable instanceof SecurityException) {
             return SeafException.IO_EXCEPTION;
         }
 
         return new SeafException(SeafException.CODE_ERROR, throwable.getLocalizedMessage());
     }
 
-    public static SeafException parseErrorJson(int errorCode, String bodyString) {
+    public static SeafException parse(int errorCode, String bodyString) {
+        //401
+        if (HttpURLConnection.HTTP_UNAUTHORIZED == errorCode) {
+            return SeafException.NOT_FOUND_LOGGED_USER_EXCEPTION;
+        }
+
+        //400
+        if (HttpURLConnection.HTTP_BAD_REQUEST == errorCode) {
+            //"Repo is encrypted. Please provide password to view it."
+            if (bodyString.toLowerCase().contains("please provide password to view it")) {
+                return SeafException.INVALID_PASSWORD;
+            }
+            return SeafException.NOT_FOUND_LOGGED_USER_EXCEPTION;
+        }
+
+        //504
+        if (HttpURLConnection.HTTP_GATEWAY_TIMEOUT == errorCode) {
+            if (NetworkUtils.isConnected()) {
+                ToastUtils.showLong(R.string.transfer_list_network_error);
+            } else {
+                ToastUtils.showLong(R.string.network_unavailable);
+            }
+
+            return SeafException.NETWORK_EXCEPTION;
+        }
+
+        //403, need to re-logg-in
+        if (HttpURLConnection.HTTP_FORBIDDEN == errorCode) {
+            return SeafException.NOT_FOUND_LOGGED_USER_EXCEPTION;
+        }
+
+        //404
+        if (HttpURLConnection.HTTP_NOT_FOUND == errorCode) {
+            return SeafException.NOT_FOUND_EXCEPTION;
+        }
+
+        //441
+        if (441 == errorCode) {
+            return SeafException.NOT_FOUND_FILE_EXCEPTION;
+        }
+
+        //HTTP_STATUS_REPO_PASSWORD_REQUIRED
+        if (440 == errorCode) {
+            return SeafException.INVALID_PASSWORD;
+        }
+
+        //500: HTTP_INTERNAL_ERROR
+        if (HttpURLConnection.HTTP_INTERNAL_ERROR == errorCode) {
+            return SeafException.SERVER_INTERNAL_ERROR;
+        }
+
+        return parseBody(errorCode, bodyString);
+    }
+
+    public static SeafException parseBody(int code, String bodyString) {
         if (TextUtils.isEmpty(bodyString)) {
-            return returnBadRequest(errorCode);
+            return SeafException.UNKNOWN_EXCEPTION;
         }
 
         String lowerBody = bodyString.toLowerCase();
@@ -143,32 +161,22 @@ public class ExceptionUtils {
 
         JSONObject json = Utils.parseJsonObject(bodyString);
         if (json == null) {
-            return returnBadRequest(errorCode);
+            return new SeafException(code, bodyString);
         }
 
         if (json.has("error_msg")) {
-            return new SeafException(errorCode, json.optString("error_msg"));
+            return new SeafException(code, json.optString("error_msg"));
         }
 
         if (json.has("error")) {
-            return new SeafException(errorCode, json.optString("error"));
+            return new SeafException(code, json.optString("error"));
         }
 
         if (json.has("detail")) {
-            return new SeafException(errorCode, json.optString("detail"));
+            return new SeafException(code, json.optString("detail"));
         }
 
         //not parsed
-        return new SeafException(errorCode, bodyString);
+        return new SeafException(code, bodyString);
     }
-
-    private static SeafException returnBadRequest(int code) {
-        if (HttpURLConnection.HTTP_BAD_REQUEST == code) {
-            return SeafException.REQUEST_EXCEPTION;
-        }
-
-        return new SeafException(code, "unknown error");
-    }
-
-
 }

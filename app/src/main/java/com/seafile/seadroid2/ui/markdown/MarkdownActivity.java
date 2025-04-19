@@ -14,7 +14,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.FileProvider;
 
-import com.blankj.utilcode.util.FileIOUtils;
 import com.blankj.utilcode.util.FileUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.BuildConfig;
@@ -38,12 +37,12 @@ public class MarkdownActivity extends BaseActivityWithVM<EditorViewModel> implem
 
     private MarkdownView markdownView;
 
-    private String path, repoId, targetFile;
+    private String path, repoId, fullPathInRemote;
 
     public static void start(Context context, String localPath, String repoId, String target_file) {
         Intent starter = new Intent(context, MarkdownActivity.class);
-        starter.putExtra("path", localPath);
-        starter.putExtra("target_file", target_file);
+        starter.putExtra("local_path", localPath);
+        starter.putExtra("full_path", target_file);
         starter.putExtra("repo_id", repoId);
         context.startActivity(starter);
     }
@@ -54,9 +53,9 @@ public class MarkdownActivity extends BaseActivityWithVM<EditorViewModel> implem
         setContentView(R.layout.activity_markdown);
 
         Intent intent = getIntent();
-        path = intent.getStringExtra("path");
+        path = intent.getStringExtra("local_path");
         repoId = intent.getStringExtra("repo_id");
-        targetFile = intent.getStringExtra("target_file");
+        fullPathInRemote = intent.getStringExtra("full_path");
 
         if (path == null) return;
 
@@ -148,7 +147,7 @@ public class MarkdownActivity extends BaseActivityWithVM<EditorViewModel> implem
         editAsMarkDown.setDataAndType(uri, mime);
 
         if ("text/plain".equals(mime)) {
-            EditorActivity.start(this, path, repoId, targetFile);
+            EditorActivity.start(this, path, repoId, fullPathInRemote);
         } else if (pm.queryIntentActivities(editAsMarkDown, 0).size() > 0) {
             // Some activity can edit markdown
             startActivity(editAsMarkDown);

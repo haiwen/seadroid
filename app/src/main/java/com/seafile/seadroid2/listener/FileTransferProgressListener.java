@@ -1,27 +1,27 @@
 package com.seafile.seadroid2.listener;
 
-import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
+import com.blankj.utilcode.util.CloneUtils;
+import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 
 public class FileTransferProgressListener {
     private TransferProgressListener progressListener;
-    private FileTransferEntity fileTransferEntity;
+    private TransferModel transferModel;
     private long temp;
 
     public FileTransferProgressListener() {
 
     }
 
-    public FileTransferProgressListener(TransferProgressListener progressListener, FileTransferEntity fileTransferEntity) {
+    public FileTransferProgressListener(TransferProgressListener progressListener) {
         this.progressListener = progressListener;
-        this.fileTransferEntity = fileTransferEntity;
     }
 
     public void setProgressListener(TransferProgressListener progressListener) {
         this.progressListener = progressListener;
     }
 
-    public void setFileTransferEntity(FileTransferEntity fileTransferEntity) {
-        this.fileTransferEntity = fileTransferEntity;
+    public void setTransferModel(TransferModel transferModel) {
+        this.transferModel = CloneUtils.deepClone(transferModel, TransferModel.class);
     }
 
     public void onProgressNotify(long cur, long total) {
@@ -29,8 +29,8 @@ public class FileTransferProgressListener {
             throw new IllegalArgumentException("progressListener is null");
         }
 
-        if (fileTransferEntity == null) {
-            throw new IllegalArgumentException("fileTransferEntity is null");
+        if (transferModel == null) {
+            throw new IllegalArgumentException("uploadModel is null");
         }
 
 
@@ -41,10 +41,10 @@ public class FileTransferProgressListener {
 
         temp = nowt;
 
-        fileTransferEntity.transferred_size = cur;
+        transferModel.transferred_size = cur;
 
-        int percent = calcu(cur, total);
-        progressListener.onProgressNotify(fileTransferEntity, percent, cur, total);
+        int percent = calc(cur, total);
+        progressListener.onProgressNotify(transferModel, percent, cur, total);
     }
 
     public int onProgress(long cur, long total) {
@@ -55,15 +55,15 @@ public class FileTransferProgressListener {
         }
 
         temp = nowt;
-        return calcu(cur, total);
+        return calc(cur, total);
     }
 
-    public int calcu(long cur, long total) {
+    public int calc(long cur, long total) {
         int percent = (int) ((float) cur / (float) total * 100);
         return percent;
     }
 
     public interface TransferProgressListener {
-        void onProgressNotify(FileTransferEntity fileTransferEntity, int percent, long transferredSize, long totalSize);
+        void onProgressNotify(TransferModel transferModel, int percent, long transferredSize, long totalSize);
     }
 }

@@ -103,7 +103,6 @@ public class SeaWebViewClient extends BridgeWebViewClient {
             }
 
             String rUrl = buildUrl(mOriginTargetUrl);
-            SLogs.d("targetUrl: " + rUrl);
             wb.loadUrl(rUrl, map);
         } else {
             wb.loadUrl(mOriginTargetUrl);

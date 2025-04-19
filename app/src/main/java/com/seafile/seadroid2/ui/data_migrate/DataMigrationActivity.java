@@ -24,16 +24,13 @@ import com.seafile.seadroid2.account.Authenticator;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.databinding.ActivityDataMigrationBinding;
+import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.framework.data.DatabaseHelper;
 import com.seafile.seadroid2.framework.data.db.AppDatabase;
 import com.seafile.seadroid2.framework.data.db.entities.EncKeyCacheEntity;
-import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
+import com.seafile.seadroid2.framework.data.db.entities.FileBackupStatusEntity;
 import com.seafile.seadroid2.framework.data.db.entities.FolderBackupMonitorEntity;
 import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
-import com.seafile.seadroid2.enums.TransferAction;
-import com.seafile.seadroid2.enums.TransferDataSource;
-import com.seafile.seadroid2.enums.TransferResult;
-import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.data.model.repo.RepoWrapperModel;
 import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.datastore.DataStoreKeys;
@@ -44,10 +41,9 @@ import com.seafile.seadroid2.framework.datastore.sp.AppDataManager;
 import com.seafile.seadroid2.framework.datastore.sp.FolderBackupManager;
 import com.seafile.seadroid2.framework.datastore.sp.SettingsManager;
 import com.seafile.seadroid2.framework.http.HttpIO;
+import com.seafile.seadroid2.framework.monitor.MonitorDBHelper;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Utils;
-import com.seafile.seadroid2.framework.worker.ExistingFileStrategy;
-import com.seafile.seadroid2.framework.monitor.MonitorDBHelper;
 import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.ssl.CertsDBHelper;
 import com.seafile.seadroid2.ui.account.AccountService;
@@ -335,7 +331,7 @@ public class DataMigrationActivity extends AppCompatActivity {
         );
 
 
-        List<FileTransferEntity> list = CollectionUtils.newArrayList();
+        List<FileBackupStatusEntity> list = CollectionUtils.newArrayList();
 
         try {
             c.moveToFirst();
@@ -348,7 +344,7 @@ public class DataMigrationActivity extends AppCompatActivity {
 
 
             while (!c.isAfterLast()) {
-                FileTransferEntity transferEntity = new FileTransferEntity();
+                FileBackupStatusEntity transferEntity = new FileBackupStatusEntity();
                 int idIndex = c.getColumnIndexOrThrow("id");
                 int dateIndex = c.getColumnIndexOrThrow("date_added");
                 int filePathIndex = c.getColumnIndexOrThrow("file");
@@ -370,29 +366,19 @@ public class DataMigrationActivity extends AppCompatActivity {
                     transferEntity.related_account = null;
                 }
 
-                transferEntity.is_copy_to_local = false;
-                transferEntity.file_strategy = ExistingFileStrategy.AUTO;
-
                 transferEntity.full_path = filePath;
                 transferEntity.setParent_path(Utils.getParentPath(filePath));
                 transferEntity.file_name = FileUtils.getFileName(filePath);
                 transferEntity.file_size = FileUtils.getFileLength(filePath);
-                transferEntity.transferred_size = transferEntity.file_size;
                 transferEntity.file_format = FileUtils.getFileExtension(filePath);
                 transferEntity.mime_type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(transferEntity.file_format);
                 transferEntity.file_md5 = FileUtils.getFileMD5ToString(transferEntity.full_path).toLowerCase();
 
                 transferEntity.created_at = action_end_time_stamp;
                 transferEntity.modified_at = action_end_time_stamp;
-                transferEntity.action_end_at = action_end_time_stamp;
 
                 transferEntity.data_source = TransferDataSource.ALBUM_BACKUP;
-                transferEntity.transfer_action = TransferAction.UPLOAD;
-                transferEntity.transfer_status = TransferStatus.SUCCEEDED;
-                transferEntity.result = TransferResult.TRANSMITTED.name();
-
                 transferEntity.file_id = null;
-                transferEntity.file_original_modified_at = FileUtils.getFileLastModified(transferEntity.full_path);
 
                 transferEntity.uid = transferEntity.getUID();
 
@@ -405,7 +391,7 @@ public class DataMigrationActivity extends AppCompatActivity {
         }
 
         SLogs.d("--------------------" + table);
-        for (FileTransferEntity entity : list) {
+        for (FileBackupStatusEntity entity : list) {
             SLogs.d(entity.toString());
         }
 
@@ -438,7 +424,7 @@ public class DataMigrationActivity extends AppCompatActivity {
                 null    // The sort order
         );
 
-        List<FileTransferEntity> list = CollectionUtils.newArrayList();
+        List<FileBackupStatusEntity> list = CollectionUtils.newArrayList();
 
         try {
             c.moveToFirst();
@@ -453,7 +439,7 @@ public class DataMigrationActivity extends AppCompatActivity {
                 int filePathIndex = c.getColumnIndexOrThrow("file_path");
                 int fileSizeIndex = c.getColumnIndexOrThrow("file_size");
 
-                FileTransferEntity transferEntity = new FileTransferEntity();
+                FileBackupStatusEntity transferEntity = new FileBackupStatusEntity();
 
                 transferEntity.v = 0;
                 transferEntity.repo_id = c.getString(repoIdIndex);
@@ -466,10 +452,6 @@ public class DataMigrationActivity extends AppCompatActivity {
                     transferEntity.related_account = rm.related_account;
                 }
 
-
-                transferEntity.is_copy_to_local = false;
-                transferEntity.file_strategy = ExistingFileStrategy.AUTO;
-
                 transferEntity.full_path = c.getString(filePathIndex);
                 transferEntity.setParent_path(c.getString(parentFolderIndex));
 
@@ -479,11 +461,8 @@ public class DataMigrationActivity extends AppCompatActivity {
 
 
                 transferEntity.file_size = Long.parseLong(c.getString(fileSizeIndex));
-                transferEntity.transferred_size = transferEntity.file_size;
                 transferEntity.file_format = FileUtils.getFileExtension(transferEntity.full_path);
-                transferEntity.file_original_modified_at = FileUtils.getFileLastModified(transferEntity.full_path);
                 transferEntity.mime_type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(transferEntity.file_format);
-
                 transferEntity.file_md5 = FileUtils.getFileMD5ToString(transferEntity.full_path).toLowerCase();
 
                 //null
@@ -492,13 +471,8 @@ public class DataMigrationActivity extends AppCompatActivity {
                 long nowMills = System.currentTimeMillis();
                 transferEntity.created_at = nowMills;
                 transferEntity.modified_at = nowMills;
-                transferEntity.action_end_at = nowMills;
 
                 transferEntity.data_source = TransferDataSource.FOLDER_BACKUP;
-                transferEntity.transfer_action = TransferAction.UPLOAD;
-                transferEntity.result = TransferResult.TRANSMITTED.name();
-                transferEntity.transfer_status = TransferStatus.SUCCEEDED;
-
                 transferEntity.uid = transferEntity.getUID();
 
                 c.moveToNext();
@@ -511,7 +485,7 @@ public class DataMigrationActivity extends AppCompatActivity {
 
         SLogs.d("--------------------" + table);
 
-        for (FileTransferEntity entity : list) {
+        for (FileBackupStatusEntity entity : list) {
             SLogs.d(entity.toString());
         }
 
@@ -656,7 +630,7 @@ public class DataMigrationActivity extends AppCompatActivity {
                 null    // The sort order
         );
 
-        List<FileTransferEntity> list = CollectionUtils.newArrayList();
+        List<FileBackupStatusEntity> list = CollectionUtils.newArrayList();
 
         try {
             c.moveToFirst();
@@ -665,7 +639,7 @@ public class DataMigrationActivity extends AppCompatActivity {
 
             while (!c.isAfterLast()) {
 
-                FileTransferEntity transferEntity = new FileTransferEntity();
+                FileBackupStatusEntity transferEntity = new FileBackupStatusEntity();
                 int idIndex = c.getColumnIndexOrThrow("id");
                 int fileIdIndex = c.getColumnIndexOrThrow("fileid");
                 int pathIndex = c.getColumnIndexOrThrow("path");
@@ -686,20 +660,12 @@ public class DataMigrationActivity extends AppCompatActivity {
                     transferEntity.related_account = rm.related_account;
                 }
 
-                transferEntity.is_copy_to_local = false;
-                transferEntity.file_strategy = ExistingFileStrategy.AUTO;
-
                 String path = c.getString(pathIndex);
-
-                transferEntity.result = TransferResult.TRANSMITTED.name();
-                transferEntity.transfer_status = TransferStatus.SUCCEEDED;
                 if (path.startsWith("/")) {
-                    transferEntity.transfer_action = TransferAction.DOWNLOAD;
                     transferEntity.data_source = TransferDataSource.DOWNLOAD;
                     transferEntity.full_path = path;
                 } else {
                     transferEntity.full_path = "/" + path;
-                    transferEntity.transfer_action = TransferAction.UPLOAD;
                     if (path.startsWith("My Photos")) {
                         transferEntity.data_source = TransferDataSource.ALBUM_BACKUP;
                     } else {
@@ -714,7 +680,6 @@ public class DataMigrationActivity extends AppCompatActivity {
                     String mediaPath = StorageManager.getInstance().getMediaDir().getAbsolutePath();
                     String absPath = Utils.pathJoin(mediaPath, transferEntity.related_account, transferEntity.repo_name, path);
                     transferEntity.file_size = FileUtils.getFileLength(absPath);
-                    transferEntity.transferred_size = transferEntity.file_size;
                     transferEntity.file_md5 = FileUtils.getFileMD5ToString(absPath).toLowerCase();
                     transferEntity.target_path = absPath;
                 } else if (TransferDataSource.FOLDER_BACKUP == transferEntity.data_source) {
@@ -726,12 +691,8 @@ public class DataMigrationActivity extends AppCompatActivity {
 
                 transferEntity.file_format = FileUtils.getFileExtension(transferEntity.full_path);
                 transferEntity.mime_type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(transferEntity.file_format);
-
                 transferEntity.created_at = 0;
                 transferEntity.modified_at = 0;
-                transferEntity.action_end_at = 0;
-
-
                 transferEntity.uid = transferEntity.getUID();
 
                 c.moveToNext();
@@ -743,7 +704,7 @@ public class DataMigrationActivity extends AppCompatActivity {
         }
 
         SLogs.d("--------------------" + table);
-        for (FileTransferEntity entity : list) {
+        for (FileBackupStatusEntity entity : list) {
             SLogs.d(entity.toString());
         }
 
@@ -839,7 +800,7 @@ public class DataMigrationActivity extends AppCompatActivity {
                     RepoModel repo = repoModelOp.get();
                     Account account = SupportAccountManager.getInstance().getSpecialAccount(repo.related_account);
                     if (account != null) {
-                        List<String> list = DataManager.getRepoNameMaps(account);
+                        List<String> list = DataManager.getRepoMapping();
                         list.add(repo_id + DataStoreKeys.SEPARATOR + repo_dir);
 
                         String v = GsonUtils.toJson(list);

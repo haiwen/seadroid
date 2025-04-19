@@ -2,13 +2,11 @@ package com.seafile.seadroid2.framework.datastore;
 
 import android.text.TextUtils;
 
+import com.blankj.utilcode.util.FileUtils;
 import com.blankj.utilcode.util.GsonUtils;
-import com.google.common.collect.Maps;
+import com.google.common.io.Files;
 import com.google.gson.reflect.TypeToken;
-import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.preferences.Settings;
 
@@ -17,39 +15,18 @@ import org.apache.commons.lang3.StringUtils;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 public class DataManager {
 
-    //    private static final long SET_PASSWORD_INTERVAL = 59 * 60 * 1000; // 59 min
+    // private static final long SET_PASSWORD_INTERVAL = 59 * 60 * 1000; // 59 min
     // private static final long SET_PASSWORD_INTERVAL = 5 * 1000; // 5s
     public static final long SET_PASSWORD_INTERVAL = 1000 * 60 * 60 * 24;//1 days
-
-    // pull to refresh
-    public static final String PULL_TO_REFRESH_LAST_TIME_FOR_REPOS_FRAGMENT = "repo fragment last update";
-    public static final String PULL_TO_REFRESH_LAST_TIME_FOR_STARRED_FRAGMENT = "starred fragment last update ";
-
-    private static SimpleDateFormat ptrDataFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
-    private static Map<String, Long> direntsRefreshTimeMap = Maps.newHashMap();
-    public static final long REFRESH_EXPIRATION_MSECS = 10 * 60 * 1000; // 10 mins
-    public static long repoRefreshTimeStamp = 0;
-
-    public static final int BUFFER_SIZE = 2 * 1024 * 1024;
-    public static final int PAGE_SIZE = 25;
-
-    //    private SeafConnection sc;
-//    private Account account;
-//    private static DatabaseHelper dbHelper;
     private static final StorageManager storageManager = StorageManager.getInstance();
 
     public DataManager() {
-//        dbHelper = DatabaseHelper.getDatabaseHelper();
     }
 
     /**
@@ -126,30 +103,9 @@ public class DataManager {
         return Utils.pathJoin(path, p);
     }
 
-
-    /**
-     * The data format in DataStore is as follows:
-     * <p>
-     * repo-id::::new-repo-name
-     * </p>
-     */
-    private static String getSpecialRepoDirMapping(Account account, String repo_id) {
-
-        List<String> list = getRepoNameMaps(account);
-        for (String set : list) {
-            String[] sp = StringUtils.split(set, DataStoreKeys.SEPARATOR);
-            if (repo_id.equals(sp[0])) {
-                return sp[1];
-            }
-        }
-
-        return null;
-    }
-
-    public static List<String> getRepoNameMaps(Account account) {
+    public static List<String> getRepoMapping() {
 
         String names = Settings.getCurrentAccountSharedPreferences().getString(DataStoreKeys.DS_REPO_DIR_MAPPING, null);
-//        String names = DataStoreManager.getInstanceByUser(account.getSignature()).readString(DataStoreKeys.DS_REPO_DIR_MAPPING);
         Type listType = new TypeToken<List<String>>() {
         }.getType();
 
@@ -160,8 +116,27 @@ public class DataManager {
         return list;
     }
 
-    private static boolean checkSpecialRepoDirMapping(Account account, String repo_name) {
-        List<String> list = getRepoNameMaps(account);
+    /**
+     * The data format in DataStore is as follows:
+     * <p>
+     * repo-id::::new-repo-name
+     * </p>
+     */
+    private static String getSpecialRepoMappingName(String repo_id) {
+        List<String> list = getRepoMapping();
+        for (String set : list) {
+            String[] sp = StringUtils.split(set, DataStoreKeys.SEPARATOR);
+            if (repo_id.equals(sp[0])) {
+                return sp[1];
+            }
+        }
+
+        return null;
+    }
+
+
+    private static boolean checkSpecialRepoMappingDir(String repo_name) {
+        List<String> list = getRepoMapping();
         for (String set : list) {
             String[] sp = StringUtils.split(set, DataStoreKeys.SEPARATOR);
             if (repo_name.equals(sp[1])) {
@@ -172,11 +147,54 @@ public class DataManager {
         return false;
     }
 
-    public static File getRepoDirMappingDataStore(Account account, String repo_id, String repo_name) {
+    public static File renameRepoName(Account account, String repo_id, String new_repo_name) {
+        String accountDir = DataManager.getAccountDir(account);
+        File repoDir;
+        String uniqueRepoName;
+        int i = 0;
+        while (true) {
+            if (i == 0) {
+                uniqueRepoName = new_repo_name;
+            } else {
+                uniqueRepoName = new_repo_name + " (" + i + ")";
+            }
+
+            boolean isDuplicate = checkSpecialRepoMappingDir(uniqueRepoName);
+            repoDir = new File(accountDir, uniqueRepoName);
+            if (!repoDir.exists() && !isDuplicate) {
+                break;
+            }
+
+            i++;
+        }
+
+        if (!repoDir.mkdirs()) {
+            throw new RuntimeException("Could not create repo directory " + uniqueRepoName
+                    + "Phone storage space is insufficient or too many " + uniqueRepoName + " directory in phone");
+        }
+
+        List<String> list = getRepoMapping();
+        List<String> list2 = new ArrayList<>();
+        for (String set : list) {
+            String[] sp = StringUtils.split(set, DataStoreKeys.SEPARATOR);
+            if (repo_id.equals(sp[0])) {
+                sp[1] = uniqueRepoName;
+                list2.add(sp[0] + DataStoreKeys.SEPARATOR + sp[1]);
+            } else {
+                list2.add(set);
+            }
+        }
+
+        String v = GsonUtils.toJson(list2);
+        Settings.getCurrentAccountSharedPreferences().edit().putString(DataStoreKeys.DS_REPO_DIR_MAPPING, v).commit();
+
+        return repoDir;
+    }
+
+    public static File getOrCreateRepoMappingDir(Account account, String repo_id, String repo_name) {
 
         String accountDir = DataManager.getAccountDir(account);
-
-        String repoDirName = getSpecialRepoDirMapping(account, repo_id);
+        String repoDirName = getSpecialRepoMappingName(repo_id);
 
         File repoDir;
         if (!TextUtils.isEmpty(repoDirName)) {
@@ -196,7 +214,7 @@ public class DataManager {
                     uniqueRepoName = repo_name + " (" + i + ")";
                 }
 
-                boolean isDuplicate = checkSpecialRepoDirMapping(account, uniqueRepoName);
+                boolean isDuplicate = checkSpecialRepoMappingDir(uniqueRepoName);
                 repoDir = new File(accountDir, uniqueRepoName);
                 if (!repoDir.exists() && !isDuplicate) {
                     break;
@@ -211,40 +229,23 @@ public class DataManager {
             }
 
 
-            List<String> list = getRepoNameMaps(account);
+            List<String> list = getRepoMapping();
             list.add(repo_id + DataStoreKeys.SEPARATOR + uniqueRepoName);
             String v = GsonUtils.toJson(list);
 
             Settings.getCurrentAccountSharedPreferences().edit().putString(DataStoreKeys.DS_REPO_DIR_MAPPING, v).commit();
-//            DataStoreManager.getInstanceByUser(account.getSignature()).writeString(DataStoreKeys.DS_REPO_DIR_MAPPING, v);
         }
 
         return repoDir;
     }
 
 
-    public static File getLocalRepoFile(Account account, FileTransferEntity transferEntity) {
-        File file = getRepoDirMappingDataStore(account, transferEntity.repo_id, transferEntity.repo_name);
-
-        String localPath = Utils.pathJoin(file.getAbsolutePath(), transferEntity.full_path);
-
-        //build valid file path and name
-        localPath = com.seafile.seadroid2.framework.util.FileUtils.buildValidFilePathName(localPath);
-
-        File parentDir = new File(Utils.getParentPath(localPath));
-        if (!parentDir.exists()) {
-            parentDir.mkdirs();
-        }
-
-        return new File(localPath);
-    }
-
     /**
      * Each repo is placed under [account-dir]/[repo-name]. When a
      * file is downloaded, it's placed in its repo, with its full path.
      */
     public static File getLocalRepoFile(Account account, String repoId, String repoName, String path) throws RuntimeException {
-        File file = getRepoDirMappingDataStore(account, repoId, repoName);
+        File file = getOrCreateRepoMappingDir(account, repoId, repoName);
 
         String localPath = Utils.pathJoin(file.getAbsolutePath(), path);
 
@@ -257,114 +258,5 @@ public class DataManager {
         }
 
         return new File(localPath);
-    }
-
-    /**
-     * Each repo is placed under [account-dir]/[repo-name].
-     * When a file is downloaded, it's placed in its repo, with its full path.
-     */
-    public static File getLocalRepoPath(Account account, String repoId, String repoName) throws RuntimeException {
-        File file = getRepoDirMappingDataStore(account, repoId, repoName);
-
-
-        //build valid file path and name
-        String localPath = com.seafile.seadroid2.framework.util.FileUtils.buildValidFilePathName(file.getAbsolutePath());
-
-        File parentDir = new File(Utils.getParentPath(localPath));
-        if (!parentDir.exists()) {
-            parentDir.mkdirs();
-        }
-
-        return new File(localPath);
-    }
-
-
-    /**
-     * calculate if refresh time is expired, the expiration is 10 mins
-     */
-    public boolean isReposRefreshTimeout() {
-        if (Utils.now() < repoRefreshTimeStamp + REFRESH_EXPIRATION_MSECS) {
-            return false;
-        }
-
-        return true;
-    }
-
-    public boolean isDirentsRefreshTimeout(String repoID, String path) {
-        if (!direntsRefreshTimeMap.containsKey(Utils.pathJoin(repoID, path))) {
-            return true;
-        }
-        long lastRefreshTime = direntsRefreshTimeMap.get(Utils.pathJoin(repoID, path));
-
-        if (Utils.now() < lastRefreshTime + REFRESH_EXPIRATION_MSECS) {
-            return false;
-        }
-        return true;
-    }
-
-    public boolean isStarredFilesRefreshTimeout() {
-        if (!direntsRefreshTimeMap.containsKey(PULL_TO_REFRESH_LAST_TIME_FOR_STARRED_FRAGMENT)) {
-            return true;
-        }
-        long lastRefreshTime = direntsRefreshTimeMap.get(PULL_TO_REFRESH_LAST_TIME_FOR_STARRED_FRAGMENT);
-
-        if (Utils.now() < lastRefreshTime + REFRESH_EXPIRATION_MSECS) {
-            return false;
-        }
-        return true;
-    }
-
-    public void setDirsRefreshTimeStamp(String repoID, String path) {
-        direntsRefreshTimeMap.put(Utils.pathJoin(repoID, path), Utils.now());
-    }
-
-    public void setReposRefreshTimeStamp() {
-        repoRefreshTimeStamp = Utils.now();
-    }
-
-    public void saveLastPullToRefreshTime(long lastUpdateTime, String whichFragment) {
-        direntsRefreshTimeMap.put(whichFragment, lastUpdateTime);
-    }
-
-    public String getLastPullToRefreshTime(String whichFragment) {
-
-        if (!direntsRefreshTimeMap.containsKey(whichFragment)) {
-            return null;
-        }
-
-        Long objLastUpdate = direntsRefreshTimeMap.get(whichFragment);
-        if (objLastUpdate == null) return null;
-
-        long lastUpdate = direntsRefreshTimeMap.get(whichFragment);
-
-        long diffTime = new Date().getTime() - lastUpdate;
-        int seconds = (int) (diffTime / 1000);
-        if (diffTime < 0) {
-            return null;
-        }
-        if (seconds <= 0) {
-            return null;
-        }
-        StringBuilder sb = new StringBuilder();
-        sb.append(SeadroidApplication.getAppContext().getString(R.string.pull_to_refresh_last_update));
-
-        if (seconds < 60) {
-            sb.append(SeadroidApplication.getAppContext().getString(R.string.pull_to_refresh_last_update_seconds_ago, seconds));
-        } else {
-            int minutes = (seconds / 60);
-            if (minutes > 60) {
-                int hours = minutes / 60;
-                if (hours > 24) {
-                    Date date = new Date(lastUpdate);
-                    sb.append(ptrDataFormat.format(date));
-                } else {
-                    sb.append(SeadroidApplication.getAppContext().getString(R.string.pull_to_refresh_last_update_hours_ago, hours));
-                }
-
-            } else {
-                sb.append(SeadroidApplication.getAppContext().getString(R.string.pull_to_refresh_last_update_minutes_ago, minutes));
-            }
-        }
-        return sb.toString();
     }
 }

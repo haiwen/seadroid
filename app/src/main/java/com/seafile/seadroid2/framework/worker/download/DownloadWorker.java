@@ -1,37 +1,45 @@
 package com.seafile.seadroid2.framework.worker.download;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Pair;
 
 import androidx.annotation.NonNull;
-import androidx.work.Data;
 import androidx.work.ForegroundInfo;
 import androidx.work.WorkerParameters;
 
+import com.blankj.utilcode.util.CloneUtils;
 import com.blankj.utilcode.util.CollectionUtils;
-import com.blankj.utilcode.util.FileUtils;
+import com.blankj.utilcode.util.TimeUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
+import com.seafile.seadroid2.annotation.Todo;
+import com.seafile.seadroid2.enums.SaveTo;
 import com.seafile.seadroid2.enums.TransferDataSource;
-import com.seafile.seadroid2.framework.datastore.DataManager;
-import com.seafile.seadroid2.framework.data.db.AppDatabase;
-import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
 import com.seafile.seadroid2.enums.TransferResult;
 import com.seafile.seadroid2.enums.TransferStatus;
+import com.seafile.seadroid2.framework.crypto.SecurePasswordManager;
+import com.seafile.seadroid2.framework.data.db.AppDatabase;
+import com.seafile.seadroid2.framework.data.db.entities.EncKeyCacheEntity;
+import com.seafile.seadroid2.framework.data.db.entities.FileCacheStatusEntity;
+import com.seafile.seadroid2.framework.data.model.ResultModel;
+import com.seafile.seadroid2.framework.datastore.DataManager;
+import com.seafile.seadroid2.framework.datastore.sp.SettingsManager;
 import com.seafile.seadroid2.framework.http.HttpIO;
+import com.seafile.seadroid2.framework.notification.DownloadNotificationHelper;
 import com.seafile.seadroid2.framework.notification.base.BaseNotification;
 import com.seafile.seadroid2.framework.util.ExceptionUtils;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
-import com.seafile.seadroid2.framework.worker.ExistingFileStrategy;
+import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
+import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 import com.seafile.seadroid2.listener.FileTransferProgressListener;
-import com.seafile.seadroid2.framework.notification.DownloadNotificationHelper;
+import com.seafile.seadroid2.ui.dialog_fragment.DialogService;
 import com.seafile.seadroid2.ui.file.FileService;
 
 import org.apache.commons.lang3.StringUtils;
@@ -42,10 +50,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLEncoder;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import okhttp3.Call;
+import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
@@ -57,10 +68,9 @@ import okhttp3.ResponseBody;
  * @see BackgroundJobManagerImpl#TAG_TRANSFER
  */
 public class DownloadWorker extends BaseDownloadWorker {
-    public static final UUID UID = UUID.nameUUIDFromBytes(DownloadWorker.class.getSimpleName().getBytes());
-
     private final DownloadNotificationHelper notificationHelper;
-    private final FileTransferProgressListener fileTransferProgressListener = new FileTransferProgressListener();
+    private final FileTransferProgressListener transferProgressListener;
+    private TransferModel currentTransferModel;
 
     @Override
     public BaseNotification getNotification() {
@@ -71,28 +81,43 @@ public class DownloadWorker extends BaseDownloadWorker {
         super(context, workerParams);
 
         notificationHelper = new DownloadNotificationHelper(context);
-        fileTransferProgressListener.setProgressListener(progressListener);
+
+        transferProgressListener = new FileTransferProgressListener((transferModel, percent, transferredSize, totalSize) -> {
+            SLogs.i("DOWNLOAD: " + transferModel.file_name + " -> progress：" + percent);
+            transferModel.transferred_size = transferredSize;
+            GlobalTransferCacheList.updateTransferModel(transferModel);
+
+            ForegroundInfo foregroundInfo = notificationHelper.getForegroundProgressNotification(transferModel.file_name, percent);
+            showForegroundAsync(foregroundInfo);
+
+            //
+            sendProgressEvent(transferModel);
+        });
     }
 
     @Override
     public void onStopped() {
         super.onStopped();
+
+        if (notificationHelper != null) {
+            notificationHelper.cancel();
+        }
+
     }
 
     @NonNull
     @Override
     public Result doWork() {
-
         Account account = getCurrentAccount();
         if (account == null) {
-            return Result.success();
+            return returnSuccess();
         }
 
         //count
-        int totalPendingCount = AppDatabase.getInstance().fileTransferDAO().countPendingDownloadListSync(account.getSignature());
+        int totalPendingCount = GlobalTransferCacheList.DOWNLOAD_QUEUE.getPendingCount();
         if (totalPendingCount <= 0) {
             SLogs.i("download list is empty.");
-            return Result.success(getFinishData(null));
+            return returnSuccess();
         }
 
         ForegroundInfo foregroundInfo = notificationHelper.getForegroundNotification();
@@ -102,175 +127,139 @@ public class DownloadWorker extends BaseDownloadWorker {
         String tip = getApplicationContext().getResources().getQuantityString(R.plurals.transfer_download_started, totalPendingCount, totalPendingCount);
         ToastUtils.showLong(tip);
 
-        //start download
-
         String interruptibleExceptionMsg = null;
-        boolean isFirst = true;
-
         while (true) {
-
             if (isStopped()) {
                 break;
             }
 
-
-            List<FileTransferEntity> transferList = getList(isFirst, account);
-            if (isFirst) {
-                isFirst = false;
-
-                if (CollectionUtils.isEmpty(transferList)) {
-                    continue;
-                }
-            } else if (CollectionUtils.isEmpty(transferList)) {
+            TransferModel transferModel = GlobalTransferCacheList.DOWNLOAD_QUEUE.pick();
+            if (transferModel == null) {
                 break;
             }
 
             try {
+                int p = GlobalTransferCacheList.DOWNLOAD_QUEUE.getPendingCount();
+                SLogs.d(p + ": download start：" + transferModel.full_path);
 
-                for (FileTransferEntity fileTransferEntity : transferList) {
-
-                    try {
-                        transferFile(account, fileTransferEntity, totalPendingCount);
-                    } catch (Exception e) {
-                        SeafException seafException = ExceptionUtils.getExceptionByThrowable(e);
-                        //Is there an interruption in the transmission in some cases?
-                        boolean isInterrupt = isInterrupt(seafException);
-                        if (isInterrupt) {
-                            SLogs.e("上传文件时发生了异常，已中断传输");
-                            notifyError(seafException);
-
-                            // notice this, see BaseUploadWorker#isInterrupt()
-                            throw e;
-                        } else {
-                            SLogs.e("上传文件时发生了异常，继续下一个传输");
-                        }
-                    }
-                }
+                currentTransferModel = CloneUtils.deepClone(transferModel, TransferModel.class);
+                transferFile(account);
 
             } catch (Exception e) {
 
-                SLogs.e("upload file file failed: ", e);
-                interruptibleExceptionMsg = e.getMessage();
+                if (notificationHelper != null) {
+                    notificationHelper.cancel();
+                }
 
+                SeafException seafException = ExceptionUtils.parseByThrowable(e);
+                interruptibleExceptionMsg = seafException.getMessage();
+                notifyError(seafException);
+                //
                 break;
             }
         }
 
-        SLogs.i("all task run");
+        SLogs.i("download: all task run");
 
         //
         if (TextUtils.isEmpty(interruptibleExceptionMsg)) {
             ToastUtils.showLong(R.string.download_finished);
         }
 
-        return Result.success(getFinishData(interruptibleExceptionMsg));
+        //
+        Bundle b = new Bundle();
+        b.putString(TransferWorker.KEY_DATA_RESULT, interruptibleExceptionMsg);
+        b.putInt(TransferWorker.KEY_TRANSFER_COUNT, totalPendingCount);
+        sendWorkerEvent(TransferDataSource.DOWNLOAD, TransferEvent.EVENT_TRANSFER_FINISH, b);
+
+        return Result.success();
     }
 
-    private Data getFinishData(String exceptionMsg) {
-        return new Data.Builder()
-                .putString(TransferWorker.KEY_DATA_SOURCE, TransferDataSource.DOWNLOAD.name())
-                .putString(TransferWorker.KEY_DATA_STATUS, TransferEvent.EVENT_FINISH)
-                .putString(TransferWorker.KEY_DATA_RESULT, exceptionMsg)
-                .build();
+    protected Result returnSuccess() {
+        sendFinishEvent();
+        return Result.success();
     }
 
-    private List<FileTransferEntity> getList(boolean isFirst, Account account) {
-        List<FileTransferEntity> transferList;
-        if (isFirst) {
-            //get all: FAILED
-            transferList = AppDatabase.getInstance()
-                    .fileTransferDAO()
-                    .getOnePendingFailedDownloadByAccountSync(
-                            account.getSignature()
-                    );
-        } else {
-            //get one: WAITING, IN_PROGRESS
-            transferList = AppDatabase.getInstance()
-                    .fileTransferDAO()
-                    .getOnePendingDownloadByAccountSync(account.getSignature());
-        }
-
-        return transferList;
+    protected void sendFinishEvent() {
+        sendWorkerEvent(TransferDataSource.DOWNLOAD, TransferEvent.EVENT_TRANSFER_FINISH);
     }
 
-    private final FileTransferProgressListener.TransferProgressListener progressListener = new FileTransferProgressListener.TransferProgressListener() {
-        @Override
-        public void onProgressNotify(FileTransferEntity fileTransferEntity, int percent, long transferredSize, long totalSize) {
-            SLogs.i(fileTransferEntity.file_name + " -> progress：" + percent);
+    private final int retryMaxCount = 1;
 
-//            int diff = AppDatabase.getInstance().fileTransferDAO().countPendingDownloadListSync(fileTransferEntity.related_account);
+    private void transferFile(Account account) throws Exception {
 
-            ForegroundInfo foregroundInfo = notificationHelper.getForegroundProgressNotification(fileTransferEntity.file_name, percent);
-            showForegroundAsync(foregroundInfo);
-
-            //
-            AppDatabase.getInstance().fileTransferDAO().update(fileTransferEntity);
-
-            //
-            sendProgressNotifyEvent(fileTransferEntity.file_name, fileTransferEntity.uid, percent, transferredSize, totalSize, fileTransferEntity.data_source);
-        }
-    };
-
-    private void transferFile(Account account, FileTransferEntity transferEntity, long totalPendingCount) throws Exception {
-        SLogs.i("download start：" + transferEntity.full_path);
-
-        //show notification
-//        int diff = AppDatabase.getInstance().fileTransferDAO().countPendingDownloadListSync(transferEntity.related_account);
-        ForegroundInfo foregroundInfo = notificationHelper.getForegroundProgressNotification(transferEntity.file_name, 0);
+        ForegroundInfo foregroundInfo = notificationHelper.getForegroundProgressNotification(currentTransferModel.file_name, 0);
         showForegroundAsync(foregroundInfo);
 
         try {
-            downloadFile(account, transferEntity);
+            downloadFile(account);
 
-            sendFinishEvent(account, transferEntity, totalPendingCount);
+            sendProgressFinishEvent(currentTransferModel);
+            SLogs.d("download finish：" + currentTransferModel.full_path);
 
         } catch (Exception e) {
-            SLogs.e("download file failed -> " + transferEntity.full_path);
+            SLogs.e("download file failed -> " + currentTransferModel.full_path);
 
-            SeafException seafException = ExceptionUtils.getExceptionByThrowable(e);
-
-            updateToFailed(transferEntity, seafException.getMessage());
-
-            //send an event, update transfer entity first.
-            sendFinishEvent(account, transferEntity, totalPendingCount);
-
-            //Is there an interruption in the transmission in some cases?
-            boolean isInterrupt = isInterrupt(seafException);
-            if (isInterrupt) {
-                SLogs.e("上传文件时发生了异常，已中断传输");
-                notifyError(seafException);
-                throw e;
-            } else {
-
-            }
-
+            SeafException seafException = ExceptionUtils.parseByThrowable(e);
+            SLogs.e(seafException);
+            checkInterrupt(account, seafException);
         }
     }
 
-    private void downloadFile(Account account, FileTransferEntity transferEntity) throws Exception {
+    @Todo("need to be refactored")
+    private void checkInterrupt(Account account, SeafException seafException) throws Exception {
+        if (isRetry(seafException)) {
+            if (currentTransferModel.retry_times >= retryMaxCount) {
+                //no interrupt
+                updateToFailed(seafException.getMessage());
+                return;
+            }
 
-        Pair<String, String> pair = getDownloadLink(transferEntity, false);
+            currentTransferModel.retry_times = currentTransferModel.retry_times + 1;
+            if (seafException == SeafException.INVALID_PASSWORD) {
+                SLogs.e("上传文件时发生了异常，将进行重试: " + seafException.getMessage());
+                boolean decryptResult = decryptRepo(currentTransferModel.repo_id);
+                if (decryptResult) {
+                    transferFile(account);
+                } else {
+
+                    //
+                    // An error occurred while verifying the password with the local password,
+                    // and the local password may be invalid/empty/incorrect.
+                    // The user needs to re-enter the password again on the home page.
+                    //
+                    updateToFailed(seafException.getMessage());
+                    //interrupt
+                    throw seafException;
+                }
+            } else {
+                transferFile(account);
+            }
+        } else if (isInterrupt(seafException)) {
+
+            updateToFailed(seafException.getMessage());
+            //interrupt
+            throw seafException;
+        } else {
+
+            //no interrupt
+            updateToFailed(seafException.getMessage());
+        }
+    }
+
+    private void downloadFile(Account account) throws Exception {
+
+        Pair<String, String> pair = getDownloadLink(false);
         String dlink = pair.first;
         String fileId = pair.second;
 
-        //fileId = 0000000000000000000000000000000000000000
-
-        File localFile = DataManager.getLocalRepoFile(account, transferEntity);
-
-        if (localFile.exists() && transferEntity.file_strategy == ExistingFileStrategy.SKIP) {
-            SLogs.i("skip this file, file_strategy is SKIP ：" + localFile.getAbsolutePath());
-            return;
-        }
-
-        download(account, transferEntity, dlink, localFile);
-
-        SLogs.i("download finish：" + transferEntity.full_path);
+        download(account, dlink, fileId);
     }
 
-    private Pair<String, String> getDownloadLink(FileTransferEntity transferEntity, boolean isReUsed) throws SeafException, IOException {
+    private Pair<String, String> getDownloadLink(boolean isReUsed) throws SeafException, IOException {
         retrofit2.Response<String> res = HttpIO.getCurrentInstance()
                 .execute(FileService.class)
-                .getFileDownloadLinkSync(transferEntity.repo_id, transferEntity.full_path, isReUsed ? 1 : 0)
+                .getFileDownloadLinkSync(currentTransferModel.repo_id, currentTransferModel.full_path, isReUsed ? 1 : 0)
                 .execute();
 
         if (!res.isSuccessful()) {
@@ -300,18 +289,24 @@ public class DownloadWorker extends BaseDownloadWorker {
         }
     }
 
-    private void download(Account account, FileTransferEntity fileTransferEntity, String dlink, File localFile) throws Exception {
-        fileTransferProgressListener.setFileTransferEntity(fileTransferEntity);
+    private OkHttpClient okHttpClient;
 
-        fileTransferEntity.transfer_status = TransferStatus.IN_PROGRESS;
-        AppDatabase.getInstance().fileTransferDAO().update(fileTransferEntity);
+    private void download(Account account, String dlink, String fileId) throws Exception {
+        transferProgressListener.setTransferModel(currentTransferModel);
+
+        currentTransferModel.transfer_status = TransferStatus.IN_PROGRESS;
+        GlobalTransferCacheList.updateTransferModel(currentTransferModel);
 
         Request request = new Request.Builder()
                 .url(dlink)
                 .get()
                 .build();
 
-        Call newCall = HttpIO.getCurrentInstance().getOkHttpClient().getOkClient().newCall(request);
+        if (okHttpClient == null) {
+            okHttpClient = HttpIO.getCurrentInstance().getOkHttpClient().getOkClient();
+        }
+
+        Call newCall = okHttpClient.newCall(request);
 
         try (Response response = newCall.execute()) {
             if (!response.isSuccessful()) {
@@ -322,56 +317,68 @@ public class DownloadWorker extends BaseDownloadWorker {
                 //
                 newCall.cancel();
 
-                throw ExceptionUtils.parseErrorJson(code, b);
+                throw ExceptionUtils.parse(code, b);
             }
 
-            ResponseBody responseBody = response.body();
-            if (responseBody == null) {
-                int code = response.code();
-                throw ExceptionUtils.parseErrorJson(code, null);
-            }
-
-            long fileSize = responseBody.contentLength();
-            if (fileSize == -1) {
-                SLogs.e("download file error -> contentLength is -1, " + localFile.getAbsolutePath());
-                fileSize = fileTransferEntity.file_size;
-            }
-
-            //todo 检查剩余空间
-
-            File tempFile = DataManager.createTempFile();
-            try (InputStream inputStream = responseBody.byteStream();
-                 FileOutputStream fileOutputStream = new FileOutputStream(tempFile)) {
-
-                long totalBytesRead = 0;
-
-                int bytesRead;
-                byte[] buffer = new byte[SEGMENT_SIZE];
-                while ((bytesRead = inputStream.read(buffer, 0, buffer.length)) != -1) {
-                    if (isStopped()) {
-                        throw SeafException.USER_CANCELLED_EXCEPTION;
-                    }
-
-                    fileOutputStream.write(buffer, 0, bytesRead);
-                    totalBytesRead += bytesRead;
-
-                    //notify Notification and update DB
-                    fileTransferProgressListener.onProgressNotify(totalBytesRead, fileSize);
+            try (ResponseBody responseBody = response.body()) {
+                if (responseBody == null) {
+                    int code = response.code();
+                    SLogs.e(" upload failed：" + code + ", resBody is null: " + currentTransferModel.target_path);
+                    throw SeafException.NETWORK_EXCEPTION;
                 }
 
-                //notify complete
-                fileTransferProgressListener.onProgressNotify(fileSize, fileSize);
-            }
+                File localFile = DataManager.getLocalRepoFile(account, currentTransferModel.repo_id, currentTransferModel.repo_name, currentTransferModel.full_path);
 
-            //important
-//            tempFile.renameTo(localFile);
-            Path path = java.nio.file.Files.move(tempFile.toPath(), localFile.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-            boolean isSuccess = path.toFile().exists();
 
-            if (isSuccess) {
-                updateToSuccess(fileTransferEntity, localFile);
+                long fileSize = responseBody.contentLength();
+                if (fileSize == -1) {
+                    SLogs.e("download file error -> contentLength is -1, " + localFile.getAbsolutePath());
+                    fileSize = currentTransferModel.file_size;
+                }
+
+                //todo 检查剩余空间
+
+                File tempFile = DataManager.createTempFile();
+                try (InputStream inputStream = responseBody.byteStream();
+                     FileOutputStream fileOutputStream = new FileOutputStream(tempFile)) {
+
+                    long totalBytesRead = 0;
+
+                    int bytesRead;
+                    byte[] buffer = new byte[SEGMENT_SIZE];
+                    while ((bytesRead = inputStream.read(buffer, 0, buffer.length)) != -1) {
+                        if (isStopped()) {
+                            throw SeafException.USER_CANCELLED_EXCEPTION;
+                        }
+
+                        fileOutputStream.write(buffer, 0, bytesRead);
+                        totalBytesRead += bytesRead;
+
+                        //notify Notification and update DB
+                        transferProgressListener.onProgressNotify(totalBytesRead, fileSize);
+                    }
+
+                    //notify complete
+                    transferProgressListener.onProgressNotify(fileSize, fileSize);
+                }
+
+                //important
+                Path path = java.nio.file.Files.move(tempFile.toPath(), localFile.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                boolean isSuccess = path.toFile().exists();
+                if (isSuccess) {
+                    java.nio.file.Files.deleteIfExists(tempFile.toPath());
+                    updateToSuccess(fileId, localFile);
+                }
             }
         }
+    }
+
+    @Todo("todo")
+    public boolean isRetry(SeafException result) {
+//        if (result.equals(SeafException.INVALID_PASSWORD)) {
+//            return true;
+//        }
+        return false;
     }
 
     public boolean isInterrupt(SeafException result) {
@@ -386,33 +393,22 @@ public class DownloadWorker extends BaseDownloadWorker {
         return false;
     }
 
-    private void updateToFailed(FileTransferEntity fileTransferEntity, String transferResult) {
-        fileTransferEntity.transfer_status = TransferStatus.FAILED;
-        fileTransferEntity.result = transferResult;
-        AppDatabase.getInstance().fileTransferDAO().update(fileTransferEntity);
+    private void updateToFailed(String transferResult) {
+        currentTransferModel.transferred_size = 0L;
+        currentTransferModel.transfer_status = TransferStatus.FAILED;
+        currentTransferModel.err_msg = transferResult;
+        GlobalTransferCacheList.updateTransferModel(currentTransferModel);
     }
 
-    private void updateToSuccess(FileTransferEntity fileTransferEntity, File localFile) {
-        fileTransferEntity.transferred_size = localFile.length();
-        fileTransferEntity.result = TransferResult.TRANSMITTED.name();
-        fileTransferEntity.transfer_status = TransferStatus.SUCCEEDED;
-        fileTransferEntity.action_end_at = System.currentTimeMillis();
-        fileTransferEntity.file_original_modified_at = fileTransferEntity.action_end_at;//now
-        fileTransferEntity.file_size = localFile.length();
-        fileTransferEntity.file_md5 = FileUtils.getFileMD5ToString(fileTransferEntity.target_path).toLowerCase();
+    private void updateToSuccess(String fileId, File localFile) {
+        currentTransferModel.transferred_size = currentTransferModel.file_size;
+        currentTransferModel.transfer_status = TransferStatus.SUCCEEDED;
+        currentTransferModel.err_msg = TransferResult.TRANSMITTED.name();
+        GlobalTransferCacheList.updateTransferModel(currentTransferModel);
 
-        AppDatabase.getInstance().fileTransferDAO().update(fileTransferEntity);
-
-        //update
-        List<DirentModel> direntList = AppDatabase.getInstance().direntDao().getListByFullPathSync(fileTransferEntity.repo_id, fileTransferEntity.full_path);
-        if (!CollectionUtils.isEmpty(direntList)) {
-            DirentModel direntModel = direntList.get(0);
-            direntModel.last_modified_at = fileTransferEntity.modified_at;
-            direntModel.id = fileTransferEntity.file_id;
-            direntModel.size = fileTransferEntity.file_size;
-            direntModel.transfer_status = fileTransferEntity.transfer_status;
-
-            AppDatabase.getInstance().direntDao().insert(direntModel);
+        if (currentTransferModel.save_to == SaveTo.DB) {
+            FileCacheStatusEntity transferEntity = FileCacheStatusEntity.convertFromDownload(currentTransferModel, fileId);
+            AppDatabase.getInstance().fileCacheStatusDAO().insert(transferEntity);
         }
     }
 
@@ -421,8 +417,79 @@ public class DownloadWorker extends BaseDownloadWorker {
             getGeneralNotificationHelper().showErrorNotification(R.string.network_error, R.string.download);
         } else if (seafException == SeafException.NOT_FOUND_USER_EXCEPTION) {
             getGeneralNotificationHelper().showErrorNotification(R.string.saf_account_not_found_exception, R.string.download);
+        } else if (seafException == SeafException.USER_CANCELLED_EXCEPTION) {
+            //do nothing
         } else {
             getGeneralNotificationHelper().showErrorNotification(seafException.getMessage(), R.string.download);
         }
     }
+
+
+    public boolean decryptRepo(String repoId) {
+        List<EncKeyCacheEntity> encList = AppDatabase.getInstance().encKeyCacheDAO().getListByRepoIdSync(repoId);
+        if (CollectionUtils.isEmpty(encList)) {
+            return false;
+        }
+
+        EncKeyCacheEntity encKeyCacheEntity = encList.get(0);
+        if (TextUtils.isEmpty(encKeyCacheEntity.enc_key) || TextUtils.isEmpty(encKeyCacheEntity.enc_iv)) {
+            return false;
+        }
+
+        String decryptPassword = SecurePasswordManager.decryptPassword(encKeyCacheEntity.enc_key, encKeyCacheEntity.enc_iv);
+        try {
+
+            //
+            setPassword(repoId, decryptPassword);
+
+            //
+            insert(repoId, decryptPassword);
+
+            return true;
+        } catch (IOException | SeafException e) {
+            SLogs.e(e);
+            return false;
+        }
+    }
+
+
+    public void setPassword(String repoId, String password) throws IOException, SeafException {
+        Map<String, String> requestDataMap = new HashMap<>();
+        requestDataMap.put("password", password);
+
+        retrofit2.Call<ResultModel> setPasswordCall = HttpIO.getCurrentInstance().execute(DialogService.class).setPasswordSync(repoId, requestDataMap);
+        retrofit2.Response<ResultModel> res = setPasswordCall.execute();
+        if (res.isSuccessful()) {
+            ResultModel resultModel = res.body();
+            SLogs.d("setPassword: " + resultModel);
+        } else {
+            int code = res.code();
+            try (ResponseBody responseBody = res.errorBody()) {
+                if (responseBody != null) {
+                    throw ExceptionUtils.parse(code, responseBody.string());
+                } else {
+                    throw ExceptionUtils.parse(code, null);
+                }
+            }
+        }
+
+    }
+
+    private void insert(String repoId, String password) {
+        EncKeyCacheEntity encEntity = new EncKeyCacheEntity();
+        encEntity.v = 2;
+        encEntity.repo_id = repoId;
+
+        Pair<String, String> p = SecurePasswordManager.encryptPassword(password);
+        if (p != null) {
+            encEntity.enc_key = p.first;
+            encEntity.enc_iv = p.second;
+
+            long expire = TimeUtils.getNowMills();
+            expire += SettingsManager.DECRYPTION_EXPIRATION_TIME;
+            encEntity.expire_time_long = expire;
+            AppDatabase.getInstance().encKeyCacheDAO().insert(encEntity);
+        }
+    }
+
 }

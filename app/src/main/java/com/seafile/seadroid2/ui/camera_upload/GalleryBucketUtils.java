@@ -1,11 +1,15 @@
 package com.seafile.seadroid2.ui.camera_upload;
 
+import android.Manifest;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
 import android.text.TextUtils;
+
+import androidx.core.content.ContextCompat;
 
 import com.blankj.utilcode.util.CollectionUtils;
 import com.seafile.seadroid2.framework.datastore.StorageManager;
@@ -84,10 +88,24 @@ public class GalleryBucketUtils {
      * @return the list of buckets.
      */
     public static List<Bucket> getMediaBuckets(Context context) {
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED) {
+                return null;
+            }
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            if (ContextCompat.checkSelfPermission(context, Manifest.permission.MANAGE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                return null;
+            }
+        } else {
+            if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                return null;
+            }
+        }
+
         List<Bucket> videos;
         List<Bucket> images;
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-            //TODO 测试 android 10以下版本
             videos = getVideoBucketsBelowAndroid10Api29(context);
             images = getImageBucketsBelowAndroid10Api29(context);
         } else {
@@ -164,6 +182,8 @@ public class GalleryBucketUtils {
 
     private static List<Bucket> getImageBucketsBelowAndroid10Api29(Context context) {
         Uri images = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+
+        //MediaStore.Images.Media.DATA 在 android10以上被弃用，建议使用MediaStore.Images.Media.RELATIVE_PATH(api28+)
         String[] projection = new String[]{
                 MediaStore.Images.Media._ID,
                 MediaStore.Images.Media.BUCKET_ID,
@@ -279,11 +299,18 @@ public class GalleryBucketUtils {
 
     private static List<Bucket> getImageBuckets(Context context) {
         Uri images = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-        String[] projection = new String[]{
+        // Android 13+
+        String[] projection = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R ? new String[]{
+                MediaStore.Images.Media._ID,
+                MediaStore.Images.Media.BUCKET_ID,
+                MediaStore.Images.Media.BUCKET_DISPLAY_NAME,
+                MediaStore.Images.Media.DATE_TAKEN  // 添加时间戳字段
+        } : new String[]{
                 MediaStore.Images.Media._ID,
                 MediaStore.Images.Media.BUCKET_ID,
                 MediaStore.Images.Media.BUCKET_DISPLAY_NAME
         };
+
         String sortOrder = MediaStore.Images.Media.DATE_ADDED + " DESC";
 
         Cursor cursor = context.getContentResolver().query(images,

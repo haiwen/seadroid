@@ -9,10 +9,25 @@ import com.seafile.seadroid2.framework.data.model.ContextModel;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.preferences.ContextStackPreferenceHelper;
 
+import java.util.Objects;
 import java.util.Stack;
 
 public class NavContext {
+    private final boolean isSaveIntoSp;
+
+    public NavContext() {
+        this.isSaveIntoSp = true;
+    }
+
+    public NavContext(boolean isSaveIntoSp) {
+        this.isSaveIntoSp = isSaveIntoSp;
+    }
+
     private final Stack<BaseModel> navStack = new Stack<>();
+
+    public Stack<BaseModel> getNavStack() {
+        return navStack;
+    }
 
     /**
      * repoId = xxx, path = /
@@ -45,73 +60,46 @@ public class NavContext {
             //push
             navStack.push(model);
 
-            saveToSp();
+            if (isSaveIntoSp) {
+                saveToSp();
+            }
 
         } else if (model instanceof DirentModel) {
             //stack
             navStack.push(model);
-            saveToSp();
+
+            if (isSaveIntoSp) {
+                saveToSp();
+            }
 
         } else {
             throw new IllegalArgumentException("model must be RepoMode or DirentsModel.");
         }
     }
 
-    public void restoreNavContextFromSp() {
+    public void restoreFromSelf(NavContext fromContext) {
+        if (fromContext == null) {
+            throw new IllegalArgumentException("context is null");
+        }
+
+        if (!isSaveIntoSp) {
+            throw new IllegalStateException("isSaveIntoSp is false");
+        }
+
+        boolean b = isPathEquals(fromContext);
+        if (b) {
+            return;
+        }
 
         navStack.clear();
 
-        Stack<ContextModel> stack = ContextStackPreferenceHelper.getStack();
-        if (stack != null && !stack.isEmpty()) {
-            for (ContextModel contextModel : stack) {
-                if (contextModel.type.equals("repo")) {
-                    RepoModel repoModel = new RepoModel();
-                    repoModel.repo_id = contextModel.repo_id;
-                    repoModel.repo_name = contextModel.repo_name;
-                    repoModel.permission = contextModel.permission;
-                    repoModel.encrypted = contextModel.encrypted;
-                    navStack.push(repoModel);
-                } else if (contextModel.type.equals("dirent")) {
-                    DirentModel direntModel = new DirentModel();
-                    direntModel.repo_id = contextModel.repo_id;
-                    direntModel.repo_name = contextModel.repo_name;
-                    direntModel.full_path = contextModel.full_path;
-                    direntModel.parent_dir = Utils.getParentPath(direntModel.full_path);
-                    direntModel.name = Utils.getFileNameFromPath(contextModel.full_path);
-                    direntModel.uid = direntModel.getUID();
-                    direntModel.permission = contextModel.permission;
-                    navStack.push(direntModel);
-                }
-            }
+        if (!fromContext.navStack.isEmpty()) {
+            navStack.addAll(fromContext.navStack);
         }
-
     }
 
     private void saveToSp() {
-        Stack<ContextModel> stack = new Stack<>();
-        if (!navStack.isEmpty()) {
-            for (BaseModel baseModel : navStack) {
-                ContextModel contextModel = new ContextModel();
-
-                if (baseModel instanceof RepoModel e) {
-                    contextModel.repo_id = e.repo_id;
-                    contextModel.repo_name = e.repo_name;
-                    contextModel.type = "repo";
-                    contextModel.full_path = "/";
-                    contextModel.permission = e.permission;
-                    contextModel.encrypted = e.encrypted;
-                } else if (baseModel instanceof DirentModel e) {
-                    contextModel.repo_id = e.repo_id;
-                    contextModel.repo_name = e.repo_name;
-                    contextModel.type = "dirent";
-                    contextModel.full_path = e.full_path;
-                    contextModel.permission = e.permission;
-                }
-                stack.add(contextModel);
-            }
-        }
-
-        ContextStackPreferenceHelper.saveStack(stack);
+        ContextStackPreferenceHelper.save(this);
     }
 
     public void pop() {
@@ -122,7 +110,9 @@ public class NavContext {
         //stack
         navStack.pop();
 
-        saveToSp();
+        if (isSaveIntoSp) {
+            saveToSp();
+        }
 
     }
 
@@ -158,7 +148,10 @@ public class NavContext {
             navStack.push(model);
         }
 
-        saveToSp();
+
+        if (isSaveIntoSp) {
+            saveToSp();
+        }
     }
 
     /**
@@ -170,27 +163,6 @@ public class NavContext {
         }
         return (DirentModel) navStack.peek();
     }
-
-//    /**
-//     * Get the parents model of the current Dirent, maybe RepoModel
-//     */
-//    public boolean isParentHasWritePermission() {
-//        if (!inRepo()) {
-//            //repo list page should not have permission verification
-//            throw new IllegalArgumentException("Please check your code");
-//        }
-//
-//        if (inRepoRoot()) {
-//            return getRepoModel().hasWritePermission();
-//        }
-//
-//        BaseModel bd = navStack.elementAt(navStack.size() - 1);
-//        if (bd instanceof DirentModel d) {
-//            return d.hasWritePermission();
-//        } else {
-//            return false;
-//        }
-//    }
 
     public RepoModel getRepoModel() {
         if (navStack.empty()) {
@@ -208,6 +180,16 @@ public class NavContext {
             return null;
         }
         return navStack.peek();
+    }
+
+    public boolean isPathEquals(NavContext that) {
+        if (that == null) {
+            throw new IllegalArgumentException("context is null");
+        }
+
+        String thatPath = that.getNavPath();
+        String thisPath = getNavPath();
+        return TextUtils.equals(thatPath, thisPath);
     }
 
     /**

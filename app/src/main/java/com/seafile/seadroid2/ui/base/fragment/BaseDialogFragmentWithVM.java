@@ -3,11 +3,11 @@ package com.seafile.seadroid2.ui.base.fragment;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
-import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
-import com.seafile.seadroid2.framework.util.TUtil;
+
+import java.lang.reflect.ParameterizedType;
 
 public class BaseDialogFragmentWithVM<VM extends BaseViewModel> extends BaseDialogFragment {
     private VM tvm;
@@ -25,13 +25,13 @@ public class BaseDialogFragmentWithVM<VM extends BaseViewModel> extends BaseDial
     }
 
     private void initTvm() {
-        VM t = TUtil.getT(this, 0);
-        if (t == null) {
-            throw new IllegalStateException("VM generic parameters that inherit BaseViewModel cannot be instantiated");
-        }
+        tvm = new ViewModelProvider(this).get(getViewModelClass());
+    }
 
-        ViewModel viewModel = new ViewModelProvider(this).get(t.getClass());
-        tvm = (VM) viewModel;
+    @SuppressWarnings("unchecked")
+    private Class<VM> getViewModelClass() {
+        ParameterizedType type = (ParameterizedType) getClass().getGenericSuperclass();
+        return (Class<VM>) type.getActualTypeArguments()[0];
     }
 
     @Override

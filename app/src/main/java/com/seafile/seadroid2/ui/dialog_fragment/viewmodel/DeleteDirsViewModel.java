@@ -1,22 +1,15 @@
 package com.seafile.seadroid2.ui.dialog_fragment.viewmodel;
 
-import android.text.TextUtils;
-
 import androidx.lifecycle.MutableLiveData;
 
-import com.blankj.utilcode.util.CollectionUtils;
 import com.seafile.seadroid2.framework.data.db.AppDatabase;
 import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
-import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
 import com.seafile.seadroid2.framework.data.model.dirents.DeleteDirentModel;
-import com.seafile.seadroid2.enums.TransferAction;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
 import com.seafile.seadroid2.ui.dialog_fragment.DialogService;
 
-import java.io.File;
-import java.nio.file.Files;
 import java.util.List;
 
 import io.reactivex.Flowable;
@@ -33,12 +26,12 @@ public class DeleteDirsViewModel extends BaseViewModel {
         return ActionLiveData;
     }
 
-    public void delete(List<String> direntIds, boolean isDeleteLocalFile) {
+    public void delete(List<String> direntIds) {
         Single<List<DirentModel>> dSingle = AppDatabase.getInstance().direntDao().getListByIdsAsync(direntIds);
         addSingleDisposable(dSingle, new Consumer<List<DirentModel>>() {
             @Override
             public void accept(List<DirentModel> dirents) throws Exception {
-                deleteDirents(dirents, isDeleteLocalFile);
+                deleteDirents(dirents);
             }
         }, new Consumer<Throwable>() {
             @Override
@@ -53,66 +46,16 @@ public class DeleteDirsViewModel extends BaseViewModel {
         });
     }
 
-    private void deleteDirents(List<DirentModel> dirents, boolean isDeleteLocalFile) {
+    private void deleteDirents(List<DirentModel> dirents) {
         getRefreshLiveData().setValue(true);
 
-        Flowable<DeleteDirentModel> flowable;
-        if (!isDeleteLocalFile) {
-            flowable = Flowable.fromIterable(dirents)
-                    .flatMapSingle(new Function<DirentModel, SingleSource<DeleteDirentModel>>() {
-                        @Override
-                        public SingleSource<DeleteDirentModel> apply(DirentModel dirent) throws Exception {
-                            return HttpIO.getCurrentInstance().execute(DialogService.class).deleteDirent(dirent.repo_id, dirent.type, dirent.full_path);
-                        }
-                    });
-        } else {
-            flowable = Flowable.fromIterable(dirents)
-                    .flatMapSingle(new Function<DirentModel, SingleSource<DeleteDirentModel>>() {
-                        @Override
-                        public SingleSource<DeleteDirentModel> apply(DirentModel dirent) throws Exception {
-                            Single<List<FileTransferEntity>> transferSingle = AppDatabase.getInstance()
-                                    .fileTransferDAO()
-                                    .getListByFullPathsAsync(dirent.repo_id, CollectionUtils.newArrayList(dirent.full_path), TransferAction.DOWNLOAD);
-                            return transferSingle.flatMap(new Function<List<FileTransferEntity>, SingleSource<FileTransferEntity>>() {
-                                @Override
-                                public SingleSource<FileTransferEntity> apply(List<FileTransferEntity> fileTransferEntities) throws Exception {
-                                    return CollectionUtils.isEmpty(fileTransferEntities) ?
-                                            Single.just(new FileTransferEntity()) :
-                                            Single.just(fileTransferEntities.get(0));
-                                }
-                            }).flatMap(new Function<FileTransferEntity, SingleSource<String>>() {
-                                @Override
-                                public SingleSource<String> apply(FileTransferEntity fileTransferEntity) throws Exception {
-
-                                    if (TextUtils.isEmpty(fileTransferEntity.uid)) {
-                                        return Single.just("");
-                                    }
-
-                                    return AppDatabase.getInstance().fileTransferDAO().deleteOneAsync(fileTransferEntity)
-                                            .flatMap(new Function<Integer, SingleSource<String>>() {
-                                                @Override
-                                                public SingleSource<String> apply(Integer integer) throws Exception {
-                                                    return Single.just(fileTransferEntity.target_path);
-                                                }
-                                            });
-                                }
-                            }).flatMap(new Function<String, SingleSource<DeleteDirentModel>>() {
-                                @Override
-                                public SingleSource<DeleteDirentModel> apply(String filePath) throws Exception {
-
-                                    if (!TextUtils.isEmpty(filePath)) {
-                                        File file = new File(filePath);
-                                        if (file.exists()) {
-                                            Files.delete(file.toPath());
-                                        }
-                                    }
-
-                                    return HttpIO.getCurrentInstance().execute(DialogService.class).deleteDirent(dirent.repo_id, dirent.type, dirent.full_path);
-                                }
-                            });
-                        }
-                    });
-        }
+        Flowable<DeleteDirentModel> flowable = Flowable.fromIterable(dirents)
+                .flatMapSingle(new Function<DirentModel, SingleSource<DeleteDirentModel>>() {
+                    @Override
+                    public SingleSource<DeleteDirentModel> apply(DirentModel dirent) throws Exception {
+                        return HttpIO.getCurrentInstance().execute(DialogService.class).deleteDirent(dirent.repo_id, dirent.type, dirent.full_path);
+                    }
+                });
 
         addFlowableDisposable(flowable, new Consumer<DeleteDirentModel>() {
             @Override

@@ -14,7 +14,6 @@ import androidx.fragment.app.FragmentManager;
 
 import com.blankj.utilcode.util.ClipboardUtils;
 import com.blankj.utilcode.util.CollectionUtils;
-import com.blankj.utilcode.util.TimeUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.BuildConfig;
@@ -23,35 +22,33 @@ import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.config.RepoType;
 import com.seafile.seadroid2.enums.SortBy;
-import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.data.db.AppDatabase;
 import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
-import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
 import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.data.db.entities.StarredModel;
 import com.seafile.seadroid2.framework.data.model.BaseModel;
 import com.seafile.seadroid2.framework.data.model.GroupItemModel;
+import com.seafile.seadroid2.framework.data.model.dirents.CachedDirentModel;
 import com.seafile.seadroid2.framework.data.model.objs.DirentShareLinkModel;
 import com.seafile.seadroid2.framework.data.model.repo.DirentWrapperModel;
 import com.seafile.seadroid2.framework.data.model.repo.RepoWrapperModel;
 import com.seafile.seadroid2.framework.data.model.star.StarredWrapperModel;
+import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.listener.OnCreateDirentShareLinkListener;
 import com.seafile.seadroid2.preferences.Settings;
+import com.seafile.seadroid2.ui.comparator.NaturalOrderComparator;
 import com.seafile.seadroid2.ui.dialog_fragment.AppChoiceDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.GetShareLinkPasswordDialogFragment;
 import com.seafile.seadroid2.ui.repo.RepoService;
-import com.seafile.seadroid2.ui.comparator.NaturalOrderComparator;
 import com.seafile.seadroid2.ui.star.StarredService;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
@@ -503,7 +500,7 @@ public class Objs {
                 return Single.create(new SingleOnSubscribe<List<DirentModel>>() {
                     @Override
                     public void subscribe(SingleEmitter<List<DirentModel>> emitter) throws Exception {
-                        List<DirentModel> list = Objs.parseDirentsForDB(
+                        List<DirentModel> list = parseDirentsForDB(
                                 direntWrapperModel.dirent_list,
                                 direntWrapperModel.dir_id,
                                 account.getSignature(),
@@ -550,34 +547,17 @@ public class Objs {
                     return Single.just(direntModels);
                 }
 
-                Single<List<FileTransferEntity>> curParentDownloadedList = AppDatabase.getInstance().fileTransferDAO().getDownloadedListByParentAsync(repoId, parentDir);
+                List<CachedDirentModel> cachedDirentList = AppDatabase.getInstance().direntDao().getDirentsWithLocalFileIdSync(repoId, parentDir);
 
-                return curParentDownloadedList.flatMap(new Function<List<FileTransferEntity>, SingleSource<List<DirentModel>>>() {
+                List<DirentModel> newDirentModels = cachedDirentList.stream().map(new java.util.function.Function<CachedDirentModel, DirentModel>() {
                     @Override
-                    public SingleSource<List<DirentModel>> apply(List<FileTransferEntity> fileTransferEntities) throws Exception {
-
-                        Map<String, FileTransferEntity> transferMap = new HashMap<>(fileTransferEntities.size());
-                        for (FileTransferEntity fileTransferEntity : fileTransferEntities) {
-                            transferMap.put(fileTransferEntity.full_path, fileTransferEntity);
-                        }
-
-                        for (DirentModel direntModel : direntModels) {
-                            String fullPath = direntModel.parent_dir + direntModel.name;
-
-                            if (!transferMap.containsKey(fullPath)) {
-                                continue;
-                            }
-
-                            FileTransferEntity entity = transferMap.get(fullPath);
-                            if (entity.transfer_status == TransferStatus.SUCCEEDED) {
-                                direntModel.transfer_status = entity.transfer_status;
-                                direntModel.local_file_path = entity.target_path;
-                            }
-                        }
-
-                        return Single.just(direntModels);
+                    public DirentModel apply(CachedDirentModel cachedDirentModel) {
+                        cachedDirentModel.dirent.local_file_id = cachedDirentModel.local_file_id;
+                        return cachedDirentModel.dirent;
                     }
-                });
+                }).collect(Collectors.toList());
+
+                return Single.just(newDirentModels);
             }
         });
     }
@@ -652,12 +632,10 @@ public class Objs {
         List<DirentModel> dirList = null;
         List<DirentModel> fileList = null;
 
-
-        long now = TimeUtils.getNowMills();
         if (!CollectionUtils.isEmpty(dirModels)) {
             for (int i = 0; i < dirModels.size(); i++) {
                 //
-                dirModels.get(i).last_modified_at = now;
+                dirModels.get(i).last_modified_at = dirModels.get(i).mtime * 1000;
                 dirModels.get(i).dir_id = dir_id;
                 dirModels.get(i).related_account = related_account;
                 dirModels.get(i).repo_id = repo_id;
@@ -673,7 +651,7 @@ public class Objs {
                 //
                 fileModels.get(i).repo_id = repo_id;
                 fileModels.get(i).repo_name = repo_name;
-                fileModels.get(i).last_modified_at = now;
+                fileModels.get(i).last_modified_at = fileModels.get(i).mtime * 1000;
                 fileModels.get(i).dir_id = dir_id;
                 fileModels.get(i).related_account = related_account;
                 fileModels.get(i).full_path = fileModels.get(i).parent_dir + fileModels.get(i).name;

@@ -57,4 +57,13 @@ public class MetadataModel implements Parcelable {
             return new MetadataModel[size];
         }
     };
+
+    @Override
+    public String toString() {
+        return "MetadataModel{" +
+                "key='" + key + '\'' +
+                ", name='" + name + '\'' +
+                ", type='" + type + '\'' +
+                '}';
+    }
 }

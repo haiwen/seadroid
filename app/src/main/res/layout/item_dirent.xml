@@ -60,12 +60,12 @@
                 android:src="@drawable/list_item_download_finished"
                 android:visibility="visible" />
 
-            <ProgressBar
-                android:id="@+id/item_download_status_progressbar"
-                android:layout_width="@dimen/lv_download_icon_width"
-                android:layout_height="@dimen/lv_download_icon_height"
-                android:layout_marginEnd="@dimen/lv_download_icon_margin_right"
-                android:visibility="gone" />
+<!--            <ProgressBar-->
+<!--                android:id="@+id/item_download_status_progressbar"-->
+<!--                android:layout_width="@dimen/lv_download_icon_width"-->
+<!--                android:layout_height="@dimen/lv_download_icon_height"-->
+<!--                android:layout_marginEnd="@dimen/lv_download_icon_margin_right"-->
+<!--                android:visibility="gone" />-->
 
             <TextView
                 android:id="@+id/item_subtitle"

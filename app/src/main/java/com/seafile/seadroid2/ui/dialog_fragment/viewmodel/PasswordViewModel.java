@@ -9,6 +9,8 @@ import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.TimeUtils;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.framework.crypto.Crypto;
+import com.seafile.seadroid2.framework.crypto.CryptoHelper;
+import com.seafile.seadroid2.framework.crypto.SecurePasswordManager;
 import com.seafile.seadroid2.framework.data.db.AppDatabase;
 import com.seafile.seadroid2.framework.data.db.entities.EncKeyCacheEntity;
 import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
@@ -59,11 +61,11 @@ public class PasswordViewModel extends BaseViewModel {
                     getRepoModel(repoId, new Consumer<RepoModel>() {
                         @Override
                         public void accept(RepoModel uRepoModel) {
-                            verify(uRepoModel, password);
+                            remoteVerify(uRepoModel, password);
                         }
                     });
                 } else {
-                    verify(repoModels.get(0), password);
+                    remoteVerify(repoModels.get(0), password);
                 }
             }
         });
@@ -71,7 +73,6 @@ public class PasswordViewModel extends BaseViewModel {
 
     public void getRepoModel(String repoId, Consumer<RepoModel> consumer) {
         Single<RepoModel> singleNet = HttpIO.getCurrentInstance().execute(RepoService.class).getRepoInfo(repoId);
-
         Single<List<RepoModel>> singleDb = AppDatabase.getInstance().repoDao().getByIdAsync(repoId);
 
         Single<RepoModel> sr = Single.zip(singleNet, singleDb, new BiFunction<RepoModel, List<RepoModel>, RepoModel>() {
@@ -111,22 +112,8 @@ public class PasswordViewModel extends BaseViewModel {
         });
     }
 
-    private void verify(RepoModel repoModel, String password) {
-        if (repoModel == null) {
-            return;
-        }
-
-        //remote decrypt
-        if (!repoModel.canLocalDecrypt()) {
-            remoteVerify(repoModel, password);
-        } else {
-            localVerify(repoModel, password);
-        }
-    }
-
     private void remoteVerify(RepoModel repoModel, String password) {
         if (TextUtils.isEmpty(password) || TextUtils.isEmpty(repoModel.repo_id)) {
-
             getActionResultLiveData().setValue(new TResultModel<>());
             return;
         }
@@ -144,29 +131,29 @@ public class PasswordViewModel extends BaseViewModel {
             public void subscribe(SingleEmitter<Exception> emitter) {
                 try {
                     EncKeyCacheEntity entity = new EncKeyCacheEntity();
+                    entity.v = 2; //A symmetrical algorithm is used
                     entity.repo_id = repoModel.repo_id;
                     entity.enc_version = repoModel.enc_version;
                     entity.related_account = repoModel.related_account;
 
+                    Pair<String, String> p = SecurePasswordManager.encryptPassword(password);
+                    if (p == null) {
+                        emitter.onError(SeafException.ENCRYPT_EXCEPTION);
+                        return;
+                    }
+
+                    entity.enc_key = p.first;
+                    entity.enc_iv = p.second;
                     long expire = TimeUtils.getNowMills();
                     expire += SettingsManager.DECRYPTION_EXPIRATION_TIME;
                     entity.expire_time_long = expire;
 
-                    //Check whether the local decryption cannot be done because version is not equal to 2
-                    //If not, it may be because the user has turned off the local decryption switch
-                    if (repoModel.enc_version == SettingsManager.REPO_ENC_VERSION) {
-                        Pair<String, String> pair = Crypto.generateKey(password, repoModel.random_key, repoModel.enc_version);
-                        entity.enc_key = pair.first;
-                        entity.enc_iv = pair.second;
-                    }
-
                     AppDatabase.getInstance().encKeyCacheDAO().insertSync(entity);
 
                     emitter.onSuccess(SeafException.SUCCESS);
-                } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
-
-                    emitter.onSuccess(e);
+                    emitter.onError(e);
                 }
             }
         });
@@ -178,6 +165,10 @@ public class PasswordViewModel extends BaseViewModel {
                 tResultModel.error_msg = resultModel.error_msg;
                 tResultModel.success = resultModel.success;
                 tResultModel.data = repoModel;
+
+                if (!tResultModel.success) {
+                    return Single.just(tResultModel);
+                }
 
                 return insertEncSingle.flatMap(new Function<Exception, SingleSource<TResultModel<RepoModel>>>() {
                     @Override
@@ -206,6 +197,7 @@ public class PasswordViewModel extends BaseViewModel {
         });
     }
 
+    @Deprecated
     private void localVerify(RepoModel repoModel, String password) {
         //local decrypt
         Single<Exception> verifySingle = Single.create(new SingleOnSubscribe<Exception>() {

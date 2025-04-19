@@ -10,125 +10,165 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.DiffUtil;
 
 import com.blankj.utilcode.util.CollectionUtils;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.framework.data.db.entities.FileTransferEntity;
+import com.seafile.seadroid2.config.AbsLayoutItemType;
+import com.seafile.seadroid2.databinding.ItemGroupItemBinding;
+import com.seafile.seadroid2.databinding.ItemTransferListBinding;
+import com.seafile.seadroid2.databinding.ItemUnsupportedBinding;
 import com.seafile.seadroid2.enums.TransferAction;
 import com.seafile.seadroid2.enums.TransferResult;
 import com.seafile.seadroid2.enums.TransferStatus;
-import com.seafile.seadroid2.databinding.ItemTransferListBinding;
+import com.seafile.seadroid2.framework.data.db.entities.FileBackupStatusEntity;
+import com.seafile.seadroid2.framework.data.model.GroupItemModel;
+import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 import com.seafile.seadroid2.framework.util.Icons;
-import com.seafile.seadroid2.ui.base.adapter.BaseAdapter;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
+import com.seafile.seadroid2.ui.base.adapter.BaseMultiAdapter;
+import com.seafile.seadroid2.ui.repo.vh.UnsupportedViewHolder;
+import com.seafile.seadroid2.ui.viewholder.GroupItemViewHolder;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class TransferListAdapter extends BaseAdapter<FileTransferEntity, TransferItemViewHolder> {
-    private boolean actionModeOn;
-
+public class TransferListAdapter extends BaseMultiAdapter<Object> {
     private TransferAction transferAction;
-
-    /**
-     * -1 no limited
-     * 0 no this value
-     * >=1 max count
-     */
-    private int selectedMaxCount = 1;
-
-    public void setSelectedMaxLimitCount(int selectedMaxCount) {
-        this.selectedMaxCount = selectedMaxCount;
-    }
 
     public void setTransferAction(TransferAction transferAction) {
         this.transferAction = transferAction;
     }
 
-    @NonNull
-    @Override
-    protected TransferItemViewHolder onCreateViewHolder(@NonNull Context context, @NonNull ViewGroup viewGroup, int i) {
-        ItemTransferListBinding binding = ItemTransferListBinding.inflate(LayoutInflater.from(context), viewGroup, false);
-        return new TransferItemViewHolder(binding);
-    }
-
-    @Override
-    protected void onBindViewHolder(@NonNull TransferItemViewHolder viewHolder, int i, @Nullable FileTransferEntity item) {
-        if (item == null) {
-            return;
-        }
-
-        onBindHolder(viewHolder, item);
-    }
-
-    @Override
-    protected void onBindViewHolder(@NonNull TransferItemViewHolder holder, int position, @Nullable FileTransferEntity item, @NonNull List<?> payloads) {
-        super.onBindViewHolder(holder, position, item, payloads);
-
-        if (CollectionUtils.isEmpty(payloads)) {
-            return;
-        }
-
-        if (item == null) {
-            return;
-        }
-
-        Bundle bundle = (Bundle) payloads.get(0);
-        long transferredSize = bundle.getLong(TransferWorker.KEY_TRANSFER_TRANSFERRED_SIZE, 0);
-        int percent = bundle.getInt(TransferWorker.KEY_TRANSFER_PROGRESS, 0);
-        onBindPayloadHolder(holder, item, transferredSize, percent);
-    }
-
-    private void onBindHolder(TransferItemViewHolder holder, FileTransferEntity entity) {
-
-        //action mode
-        if (actionModeOn) {
-            holder.binding.itemMultiSelect.setVisibility(View.VISIBLE);
-            if (entity.is_checked) {
-                holder.binding.itemMultiSelect.setImageResource(R.drawable.multi_select_item_checked);
-            } else {
-                holder.binding.itemMultiSelect.setImageResource(R.drawable.multi_select_item_unchecked);
+    public TransferListAdapter() {
+        addItemType(AbsLayoutItemType.LOCAL_LIST, new OnMultiItem<Object, TransferItemViewHolder>() {
+            @NonNull
+            @Override
+            public TransferItemViewHolder onCreate(@NonNull Context context, @NonNull ViewGroup viewGroup, int i) {
+                ItemTransferListBinding binding = ItemTransferListBinding.inflate(LayoutInflater.from(context), viewGroup, false);
+                return new TransferItemViewHolder(binding);
             }
-        } else {
-            holder.binding.itemMultiSelect.setVisibility(View.GONE);
-            holder.binding.itemMultiSelect.setImageResource(R.drawable.multi_select_item_unchecked);
-        }
+
+            @Override
+            public void onBind(@NonNull TransferItemViewHolder viewHolder, int i, @Nullable Object baseModel) {
+                onBindLocalList(viewHolder, (TransferModel) baseModel);
+            }
+
+            @Override
+            public void onBind(@NonNull TransferItemViewHolder holder, int position, @Nullable Object item, @NonNull List<?> payloads) {
+                super.onBind(holder, position, item, payloads);
+
+                if (CollectionUtils.isEmpty(payloads)) {
+                    return;
+                }
+
+                if (item == null) {
+                    return;
+                }
+
+                Bundle bundle = (Bundle) payloads.get(0);
+                onBindLocalListPayloadHolder(holder, bundle);
+            }
+        })
+                .addItemType(AbsLayoutItemType.DB_LIST, new OnMultiItem<Object, TransferItemViewHolder>() {
+                    @NonNull
+                    @Override
+                    public TransferItemViewHolder onCreate(@NonNull Context context, @NonNull ViewGroup viewGroup, int i) {
+                        ItemTransferListBinding binding = ItemTransferListBinding.inflate(LayoutInflater.from(context), viewGroup, false);
+                        return new TransferItemViewHolder(binding);
+                    }
+
+                    @Override
+                    public void onBind(@NonNull TransferItemViewHolder viewHolder, int i, @Nullable Object model) {
+                        onBindDbList(viewHolder, (FileBackupStatusEntity) model);
+                    }
+                })
+                .addItemType(AbsLayoutItemType.GROUP_ITEM, new OnMultiItem<Object, GroupItemViewHolder>() {
+                    @NonNull
+                    @Override
+                    public GroupItemViewHolder onCreate(@NonNull Context context, @NonNull ViewGroup viewGroup, int i) {
+                        ItemGroupItemBinding binding = ItemGroupItemBinding.inflate(LayoutInflater.from(context), viewGroup, false);
+                        return new GroupItemViewHolder(binding);
+                    }
+
+                    @Override
+                    public void onBind(@NonNull GroupItemViewHolder holder, int i, @Nullable Object model) {
+                        onBindGroup(holder, model);
+                    }
+                })
+                .addItemType(AbsLayoutItemType.NOT_SUPPORTED, new OnMultiItem<Object, UnsupportedViewHolder>() {
+                    @NonNull
+                    @Override
+                    public UnsupportedViewHolder onCreate(@NonNull Context context, @NonNull ViewGroup viewGroup, int i) {
+                        ItemUnsupportedBinding binding = ItemUnsupportedBinding.inflate(LayoutInflater.from(context), viewGroup, false);
+                        return new UnsupportedViewHolder(binding);
+                    }
+
+                    @Override
+                    public void onBind(@NonNull UnsupportedViewHolder unsupportedViewHolder, int i, @Nullable Object o) {
+
+                    }
+                })
+                .onItemViewType(new OnItemViewTypeListener<Object>() {
+                    @Override
+                    public int onItemViewType(int i, @NonNull List<?> list) {
+                        if (list.get(i) instanceof GroupItemModel) {
+                            return AbsLayoutItemType.GROUP_ITEM;
+                        } else if (list.get(i) instanceof TransferModel) {
+                            return AbsLayoutItemType.LOCAL_LIST;
+                        } else if (list.get(i) instanceof FileBackupStatusEntity) {
+                            return AbsLayoutItemType.DB_LIST;
+                        }
+                        return AbsLayoutItemType.NOT_SUPPORTED;
+
+                    }
+                });
+    }
+
+    private void onBindGroup(GroupItemViewHolder holder, Object model) {
+        GroupItemModel groupItemModel = (GroupItemModel) model;
+        holder.binding.itemGroupTitle.setText(groupItemModel.title);
+        holder.binding.itemGroupExpand.setVisibility(View.GONE);
+    }
+
+    private void onBindLocalList(TransferItemViewHolder holder, TransferModel model) {
+        holder.binding.itemMultiSelect.setVisibility(View.GONE);
+        holder.binding.itemMultiSelect.setImageResource(R.drawable.multi_select_item_unchecked);
 
         //target path
-        if (!TextUtils.isEmpty(entity.repo_name)) {
-            String targetPath = Utils.pathJoin(entity.repo_name, entity.getParent_path());
+        if (!TextUtils.isEmpty(model.repo_name)) {
+            String targetPath = Utils.pathJoin(model.repo_name, model.getParentPath());
             holder.binding.transferTargetPath.setText(targetPath);
         } else {
-            holder.binding.transferTargetPath.setText(entity.getParent_path());
+            holder.binding.transferTargetPath.setText(model.getParentPath());
         }
 
+        holder.binding.expandableToggleButton.setVisibility(View.VISIBLE);
+
         //file name
-        holder.binding.transferFileName.setText(entity.file_name);
+        holder.binding.transferFileName.setText(model.file_name);
 
         //icon
-        int iconId = Icons.getFileIcon(entity.file_name);
+        int iconId = Icons.getFileIcon(model.file_name);
         holder.binding.transferFileIcon.setImageResource(iconId);
 
-        holder.binding.transferTime.setText(Utils.translateCommitTime(entity.created_at));
+        holder.binding.transferTime.setText(Utils.translateCommitTime(model.created_at));
 
         //
-        long totalSize = entity.file_size;
-        long transferredSize = entity.transferred_size;
+        long totalSize = model.file_size;
+        long transferredSize = model.transferred_size;
         String sizeStr = Utils.readableFileSize(totalSize);
 
         boolean progressBarVisible = false;
         boolean isRed = false;
 
         int stateTextRes = 0;
-        if (TransferStatus.WAITING == entity.transfer_status) {
+        if (TransferStatus.WAITING == model.transfer_status) {
             if (transferAction == TransferAction.DOWNLOAD) {
                 stateTextRes = R.string.download_waiting;
             } else {
                 stateTextRes = R.string.upload_waiting;
             }
-        } else if (TransferStatus.IN_PROGRESS == entity.transfer_status) {
+        } else if (TransferStatus.IN_PROGRESS == model.transfer_status) {
             sizeStr = String.format("%s / %s",
                     Utils.readableFileSize(transferredSize),
                     Utils.readableFileSize(totalSize));
@@ -150,21 +190,21 @@ public class TransferListAdapter extends BaseAdapter<FileTransferEntity, Transfe
 
             progressBarVisible = true;
 
-        } else if (TransferStatus.FAILED == entity.transfer_status) {
+        } else if (TransferStatus.FAILED == model.transfer_status) {
             if (transferAction == TransferAction.DOWNLOAD) {
                 stateTextRes = R.string.download_failed;
             } else {
                 stateTextRes = R.string.upload_failed;
             }
             isRed = true;
-        } else if (TransferStatus.CANCELLED == entity.transfer_status) {
+        } else if (TransferStatus.CANCELLED == model.transfer_status) {
             if (transferAction == TransferAction.DOWNLOAD) {
                 stateTextRes = R.string.download_cancelled;
             } else {
                 stateTextRes = R.string.upload_cancelled;
             }
             isRed = true;
-        } else if (TransferStatus.SUCCEEDED == entity.transfer_status) {
+        } else if (TransferStatus.SUCCEEDED == model.transfer_status) {
             if (transferAction == TransferAction.DOWNLOAD) {
                 stateTextRes = R.string.download_finished;
             } else {
@@ -178,15 +218,15 @@ public class TransferListAdapter extends BaseAdapter<FileTransferEntity, Transfe
             holder.binding.transferFileState.setText(null);
         }
 
-        if (TextUtils.isEmpty(entity.result)) {
+        if (TextUtils.isEmpty(model.err_msg)) {
             holder.binding.transferFileErrorState.setVisibility(View.GONE);
             holder.binding.transferFileErrorState.setText(null);
-        } else if (TextUtils.equals(entity.result, TransferResult.TRANSMITTED.name())) {
+        } else if (TextUtils.equals(model.err_msg, TransferResult.TRANSMITTED.name())) {
             holder.binding.transferFileErrorState.setVisibility(View.GONE);
             holder.binding.transferFileErrorState.setText(null);
         } else {
             holder.binding.transferFileErrorState.setVisibility(View.VISIBLE);
-            holder.binding.transferFileErrorState.setText(entity.result);
+            holder.binding.transferFileErrorState.setText(model.err_msg);
         }
 
         if (isRed) {
@@ -199,178 +239,48 @@ public class TransferListAdapter extends BaseAdapter<FileTransferEntity, Transfe
         holder.binding.transferFileSize.setText(sizeStr);
     }
 
-    private void onBindPayloadHolder(TransferItemViewHolder holder, FileTransferEntity entity, long transferredSize, int percent) {
-//
-        long totalSize = entity.file_size;
-        String sizeStr = Utils.readableFileSize(totalSize);
+    private void onBindLocalListPayloadHolder(TransferItemViewHolder holder, Bundle bundle) {
+        if (bundle.containsKey(TransferWorker.KEY_TRANSFER_TRANSFERRED_SIZE)) {
+            long transferredSize = bundle.getLong(TransferWorker.KEY_TRANSFER_TRANSFERRED_SIZE, 0);
+            long totalSize = bundle.getLong(TransferWorker.KEY_TRANSFER_TOTAL_SIZE, 0);
 
-        sizeStr = String.format("%s / %s", Utils.readableFileSize(transferredSize), sizeStr);
-        holder.binding.transferFileSize.setText(sizeStr);
+            String sizeStr = Utils.readableFileSize(totalSize);
 
-        holder.binding.transferFileProgressBar.setProgress(percent);
-    }
+            sizeStr = String.format("%s / %s", Utils.readableFileSize(transferredSize), sizeStr);
+            holder.binding.transferFileSize.setText(sizeStr);
 
-    public void notifyDataChanged(List<FileTransferEntity> list) {
-        if (CollectionUtils.isEmpty(list)) {
-            submitList(list);
-            return;
+            int p = calc(transferredSize, totalSize);
+            holder.binding.transferFileProgressBar.setProgress(p);
         }
-
-        if (CollectionUtils.isEmpty(getItems())) {
-            submitList(list);
-            return;
-        }
-
-        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new DiffUtil.Callback() {
-            @Override
-            public int getOldListSize() {
-                return getItems().size();
-            }
-
-            @Override
-            public int getNewListSize() {
-                return list.size();
-            }
-
-            @Override
-            public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
-                String oldClassName = getItems().get(oldItemPosition).getClass().getName();
-                String newClassName = list.get(newItemPosition).getClass().getName();
-                if (!oldClassName.equals(newClassName)) {
-                    return false;
-                }
-
-                FileTransferEntity newT = getItems().get(oldItemPosition);
-                FileTransferEntity oldT = list.get(newItemPosition);
-                return TextUtils.equals(newT.uid, oldT.uid);
-            }
-
-            @Override
-            public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
-                String oldClassName = getItems().get(oldItemPosition).getClass().getName();
-                String newClassName = list.get(newItemPosition).getClass().getName();
-                if (!oldClassName.equals(newClassName)) {
-                    return false;
-                }
-
-                FileTransferEntity newT = getItems().get(oldItemPosition);
-                FileTransferEntity oldT = list.get(newItemPosition);
-
-                return TextUtils.equals(newT.uid, oldT.uid)
-                        && TextUtils.equals(newT.full_path, oldT.full_path)
-                        && TextUtils.equals(newT.target_path, oldT.target_path)
-                        && TextUtils.equals(newT.repo_id, oldT.repo_id)
-                        && TextUtils.equals(newT.repo_name, oldT.repo_name)
-                        && TextUtils.equals(newT.related_account, oldT.related_account)
-                        && TextUtils.equals(newT.file_id, oldT.file_id)
-                        && TextUtils.equals(newT.getParent_path(), oldT.getParent_path())
-                        && TextUtils.equals(newT.file_name, oldT.file_name)
-                        && TextUtils.equals(newT.file_format, oldT.file_format)
-                        && TextUtils.equals(newT.mime_type, oldT.mime_type)
-                        && TextUtils.equals(newT.file_md5, oldT.file_md5)
-                        && newT.data_source == oldT.data_source
-                        && newT.file_size == oldT.file_size
-//                        && newT.is_block == oldT.is_block
-                        && newT.is_copy_to_local == oldT.is_copy_to_local
-                        && newT.file_strategy == oldT.file_strategy
-                        && newT.created_at == oldT.created_at
-                        && newT.modified_at == oldT.modified_at
-                        && newT.action_end_at == oldT.action_end_at
-                        && newT.transfer_status == oldT.transfer_status
-                        && newT.transfer_action == oldT.transfer_action;
-
-            }
-        });
-
-        setItems(list);
-        diffResult.dispatchUpdatesTo(this);
-    }
-
-    public void setActionModeOn(boolean actionModeOn) {
-        this.actionModeOn = actionModeOn;
-
-        if (!actionModeOn) {
-            setItemSelected(false);
-        }
-
-        notifyItemRangeChanged(0, getItemCount());
-    }
-
-    public boolean getActionMode() {
-        return actionModeOn;
-    }
-
-    public void setItemSelected(boolean itemSelected) {
-        for (FileTransferEntity item : getItems()) {
-            item.is_checked = itemSelected;
-        }
-
-        notifyItemRangeChanged(0, getItemCount());
-    }
-
-    public List<FileTransferEntity> getSelectedList() {
-        List<FileTransferEntity> list = new ArrayList<>();
-        for (FileTransferEntity item : getItems()) {
-            if (item.is_checked) {
-                list.add(item);
-            }
-        }
-        return list;
-    }
-
-    /**
-     * @return is selected?
-     */
-    public boolean selectItemByMode(int position) {
-        FileTransferEntity item = getItems().get(position);
-
-        //single
-        if (selectedMaxCount == 1) {
-            int selectedPosition = getSelectedPositionByMode();
-            if (selectedPosition == position) {
-                item.is_checked = !item.is_checked;
-                notifyItemChanged(selectedPosition);
-                return item.is_checked;
-
-            } else if (selectedPosition > -1) {
-                //Deselect an item that has already been selected
-                getItems().get(selectedPosition).is_checked = false;
-                notifyItemChanged(selectedPosition);
-
-                item.is_checked = true;
-                notifyItemChanged(position);
-            } else {
-                item.is_checked = true;
-                notifyItemChanged(position);
-            }
-        } else {
-            long selectedCount = getSelectedCountByMode();
-            if (selectedCount >= selectedMaxCount) {
-                return false;
-            }
-
-            item.is_checked = !item.is_checked;
-            notifyItemChanged(position);
-
-            return item.is_checked;
-        }
-
-        return true;
     }
 
 
-    private int getSelectedPositionByMode() {
-        for (int i = 0; i < getItems().size(); i++) {
-            if (getItems().get(i).is_checked) {
-                return i;
-            }
-        }
-        return -1;
+    private void onBindDbList(TransferItemViewHolder holder, FileBackupStatusEntity entity) {
+        holder.binding.itemMultiSelect.setVisibility(View.GONE);
+        holder.binding.itemMultiSelect.setImageResource(R.drawable.multi_select_item_unchecked);
+        holder.binding.expandableToggleButton.setVisibility(View.GONE);
+
+        //icon
+        int iconId = Icons.getFileIcon(entity.file_name);
+        holder.binding.transferFileIcon.setImageResource(iconId);
+
+        //file name
+        holder.binding.transferFileName.setText(entity.file_name);
+
+        //target path
+        String targetPath = Utils.pathJoin(entity.repo_name, entity.getParent_path());
+        holder.binding.transferTargetPath.setText(targetPath);
+
+        holder.binding.transferTime.setText(Utils.translateCommitTime(entity.created_at));
+
+        holder.binding.transferFileErrorState.setVisibility(View.GONE);
+        holder.binding.transferFileState.setVisibility(View.GONE);
+        holder.binding.transferFileProgressBar.setVisibility(View.GONE);
+        holder.binding.transferFileSize.setText(Utils.readableFileSize(entity.file_size));
     }
 
-    public long getSelectedCountByMode() {
-        return getItems().stream()
-                .filter(f -> f.is_checked)
-                .count();
+
+    public int calc(long cur, long total) {
+        return (int) ((float) cur / (float) total * 100);
     }
 }

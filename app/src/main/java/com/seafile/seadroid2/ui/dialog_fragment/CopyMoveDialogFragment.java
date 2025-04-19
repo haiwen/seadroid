@@ -7,6 +7,8 @@ import android.widget.TextView;
 
 import com.blankj.utilcode.util.CollectionUtils;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.ui.base.fragment.RequestCustomDialogFragmentWithVM;
 import com.seafile.seadroid2.context.CopyMoveContext;
 import com.seafile.seadroid2.ui.dialog_fragment.viewmodel.CopyMoveViewModel;
@@ -98,11 +100,11 @@ public class CopyMoveDialogFragment extends RequestCustomDialogFragmentWithVM<Co
         if (!checkData()) {
             return;
         }
-
+        Account account = SupportAccountManager.getInstance().getCurrentAccount();
         if (ctx.isCopy()) {
-            getViewModel().copy(ctx.dstDir, ctx.dstRepoId, ctx.srcDir, ctx.srcRepoId, ctx.dirents);
+            getViewModel().copy(account, ctx.dstDir, ctx.dstRepoId, ctx.dstRepoName, ctx.srcDir, ctx.srcRepoId, ctx.srcRepoName, ctx.dirents);
         } else {
-            getViewModel().move(ctx.dstDir, ctx.dstRepoId, ctx.srcDir, ctx.srcRepoId, ctx.dirents);
+            getViewModel().move(account, ctx.dstDir, ctx.dstRepoId, ctx.dstRepoName, ctx.srcDir, ctx.srcRepoId, ctx.srcRepoName, ctx.dirents);
         }
     }
 

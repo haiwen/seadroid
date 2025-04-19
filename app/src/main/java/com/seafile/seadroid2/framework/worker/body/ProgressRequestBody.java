@@ -37,34 +37,39 @@ public class ProgressRequestBody extends RequestBody {
         return file.length();
     }
 
-    public long temp = System.currentTimeMillis();
+    private static final int UPDATE_INTERVAL_MS = 1000;
 
     @Override
     public void writeTo(@NonNull BufferedSink sink) throws IOException {
-        try (Source source = Okio.source(file)) {
-            Buffer buf = new Buffer();
-
+        try (Source source = Okio.source(file); Buffer buffer = new Buffer()) {
             long fileLength = file.length();
+            long lastUpdateTime = System.currentTimeMillis();
+            long bytesWrittenSinceUpdate = 0;
 
-            long current = 0;
-            for (long readCount; (readCount = source.read(buf, TransferWorker.SEGMENT_SIZE)) != -1; ) {
-                sink.write(buf, readCount);
-                current += readCount;
+            while (true) {
+                long readCount = source.read(buffer, TransferWorker.SEGMENT_SIZE);
+                if (readCount == -1) break;
 
-                long nowt = System.currentTimeMillis();
-                // 1s refresh progress
-                if (nowt - temp >= 1000) {
-                    temp = nowt;
-                    if (fileTransferProgressListener != null) {
-                        fileTransferProgressListener.onProgressNotify(current, fileLength);
-                    }
+                sink.write(buffer, readCount);
+                bytesWrittenSinceUpdate += readCount;
+
+                // Throttle progress updates
+                long now = System.currentTimeMillis();
+                if (now - lastUpdateTime >= UPDATE_INTERVAL_MS) {
+                    updateProgress(bytesWrittenSinceUpdate, fileLength);
+                    bytesWrittenSinceUpdate = 0;
+                    lastUpdateTime = now;
                 }
             }
 
-            //notify complete
-            if (fileTransferProgressListener != null) {
-                fileTransferProgressListener.onProgressNotify(fileLength, fileLength);
-            }
+            // Final update for completion
+            updateProgress(fileLength, fileLength);
+        }
+    }
+
+    private void updateProgress(long current, long total) {
+        if (fileTransferProgressListener != null) {
+            fileTransferProgressListener.onProgressNotify(current, total);
         }
     }
 }

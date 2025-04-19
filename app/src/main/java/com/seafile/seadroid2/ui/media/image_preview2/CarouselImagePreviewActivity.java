@@ -1,9 +1,11 @@
 package com.seafile.seadroid2.ui.media.image_preview2;
 
+import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Pair;
@@ -12,13 +14,16 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.LinearInterpolator;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -40,7 +45,6 @@ import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.data.db.entities.StarredModel;
 import com.seafile.seadroid2.framework.data.model.activities.ActivityModel;
-import com.seafile.seadroid2.framework.data.model.sdoc.FileProfileConfigModel;
 import com.seafile.seadroid2.framework.data.model.search.SearchModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.util.Objs;
@@ -51,14 +55,14 @@ import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
 import com.seafile.seadroid2.ui.dialog_fragment.CopyMoveDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.DeleteFileDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.listener.OnRefreshDataListener;
-import com.seafile.seadroid2.ui.file_profile.FileProfileDialog;
 import com.seafile.seadroid2.ui.media.image_preview.ImagePreviewViewModel;
 import com.seafile.seadroid2.ui.media.image_preview.PhotoFragment;
 import com.seafile.seadroid2.ui.selector.ObjSelectorActivity;
+import com.seafile.seadroid2.view.photoview.ScrollDirection;
+import com.seafile.seadroid2.view.photoview.ScrollStatus;
 import com.seafile.seadroid2.view.snap_recyclerview.GravitySnapHelper;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePreviewViewModel> implements Toolbar.OnMenuItemClickListener {
@@ -69,7 +73,11 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
 
     private List<DirentModel> direntList;
     private List<DirentModel> carouselDirentList;
-    private boolean isHide = false;
+
+    /**
+     * actionbar: toolBar/statusBar/navBar/bottomActionBar/thumbnailListBar
+     */
+    private boolean isActionBarVisible = true;
     private boolean isNightMode = false;
 
     private String repoId, repoName, parentDir, name;
@@ -94,6 +102,16 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
         return intent;
     }
 
+    public static Intent startThisFromObjs(Context context, DirentModel direntModel, boolean load_other_images_in_same_directory) {
+        Intent intent = new Intent(context, CarouselImagePreviewActivity.class);
+        intent.putExtra("repo_id", direntModel.repo_id);
+        intent.putExtra("repo_name", direntModel.repo_name);
+        intent.putExtra("parent_dir", direntModel.parent_dir);
+        intent.putExtra("name", direntModel.name);
+        intent.putExtra("load_other_images_in_same_directory", load_other_images_in_same_directory);//Load other images in the same folder
+        return intent;
+    }
+
     public static Intent startThisFromStarred(Context context, StarredModel model) {
         Intent intent = new Intent(context, CarouselImagePreviewActivity.class);
         intent.putExtra("repo_id", model.repo_id);
@@ -104,7 +122,7 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
         return intent;
     }
 
-    public static Intent startThisFromActivity(Context context, ActivityModel model) {
+    public static Intent startThisFromActivities(Context context, ActivityModel model) {
         Intent intent = new Intent(context, CarouselImagePreviewActivity.class);
         intent.putExtra("repo_id", model.repo_id);
         intent.putExtra("repo_name", model.repo_name);
@@ -141,6 +159,9 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
         int color = ContextCompatKt.getColorCompat(this, R.color.bar_background_color);
         BarUtils.setStatusBarColor(this, color);
         BarUtils.setStatusBarLightMode(this, !isNightMode);
+        BarUtils.setNavBarColor(this, color);
+        BarUtils.setNavBarLightMode(this, !isNightMode);
+
 
         //init toolbar margin top
         ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) binding.toolbarActionbar.getLayoutParams();
@@ -159,16 +180,14 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
             toolbar.setNavigationOnClickListener(v -> {
                 setResult(RESULT_OK);
 
-                finish();
+                checkBack();
             });
         }
 
         getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                setResult(RESULT_OK);
-
-                finish();
+                checkBack();
             }
         });
 
@@ -183,7 +202,20 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
 
         initViewModel();
 
-        getViewModel().load(repoId, parentDir, name, load_other_images_in_same_directory);
+        getViewModel().load(repoId, repoName, parentDir, name, load_other_images_in_same_directory);
+    }
+
+    private void checkBack() {
+        PhotoFragment photoFragment = getCurrentPhotoFragment();
+        if (photoFragment != null && photoFragment.isShowing()) {
+            alphaBar(1f);
+            photoFragment.toggle();
+            return;
+        }
+
+        setResult(RESULT_OK);
+
+        finish();
     }
 
     private void initParams() {
@@ -214,10 +246,13 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
                 starFile();
             } else if (id == R.id.gallery_share_photo) {
                 shareFile();
+            } else if (id == R.id.gallery_detail) {
+                toggleChildFragmentDetailLayout();
             }
         };
 
         binding.galleryDeletePhoto.setOnClickListener(onClickListener);
+        binding.galleryDetail.setOnClickListener(onClickListener);
         binding.galleryStarPhoto.setOnClickListener(onClickListener);
         binding.gallerySharePhoto.setOnClickListener(onClickListener);
     }
@@ -253,19 +288,10 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
             }
         });
 
-        getViewModel().getFileDetailLiveData().observe(this, new Observer<FileProfileConfigModel>() {
+        getViewModel().getScrolling().observe(this, new Observer<DetailLayoutShowModel>() {
             @Override
-            public void onChanged(FileProfileConfigModel configModel) {
-
-                DirentModel direntModel = getSelectedDirent();
-                if (direntModel == null) {
-                    return;
-                }
-
-                String key = direntModel.full_path;
-                fileDetailHashMap.put(key, configModel);
-
-                showProfileDialog(configModel);
+            public void onChanged(DetailLayoutShowModel model) {
+                gradientLayout(model);
             }
         });
     }
@@ -277,8 +303,10 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
                 notifyCurrentStarredStatus();
+
             }
         });
+
         binding.pager.setOffscreenPageLimit(7);
         binding.pager.setAdapter(adapter);
 
@@ -305,16 +333,16 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
             }
         });
 
-        binding.recyclerView.setAdapter(carouselAdapter);
-        binding.recyclerView.setLayoutManager(layoutManager);
+        binding.thumbnailRecyclerView.setAdapter(carouselAdapter);
+        binding.thumbnailRecyclerView.setLayoutManager(layoutManager);
 
-        binding.recyclerView.addOnScrollListener(new CenterScaleXYRecyclerViewScrollListener(this));
+        binding.thumbnailRecyclerView.addOnScrollListener(new CenterScaleXYRecyclerViewScrollListener(this));
 
         int screenWidth = ScreenUtils.getAppScreenWidth();//1080/3=360
         int sidePadding = (screenWidth - carouselItemWidth) / 2 - carouselItemMargin * 2;//170-4=166
-        binding.recyclerView.addItemDecoration(new LinearEdgeDecoration(sidePadding, sidePadding, RecyclerView.HORIZONTAL, false));
+        binding.thumbnailRecyclerView.addItemDecoration(new LinearEdgeDecoration(sidePadding, sidePadding, RecyclerView.HORIZONTAL, false));
 
-        snapHelper.attachToRecyclerView(binding.recyclerView);
+        snapHelper.attachToRecyclerView(binding.thumbnailRecyclerView);
     }
 
     private void bindPager() {
@@ -333,6 +361,7 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
                     return;
                 }
 
+                animateToolbar(position);
                 whoScroll = 0;
                 SLogs.e("currentPagerPosition: " + position);
                 snapHelper.smoothScrollToPosition(position);
@@ -347,6 +376,8 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
                     whoScroll = -1;
                     return;
                 }
+
+                animateToolbar(snapPosition);
 
                 whoScroll = 1;
                 SLogs.e("currentSnapPosition: " + snapPosition);
@@ -370,16 +401,21 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
         }
 
         direntList = pair.second;
+        if (CollectionUtils.isEmpty(direntList)) {
+            return;
+        }
+
         //
         List<Fragment> fragments = new ArrayList<>();
         for (DirentModel direntModel : direntList) {
             PhotoFragment photoFragment = PhotoFragment.newInstance(getServerUrl(), direntModel);
-            photoFragment.setOnPhotoTapListener((view, x, y) -> hideOrShowToolBar());
+            photoFragment.setOnPhotoTapListener((view, x, y) -> hideOrShowToolbar());
             fragments.add(photoFragment);
         }
 
         adapter.addFragments(fragments);
-        adapter.notifyItemRangeInserted(0, direntList.size());
+//        adapter.notifyItemRangeInserted(0, direntList.size());
+        adapter.notifyDataSetChanged();
 
         carouselDirentList = new ArrayList<>();
 //        carouselDirentList.add(new DirentModel());
@@ -388,7 +424,7 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
 
         carouselAdapter.submitList(carouselDirentList);
 
-        binding.recyclerView.postDelayed(new Runnable() {
+        binding.thumbnailRecyclerView.postDelayed(new Runnable() {
             @Override
             public void run() {
                 navToSelectedPage();
@@ -412,26 +448,241 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
         return server_url;
     }
 
-    private void hideOrShowToolBar() {
-        binding.galleryToolBar.setVisibility(isHide ? View.VISIBLE : View.GONE);
-        binding.recyclerView.setVisibility(isHide ? View.VISIBLE : View.GONE);
-        binding.toolbarActionbar.setVisibility(isHide ? View.VISIBLE : View.INVISIBLE);
+    private final float fraction = 0.02f;
+
+    private PhotoFragment getCurrentPhotoFragment() {
+        if (adapter.getFragments().isEmpty()) {
+            return null;
+        }
+
+        int i = binding.pager.getCurrentItem();
+        if (i >= adapter.getFragments().size()) {
+            return null;
+        }
+
+        return (PhotoFragment) adapter.getFragments().get(i);
+    }
+
+    private PhotoFragment getSpecialPhotoFragment(int position) {
+        int i = binding.pager.getCurrentItem();
+        return (PhotoFragment) adapter.getFragments().get(position);
+    }
+
+    private void toggleChildFragmentDetailLayout() {
+        PhotoFragment photoFragment = getCurrentPhotoFragment();
+        if (photoFragment == null) {
+            return;
+        }
+
+        if (photoFragment.isShowing()) {
+            binding.galleryDetail.setImageResource(R.drawable.baseline_info_24);
+            alphaBar(1f);
+        } else {
+            binding.galleryDetail.setImageResource(R.drawable.baseline_info_grey_24);
+            alphaBar(0f);
+        }
+
+        photoFragment.toggle();
+    }
+
+    private void gradientLayout(DetailLayoutShowModel showModel) {
+        ScrollDirection direction = showModel.direction;
+        int totalDistance = showModel.distance;
+        ScrollStatus scrollStatus = showModel.status;
+        boolean isDetailShowing = showModel.isShowing;
+
+        if (scrollStatus == ScrollStatus.CANCELLED) {
+//            alphaToolbar(isDetailShowing ? 0f : 1f);
+            animateToolbar(!isDetailShowing);
+            return;
+        }
+
+        if (scrollStatus == ScrollStatus.FINISHED) {
+            alphaBar(isDetailShowing ? 1f : 0f);
+            return;
+        }
+
+        if (!isActionBarVisible) {
+            return;
+        }
+
+        float a = getToolbarAlpha();
+        if (direction == ScrollDirection.DOWN) {
+            //0 - 1
+            a += fraction;
+        } else if (direction == ScrollDirection.UP) {
+            //1 - 0
+            a -= fraction;
+        }
+
+        if (a > 1) {
+            a = 1;
+        } else if (a < 0) {
+            a = 0;
+        }
+
+        alphaBar(a);
+    }
+
+    private float getToolbarAlpha() {
+        return binding.toolbarActionbar.getAlpha();
+    }
+
+    private void alphaBar(float a) {
+        if (!isActionBarVisible) {
+            return;
+        }
+
+        if (a == 0f) {
+            int v = binding.toolbarActionbar.getVisibility();
+            if (v != View.GONE) {
+                binding.toolbarActionbar.setVisibility(View.GONE);
+                binding.toolbarActionbar.setAlpha(0f);
+                binding.thumbnailRecyclerView.setVisibility(View.GONE);
+                binding.thumbnailRecyclerView.setAlpha(0f);
+
+                binding.galleryDetail.setImageResource(R.drawable.baseline_info_grey_24);
+
+                setStatusBarAlpha(0);
+            }
+
+        } else if (a == 1f) {
+            float ca = binding.toolbarActionbar.getAlpha();
+            if (ca != 1f) {
+                binding.toolbarActionbar.setVisibility(View.VISIBLE);
+                binding.toolbarActionbar.setAlpha(1f);
+                binding.thumbnailRecyclerView.setVisibility(View.VISIBLE);
+                binding.thumbnailRecyclerView.setAlpha(1f);
+
+                binding.galleryDetail.setImageResource(R.drawable.baseline_info_24);
+                setStatusBarAlpha(255);
+            }
+        } else {
+            binding.toolbarActionbar.setAlpha(a);
+            binding.thumbnailRecyclerView.setAlpha(a);
+
+            setStatusBarAlpha(a);
+
+            int v = binding.toolbarActionbar.getVisibility();
+            if (v != View.VISIBLE) {
+
+                binding.thumbnailRecyclerView.setVisibility(View.VISIBLE);
+                binding.toolbarActionbar.setVisibility(View.VISIBLE);
+            }
+        }
+
+    }
+
+    private void setStatusBarAlpha(float a) {
+        int alpha = (int) (a * 255);
+        setStatusBarAlpha(alpha);
+    }
+
+    private void setStatusBarAlpha(int alpha) {
+        BarUtils.setNavBarColor(this, isNightMode ? getGreyAlpha911(alpha) : getGreyAlpha100(alpha));
+        BarUtils.setStatusBarColor(this, isNightMode ? getGreyAlpha911(alpha) : getGreyAlpha100(alpha));
+    }
+
+    private void animateToolbar(int position) {
+        if (!isActionBarVisible) {
+            return;
+        }
+
+        PhotoFragment photoFragment = getSpecialPhotoFragment(position);
+        if (photoFragment == null) {
+            return;
+        }
+        boolean isDetailShowing = photoFragment.isShowing();
+        float currentToolbarAlpha = getToolbarAlpha();
+        if (currentToolbarAlpha == 0f) {
+            if (isDetailShowing) {
+                //do nothing
+            } else {
+                animateToolbar(true);
+            }
+        } else if (currentToolbarAlpha == 1f) {
+            if (isDetailShowing) {
+                animateToolbar(false);
+            } else {
+                //do nothing
+            }
+        }
+    }
+
+    private void animateToolbar(boolean showToolbar) {
+        float tlba = getToolbarAlpha();
+        ValueAnimator animator = ValueAnimator.ofFloat(tlba, showToolbar ? 1f : 0f);
+        animator.setDuration(200);
+        animator.setInterpolator(new LinearInterpolator());
+        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(@NonNull ValueAnimator animation) {
+                float a = (float) animation.getAnimatedValue();
+                alphaBar(a);
+            }
+        });
+        animator.start();
+    }
+
+    private void hideOrShowToolbar() {
+        isActionBarVisible = !isActionBarVisible;
+        hideOrShowToolbar(isActionBarVisible);
+    }
+
+    private void hideOrShowToolbar(boolean visible) {
+        binding.galleryToolBar.setVisibility(visible ? View.VISIBLE : View.GONE);
+        binding.thumbnailRecyclerView.setVisibility(visible ? View.VISIBLE : View.GONE);
+        binding.toolbarActionbar.setVisibility(visible ? View.VISIBLE : View.INVISIBLE);
 
         if (isNightMode) {
             //The background color has been set in the #initPager(), and no longer updated in night mode
         } else {
-            int color = ContextCompatKt.getColorCompat(this, isHide ? R.color.material_grey_100 : R.color.material_grey_911);
-            binding.pager.setBackgroundColor(color);
-
-            BarUtils.setNavBarColor(this, color);
-            BarUtils.setStatusBarColor(this, color);
-
-            BarUtils.setStatusBarLightMode(this, isHide);
-            BarUtils.setNavBarLightMode(this, isHide);
+            setBarLightMode(visible);
         }
-
-        isHide = !isHide;
     }
+
+    private void setBarLightMode(boolean visible) {
+        int color = visible ? getGrey100() : getGrey911();
+        binding.pager.setBackgroundColor(color);
+
+        BarUtils.setNavBarColor(this, visible ? color : Color.TRANSPARENT);
+        BarUtils.setStatusBarColor(this, visible ? color : Color.TRANSPARENT);
+
+        BarUtils.setStatusBarLightMode(this, visible);
+        BarUtils.setNavBarLightMode(this, visible);
+    }
+
+    private int grey100 = 0;
+    private int grey911 = 0;
+
+    public int getGrey100() {
+        if (grey100 == 0) {
+            grey100 = ContextCompat.getColor(this, R.color.material_grey_100);
+        }
+        return grey100;
+    }
+
+    public int getGreyAlpha100(int alpha) {
+        int red = Color.red(getGrey100());
+        int green = Color.green(getGrey100());
+        int blue = Color.blue(getGrey100());
+        return Color.argb(alpha, red, green, blue);
+    }
+
+    public int getGrey911() {
+        if (grey911 == 0) {
+            grey911 = ContextCompatKt.getColorCompat(this, R.color.material_grey_911);
+        }
+        return grey911;
+    }
+
+    public int getGreyAlpha911(int alpha) {
+        int red = Color.red(getGrey911());
+        int green = Color.green(getGrey911());
+        int blue = Color.blue(getGrey911());
+        return Color.argb(alpha, red, green, blue);
+    }
+
 
     /**
      * Dynamically navigate to the starting page index selected by user
@@ -450,7 +701,7 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
 
         if (index != -1) {
             int x = (carouselItemWidth + carouselItemMargin * 2) * index;
-            binding.recyclerView.scrollBy(x, 0);
+            binding.thumbnailRecyclerView.scrollBy(x, 0);
             binding.pager.setCurrentItem(index, false);
         }
 
@@ -482,13 +733,10 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
     @Override
     public boolean onMenuItemClick(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            finish();
+            checkBack();
         } else if (item.getItemId() == R.id.copy) {
             copy();
-        } else if (item.getItemId() == R.id.info) {
-            preShowProfileDialog();
         }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -558,28 +806,6 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
         Objs.showCreateShareLinkDialog(this, getSupportFragmentManager(), direntModel, false);
     }
 
-
-    private HashMap<String, FileProfileConfigModel> fileDetailHashMap = new HashMap<>();
-
-    private void preShowProfileDialog() {
-        DirentModel direntModel = getSelectedDirent();
-        if (direntModel == null) {
-            return;
-        }
-
-        String key = direntModel.full_path;
-        if (fileDetailHashMap.containsKey(key)) {
-            showProfileDialog(fileDetailHashMap.get(key));
-        } else {
-            getViewModel().getFileDetail(repoId, key);
-        }
-    }
-
-    private void showProfileDialog(FileProfileConfigModel model) {
-        FileProfileDialog detailDialog = FileProfileDialog.newInstance(model.detail, model.users.user_list, true);
-        detailDialog.show(getSupportFragmentManager(), FileProfileDialog.class.getSimpleName());
-    }
-
     private CopyMoveContext copyMoveContext = null;
 
     private void copy() {
@@ -595,7 +821,6 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
      * Choose copy/move destination for multiple files
      */
     private void chooseCopyMoveDest(DirentModel direntModel, OpType op) {
-
         copyMoveContext = new CopyMoveContext(repoId, repoName, parentDir, CollectionUtils.newArrayList(direntModel), op);
         copyMoveLauncher.launch(ObjSelectorActivity.getStartIntent(this));
     }

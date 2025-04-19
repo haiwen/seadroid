@@ -24,7 +24,7 @@
             android:layout_marginHorizontal="8dp"
             android:layout_marginVertical="2dp"
             android:gravity="center"
-            android:textColor="@color/fancy_gray"
+            android:textColor="@color/white"
             android:textSize="13sp" />
 
         <ImageView

@@ -19,6 +19,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.media3.common.util.UnstableApi;
 
 import com.blankj.utilcode.util.ToastUtils;
 import com.chad.library.adapter4.BaseQuickAdapter;
@@ -28,18 +29,22 @@ import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.annotation.Unstable;
+import com.seafile.seadroid2.bus.BusHelper;
 import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.databinding.LayoutFrameSwipeRvBinding;
+import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.data.db.entities.StarredModel;
 import com.seafile.seadroid2.framework.data.model.ResultModel;
+import com.seafile.seadroid2.framework.data.model.TResultModel;
 import com.seafile.seadroid2.framework.datastore.DataManager;
-import com.seafile.seadroid2.framework.datastore.sp.SettingsManager;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.base.fragment.BaseFragmentWithVM;
 import com.seafile.seadroid2.ui.bottomsheetmenu.BottomSheetHelper;
 import com.seafile.seadroid2.ui.bottomsheetmenu.BottomSheetMenuFragment;
 import com.seafile.seadroid2.ui.bottomsheetmenu.OnMenuClickListener;
+import com.seafile.seadroid2.ui.dialog_fragment.PasswordDialogFragment;
+import com.seafile.seadroid2.ui.dialog_fragment.listener.OnResultListener;
 import com.seafile.seadroid2.ui.file.FileActivity;
 import com.seafile.seadroid2.ui.main.MainActivity;
 import com.seafile.seadroid2.ui.main.MainViewModel;
@@ -52,6 +57,7 @@ import com.seafile.seadroid2.view.TipsViews;
 import java.io.File;
 import java.util.List;
 
+import io.reactivex.functions.Consumer;
 import kotlin.Pair;
 
 public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
@@ -103,22 +109,16 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
         reload();
     }
 
+    private boolean isForce = false;
+
     @Override
     public void onOtherResume() {
         super.onOtherResume();
 
-        if (isForce()) {
-            reload();
-        }
-    }
-
-    private boolean isForce() {
-        boolean isForce = SettingsManager.getForceRefreshStarredListState();
         if (isForce) {
-            SettingsManager.setForceRefreshStarredListState(false);
+            reload();
+            isForce = false;
         }
-
-        return isForce;
     }
 
     private void initAdapter() {
@@ -155,11 +155,19 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
         adapter.setStateViewEnable(true);
     }
 
+
     private void initViewModel() {
         getViewModel().getRefreshLiveData().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean aBoolean) {
                 binding.swipeRefreshLayout.setRefreshing(aBoolean);
+            }
+        });
+
+        getViewModel().getSecondRefreshLiveData().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+                showLoadingDialog(aBoolean);
             }
         });
 
@@ -191,6 +199,17 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
                 }
             }
         });
+
+        BusHelper.getCustomBundleObserver().observe(getViewLifecycleOwner(), new Observer<Bundle>() {
+            @Override
+            public void onChanged(Bundle bundle) {
+                if (bundle == null) {
+                    return;
+                }
+
+                isForce = bundle.containsKey(StarredQuickFragment.class.getSimpleName());
+            }
+        });
     }
 
     private void reload() {
@@ -219,7 +238,7 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
 
     private void navTo(StarredModel starredModel) {
         if (!starredModel.deleted) {
-            open(starredModel);
+            decryptRepo(starredModel);
         } else if (starredModel.isRepo()) {
             ToastUtils.showLong(getString(R.string.library_not_found));
         } else if (starredModel.is_dir) {
@@ -229,31 +248,68 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
         }
     }
 
-    @OptIn(markerClass = Unstable.class)
+    private void showPasswordDialogCallback(String repo_id, String repo_name, OnResultListener<RepoModel> resultListener) {
+        PasswordDialogFragment dialogFragment = PasswordDialogFragment.newInstance(repo_id, repo_name);
+        dialogFragment.setResultListener(resultListener);
+        dialogFragment.show(getChildFragmentManager(), PasswordDialogFragment.class.getSimpleName());
+    }
+
+    private void decryptRepo(StarredModel model) {
+        if (model.repo_encrypted) {
+            getViewModel().decryptRepo(model.repo_id, new Consumer<String>() {
+                @Override
+                public void accept(String i) throws Exception {
+                    if (TextUtils.equals(i, "need-to-re-enter-password")) {
+                        showPasswordDialogCallback(model.repo_id, model.repo_name, new OnResultListener<RepoModel>() {
+                            @Override
+                            public void onResultData(RepoModel repoModel) {
+                                if (repoModel != null) {
+                                    open(model);
+                                }
+                            }
+                        });
+                    } else if (TextUtils.equals(i, "done")) {
+                        open(model);
+                    } else {
+                        getViewModel().remoteVerify(model.repo_id, i, new Consumer<ResultModel>() {
+                            @Override
+                            public void accept(ResultModel r) throws Exception {
+                                if (r.success) {
+                                    open(model);
+                                } else {
+                                    ToastUtils.showLong(r.error_msg);
+                                    showPasswordDialogCallback(model.repo_id, model.repo_name, new OnResultListener<RepoModel>() {
+                                        @Override
+                                        public void onResultData(RepoModel repoModel) {
+                                            if (repoModel != null) {
+                                                open(model);
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+        } else {
+            open(model);
+        }
+    }
+
+    @OptIn(markerClass = UnstableApi.class)
     private void open(StarredModel model) {
         if (model.is_dir) {
             MainActivity.navToThis(requireContext(), model.repo_id, model.repo_name, model.path, model.is_dir);
-        } else if (model.repo_encrypted) {
-
-            File file = getLocalDestinationFile(model.repo_id, model.repo_name, model.path);
-            if (file.exists()) {
-                WidgetUtils.openWith(requireContext(), file);
-            } else {
-                Intent intent = FileActivity.startFromStarred(requireContext(), model, "open_with");
-                fileActivityLauncher.launch(intent);
-            }
 
         } else if (Utils.isViewableImage(model.obj_name)) {
-
             Intent getIntent = CarouselImagePreviewActivity.startThisFromStarred(requireContext(), model);
             imagePreviewActivityLauncher.launch(getIntent);
 
         } else if (model.obj_name.endsWith(Constants.Format.DOT_SDOC)) {
-
             SDocWebViewActivity.openSdoc(getContext(), model.repo_name, model.repo_id, model.path);
 
         } else if (Utils.isVideoFile(model.obj_name)) {
-
             MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext());
             builder.setItems(R.array.video_download_array, (dialog, which) -> {
                 if (which == 0) {
@@ -264,17 +320,24 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
                 }
             }).show();
         } else if (Utils.isTextMimeType(model.obj_name)) {
-
-            File file = getLocalDestinationFile(model.repo_id, model.repo_name, model.path);
-            //check need to update
-            if (file.exists()) {
-                MarkdownActivity.start(requireContext(), file.getAbsolutePath(), model.repo_id, model.path);
-            } else {
-                Intent intent = FileActivity.startFromStarred(requireContext(), model, "open_markdown");
-                fileActivityLauncher.launch(intent);
-            }
+            getViewModel().checkRemoteAndOpen(model.repo_id, model.path, new Consumer<String>() {
+                @Override
+                public void accept(String s) throws Exception {
+                    if (TextUtils.isEmpty(s)) {
+                        Intent intent = FileActivity.startFromStarred(requireContext(), model, "open_markdown");
+                        fileActivityLauncher.launch(intent);
+                    } else {
+                        File file = getLocalDestinationFile(model.repo_id, model.repo_name, model.path);
+                        if (file.exists()) {
+                            MarkdownActivity.start(requireContext(), file.getAbsolutePath(), model.repo_id, model.path);
+                        } else {
+                            Intent intent = FileActivity.startFromStarred(requireContext(), model, "open_markdown");
+                            fileActivityLauncher.launch(intent);
+                        }
+                    }
+                }
+            });
         } else {
-
             //Open with another app
             openWith(model);
         }

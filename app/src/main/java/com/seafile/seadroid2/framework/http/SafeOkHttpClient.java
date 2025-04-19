@@ -76,9 +76,14 @@ public class SafeOkHttpClient extends BaseOkHttpClient {
         }
     }
 
+    private OkHttpClient okHttpClient;
 
     @Override
     public OkHttpClient getOkClient() {
+        if (okHttpClient != null) {
+            return okHttpClient;
+        }
+
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
 
         //https
@@ -146,6 +151,7 @@ public class SafeOkHttpClient extends BaseOkHttpClient {
         builder.readTimeout(DEFAULT_TIME_OUT, TimeUnit.MILLISECONDS);
         builder.connectTimeout(DEFAULT_TIME_OUT, TimeUnit.MILLISECONDS);
 
-        return builder.build();
+        okHttpClient = builder.build();
+        return okHttpClient;
     }
 }

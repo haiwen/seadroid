@@ -10,6 +10,7 @@ import com.seafile.seadroid2.framework.util.Utils;
 
 public class ActivityModel extends BaseModel {
     public String op_type;
+    public String related_account;
     public String repo_id;
     public String repo_name;
     public String obj_type;
@@ -28,7 +29,7 @@ public class ActivityModel extends BaseModel {
     public OpType opType;
 
     public String getTime() {
-        if (mTimeLong == 0){
+        if (mTimeLong == 0) {
             mTimeLong = Times.convertMtime2Long(time);
         }
         return Utils.translateCommitTime(mTimeLong);
@@ -43,19 +44,6 @@ public class ActivityModel extends BaseModel {
     }
 
     public boolean isDir() {
-        return TextUtils.equals(obj_type,"dir");
-    }
-
-
-    public static DirentModel convert2DirentModel(ActivityModel model){
-        DirentModel d = new DirentModel();
-        d.full_path = model.path;
-        d.type = model.obj_type;
-        d.mtime = 0;
-        d.name = model.name;
-        d.repo_id = model.repo_id;
-        d.repo_name = model.repo_name;
-        d.parent_dir = Utils.getParentPath(model.path);
-        return d;
+        return TextUtils.equals(obj_type, "dir");
     }
 }

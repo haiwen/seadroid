@@ -8,6 +8,7 @@ import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class GroupItemModel extends BaseModel {
     @StringRes
@@ -56,5 +57,18 @@ public class GroupItemModel extends BaseModel {
     public GroupItemModel(String title, List<RepoModel> repoList) {
         this.title = title;
         repo_list.addAll(repoList);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        GroupItemModel that = (GroupItemModel) o;
+        return Objects.equals(title, that.title);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(title);
     }
 }

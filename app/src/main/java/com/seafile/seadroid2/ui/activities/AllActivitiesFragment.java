@@ -16,7 +16,9 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.lifecycle.Observer;
+import androidx.media3.common.util.UnstableApi;
 
 import com.blankj.utilcode.util.ToastUtils;
 import com.chad.library.adapter4.QuickAdapterHelper;
@@ -29,6 +31,8 @@ import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.databinding.LayoutFrameSwipeRvBinding;
 import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
+import com.seafile.seadroid2.framework.data.db.entities.StarredModel;
+import com.seafile.seadroid2.framework.data.model.ResultModel;
 import com.seafile.seadroid2.framework.data.model.activities.ActivityModel;
 import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.util.SLogs;
@@ -37,6 +41,7 @@ import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.base.adapter.LogicLoadMoreAdapter;
 import com.seafile.seadroid2.ui.base.fragment.BaseFragmentWithVM;
 import com.seafile.seadroid2.ui.dialog_fragment.PasswordDialogFragment;
+import com.seafile.seadroid2.ui.dialog_fragment.listener.OnResultListener;
 import com.seafile.seadroid2.ui.file.FileActivity;
 import com.seafile.seadroid2.ui.main.MainActivity;
 import com.seafile.seadroid2.ui.markdown.MarkdownActivity;
@@ -106,7 +111,7 @@ public class AllActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel>
 
         adapter.setOnItemClickListener((baseQuickAdapter, view, i) -> {
             ActivityModel activityModel = (ActivityModel) adapter.getItems().get(i);
-            checkOpen(activityModel);
+            checkAndOpen(activityModel);
         });
 
         LogicLoadMoreAdapter loadMoreAdapter = getLogicLoadMoreAdapter();
@@ -156,6 +161,12 @@ public class AllActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel>
                 binding.swipeRefreshLayout.setRefreshing(aBoolean);
             }
         });
+        getViewModel().getSecondRefreshLiveData().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+                showLoadingDialog(aBoolean);
+            }
+        });
 
         getViewModel().getSeafExceptionLiveData().observe(getViewLifecycleOwner(), exceptionPair -> showErrorTip());
 
@@ -192,8 +203,7 @@ public class AllActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel>
         loadNext();
     }
 
-    //https://dev.seafile.com/seahub/mobile-login/?next=https://dev.seafile.com/seahub/lib/92d156fd-22ca-485a-a867-390e3e9ce43c/file/在线文档开发计划.sdoc
-    private void checkOpen(ActivityModel model) {
+    private void checkAndOpen(ActivityModel model) {
         if ("delete".equals(model.op_type)) {
             if ("repo".equals(model.obj_type)) {
                 ToastUtils.showLong(getString(R.string.library_not_found));
@@ -213,11 +223,7 @@ public class AllActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel>
                     return;
                 }
 
-                if (repoModel.encrypted) {
-                    showPasswordDialog(repoModel, model);
-                } else {
-                    navTo(repoModel, model);
-                }
+                navTo(repoModel, model);
             }
         });
     }
@@ -252,7 +258,7 @@ public class AllActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel>
                 case "create":
                 case "update":
                 case "edit":
-                    open(repoModel, model);
+                    decryptRepo(repoModel, model);
                     break;
                 default:
                     ToastUtils.showLong(R.string.not_supported);
@@ -261,20 +267,60 @@ public class AllActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel>
         }
     }
 
-    private void open(RepoModel repoModel, ActivityModel activityModel) {
+    private void showPasswordDialogCallback(String repo_id, String repo_name, OnResultListener<RepoModel> resultListener) {
+        PasswordDialogFragment dialogFragment = PasswordDialogFragment.newInstance(repo_id, repo_name);
+        dialogFragment.setResultListener(resultListener);
+        dialogFragment.show(getChildFragmentManager(), PasswordDialogFragment.class.getSimpleName());
+    }
+
+    private void decryptRepo(RepoModel repoModel, ActivityModel model) {
         if (repoModel.encrypted) {
+            getViewModel().decryptRepo(model.repo_id, new Consumer<String>() {
+                @Override
+                public void accept(String i) throws Exception {
+                    if (TextUtils.equals(i, "need-to-re-enter-password")) {
+                        showPasswordDialogCallback(model.repo_id, model.repo_name, new OnResultListener<RepoModel>() {
+                            @Override
+                            public void onResultData(RepoModel repoModel) {
+                                if (repoModel != null) {
+                                    open(model);
+                                }
+                            }
+                        });
+                    } else if (TextUtils.equals(i, "done")) {
+                        open(model);
+                    } else {
+                        getViewModel().remoteVerify(model.repo_id, i, new Consumer<ResultModel>() {
+                            @Override
+                            public void accept(ResultModel r) throws Exception {
+                                if (r.success) {
+                                    open(model);
+                                } else {
+                                    ToastUtils.showLong(r.error_msg);
+                                    showPasswordDialogCallback(model.repo_id, model.repo_name, new OnResultListener<RepoModel>() {
+                                        @Override
+                                        public void onResultData(RepoModel repoModel) {
+                                            if (repoModel != null) {
+                                                open(model);
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+        } else {
+            open(model);
+        }
+    }
 
-            File file = getLocalDestinationFile(activityModel.repo_id, activityModel.repo_name, activityModel.path);
-            if (file.exists()) {
-                WidgetUtils.openWith(requireContext(), file);
-            } else {
-                Intent intent = FileActivity.startFromActivity(requireContext(), activityModel, "open_with");
-                fileActivityLauncher.launch(intent);
-            }
+    @OptIn(markerClass = UnstableApi.class)
+    private void open(ActivityModel activityModel) {
+        if (Utils.isViewableImage(activityModel.name)) {
 
-        } else if (Utils.isViewableImage(activityModel.name)) {
-
-            Intent getIntent = CarouselImagePreviewActivity.startThisFromActivity(requireContext(), activityModel);
+            Intent getIntent = CarouselImagePreviewActivity.startThisFromActivities(requireContext(), activityModel);
             imagePreviewActivityLauncher.launch(getIntent);
 
         } else if (activityModel.name.endsWith(Constants.Format.DOT_SDOC)) {
@@ -293,15 +339,23 @@ public class AllActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel>
                 }
             }).show();
         } else if (Utils.isTextMimeType(activityModel.name)) {
-
-            File file = getLocalDestinationFile(activityModel.repo_id, activityModel.repo_name, activityModel.path);
-            //check need to update
-            if (file.exists()) {
-                MarkdownActivity.start(requireContext(), file.getAbsolutePath(), activityModel.repo_id, activityModel.path);
-            } else {
-                Intent intent = FileActivity.startFromActivity(requireContext(), activityModel, "open_markdown");
-                fileActivityLauncher.launch(intent);
-            }
+            getViewModel().checkRemoteAndOpen(activityModel.repo_id, activityModel.path, new Consumer<String>() {
+                @Override
+                public void accept(String s) {
+                    if (TextUtils.isEmpty(s)) {
+                        Intent intent = FileActivity.startFromActivity(requireContext(), activityModel, "open_markdown");
+                        fileActivityLauncher.launch(intent);
+                    } else {
+                        File file = getLocalDestinationFile(activityModel.repo_id, activityModel.repo_name, activityModel.path);
+                        if (file.exists()) {
+                            MarkdownActivity.start(requireContext(), file.getAbsolutePath(), activityModel.repo_id, activityModel.path);
+                        } else {
+                            Intent intent = FileActivity.startFromActivity(requireContext(), activityModel, "open_markdown");
+                            fileActivityLauncher.launch(intent);
+                        }
+                    }
+                }
+            });
         } else {
 
             //Open with another app
@@ -313,22 +367,6 @@ public class AllActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel>
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
 
         return DataManager.getLocalRepoFile(account, repoId, repoName, fullPathInRepo);
-    }
-
-
-    private void showPasswordDialog(RepoModel repoModel, ActivityModel activityModel) {
-        PasswordDialogFragment dialogFragment = PasswordDialogFragment.newInstance(repoModel.repo_id, repoModel.repo_name);
-        dialogFragment.setRefreshListener(isDone -> {
-            if (isDone) {
-                navTo(repoModel, activityModel);
-            }
-        });
-        dialogFragment.show(getChildFragmentManager(), PasswordDialogFragment.class.getSimpleName());
-    }
-
-
-    private void startPlayActivity(String fileName, String repoID, String filePath) {
-        CustomExoVideoPlayerActivity.startThis(getContext(), fileName, repoID, filePath);
     }
 
     private void openWith(ActivityModel model) {
@@ -380,7 +418,6 @@ public class AllActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel>
             } else if ("video_download".equals(action)) {
                 //
             } else if ("open_markdown".equals(action)) {
-
                 MarkdownActivity.start(requireContext(), localFullPath, repoId, targetFile);
             }
         }

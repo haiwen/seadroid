@@ -87,10 +87,4 @@
         android:title="@string/select"
         android:visible="true"
         app:showAsAction="never" />
-
-    <item
-        android:id="@+id/transfer_tasks"
-        android:title="@string/transfer_tasks"
-        android:visible="true"
-        app:showAsAction="never" />
 </menu>

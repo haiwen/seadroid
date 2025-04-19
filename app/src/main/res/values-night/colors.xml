@@ -75,7 +75,8 @@
     <color name="toolbar_editor_title_color">@color/white</color>
 
     <!-- divider color -->
-    <color name="divider_color">@color/material_grey_824</color>
+    <color name="divider_color">@color/material_grey_900</color>
+    <color name="image_preview_divider_color">@color/material_grey_800</color>
 
     <!-- view color -->
     <color name="item_title_color">#d3d3d3</color>

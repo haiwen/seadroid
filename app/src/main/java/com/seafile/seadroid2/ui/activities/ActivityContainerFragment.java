@@ -11,10 +11,12 @@ import androidx.annotation.Nullable;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.ui.base.fragment.BaseFragment;
+import com.seafile.seadroid2.annotation.Todo;
 import com.seafile.seadroid2.databinding.FragmentActivityBinding;
-import com.seafile.seadroid2.ui.adapter.ViewPagerAdapter;
+import com.seafile.seadroid2.ui.adapter.ViewPager2Adapter;
+import com.seafile.seadroid2.ui.base.fragment.BaseFragment;
 
+@Todo("not support")
 public class ActivityContainerFragment extends BaseFragment {
 
     private FragmentActivityBinding binding;
@@ -51,7 +53,7 @@ public class ActivityContainerFragment extends BaseFragment {
     }
 
     private void initViewPager() {
-        ViewPagerAdapter adapter = new ViewPagerAdapter(getChildFragmentManager(), getLifecycle());
+        ViewPager2Adapter adapter = new ViewPager2Adapter(getChildFragmentManager(), getLifecycle());
         adapter.addFragment(AllActivitiesFragment.newInstance());
         adapter.addFragment(MineActivitiesFragment.newInstance());
         binding.viewPager.setAdapter(adapter);
