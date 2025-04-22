@@ -1,8 +1,8 @@
 package com.seafile.seadroid2.ui.account;
 
 import com.seafile.seadroid2.account.AccountInfo;
-import com.seafile.seadroid2.framework.model.SSOLinkModel;
-import com.seafile.seadroid2.framework.model.SSOStatusModel;
+import com.seafile.seadroid2.framework.model.sso.SSOLinkModel;
+import com.seafile.seadroid2.framework.model.sso.SSOStatusModel;
 import com.seafile.seadroid2.framework.model.TokenModel;
 
 import java.util.Map;

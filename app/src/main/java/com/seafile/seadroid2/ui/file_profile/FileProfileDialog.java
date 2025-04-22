@@ -343,7 +343,7 @@ public class FileProfileDialog extends BottomSheetDialogFragment {
             case ColumnType.NUMBER:
                 return R.drawable.ic_number;
             case ColumnType.RATE:
-                return R.drawable.ic_star_32;
+                return R.drawable.baseline_starred_new_24;
             case ColumnType.URL:
                 return R.drawable.ic_url;
             case ColumnType.LINK:
@@ -629,7 +629,7 @@ public class FileProfileDialog extends BottomSheetDialogFragment {
             ColorStateList stateList = ColorStateList.valueOf(t);
 
             ltr.setImageTintList(stateList);
-            ltr.setImageResource(R.drawable.ic_star_32);
+            ltr.setImageResource(R.drawable.baseline_starred_new_24);
 
             view.<FlexboxLayout>findViewById(R.id.flex_box).addView(ltr, flexLayoutParams);
         }

@@ -14,6 +14,7 @@ import com.seafile.seadroid2.framework.db.entities.PermissionEntity;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.model.permission.PermissionWrapperModel;
 import com.seafile.seadroid2.framework.model.repo.RepoWrapperModel;
+import com.seafile.seadroid2.framework.util.Times;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
 import com.seafile.seadroid2.context.NavContext;
 import com.seafile.seadroid2.framework.model.BaseModel;
@@ -24,6 +25,7 @@ import com.seafile.seadroid2.framework.util.Objs;
 import com.seafile.seadroid2.framework.util.SLogs;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import io.reactivex.Single;
@@ -75,7 +77,17 @@ public class ObjSelectorViewModel extends BaseViewModel {
                     getRefreshLiveData().setValue(false);
                     return;
                 }
-                List<RepoModel> list1 = Objs.convertRemoteListToLocalList(repoWrapperModel.repos, account.getSignature());
+
+                List<RepoModel> list1 = new ArrayList<>();
+                if (!CollectionUtils.isEmpty(repoWrapperModel.repos)) {
+                    list1.addAll(repoWrapperModel.repos);
+                }
+
+                for (RepoModel repoModel : list1) {
+                    repoModel.related_account = account.getSignature();
+                    repoModel.last_modified_long = Times.convertMtime2Long(repoModel.last_modified);
+                }
+
                 List<BaseModel> list2 = Objs.convertToAdapterList(list1, isFilterUnavailable);
                 getObjsListLiveData().setValue(list2);
                 getRefreshLiveData().setValue(false);

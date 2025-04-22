@@ -21,15 +21,15 @@ public class ViewSortPopupWindow extends PopupWindow {
     public ViewSortPopupWindow(Context context) {
         super(context);
 
-        w = SizeUtils.dp2px(144);
+        w = SizeUtils.dp2px(128);
 
         View popView = LayoutInflater.from(context).inflate(R.layout.layout_fragment_pop_menu, null);
-        ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(Constants.DP.DP_160, ViewGroup.LayoutParams.WRAP_CONTENT);
+        ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(w, ViewGroup.LayoutParams.WRAP_CONTENT);
         popView.setLayoutParams(params);
 
         setContentView(popView);
 
-        this.setWidth(Constants.DP.DP_160);
+        this.setWidth(w);
         this.setHeight(ViewGroup.LayoutParams.WRAP_CONTENT);
 
         this.setFocusable(true);
@@ -129,7 +129,7 @@ public class ViewSortPopupWindow extends PopupWindow {
             Settings.FILE_LIST_SORT_BY.putValue(SortBy.TYPE);
         } else if (clickedId == R.id.menu_sort_last_modified) {
             menuSortLastModifiedIcon.setVisibility(View.VISIBLE);
-            Settings.FILE_LIST_SORT_BY.putValue(SortBy.SIZE);
+            Settings.FILE_LIST_SORT_BY.putValue(SortBy.LAST_MODIFIED);
         } else if (clickedId == R.id.menu_sort_ascending) {
             Boolean b = Settings.FILE_LIST_SORT_ASCENDING.queryValue();
             if (b) {

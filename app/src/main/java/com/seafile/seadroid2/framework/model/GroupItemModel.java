@@ -32,30 +32,28 @@ public class GroupItemModel extends BaseModel {
         repo_list.clear();
     }
 
-    public GroupItemModel() {
-
-    }
-
     public GroupItemModel(@StringRes int nameRes) {
         this.name = nameRes;
-
+        checkable = false;
         title = SeadroidApplication.getInstance().getString(name);
     }
 
     public GroupItemModel(@StringRes int nameRes, List<RepoModel> repoList) {
         this.name = nameRes;
         repo_list.addAll(repoList);
-
+        checkable = false;
         title = SeadroidApplication.getInstance().getString(name);
     }
 
     public GroupItemModel(String title) {
         this.title = title;
+        checkable = false;
     }
 
     public GroupItemModel(String title, List<RepoModel> repoList) {
         this.title = title;
         repo_list.addAll(repoList);
+        checkable = false;
     }
 
     @Override

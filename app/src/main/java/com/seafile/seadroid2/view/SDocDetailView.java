@@ -343,7 +343,7 @@ public class SDocDetailView extends LinearLayout {
             case ColumnType.EMAIL -> R.drawable.ic_email;
             case ColumnType.LONG_TEXT -> R.drawable.ic_long_text;
             case ColumnType.NUMBER -> R.drawable.ic_number;
-            case ColumnType.RATE -> R.drawable.ic_star_32;
+            case ColumnType.RATE -> R.drawable.baseline_starred_new_24;
             case ColumnType.URL -> R.drawable.ic_url;
             case ColumnType.LINK ->
                     "_tags".equals(key) ? R.drawable.baseline_tag_24 : R.drawable.ic_links;
@@ -708,7 +708,7 @@ public class SDocDetailView extends LinearLayout {
             ColorStateList stateList = ColorStateList.valueOf(t);
 
             ltr.setImageTintList(stateList);
-            ltr.setImageResource(R.drawable.ic_star_32);
+            ltr.setImageResource(R.drawable.baseline_starred_new_24);
 
             view.<FlexboxLayout>findViewById(R.id.flex_box).addView(ltr, flexLayoutParams);
         }

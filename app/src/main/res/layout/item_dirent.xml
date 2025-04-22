@@ -4,8 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:foreground="?android:selectableItemBackground"
-    android:paddingHorizontal="16dp">
+    android:foreground="?android:selectableItemBackground">
 
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/item_icon"
@@ -13,6 +12,7 @@
         android:layout_height="@dimen/lv_icon_width"
         android:layout_marginVertical="12dp"
         android:scaleType="centerCrop"
+        android:layout_marginStart="16dp"
         android:src="@drawable/icon_format_file"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -83,6 +83,7 @@
         android:id="@+id/action_container"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
+        android:layout_marginEnd="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -99,7 +100,6 @@
             android:visibility="visible"
             app:tint="@color/item_subtitle_color" />
 
-
         <ImageView
             android:id="@+id/item_multi_select"
             android:layout_width="@dimen/lv_multi_select_width"
@@ -115,6 +115,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:visibility="visible"
+        app:dividerInsetStart="16dp"
         app:dividerColor="@color/divider_color"
         app:layout_constraintBottom_toBottomOf="parent" />
 </com.seafile.seadroid2.widget.CheckableForegroundConstraintLayout>

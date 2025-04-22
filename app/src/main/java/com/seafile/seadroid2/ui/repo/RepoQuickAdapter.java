@@ -33,6 +33,7 @@ import com.seafile.seadroid2.databinding.ItemDirentGridBinding;
 import com.seafile.seadroid2.databinding.ItemGroupItemBinding;
 import com.seafile.seadroid2.databinding.ItemRepoBinding;
 import com.seafile.seadroid2.databinding.ItemUnsupportedBinding;
+import com.seafile.seadroid2.databinding.ViewMarginPlaceholderBinding;
 import com.seafile.seadroid2.enums.FileViewType;
 import com.seafile.seadroid2.enums.ItemPositionEnum;
 import com.seafile.seadroid2.enums.RepoSelectType;
@@ -41,6 +42,7 @@ import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.model.BaseModel;
 import com.seafile.seadroid2.framework.model.BlankModel;
 import com.seafile.seadroid2.framework.model.GroupItemModel;
+import com.seafile.seadroid2.framework.model.MarginPlaceHolderModel;
 import com.seafile.seadroid2.framework.model.search.SearchModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.util.GlideApp;
@@ -53,6 +55,7 @@ import com.seafile.seadroid2.ui.repo.vh.BlankViewHolder;
 import com.seafile.seadroid2.ui.repo.vh.DirentGalleryViewHolder;
 import com.seafile.seadroid2.ui.repo.vh.DirentGridViewHolder;
 import com.seafile.seadroid2.ui.repo.vh.DirentViewHolder;
+import com.seafile.seadroid2.ui.repo.vh.MarginPlaceHolderViewHolder;
 import com.seafile.seadroid2.ui.repo.vh.RepoViewHolder;
 import com.seafile.seadroid2.ui.repo.vh.UnsupportedViewHolder;
 import com.seafile.seadroid2.ui.viewholder.GroupItemViewHolder;
@@ -92,17 +95,6 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         this.selectedMaxCount = selectedMaxCount;
     }
 
-    private Drawable starDrawable;
-
-    public Drawable getStarDrawable() {
-        if (null == starDrawable) {
-            int DP_16 = SizeUtils.dp2px(12);
-            starDrawable = ContextCompat.getDrawable(getContext(), R.drawable.ic_star_32);
-            starDrawable.setBounds(0, 0, DP_16, DP_16);
-            starDrawable.setTint(ContextCompat.getColor(getContext(), R.color.light_grey));
-        }
-        return starDrawable;
-    }
 
     public void setRepoEncrypted(boolean repoEncrypted) {
         this.repoEncrypted = repoEncrypted;
@@ -251,14 +243,22 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
             }
 
             @Override
-            public void onBind(@NonNull BlankViewHolder unsupportedViewHolder, int i, @Nullable BaseModel baseModel) {
+            public void onBind(@NonNull BlankViewHolder holder, int i, @Nullable BaseModel baseModel) {
 
+            }
+        }).addItemType(AbsLayoutItemType.MARGIN_PLACEHOLDER, new OnMultiItem<BaseModel, MarginPlaceHolderViewHolder>() {
+            @NonNull
+            @Override
+            public MarginPlaceHolderViewHolder onCreate(@NonNull Context context, @NonNull ViewGroup viewGroup, int i) {
+                ViewMarginPlaceholderBinding binding = ViewMarginPlaceholderBinding.inflate(LayoutInflater.from(context), viewGroup, false);
+                return new MarginPlaceHolderViewHolder(binding);
             }
 
             @Override
-            public void onBind(@NonNull BlankViewHolder holder, int position, @Nullable BaseModel item, @NonNull List<?> payloads) {
-                super.onBind(holder, position, item, payloads);
+            public void onBind(@NonNull MarginPlaceHolderViewHolder holder, int i, @Nullable BaseModel baseModel) {
+
             }
+
         }).onItemViewType(new OnItemViewTypeListener<BaseModel>() {
             @Override
             public int onItemViewType(int i, @NonNull List<? extends BaseModel> list) {
@@ -280,6 +280,8 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
                     return AbsLayoutItemType.ACCOUNT;
                 } else if (list.get(i) instanceof BlankModel) {
                     return AbsLayoutItemType.BLANK;
+                } else if (list.get(i) instanceof MarginPlaceHolderModel) {
+                    return AbsLayoutItemType.MARGIN_PLACEHOLDER;
                 }
                 return AbsLayoutItemType.NOT_SUPPORTED;
             }
@@ -290,6 +292,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
     private Drawable bottomShapeBackgroundDrawable;
     private Drawable allShapeBackgroundDrawable;
     private Drawable noneShapeBackgroundDrawable;
+    private Drawable starDrawable;
 
     @Override
     public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
@@ -301,6 +304,10 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         allShapeBackgroundDrawable = BackgroundShapeUtils.genBackgroundDrawable(BackgroundShapeUtils.SHAPE_ALL, itemBackColor, Constants.DP.DP_8);
         noneShapeBackgroundDrawable = BackgroundShapeUtils.genBackgroundDrawable(BackgroundShapeUtils.SHAPE_NONE, itemBackColor, Constants.DP.DP_8);
 
+        int star_width = SizeUtils.dp2px(16);
+        starDrawable = ContextCompat.getDrawable(getContext(), R.drawable.baseline_starred_new_24);
+        starDrawable.setBounds(0, 0, star_width, star_width);
+        starDrawable.setTint(ContextCompat.getColor(getContext(), R.color.light_grey));
     }
 
     private void onBindAccount(AccountViewHolder holder, BaseModel model, int position) {
@@ -380,7 +387,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
             holder.itemView.setBackground(noneShapeBackgroundDrawable);
         }
 
-        if (model.item_position == ItemPositionEnum.BOTTOM) {
+        if (model.item_position == ItemPositionEnum.BOTTOM || model.item_position == ItemPositionEnum.ALL) {
             holder.binding.divider.setVisibility(View.GONE);
         } else {
             holder.binding.divider.setVisibility(View.VISIBLE);
@@ -389,11 +396,8 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         holder.binding.itemTitle.setText(model.repo_name);
         holder.binding.itemSubtitle.setText(model.getSubtitle());
         holder.binding.itemIcon.setImageResource(model.getIcon());
-//        holder.binding.getRoot().setBackground(AnimatedStateListDrawableCompatUtils.createDrawableCompat(getContext()));
 
         if (selectType.ordinal() == RepoSelectType.ONLY_REPO.ordinal() || onActionMode) {
-//            holder.binding.getRoot().setChecked(model.is_checked);
-
             holder.binding.itemMultiSelect.setVisibility(View.VISIBLE);
 
             if (model.is_checked) {
@@ -403,18 +407,14 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
             }
         } else {
             holder.binding.itemMultiSelect.setVisibility(View.GONE);
-//            holder.binding.getRoot().setChecked(false);
         }
 
 
         holder.binding.expandableToggleButton.setVisibility(View.GONE);
 
         holder.binding.itemTitle.setCompoundDrawablePadding(Constants.DP.DP_4);
-        if (model.starred) {
-            holder.binding.itemTitle.setCompoundDrawables(null, null, getStarDrawable(), null);
-        } else {
-            holder.binding.itemTitle.setCompoundDrawables(null, null, null, null);
-        }
+        holder.binding.itemTitle.setCompoundDrawables(null, null, model.starred ? starDrawable : null, null);
+
     }
 
     private void onBindDirents(DirentViewHolder holder, DirentModel model, int position, @NonNull List<?> payloads) {
@@ -453,20 +453,11 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         }
 
         //hide divider for bottom item
-        if (model.item_position == ItemPositionEnum.BOTTOM) {
+        if (model.item_position == ItemPositionEnum.BOTTOM || model.item_position == ItemPositionEnum.ALL) {
             holder.binding.divider.setVisibility(View.GONE);
         } else {
             holder.binding.divider.setVisibility(View.VISIBLE);
         }
-
-        //add margin for top item
-        ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) holder.itemView.getLayoutParams();
-        if (model.item_position == ItemPositionEnum.TOP || model.item_position == ItemPositionEnum.ALL) {
-            layoutParams.topMargin = Constants.DP.DP_8;
-        } else {
-            layoutParams.topMargin = 0;
-        }
-        holder.itemView.setLayoutParams(layoutParams);
 
         holder.binding.itemTitle.setText(model.name);
         holder.binding.itemSubtitle.setText(model.getSubtitle());
@@ -514,11 +505,9 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
             holder.binding.itemDownloadStatus.setVisibility(View.GONE);
         }
 
-        if (model.starred) {
-            holder.binding.itemTitle.setCompoundDrawables(null, null, getStarDrawable(), null);
-        } else {
-            holder.binding.itemTitle.setCompoundDrawables(null, null, null, null);
-        }
+        holder.binding.itemTitle.setCompoundDrawablePadding(Constants.DP.DP_4);
+        holder.binding.itemTitle.setCompoundDrawables(null, null, model.starred ? starDrawable : null, null);
+
     }
 
     private void onBindDirentsGrid(DirentGridViewHolder holder, DirentModel model, int position, @NonNull List<?> payloads) {
@@ -578,11 +567,8 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
             holder.binding.itemDownloadStatus.setVisibility(View.GONE);
         }
 
-        if (model.starred) {
-            holder.binding.itemTitle.setCompoundDrawables(null, null, getStarDrawable(), null);
-        } else {
-            holder.binding.itemTitle.setCompoundDrawables(null, null, null, null);
-        }
+        holder.binding.itemTitle.setCompoundDrawablePadding(Constants.DP.DP_4);
+        holder.binding.itemTitle.setCompoundDrawables(null, null, model.starred ? starDrawable : null, null);
     }
 
     private void onBindDirentsGallery(DirentGalleryViewHolder holder, DirentModel model, int position, @NonNull List<?> payloads) {
@@ -657,7 +643,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
 
         //add margin for top item
         ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) holder.itemView.getLayoutParams();
-        if (model.item_position == ItemPositionEnum.TOP  || model.item_position == ItemPositionEnum.ALL) {
+        if (model.item_position == ItemPositionEnum.TOP || model.item_position == ItemPositionEnum.ALL) {
             layoutParams.topMargin = Constants.DP.DP_8;
         } else {
             layoutParams.topMargin = 0;
@@ -752,11 +738,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
     public void setAllItemSelected(boolean itemSelected) {
         for (BaseModel item : getItems()) {
 
-            if (item instanceof GroupItemModel) {
-                continue;
-            } else if (item instanceof Account) {
-                continue;
-            } else if (item instanceof SearchModel) {
+            if (!item.checkable) {
                 continue;
             }
 

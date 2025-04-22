@@ -210,6 +210,9 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
         //layout manager
         binding.rv.setLayoutManager(getGridLayoutManager());
+
+        binding.rv.setPadding(0, 0, 0, Constants.DP.DP_32);
+        binding.rv.setClipToPadding(false);
     }
 
     /**
@@ -310,6 +313,8 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                     showAddFileDialog();
                 } else if (menuItem.getItemId() == R.id.select) {
                     startOrUpdateContextualActionBar();
+                } else if (menuItem.getItemId() == android.R.id.home) {
+                    backTo();
                 }
                 return true;
             }
@@ -318,7 +323,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
     private void showCustomMenuView(View anchorView) {
         ViewSortPopupWindow popupWindow = new ViewSortPopupWindow(requireContext());
-        int x = -popupWindow.getW() / 3 * 2;
+        int x = -popupWindow.getW() / 2;
         popupWindow.showAsDropDown(anchorView, x, Constants.DP.DP_8);
     }
 
@@ -1077,6 +1082,8 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 loadData(RefreshStatusEnum.ONLY_LOCAL);
             }
             return true;
+        } else {
+
         }
         return false;
     }

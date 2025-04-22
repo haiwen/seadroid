@@ -1,7 +1,7 @@
 package com.seafile.seadroid2.framework.model;
 
-public class BlankModel extends BaseModel {
-    public BlankModel() {
+public class MarginPlaceHolderModel extends BaseModel{
+    public MarginPlaceHolderModel() {
         super();
         checkable = false;
     }

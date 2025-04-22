@@ -39,7 +39,7 @@ public class Account extends BaseModel implements Parcelable, Comparable<Account
 
 
     public Account() {
-
+        checkable = false;
     }
 
     public Account(String server, String email, String name, String avatar_url, String token, Boolean is_shib) {

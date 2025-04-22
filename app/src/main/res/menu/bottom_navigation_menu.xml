@@ -3,12 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/tabs_library"
-        android:icon="@drawable/baseline_libraries_32"
+        android:icon="@drawable/baseline_libraries_24"
         android:title="@string/tabs_library" />
 
     <item
         android:id="@+id/tabs_starred"
-        android:icon="@drawable/baseline_starred_filled_32"
+        android:icon="@drawable/baseline_starred_new_24"
         android:title="@string/tabs_starred" />
 
     <item

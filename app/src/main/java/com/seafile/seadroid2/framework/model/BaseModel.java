@@ -36,5 +36,8 @@ public class BaseModel {
     public boolean is_checked = false;
 
     @Ignore
+    public boolean checkable = true;
+
+    @Ignore
     public ItemPositionEnum item_position;
 }

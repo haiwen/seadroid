@@ -34,6 +34,12 @@ public class SearchModel extends BaseModel implements Parcelable {
     public long last_modified;
     public long size;    // size of file, 0 if type is dir
 
+
+    private SearchModel() {
+        super();
+        checkable = false;
+    }
+
     public boolean isDir() {
         return is_dir;
     }
@@ -151,9 +157,6 @@ public class SearchModel extends BaseModel implements Parcelable {
         this.content_highlight = source.readString();
         this.last_modified = source.readLong();
         this.size = source.readLong();
-    }
-
-    public SearchModel() {
     }
 
     protected SearchModel(Parcel in) {

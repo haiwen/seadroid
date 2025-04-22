@@ -153,15 +153,14 @@ public class MainActivity extends BaseActivity {
         getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                if (binding.pager.getCurrentItem() == INDEX_LIBRARY_TAB) {
-                    RepoQuickFragment fragment = (RepoQuickFragment) mainViewModel.getFragments().get(0);
-                    boolean canBack = fragment.backTo();
-                    if (canBack) {
+                if (binding.pager.getCurrentItem() != INDEX_LIBRARY_TAB) {
+                    finish();
+                    return;
+                }
 
-                    } else {
-                        finish();
-                    }
-                } else {
+                RepoQuickFragment fragment = (RepoQuickFragment) mainViewModel.getFragments().get(0);
+                boolean canBack = fragment.backTo();
+                if (!canBack) {
                     finish();
                 }
             }

@@ -29,6 +29,7 @@ import com.seafile.seadroid2.framework.db.entities.PermissionEntity;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.model.BaseModel;
 import com.seafile.seadroid2.framework.model.BlankModel;
+import com.seafile.seadroid2.framework.model.MarginPlaceHolderModel;
 import com.seafile.seadroid2.framework.model.ResultModel;
 import com.seafile.seadroid2.framework.model.TResultModel;
 import com.seafile.seadroid2.framework.model.dirents.CachedDirentModel;
@@ -284,18 +285,6 @@ public class RepoViewModel extends BaseViewModel {
                     loadReposFromRemote(account);
                 } else {
 
-                    //calculate item_position
-                    if (CollectionUtils.isEmpty(list)) {
-
-                    } else if (list.size() == 1) {
-                        list.get(0).item_position = ItemPositionEnum.ALL;
-                    } else if (list.size() == 2) {
-                        list.get(0).item_position = ItemPositionEnum.TOP;
-                        list.get(1).item_position = ItemPositionEnum.BOTTOM;
-                    } else {
-                        list.get(0).item_position = ItemPositionEnum.TOP;
-                        list.get(list.size() - 1).item_position = ItemPositionEnum.BOTTOM;
-                    }
 
                     getObjListLiveData().setValue(list);
                     getRefreshLiveData().setValue(false);
@@ -335,7 +324,6 @@ public class RepoViewModel extends BaseViewModel {
             }
         });
     }
-
 
     private void loadDirentsFromLocalWithGalleryViewType(Account account, NavContext navContext, boolean isLoadRemoteData) {
         getRefreshLiveData().setValue(true);
@@ -391,15 +379,8 @@ public class RepoViewModel extends BaseViewModel {
             @Override
             public void accept(List<BaseModel> results) throws Exception {
 
-                if (isLoadRemoteData) {
-                    if (!CollectionUtils.isEmpty(results)) {
-                        getObjListLiveData().setValue(results);
-                    }
+                if (!CollectionUtils.isEmpty(results)) {
 
-                    loadDirentsFromRemote(account, navContext);
-                } else {
-
-                    //calculate item_position
                     if (CollectionUtils.isEmpty(results)) {
 
                     } else if (results.size() == 1) {
@@ -412,6 +393,18 @@ public class RepoViewModel extends BaseViewModel {
                         results.get(results.size() - 1).item_position = ItemPositionEnum.BOTTOM;
                     }
 
+                    //add margin placeholder
+                    results.add(0, new MarginPlaceHolderModel());
+                }
+
+                if (isLoadRemoteData) {
+                    if (!CollectionUtils.isEmpty(results)) {
+                        getObjListLiveData().setValue(results);
+                    }
+
+                    loadDirentsFromRemote(account, navContext);
+                } else {
+                    //calculate item_position
                     getObjListLiveData().setValue(results);
                     getRefreshLiveData().setValue(false);
                 }
@@ -478,7 +471,6 @@ public class RepoViewModel extends BaseViewModel {
     private void loadDirentsFromRemote(Account account, NavContext navContext) {
         if (!NetworkUtils.isConnected()) {
             getRefreshLiveData().setValue(false);
-            getSeafExceptionLiveData().setValue(SeafException.NETWORK_EXCEPTION);
             return;
         }
 
@@ -530,16 +522,24 @@ public class RepoViewModel extends BaseViewModel {
 
                 FileViewType fileViewType = Settings.FILE_LIST_VIEW_TYPE.queryValue();
                 if (FileViewType.GALLERY == fileViewType) {
-                    List<DirentModel> rets = CollectionUtils.newArrayList();
+                    List<BaseModel> results = CollectionUtils.newArrayList();
                     for (DirentModel direntModel : direntModels) {
                         if (Utils.isViewableImage(direntModel.name) || Utils.isVideoFile(direntModel.name)) {
-                            rets.add(direntModel);
+                            results.add(direntModel);
                         }
                     }
 
-                    getObjListLiveData().setValue(new ArrayList<>(rets));
+                    getObjListLiveData().setValue(results);
+                } else if (FileViewType.GRID == fileViewType) {
+                    List<BaseModel> results = new ArrayList<>(direntModels);
+                    getObjListLiveData().setValue(new ArrayList<>(results));
                 } else {
-                    getObjListLiveData().setValue(new ArrayList<>(direntModels));
+                    List<BaseModel> results = new ArrayList<>(direntModels);
+                    //add margin placeholder
+                    if (!results.isEmpty()) {
+                        results.add(0, new MarginPlaceHolderModel());
+                    }
+                    getObjListLiveData().setValue(results);
                 }
 
                 getRefreshLiveData().setValue(false);

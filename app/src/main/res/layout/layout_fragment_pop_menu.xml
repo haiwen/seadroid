@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="180dp"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/bar_background_color"
     android:orientation="vertical">
 
     <LinearLayout
@@ -12,26 +13,28 @@
         android:foreground="?attr/selectableItemBackground"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingHorizontal="8dp"
-        android:paddingVertical="12dp">
+        android:paddingVertical="@dimen/pop_item_padding_vertical">
 
         <ImageView
             android:id="@+id/menu_view_list_icon"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_gravity="end|center_vertical"
-            android:layout_marginEnd="8dp"
+            android:layout_width="@dimen/pop_icon_width"
+            android:layout_height="@dimen/pop_icon_height"
+            android:layout_marginHorizontal="@dimen/pop_icon_margin_horizontal"
             android:clickable="false"
-            android:padding="4dp"
-            android:src="@drawable/baseline_arrow_forward_24"
+            android:padding="@dimen/pop_icon_padding"
+            android:src="@drawable/popup_window_icon"
             app:tint="@color/material_grey_500" />
 
         <TextView
             android:id="@+id/menu_view_list_title"
-            style="@style/ListItemTitleStyle"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@string/menu_action_view_list" />
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:maxLines="@integer/popup_window_title_max_lines"
+            android:text="@string/menu_action_view_list"
+            android:textColor="@color/item_title_color"
+            android:textSize="@dimen/pop_title_text_size" />
 
     </LinearLayout>
 
@@ -42,26 +45,28 @@
         android:foreground="?attr/selectableItemBackground"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingHorizontal="8dp"
-        android:paddingVertical="12dp">
+        android:paddingVertical="@dimen/pop_item_padding_vertical">
 
         <ImageView
             android:id="@+id/menu_view_grid_icon"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_gravity="end|center_vertical"
-            android:layout_marginEnd="8dp"
+            android:layout_width="@dimen/pop_icon_width"
+            android:layout_height="@dimen/pop_icon_height"
+            android:layout_marginHorizontal="@dimen/pop_icon_margin_horizontal"
             android:clickable="false"
-            android:padding="4dp"
-            android:src="@drawable/baseline_arrow_forward_24"
+            android:padding="@dimen/pop_icon_padding"
+            android:src="@drawable/popup_window_icon"
             app:tint="@color/material_grey_500" />
 
         <TextView
             android:id="@+id/menu_view_grid_title"
-            style="@style/ListItemTitleStyle"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@string/menu_action_view_grid" />
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:maxLines="@integer/popup_window_title_max_lines"
+            android:text="@string/menu_action_view_grid"
+            android:textColor="@color/item_title_color"
+            android:textSize="@dimen/pop_title_text_size" />
 
     </LinearLayout>
 
@@ -72,26 +77,28 @@
         android:foreground="?attr/selectableItemBackground"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingHorizontal="8dp"
-        android:paddingVertical="12dp">
+        android:paddingVertical="@dimen/pop_item_padding_vertical">
 
         <ImageView
             android:id="@+id/menu_view_gallery_icon"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_gravity="end|center_vertical"
-            android:layout_marginEnd="8dp"
+            android:layout_width="@dimen/pop_icon_width"
+            android:layout_height="@dimen/pop_icon_height"
+            android:layout_marginHorizontal="@dimen/pop_icon_margin_horizontal"
             android:clickable="false"
-            android:padding="4dp"
-            android:src="@drawable/baseline_arrow_forward_24"
+            android:padding="@dimen/pop_icon_padding"
+            android:src="@drawable/popup_window_icon"
             app:tint="@color/material_grey_500" />
 
         <TextView
             android:id="@+id/menu_view_gallery_title"
-            style="@style/ListItemTitleStyle"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@string/menu_action_view_gallery" />
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:maxLines="@integer/popup_window_title_max_lines"
+            android:text="@string/menu_action_view_gallery"
+            android:textColor="@color/item_title_color"
+            android:textSize="@dimen/pop_title_text_size" />
 
     </LinearLayout>
 
@@ -108,26 +115,28 @@
         android:foreground="?attr/selectableItemBackground"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingHorizontal="8dp"
-        android:paddingVertical="12dp">
+        android:paddingVertical="@dimen/pop_item_padding_vertical">
 
         <ImageView
             android:id="@+id/menu_sort_name_icon"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_gravity="end|center_vertical"
-            android:layout_marginEnd="8dp"
+            android:layout_width="@dimen/pop_icon_width"
+            android:layout_height="@dimen/pop_icon_height"
+            android:layout_marginHorizontal="@dimen/pop_icon_margin_horizontal"
             android:clickable="false"
-            android:padding="4dp"
-            android:src="@drawable/baseline_arrow_forward_24"
+            android:padding="@dimen/pop_icon_padding"
+            android:src="@drawable/popup_window_icon"
             app:tint="@color/material_grey_500" />
 
         <TextView
             android:id="@+id/menu_sort_name_title"
-            style="@style/ListItemTitleStyle"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@string/menu_action_sort_by_name" />
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:maxLines="@integer/popup_window_title_max_lines"
+            android:text="@string/menu_action_sort_by_name"
+            android:textColor="@color/item_title_color"
+            android:textSize="@dimen/pop_title_text_size" />
 
     </LinearLayout>
 
@@ -138,26 +147,28 @@
         android:foreground="?attr/selectableItemBackground"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingHorizontal="8dp"
-        android:paddingVertical="12dp">
+        android:paddingVertical="@dimen/pop_item_padding_vertical">
 
         <ImageView
             android:id="@+id/menu_sort_size_icon"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_gravity="end|center_vertical"
-            android:layout_marginEnd="8dp"
+            android:layout_width="@dimen/pop_icon_width"
+            android:layout_height="@dimen/pop_icon_height"
+            android:layout_marginHorizontal="@dimen/pop_icon_margin_horizontal"
             android:clickable="false"
-            android:padding="4dp"
-            android:src="@drawable/baseline_arrow_forward_24"
+            android:padding="@dimen/pop_icon_padding"
+            android:src="@drawable/popup_window_icon"
             app:tint="@color/material_grey_500" />
 
         <TextView
             android:id="@+id/menu_sort_size_title"
-            style="@style/ListItemTitleStyle"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@string/menu_action_sort_by_size" />
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:maxLines="@integer/popup_window_title_max_lines"
+            android:text="@string/menu_action_sort_by_size"
+            android:textColor="@color/item_title_color"
+            android:textSize="@dimen/pop_title_text_size" />
 
     </LinearLayout>
 
@@ -168,26 +179,28 @@
         android:foreground="?attr/selectableItemBackground"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingHorizontal="8dp"
-        android:paddingVertical="12dp">
+        android:paddingVertical="@dimen/pop_item_padding_vertical">
 
         <ImageView
             android:id="@+id/menu_sort_last_modified_icon"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_gravity="end|center_vertical"
-            android:layout_marginEnd="8dp"
+            android:layout_width="@dimen/pop_icon_width"
+            android:layout_height="@dimen/pop_icon_height"
+            android:layout_marginHorizontal="@dimen/pop_icon_margin_horizontal"
             android:clickable="false"
-            android:padding="4dp"
-            android:src="@drawable/baseline_arrow_forward_24"
+            android:padding="@dimen/pop_icon_padding"
+            android:src="@drawable/popup_window_icon"
             app:tint="@color/material_grey_500" />
 
         <TextView
             android:id="@+id/menu_sort_last_modified_title"
-            style="@style/ListItemTitleStyle"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@string/menu_action_sort_by_last_modified" />
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:maxLines="@integer/popup_window_title_max_lines"
+            android:text="@string/menu_action_sort_by_last_modified"
+            android:textColor="@color/item_title_color"
+            android:textSize="@dimen/pop_title_text_size" />
 
     </LinearLayout>
 
@@ -204,26 +217,28 @@
         android:foreground="?attr/selectableItemBackground"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingHorizontal="8dp"
-        android:paddingVertical="12dp">
+        android:paddingVertical="@dimen/pop_item_padding_vertical">
 
         <ImageView
             android:id="@+id/menu_sort_ascending_icon"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_gravity="end|center_vertical"
-            android:layout_marginEnd="8dp"
+            android:layout_width="@dimen/pop_icon_width"
+            android:layout_height="@dimen/pop_icon_height"
+            android:layout_marginHorizontal="@dimen/pop_icon_margin_horizontal"
             android:clickable="false"
-            android:padding="4dp"
-            android:src="@drawable/baseline_arrow_forward_24"
+            android:padding="@dimen/pop_icon_padding"
+            android:src="@drawable/popup_window_icon"
             app:tint="@color/material_grey_500" />
 
         <TextView
             android:id="@+id/menu_sort_ascending_title"
-            style="@style/ListItemTitleStyle"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@string/menu_action_sort_order_ascending" />
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:maxLines="@integer/popup_window_title_max_lines"
+            android:text="@string/menu_action_sort_order_ascending"
+            android:textColor="@color/item_title_color"
+            android:textSize="@dimen/pop_title_text_size" />
 
     </LinearLayout>
 </LinearLayout>
