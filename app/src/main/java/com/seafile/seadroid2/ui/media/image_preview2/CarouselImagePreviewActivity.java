@@ -41,11 +41,11 @@ import com.seafile.seadroid2.compat.ContextCompatKt;
 import com.seafile.seadroid2.context.CopyMoveContext;
 import com.seafile.seadroid2.databinding.ActivityCarouselImagePreviewBinding;
 import com.seafile.seadroid2.enums.OpType;
-import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
-import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
-import com.seafile.seadroid2.framework.data.db.entities.StarredModel;
-import com.seafile.seadroid2.framework.data.model.activities.ActivityModel;
-import com.seafile.seadroid2.framework.data.model.search.SearchModel;
+import com.seafile.seadroid2.framework.db.entities.DirentModel;
+import com.seafile.seadroid2.framework.db.entities.RepoModel;
+import com.seafile.seadroid2.framework.db.entities.StarredModel;
+import com.seafile.seadroid2.framework.model.activities.ActivityModel;
+import com.seafile.seadroid2.framework.model.search.SearchModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.util.Objs;
 import com.seafile.seadroid2.framework.util.SLogs;
@@ -418,9 +418,7 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
         adapter.notifyDataSetChanged();
 
         carouselDirentList = new ArrayList<>();
-//        carouselDirentList.add(new DirentModel());
         carouselDirentList.addAll(direntList);
-//        carouselDirentList.add(new DirentModel());
 
         carouselAdapter.submitList(carouselDirentList);
 
@@ -767,15 +765,22 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
                     adapter.removeFragment(position);
                     adapter.notifyItemRemoved(position);
 
-                    int carouselIndex = position + 1;
-                    carouselDirentList.remove(carouselIndex);
-                    carouselAdapter.notifyItemRemoved(carouselIndex);
+                    carouselDirentList.remove(position);
+                    carouselAdapter.notifyItemRemoved(position);
 
                     ToastUtils.showLong(R.string.delete_successful);
 
                     if (adapter.getItemCount() == 0) {
                         setResult(RESULT_OK);
                         finish();
+                    } else {
+                        //todo
+//                        binding.thumbnailRecyclerView.scrollBy(0, 0);
+//
+//                        int index = binding.pager.getCurrentItem();
+//                        int x = (carouselItemWidth + carouselItemMargin * 2) * index;
+//                        binding.thumbnailRecyclerView.scrollBy(x, 0);
+//                        binding.pager.setCurrentItem(index, false);
                     }
                 }
             }

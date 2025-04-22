@@ -13,7 +13,7 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.databinding.FolderBackupActivityLayoutBinding;
-import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
+import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
 import com.seafile.seadroid2.ui.base.BaseActivity;
 import com.seafile.seadroid2.ui.selector.ObjSelectorActivity;

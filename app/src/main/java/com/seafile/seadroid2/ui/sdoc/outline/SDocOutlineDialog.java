@@ -14,7 +14,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.GsonUtils;
-import com.blankj.utilcode.util.ToastUtils;
 import com.chad.library.adapter4.BaseQuickAdapter;
 import com.chad.library.adapter4.QuickAdapterHelper;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
@@ -22,7 +21,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.gson.reflect.TypeToken;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.databinding.DialogSdocDirectoryBinding;
-import com.seafile.seadroid2.framework.data.model.sdoc.OutlineItemModel;
+import com.seafile.seadroid2.framework.model.sdoc.OutlineItemModel;
 import com.seafile.seadroid2.framework.util.StringUtils;
 import com.seafile.seadroid2.listener.OnItemClickListener;
 

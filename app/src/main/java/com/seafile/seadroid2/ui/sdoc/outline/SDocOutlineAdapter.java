@@ -10,7 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.seafile.seadroid2.databinding.ItemSdocOutlineBinding;
-import com.seafile.seadroid2.framework.data.model.sdoc.OutlineItemModel;
+import com.seafile.seadroid2.framework.model.sdoc.OutlineItemModel;
 import com.seafile.seadroid2.ui.base.adapter.BaseAdapter;
 import com.seafile.seadroid2.ui.base.viewholder.BaseViewHolder;
 

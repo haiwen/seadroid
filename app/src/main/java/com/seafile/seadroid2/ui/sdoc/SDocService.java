@@ -1,10 +1,10 @@
 package com.seafile.seadroid2.ui.sdoc;
 
-import com.seafile.seadroid2.framework.data.model.sdoc.FileDetailModel;
-import com.seafile.seadroid2.framework.data.model.sdoc.FileRecordWrapperModel;
-import com.seafile.seadroid2.framework.data.model.sdoc.FileTagWrapperModel;
-import com.seafile.seadroid2.framework.data.model.sdoc.MetadataConfigModel;
-import com.seafile.seadroid2.framework.data.model.user.UserWrapperModel;
+import com.seafile.seadroid2.framework.model.sdoc.FileDetailModel;
+import com.seafile.seadroid2.framework.model.sdoc.FileRecordWrapperModel;
+import com.seafile.seadroid2.framework.model.sdoc.FileTagWrapperModel;
+import com.seafile.seadroid2.framework.model.sdoc.MetadataConfigModel;
+import com.seafile.seadroid2.framework.model.user.UserWrapperModel;
 
 import io.reactivex.Single;
 import retrofit2.http.GET;

@@ -6,6 +6,10 @@ import android.graphics.drawable.LayerDrawable;
 
 public class BackgroundShapeUtils {
 
+    public static final int SHAPE_NONE = 0;
+    public static final int SHAPE_ALL = 1;
+    public static final int SHAPE_TOP = 2;
+    public static final int SHAPE_BOTTOM = 3;
 
     public static LayerDrawable genBackgroundDrawable(int radiusPosition, int backgroundColor, int backgroundRadius) {
         // background shape

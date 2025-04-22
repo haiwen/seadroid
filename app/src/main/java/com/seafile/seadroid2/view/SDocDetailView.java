@@ -30,16 +30,15 @@ import com.google.gson.internal.LinkedTreeMap;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.config.ColumnType;
 import com.seafile.seadroid2.config.GlideLoadConfig;
-import com.seafile.seadroid2.framework.data.model.sdoc.FileProfileConfigModel;
-import com.seafile.seadroid2.framework.data.model.sdoc.FileRecordWrapperModel;
-import com.seafile.seadroid2.framework.data.model.sdoc.MetadataConfigDataModel;
-import com.seafile.seadroid2.framework.data.model.sdoc.MetadataModel;
-import com.seafile.seadroid2.framework.data.model.sdoc.OptionsTagModel;
-import com.seafile.seadroid2.framework.data.model.sdoc.RecordResultModel;
-import com.seafile.seadroid2.framework.data.model.sdoc.SDocTagModel;
-import com.seafile.seadroid2.framework.data.model.user.UserModel;
+import com.seafile.seadroid2.framework.model.sdoc.FileProfileConfigModel;
+import com.seafile.seadroid2.framework.model.sdoc.FileRecordWrapperModel;
+import com.seafile.seadroid2.framework.model.sdoc.MetadataConfigDataModel;
+import com.seafile.seadroid2.framework.model.sdoc.MetadataModel;
+import com.seafile.seadroid2.framework.model.sdoc.OptionsTagModel;
+import com.seafile.seadroid2.framework.model.sdoc.RecordResultModel;
+import com.seafile.seadroid2.framework.model.sdoc.SDocTagModel;
+import com.seafile.seadroid2.framework.model.user.UserModel;
 import com.seafile.seadroid2.framework.util.SLogs;
-import com.seafile.seadroid2.framework.util.StringUtils;
 import com.seafile.seadroid2.framework.util.Utils;
 
 import java.lang.reflect.Field;
@@ -49,9 +48,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class SDocDetailView extends LinearLayout {
     public SDocDetailView(Context context) {

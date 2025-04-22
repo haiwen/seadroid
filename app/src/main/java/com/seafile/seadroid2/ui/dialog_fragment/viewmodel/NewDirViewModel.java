@@ -5,8 +5,8 @@ import android.text.TextUtils;
 import androidx.lifecycle.MutableLiveData;
 
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
-import com.seafile.seadroid2.framework.data.model.ResultModel;
-import com.seafile.seadroid2.framework.data.model.dirents.FileCreateModel;
+import com.seafile.seadroid2.framework.model.ResultModel;
+import com.seafile.seadroid2.framework.model.dirents.FileCreateModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.ui.dialog_fragment.DialogService;
 

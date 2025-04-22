@@ -1,7 +1,6 @@
 package com.seafile.seadroid2.ui.dialog_fragment;
 
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -10,9 +9,6 @@ import androidx.lifecycle.Observer;
 
 import com.blankj.utilcode.util.CollectionUtils;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.account.SupportAccountManager;
-import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
 import com.seafile.seadroid2.ui.base.fragment.RequestCustomDialogFragmentWithVM;
 import com.seafile.seadroid2.ui.dialog_fragment.viewmodel.DeleteDirsViewModel;
 

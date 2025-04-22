@@ -9,7 +9,6 @@ import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -25,22 +24,18 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.config.GlideLoadConfig;
 import com.seafile.seadroid2.databinding.ItemFileCommentBinding;
 import com.seafile.seadroid2.databinding.LayoutImageBinding;
-import com.seafile.seadroid2.framework.data.model.docs_comment.DocsCommentModel;
+import com.seafile.seadroid2.framework.model.docs_comment.DocsCommentModel;
 import com.seafile.seadroid2.framework.util.GlideApp;
-import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.ui.base.adapter.BaseAdapter;
 import com.seafile.seadroid2.ui.media.image_preview2.OnlyImagePreviewActivity;
 import com.seafile.seadroid2.view.rich_edittext.RichEditText;
-import com.seafile.seadroid2.widget.SimpleMarkdownParser;
 import com.yydcdut.markdown.MarkdownConfiguration;
 import com.yydcdut.markdown.MarkdownProcessor;
 import com.yydcdut.markdown.MarkdownTextView;
 import com.yydcdut.markdown.loader.DefaultLoader;
 import com.yydcdut.markdown.syntax.text.TextFactory;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 
 public class DocsCommentAdapter extends BaseAdapter<DocsCommentModel, DocsCommentViewHolder> {

@@ -19,20 +19,21 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.context.NavContext;
 import com.seafile.seadroid2.enums.FileViewType;
+import com.seafile.seadroid2.enums.ItemPositionEnum;
 import com.seafile.seadroid2.enums.RefreshStatusEnum;
 import com.seafile.seadroid2.framework.crypto.SecurePasswordManager;
-import com.seafile.seadroid2.framework.data.db.AppDatabase;
-import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
-import com.seafile.seadroid2.framework.data.db.entities.EncKeyCacheEntity;
-import com.seafile.seadroid2.framework.data.db.entities.PermissionEntity;
-import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
-import com.seafile.seadroid2.framework.data.model.BaseModel;
-import com.seafile.seadroid2.framework.data.model.BlankModel;
-import com.seafile.seadroid2.framework.data.model.ResultModel;
-import com.seafile.seadroid2.framework.data.model.TResultModel;
-import com.seafile.seadroid2.framework.data.model.dirents.CachedDirentModel;
-import com.seafile.seadroid2.framework.data.model.permission.PermissionWrapperModel;
-import com.seafile.seadroid2.framework.data.model.repo.Dirent2Model;
+import com.seafile.seadroid2.framework.db.AppDatabase;
+import com.seafile.seadroid2.framework.db.entities.DirentModel;
+import com.seafile.seadroid2.framework.db.entities.EncKeyCacheEntity;
+import com.seafile.seadroid2.framework.db.entities.PermissionEntity;
+import com.seafile.seadroid2.framework.db.entities.RepoModel;
+import com.seafile.seadroid2.framework.model.BaseModel;
+import com.seafile.seadroid2.framework.model.BlankModel;
+import com.seafile.seadroid2.framework.model.ResultModel;
+import com.seafile.seadroid2.framework.model.TResultModel;
+import com.seafile.seadroid2.framework.model.dirents.CachedDirentModel;
+import com.seafile.seadroid2.framework.model.permission.PermissionWrapperModel;
+import com.seafile.seadroid2.framework.model.repo.Dirent2Model;
 import com.seafile.seadroid2.framework.datastore.sp.SettingsManager;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.util.Objs;
@@ -282,6 +283,20 @@ public class RepoViewModel extends BaseViewModel {
                     }
                     loadReposFromRemote(account);
                 } else {
+
+                    //calculate item_position
+                    if (CollectionUtils.isEmpty(list)) {
+
+                    } else if (list.size() == 1) {
+                        list.get(0).item_position = ItemPositionEnum.ALL;
+                    } else if (list.size() == 2) {
+                        list.get(0).item_position = ItemPositionEnum.TOP;
+                        list.get(1).item_position = ItemPositionEnum.BOTTOM;
+                    } else {
+                        list.get(0).item_position = ItemPositionEnum.TOP;
+                        list.get(list.size() - 1).item_position = ItemPositionEnum.BOTTOM;
+                    }
+
                     getObjListLiveData().setValue(list);
                     getRefreshLiveData().setValue(false);
                 }
@@ -383,6 +398,20 @@ public class RepoViewModel extends BaseViewModel {
 
                     loadDirentsFromRemote(account, navContext);
                 } else {
+
+                    //calculate item_position
+                    if (CollectionUtils.isEmpty(results)) {
+
+                    } else if (results.size() == 1) {
+                        results.get(0).item_position = ItemPositionEnum.ALL;
+                    } else if (results.size() == 2) {
+                        results.get(0).item_position = ItemPositionEnum.TOP;
+                        results.get(1).item_position = ItemPositionEnum.BOTTOM;
+                    } else {
+                        results.get(0).item_position = ItemPositionEnum.TOP;
+                        results.get(results.size() - 1).item_position = ItemPositionEnum.BOTTOM;
+                    }
+
                     getObjListLiveData().setValue(results);
                     getRefreshLiveData().setValue(false);
                 }

@@ -13,14 +13,10 @@ import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
-import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.util.StringUtils;
 import com.seafile.seadroid2.ui.base.fragment.RequestCustomDialogFragmentWithVM;
-import com.seafile.seadroid2.framework.data.model.dirents.FileCreateModel;
+import com.seafile.seadroid2.framework.model.dirents.FileCreateModel;
 import com.seafile.seadroid2.ui.dialog_fragment.viewmodel.RenameRepoViewModel;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class RenameDialogFragment extends RequestCustomDialogFragmentWithVM<RenameRepoViewModel> {
 

@@ -4,24 +4,19 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.blankj.utilcode.util.CollectionUtils;
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.config.Constants;
-import com.seafile.seadroid2.framework.data.db.AppDatabase;
-import com.seafile.seadroid2.framework.data.db.entities.FileCacheStatusEntity;
+import com.seafile.seadroid2.framework.db.AppDatabase;
+import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
 import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
-import com.seafile.seadroid2.framework.data.model.ResultModel;
-import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
+import com.seafile.seadroid2.framework.model.ResultModel;
+import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.ui.dialog_fragment.DialogService;
 
-import org.apache.commons.io.FileUtils;
-
 import java.io.File;
-import java.nio.file.CopyOption;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

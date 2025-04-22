@@ -8,6 +8,7 @@ public class AbsLayoutItemType {
 
     //
     public static final int BLANK = -2;
+    public static final int MARGIN_PLACEHOLDER = -10;
 
     public static final int REPO = 10;
     public static final int DIRENT_LIST = 11;

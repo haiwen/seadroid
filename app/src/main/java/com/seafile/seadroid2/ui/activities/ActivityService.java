@@ -1,6 +1,6 @@
 package com.seafile.seadroid2.ui.activities;
 
-import com.seafile.seadroid2.framework.data.model.activities.ActivityWrapperModel;
+import com.seafile.seadroid2.framework.model.activities.ActivityWrapperModel;
 
 import io.reactivex.Single;
 import retrofit2.http.GET;

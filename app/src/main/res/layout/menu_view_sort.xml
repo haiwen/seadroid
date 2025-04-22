@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ImageView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="48dp"
+    android:layout_height="48dp"
+    android:contentDescription="@string/menu_action_view_and_sort"
+    android:scaleType="center"
+    android:src="@drawable/baseline_sort_24"
+    android:foreground="@drawable/ripple_icon_middle"
+    app:iconTint="@color/bar_icon_tint_color">
+
+</ImageView>

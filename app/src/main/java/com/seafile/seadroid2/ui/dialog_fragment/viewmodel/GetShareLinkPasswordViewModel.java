@@ -8,8 +8,8 @@ import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.TimeUtils;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.config.DateFormatType;
-import com.seafile.seadroid2.framework.data.model.dirents.DirentPermissionModel;
-import com.seafile.seadroid2.framework.data.model.objs.DirentShareLinkModel;
+import com.seafile.seadroid2.framework.model.dirents.DirentPermissionModel;
+import com.seafile.seadroid2.framework.model.objs.DirentShareLinkModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
 import com.seafile.seadroid2.ui.dialog_fragment.DialogService;
@@ -18,7 +18,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import io.reactivex.Single;
 import io.reactivex.functions.Consumer;

@@ -57,8 +57,8 @@
     <color name="file_picker_des">#86848B</color>
 
     <!-- primary background color -->
-    <color name="window_background_color">@color/material_grey_50</color>
-    <color name="bar_background_color">@color/material_grey_100</color>
+    <color name="window_background_color">@color/material_grey_100</color>
+    <color name="bar_background_color">@color/white</color>
     <color name="bar_title_color">@color/material_grey_900</color>
     <color name="bar_icon_tint_color">@color/material_grey_900</color>
     <color name="bar_background_translucent_color">@color/material_grey_100_translucent</color>

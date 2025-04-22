@@ -40,15 +40,4 @@
             android:layout_height="wrap_content"
             app:menu="@menu/bottom_navigation_menu" />
     </LinearLayout>
-
-    <FrameLayout
-        android:id="@+id/bottom_drawer"
-        style="@style/Widget.Material3.BottomSheet"
-        android:layout_width="match_parent"
-        android:layout_height="400dp"
-        android:layout_gravity="bottom"
-        android:background="@color/material_blue_grey_500"
-        app:behavior_hideable="false"
-        app:behavior_peekHeight="200dp"
-        app:layout_behavior="@string/bottom_sheet_behavior" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -116,8 +116,8 @@
             android:name=".ui.main.MainActivity"
             android:configChanges="uiMode|orientation|screenSize"
             android:exported="false"
-            android:windowSoftInputMode="adjustPan"
-            android:launchMode="singleTop" />
+            android:launchMode="singleTop"
+            android:windowSoftInputMode="adjustPan" />
 
         <activity
             android:name=".ui.gesture.UnlockGesturePasswordActivity"
@@ -199,7 +199,9 @@
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:screenOrientation="sensor" />
 
-        <activity android:name=".ui.webview.SeaWebViewActivity" />
+        <activity
+            android:name=".ui.webview.SeaWebViewActivity"
+            android:screenOrientation="portrait" />
         <activity android:name=".ui.data_migrate.DataMigrationActivity" />
         <activity android:name=".ui.selector.ObjSelectorActivity" />
         <activity android:name=".ui.transfer_list.TransferActivity" />
@@ -208,8 +210,12 @@
         <activity android:name=".ui.data_migrate.DataMigrationV303Activity" />
         <activity android:name=".ui.sdoc.SDocWebViewActivity" />
         <activity android:name=".ui.docs_comment.DocsCommentsActivity" />
-        <activity android:name=".ui.media.image_preview2.CarouselImagePreviewActivity" />
-        <activity android:name=".ui.media.image_preview2.OnlyImagePreviewActivity" />
+        <activity
+            android:name=".ui.media.image_preview2.CarouselImagePreviewActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.media.image_preview2.OnlyImagePreviewActivity"
+            android:screenOrientation="portrait" />
 
         <provider
             android:name=".provider.SeafileProvider"
@@ -270,16 +276,16 @@
             android:name=".framework.file_monitor.FileSyncService"
             android:exported="false" />
 
-<!--        <receiver-->
-<!--            android:name=".BootAutostart"-->
-<!--            android:exported="true">-->
-<!--            <intent-filter>-->
-<!--                <action android:name="android.intent.action.BOOT_COMPLETED" />-->
-<!--            </intent-filter>-->
-<!--            <intent-filter>-->
-<!--                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />-->
-<!--            </intent-filter>-->
-<!--        </receiver>-->
+        <!--        <receiver-->
+        <!--            android:name=".BootAutostart"-->
+        <!--            android:exported="true">-->
+        <!--            <intent-filter>-->
+        <!--                <action android:name="android.intent.action.BOOT_COMPLETED" />-->
+        <!--            </intent-filter>-->
+        <!--            <intent-filter>-->
+        <!--                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />-->
+        <!--            </intent-filter>-->
+        <!--        </receiver>-->
     </application>
     <queries>
         <intent>

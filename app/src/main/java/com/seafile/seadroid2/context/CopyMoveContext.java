@@ -1,7 +1,7 @@
 package com.seafile.seadroid2.context;
 
 import com.seafile.seadroid2.enums.OpType;
-import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
+import com.seafile.seadroid2.framework.db.entities.DirentModel;
 
 import java.util.List;
 

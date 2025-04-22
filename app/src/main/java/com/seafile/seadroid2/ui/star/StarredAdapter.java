@@ -14,7 +14,7 @@ import com.blankj.utilcode.util.CollectionUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.config.GlideLoadConfig;
 import com.seafile.seadroid2.databinding.ItemStarredBinding;
-import com.seafile.seadroid2.framework.data.db.entities.StarredModel;
+import com.seafile.seadroid2.framework.db.entities.StarredModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.util.GlideApp;
 import com.seafile.seadroid2.framework.util.Icons;

@@ -1,7 +1,5 @@
 package com.seafile.seadroid2.framework.worker.queue;
 
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
@@ -10,7 +8,6 @@ import com.blankj.utilcode.util.EncryptUtils;
 import com.seafile.seadroid2.enums.SaveTo;
 import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.enums.TransferStatus;
-import com.seafile.seadroid2.framework.data.model.user.UserModel;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.ExistingFileStrategy;
 import com.seafile.seadroid2.framework.worker.upload.MediaBackupScanWorker;

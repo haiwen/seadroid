@@ -2,7 +2,7 @@ package com.seafile.seadroid2.framework.monitor;
 
 import com.google.common.collect.Maps;
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.framework.data.SeafCachedFile;
+import com.seafile.seadroid2.framework.model.SeafCachedFile;
 import com.seafile.seadroid2.framework.datastore.DataManager;
 
 import org.apache.commons.io.monitor.FileAlterationListener;

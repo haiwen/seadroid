@@ -13,7 +13,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.text.Spanned;
 import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
@@ -126,8 +128,7 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
         super.onViewCreated(view, savedInstanceState);
 
         getListView().setPadding(0, 0, 0, Constants.DP.DP_32);
-        getListView().setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.bar_background_color));
-
+        getListView().setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.window_background_color));
     }
 
     private boolean isFirstLoadData = true;
@@ -150,8 +151,6 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
     public void onFirstResume() {
         initPref();
 
-//        initGestureConfig();
-
         initPrefLiveData();
 
         initWorkerBusObserver();
@@ -164,7 +163,6 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
                 switchFolderBackupState(mFolderBackupSwitch.isChecked());
             }
         }, 500);
-
     }
 
 

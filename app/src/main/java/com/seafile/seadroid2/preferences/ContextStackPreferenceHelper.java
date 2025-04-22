@@ -5,10 +5,10 @@ import androidx.annotation.NonNull;
 import com.blankj.utilcode.util.GsonUtils;
 import com.google.gson.reflect.TypeToken;
 import com.seafile.seadroid2.context.NavContext;
-import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
-import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
-import com.seafile.seadroid2.framework.data.model.BaseModel;
-import com.seafile.seadroid2.framework.data.model.ContextModel;
+import com.seafile.seadroid2.framework.db.entities.DirentModel;
+import com.seafile.seadroid2.framework.db.entities.RepoModel;
+import com.seafile.seadroid2.framework.model.BaseModel;
+import com.seafile.seadroid2.framework.model.ContextModel;
 import com.seafile.seadroid2.framework.datastore.DataStoreKeys;
 import com.seafile.seadroid2.framework.util.Utils;
 

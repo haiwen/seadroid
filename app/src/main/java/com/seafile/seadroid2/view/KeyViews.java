@@ -13,7 +13,7 @@ import com.google.android.flexbox.FlexWrap;
 import com.google.android.flexbox.FlexboxLayout;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.config.Constants;
-import com.seafile.seadroid2.framework.data.model.sdoc.MetadataConfigDataModel;
+import com.seafile.seadroid2.framework.model.sdoc.MetadataConfigDataModel;
 
 import java.math.BigDecimal;
 import java.util.Locale;

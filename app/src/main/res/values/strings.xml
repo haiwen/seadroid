@@ -650,6 +650,7 @@
     <string name="failed">Failed</string>
     <string name="uploading">Uploading</string>
     <string name="downloading">Downloading</string>
+    <string name="select_all">Select all</string>
     <string name="replace_all">Replace All</string>
     <string name="replace">Replace</string>
     <string name="replace_local_file">Replace local file</string>

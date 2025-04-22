@@ -1,7 +1,7 @@
 package com.seafile.seadroid2.ui.dialog_fragment.viewmodel;
 
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.framework.data.db.AppDatabase;
+import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
 
 import io.reactivex.Completable;

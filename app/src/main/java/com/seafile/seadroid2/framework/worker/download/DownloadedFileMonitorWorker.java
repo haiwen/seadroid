@@ -14,9 +14,9 @@ import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.enums.SaveTo;
 import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.enums.TransferStatus;
-import com.seafile.seadroid2.framework.data.db.AppDatabase;
-import com.seafile.seadroid2.framework.data.db.entities.FileCacheStatusEntity;
-import com.seafile.seadroid2.framework.data.model.dirents.DirentFileModel;
+import com.seafile.seadroid2.framework.db.AppDatabase;
+import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
+import com.seafile.seadroid2.framework.model.dirents.DirentFileModel;
 import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.notification.FolderBackupNotificationHelper;
@@ -31,7 +31,6 @@ import com.seafile.seadroid2.ui.file.FileService;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.UUID;
 
 import retrofit2.Call;
 
@@ -39,8 +38,6 @@ import retrofit2.Call;
  * Check the change status of the downloaded file
  */
 public class DownloadedFileMonitorWorker extends BaseUploadWorker {
-    public static final UUID UID = UUID.nameUUIDFromBytes(DownloadedFileMonitorWorker.class.getSimpleName().getBytes());
-
     public DownloadedFileMonitorWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
     }

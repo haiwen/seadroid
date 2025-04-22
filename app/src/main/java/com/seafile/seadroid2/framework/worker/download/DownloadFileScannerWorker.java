@@ -14,9 +14,9 @@ import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.enums.SaveTo;
 import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.enums.TransferStatus;
-import com.seafile.seadroid2.framework.data.db.AppDatabase;
-import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
-import com.seafile.seadroid2.framework.data.model.dirents.DirentRecursiveFileModel;
+import com.seafile.seadroid2.framework.db.AppDatabase;
+import com.seafile.seadroid2.framework.db.entities.DirentModel;
+import com.seafile.seadroid2.framework.model.dirents.DirentRecursiveFileModel;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 import com.seafile.seadroid2.framework.datastore.DataManager;
@@ -34,7 +34,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 
 
 /**

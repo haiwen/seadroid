@@ -1,8 +1,8 @@
 package com.seafile.seadroid2.context;
 
 import com.seafile.seadroid2.bus.BusHelper;
-import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
-import com.seafile.seadroid2.framework.data.model.BaseModel;
+import com.seafile.seadroid2.framework.db.entities.RepoModel;
+import com.seafile.seadroid2.framework.model.BaseModel;
 import com.seafile.seadroid2.preferences.ContextStackPreferenceHelper;
 
 public class GlobalNavContext {

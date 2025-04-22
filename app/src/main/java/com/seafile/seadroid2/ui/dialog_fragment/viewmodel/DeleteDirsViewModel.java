@@ -2,9 +2,9 @@ package com.seafile.seadroid2.ui.dialog_fragment.viewmodel;
 
 import androidx.lifecycle.MutableLiveData;
 
-import com.seafile.seadroid2.framework.data.db.AppDatabase;
-import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
-import com.seafile.seadroid2.framework.data.model.dirents.DeleteDirentModel;
+import com.seafile.seadroid2.framework.db.AppDatabase;
+import com.seafile.seadroid2.framework.db.entities.DirentModel;
+import com.seafile.seadroid2.framework.model.dirents.DeleteDirentModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;

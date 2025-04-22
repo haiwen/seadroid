@@ -6,19 +6,17 @@ import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.webkit.CookieManager;
 import android.webkit.WebSettings;
-import android.webkit.WebView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.blankj.utilcode.util.GsonUtils;
 import com.github.lzyzsd.jsbridge.BridgeHandler;
-import com.github.lzyzsd.jsbridge.BridgeWebView;
 import com.github.lzyzsd.jsbridge.CallBackFunction;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.config.WebViewActionConstant;
-import com.seafile.seadroid2.framework.data.model.WebRouteModel;
+import com.seafile.seadroid2.framework.model.WebRouteModel;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.view.NestedWebView;
 import com.seafile.seadroid2.view.webview.strategy.AppShowToastStrategy;

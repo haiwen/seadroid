@@ -19,8 +19,8 @@ import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.databinding.DialogSdocDirectoryBinding;
-import com.seafile.seadroid2.framework.data.model.sdoc.OutlineItemModel;
-import com.seafile.seadroid2.framework.data.model.sdoc.SDocPageOptionsModel;
+import com.seafile.seadroid2.framework.model.sdoc.OutlineItemModel;
+import com.seafile.seadroid2.framework.model.sdoc.SDocPageOptionsModel;
 import com.seafile.seadroid2.ui.sdoc.SDocViewModel;
 
 import java.util.List;

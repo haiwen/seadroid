@@ -5,7 +5,6 @@ import android.net.Uri;
 
 import androidx.annotation.NonNull;
 
-import com.seafile.seadroid2.framework.data.SeafLink;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
 import com.seafile.seadroid2.listener.FileTransferProgressListener;

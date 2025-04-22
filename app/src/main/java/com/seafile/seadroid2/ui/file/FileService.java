@@ -1,10 +1,8 @@
 package com.seafile.seadroid2.ui.file;
 
-import com.seafile.seadroid2.framework.data.BlockInfoBean;
-import com.seafile.seadroid2.framework.data.FileBlocks;
-import com.seafile.seadroid2.framework.data.model.dirents.DirentDirModel;
-import com.seafile.seadroid2.framework.data.model.dirents.DirentFileModel;
-import com.seafile.seadroid2.framework.data.model.dirents.DirentRecursiveFileModel;
+import com.seafile.seadroid2.framework.model.dirents.DirentDirModel;
+import com.seafile.seadroid2.framework.model.dirents.DirentFileModel;
+import com.seafile.seadroid2.framework.model.dirents.DirentRecursiveFileModel;
 
 import java.util.List;
 import java.util.Map;
@@ -51,9 +49,6 @@ public interface FileService {
     @GET("api2/repos/{repo_id}/file/?op=download")
     Single<String> getFileDownloadLinkAsync(@Path("repo_id") String repoId, @Query("p") String p, @Query("reuse") int reuse);
 
-    @GET("api2/repos/{repo_id}/file/?op=downloadblks")
-    Call<FileBlocks> getFileBlockDownloadLink(@Path("repo_id") String repoId, @Query("p") String path);
-
     @GET("api2/repos/{repo_id}/files/{file_id}/blks/{block_id}/download-link/")
     Call<String> getBlockDownloadLink(@Path("repo_id") String repoId, @Path("file_id") String fileId, @Path("block_id") String blockId);
 
@@ -65,10 +60,4 @@ public interface FileService {
 
     @GET("api2/repos/{repo_id}/update-link/")
     Single<String> getFileUpdateLinkSync(@Path("repo_id") String repoId);
-
-
-    @Multipart
-    @POST("api2/repos/{repo_id}/upload-blks-link/")
-    Call<BlockInfoBean> getFileBlockUploadLink(@Path("repo_id") String repoId, @PartMap Map<String, RequestBody> map);
-
 }

@@ -9,7 +9,7 @@ import android.text.TextUtils;
 import com.blankj.utilcode.util.EncryptUtils;
 import com.google.common.base.Objects;
 import com.seafile.seadroid2.config.Constants;
-import com.seafile.seadroid2.framework.data.model.BaseModel;
+import com.seafile.seadroid2.framework.model.BaseModel;
 import com.seafile.seadroid2.framework.util.URLs;
 import com.seafile.seadroid2.framework.util.Utils;
 

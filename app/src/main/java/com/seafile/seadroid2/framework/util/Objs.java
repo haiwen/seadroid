@@ -21,19 +21,19 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.config.RepoType;
+import com.seafile.seadroid2.enums.ItemPositionEnum;
 import com.seafile.seadroid2.enums.SortBy;
-import com.seafile.seadroid2.framework.data.db.AppDatabase;
-import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
-import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
-import com.seafile.seadroid2.framework.data.db.entities.StarredModel;
-import com.seafile.seadroid2.framework.data.model.BaseModel;
-import com.seafile.seadroid2.framework.data.model.GroupItemModel;
-import com.seafile.seadroid2.framework.data.model.dirents.CachedDirentModel;
-import com.seafile.seadroid2.framework.data.model.objs.DirentShareLinkModel;
-import com.seafile.seadroid2.framework.data.model.repo.DirentWrapperModel;
-import com.seafile.seadroid2.framework.data.model.repo.RepoWrapperModel;
-import com.seafile.seadroid2.framework.data.model.star.StarredWrapperModel;
-import com.seafile.seadroid2.framework.datastore.DataManager;
+import com.seafile.seadroid2.framework.db.AppDatabase;
+import com.seafile.seadroid2.framework.db.entities.DirentModel;
+import com.seafile.seadroid2.framework.db.entities.RepoModel;
+import com.seafile.seadroid2.framework.db.entities.StarredModel;
+import com.seafile.seadroid2.framework.model.BaseModel;
+import com.seafile.seadroid2.framework.model.GroupItemModel;
+import com.seafile.seadroid2.framework.model.dirents.CachedDirentModel;
+import com.seafile.seadroid2.framework.model.objs.DirentShareLinkModel;
+import com.seafile.seadroid2.framework.model.repo.DirentWrapperModel;
+import com.seafile.seadroid2.framework.model.repo.RepoWrapperModel;
+import com.seafile.seadroid2.framework.model.star.StarredWrapperModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.listener.OnCreateDirentShareLinkListener;
 import com.seafile.seadroid2.preferences.Settings;
@@ -97,6 +97,7 @@ public class Objs {
     ////////////////////////////
     //////repo
     ////////////////////////////
+
     public static Single<List<BaseModel>> getReposSingleFromServer(Account account) {
         Single<RepoWrapperModel> netSingle = HttpIO.getInstanceByAccount(account).execute(RepoService.class).getReposAsync();
         Single<List<RepoModel>> dbListSingle = AppDatabase.getInstance().repoDao().getListByAccount(account.getSignature());
@@ -246,7 +247,6 @@ public class Objs {
         List<RepoModel> sharedList = treeMap.get(RepoType.TYPE_SHARED);
         if (!CollectionUtils.isEmpty(sharedList)) {
             List<RepoModel> sortedList = sortRepos(sharedList);
-
             newRvList.add(new GroupItemModel(R.string.shared, sortedList));
             newRvList.addAll(sortedList);
         }
@@ -471,6 +471,19 @@ public class Objs {
                 }
             }).collect(Collectors.toList());
         }
+
+        //calculate item_position
+        if (CollectionUtils.isEmpty(newRepos)) {
+
+        } else if (newRepos.size() == 1) {
+            newRepos.get(0).item_position = ItemPositionEnum.ALL;
+        } else if (newRepos.size() == 2) {
+            newRepos.get(0).item_position = ItemPositionEnum.TOP;
+            newRepos.get(1).item_position = ItemPositionEnum.BOTTOM;
+        } else {
+            newRepos.get(0).item_position = ItemPositionEnum.TOP;
+            newRepos.get(newRepos.size() - 1).item_position = ItemPositionEnum.BOTTOM;
+        }
         return newRepos;
     }
 
@@ -556,6 +569,19 @@ public class Objs {
                         return cachedDirentModel.dirent;
                     }
                 }).collect(Collectors.toList());
+
+                //calculate item_position
+                if (CollectionUtils.isEmpty(newDirentModels)) {
+
+                } else if (newDirentModels.size() == 1) {
+                    newDirentModels.get(0).item_position = ItemPositionEnum.ALL;
+                } else if (newDirentModels.size() == 2) {
+                    newDirentModels.get(0).item_position = ItemPositionEnum.TOP;
+                    newDirentModels.get(1).item_position = ItemPositionEnum.BOTTOM;
+                } else {
+                    newDirentModels.get(0).item_position = ItemPositionEnum.TOP;
+                    newDirentModels.get(newDirentModels.size() - 1).item_position = ItemPositionEnum.BOTTOM;
+                }
 
                 return Single.just(newDirentModels);
             }
@@ -675,8 +701,8 @@ public class Objs {
             if (!CollectionUtils.isEmpty(dirList)) {
                 newDbList.addAll(dirList);
             }
-
         }
+
         return newDbList;
     }
 
@@ -724,6 +750,7 @@ public class Objs {
                 }
             }).collect(Collectors.toList());
         }
+
         return newList;
     }
 
