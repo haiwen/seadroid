@@ -29,7 +29,6 @@ import com.seafile.seadroid2.framework.db.entities.PermissionEntity;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.model.BaseModel;
 import com.seafile.seadroid2.framework.model.BlankModel;
-import com.seafile.seadroid2.framework.model.MarginPlaceHolderModel;
 import com.seafile.seadroid2.framework.model.ResultModel;
 import com.seafile.seadroid2.framework.model.TResultModel;
 import com.seafile.seadroid2.framework.model.dirents.CachedDirentModel;
@@ -251,6 +250,10 @@ public class RepoViewModel extends BaseViewModel {
         }
     }
 
+    /**
+     * Since the RV of RepoQuickFragment already has an empty layout, when the result list is empty, it will show an empty view.
+     * but this is not what we want, so we need to add a blank model into the list. and then load the local data.
+     */
     private void loadBlankRepos(Account account, boolean isLoadRemoteData) {
         removeAllPermission();
         List<BaseModel> list = new ArrayList<>();
@@ -279,13 +282,14 @@ public class RepoViewModel extends BaseViewModel {
 
                 List<BaseModel> list = Objs.convertToAdapterList(repoModels, false);
                 if (isLoadRemoteData) {
-                    if (!CollectionUtils.isEmpty(list)) {
-                        getObjListLiveData().setValue(list);
+                    getObjListLiveData().setValue(list);
+
+                    if (NetworkUtils.isConnected()) {
+                        loadReposFromRemote(account);
+                    } else {
+                        getRefreshLiveData().setValue(false);
                     }
-                    loadReposFromRemote(account);
                 } else {
-
-
                     getObjListLiveData().setValue(list);
                     getRefreshLiveData().setValue(false);
                 }
@@ -334,23 +338,33 @@ public class RepoViewModel extends BaseViewModel {
             @Override
             public void accept(List<DirentModel> direntModels) throws Exception {
 
-                List<DirentModel> rets = CollectionUtils.newArrayList();
+                List<DirentModel> results = CollectionUtils.newArrayList();
                 for (DirentModel direntModel : direntModels) {
                     if (Utils.isViewableImage(direntModel.name) || Utils.isVideoFile(direntModel.name)) {
-                        rets.add(direntModel);
+                        results.add(direntModel);
                     }
                 }
 
                 if (isLoadRemoteData) {
-                    loadDirentsFromRemote(account, navContext);
+                    getObjListLiveData().setValue(new ArrayList<>(results));
+
+                    if (NetworkUtils.isConnected()) {
+                        loadDirentsFromRemote(account, navContext);
+                    } else {
+                        getRefreshLiveData().setValue(false);
+                    }
                 } else {
-                    getObjListLiveData().setValue(Objs.parseLocalDirents(rets));
+                    getObjListLiveData().setValue(Objs.parseLocalDirents(results));
                     getRefreshLiveData().setValue(false);
                 }
             }
         });
     }
 
+    /**
+     * Since the RV of RepoQuickFragment already has an empty layout, when the result list is empty, it will show an empty view.
+     * but this is not what we want, so we need to add a blank model into the list. and then load the local data.
+     */
     private void loadBlankDirents(Account account, NavContext navContext, boolean isLoadRemoteData) {
         List<BaseModel> list = new ArrayList<>();
         list.add(new BlankModel());
@@ -392,17 +406,16 @@ public class RepoViewModel extends BaseViewModel {
                         results.get(0).item_position = ItemPositionEnum.TOP;
                         results.get(results.size() - 1).item_position = ItemPositionEnum.BOTTOM;
                     }
-
-                    //add margin placeholder
-                    results.add(0, new MarginPlaceHolderModel());
                 }
 
                 if (isLoadRemoteData) {
-                    if (!CollectionUtils.isEmpty(results)) {
-                        getObjListLiveData().setValue(results);
-                    }
+                    getObjListLiveData().setValue(results);
 
-                    loadDirentsFromRemote(account, navContext);
+                    if (NetworkUtils.isConnected()) {
+                        loadDirentsFromRemote(account, navContext);
+                    } else {
+                        getRefreshLiveData().setValue(false);
+                    }
                 } else {
                     //calculate item_position
                     getObjListLiveData().setValue(results);
@@ -535,10 +548,6 @@ public class RepoViewModel extends BaseViewModel {
                     getObjListLiveData().setValue(new ArrayList<>(results));
                 } else {
                     List<BaseModel> results = new ArrayList<>(direntModels);
-                    //add margin placeholder
-                    if (!results.isEmpty()) {
-                        results.add(0, new MarginPlaceHolderModel());
-                    }
                     getObjListLiveData().setValue(results);
                 }
 
@@ -555,6 +564,20 @@ public class RepoViewModel extends BaseViewModel {
                     completeRemoteWipe();
                 }
                 getSeafExceptionLiveData().setValue(seafException);
+            }
+        });
+    }
+
+    public void getEncCacheDB(String repoId, Consumer<EncKeyCacheEntity> consumer) {
+        Single<List<EncKeyCacheEntity>> single = AppDatabase.getInstance().encKeyCacheDAO().getListByRepoIdAsync(repoId);
+        addSingleDisposable(single, new Consumer<List<EncKeyCacheEntity>>() {
+            @Override
+            public void accept(List<EncKeyCacheEntity> list) throws Exception {
+                if (CollectionUtils.isEmpty(list)) {
+                    consumer.accept(null);
+                } else {
+                    consumer.accept(list.get(0));
+                }
             }
         });
     }
@@ -964,6 +987,8 @@ public class RepoViewModel extends BaseViewModel {
         }, new Consumer<Throwable>() {
             @Override
             public void accept(Throwable throwable) throws Exception {
+                getShowLoadingDialogLiveData().setValue(false);
+                getStarredLiveData().setValue(false);
                 String errMsg = getErrorMsgByThrowable(throwable);
                 ToastUtils.showLong(errMsg);
             }

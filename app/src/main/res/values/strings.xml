@@ -694,7 +694,7 @@
     <string name="_outdated">Outdated</string>
     <string name="_tags">Tags</string>
     <string name="_location">Location</string>
-
+    <string name="_owner">File owner</string>
 
     <string name="mark_resolve">Mark as resolved</string>
     <string name="delete_confirm">Are you sure you want to delete this item?</string>

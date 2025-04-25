@@ -8,7 +8,9 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.Observer;
 
 import com.blankj.utilcode.util.CollectionUtils;
+import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.ui.base.fragment.RequestCustomDialogFragmentWithVM;
 import com.seafile.seadroid2.ui.dialog_fragment.viewmodel.DeleteDirsViewModel;
 
@@ -61,6 +63,15 @@ public class DeleteFileDialogFragment extends RequestCustomDialogFragmentWithVM<
         super.initViewModel();
 
         getViewModel().getRefreshLiveData().observe(this, this::showLoading);
+
+        getViewModel().getSeafExceptionLiveData().observe(this, new Observer<SeafException>() {
+            @Override
+            public void onChanged(SeafException e) {
+                ToastUtils.showLong(e.getMessage());
+                refreshData(false);
+                dismiss();
+            }
+        });
 
         getViewModel().getActionLiveData().observe(this, new Observer<Boolean>() {
             @Override

@@ -33,18 +33,16 @@ import com.seafile.seadroid2.databinding.ItemDirentGridBinding;
 import com.seafile.seadroid2.databinding.ItemGroupItemBinding;
 import com.seafile.seadroid2.databinding.ItemRepoBinding;
 import com.seafile.seadroid2.databinding.ItemUnsupportedBinding;
-import com.seafile.seadroid2.databinding.ViewMarginPlaceholderBinding;
 import com.seafile.seadroid2.enums.FileViewType;
 import com.seafile.seadroid2.enums.ItemPositionEnum;
 import com.seafile.seadroid2.enums.RepoSelectType;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
+import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.model.BaseModel;
 import com.seafile.seadroid2.framework.model.BlankModel;
 import com.seafile.seadroid2.framework.model.GroupItemModel;
-import com.seafile.seadroid2.framework.model.MarginPlaceHolderModel;
 import com.seafile.seadroid2.framework.model.search.SearchModel;
-import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.util.GlideApp;
 import com.seafile.seadroid2.framework.util.ThumbnailUtils;
 import com.seafile.seadroid2.framework.util.URLs;
@@ -55,7 +53,6 @@ import com.seafile.seadroid2.ui.repo.vh.BlankViewHolder;
 import com.seafile.seadroid2.ui.repo.vh.DirentGalleryViewHolder;
 import com.seafile.seadroid2.ui.repo.vh.DirentGridViewHolder;
 import com.seafile.seadroid2.ui.repo.vh.DirentViewHolder;
-import com.seafile.seadroid2.ui.repo.vh.MarginPlaceHolderViewHolder;
 import com.seafile.seadroid2.ui.repo.vh.RepoViewHolder;
 import com.seafile.seadroid2.ui.repo.vh.UnsupportedViewHolder;
 import com.seafile.seadroid2.ui.viewholder.GroupItemViewHolder;
@@ -246,19 +243,6 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
             public void onBind(@NonNull BlankViewHolder holder, int i, @Nullable BaseModel baseModel) {
 
             }
-        }).addItemType(AbsLayoutItemType.MARGIN_PLACEHOLDER, new OnMultiItem<BaseModel, MarginPlaceHolderViewHolder>() {
-            @NonNull
-            @Override
-            public MarginPlaceHolderViewHolder onCreate(@NonNull Context context, @NonNull ViewGroup viewGroup, int i) {
-                ViewMarginPlaceholderBinding binding = ViewMarginPlaceholderBinding.inflate(LayoutInflater.from(context), viewGroup, false);
-                return new MarginPlaceHolderViewHolder(binding);
-            }
-
-            @Override
-            public void onBind(@NonNull MarginPlaceHolderViewHolder holder, int i, @Nullable BaseModel baseModel) {
-
-            }
-
         }).onItemViewType(new OnItemViewTypeListener<BaseModel>() {
             @Override
             public int onItemViewType(int i, @NonNull List<? extends BaseModel> list) {
@@ -280,8 +264,6 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
                     return AbsLayoutItemType.ACCOUNT;
                 } else if (list.get(i) instanceof BlankModel) {
                     return AbsLayoutItemType.BLANK;
-                } else if (list.get(i) instanceof MarginPlaceHolderModel) {
-                    return AbsLayoutItemType.MARGIN_PLACEHOLDER;
                 }
                 return AbsLayoutItemType.NOT_SUPPORTED;
             }
@@ -304,8 +286,8 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         allShapeBackgroundDrawable = BackgroundShapeUtils.genBackgroundDrawable(BackgroundShapeUtils.SHAPE_ALL, itemBackColor, Constants.DP.DP_8);
         noneShapeBackgroundDrawable = BackgroundShapeUtils.genBackgroundDrawable(BackgroundShapeUtils.SHAPE_NONE, itemBackColor, Constants.DP.DP_8);
 
-        int star_width = SizeUtils.dp2px(16);
-        starDrawable = ContextCompat.getDrawable(getContext(), R.drawable.baseline_starred_new_24);
+        int star_width = SizeUtils.dp2px(12);
+        starDrawable = ContextCompat.getDrawable(getContext(), R.drawable.ic_star_32);
         starDrawable.setBounds(0, 0, star_width, star_width);
         starDrawable.setTint(ContextCompat.getColor(getContext(), R.color.light_grey));
     }

@@ -29,7 +29,6 @@ import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.db.entities.StarredModel;
 import com.seafile.seadroid2.framework.model.BaseModel;
 import com.seafile.seadroid2.framework.model.GroupItemModel;
-import com.seafile.seadroid2.framework.model.MarginPlaceHolderModel;
 import com.seafile.seadroid2.framework.model.dirents.CachedDirentModel;
 import com.seafile.seadroid2.framework.model.objs.DirentShareLinkModel;
 import com.seafile.seadroid2.framework.model.repo.DirentWrapperModel;
@@ -60,8 +59,6 @@ import io.reactivex.SingleOnSubscribe;
 import io.reactivex.SingleSource;
 import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Function;
-import kotlin.Pair;
-import kotlin.Triple;
 
 public class Objs {
 

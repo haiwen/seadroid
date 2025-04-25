@@ -26,7 +26,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.blankj.utilcode.util.ActivityUtils;
-import com.blankj.utilcode.util.TimeUtils;
+import com.blankj.utilcode.util.NetworkUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
@@ -38,29 +38,21 @@ import com.seafile.seadroid2.context.GlobalNavContext;
 import com.seafile.seadroid2.context.NavContext;
 import com.seafile.seadroid2.databinding.ActivityMainBinding;
 import com.seafile.seadroid2.enums.NightMode;
-import com.seafile.seadroid2.enums.RefreshStatusEnum;
-import com.seafile.seadroid2.framework.model.ServerInfo;
-import com.seafile.seadroid2.framework.db.entities.EncKeyCacheEntity;
-import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.file_monitor.FileSyncService;
+import com.seafile.seadroid2.framework.model.ServerInfo;
 import com.seafile.seadroid2.framework.util.PermissionUtil;
 import com.seafile.seadroid2.framework.util.SLogs;
-import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.ui.account.AccountsActivity;
 import com.seafile.seadroid2.ui.activities.AllActivitiesFragment;
 import com.seafile.seadroid2.ui.adapter.ViewPager2Adapter;
 import com.seafile.seadroid2.ui.base.BaseActivity;
-import com.seafile.seadroid2.ui.dialog_fragment.PasswordDialogFragment;
-import com.seafile.seadroid2.ui.dialog_fragment.listener.OnRefreshDataListener;
 import com.seafile.seadroid2.ui.repo.RepoQuickFragment;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
-import io.reactivex.functions.Consumer;
 
 public class MainActivity extends BaseActivity {
 
@@ -71,10 +63,6 @@ public class MainActivity extends BaseActivity {
     private MainViewModel mainViewModel;
 
     private Account curAccount;
-
-//    private NavContext getCurrentNavContext() {
-//        return GlobalNavContext.getCurrentNavContext();
-//    }
 
     private RepoQuickFragment getReposFragment() {
         return (RepoQuickFragment) mainViewModel.getFragments().get(0);
@@ -115,7 +103,9 @@ public class MainActivity extends BaseActivity {
         initSettings();
 
         initFireBase();
+
         initOnBackPressedDispatcher();
+
         initBottomNavigation();
 
         initViewPager();
@@ -127,6 +117,8 @@ public class MainActivity extends BaseActivity {
 
         restoreNavContext();
 
+        registerNetworkObserver();
+
         requestServerInfo(true);
     }
 
@@ -135,6 +127,22 @@ public class MainActivity extends BaseActivity {
         GlobalNavContext.restore();
 
         refreshActionbar();
+    }
+
+    private void registerNetworkObserver() {
+        NetworkUtils.registerNetworkStatusChangedListener(new NetworkUtils.OnNetworkStatusChangedListener() {
+            @Override
+            public void onDisconnected() {
+                BusHelper.getNetworkStatusObserver().post(NetworkUtils.NetworkType.NETWORK_NO);
+                refreshActionbar();
+            }
+
+            @Override
+            public void onConnected(NetworkUtils.NetworkType networkType) {
+                BusHelper.getNetworkStatusObserver().post(networkType);
+                refreshActionbar();
+            }
+        });
     }
 
     private void initSettings() {
@@ -262,40 +270,17 @@ public class MainActivity extends BaseActivity {
     }
 
     private void navToPath(String repoId, String path, boolean isDir) {
-        if (!isDir) {
-            path = Utils.getParentPath(path);
-        }
+        binding.pager.setCurrentItem(0);
 
-        String finalPath = path;
-        mainViewModel.requestRepoModel(repoId, new Consumer<RepoModel>() {
+        binding.pager.postDelayed(new Runnable() {
             @Override
-            public void accept(RepoModel repoModel) throws Exception {
-                if (repoModel.encrypted) {
-                    mainViewModel.getEncCacheDB(repoId, new Consumer<EncKeyCacheEntity>() {
-                        @Override
-                        public void accept(EncKeyCacheEntity encKeyCacheEntity) throws Exception {
-                            //check encrypt and decrypt_expire_time
-                            long now = TimeUtils.getNowMills();
-                            if (encKeyCacheEntity == null || (repoModel.encrypted && now > encKeyCacheEntity.expire_time_long)) {
-                                // expired
-                                showPasswordDialog(repoModel, finalPath);
-                            } else {
-                                GlobalNavContext.switchToPath(repoModel, finalPath);
-                                binding.pager.setCurrentItem(0);
-                                getReposFragment().loadData(RefreshStatusEnum.LOCAL_THEN_REMOTE);
-                                refreshToolbarTitle();
-                            }
-                        }
-                    });
+            public void run() {
+                getReposFragment().switchPath(repoId, path, isDir);
 
-                } else {
-                    GlobalNavContext.switchToPath(repoModel, finalPath);
-                    binding.pager.setCurrentItem(0);
-                    getReposFragment().loadData(RefreshStatusEnum.LOCAL_THEN_REMOTE);
-                    refreshToolbarTitle();
-                }
+                refreshActionbar();
             }
-        });
+        }, 400);
+
     }
 
     private void initBottomNavigation() {
@@ -310,52 +295,28 @@ public class MainActivity extends BaseActivity {
     }
 
     private void onBottomNavigationSelected(MenuItem menuItem) {
-        //Invalidate menu
-//        supportInvalidateOptionsMenu();
-
         //tab
         if (menuItem.getItemId() == R.id.tabs_library) {
-            if (GlobalNavContext.getCurrentNavContext().inRepo()) {
-                setActionbarTitle(GlobalNavContext.getCurrentNavContext().getLastPathName());
-                enableUpButton(true);
-            } else {
-                enableUpButton(false);
-                setActionbarTitle(getString(R.string.tabs_library));
-            }
-
             binding.pager.setCurrentItem(0);
-            return;
-        }
-
-        if (menuItem.getItemId() == R.id.tabs_starred) {
-            enableUpButton(false);
-            setActionbarTitle(getString(R.string.tabs_starred));
-
+        } else if (menuItem.getItemId() == R.id.tabs_starred) {
             binding.pager.setCurrentItem(1);
-            return;
-        }
-
-        MenuItem activityMenuItem = binding.navBottomView.getMenu().findItem(R.id.tabs_activity);
-        if (null == activityMenuItem) {
-            if (menuItem.getItemId() == R.id.tabs_settings) {
-                enableUpButton(false);
-                setActionbarTitle(getString(R.string.settings));
-
-                binding.pager.setCurrentItem(2);
-            }
         } else {
-            if (menuItem.getItemId() == R.id.tabs_activity) {
-                enableUpButton(false);
-                setActionbarTitle(getString(R.string.tabs_activity));
-
-                binding.pager.setCurrentItem(2);
-            } else if (menuItem.getItemId() == R.id.tabs_settings) {
-                enableUpButton(false);
-                setActionbarTitle(getString(R.string.settings));
-
-                binding.pager.setCurrentItem(3);
+            MenuItem activityMenuItem = binding.navBottomView.getMenu().findItem(R.id.tabs_activity);
+            if (null == activityMenuItem) {
+                if (menuItem.getItemId() == R.id.tabs_settings) {
+                    binding.pager.setCurrentItem(2);
+                }
+            } else {
+                if (menuItem.getItemId() == R.id.tabs_activity) {
+                    binding.pager.setCurrentItem(2);
+                } else if (menuItem.getItemId() == R.id.tabs_settings) {
+                    binding.pager.setCurrentItem(3);
+                }
             }
         }
+
+        //
+        refreshActionbar();
     }
 
     private void initViewPager() {
@@ -433,18 +394,6 @@ public class MainActivity extends BaseActivity {
         });
     }
 
-
-    private void refreshToolbarTitle() {
-        if (!GlobalNavContext.getCurrentNavContext().inRepo()) {
-            getActionBarToolbar().setTitle(R.string.libraries);
-        } else if (GlobalNavContext.getCurrentNavContext().inRepoRoot()) {
-            getActionBarToolbar().setTitle(GlobalNavContext.getCurrentNavContext().getRepoModel().repo_name);
-        } else {
-            String toolbarTitle = GlobalNavContext.getCurrentNavContext().getLastPathName();
-            getActionBarToolbar().setTitle(toolbarTitle);
-        }
-    }
-
     // service
     private void bindService() {
         if (!isBound) {
@@ -513,24 +462,50 @@ public class MainActivity extends BaseActivity {
 
     // menu
     private void refreshActionbar() {
-        if (binding.pager.getCurrentItem() == 0) {
-            if (GlobalNavContext.getCurrentNavContext().inRepo()) {
-                enableUpButton(true);
-                setActionbarTitle(GlobalNavContext.getCurrentNavContext().getLastPathName());
-            } else {
-                enableUpButton(false);
-                setActionbarTitle(getString(R.string.tabs_library));
-            }
-        } else if (binding.pager.getCurrentItem() == 1) {
-            setActionbarTitle(getString(R.string.tabs_starred));
-        } else if (binding.pager.getCurrentItem() == 2) {
-            setActionbarTitle(getString(R.string.tabs_activity));
-        } else {
-            setActionbarTitle(getString(R.string.settings));
-        }
 
         //refresh toolbar menu
         invalidateOptionsMenu();
+
+        if (binding.pager.getCurrentItem() == 0) {
+
+            boolean f = NetworkUtils.isConnected();
+            String offlineText = "";
+            if (!f) {
+                offlineText = " (离线模式)";
+            }
+
+            if (GlobalNavContext.getCurrentNavContext().inRepo()) {
+                enableUpButton(true);
+                setActionbarTitle(GlobalNavContext.getCurrentNavContext().getLastPathName() + offlineText);
+            } else {
+                enableUpButton(false);
+                setActionbarTitle(getString(R.string.tabs_library) + offlineText);
+            }
+            return;
+        }
+
+        if (binding.pager.getCurrentItem() == 1) {
+            setActionbarTitle(getString(R.string.tabs_starred));
+            enableUpButton(false);
+            return;
+        }
+
+        MenuItem activityMenuItem = binding.navBottomView.getMenu().findItem(R.id.tabs_activity);
+        if (null == activityMenuItem) {
+            if (binding.pager.getCurrentItem() == 2) {
+                setActionbarTitle(getString(R.string.settings));
+                enableUpButton(false);
+            }
+        } else {
+            if (binding.pager.getCurrentItem() == 2) {
+                setActionbarTitle(getString(R.string.tabs_activity));
+                enableUpButton(false);
+            } else {
+                setActionbarTitle(getString(R.string.settings));
+                enableUpButton(false);
+            }
+        }
+
     }
 
     public void setActionbarTitle(String title) {
@@ -550,7 +525,7 @@ public class MainActivity extends BaseActivity {
     }
 
 
-    private int lastNightMode; // 在类顶部声明
+    private int lastNightMode;
     private int lastOrientation;
 
     /**
@@ -618,23 +593,6 @@ public class MainActivity extends BaseActivity {
         finish();
         overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     }
-
-    private void showPasswordDialog(RepoModel repoModel, String path) {
-        PasswordDialogFragment dialogFragment = PasswordDialogFragment.newInstance(repoModel.repo_id, repoModel.repo_name);
-        dialogFragment.setRefreshListener(new OnRefreshDataListener() {
-            @Override
-            public void onActionStatus(boolean isDone) {
-                if (isDone) {
-                    GlobalNavContext.switchToPath(repoModel, path);
-                    binding.pager.setCurrentItem(0);
-                    getReposFragment().loadData(RefreshStatusEnum.LOCAL_THEN_REMOTE);
-                    refreshToolbarTitle();
-                }
-            }
-        });
-        dialogFragment.show(getSupportFragmentManager(), PasswordDialogFragment.class.getSimpleName());
-    }
-
 
     private final ActivityResultLauncher<String[]> multiplePermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), new ActivityResultCallback<Map<String, Boolean>>() {
         @Override

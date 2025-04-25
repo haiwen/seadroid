@@ -9,6 +9,7 @@ import androidx.work.ExistingWorkPolicy;
 import androidx.work.ListenableWorker;
 import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
+import androidx.work.OutOfQuotaPolicy;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
@@ -59,7 +60,6 @@ public class BackgroundJobManagerImpl {
     private <T extends ListenableWorker> OneTimeWorkRequest.Builder oneTimeRequestBuilder(Class<T> tClass) {
         return new OneTimeWorkRequest.Builder(tClass)
                 .setBackoffCriteria(BackoffPolicy.LINEAR, 5, TimeUnit.SECONDS)
-                .setInitialDelay(1, TimeUnit.SECONDS)
                 .addTag(TAG_ALL)
                 .addTag(TAG_TRANSFER)
                 .addTag(tClass.getSimpleName());
@@ -217,6 +217,7 @@ public class BackgroundJobManagerImpl {
     private OneTimeWorkRequest getFileUploadRequest() {
         return oneTimeRequestBuilder(FileUploadWorker.class)
                 .setId(FileUploadWorker.UID)
+                .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
                 .addTag(TAG_FILE_UPLOAD)
                 .build();
     }
@@ -278,6 +279,7 @@ public class BackgroundJobManagerImpl {
     public void startCheckDownloadedFileChain() {
         OneTimeWorkRequest checkRequest = getCheckDownloadedFileRequest();
         OneTimeWorkRequest uploadRequest = getFileUploadRequest();
+
         String workerName = DownloadedFileMonitorWorker.class.getSimpleName();
 
         getWorkManager()

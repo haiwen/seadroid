@@ -54,12 +54,8 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
     private String path;
     private String targetUrl;
 
-    private FileProfileConfigModel configModel;
     private SDocPageOptionsModel pageOptionsData;
 
-    /**
-     * not support, please use SeaWebViewActivity instead
-     */
     public static void openSdoc(Context context, String repoName, String repoID, String path) {
         Intent intent = new Intent(context, SDocWebViewActivity.class);
         intent.putExtra("previewType", WebViewPreviewType.SDOC.name());
@@ -84,13 +80,6 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         init();
 
         initViewModel();
-
-        mWebView.setOnWebPageListener(new OnWebPageListener() {
-            @Override
-            public void onPageFinished(WebView view, String url) {
-                canLoadPageConfigData();
-            }
-        });
 
         //let's go
         mWebView.load(targetUrl);
@@ -162,7 +151,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         binding.sdocProfile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showProfileDialog();
+                getViewModel().loadFileDetail(repoId, path);
             }
         });
         binding.sdocComment.setOnClickListener(new View.OnClickListener() {
@@ -185,18 +174,17 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
     }
 
     private void initViewModel() {
-        getViewModel().getFileDetailLiveData().observe(this, new Observer<FileProfileConfigModel>() {
+        getViewModel().getSecondRefreshLiveData().observe(this, new Observer<Boolean>() {
             @Override
-            public void onChanged(FileProfileConfigModel fileProfileConfigModel) {
-                configModel = fileProfileConfigModel;
-                hideProgressBar();
+            public void onChanged(Boolean aBoolean) {
+                showLoadingDialog(aBoolean);
             }
         });
 
-        getViewModel().getSdocRecordLiveData().observe(this, new Observer<FileRecordWrapperModel>() {
+        getViewModel().getFileDetailLiveData().observe(this, new Observer<FileProfileConfigModel>() {
             @Override
-            public void onChanged(FileRecordWrapperModel fileRecordWrapperModel) {
-                FileProfileDialog dialog = FileProfileDialog.newInstance(configModel.detail, fileRecordWrapperModel, configModel.users.user_list, false);
+            public void onChanged(FileProfileConfigModel fileProfileConfigModel) {
+                FileProfileDialog dialog = FileProfileDialog.newInstance(fileProfileConfigModel);
                 dialog.show(getSupportFragmentManager(), FileProfileDialog.class.getSimpleName());
             }
         });
@@ -225,29 +213,6 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
             @Override
             public void onCallBack(String data) {
                 SLogs.e(data);
-            }
-        });
-    }
-
-    private void showProfileDialog() {
-        if (configModel == null) {
-            return;
-        }
-
-        readSDocPageOptionsData(new Consumer<SDocPageOptionsModel>() {
-            @Override
-            public void accept(SDocPageOptionsModel model) {
-                if (model.enableMetadataManagement) {
-                    if (configModel != null && configModel.metadataConfigModel != null && configModel.metadataConfigModel.enabled) {
-                        getViewModel().loadRecords(repoId, path);
-                    } else if (configModel != null) {
-                        FileProfileDialog dialog = FileProfileDialog.newInstance(configModel.detail, configModel.users.user_list);
-                        dialog.show(getSupportFragmentManager(), FileProfileDialog.class.getSimpleName());
-                    }
-                } else {
-                    FileProfileDialog dialog = FileProfileDialog.newInstance(configModel.detail, configModel.users.user_list);
-                    dialog.show(getSupportFragmentManager(), FileProfileDialog.class.getSimpleName());
-                }
             }
         });
     }
@@ -414,7 +379,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
     }
 
     private void hideProgressBar() {
-        if (configModel != null && curProgress == 100) {
+        if (curProgress == 100) {
             toolBinding.toolProgressBar.setVisibility(View.GONE);
         }
     }
@@ -423,10 +388,9 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         readSDocPageOptionsData(new Consumer<SDocPageOptionsModel>() {
             @Override
             public void accept(SDocPageOptionsModel model) {
-                getViewModel().loadFileDetail(repoId, path, model.enableMetadataManagement);
+                getViewModel().loadFileDetail(repoId, path);
             }
         });
-
     }
 
     @Override

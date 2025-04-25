@@ -105,5 +105,4 @@
     <!-- preference -->
     <color name="pref_background_color">@color/white</color>
     <color name="pref_divider_color">@color/material_grey_200</color>
-
 </resources>

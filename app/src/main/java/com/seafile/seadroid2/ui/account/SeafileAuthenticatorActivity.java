@@ -29,9 +29,8 @@ import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.util.SLogs;
-import com.seafile.seadroid2.preferences.ContextStackPreferenceHelper;
+import com.seafile.seadroid2.context.ContextStackPreferenceHelper;
 import com.seafile.seadroid2.ui.account.sso.SingleSignOnActivity;
-import com.seafile.seadroid2.ui.account.sso.SingleSignOnAuthorizeActivity;
 import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
 
 import java.util.Locale;

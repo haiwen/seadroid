@@ -39,7 +39,9 @@ import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.compat.ContextCompatKt;
+import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.databinding.FragmentPhotoViewBinding;
+import com.seafile.seadroid2.databinding.ViewImageExifContainerBinding;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.model.sdoc.FileProfileConfigModel;
 import com.seafile.seadroid2.framework.datastore.DataManager;
@@ -48,7 +50,7 @@ import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.ThumbnailUtils;
 import com.seafile.seadroid2.ui.base.fragment.BaseFragment;
 import com.seafile.seadroid2.ui.media.image_preview2.DetailLayoutShowModel;
-import com.seafile.seadroid2.view.SDocDetailView;
+import com.seafile.seadroid2.view.DocProfileView;
 import com.seafile.seadroid2.view.photoview.OnPhotoTapListener;
 import com.seafile.seadroid2.view.photoview.OnViewActionEndListener;
 import com.seafile.seadroid2.view.photoview.OnViewDragListener;
@@ -67,7 +69,7 @@ public class PhotoFragment extends BaseFragment {
     private String repoId, repoName, fullPath;
     private String imageUrl;
     private boolean isNightMode = false;
-    private boolean canScrollDetailLayout = true;
+    private boolean canScrollBottomLayout = true;
 
     private OnPhotoTapListener onPhotoTapListener;
     private String serverUrl;
@@ -134,7 +136,7 @@ public class PhotoFragment extends BaseFragment {
         }
 
         if (!TextUtils.isEmpty(imageUrl)) {
-            canScrollDetailLayout = false;
+            canScrollBottomLayout = false;
         }
 
         viewModel = new ViewModelProvider(this).get(PhotoViewModel.class);
@@ -175,24 +177,38 @@ public class PhotoFragment extends BaseFragment {
             }
         });
 
+        getViewModel().getFileDetailExceptionLiveData().observe(getViewLifecycleOwner(), new Observer<SeafException>() {
+            @Override
+            public void onChanged(SeafException e) {
+                binding.bottomProgressBar.setVisibility(View.GONE);
+                binding.bottomErrorView.setVisibility(VISIBLE);
+                binding.bottomErrorDesc.setText(e.getMessage());
+
+            }
+        });
+
         getViewModel().getCheckLocalLiveData().observe(getViewLifecycleOwner(), new Observer<DirentModel>() {
             @Override
             public void onChanged(DirentModel direntModel) {
-                if (direntModel == null || TextUtils.isEmpty(direntModel.uid)) {
+                if (direntModel == null) {
                     binding.photoView.setImageResource(R.drawable.icon_image_error_filled);
                     binding.progressBar.setVisibility(View.GONE);
                     return;
                 }
 
-                File file = getLocalDestinationFile(direntModel.repo_id, direntModel.repo_name, direntModel.full_path);
-                if (FileUtils.isFileExists(file)) {
-                    if (isGif(fullPath)) {
-                        loadOriGifUrl(file.getAbsolutePath());
-                    } else {
-                        loadOriUrl(file.getAbsolutePath());
-                    }
-                } else {
+                if (TextUtils.isEmpty(direntModel.local_file_id)) {
                     getViewModel().download(direntModel);
+                } else {
+                    File file = getLocalDestinationFile(direntModel.repo_id, direntModel.repo_name, direntModel.full_path);
+                    if (FileUtils.isFileExists(file)) {
+                        if (isGif(fullPath)) {
+                            loadOriGifUrl(file.getAbsolutePath());
+                        } else {
+                            loadOriUrl(file.getAbsolutePath());
+                        }
+                    } else {
+                        getViewModel().download(direntModel);
+                    }
                 }
             }
         });
@@ -218,24 +234,16 @@ public class PhotoFragment extends BaseFragment {
         getViewModel().getFileDetailLiveData().observe(getViewLifecycleOwner(), new Observer<FileProfileConfigModel>() {
             @Override
             public void onChanged(FileProfileConfigModel configModel) {
+                binding.bottomProgressBar.setVisibility(View.GONE);
 
-                SDocDetailView detailView = new SDocDetailView(requireContext());
-                detailView.setData(configModel);
-
-                binding.detailsContainer.setVisibility(VISIBLE);
-                binding.detailsContainer.removeAllViews();
+                DocProfileView detailView = new DocProfileView(requireContext());
+                detailView.parseData(configModel);
 
                 LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-1, -2);
-                binding.detailsContainer.addView(detailView, lp);
+                binding.bottomDetailsContainer.addView(detailView, 0, lp);
             }
         });
 
-        getViewModel().getSecondRefreshLiveData().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
-            @Override
-            public void onChanged(Boolean aBoolean) {
-                binding.detailsProgressBar.setVisibility(aBoolean ? VISIBLE : View.GONE);
-            }
-        });
     }
 
     private void initView() {
@@ -273,7 +281,7 @@ public class PhotoFragment extends BaseFragment {
         binding.photoView.setOnPhotoTapListener(new OnPhotoTapListener() {
             @Override
             public void onPhotoTap(ImageView view, float x, float y) {
-                if (isShowing) {
+                if (isBottomShowing) {
                     return;
                 }
 
@@ -292,54 +300,46 @@ public class PhotoFragment extends BaseFragment {
     }
 
     /**
-     * customFrameLayout's height is 2/3 of screen height
+     * bottomLayout's height is 2/3 of screen height
      */
     private void initBottomDetailLayout() {
-        //translation
         int height = screenHeight / 3 * 2;
-        FrameLayout.LayoutParams flp = (FrameLayout.LayoutParams) binding.customFrameLayout.getLayoutParams();
+        FrameLayout.LayoutParams flp = (FrameLayout.LayoutParams) binding.bottomLayout.getLayoutParams();
         flp.height = height;
-        binding.customFrameLayout.setLayoutParams(flp);
-        binding.customFrameLayout.setTranslationY(screenHeight);
+        binding.bottomLayout.setLayoutParams(flp);
+        binding.bottomLayout.setTranslationY(screenHeight);
 
-        if (isNightMode) {
-            binding.detailsContainer2.setBackgroundResource(R.drawable.shape_solid_grey900_radius_8);
-            binding.exifModel.setBackgroundResource(R.drawable.shape_solid_grey700_radius_8);
-        } else {
-            binding.detailsContainer2.setBackgroundResource(R.drawable.shape_solid_grey200_radius_8);
-            binding.exifModel.setBackgroundResource(R.drawable.shape_solid_grey309_radius_8);
-        }
-
-        binding.customFrameLayout.setOnViewActionEndListener(new OnViewActionEndListener() {
+        binding.bottomScrollView.setOnViewActionEndListener(new OnViewActionEndListener() {
             @Override
             public void onEnd() {
                 onActionUp();
             }
         });
 
-        binding.customFrameLayout.setOnViewDragListener(new OnViewDragListener() {
+        binding.bottomScrollView.setOnViewDragListener(new OnViewDragListener() {
             @Override
             public void onDrag(ScrollDirection direction, float dx, float dy) {
+                // 修改滚动阈值判断逻辑
                 if (direction == ScrollDirection.RIGHT || direction == ScrollDirection.LEFT) {
-                    binding.customFrameLayout.requestDisallowInterceptTouchEvent(false);
+                    binding.bottomScrollView.requestDisallowInterceptTouchEvent(false);
                 } else {
-                    binding.customFrameLayout.requestDisallowInterceptTouchEvent(true);
+                    binding.bottomScrollView.requestDisallowInterceptTouchEvent(true);
                     onPhotoViewDrag(direction, dy);
                 }
             }
         });
     }
 
-    private boolean isShowing = false;
+    private boolean isBottomShowing = false;
 
-    public boolean isShowing() {
-        return isShowing;
+    public boolean isBottomShowing() {
+        return isBottomShowing;
     }
 
     private final int screenHeight = ScreenUtils.getScreenHeight();
 
     private int photoTranslationY;
-    private int detailTranslationY = screenHeight;
+    private int bottomTranslationY = screenHeight;
 
     private final int animateDuration = 200;
     /**
@@ -353,7 +353,7 @@ public class PhotoFragment extends BaseFragment {
     private final int triggerDistance = SizeUtils.dp2px(100);
 
     private void onActionUp() {
-        if (!canScrollDetailLayout) {
+        if (!canScrollBottomLayout) {
             return;
         }
 
@@ -362,83 +362,94 @@ public class PhotoFragment extends BaseFragment {
         }
 
         ScrollDirection scrollDirection;
-        if (isShowing) {
+        if (isBottomShowing) {
             scrollDirection = ScrollDirection.DOWN;
         } else {
             scrollDirection = ScrollDirection.UP;
         }
 
-        binding.customFrameLayout.requestDisallowInterceptTouchEvent(false);
+        binding.bottomLayout.requestDisallowInterceptTouchEvent(false);
         if (totalDistance < triggerDistance) {
 
-            DetailLayoutShowModel showModel = new DetailLayoutShowModel((int) totalDistance, scrollDirection, ScrollStatus.CANCELLED, isShowing);
+            DetailLayoutShowModel showModel = new DetailLayoutShowModel((int) totalDistance, scrollDirection, ScrollStatus.CANCELLED, isBottomShowing);
             getParentViewModel().getScrolling().setValue(showModel);
 
             //notice:
             //toggle first, in order to show the animation
-            toggleShowingValue();
+            toggleBottomShowingValue();
 
             //
             toggleDetailLayout();
 
             //toggle again
-            toggleShowingValue();
+            toggleBottomShowingValue();
             return;
         }
 
-        DetailLayoutShowModel showModel = new DetailLayoutShowModel((int) totalDistance, scrollDirection, ScrollStatus.FINISHED, isShowing);
+        DetailLayoutShowModel showModel = new DetailLayoutShowModel((int) totalDistance, scrollDirection, ScrollStatus.FINISHED, isBottomShowing);
         getParentViewModel().getScrolling().setValue(showModel);
 
         toggleDetailLayout();
-        toggleShowingValue();
+        toggleBottomShowingValue();
     }
 
     private void onPhotoViewDrag(ScrollDirection scrollDirection, float dY) {
-        if (!canScrollDetailLayout) {
+        if (!canScrollBottomLayout) {
             return;
         }
 
-        if (detailTranslationY == screenHeight && dY > 0) {
+        //When the bottomLayout is already fully displayed, no further scrolling up is allowed
+        if (bottomTranslationY == screenHeight && dY > 0) {
             return;
         }
 
-        if (detailTranslationY <= screenHeight / 3 && dY < 0) {
+        //When the bottomLayout is already fully hidden, no further scrolling down is allowed
+        if (bottomTranslationY <= screenHeight / 3 && dY < 0) {
             return;
         }
 
         totalDistance += Math.abs(dY);
 
-        DetailLayoutShowModel showModel = new DetailLayoutShowModel((int) totalDistance, scrollDirection, ScrollStatus.SCROLLING, isShowing);
+        DetailLayoutShowModel showModel = new DetailLayoutShowModel((int) totalDistance, scrollDirection, ScrollStatus.SCROLLING, isBottomShowing);
         getParentViewModel().getScrolling().setValue(showModel);
 
         photoTranslationY += (int) (dY);
-        detailTranslationY += (int) (dY * 2f);
+        bottomTranslationY += (int) (dY * 2f);
 
         binding.photoView.setTranslationY(photoTranslationY);
-        binding.customFrameLayout.setTranslationY(detailTranslationY);
+        binding.bottomLayout.setTranslationY(bottomTranslationY);
 
-//        SLogs.e("totalDis = " + totalDistance + ", pY = " + photoTranslationY + ", bY = " + detailTranslationY + ", dY = " + dY);
+        SLogs.e("totalDis = " + totalDistance + ", photoTY = " + photoTranslationY + ", bottomTY = " + bottomTranslationY + ", dY = " + dY);
     }
 
     public void toggle() {
         toggleDetailLayout();
-        toggleShowingValue();
+        toggleBottomShowingValue();
     }
 
     private void toggleDetailLayout() {
-        if (!canScrollDetailLayout) {
+        if (!canScrollBottomLayout) {
             return;
         }
 
-        if (isShowing) {
-            photoTranslationY = 0;
-            detailTranslationY = screenHeight;
-        } else {
-            detailTranslationY = screenHeight / 3;
+//        if (binding.errorView.getVisibility() == VISIBLE) {
+//            return;
+//        }
 
+        if (isBottomShowing) {
+            //Automatically scroll to the bottom of the screen
+            photoTranslationY = 0;
+            bottomTranslationY = screenHeight;
+        } else {
+            //Automatically scrolls to 1/3 of the screen
+            bottomTranslationY = screenHeight / 3;
+
+            //
             RectF displayRect = binding.photoView.getDisplayRect();
-            float imageCenterY = (displayRect.top + displayRect.bottom) / 2;
-            photoTranslationY = (int) (screenHeight / 6f - imageCenterY);
+            if (displayRect != null) {
+                float imageCenterY = (displayRect.top + displayRect.bottom) / 2;
+                photoTranslationY = (int) (screenHeight / 6f - imageCenterY);
+            }
         }
         totalDistance = 0;
 
@@ -447,14 +458,14 @@ public class PhotoFragment extends BaseFragment {
                 .setDuration(animateDuration)
                 .start();
 
-        binding.customFrameLayout.animate()
-                .translationY(detailTranslationY)
+        binding.bottomLayout.animate()
+                .translationY(bottomTranslationY)
                 .setDuration(animateDuration)
                 .start();
     }
 
-    private void toggleShowingValue() {
-        isShowing = !isShowing;
+    private void toggleBottomShowingValue() {
+        isBottomShowing = !isBottomShowing;
     }
 
 
@@ -473,7 +484,7 @@ public class PhotoFragment extends BaseFragment {
             loadThumbnailAndRequestRawUrl();
         }
 
-        getViewModel().getFileDetailModel(repoId, fullPath);
+        getViewModel().getFileDetail(repoId, fullPath);
     }
 
     private void loadUrl(String url) {
@@ -635,6 +646,16 @@ public class PhotoFragment extends BaseFragment {
             SLogs.d("ExifData - 色彩空间: " + colorSpace);
             exifMap.put("_color_space", colorSpace);
 
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+//                ImageDecoder.Source source = ImageDecoder.createSource(new File(localPath));
+//                ImageDecoder.decodeBitmap(source, new ImageDecoder.OnHeaderDecodedListener() {
+//                    @Override
+//                    public void onHeaderDecoded(@NonNull ImageDecoder decoder, @NonNull ImageDecoder.ImageInfo info, @NonNull ImageDecoder.Source source) {
+//                        ColorSpace colorSpace1 = info.getColorSpace();
+//                        colorSpace1.getName();
+//                    }
+//                });
+//            }
 
             // 5. 读取焦距
             String focalLength = exifInterface.getAttribute(ExifInterface.TAG_FOCAL_LENGTH);
@@ -671,19 +692,20 @@ public class PhotoFragment extends BaseFragment {
 
     private void addTextView(HashMap<String, String> map) {
         if (map == null || map.isEmpty()) {
-            binding.detailsContainer2.setVisibility(View.GONE);
             return;
         }
+
+        View view = LayoutInflater.from(requireContext()).inflate(R.layout.view_image_exif_container, null);
+        ViewImageExifContainerBinding exifBinding = ViewImageExifContainerBinding.bind(view);
 
         String imageCaptureTime = getResources().getString(R.string.image_capture_time);
         String imageDimensions = getResources().getString(R.string.image_dimensions);
         String captureTime = imageCaptureTime + ": " + map.get("_datetime");
         String imageSize = imageDimensions + ": " + map.get("_width_height");
 
-        binding.detailsContainer2.setVisibility(VISIBLE);
-        binding.exifModel.setText(map.get("_model"));
-        binding.exifDatetime.setText(captureTime);
-        binding.exifWh.setText(imageSize);
+        exifBinding.exifModel.setText(map.get("_model"));
+        exifBinding.exifDatetime.setText(captureTime);
+        exifBinding.exifWh.setText(imageSize);
 
 
         String colorSpace = map.get("_color_space");
@@ -691,17 +713,17 @@ public class PhotoFragment extends BaseFragment {
             int colorSpaceValue = Integer.parseInt(colorSpace);
             switch (colorSpaceValue) {
                 case ExifInterface.COLOR_SPACE_S_RGB:
-                    binding.exifColorSpace.setText(R.string.image_color_space_rgb);
+                    exifBinding.exifColorSpace.setText(R.string.image_color_space_rgb);
                     break;
                 case ExifInterface.COLOR_SPACE_UNCALIBRATED:
-                    binding.exifColorSpace.setText(R.string.image_color_space_uncalibrated);
+                    exifBinding.exifColorSpace.setText(R.string.image_color_space_uncalibrated);
                     break;
                 default:
-                    binding.exifColorSpace.setText(R.string.image_color_space_undefined);
+                    exifBinding.exifColorSpace.setText(R.string.image_color_space_undefined);
                     break;
             }
         } else {
-            binding.exifColorSpace.setText(R.string.image_color_space_undefined);
+            exifBinding.exifColorSpace.setText(R.string.image_color_space_undefined);
         }
 
         String focalLength = map.get("_focal_length");
@@ -712,14 +734,14 @@ public class PhotoFragment extends BaseFragment {
                     float numerator = Float.parseFloat(parts[0]);
                     float denominator = Float.parseFloat(parts[1]);
                     float focalLengthValue = numerator / denominator;
-                    binding.exifFocalLength.setText(focalLengthValue + " mm");
+                    exifBinding.exifFocalLength.setText(focalLengthValue + " mm");
 
                 } else {
                     SLogs.d("ExifData - 焦距: " + focalLength + " mm");
-                    binding.exifFocalLength.setText(focalLength + " mm");
+                    exifBinding.exifFocalLength.setText(focalLength + " mm");
                 }
             } else {
-                binding.exifFocalLength.setText(focalLength + " mm");
+                exifBinding.exifFocalLength.setText(focalLength + " mm");
             }
         }
 
@@ -732,24 +754,39 @@ public class PhotoFragment extends BaseFragment {
                     float denominator = Float.parseFloat(parts[1]);
                     float aperture = numerator / denominator;
                     String r = String.format(Locale.getDefault(), "%.2f", aperture);
-                    binding.exifApertureValue.setText(r);
+                    exifBinding.exifApertureValue.setText(r);
 
                 } else {
-                    binding.exifApertureValue.setText(apertureValue);
+                    exifBinding.exifApertureValue.setText(apertureValue);
                 }
             } else {
-                binding.exifApertureValue.setText(apertureValue);
+                exifBinding.exifApertureValue.setText(apertureValue);
             }
         }
 
         //
         String fNumber = map.get("_f_nubmer");
-        binding.exifFNumber.setText("f/" + fNumber);
+        exifBinding.exifFNumber.setText("f/" + fNumber);
 
         String formattedExposureTime = map.get("_exposure_time");
         if (!TextUtils.isEmpty(formattedExposureTime)) {
-            binding.exifExposureTime.setText(formattedExposureTime + "s");
+            exifBinding.exifExposureTime.setText(formattedExposureTime + "s");
         }
+
+        if (isNightMode) {
+            exifBinding.getRoot().setBackgroundResource(R.drawable.shape_solid_grey900_radius_8);
+            exifBinding.exifModel.setBackgroundResource(R.drawable.shape_solid_grey700_radius_8);
+        } else {
+            exifBinding.getRoot().setBackgroundResource(R.drawable.shape_solid_grey200_radius_8);
+            exifBinding.exifModel.setBackgroundResource(R.drawable.shape_solid_grey309_radius_8);
+        }
+
+        LinearLayout.LayoutParams vl = new LinearLayout.LayoutParams(-1, -2);
+        vl.topMargin = Constants.DP.DP_16;
+        vl.leftMargin = Constants.DP.DP_16;
+        vl.rightMargin = Constants.DP.DP_16;
+
+        binding.bottomDetailsContainer.addView(exifBinding.getRoot(), vl);
     }
 
 

@@ -103,6 +103,7 @@ public class ShareToSeafileViewModel extends BaseViewModel {
         TransferModel transferModel = gen(account, repo_id, repo_name, fileName, parentDir, isReplace);
         transferModel.full_path = sourceUri.toString();
         transferModel.file_size = Utils.getFileSize(context, sourceUri);
+        transferModel.setId(transferModel.genStableId());
         return transferModel;
     }
 
@@ -119,7 +120,6 @@ public class ShareToSeafileViewModel extends BaseViewModel {
         transferModel.data_source = TransferDataSource.FILE_BACKUP;
         transferModel.transfer_status = TransferStatus.WAITING;
         transferModel.transfer_strategy = isReplace ? ExistingFileStrategy.REPLACE : ExistingFileStrategy.KEEP;
-        transferModel.setId(transferModel.genStableId());
         return transferModel;
     }
 }

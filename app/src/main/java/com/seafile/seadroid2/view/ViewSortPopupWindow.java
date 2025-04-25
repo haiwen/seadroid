@@ -126,7 +126,7 @@ public class ViewSortPopupWindow extends PopupWindow {
             Settings.FILE_LIST_SORT_BY.putValue(SortBy.NAME);
         } else if (clickedId == R.id.menu_sort_size) {
             menuSortSizeIcon.setVisibility(View.VISIBLE);
-            Settings.FILE_LIST_SORT_BY.putValue(SortBy.TYPE);
+            Settings.FILE_LIST_SORT_BY.putValue(SortBy.SIZE);
         } else if (clickedId == R.id.menu_sort_last_modified) {
             menuSortLastModifiedIcon.setVisibility(View.VISIBLE);
             Settings.FILE_LIST_SORT_BY.putValue(SortBy.LAST_MODIFIED);

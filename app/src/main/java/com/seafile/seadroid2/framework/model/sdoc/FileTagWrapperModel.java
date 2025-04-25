@@ -7,7 +7,7 @@ import java.util.List;
 
 public class FileTagWrapperModel implements Parcelable {
     public List<MetadataModel> metadata;
-    public List<RecordResultModel> results;
+    public List<FileTagResultModel> results;
 
     @Override
     public int describeContents() {
@@ -25,7 +25,7 @@ public class FileTagWrapperModel implements Parcelable {
 
     protected FileTagWrapperModel(Parcel in) {
         this.metadata = in.createTypedArrayList(MetadataModel.CREATOR);
-        this.results = in.createTypedArrayList(RecordResultModel.CREATOR);
+        this.results = in.createTypedArrayList(FileTagResultModel.CREATOR);
     }
 
     public static final Creator<FileTagWrapperModel> CREATOR = new Creator<FileTagWrapperModel>() {

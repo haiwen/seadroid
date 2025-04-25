@@ -41,6 +41,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.blankj.utilcode.util.CollectionUtils;
+import com.blankj.utilcode.util.NetworkUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.chad.library.adapter4.BaseQuickAdapter;
 import com.github.panpf.recycler.sticky.StickyItemDecoration;
@@ -50,6 +51,7 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.annotation.Todo;
 import com.seafile.seadroid2.bus.BusHelper;
 import com.seafile.seadroid2.config.AbsLayoutItemType;
 import com.seafile.seadroid2.config.Constants;
@@ -62,6 +64,7 @@ import com.seafile.seadroid2.enums.FileViewType;
 import com.seafile.seadroid2.enums.OpType;
 import com.seafile.seadroid2.enums.RefreshStatusEnum;
 import com.seafile.seadroid2.enums.SortBy;
+import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.db.entities.PermissionEntity;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
@@ -70,7 +73,6 @@ import com.seafile.seadroid2.framework.model.GroupItemModel;
 import com.seafile.seadroid2.framework.model.ResultModel;
 import com.seafile.seadroid2.framework.model.dirents.DirentFileModel;
 import com.seafile.seadroid2.framework.model.search.SearchModel;
-import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.util.Objs;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.TakeCameras;
@@ -115,7 +117,9 @@ import kotlin.ranges.IntRange;
 
 public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     private static final String KEY_REPO_SCROLL_POSITION = "repo_scroll_position";
-    private static final String KEY_REPO_LIST = "key_repo_list";
+    private final int PADDING_16 = Constants.DP.DP_16;
+    private final int PADDING_32 = Constants.DP.DP_32;
+    private final int PADDING_128 = Constants.DP.DP_128;
 
     private LayoutFastRvBinding binding;
     private RepoQuickAdapter adapter;
@@ -172,6 +176,8 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         initAdapter();
 
         initViewModel();
+
+        resetRvPadding();
     }
 
 
@@ -238,7 +244,12 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
                     @Override
                     public boolean onQueryTextChange(String newText) {
-                        mainViewModel.getOnSearchLiveData().setValue(newText);
+                        searchView.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                mainViewModel.getOnSearchLiveData().setValue(newText);
+                            }
+                        }, 1000);
                         return false;
                     }
                 });
@@ -468,35 +479,34 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         getViewModel().getSeafExceptionLiveData().observe(getViewLifecycleOwner(), this::showErrorView);
 
         getViewModel().getStarredLiveData().observe(getViewLifecycleOwner(), aBoolean -> {
-            if (aBoolean) {
-                loadData(RefreshStatusEnum.ONLY_REMOTE);
-            }
 
             closeActionMode();
 
-            // notify starred list need to change
-            Bundle bundle = new Bundle();
-            bundle.putBoolean(StarredQuickFragment.class.getSimpleName(), true);
-            BusHelper.getCustomBundleObserver().post(bundle);
+            if (aBoolean) {
+                loadData(RefreshStatusEnum.ONLY_REMOTE);
+
+                // notify starred list need to change
+                Bundle bundle = new Bundle();
+                bundle.putBoolean(StarredQuickFragment.class.getSimpleName(), true);
+                BusHelper.getCustomBundleObserver().post(bundle);
+            }
+
         });
 
-        getViewModel().getObjListLiveData().observe(getViewLifecycleOwner(), models -> {
-            notifyDataChanged(models);
+        getViewModel().getObjListLiveData().observe(getViewLifecycleOwner(), new Observer<List<BaseModel>>() {
+            @Override
+            public void onChanged(List<BaseModel> models) {
+                //
+                notifyDataChanged(models);
 
-            restoreScrollPosition();
+                restoreScrollPosition();
+            }
         });
 
         getViewModel().getMenuItemListLiveData().observe(getViewLifecycleOwner(), new Observer<List<MenuItem>>() {
             @Override
             public void onChanged(List<MenuItem> menuItems) {
                 showBottomSheetWindow(menuItems);
-            }
-        });
-
-        mainViewModel.getOnShowRefreshLoadingInRepoLiveData().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
-            @Override
-            public void onChanged(Boolean aBoolean) {
-                binding.swipeRefreshLayout.setRefreshing(aBoolean);
             }
         });
 
@@ -553,6 +563,30 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 doBusWork(bundle);
             }
         });
+
+        BusHelper.getNavContextObserver().observe(getViewLifecycleOwner(), new Observer<NavContext>() {
+            @Override
+            public void onChanged(NavContext navContext) {
+                resetRvPadding();
+            }
+        });
+    }
+
+    private void resetRvPadding() {
+        if (GlobalNavContext.getCurrentNavContext().inRepo()) {
+            int paddingTop = binding.rv.getPaddingTop();
+            int paddingBottom = binding.rv.getPaddingBottom();
+            if (paddingTop == 0 || paddingBottom == PADDING_128) {
+                binding.rv.setPadding(0, Constants.DP.DP_16, 0, Constants.DP.DP_32);
+                binding.rv.setClipToPadding(false);
+            }
+        } else {
+            int p = binding.rv.getPaddingTop();
+            if (p != 0) {
+                binding.rv.setPadding(0, 0, 0, PADDING_32);
+                binding.rv.setClipToPadding(false);
+            }
+        }
     }
 
     private void doBusWork(Bundle map) {
@@ -760,11 +794,13 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     private void onShowActionMode(ActionModeCallbackType actionModeType) {
 
         if (actionModeType == ActionModeCallbackType.CREATE) {
-            int p = Constants.DP.DP_32 * 4;
-            binding.rv.setPadding(0, 0, 0, p);
+            if (GlobalNavContext.getCurrentNavContext().inRepo()) {
+                binding.rv.setPadding(0, Constants.DP.DP_16, 0, PADDING_128);
+            } else {
+                binding.rv.setPadding(0, 0, 0, PADDING_128);
+            }
         } else if (actionModeType == ActionModeCallbackType.DESTROY) {
-            int p = 0;
-            binding.rv.setPadding(0, 0, 0, p);
+            resetRvPadding();
         }
 
         if (actionModeType == ActionModeCallbackType.CREATE || actionModeType == ActionModeCallbackType.SELECT_ALL) {
@@ -909,6 +945,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         return newList;
     }
 
+    @Todo("The search results logic needs to be refactored")
     private void search(String keyword) {
         adapter.filterListBySearchKeyword(keyword);
 
@@ -916,8 +953,8 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         searchViewModel.searchNext(keyword, 1, 20);
     }
 
+    @Todo("The search results logic needs to be refactored")
     private void deduplicateSearchData(List<SearchModel> searchModels) {
-        //todo deduplicate
         adapter.addAll(searchModels);
     }
 
@@ -976,12 +1013,13 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             return RefreshStatusEnum.LOCAL_THEN_REMOTE;
         }
 
-        long diff = System.currentTimeMillis() - d;
-        if (diff < 5000) {
+        long s = System.currentTimeMillis();
+        long diff = s - d;
+        if (diff < 10000) {
             return RefreshStatusEnum.ONLY_LOCAL;
         }
 
-        pathLoadTimeMap.put(key, System.currentTimeMillis());
+        pathLoadTimeMap.put(key, s);
         return RefreshStatusEnum.LOCAL_THEN_REMOTE;
     }
 
@@ -1017,51 +1055,81 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     }
 
     private void navToForSearch(SearchModel searchModel) {
-        //searchModel is a dir and repo
-        if (searchModel.isDir() && "/".equals(searchModel.fullpath)) {
-            getViewModel().getRepoModelEntity(searchModel.repo_id, new Consumer<RepoModel>() {
-                @Override
-                public void accept(RepoModel repoModel) throws Exception {
-                    if (repoModel == null) {
-                        ToastUtils.showLong(R.string.repo_not_found);
-                        return;
-                    }
-
-                    GlobalNavContext.getCurrentNavContext().push(repoModel);
-                    loadData(RefreshStatusEnum.LOCAL_THEN_REMOTE);
-                }
-            });
+        RepoModel repoModel = GlobalNavContext.getCurrentNavContext().getRepoModel();
+        if (searchModel.isDir()) { // it is a dir, switch into it
+            switchPath(searchModel.repo_id, searchModel.fullpath, searchModel.isDir());
+        } else if (repoModel != null && TextUtils.equals(repoModel.repo_id, searchModel.repo_id)) {
+            //it is a file in same repo, open it
+            DirentModel direntModel = SearchModel.convert2DirentModel(searchModel);
+            open(repoModel, direntModel);
         } else {
-            //searchModel is a dir, and child path
-            RepoModel repoModel = GlobalNavContext.getCurrentNavContext().getRepoModel();
-            if (repoModel != null && TextUtils.equals(repoModel.repo_id, searchModel.repo_id)) {
-                if (searchModel.isDir()) {
-                    //TODO sss
-                    GlobalNavContext.switchToPath(GlobalNavContext.getCurrentNavContext().getRepoModel(), searchModel.fullpath);
-                    loadData(RefreshStatusEnum.LOCAL_THEN_REMOTE);
-                } else {
+            //it is a file in different repo, query repo from db and open it.
+            getViewModel().getRepoModelAndPermissionEntity(searchModel.repo_id, new Consumer<Pair<RepoModel, PermissionEntity>>() {
+                @Override
+                public void accept(Pair<RepoModel, PermissionEntity> pair) {
                     //searchModel is a file
                     DirentModel direntModel = SearchModel.convert2DirentModel(searchModel);
-                    open(repoModel, direntModel);
+                    Bundle bundle = new Bundle();
+                    bundle.putBoolean("load_other_images_in_same_directory", false);
+                    open(pair.first, direntModel, bundle);
                 }
-            } else {
-                getViewModel().getRepoModelAndPermissionEntity(searchModel.repo_id, new Consumer<Pair<RepoModel, PermissionEntity>>() {
-                    @Override
-                    public void accept(Pair<RepoModel, PermissionEntity> pair) {
-                        if (searchModel.isDir()) {
-                            GlobalNavContext.switchToPath(pair.first, searchModel.fullpath);
-                            loadData(RefreshStatusEnum.LOCAL_THEN_REMOTE);
-                        } else {
-                            //searchModel is a file
-                            DirentModel direntModel = SearchModel.convert2DirentModel(searchModel);
-                            Bundle bundle = new Bundle();
-                            bundle.putBoolean("load_other_images_in_same_directory", false);
-                            open(pair.first, direntModel, bundle);
-                        }
-                    }
-                });
-            }
+            });
         }
+    }
+
+    /**
+     * switch to special path. if isDir is false, switch to the parent directory of the fullPath
+     *
+     * @param repoId
+     * @param fullPath
+     * @param isDir
+     */
+    public void switchPath(String repoId, String fullPath, boolean isDir) {
+        RepoModel repoModel = GlobalNavContext.getCurrentNavContext().getRepoModel();
+        if (repoModel != null && TextUtils.equals(repoModel.repo_id, repoId)) {
+            switchToPath(repoModel, fullPath, isDir);
+            return;
+        }
+
+        //different repo
+        getViewModel().getRepoModelEntity(repoId, new Consumer<RepoModel>() {
+            @Override
+            public void accept(RepoModel repoModel) throws Exception {
+                if (repoModel == null) {
+                    ToastUtils.showLong(R.string.repo_not_found);
+                    return;
+                }
+
+                if (repoModel.encrypted) {
+                    decryptRepo(repoModel, new java.util.function.Consumer<Boolean>() {
+                        @Override
+                        public void accept(Boolean aBoolean) {
+                            if (aBoolean) {
+                                switchToPath(repoModel, fullPath, isDir);
+                            }
+                        }
+                    });
+                } else {
+                    switchToPath(repoModel, fullPath, isDir);
+                }
+            }
+        });
+    }
+
+    private void switchToPath(RepoModel repoModel, String fullPath, boolean isDir) {
+        if (repoModel == null) {
+            return;
+        }
+
+        if (isDir && "/".equals(fullPath)) {  // it is a REPO
+            GlobalNavContext.switchToPath(repoModel, "/");
+        } else if (isDir) { // it is a DIR
+            GlobalNavContext.switchToPath(repoModel, fullPath);
+        } else {//it is a file, switch to parent path
+            String p = Utils.getParentPath(fullPath);
+            GlobalNavContext.switchToPath(repoModel, p);
+        }
+        loadData(RefreshStatusEnum.LOCAL_THEN_REMOTE);
     }
 
     /**
@@ -1082,12 +1150,9 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 loadData(RefreshStatusEnum.ONLY_LOCAL);
             }
             return true;
-        } else {
-
         }
         return false;
     }
-
 
     private void decryptRepo(RepoModel repoModel, final java.util.function.Consumer<Boolean> checkBack) {
         if (checkBack == null) {
@@ -1354,6 +1419,11 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         }
 
         if (fileName.endsWith(Constants.Format.DOT_SDOC)) {
+            if (!NetworkUtils.isConnected()) {
+                ToastUtils.showLong(R.string.network_unavailable);
+                return;
+            }
+
             SDocWebViewActivity.openSdoc(getContext(), repoModel.repo_name, repoModel.repo_id, dirent.parent_dir + dirent.name);
             return;
         }
@@ -1362,7 +1432,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext());
             builder.setItems(R.array.video_download_array, (dialog, which) -> {
                 if (which == 0) {
-                    CustomExoVideoPlayerActivity.startThis(getContext(), fileName, repoModel.repo_id, filePath);
+                    CustomExoVideoPlayerActivity.startThis(getContext(), fileName, repoModel.repo_id, filePath, dirent.id);
                 } else if (which == 1) {
                     Intent intent = FileActivity.start(requireContext(), dirent, "video_download");
                     fileActivityLauncher.launch(intent);

@@ -3,6 +3,7 @@ package com.seafile.seadroid2.ui.dialog_fragment.viewmodel;
 import androidx.lifecycle.MutableLiveData;
 
 import com.blankj.utilcode.util.CollectionUtils;
+import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
@@ -140,7 +141,9 @@ public class CopyMoveViewModel extends BaseViewModel {
             @Override
             public void accept(Throwable throwable) throws Exception {
                 getRefreshLiveData().setValue(false);
-                getResultLiveData().setValue(new ResultModel());
+
+                SeafException seafException = getExceptionByThrowable(throwable);
+                getSeafExceptionLiveData().setValue(seafException);
             }
         });
     }
@@ -167,6 +170,14 @@ public class CopyMoveViewModel extends BaseViewModel {
             public void accept(ResultModel resultModel) throws Exception {
                 getRefreshLiveData().setValue(false);
                 getResultLiveData().setValue(resultModel);
+            }
+        }, new Consumer<Throwable>() {
+            @Override
+            public void accept(Throwable throwable) throws Exception {
+                getRefreshLiveData().setValue(false);
+
+                SeafException seafException = getExceptionByThrowable(throwable);
+                getSeafExceptionLiveData().setValue(seafException);
             }
         });
     }

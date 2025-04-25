@@ -18,9 +18,11 @@ import com.seafile.seadroid2.framework.model.sdoc.FileProfileConfigModel;
 import com.seafile.seadroid2.framework.model.sdoc.FileRecordWrapperModel;
 import com.seafile.seadroid2.framework.model.sdoc.FileTagWrapperModel;
 import com.seafile.seadroid2.framework.model.sdoc.MetadataConfigModel;
+import com.seafile.seadroid2.framework.model.user.UserModel;
 import com.seafile.seadroid2.framework.model.user.UserWrapperModel;
 import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.http.HttpIO;
+import com.seafile.seadroid2.framework.util.ExceptionUtils;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.listener.FileTransferProgressListener;
@@ -37,14 +39,16 @@ import java.net.URLEncoder;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.SingleSource;
+import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
-import io.reactivex.functions.Function3;
+import kotlin.Pair;
 import okhttp3.Call;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -53,11 +57,15 @@ import okhttp3.ResponseBody;
 public class PhotoViewModel extends BaseViewModel {
     private final MutableLiveData<String> _downloadedUrlLiveData = new MutableLiveData<>();
     private final MutableLiveData<String> _originalUrlLiveData = new MutableLiveData<>();
-
+    private final MutableLiveData<SeafException> _fileDetailExceptionLiveData = new MutableLiveData<>();
     private final MutableLiveData<DirentModel> _checkLocalLiveData = new MutableLiveData<>();
 
     public MutableLiveData<String> getDownloadedPathLiveData() {
         return _downloadedUrlLiveData;
+    }
+
+    public MutableLiveData<SeafException> getFileDetailExceptionLiveData() {
+        return _fileDetailExceptionLiveData;
     }
 
     public MutableLiveData<String> getOriginalUrlLiveData() {
@@ -74,28 +82,26 @@ public class PhotoViewModel extends BaseViewModel {
         return _fileProfileConfigLiveData;
     }
 
-    public void getFileDetailModel(String repoId, String path) {
-        getSecondRefreshLiveData().setValue(true);
-
-        Single<UserWrapperModel> userSingle = HttpIO.getCurrentInstance().execute(SDocService.class).getRelatedUsers(repoId);
+    public void getFileDetail(String repoId, String path) {
         Single<FileDetailModel> detailSingle = HttpIO.getCurrentInstance().execute(SDocService.class).getFileDetail(repoId, path);
         Single<MetadataConfigModel> metadataSingle = HttpIO.getCurrentInstance().execute(SDocService.class).getMetadata(repoId).onErrorReturnItem(new MetadataConfigModel());
 
-        Single<FileProfileConfigModel> s = Single.zip(metadataSingle, detailSingle, userSingle, new Function3<MetadataConfigModel, FileDetailModel, UserWrapperModel, FileProfileConfigModel>() {
+        Single<FileProfileConfigModel> s = Single.zip(metadataSingle, detailSingle, new BiFunction<MetadataConfigModel, FileDetailModel, FileProfileConfigModel>() {
             @Override
-            public FileProfileConfigModel apply(MetadataConfigModel metadataConfigModel, FileDetailModel fileDetailModel, UserWrapperModel userWrapperModel) throws Exception {
+            public FileProfileConfigModel apply(MetadataConfigModel metadataConfigModel, FileDetailModel fileDetailModel) {
                 FileProfileConfigModel configModel = new FileProfileConfigModel();
                 configModel.setMetadataConfigModel(metadataConfigModel);
                 configModel.setDetail(fileDetailModel);
-                configModel.setUsers(userWrapperModel);
+                //
+                configModel.initDefaultIfMetaEnable(fileDetailModel);
                 return configModel;
             }
         }).flatMap(new Function<FileProfileConfigModel, SingleSource<FileProfileConfigModel>>() {
             @Override
-            public SingleSource<FileProfileConfigModel> apply(FileProfileConfigModel fileProfileConfigModel) throws Exception {
+            public SingleSource<FileProfileConfigModel> apply(FileProfileConfigModel configModel) throws Exception {
                 List<Single<?>> singles = new ArrayList<>();
 
-                if (fileProfileConfigModel.metadataConfigModel.enabled) {
+                if (configModel.getMetaEnabled()) {
 
                     String parent_dir;
                     String name;
@@ -116,35 +122,41 @@ public class PhotoViewModel extends BaseViewModel {
                     if (TextUtils.isEmpty(parent_dir)) {
                         parent_dir = "/";
                     }
-
+                    Single<UserWrapperModel> userSingle = HttpIO.getCurrentInstance().execute(SDocService.class).getRelatedUsers(repoId);
+                    singles.add(userSingle);
 
                     Single<FileRecordWrapperModel> recordSingle = HttpIO.getCurrentInstance().execute(SDocService.class).getRecords(repoId, parent_dir, name, name);
                     singles.add(recordSingle);
                 }
 
-                if (fileProfileConfigModel.metadataConfigModel.tags_enabled) {
+                if (configModel.getTagsEnabled()) {
                     Single<FileTagWrapperModel> tagSingle = HttpIO.getCurrentInstance().execute(SDocService.class).getTags(repoId);
                     singles.add(tagSingle);
                 }
 
                 if (singles.isEmpty()) {
-                    return Single.just(fileProfileConfigModel);
+                    return Single.just(configModel);
                 }
 
                 return Single.zip(singles, new Function<Object[], FileProfileConfigModel>() {
                     @Override
                     public FileProfileConfigModel apply(Object[] results) throws Exception {
-                        if (fileProfileConfigModel.metadataConfigModel.enabled) {
-                            FileRecordWrapperModel r = (FileRecordWrapperModel) results[0];
-                            fileProfileConfigModel.setRecordWrapperModel(r);
+                        if (configModel.getMetaEnabled()) {
+                            UserWrapperModel u = (UserWrapperModel) results[0];
+                            FileRecordWrapperModel r = (FileRecordWrapperModel) results[1];
+                            configModel.setRelatedUserWrapperModel(u);
+                            configModel.setRecordWrapperModel(r);
                         }
 
-                        if (fileProfileConfigModel.metadataConfigModel.tags_enabled) {
-                            FileTagWrapperModel t = (FileTagWrapperModel) results[1];
-                            fileProfileConfigModel.setTagWrapperModel(t);
+                        if (configModel.getMetaEnabled() && configModel.getTagsEnabled()) {
+                            FileTagWrapperModel t = (FileTagWrapperModel) results[2];
+                            configModel.setTagWrapperModel(t);
+                        } else if (configModel.getTagsEnabled()) {
+                            FileTagWrapperModel t = (FileTagWrapperModel) results[0];
+                            configModel.setTagWrapperModel(t);
                         }
 
-                        return fileProfileConfigModel;
+                        return configModel;
                     }
                 });
             }
@@ -154,31 +166,48 @@ public class PhotoViewModel extends BaseViewModel {
         addSingleDisposable(s, new Consumer<FileProfileConfigModel>() {
             @Override
             public void accept(FileProfileConfigModel fileProfileConfigModel) throws Exception {
-                getSecondRefreshLiveData().setValue(false);
                 getFileDetailLiveData().setValue(fileProfileConfigModel);
             }
         }, new Consumer<Throwable>() {
             @Override
             public void accept(Throwable throwable) {
-                getSecondRefreshLiveData().setValue(false);
+                SeafException seafException = ExceptionUtils.parseByThrowable(throwable);
+                getFileDetailExceptionLiveData().setValue(seafException);
             }
         });
     }
 
     public void checkLocal(String repoId, String fullPath) {
         Single<List<DirentModel>> direntSingle = AppDatabase.getInstance().direntDao().getListByFullPathAsync(repoId, fullPath);
-        addSingleDisposable(direntSingle, new Consumer<List<DirentModel>>() {
+        Single<List<FileCacheStatusEntity>> cacheSingle = AppDatabase.getInstance().fileCacheStatusDAO().getByFullPath(repoId, fullPath);
+        Single<DirentModel> d = Single.zip(direntSingle, cacheSingle, new BiFunction<List<DirentModel>, List<FileCacheStatusEntity>, DirentModel>() {
             @Override
-            public void accept(List<DirentModel> direntModel) throws Exception {
-                if (CollectionUtils.isEmpty(direntModel)) {
-                    getCheckLocalLiveData().setValue(new DirentModel());
-                    return;
+            public DirentModel apply(List<DirentModel> direntModels, List<FileCacheStatusEntity> fileCacheStatusEntities) throws Exception {
+                if (CollectionUtils.isEmpty(direntModels)) {
+                    return null;
                 }
 
-                getCheckLocalLiveData().setValue(direntModel.get(0));
+                DirentModel direntModel = direntModels.get(0);
+                if (CollectionUtils.isEmpty(fileCacheStatusEntities)) {
+                    //set null
+                    direntModel.local_file_id = null;
+                    return direntModel;
+                }
+
+                FileCacheStatusEntity entity = fileCacheStatusEntities.get(0);
+                if (TextUtils.equals(entity.file_id, direntModel.id)) {
+                    //set null
+                    direntModel.local_file_id = entity.file_id;
+                }
+                return direntModel;
             }
         });
-
+        addSingleDisposable(d, new Consumer<DirentModel>() {
+            @Override
+            public void accept(DirentModel direntModel) throws Exception {
+                getCheckLocalLiveData().setValue(direntModel == null ? new DirentModel() : direntModel);
+            }
+        });
     }
 
     private final int SEGMENT_SIZE = 8192;

@@ -350,7 +350,7 @@ public class AccountDetailActivity extends BaseActivityWithVM<AccountViewModel> 
         String passwd = binding.password.getText().toString();
 
         if (!NetworkUtils.isConnected()) {
-            binding.statusView.setText(R.string.network_down);
+            binding.statusView.setText(R.string.network_unavailable);
             return;
         }
 

@@ -18,10 +18,12 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatCheckBox;
 import androidx.core.content.ContextCompat;
 
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.SizeUtils;
+import com.blankj.utilcode.util.TimeUtils;
 import com.bumptech.glide.Glide;
 import com.google.android.flexbox.FlexboxLayout;
 import com.google.android.material.card.MaterialCardView;
@@ -29,44 +31,39 @@ import com.google.android.material.imageview.ShapeableImageView;
 import com.google.gson.internal.LinkedTreeMap;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.config.ColumnType;
+import com.seafile.seadroid2.config.DateFormatType;
 import com.seafile.seadroid2.config.GlideLoadConfig;
 import com.seafile.seadroid2.framework.model.sdoc.FileProfileConfigModel;
-import com.seafile.seadroid2.framework.model.sdoc.FileRecordWrapperModel;
 import com.seafile.seadroid2.framework.model.sdoc.MetadataConfigDataModel;
 import com.seafile.seadroid2.framework.model.sdoc.MetadataModel;
 import com.seafile.seadroid2.framework.model.sdoc.OptionsTagModel;
-import com.seafile.seadroid2.framework.model.sdoc.RecordResultModel;
 import com.seafile.seadroid2.framework.model.sdoc.SDocTagModel;
 import com.seafile.seadroid2.framework.model.user.UserModel;
-import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Utils;
 
-import java.lang.reflect.Field;
-import java.time.OffsetDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
-public class SDocDetailView extends LinearLayout {
-    public SDocDetailView(Context context) {
+public class DocProfileView extends LinearLayout {
+    public DocProfileView(Context context) {
         super(context);
         init();
     }
 
-    public SDocDetailView(Context context, @Nullable AttributeSet attrs) {
+    public DocProfileView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         init();
     }
 
-    public SDocDetailView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+    public DocProfileView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init();
     }
 
-    public SDocDetailView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public DocProfileView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         init();
     }
@@ -76,100 +73,26 @@ public class SDocDetailView extends LinearLayout {
     }
 
     private FileProfileConfigModel configModel;
-    private boolean isNightMode;
-    private HashMap<String, SDocTagModel> tagMap;
 
-    private void setNightMode(boolean isNightMode) {
-        this.isNightMode = isNightMode;
-    }
-
-    public void setData(FileProfileConfigModel configModel) {
+    public void parseData(FileProfileConfigModel configModel) {
         this.configModel = configModel;
 
         if (configModel == null) {
             throw new IllegalArgumentException("configModel is null");
         }
 
-        if (configModel.detail == null) {
+        if (configModel.getDetail() == null) {
             throw new IllegalArgumentException("detail is null");
         }
 
-        initFixedValueIfMetadataNotEnable();
-
-        if (configModel.recordWrapperModel == null || CollectionUtils.isEmpty(configModel.recordWrapperModel.metadata)) {
-            throw new IllegalArgumentException("metadatas is null");
-        }
-
-
         convert();
+
+        addView();
     }
-
-
-    /**
-     * default field
-     */
-    private void initFixedValueIfMetadataNotEnable() {
-        if (configModel.recordWrapperModel != null) {
-            return;
-        }
-
-        FileRecordWrapperModel recordWrapperModel = new FileRecordWrapperModel();
-
-        RecordResultModel sizeModel = new RecordResultModel();
-        sizeModel._size = configModel.detail.getSize();
-        sizeModel._file_modifier = configModel.detail.getLastModifierEmail();
-        sizeModel._file_mtime = configModel.detail.getLastModified();
-        recordWrapperModel.results = new ArrayList<>();
-        recordWrapperModel.results.add(sizeModel);
-
-        recordWrapperModel.metadata = new ArrayList<>();
-
-        //size
-        MetadataModel sizeMetadataModel = new MetadataModel();
-        sizeMetadataModel.key = "_size";
-        sizeMetadataModel.name = "_size";
-        sizeMetadataModel.type = ColumnType.NUMBER;
-        recordWrapperModel.metadata.add(sizeMetadataModel);
-
-        //modifier
-        MetadataModel modifierMetadataModel = new MetadataModel();
-        modifierMetadataModel.key = "_file_modifier";
-        modifierMetadataModel.name = "_file_modifier";
-        modifierMetadataModel.type = ColumnType.TEXT;
-        recordWrapperModel.metadata.add(modifierMetadataModel);
-
-        //mtime
-        MetadataModel mTimeMetadataModel = new MetadataModel();
-        mTimeMetadataModel.key = "_file_mtime";
-        mTimeMetadataModel.name = "_file_mtime";
-        mTimeMetadataModel.type = ColumnType.DATE;
-        recordWrapperModel.metadata.add(mTimeMetadataModel);
-
-        configModel.recordWrapperModel = recordWrapperModel;
-
-    }
-
 
     private void convert() {
-        if (configModel.tagWrapperModel != null) {
-            if (!CollectionUtils.isEmpty(configModel.tagWrapperModel.results)) {
-                List<SDocTagModel> tags = configModel.tagWrapperModel.results.stream().map(recordResultModel -> {
-                    SDocTagModel tagModel = new SDocTagModel();
-                    tagModel.id = recordResultModel._id;
-                    tagModel.name = recordResultModel._tag_name;
-                    tagModel.color = recordResultModel._tag_color;
-                    return tagModel;
-                }).collect(Collectors.toList());
-
-                tagMap = new HashMap<>();
-                for (SDocTagModel tag : tags) {
-                    tagMap.put(tag.id, tag);
-                }
-            }
-        }
-
-        List<MetadataModel> metadatas = configModel.recordWrapperModel.metadata;
-        for (MetadataModel metadata : metadatas) {
+        List<MetadataModel> metadataList = new ArrayList<>(configModel.getRecordMetaDataList());
+        for (MetadataModel metadata : metadataList) {
             if ("_file_modifier".equals(metadata.key)) {
                 metadata.type = "collaborator";
                 metadata.value = CollectionUtils.newArrayList(getValueByKey(metadata.name));
@@ -178,8 +101,11 @@ public class SDocDetailView extends LinearLayout {
                 metadata.value = v;
             }
         }
+        configModel.setRecordMetaDataList(metadataList);
+    }
 
-        for (MetadataModel metadata : metadatas) {
+    private void addView() {
+        for (MetadataModel metadata : configModel.getRecordMetaDataList()) {
             if (metadata.key.startsWith("_")) {
                 if (_supportedField.contains(metadata.key)) {
                     addMetadataView(metadata);
@@ -194,22 +120,15 @@ public class SDocDetailView extends LinearLayout {
         parseViewByType(metadata);
     }
 
-    private final List<String> _supportedField = List.of("_size", "_file_modifier", "_file_mtime", "_description", "_collaborators", "_reviewer", "_status", "_tags", "_location");
+    private final List<String> _supportedField = List.of("_size", "_file_modifier", "_file_mtime", "_description", "_collaborators", "_owner", "_reviewer", "_status", "_tags", "_location");
 
     private Object getValueByKey(String key) {
-        if (configModel.recordWrapperModel.results == null || configModel.recordWrapperModel.results.isEmpty()) {
+        if (configModel.getRecordResultList().isEmpty()) {
             return null;
         }
 
-        RecordResultModel model = configModel.recordWrapperModel.results.get(0);
-        try {
-            Field field = RecordResultModel.class.getDeclaredField(key);
-            field.setAccessible(true);
-            return field.get(model);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            SLogs.e(e);
-            return null;
-        }
+        Map<String, Object> model = configModel.getRecordResultList().get(0);
+        return model.get(key);
     }
 
     private int getResNameByKey(String key) {
@@ -240,6 +159,8 @@ public class SDocDetailView extends LinearLayout {
                 return R.string._location;
             case "_tags":
                 return R.string._tags;
+            case "_owner":
+                return R.string._owner;
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -343,10 +264,10 @@ public class SDocDetailView extends LinearLayout {
             case ColumnType.EMAIL -> R.drawable.ic_email;
             case ColumnType.LONG_TEXT -> R.drawable.ic_long_text;
             case ColumnType.NUMBER -> R.drawable.ic_number;
-            case ColumnType.RATE -> R.drawable.baseline_starred_new_24;
+            case ColumnType.RATE -> R.drawable.ic_star_32;
             case ColumnType.URL -> R.drawable.ic_url;
             case ColumnType.LINK ->
-                    "_tags".equals(key) ? R.drawable.baseline_tag_24 : R.drawable.ic_links;
+                    "_tags".equals(key) ? R.drawable.ic_tag : R.drawable.ic_links;
 
             default -> R.drawable.ic_single_line_text;
         };
@@ -392,23 +313,31 @@ public class SDocDetailView extends LinearLayout {
         if (model.value instanceof Number number) {
             View ltr = LayoutInflater.from(view.getContext()).inflate(R.layout.layout_textview, null);
 
-            ltr.<TextView>findViewById(R.id.text_view).setText(Utils.readableFileSize(number.intValue()));
+            if (TextUtils.equals(model.key, "_size")) {
+                ltr.<TextView>findViewById(R.id.text_view).setText(Utils.readableFileSize(number.intValue()));
+            } else {
+                boolean isInteger = (number.doubleValue() % 1 == 0);
+                String r = isInteger ? Integer.toString(number.intValue()) : Double.toString(number.doubleValue());
+                ltr.<TextView>findViewById(R.id.text_view).setText(r);
+            }
 
             view.<FlexboxLayout>findViewById(R.id.flex_box).addView(ltr, getFlexParams());
         }
     }
 
     private void parseDate(LinearLayout view, MetadataModel model) {
-        if (model.value instanceof OffsetDateTime date) {
+        if (model.value instanceof String date) {
             View ltr = LayoutInflater.from(view.getContext()).inflate(R.layout.layout_textview, null);
 
-            String temp = date.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME).replace("T", " ");
-            ltr.<TextView>findViewById(R.id.text_view).setText(temp);
+            Date date1 = TimeUtils.string2Date(date, DateFormatType.DATE_XXX);
+            String d = TimeUtils.date2String(date1, DateFormatType.DATE_YMD_HMS);
+            ltr.<TextView>findViewById(R.id.text_view).setText(d);
 
             view.<FlexboxLayout>findViewById(R.id.flex_box).addView(ltr, getFlexParams());
         }
     }
 
+    //location
     private void parseGeoLocation(LinearLayout view, MetadataModel model) {
         if (model.value instanceof LinkedTreeMap) {
             LinkedTreeMap<String, Object> treeMap = (LinkedTreeMap<String, Object>) model.value;
@@ -462,7 +391,7 @@ public class SDocDetailView extends LinearLayout {
         }
     }
 
-    //container
+    //collaborator
     private void parseCollaborator(LinearLayout view, MetadataModel model) {
         if (model.value instanceof ArrayList) {
             ArrayList<String> arrayList = (ArrayList<String>) model.value;
@@ -486,12 +415,9 @@ public class SDocDetailView extends LinearLayout {
         }
     }
 
+    //user
     private UserModel getRelatedUserByEmail(String email) {
-        if (configModel.users == null || configModel.users.user_list == null) {
-            return null;
-        }
-
-        Optional<UserModel> op = configModel.users.user_list.stream().filter(f -> f.getEmail().equals(email)).findFirst();
+        Optional<UserModel> op = configModel.getRelatedUserList().stream().filter(f -> f.getEmail().equals(email)).findFirst();
         return op.orElse(null);
     }
 
@@ -505,27 +431,21 @@ public class SDocDetailView extends LinearLayout {
             return;
         }
 
-        if (model.value instanceof String && !TextUtils.isEmpty(model.value.toString())) {
-            String value = (String) model.value;
+        if (model.value instanceof String value && !TextUtils.isEmpty(model.value.toString())) {
 
-            OptionsTagModel option = configDataModel.options.stream().filter(f -> f.id.equals(value)).findFirst().get();
+            Optional<OptionsTagModel> option = configDataModel.options.stream().filter(f -> f.name.equals(value)).findFirst();
+
             View ltr = LayoutInflater.from(view.getContext()).inflate(R.layout.layout_detail_text_round, null);
             TextView textView = ltr.findViewById(R.id.text);
             MaterialCardView cardView = ltr.findViewById(R.id.card_view);
 
-            int resStrId = getResNameByKey(option.id);
-            if (resStrId != 0) {
-                textView.setText(resStrId);
+            if (option.isPresent()) {
+                OptionsTagModel t = option.get();
+                textView.setText(t.name);
+                textView.setTextColor(Color.parseColor(t.textColor));
+                cardView.setCardBackgroundColor(Color.parseColor(t.color));
             } else {
-                textView.setText(option.name);
-            }
-
-            if (!TextUtils.isEmpty(option.textColor)) {
-                textView.setTextColor(Color.parseColor(option.textColor));
-            }
-
-            if (!TextUtils.isEmpty(option.color)) {
-                cardView.setCardBackgroundColor(Color.parseColor(option.color));
+                textView.setText(value);
             }
 
             view.<FlexboxLayout>findViewById(R.id.flex_box).addView(ltr, getFlexParams());
@@ -545,28 +465,18 @@ public class SDocDetailView extends LinearLayout {
         if (model.value instanceof ArrayList) {
             ArrayList<String> arrayList = (ArrayList<String>) model.value;
             for (String key : arrayList) {
-                OptionsTagModel option = configDataModel.options.stream().filter(f -> f.id.equals(key)).findFirst().get();
                 View ltr = LayoutInflater.from(view.getContext()).inflate(R.layout.layout_detail_text_round, null);
                 TextView textView = ltr.findViewById(R.id.text);
                 MaterialCardView cardView = ltr.findViewById(R.id.card_view);
 
-                int resStrId = getResNameByKey(option.id);
-                if (resStrId != 0) {
-                    textView.setText(resStrId);
+                Optional<OptionsTagModel> option = configDataModel.options.stream().filter(f -> f.name.equals(key)).findFirst();
+                if (option.isPresent()) {
+                    OptionsTagModel t = option.get();
+                    textView.setText(t.name);
+                    textView.setTextColor(Color.parseColor(t.textColor));
+                    cardView.setCardBackgroundColor(Color.parseColor(t.color));
                 } else {
-                    textView.setText(option.name);
-                }
-
-
-//            if (!TextUtils.isEmpty(option.borderColor)) {
-//            }
-
-                if (!TextUtils.isEmpty(option.textColor)) {
-                    textView.setTextColor(Color.parseColor(option.textColor));
-                }
-
-                if (!TextUtils.isEmpty(option.color)) {
-                    cardView.setCardBackgroundColor(Color.parseColor(option.color));
+                    textView.setText(key);
                 }
 
                 view.<FlexboxLayout>findViewById(R.id.flex_box).addView(ltr, getFlexParams());
@@ -574,9 +484,10 @@ public class SDocDetailView extends LinearLayout {
         }
     }
 
+    //tag
     private void parseTag(LinearLayout view, MetadataModel model) {
         if (model.value instanceof ArrayList) {
-            if (tagMap == null) {
+            if (configModel.getTagMap().isEmpty()) {
                 return;
             }
 
@@ -589,7 +500,7 @@ public class SDocDetailView extends LinearLayout {
             if (!CollectionUtils.isEmpty(arrayList)) {
                 for (LinkedTreeMap<String, String> map : arrayList) {
                     String rowId = map.get("row_id");
-                    SDocTagModel tagModel = tagMap.get(rowId);
+                    SDocTagModel tagModel = configModel.getTagMap().get(rowId);
                     if (tagModel == null) {
                         continue;
                     }
@@ -613,7 +524,7 @@ public class SDocDetailView extends LinearLayout {
         }
     }
 
-
+    //default
     private void addNotSupportedLayoutView(LinearLayout view) {
 
         View ltr = LayoutInflater.from(view.getContext()).inflate(R.layout.layout_textview, null);
@@ -622,6 +533,7 @@ public class SDocDetailView extends LinearLayout {
         view.<FlexboxLayout>findViewById(R.id.flex_box).addView(ltr, getFlexParams());
     }
 
+    //image
     private void parseImage(LinearLayout view, MetadataModel model) {
         addNotSupportedLayoutView(view);
 
@@ -646,6 +558,7 @@ public class SDocDetailView extends LinearLayout {
 //        }
     }
 
+    //file
     private void parseFile(LinearLayout view, MetadataModel model) {
         addNotSupportedLayoutView(view);
 //        if (model.value instanceof ArrayList) {
@@ -668,6 +581,7 @@ public class SDocDetailView extends LinearLayout {
 //        }
     }
 
+    //rate
     private void parseRate(LinearLayout view, MetadataModel model) {
 
         if (model.value == null) {
@@ -708,29 +622,21 @@ public class SDocDetailView extends LinearLayout {
             ColorStateList stateList = ColorStateList.valueOf(t);
 
             ltr.setImageTintList(stateList);
-            ltr.setImageResource(R.drawable.baseline_starred_new_24);
+            ltr.setImageResource(R.drawable.ic_star_32);
 
             view.<FlexboxLayout>findViewById(R.id.flex_box).addView(ltr, flexLayoutParams);
         }
     }
 
-
     //
     private void parseCheckbox(LinearLayout view, MetadataModel model) {
-        addNotSupportedLayoutView(view);
-//        FlexboxLayout flexboxLayout = view.findViewById(R.id.flex_box);
-//        FlexboxLayout.LayoutParams flexLayoutParams = new FlexboxLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-//        flexLayoutParams.bottomMargin = DP_4;
-//        flexLayoutParams.rightMargin = DP_4;
-//        flexLayoutParams.height = SizeUtils.dp2px(30);
-//
-//        AppCompatCheckBox checkBox = new AppCompatCheckBox(view.getContext());
-//        checkBox.setText("");
-//        checkBox.setClickable(false);
-//        if (model.value instanceof Boolean) {
-//            checkBox.setChecked((Boolean) model.value);
-//        }
-//        flexboxLayout.addView(checkBox, flexLayoutParams);
+        if (model.value instanceof Boolean booleanValue) {
+            AppCompatCheckBox checkBox = new AppCompatCheckBox(view.getContext());
+            checkBox.setText("");
+            checkBox.setClickable(false);
+            checkBox.setChecked(booleanValue);
+            view.<FlexboxLayout>findViewById(R.id.flex_box).addView(checkBox, getFlexParams());
+        }
     }
 
     private void parseLink(LinearLayout view, MetadataModel model) {

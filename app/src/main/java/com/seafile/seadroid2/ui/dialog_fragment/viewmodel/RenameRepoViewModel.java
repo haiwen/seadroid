@@ -7,6 +7,7 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.FileUtils;
+import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
@@ -38,12 +39,6 @@ import okhttp3.RequestBody;
 
 public class RenameRepoViewModel extends BaseViewModel {
     private final MutableLiveData<String> actionLiveData = new MutableLiveData<>();
-    private final MutableLiveData<FileCreateModel> renameFileLiveData = new MutableLiveData<>();
-
-    public MutableLiveData<FileCreateModel> getRenameFileLiveData() {
-        return renameFileLiveData;
-    }
-
     public MutableLiveData<String> getActionLiveData() {
         return actionLiveData;
     }
@@ -97,8 +92,9 @@ public class RenameRepoViewModel extends BaseViewModel {
         }, new Consumer<Throwable>() {
             @Override
             public void accept(Throwable throwable) throws Exception {
+                SeafException seafException = getExceptionByThrowable(throwable);
+                getSeafExceptionLiveData().setValue(seafException);
                 getRefreshLiveData().setValue(false);
-                getActionLiveData().setValue(getErrorMsgByThrowable(throwable));
             }
         });
     }
@@ -206,8 +202,9 @@ public class RenameRepoViewModel extends BaseViewModel {
         }, new Consumer<Throwable>() {
             @Override
             public void accept(Throwable throwable) throws Exception {
+                SeafException seafException = getExceptionByThrowable(throwable);
+                getSeafExceptionLiveData().setValue(seafException);
                 getRefreshLiveData().setValue(false);
-                getActionLiveData().setValue(getErrorMsgByThrowable(throwable));
             }
         });
     }
@@ -280,16 +277,14 @@ public class RenameRepoViewModel extends BaseViewModel {
             public void accept(FileCreateModel resultModel) throws Exception {
                 getRefreshLiveData().setValue(false);
 
-                getRenameFileLiveData().setValue(resultModel);
+                getActionLiveData().setValue(resultModel.error_msg);
             }
         }, new Consumer<Throwable>() {
             @Override
             public void accept(Throwable throwable) throws Exception {
+                SeafException seafException = getExceptionByThrowable(throwable);
+                getSeafExceptionLiveData().setValue(seafException);
                 getRefreshLiveData().setValue(false);
-                String msg = getErrorMsgByThrowable(throwable);
-                FileCreateModel model = new FileCreateModel();
-                model.error_msg = msg;
-                getRenameFileLiveData().setValue(model);
             }
         });
     }

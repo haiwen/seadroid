@@ -383,7 +383,7 @@ public class Search2Activity extends BaseActivityWithVM<SearchViewModel> impleme
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     if (which == 0) {
-                        CustomExoVideoPlayerActivity.startThis(Search2Activity.this, fileName, repoModel.repo_id, filePath);
+                        CustomExoVideoPlayerActivity.startThis(Search2Activity.this, fileName, repoModel.repo_id, filePath,null);
                     } else if (which == 1) {
                         Intent intent = FileActivity.startFromSearch(Search2Activity.this, searchedFile, "video_download");
                         fileActivityLauncher.launch(intent);

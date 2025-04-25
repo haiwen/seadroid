@@ -207,7 +207,7 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
 
     private void checkBack() {
         PhotoFragment photoFragment = getCurrentPhotoFragment();
-        if (photoFragment != null && photoFragment.isShowing()) {
+        if (photoFragment != null && photoFragment.isBottomShowing()) {
             alphaBar(1f);
             photoFragment.toggle();
             return;
@@ -310,11 +310,7 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
         binding.pager.setOffscreenPageLimit(7);
         binding.pager.setAdapter(adapter);
 
-        //
-        if (isNightMode) {
-            int color = ContextCompatKt.getColorCompat(this, R.color.bar_background_color);
-            binding.pager.setBackgroundColor(color);
-        }
+        setPagerColor(!isNightMode);
     }
 
     private final LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
@@ -472,7 +468,7 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
             return;
         }
 
-        if (photoFragment.isShowing()) {
+        if (photoFragment.isBottomShowing()) {
             binding.galleryDetail.setImageResource(R.drawable.baseline_info_24);
             alphaBar(1f);
         } else {
@@ -577,8 +573,8 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
     }
 
     private void setStatusBarAlpha(int alpha) {
-        BarUtils.setNavBarColor(this, isNightMode ? getGreyAlpha911(alpha) : getGreyAlpha100(alpha));
-        BarUtils.setStatusBarColor(this, isNightMode ? getGreyAlpha911(alpha) : getGreyAlpha100(alpha));
+        BarUtils.setNavBarColor(this, isNightMode ? getGreyAlpha911(alpha) : getGreyAlpha000(alpha));
+        BarUtils.setStatusBarColor(this, isNightMode ? getGreyAlpha911(alpha) : getGreyAlpha000(alpha));
     }
 
     private void animateToolbar(int position) {
@@ -590,7 +586,7 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
         if (photoFragment == null) {
             return;
         }
-        boolean isDetailShowing = photoFragment.isShowing();
+        boolean isDetailShowing = photoFragment.isBottomShowing();
         float currentToolbarAlpha = getToolbarAlpha();
         if (currentToolbarAlpha == 0f) {
             if (isDetailShowing) {
@@ -636,13 +632,19 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
             //The background color has been set in the #initPager(), and no longer updated in night mode
         } else {
             setBarLightMode(visible);
+            setPagerColor(visible);
         }
     }
 
-    private void setBarLightMode(boolean visible) {
-        int color = visible ? getGrey100() : getGrey911();
-        binding.pager.setBackgroundColor(color);
+    private void setPagerColor(boolean isGrey) {
+        int pagerColor = isGrey ? getGrey100() : getGrey911();
+        binding.pager.setBackgroundColor(pagerColor);
+    }
 
+    private void setBarLightMode(boolean visible) {
+
+
+        int color = visible ? getGrey000() : getGrey911();
         BarUtils.setNavBarColor(this, visible ? color : Color.TRANSPARENT);
         BarUtils.setStatusBarColor(this, visible ? color : Color.TRANSPARENT);
 
@@ -650,20 +652,28 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
         BarUtils.setNavBarLightMode(this, visible);
     }
 
+    private int grey000 = 0;
     private int grey100 = 0;
     private int grey911 = 0;
 
+    public int getGrey000() {
+        if (grey000 == 0) {
+            grey000 = ContextCompat.getColor(this, R.color.white);
+        }
+        return grey000;
+    }
+
     public int getGrey100() {
         if (grey100 == 0) {
-            grey100 = ContextCompat.getColor(this, R.color.material_grey_100);
+            grey100 = ContextCompat.getColor(this, R.color.material_grey_109);
         }
         return grey100;
     }
 
-    public int getGreyAlpha100(int alpha) {
-        int red = Color.red(getGrey100());
-        int green = Color.green(getGrey100());
-        int blue = Color.blue(getGrey100());
+    public int getGreyAlpha000(int alpha) {
+        int red = Color.red(getGrey000());
+        int green = Color.green(getGrey000());
+        int blue = Color.blue(getGrey000());
         return Color.argb(alpha, red, green, blue);
     }
 

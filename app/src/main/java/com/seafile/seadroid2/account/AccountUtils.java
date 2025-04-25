@@ -9,7 +9,7 @@ import com.seafile.seadroid2.framework.datastore.sp_livedata.GestureLockSharePre
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
-import com.seafile.seadroid2.preferences.ContextStackPreferenceHelper;
+import com.seafile.seadroid2.context.ContextStackPreferenceHelper;
 import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.ssl.CertsManager;
 import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;

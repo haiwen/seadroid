@@ -19,7 +19,7 @@ public class SeafException extends Exception {
     public static final SeafException SERVER_INTERNAL_ERROR = new SeafException(500, "server internal error");
 
     public static final SeafException UNKNOWN_EXCEPTION = new SeafException(1, "unknown error");
-    public static final SeafException NETWORK_EXCEPTION = new SeafException(2, "network error");
+    public static final SeafException NETWORK_EXCEPTION = new SeafException(2, SeadroidApplication.getAppContext().getString(R.string.network_error));
     public static final SeafException ENCODING_EXCEPTION = new SeafException(3, "encoding error");
     public static final SeafException ILL_FORMAT_EXCEPTION = new SeafException(4, "Ill-formatted Response");
     public static final SeafException SSL_EXCEPTION = new SeafException(5, "not trusted SSL server");

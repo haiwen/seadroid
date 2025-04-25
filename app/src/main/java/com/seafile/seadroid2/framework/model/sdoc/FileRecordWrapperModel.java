@@ -3,11 +3,13 @@ package com.seafile.seadroid2.framework.model.sdoc;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class FileRecordWrapperModel implements Parcelable {
-    public List<MetadataModel> metadata;
-    public List<RecordResultModel> results;
+    public List<MetadataModel> metadata = new ArrayList<>();
+    public List<Map<String, Object>> results = new ArrayList<>();
 
     @Override
     public int describeContents() {
@@ -17,7 +19,7 @@ public class FileRecordWrapperModel implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeTypedList(this.metadata);
-        dest.writeTypedList(this.results);
+        dest.writeList(this.results);
     }
 
     public FileRecordWrapperModel() {
@@ -25,10 +27,11 @@ public class FileRecordWrapperModel implements Parcelable {
 
     protected FileRecordWrapperModel(Parcel in) {
         this.metadata = in.createTypedArrayList(MetadataModel.CREATOR);
-        this.results = in.createTypedArrayList(RecordResultModel.CREATOR);
+        this.results = new ArrayList<Map<String, Object>>();
+        in.readList(this.results, Map.class.getClassLoader());
     }
 
-    public static final Parcelable.Creator<FileRecordWrapperModel> CREATOR = new Parcelable.Creator<FileRecordWrapperModel>() {
+    public static final Creator<FileRecordWrapperModel> CREATOR = new Creator<FileRecordWrapperModel>() {
         @Override
         public FileRecordWrapperModel createFromParcel(Parcel source) {
             return new FileRecordWrapperModel(source);

@@ -272,7 +272,6 @@ public class FileSyncService extends Service {
         transferModel.setId(id);
         GlobalTransferCacheList.CHANGED_FILE_MONITOR_QUEUE.put(transferModel);
         BackgroundJobManagerImpl.getInstance().startCheckDownloadedFileChain();
-
     }
 
     private class FolderStateChangedListener implements FileAlterationListener {

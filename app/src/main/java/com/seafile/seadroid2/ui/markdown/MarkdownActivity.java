@@ -15,6 +15,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.FileProvider;
 
 import com.blankj.utilcode.util.FileUtils;
+import com.blankj.utilcode.util.NetworkUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.BuildConfig;
 import com.seafile.seadroid2.R;
@@ -68,6 +69,9 @@ public class MarkdownActivity extends BaseActivityWithVM<EditorViewModel> implem
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle(FileUtils.getFileName(path));
 
+        if (!NetworkUtils.isConnected()) {
+            ToastUtils.showLong(R.string.network_unavailable);
+        }
     }
 
 
@@ -77,6 +81,7 @@ public class MarkdownActivity extends BaseActivityWithVM<EditorViewModel> implem
 
         initMarkdown();
     }
+
 
     private void initMarkdown() {
 
@@ -102,6 +107,7 @@ public class MarkdownActivity extends BaseActivityWithVM<EditorViewModel> implem
     }
 
     private void loadMarkContent() {
+
         getViewModel().read(path, new Consumer<String>() {
             @Override
             public void accept(String s) {

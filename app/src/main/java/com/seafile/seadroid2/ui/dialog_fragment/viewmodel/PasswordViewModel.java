@@ -188,11 +188,10 @@ public class PasswordViewModel extends BaseViewModel {
             getRefreshLiveData().setValue(false);
             getActionResultLiveData().setValue(tResultModel);
         }, throwable -> {
-            getRefreshLiveData().setValue(false);
 
-            TResultModel<RepoModel> tResultModel = new TResultModel<>();
-            tResultModel.error_msg = getErrorMsgByThrowable(throwable);
-            getActionResultLiveData().setValue(tResultModel);
+            SeafException seafException = getExceptionByThrowable(throwable);
+            getSeafExceptionLiveData().setValue(seafException);
+            getRefreshLiveData().setValue(false);
         });
     }
 

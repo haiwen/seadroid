@@ -20,6 +20,7 @@ import androidx.annotation.OptIn;
 import androidx.lifecycle.Observer;
 import androidx.media3.common.util.UnstableApi;
 
+import com.blankj.utilcode.util.NetworkUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.chad.library.adapter4.QuickAdapterHelper;
 import com.chad.library.adapter4.loadState.LoadState;
@@ -103,7 +104,7 @@ public class AllActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel>
         adapter = new ActivityAdapter();
 
         TextView tipView = TipsViews.getTipTextView(requireContext());
-        tipView.setText(R.string.no_starred_file);
+        tipView.setText(R.string.no_more_activities);
         tipView.setOnClickListener(v -> reload());
         adapter.setStateView(tipView);
         adapter.setStateViewEnable(false);
@@ -323,6 +324,10 @@ public class AllActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel>
             imagePreviewActivityLauncher.launch(getIntent);
 
         } else if (activityModel.name.endsWith(Constants.Format.DOT_SDOC)) {
+            if (!NetworkUtils.isConnected()) {
+                ToastUtils.showLong(R.string.network_unavailable);
+                return;
+            }
 
             SDocWebViewActivity.openSdoc(getContext(), activityModel.repo_name, activityModel.repo_id, activityModel.path);
 
@@ -331,7 +336,7 @@ public class AllActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel>
             MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext());
             builder.setItems(R.array.video_download_array, (dialog, which) -> {
                 if (which == 0) {
-                    CustomExoVideoPlayerActivity.startThis(getContext(), activityModel.name, activityModel.repo_id, activityModel.path);
+                    CustomExoVideoPlayerActivity.startThis(getContext(), activityModel.name, activityModel.repo_id, activityModel.path, null);
                 } else if (which == 1) {
                     Intent intent = FileActivity.startFromActivity(requireContext(), activityModel, "video_download");
                     fileActivityLauncher.launch(intent);

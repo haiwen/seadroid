@@ -303,9 +303,9 @@ public class FolderBackupScanWorker extends BaseScanWorker {
             transferModel.related_account = account.getSignature();
             transferModel.repo_id = repoConfig.getRepoId();
             transferModel.repo_name = repoConfig.getRepoName();
-            transferModel.setId(transferModel.genStableId());
             transferModel.data_source = TransferDataSource.FOLDER_BACKUP;
             transferModel.save_to = SaveTo.DB;
+            transferModel.setId(transferModel.genStableId());
             GlobalTransferCacheList.FOLDER_BACKUP_QUEUE.put(transferModel);
         }
     }

@@ -5,12 +5,15 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.LinearLayout;
 
+import androidx.lifecycle.Observer;
+
 import com.blankj.utilcode.util.ToastUtils;
 import com.google.android.material.materialswitch.MaterialSwitch;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.framework.util.StringUtils;
 import com.seafile.seadroid2.ui.base.fragment.RequestCustomDialogFragmentWithVM;
 import com.seafile.seadroid2.config.Constants;
@@ -31,7 +34,7 @@ public class NewRepoDialogFragment extends RequestCustomDialogFragmentWithVM<New
     @Override
     public void initView(LinearLayout containerView) {
         super.initView(containerView);
-        
+
         MaterialSwitch materialSwitch = getDialogView().findViewById(R.id.widget_switch);
         TextInputLayout pwd1 = getDialogView().findViewById(R.id.new_repo_input_layout_pwd_1);
         TextInputLayout pwd2 = getDialogView().findViewById(R.id.new_repo_input_layout_pwd_2);
@@ -54,6 +57,15 @@ public class NewRepoDialogFragment extends RequestCustomDialogFragmentWithVM<New
 
     @Override
     public void initViewModel() {
+        getViewModel().getSeafExceptionLiveData().observe(this, new Observer<SeafException>() {
+            @Override
+            public void onChanged(SeafException e) {
+                ToastUtils.showLong(e.getMessage());
+                refreshData(false);
+
+                dismiss();
+            }
+        });
         getViewModel().getCreateRepoLiveData().observe(this, repoModel -> {
             String d = String.format(getResources().getString(R.string.create_new_repo_success), repoModel.repo_name);
             ToastUtils.showLong(d);
