@@ -27,7 +27,7 @@ import com.seafile.seadroid2.databinding.LayoutImageBinding;
 import com.seafile.seadroid2.framework.model.docs_comment.DocsCommentModel;
 import com.seafile.seadroid2.framework.util.GlideApp;
 import com.seafile.seadroid2.ui.base.adapter.BaseAdapter;
-import com.seafile.seadroid2.ui.media.image_preview2.OnlyImagePreviewActivity;
+import com.seafile.seadroid2.ui.media.image.OnlyImagePreviewActivity;
 import com.seafile.seadroid2.view.rich_edittext.RichEditText;
 import com.yydcdut.markdown.MarkdownConfiguration;
 import com.yydcdut.markdown.MarkdownProcessor;

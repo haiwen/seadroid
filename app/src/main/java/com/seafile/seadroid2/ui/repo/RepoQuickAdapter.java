@@ -298,14 +298,21 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         Account account = (Account) model;
 
         //set background color for item
-        if (model.item_position == ItemPositionEnum.TOP) {
+        if (model.item_position == ItemPositionEnum.START) {
             holder.itemView.setBackground(topShapeBackgroundDrawable);
-        } else if (model.item_position == ItemPositionEnum.BOTTOM) {
+        } else if (model.item_position == ItemPositionEnum.END) {
             holder.itemView.setBackground(bottomShapeBackgroundDrawable);
         } else if (model.item_position == ItemPositionEnum.ALL) {
             holder.itemView.setBackground(allShapeBackgroundDrawable);
         } else {
             holder.itemView.setBackground(noneShapeBackgroundDrawable);
+        }
+
+        //hide divider for bottom item
+        if (model.item_position == ItemPositionEnum.END || model.item_position == ItemPositionEnum.ALL) {
+            holder.binding.divider.setVisibility(View.GONE);
+        } else {
+            holder.binding.divider.setVisibility(View.VISIBLE);
         }
 
         holder.binding.listItemAccountTitle.setText(account.getServerHost());
@@ -359,9 +366,9 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         }
 
         //set background color for item
-        if (model.item_position == ItemPositionEnum.TOP) {
+        if (model.item_position == ItemPositionEnum.START) {
             holder.itemView.setBackground(topShapeBackgroundDrawable);
-        } else if (model.item_position == ItemPositionEnum.BOTTOM) {
+        } else if (model.item_position == ItemPositionEnum.END) {
             holder.itemView.setBackground(bottomShapeBackgroundDrawable);
         } else if (model.item_position == ItemPositionEnum.ALL) {
             holder.itemView.setBackground(allShapeBackgroundDrawable);
@@ -369,7 +376,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
             holder.itemView.setBackground(noneShapeBackgroundDrawable);
         }
 
-        if (model.item_position == ItemPositionEnum.BOTTOM || model.item_position == ItemPositionEnum.ALL) {
+        if (model.item_position == ItemPositionEnum.END || model.item_position == ItemPositionEnum.ALL) {
             holder.binding.divider.setVisibility(View.GONE);
         } else {
             holder.binding.divider.setVisibility(View.VISIBLE);
@@ -424,9 +431,9 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         }
 
         //set background color for item
-        if (model.item_position == ItemPositionEnum.TOP) {
+        if (model.item_position == ItemPositionEnum.START) {
             holder.itemView.setBackground(topShapeBackgroundDrawable);
-        } else if (model.item_position == ItemPositionEnum.BOTTOM) {
+        } else if (model.item_position == ItemPositionEnum.END) {
             holder.itemView.setBackground(bottomShapeBackgroundDrawable);
         } else if (model.item_position == ItemPositionEnum.ALL) {
             holder.itemView.setBackground(allShapeBackgroundDrawable);
@@ -435,7 +442,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         }
 
         //hide divider for bottom item
-        if (model.item_position == ItemPositionEnum.BOTTOM || model.item_position == ItemPositionEnum.ALL) {
+        if (model.item_position == ItemPositionEnum.END || model.item_position == ItemPositionEnum.ALL) {
             holder.binding.divider.setVisibility(View.GONE);
         } else {
             holder.binding.divider.setVisibility(View.VISIBLE);
@@ -606,9 +613,9 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
 //        holder.binding.getRoot().setBackground(AnimatedStateListDrawableCompatUtils.createDrawableCompat(getContext()));
 
         //set background color for item
-        if (model.item_position == ItemPositionEnum.TOP) {
+        if (model.item_position == ItemPositionEnum.START) {
             holder.itemView.setBackground(topShapeBackgroundDrawable);
-        } else if (model.item_position == ItemPositionEnum.BOTTOM) {
+        } else if (model.item_position == ItemPositionEnum.END) {
             holder.itemView.setBackground(bottomShapeBackgroundDrawable);
         } else if (model.item_position == ItemPositionEnum.ALL) {
             holder.itemView.setBackground(allShapeBackgroundDrawable);
@@ -617,7 +624,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         }
 
         //hide divider for bottom item
-        if (model.item_position == ItemPositionEnum.BOTTOM) {
+        if (model.item_position == ItemPositionEnum.END) {
             holder.binding.divider.setVisibility(View.GONE);
         } else {
             holder.binding.divider.setVisibility(View.VISIBLE);
@@ -625,7 +632,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
 
         //add margin for top item
         ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) holder.itemView.getLayoutParams();
-        if (model.item_position == ItemPositionEnum.TOP || model.item_position == ItemPositionEnum.ALL) {
+        if (model.item_position == ItemPositionEnum.START || model.item_position == ItemPositionEnum.ALL) {
             layoutParams.topMargin = Constants.DP.DP_8;
         } else {
             layoutParams.topMargin = 0;

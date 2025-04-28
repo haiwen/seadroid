@@ -246,11 +246,11 @@ public class Objs {
         } else if (newRepos.size() == 1) {
             newRepos.get(0).item_position = ItemPositionEnum.ALL;
         } else if (newRepos.size() == 2) {
-            newRepos.get(0).item_position = ItemPositionEnum.TOP;
-            newRepos.get(1).item_position = ItemPositionEnum.BOTTOM;
+            newRepos.get(0).item_position = ItemPositionEnum.START;
+            newRepos.get(1).item_position = ItemPositionEnum.END;
         } else {
-            newRepos.get(0).item_position = ItemPositionEnum.TOP;
-            newRepos.get(newRepos.size() - 1).item_position = ItemPositionEnum.BOTTOM;
+            newRepos.get(0).item_position = ItemPositionEnum.START;
+            newRepos.get(newRepos.size() - 1).item_position = ItemPositionEnum.END;
         }
         return newRepos;
     }
@@ -344,11 +344,11 @@ public class Objs {
                 } else if (newDirentModels.size() == 1) {
                     newDirentModels.get(0).item_position = ItemPositionEnum.ALL;
                 } else if (newDirentModels.size() == 2) {
-                    newDirentModels.get(0).item_position = ItemPositionEnum.TOP;
-                    newDirentModels.get(1).item_position = ItemPositionEnum.BOTTOM;
+                    newDirentModels.get(0).item_position = ItemPositionEnum.START;
+                    newDirentModels.get(1).item_position = ItemPositionEnum.END;
                 } else {
-                    newDirentModels.get(0).item_position = ItemPositionEnum.TOP;
-                    newDirentModels.get(newDirentModels.size() - 1).item_position = ItemPositionEnum.BOTTOM;
+                    newDirentModels.get(0).item_position = ItemPositionEnum.START;
+                    newDirentModels.get(newDirentModels.size() - 1).item_position = ItemPositionEnum.END;
                 }
 
                 return Single.just(newDirentModels);

@@ -80,6 +80,12 @@ public class FileActivity extends BaseActivityWithVM<FileViewModel> implements T
         binding = FileActivityBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        if (!NetworkUtils.isConnected()) {
+            ToastUtils.showLong(R.string.network_unavailable);
+            finishWithCancel();
+            return;
+        }
+
         Intent intent = getIntent();
 
         if (intent == null) {

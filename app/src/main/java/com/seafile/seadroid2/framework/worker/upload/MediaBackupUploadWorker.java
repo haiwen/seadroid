@@ -55,6 +55,9 @@ public class MediaBackupUploadWorker extends BaseUploadWorker {
     }
 
     private void showNotification() {
+        String title = getApplicationContext().getString(R.string.settings_camera_upload_info_title);
+        String subTitle = getApplicationContext().getString(R.string.upload_started);
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             try {
                 ForegroundInfo foregroundInfo = notificationManager.getForegroundNotification();
@@ -146,9 +149,8 @@ public class MediaBackupUploadWorker extends BaseUploadWorker {
             }
         }
 
-        ToastUtils.showLong(R.string.upload_finished);
-
-        SLogs.e("Media backup: all task run");
+        showToast(R.string.settings_camera_upload_info_title, R.string.upload_finished);
+        SLogs.e("Media backup: complete");
         //
         //
         Bundle b = new Bundle();

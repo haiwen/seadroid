@@ -48,7 +48,7 @@ import com.seafile.seadroid2.ui.file.FileActivity;
 import com.seafile.seadroid2.ui.main.MainActivity;
 import com.seafile.seadroid2.ui.main.MainViewModel;
 import com.seafile.seadroid2.ui.markdown.MarkdownActivity;
-import com.seafile.seadroid2.ui.media.image_preview2.CarouselImagePreviewActivity;
+import com.seafile.seadroid2.ui.media.image.CarouselImagePreviewActivity;
 import com.seafile.seadroid2.ui.media.player.CustomExoVideoPlayerActivity;
 import com.seafile.seadroid2.ui.sdoc.SDocWebViewActivity;
 import com.seafile.seadroid2.view.TipsViews;
@@ -306,11 +306,6 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
             imagePreviewActivityLauncher.launch(getIntent);
 
         } else if (model.obj_name.endsWith(Constants.Format.DOT_SDOC)) {
-            if (!NetworkUtils.isConnected()) {
-                ToastUtils.showLong(R.string.network_unavailable);
-                return;
-            }
-
             SDocWebViewActivity.openSdoc(getContext(), model.repo_name, model.repo_id, model.path);
 
         } else if (Utils.isVideoFile(model.obj_name)) {
@@ -395,7 +390,6 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
             if (isUpdateWhenFileExists) {
                 ToastUtils.showLong(R.string.download_finished);
             }
-
 
             File destinationFile = new File(localFullPath);
             if ("open_with".equals(action)) {

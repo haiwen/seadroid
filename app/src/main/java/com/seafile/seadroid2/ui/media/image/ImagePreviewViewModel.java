@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.ui.media.image_preview;
+package com.seafile.seadroid2.ui.media.image;
 
 import android.text.TextUtils;
 import android.util.Pair;
@@ -18,7 +18,6 @@ import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
 import com.seafile.seadroid2.ui.file.FileService;
-import com.seafile.seadroid2.ui.media.image_preview2.DetailLayoutShowModel;
 import com.seafile.seadroid2.ui.star.StarredService;
 
 import java.util.HashMap;
@@ -69,14 +68,14 @@ public class ImagePreviewViewModel extends BaseViewModel {
 
         Single<List<RepoModel>> repoSingle = AppDatabase.getInstance().repoDao().getRepoById(repoId);
 
-        Single<List<DirentModel>> fileSingle;
+        Single<List<DirentModel>> direntSingle;
         if (isLoadOtherImagesInSameDirectory) {
-            fileSingle = AppDatabase.getInstance().direntDao().getFileListByParentPath(repoId, parentPath);
+            direntSingle = AppDatabase.getInstance().direntDao().getFileListByParentPath(repoId, parentPath);
         } else {
-            fileSingle = AppDatabase.getInstance().direntDao().getListByFullPathAsync(repoId, fullPath);
+            direntSingle = AppDatabase.getInstance().direntDao().getListByFullPathAsync(repoId, fullPath);
         }
 
-        Single<Pair<RepoModel, List<DirentModel>>> single = Single.zip(repoSingle, fileSingle, new BiFunction<List<RepoModel>, List<DirentModel>, Pair<RepoModel, List<DirentModel>>>() {
+        Single<Pair<RepoModel, List<DirentModel>>> single = Single.zip(repoSingle, direntSingle, new BiFunction<List<RepoModel>, List<DirentModel>, Pair<RepoModel, List<DirentModel>>>() {
             @Override
             public Pair<RepoModel, List<DirentModel>> apply(List<RepoModel> repoModels, List<DirentModel> direntModels) throws Exception {
                 if (CollectionUtils.isEmpty(repoModels)) {
@@ -100,7 +99,10 @@ public class ImagePreviewViewModel extends BaseViewModel {
                     return Single.just(pair);
                 }
 
-                Single<DirentFileModel> detailSingle = HttpIO.getCurrentInstance().execute(FileService.class).getFileDetail(repoId, fullPath).onErrorReturnItem(new DirentFileModel("an error occurred"));
+                Single<DirentFileModel> detailSingle = HttpIO.getCurrentInstance()
+                        .execute(FileService.class)
+                        .getFileDetail(repoId, fullPath)
+                        .onErrorReturnItem(new DirentFileModel("an error occurred"));
                 return detailSingle.flatMap(new Function<DirentFileModel, SingleSource<Pair<RepoModel, List<DirentModel>>>>() {
                     @Override
                     public SingleSource<Pair<RepoModel, List<DirentModel>>> apply(DirentFileModel direntFileModel) throws Exception {
@@ -150,8 +152,6 @@ public class ImagePreviewViewModel extends BaseViewModel {
                 ToastUtils.showLong(seafException.getMessage());
             }
         });
-
-
     }
 
     //star

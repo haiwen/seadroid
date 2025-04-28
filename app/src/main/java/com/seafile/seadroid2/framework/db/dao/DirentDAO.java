@@ -27,12 +27,11 @@ public interface DirentDAO {
     Single<List<DirentModel>> getListByParentPathBySqlAsync(String repo_id, String parent_dir);
 
 
-
     @Query("select * from dirents where parent_dir = :parent_dir and repo_id = :repo_id")
     List<DirentModel> getListByParentPath(String repo_id, String parent_dir);
 
     @Query("select * from dirents where full_path = :full_path and repo_id = :repo_id and type = :type limit 1")
-    List<DirentModel> getSpecialDirent(String repo_id, String full_path,String type);
+    List<DirentModel> getSpecialDirent(String repo_id, String full_path, String type);
 
 
     @Query("select * from dirents where parent_dir = :parent_dir and repo_id = :repo_id")
@@ -87,7 +86,6 @@ public interface DirentDAO {
     void updateRepoNameByRepoId(String repoId, String newRepoName);
 
 
-
     String d_sql = """
                 SELECT d.v,d.data_status,d.uid,d.full_path,d.name,d.parent_dir,d.id,d.type,d.mtime,d.permission,d.starred,
                 d.dir_id,d.related_account,d.repo_id,d.repo_name,d.size,d.is_locked,d.is_freezed,d.locked_by_me,d.lock_time,
@@ -98,9 +96,9 @@ public interface DirentDAO {
                 d.encoded_thumbnail_src,
                 d.last_modified_at,
                 d.transfer_status,
-
+            
                 f.file_id AS local_file_id
-
+            
             FROM dirents d
             LEFT JOIN file_cache_status f
             ON d.repo_id = f.repo_id AND d.full_path = f.full_path
@@ -112,4 +110,7 @@ public interface DirentDAO {
 
     @Query(d_sql)
     List<CachedDirentModel> getDirentsWithLocalFileIdSync(String repo_id, String parent_dir);
+
+    @Query("UPDATE dirents SET id = :fileId WHERE repo_id = :repoId AND full_path = :fullPath")
+    void updateFileIdByPath(String repoId, String fullPath, String fileId);
 }

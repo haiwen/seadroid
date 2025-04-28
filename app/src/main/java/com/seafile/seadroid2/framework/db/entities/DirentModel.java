@@ -11,6 +11,7 @@ import androidx.room.PrimaryKey;
 
 import com.blankj.utilcode.util.EncryptUtils;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.enums.ItemPositionEnum;
 import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.model.BaseModel;
 import com.seafile.seadroid2.framework.model.activities.ActivityModel;
@@ -422,6 +423,10 @@ public class DirentModel extends BaseModel implements Parcelable {
     }
 
     public DirentModel() {
+    }
+
+    public DirentModel(ItemPositionEnum positionEnum) {
+        item_position = positionEnum;
     }
 
     protected DirentModel(Parcel in) {

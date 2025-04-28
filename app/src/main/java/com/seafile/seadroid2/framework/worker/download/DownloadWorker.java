@@ -162,7 +162,7 @@ public class DownloadWorker extends BaseDownloadWorker {
 
         //
         if (TextUtils.isEmpty(interruptibleExceptionMsg)) {
-            ToastUtils.showLong(R.string.download_finished);
+            showToast(R.string.download_finished);
         }
 
         //

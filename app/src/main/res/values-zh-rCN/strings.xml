@@ -400,7 +400,7 @@ Email: support@seafile.com<br>
 <p>https://github.com/haiwen/seadroid.git</P>
 <h5>备案编号</h5>
 <p>京ICP备12015883号-10A</p>
-<h5>Copyright ©2013-2023 Seafile Ltd.</h5>
+<h5>Copyright ©2013-2025 Seafile Ltd.</h5>
 ]]></string>
   <string name="settings_advance_feature_title">高级特性</string>
   <string name="settings_transfer_title">上传 &amp; 下载</string>
@@ -667,4 +667,5 @@ Email: support@seafile.com<br>
   <string name="image_color_space_uncalibrated">未校准</string>
   <string name="image_color_space_undefined">未定义</string>
   <!--end-->
+  <string name="offline">离线</string>
 </resources>

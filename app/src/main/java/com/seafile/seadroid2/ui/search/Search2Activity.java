@@ -48,7 +48,7 @@ import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
 import com.seafile.seadroid2.ui.base.adapter.LogicLoadMoreAdapter;
 import com.seafile.seadroid2.ui.file.FileActivity;
 import com.seafile.seadroid2.ui.main.MainActivity;
-import com.seafile.seadroid2.ui.media.image_preview2.CarouselImagePreviewActivity;
+import com.seafile.seadroid2.ui.media.image.CarouselImagePreviewActivity;
 import com.seafile.seadroid2.ui.media.player.CustomExoVideoPlayerActivity;
 import com.seafile.seadroid2.ui.sdoc.SDocWebViewActivity;
 import com.seafile.seadroid2.view.TipsViews;

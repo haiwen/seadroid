@@ -22,6 +22,7 @@ import androidx.webkit.WebViewFeature;
 
 import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.GsonUtils;
+import com.blankj.utilcode.util.NetworkUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.github.lzyzsd.jsbridge.CallBackFunction;
 import com.seafile.seadroid2.R;
@@ -71,6 +72,12 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
 
         binding = ActivitySeaWebviewProBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        if (!NetworkUtils.isConnected()) {
+            ToastUtils.showLong(R.string.network_unavailable);
+            finish();
+            return;
+        }
 
         toolBinding = ToolbarActionbarProgressBarBinding.bind(binding.toolProgressBar.getRoot());
 

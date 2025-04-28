@@ -7,6 +7,7 @@ import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.enums.ItemPositionEnum;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.db.entities.EncKeyCacheEntity;
@@ -25,7 +26,6 @@ import com.seafile.seadroid2.framework.util.Objs;
 import com.seafile.seadroid2.framework.util.SLogs;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import io.reactivex.Single;
@@ -57,8 +57,20 @@ public class ObjSelectorViewModel extends BaseViewModel {
 
 
     public void loadAccount() {
-        List<Account> list = SupportAccountManager.getInstance().getSignedInAccountList();
-        getObjsListLiveData().setValue(new ArrayList<>(list));
+        List<Account> results = SupportAccountManager.getInstance().getSignedInAccountList();
+        if (!CollectionUtils.isEmpty(results)) {
+            if (results.size() == 1) {
+                results.get(0).item_position = ItemPositionEnum.ALL;
+            } else if (results.size() == 2) {
+                results.get(0).item_position = ItemPositionEnum.START;
+                results.get(1).item_position = ItemPositionEnum.END;
+            } else {
+                results.get(0).item_position = ItemPositionEnum.START;
+                results.get(results.size() - 1).item_position = ItemPositionEnum.END;
+            }
+        }
+
+        getObjsListLiveData().setValue(new ArrayList<>(results));
         getRefreshLiveData().setValue(false);
     }
 
@@ -111,14 +123,27 @@ public class ObjSelectorViewModel extends BaseViewModel {
             @Override
             public void accept(DirentWrapperModel direntWrapperModel) throws Exception {
 
-                List<DirentModel> list = Objs.parseDirentsForDB(
+                List<DirentModel> newDirentModels = Objs.parseDirentsForDB(
                         direntWrapperModel.dirent_list,
                         direntWrapperModel.dir_id,
                         account.getSignature(),
                         context.getRepoModel().repo_id,
                         context.getRepoModel().repo_name, true);
 
-                getObjsListLiveData().setValue(new ArrayList<>(list));
+                //calculate item_position
+                if (CollectionUtils.isEmpty(newDirentModels)) {
+
+                } else if (newDirentModels.size() == 1) {
+                    newDirentModels.get(0).item_position = ItemPositionEnum.ALL;
+                } else if (newDirentModels.size() == 2) {
+                    newDirentModels.get(0).item_position = ItemPositionEnum.START;
+                    newDirentModels.get(1).item_position = ItemPositionEnum.END;
+                } else {
+                    newDirentModels.get(0).item_position = ItemPositionEnum.START;
+                    newDirentModels.get(newDirentModels.size() - 1).item_position = ItemPositionEnum.END;
+                }
+
+                getObjsListLiveData().setValue(new ArrayList<>(newDirentModels));
                 getRefreshLiveData().setValue(false);
             }
         }, new Consumer<Throwable>() {

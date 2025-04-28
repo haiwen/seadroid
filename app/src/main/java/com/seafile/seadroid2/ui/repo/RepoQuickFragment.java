@@ -96,7 +96,7 @@ import com.seafile.seadroid2.ui.dialog_fragment.listener.OnResultListener;
 import com.seafile.seadroid2.ui.file.FileActivity;
 import com.seafile.seadroid2.ui.main.MainViewModel;
 import com.seafile.seadroid2.ui.markdown.MarkdownActivity;
-import com.seafile.seadroid2.ui.media.image_preview2.CarouselImagePreviewActivity;
+import com.seafile.seadroid2.ui.media.image.CarouselImagePreviewActivity;
 import com.seafile.seadroid2.ui.media.player.CustomExoVideoPlayerActivity;
 import com.seafile.seadroid2.ui.sdoc.SDocWebViewActivity;
 import com.seafile.seadroid2.ui.search.SearchViewModel;
@@ -1419,11 +1419,6 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         }
 
         if (fileName.endsWith(Constants.Format.DOT_SDOC)) {
-            if (!NetworkUtils.isConnected()) {
-                ToastUtils.showLong(R.string.network_unavailable);
-                return;
-            }
-
             SDocWebViewActivity.openSdoc(getContext(), repoModel.repo_name, repoModel.repo_id, dirent.parent_dir + dirent.name);
             return;
         }
@@ -1482,6 +1477,11 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     }
 
     public void download(List<BaseModel> direntModels) {
+        if (!NetworkUtils.isConnected()) {
+            ToastUtils.showLong(R.string.network_unavailable);
+            return;
+        }
+
         if (CollectionUtils.isEmpty(direntModels)) {
             return;
         }
@@ -1714,7 +1714,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 return;
             }
 
-//            loadData(RefreshStatusEnum.REMOTE);
+            loadData(RefreshStatusEnum.LOCAL_THEN_REMOTE);
         }
     });
 

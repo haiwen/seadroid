@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.ui.media.image_preview2;
+package com.seafile.seadroid2.ui.media.image;
 
 import android.animation.ValueAnimator;
 import android.app.Activity;
@@ -9,7 +9,6 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Pair;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,41 +25,37 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.blankj.utilcode.util.BarUtils;
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.NetworkUtils;
-import com.blankj.utilcode.util.ScreenUtils;
 import com.blankj.utilcode.util.ToastUtils;
+import com.chad.library.adapter4.BaseQuickAdapter;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.compat.ContextCompatKt;
 import com.seafile.seadroid2.context.CopyMoveContext;
 import com.seafile.seadroid2.databinding.ActivityCarouselImagePreviewBinding;
+import com.seafile.seadroid2.enums.ItemPositionEnum;
 import com.seafile.seadroid2.enums.OpType;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.db.entities.StarredModel;
+import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.model.activities.ActivityModel;
 import com.seafile.seadroid2.framework.model.search.SearchModel;
-import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.util.Objs;
-import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.ui.adapter.ViewPager2Adapter;
 import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
 import com.seafile.seadroid2.ui.dialog_fragment.CopyMoveDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.DeleteFileDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.listener.OnRefreshDataListener;
-import com.seafile.seadroid2.ui.media.image_preview.ImagePreviewViewModel;
-import com.seafile.seadroid2.ui.media.image_preview.PhotoFragment;
 import com.seafile.seadroid2.ui.selector.ObjSelectorActivity;
 import com.seafile.seadroid2.view.photoview.ScrollDirection;
 import com.seafile.seadroid2.view.photoview.ScrollStatus;
-import com.seafile.seadroid2.view.snap_recyclerview.GravitySnapHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -68,11 +63,8 @@ import java.util.List;
 public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePreviewViewModel> implements Toolbar.OnMenuItemClickListener {
     private ActivityCarouselImagePreviewBinding binding;
 
-    private ViewPager2Adapter adapter;
-    private CarouselAdapter carouselAdapter;
-
-    private List<DirentModel> direntList;
-    private List<DirentModel> carouselDirentList;
+    private ViewPager2Adapter pagerAdapter;
+    private ThumbnailAdapter thumbnailAdapter;
 
     /**
      * actionbar: toolBar/statusBar/navBar/bottomActionBar/thumbnailListBar
@@ -82,8 +74,6 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
 
     private String repoId, repoName, parentDir, name;
     private boolean load_other_images_in_same_directory = false;
-    private int carouselItemWidth = 0;
-    private int carouselItemMargin = 0;
 
 //    public static Intent startThisFromDocsComment(Context context, String url) {
 //        Intent intent = new Intent(context, CarouselImagePreviewActivity.class);
@@ -167,10 +157,6 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
         ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) binding.toolbarActionbar.getLayoutParams();
         layoutParams.topMargin = BarUtils.getStatusBarHeight();
 
-
-        carouselItemWidth = getResources().getDimensionPixelSize(R.dimen.carousel_item_width);
-        carouselItemMargin = getResources().getDimensionPixelSize(R.dimen.carousel_item_margin);
-
         Toolbar toolbar = getActionBarToolbar();
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
@@ -196,9 +182,7 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
 
 
         initPager();
-        initCarouselRecyclerView();
-
-//        bindPager();
+        initThumbnailList();
 
         initViewModel();
 
@@ -282,7 +266,7 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
 //                ToastUtils.showLong(aBoolean ? R.string.star_file_succeed : R.string.star_file_failed);
 
                 int index = binding.pager.getCurrentItem();
-                direntList.get(index).starred = aBoolean;
+                thumbnailAdapter.getItems().get(index + 1).starred = aBoolean;
 
                 notifyCurrentStarredStatus();
             }
@@ -297,89 +281,101 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
     }
 
     private void initPager() {
-        adapter = new ViewPager2Adapter(this);
+        pagerAdapter = new ViewPager2Adapter(this);
+        binding.pager.setOffscreenPageLimit(7);
+        binding.pager.setAdapter(pagerAdapter);
         binding.pager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
-                notifyCurrentStarredStatus();
+                if (whoScrolled == 1) {
+                    whoScrolled = -1;
+                    return;
+                }
 
+                whoScrolled = 0;
+                animateToolbar();
+                notifyCurrentStarredStatus();
+                getCenterScaleLayoutManager().scrollToPositionWithCenter(position + 1);
             }
         });
-
-        binding.pager.setOffscreenPageLimit(7);
-        binding.pager.setAdapter(adapter);
-
         setPagerColor(!isNightMode);
     }
 
-    private final LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
-    private final GravitySnapHelper snapHelper = new GravitySnapHelper(Gravity.CENTER);
+    /**
+     * 0: pager
+     * 1: thumbnailRecyclerView
+     */
+    private int whoScrolled = -1;
 
-    private void initCarouselRecyclerView() {
-        carouselAdapter = new CarouselAdapter(this, new CarouselAdapter.CarouselItemListener() {
+    private void initThumbnailList() {
+        thumbnailAdapter = new ThumbnailAdapter(this, getServerUrl());
+        thumbnailAdapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener<DirentModel>() {
             @Override
-            public void onItemClicked(DirentModel item, int snapPosition) {
-                if (snapHelper.getCurrentSnappedPosition() == snapPosition) {
-                    ToastUtils.showLong("same");
+            public void onClick(@NonNull BaseQuickAdapter<DirentModel, ?> baseQuickAdapter, @NonNull View view, int i) {
+                int curPosition = binding.pager.getCurrentItem();
+                if (curPosition + 1 == i) {
                     return;
                 }
-
-                snapHelper.smoothScrollToPosition(snapPosition);
+                getCenterScaleLayoutManager().scrollToPositionWithCenter(i);
             }
         });
+        binding.thumbnailRecyclerView.setAdapter(thumbnailAdapter);
 
-        binding.thumbnailRecyclerView.setAdapter(carouselAdapter);
-        binding.thumbnailRecyclerView.setLayoutManager(layoutManager);
+        binding.thumbnailRecyclerView.setLayoutManager(getCenterScaleLayoutManager());
 
-        binding.thumbnailRecyclerView.addOnScrollListener(new CenterScaleXYRecyclerViewScrollListener(this));
-
-        int screenWidth = ScreenUtils.getAppScreenWidth();//1080/3=360
-        int sidePadding = (screenWidth - carouselItemWidth) / 2 - carouselItemMargin * 2;//170-4=166
-        binding.thumbnailRecyclerView.addItemDecoration(new LinearEdgeDecoration(sidePadding, sidePadding, RecyclerView.HORIZONTAL, false));
-
+        CenterSnapHelper snapHelper = new CenterSnapHelper();
         snapHelper.attachToRecyclerView(binding.thumbnailRecyclerView);
+
+//        binding.thumbnailRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+//            @Override
+//            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+//                super.onScrollStateChanged(recyclerView, newState);
+//
+//                // 滚动停止时
+//                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+//                    View snapView = snapHelper.findSnapView(getCenterScaleLayoutManager());
+//                    if (snapView != null) {
+//                        if (whoScrolled == 0) {
+//                            whoScrolled = -1;
+//                            return;
+//                        }
+//
+//                        int position = getCenterScaleLayoutManager().getPosition(snapView);
+//
+//                        whoScrolled = 1;
+//                        animateToolbar();
+//                        notifyCurrentStarredStatus();
+//                        binding.pager.setCurrentItem(position - 1, false);
+//
+//                    }
+//                }
+//            }
+//        });
     }
 
-    private void bindPager() {
-        bindPager(binding.pager, snapHelper);
-    }
+    private CenterScaleLayoutManager decorationManager;
 
-    private int whoScroll = -1;
+    @NonNull
+    private CenterScaleLayoutManager getCenterScaleLayoutManager() {
+        if (decorationManager == null) {
+            decorationManager = new CenterScaleLayoutManager(this);
+            decorationManager.setOnCenterItemChangedListener(new CenterScaleLayoutManager.OnCenterItemChangedListener() {
+                @Override
+                public void onCenterItemChanged(int position) {
+                    if (whoScrolled == 0) {
+                        whoScrolled = -1;
+                        return;
+                    }
 
-    public void bindPager(ViewPager2 pager, GravitySnapHelper snapHelper) {
-        pager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
-            @Override
-            public void onPageSelected(int position) {
-                super.onPageSelected(position);
-                if (whoScroll == 1) {
-                    whoScroll = -1;
-                    return;
+                    whoScrolled = 1;
+                    animateToolbar();
+                    notifyCurrentStarredStatus();
+                    binding.pager.setCurrentItem(position - 1, false);
                 }
-
-                animateToolbar(position);
-                whoScroll = 0;
-                SLogs.e("currentPagerPosition: " + position);
-                snapHelper.smoothScrollToPosition(position);
-            }
-        });
-
-        snapHelper.setSnapListener(new GravitySnapHelper.SnapListener() {
-            @Override
-            public void onSnap(int snapPosition) {
-
-                if (whoScroll == 0) {
-                    whoScroll = -1;
-                    return;
-                }
-
-                animateToolbar(snapPosition);
-
-                whoScroll = 1;
-                SLogs.e("currentSnapPosition: " + snapPosition);
-                pager.setCurrentItem(snapPosition, false);
-            }
-        });
+            });
+        }
+        return decorationManager;
     }
 
     private void submitData(Pair<RepoModel, List<DirentModel>> pair) {
@@ -396,7 +392,7 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
             binding.galleryDeletePhoto.setVisibility(View.GONE);
         }
 
-        direntList = pair.second;
+        List<DirentModel> direntList = pair.second;
         if (CollectionUtils.isEmpty(direntList)) {
             return;
         }
@@ -409,21 +405,26 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
             fragments.add(photoFragment);
         }
 
-        adapter.addFragments(fragments);
-//        adapter.notifyItemRangeInserted(0, direntList.size());
-        adapter.notifyDataSetChanged();
+        pagerAdapter.addFragments(fragments);
+        pagerAdapter.notifyItemRangeInserted(0, direntList.size());
 
-        carouselDirentList = new ArrayList<>();
-        carouselDirentList.addAll(direntList);
+        List<DirentModel> newList = new ArrayList<>();
 
-        carouselAdapter.submitList(carouselDirentList);
+        //notice:Placeholder item
+        //There may be a more elegant way to do this, but this is the simplest
+        newList.add(new DirentModel(ItemPositionEnum.START));
+        newList.addAll(direntList);
+        //Placeholder item
+        newList.add(new DirentModel(ItemPositionEnum.END));
+        thumbnailAdapter.notify(newList);
 
-        binding.thumbnailRecyclerView.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                navToSelectedPage();
-            }
-        }, 50);
+        navToSelectedPage();
+//        binding.thumbnailRecyclerView.postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                navToSelectedPage();
+//            }
+//        }, 50);
     }
 
     private String server_url;
@@ -445,21 +446,21 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
     private final float fraction = 0.02f;
 
     private PhotoFragment getCurrentPhotoFragment() {
-        if (adapter.getFragments().isEmpty()) {
+        if (pagerAdapter.getFragments().isEmpty()) {
             return null;
         }
 
         int i = binding.pager.getCurrentItem();
-        if (i >= adapter.getFragments().size()) {
+        if (i >= pagerAdapter.getFragments().size()) {
             return null;
         }
 
-        return (PhotoFragment) adapter.getFragments().get(i);
+        return (PhotoFragment) pagerAdapter.getFragments().get(i);
     }
 
     private PhotoFragment getSpecialPhotoFragment(int position) {
         int i = binding.pager.getCurrentItem();
-        return (PhotoFragment) adapter.getFragments().get(position);
+        return (PhotoFragment) pagerAdapter.getFragments().get(position);
     }
 
     private void toggleChildFragmentDetailLayout() {
@@ -577,11 +578,12 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
         BarUtils.setStatusBarColor(this, isNightMode ? getGreyAlpha911(alpha) : getGreyAlpha000(alpha));
     }
 
-    private void animateToolbar(int position) {
+    private void animateToolbar() {
         if (!isActionBarVisible) {
             return;
         }
 
+        int position = binding.pager.getCurrentItem();
         PhotoFragment photoFragment = getSpecialPhotoFragment(position);
         if (photoFragment == null) {
             return;
@@ -642,8 +644,6 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
     }
 
     private void setBarLightMode(boolean visible) {
-
-
         int color = visible ? getGrey000() : getGrey911();
         BarUtils.setNavBarColor(this, visible ? color : Color.TRANSPARENT);
         BarUtils.setStatusBarColor(this, visible ? color : Color.TRANSPARENT);
@@ -697,23 +697,20 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
      * by default the starting page index is 0
      */
     private void navToSelectedPage() {
-        int size = direntList.size();
+        int size = thumbnailAdapter.getItems().size();
         int index = -1;
 
         for (int i = 0; i < size; i++) {
-            if (direntList.get(i).name.equals(name)) {
+            if (TextUtils.equals(thumbnailAdapter.getItems().get(i).name, name)) {
                 index = i;
                 break;
             }
         }
 
         if (index != -1) {
-            int x = (carouselItemWidth + carouselItemMargin * 2) * index;
-            binding.thumbnailRecyclerView.scrollBy(x, 0);
-            binding.pager.setCurrentItem(index, false);
+            binding.pager.setCurrentItem(index - 1, false);
+            getCenterScaleLayoutManager().scrollToPositionWithCenter(index);
         }
-
-        bindPager();
     }
 
     private void notifyCurrentStarredStatus() {
@@ -749,50 +746,42 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
     }
 
     private DirentModel getSelectedDirent() {
+        List<DirentModel> direntList = thumbnailAdapter.getItems();
         if (CollectionUtils.isEmpty(direntList)) {
             return null;
         }
 
         int index = binding.pager.getCurrentItem();
-        if (index > direntList.size() - 1) {
+        if (index > direntList.size() - 2) {
             return null;
         }
 
-        return direntList.get(index);
+        return direntList.get(index + 1);
     }
 
     private void deleteFile() {
-
-        int position = binding.pager.getCurrentItem();
         DirentModel direntModel = getSelectedDirent();
 
         DeleteFileDialogFragment dialogFragment = DeleteFileDialogFragment.newInstance(CollectionUtils.newArrayList(direntModel.uid));
         dialogFragment.setRefreshListener(new OnRefreshDataListener() {
             @Override
             public void onActionStatus(boolean isDone) {
-                if (isDone) {
-                    direntList.remove(position);
-                    adapter.removeFragment(position);
-                    adapter.notifyItemRemoved(position);
-
-                    carouselDirentList.remove(position);
-                    carouselAdapter.notifyItemRemoved(position);
-
-                    ToastUtils.showLong(R.string.delete_successful);
-
-                    if (adapter.getItemCount() == 0) {
-                        setResult(RESULT_OK);
-                        finish();
-                    } else {
-                        //todo
-//                        binding.thumbnailRecyclerView.scrollBy(0, 0);
-//
-//                        int index = binding.pager.getCurrentItem();
-//                        int x = (carouselItemWidth + carouselItemMargin * 2) * index;
-//                        binding.thumbnailRecyclerView.scrollBy(x, 0);
-//                        binding.pager.setCurrentItem(index, false);
-                    }
+                if (!isDone) {
+                    return;
                 }
+
+                setResult(RESULT_OK);
+
+                if (thumbnailAdapter.getItems().size() == 3) {
+                    finish();
+                    return;
+                }
+
+                int currentPosition = binding.pager.getCurrentItem();
+                thumbnailAdapter.removeAt(currentPosition + 1);
+
+                pagerAdapter.removeFragment(currentPosition);
+                pagerAdapter.notifyItemRemoved(currentPosition);
             }
         });
         dialogFragment.show(getSupportFragmentManager(), DeleteFileDialogFragment.class.getSimpleName());
@@ -875,6 +864,7 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
             @Override
             public void onActionStatus(boolean isDone) {
                 if (isDone) {
+                    setResult(RESULT_OK);
                     ToastUtils.showLong(copyMoveContext.isCopy() ? R.string.copied_successfully : R.string.moved_successfully);
                 }
             }

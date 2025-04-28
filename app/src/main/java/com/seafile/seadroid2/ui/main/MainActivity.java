@@ -117,7 +117,7 @@ public class MainActivity extends BaseActivity {
 
         restoreNavContext();
 
-        registerNetworkObserver();
+        registerNetworkChange();
 
         requestServerInfo(true);
     }
@@ -129,21 +129,21 @@ public class MainActivity extends BaseActivity {
         refreshActionbar();
     }
 
-    private void registerNetworkObserver() {
-        NetworkUtils.registerNetworkStatusChangedListener(new NetworkUtils.OnNetworkStatusChangedListener() {
-            @Override
-            public void onDisconnected() {
-                BusHelper.getNetworkStatusObserver().post(NetworkUtils.NetworkType.NETWORK_NO);
-                refreshActionbar();
-            }
-
-            @Override
-            public void onConnected(NetworkUtils.NetworkType networkType) {
-                BusHelper.getNetworkStatusObserver().post(networkType);
-                refreshActionbar();
-            }
-        });
+    private void registerNetworkChange() {
+        NetworkUtils.registerNetworkStatusChangedListener(onNetworkStatusChangedListener);
     }
+
+    private final NetworkUtils.OnNetworkStatusChangedListener onNetworkStatusChangedListener = new NetworkUtils.OnNetworkStatusChangedListener() {
+        @Override
+        public void onDisconnected() {
+            refreshActionbar();
+        }
+
+        @Override
+        public void onConnected(NetworkUtils.NetworkType networkType) {
+            refreshActionbar();
+        }
+    };
 
     private void initSettings() {
         Settings.initUserSettings();
@@ -219,11 +219,14 @@ public class MainActivity extends BaseActivity {
 
     @Override
     protected void onDestroy() {
+        NetworkUtils.unregisterNetworkStatusChangedListener(onNetworkStatusChangedListener);
+
         if (isBound) {
             unbindService(syncConnection);
             isBound = false;
             syncService = null;
         }
+
         BackgroundJobManagerImpl.getInstance().cancelAllJobs();
 
         super.onDestroy();
@@ -468,18 +471,17 @@ public class MainActivity extends BaseActivity {
 
         if (binding.pager.getCurrentItem() == 0) {
 
-            boolean f = NetworkUtils.isConnected();
-            String offlineText = "";
-            if (!f) {
-                offlineText = " (离线模式)";
+            String offline = "";
+            if (!NetworkUtils.isConnected()) {
+                offline = " (" + getString(R.string.offline) + ")";
             }
 
             if (GlobalNavContext.getCurrentNavContext().inRepo()) {
                 enableUpButton(true);
-                setActionbarTitle(GlobalNavContext.getCurrentNavContext().getLastPathName() + offlineText);
+                setActionbarTitle(GlobalNavContext.getCurrentNavContext().getLastPathName() + offline);
             } else {
                 enableUpButton(false);
-                setActionbarTitle(getString(R.string.tabs_library) + offlineText);
+                setActionbarTitle(getString(R.string.tabs_library) + offline);
             }
             return;
         }

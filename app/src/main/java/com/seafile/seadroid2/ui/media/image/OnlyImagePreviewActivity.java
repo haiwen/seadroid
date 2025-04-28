@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.ui.media.image_preview2;
+package com.seafile.seadroid2.ui.media.image;
 
 import android.content.Context;
 import android.content.Intent;
@@ -14,8 +14,6 @@ import com.blankj.utilcode.util.CollectionUtils;
 import com.seafile.seadroid2.databinding.ActivityOnlyImagePreviewBinding;
 import com.seafile.seadroid2.ui.adapter.ViewPager2Adapter;
 import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
-import com.seafile.seadroid2.ui.media.image_preview.ImagePreviewViewModel;
-import com.seafile.seadroid2.ui.media.image_preview.PhotoFragment;
 
 import java.util.ArrayList;
 import java.util.List;

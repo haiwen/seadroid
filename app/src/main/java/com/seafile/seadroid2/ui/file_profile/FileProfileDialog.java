@@ -179,6 +179,8 @@ public class FileProfileDialog extends BottomSheetDialogFragment {
                 return R.string._outdated;
             case "_tags":
                 return R.string._tags;
+            case "_owner":
+                return R.string._owner;
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {

@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.ui.media.image_preview2;
+package com.seafile.seadroid2.ui.media.image;
 
 import com.seafile.seadroid2.view.photoview.ScrollDirection;
 import com.seafile.seadroid2.view.photoview.ScrollStatus;

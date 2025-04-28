@@ -710,5 +710,5 @@
 
     <string name="transfer_default_state" translatable="false">0</string>
 
-
+    <string name="offline">Offline</string>
 </resources>

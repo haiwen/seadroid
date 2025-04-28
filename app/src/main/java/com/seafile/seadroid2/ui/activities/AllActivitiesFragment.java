@@ -45,7 +45,7 @@ import com.seafile.seadroid2.ui.dialog_fragment.listener.OnResultListener;
 import com.seafile.seadroid2.ui.file.FileActivity;
 import com.seafile.seadroid2.ui.main.MainActivity;
 import com.seafile.seadroid2.ui.markdown.MarkdownActivity;
-import com.seafile.seadroid2.ui.media.image_preview2.CarouselImagePreviewActivity;
+import com.seafile.seadroid2.ui.media.image.CarouselImagePreviewActivity;
 import com.seafile.seadroid2.ui.media.player.CustomExoVideoPlayerActivity;
 import com.seafile.seadroid2.ui.sdoc.SDocWebViewActivity;
 import com.seafile.seadroid2.view.TipsViews;
@@ -324,11 +324,6 @@ public class AllActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel>
             imagePreviewActivityLauncher.launch(getIntent);
 
         } else if (activityModel.name.endsWith(Constants.Format.DOT_SDOC)) {
-            if (!NetworkUtils.isConnected()) {
-                ToastUtils.showLong(R.string.network_unavailable);
-                return;
-            }
-
             SDocWebViewActivity.openSdoc(getContext(), activityModel.repo_name, activityModel.repo_id, activityModel.path);
 
         } else if (Utils.isVideoFile(activityModel.name)) {

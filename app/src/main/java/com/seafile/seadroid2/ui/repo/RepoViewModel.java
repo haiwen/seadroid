@@ -394,17 +394,14 @@ public class RepoViewModel extends BaseViewModel {
             public void accept(List<BaseModel> results) throws Exception {
 
                 if (!CollectionUtils.isEmpty(results)) {
-
-                    if (CollectionUtils.isEmpty(results)) {
-
-                    } else if (results.size() == 1) {
+                    if (results.size() == 1) {
                         results.get(0).item_position = ItemPositionEnum.ALL;
                     } else if (results.size() == 2) {
-                        results.get(0).item_position = ItemPositionEnum.TOP;
-                        results.get(1).item_position = ItemPositionEnum.BOTTOM;
+                        results.get(0).item_position = ItemPositionEnum.START;
+                        results.get(1).item_position = ItemPositionEnum.END;
                     } else {
-                        results.get(0).item_position = ItemPositionEnum.TOP;
-                        results.get(results.size() - 1).item_position = ItemPositionEnum.BOTTOM;
+                        results.get(0).item_position = ItemPositionEnum.START;
+                        results.get(results.size() - 1).item_position = ItemPositionEnum.END;
                     }
                 }
 

@@ -135,7 +135,7 @@ android {
                                     versionName = prefix + "(" + suffix + ")"
                                 }
 
-                                def newOutputFileName = "seafile_${versionName}_build${versionCode}_patch${buildCount}.apk"
+                                def newOutputFileName = "seafile_${versionName}_patch${buildCount}.apk"
                                 newOutputFileName = newOutputFileName.replace(" ", "_").replace("-", "_")
                                 def apkFile = output.outputFile
                                 def newApkFile = new File(apkFile.parent, newOutputFileName)
@@ -180,7 +180,7 @@ android {
     dependencies {
         implementation fileTree(include: ['*.jar'], dir: 'libs')
 
-        debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.14'
+//        debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.14'
 
         implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
         // Firebase

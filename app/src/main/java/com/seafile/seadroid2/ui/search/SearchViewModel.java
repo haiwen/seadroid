@@ -62,11 +62,11 @@ public class SearchViewModel extends BaseViewModel {
                 } else if (results.size() == 1) {
                     results.get(0).item_position = ItemPositionEnum.ALL;
                 } else if (results.size() == 2) {
-                    results.get(0).item_position = ItemPositionEnum.TOP;
-                    results.get(1).item_position = ItemPositionEnum.BOTTOM;
+                    results.get(0).item_position = ItemPositionEnum.START;
+                    results.get(1).item_position = ItemPositionEnum.END;
                 } else {
-                    results.get(0).item_position = ItemPositionEnum.TOP;
-                    results.get(results.size() - 1).item_position = ItemPositionEnum.BOTTOM;
+                    results.get(0).item_position = ItemPositionEnum.START;
+                    results.get(results.size() - 1).item_position = ItemPositionEnum.END;
                 }
 
                 getSearchListLiveData().setValue(results);

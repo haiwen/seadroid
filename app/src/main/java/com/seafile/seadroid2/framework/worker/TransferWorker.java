@@ -2,6 +2,10 @@ package com.seafile.seadroid2.framework.worker;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.text.TextUtils;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.work.ForegroundInfo;
@@ -22,6 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import okhttp3.RequestBody;
+import retrofit2.Response;
 
 public abstract class TransferWorker extends BaseWorker {
 
@@ -65,7 +70,7 @@ public abstract class TransferWorker extends BaseWorker {
 
         Map<String, RequestBody> requestBodyMap = HttpUtils.generateRequestBody(requestDataMap);
 
-        retrofit2.Response<String> response = HttpIO.getCurrentInstance()
+        Response<String> response = HttpIO.getCurrentInstance()
                 .execute(FileService.class)
                 .mkDirCall(repoId, path, requestBodyMap)
                 .execute();
@@ -74,6 +79,43 @@ public abstract class TransferWorker extends BaseWorker {
             SLogs.d("folder create success：" + path);
         } else {
             SLogs.e("folder create failed：" + response.errorBody().string());
+        }
+    }
+
+    protected void showToast(String title) {
+        showToast(title, null);
+    }
+
+    protected void showToast(int tRes1, int tRes2) {
+        String title1 = getApplicationContext().getString(tRes1);
+        String title2 = getApplicationContext().getString(tRes2);
+        showToast(title1, title2);
+    }
+
+    protected void showToast(int tRes1) {
+        String title1 = getApplicationContext().getString(tRes1);
+        showToast(title1, null);
+    }
+
+    protected void showToast(String title1, String title2) {
+        String r = null;
+        if (!TextUtils.isEmpty(title1)) {
+            r = title1;
+        }
+
+        if (!TextUtils.isEmpty(title2)) {
+            r += title2;
+        }
+        if (TextUtils.isEmpty(r)) {
+            return;
+        }
+        if (Looper.getMainLooper().getThread() == Thread.currentThread()) {
+            Toast.makeText(getApplicationContext(), r, Toast.LENGTH_LONG).show();
+        } else {
+            String finalR = r;
+            new Handler(Looper.getMainLooper()).post(() -> {
+                Toast.makeText(getApplicationContext(), finalR, Toast.LENGTH_LONG).show();
+            });
         }
     }
 

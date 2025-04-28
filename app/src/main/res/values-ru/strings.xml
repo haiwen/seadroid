@@ -642,6 +642,7 @@
   <string name="failed">Неудачно</string>
   <string name="uploading">Загрузка</string>
   <string name="downloading">Скачивание</string>
+  <string name="select_all">Выбрать все</string>
   <string name="replace_all">Заменить все</string>
   <string name="replace">Заменить</string>
   <string name="replace_local_file">Заменить локальный файл</string>
@@ -683,6 +684,7 @@
   <string name="_outdated">Устаревший</string>
   <string name="_tags">Теги</string>
   <string name="_location">Расположение</string>
+  <string name="_owner">Владелец файла</string>
   <string name="mark_resolve">Отметить как решенное</string>
   <string name="delete_confirm">Вы уверены, что хотите удалить этот элемент?</string>
   <string name="canceled">Отменено</string>

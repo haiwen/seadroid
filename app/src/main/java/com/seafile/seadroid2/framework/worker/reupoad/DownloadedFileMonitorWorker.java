@@ -1,14 +1,28 @@
-package com.seafile.seadroid2.framework.worker.download;
+package com.seafile.seadroid2.framework.worker.reupoad;
 
+import static com.blankj.utilcode.util.ThreadUtils.runOnUiThread;
+
+import android.app.ForegroundServiceStartNotAllowedException;
 import android.content.Context;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.work.Data;
+import androidx.work.ForegroundInfo;
+import androidx.work.WorkInfo;
 import androidx.work.WorkerParameters;
 
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.FileUtils;
+import com.blankj.utilcode.util.ToastUtils;
+import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.SeadroidApplication;
+import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.enums.SaveTo;
@@ -17,6 +31,8 @@ import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
 import com.seafile.seadroid2.framework.model.dirents.DirentFileModel;
+import com.seafile.seadroid2.framework.notification.FileBackupNotificationHelper;
+import com.seafile.seadroid2.framework.util.ExceptionUtils;
 import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.notification.FolderBackupNotificationHelper;
@@ -38,8 +54,11 @@ import retrofit2.Call;
  * Check the change status of the downloaded file
  */
 public class DownloadedFileMonitorWorker extends BaseUploadWorker {
+    private final FileBackupNotificationHelper notificationManager;
+
     public DownloadedFileMonitorWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
+        notificationManager = new FileBackupNotificationHelper(context);
     }
 
     @Override
@@ -53,25 +72,41 @@ public class DownloadedFileMonitorWorker extends BaseUploadWorker {
         return start();
     }
 
+    private void showNotification() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            try {
+                ForegroundInfo foregroundInfo = notificationManager.getForegroundNotification();
+                showForegroundAsync(foregroundInfo);
+            } catch (ForegroundServiceStartNotAllowedException e) {
+                SLogs.e(e.getMessage());
+            }
+        } else {
+            ForegroundInfo foregroundInfo = notificationManager.getForegroundNotification();
+            showForegroundAsync(foregroundInfo);
+        }
+    }
+
     private Result start() {
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
         if (account == null) {
             return Result.success();
         }
 
-        boolean isEmpty = GlobalTransferCacheList.CHANGED_FILE_MONITOR_QUEUE.isQueueEmpty();
-        if (isEmpty) {
+        int totalPendingCount = GlobalTransferCacheList.CHANGED_FILE_MONITOR_QUEUE.getPendingCount();
+        if (totalPendingCount <= 0) {
             return Result.success();
         }
 
+        showNotification();
+        String interruptibleExceptionMsg = null;
         while (true) {
-            TransferModel transferModel = GlobalTransferCacheList.CHANGED_FILE_MONITOR_QUEUE.pick(true);
-            if (transferModel == null) {
+            TransferModel missFieldDataTransferModel = GlobalTransferCacheList.CHANGED_FILE_MONITOR_QUEUE.pick(true);
+            if (missFieldDataTransferModel == null) {
                 break;
             }
 
-            File file = new File(transferModel.full_path);
-            SLogs.d("DownloadedFileMonitorWorker filePath: " + transferModel.full_path);
+            File file = new File(missFieldDataTransferModel.full_path);
+            SLogs.d("DownloadedFileMonitorWorker filePath: " + missFieldDataTransferModel.full_path);
             if (!FileUtils.isFileExists(file)) {
                 return Result.success();
             }
@@ -85,27 +120,65 @@ public class DownloadedFileMonitorWorker extends BaseUploadWorker {
                 continue;
             }
 
-            checkFile(account, cacheList.get(0), file.getAbsolutePath());
+
+            try {
+                try {
+
+                    TransferModel tm = parseFile(account, cacheList.get(0), file.getAbsolutePath());
+                    transfer(account, tm);
+
+                } catch (Exception e) {
+                    SeafException seafException = ExceptionUtils.parseByThrowable(e);
+                    //Is there an interruption in the transmission in some cases?
+                    boolean isInterrupt = isInterrupt(seafException);
+                    if (isInterrupt) {
+                        SLogs.e("An exception occurred and the transmission has been interrupted");
+                        notifyError(seafException);
+
+                        // notice this, see BaseUploadWorker#isInterrupt()
+                        throw e;
+                    } else {
+                        SLogs.e("An exception occurred and the next transfer will continue");
+                    }
+                }
+            } catch (Exception e) {
+                SLogs.e("upload file file failed: ", e);
+                interruptibleExceptionMsg = e.getMessage();
+
+                break;
+            }
         }
 
-        //Send a completion event
-        Data data = new Data.Builder()
-                .putString(TransferWorker.KEY_DATA_STATUS, TransferEvent.EVENT_TRANSFER_FINISH)
-                .build();
-        return Result.success(data);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            if (getStopReason() >= WorkInfo.STOP_REASON_CANCELLED_BY_APP) {
+                interruptibleExceptionMsg = SeafException.USER_CANCELLED_EXCEPTION.getMessage();
+            }
+        }
+
+        showToast(R.string.updated);
+        SLogs.e("downloaded file monitor: complete");
+
+        //
+        Bundle b = new Bundle();
+        b.putString(TransferWorker.KEY_DATA_RESULT, interruptibleExceptionMsg);
+        b.putInt(TransferWorker.KEY_TRANSFER_COUNT, totalPendingCount);
+        sendWorkerEvent(TransferDataSource.DOWNLOAD, TransferEvent.EVENT_TRANSFER_FINISH, b);
+
+        return Result.success();
     }
 
-    private void checkFile(Account account, FileCacheStatusEntity downloadedEntity, String localPath) {
+
+    private TransferModel parseFile(Account account, FileCacheStatusEntity downloadedEntity, String localPath) throws IOException {
         File file = new File(localPath);
         if (!file.exists()) {
             SLogs.e("DownloadedFileMonitorWorker -> local file is not exists: " + localPath);
-            return;
+            return null;
         }
 
         //compare the local database data with the md5 value of the file if it is the same
         String localMd5 = FileUtils.getFileMD5ToString(localPath).toLowerCase();
         if (TextUtils.equals(downloadedEntity.file_md5, localMd5)) {
-            return;
+            return null;
         }
 
         try {
@@ -113,10 +186,10 @@ public class DownloadedFileMonitorWorker extends BaseUploadWorker {
             //if not exists in the remote, stop it, no need to upload again
             if (fileModel == null) {
                 SLogs.e("DownloadedFileMonitorWorker -> file is not exists in remote: " + localPath);
-                return;
+                return null;
             }
         } catch (IOException e) {
-            return;
+            throw e;
         }
 
 
@@ -136,8 +209,10 @@ public class DownloadedFileMonitorWorker extends BaseUploadWorker {
         transferModel.transfer_strategy = ExistingFileStrategy.REPLACE;
         transferModel.transfer_status = TransferStatus.WAITING;
         transferModel.setId(transferModel.genStableId());
-        GlobalTransferCacheList.FILE_UPLOAD_QUEUE.put(transferModel);
+
         SLogs.d(DownloadedFileMonitorWorker.class.getSimpleName() + " -> add to FILE_UPLOAD_QUEUE : " + transferModel.toString());
+
+        return transferModel;
     }
 
     private DirentFileModel getDirentDetail(String repoId, String path) throws IOException {

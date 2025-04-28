@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.ui.media.image_preview;
+package com.seafile.seadroid2.ui.media.image;
 
 import static android.view.View.VISIBLE;
 
@@ -49,7 +49,6 @@ import com.seafile.seadroid2.framework.util.GlideApp;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.ThumbnailUtils;
 import com.seafile.seadroid2.ui.base.fragment.BaseFragment;
-import com.seafile.seadroid2.ui.media.image_preview2.DetailLayoutShowModel;
 import com.seafile.seadroid2.view.DocProfileView;
 import com.seafile.seadroid2.view.photoview.OnPhotoTapListener;
 import com.seafile.seadroid2.view.photoview.OnViewActionEndListener;
@@ -419,7 +418,7 @@ public class PhotoFragment extends BaseFragment {
         binding.photoView.setTranslationY(photoTranslationY);
         binding.bottomLayout.setTranslationY(bottomTranslationY);
 
-        SLogs.e("totalDis = " + totalDistance + ", photoTY = " + photoTranslationY + ", bottomTY = " + bottomTranslationY + ", dY = " + dY);
+//        SLogs.e("totalDis = " + totalDistance + ", photoTY = " + photoTranslationY + ", bottomTY = " + bottomTranslationY + ", dY = " + dY);
     }
 
     public void toggle() {

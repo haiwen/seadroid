@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.ui.media.image_preview;
+package com.seafile.seadroid2.ui.media.image;
 
 import android.text.TextUtils;
 import android.webkit.MimeTypeMap;
@@ -18,7 +18,6 @@ import com.seafile.seadroid2.framework.model.sdoc.FileProfileConfigModel;
 import com.seafile.seadroid2.framework.model.sdoc.FileRecordWrapperModel;
 import com.seafile.seadroid2.framework.model.sdoc.FileTagWrapperModel;
 import com.seafile.seadroid2.framework.model.sdoc.MetadataConfigModel;
-import com.seafile.seadroid2.framework.model.user.UserModel;
 import com.seafile.seadroid2.framework.model.user.UserWrapperModel;
 import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.http.HttpIO;
@@ -39,7 +38,6 @@ import java.net.URLEncoder;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
@@ -48,7 +46,6 @@ import io.reactivex.SingleSource;
 import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
-import kotlin.Pair;
 import okhttp3.Call;
 import okhttp3.Request;
 import okhttp3.Response;

@@ -211,10 +211,10 @@
         <activity android:name=".ui.sdoc.SDocWebViewActivity" />
         <activity android:name=".ui.docs_comment.DocsCommentsActivity" />
         <activity
-            android:name=".ui.media.image_preview2.CarouselImagePreviewActivity"
+            android:name=".ui.media.image.CarouselImagePreviewActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".ui.media.image_preview2.OnlyImagePreviewActivity"
+            android:name=".ui.media.image.OnlyImagePreviewActivity"
             android:screenOrientation="portrait" />
 
         <provider
