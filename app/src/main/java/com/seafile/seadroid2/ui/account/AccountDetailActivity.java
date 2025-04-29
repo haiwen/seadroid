@@ -244,7 +244,7 @@ public class AccountDetailActivity extends BaseActivityWithVM<AccountViewModel> 
         retData.putExtra(SeafileAuthenticatorActivity.ARG_NAME, loginAccount.getName());
         retData.putExtra(SeafileAuthenticatorActivity.ARG_AUTH_SESSION_KEY, loginAccount.getSessionKey());
         retData.putExtra(SeafileAuthenticatorActivity.ARG_SERVER_URI, loginAccount.getServer());
-        retData.putExtra(SeafileAuthenticatorActivity.ARG_SHIB, true);
+        retData.putExtra(SeafileAuthenticatorActivity.ARG_SHIB, false);
         retData.putExtra(TWO_FACTOR_AUTH, binding.rememberDevice.isChecked());
         setResult(RESULT_OK, retData);
         finish();
