@@ -597,21 +597,26 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
         SLogs.e("Settings -> on event: event: " + statusEvent + ", dataSource: " + dataSource);
 
         if (TextUtils.equals(statusEvent, TransferEvent.EVENT_SCANNING)) {
-            refreshPendingCount(dataSource, statusEvent, true);
+            refreshPendingCount(dataSource, statusEvent, true, result);
         } else if (TextUtils.equals(statusEvent, TransferEvent.EVENT_SCAN_FINISH)) {
-            refreshPendingCount(dataSource, statusEvent, true);
+            refreshPendingCount(dataSource, statusEvent, true, result);
         } else if (TextUtils.equals(statusEvent, TransferEvent.EVENT_FILE_IN_TRANSFER)) {
-            refreshPendingCount(dataSource, statusEvent, false);
+            refreshPendingCount(dataSource, statusEvent, false, result);
         } else if (TextUtils.equals(statusEvent, TransferEvent.EVENT_FILE_TRANSFER_FAILED)) {
-            refreshPendingCount(dataSource, statusEvent, false);
+            refreshPendingCount(dataSource, statusEvent, false, result);
         } else if (TextUtils.equals(statusEvent, TransferEvent.EVENT_FILE_TRANSFER_SUCCESS)) {
-            refreshPendingCount(dataSource, statusEvent, false);
+            refreshPendingCount(dataSource, statusEvent, false, result);
         } else if (TextUtils.equals(statusEvent, TransferEvent.EVENT_TRANSFER_FINISH)) {
-            refreshPendingCount(dataSource, statusEvent, true);
+            refreshPendingCount(dataSource, statusEvent, true, result);
         }
     }
 
-    private void refreshPendingCount(String dataSource, String statusEvent, boolean isFinish) {
+    private void refreshPendingCount(String dataSource, String statusEvent, boolean isFinish, String result) {
+        if (!TextUtils.isEmpty(result)) {
+            mTransferUploadState.setSummary(result);
+            return;
+        }
+
         if (TextUtils.equals(statusEvent, TransferEvent.EVENT_SCANNING)) {
             mTransferUploadState.setSummary(R.string.is_scanning);
             return;
@@ -621,6 +626,7 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
             mTransferUploadState.setSummary(R.string.upload_waiting);
             return;
         }
+
 
         if (TransferDataSource.ALBUM_BACKUP.name().equals(dataSource)
                 || TransferDataSource.FOLDER_BACKUP.name().equals(dataSource)) {
