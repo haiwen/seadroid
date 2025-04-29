@@ -4,8 +4,9 @@ import android.text.TextUtils;
 
 import androidx.lifecycle.MutableLiveData;
 
+import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
-import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
+import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.ui.dialog_fragment.DialogService;
 
@@ -34,7 +35,7 @@ public class NewRepoViewModel extends BaseViewModel {
         Map<String, String> requestDataMap = new HashMap<>();
         requestDataMap.put("name", repoName);
 
-        if (description.length() > 0) {
+        if (!description.isEmpty()) {
             requestDataMap.put("desc", description);
         }
         if (!TextUtils.isEmpty(password)) {
@@ -49,6 +50,13 @@ public class NewRepoViewModel extends BaseViewModel {
                 getRefreshLiveData().setValue(false);
 
                 getCreateRepoLiveData().setValue(repoModel);
+            }
+        }, new Consumer<Throwable>() {
+            @Override
+            public void accept(Throwable throwable) throws Exception {
+                SeafException seafException = getExceptionByThrowable(throwable);
+                getSeafExceptionLiveData().setValue(seafException);
+                getRefreshLiveData().setValue(false);
             }
         });
     }

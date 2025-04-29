@@ -29,7 +29,7 @@ import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.util.SLogs;
-import com.seafile.seadroid2.preferences.ContextStackPreferenceHelper;
+import com.seafile.seadroid2.context.ContextStackPreferenceHelper;
 import com.seafile.seadroid2.ui.account.sso.SingleSignOnActivity;
 import com.seafile.seadroid2.ui.account.sso.SingleSignOnAuthorizeActivity;
 import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
@@ -127,7 +127,7 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
 
         if (getIntent().getBooleanExtra(ARG_SHIB, false)) {
 
-            Intent intent = new Intent(this, AccountDetailActivity.class);
+            Intent intent = new Intent(this, SingleSignOnActivity.class);
             Account account = new Account(getIntent().getStringExtra(SeafileAuthenticatorActivity.ARG_ACCOUNT_NAME), Constants.Account.ACCOUNT_TYPE);
 
             String serverUrl = SupportAccountManager.getInstance().getUserData(account, Authenticator.KEY_SERVER_URI);
@@ -278,6 +278,7 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
         Log.d(DEBUG_TAG, "adding new account " + newAccountName);
 
         Bundle bundle = new Bundle();
+        bundle.putBoolean(Authenticator.KEY_SHIB, shib);
         bundle.putString(Authenticator.KEY_SERVER_URI, serverUri);
         bundle.putString(Authenticator.KEY_EMAIL, email);
         bundle.putString(Authenticator.KEY_NAME, name);

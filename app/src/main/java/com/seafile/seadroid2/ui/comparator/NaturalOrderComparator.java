@@ -1,7 +1,7 @@
 package com.seafile.seadroid2.ui.comparator;
 
-import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
-import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
+import com.seafile.seadroid2.framework.db.entities.DirentModel;
+import com.seafile.seadroid2.framework.db.entities.RepoModel;
 
 import java.math.BigInteger;
 import java.text.Collator;

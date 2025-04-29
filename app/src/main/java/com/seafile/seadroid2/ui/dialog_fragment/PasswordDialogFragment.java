@@ -14,8 +14,8 @@ import androidx.lifecycle.Observer;
 import com.google.android.material.textfield.TextInputLayout;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
-import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
-import com.seafile.seadroid2.framework.data.model.TResultModel;
+import com.seafile.seadroid2.framework.db.entities.RepoModel;
+import com.seafile.seadroid2.framework.model.TResultModel;
 import com.seafile.seadroid2.ui.base.fragment.RequestCustomDialogFragmentWithVM;
 import com.seafile.seadroid2.ui.dialog_fragment.listener.OnResultListener;
 import com.seafile.seadroid2.ui.dialog_fragment.viewmodel.PasswordViewModel;
@@ -114,12 +114,14 @@ public class PasswordDialogFragment extends RequestCustomDialogFragmentWithVM<Pa
     @Override
     protected void initViewModel() {
         super.initViewModel();
+
         getViewModel().getSeafExceptionLiveData().observe(this, new Observer<SeafException>() {
             @Override
             public void onChanged(SeafException seafException) {
                 setInputError(R.id.password_hint, seafException.getMessage());
             }
         });
+
         getViewModel().getActionResultLiveData().observe(this, new Observer<TResultModel<RepoModel>>() {
             @Override
             public void onChanged(TResultModel<RepoModel> tResultModel) {
@@ -135,6 +137,7 @@ public class PasswordDialogFragment extends RequestCustomDialogFragmentWithVM<Pa
                 }
             }
         });
+
         getViewModel().getRefreshLiveData().observe(this, new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean aBoolean) {

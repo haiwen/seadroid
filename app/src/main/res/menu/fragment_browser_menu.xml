@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/menu_action_search"
+        android:icon="@drawable/baseline_search_24"
+        android:title="@string/search_menu_item"
+        app:actionViewClass="androidx.appcompat.widget.SearchView"
+        app:iconTint="@color/bar_icon_tint_color"
+        app:showAsAction="ifRoom|collapseActionView" />
+
+    <item
+        android:id="@+id/menu_action_sort"
+        android:icon="@drawable/baseline_sort_24"
+        android:title="@string/menu_action_view_and_sort"
+        app:iconTint="@color/bar_icon_tint_color"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/create_repo"
+        android:title="@string/add_repo"
+        android:visible="true"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/add"
+        android:title="@string/add_file"
+        android:visible="true"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/select"
+        android:title="@string/select"
+        android:visible="true"
+        app:showAsAction="never" />
+</menu>

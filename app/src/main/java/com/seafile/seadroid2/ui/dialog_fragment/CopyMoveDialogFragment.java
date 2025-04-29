@@ -5,8 +5,11 @@ import android.text.TextUtils;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.lifecycle.Observer;
+
 import com.blankj.utilcode.util.CollectionUtils;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.ui.base.fragment.RequestCustomDialogFragmentWithVM;
@@ -111,6 +114,14 @@ public class CopyMoveDialogFragment extends RequestCustomDialogFragmentWithVM<Co
     @Override
     protected void initViewModel() {
         super.initViewModel();
+        
+        getViewModel().getSeafExceptionLiveData().observe(this, new Observer<SeafException>() {
+            @Override
+            public void onChanged(SeafException e) {
+                refreshData(false);
+                dismiss();
+            }
+        });
 
         getViewModel().getResultLiveData().observe(this, resultModel -> {
             refreshData();

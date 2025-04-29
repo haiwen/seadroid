@@ -2,12 +2,9 @@ package com.seafile.seadroid2.util;
 
 import static org.junit.Assert.assertEquals;
 
-import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
 import com.seafile.seadroid2.ui.comparator.NaturalOrderComparator;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
 import java.util.Arrays;
 import java.util.Collections;

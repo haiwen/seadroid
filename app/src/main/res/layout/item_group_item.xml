@@ -4,7 +4,9 @@
     android:id="@+id/group_container"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/bar_background_color"
+    android:layout_marginStart="16dp"
+    android:layout_marginEnd="0dp"
+    android:background="@color/window_background_color"
     android:foreground="?selectableItemBackground"
     android:orientation="vertical">
 
@@ -17,7 +19,7 @@
         android:paddingVertical="8dp"
         android:text="@string/app_name"
         android:textColor="@color/item_title_color"
-        android:textSize="@dimen/lv_subtitle_txt_size"
+        android:textSize="@dimen/lv_title_txt_size"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -31,14 +33,6 @@
         android:src="@drawable/baseline_arrow_forward_24"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <com.google.android.material.divider.MaterialDivider
-        android:id="@+id/divider"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:dividerColor="@color/divider_color"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="@color/material_grey_666" />
 </androidx.constraintlayout.widget.ConstraintLayout>

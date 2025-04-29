@@ -9,7 +9,6 @@ import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.widget.Toolbar;
-import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.Observer;
 
 import android.text.Editable;
@@ -22,7 +21,7 @@ import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.databinding.SingleSignOnWelcomeLayoutBinding;
-import com.seafile.seadroid2.framework.data.model.server.ServerInfoModel;
+import com.seafile.seadroid2.framework.model.server.ServerInfoModel;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.StringUtils;
 import com.seafile.seadroid2.ui.WidgetUtils;
@@ -32,14 +31,6 @@ import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
 import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.TimeUnit;
-
-import io.reactivex.Observable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
-import io.reactivex.schedulers.Schedulers;
 
 /**
  * Single Sign-On welcome page
@@ -79,9 +70,17 @@ public class SingleSignOnActivity extends BaseActivityWithVM<SingleSignOnViewMod
 
     private void initView() {
 
-        binding.serverEditText.setText(SINGLE_SIGN_ON_HTTPS_PREFIX);
-        int prefixLen = SINGLE_SIGN_ON_HTTPS_PREFIX.length();
-        binding.serverEditText.setSelection(prefixLen, prefixLen);
+
+        String url = getIntent().getStringExtra(SeafileAuthenticatorActivity.SINGLE_SIGN_ON_SERVER_URL);
+        if (!TextUtils.isEmpty(url)) {
+            binding.serverEditText.setText(url);
+            int len = url.length();
+            binding.serverEditText.setSelection(len, len);
+        } else {
+            binding.serverEditText.setText(SINGLE_SIGN_ON_HTTPS_PREFIX);
+            int prefixLen = SINGLE_SIGN_ON_HTTPS_PREFIX.length();
+            binding.serverEditText.setSelection(prefixLen, prefixLen);
+        }
 
         binding.nextBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -264,6 +263,8 @@ public class SingleSignOnActivity extends BaseActivityWithVM<SingleSignOnViewMod
         retData.putExtra(SeafileAuthenticatorActivity.ARG_AVATAR_URL, account.getAvatarUrl());
         retData.putExtra(SeafileAuthenticatorActivity.ARG_SPACE_TOTAL, account.getTotalSpace());
         retData.putExtra(SeafileAuthenticatorActivity.ARG_SPACE_USAGE, account.getUsageSpace());
+        retData.putExtra(SeafileAuthenticatorActivity.ARG_SHIB, true);
+
         setResult(RESULT_OK, retData);
         finish();
     }

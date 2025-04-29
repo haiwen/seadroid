@@ -7,11 +7,7 @@ import android.widget.TextView;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
-import com.seafile.seadroid2.ui.base.fragment.CustomDialogFragment;
-import com.seafile.seadroid2.framework.datastore.DataManager;
-import com.seafile.seadroid2.framework.data.DatabaseHelper;
 import com.seafile.seadroid2.ui.base.fragment.RequestCustomDialogFragmentWithVM;
-import com.seafile.seadroid2.ui.dialog_fragment.viewmodel.ClearCacheViewModel;
 import com.seafile.seadroid2.ui.dialog_fragment.viewmodel.ClearPasswordViewModel;
 
 import io.reactivex.functions.Consumer;

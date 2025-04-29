@@ -15,6 +15,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.Observer;
 
 import com.blankj.utilcode.util.EncryptUtils;
+import com.blankj.utilcode.util.NetworkUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
@@ -79,6 +80,10 @@ public class EditorActivity extends BaseActivityWithVM<EditorViewModel> implemen
                 }
             }
         });
+
+        if (!NetworkUtils.isConnected()) {
+            ToastUtils.showLong(R.string.network_unavailable);
+        }
     }
 
     @Override

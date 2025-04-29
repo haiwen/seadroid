@@ -20,6 +20,7 @@ import androidx.annotation.OptIn;
 import androidx.lifecycle.Observer;
 import androidx.media3.common.util.UnstableApi;
 
+import com.blankj.utilcode.util.NetworkUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.chad.library.adapter4.QuickAdapterHelper;
 import com.chad.library.adapter4.loadState.LoadState;
@@ -30,10 +31,9 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.databinding.LayoutFrameSwipeRvBinding;
-import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
-import com.seafile.seadroid2.framework.data.db.entities.StarredModel;
-import com.seafile.seadroid2.framework.data.model.ResultModel;
-import com.seafile.seadroid2.framework.data.model.activities.ActivityModel;
+import com.seafile.seadroid2.framework.db.entities.RepoModel;
+import com.seafile.seadroid2.framework.model.ResultModel;
+import com.seafile.seadroid2.framework.model.activities.ActivityModel;
 import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Utils;
@@ -45,7 +45,7 @@ import com.seafile.seadroid2.ui.dialog_fragment.listener.OnResultListener;
 import com.seafile.seadroid2.ui.file.FileActivity;
 import com.seafile.seadroid2.ui.main.MainActivity;
 import com.seafile.seadroid2.ui.markdown.MarkdownActivity;
-import com.seafile.seadroid2.ui.media.image_preview2.CarouselImagePreviewActivity;
+import com.seafile.seadroid2.ui.media.image.CarouselImagePreviewActivity;
 import com.seafile.seadroid2.ui.media.player.CustomExoVideoPlayerActivity;
 import com.seafile.seadroid2.ui.sdoc.SDocWebViewActivity;
 import com.seafile.seadroid2.view.TipsViews;
@@ -104,7 +104,7 @@ public class AllActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel>
         adapter = new ActivityAdapter();
 
         TextView tipView = TipsViews.getTipTextView(requireContext());
-        tipView.setText(R.string.no_starred_file);
+        tipView.setText(R.string.no_more_activities);
         tipView.setOnClickListener(v -> reload());
         adapter.setStateView(tipView);
         adapter.setStateViewEnable(false);
@@ -324,7 +324,6 @@ public class AllActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel>
             imagePreviewActivityLauncher.launch(getIntent);
 
         } else if (activityModel.name.endsWith(Constants.Format.DOT_SDOC)) {
-
             SDocWebViewActivity.openSdoc(getContext(), activityModel.repo_name, activityModel.repo_id, activityModel.path);
 
         } else if (Utils.isVideoFile(activityModel.name)) {
@@ -332,7 +331,7 @@ public class AllActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel>
             MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext());
             builder.setItems(R.array.video_download_array, (dialog, which) -> {
                 if (which == 0) {
-                    CustomExoVideoPlayerActivity.startThis(getContext(), activityModel.name, activityModel.repo_id, activityModel.path);
+                    CustomExoVideoPlayerActivity.startThis(getContext(), activityModel.name, activityModel.repo_id, activityModel.path, null);
                 } else if (which == 1) {
                     Intent intent = FileActivity.startFromActivity(requireContext(), activityModel, "video_download");
                     fileActivityLauncher.launch(intent);

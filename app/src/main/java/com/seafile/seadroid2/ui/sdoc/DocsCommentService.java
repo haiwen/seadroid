@@ -1,14 +1,10 @@
 package com.seafile.seadroid2.ui.sdoc;
 
-import com.seafile.seadroid2.framework.data.model.ResultModel;
-import com.seafile.seadroid2.framework.data.model.docs_comment.DocsCommentWrapperModel;
-import com.seafile.seadroid2.framework.data.model.docs_comment.DocsCommentsWrapperModel;
-import com.seafile.seadroid2.framework.data.model.docs_comment.DocsUploadResultModel;
-import com.seafile.seadroid2.framework.data.model.sdoc.FileDetailModel;
-import com.seafile.seadroid2.framework.data.model.sdoc.FileRecordWrapperModel;
-import com.seafile.seadroid2.framework.data.model.sdoc.MetadataConfigModel;
-import com.seafile.seadroid2.framework.data.model.sdoc.SDocOutlineWrapperModel;
-import com.seafile.seadroid2.framework.data.model.user.UserWrapperModel;
+import com.seafile.seadroid2.framework.model.ResultModel;
+import com.seafile.seadroid2.framework.model.docs_comment.DocsCommentWrapperModel;
+import com.seafile.seadroid2.framework.model.docs_comment.DocsCommentsWrapperModel;
+import com.seafile.seadroid2.framework.model.docs_comment.DocsUploadResultModel;
+import com.seafile.seadroid2.framework.model.sdoc.SDocOutlineWrapperModel;
 
 import java.util.Map;
 
@@ -25,7 +21,6 @@ import retrofit2.http.PUT;
 import retrofit2.http.Part;
 import retrofit2.http.PartMap;
 import retrofit2.http.Path;
-import retrofit2.http.Query;
 
 public interface DocsCommentService {
 

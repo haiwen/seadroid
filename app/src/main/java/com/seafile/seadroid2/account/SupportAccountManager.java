@@ -11,7 +11,7 @@ import androidx.annotation.Nullable;
 
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.config.Constants;
-import com.seafile.seadroid2.framework.data.ServerInfo;
+import com.seafile.seadroid2.framework.model.ServerInfo;
 import com.seafile.seadroid2.framework.datastore.DataStoreKeys;
 import com.seafile.seadroid2.framework.datastore.DataStoreManager;
 

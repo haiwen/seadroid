@@ -13,24 +13,22 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.enums.SaveTo;
-import com.seafile.seadroid2.framework.data.db.entities.EncKeyCacheEntity;
-import com.seafile.seadroid2.framework.data.db.entities.PermissionEntity;
-import com.seafile.seadroid2.framework.data.model.dirents.DirentFileModel;
+import com.seafile.seadroid2.framework.db.entities.EncKeyCacheEntity;
+import com.seafile.seadroid2.framework.db.entities.PermissionEntity;
+import com.seafile.seadroid2.framework.model.dirents.DirentFileModel;
 import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.enums.TransferStatus;
-import com.seafile.seadroid2.framework.data.model.repo.DirentWrapperModel;
+import com.seafile.seadroid2.framework.model.repo.DirentWrapperModel;
 import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.ExistingFileStrategy;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
-import com.seafile.seadroid2.preferences.ContextStackPreferenceHelper;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
-import com.seafile.seadroid2.context.NavContext;
-import com.seafile.seadroid2.framework.data.ServerInfo;
-import com.seafile.seadroid2.framework.data.db.AppDatabase;
-import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
-import com.seafile.seadroid2.framework.data.model.repo.RepoWrapperModel;
-import com.seafile.seadroid2.framework.data.model.server.ServerInfoModel;
+import com.seafile.seadroid2.framework.model.ServerInfo;
+import com.seafile.seadroid2.framework.db.AppDatabase;
+import com.seafile.seadroid2.framework.db.entities.RepoModel;
+import com.seafile.seadroid2.framework.model.repo.RepoWrapperModel;
+import com.seafile.seadroid2.framework.model.server.ServerInfoModel;
 import com.seafile.seadroid2.ui.file.FileService;
 import com.seafile.seadroid2.ui.repo.RepoService;
 import com.seafile.seadroid2.framework.http.HttpIO;
@@ -55,9 +53,6 @@ public class MainViewModel extends BaseViewModel {
     //force refresh repo/dirents
     private final MutableLiveData<Boolean> _on_force_refresh_repo_list_live_data = new MutableLiveData<>();
 
-    //show swipeRefresh in Repo Fragment
-    private final MutableLiveData<Boolean> _on_show_refresh_loading_in_repo_live_data = new MutableLiveData<>();
-
     private final MutableLiveData<Boolean> _search_view_expanded_live_data = new MutableLiveData<>(false);
 
     public MutableLiveData<Boolean> getSearchViewExpandedLiveData() {
@@ -80,11 +75,6 @@ public class MainViewModel extends BaseViewModel {
     public MutableLiveData<Boolean> getOnForceRefreshRepoListLiveData() {
         return _on_force_refresh_repo_list_live_data;
     }
-
-    public MutableLiveData<Boolean> getOnShowRefreshLoadingInRepoLiveData() {
-        return _on_show_refresh_loading_in_repo_live_data;
-    }
-
 
     public MutableLiveData<ServerInfo> getServerInfoLiveData() {
         return _server_info_live_data;
@@ -120,70 +110,6 @@ public class MainViewModel extends BaseViewModel {
         });
     }
 
-    public void requestRepoModel(String repoId, Consumer<RepoModel> consumer) {
-        getOnShowRefreshLoadingInRepoLiveData().setValue(true);
-
-        //from db
-        Single<List<RepoModel>> singleDb = AppDatabase.getInstance().repoDao().getRepoById(repoId);
-        addSingleDisposable(singleDb, new Consumer<List<RepoModel>>() {
-            @Override
-            public void accept(List<RepoModel> repoModels) throws Exception {
-                if (consumer != null) {
-                    if (CollectionUtils.isEmpty(repoModels)) {
-                        //no data in sqlite, request RepoApi again
-                        getRepoModelFromRemote(repoId, consumer);
-                    } else {
-                        consumer.accept(repoModels.get(0));
-                        getOnShowRefreshLoadingInRepoLiveData().setValue(false);
-                    }
-                } else {
-                    getOnShowRefreshLoadingInRepoLiveData().setValue(false);
-                }
-            }
-        }, new Consumer<Throwable>() {
-            @Override
-            public void accept(Throwable throwable) throws Exception {
-                getOnShowRefreshLoadingInRepoLiveData().setValue(false);
-                SLogs.e(throwable);
-            }
-        });
-    }
-
-    private void getRepoModelFromRemote(String repoId, Consumer<RepoModel> consumer) {
-        //from net
-        Single<RepoWrapperModel> singleNet = HttpIO.getCurrentInstance().execute(RepoService.class).getReposAsync();
-        addSingleDisposable(singleNet, new Consumer<RepoWrapperModel>() {
-            @Override
-            public void accept(RepoWrapperModel repoWrapperModel) throws Exception {
-                getOnShowRefreshLoadingInRepoLiveData().setValue(false);
-
-                if (repoWrapperModel == null || CollectionUtils.isEmpty(repoWrapperModel.repos)) {
-                    ToastUtils.showLong(R.string.search_library_not_found);
-                    return;
-                }
-
-                Optional<RepoModel> optionalRepoModel = repoWrapperModel.repos
-                        .stream()
-                        .filter(f -> TextUtils.equals(f.repo_id, repoId))
-                        .findFirst();
-                if (optionalRepoModel.isPresent()) {
-                    if (consumer != null) {
-                        consumer.accept(optionalRepoModel.get());
-                    }
-                } else {
-                    ToastUtils.showLong(R.string.search_library_not_found);
-                }
-            }
-        }, new Consumer<Throwable>() {
-            @Override
-            public void accept(Throwable throwable) throws Exception {
-                getOnShowRefreshLoadingInRepoLiveData().setValue(false);
-                String msg = getErrorMsgByThrowable(throwable);
-                ToastUtils.showLong(msg);
-            }
-        });
-    }
-
     public void getPermissionFromLocal(String repoId, int pNum, Consumer<PermissionEntity> consumer) {
         Single<List<PermissionEntity>> pSingle = AppDatabase.getInstance().permissionDAO().getByRepoAndIdAsync(repoId, pNum);
         addSingleDisposable(pSingle, new Consumer<List<PermissionEntity>>() {
@@ -202,19 +128,6 @@ public class MainViewModel extends BaseViewModel {
         });
     }
 
-    public void getEncCacheDB(String repoId, Consumer<EncKeyCacheEntity> consumer) {
-        Single<List<EncKeyCacheEntity>> single = AppDatabase.getInstance().encKeyCacheDAO().getListByRepoIdAsync(repoId);
-        addSingleDisposable(single, new Consumer<List<EncKeyCacheEntity>>() {
-            @Override
-            public void accept(List<EncKeyCacheEntity> list) throws Exception {
-                if (CollectionUtils.isEmpty(list)) {
-                    consumer.accept(null);
-                } else {
-                    consumer.accept(list.get(0));
-                }
-            }
-        });
-    }
 
     public void multipleCheckRemoteDirent(Context context, Account account, String repoId, String repoName, String parentDir, List<Uri> uriList, java.util.function.Consumer<Boolean> consumer) {
         if (CollectionUtils.isEmpty(uriList)) {

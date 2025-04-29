@@ -7,7 +7,7 @@ import android.view.ViewGroup;
 import androidx.annotation.Nullable;
 
 import com.seafile.seadroid2.databinding.ItemSearchBinding;
-import com.seafile.seadroid2.framework.data.model.search.SearchModel;
+import com.seafile.seadroid2.framework.model.search.SearchModel;
 import com.seafile.seadroid2.ui.base.adapter.BaseAdapter;
 import com.seafile.seadroid2.ui.base.viewholder.BaseViewHolder;
 

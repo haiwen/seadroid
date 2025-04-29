@@ -13,7 +13,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.text.Spanned;
 import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
@@ -30,6 +32,7 @@ import androidx.preference.Preference;
 
 import com.blankj.utilcode.util.AppUtils;
 import com.blankj.utilcode.util.CollectionUtils;
+import com.blankj.utilcode.util.NetworkUtils;
 import com.blankj.utilcode.util.TimeUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -126,8 +129,7 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
         super.onViewCreated(view, savedInstanceState);
 
         getListView().setPadding(0, 0, 0, Constants.DP.DP_32);
-        getListView().setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.bar_background_color));
-
+        getListView().setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.window_background_color));
     }
 
     private boolean isFirstLoadData = true;
@@ -150,8 +152,6 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
     public void onFirstResume() {
         initPref();
 
-//        initGestureConfig();
-
         initPrefLiveData();
 
         initWorkerBusObserver();
@@ -164,7 +164,6 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
                 switchFolderBackupState(mFolderBackupSwitch.isChecked());
             }
         }, 500);
-
     }
 
 
@@ -595,32 +594,34 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
         String transferId = map.getString(TransferWorker.KEY_TRANSFER_ID);
         int transferCount = map.getInt(TransferWorker.KEY_TRANSFER_COUNT);
 
-        SLogs.d("Settings -> on event: event: " + statusEvent + ", dataSource: " + dataSource);
+        SLogs.e("Settings -> on event: event: " + statusEvent + ", dataSource: " + dataSource);
 
         if (TextUtils.equals(statusEvent, TransferEvent.EVENT_SCANNING)) {
-//            if (TransferDataSource.ALBUM_BACKUP.name().equals(dataSource)) {
-//                mAlbumBackupState.setSummary(R.string.is_scanning);
-//            } else if (TransferDataSource.FOLDER_BACKUP.name().equals(dataSource)) {
-//                mFolderBackupState.setSummary(R.string.is_scanning);
-//            }
+            refreshPendingCount(dataSource, statusEvent, true, result);
         } else if (TextUtils.equals(statusEvent, TransferEvent.EVENT_SCAN_FINISH)) {
-//            if (TransferDataSource.ALBUM_BACKUP.name().equals(dataSource)) {
-//                mAlbumBackupState.setSummary(R.string.uploading);
-//            } else if (TransferDataSource.FOLDER_BACKUP.name().equals(dataSource)) {
-//                mFolderBackupState.setSummary(R.string.uploading);
-//            }
+            refreshPendingCount(dataSource, statusEvent, true, result);
         } else if (TextUtils.equals(statusEvent, TransferEvent.EVENT_FILE_IN_TRANSFER)) {
-            refreshPendingCount(dataSource, false);
+            refreshPendingCount(dataSource, statusEvent, false, result);
         } else if (TextUtils.equals(statusEvent, TransferEvent.EVENT_FILE_TRANSFER_FAILED)) {
-            refreshPendingCount(dataSource, false);
+            refreshPendingCount(dataSource, statusEvent, false, result);
         } else if (TextUtils.equals(statusEvent, TransferEvent.EVENT_FILE_TRANSFER_SUCCESS)) {
-            refreshPendingCount(dataSource, false);
+            refreshPendingCount(dataSource, statusEvent, false, result);
         } else if (TextUtils.equals(statusEvent, TransferEvent.EVENT_TRANSFER_FINISH)) {
-            refreshPendingCount(dataSource, true);
+            refreshPendingCount(dataSource, statusEvent, true, result);
         }
     }
 
-    private void refreshPendingCount(String dataSource, boolean isFinish) {
+    private void refreshPendingCount(String dataSource, String statusEvent, boolean isFinish, String result) {
+        if (!TextUtils.isEmpty(result)) {
+            mTransferUploadState.setSummary(result);
+            return;
+        }
+
+        if (TextUtils.equals(statusEvent, TransferEvent.EVENT_SCANNING)) {
+            mTransferUploadState.setSummary(R.string.is_scanning);
+            return;
+        }
+
         if (TransferDataSource.ALBUM_BACKUP.name().equals(dataSource)
                 || TransferDataSource.FOLDER_BACKUP.name().equals(dataSource)) {
             int totalPendingCount = GlobalTransferCacheList.getUploadPendingCount();
@@ -892,7 +893,7 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
 
             updateAlbumBackupSelectedRepoSummary();
 
-            BackgroundJobManagerImpl.getInstance().startMediaBackupChain(true);
+            BackgroundJobManagerImpl.getInstance().restartMediaBackupWorker();
         }
     });
 

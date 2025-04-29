@@ -7,10 +7,11 @@ import androidx.lifecycle.MutableLiveData;
 import com.blankj.utilcode.util.CollectionUtils;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
-import com.seafile.seadroid2.framework.data.db.AppDatabase;
-import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
-import com.seafile.seadroid2.framework.data.model.search.SearchModel;
-import com.seafile.seadroid2.framework.data.model.search.SearchWrapperModel;
+import com.seafile.seadroid2.enums.ItemPositionEnum;
+import com.seafile.seadroid2.framework.db.AppDatabase;
+import com.seafile.seadroid2.framework.db.entities.RepoModel;
+import com.seafile.seadroid2.framework.model.search.SearchModel;
+import com.seafile.seadroid2.framework.model.search.SearchWrapperModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
@@ -44,19 +45,31 @@ public class SearchViewModel extends BaseViewModel {
             @Override
             public void accept(SearchWrapperModel searchWrapperModel) throws Exception {
 
-                if (searchWrapperModel == null) {
+                if (searchWrapperModel == null || searchWrapperModel.results == null) {
                     getSearchListLiveData().setValue(CollectionUtils.newArrayList());
                     getRefreshLiveData().setValue(false);
                     return;
                 }
 
-                if (searchWrapperModel.results != null) {
-                    for (SearchModel result : searchWrapperModel.results) {
-                        result.related_account = account.getSignature();
-                    }
+                List<SearchModel> results = searchWrapperModel.results;
+
+                for (SearchModel result : results) {
+                    result.related_account = account.getSignature();
+                }
+                //calculate item_position
+                if (CollectionUtils.isEmpty(results)) {
+
+                } else if (results.size() == 1) {
+                    results.get(0).item_position = ItemPositionEnum.ALL;
+                } else if (results.size() == 2) {
+                    results.get(0).item_position = ItemPositionEnum.START;
+                    results.get(1).item_position = ItemPositionEnum.END;
+                } else {
+                    results.get(0).item_position = ItemPositionEnum.START;
+                    results.get(results.size() - 1).item_position = ItemPositionEnum.END;
                 }
 
-                getSearchListLiveData().setValue(searchWrapperModel.results);
+                getSearchListLiveData().setValue(results);
                 getRefreshLiveData().setValue(false);
             }
         }, new Consumer<Throwable>() {

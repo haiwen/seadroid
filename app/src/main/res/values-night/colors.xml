@@ -55,7 +55,7 @@
 
     <!-- primary background color -->
     <color name="window_background_color">@color/material_grey_919</color>
-    <color name="bar_background_color">@color/material_grey_911</color>
+    <color name="bar_background_color">@color/black</color>
     <color name="bar_title_color">@color/material_grey_200</color>
     <color name="bar_icon_tint_color">@color/material_grey_200</color>
     <color name="swipe_refresh_background_color">@color/material_grey_700</color>
@@ -97,6 +97,6 @@
     <color name="comment_resolved_color">@color/material_grey_919</color>
 
     <!-- preference -->
-    <color name="pref_background_color">@color/material_grey_919</color>
+    <color name="pref_background_color">@color/black</color>
     <color name="pref_divider_color">@color/material_grey_900</color>
 </resources>

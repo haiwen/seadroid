@@ -16,9 +16,12 @@
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv"
-            style="@style/Widget.FastRecyclerView.Style"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:fitsSystemWindows="true"
+            android:paddingBottom="32dp"
+            android:scrollbars="vertical"
             tools:listitem="@layout/item_sdoc_outline" />
     </androidx.core.widget.NestedScrollView>
 </LinearLayout>

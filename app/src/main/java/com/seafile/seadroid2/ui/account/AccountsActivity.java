@@ -21,7 +21,7 @@ import androidx.lifecycle.Observer;
 import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.AppUtils;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.framework.data.ServerInfo;
+import com.seafile.seadroid2.framework.model.ServerInfo;
 import com.seafile.seadroid2.framework.datastore.sp.AppDataManager;
 import com.seafile.seadroid2.account.AccountUtils;
 import com.seafile.seadroid2.listener.OnCallback;

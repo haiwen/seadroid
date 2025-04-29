@@ -1,7 +1,6 @@
 package com.seafile.seadroid2.ui.repo;
 
 import android.content.Context;
-import android.content.res.ColorStateList;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -14,10 +13,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.EncryptUtils;
-import com.blankj.utilcode.util.FileUtils;
 import com.blankj.utilcode.util.SizeUtils;
 import com.bumptech.glide.signature.ObjectKey;
 import com.seafile.seadroid2.R;
@@ -35,17 +34,16 @@ import com.seafile.seadroid2.databinding.ItemGroupItemBinding;
 import com.seafile.seadroid2.databinding.ItemRepoBinding;
 import com.seafile.seadroid2.databinding.ItemUnsupportedBinding;
 import com.seafile.seadroid2.enums.FileViewType;
+import com.seafile.seadroid2.enums.ItemPositionEnum;
 import com.seafile.seadroid2.enums.RepoSelectType;
-import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
-import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
-import com.seafile.seadroid2.framework.data.model.BaseModel;
-import com.seafile.seadroid2.framework.data.model.BlankModel;
-import com.seafile.seadroid2.framework.data.model.GroupItemModel;
-import com.seafile.seadroid2.framework.data.model.search.SearchModel;
-import com.seafile.seadroid2.framework.datastore.DataManager;
+import com.seafile.seadroid2.framework.db.entities.DirentModel;
+import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
+import com.seafile.seadroid2.framework.model.BaseModel;
+import com.seafile.seadroid2.framework.model.BlankModel;
+import com.seafile.seadroid2.framework.model.GroupItemModel;
+import com.seafile.seadroid2.framework.model.search.SearchModel;
 import com.seafile.seadroid2.framework.util.GlideApp;
-import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.ThumbnailUtils;
 import com.seafile.seadroid2.framework.util.URLs;
 import com.seafile.seadroid2.framework.util.Utils;
@@ -58,8 +56,8 @@ import com.seafile.seadroid2.ui.repo.vh.DirentViewHolder;
 import com.seafile.seadroid2.ui.repo.vh.RepoViewHolder;
 import com.seafile.seadroid2.ui.repo.vh.UnsupportedViewHolder;
 import com.seafile.seadroid2.ui.viewholder.GroupItemViewHolder;
+import com.seafile.seadroid2.widget.prefs.background_pref.BackgroundShapeUtils;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -75,7 +73,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
     private boolean repoEncrypted = false;
     private FileViewType fileViewType = FileViewType.LIST;
     private RepoSelectType selectType = RepoSelectType.NOT_SELECTABLE;
-
+    private int itemBackColor;
     /**
      * <pre>
      *  -1 no limited
@@ -94,17 +92,6 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         this.selectedMaxCount = selectedMaxCount;
     }
 
-    private Drawable starDrawable;
-
-    public Drawable getStarDrawable() {
-        if (null == starDrawable) {
-            int DP_16 = SizeUtils.dp2px(12);
-            starDrawable = ContextCompat.getDrawable(getContext(), R.drawable.ic_star_32);
-            starDrawable.setBounds(0, 0, DP_16, DP_16);
-            starDrawable.setTint(ContextCompat.getColor(getContext(), R.color.light_grey));
-        }
-        return starDrawable;
-    }
 
     public void setRepoEncrypted(boolean repoEncrypted) {
         this.repoEncrypted = repoEncrypted;
@@ -125,7 +112,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
 
             @Override
             public void onBind(@NonNull AccountViewHolder viewHolder, int i, @Nullable BaseModel baseModel) {
-                onBindAccount(viewHolder, baseModel);
+                onBindAccount(viewHolder, baseModel, i);
             }
         }).addItemType(AbsLayoutItemType.GROUP_ITEM, new OnMultiItem<BaseModel, GroupItemViewHolder>() {
             @NonNull
@@ -136,13 +123,13 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
             }
 
             @Override
-            public void onBind(@NonNull GroupItemViewHolder holder, int i, @Nullable BaseModel groupTimeModel) {
-                onBind(holder, i, groupTimeModel, null);
+            public void onBind(@NonNull GroupItemViewHolder holder, int i, @Nullable BaseModel item) {
+                onBindGroup(holder, (GroupItemModel) item, i, null);
             }
 
             @Override
-            public void onBind(@NonNull GroupItemViewHolder holder, int position, @Nullable BaseModel item, @NonNull List<?> payloads) {
-                onBindGroup(position, holder, (GroupItemModel) item, payloads);
+            public void onBind(@NonNull GroupItemViewHolder holder, int i, @Nullable BaseModel item, @NonNull List<?> payloads) {
+                onBindGroup(holder, (GroupItemModel) item, i, payloads);
             }
         }).addItemType(AbsLayoutItemType.REPO, new OnMultiItem<BaseModel, RepoViewHolder>() {
             @NonNull
@@ -158,9 +145,9 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
             }
 
             @Override
-            public void onBind(@NonNull RepoViewHolder holder, int position, @Nullable BaseModel item, @NonNull List<?> payloads) {
+            public void onBind(@NonNull RepoViewHolder holder, int i, @Nullable BaseModel item, @NonNull List<?> payloads) {
 
-                onBindRepos(holder, (RepoModel) item, payloads);
+                onBindRepos(holder, (RepoModel) item, i, payloads);
 
             }
         }).addItemType(AbsLayoutItemType.DIRENT_LIST, new OnMultiItem<BaseModel, DirentViewHolder>() {
@@ -177,8 +164,8 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
             }
 
             @Override
-            public void onBind(@NonNull DirentViewHolder holder, int position, @Nullable BaseModel item, @NonNull List<?> payloads) {
-                onBindDirents(holder, (DirentModel) item, payloads);
+            public void onBind(@NonNull DirentViewHolder holder, int i, @Nullable BaseModel item, @NonNull List<?> payloads) {
+                onBindDirents(holder, (DirentModel) item, i, payloads);
             }
         }).addItemType(AbsLayoutItemType.DIRENT_GRID, new OnMultiItem<BaseModel, DirentGridViewHolder>() {
             @NonNull
@@ -195,7 +182,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
 
             @Override
             public void onBind(@NonNull DirentGridViewHolder holder, int position, @Nullable BaseModel item, @NonNull List<?> payloads) {
-                onBindDirentsGrid(holder, (DirentModel) item, payloads);
+                onBindDirentsGrid(holder, (DirentModel) item, position, payloads);
             }
         }).addItemType(AbsLayoutItemType.DIRENT_GALLERY, new OnMultiItem<BaseModel, DirentGalleryViewHolder>() {
             @NonNull
@@ -212,7 +199,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
 
             @Override
             public void onBind(@NonNull DirentGalleryViewHolder holder, int position, @Nullable BaseModel item, @NonNull List<?> payloads) {
-                onBindDirentsGallery(holder, (DirentModel) item, payloads);
+                onBindDirentsGallery(holder, (DirentModel) item, position, payloads);
 
             }
         }).addItemType(AbsLayoutItemType.SEARCH, new OnMultiItem<BaseModel, DirentViewHolder>() {
@@ -225,7 +212,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
 
             @Override
             public void onBind(@NonNull DirentViewHolder viewHolder, int i, @Nullable BaseModel baseModel) {
-                onBindSearch(viewHolder, (SearchModel) baseModel);
+                onBindSearch(viewHolder, (SearchModel) baseModel, i);
             }
         }).addItemType(AbsLayoutItemType.NOT_SUPPORTED, new OnMultiItem<BaseModel, UnsupportedViewHolder>() {
             @NonNull
@@ -253,13 +240,8 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
             }
 
             @Override
-            public void onBind(@NonNull BlankViewHolder unsupportedViewHolder, int i, @Nullable BaseModel baseModel) {
+            public void onBind(@NonNull BlankViewHolder holder, int i, @Nullable BaseModel baseModel) {
 
-            }
-
-            @Override
-            public void onBind(@NonNull BlankViewHolder holder, int position, @Nullable BaseModel item, @NonNull List<?> payloads) {
-                super.onBind(holder, position, item, payloads);
             }
         }).onItemViewType(new OnItemViewTypeListener<BaseModel>() {
             @Override
@@ -288,10 +270,50 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         });
     }
 
-    private void onBindAccount(AccountViewHolder holder, BaseModel model) {
+    private Drawable topShapeBackgroundDrawable;
+    private Drawable bottomShapeBackgroundDrawable;
+    private Drawable allShapeBackgroundDrawable;
+    private Drawable noneShapeBackgroundDrawable;
+    private Drawable starDrawable;
+
+    @Override
+    public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
+        super.onAttachedToRecyclerView(recyclerView);
+        itemBackColor = ContextCompat.getColor(getContext(), R.color.bar_background_color);
+
+        topShapeBackgroundDrawable = BackgroundShapeUtils.genBackgroundDrawable(BackgroundShapeUtils.SHAPE_TOP, itemBackColor, Constants.DP.DP_8);
+        bottomShapeBackgroundDrawable = BackgroundShapeUtils.genBackgroundDrawable(BackgroundShapeUtils.SHAPE_BOTTOM, itemBackColor, Constants.DP.DP_8);
+        allShapeBackgroundDrawable = BackgroundShapeUtils.genBackgroundDrawable(BackgroundShapeUtils.SHAPE_ALL, itemBackColor, Constants.DP.DP_8);
+        noneShapeBackgroundDrawable = BackgroundShapeUtils.genBackgroundDrawable(BackgroundShapeUtils.SHAPE_NONE, itemBackColor, Constants.DP.DP_8);
+
+        int star_width = SizeUtils.dp2px(12);
+        starDrawable = ContextCompat.getDrawable(getContext(), R.drawable.ic_star_32);
+        starDrawable.setBounds(0, 0, star_width, star_width);
+        starDrawable.setTint(ContextCompat.getColor(getContext(), R.color.light_grey));
+    }
+
+    private void onBindAccount(AccountViewHolder holder, BaseModel model, int position) {
 //        holder.binding.getRoot().setBackground(null);
 
         Account account = (Account) model;
+
+        //set background color for item
+        if (model.item_position == ItemPositionEnum.START) {
+            holder.itemView.setBackground(topShapeBackgroundDrawable);
+        } else if (model.item_position == ItemPositionEnum.END) {
+            holder.itemView.setBackground(bottomShapeBackgroundDrawable);
+        } else if (model.item_position == ItemPositionEnum.ALL) {
+            holder.itemView.setBackground(allShapeBackgroundDrawable);
+        } else {
+            holder.itemView.setBackground(noneShapeBackgroundDrawable);
+        }
+
+        //hide divider for bottom item
+        if (model.item_position == ItemPositionEnum.END || model.item_position == ItemPositionEnum.ALL) {
+            holder.binding.divider.setVisibility(View.GONE);
+        } else {
+            holder.binding.divider.setVisibility(View.VISIBLE);
+        }
 
         holder.binding.listItemAccountTitle.setText(account.getServerHost());
         holder.binding.listItemAccountSubtitle.setText(account.getName());
@@ -312,7 +334,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         }
     }
 
-    private void onBindGroup(int position, GroupItemViewHolder holder, GroupItemModel model, List<?> payloads) {
+    private void onBindGroup(GroupItemViewHolder holder, GroupItemModel model, int position, List<?> payloads) {
         if (!TextUtils.isEmpty(model.title)) {
             if ("Organization".equals(model.title)) {
                 holder.binding.itemGroupTitle.setText(R.string.shared_with_all);
@@ -332,7 +354,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         }
     }
 
-    private void onBindRepos(RepoViewHolder holder, RepoModel model, @NonNull List<?> payloads) {
+    private void onBindRepos(RepoViewHolder holder, RepoModel model, int position, @NonNull List<?> payloads) {
         if (!CollectionUtils.isEmpty(payloads)) {
             Bundle bundle = (Bundle) payloads.get(0);
 
@@ -343,44 +365,48 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
             return;
         }
 
+        //set background color for item
+        if (model.item_position == ItemPositionEnum.START) {
+            holder.itemView.setBackground(topShapeBackgroundDrawable);
+        } else if (model.item_position == ItemPositionEnum.END) {
+            holder.itemView.setBackground(bottomShapeBackgroundDrawable);
+        } else if (model.item_position == ItemPositionEnum.ALL) {
+            holder.itemView.setBackground(allShapeBackgroundDrawable);
+        } else {
+            holder.itemView.setBackground(noneShapeBackgroundDrawable);
+        }
+
+        if (model.item_position == ItemPositionEnum.END || model.item_position == ItemPositionEnum.ALL) {
+            holder.binding.divider.setVisibility(View.GONE);
+        } else {
+            holder.binding.divider.setVisibility(View.VISIBLE);
+        }
+
         holder.binding.itemTitle.setText(model.repo_name);
         holder.binding.itemSubtitle.setText(model.getSubtitle());
         holder.binding.itemIcon.setImageResource(model.getIcon());
-//        holder.binding.getRoot().setBackground(AnimatedStateListDrawableCompatUtils.createDrawableCompat(getContext()));
 
-        int color;
         if (selectType.ordinal() == RepoSelectType.ONLY_REPO.ordinal() || onActionMode) {
-//            holder.binding.getRoot().setChecked(model.is_checked);
-
             holder.binding.itemMultiSelect.setVisibility(View.VISIBLE);
 
             if (model.is_checked) {
-                color = ContextCompat.getColor(getContext(), R.color.fancy_orange);
                 holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_checked);
             } else {
-                color = ContextCompat.getColor(getContext(), R.color.bottom_sheet_pop_disable_color);
                 holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_unchecked);
             }
-            holder.binding.itemMultiSelect.setImageTintList(ColorStateList.valueOf(color));
         } else {
-            color = ContextCompat.getColor(getContext(), R.color.bottom_sheet_pop_disable_color);
             holder.binding.itemMultiSelect.setVisibility(View.GONE);
-//            holder.binding.getRoot().setChecked(false);
         }
-        holder.binding.itemMultiSelect.setImageTintList(ColorStateList.valueOf(color));
 
 
         holder.binding.expandableToggleButton.setVisibility(View.GONE);
 
         holder.binding.itemTitle.setCompoundDrawablePadding(Constants.DP.DP_4);
-        if (model.starred) {
-            holder.binding.itemTitle.setCompoundDrawables(null, null, getStarDrawable(), null);
-        } else {
-            holder.binding.itemTitle.setCompoundDrawables(null, null, null, null);
-        }
+        holder.binding.itemTitle.setCompoundDrawables(null, null, model.starred ? starDrawable : null, null);
+
     }
 
-    private void onBindDirents(DirentViewHolder holder, DirentModel model, @NonNull List<?> payloads) {
+    private void onBindDirents(DirentViewHolder holder, DirentModel model, int position, @NonNull List<?> payloads) {
         if (!CollectionUtils.isEmpty(payloads)) {
             Bundle bundle = (Bundle) payloads.get(0);
             if (bundle.containsKey(KEY_PAY_LOAD_IS_CHECK)) {
@@ -402,6 +428,24 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
                 }
             }
             return;
+        }
+
+        //set background color for item
+        if (model.item_position == ItemPositionEnum.START) {
+            holder.itemView.setBackground(topShapeBackgroundDrawable);
+        } else if (model.item_position == ItemPositionEnum.END) {
+            holder.itemView.setBackground(bottomShapeBackgroundDrawable);
+        } else if (model.item_position == ItemPositionEnum.ALL) {
+            holder.itemView.setBackground(allShapeBackgroundDrawable);
+        } else {
+            holder.itemView.setBackground(noneShapeBackgroundDrawable);
+        }
+
+        //hide divider for bottom item
+        if (model.item_position == ItemPositionEnum.END || model.item_position == ItemPositionEnum.ALL) {
+            holder.binding.divider.setVisibility(View.GONE);
+        } else {
+            holder.binding.divider.setVisibility(View.VISIBLE);
         }
 
         holder.binding.itemTitle.setText(model.name);
@@ -450,14 +494,12 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
             holder.binding.itemDownloadStatus.setVisibility(View.GONE);
         }
 
-        if (model.starred) {
-            holder.binding.itemTitle.setCompoundDrawables(null, null, getStarDrawable(), null);
-        } else {
-            holder.binding.itemTitle.setCompoundDrawables(null, null, null, null);
-        }
+        holder.binding.itemTitle.setCompoundDrawablePadding(Constants.DP.DP_4);
+        holder.binding.itemTitle.setCompoundDrawables(null, null, model.starred ? starDrawable : null, null);
+
     }
 
-    private void onBindDirentsGrid(DirentGridViewHolder holder, DirentModel model, @NonNull List<?> payloads) {
+    private void onBindDirentsGrid(DirentGridViewHolder holder, DirentModel model, int position, @NonNull List<?> payloads) {
         if (!CollectionUtils.isEmpty(payloads)) {
             Bundle bundle = (Bundle) payloads.get(0);
             if (bundle.containsKey(KEY_PAY_LOAD_IS_CHECK)) {
@@ -482,6 +524,8 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
             return;
         }
 
+        //set background color for item
+        holder.itemView.setBackground(noneShapeBackgroundDrawable);
 
         holder.binding.itemTitle.setText(model.name);
 
@@ -512,14 +556,11 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
             holder.binding.itemDownloadStatus.setVisibility(View.GONE);
         }
 
-        if (model.starred) {
-            holder.binding.itemTitle.setCompoundDrawables(null, null, getStarDrawable(), null);
-        } else {
-            holder.binding.itemTitle.setCompoundDrawables(null, null, null, null);
-        }
+        holder.binding.itemTitle.setCompoundDrawablePadding(Constants.DP.DP_4);
+        holder.binding.itemTitle.setCompoundDrawables(null, null, model.starred ? starDrawable : null, null);
     }
 
-    private void onBindDirentsGallery(DirentGalleryViewHolder holder, DirentModel model, @NonNull List<?> payloads) {
+    private void onBindDirentsGallery(DirentGalleryViewHolder holder, DirentModel model, int position, @NonNull List<?> payloads) {
         if (!CollectionUtils.isEmpty(payloads)) {
             Bundle bundle = (Bundle) payloads.get(0);
             if (bundle.containsKey(KEY_PAY_LOAD_IS_CHECK)) {
@@ -531,6 +572,9 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         }
 //        holder.binding.getRoot().setBackground(AnimatedStateListDrawableCompatUtils.createDrawableCompat(getContext()));
 
+        //set background color for item
+        holder.itemView.setBackground(noneShapeBackgroundDrawable);
+
         if (model.isDir() || repoEncrypted || (!Utils.isViewableImage(model.name) && !Utils.isVideoFile(model.name))) {
             holder.binding.itemIcon.setImageResource(model.getIcon());
         } else {
@@ -541,43 +585,59 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
     }
 
     private void updateItemMultiSelectViewWithPayload(ImageView imageView, boolean isChecked) {
-        int color;
-
         if (isChecked) {
-            color = ContextCompat.getColor(getContext(), R.color.fancy_orange);
             imageView.setImageResource(R.drawable.ic_checkbox_checked);
         } else {
-            color = ContextCompat.getColor(getContext(), R.color.bottom_sheet_pop_disable_color);
             imageView.setImageResource(R.drawable.ic_checkbox_unchecked);
         }
-        imageView.setImageTintList(ColorStateList.valueOf(color));
     }
 
     private void updateItemMultiSelectView(ImageView imageView, boolean isChecked) {
-        int color;
-        //action mode
         if (onActionMode) {
             imageView.setVisibility(View.VISIBLE);
 //            holder.binding.getRoot().setChecked(model.is_checked);
 
             if (isChecked) {
-                color = ContextCompat.getColor(getContext(), R.color.fancy_orange);
                 imageView.setImageResource(R.drawable.ic_checkbox_checked);
             } else {
-                color = ContextCompat.getColor(getContext(), R.color.bottom_sheet_pop_disable_color);
                 imageView.setImageResource(R.drawable.ic_checkbox_unchecked);
             }
         } else {
 //            holder.binding.getRoot().setChecked(false);
-            color = ContextCompat.getColor(getContext(), R.color.bottom_sheet_pop_disable_color);
             imageView.setVisibility(View.GONE);
             imageView.setImageResource(R.drawable.ic_checkbox_unchecked);
         }
-        imageView.setImageTintList(ColorStateList.valueOf(color));
     }
 
-    private void onBindSearch(DirentViewHolder holder, SearchModel model) {
+    private void onBindSearch(DirentViewHolder holder, SearchModel model, int position) {
 //        holder.binding.getRoot().setBackground(AnimatedStateListDrawableCompatUtils.createDrawableCompat(getContext()));
+
+        //set background color for item
+        if (model.item_position == ItemPositionEnum.START) {
+            holder.itemView.setBackground(topShapeBackgroundDrawable);
+        } else if (model.item_position == ItemPositionEnum.END) {
+            holder.itemView.setBackground(bottomShapeBackgroundDrawable);
+        } else if (model.item_position == ItemPositionEnum.ALL) {
+            holder.itemView.setBackground(allShapeBackgroundDrawable);
+        } else {
+            holder.itemView.setBackground(noneShapeBackgroundDrawable);
+        }
+
+        //hide divider for bottom item
+        if (model.item_position == ItemPositionEnum.END) {
+            holder.binding.divider.setVisibility(View.GONE);
+        } else {
+            holder.binding.divider.setVisibility(View.VISIBLE);
+        }
+
+        //add margin for top item
+        ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) holder.itemView.getLayoutParams();
+        if (model.item_position == ItemPositionEnum.START || model.item_position == ItemPositionEnum.ALL) {
+            layoutParams.topMargin = Constants.DP.DP_8;
+        } else {
+            layoutParams.topMargin = 0;
+        }
+        holder.itemView.setLayoutParams(layoutParams);
 
         if (!model.isDir()) {
             String displayName = URLs.getFileNameFromFullPath(model.fullpath);
@@ -629,15 +689,6 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
     private String server_url;
     private final boolean isLogin = SupportAccountManager.getInstance().isLogin();
 
-    private Account account;
-
-    private Account getCurrentAccount() {
-        if (account == null) {
-            account = SupportAccountManager.getInstance().getCurrentAccount();
-        }
-        return account;
-    }
-
     private String getServerUrl() {
         if (!TextUtils.isEmpty(server_url)) {
             return server_url;
@@ -676,11 +727,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
     public void setAllItemSelected(boolean itemSelected) {
         for (BaseModel item : getItems()) {
 
-            if (item instanceof GroupItemModel) {
-                continue;
-            } else if (item instanceof Account) {
-                continue;
-            } else if (item instanceof SearchModel) {
+            if (!item.checkable) {
                 continue;
             }
 

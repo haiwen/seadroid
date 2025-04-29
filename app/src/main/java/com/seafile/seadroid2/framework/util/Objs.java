@@ -21,19 +21,19 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.config.RepoType;
+import com.seafile.seadroid2.enums.ItemPositionEnum;
 import com.seafile.seadroid2.enums.SortBy;
-import com.seafile.seadroid2.framework.data.db.AppDatabase;
-import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
-import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
-import com.seafile.seadroid2.framework.data.db.entities.StarredModel;
-import com.seafile.seadroid2.framework.data.model.BaseModel;
-import com.seafile.seadroid2.framework.data.model.GroupItemModel;
-import com.seafile.seadroid2.framework.data.model.dirents.CachedDirentModel;
-import com.seafile.seadroid2.framework.data.model.objs.DirentShareLinkModel;
-import com.seafile.seadroid2.framework.data.model.repo.DirentWrapperModel;
-import com.seafile.seadroid2.framework.data.model.repo.RepoWrapperModel;
-import com.seafile.seadroid2.framework.data.model.star.StarredWrapperModel;
-import com.seafile.seadroid2.framework.datastore.DataManager;
+import com.seafile.seadroid2.framework.db.AppDatabase;
+import com.seafile.seadroid2.framework.db.entities.DirentModel;
+import com.seafile.seadroid2.framework.db.entities.RepoModel;
+import com.seafile.seadroid2.framework.db.entities.StarredModel;
+import com.seafile.seadroid2.framework.model.BaseModel;
+import com.seafile.seadroid2.framework.model.GroupItemModel;
+import com.seafile.seadroid2.framework.model.dirents.CachedDirentModel;
+import com.seafile.seadroid2.framework.model.objs.DirentShareLinkModel;
+import com.seafile.seadroid2.framework.model.repo.DirentWrapperModel;
+import com.seafile.seadroid2.framework.model.repo.RepoWrapperModel;
+import com.seafile.seadroid2.framework.model.star.StarredWrapperModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.listener.OnCreateDirentShareLinkListener;
 import com.seafile.seadroid2.preferences.Settings;
@@ -59,8 +59,6 @@ import io.reactivex.SingleOnSubscribe;
 import io.reactivex.SingleSource;
 import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Function;
-import kotlin.Pair;
-import kotlin.Triple;
 
 public class Objs {
 
@@ -97,6 +95,7 @@ public class Objs {
     ////////////////////////////
     //////repo
     ////////////////////////////
+
     public static Single<List<BaseModel>> getReposSingleFromServer(Account account) {
         Single<RepoWrapperModel> netSingle = HttpIO.getInstanceByAccount(account).execute(RepoService.class).getReposAsync();
         Single<List<RepoModel>> dbListSingle = AppDatabase.getInstance().repoDao().getListByAccount(account.getSignature());
@@ -105,8 +104,16 @@ public class Objs {
             @Override
             public List<RepoModel> apply(RepoWrapperModel repoWrapperModel, List<RepoModel> dbModels) throws Exception {
                 //get data from server and convert to local data
+                if (CollectionUtils.isEmpty(repoWrapperModel.repos)) {
+                    return Collections.emptyList();
+                }
 
-                return Objs.convertRemoteListToLocalList(repoWrapperModel.repos, account.getSignature());
+                for (RepoModel repoModel : repoWrapperModel.repos) {
+                    repoModel.related_account = account.getSignature();
+                    repoModel.last_modified_long = Times.convertMtime2Long(repoModel.last_modified);
+                }
+
+                return repoWrapperModel.repos;
             }
         }).flatMap(new Function<List<RepoModel>, SingleSource<List<RepoModel>>>() {
             @Override
@@ -151,76 +158,6 @@ public class Objs {
         });
     }
 
-    public static Single<List<BaseModel>> getReposSingleFromServerOld(Account account) {
-        Single<RepoWrapperModel> netSingle = HttpIO.getInstanceByAccount(account).execute(RepoService.class).getReposAsync();
-        Single<List<RepoModel>> dbListSingle = AppDatabase.getInstance().repoDao().getListByAccount(account.getSignature());
-
-        return Single.zip(netSingle, dbListSingle, new BiFunction<RepoWrapperModel, List<RepoModel>, Triple<RepoWrapperModel, List<RepoModel>, List<RepoModel>>>() {
-            @Override
-            public Triple<RepoWrapperModel, List<RepoModel>, List<RepoModel>> apply(RepoWrapperModel repoWrapperModel, List<RepoModel> dbModels) throws Exception {
-                //get data from server and local
-
-                List<RepoModel> net2dbList = Objs.parseRepoListForDbOld(repoWrapperModel.repos, account.getSignature());
-
-                //diffs.first = delete list
-                //diffs.second = insert db list
-                Pair<List<RepoModel>, List<RepoModel>> diffs = Objs.diffRepos(net2dbList, dbModels);
-                if (diffs == null) {
-                    return new Triple<>(repoWrapperModel, null, null);
-                }
-
-                return new Triple<>(repoWrapperModel, diffs.getFirst(), diffs.getSecond());
-            }
-        }).flatMap(new Function<Triple<RepoWrapperModel, List<RepoModel>, List<RepoModel>>, SingleSource<Pair<RepoWrapperModel, List<RepoModel>>>>() {
-            @Override
-            public SingleSource<Pair<RepoWrapperModel, List<RepoModel>>> apply(Triple<RepoWrapperModel, List<RepoModel>, List<RepoModel>> triple) throws Exception {
-                // delete local db
-
-                if (CollectionUtils.isEmpty(triple.getSecond())) {
-                    return Single.just(new Pair<>(triple.getFirst(), triple.getThird()));
-                }
-
-                List<String> ids = triple.getSecond().stream().map(m -> m.repo_id).collect(Collectors.toList());
-                Completable deleteCompletable = AppDatabase.getInstance().repoDao().deleteAllByIds(ids);
-                Single<Long> deleteSingle = deleteCompletable.toSingleDefault(0L);
-
-                return deleteSingle.flatMap(new Function<Long, SingleSource<Pair<RepoWrapperModel, List<RepoModel>>>>() {
-                    @Override
-                    public SingleSource<Pair<RepoWrapperModel, List<RepoModel>>> apply(Long aLong) throws Exception {
-
-                        return Single.just(new Pair<>(triple.getFirst(), triple.getThird()));
-                    }
-                });
-            }
-        }).flatMap(new Function<Pair<RepoWrapperModel, List<RepoModel>>, SingleSource<RepoWrapperModel>>() {
-            @Override
-            public SingleSource<RepoWrapperModel> apply(Pair<RepoWrapperModel, List<RepoModel>> pair) throws Exception {
-                //insert into db
-
-                if (CollectionUtils.isEmpty(pair.getSecond())) {
-                    return Single.just(pair.getFirst());
-                }
-
-                Completable insertCompletable = AppDatabase.getInstance().repoDao().insertAll(pair.getSecond());
-                Single<Long> longSingle = insertCompletable.toSingleDefault(0L);
-                return longSingle.flatMap(new Function<Long, SingleSource<RepoWrapperModel>>() {
-                    @Override
-                    public SingleSource<RepoWrapperModel> apply(Long aLong) throws Exception {
-                        return Single.just(pair.getFirst());
-                    }
-                });
-            }
-        }).flatMap(new Function<RepoWrapperModel, SingleSource<List<BaseModel>>>() {
-            @Override
-            public SingleSource<List<BaseModel>> apply(RepoWrapperModel repoWrapperModel) throws Exception {
-                //parse to adapter list data
-
-                List<BaseModel> models = Objs.parseRepoListForAdapterOld(repoWrapperModel.repos, account.getSignature(), false);
-                return Single.just(models);
-            }
-        });
-    }
-
     public static List<BaseModel> convertToAdapterList(List<RepoModel> list, boolean isFilterUnavailable) {
         if (CollectionUtils.isEmpty(list)) {
             return Collections.emptyList();
@@ -246,7 +183,6 @@ public class Objs {
         List<RepoModel> sharedList = treeMap.get(RepoType.TYPE_SHARED);
         if (!CollectionUtils.isEmpty(sharedList)) {
             List<RepoModel> sortedList = sortRepos(sharedList);
-
             newRvList.add(new GroupItemModel(R.string.shared, sortedList));
             newRvList.addAll(sortedList);
         }
@@ -265,174 +201,6 @@ public class Objs {
         }
 
         return newRvList;
-    }
-
-    public static List<BaseModel> parseRepoListForAdapterOld(List<RepoModel> list, String related_account, boolean isFilterUnavailable) {
-        if (CollectionUtils.isEmpty(list)) {
-            return Collections.emptyList();
-        }
-
-        for (int i = 0; i < list.size(); i++) {
-            list.get(i).related_account = related_account;
-        }
-
-        if (isFilterUnavailable) {
-            list = list.stream().filter(f -> !f.encrypted && f.hasWritePermission()).collect(Collectors.toList());
-        }
-
-        List<BaseModel> newRvList = CollectionUtils.newArrayList();
-
-        TreeMap<String, List<RepoModel>> treeMap = groupRepos(list);
-
-        //mine
-        List<RepoModel> mineList = treeMap.get(RepoType.TYPE_MINE);
-        if (!CollectionUtils.isEmpty(mineList)) {
-            newRvList.add(new GroupItemModel(R.string.personal));
-            for (RepoModel repoModel : mineList) {
-                repoModel.last_modified_long = Times.convertMtime2Long(repoModel.last_modified);
-            }
-
-            List<RepoModel> sortedList = sortRepos(mineList);
-            newRvList.addAll(sortedList);
-        }
-
-        //shared
-        List<RepoModel> sharedList = treeMap.get(RepoType.TYPE_SHARED);
-        if (!CollectionUtils.isEmpty(sharedList)) {
-            newRvList.add(new GroupItemModel(R.string.shared));
-            for (RepoModel repoModel : sharedList) {
-                repoModel.last_modified_long = Times.convertMtime2Long(repoModel.last_modified);
-            }
-
-            List<RepoModel> sortedList = sortRepos(sharedList);
-            newRvList.addAll(sortedList);
-        }
-
-        for (String key : treeMap.keySet()) {
-            if (TextUtils.equals(key, RepoType.TYPE_MINE)) {
-            } else if (TextUtils.equals(key, RepoType.TYPE_SHARED)) {
-            } else {
-                List<RepoModel> groupList = treeMap.get(key);
-                if (!CollectionUtils.isEmpty(groupList)) {
-                    newRvList.add(new GroupItemModel(key));
-                    for (RepoModel repoModel : groupList) {
-                        repoModel.last_modified_long = Times.convertMtime2Long(repoModel.last_modified);
-                    }
-
-                    List<RepoModel> sortedList = sortRepos(groupList);
-                    newRvList.addAll(sortedList);
-                }
-            }
-        }
-
-        return newRvList;
-    }
-
-    public static List<RepoModel> convertRemoteListToLocalList(List<RepoModel> remoteList, String related_account) {
-        if (CollectionUtils.isEmpty(remoteList)) {
-            return Collections.emptyList();
-        }
-
-        for (RepoModel repoModel : remoteList) {
-            repoModel.related_account = related_account;
-            repoModel.last_modified_long = Times.convertMtime2Long(repoModel.last_modified);
-        }
-
-        return remoteList;
-    }
-
-    public static List<RepoModel> parseRepoListForDbOld(List<RepoModel> list, String related_account) {
-        if (CollectionUtils.isEmpty(list)) {
-            return Collections.emptyList();
-        }
-
-        for (int i = 0; i < list.size(); i++) {
-            list.get(i).related_account = related_account;
-        }
-
-        List<RepoModel> newDbList = CollectionUtils.newArrayList();
-
-        TreeMap<String, List<RepoModel>> treeMap = groupRepos(list);
-
-        //mine
-        List<RepoModel> mineList = treeMap.get(RepoType.TYPE_MINE);
-        if (!CollectionUtils.isEmpty(mineList)) {
-            for (RepoModel repoModel : mineList) {
-                repoModel.last_modified_long = Times.convertMtime2Long(repoModel.last_modified);
-            }
-
-            List<RepoModel> sortedList = sortRepos(mineList);
-            newDbList.addAll(sortedList);
-        }
-
-        //shared
-        List<RepoModel> sharedList = treeMap.get(RepoType.TYPE_SHARED);
-        if (!CollectionUtils.isEmpty(sharedList)) {
-            for (RepoModel repoModel : sharedList) {
-                repoModel.last_modified_long = Times.convertMtime2Long(repoModel.last_modified);
-            }
-
-            List<RepoModel> sortedList = sortRepos(sharedList);
-            newDbList.addAll(sortedList);
-        }
-
-        for (String key : treeMap.keySet()) {
-            if (TextUtils.equals(key, RepoType.TYPE_MINE)) {
-            } else if (TextUtils.equals(key, RepoType.TYPE_SHARED)) {
-            } else {
-                List<RepoModel> groupList = treeMap.get(key);
-                if (!CollectionUtils.isEmpty(groupList)) {
-                    for (RepoModel repoModel : groupList) {
-                        repoModel.last_modified_long = Times.convertMtime2Long(repoModel.last_modified);
-                    }
-
-                    List<RepoModel> sortedList = sortRepos(groupList);
-                    newDbList.addAll(sortedList);
-                }
-            }
-        }
-        return newDbList;
-    }
-
-    /**
-     * Whether the dbList is included in the netList.<br>
-     * pair.first is need to delete.<br>
-     * pair.second is need to add.<br>
-     */
-    public static Pair<List<RepoModel>, List<RepoModel>> diffRepos(List<RepoModel> netList, List<RepoModel> dbList) {
-
-        if (CollectionUtils.isEmpty(netList) && CollectionUtils.isEmpty(dbList)) {
-            return null;
-        }
-
-        //if netList is empty, delete all local data.
-        if (CollectionUtils.isEmpty(netList)) {
-            return new Pair<>(dbList, null);
-        }
-
-        //if dbList is empty, insert all net data into DB.
-        if (CollectionUtils.isEmpty(dbList)) {
-            return new Pair<>(null, netList);
-        }
-
-        List<String> repoIds = netList.stream().map(m -> m.repo_id).collect(Collectors.toList());
-        List<RepoModel> deleteList = dbList.stream().filter(f -> !repoIds.contains(f.repo_id)).collect(Collectors.toList());
-        List<RepoModel> addList = dbList.stream().filter(f -> repoIds.contains(f.repo_id)).collect(Collectors.toList());
-
-        for (RepoModel nModel : netList) {
-            for (RepoModel repoModel : addList) {
-                if (TextUtils.equals(nModel.repo_id, repoModel.repo_id)) {
-                    nModel.root = repoModel.root;
-                    nModel.magic = repoModel.magic;
-                    nModel.random_key = repoModel.random_key;
-                    nModel.enc_version = repoModel.enc_version;
-                    nModel.file_count = repoModel.file_count;
-                    break;
-                }
-            }
-        }
-
-        return new Pair<>(deleteList, netList);
     }
 
     private static List<RepoModel> sortRepos(List<RepoModel> repos) {
@@ -470,6 +238,19 @@ public class Objs {
                     return -Long.compare(o1.last_modified_long, o2.last_modified_long);
                 }
             }).collect(Collectors.toList());
+        }
+
+        //calculate item_position
+        if (CollectionUtils.isEmpty(newRepos)) {
+
+        } else if (newRepos.size() == 1) {
+            newRepos.get(0).item_position = ItemPositionEnum.ALL;
+        } else if (newRepos.size() == 2) {
+            newRepos.get(0).item_position = ItemPositionEnum.START;
+            newRepos.get(1).item_position = ItemPositionEnum.END;
+        } else {
+            newRepos.get(0).item_position = ItemPositionEnum.START;
+            newRepos.get(newRepos.size() - 1).item_position = ItemPositionEnum.END;
         }
         return newRepos;
     }
@@ -556,6 +337,19 @@ public class Objs {
                         return cachedDirentModel.dirent;
                     }
                 }).collect(Collectors.toList());
+
+                //calculate item_position
+                if (CollectionUtils.isEmpty(newDirentModels)) {
+
+                } else if (newDirentModels.size() == 1) {
+                    newDirentModels.get(0).item_position = ItemPositionEnum.ALL;
+                } else if (newDirentModels.size() == 2) {
+                    newDirentModels.get(0).item_position = ItemPositionEnum.START;
+                    newDirentModels.get(1).item_position = ItemPositionEnum.END;
+                } else {
+                    newDirentModels.get(0).item_position = ItemPositionEnum.START;
+                    newDirentModels.get(newDirentModels.size() - 1).item_position = ItemPositionEnum.END;
+                }
 
                 return Single.just(newDirentModels);
             }
@@ -675,8 +469,8 @@ public class Objs {
             if (!CollectionUtils.isEmpty(dirList)) {
                 newDbList.addAll(dirList);
             }
-
         }
+
         return newDbList;
     }
 
@@ -724,6 +518,7 @@ public class Objs {
                 }
             }).collect(Collectors.toList());
         }
+
         return newList;
     }
 

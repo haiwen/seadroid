@@ -11,10 +11,11 @@ import androidx.lifecycle.Observer;
 
 import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.framework.util.StringUtils;
 import com.seafile.seadroid2.ui.base.fragment.RequestCustomDialogFragmentWithVM;
-import com.seafile.seadroid2.framework.data.model.ResultModel;
-import com.seafile.seadroid2.framework.data.model.dirents.FileCreateModel;
+import com.seafile.seadroid2.framework.model.ResultModel;
+import com.seafile.seadroid2.framework.model.dirents.FileCreateModel;
 import com.seafile.seadroid2.ui.dialog_fragment.viewmodel.NewDirViewModel;
 
 public class NewDirFileDialogFragment extends RequestCustomDialogFragmentWithVM<NewDirViewModel> {
@@ -90,6 +91,17 @@ public class NewDirFileDialogFragment extends RequestCustomDialogFragmentWithVM<
     @Override
     protected void initViewModel() {
         super.initViewModel();
+        getViewModel().getSeafExceptionLiveData().observe(this, new Observer<SeafException>() {
+            @Override
+            public void onChanged(SeafException e) {
+
+                ToastUtils.showLong(e.getMessage());
+
+                refreshData(false);
+
+                dismiss();
+            }
+        });
 
         if (isDir) {
             getViewModel().getCreateDirLiveData().observe(this, new Observer<ResultModel>() {

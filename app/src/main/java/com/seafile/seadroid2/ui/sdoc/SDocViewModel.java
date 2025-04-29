@@ -6,119 +6,147 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.blankj.utilcode.util.CloneUtils;
 import com.blankj.utilcode.util.CollectionUtils;
+import com.blankj.utilcode.util.ToastUtils;
+import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
-import com.seafile.seadroid2.framework.data.model.sdoc.FileDetailModel;
-import com.seafile.seadroid2.framework.data.model.sdoc.FileProfileConfigModel;
-import com.seafile.seadroid2.framework.data.model.sdoc.FileRecordWrapperModel;
-import com.seafile.seadroid2.framework.data.model.sdoc.MetadataConfigModel;
-import com.seafile.seadroid2.framework.data.model.sdoc.OutlineItemModel;
-import com.seafile.seadroid2.framework.data.model.sdoc.SDocOutlineWrapperModel;
-import com.seafile.seadroid2.framework.data.model.sdoc.SDocPageOptionsModel;
-import com.seafile.seadroid2.framework.data.model.user.UserWrapperModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
+import com.seafile.seadroid2.framework.model.sdoc.FileDetailModel;
+import com.seafile.seadroid2.framework.model.sdoc.FileProfileConfigModel;
+import com.seafile.seadroid2.framework.model.sdoc.FileRecordWrapperModel;
+import com.seafile.seadroid2.framework.model.sdoc.FileTagWrapperModel;
+import com.seafile.seadroid2.framework.model.sdoc.MetadataConfigModel;
+import com.seafile.seadroid2.framework.model.sdoc.OutlineItemModel;
+import com.seafile.seadroid2.framework.model.sdoc.SDocOutlineWrapperModel;
+import com.seafile.seadroid2.framework.model.sdoc.SDocPageOptionsModel;
+import com.seafile.seadroid2.framework.model.user.UserWrapperModel;
+import com.seafile.seadroid2.framework.util.ExceptionUtils;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.StringUtils;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import io.reactivex.Single;
+import io.reactivex.SingleSource;
 import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Consumer;
-import io.reactivex.functions.Function3;
 
 public class SDocViewModel extends BaseViewModel {
 
     private final MutableLiveData<FileProfileConfigModel> _fileProfileConfigLiveData = new MutableLiveData<>();
-    private final MutableLiveData<FileRecordWrapperModel> _fileRecordLiveData = new MutableLiveData<>();
     private final MutableLiveData<List<OutlineItemModel>> _sdocElementListLiveData = new MutableLiveData<>();
 
     public MutableLiveData<FileProfileConfigModel> getFileDetailLiveData() {
         return _fileProfileConfigLiveData;
     }
 
-    public MutableLiveData<FileRecordWrapperModel> getSdocRecordLiveData() {
-        return _fileRecordLiveData;
-    }
 
     public MutableLiveData<List<OutlineItemModel>> getSdocElementLiveData() {
         return _sdocElementListLiveData;
     }
 
-    public void loadFileDetail(String repoId, String path, boolean isMetadataEnable) {
-
-        Single<UserWrapperModel> userSingle = HttpIO.getCurrentInstance().execute(SDocService.class).getRelatedUsers(repoId);
+    public void loadFileDetail(String repoId, String path) {
+        getSecondRefreshLiveData().setValue(true);
 
         //Even if isMetadataEnable is enabled, you still need to check whether the enable field of MetadataConfigModel is available
-        Single<MetadataConfigModel> metadataSingle = HttpIO.getCurrentInstance().execute(SDocService.class).getMetadata(repoId);
+        Single<MetadataConfigModel> metadataSingle = HttpIO.getCurrentInstance().execute(SDocService.class).getMetadata(repoId).onErrorReturnItem(new MetadataConfigModel());
         Single<FileDetailModel> detailSingle = HttpIO.getCurrentInstance().execute(SDocService.class).getFileDetail(repoId, path);
 
-        Single<FileProfileConfigModel> s;
-        if (isMetadataEnable) {
-            s = Single.zip(detailSingle, userSingle, metadataSingle, new Function3<FileDetailModel, UserWrapperModel, MetadataConfigModel, FileProfileConfigModel>() {
-                @Override
-                public FileProfileConfigModel apply(FileDetailModel fileDetailModel, UserWrapperModel userWrapperModel, MetadataConfigModel metadataConfigModel) throws Exception {
-                    FileProfileConfigModel configModel = new FileProfileConfigModel();
-                    configModel.setDetail(fileDetailModel);
-                    configModel.setUsers(userWrapperModel);
-                    configModel.setMetadataConfigModel(metadataConfigModel);
-                    return configModel;
+        Single<FileProfileConfigModel> s = Single.zip(metadataSingle, detailSingle, new BiFunction<MetadataConfigModel, FileDetailModel, FileProfileConfigModel>() {
+            @Override
+            public FileProfileConfigModel apply(MetadataConfigModel metadataConfigModel, FileDetailModel fileDetailModel) {
+
+                FileProfileConfigModel configModel = new FileProfileConfigModel();
+                configModel.setMetadataConfigModel(metadataConfigModel);
+                configModel.setDetail(fileDetailModel);
+                //
+                configModel.initDefaultIfMetaEnable(fileDetailModel);
+                return configModel;
+            }
+        }).flatMap(new io.reactivex.functions.Function<FileProfileConfigModel, SingleSource<FileProfileConfigModel>>() {
+            @Override
+            public SingleSource<FileProfileConfigModel> apply(FileProfileConfigModel configModel) throws Exception {
+                List<Single<?>> singles = new ArrayList<>();
+
+                if (configModel.getMetaEnabled()) {
+
+                    String parent_dir;
+                    String name;
+
+                    // 1. /a/b/c/t.txt
+                    // 2. /a/t.txt
+                    // 3. /t.txt
+                    // 4. t.txt
+                    // 5. /
+                    if (path.contains("/")) {
+                        parent_dir = path.substring(0, path.lastIndexOf("/"));
+                        name = path.substring(path.lastIndexOf("/") + 1);
+                    } else {
+                        parent_dir = null;
+                        name = path;
+                    }
+
+                    if (TextUtils.isEmpty(parent_dir)) {
+                        parent_dir = "/";
+                    }
+                    Single<UserWrapperModel> userSingle = HttpIO.getCurrentInstance().execute(SDocService.class).getRelatedUsers(repoId);
+                    singles.add(userSingle);
+
+                    Single<FileRecordWrapperModel> recordSingle = HttpIO.getCurrentInstance().execute(SDocService.class).getRecords(repoId, parent_dir, name, name);
+                    singles.add(recordSingle);
                 }
-            });
-        } else {
-            s = Single.zip(detailSingle, userSingle, new BiFunction<FileDetailModel, UserWrapperModel, FileProfileConfigModel>() {
-                @Override
-                public FileProfileConfigModel apply(FileDetailModel fileDetailModel, UserWrapperModel userWrapperModel) throws Exception {
-                    FileProfileConfigModel configModel = new FileProfileConfigModel();
-                    configModel.setDetail(fileDetailModel);
-                    configModel.setUsers(userWrapperModel);
-                    return configModel;
+
+                if (configModel.getTagsEnabled()) {
+                    Single<FileTagWrapperModel> tagSingle = HttpIO.getCurrentInstance().execute(SDocService.class).getTags(repoId);
+                    singles.add(tagSingle);
                 }
-            });
-        }
+
+                if (singles.isEmpty()) {
+                    return Single.just(configModel);
+                }
+
+                return Single.zip(singles, new io.reactivex.functions.Function<Object[], FileProfileConfigModel>() {
+                    @Override
+                    public FileProfileConfigModel apply(Object[] results) throws Exception {
+                        if (configModel.getMetaEnabled()) {
+                            UserWrapperModel u = (UserWrapperModel) results[0];
+                            FileRecordWrapperModel r = (FileRecordWrapperModel) results[1];
+                            configModel.setRelatedUserWrapperModel(u);
+                            configModel.setRecordWrapperModel(r);
+                        }
+
+                        if (configModel.getMetaEnabled() && configModel.getTagsEnabled()) {
+                            FileTagWrapperModel t = (FileTagWrapperModel) results[2];
+                            configModel.setTagWrapperModel(t);
+                        } else if (configModel.getTagsEnabled()) {
+                            FileTagWrapperModel t = (FileTagWrapperModel) results[0];
+                            configModel.setTagWrapperModel(t);
+                        }
+
+                        return configModel;
+                    }
+                });
+            }
+        });
+
 
         addSingleDisposable(s, new Consumer<FileProfileConfigModel>() {
             @Override
             public void accept(FileProfileConfigModel fileProfileConfigModel) throws Exception {
+                getSecondRefreshLiveData().setValue(false);
                 getFileDetailLiveData().setValue(fileProfileConfigModel);
             }
-        });
-    }
-
-    public void loadRecords(String repoId, String path) {
-        if (TextUtils.isEmpty(path) || TextUtils.equals("/", path)) {
-            return;
-        }
-
-        String parent_dir;
-        String name;
-
-        // 1. /a/b/c/t.txt
-        // 2. /a/t.txt
-        // 3. /t.txt
-        // 4. t.txt
-        // 5. /
-        if (path.contains("/")) {
-            parent_dir = path.substring(0, path.lastIndexOf("/"));
-            name = path.substring(path.lastIndexOf("/") + 1);
-        } else {
-            parent_dir = null;
-            name = path;
-        }
-
-        if (TextUtils.isEmpty(parent_dir)) {
-            parent_dir = "/";
-        }
-
-        Single<FileRecordWrapperModel> single = HttpIO.getCurrentInstance().execute(SDocService.class).getRecords(repoId, parent_dir, name, name);
-        addSingleDisposable(single, new Consumer<FileRecordWrapperModel>() {
+        }, new Consumer<Throwable>() {
             @Override
-            public void accept(FileRecordWrapperModel fileRecordWrapperModel) throws Exception {
-                getSdocRecordLiveData().setValue(fileRecordWrapperModel);
+            public void accept(Throwable throwable) {
+                getSecondRefreshLiveData().setValue(false);
+                SeafException seafException = ExceptionUtils.parseByThrowable(throwable);
+                ToastUtils.showLong(seafException.getMessage());
             }
         });
     }

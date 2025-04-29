@@ -417,6 +417,7 @@
         ]]>
     </string>
   <string name="settings_advance_feature_title">ДОПОЛНИТЕЛЬНЫЕ ФУНКЦИИ</string>
+  <string name="settings_transfer_title">ЗАГРУЗКА &amp; СКАЧИВАНИЕ</string>
   <string name="settings_storage_title">Кэш-хранилище</string>
   <string name="settings_cache_title">Размер кэша</string>
   <string name="settings_clear_cache_title">Очистить кэш</string>
@@ -608,6 +609,7 @@
   <string name="select_backup_folder">Выбрать папку для резервного копирования</string>
   <string name="select_backup_libraries">Выбрать библиотеку для резервных копий</string>
   <string name="folder_backup_completed">Резервная копия папки создана</string>
+  <string name="get_permission_failed">Не удалось получит %s разрешение, некоторые функции могут быть затронуты</string>
   <string name="get_storage_permission_failed">Не удалось получить разрешение на хранение</string>
   <string name="authorization_storage_permission">В авторизации отказано навсегда, предоставьте разрешение на хранение вручную.</string>
   <string name="settings_folder_backup_select_hint">0</string>
@@ -640,6 +642,7 @@
   <string name="failed">Неудачно</string>
   <string name="uploading">Загрузка</string>
   <string name="downloading">Скачивание</string>
+  <string name="select_all">Выбрать все</string>
   <string name="replace_all">Заменить все</string>
   <string name="replace">Заменить</string>
   <string name="replace_local_file">Заменить локальный файл</string>
@@ -680,8 +683,14 @@
   <string name="_done">Завершено</string>
   <string name="_outdated">Устаревший</string>
   <string name="_tags">Теги</string>
+  <string name="_location">Расположение</string>
+  <string name="_owner">Владелец файла</string>
   <string name="mark_resolve">Отметить как решенное</string>
   <string name="delete_confirm">Вы уверены, что хотите удалить этот элемент?</string>
   <string name="canceled">Отменено</string>
+  <string name="image_capture_time">Время захвата</string>
+  <string name="image_dimensions">Размеры</string>
+  <string name="image_color_space_uncalibrated">Некалиброванный</string>
+  <string name="image_color_space_undefined">Неопределенный</string>
   <!--end-->
 </resources>

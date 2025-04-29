@@ -650,6 +650,7 @@
     <string name="failed">Failed</string>
     <string name="uploading">Uploading</string>
     <string name="downloading">Downloading</string>
+    <string name="select_all">Select all</string>
     <string name="replace_all">Replace All</string>
     <string name="replace">Replace</string>
     <string name="replace_local_file">Replace local file</string>
@@ -693,7 +694,7 @@
     <string name="_outdated">Outdated</string>
     <string name="_tags">Tags</string>
     <string name="_location">Location</string>
-
+    <string name="_owner">File owner</string>
 
     <string name="mark_resolve">Mark as resolved</string>
     <string name="delete_confirm">Are you sure you want to delete this item?</string>
@@ -709,5 +710,5 @@
 
     <string name="transfer_default_state" translatable="false">0</string>
 
-
+    <string name="offline">Offline</string>
 </resources>

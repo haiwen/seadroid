@@ -8,7 +8,7 @@
 //import com.google.common.collect.Sets;
 //import com.seafile.seadroid2.SeafException;
 //import com.seafile.seadroid2.account.Account;
-//import com.seafile.seadroid2.framework.data.SeafCachedFile;
+//import com.seafile.seadroid2.framework.model.SeafCachedFile;
 //import com.seafile.seadroid2.framework.util.ConcurrentAsyncTask;
 //import com.seafile.seadroid2.framework.util.Utils;
 //

@@ -21,88 +21,67 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatCheckBox;
 import androidx.core.content.ContextCompat;
 
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.SizeUtils;
+import com.blankj.utilcode.util.TimeUtils;
 import com.bumptech.glide.Glide;
 import com.google.android.flexbox.FlexboxLayout;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.imageview.ShapeableImageView;
+import com.google.gson.internal.LinkedTreeMap;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.config.ColumnType;
+import com.seafile.seadroid2.config.DateFormatType;
 import com.seafile.seadroid2.config.GlideLoadConfig;
 import com.seafile.seadroid2.databinding.DialogFileProfileBinding;
-import com.seafile.seadroid2.framework.data.model.sdoc.FileDetailModel;
-import com.seafile.seadroid2.framework.data.model.sdoc.FileRecordWrapperModel;
-import com.seafile.seadroid2.framework.data.model.sdoc.MetadataConfigDataModel;
-import com.seafile.seadroid2.framework.data.model.sdoc.MetadataModel;
-import com.seafile.seadroid2.framework.data.model.sdoc.OptionsTagModel;
-import com.seafile.seadroid2.framework.data.model.sdoc.RecordResultModel;
-import com.seafile.seadroid2.framework.data.model.user.UserModel;
-import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.model.sdoc.FileDetailModel;
+import com.seafile.seadroid2.framework.model.sdoc.FileProfileConfigModel;
+import com.seafile.seadroid2.framework.model.sdoc.FileRecordWrapperModel;
+import com.seafile.seadroid2.framework.model.sdoc.MetadataConfigDataModel;
+import com.seafile.seadroid2.framework.model.sdoc.MetadataModel;
+import com.seafile.seadroid2.framework.model.sdoc.OptionsTagModel;
+import com.seafile.seadroid2.framework.model.user.UserModel;
 import com.seafile.seadroid2.framework.util.Utils;
 
-import java.lang.reflect.Field;
+import org.apache.commons.lang3.time.DateUtils;
+
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public class FileProfileDialog extends BottomSheetDialogFragment {
+    private FileProfileConfigModel configModel;
 
-    private FileDetailModel docDetailModel;
-    private FileRecordWrapperModel recordWrapperModel;
-    private ArrayList<UserModel> relatedUsers;
-    private boolean isShowTitle = false;
-
-    public static FileProfileDialog newInstance(FileDetailModel docDetailModel, FileRecordWrapperModel recordWrapperModel, List<UserModel> relatedUsers, boolean isShowTitle) {
+    public static FileProfileDialog newInstance(FileProfileConfigModel configModel) {
         Bundle args = new Bundle();
-        args.putBoolean("isShowTitle", isShowTitle);
-        args.putParcelable("detailModel", docDetailModel);
-
-        if (!CollectionUtils.isEmpty(relatedUsers)) {
-            args.putParcelable("recordModel", recordWrapperModel);
-        }
-
-        if (!CollectionUtils.isEmpty(relatedUsers)) {
-            args.putParcelableArrayList("relatedUsers", new ArrayList<>(relatedUsers));
-
-        }
+        args.putParcelable("config_model", configModel);
         FileProfileDialog fragment = new FileProfileDialog();
         fragment.setArguments(args);
         return fragment;
-    }
-
-    public static FileProfileDialog newInstance(FileDetailModel docDetailModel, List<UserModel> relatedUsers) {
-        return newInstance(docDetailModel, null, relatedUsers, false);
-    }
-
-    public static FileProfileDialog newInstance(FileDetailModel docDetailModel, List<UserModel> relatedUsers, boolean isShowTitle) {
-        return newInstance(docDetailModel, null, relatedUsers, isShowTitle);
     }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (getArguments() == null || !getArguments().containsKey("detailModel")) {
-            throw new IllegalArgumentException("detailModel is null");
+        if (getArguments() == null || !getArguments().containsKey("config_model")) {
+            throw new IllegalArgumentException("configModel is null");
         }
 
-        isShowTitle = getArguments().getBoolean("isShowTitle");
-        docDetailModel = getArguments().getParcelable("detailModel");
-        recordWrapperModel = getArguments().getParcelable("recordModel");
-        relatedUsers = getArguments().getParcelableArrayList("relatedUsers");
-
-        if (docDetailModel == null) {
-            throw new IllegalArgumentException("detail is null");
+        configModel = getArguments().getParcelable("config_model");
+        if (configModel == null) {
+            throw new IllegalArgumentException("configModel is null");
         }
-
-        initFixedValueIfMetadataNotEnable();
     }
 
     private DialogFileProfileBinding profileBinding;
@@ -125,60 +104,26 @@ public class FileProfileDialog extends BottomSheetDialogFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        if (isShowTitle) {
-            profileBinding.title.setVisibility(View.VISIBLE);
-            profileBinding.title.setText(docDetailModel.getName());
-        }
+//        profileBinding.title.setVisibility(View.VISIBLE);
+//        profileBinding.title.setText(configModel.getDetail().getName());
 
         setData(profileBinding.detailsContainer);
     }
 
-    private void initFixedValueIfMetadataNotEnable() {
-        if (recordWrapperModel != null) {
-            return;
-        }
-        recordWrapperModel = new FileRecordWrapperModel();
-
-        RecordResultModel sizeModel = new RecordResultModel();
-        sizeModel._size = docDetailModel.getSize();
-        sizeModel._file_modifier = docDetailModel.getLastModifierEmail();
-        sizeModel._file_mtime = docDetailModel.getLastModified();
-        recordWrapperModel.results = new ArrayList<>();
-        recordWrapperModel.results.add(sizeModel);
-
-        recordWrapperModel.metadata = new ArrayList<>();
-
-        MetadataModel sizeMetadataModel = new MetadataModel();
-        sizeMetadataModel.key = "_size";
-        sizeMetadataModel.name = "_size";
-        sizeMetadataModel.type = ColumnType.NUMBER;
-        recordWrapperModel.metadata.add(sizeMetadataModel);
-
-        MetadataModel modifierMetadataModel = new MetadataModel();
-        modifierMetadataModel.key = "_file_modifier";
-        modifierMetadataModel.name = "_file_modifier";
-        modifierMetadataModel.type = ColumnType.TEXT;
-        recordWrapperModel.metadata.add(modifierMetadataModel);
-
-        MetadataModel mTimeMetadataModel = new MetadataModel();
-        mTimeMetadataModel.key = "_file_mtime";
-        mTimeMetadataModel.name = "_file_mtime";
-        mTimeMetadataModel.type = ColumnType.DATE;
-        recordWrapperModel.metadata.add(mTimeMetadataModel);
-
-    }
-
     private void setData(LinearLayout parent) {
-        for (MetadataModel metadata : recordWrapperModel.metadata) {
+        List<MetadataModel> metadataList = new ArrayList<>(configModel.getRecordMetaDataList());
+        for (MetadataModel metadata : metadataList) {
             if ("_file_modifier".equals(metadata.key)) {
                 metadata.type = "collaborator";
                 metadata.value = CollectionUtils.newArrayList(getValueByKey(metadata.name));
             } else {
-                metadata.value = getValueByKey(metadata.name);
+                Object v = getValueByKey(metadata.name);
+                metadata.value = v;
             }
         }
+        configModel.setRecordMetaDataList(metadataList);
 
-        for (MetadataModel metadata : recordWrapperModel.metadata) {
+        for (MetadataModel metadata : configModel.getRecordMetaDataList()) {
             if (metadata.key.startsWith("_")) {
                 if (_fixedField.contains(metadata.key)) {
                     addMetadataView(parent, metadata);
@@ -194,18 +139,11 @@ public class FileProfileDialog extends BottomSheetDialogFragment {
     }
 
     //not support: _tags
-    private final List<String> _fixedField = List.of("_size", "_file_modifier", "_file_mtime", "_description", "_collaborators", "_reviewer", "_status");
+    private final List<String> _fixedField = List.of("_size", "_file_modifier", "_file_mtime", "_owner", "_description", "_collaborators", "_reviewer", "_status");
 
     private Object getValueByKey(String key) {
-        RecordResultModel model = recordWrapperModel.results.get(0);
-        try {
-            Field field = RecordResultModel.class.getDeclaredField(key);
-            field.setAccessible(true);
-            return field.get(model);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            SLogs.e(e);
-            return null;
-        }
+        Map<String, Object> model = configModel.getRecordResultList().get(0);
+        return model.get(key);
     }
 
     private FlexboxLayout.LayoutParams getFlexParams() {
@@ -241,6 +179,8 @@ public class FileProfileDialog extends BottomSheetDialogFragment {
                 return R.string._outdated;
             case "_tags":
                 return R.string._tags;
+            case "_owner":
+                return R.string._owner;
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -251,67 +191,69 @@ public class FileProfileDialog extends BottomSheetDialogFragment {
 
     public void parseViewByType(Context context, LinearLayout parent, MetadataModel metadata) {
         final String type = metadata.type;
-        LinearLayout view = (LinearLayout) LayoutInflater.from(context).inflate(R.layout.layout_details_keyview_valuecontainer, null);
+        LinearLayout kvView = (LinearLayout) LayoutInflater.from(context).inflate(R.layout.layout_details_keyview_valuecontainer, null);
 
         int resStrId = getResNameByKey(metadata.key);
         if (resStrId != 0) {
-            view.<TextView>findViewById(R.id.text_title).setText(resStrId);
+            kvView.<TextView>findViewById(R.id.text_title).setText(resStrId);
         } else {
-            view.<TextView>findViewById(R.id.text_title).setText(metadata.name);
+            kvView.<TextView>findViewById(R.id.text_title).setText(metadata.name);
         }
 
-        view.<ImageView>findViewById(R.id.text_icon).setImageResource(getIconByColumnType(metadata.type));
+        kvView.<ImageView>findViewById(R.id.text_icon).setImageResource(getIconByColumnType(metadata.type));
 
         LinearLayout.LayoutParams ll = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         ll.topMargin = SizeUtils.dp2px(8);
-        view.setLayoutParams(ll);
-        parent.addView(view);
+        kvView.setLayoutParams(ll);
 
         if (!TextUtils.equals(ColumnType.RATE, type) && metadata.value == null) {
 
-            View ltr = LayoutInflater.from(view.getContext()).inflate(R.layout.layout_textview, null);
+            View ltr = LayoutInflater.from(kvView.getContext()).inflate(R.layout.layout_textview, null);
             ltr.<TextView>findViewById(R.id.text_view).setText(R.string.empty);
 
-            view.<FlexboxLayout>findViewById(R.id.flex_box).addView(ltr, getFlexParams());
+            kvView.<FlexboxLayout>findViewById(R.id.flex_box).addView(ltr, getFlexParams());
+            parent.addView(kvView);
             return;
         }
 
         if (TextUtils.equals(ColumnType.TEXT, type)) {
-            parseText(view, metadata);
+            parseText(kvView, metadata);
         } else if (TextUtils.equals(ColumnType.LONG_TEXT, type)) {
-            parseLongText(view, metadata);
+            parseLongText(kvView, metadata);
         } else if (TextUtils.equals(ColumnType.NUMBER, type)) {
-            parseNumber(view, metadata);
+            parseNumber(kvView, metadata);
         } else if (TextUtils.equals(ColumnType.DATE, type)) {
-            parseDate(view, metadata);
+            parseDate(kvView, metadata);
         } else if (TextUtils.equals(ColumnType.DURATION, type)) {
-            parseDuration(view, metadata);
+            parseDuration(kvView, metadata);
         } else if (TextUtils.equals(ColumnType.COLLABORATOR, type)) {
-            parseCollaborator(view, metadata);
+            parseCollaborator(kvView, metadata);
         } else if (TextUtils.equals(ColumnType.SINGLE_SELECT, type)) {
-            parseSingleSelect(view, metadata);
+            parseSingleSelect(kvView, metadata);
         } else if (TextUtils.equals(ColumnType.MULTIPLE_SELECT, type)) {
-            parseMultiSelect(view, metadata);
+            parseMultiSelect(kvView, metadata);
         } else if (TextUtils.equals(ColumnType.EMAIL, type)) {
-            parseText(view, metadata);
+            parseText(kvView, metadata);
         } else if (TextUtils.equals(ColumnType.URL, type)) {
-            parseText(view, metadata);
+            parseText(kvView, metadata);
         } else if (TextUtils.equals(ColumnType.RATE, type)) {
-            parseRate(view, metadata);
+            parseRate(kvView, metadata);
         } else if (TextUtils.equals(ColumnType.GEOLOCATION, type)) {
-//            parseGeoLocation(view, model);
+            parseGeoLocation(kvView, metadata);
+        } else if (TextUtils.equals(ColumnType.CHECKBOX, type)) {
+            parseCheckbox(kvView, metadata);
         }
 //        else if (TextUtils.equals(ColumnType.IMAGE, type)) {
-//            parseImage(view, model);
+//            parseImage(kvView, model);
 //        } else if (TextUtils.equals(ColumnType.FILE, type)) {
-//            parseFile(view, model);
-//        } else if (TextUtils.equals(ColumnType.CHECKBOX, type)) {
-//            parseCheckbox(view, model);
-//        }else if (TextUtils.equals(ColumnType.LINK, type)) {
-//            parseLink(view, model);
+//            parseFile(kvView, model);
+//        } else if (TextUtils.equals(ColumnType.LINK, type)) {
+//            parseLink(kvView, model);
 //        } else if (TextUtils.equals(ColumnType.DIGITAL_SIGN, type)) {
-//            parseDigitalSign(view, workFlowModel, model);
+//            parseDigitalSign(kvView, workFlowModel, model);
 //        }
+
+        parent.addView(kvView);
     }
 
     private int getIconByColumnType(String type) {
@@ -385,18 +327,24 @@ public class FileProfileDialog extends BottomSheetDialogFragment {
         if (model.value instanceof Number number) {
             View ltr = LayoutInflater.from(view.getContext()).inflate(R.layout.layout_textview, null);
 
-            ltr.<TextView>findViewById(R.id.text_view).setText(Utils.readableFileSize(number.intValue()));
+            if (TextUtils.equals(model.key, "_size")) {
+                ltr.<TextView>findViewById(R.id.text_view).setText(Utils.readableFileSize(number.intValue()));
+            } else {
+                boolean isInteger = (number.doubleValue() % 1 == 0);
+                String r = isInteger ? Integer.toString(number.intValue()) : Double.toString(number.doubleValue());
+                ltr.<TextView>findViewById(R.id.text_view).setText(r);
+            }
 
             view.<FlexboxLayout>findViewById(R.id.flex_box).addView(ltr, getFlexParams());
         }
     }
 
     private void parseDate(LinearLayout view, MetadataModel model) {
-        if (model.value instanceof OffsetDateTime date) {
+        if (model.value instanceof String date) {
             View ltr = LayoutInflater.from(view.getContext()).inflate(R.layout.layout_textview, null);
-
-            String temp = date.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME).replace("T", " ");
-            ltr.<TextView>findViewById(R.id.text_view).setText(temp);
+            Date date1 = TimeUtils.string2Date(date, DateFormatType.DATE_XXX);
+            String d = TimeUtils.date2String(date1, DateFormatType.DATE_YMD_HMS);
+            ltr.<TextView>findViewById(R.id.text_view).setText(d);
 
             view.<FlexboxLayout>findViewById(R.id.flex_box).addView(ltr, getFlexParams());
         }
@@ -464,11 +412,7 @@ public class FileProfileDialog extends BottomSheetDialogFragment {
     }
 
     private UserModel getRelatedUserByEmail(String email) {
-        if (relatedUsers == null) {
-            return null;
-        }
-
-        Optional<UserModel> op = relatedUsers.stream().filter(f -> f.getEmail().equals(email)).findFirst();
+        Optional<UserModel> op = configModel.getRelatedUserList().stream().filter(f -> f.getEmail().equals(email)).findFirst();
         return op.orElse(null);
     }
 
@@ -482,27 +426,21 @@ public class FileProfileDialog extends BottomSheetDialogFragment {
             return;
         }
 
-        if (model.value instanceof String && !TextUtils.isEmpty(model.value.toString())) {
-            String value = (String) model.value;
+        if (model.value instanceof String value && !TextUtils.isEmpty(model.value.toString())) {
 
-            OptionsTagModel option = configDataModel.options.stream().filter(f -> f.id.equals(value)).findFirst().get();
+
             View ltr = LayoutInflater.from(view.getContext()).inflate(R.layout.layout_detail_text_round, null);
             TextView textView = ltr.findViewById(R.id.text);
             MaterialCardView cardView = ltr.findViewById(R.id.card_view);
 
-            int resStrId = getResNameByKey(option.id);
-            if (resStrId != 0) {
-                textView.setText(resStrId);
+            Optional<OptionsTagModel> option = configDataModel.options.stream().filter(f -> f.name.equals(value)).findFirst();
+            if (option.isPresent()) {
+                OptionsTagModel t = option.get();
+                textView.setText(t.name);
+                textView.setTextColor(Color.parseColor(t.textColor));
+                cardView.setCardBackgroundColor(Color.parseColor(t.color));
             } else {
-                textView.setText(option.name);
-            }
-
-            if (!TextUtils.isEmpty(option.textColor)) {
-                textView.setTextColor(Color.parseColor(option.textColor));
-            }
-
-            if (!TextUtils.isEmpty(option.color)) {
-                cardView.setCardBackgroundColor(Color.parseColor(option.color));
+                textView.setText(value);
             }
 
             view.<FlexboxLayout>findViewById(R.id.flex_box).addView(ltr, getFlexParams());
@@ -522,28 +460,18 @@ public class FileProfileDialog extends BottomSheetDialogFragment {
         if (model.value instanceof ArrayList) {
             ArrayList<String> arrayList = (ArrayList<String>) model.value;
             for (String key : arrayList) {
-                OptionsTagModel option = configDataModel.options.stream().filter(f -> f.id.equals(key)).findFirst().get();
                 View ltr = LayoutInflater.from(view.getContext()).inflate(R.layout.layout_detail_text_round, null);
                 TextView textView = ltr.findViewById(R.id.text);
                 MaterialCardView cardView = ltr.findViewById(R.id.card_view);
 
-                int resStrId = getResNameByKey(option.id);
-                if (resStrId != 0) {
-                    textView.setText(resStrId);
+                Optional<OptionsTagModel> option = configDataModel.options.stream().filter(f -> f.name.equals(key)).findFirst();
+                if (option.isPresent()) {
+                    OptionsTagModel t = option.get();
+                    textView.setText(t.name);
+                    textView.setTextColor(Color.parseColor(t.textColor));
+                    cardView.setCardBackgroundColor(Color.parseColor(t.color));
                 } else {
-                    textView.setText(option.name);
-                }
-
-
-//            if (!TextUtils.isEmpty(option.borderColor)) {
-//            }
-
-                if (!TextUtils.isEmpty(option.textColor)) {
-                    textView.setTextColor(Color.parseColor(option.textColor));
-                }
-
-                if (!TextUtils.isEmpty(option.color)) {
-                    cardView.setCardBackgroundColor(Color.parseColor(option.color));
+                    textView.setText(key);
                 }
 
                 view.<FlexboxLayout>findViewById(R.id.flex_box).addView(ltr, getFlexParams());
@@ -551,6 +479,59 @@ public class FileProfileDialog extends BottomSheetDialogFragment {
         }
     }
 
+    //location
+    private void parseGeoLocation(LinearLayout view, MetadataModel model) {
+        if (model.value instanceof LinkedTreeMap) {
+            LinkedTreeMap<String, Object> treeMap = (LinkedTreeMap<String, Object>) model.value;
+
+            List<MetadataConfigDataModel> configDataModelList = model.configData;
+            if (CollectionUtils.isEmpty(configDataModelList)) {
+                return;
+            }
+            MetadataConfigDataModel columnDataModel = configDataModelList.get(0);
+            String geo_format = columnDataModel.geo_format;
+
+            String content = "";
+            if (TextUtils.equals("lng_lat", geo_format)) {
+                String lat = treeMap.get("lat").toString();
+                String lng = treeMap.get("lng").toString();
+                String formatLat = Utils.convertLatitude(lat);
+                String formatLng = Utils.convertLongitude(lng);
+                content = formatLat + ", " + formatLng;
+            } else if (TextUtils.equals("geolocation", geo_format)) {
+                String province = treeMap.get("province").toString();
+                String city = treeMap.get("city").toString();
+                String dis = treeMap.get("district").toString();
+                String detail = treeMap.get("detail").toString();
+                content = province + city + dis + detail;
+            } else if (TextUtils.equals("country_region", geo_format)) {
+                content = treeMap.get("country_region").toString();
+            } else if (TextUtils.equals("province", geo_format)) {
+                content = treeMap.get("province").toString();
+            } else if (TextUtils.equals("province_city", geo_format)) {
+                String province = treeMap.get("province").toString();
+                String city = treeMap.get("city").toString();
+                content = province + city;
+            } else if (TextUtils.equals("province_city_district", geo_format)) {
+                String province = treeMap.get("province").toString();
+                String city = treeMap.get("city").toString();
+                String dis = treeMap.get("district").toString();
+                content = province + city + dis;
+            }
+
+            if (TextUtils.equals(",", content.trim())) {
+                content = getResources().getString(R.string.empty);
+            }
+
+            if (TextUtils.isEmpty(content.trim())) {
+                content = getResources().getString(R.string.empty);
+            }
+            View ltr = LayoutInflater.from(view.getContext()).inflate(R.layout.layout_textview, null);
+            ltr.<TextView>findViewById(R.id.text_view).setText(content);
+
+            view.<FlexboxLayout>findViewById(R.id.flex_box).addView(ltr, getFlexParams());
+        }
+    }
 
 //    private void parseImage(LinearLayout view, MetadataModel model) {
 //        if (model.value instanceof ArrayList) {
@@ -635,25 +616,18 @@ public class FileProfileDialog extends BottomSheetDialogFragment {
         }
     }
 
-    private void getRateColor() {
 
+    private void parseCheckbox(LinearLayout view, MetadataModel model) {
+        if (model.value instanceof Boolean booleanValue) {
+
+            AppCompatCheckBox checkBox = new AppCompatCheckBox(view.getContext());
+            checkBox.setText("");
+            checkBox.setClickable(false);
+            checkBox.setChecked(booleanValue);
+
+            view.<FlexboxLayout>findViewById(R.id.flex_box).addView(checkBox, getFlexParams());
+        }
     }
-//
-//    private void parseCheckbox(LinearLayout view, MetadataModel model) {
-//        FlexboxLayout flexboxLayout = view.findViewById(R.id.flex_box);
-//        FlexboxLayout.LayoutParams flexLayoutParams = new FlexboxLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-//        flexLayoutParams.bottomMargin = DP_4;
-//        flexLayoutParams.rightMargin = DP_4;
-//        flexLayoutParams.height = SizeUtils.dp2px(30);
-//
-//        AppCompatCheckBox checkBox = new AppCompatCheckBox(view.getContext());
-//        checkBox.setText("");
-//        checkBox.setClickable(false);
-//        if (model.value instanceof Boolean) {
-//            checkBox.setChecked((Boolean) model.value);
-//        }
-//        flexboxLayout.addView(checkBox, flexLayoutParams);
-//    }
 
 //    private void parseLink(LinearLayout view, MetadataModel model) {
 //

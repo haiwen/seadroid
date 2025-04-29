@@ -2,7 +2,7 @@ package com.seafile.seadroid2.preferences.model;
 
 import com.seafile.seadroid2.enums.SortBy;
 import com.seafile.seadroid2.enums.SortOrder;
-import com.seafile.seadroid2.framework.data.model.BaseModel;
+import com.seafile.seadroid2.framework.model.BaseModel;
 
 import java.util.Comparator;
 

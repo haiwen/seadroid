@@ -1,9 +1,11 @@
 package com.seafile.seadroid2.ui.repo;
 
-import android.annotation.SuppressLint;
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Pair;
@@ -15,6 +17,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.activity.result.ActivityResult;
@@ -26,6 +30,10 @@ import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.view.ActionMode;
+import androidx.appcompat.widget.SearchView;
+import androidx.core.view.MenuHost;
+import androidx.core.view.MenuProvider;
+import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.media3.common.util.UnstableApi;
@@ -33,7 +41,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.blankj.utilcode.util.CollectionUtils;
-import com.blankj.utilcode.util.TimeUtils;
+import com.blankj.utilcode.util.NetworkUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.chad.library.adapter4.BaseQuickAdapter;
 import com.github.panpf.recycler.sticky.StickyItemDecoration;
@@ -43,6 +51,7 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.annotation.Todo;
 import com.seafile.seadroid2.bus.BusHelper;
 import com.seafile.seadroid2.config.AbsLayoutItemType;
 import com.seafile.seadroid2.config.Constants;
@@ -55,18 +64,18 @@ import com.seafile.seadroid2.enums.FileViewType;
 import com.seafile.seadroid2.enums.OpType;
 import com.seafile.seadroid2.enums.RefreshStatusEnum;
 import com.seafile.seadroid2.enums.SortBy;
-import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
-import com.seafile.seadroid2.framework.data.db.entities.EncKeyCacheEntity;
-import com.seafile.seadroid2.framework.data.db.entities.PermissionEntity;
-import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
-import com.seafile.seadroid2.framework.data.db.entities.StarredModel;
-import com.seafile.seadroid2.framework.data.model.BaseModel;
-import com.seafile.seadroid2.framework.data.model.GroupItemModel;
-import com.seafile.seadroid2.framework.data.model.ResultModel;
-import com.seafile.seadroid2.framework.data.model.search.SearchModel;
 import com.seafile.seadroid2.framework.datastore.DataManager;
+import com.seafile.seadroid2.framework.db.entities.DirentModel;
+import com.seafile.seadroid2.framework.db.entities.PermissionEntity;
+import com.seafile.seadroid2.framework.db.entities.RepoModel;
+import com.seafile.seadroid2.framework.model.BaseModel;
+import com.seafile.seadroid2.framework.model.GroupItemModel;
+import com.seafile.seadroid2.framework.model.ResultModel;
+import com.seafile.seadroid2.framework.model.dirents.DirentFileModel;
+import com.seafile.seadroid2.framework.model.search.SearchModel;
 import com.seafile.seadroid2.framework.util.Objs;
 import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.util.TakeCameras;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
@@ -78,6 +87,8 @@ import com.seafile.seadroid2.ui.bottomsheetmenu.BottomSheetMenuAdapter;
 import com.seafile.seadroid2.ui.dialog_fragment.CopyMoveDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.DeleteFileDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.DeleteRepoDialogFragment;
+import com.seafile.seadroid2.ui.dialog_fragment.NewDirFileDialogFragment;
+import com.seafile.seadroid2.ui.dialog_fragment.NewRepoDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.PasswordDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.RenameDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.listener.OnRefreshDataListener;
@@ -85,13 +96,14 @@ import com.seafile.seadroid2.ui.dialog_fragment.listener.OnResultListener;
 import com.seafile.seadroid2.ui.file.FileActivity;
 import com.seafile.seadroid2.ui.main.MainViewModel;
 import com.seafile.seadroid2.ui.markdown.MarkdownActivity;
-import com.seafile.seadroid2.ui.media.image_preview2.CarouselImagePreviewActivity;
+import com.seafile.seadroid2.ui.media.image.CarouselImagePreviewActivity;
 import com.seafile.seadroid2.ui.media.player.CustomExoVideoPlayerActivity;
 import com.seafile.seadroid2.ui.sdoc.SDocWebViewActivity;
 import com.seafile.seadroid2.ui.search.SearchViewModel;
 import com.seafile.seadroid2.ui.selector.ObjSelectorActivity;
 import com.seafile.seadroid2.ui.star.StarredQuickFragment;
 import com.seafile.seadroid2.view.TipsViews;
+import com.seafile.seadroid2.view.ViewSortPopupWindow;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -105,7 +117,9 @@ import kotlin.ranges.IntRange;
 
 public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     private static final String KEY_REPO_SCROLL_POSITION = "repo_scroll_position";
-    private static final String KEY_REPO_LIST = "key_repo_list";
+    private final int PADDING_16 = Constants.DP.DP_16;
+    private final int PADDING_32 = Constants.DP.DP_32;
+    private final int PADDING_128 = Constants.DP.DP_128;
 
     private LayoutFastRvBinding binding;
     private RepoQuickAdapter adapter;
@@ -155,11 +169,15 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        onCreateMenuHost();
+
         initRv();
 
         initAdapter();
 
         initViewModel();
+
+        resetRvPadding();
     }
 
 
@@ -198,6 +216,126 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
         //layout manager
         binding.rv.setLayoutManager(getGridLayoutManager());
+
+        binding.rv.setPadding(0, 0, 0, Constants.DP.DP_32);
+        binding.rv.setClipToPadding(false);
+    }
+
+    /**
+     * to restore the state of Menu
+     */
+    private final HashMap<String, Boolean> menuIdState = new HashMap<>();
+
+    public void onCreateMenuHost() {
+        MenuHost menuHost = requireActivity();
+        menuHost.addMenuProvider(new MenuProvider() {
+            @Override
+            public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {
+                menuInflater.inflate(R.menu.fragment_browser_menu, menu);
+
+                //search
+                MenuItem searchMenuItem = menu.findItem(R.id.menu_action_search);
+                SearchView searchView = new SearchView(requireContext());
+                searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                    @Override
+                    public boolean onQueryTextSubmit(String query) {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onQueryTextChange(String newText) {
+                        searchView.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                mainViewModel.getOnSearchLiveData().setValue(newText);
+                            }
+                        }, 1000);
+                        return false;
+                    }
+                });
+                searchMenuItem.collapseActionView();
+                searchMenuItem.setActionView(searchView);
+                searchMenuItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
+                    @Override
+                    public boolean onMenuItemActionExpand(@NonNull MenuItem item) {
+                        menuIdState.put("sortGroup", menu.findItem(R.id.menu_action_sort).isVisible());
+                        menuIdState.put("createRepo", menu.findItem(R.id.create_repo).isVisible());
+                        menuIdState.put("add", menu.findItem(R.id.add).isVisible());
+                        menuIdState.put("select", menu.findItem(R.id.select).isVisible());
+
+                        menu.findItem(R.id.menu_action_sort).setVisible(false);
+                        menu.findItem(R.id.create_repo).setVisible(false);
+                        menu.findItem(R.id.add).setVisible(false);
+                        menu.findItem(R.id.select).setVisible(false);
+
+                        return true;
+                    }
+
+                    @Override
+                    public boolean onMenuItemActionCollapse(@NonNull MenuItem item) {
+
+                        menu.findItem(R.id.menu_action_sort).setVisible(Boolean.TRUE.equals(menuIdState.get("sortGroup")));
+                        menu.findItem(R.id.create_repo).setVisible(Boolean.TRUE.equals(menuIdState.get("createRepo")));
+                        menu.findItem(R.id.add).setVisible(Boolean.TRUE.equals(menuIdState.get("add")));
+                        menu.findItem(R.id.select).setVisible(Boolean.TRUE.equals(menuIdState.get("select")));
+
+                        menuHost.invalidateMenu();
+                        return true;
+                    }
+                });
+
+                //sort
+                MenuItem sortMenuItem = menu.findItem(R.id.menu_action_sort);
+                sortMenuItem.setActionView(R.layout.menu_view_sort);
+                sortMenuItem.getActionView().setOnClickListener(v -> {
+                    showCustomMenuView(v);
+                });
+            }
+
+            @Override
+            public void onPrepareMenu(@NonNull Menu menu) {
+                MenuProvider.super.onPrepareMenu(menu);
+
+                if (GlobalNavContext.getCurrentNavContext().inRepo()) {
+                    menu.findItem(R.id.create_repo).setVisible(false);
+
+                    checkCurrentPathHasWritePermission(new java.util.function.Consumer<Boolean>() {
+                        @Override
+                        public void accept(Boolean aBoolean) {
+                            menu.findItem(R.id.add).setEnabled(aBoolean);
+                        }
+                    });
+                } else {
+                    menu.findItem(R.id.create_repo).setVisible(true);
+                    menu.findItem(R.id.add).setVisible(false);
+                }
+            }
+
+            @Override
+            public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
+
+                if (menuItem.getItemId() == R.id.menu_action_search) {
+
+                } else if (menuItem.getItemId() == R.id.menu_action_sort) {
+
+                } else if (menuItem.getItemId() == R.id.create_repo) {
+                    showNewRepoDialog();
+                } else if (menuItem.getItemId() == R.id.add) {
+                    showAddFileDialog();
+                } else if (menuItem.getItemId() == R.id.select) {
+                    startOrUpdateContextualActionBar();
+                } else if (menuItem.getItemId() == android.R.id.home) {
+                    backTo();
+                }
+                return true;
+            }
+        }, getViewLifecycleOwner(), Lifecycle.State.RESUMED);
+    }
+
+    private void showCustomMenuView(View anchorView) {
+        ViewSortPopupWindow popupWindow = new ViewSortPopupWindow(requireContext());
+        int x = -popupWindow.getW() / 2;
+        popupWindow.showAsDropDown(anchorView, x, Constants.DP.DP_8);
     }
 
     private int SPAN_COUNT = 1;
@@ -341,35 +479,34 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         getViewModel().getSeafExceptionLiveData().observe(getViewLifecycleOwner(), this::showErrorView);
 
         getViewModel().getStarredLiveData().observe(getViewLifecycleOwner(), aBoolean -> {
-            if (aBoolean) {
-                loadData(RefreshStatusEnum.ONLY_REMOTE);
-            }
 
             closeActionMode();
 
-            // notify starred list need to change
-            Bundle bundle = new Bundle();
-            bundle.putBoolean(StarredQuickFragment.class.getSimpleName(), true);
-            BusHelper.getCustomBundleObserver().post(bundle);
+            if (aBoolean) {
+                loadData(RefreshStatusEnum.ONLY_REMOTE);
+
+                // notify starred list need to change
+                Bundle bundle = new Bundle();
+                bundle.putBoolean(StarredQuickFragment.class.getSimpleName(), true);
+                BusHelper.getCustomBundleObserver().post(bundle);
+            }
+
         });
 
-        getViewModel().getObjListLiveData().observe(getViewLifecycleOwner(), models -> {
-            notifyDataChanged(models);
+        getViewModel().getObjListLiveData().observe(getViewLifecycleOwner(), new Observer<List<BaseModel>>() {
+            @Override
+            public void onChanged(List<BaseModel> models) {
+                //
+                notifyDataChanged(models);
 
-            restoreScrollPosition();
+                restoreScrollPosition();
+            }
         });
 
         getViewModel().getMenuItemListLiveData().observe(getViewLifecycleOwner(), new Observer<List<MenuItem>>() {
             @Override
             public void onChanged(List<MenuItem> menuItems) {
                 showBottomSheetWindow(menuItems);
-            }
-        });
-
-        mainViewModel.getOnShowRefreshLoadingInRepoLiveData().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
-            @Override
-            public void onChanged(Boolean aBoolean) {
-                binding.swipeRefreshLayout.setRefreshing(aBoolean);
             }
         });
 
@@ -426,6 +563,30 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 doBusWork(bundle);
             }
         });
+
+        BusHelper.getNavContextObserver().observe(getViewLifecycleOwner(), new Observer<NavContext>() {
+            @Override
+            public void onChanged(NavContext navContext) {
+                resetRvPadding();
+            }
+        });
+    }
+
+    private void resetRvPadding() {
+        if (GlobalNavContext.getCurrentNavContext().inRepo()) {
+            int paddingTop = binding.rv.getPaddingTop();
+            int paddingBottom = binding.rv.getPaddingBottom();
+            if (paddingTop == 0 || paddingBottom == PADDING_128) {
+                binding.rv.setPadding(0, Constants.DP.DP_16, 0, Constants.DP.DP_32);
+                binding.rv.setClipToPadding(false);
+            }
+        } else {
+            int p = binding.rv.getPaddingTop();
+            if (p != 0) {
+                binding.rv.setPadding(0, 0, 0, PADDING_32);
+                binding.rv.setClipToPadding(false);
+            }
+        }
     }
 
     private void doBusWork(Bundle map) {
@@ -633,11 +794,13 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     private void onShowActionMode(ActionModeCallbackType actionModeType) {
 
         if (actionModeType == ActionModeCallbackType.CREATE) {
-            int p = Constants.DP.DP_32 * 4;
-            binding.rv.setPadding(0, 0, 0, p);
+            if (GlobalNavContext.getCurrentNavContext().inRepo()) {
+                binding.rv.setPadding(0, Constants.DP.DP_16, 0, PADDING_128);
+            } else {
+                binding.rv.setPadding(0, 0, 0, PADDING_128);
+            }
         } else if (actionModeType == ActionModeCallbackType.DESTROY) {
-            int p = 0;
-            binding.rv.setPadding(0, 0, 0, p);
+            resetRvPadding();
         }
 
         if (actionModeType == ActionModeCallbackType.CREATE || actionModeType == ActionModeCallbackType.SELECT_ALL) {
@@ -782,6 +945,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         return newList;
     }
 
+    @Todo("The search results logic needs to be refactored")
     private void search(String keyword) {
         adapter.filterListBySearchKeyword(keyword);
 
@@ -789,8 +953,8 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         searchViewModel.searchNext(keyword, 1, 20);
     }
 
+    @Todo("The search results logic needs to be refactored")
     private void deduplicateSearchData(List<SearchModel> searchModels) {
-        //todo deduplicate
         adapter.addAll(searchModels);
     }
 
@@ -832,7 +996,6 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         adapter.setStateViewEnable(true);
     }
 
-
     private RefreshStatusEnum getRefreshStatus() {
         String key;
         RepoModel repoModel = GlobalNavContext.getCurrentNavContext().getRepoModel();
@@ -850,12 +1013,13 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             return RefreshStatusEnum.LOCAL_THEN_REMOTE;
         }
 
-        long diff = System.currentTimeMillis() - d;
-        if (diff < 5000) {
+        long s = System.currentTimeMillis();
+        long diff = s - d;
+        if (diff < 10000) {
             return RefreshStatusEnum.ONLY_LOCAL;
         }
 
-        pathLoadTimeMap.put(key, System.currentTimeMillis());
+        pathLoadTimeMap.put(key, s);
         return RefreshStatusEnum.LOCAL_THEN_REMOTE;
     }
 
@@ -891,51 +1055,81 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     }
 
     private void navToForSearch(SearchModel searchModel) {
-        //searchModel is a dir and repo
-        if (searchModel.isDir() && "/".equals(searchModel.fullpath)) {
-            getViewModel().getRepoModelEntity(searchModel.repo_id, new Consumer<RepoModel>() {
-                @Override
-                public void accept(RepoModel repoModel) throws Exception {
-                    if (repoModel == null) {
-                        ToastUtils.showLong(R.string.repo_not_found);
-                        return;
-                    }
-
-                    GlobalNavContext.getCurrentNavContext().push(repoModel);
-                    loadData(RefreshStatusEnum.LOCAL_THEN_REMOTE);
-                }
-            });
+        RepoModel repoModel = GlobalNavContext.getCurrentNavContext().getRepoModel();
+        if (searchModel.isDir()) { // it is a dir, switch into it
+            switchPath(searchModel.repo_id, searchModel.fullpath, searchModel.isDir());
+        } else if (repoModel != null && TextUtils.equals(repoModel.repo_id, searchModel.repo_id)) {
+            //it is a file in same repo, open it
+            DirentModel direntModel = SearchModel.convert2DirentModel(searchModel);
+            open(repoModel, direntModel);
         } else {
-            //searchModel is a dir, and child path
-            RepoModel repoModel = GlobalNavContext.getCurrentNavContext().getRepoModel();
-            if (repoModel != null && TextUtils.equals(repoModel.repo_id, searchModel.repo_id)) {
-                if (searchModel.isDir()) {
-                    //TODO sss
-                    GlobalNavContext.switchToPath(GlobalNavContext.getCurrentNavContext().getRepoModel(), searchModel.fullpath);
-                    loadData(RefreshStatusEnum.LOCAL_THEN_REMOTE);
-                } else {
+            //it is a file in different repo, query repo from db and open it.
+            getViewModel().getRepoModelAndPermissionEntity(searchModel.repo_id, new Consumer<Pair<RepoModel, PermissionEntity>>() {
+                @Override
+                public void accept(Pair<RepoModel, PermissionEntity> pair) {
                     //searchModel is a file
                     DirentModel direntModel = SearchModel.convert2DirentModel(searchModel);
-                    open(repoModel, direntModel);
+                    Bundle bundle = new Bundle();
+                    bundle.putBoolean("load_other_images_in_same_directory", false);
+                    open(pair.first, direntModel, bundle);
                 }
-            } else {
-                getViewModel().getRepoModelAndPermissionEntity(searchModel.repo_id, new Consumer<Pair<RepoModel, PermissionEntity>>() {
-                    @Override
-                    public void accept(Pair<RepoModel, PermissionEntity> pair) {
-                        if (searchModel.isDir()) {
-                            GlobalNavContext.switchToPath(pair.first, searchModel.fullpath);
-                            loadData(RefreshStatusEnum.LOCAL_THEN_REMOTE);
-                        } else {
-                            //searchModel is a file
-                            DirentModel direntModel = SearchModel.convert2DirentModel(searchModel);
-                            Bundle bundle = new Bundle();
-                            bundle.putBoolean("load_other_images_in_same_directory", false);
-                            open(pair.first, direntModel, bundle);
-                        }
-                    }
-                });
-            }
+            });
         }
+    }
+
+    /**
+     * switch to special path. if isDir is false, switch to the parent directory of the fullPath
+     *
+     * @param repoId
+     * @param fullPath
+     * @param isDir
+     */
+    public void switchPath(String repoId, String fullPath, boolean isDir) {
+        RepoModel repoModel = GlobalNavContext.getCurrentNavContext().getRepoModel();
+        if (repoModel != null && TextUtils.equals(repoModel.repo_id, repoId)) {
+            switchToPath(repoModel, fullPath, isDir);
+            return;
+        }
+
+        //different repo
+        getViewModel().getRepoModelEntity(repoId, new Consumer<RepoModel>() {
+            @Override
+            public void accept(RepoModel repoModel) throws Exception {
+                if (repoModel == null) {
+                    ToastUtils.showLong(R.string.repo_not_found);
+                    return;
+                }
+
+                if (repoModel.encrypted) {
+                    decryptRepo(repoModel, new java.util.function.Consumer<Boolean>() {
+                        @Override
+                        public void accept(Boolean aBoolean) {
+                            if (aBoolean) {
+                                switchToPath(repoModel, fullPath, isDir);
+                            }
+                        }
+                    });
+                } else {
+                    switchToPath(repoModel, fullPath, isDir);
+                }
+            }
+        });
+    }
+
+    private void switchToPath(RepoModel repoModel, String fullPath, boolean isDir) {
+        if (repoModel == null) {
+            return;
+        }
+
+        if (isDir && "/".equals(fullPath)) {  // it is a REPO
+            GlobalNavContext.switchToPath(repoModel, "/");
+        } else if (isDir) { // it is a DIR
+            GlobalNavContext.switchToPath(repoModel, fullPath);
+        } else {//it is a file, switch to parent path
+            String p = Utils.getParentPath(fullPath);
+            GlobalNavContext.switchToPath(repoModel, p);
+        }
+        loadData(RefreshStatusEnum.LOCAL_THEN_REMOTE);
     }
 
     /**
@@ -959,7 +1153,6 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         }
         return false;
     }
-
 
     private void decryptRepo(RepoModel repoModel, final java.util.function.Consumer<Boolean> checkBack) {
         if (checkBack == null) {
@@ -1109,6 +1302,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         if (actionMode != null) {
             actionMode.finish();
             actionMode = null;
+            customView = null;
         }
     }
 
@@ -1122,9 +1316,14 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             actionMode = activity.startSupportActionMode(new ActionModeCallback());
         }
 
-        int count = adapter.getSelectedList().size();
-        actionMode.setTitle(getResources().getQuantityString(R.plurals.transfer_list_items_selected, count, count));
+        if (customView != null) {
+            int count = adapter.getSelectedList().size();
+            TextView textView = customView.findViewById(R.id.title);
+            textView.setText(getResources().getQuantityString(R.plurals.transfer_list_items_selected, count, count));
+        }
     }
+
+    private View customView;
 
     /**
      * Represents a contextual mode of the user interface.
@@ -1132,69 +1331,65 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
      * A Callback configures and handles events raised by a user's interaction with an action mode.
      */
     private final class ActionModeCallback implements ActionMode.Callback {
-        private boolean allItemsSelected;
+        private boolean allItemsSelected = false;
 
         @Override
         public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-            // Inflate the menu for the contextual action bar (CAB)
-            MenuInflater inflater = mode.getMenuInflater();
-            inflater.inflate(R.menu.repos_fragment_menu, menu);
+            LayoutInflater inflater = LayoutInflater.from(requireContext());
+            customView = inflater.inflate(R.layout.view_toolbar_action_mode, null);
+            mode.setCustomView(customView);
+
             if (adapter == null) return true;
+
+            LinearLayout checkLayout = customView.findViewById(R.id.check_container);
+            checkLayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onChecked();
+                }
+            });
 
             onShowActionMode(ActionModeCallbackType.CREATE);
             return true;
         }
 
-        @SuppressLint("NewApi")
+        private void onChecked() {
+            if (customView == null) {
+                return;
+            }
+
+            ImageView checkImageView = customView.findViewById(R.id.check_box);
+
+            allItemsSelected = !allItemsSelected;
+
+            adapter.setAllItemSelected(allItemsSelected);
+
+            if (!allItemsSelected) {
+                checkImageView.setImageResource(R.drawable.ic_checkbox_unchecked);
+                onShowActionMode(ActionModeCallbackType.SELECT_NONE);
+            } else {
+                checkImageView.setImageResource(R.drawable.ic_checkbox_checked);
+                onShowActionMode(ActionModeCallbackType.SELECT_ALL);
+            }
+
+            startOrUpdateContextualActionBar();
+        }
+
         @Override
         public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-            /*
-             * The ActionBarPolicy determines how many action button to place in the ActionBar
-             * and the default amount is 2.
-             */
-//            menu.findItem(R.id.action_mode_delete).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-//            menu.findItem(R.id.action_mode_copy).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-            menu.findItem(R.id.action_mode_select_all).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-
-            // Here you can perform updates to the contextual action bar (CAB) due to
-            // an invalidate() request
-            return true;
+            return false;
         }
 
         @Override
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-            //check data
-            List<BaseModel> selectedDirents = adapter.getSelectedList();
-            if (CollectionUtils.isEmpty(selectedDirents) || !GlobalNavContext.getCurrentNavContext().inRepo()) {
-                if (item.getItemId() != R.id.action_mode_select_all) {
-                    ToastUtils.showLong(R.string.action_mode_no_items_selected);
-                    return true;
-                }
-            }
-
-            int itemId = item.getItemId();
-            if (itemId == R.id.action_mode_select_all) {
-                adapter.setAllItemSelected(!allItemsSelected);
-
-                if (!allItemsSelected) {
-                    onShowActionMode(ActionModeCallbackType.SELECT_ALL);
-                } else {
-                    onShowActionMode(ActionModeCallbackType.SELECT_NONE);
-                }
-
-                startOrUpdateContextualActionBar();
-
-                allItemsSelected = !allItemsSelected;
-            }
-
-
-            return true;
+            return false;
         }
 
         @Override
         public void onDestroyActionMode(ActionMode mode) {
             if (adapter == null) return;
 
+            customView = null;
             onShowActionMode(ActionModeCallbackType.DESTROY);
         }
 
@@ -1232,7 +1427,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext());
             builder.setItems(R.array.video_download_array, (dialog, which) -> {
                 if (which == 0) {
-                    CustomExoVideoPlayerActivity.startThis(getContext(), fileName, repoModel.repo_id, filePath);
+                    CustomExoVideoPlayerActivity.startThis(getContext(), fileName, repoModel.repo_id, filePath, dirent.id);
                 } else if (which == 1) {
                     Intent intent = FileActivity.start(requireContext(), dirent, "video_download");
                     fileActivityLauncher.launch(intent);
@@ -1282,6 +1477,11 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     }
 
     public void download(List<BaseModel> direntModels) {
+        if (!NetworkUtils.isConnected()) {
+            ToastUtils.showLong(R.string.network_unavailable);
+            return;
+        }
+
         if (CollectionUtils.isEmpty(direntModels)) {
             return;
         }
@@ -1514,7 +1714,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 return;
             }
 
-//            loadData(RefreshStatusEnum.REMOTE);
+            loadData(RefreshStatusEnum.LOCAL_THEN_REMOTE);
         }
     });
 
@@ -1609,6 +1809,377 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         }
 
         closeActionMode();
+
+    }
+
+
+    /**
+     * create a new repo
+     */
+    private void showNewRepoDialog() {
+        NewRepoDialogFragment dialogFragment = new NewRepoDialogFragment();
+        dialogFragment.setRefreshListener(new OnRefreshDataListener() {
+            @Override
+            public void onActionStatus(boolean isDone) {
+                if (isDone) {
+//                    mainViewModel.getOnForceRefreshRepoListLiveData().setValue(true);
+                }
+            }
+        });
+        dialogFragment.show(getChildFragmentManager(), NewRepoDialogFragment.class.getSimpleName());
+    }
+
+    /**
+     * add new file/files
+     */
+    private void showAddFileDialog() {
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext());
+        builder.setTitle(getString(R.string.add_file));
+        builder.setItems(R.array.add_file_options_array, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (which == 0) // create file
+                    showNewFileDialog();
+                else if (which == 1) // create folder
+                    showNewDirDialog();
+                else if (which == 2) // upload file
+                    pickFile();
+                else if (which == 3) // take a photo
+                    takePhoto();
+            }
+        }).show();
+    }
+
+    private void checkCurrentPathHasWritePermission(java.util.function.Consumer<Boolean> consumer) {
+        BaseModel baseModel = GlobalNavContext.getCurrentNavContext().getTopModel();
+        if (null == baseModel) {
+            return;
+        }
+
+        if (baseModel instanceof RepoModel m) {
+            if (!m.isCustomPermission()) {
+                consumer.accept(m.hasWritePermission());
+            } else {
+                mainViewModel.getPermissionFromLocal(m.repo_id, m.getCustomPermissionNum(), entity -> {
+                    if (entity == null) {
+                        consumer.accept(false);
+                        return;
+                    }
+                    consumer.accept(entity.create);
+                });
+            }
+        } else if (baseModel instanceof DirentModel m) {
+            if (!m.isCustomPermission()) {
+                consumer.accept(m.hasWritePermission());
+            } else {
+                mainViewModel.getPermissionFromLocal(m.repo_id, m.getCustomPermissionNum(), entity -> {
+                    if (entity == null) {
+                        consumer.accept(false);
+                        return;
+                    }
+                    consumer.accept(entity.create);
+                });
+            }
+        }
+    }
+
+
+    //
+    private void showNewDirDialog() {
+        checkCurrentPathHasWritePermission(new java.util.function.Consumer<Boolean>() {
+            @Override
+            public void accept(Boolean aBoolean) {
+                if (!aBoolean) {
+                    ToastUtils.showLong(R.string.library_read_only);
+                    return;
+                }
+
+                String rid = GlobalNavContext.getCurrentNavContext().getRepoModel().repo_id;
+                String parentPath = GlobalNavContext.getCurrentNavContext().getNavPath();
+                NewDirFileDialogFragment dialogFragment = NewDirFileDialogFragment.newInstance(rid, parentPath, true);
+                dialogFragment.setRefreshListener(new OnRefreshDataListener() {
+                    @Override
+                    public void onActionStatus(boolean isDone) {
+                        if (isDone) {
+                            mainViewModel.getOnForceRefreshRepoListLiveData().setValue(true);
+                        }
+                    }
+                });
+                dialogFragment.show(getChildFragmentManager(), NewDirFileDialogFragment.class.getSimpleName());
+            }
+        });
+    }
+
+    private void showNewFileDialog() {
+        checkCurrentPathHasWritePermission(new java.util.function.Consumer<Boolean>() {
+            @Override
+            public void accept(Boolean aBoolean) {
+                if (!aBoolean) {
+                    ToastUtils.showLong(R.string.library_read_only);
+                    return;
+                }
+
+
+                String rid = GlobalNavContext.getCurrentNavContext().getRepoModel().repo_id;
+                String parentPath = GlobalNavContext.getCurrentNavContext().getNavPath();
+                NewDirFileDialogFragment dialogFragment = NewDirFileDialogFragment.newInstance(rid, parentPath, false);
+                dialogFragment.setRefreshListener(new OnRefreshDataListener() {
+                    @Override
+                    public void onActionStatus(boolean isDone) {
+                        if (isDone) {
+                            mainViewModel.getOnForceRefreshRepoListLiveData().setValue(true);
+                        }
+                    }
+                });
+                dialogFragment.show(getChildFragmentManager(), NewDirFileDialogFragment.class.getSimpleName());
+            }
+        });
+    }
+
+    private void pickFile() {
+        checkCurrentPathHasWritePermission(new java.util.function.Consumer<Boolean>() {
+            @Override
+            public void accept(Boolean aBoolean) {
+                if (!aBoolean) {
+                    ToastUtils.showLong(R.string.library_read_only);
+                    return;
+                }
+
+                takeFile(false);
+            }
+        });
+
+    }
+
+    //0 camera
+    //1 video
+    private int permission_media_select_type = -1;
+
+    private void takePhoto() {
+        checkCurrentPathHasWritePermission(new java.util.function.Consumer<Boolean>() {
+            @Override
+            public void accept(Boolean aBoolean) {
+                if (!aBoolean) {
+                    ToastUtils.showLong(R.string.library_read_only);
+                    return;
+                }
+
+                permission_media_select_type = 0;
+                cameraPermissionLauncher.launch(Manifest.permission.CAMERA);
+            }
+        });
+
+    }
+
+    private void takeVideo() {
+        checkCurrentPathHasWritePermission(new java.util.function.Consumer<Boolean>() {
+            @Override
+            public void accept(Boolean aBoolean) {
+                if (!aBoolean) {
+                    ToastUtils.showLong(R.string.library_read_only);
+                    return;
+                }
+
+                permission_media_select_type = 1;
+                cameraPermissionLauncher.launch(Manifest.permission.CAMERA);
+            }
+        });
+
+    }
+
+
+    private void takeFile(boolean isSingleSelect) {
+        String[] mimeTypes = new String[]{"*/*"};
+        if (isSingleSelect) {
+            singleFileAndImageChooseLauncher.launch(mimeTypes);
+        } else {
+            multiFileAndImageChooserLauncher.launch(mimeTypes);
+        }
+    }
+
+    private final ActivityResultLauncher<String> cameraPermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestPermission(), new ActivityResultCallback<Boolean>() {
+        @Override
+        public void onActivityResult(Boolean result) {
+            if (Boolean.FALSE.equals(result)) {
+                ToastUtils.showLong(R.string.permission_camera);
+                return;
+            }
+
+            if (permission_media_select_type == 0) {
+                uriPair = TakeCameras.buildTakePhotoUri(requireContext());
+                takePhotoLauncher.launch(uriPair.getFirst());
+            } else if (permission_media_select_type == 1) {
+                uriPair = TakeCameras.buildTakeVideoUri(requireContext());
+                takePhotoLauncher.launch(uriPair.getFirst());
+            }
+        }
+    });
+
+    private final ActivityResultLauncher<String[]> singleFileAndImageChooseLauncher = registerForActivityResult(new ActivityResultContracts.OpenDocument(), new ActivityResultCallback<Uri>() {
+        @Override
+        public void onActivityResult(Uri o) {
+            if (null == o) {
+                return;
+            }
+
+            doSelectSingleFile(o);
+        }
+    });
+
+    private final ActivityResultLauncher<String[]> multiFileAndImageChooserLauncher = registerForActivityResult(new ActivityResultContracts.OpenMultipleDocuments(), new ActivityResultCallback<List<Uri>>() {
+        @Override
+        public void onActivityResult(List<Uri> o) {
+            if (CollectionUtils.isEmpty(o)) {
+                return;
+            }
+
+            for (Uri uri : o) {
+                int takeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION;
+                requireContext().getContentResolver().takePersistableUriPermission(uri, takeFlags);
+            }
+
+            if (o.size() == 1) {
+                doSelectSingleFile(o.get(0));
+            } else {
+                doSelectedMultiFile(o);
+            }
+        }
+    });
+
+
+    private kotlin.Pair<Uri, File> uriPair;
+    private final ActivityResultLauncher<Uri> takePhotoLauncher = registerForActivityResult(new ActivityResultContracts.TakePicture(), new ActivityResultCallback<Boolean>() {
+        @Override
+        public void onActivityResult(Boolean result) {
+            if (Boolean.FALSE.equals(result)) {
+                return;
+            }
+
+            SLogs.d("take photo");
+
+            if (uriPair == null) {
+                return;
+            }
+
+            Uri uri = uriPair.getFirst();
+            File file = uriPair.getSecond();
+
+            RepoModel repoModel = GlobalNavContext.getCurrentNavContext().getRepoModel();
+
+            addUploadTask(repoModel, GlobalNavContext.getCurrentNavContext().getNavPath(), file.getAbsolutePath());
+        }
+    });
+
+    private final ActivityResultLauncher<Uri> takeVideoLauncher = registerForActivityResult(new ActivityResultContracts.CaptureVideo(), new ActivityResultCallback<Boolean>() {
+        @Override
+        public void onActivityResult(Boolean o) {
+            if (!o) {
+                return;
+            }
+
+            SLogs.d("take video");
+        }
+    });
+
+    private void doSelectedMultiFile(List<Uri> uriList) {
+        showLoadingDialog();
+        Account account = SupportAccountManager.getInstance().getCurrentAccount();
+        RepoModel repoModel = GlobalNavContext.getCurrentNavContext().getRepoModel();
+        String parent_dir = GlobalNavContext.getCurrentNavContext().getNavPath();
+        mainViewModel.multipleCheckRemoteDirent(requireContext(), account, repoModel.repo_id, repoModel.repo_name, parent_dir, uriList, new java.util.function.Consumer<Boolean>() {
+            @Override
+            public void accept(Boolean aBoolean) {
+                dismissLoadingDialog();
+
+                if (aBoolean) {
+                    ToastUtils.showLong(R.string.added_to_upload_tasks);
+
+                    //start worker
+                    BackgroundJobManagerImpl.getInstance().startFileUploadWorker();
+                }
+            }
+        });
+    }
+
+    private void doSelectSingleFile(Uri uri) {
+        if (uri == null) {
+            return;
+        }
+
+        String appCacheUriPrefix = "content://" + requireContext().getPackageName() + ".documents";
+        if (uri.toString().startsWith(appCacheUriPrefix)) {
+            return;
+        }
+
+        showLoadingDialog();
+
+        String fileName = Utils.getFilenameFromUri(requireContext(), uri);
+        String parent_dir = GlobalNavContext.getCurrentNavContext().getNavPath();
+        String destinationPath = Utils.pathJoin(parent_dir, fileName);
+
+        RepoModel repoModel = GlobalNavContext.getCurrentNavContext().getRepoModel();
+        mainViewModel.checkRemoteDirent(repoModel.repo_id, destinationPath, new java.util.function.Consumer<DirentFileModel>() {
+            @Override
+            public void accept(DirentFileModel direntFileModel) {
+                if (direntFileModel != null) {
+                    showFileExistDialog(uri, fileName);
+                } else {
+                    addUploadTask(repoModel, GlobalNavContext.getCurrentNavContext().getNavPath(), uri, fileName, false);
+                }
+
+                dismissLoadingDialog();
+            }
+        });
+    }
+
+    private void showFileExistDialog(final Uri uri, String fileName) {
+
+        RepoModel repoModel = GlobalNavContext.getCurrentNavContext().getRepoModel();
+
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext());
+        builder.setTitle(getString(R.string.upload_file_exist));
+        builder.setMessage(String.format(getString(R.string.upload_duplicate_found), fileName));
+
+        builder.setPositiveButton(getString(R.string.upload_replace), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                addUploadTask(repoModel, GlobalNavContext.getCurrentNavContext().getNavPath(), uri, fileName, true);
+            }
+        });
+
+        builder.setNeutralButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        builder.setNegativeButton(getString(R.string.upload_keep_both), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                addUploadTask(repoModel, GlobalNavContext.getCurrentNavContext().getNavPath(), uri, fileName, false);
+            }
+        });
+
+        builder.show();
+    }
+
+    // task
+    private void addUploadTask(RepoModel repoModel, String targetDir, String localFile) {
+        Account account = SupportAccountManager.getInstance().getCurrentAccount();
+        mainViewModel.addUploadTask(requireContext(), account, repoModel, localFile, targetDir, false);
+
+        ToastUtils.showLong(R.string.added_to_upload_tasks);
+        BackgroundJobManagerImpl.getInstance().startFileUploadWorker();
+    }
+
+    private void addUploadTask(RepoModel repoModel, String targetDir, Uri sourceUri, String fileName, boolean isReplace) {
+        //
+        Account account = SupportAccountManager.getInstance().getCurrentAccount();
+        mainViewModel.addUploadTask(requireContext(), account, repoModel, sourceUri, targetDir, fileName, isReplace);
+
+        ToastUtils.showLong(R.string.added_to_upload_tasks);
+        BackgroundJobManagerImpl.getInstance().startFileUploadWorker();
 
     }
 }

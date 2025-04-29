@@ -20,6 +20,7 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.preferences.RenameSharePreferenceFragmentCompat;
 import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.ui.camera_upload.CameraUploadConfigActivity;

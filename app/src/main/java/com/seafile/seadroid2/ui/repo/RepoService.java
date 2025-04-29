@@ -1,11 +1,11 @@
 package com.seafile.seadroid2.ui.repo;
 
-import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
-import com.seafile.seadroid2.framework.data.model.dirents.DirentRecursiveFileModel;
-import com.seafile.seadroid2.framework.data.model.permission.PermissionListWrapperModel;
-import com.seafile.seadroid2.framework.data.model.permission.PermissionWrapperModel;
-import com.seafile.seadroid2.framework.data.model.repo.DirentWrapperModel;
-import com.seafile.seadroid2.framework.data.model.repo.RepoWrapperModel;
+import com.seafile.seadroid2.framework.db.entities.RepoModel;
+import com.seafile.seadroid2.framework.model.dirents.DirentRecursiveFileModel;
+import com.seafile.seadroid2.framework.model.permission.PermissionListWrapperModel;
+import com.seafile.seadroid2.framework.model.permission.PermissionWrapperModel;
+import com.seafile.seadroid2.framework.model.repo.DirentWrapperModel;
+import com.seafile.seadroid2.framework.model.repo.RepoWrapperModel;
 
 import java.util.List;
 

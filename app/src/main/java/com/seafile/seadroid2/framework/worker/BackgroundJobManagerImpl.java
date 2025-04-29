@@ -9,18 +9,17 @@ import androidx.work.ExistingWorkPolicy;
 import androidx.work.ListenableWorker;
 import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
+import androidx.work.OutOfQuotaPolicy;
 import androidx.work.PeriodicWorkRequest;
-import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 
-import com.google.common.util.concurrent.ListenableFuture;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.worker.download.DownloadFileScannerWorker;
 import com.seafile.seadroid2.framework.worker.download.DownloadWorker;
-import com.seafile.seadroid2.framework.worker.download.DownloadedFileMonitorWorker;
+import com.seafile.seadroid2.framework.worker.reupoad.DownloadedFileMonitorWorker;
 import com.seafile.seadroid2.framework.worker.upload.FolderBackupScanWorker;
 import com.seafile.seadroid2.framework.worker.upload.MediaBackupScanWorker;
 import com.seafile.seadroid2.framework.worker.upload.FileUploadWorker;
@@ -29,7 +28,6 @@ import com.seafile.seadroid2.framework.worker.upload.MediaBackupUploadWorker;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 public class BackgroundJobManagerImpl {
@@ -59,7 +57,6 @@ public class BackgroundJobManagerImpl {
     private <T extends ListenableWorker> OneTimeWorkRequest.Builder oneTimeRequestBuilder(Class<T> tClass) {
         return new OneTimeWorkRequest.Builder(tClass)
                 .setBackoffCriteria(BackoffPolicy.LINEAR, 5, TimeUnit.SECONDS)
-                .setInitialDelay(1, TimeUnit.SECONDS)
                 .addTag(TAG_ALL)
                 .addTag(TAG_TRANSFER)
                 .addTag(tClass.getSimpleName());
@@ -115,8 +112,14 @@ public class BackgroundJobManagerImpl {
                 .putBoolean(TransferWorker.DATA_FORCE_TRANSFER_KEY, isForce)
                 .build();
 
+        Constraints constraints = new Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build();
+
         return oneTimeRequestBuilder(MediaBackupScanWorker.class)
                 .setInputData(data)
+                .addTag(TAG_ALBUM_BACKUP)
+                .setConstraints(constraints)
                 .setId(MediaBackupScanWorker.UID)
                 .build();
     }
@@ -137,11 +140,13 @@ public class BackgroundJobManagerImpl {
 
         return oneTimeRequestBuilder(MediaBackupUploadWorker.class)
                 .setConstraints(constraints)
+                .addTag(TAG_ALBUM_BACKUP)
                 .setId(MediaBackupUploadWorker.UID)
                 .build();
     }
 
     public void restartMediaBackupWorker() {
+        SLogs.e("restartMediaBackupWorker");
         cancelByTag(TAG_ALBUM_BACKUP);
         startMediaBackupChain(false);
     }
@@ -172,9 +177,15 @@ public class BackgroundJobManagerImpl {
                 .putBoolean(TransferWorker.DATA_FORCE_TRANSFER_KEY, isForce)
                 .build();
 
+        Constraints constraints = new Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build();
+
         return oneTimeRequestBuilder(FolderBackupScanWorker.class)
                 .setInputData(data)
                 .setId(FolderBackupScanWorker.UID)
+                .addTag(TAG_FOLDER_BACKUP)
+                .setConstraints(constraints)
                 .build();
     }
 
@@ -193,6 +204,7 @@ public class BackgroundJobManagerImpl {
 
         return oneTimeRequestBuilder(FolderBackupUploadWorker.class)
                 .setConstraints(constraints)
+                .addTag(TAG_FOLDER_BACKUP)
                 .setId(FolderBackupUploadWorker.UID)
                 .build();
     }
@@ -215,8 +227,14 @@ public class BackgroundJobManagerImpl {
     }
 
     private OneTimeWorkRequest getFileUploadRequest() {
+        Constraints constraints = new Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build();
+
         return oneTimeRequestBuilder(FileUploadWorker.class)
                 .setId(FileUploadWorker.UID)
+                .setConstraints(constraints)
+                .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
                 .addTag(TAG_FILE_UPLOAD)
                 .build();
     }
@@ -256,14 +274,24 @@ public class BackgroundJobManagerImpl {
             builder.putString(TransferWorker.DATA_DIRENT_LIST_KEY, String.join(",", direntIds));
         }
 
+        Constraints constraints = new Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build();
+
         return oneTimeRequestBuilder(DownloadFileScannerWorker.class)
                 .setInputData(builder.build())
                 .addTag(TAG_DOWNLOAD)
+                .setConstraints(constraints)
                 .build();
     }
 
     private OneTimeWorkRequest getDownloadRequest() {
+        Constraints constraints = new Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build();
+
         return oneTimeRequestBuilder(DownloadWorker.class)
+                .setConstraints(constraints)
                 .addTag(TAG_DOWNLOAD)
                 .build();
     }
@@ -277,17 +305,17 @@ public class BackgroundJobManagerImpl {
 
     public void startCheckDownloadedFileChain() {
         OneTimeWorkRequest checkRequest = getCheckDownloadedFileRequest();
-        OneTimeWorkRequest uploadRequest = getFileUploadRequest();
         String workerName = DownloadedFileMonitorWorker.class.getSimpleName();
-
-        getWorkManager()
-                .beginUniqueWork(workerName, ExistingWorkPolicy.KEEP, checkRequest)
-                .then(uploadRequest)
-                .enqueue();
+        getWorkManager().enqueueUniqueWork(workerName, ExistingWorkPolicy.KEEP, checkRequest);
     }
 
     private OneTimeWorkRequest getCheckDownloadedFileRequest() {
-        return oneTimeRequestBuilder(DownloadedFileMonitorWorker.class).build();
+        Constraints constraints = new Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build();
+        return oneTimeRequestBuilder(DownloadedFileMonitorWorker.class)
+                .setConstraints(constraints)
+                .build();
     }
 
 

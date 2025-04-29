@@ -11,8 +11,9 @@ import androidx.lifecycle.Observer;
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.ui.base.fragment.RequestCustomDialogFragmentWithVM;
-import com.seafile.seadroid2.framework.data.model.ResultModel;
+import com.seafile.seadroid2.framework.model.ResultModel;
 import com.seafile.seadroid2.ui.dialog_fragment.viewmodel.DeleteRepoViewModel;
 
 import java.util.ArrayList;
@@ -62,16 +63,18 @@ public class DeleteRepoDialogFragment extends RequestCustomDialogFragmentWithVM<
     protected void initViewModel() {
         super.initViewModel();
 
+        getViewModel().getSeafExceptionLiveData().observe(this, new Observer<SeafException>() {
+            @Override
+            public void onChanged(SeafException e) {
+                ToastUtils.showLong(e.getMessage());
+                refreshData(false);
+                dismiss();
+            }
+        });
+
         getViewModel().getActionLiveData().observe(this, new Observer<ResultModel>() {
             @Override
             public void onChanged(ResultModel resultModel) {
-
-                if (!TextUtils.isEmpty(resultModel.error_msg)) {
-                    ToastUtils.showLong(resultModel.error_msg);
-                    dismiss();
-                    return;
-                }
-
                 refreshData();
 
                 dismiss();

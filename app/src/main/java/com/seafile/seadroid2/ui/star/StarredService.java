@@ -1,14 +1,13 @@
 package com.seafile.seadroid2.ui.star;
 
-import com.seafile.seadroid2.framework.data.model.ResultModel;
-import com.seafile.seadroid2.framework.data.model.repo.Dirent2Model;
-import com.seafile.seadroid2.framework.data.model.star.StarredWrapperModel;
+import com.seafile.seadroid2.framework.model.ResultModel;
+import com.seafile.seadroid2.framework.model.repo.Dirent2Model;
+import com.seafile.seadroid2.framework.model.star.StarredWrapperModel;
 
 import java.util.Map;
 
 import io.reactivex.Single;
 import okhttp3.RequestBody;
-import retrofit2.http.Body;
 import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.Multipart;

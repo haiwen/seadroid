@@ -139,8 +139,8 @@ public class FileUploadWorker extends BaseUploadWorker {
             }
         }
 
-        ToastUtils.showLong(R.string.upload_finished);
-        SLogs.e("file upload: all task run");
+        showToast(R.string.upload_finished);
+        SLogs.e("file upload: complete");
 
         Bundle b = new Bundle();
         b.putString(TransferWorker.KEY_DATA_RESULT, interruptibleExceptionMsg);

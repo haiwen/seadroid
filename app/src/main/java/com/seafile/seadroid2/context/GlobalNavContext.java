@@ -1,9 +1,8 @@
 package com.seafile.seadroid2.context;
 
 import com.seafile.seadroid2.bus.BusHelper;
-import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
-import com.seafile.seadroid2.framework.data.model.BaseModel;
-import com.seafile.seadroid2.preferences.ContextStackPreferenceHelper;
+import com.seafile.seadroid2.framework.db.entities.RepoModel;
+import com.seafile.seadroid2.framework.model.BaseModel;
 
 public class GlobalNavContext {
     private static final NavContext _current_context = new NavContext();
@@ -22,6 +21,9 @@ public class GlobalNavContext {
         post();
     }
 
+    /**
+     * restore from the sp
+     */
     public static void restore() {
         NavContext c = ContextStackPreferenceHelper.getNavContextStack();
         getCurrentNavContext().restoreFromSelf(c);
@@ -34,5 +36,12 @@ public class GlobalNavContext {
 
     private static void post() {
         BusHelper.getNavContextObserver().post(getCurrentNavContext());
+    }
+
+    /**
+     * re-post: notify again
+     */
+    public static void ding() {
+        post();
     }
 }

@@ -11,16 +11,12 @@ import androidx.lifecycle.Observer;
 
 import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
-import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.util.StringUtils;
 import com.seafile.seadroid2.ui.base.fragment.RequestCustomDialogFragmentWithVM;
-import com.seafile.seadroid2.framework.data.model.dirents.FileCreateModel;
 import com.seafile.seadroid2.ui.dialog_fragment.viewmodel.RenameRepoViewModel;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class RenameDialogFragment extends RequestCustomDialogFragmentWithVM<RenameRepoViewModel> {
 
@@ -130,33 +126,23 @@ public class RenameDialogFragment extends RequestCustomDialogFragmentWithVM<Rena
     protected void initViewModel() {
         super.initViewModel();
 
-        getViewModel().getActionLiveData().observe(this, new Observer<String>() {
+        getViewModel().getSeafExceptionLiveData().observe(this, new Observer<SeafException>() {
             @Override
-            public void onChanged(String s) {
-                if (TextUtils.equals("success", s)) {
-                    ToastUtils.showLong(R.string.rename_successful);
-
-                    refreshData();
-
-                    dismiss();
-                } else {
-                    setInputError(R.id.text_input, s);
+            public void onChanged(SeafException e) {
+                if (e != null) {
+                    setInputError(R.id.text_input, e.getMessage());
                 }
             }
         });
 
-        getViewModel().getRenameFileLiveData().observe(this, new Observer<FileCreateModel>() {
+        getViewModel().getActionLiveData().observe(this, new Observer<String>() {
             @Override
-            public void onChanged(FileCreateModel fileCreateModel) {
-                if (TextUtils.isEmpty(fileCreateModel.error_msg)) {
-                    ToastUtils.showLong(R.string.rename_successful);
+            public void onChanged(String s) {
+                ToastUtils.showLong(R.string.rename_successful);
 
-                    refreshData();
+                refreshData();
 
-                    dismiss();
-                } else {
-                    setInputError(R.id.text_input, fileCreateModel.error_msg);
-                }
+                dismiss();
             }
         });
 

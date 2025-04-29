@@ -48,19 +48,21 @@ public class CustomExoVideoPlayerActivity extends BaseActivityWithVM<PlayerViewM
     private ExoPlayerView exoPlayerView;
 
     private String fileName;
-    private String mRepoID;
-    private String mFilePath;
+    private String fileId;
+    private String repoId;
+    private String filePath;
 
     private boolean hasFullScreen = false;
     private boolean startAutoPlay;
     private int startItemIndex;
     private long startPosition;
 
-    public static void startThis(Context context, String fileName, String repoID, String filePath) {
+    public static void startThis(Context context, String fileName, String repoID, String filePath, String fileId) {
         Intent intent = new Intent(context, CustomExoVideoPlayerActivity.class);
         intent.putExtra("fileName", fileName);
-        intent.putExtra("repoID", repoID);
+        intent.putExtra("repoId", repoID);
         intent.putExtra("filePath", filePath);
+        intent.putExtra("fileId", fileId);
         context.startActivity(intent);
     }
 
@@ -76,8 +78,8 @@ public class CustomExoVideoPlayerActivity extends BaseActivityWithVM<PlayerViewM
         BarUtils.setStatusBarVisibility(this, false);
 
         Intent intent = getIntent();
-        if (!intent.hasExtra("repoID")) {
-            throw new IllegalArgumentException("no repoID param");
+        if (!intent.hasExtra("repoId")) {
+            throw new IllegalArgumentException("no repoId param");
         }
 
         if (!intent.hasExtra("filePath")) {
@@ -85,8 +87,9 @@ public class CustomExoVideoPlayerActivity extends BaseActivityWithVM<PlayerViewM
         }
 
         fileName = intent.getStringExtra("fileName");
-        mRepoID = intent.getStringExtra("repoID");
-        mFilePath = intent.getStringExtra("filePath");
+        repoId = intent.getStringExtra("repoId");
+        filePath = intent.getStringExtra("filePath");
+        fileId = intent.getStringExtra("fileId");
 
 
         if (savedInstanceState != null) {
@@ -107,7 +110,7 @@ public class CustomExoVideoPlayerActivity extends BaseActivityWithVM<PlayerViewM
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
 
-        getViewModel().getFileLink(mRepoID, mFilePath, true);
+        getViewModel().checkLocalAndOpen(repoId, filePath, fileId, true);
     }
 
     @OptIn(markerClass = UnstableApi.class)
@@ -211,7 +214,6 @@ public class CustomExoVideoPlayerActivity extends BaseActivityWithVM<PlayerViewM
         outState.putBoolean(KEY_FULL_SCREEN, hasFullScreen);
         outState.putInt(KEY_ITEM_INDEX, startItemIndex);
     }
-
 
     private void setPlayIcon(boolean isPlay) {
         binding.playPause.setImageResource(isPlay ? R.drawable.ic_play_fill : R.drawable.ic_pause_fill);

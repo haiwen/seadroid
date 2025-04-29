@@ -4,7 +4,10 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.work.ForegroundInfo;
@@ -18,9 +21,9 @@ import com.seafile.seadroid2.enums.SaveTo;
 import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.enums.TransferResult;
 import com.seafile.seadroid2.enums.TransferStatus;
-import com.seafile.seadroid2.framework.data.db.AppDatabase;
-import com.seafile.seadroid2.framework.data.db.entities.FileBackupStatusEntity;
-import com.seafile.seadroid2.framework.data.db.entities.FileCacheStatusEntity;
+import com.seafile.seadroid2.framework.db.AppDatabase;
+import com.seafile.seadroid2.framework.db.entities.FileBackupStatusEntity;
+import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
 import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.notification.base.BaseTransferNotificationHelper;
@@ -38,7 +41,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.ref.WeakReference;
 
 import okhttp3.Call;
 import okhttp3.MultipartBody;
@@ -317,6 +319,9 @@ public abstract class BaseUploadWorker extends TransferWorker {
             if (currentTransferModel.data_source == TransferDataSource.DOWNLOAD) {
                 FileCacheStatusEntity transferEntity = FileCacheStatusEntity.convertFromUpload(currentTransferModel, fileId);
                 AppDatabase.getInstance().fileCacheStatusDAO().insert(transferEntity);
+
+                //
+                AppDatabase.getInstance().direntDao().updateFileIdByPath(transferEntity.repo_id,transferEntity.full_path,fileId);
             } else {
                 FileBackupStatusEntity transferEntity = FileBackupStatusEntity.convertTransferModel2This(currentTransferModel, fileId);
                 AppDatabase.getInstance().fileTransferDAO().insert(transferEntity);

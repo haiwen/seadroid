@@ -38,6 +38,14 @@
     <dimen name="rv_item_dirent_height">70dp</dimen>
     <dimen name="rv_item_icon_width">60dp</dimen>
 
+    <!-- popup window -->
+    <dimen name="pop_icon_width">24dp</dimen>
+    <dimen name="pop_icon_height">24dp</dimen>
+    <dimen name="pop_icon_padding">4dp</dimen>
+    <dimen name="pop_icon_margin_horizontal">4dp</dimen>
+    <dimen name="pop_title_text_size">14sp</dimen>
+    <dimen name="pop_item_padding_vertical">12dp</dimen>
+
     <!-- Content -->
     <dimen name="lv_margin_top">10dp</dimen> <!-- ListView -->
     <dimen name="lv_item_height">60dp</dimen>
@@ -50,8 +58,8 @@
     <dimen name="lv_multi_select_height">32dp</dimen>
     <dimen name="lv_multi_select_padding_left">10dp</dimen>
     <dimen name="lv_item_inset">15dp</dimen>
-    <dimen name="lv_icon_width">34dp</dimen>
-    <dimen name="lv_icon_height">34dp</dimen>
+    <dimen name="lv_icon_width">36dp</dimen>
+    <dimen name="lv_icon_height">36dp</dimen>
     <dimen name="lv_space_width">2dp</dimen>
     <dimen name="lv_iv_action_width">60dp</dimen> <!-- ImageView -->
     <dimen name="lv_title_padding_top">4dp</dimen>

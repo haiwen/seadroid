@@ -19,7 +19,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.TypeAdapter;
 import com.google.gson.reflect.TypeToken;
-import com.seafile.seadroid2.framework.data.model.BaseModel;
+import com.seafile.seadroid2.framework.model.BaseModel;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;

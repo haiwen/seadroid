@@ -21,6 +21,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.media3.common.util.UnstableApi;
 
+import com.blankj.utilcode.util.NetworkUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.chad.library.adapter4.BaseQuickAdapter;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -28,14 +29,12 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
-import com.seafile.seadroid2.annotation.Unstable;
 import com.seafile.seadroid2.bus.BusHelper;
 import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.databinding.LayoutFrameSwipeRvBinding;
-import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
-import com.seafile.seadroid2.framework.data.db.entities.StarredModel;
-import com.seafile.seadroid2.framework.data.model.ResultModel;
-import com.seafile.seadroid2.framework.data.model.TResultModel;
+import com.seafile.seadroid2.framework.db.entities.RepoModel;
+import com.seafile.seadroid2.framework.db.entities.StarredModel;
+import com.seafile.seadroid2.framework.model.ResultModel;
 import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.ui.WidgetUtils;
@@ -49,7 +48,7 @@ import com.seafile.seadroid2.ui.file.FileActivity;
 import com.seafile.seadroid2.ui.main.MainActivity;
 import com.seafile.seadroid2.ui.main.MainViewModel;
 import com.seafile.seadroid2.ui.markdown.MarkdownActivity;
-import com.seafile.seadroid2.ui.media.image_preview2.CarouselImagePreviewActivity;
+import com.seafile.seadroid2.ui.media.image.CarouselImagePreviewActivity;
 import com.seafile.seadroid2.ui.media.player.CustomExoVideoPlayerActivity;
 import com.seafile.seadroid2.ui.sdoc.SDocWebViewActivity;
 import com.seafile.seadroid2.view.TipsViews;
@@ -310,10 +309,11 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
             SDocWebViewActivity.openSdoc(getContext(), model.repo_name, model.repo_id, model.path);
 
         } else if (Utils.isVideoFile(model.obj_name)) {
+
             MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext());
             builder.setItems(R.array.video_download_array, (dialog, which) -> {
                 if (which == 0) {
-                    CustomExoVideoPlayerActivity.startThis(getContext(), model.obj_name, model.repo_id, model.path);
+                    CustomExoVideoPlayerActivity.startThis(getContext(), model.obj_name, model.repo_id, model.path,null);
                 } else if (which == 1) {
                     Intent intent = FileActivity.startFromStarred(requireContext(), model, "video_download");
                     fileActivityLauncher.launch(intent);
@@ -390,7 +390,6 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
             if (isUpdateWhenFileExists) {
                 ToastUtils.showLong(R.string.download_finished);
             }
-
 
             File destinationFile = new File(localFullPath);
             if ("open_with".equals(action)) {

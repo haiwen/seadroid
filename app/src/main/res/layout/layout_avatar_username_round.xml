@@ -10,7 +10,7 @@
     app:cardCornerRadius="16dp"
     app:cardElevation="0dp"
     app:contentPaddingBottom="2dp"
-    app:contentPaddingLeft="4dp"
+    app:contentPaddingLeft="6dp"
     app:contentPaddingRight="6dp"
     app:contentPaddingTop="2dp"
     app:strokeWidth="0dp">

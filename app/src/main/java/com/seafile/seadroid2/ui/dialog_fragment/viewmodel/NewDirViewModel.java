@@ -4,9 +4,10 @@ import android.text.TextUtils;
 
 import androidx.lifecycle.MutableLiveData;
 
+import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
-import com.seafile.seadroid2.framework.data.model.ResultModel;
-import com.seafile.seadroid2.framework.data.model.dirents.FileCreateModel;
+import com.seafile.seadroid2.framework.model.ResultModel;
+import com.seafile.seadroid2.framework.model.dirents.FileCreateModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.ui.dialog_fragment.DialogService;
 
@@ -60,9 +61,9 @@ public class NewDirViewModel extends BaseViewModel {
             public void accept(Throwable throwable) throws Exception {
                 getRefreshLiveData().setValue(false);
 
-                ResultModel resultModel = new ResultModel();
-                resultModel.error_msg = getErrorMsgByThrowable(throwable);
-                getCreateDirLiveData().setValue(resultModel);
+                SeafException seafException = getExceptionByThrowable(throwable);
+                getSeafExceptionLiveData().setValue(seafException);
+                getRefreshLiveData().setValue(false);
             }
         });
     }
@@ -94,9 +95,9 @@ public class NewDirViewModel extends BaseViewModel {
             public void accept(Throwable throwable) throws Exception {
                 getRefreshLiveData().setValue(false);
 
-                FileCreateModel createModel = new FileCreateModel();
-                createModel.error_msg = getErrorMsgByThrowable(throwable);
-                getCreateFileLiveData().setValue(createModel);
+                SeafException seafException = getExceptionByThrowable(throwable);
+                getSeafExceptionLiveData().setValue(seafException);
+                getRefreshLiveData().setValue(false);
             }
         });
     }

@@ -1,6 +1,6 @@
 package com.seafile.seadroid2.ui.search;
 
-import com.seafile.seadroid2.framework.data.model.search.SearchWrapperModel;
+import com.seafile.seadroid2.framework.model.search.SearchWrapperModel;
 
 import java.util.Map;
 

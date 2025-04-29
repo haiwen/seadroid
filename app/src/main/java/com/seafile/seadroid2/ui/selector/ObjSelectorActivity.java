@@ -22,15 +22,16 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.config.AbsLayoutItemType;
+import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.context.NavContext;
 import com.seafile.seadroid2.databinding.ActivitySelectorObjBinding;
 import com.seafile.seadroid2.enums.FileViewType;
 import com.seafile.seadroid2.enums.RepoSelectType;
-import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
-import com.seafile.seadroid2.framework.data.db.entities.EncKeyCacheEntity;
-import com.seafile.seadroid2.framework.data.db.entities.PermissionEntity;
-import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
-import com.seafile.seadroid2.framework.data.model.BaseModel;
+import com.seafile.seadroid2.framework.db.entities.DirentModel;
+import com.seafile.seadroid2.framework.db.entities.EncKeyCacheEntity;
+import com.seafile.seadroid2.framework.db.entities.PermissionEntity;
+import com.seafile.seadroid2.framework.db.entities.RepoModel;
+import com.seafile.seadroid2.framework.model.BaseModel;
 import com.seafile.seadroid2.ui.base.BaseActivity;
 import com.seafile.seadroid2.ui.dialog_fragment.NewDirFileDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.PasswordDialogFragment;
@@ -200,12 +201,6 @@ public class ObjSelectorActivity extends BaseActivity {
     }
 
     private void initRv() {
-        StickyItemDecoration decoration = new StickyItemDecoration.Builder()
-                .itemType(AbsLayoutItemType.GROUP_ITEM)
-                .build();
-
-        binding.rv.addItemDecoration(decoration);
-
         adapter = new RepoQuickAdapter();
         adapter.setSelectType(RepoSelectType.DIR);
         adapter.setFileViewType(FileViewType.LIST);
@@ -217,6 +212,8 @@ public class ObjSelectorActivity extends BaseActivity {
 
         QuickAdapterHelper helper = new QuickAdapterHelper.Builder(adapter).build();
         binding.rv.setAdapter(helper.getAdapter());
+        binding.rv.setPadding(0, Constants.DP.DP_16, 0, Constants.DP.DP_16);
+        binding.rv.setClipToPadding(false);
     }
 
     private void notifyDataChanged(List<BaseModel> models) {

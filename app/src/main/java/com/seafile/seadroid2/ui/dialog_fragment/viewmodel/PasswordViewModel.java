@@ -9,13 +9,12 @@ import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.TimeUtils;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.framework.crypto.Crypto;
-import com.seafile.seadroid2.framework.crypto.CryptoHelper;
 import com.seafile.seadroid2.framework.crypto.SecurePasswordManager;
-import com.seafile.seadroid2.framework.data.db.AppDatabase;
-import com.seafile.seadroid2.framework.data.db.entities.EncKeyCacheEntity;
-import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
-import com.seafile.seadroid2.framework.data.model.ResultModel;
-import com.seafile.seadroid2.framework.data.model.TResultModel;
+import com.seafile.seadroid2.framework.db.AppDatabase;
+import com.seafile.seadroid2.framework.db.entities.EncKeyCacheEntity;
+import com.seafile.seadroid2.framework.db.entities.RepoModel;
+import com.seafile.seadroid2.framework.model.ResultModel;
+import com.seafile.seadroid2.framework.model.TResultModel;
 import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.datastore.sp.SettingsManager;
 import com.seafile.seadroid2.framework.http.HttpIO;
@@ -189,11 +188,10 @@ public class PasswordViewModel extends BaseViewModel {
             getRefreshLiveData().setValue(false);
             getActionResultLiveData().setValue(tResultModel);
         }, throwable -> {
-            getRefreshLiveData().setValue(false);
 
-            TResultModel<RepoModel> tResultModel = new TResultModel<>();
-            tResultModel.error_msg = getErrorMsgByThrowable(throwable);
-            getActionResultLiveData().setValue(tResultModel);
+            SeafException seafException = getExceptionByThrowable(throwable);
+            getSeafExceptionLiveData().setValue(seafException);
+            getRefreshLiveData().setValue(false);
         });
     }
 

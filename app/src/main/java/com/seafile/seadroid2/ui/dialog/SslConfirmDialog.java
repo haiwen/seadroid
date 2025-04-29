@@ -12,7 +12,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.databinding.DialogSslConfirmBinding;
-import com.seafile.seadroid2.framework.data.CertificateInfo;
+import com.seafile.seadroid2.framework.model.CertificateInfo;
 import com.seafile.seadroid2.ssl.SSLTrustManager;
 import com.seafile.seadroid2.ssl.SSLTrustManager.SslFailureReason;
 

@@ -10,6 +10,7 @@ import androidx.work.ForegroundInfo;
 import androidx.work.WorkerParameters;
 
 import com.blankj.utilcode.util.CollectionUtils;
+import com.blankj.utilcode.util.ToastUtils;
 import com.google.common.base.Stopwatch;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
@@ -17,10 +18,10 @@ import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.enums.SaveTo;
 import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.enums.TransferResult;
-import com.seafile.seadroid2.framework.data.db.AppDatabase;
-import com.seafile.seadroid2.framework.data.db.entities.FileBackupStatusEntity;
-import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
-import com.seafile.seadroid2.framework.data.model.dirents.DirentRecursiveFileModel;
+import com.seafile.seadroid2.framework.db.AppDatabase;
+import com.seafile.seadroid2.framework.db.entities.FileBackupStatusEntity;
+import com.seafile.seadroid2.framework.db.entities.RepoModel;
+import com.seafile.seadroid2.framework.model.dirents.DirentRecursiveFileModel;
 import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 import com.seafile.seadroid2.framework.datastore.StorageManager;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
@@ -303,9 +304,9 @@ public class FolderBackupScanWorker extends BaseScanWorker {
             transferModel.related_account = account.getSignature();
             transferModel.repo_id = repoConfig.getRepoId();
             transferModel.repo_name = repoConfig.getRepoName();
-            transferModel.setId(transferModel.genStableId());
             transferModel.data_source = TransferDataSource.FOLDER_BACKUP;
             transferModel.save_to = SaveTo.DB;
+            transferModel.setId(transferModel.genStableId());
             GlobalTransferCacheList.FOLDER_BACKUP_QUEUE.put(transferModel);
         }
     }

@@ -4,12 +4,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@color/bar_background_color"
     android:foreground="?selectableItemBackground">
 
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/item_avatar"
-        android:layout_width="@dimen/lv_icon_width"
-        android:layout_height="@dimen/lv_icon_height"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:src="@drawable/default_avatar"

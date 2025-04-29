@@ -5,13 +5,12 @@ import android.text.TextUtils;
 import androidx.lifecycle.MutableLiveData;
 
 import com.blankj.utilcode.util.CollectionUtils;
+import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.util.SLogs;
-import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
-import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
-import com.seafile.seadroid2.framework.data.model.ResultModel;
+import com.seafile.seadroid2.framework.model.ResultModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.ui.dialog_fragment.DialogService;
 import com.seafile.seadroid2.ui.folder_backup.RepoConfig;
@@ -82,14 +81,12 @@ public class DeleteRepoViewModel extends BaseViewModel {
             public void accept(Throwable throwable) throws Exception {
                 getRefreshLiveData().setValue(false);
 
-                ResultModel resultModel = new ResultModel();
-                resultModel.error_msg = getErrorMsgByThrowable(throwable);
-                getActionLiveData().setValue(resultModel);
+                SeafException seafException = getExceptionByThrowable(throwable);
+                getSeafExceptionLiveData().setValue(seafException);
             }
         }, new Action() {
             @Override
             public void run() throws Exception {
-                //todo 检查一下getActionLiveData
                 getRefreshLiveData().setValue(false);
                 getActionLiveData().setValue(new ResultModel());
             }

@@ -2,9 +2,10 @@ package com.seafile.seadroid2.ui.dialog_fragment.viewmodel;
 
 import androidx.lifecycle.MutableLiveData;
 
-import com.seafile.seadroid2.framework.data.db.AppDatabase;
-import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
-import com.seafile.seadroid2.framework.data.model.dirents.DeleteDirentModel;
+import com.seafile.seadroid2.SeafException;
+import com.seafile.seadroid2.framework.db.AppDatabase;
+import com.seafile.seadroid2.framework.db.entities.DirentModel;
+import com.seafile.seadroid2.framework.model.dirents.DeleteDirentModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
@@ -37,11 +38,9 @@ public class DeleteDirsViewModel extends BaseViewModel {
             @Override
             public void accept(Throwable throwable) throws Exception {
                 getRefreshLiveData().setValue(false);
-                getActionLiveData().setValue(true);
 
-                String string = getErrorMsgByThrowable(throwable);
-                DeleteDirentModel d = new DeleteDirentModel();
-                d.error_msg = string;
+                SeafException seafException = getExceptionByThrowable(throwable);
+                getSeafExceptionLiveData().setValue(seafException);
             }
         });
     }
@@ -66,12 +65,9 @@ public class DeleteDirsViewModel extends BaseViewModel {
             @Override
             public void accept(Throwable throwable) throws Exception {
                 getRefreshLiveData().setValue(false);
-                getActionLiveData().setValue(true);
 
-                String string = getErrorMsgByThrowable(throwable);
-                DeleteDirentModel d = new DeleteDirentModel();
-                d.error_msg = string;
-
+                SeafException seafException = getExceptionByThrowable(throwable);
+                getSeafExceptionLiveData().setValue(seafException);
             }
         }, new Action() {
             @Override

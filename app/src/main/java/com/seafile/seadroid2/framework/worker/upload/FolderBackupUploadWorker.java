@@ -71,6 +71,9 @@ public class FolderBackupUploadWorker extends BaseUploadWorker {
     }
 
     private void showNotification() {
+        String title = getApplicationContext().getString(R.string.settings_folder_backup_info_title);
+        String subTitle = getApplicationContext().getString(R.string.upload_started);
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             try {
                 ForegroundInfo foregroundInfo = notificationManager.getForegroundNotification();
@@ -159,8 +162,8 @@ public class FolderBackupUploadWorker extends BaseUploadWorker {
             }
         }
 
-        SLogs.e("folder backup: all task run");
-        ToastUtils.showLong(R.string.upload_finished);
+        showToast(R.string.settings_folder_backup_info_title, R.string.upload_finished);
+        SLogs.e("folder backup: complete");
 
         //
         Bundle b = new Bundle();

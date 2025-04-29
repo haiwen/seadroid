@@ -39,8 +39,8 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.databinding.ActivitySearch2Binding;
-import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
-import com.seafile.seadroid2.framework.data.model.search.SearchModel;
+import com.seafile.seadroid2.framework.db.entities.RepoModel;
+import com.seafile.seadroid2.framework.model.search.SearchModel;
 import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.ui.WidgetUtils;
@@ -48,7 +48,7 @@ import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
 import com.seafile.seadroid2.ui.base.adapter.LogicLoadMoreAdapter;
 import com.seafile.seadroid2.ui.file.FileActivity;
 import com.seafile.seadroid2.ui.main.MainActivity;
-import com.seafile.seadroid2.ui.media.image_preview2.CarouselImagePreviewActivity;
+import com.seafile.seadroid2.ui.media.image.CarouselImagePreviewActivity;
 import com.seafile.seadroid2.ui.media.player.CustomExoVideoPlayerActivity;
 import com.seafile.seadroid2.ui.sdoc.SDocWebViewActivity;
 import com.seafile.seadroid2.view.TipsViews;
@@ -383,7 +383,7 @@ public class Search2Activity extends BaseActivityWithVM<SearchViewModel> impleme
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     if (which == 0) {
-                        CustomExoVideoPlayerActivity.startThis(Search2Activity.this, fileName, repoModel.repo_id, filePath);
+                        CustomExoVideoPlayerActivity.startThis(Search2Activity.this, fileName, repoModel.repo_id, filePath,null);
                     } else if (which == 1) {
                         Intent intent = FileActivity.startFromSearch(Search2Activity.this, searchedFile, "video_download");
                         fileActivityLauncher.launch(intent);

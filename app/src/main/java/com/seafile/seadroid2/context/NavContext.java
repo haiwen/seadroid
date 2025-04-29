@@ -2,14 +2,11 @@ package com.seafile.seadroid2.context;
 
 import android.text.TextUtils;
 
-import com.seafile.seadroid2.framework.data.model.BaseModel;
-import com.seafile.seadroid2.framework.data.db.entities.DirentModel;
-import com.seafile.seadroid2.framework.data.db.entities.RepoModel;
-import com.seafile.seadroid2.framework.data.model.ContextModel;
+import com.seafile.seadroid2.framework.db.entities.DirentModel;
+import com.seafile.seadroid2.framework.db.entities.RepoModel;
+import com.seafile.seadroid2.framework.model.BaseModel;
 import com.seafile.seadroid2.framework.util.Utils;
-import com.seafile.seadroid2.preferences.ContextStackPreferenceHelper;
 
-import java.util.Objects;
 import java.util.Stack;
 
 public class NavContext {

@@ -400,7 +400,7 @@ Email: support@seafile.com<br>
 <p>https://github.com/haiwen/seadroid.git</P>
 <h5>备案编号</h5>
 <p>京ICP备12015883号-10A</p>
-<h5>Copyright ©2013-2023 Seafile Ltd.</h5>
+<h5>Copyright ©2013-2025 Seafile Ltd.</h5>
 ]]></string>
   <string name="settings_advance_feature_title">高级特性</string>
   <string name="settings_transfer_title">上传 &amp; 下载</string>
@@ -616,6 +616,7 @@ Email: support@seafile.com<br>
   <string name="failed">失败</string>
   <string name="uploading">正在上传</string>
   <string name="downloading">正在下载</string>
+  <string name="select_all">全选</string>
   <string name="replace_all">替换所有</string>
   <string name="replace">替换</string>
   <string name="replace_local_file">替换本地文件</string>
@@ -657,6 +658,7 @@ Email: support@seafile.com<br>
   <string name="_outdated">已过期</string>
   <string name="_tags">标签</string>
   <string name="_location">位置</string>
+  <string name="_owner">文件所有者</string>
   <string name="mark_resolve">标记为已解决</string>
   <string name="delete_confirm">你确定想要删除此条内容？</string>
   <string name="canceled">已取消</string>
@@ -665,4 +667,5 @@ Email: support@seafile.com<br>
   <string name="image_color_space_uncalibrated">未校准</string>
   <string name="image_color_space_undefined">未定义</string>
   <!--end-->
+  <string name="offline">离线</string>
 </resources>
