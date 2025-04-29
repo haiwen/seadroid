@@ -99,16 +99,17 @@ public class DownloadedFileMonitorWorker extends BaseUploadWorker {
 
         showNotification();
         String interruptibleExceptionMsg = null;
+        boolean wasThereSuccessfulUploaded = false;
         while (true) {
             TransferModel missFieldDataTransferModel = GlobalTransferCacheList.CHANGED_FILE_MONITOR_QUEUE.pick(true);
             if (missFieldDataTransferModel == null) {
                 break;
             }
 
+            SLogs.d("downloaded filePath: " + missFieldDataTransferModel.full_path);
             File file = new File(missFieldDataTransferModel.full_path);
-            SLogs.d("DownloadedFileMonitorWorker filePath: " + missFieldDataTransferModel.full_path);
             if (!FileUtils.isFileExists(file)) {
-                return Result.success();
+                continue;
             }
 
             List<FileCacheStatusEntity> cacheList = AppDatabase
@@ -116,6 +117,8 @@ public class DownloadedFileMonitorWorker extends BaseUploadWorker {
                     .fileCacheStatusDAO()
                     .getByTargetPathSync(account.getSignature(), file.getAbsolutePath());
 
+            //if the file is not in the database, it means that the app has been deleted.
+            //this data is useless
             if (CollectionUtils.isEmpty(cacheList)) {
                 continue;
             }
@@ -123,10 +126,13 @@ public class DownloadedFileMonitorWorker extends BaseUploadWorker {
 
             try {
                 try {
-
                     TransferModel tm = parseFile(account, cacheList.get(0), file.getAbsolutePath());
+                    if (tm == null) {
+                        continue;
+                    }
                     transfer(account, tm);
 
+                    wasThereSuccessfulUploaded = true;
                 } catch (Exception e) {
                     SeafException seafException = ExceptionUtils.parseByThrowable(e);
                     //Is there an interruption in the transmission in some cases?
@@ -155,8 +161,10 @@ public class DownloadedFileMonitorWorker extends BaseUploadWorker {
             }
         }
 
-        showToast(R.string.updated);
-        SLogs.e("downloaded file monitor: complete");
+        if (wasThereSuccessfulUploaded) {
+            showToast(R.string.updated);
+        }
+        SLogs.e("downloaded file monitor: complete: " + wasThereSuccessfulUploaded);
 
         //
         Bundle b = new Bundle();
@@ -191,7 +199,6 @@ public class DownloadedFileMonitorWorker extends BaseUploadWorker {
         } catch (IOException e) {
             throw e;
         }
-
 
         TransferModel transferModel = new TransferModel();
         transferModel.save_to = SaveTo.DB;

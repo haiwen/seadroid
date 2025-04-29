@@ -94,8 +94,7 @@ public class FileCacheStatusEntity extends BaseModel {
     public String related_account;
 
     /**
-     * when action is upload: The value is the ID returned after the file upload is complete
-     * when action is download: file_id is id.
+     * file_id is dirent.id
      */
     public String file_id;
 
