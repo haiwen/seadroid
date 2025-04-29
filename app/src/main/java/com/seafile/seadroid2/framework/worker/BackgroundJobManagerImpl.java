@@ -16,6 +16,7 @@ import androidx.work.WorkManager;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
+import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.worker.download.DownloadFileScannerWorker;
 import com.seafile.seadroid2.framework.worker.download.DownloadWorker;
 import com.seafile.seadroid2.framework.worker.reupoad.DownloadedFileMonitorWorker;
@@ -114,8 +115,10 @@ public class BackgroundJobManagerImpl {
         Constraints constraints = new Constraints.Builder()
                 .setRequiredNetworkType(NetworkType.CONNECTED)
                 .build();
+
         return oneTimeRequestBuilder(MediaBackupScanWorker.class)
                 .setInputData(data)
+                .addTag(TAG_ALBUM_BACKUP)
                 .setConstraints(constraints)
                 .setId(MediaBackupScanWorker.UID)
                 .build();
@@ -137,11 +140,13 @@ public class BackgroundJobManagerImpl {
 
         return oneTimeRequestBuilder(MediaBackupUploadWorker.class)
                 .setConstraints(constraints)
+                .addTag(TAG_ALBUM_BACKUP)
                 .setId(MediaBackupUploadWorker.UID)
                 .build();
     }
 
     public void restartMediaBackupWorker() {
+        SLogs.e("restartMediaBackupWorker");
         cancelByTag(TAG_ALBUM_BACKUP);
         startMediaBackupChain(false);
     }
@@ -179,6 +184,7 @@ public class BackgroundJobManagerImpl {
         return oneTimeRequestBuilder(FolderBackupScanWorker.class)
                 .setInputData(data)
                 .setId(FolderBackupScanWorker.UID)
+                .addTag(TAG_FOLDER_BACKUP)
                 .setConstraints(constraints)
                 .build();
     }
@@ -198,6 +204,7 @@ public class BackgroundJobManagerImpl {
 
         return oneTimeRequestBuilder(FolderBackupUploadWorker.class)
                 .setConstraints(constraints)
+                .addTag(TAG_FOLDER_BACKUP)
                 .setId(FolderBackupUploadWorker.UID)
                 .build();
     }

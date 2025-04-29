@@ -622,12 +622,6 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
             return;
         }
 
-        if (TextUtils.equals(statusEvent, TransferEvent.EVENT_SCAN_FINISH)) {
-            mTransferUploadState.setSummary(R.string.upload_waiting);
-            return;
-        }
-
-
         if (TransferDataSource.ALBUM_BACKUP.name().equals(dataSource)
                 || TransferDataSource.FOLDER_BACKUP.name().equals(dataSource)) {
             int totalPendingCount = GlobalTransferCacheList.getUploadPendingCount();
@@ -899,7 +893,7 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
 
             updateAlbumBackupSelectedRepoSummary();
 
-            BackgroundJobManagerImpl.getInstance().startMediaBackupChain(true);
+            BackgroundJobManagerImpl.getInstance().restartMediaBackupWorker();
         }
     });
 
