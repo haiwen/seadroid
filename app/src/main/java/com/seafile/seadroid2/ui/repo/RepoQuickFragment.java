@@ -333,7 +333,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     }
 
     private void showCustomMenuView(View anchorView) {
-        ViewSortPopupWindow popupWindow = new ViewSortPopupWindow(requireContext());
+        ViewSortPopupWindow popupWindow = new ViewSortPopupWindow(requireContext(), GlobalNavContext.getCurrentNavContext());
         int x = -popupWindow.getW() / 2;
         popupWindow.showAsDropDown(anchorView, x, Constants.DP.DP_8);
     }
@@ -1822,7 +1822,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             @Override
             public void onActionStatus(boolean isDone) {
                 if (isDone) {
-//                    mainViewModel.getOnForceRefreshRepoListLiveData().setValue(true);
+                    mainViewModel.getOnForceRefreshRepoListLiveData().setValue(true);
                 }
             }
         });

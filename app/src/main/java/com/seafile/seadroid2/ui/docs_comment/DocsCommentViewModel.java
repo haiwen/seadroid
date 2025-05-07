@@ -9,6 +9,7 @@ import androidx.lifecycle.MutableLiveData;
 import com.blankj.utilcode.util.CloneUtils;
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.TimeUtils;
+import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.framework.model.ResultModel;
@@ -321,6 +322,11 @@ public class DocsCommentViewModel extends BaseViewModel {
     public void postComment(SDocPageOptionsModel pageOptionsModel, String comment, String elementId) {
         getRefreshLiveData().setValue(true);
         String sdocServerUrl = pageOptionsModel.seadocServerUrl;
+        if (TextUtils.isEmpty(sdocServerUrl)) {
+            getRefreshLiveData().setValue(false);
+            getSeafExceptionLiveData().setValue(SeafException.UNKNOWN_EXCEPTION);
+            return;
+        }
 
         if (!sdocServerUrl.endsWith("/")) {
             sdocServerUrl = sdocServerUrl + "/";

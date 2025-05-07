@@ -234,10 +234,11 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
     }
 
     private void readSDocPageOptionsData(Consumer<SDocPageOptionsModel> continuation) {
-        if (pageOptionsData != null) {
+        if (pageOptionsData != null && pageOptionsData.canUse()) {
             continuation.accept(pageOptionsData);
             return;
         }
+
         String js =
                 "(function() {" +
                         "   if (window.app && window.app.pageOptions) {" +
@@ -252,14 +253,11 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
                 if (!TextUtils.isEmpty(value)) {
                     value = StringUtils.deString(value).replace("\\", "");
                     pageOptionsData = GsonUtils.fromJson(value, SDocPageOptionsModel.class);
-                    if (pageOptionsData != null) {
-                        continuation.accept(pageOptionsData);
-                    } else {
+                    if (pageOptionsData == null || !pageOptionsData.canUse()) {
                         SLogs.e("read sodc page options data from web, an exception occurred in the parsing data");
-                        SLogs.e(value);
-                        ToastUtils.showShort(R.string.unknow_error);
+                    } else {
+                        continuation.accept(pageOptionsData);
                     }
-
                 } else {
                     SLogs.e("read sodc page options data from web: " + value);
                     ToastUtils.showShort(R.string.unknow_error);

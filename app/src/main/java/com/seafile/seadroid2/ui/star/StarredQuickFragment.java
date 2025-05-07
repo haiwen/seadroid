@@ -313,7 +313,7 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
             MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext());
             builder.setItems(R.array.video_download_array, (dialog, which) -> {
                 if (which == 0) {
-                    CustomExoVideoPlayerActivity.startThis(getContext(), model.obj_name, model.repo_id, model.path,null);
+                    CustomExoVideoPlayerActivity.startThis(getContext(), model.obj_name, model.repo_id, model.path, null);
                 } else if (which == 1) {
                     Intent intent = FileActivity.startFromStarred(requireContext(), model, "video_download");
                     fileActivityLauncher.launch(intent);

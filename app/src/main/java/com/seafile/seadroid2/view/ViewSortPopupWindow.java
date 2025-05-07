@@ -2,23 +2,29 @@ package com.seafile.seadroid2.view;
 
 import android.content.Context;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.PopupWindow;
+import android.widget.TextView;
 
 import androidx.core.content.ContextCompat;
 
 import com.blankj.utilcode.util.SizeUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.config.Constants;
+import com.seafile.seadroid2.context.NavContext;
 import com.seafile.seadroid2.enums.FileViewType;
 import com.seafile.seadroid2.enums.SortBy;
 import com.seafile.seadroid2.preferences.Settings;
 
 public class ViewSortPopupWindow extends PopupWindow {
     private final int w;
-    public ViewSortPopupWindow(Context context) {
+
+    public ViewSortPopupWindow(Context context, NavContext navContext) {
         super(context);
 
         w = SizeUtils.dp2px(128);
@@ -38,13 +44,24 @@ public class ViewSortPopupWindow extends PopupWindow {
         this.setFocusable(true);
         this.setBackgroundDrawable(ContextCompat.getDrawable(getContentView().getContext(), R.color.white));
 
+        //
         initView(popView);
-        initViewData(context);
+
+        //
+        initViewData();
+
+        ableMenu(navContext);
     }
 
     public int getW() {
         return w;
     }
+
+    private LinearLayout menuViewList;
+    private LinearLayout menuViewGrid;
+    private LinearLayout menuViewGallery;
+    private LinearLayout menuSortName;
+    private LinearLayout menuSortSize;
 
     private ImageView menuListIcon;
     private ImageView menuGridIcon;
@@ -54,7 +71,18 @@ public class ViewSortPopupWindow extends PopupWindow {
     private ImageView menuSortLastModifiedIcon;
     private ImageView menuSortAscendingIcon;
 
+    private TextView menuViewListTitle;
+    private TextView menuViewGridTitle;
+    private TextView menuViewGalleryTitle;
+
     private void initView(View view) {
+        menuViewList = view.findViewById(R.id.menu_view_list);
+        menuViewGrid = view.findViewById(R.id.menu_view_grid);
+        menuViewGallery = view.findViewById(R.id.menu_view_gallery);
+        menuSortName = view.findViewById(R.id.menu_sort_name);
+        menuSortSize = view.findViewById(R.id.menu_sort_size);
+
+
         //icon
         menuListIcon = getContentView().findViewById(R.id.menu_view_list_icon);
         menuGridIcon = getContentView().findViewById(R.id.menu_view_grid_icon);
@@ -64,36 +92,49 @@ public class ViewSortPopupWindow extends PopupWindow {
         menuSortLastModifiedIcon = getContentView().findViewById(R.id.menu_sort_last_modified_icon);
         menuSortAscendingIcon = getContentView().findViewById(R.id.menu_sort_ascending_icon);
 
-        view.findViewById(R.id.menu_view_list).setOnClickListener(v -> {
+        //text
+        menuViewListTitle = getContentView().findViewById(R.id.menu_view_list_title);
+        menuViewGridTitle = getContentView().findViewById(R.id.menu_view_grid_title);
+        menuViewGalleryTitle = getContentView().findViewById(R.id.menu_view_gallery_title);
+
+
+        //
+        menuViewList.setOnClickListener(v -> {
             goneAllIcon();
             onContainerClick(R.id.menu_view_list);
             dismiss();
         });
-        view.findViewById(R.id.menu_view_grid).setOnClickListener(v -> {
+
+        menuViewGrid.setOnClickListener(v -> {
             goneAllIcon();
             onContainerClick(R.id.menu_view_grid);
             dismiss();
         });
-        view.findViewById(R.id.menu_view_gallery).setOnClickListener(v -> {
+
+        menuViewGallery.setOnClickListener(v -> {
             goneAllIcon();
             onContainerClick(R.id.menu_view_gallery);
             dismiss();
         });
-        view.findViewById(R.id.menu_sort_name).setOnClickListener(v -> {
+
+        menuSortName.setOnClickListener(v -> {
             goneAllIcon();
             onContainerClick(R.id.menu_sort_name);
             dismiss();
         });
-        view.findViewById(R.id.menu_sort_size).setOnClickListener(v -> {
+
+        menuSortSize.setOnClickListener(v -> {
             goneAllIcon();
             onContainerClick(R.id.menu_sort_size);
             dismiss();
         });
+
         view.findViewById(R.id.menu_sort_last_modified).setOnClickListener(v -> {
             goneAllIcon();
             onContainerClick(R.id.menu_sort_last_modified);
             dismiss();
         });
+
         view.findViewById(R.id.menu_sort_ascending).setOnClickListener(v -> {
             goneAllIcon();
             onContainerClick(R.id.menu_sort_ascending);
@@ -142,7 +183,7 @@ public class ViewSortPopupWindow extends PopupWindow {
         }
     }
 
-    private void initViewData(Context context) {
+    private void initViewData() {
 
         goneAllIcon();
 
@@ -171,6 +212,18 @@ public class ViewSortPopupWindow extends PopupWindow {
         Boolean ascendingValue = Settings.FILE_LIST_SORT_ASCENDING.queryValue();
         if (Boolean.TRUE.equals(ascendingValue)) {
             menuSortAscendingIcon.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void ableMenu(NavContext navContext) {
+        if (navContext.inRepo()) {
+            menuViewList.setVisibility(View.VISIBLE);
+            menuViewGallery.setVisibility(View.VISIBLE);
+            menuViewGrid.setVisibility(View.VISIBLE);
+        } else {
+            menuViewList.setVisibility(View.GONE);
+            menuViewGallery.setVisibility(View.GONE);
+            menuViewGrid.setVisibility(View.GONE);
         }
     }
 }

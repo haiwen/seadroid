@@ -65,7 +65,7 @@ public class ObjSelectorActivity extends BaseActivity {
     private boolean isOnlyChooseRepo;
 
     private ActivitySelectorObjBinding binding;
-    private final NavContext mNavContext = new NavContext();
+    private final NavContext mNavContext = new NavContext(false);
 
     private RepoQuickAdapter adapter;
     private ObjSelectorViewModel viewModel;

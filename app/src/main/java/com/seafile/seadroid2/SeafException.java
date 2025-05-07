@@ -43,6 +43,7 @@ public class SeafException extends Exception {
     public static final SeafException REQUEST_TRANSFER_URL_EXCEPTION = new SeafException(24, "request transfer url failed");
     public static final SeafException IO_EXCEPTION = new SeafException(25, "io exception");
     public static final SeafException PERMISSION_EXCEPTION = new SeafException(26, "miss permission");
+    public static final SeafException NETWORK_UNAVAILABLE = new SeafException(27, SeadroidApplication.getAppContext().getString(R.string.network_unavailable));
 
     public SeafException(int code, String msg) {
         super(msg);

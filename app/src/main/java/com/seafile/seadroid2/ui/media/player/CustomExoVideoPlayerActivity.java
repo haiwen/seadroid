@@ -26,6 +26,7 @@ import androidx.media3.ui.TimeBar;
 
 import com.blankj.utilcode.util.AppUtils;
 import com.blankj.utilcode.util.BarUtils;
+import com.blankj.utilcode.util.NetworkUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
@@ -90,7 +91,6 @@ public class CustomExoVideoPlayerActivity extends BaseActivityWithVM<PlayerViewM
         repoId = intent.getStringExtra("repoId");
         filePath = intent.getStringExtra("filePath");
         fileId = intent.getStringExtra("fileId");
-
 
         if (savedInstanceState != null) {
             startAutoPlay = savedInstanceState.getBoolean(KEY_AUTO_PLAY);
@@ -194,6 +194,7 @@ public class CustomExoVideoPlayerActivity extends BaseActivityWithVM<PlayerViewM
             @Override
             public void onChanged(SeafException e) {
                 ToastUtils.showLong(e.getMessage());
+                resetAllView();
             }
         });
 
@@ -276,6 +277,14 @@ public class CustomExoVideoPlayerActivity extends BaseActivityWithVM<PlayerViewM
             binding.back.setVisibility(View.GONE);
             binding.playPause.setVisibility(View.GONE);
         }
+    }
+
+    private void resetAllView() {
+        binding.playPause.setVisibility(View.GONE);
+        binding.playLoading.setVisibility(View.GONE);
+        binding.progressPosition.setText("00:00");
+        binding.progressDuration.setText("00:00");
+        binding.progressBar.setPosition(0);
     }
 
     private void hideControllerViewImmediately() {

@@ -9,14 +9,12 @@ import androidx.lifecycle.Observer;
 
 import com.blankj.utilcode.util.ToastUtils;
 import com.google.android.material.materialswitch.MaterialSwitch;
-import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.framework.util.StringUtils;
 import com.seafile.seadroid2.ui.base.fragment.RequestCustomDialogFragmentWithVM;
-import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.ui.dialog_fragment.viewmodel.NewRepoViewModel;
 
 public class NewRepoDialogFragment extends RequestCustomDialogFragmentWithVM<NewRepoViewModel> {
@@ -31,16 +29,19 @@ public class NewRepoDialogFragment extends RequestCustomDialogFragmentWithVM<New
         return R.string.create_new_repo;
     }
 
+    private int passwordMinLength = 0;
     @Override
     public void initView(LinearLayout containerView) {
         super.initView(containerView);
+
+        passwordMinLength = getResources().getInteger(R.integer.minimum_password_length);
 
         MaterialSwitch materialSwitch = getDialogView().findViewById(R.id.widget_switch);
         TextInputLayout pwd1 = getDialogView().findViewById(R.id.new_repo_input_layout_pwd_1);
         TextInputLayout pwd2 = getDialogView().findViewById(R.id.new_repo_input_layout_pwd_2);
         pwd1.setHint(String.format(
                 getResources().getString(R.string.passwd_min_len_limit_hint),
-                getResources().getInteger(R.integer.minimum_password_length)
+                passwordMinLength
         ));
 
         TextInputEditText pwdt1 = getDialogView().findViewById(R.id.new_repo_edit_pwd_1);
@@ -127,7 +128,7 @@ public class NewRepoDialogFragment extends RequestCustomDialogFragmentWithVM<New
             return false;
         }
 
-        if (editable1.length() < Constants.PASSWORD_MINIMUM_LENGTH) {
+        if (editable1.length() < passwordMinLength) {
             ToastUtils.showLong(R.string.err_passwd_too_short);
             return false;
         }

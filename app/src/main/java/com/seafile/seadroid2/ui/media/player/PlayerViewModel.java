@@ -5,6 +5,9 @@ import android.text.TextUtils;
 import androidx.lifecycle.MutableLiveData;
 
 import com.blankj.utilcode.util.CollectionUtils;
+import com.blankj.utilcode.util.NetworkUtils;
+import com.blankj.utilcode.util.ToastUtils;
+import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
@@ -59,6 +62,11 @@ public class PlayerViewModel extends BaseViewModel {
     }
 
     private void getFileLink(String repoId, String p, boolean isReUsed) {
+        if (!NetworkUtils.isConnected()) {
+            getSeafExceptionLiveData().setValue(SeafException.NETWORK_UNAVAILABLE);
+            return;
+        }
+
         Single<String> urlSingle = HttpIO.getCurrentInstance().execute(FileService.class).getFileDownloadLinkAsync(repoId, p, isReUsed ? 1 : 0);
         addSingleDisposable(urlSingle, new Consumer<String>() {
             @Override

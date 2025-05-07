@@ -2,6 +2,7 @@ package com.seafile.seadroid2.framework.model.sdoc;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.TextUtils;
 
 public class SDocPageOptionsModel implements Parcelable {
     public String docName;
@@ -14,6 +15,17 @@ public class SDocPageOptionsModel implements Parcelable {
     public boolean isStarred;
 
     public boolean enableMetadataManagement;
+
+    public boolean canUse() {
+        if (TextUtils.isEmpty(seadocServerUrl)
+                || TextUtils.isEmpty(docUuid)
+                || TextUtils.isEmpty(repoID)
+                || TextUtils.isEmpty(seadocAccessToken)) {
+            return false;
+        }
+
+        return true;
+    }
 
     @Override
     public String toString() {
