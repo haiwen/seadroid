@@ -20,10 +20,10 @@ import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.worker.download.DownloadFileScannerWorker;
 import com.seafile.seadroid2.framework.worker.download.DownloadWorker;
 import com.seafile.seadroid2.framework.worker.reupoad.DownloadedFileMonitorWorker;
-import com.seafile.seadroid2.framework.worker.upload.FolderBackupScanWorker;
-import com.seafile.seadroid2.framework.worker.upload.MediaBackupScanWorker;
 import com.seafile.seadroid2.framework.worker.upload.FileUploadWorker;
+import com.seafile.seadroid2.framework.worker.upload.FolderBackupScanWorker;
 import com.seafile.seadroid2.framework.worker.upload.FolderBackupUploadWorker;
+import com.seafile.seadroid2.framework.worker.upload.MediaBackupScanWorker;
 import com.seafile.seadroid2.framework.worker.upload.MediaBackupUploadWorker;
 
 import java.util.List;
@@ -55,6 +55,8 @@ public class BackgroundJobManagerImpl {
     }
 
     private <T extends ListenableWorker> OneTimeWorkRequest.Builder oneTimeRequestBuilder(Class<T> tClass) {
+        SLogs.d(BackgroundJobManagerImpl.class, "Creating WorkRequest for: " + tClass.getSimpleName());
+
         return new OneTimeWorkRequest.Builder(tClass)
                 .setBackoffCriteria(BackoffPolicy.LINEAR, 5, TimeUnit.SECONDS)
                 .addTag(TAG_ALL)
@@ -72,7 +74,7 @@ public class BackgroundJobManagerImpl {
         return new PeriodicWorkRequest.Builder(tClass, intervalMins, TimeUnit.MINUTES, flexIntervalMins, TimeUnit.MINUTES)
                 .addTag(TAG_ALL)
                 .addTag(TAG_TRANSFER)
-                .addTag(tClass.getSimpleName());
+                .addTag(TAG_TRANSFER + ":" + tClass.getSimpleName());
     }
 
     public void cancelById(UUID uid) {
@@ -94,6 +96,7 @@ public class BackgroundJobManagerImpl {
     ////////////////////// media //////////////////////
 
     public void startMediaBackupChain(boolean isForce) {
+        SLogs.d(BackgroundJobManagerImpl.class, "startMediaBackupChain: isForce:" + isForce);
         cancelMediaBackupChain();
 
         OneTimeWorkRequest scanRequest = getMediaScannerWorkerRequest(isForce);
@@ -145,12 +148,6 @@ public class BackgroundJobManagerImpl {
                 .build();
     }
 
-    public void restartMediaBackupWorker() {
-        SLogs.e("restartMediaBackupWorker");
-        cancelByTag(TAG_ALBUM_BACKUP);
-        startMediaBackupChain(false);
-    }
-
     //cancel media
     public void cancelMediaBackupChain() {
         cancelByTag(TAG_ALBUM_BACKUP);
@@ -159,6 +156,7 @@ public class BackgroundJobManagerImpl {
     ////////////////////// upload folder //////////////////////
 
     public void startFolderBackupChain(boolean isForce) {
+        SLogs.d(BackgroundJobManagerImpl.class, "startFolderBackupChain: isForce:" + isForce);
         cancelFolderBackupWorker();
 
         OneTimeWorkRequest scanRequest = getFolderBackupScanWorkerRequest(isForce);
@@ -209,18 +207,14 @@ public class BackgroundJobManagerImpl {
                 .build();
     }
 
-    public void restartFolderBackupWorker() {
-        cancelByTag(TAG_FOLDER_BACKUP);
-
-        startFolderBackupChain(false);
-    }
-
     public void cancelFolderBackupWorker() {
+        SLogs.d(BackgroundJobManagerImpl.class, "cancelFolderBackupWorker");
         cancelByTag(TAG_FOLDER_BACKUP);
     }
 
     ////////////////////// upload file //////////////////////
     public void startFileUploadWorker() {
+        SLogs.d(BackgroundJobManagerImpl.class, "startFileUploadWorker");
         String workerName = FileUploadWorker.class.getSimpleName();
         OneTimeWorkRequest request = getFileUploadRequest();
         getWorkManager().enqueueUniqueWork(workerName, ExistingWorkPolicy.KEEP, request);
@@ -251,6 +245,7 @@ public class BackgroundJobManagerImpl {
     }
 
     public void startDownloadChain(List<String> direntIds) {
+        SLogs.d(BackgroundJobManagerImpl.class, "start download chain");
         OneTimeWorkRequest scanRequest = getDownloadScanRequest(direntIds);
         OneTimeWorkRequest downloadRequest = getDownloadRequest();
 
@@ -304,7 +299,9 @@ public class BackgroundJobManagerImpl {
     ////////////////////// downloaded file monitor //////////////////////
 
     public void startCheckDownloadedFileChain() {
+        SLogs.d(BackgroundJobManagerImpl.class, "startCheckDownloadedFileChain");
         OneTimeWorkRequest checkRequest = getCheckDownloadedFileRequest();
+
         String workerName = DownloadedFileMonitorWorker.class.getSimpleName();
         getWorkManager().enqueueUniqueWork(workerName, ExistingWorkPolicy.KEEP, checkRequest);
     }
@@ -315,6 +312,7 @@ public class BackgroundJobManagerImpl {
                 .build();
         return oneTimeRequestBuilder(DownloadedFileMonitorWorker.class)
                 .setConstraints(constraints)
+                .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
                 .build();
     }
 
@@ -322,6 +320,4 @@ public class BackgroundJobManagerImpl {
     public void cancelAllJobs() {
         getWorkManager().cancelAllWork();
     }
-
-
 }

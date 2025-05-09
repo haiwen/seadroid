@@ -62,9 +62,11 @@ public class FolderBackupSelectedPathActivity extends BaseActivity {
         initData();
     }
 
+    private List<String> initBackupSelectPaths;
+
     private void initData() {
-        List<String> backupSelectPaths = FolderBackupSharePreferenceHelper.readBackupPathsAsList();
-        mAdapter.submitList(backupSelectPaths);
+        initBackupSelectPaths = FolderBackupSharePreferenceHelper.readBackupPathsAsList();
+        mAdapter.submitList(initBackupSelectPaths);
     }
 
     private void initAdapter() {
@@ -118,14 +120,26 @@ public class FolderBackupSelectedPathActivity extends BaseActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    private boolean isSettingsChanged() {
+        if (mAdapter.getItems().isEmpty()) {
+            return true;
+        }
+
+        List<String> selectedFolderPaths = mAdapter.getItems();
+        return !selectedFolderPaths.equals(initBackupSelectPaths);
+    }
+
     public void setFinishPage() {
         Intent intent = new Intent();
         intent.putExtra(FOLDER_BACKUP_SELECT_TYPE, "folder");
 
-        List<String> selectedFolderPaths = mAdapter.getItems();
-        intent.putStringArrayListExtra(BACKUP_SELECT_PATHS, (ArrayList<String>) selectedFolderPaths);
-
-        setResult(RESULT_OK, intent);
+        if (isSettingsChanged()){
+            List<String> selectedFolderPaths = mAdapter.getItems();
+            intent.putStringArrayListExtra(BACKUP_SELECT_PATHS, (ArrayList<String>) selectedFolderPaths);
+            setResult(RESULT_OK, intent);
+        }else {
+            setResult(RESULT_CANCELED, intent);
+        }
         finish();
     }
 
@@ -143,8 +157,6 @@ public class FolderBackupSelectedPathActivity extends BaseActivity {
 
             ArrayList<String> selectedFolderPaths = data.getStringArrayListExtra(BACKUP_SELECT_PATHS);
             mAdapter.submitList(selectedFolderPaths);
-
-            FolderBackupSharePreferenceHelper.writeBackupPathsAsString(selectedFolderPaths);
         }
     });
 }

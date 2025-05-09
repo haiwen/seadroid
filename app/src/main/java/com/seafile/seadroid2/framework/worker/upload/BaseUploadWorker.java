@@ -67,7 +67,7 @@ public abstract class BaseUploadWorker extends TransferWorker {
     private final FileTransferProgressListener.TransferProgressListener progressListener = new FileTransferProgressListener.TransferProgressListener() {
         @Override
         public void onProgressNotify(TransferModel transferModel, int percent, long transferredSize, long totalSize) {
-            SLogs.d("UPLOAD: " + transferModel.file_name + " -> progress：" + percent);
+            SLogs.d(BaseUploadWorker.class, "UPLOAD: " + transferModel.file_name + " -> progress：" + percent);
             transferModel.transferred_size = transferredSize;
             GlobalTransferCacheList.updateTransferModel(transferModel);
 
@@ -87,25 +87,24 @@ public abstract class BaseUploadWorker extends TransferWorker {
         SLogs.e("BaseUploadWorker onStopped");
 
         if (newCall != null) {
-            newCall.cancel();  // 明确取消网络请求
-            newCall = null;    // 清除引用
+            newCall.cancel();
+            newCall = null;
         }
 
         currentTransferModel.transfer_status = TransferStatus.CANCELLED;
         currentTransferModel.err_msg = SeafException.USER_CANCELLED_EXCEPTION.getMessage();
         GlobalTransferCacheList.updateTransferModel(currentTransferModel);
 
-        // 释放所有资源引用
         if (fileTransferProgressListener != null) {
             fileTransferProgressListener.setProgressListener(null);
         }
+
         currentTransferModel = null;
 
-        // 新增：关闭 OkHttp 连接池（谨慎使用）
-        if (okHttpClient != null) {
-            okHttpClient.dispatcher().executorService().shutdownNow();
-            okHttpClient.connectionPool().evictAll();
-        }
+//        if (okHttpClient != null) {
+//            okHttpClient.dispatcher().executorService().shutdownNow();
+//            okHttpClient.connectionPool().evictAll();
+//        }
     }
 
     private TransferModel currentTransferModel;
@@ -113,8 +112,8 @@ public abstract class BaseUploadWorker extends TransferWorker {
     public void transfer(Account account, TransferModel transferModel) throws SeafException, IOException {
         try {
             currentTransferModel = CloneUtils.deepClone(transferModel, TransferModel.class);
-            SLogs.e("开始上传文件：");
-            SLogs.e(currentTransferModel.toString());
+            SLogs.d(BaseUploadWorker.class, "transfer start：");
+            SLogs.d(currentTransferModel.toString());
             transferFile(account);
 
             sendProgressFinishEvent(currentTransferModel);
@@ -135,12 +134,12 @@ public abstract class BaseUploadWorker extends TransferWorker {
 
     private void transferFile(Account account) throws IOException, SeafException {
         if (account == null) {
-            SLogs.d("account is null, can not upload file");
+            SLogs.d(BaseUploadWorker.class, "account is null, can not upload file");
             throw SeafException.NOT_FOUND_USER_EXCEPTION;
         }
 
         if (TextUtils.isEmpty(account.token)) {
-            SLogs.d("account is not logged in : " + account);
+            SLogs.d(BaseUploadWorker.class, "account is not logged in : " + account);
             throw SeafException.NOT_FOUND_LOGGED_USER_EXCEPTION;
         }
 
@@ -148,7 +147,7 @@ public abstract class BaseUploadWorker extends TransferWorker {
             return;
         }
 
-        SLogs.d("start transfer, local file path: " + currentTransferModel.full_path);
+        SLogs.d(BaseUploadWorker.class, "start transfer, local file path: " + currentTransferModel.full_path);
 
         //net
         MultipartBody.Builder builder = new MultipartBody.Builder();
@@ -174,7 +173,7 @@ public abstract class BaseUploadWorker extends TransferWorker {
         //notify first
         sendProgressEvent(currentTransferModel);
         notifyProgress(currentTransferModel.file_name, 0);
-        SLogs.d("start transfer, remote path: " + currentTransferModel.target_path);
+        SLogs.d(BaseUploadWorker.class, "start transfer, remote path: " + currentTransferModel.target_path);
 
         //update
         currentTransferModel.transferred_size = 0;
@@ -210,7 +209,7 @@ public abstract class BaseUploadWorker extends TransferWorker {
 
         //
         if (newCall != null && newCall.isExecuted()) {
-            SLogs.d("Folder upload: newCall has executed()");
+            SLogs.d(BaseUploadWorker.class, "newCall has executed(), cancel it");
             newCall.cancel();
         }
 
@@ -236,7 +235,7 @@ public abstract class BaseUploadWorker extends TransferWorker {
                         } else {
                             String fileId = str.replace("\"", "");
 
-                            SLogs.d("result，file ID：" + str);
+                            SLogs.d(BaseUploadWorker.class, "result，file ID：" + str);
                             updateToSuccess(fileId);
                         }
                     } else {
@@ -251,7 +250,7 @@ public abstract class BaseUploadWorker extends TransferWorker {
                 ResponseBody body = response.body();
                 if (body != null) {
                     String b = body.string();
-                    SLogs.d("upload failed：" + b);
+                    SLogs.d(BaseUploadWorker.class, "upload failed：" + b);
                     //
                     if (!newCall.isCanceled()) {
                         newCall.cancel();
@@ -321,7 +320,7 @@ public abstract class BaseUploadWorker extends TransferWorker {
                 AppDatabase.getInstance().fileCacheStatusDAO().insert(transferEntity);
 
                 //
-                AppDatabase.getInstance().direntDao().updateFileIdByPath(transferEntity.repo_id,transferEntity.full_path,fileId);
+                AppDatabase.getInstance().direntDao().updateFileIdByPath(transferEntity.repo_id, transferEntity.full_path, fileId);
             } else {
                 FileBackupStatusEntity transferEntity = FileBackupStatusEntity.convertTransferModel2This(currentTransferModel, fileId);
                 AppDatabase.getInstance().fileTransferDAO().insert(transferEntity);

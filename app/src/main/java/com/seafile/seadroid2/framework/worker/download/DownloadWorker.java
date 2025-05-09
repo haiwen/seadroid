@@ -82,7 +82,7 @@ public class DownloadWorker extends BaseDownloadWorker {
         notificationHelper = new DownloadNotificationHelper(context);
 
         transferProgressListener = new FileTransferProgressListener((transferModel, percent, transferredSize, totalSize) -> {
-            SLogs.i("DOWNLOAD: " + transferModel.file_name + " -> progress：" + percent);
+            SLogs.d(DownloadWorker.class, "DOWNLOAD: " + transferModel.file_name + " -> progress：" + percent);
             transferModel.transferred_size = transferredSize;
             GlobalTransferCacheList.updateTransferModel(transferModel);
 
@@ -107,6 +107,8 @@ public class DownloadWorker extends BaseDownloadWorker {
     @NonNull
     @Override
     public Result doWork() {
+        SLogs.d(DownloadWorker.class, "started execution");
+
         Account account = getCurrentAccount();
         if (account == null) {
             return returnSuccess();
@@ -115,7 +117,7 @@ public class DownloadWorker extends BaseDownloadWorker {
         //count
         int totalPendingCount = GlobalTransferCacheList.DOWNLOAD_QUEUE.getPendingCount();
         if (totalPendingCount <= 0) {
-            SLogs.i("download list is empty.");
+            SLogs.d(DownloadWorker.class, "download list is empty.");
             return returnSuccess();
         }
 
@@ -139,7 +141,7 @@ public class DownloadWorker extends BaseDownloadWorker {
 
             try {
                 int p = GlobalTransferCacheList.DOWNLOAD_QUEUE.getPendingCount();
-                SLogs.d(p + ": download start：" + transferModel.full_path);
+                SLogs.d(DownloadWorker.class, "pending count: " + p + ", download start：" + transferModel.full_path);
 
                 currentTransferModel = CloneUtils.deepClone(transferModel, TransferModel.class);
                 transferFile(account);
@@ -158,7 +160,7 @@ public class DownloadWorker extends BaseDownloadWorker {
             }
         }
 
-        SLogs.i("download: all task run");
+        SLogs.d(DownloadWorker.class, "all task complete");
 
         //
         if (TextUtils.isEmpty(interruptibleExceptionMsg)) {
@@ -194,7 +196,8 @@ public class DownloadWorker extends BaseDownloadWorker {
             downloadFile(account);
 
             sendProgressFinishEvent(currentTransferModel);
-            SLogs.d("download finish：" + currentTransferModel.full_path);
+
+            SLogs.d(DownloadWorker.class, "download complete：" + currentTransferModel.full_path);
 
         } catch (Exception e) {
             SLogs.e("download file failed -> " + currentTransferModel.full_path);

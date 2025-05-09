@@ -89,7 +89,7 @@ public class FolderBackupUploadWorker extends BaseUploadWorker {
 
 
     private Result start() {
-        SLogs.d("start upload file worker");
+        SLogs.d(FolderBackupUploadWorker.class, "started execution");
 
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
         if (account == null) {
@@ -98,6 +98,7 @@ public class FolderBackupUploadWorker extends BaseUploadWorker {
 
         boolean canContinue = can();
         if (!canContinue) {
+            SLogs.d(FolderBackupUploadWorker.class, "settings missing config or not turned on");
             return returnSuccess();
         }
 
@@ -105,6 +106,7 @@ public class FolderBackupUploadWorker extends BaseUploadWorker {
         //
         int totalPendingCount = GlobalTransferCacheList.FOLDER_BACKUP_QUEUE.getPendingCount();
         if (totalPendingCount <= 0) {
+            SLogs.d(FolderBackupUploadWorker.class, "backup queue is empty");
             return returnSuccess();
         }
 
@@ -162,8 +164,8 @@ public class FolderBackupUploadWorker extends BaseUploadWorker {
             }
         }
 
-        showToast(R.string.settings_folder_backup_info_title, R.string.upload_finished);
-        SLogs.e("folder backup: complete");
+        showToast(R.string.upload_finished);
+        SLogs.d(FolderBackupUploadWorker.class, "complete");
 
         //
         Bundle b = new Bundle();

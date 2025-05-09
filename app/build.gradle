@@ -27,7 +27,7 @@ android {
         javaCompileOptions {
             annotationProcessorOptions {
                 arguments["room.incremental"] = "true"
-                arguments["workmanager.inline"] = "false" // 禁用 WorkManager 的自动初始化
+//                arguments["workmanager.inline"] = "false"
             }
         }
     }

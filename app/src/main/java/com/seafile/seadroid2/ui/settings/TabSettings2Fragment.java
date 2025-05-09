@@ -2,7 +2,6 @@ package com.seafile.seadroid2.ui.settings;
 
 import static android.app.Activity.RESULT_OK;
 import static androidx.core.text.HtmlCompat.FROM_HTML_MODE_LEGACY;
-
 import static com.seafile.seadroid2.framework.notification.base.NotificationUtils.NOTIFICATION_MESSAGE_KEY;
 import static com.seafile.seadroid2.framework.notification.base.NotificationUtils.NOTIFICATION_OPEN_DOWNLOAD_TAB;
 import static com.seafile.seadroid2.framework.notification.base.NotificationUtils.NOTIFICATION_OPEN_UPLOAD_TAB;
@@ -13,9 +12,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.text.Spanned;
 import android.text.TextUtils;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
@@ -32,7 +29,6 @@ import androidx.preference.Preference;
 
 import com.blankj.utilcode.util.AppUtils;
 import com.blankj.utilcode.util.CollectionUtils;
-import com.blankj.utilcode.util.NetworkUtils;
 import com.blankj.utilcode.util.TimeUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -485,7 +481,7 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
         Settings.ALBUM_BACKUP_SWITCH.observe(getViewLifecycleOwner(), new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean aBoolean) {
-                SLogs.e("album switch：" + aBoolean);
+                SLogs.d(TabSettings2Fragment.class,"album switch：" + aBoolean);
 
                 if (aBoolean) {
                     requestCameraStoragePermission();
@@ -501,7 +497,7 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
 //        Settings.ALBUM_BACKUP_STATE.observe(getViewLifecycleOwner(), new Observer<String>() {
 //            @Override
 //            public void onChanged(String s) {
-//                SLogs.e("album state：" + s);
+//                SLogs.d(TabSettings2Fragment.class,"album state：" + s);
 //                mAlbumBackupState.setSummary(s);
 //            }
 //        });
@@ -512,7 +508,7 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
         Settings.FOLDER_BACKUP_SWITCH.observe(getViewLifecycleOwner(), new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean aBoolean) {
-                SLogs.e("folder switch：" + aBoolean);
+                SLogs.d(TabSettings2Fragment.class,"folder switch：" + aBoolean);
 
                 if (Boolean.TRUE.equals(aBoolean)) {
                     requestFolderStoragePermission();
@@ -529,16 +525,16 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
         Settings.FOLDER_BACKUP_NETWORK_MODE.observe(getViewLifecycleOwner(), new Observer<NetworkMode>() {
             @Override
             public void onChanged(NetworkMode netWorkMode) {
-                SLogs.e("folder network：" + netWorkMode.name());
+                SLogs.d(TabSettings2Fragment.class,"folder network：" + netWorkMode.name());
 
-                BackgroundJobManagerImpl.getInstance().restartFolderBackupWorker();
+                BackgroundJobManagerImpl.getInstance().startMediaBackupChain(true);
             }
         });
 
 //        Settings.FOLDER_BACKUP_STATE.observe(getViewLifecycleOwner(), new Observer<String>() {
 //            @Override
 //            public void onChanged(String s) {
-//                SLogs.e("folder state：" + s);
+//               SLogs.d(TabSettings2Fragment.class,"folder state：" + s);
 //
 //                if (mFolderBackupState != null) {
 //                    mFolderBackupState.setSummary(s);
@@ -549,7 +545,7 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
         Settings.TRANSFER_DOWNLOAD_STATE.observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(String s) {
-                SLogs.e("transfer state：" + s);
+                SLogs.d(TabSettings2Fragment.class,"transfer state：" + s);
                 if (mTransferDownloadState != null) {
                     mTransferDownloadState.setSummary(s);
                 }
@@ -558,7 +554,7 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
         Settings.TRANSFER_UPLOAD_STATE.observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(String s) {
-                SLogs.e("transfer state：" + s);
+                SLogs.d(TabSettings2Fragment.class,"transfer state：" + s);
                 if (mTransferUploadState != null) {
                     mTransferUploadState.setSummary(s);
                 }
@@ -571,7 +567,7 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
         Settings.CACHE_SIZE.observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(String s) {
-                SLogs.e("cache size：" + s);
+                SLogs.d(TabSettings2Fragment.class,"cache size：" + s);
                 findPreference(getString(R.string.pref_key_cache_info)).setSummary(s);
             }
         });
@@ -594,7 +590,7 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
         String transferId = map.getString(TransferWorker.KEY_TRANSFER_ID);
         int transferCount = map.getInt(TransferWorker.KEY_TRANSFER_COUNT);
 
-        SLogs.e("Settings -> on event: event: " + statusEvent + ", dataSource: " + dataSource);
+        SLogs.d(TabSettings2Fragment.class,"Settings -> on event: event: " + statusEvent + ", dataSource: " + dataSource);
 
         if (TextUtils.equals(statusEvent, TransferEvent.EVENT_SCANNING)) {
             refreshPendingCount(dataSource, statusEvent, true, result);
@@ -719,7 +715,6 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
     }
 
     private void updateAlbumBackupSelectedRepoSummary() {
-//        Account camAccount = CameraUploadManager.getInstance().getCameraAccount();
         RepoConfig repoConfig = AlbumBackupSharePreferenceHelper.readRepoConfig();
         if (repoConfig != null) {
             mAlbumBackupRepo.setSummary(repoConfig.getRepoName());
@@ -731,11 +726,12 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
     private void dispatchAlbumBackupWork(boolean isEnable) {
         AlbumBackupSharePreferenceHelper.resetLastScanTime();
 
+        GlobalTransferCacheList.ALBUM_BACKUP_QUEUE.clear();
+
         if (isEnable) {
             CameraUploadManager.getInstance().setCameraAccount(currentAccount);
             CameraUploadManager.getInstance().performSync();
         } else {
-            GlobalTransferCacheList.ALBUM_BACKUP_QUEUE.clear();
             CameraUploadManager.getInstance().disableCameraUpload();
         }
     }
@@ -783,9 +779,10 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
         //reset scan time
         FolderBackupSharePreferenceHelper.resetLastScanTime();
 
+        GlobalTransferCacheList.FOLDER_BACKUP_QUEUE.clear();
+
         if (!isEnable) {
             BusHelper.resetFileMonitor();
-
             FolderBackupSharePreferenceHelper.resetLastScanTime();
             return;
         }
@@ -800,7 +797,6 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
         } else {
             BusHelper.resetFileMonitor();
 
-            GlobalTransferCacheList.FOLDER_BACKUP_QUEUE.clear();
             BackgroundJobManagerImpl.getInstance().cancelFolderBackupWorker();
         }
     }
@@ -893,37 +889,21 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
 
             updateAlbumBackupSelectedRepoSummary();
 
-            BackgroundJobManagerImpl.getInstance().restartMediaBackupWorker();
+            dispatchAlbumBackupWork(mAlbumBackupSwitch.isChecked());
         }
     });
 
     private final ActivityResultLauncher<Intent> cameraBackupConfigLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
         @Override
         public void onActivityResult(ActivityResult o) {
-            if (o.getResultCode() == RESULT_OK) {
-                //The dispatch function needs to be put first
-                dispatchAlbumBackupWork(true);
-
-                switchAlbumBackupState(true);
-            } else {
-                //The dispatch function needs to be put first
-                dispatchAlbumBackupWork(false);
-
-                if (o.getData() != null) {
-                    boolean isChooseRepo = o.getData().getBooleanExtra(CameraUploadConfigActivity.CAMERA_UPLOAD_REMOTE_LIBRARY, false);
-                    boolean isChooseDir = o.getData().getBooleanExtra(CameraUploadConfigActivity.CAMERA_UPLOAD_LOCAL_DIRECTORIES, false);
-                    if (!isChooseRepo && !isChooseDir) {
-                        switchAlbumBackupState(false);
-                    } else {
-                        SLogs.d("isChooseRepo?" + isChooseRepo);
-                        SLogs.d("isChooseDir?" + isChooseDir);
-                    }
-                } else {
-                    switchAlbumBackupState(false);
-                }
-
-
+            if (o.getResultCode() != RESULT_OK) {
+                return;
             }
+
+            //The dispatch function needs to be put first
+            dispatchAlbumBackupWork(true);
+
+            switchAlbumBackupState(true);
         }
     });
 

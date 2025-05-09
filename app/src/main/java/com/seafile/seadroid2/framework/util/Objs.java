@@ -175,7 +175,7 @@ public class Objs {
         List<RepoModel> mineList = treeMap.get(RepoType.TYPE_MINE);
         if (!CollectionUtils.isEmpty(mineList)) {
             List<RepoModel> sortedList = sortRepos(mineList);
-            newRvList.add(new GroupItemModel(R.string.personal, sortedList));
+            newRvList.add(new GroupItemModel(R.string.my_libraries, sortedList));
             newRvList.addAll(sortedList);
         }
 

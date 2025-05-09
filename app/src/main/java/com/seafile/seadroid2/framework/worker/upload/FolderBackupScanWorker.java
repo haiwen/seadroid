@@ -108,6 +108,7 @@ public class FolderBackupScanWorker extends BaseScanWorker {
     @NonNull
     @Override
     public Result doWork() {
+        SLogs.d(FolderBackupScanWorker.class, "started execution");
         account = SupportAccountManager.getInstance().getCurrentAccount();
         if (account == null) {
             return returnSuccess();
@@ -115,19 +116,19 @@ public class FolderBackupScanWorker extends BaseScanWorker {
 
         boolean isTurnOn = FolderBackupSharePreferenceHelper.readBackupSwitch();
         if (!isTurnOn) {
-            SLogs.d("The folder scan task was not started, because the switch is off");
+            SLogs.d(FolderBackupScanWorker.class, "The folder scan task was not started, because the switch is off");
             return returnSuccess();
         }
 
         repoConfig = FolderBackupSharePreferenceHelper.readRepoConfig();
         if (repoConfig == null || StringUtils.isEmpty(repoConfig.getRepoId())) {
-            SLogs.d("The folder scan task was not started, because the repo is not selected");
+            SLogs.d(FolderBackupScanWorker.class, "The folder scan task was not started, because the repo is not selected");
             return returnSuccess();
         }
 
         List<String> backupPaths = FolderBackupSharePreferenceHelper.readBackupPathsAsList();
         if (CollectionUtils.isEmpty(backupPaths)) {
-            SLogs.d("The folder scan task was not started, because the folder path is not selected");
+            SLogs.d(FolderBackupScanWorker.class, "The folder scan task was not started, because the folder path is not selected");
 
             return returnSuccess();
         }
@@ -147,7 +148,7 @@ public class FolderBackupScanWorker extends BaseScanWorker {
             traverseBackupPath(backupPaths);
 
         } catch (IOException e) {
-            SLogs.d("FolderBackupScannerWorker has occurred error", e);
+            SLogs.e("FolderBackupScannerWorker has occurred error", e);
         } finally {
             FolderBackupSharePreferenceHelper.writeLastScanTime(System.currentTimeMillis());
         }
@@ -171,13 +172,13 @@ public class FolderBackupScanWorker extends BaseScanWorker {
         Call<List<DirentRecursiveFileModel>> direntWrapperModelCall = HttpIO.getCurrentInstance().execute(RepoService.class).getDirRecursiveFileCall(repoId, parentPath);
         retrofit2.Response<List<DirentRecursiveFileModel>> res = direntWrapperModelCall.execute();
         if (!res.isSuccessful()) {
-            SLogs.e("FolderBackupScannerWorker -> getDirRecursiveFileCall() -> request dirents failed");
+            SLogs.d(FolderBackupScanWorker.class, "request dirents failed");
             return null;
         }
 
         List<DirentRecursiveFileModel> tempWrapperList = res.body();
         if (tempWrapperList == null) {
-            SLogs.e("FolderBackupScannerWorker -> getDirRecursiveFileCall() -> request dirents is null");
+            SLogs.d(FolderBackupScanWorker.class, "request dirents is null");
             return null;
         }
 
@@ -205,13 +206,13 @@ public class FolderBackupScanWorker extends BaseScanWorker {
             backupPath = Utils.pathJoin("/", backupPath, "/");
 
             compare(repoModel, backupPath, lastTime, ignorePath);
-            SLogs.d("folder backup path: " + backupPath);
-            SLogs.d("folder backup：need to upload files count: " + GlobalTransferCacheList.FOLDER_BACKUP_QUEUE.getTotalCount());
+            SLogs.d(FolderBackupScanWorker.class, "folder backup path: " + backupPath);
+            SLogs.d(FolderBackupScanWorker.class, "folder backup：need to upload files count: " + GlobalTransferCacheList.FOLDER_BACKUP_QUEUE.getTotalCount());
         }
 
         stopwatch.stop();
         long diff = stopwatch.elapsed(TimeUnit.MILLISECONDS);
-        SLogs.d("folder backup scan time：" + stopwatch);
+        SLogs.d(FolderBackupScanWorker.class, "folder backup scan time：" + stopwatch);
         long now = System.currentTimeMillis();
         FolderBackupSharePreferenceHelper.writeLastScanTime(now - diff);
     }
@@ -262,7 +263,7 @@ public class FolderBackupScanWorker extends BaseScanWorker {
 
             FileBackupStatusEntity dbTransferEntity = dbTransferMap.getOrDefault(fullPathFileName, null);
             if (dbTransferEntity != null) {
-                SLogs.d("folder backup: skip file: " + fullPathFileName + ", because it has been uploaded");
+                SLogs.d(FolderBackupScanWorker.class, "folder backup: skip file: " + fullPathFileName + ", because it has been uploaded");
                 continue;
             }
 
@@ -294,12 +295,12 @@ public class FolderBackupScanWorker extends BaseScanWorker {
 
                 if (firstOp.isPresent()) {
                     //skip: the document with the same name exists in the remote repository
-                    SLogs.d("folder backup: skip file: " + fullPathFileName + ", because the same name exists remotely");
+                    SLogs.d(FolderBackupScanWorker.class, "folder backup: skip file: " + fullPathFileName + ", because the same name exists remotely");
                     continue;
                 }
             }
 
-            SLogs.d("folder backup: new file: " + localFile.getAbsolutePath());
+            SLogs.d(FolderBackupScanWorker.class, "folder backup: new file: " + localFile.getAbsolutePath());
             TransferModel transferModel = TransferModel.convert(localFile, backupPath);
             transferModel.related_account = account.getSignature();
             transferModel.repo_id = repoConfig.getRepoId();

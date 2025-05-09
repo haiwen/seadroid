@@ -53,6 +53,7 @@ public class PasswordViewModel extends BaseViewModel {
     }
 
     public void verifyPwd(String repoId, String password) {
+
         Single<List<RepoModel>> singleOneDb = AppDatabase.getInstance().repoDao().getByIdAsync(repoId);
         addSingleDisposable(singleOneDb, new Consumer<List<RepoModel>>() {
             @Override

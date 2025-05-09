@@ -14,6 +14,7 @@ import androidx.work.WorkerParameters;
 import com.seafile.seadroid2.bus.BusHelper;
 import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.enums.TransferStatus;
+import com.seafile.seadroid2.framework.file_monitor.FileSyncService;
 import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.notification.GeneralNotificationHelper;
@@ -76,9 +77,9 @@ public abstract class TransferWorker extends BaseWorker {
                 .execute();
 
         if (response.isSuccessful()) {
-            SLogs.d("folder create success：" + path);
+            SLogs.d(TransferWorker.class, "folder create success：" + path);
         } else {
-            SLogs.e("folder create failed：" + response.errorBody().string());
+            SLogs.d(TransferWorker.class, "folder create failed：" + response.errorBody().string());
         }
     }
 

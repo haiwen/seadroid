@@ -32,7 +32,6 @@ import com.seafile.seadroid2.databinding.ActivitySeaWebviewProBinding;
 import com.seafile.seadroid2.databinding.ToolbarActionbarProgressBarBinding;
 import com.seafile.seadroid2.enums.WebViewPreviewType;
 import com.seafile.seadroid2.framework.model.sdoc.FileProfileConfigModel;
-import com.seafile.seadroid2.framework.model.sdoc.FileRecordWrapperModel;
 import com.seafile.seadroid2.framework.model.sdoc.OutlineItemModel;
 import com.seafile.seadroid2.framework.model.sdoc.SDocPageOptionsModel;
 import com.seafile.seadroid2.framework.util.SLogs;
@@ -42,7 +41,6 @@ import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
 import com.seafile.seadroid2.ui.docs_comment.DocsCommentsActivity;
 import com.seafile.seadroid2.ui.file_profile.FileProfileDialog;
 import com.seafile.seadroid2.ui.sdoc.outline.SDocOutlineDialog;
-import com.seafile.seadroid2.view.webview.OnWebPageListener;
 import com.seafile.seadroid2.view.webview.PreloadWebView;
 import com.seafile.seadroid2.view.webview.SeaWebView;
 
@@ -219,7 +217,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         mWebView.callJsFunction("sdoc.outline.data.select", param, new CallBackFunction() {
             @Override
             public void onCallBack(String data) {
-                SLogs.e(data);
+                SLogs.d(SDocWebViewActivity.class, data);
             }
         });
     }
@@ -254,12 +252,12 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
                     value = StringUtils.deString(value).replace("\\", "");
                     pageOptionsData = GsonUtils.fromJson(value, SDocPageOptionsModel.class);
                     if (pageOptionsData == null || !pageOptionsData.canUse()) {
-                        SLogs.e("read sodc page options data from web, an exception occurred in the parsing data");
+                        SLogs.d(SDocWebViewActivity.class, "read sodc page options data from web, an exception occurred in the parsing data");
                     } else {
                         continuation.accept(pageOptionsData);
                     }
                 } else {
-                    SLogs.e("read sodc page options data from web: " + value);
+                    SLogs.d(SDocWebViewActivity.class, "read sodc page options data from web: " + value);
                     ToastUtils.showShort(R.string.unknow_error);
                 }
             }
@@ -279,7 +277,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
             @Override
             public void onReceiveValue(String value) {
                 if (TextUtils.isEmpty(value)) {
-                    SLogs.e(value);
+                    SLogs.d(SDocWebViewActivity.class, value);
                     ToastUtils.showShort(R.string.empty_data);
                     continuation.accept(value);
                     return;
@@ -306,9 +304,9 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         mWebView.evaluateJavascript(js, new ValueCallback<String>() {
             @Override
             public void onReceiveValue(String value) {
-                SLogs.e(value);
+                SLogs.d(SDocWebViewActivity.class, value);
                 if (TextUtils.isEmpty(value)) {
-                    SLogs.d("doc uuid is empty.");
+                    SLogs.d(SDocWebViewActivity.class, "doc uuid is empty.");
                     ToastUtils.showShort("outline is empty.");
                     return;
                 }

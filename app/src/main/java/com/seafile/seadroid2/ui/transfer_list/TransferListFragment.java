@@ -261,13 +261,13 @@ public abstract class TransferListFragment extends BaseFragment {
             GlobalTransferCacheList.FOLDER_BACKUP_QUEUE.remove(transferModel.getId());
 
             if (transferModel.transfer_status == TransferStatus.IN_PROGRESS) {
-                BackgroundJobManagerImpl.getInstance().restartFolderBackupWorker();
+                BackgroundJobManagerImpl.getInstance().startFolderBackupChain(true);
             }
         } else if (TransferDataSource.ALBUM_BACKUP == transferModel.data_source) {
-            GlobalTransferCacheList.FOLDER_BACKUP_QUEUE.remove(transferModel.getId());
+            GlobalTransferCacheList.ALBUM_BACKUP_QUEUE.remove(transferModel.getId());
 
             if (transferModel.transfer_status == TransferStatus.IN_PROGRESS) {
-                BackgroundJobManagerImpl.getInstance().restartMediaBackupWorker();
+                BackgroundJobManagerImpl.getInstance().startMediaBackupChain(true);
             }
         }
     }

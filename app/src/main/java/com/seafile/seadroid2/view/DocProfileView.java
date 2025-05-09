@@ -41,6 +41,8 @@ import com.seafile.seadroid2.framework.model.sdoc.SDocTagModel;
 import com.seafile.seadroid2.framework.model.user.UserModel;
 import com.seafile.seadroid2.framework.util.Utils;
 
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -326,11 +328,10 @@ public class DocProfileView extends LinearLayout {
     }
 
     private void parseDate(LinearLayout view, MetadataModel model) {
-        if (model.value instanceof String date) {
+        if (model.value instanceof OffsetDateTime date) {
             View ltr = LayoutInflater.from(view.getContext()).inflate(R.layout.layout_textview, null);
 
-            Date date1 = TimeUtils.string2Date(date, DateFormatType.DATE_XXX);
-            String d = TimeUtils.date2String(date1, DateFormatType.DATE_YMD_HMS);
+            String d = date.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME).replace("T"," ");
             ltr.<TextView>findViewById(R.id.text_view).setText(d);
 
             view.<FlexboxLayout>findViewById(R.id.flex_box).addView(ltr, getFlexParams());

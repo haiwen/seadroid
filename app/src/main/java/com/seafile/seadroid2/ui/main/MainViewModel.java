@@ -8,39 +8,34 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.MutableLiveData;
 
 import com.blankj.utilcode.util.CollectionUtils;
-import com.blankj.utilcode.util.ToastUtils;
-import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.enums.SaveTo;
-import com.seafile.seadroid2.framework.db.entities.EncKeyCacheEntity;
-import com.seafile.seadroid2.framework.db.entities.PermissionEntity;
-import com.seafile.seadroid2.framework.model.dirents.DirentFileModel;
 import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.enums.TransferStatus;
+import com.seafile.seadroid2.framework.db.AppDatabase;
+import com.seafile.seadroid2.framework.db.entities.PermissionEntity;
+import com.seafile.seadroid2.framework.db.entities.RepoModel;
+import com.seafile.seadroid2.framework.http.HttpIO;
+import com.seafile.seadroid2.framework.model.ServerInfo;
+import com.seafile.seadroid2.framework.model.dirents.DirentFileModel;
 import com.seafile.seadroid2.framework.model.repo.DirentWrapperModel;
-import com.seafile.seadroid2.framework.worker.queue.TransferModel;
+import com.seafile.seadroid2.framework.model.server.ServerInfoModel;
+import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.ExistingFileStrategy;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
-import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
-import com.seafile.seadroid2.framework.model.ServerInfo;
-import com.seafile.seadroid2.framework.db.AppDatabase;
-import com.seafile.seadroid2.framework.db.entities.RepoModel;
-import com.seafile.seadroid2.framework.model.repo.RepoWrapperModel;
-import com.seafile.seadroid2.framework.model.server.ServerInfoModel;
-import com.seafile.seadroid2.ui.file.FileService;
-import com.seafile.seadroid2.ui.repo.RepoService;
-import com.seafile.seadroid2.framework.http.HttpIO;
+import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 import com.seafile.seadroid2.ui.activities.AllActivitiesFragment;
+import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
+import com.seafile.seadroid2.ui.file.FileService;
 import com.seafile.seadroid2.ui.repo.RepoQuickFragment;
+import com.seafile.seadroid2.ui.repo.RepoService;
 import com.seafile.seadroid2.ui.settings.TabSettings2Fragment;
 import com.seafile.seadroid2.ui.star.StarredQuickFragment;
-import com.seafile.seadroid2.framework.util.SLogs;
 
 import java.io.File;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import io.reactivex.Single;
@@ -203,13 +198,13 @@ public class MainViewModel extends BaseViewModel {
         //sourceUri content://com.android.providers.media.documents/document/image:1000182224
         TransferModel transferModel = gen(context, account, repoModel.repo_id, repoModel.repo_name, sourceUri, fileName, parentDir, isReplace);
         GlobalTransferCacheList.FILE_UPLOAD_QUEUE.put(transferModel);
-        SLogs.e("addUploadTask uri: complete");
+        SLogs.d(MainViewModel.class, "addUploadTask uri: complete");
     }
 
     public void addUploadTask(Context context, Account account, RepoModel repoModel, String localFileAbsPath, String parentDir, boolean isReplace) {
         TransferModel transferModel = gen(context, account, repoModel.repo_id, repoModel.repo_name, localFileAbsPath, parentDir, isReplace);
         GlobalTransferCacheList.FILE_UPLOAD_QUEUE.put(transferModel);
-        SLogs.e("addUploadTask uri: complete");
+        SLogs.d(MainViewModel.class, "addUploadTask uri: complete");
     }
 
     private TransferModel gen(Context context, Account account, String repo_id, String repo_name, String fileAbsPath, String parentDir, boolean isReplace) {

@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 
+@Deprecated
 public class SettingsAlbumBackupAdvancedFragment extends RenameSharePreferenceFragmentCompat {
 
     private SwitchPreferenceCompat bucketsSwitch;

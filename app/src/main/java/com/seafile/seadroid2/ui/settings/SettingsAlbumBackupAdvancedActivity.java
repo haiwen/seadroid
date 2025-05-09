@@ -21,6 +21,7 @@ import com.seafile.seadroid2.ui.base.BaseActivity;
 public class SettingsAlbumBackupAdvancedActivity extends BaseActivity implements Toolbar.OnMenuItemClickListener, PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
 
     private SettingsAlbumBackupActivityLayoutBinding binding;
+    private SettingsAlbumBackupAdvanced2Fragment settingsAlbumBackupAdvanced2Fragment;
 
     @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     public void onCreate(Bundle savedInstanceState) {
@@ -38,14 +39,13 @@ public class SettingsAlbumBackupAdvancedActivity extends BaseActivity implements
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setTitle(R.string.settings_camera_upload_advanced_feature_title);
         }
-
-        FragmentUtils.add(getSupportFragmentManager(), SettingsAlbumBackupAdvanced2Fragment.newInstance(), R.id.settings_fragment_container);
+        settingsAlbumBackupAdvanced2Fragment = SettingsAlbumBackupAdvanced2Fragment.newInstance();
+        FragmentUtils.add(getSupportFragmentManager(), settingsAlbumBackupAdvanced2Fragment, R.id.settings_fragment_container);
 
         getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                setResult(RESULT_OK);
-                finish();
+                goBack();
             }
         });
     }
@@ -58,11 +58,20 @@ public class SettingsAlbumBackupAdvancedActivity extends BaseActivity implements
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            setResult(RESULT_OK);
-            this.finish();
+            goBack();
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void goBack() {
+        if (settingsAlbumBackupAdvanced2Fragment != null) {
+            boolean isChanged = settingsAlbumBackupAdvanced2Fragment.isSettingsChanged();
+            setResult(isChanged ? RESULT_OK : RESULT_CANCELED);
+        } else {
+            setResult(RESULT_CANCELED);
+        }
+        finish();
     }
 
     @Override

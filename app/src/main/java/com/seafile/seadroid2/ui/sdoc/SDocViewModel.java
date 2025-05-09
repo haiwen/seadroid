@@ -27,6 +27,7 @@ import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -132,7 +133,7 @@ public class SDocViewModel extends BaseViewModel {
                     }
                 });
             }
-        });
+        }).delay(200, TimeUnit.MILLISECONDS);
 
 
         addSingleDisposable(s, new Consumer<FileProfileConfigModel>() {

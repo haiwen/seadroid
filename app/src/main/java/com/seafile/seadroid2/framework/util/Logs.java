@@ -113,6 +113,10 @@ public class Logs {
         XLog.d(msg);
     }
 
+    public static void d(Class<?> clz, String msg) {
+        XLog.d(clz.getSimpleName() + " -> " + msg);
+    }
+
     public static void d(String msg, Throwable tr) {
         XLog.d(msg, tr);
     }

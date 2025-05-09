@@ -36,26 +36,26 @@ public class AlbumBackupAdapter extends AbstractThreadedSyncAdapter {
     @Override
     public void onSecurityException(android.accounts.Account account, Bundle extras, String authority, SyncResult syncResult) {
         super.onSecurityException(account, extras, authority, syncResult);
-        SLogs.e("syncResult -> " + syncResult.toString());
+        SLogs.d(AlbumBackupAdapter.class, "syncResult -> " + syncResult.toString());
     }
 
     @Override
     public boolean onUnsyncableAccount() {
-        SLogs.e("onUnsyncableAccount");
+        SLogs.d(AlbumBackupAdapter.class, "onUnsyncableAccount");
         return super.onUnsyncableAccount();
     }
 
     @Override
     public void onSyncCanceled(Thread thread) {
         super.onSyncCanceled(thread);
-        SLogs.e("onSyncCanceled ->" + thread.getName());
+        SLogs.d(AlbumBackupAdapter.class, "onSyncCanceled ->" + thread.getName());
         BackgroundJobManagerImpl.getInstance().cancelMediaBackupChain();
     }
 
     @Override
     public void onSyncCanceled() {
         super.onSyncCanceled();
-        SLogs.e("onSyncCanceled");
+        SLogs.d(AlbumBackupAdapter.class, "onSyncCanceled");
         BackgroundJobManagerImpl.getInstance().cancelMediaBackupChain();
     }
 
@@ -66,12 +66,12 @@ public class AlbumBackupAdapter extends AbstractThreadedSyncAdapter {
                               SyncResult syncResult) {
 
         boolean isForce = extras.getBoolean(ContentResolver.SYNC_EXTRAS_MANUAL);
-        SLogs.e("albumBackupAdapter - onPerformSync, isForce -> " + isForce);
+        SLogs.d(AlbumBackupAdapter.class, "onPerformSync, isForce -> " + isForce);
         Account seafileAccount = SupportAccountManager.getInstance().getSeafileAccount(account);
 
         // this should never occur, as camera upload is supposed to be disabled once the camera upload account signs out.
         if (!seafileAccount.hasValidToken()) {
-            SLogs.e("This account has no auth token. Disable camera upload.");
+            SLogs.d(AlbumBackupAdapter.class, "This account has no auth token. Disable camera upload.");
             syncResult.stats.numAuthExceptions++;
 
             // we're logged out on this account. disable camera upload.
