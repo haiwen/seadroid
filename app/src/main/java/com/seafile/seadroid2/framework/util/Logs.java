@@ -34,7 +34,7 @@ import java.util.TimeZone;
  */
 public class Logs {
 
-    private static final String LOG_TAG = "SLog";
+    private static final String LOG_TAG = "Seafile-SLog";
     /**
      * will delete log files that have not been modified for a period of time
      */
@@ -42,7 +42,7 @@ public class Logs {
 
     public static void init() {
         LogConfiguration config = new LogConfiguration.Builder()
-                .logLevel(BuildConfig.DEBUG ? LogLevel.ALL : LogLevel.INFO)
+                .logLevel(BuildConfig.DEBUG ? LogLevel.ALL : LogLevel.DEBUG)
                 .tag(LOG_TAG)
 //                .enableThreadInfo()
 //                .enableStackTrace(2)
