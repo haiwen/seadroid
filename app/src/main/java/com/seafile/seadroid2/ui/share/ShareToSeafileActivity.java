@@ -184,20 +184,20 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
 
         ArrayList<Uri> fileUris = new ArrayList<>();
         if (Intent.ACTION_SEND.equals(action)) {
-            Uri fileUri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
-            fileUris = CollectionUtils.newArrayList(fileUri);
-//            if ("text/plain".equals(type)) {
-//                String sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
-//                SLogs.d(sharedText);
-//            } else {
-//                Uri fileUri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
-//                fileUris = CollectionUtils.newArrayList(fileUri);
-//            }
+            if ("text/plain".equals(type)) {
+                String sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
+                SLogs.d("Seafile receive content: " + sharedText);
+                ToastUtils.showLong(R.string.not_supported_share);
+            } else {
+                Uri fileUri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
+                if (fileUri != null) {
+                    fileUris.add(fileUri);
+                }
+            }
         } else if (Intent.ACTION_SEND_MULTIPLE.equals(action)) {
             fileUris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
         } else {
             // Handle other intents, such as being started from the home screen
-
         }
 
         if (CollectionUtils.isEmpty(fileUris)) {

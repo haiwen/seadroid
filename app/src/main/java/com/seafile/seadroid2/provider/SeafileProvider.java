@@ -46,13 +46,13 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.db.entities.StarredModel;
-import com.seafile.seadroid2.framework.model.BaseModel;
-import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.http.HttpIO;
+import com.seafile.seadroid2.framework.model.BaseModel;
 import com.seafile.seadroid2.framework.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.framework.util.GlideApp;
 import com.seafile.seadroid2.framework.util.Objs;
@@ -174,7 +174,7 @@ public class SeafileProvider extends DocumentsProvider {
         String[] netProjection = netProjection(projection, SUPPORTED_ROOT_PROJECTION);
         MatrixCursor result = new MatrixCursor(netProjection);
 
-        SLogs.d("queryRoots()");
+        SLogs.d(SeafileProvider.class, "queryRoots()");
 
         // add a Root for every signed in Seafile account we have.
         for (Account a : SupportAccountManager.getInstance().getAccountList()) {
@@ -211,7 +211,7 @@ public class SeafileProvider extends DocumentsProvider {
     @Override
     public Cursor queryChildDocuments(String parentDocumentId, String[] projection, String sortOrder) throws FileNotFoundException {
 
-        SLogs.d("queryChildDocuments: " + parentDocumentId);
+        SLogs.d(SeafileProvider.class, "queryChildDocuments: " + parentDocumentId);
 
         String[] netProjection = netProjection(projection, SUPPORTED_DOCUMENT_PROJECTION);
 
@@ -326,7 +326,7 @@ public class SeafileProvider extends DocumentsProvider {
     @Override
     public Cursor queryDocument(String documentId, String[] projection) throws FileNotFoundException {
 
-        SLogs.d("queryDocument: " + documentId);
+        SLogs.d(SeafileProvider.class, "queryDocument: " + documentId);
 
         String[] netProjection = netProjection(projection, SUPPORTED_DOCUMENT_PROJECTION);
         MatrixCursor result = new MatrixCursor(netProjection);
@@ -539,13 +539,13 @@ public class SeafileProvider extends DocumentsProvider {
 
             //download
             File targetFile = DataManager.getLocalRepoFile(account, repo.repo_id, repo.repo_name, path);
-            SLogs.d("SeafileProvider: start download");
-            SLogs.d("targetFile = " + targetFile);
+            SLogs.d(SeafileProvider.class, "start download");
+            SLogs.d(SeafileProvider.class, "targetFile = " + targetFile);
 
             httpIo.downloadBinarySync(url, targetFile, new ProgressListener() {
                 @Override
                 public void onProgress(String fileName, long cur, long total) {
-                    SLogs.d("fileName = " + fileName + ", cur = " + ", total = " + total);
+                    SLogs.d(SeafileProvider.class, "fileName = " + fileName + ", cur = " + ", total = " + total);
                 }
 
                 @Override
@@ -572,11 +572,11 @@ public class SeafileProvider extends DocumentsProvider {
     public AssetFileDescriptor openDocumentThumbnail(String documentId, Point sizeHint, CancellationSignal signal) throws FileNotFoundException {
 
         if (TextUtils.isEmpty(documentId)) {
-            SLogs.d("openDocumentThumbnail(): documentId is null.");
+            SLogs.d(SeafileProvider.class, "openDocumentThumbnail(): documentId is null.");
             throw new FileNotFoundException();
         }
 
-        SLogs.d("openDocumentThumbnail(): " + documentId);
+        SLogs.d(SeafileProvider.class, "openDocumentThumbnail(): " + documentId);
 
         Account account = DocumentIdParser.getAccountFromId(documentId);
         String path = DocumentIdParser.getPathFromId(documentId);
@@ -618,11 +618,11 @@ public class SeafileProvider extends DocumentsProvider {
                     String urlPath;
                     if (localFile.exists()) {
                         urlPath = "file://" + localFile.getAbsolutePath();
-                        SLogs.d("urlPath = " + urlPath);
+                        SLogs.d(SeafileProvider.class, "urlPath = " + urlPath);
                     } else {
                         String pathEnc = URLEncoder.encode(path, "UTF-8");
                         urlPath = account.getServer() + String.format("api2/repos/%s/thumbnail/?p=%s&size=%s", repoId, pathEnc, sizeHint.x);
-                        SLogs.d("urlPath = " + urlPath);
+                        SLogs.d(SeafileProvider.class, "urlPath = " + urlPath);
                     }
 
                     RequestOptions requestOptions = new RequestOptions()
@@ -744,8 +744,8 @@ public class SeafileProvider extends DocumentsProvider {
         String docId = DocumentIdParser.buildId(account, null, null);
         String rootId = DocumentIdParser.buildRootId(account);
 
-        SLogs.d("includeRoot - docId -> " + docId);
-        SLogs.d("includeRoot - rootId -> " + rootId);
+        SLogs.d(SeafileProvider.class, "includeRoot - docId -> " + docId);
+        SLogs.d(SeafileProvider.class, "includeRoot - rootId -> " + rootId);
 
         final MatrixCursor.RowBuilder row = result.newRow();
 

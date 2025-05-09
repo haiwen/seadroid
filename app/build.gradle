@@ -14,8 +14,8 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         compileSdk rootProject.ext.compileSdkVersion
 
-        versionCode 170
-        versionName "3.0.11"
+        versionCode 175
+        versionName "3.0.12"
         multiDexEnabled true
 
         resValue "string", "authorities", defaultConfig.applicationId + '.debug.cameraupload.provider'
@@ -27,7 +27,7 @@ android {
         javaCompileOptions {
             annotationProcessorOptions {
                 arguments["room.incremental"] = "true"
-                arguments["workmanager.inline"] = "false" // 禁用 WorkManager 的自动初始化
+//                arguments["workmanager.inline"] = "false"
             }
         }
     }

@@ -28,6 +28,7 @@ import com.seafile.seadroid2.framework.worker.ExistingFileStrategy;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
+import com.seafile.seadroid2.framework.worker.upload.FolderBackupScanWorker;
 import com.seafile.seadroid2.ui.file.FileService;
 
 import java.io.IOException;
@@ -54,6 +55,8 @@ public class DownloadFileScannerWorker extends TransferWorker {
     @NonNull
     @Override
     public Result doWork() {
+        SLogs.d(DownloadFileScannerWorker.class, "started execution");
+
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
         if (account == null) {
             return returnSuccess();
@@ -70,6 +73,7 @@ public class DownloadFileScannerWorker extends TransferWorker {
 
         //send a scan event
         sendWorkerEvent(TransferDataSource.DOWNLOAD, TransferEvent.EVENT_SCANNING);
+        SLogs.d(DownloadFileScannerWorker.class, "start scan");
 
         String[] direntIds = direntIdStr.split(",");
         List<String> ids = Arrays.asList(direntIds);
@@ -91,6 +95,7 @@ public class DownloadFileScannerWorker extends TransferWorker {
                 SLogs.e(e);
             }
         }
+        SLogs.d(DownloadFileScannerWorker.class, "complete");
 
         //success
         return returnSuccess();

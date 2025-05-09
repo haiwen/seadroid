@@ -159,7 +159,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
         binding.swipeRefreshLayout.setOnRefreshListener(() -> {
             removeScrolledPosition();
-            loadData(RefreshStatusEnum.ONLY_REMOTE);
+            loadData(RefreshStatusEnum.ONLY_REMOTE, false);
         });
 
         return binding.getRoot();
@@ -185,14 +185,14 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     public void onFirstResume() {
         super.onFirstResume();
 
-        loadData(RefreshStatusEnum.LOCAL_THEN_REMOTE);
+        loadData(RefreshStatusEnum.LOCAL_THEN_REMOTE, true);
     }
 
     @Override
     public void onOtherResume() {
         super.onOtherResume();
 
-        loadData(RefreshStatusEnum.ONLY_LOCAL);
+        loadData(RefreshStatusEnum.ONLY_LOCAL, false);
     }
 
     private void initRv() {
@@ -204,6 +204,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 .build();
 
         binding.rv.addItemDecoration(decoration);
+
         binding.rv.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
@@ -333,7 +334,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     }
 
     private void showCustomMenuView(View anchorView) {
-        ViewSortPopupWindow popupWindow = new ViewSortPopupWindow(requireContext());
+        ViewSortPopupWindow popupWindow = new ViewSortPopupWindow(requireContext(), GlobalNavContext.getCurrentNavContext());
         int x = -popupWindow.getW() / 2;
         popupWindow.showAsDropDown(anchorView, x, Constants.DP.DP_8);
     }
@@ -483,7 +484,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             closeActionMode();
 
             if (aBoolean) {
-                loadData(RefreshStatusEnum.ONLY_REMOTE);
+                loadData(RefreshStatusEnum.ONLY_REMOTE, false);
 
                 // notify starred list need to change
                 Bundle bundle = new Bundle();
@@ -493,6 +494,16 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
         });
 
+        getViewModel().getShowEmptyViewLiveData().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+                if (aBoolean) {
+                    showEmptyView();
+                } else {
+                    disableErrorView();
+                }
+            }
+        });
         getViewModel().getObjListLiveData().observe(getViewLifecycleOwner(), new Observer<List<BaseModel>>() {
             @Override
             public void onChanged(List<BaseModel> models) {
@@ -511,7 +522,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         });
 
         mainViewModel.getOnForceRefreshRepoListLiveData().observe(getViewLifecycleOwner(), aBoolean -> {
-            loadData(RefreshStatusEnum.ONLY_REMOTE);
+            loadData(RefreshStatusEnum.ONLY_REMOTE, false);
         });
 
 
@@ -539,21 +550,21 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         Settings.FILE_LIST_SORT_BY.observe(getViewLifecycleOwner(), new Observer<SortBy>() {
             @Override
             public void onChanged(SortBy sortBy) {
-                loadData(RefreshStatusEnum.ONLY_LOCAL);
+                loadData(RefreshStatusEnum.ONLY_LOCAL, false);
             }
         });
 
         Settings.FILE_LIST_SORT_ASCENDING.observe(getViewLifecycleOwner(), new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean aBoolean) {
-                loadData(RefreshStatusEnum.ONLY_LOCAL);
+                loadData(RefreshStatusEnum.ONLY_LOCAL, false);
             }
         });
 
         Settings.FILE_LIST_SORT_FOLDER_FIRST.observe(getViewLifecycleOwner(), new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean aBoolean) {
-                loadData(RefreshStatusEnum.ONLY_LOCAL);
+                loadData(RefreshStatusEnum.ONLY_LOCAL, false);
             }
         });
 
@@ -610,7 +621,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
         } else if (TextUtils.equals(statusEvent, TransferEvent.EVENT_TRANSFER_FINISH)) {
             if (transferCount > 0) {
-                loadData(RefreshStatusEnum.ONLY_REMOTE);
+                loadData(RefreshStatusEnum.ONLY_REMOTE, false);
             }
         }
     }
@@ -887,7 +898,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         if (FileViewType.GALLERY != lastViewType && newViewType != FileViewType.GALLERY) {
             adapter.notifyItemRangeChanged(0, adapter.getItemCount());
         } else {
-            loadData(RefreshStatusEnum.ONLY_LOCAL);
+            loadData(RefreshStatusEnum.ONLY_LOCAL, false);
         }
 
         //If SPAN_COUNT is updated, then the data in the ScrollPosition is meaningless
@@ -896,29 +907,29 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         lastViewType = newViewType;
     }
 
-    public void loadData(RefreshStatusEnum refreshStatus) {
+    public void loadData(RefreshStatusEnum refreshStatus, boolean isBlank) {
         NavContext navContext = GlobalNavContext.getCurrentNavContext();
         if (navContext.inRepo()) {
             RepoModel repoModel = navContext.getRepoModel();
             if (repoModel == null) {
-                getViewModel().loadData(navContext, refreshStatus);
+                getViewModel().loadData(navContext, refreshStatus, isBlank);
             } else if (repoModel.encrypted) {
                 decryptRepo(repoModel, aBoolean -> {
                     if (aBoolean) {
-                        getViewModel().loadData(navContext, refreshStatus);
+                        getViewModel().loadData(navContext, refreshStatus, isBlank);
                     }
                 });
             } else {
-                getViewModel().loadData(navContext, refreshStatus);
+                getViewModel().loadData(navContext, refreshStatus, isBlank);
             }
         } else {
-            getViewModel().loadData(navContext, refreshStatus);
+            getViewModel().loadData(navContext, refreshStatus, isBlank);
         }
     }
 
     private void notifyDataChanged(List<BaseModel> models) {
         if (CollectionUtils.isEmpty(models)) {
-            showEmptyTip();
+            adapter.notifyDataChanged(models);
         } else {
             adapter.notifyDataChanged(checkListByGroup(models));
         }
@@ -950,7 +961,9 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         adapter.filterListBySearchKeyword(keyword);
 
         //
-        searchViewModel.searchNext(keyword, 1, 20);
+        if (!TextUtils.isEmpty(keyword)) {
+            searchViewModel.searchNext(keyword, 1, 20);
+        }
     }
 
     @Todo("The search results logic needs to be refactored")
@@ -958,22 +971,22 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         adapter.addAll(searchModels);
     }
 
-    private void showEmptyTip() {
-        FileViewType type = Settings.FILE_LIST_VIEW_TYPE.queryValue();
-        if (FileViewType.GALLERY == type) {
-            showErrorView(R.string.no_album_type_data);
-        } else if (GlobalNavContext.getCurrentNavContext().inRepo()) {
-            showErrorView(R.string.dir_empty);
+    private void showEmptyView() {
+        if (!NetworkUtils.isConnected()) {
+            showErrorView(SeafException.NETWORK_UNAVAILABLE);
         } else {
-            showErrorView(R.string.no_repo);
+            FileViewType type = Settings.FILE_LIST_VIEW_TYPE.queryValue();
+            if (FileViewType.GALLERY == type) {
+                showErrorView(R.string.no_album_type_data);
+            } else if (GlobalNavContext.getCurrentNavContext().inRepo()) {
+                showErrorView(R.string.dir_empty);
+            } else {
+                showErrorView(R.string.no_repo);
+            }
         }
     }
 
     private void showErrorView(SeafException seafException) {
-
-        String errorMsg = seafException.getMessage();
-        ToastUtils.showLong(errorMsg);
-
         int strInt = !GlobalNavContext.getCurrentNavContext().inRepo() ? R.string.error_when_load_repos : R.string.error_when_load_dirents;
         showErrorView(strInt);
     }
@@ -988,12 +1001,17 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         tipView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                loadData(RefreshStatusEnum.LOCAL_THEN_REMOTE);
+                loadData(RefreshStatusEnum.LOCAL_THEN_REMOTE, false);
             }
         });
         tipView.setText(msg);
         adapter.setStateView(tipView);
         adapter.setStateViewEnable(true);
+    }
+
+    private void disableErrorView() {
+        adapter.setStateViewEnable(false);
+        adapter.setStateView(null);
     }
 
     private RefreshStatusEnum getRefreshStatus() {
@@ -1032,19 +1050,19 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                     public void accept(Boolean aBoolean) {
                         if (aBoolean) {
                             GlobalNavContext.push(repoModel);
-                            loadData(getRefreshStatus());
+                            loadData(getRefreshStatus(), true);
                         }
                     }
                 });
             } else {
                 GlobalNavContext.push(repoModel);
-                loadData(getRefreshStatus());
+                loadData(getRefreshStatus(), true);
             }
 
         } else if (model instanceof DirentModel direntModel) {
             if (direntModel.isDir()) {
                 GlobalNavContext.push(direntModel);
-                loadData(getRefreshStatus());
+                loadData(getRefreshStatus(), true);
             } else {
                 RepoModel repoModel = GlobalNavContext.getCurrentNavContext().getRepoModel();
                 open(repoModel, direntModel);
@@ -1129,7 +1147,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             String p = Utils.getParentPath(fullPath);
             GlobalNavContext.switchToPath(repoModel, p);
         }
-        loadData(RefreshStatusEnum.LOCAL_THEN_REMOTE);
+        loadData(RefreshStatusEnum.LOCAL_THEN_REMOTE, true);
     }
 
     /**
@@ -1140,6 +1158,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             if (adapter.isOnActionMode()) {
                 adapter.setOnActionMode(false);
             } else {
+                binding.swipeRefreshLayout.setRefreshing(false);
 
                 getViewModel().disposeAll();
 
@@ -1147,7 +1166,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
                 GlobalNavContext.pop();
 
-                loadData(RefreshStatusEnum.ONLY_LOCAL);
+                loadData(RefreshStatusEnum.ONLY_LOCAL, true);
             }
             return true;
         }
@@ -1518,7 +1537,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                     ToastUtils.showLong(R.string.rename_successful);
                 }
 
-                loadData(RefreshStatusEnum.ONLY_REMOTE);
+                loadData(RefreshStatusEnum.ONLY_REMOTE, false);
             }
         });
         dialogFragment.show(getChildFragmentManager(), RenameDialogFragment.class.getSimpleName());
@@ -1537,7 +1556,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             }
 
             closeActionMode();
-            loadData(RefreshStatusEnum.ONLY_REMOTE);
+            loadData(RefreshStatusEnum.ONLY_REMOTE, false);
         });
         dialogFragment.show(getChildFragmentManager(), DeleteRepoDialogFragment.class.getSimpleName());
     }
@@ -1558,7 +1577,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
                 closeActionMode();
 
-                loadData(RefreshStatusEnum.ONLY_REMOTE);
+                loadData(RefreshStatusEnum.ONLY_REMOTE, false);
             }
         });
         dialogFragment.show(getChildFragmentManager(), DeleteFileDialogFragment.class.getSimpleName());
@@ -1700,7 +1719,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                     ToastUtils.showLong(copyMoveContext.isCopy() ? R.string.copied_successfully : R.string.moved_successfully);
                 }
 
-                loadData(RefreshStatusEnum.ONLY_REMOTE);
+                loadData(RefreshStatusEnum.ONLY_REMOTE, false);
             }
         });
         dialogFragment.show(getChildFragmentManager(), CopyMoveDialogFragment.class.getSimpleName());
@@ -1714,7 +1733,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 return;
             }
 
-            loadData(RefreshStatusEnum.LOCAL_THEN_REMOTE);
+            loadData(RefreshStatusEnum.LOCAL_THEN_REMOTE, false);
         }
     });
 
@@ -1722,7 +1741,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         @Override
         public void onActivityResult(ActivityResult o) {
             if (o.getResultCode() != Activity.RESULT_OK) {
-                loadData(RefreshStatusEnum.ONLY_REMOTE);
+                loadData(RefreshStatusEnum.ONLY_REMOTE, false);
                 return;
             }
 
@@ -1740,7 +1759,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 ToastUtils.showLong(R.string.download_finished);
             }
 
-            loadData(RefreshStatusEnum.ONLY_REMOTE);
+            loadData(RefreshStatusEnum.ONLY_REMOTE, false);
 
             File destinationFile = new File(localFullPath);
             if ("export".equals(action)) {
@@ -1822,7 +1841,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             @Override
             public void onActionStatus(boolean isDone) {
                 if (isDone) {
-//                    mainViewModel.getOnForceRefreshRepoListLiveData().setValue(true);
+                    mainViewModel.getOnForceRefreshRepoListLiveData().setValue(true);
                 }
             }
         });

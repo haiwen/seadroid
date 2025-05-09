@@ -18,6 +18,7 @@ import com.seafile.seadroid2.framework.model.TResultModel;
 import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.datastore.sp.SettingsManager;
 import com.seafile.seadroid2.framework.http.HttpIO;
+import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
 import com.seafile.seadroid2.ui.dialog_fragment.DialogService;
 import com.seafile.seadroid2.ui.repo.RepoService;
@@ -52,6 +53,7 @@ public class PasswordViewModel extends BaseViewModel {
     }
 
     public void verifyPwd(String repoId, String password) {
+
         Single<List<RepoModel>> singleOneDb = AppDatabase.getInstance().repoDao().getByIdAsync(repoId);
         addSingleDisposable(singleOneDb, new Consumer<List<RepoModel>>() {
             @Override
@@ -240,7 +242,7 @@ public class PasswordViewModel extends BaseViewModel {
 
                     emitter.onSuccess(SeafException.SUCCESS);
                 } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
-                    e.printStackTrace();
+                    SLogs.e(e);
 
                     emitter.onSuccess(e);
                 }

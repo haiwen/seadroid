@@ -92,6 +92,11 @@ public class ExceptionUtils {
             if (bodyString.toLowerCase().contains("please provide password to view it")) {
                 return SeafException.INVALID_PASSWORD;
             }
+
+            if (bodyString.toLowerCase().contains("wrong password")) {
+                return SeafException.INVALID_PASSWORD;
+            }
+
             return SeafException.NOT_FOUND_LOGGED_USER_EXCEPTION;
         }
 

@@ -218,7 +218,7 @@ public class FileSyncService extends Service {
             List<FileAlterationObserver> observerList = new ArrayList<>();
             for (String str : pathList) {
 
-                SLogs.d("backup path: " + str);
+                SLogs.d(FileSyncService.class, "backup path: " + str);
                 FileAlterationObserver observer = new FileAlterationObserver(str, FILE_FILTER);
 
                 observer.addListener(new FileSyncService.FolderStateChangedListener());
@@ -282,48 +282,48 @@ public class FileSyncService extends Service {
 
         @Override
         public void onStart(FileAlterationObserver observer) {
-            SLogs.d("FileMonitor onStart: " + observer.getDirectory());
+            SLogs.d(FileSyncService.class, "monitor start: " + observer.getDirectory());
         }
 
         @Override
         public void onDirectoryCreate(File directory) {
-            SLogs.d("FileMonitor onDirectoryCreate = " + directory.getAbsolutePath());
+            SLogs.d(FileSyncService.class, "onDirectoryCreate = " + directory.getAbsolutePath());
 //            doBackup("create", directory);
         }
 
         @Override
         public void onDirectoryChange(File directory) {
-            SLogs.d("FileMonitor onDirectoryChange = " + directory.getAbsolutePath());
+            SLogs.d(FileSyncService.class, "onDirectoryChange = " + directory.getAbsolutePath());
 //            doBackup("change", directory);
         }
 
         @Override
         public void onDirectoryDelete(File directory) {
-            SLogs.d("FileMonitor onDirectoryDelete = " + directory.getAbsolutePath());
+            SLogs.d(FileSyncService.class, "onDirectoryDelete = " + directory.getAbsolutePath());
 //            doBackup("delete", directory);
         }
 
         @Override
         public void onFileCreate(File file) {
-            SLogs.d("FileMonitor onFileCreate = " + file.getAbsolutePath());
+            SLogs.d(FileSyncService.class, "onFileCreate = " + file.getAbsolutePath());
             doBackup("create", file);
         }
 
         @Override
         public void onFileChange(File file) {
-            SLogs.d("FileMonitor onFileChange = " + file.getAbsolutePath());
+            SLogs.d(FileSyncService.class, "onFileChange = " + file.getAbsolutePath());
             doBackup("change", file);
         }
 
         @Override
         public void onFileDelete(File file) {
-            SLogs.d("FileMonitor onFileDelete = " + file.getAbsolutePath());
+            SLogs.d(FileSyncService.class, "onFileDelete = " + file.getAbsolutePath());
 //            doBackup("delete", file);
         }
 
         @Override
         public void onStop(FileAlterationObserver observer) {
-            SLogs.d("FileMonitor onStop");
+            SLogs.d(FileSyncService.class, "monitor stop");
         }
     }
 
@@ -335,7 +335,7 @@ public class FileSyncService extends Service {
     }
 
     private void destroy() {
-        SLogs.e("file monitor service destroy");
+        SLogs.d(FileSyncService.class, "file monitor service destroy");
         stopFolderMonitor();
 
         //

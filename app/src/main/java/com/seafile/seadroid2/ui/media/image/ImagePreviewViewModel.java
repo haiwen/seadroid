@@ -23,6 +23,7 @@ import com.seafile.seadroid2.ui.star.StarredService;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import io.reactivex.Completable;
@@ -163,7 +164,10 @@ public class ImagePreviewViewModel extends BaseViewModel {
         requestDataMap.put("path", path);
         Map<String, RequestBody> bodyMap = genRequestBody(requestDataMap);
 
-        Single<Dirent2Model> single = HttpIO.getCurrentInstance().execute(StarredService.class).star(bodyMap);
+        Single<Dirent2Model> single = HttpIO.getCurrentInstance()
+                .execute(StarredService.class)
+                .star(bodyMap)
+                .delay(200, TimeUnit.MILLISECONDS);
         addSingleDisposable(single, new Consumer<Dirent2Model>() {
             @Override
             public void accept(Dirent2Model resultModel) throws Exception {
@@ -185,7 +189,10 @@ public class ImagePreviewViewModel extends BaseViewModel {
     public void unStar(String repoId, String path) {
         getRefreshLiveData().setValue(true);
 
-        Single<ResultModel> single = HttpIO.getCurrentInstance().execute(StarredService.class).unStar(repoId, path);
+        Single<ResultModel> single = HttpIO.getCurrentInstance()
+                .execute(StarredService.class)
+                .unStar(repoId, path)
+                .delay(200, TimeUnit.MILLISECONDS);
         addSingleDisposable(single, new Consumer<ResultModel>() {
             @Override
             public void accept(ResultModel resultModel) throws Exception {

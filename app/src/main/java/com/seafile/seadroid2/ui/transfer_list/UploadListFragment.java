@@ -15,6 +15,7 @@ import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
+import com.seafile.seadroid2.ui.settings.TabSettings2Fragment;
 
 public class UploadListFragment extends TransferListFragment {
 
@@ -75,7 +76,7 @@ public class UploadListFragment extends TransferListFragment {
             notifyProgressById(transferModel, statusEvent);
         } else if (TextUtils.equals(statusEvent, TransferEvent.EVENT_FILE_TRANSFER_FAILED)) {
 
-            SLogs.e(transferModel.toString());
+            SLogs.d(UploadListFragment.class,transferModel.toString());
             notifyProgressById(transferModel, statusEvent);
 
         } else if (TextUtils.equals(statusEvent, TransferEvent.EVENT_FILE_TRANSFER_SUCCESS)) {

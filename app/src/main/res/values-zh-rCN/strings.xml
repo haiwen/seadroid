@@ -41,6 +41,7 @@
   <string name="personal">个人</string>
   <string name="shared">共享给我的</string>
   <string name="libraries">资料库</string>
+  <string name="my_libraries">我的资料库</string>
   <string name="cached">已缓存</string>
   <string name="activities">事件</string>
   <string name="pick_upload_type">上传</string>

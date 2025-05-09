@@ -116,6 +116,7 @@ public class MediaBackupScanWorker extends BaseScanWorker {
     @NonNull
     @Override
     public Result doWork() {
+        SLogs.d(MediaBackupScanWorker.class, "started execution");
         account = SupportAccountManager.getInstance().getCurrentAccount();
         if (account == null) {
             return returnSuccess();
@@ -123,19 +124,19 @@ public class MediaBackupScanWorker extends BaseScanWorker {
 
         boolean isEnable = AlbumBackupSharePreferenceHelper.readBackupSwitch();
         if (!isEnable) {
-            SLogs.d("the album scan task was not started, because the switch is off");
+            SLogs.d(MediaBackupScanWorker.class, "the album scan task was not started, because the switch is off");
             return returnSuccess();
         }
 
         Account backupAccount = CameraUploadManager.getInstance().getCameraAccount();
         if (backupAccount == null) {
-            SLogs.d("the album scan task was not started, because the backup account is null");
+            SLogs.d(MediaBackupScanWorker.class, "the album scan task was not started, because the backup account is null");
             return returnSuccess();
         }
 
         repoConfig = AlbumBackupSharePreferenceHelper.readRepoConfig();
         if (repoConfig == null || TextUtils.isEmpty(repoConfig.getRepoId())) {
-            SLogs.d("the album scan task was not started, because the repoConfig is null");
+            SLogs.d(MediaBackupScanWorker.class, "the album scan task was not started, because the repoConfig is null");
             return returnSuccess();
         }
 
@@ -150,7 +151,7 @@ public class MediaBackupScanWorker extends BaseScanWorker {
         showNotification();
 
         try {
-            SLogs.d("MediaSyncWorker start");
+            SLogs.d(MediaBackupScanWorker.class, "start scan");
             sendWorkerEvent(TransferDataSource.ALBUM_BACKUP, TransferEvent.EVENT_SCANNING);
 
             loadMedia();
@@ -181,7 +182,7 @@ public class MediaBackupScanWorker extends BaseScanWorker {
         if (CollectionUtils.isEmpty(bucketIdList)) {
             List<GalleryBucketUtils.Bucket> allBuckets = GalleryBucketUtils.getMediaBuckets(SeadroidApplication.getAppContext());
             if (allBuckets == null) {
-                SLogs.d("no media in local storage, may be has no permission");
+                SLogs.d(MediaBackupScanWorker.class, "no media in local storage, may be has no permission");
                 return;
             }
 
@@ -204,7 +205,7 @@ public class MediaBackupScanWorker extends BaseScanWorker {
 
         stopwatch.stop();
         long diff = stopwatch.elapsed(TimeUnit.MILLISECONDS);
-        SLogs.d("album backup scan time：" + stopwatch);
+        SLogs.d(MediaBackupScanWorker.class, "album backup scan time：" + stopwatch);
         long now = System.currentTimeMillis();
         AlbumBackupSharePreferenceHelper.writeLastScanTime(now - diff);
 
@@ -222,7 +223,7 @@ public class MediaBackupScanWorker extends BaseScanWorker {
             return;
 
         if (bucketIdList.isEmpty()) {
-            SLogs.d("no media in local storage");
+            SLogs.d(MediaBackupScanWorker.class, "no media in local storage");
             return;
         }
 
@@ -250,7 +251,7 @@ public class MediaBackupScanWorker extends BaseScanWorker {
                 return;
             }
 
-            SLogs.d("images query count : " + cursor.getCount());
+            SLogs.d(MediaBackupScanWorker.class, "images query count : " + cursor.getCount());
             if (cursor.getCount() == 0) {
                 return;
             }
@@ -269,7 +270,7 @@ public class MediaBackupScanWorker extends BaseScanWorker {
             return;
 
         if (bucketIdList.isEmpty()) {
-            SLogs.d("no media in local storage");
+            SLogs.d(MediaBackupScanWorker.class, "no media in local storage");
             return;
         }
 
@@ -337,7 +338,7 @@ public class MediaBackupScanWorker extends BaseScanWorker {
             int dataIndex = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
             String localPath = cursor.getString(dataIndex);
             if (TextUtils.isEmpty(localPath)) {
-                SLogs.i("skip file -> [localPath is null] dataIndex: " + dataIndex + ", because it doesn't exist");
+                SLogs.d(MediaBackupScanWorker.class, "skip file -> [localPath is null] dataIndex: " + dataIndex + ", because it doesn't exist");
                 continue;
             }
 
@@ -346,13 +347,13 @@ public class MediaBackupScanWorker extends BaseScanWorker {
             File file = new File(localPath);
             if (!file.exists()) {
                 // local file does not exist. some inconsistency in the Media Provider? Ignore and continue
-                SLogs.i("skip file -> [not exists] " + localPath + ", because it doesn't exist");
+                SLogs.d(MediaBackupScanWorker.class, "skip file -> [not exists] " + localPath + ", because it doesn't exist");
                 continue;
             }
 
             // Ignore all media by Seafile. We don't want to upload our own cached files.
             if (file.getAbsolutePath().startsWith(localCacheAbsPath)) {
-                SLogs.i("skip file -> [cache file] " + localPath + ", because it's part of the Seadroid cache");
+                SLogs.d(MediaBackupScanWorker.class, "skip file -> [cache file] " + localPath + ", because it's part of the Seadroid cache");
                 continue;
             }
 
@@ -362,11 +363,11 @@ public class MediaBackupScanWorker extends BaseScanWorker {
                     .getListByFullPathSync(repoConfig.getRepoId(), TransferDataSource.ALBUM_BACKUP, file.getAbsolutePath());
 
             if (!CollectionUtils.isEmpty(transferEntityList)) {
-                SLogs.d("skip file -> [local exists] " + localPath + ", because we have uploaded it in the past.");
+                SLogs.d(MediaBackupScanWorker.class, "skip file -> [local exists] " + localPath + ", because we have uploaded it in the past.");
                 continue;
             }
 
-            SLogs.d("new file -> [wait for check] " + localPath);
+            SLogs.d(MediaBackupScanWorker.class, "new file -> [wait for check] " + localPath);
 
             //cache
             TransferModel transferModel = TransferModel.convert(file, bucketName, 0); // 0 is just a symbol, no means
@@ -406,7 +407,7 @@ public class MediaBackupScanWorker extends BaseScanWorker {
 
         DirentWrapperModel direntWrapperModel = getDirentWrapper(repoConfig.getRepoId(), remoteParentPath);
         if (direntWrapperModel == null) {
-            SLogs.d("MediaBackupScannerWorker -> createBucketDirectoryIfNecessary() -> request dirents is null");
+            SLogs.d(MediaBackupScanWorker.class, "createBucketDirectoryIfNecessary() -> request dirents is null");
             return;
         }
 
@@ -455,7 +456,7 @@ public class MediaBackupScanWorker extends BaseScanWorker {
 
         DirentWrapperModel direntWrapperModel = getDirentWrapper(repoConfig.getRepoId(), path);
         if (direntWrapperModel == null) {
-            SLogs.d("MediaBackupScannerWorker -> checkAndInsert() -> request dirents is null");
+            SLogs.d(MediaBackupScanWorker.class, "checkAndInsert() -> request dirents is null");
             return;
         }
 
@@ -485,7 +486,7 @@ public class MediaBackupScanWorker extends BaseScanWorker {
                     .findFirst();
 
             if (firstOp.isPresent()) {
-                SLogs.d("skip file -> [remote exists] " + filename + ", because we have uploaded it in the past.");
+                SLogs.d(MediaBackupScanWorker.class, "skip file -> [remote exists] " + filename + ", because we have uploaded it in the past.");
 
                 GlobalTransferCacheList.ALBUM_BACKUP_QUEUE.remove(bucketName, transferModel);
             }
@@ -497,18 +498,18 @@ public class MediaBackupScanWorker extends BaseScanWorker {
         Call<DirentWrapperModel> direntWrapperModelCall = HttpIO.getCurrentInstance().execute(RepoService.class).getDirentsSync(repoId, parentPath);
         retrofit2.Response<DirentWrapperModel> res = direntWrapperModelCall.execute();
         if (!res.isSuccessful()) {
-            SLogs.d("MediaBackupScannerWorker -> getDirentWrapper() -> request dirents failed");
+            SLogs.d(MediaBackupScanWorker.class, "request dirents failed");
             return null;
         }
 
         DirentWrapperModel tempWrapper = res.body();
         if (tempWrapper == null) {
-            SLogs.d("MediaBackupScannerWorker -> getDirentWrapper() -> request dirents is null");
+            SLogs.d(MediaBackupScanWorker.class, "request dirents is null");
             return null;
         }
 
         if (!TextUtils.isEmpty(tempWrapper.error_msg)) {
-            SLogs.d("MediaBackupScannerWorker -> getDirentWrapper(): " + tempWrapper.error_msg);
+            SLogs.d(MediaBackupScanWorker.class, tempWrapper.error_msg);
             return null;
         }
         return tempWrapper;
@@ -529,9 +530,9 @@ public class MediaBackupScanWorker extends BaseScanWorker {
                 .renameFileCall(repoConfig.getRepoId(), fullPath, requestBodyMap)
                 .execute();
         if (renameRes.isSuccessful()) {
-            SLogs.d("Folder rename success：" + fullPath);
+            SLogs.d(MediaBackupScanWorker.class, "Folder rename success：" + fullPath);
         } else {
-            SLogs.d("Folder rename failed：" + fullPath);
+            SLogs.d(MediaBackupScanWorker.class, "Folder rename failed：" + fullPath);
         }
     }
 

@@ -10,17 +10,17 @@ import com.blankj.utilcode.util.FileUtils;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
+import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.model.sdoc.FileDetailModel;
 import com.seafile.seadroid2.framework.model.sdoc.FileProfileConfigModel;
 import com.seafile.seadroid2.framework.model.sdoc.FileRecordWrapperModel;
 import com.seafile.seadroid2.framework.model.sdoc.FileTagWrapperModel;
 import com.seafile.seadroid2.framework.model.sdoc.MetadataConfigModel;
 import com.seafile.seadroid2.framework.model.user.UserWrapperModel;
-import com.seafile.seadroid2.framework.datastore.DataManager;
-import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.util.ExceptionUtils;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Utils;
@@ -341,10 +341,10 @@ public class PhotoViewModel extends BaseViewModel {
                         FileCacheStatusEntity entity = getSaveEntity(direntModel, destinationFile);
                         AppDatabase.getInstance().fileCacheStatusDAO().insert(entity);
 
-                        SLogs.e("move file success: " + path);
+                        SLogs.d(PhotoViewModel.class, "move file success: " + path);
                         emitter.onSuccess(destinationFile);
                     } else {
-                        SLogs.e("move file failed: " + path);
+                        SLogs.d(PhotoViewModel.class, "move file failed: " + path);
                         emitter.onError(SeafException.TRANSFER_FILE_EXCEPTION);
                     }
                 } catch (Exception e) {

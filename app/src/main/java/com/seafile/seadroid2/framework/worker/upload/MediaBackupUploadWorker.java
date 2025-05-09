@@ -74,7 +74,7 @@ public class MediaBackupUploadWorker extends BaseUploadWorker {
     @NonNull
     @Override
     public ListenableWorker.Result doWork() {
-        SLogs.d("start upload media worker");
+        SLogs.d(MediaBackupUploadWorker.class, "started execution");
 
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
         if (account == null) {
@@ -84,12 +84,14 @@ public class MediaBackupUploadWorker extends BaseUploadWorker {
 
         boolean canContinue = can();
         if (!canContinue) {
+            SLogs.d(MediaBackupUploadWorker.class, "settings missing config or not turned on");
             return returnSuccess();
         }
 
         //
         int totalPendingCount = GlobalTransferCacheList.ALBUM_BACKUP_QUEUE.getPendingCount();
         if (totalPendingCount <= 0) {
+            SLogs.d(MediaBackupUploadWorker.class, "backup queue is empty");
             return returnSuccess();
         }
 
@@ -149,8 +151,8 @@ public class MediaBackupUploadWorker extends BaseUploadWorker {
             }
         }
 
-        showToast(R.string.settings_camera_upload_info_title, R.string.upload_finished);
-        SLogs.e("Media backup: complete");
+        showToast(R.string.upload_finished);
+        SLogs.d(MediaBackupUploadWorker.class, "complete");
         //
         //
         Bundle b = new Bundle();

@@ -28,7 +28,6 @@ import com.seafile.seadroid2.framework.db.entities.EncKeyCacheEntity;
 import com.seafile.seadroid2.framework.db.entities.PermissionEntity;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.model.BaseModel;
-import com.seafile.seadroid2.framework.model.BlankModel;
 import com.seafile.seadroid2.framework.model.ResultModel;
 import com.seafile.seadroid2.framework.model.TResultModel;
 import com.seafile.seadroid2.framework.model.dirents.CachedDirentModel;
@@ -54,8 +53,6 @@ import java.util.stream.Collectors;
 
 import io.reactivex.Flowable;
 import io.reactivex.Single;
-import io.reactivex.SingleEmitter;
-import io.reactivex.SingleOnSubscribe;
 import io.reactivex.SingleSource;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
@@ -63,6 +60,12 @@ import io.reactivex.functions.Function;
 import okhttp3.RequestBody;
 
 public class RepoViewModel extends BaseViewModel {
+
+    private final MutableLiveData<Boolean> _showEmptyViewLiveData = new MutableLiveData<>();
+
+    public MutableLiveData<Boolean> getShowEmptyViewLiveData() {
+        return _showEmptyViewLiveData;
+    }
 
     private final MutableLiveData<List<BaseModel>> _objListLiveData = new MutableLiveData<>();
     private final MutableLiveData<Boolean> _starredLiveData = new MutableLiveData<>();
@@ -210,7 +213,7 @@ public class RepoViewModel extends BaseViewModel {
         });
     }
 
-    public void loadData(NavContext context, RefreshStatusEnum refreshStatus) {
+    public void loadData(NavContext context, RefreshStatusEnum refreshStatus, boolean isBlank) {
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
         if (account == null) {
             return;
@@ -226,84 +229,62 @@ public class RepoViewModel extends BaseViewModel {
         } else if (RefreshStatusEnum.LOCAL_THEN_REMOTE == refreshStatus) {
             //first load data
             if (context.inRepo()) {
-                FileViewType fileViewType = Settings.FILE_LIST_VIEW_TYPE.queryValue();
-                if (FileViewType.GALLERY == fileViewType) {
-                    loadDirentsFromLocalWithGalleryViewType(account, context, true);
-                } else {
-                    loadBlankDirents(account, context, true);
-                }
+                loadDirentsFromLocal(account, context, true, isBlank);
             } else {
-                loadBlankRepos(account, true);
+                loadReposFromLocal(account, true, isBlank);
             }
         } else if (RefreshStatusEnum.ONLY_LOCAL == refreshStatus) {
             //back/sort/page_change -> ONLY_LOCAL
             if (context.inRepo()) {
-                FileViewType fileViewType = Settings.FILE_LIST_VIEW_TYPE.queryValue();
-                if (FileViewType.GALLERY == fileViewType) {
-                    loadDirentsFromLocalWithGalleryViewType(account, context, false);
-                } else {
-                    loadDirentsFromLocal(account, context, false);
-                }
+                loadDirentsFromLocal(account, context, false, isBlank);
             } else {
-                loadReposFromLocal(account, false);
+                loadReposFromLocal(account, false, isBlank);
             }
         }
     }
 
-    /**
-     * Since the RV of RepoQuickFragment already has an empty layout, when the result list is empty, it will show an empty view.
-     * but this is not what we want, so we need to add a blank model into the list. and then load the local data.
-     */
-    private void loadBlankRepos(Account account, boolean isLoadRemoteData) {
-        removeAllPermission();
-        List<BaseModel> list = new ArrayList<>();
-        list.add(new BlankModel());
-        getObjListLiveData().setValue(list);
+    private void loadReposFromLocal(Account account, boolean isLoadRemoteData, boolean isBlank) {
 
-        loadReposFromLocal(account, isLoadRemoteData);
-    }
-
-    private void loadReposFromLocal(Account account, boolean isLoadRemoteData) {
-        removeAllPermission();
-
-        if (isLoadRemoteData) {
-            getRefreshLiveData().setValue(true);
+        //clear list
+        if (isBlank) {
+            getObjListLiveData().setValue(null);
         }
 
-        Single<List<RepoModel>> singleDB = AppDatabase.getInstance().repoDao().getListByAccount(account.getSignature());
-        addSingleDisposable(singleDB, new Consumer<List<RepoModel>>() {
-            @Override
-            public void accept(List<RepoModel> repoModels) {
+        removeAllPermission();
 
-                if (CollectionUtils.isEmpty(repoModels)) {
-                    loadReposFromRemote(account);
-                    return;
-                }
-
-                List<BaseModel> list = Objs.convertToAdapterList(repoModels, false);
-                if (isLoadRemoteData) {
-                    getObjListLiveData().setValue(list);
-
-                    if (NetworkUtils.isConnected()) {
-                        loadReposFromRemote(account);
-                    } else {
-                        getRefreshLiveData().setValue(false);
+        Single<List<BaseModel>> singleDB = AppDatabase.getInstance().repoDao().getListByAccount(account.getSignature())
+                .flatMap(new Function<List<RepoModel>, SingleSource<List<BaseModel>>>() {
+                    @Override
+                    public SingleSource<List<BaseModel>> apply(List<RepoModel> repoModels) throws Exception {
+                        List<BaseModel> bs = Objs.convertToAdapterList(repoModels, false);
+                        return Single.just(bs);
                     }
+                });
+
+        addSingleDisposable(singleDB, new Consumer<List<BaseModel>>() {
+            @Override
+            public void accept(List<BaseModel> list) {
+
+                getObjListLiveData().setValue(list);
+
+                if (isLoadRemoteData && NetworkUtils.isConnected()) {
+                    loadReposFromRemote(account);
                 } else {
-                    getObjListLiveData().setValue(list);
-                    getRefreshLiveData().setValue(false);
+                    getShowEmptyViewLiveData().setValue(CollectionUtils.isEmpty(list));
                 }
             }
         });
     }
 
     private void loadReposFromRemote(Account account) {
-        removeAllPermission();
-
         if (!NetworkUtils.isConnected()) {
             getRefreshLiveData().setValue(false);
             return;
         }
+
+        removeAllPermission();
+
+        getRefreshLiveData().setValue(true);
 
         //load net data and load local data
         Single<List<BaseModel>> resultSingle = Objs.getReposSingleFromServer(account);
@@ -312,6 +293,7 @@ public class RepoViewModel extends BaseViewModel {
             @Override
             public void accept(List<BaseModel> models) throws Exception {
                 getObjListLiveData().setValue(models);
+                getShowEmptyViewLiveData().setValue(CollectionUtils.isEmpty(models));
                 getRefreshLiveData().setValue(false);
             }
         }, new Consumer<Throwable>() {
@@ -324,68 +306,49 @@ public class RepoViewModel extends BaseViewModel {
                     //post a request
                     completeRemoteWipe();
                 }
+
+                getObjListLiveData().setValue(null);
                 getSeafExceptionLiveData().setValue(seafException);
             }
         });
     }
 
-    private void loadDirentsFromLocalWithGalleryViewType(Account account, NavContext navContext, boolean isLoadRemoteData) {
-        getRefreshLiveData().setValue(true);
+    private void loadDirentsFromLocal(Account account, NavContext navContext, boolean isLoadRemoteData, boolean isBlank) {
+        //clear list
+        if (isBlank) {
+            getObjListLiveData().setValue(null);
+        }
 
-        Single<List<DirentModel>> r = getSingleForLoadDirentsFromLocal(account, navContext);
+        FileViewType fileViewType = Settings.FILE_LIST_VIEW_TYPE.queryValue();
 
-        addSingleDisposable(r, new Consumer<List<DirentModel>>() {
-            @Override
-            public void accept(List<DirentModel> direntModels) throws Exception {
-
-                List<DirentModel> results = CollectionUtils.newArrayList();
-                for (DirentModel direntModel : direntModels) {
-                    if (Utils.isViewableImage(direntModel.name) || Utils.isVideoFile(direntModel.name)) {
-                        results.add(direntModel);
-                    }
-                }
-
-                if (isLoadRemoteData) {
-                    getObjListLiveData().setValue(new ArrayList<>(results));
-
-                    if (NetworkUtils.isConnected()) {
-                        loadDirentsFromRemote(account, navContext);
-                    } else {
-                        getRefreshLiveData().setValue(false);
-                    }
-                } else {
-                    getObjListLiveData().setValue(Objs.parseLocalDirents(results));
-                    getRefreshLiveData().setValue(false);
-                }
-            }
-        });
-    }
-
-    /**
-     * Since the RV of RepoQuickFragment already has an empty layout, when the result list is empty, it will show an empty view.
-     * but this is not what we want, so we need to add a blank model into the list. and then load the local data.
-     */
-    private void loadBlankDirents(Account account, NavContext navContext, boolean isLoadRemoteData) {
-        List<BaseModel> list = new ArrayList<>();
-        list.add(new BlankModel());
-        getObjListLiveData().setValue(list);
-        loadDirentsFromLocal(account, navContext, isLoadRemoteData);
-    }
-
-    private void loadDirentsFromLocal(Account account, NavContext navContext, boolean isLoadRemoteData) {
-        getRefreshLiveData().setValue(true);
-
-        Single<List<BaseModel>> r = getSingleForLoadDirentsFromLocal(account, navContext)
+        Single<List<BaseModel>> r = getLoadLocalDirentsSingle(account, navContext)
                 .flatMap(new Function<List<DirentModel>, SingleSource<List<BaseModel>>>() {
                     @Override
                     public SingleSource<List<BaseModel>> apply(List<DirentModel> direntModels) throws Exception {
-                        return Single.create(new SingleOnSubscribe<List<BaseModel>>() {
-                            @Override
-                            public void subscribe(SingleEmitter<List<BaseModel>> emitter) throws Exception {
-                                List<BaseModel> bs = Objs.parseLocalDirents(direntModels);
-                                emitter.onSuccess(bs);
+                        if (fileViewType == FileViewType.GALLERY) {
+                            List<DirentModel> ds = direntModels.stream().filter(new java.util.function.Predicate<DirentModel>() {
+                                @Override
+                                public boolean test(DirentModel direntModel) {
+                                    return Utils.isViewableImage(direntModel.name) || Utils.isVideoFile(direntModel.name);
+                                }
+                            }).collect(Collectors.toList());
+                            return Single.just(new ArrayList<>(ds));
+                        } else {
+                            List<BaseModel> results = Objs.parseLocalDirents(direntModels);
+
+                            if (!CollectionUtils.isEmpty(results)) {
+                                if (results.size() == 1) {
+                                    results.get(0).item_position = ItemPositionEnum.ALL;
+                                } else if (results.size() == 2) {
+                                    results.get(0).item_position = ItemPositionEnum.START;
+                                    results.get(1).item_position = ItemPositionEnum.END;
+                                } else {
+                                    results.get(0).item_position = ItemPositionEnum.START;
+                                    results.get(results.size() - 1).item_position = ItemPositionEnum.END;
+                                }
                             }
-                        });
+                            return Single.just(results);
+                        }
                     }
                 });
 
@@ -393,36 +356,18 @@ public class RepoViewModel extends BaseViewModel {
             @Override
             public void accept(List<BaseModel> results) throws Exception {
 
-                if (!CollectionUtils.isEmpty(results)) {
-                    if (results.size() == 1) {
-                        results.get(0).item_position = ItemPositionEnum.ALL;
-                    } else if (results.size() == 2) {
-                        results.get(0).item_position = ItemPositionEnum.START;
-                        results.get(1).item_position = ItemPositionEnum.END;
-                    } else {
-                        results.get(0).item_position = ItemPositionEnum.START;
-                        results.get(results.size() - 1).item_position = ItemPositionEnum.END;
-                    }
-                }
+                getObjListLiveData().setValue(results);
 
-                if (isLoadRemoteData) {
-                    getObjListLiveData().setValue(results);
-
-                    if (NetworkUtils.isConnected()) {
-                        loadDirentsFromRemote(account, navContext);
-                    } else {
-                        getRefreshLiveData().setValue(false);
-                    }
+                if (isLoadRemoteData && NetworkUtils.isConnected()) {
+                    loadDirentsFromRemote(account, navContext);
                 } else {
-                    //calculate item_position
-                    getObjListLiveData().setValue(results);
-                    getRefreshLiveData().setValue(false);
+                    getShowEmptyViewLiveData().setValue(CollectionUtils.isEmpty(results));
                 }
             }
         });
     }
 
-    private Single<List<DirentModel>> getSingleForLoadDirentsFromLocal(Account account, NavContext navContext) {
+    private Single<List<DirentModel>> getLoadLocalDirentsSingle(Account account, NavContext navContext) {
         RepoModel repoModel = navContext.getRepoModel();
 
         String repoId = repoModel.repo_id;
@@ -484,6 +429,8 @@ public class RepoViewModel extends BaseViewModel {
             return;
         }
 
+        getRefreshLiveData().setValue(true);
+
         RepoModel repoModel = navContext.getRepoModel();
         String repoId = repoModel.repo_id;
         String repoName = navContext.getRepoModel().repo_name;
@@ -531,23 +478,24 @@ public class RepoViewModel extends BaseViewModel {
             public void accept(List<DirentModel> direntModels) throws Exception {
 
                 FileViewType fileViewType = Settings.FILE_LIST_VIEW_TYPE.queryValue();
-                if (FileViewType.GALLERY == fileViewType) {
-                    List<BaseModel> results = CollectionUtils.newArrayList();
-                    for (DirentModel direntModel : direntModels) {
-                        if (Utils.isViewableImage(direntModel.name) || Utils.isVideoFile(direntModel.name)) {
-                            results.add(direntModel);
-                        }
-                    }
 
-                    getObjListLiveData().setValue(results);
-                } else if (FileViewType.GRID == fileViewType) {
-                    List<BaseModel> results = new ArrayList<>(direntModels);
-                    getObjListLiveData().setValue(new ArrayList<>(results));
+                List<BaseModel> results = new ArrayList<>();
+
+                if (FileViewType.GALLERY == fileViewType) {
+                    List<DirentModel> ds = direntModels.stream().filter(new java.util.function.Predicate<DirentModel>() {
+                        @Override
+                        public boolean test(DirentModel direntModel) {
+                            return Utils.isViewableImage(direntModel.name) || Utils.isVideoFile(direntModel.name);
+                        }
+                    }).collect(Collectors.toList());
+
+                    results.addAll(ds);
                 } else {
-                    List<BaseModel> results = new ArrayList<>(direntModels);
-                    getObjListLiveData().setValue(results);
+                    results.addAll(direntModels);
                 }
 
+                getObjListLiveData().setValue(results);
+                getShowEmptyViewLiveData().setValue(CollectionUtils.isEmpty(results));
                 getRefreshLiveData().setValue(false);
             }
         }, new Consumer<Throwable>() {
@@ -560,6 +508,8 @@ public class RepoViewModel extends BaseViewModel {
                     //post a request
                     completeRemoteWipe();
                 }
+
+                getObjListLiveData().setValue(null);
                 getSeafExceptionLiveData().setValue(seafException);
             }
         });

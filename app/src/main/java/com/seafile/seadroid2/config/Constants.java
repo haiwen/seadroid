@@ -10,7 +10,6 @@ public class Constants {
 
 
     public static final int PERIODIC_SCAN_INTERVALS = 1000 * 60 * 5; //5m
-    public static final int PASSWORD_MINIMUM_LENGTH = 8;
     public static final String URL_PRIVACY = "https://www.seafile.com/privacy/";
 
     public static class ObjType {

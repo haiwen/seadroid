@@ -26,13 +26,14 @@ import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
+import com.seafile.seadroid2.framework.worker.reupoad.DownloadedFileMonitorWorker;
 
 import java.util.UUID;
 
 
 /**
  * Manually select file upload
- *
+ * <p>
  * Worker Tag:
  *
  * @see BackgroundJobManagerImpl#TAG_ALL
@@ -78,6 +79,9 @@ public class FileUploadWorker extends BaseUploadWorker {
      * The task here may not be from the current account
      */
     private ListenableWorker.Result start() {
+
+        SLogs.d(FileUploadWorker.class, "started execution");
+
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
         if (account == null) {
             return returnSuccess();
@@ -140,7 +144,7 @@ public class FileUploadWorker extends BaseUploadWorker {
         }
 
         showToast(R.string.upload_finished);
-        SLogs.e("file upload: complete");
+        SLogs.d(FileUploadWorker.class, "complete");
 
         Bundle b = new Bundle();
         b.putString(TransferWorker.KEY_DATA_RESULT, interruptibleExceptionMsg);

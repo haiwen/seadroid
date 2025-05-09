@@ -26,7 +26,6 @@ import com.seafile.seadroid2.config.AbsLayoutItemType;
 import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.config.GlideLoadConfig;
 import com.seafile.seadroid2.databinding.ItemAccountBinding;
-import com.seafile.seadroid2.databinding.ItemBlankBinding;
 import com.seafile.seadroid2.databinding.ItemDirentBinding;
 import com.seafile.seadroid2.databinding.ItemDirentGalleryBinding;
 import com.seafile.seadroid2.databinding.ItemDirentGridBinding;
@@ -40,7 +39,6 @@ import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.model.BaseModel;
-import com.seafile.seadroid2.framework.model.BlankModel;
 import com.seafile.seadroid2.framework.model.GroupItemModel;
 import com.seafile.seadroid2.framework.model.search.SearchModel;
 import com.seafile.seadroid2.framework.util.GlideApp;
@@ -49,7 +47,6 @@ import com.seafile.seadroid2.framework.util.URLs;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.ui.base.adapter.BaseMultiAdapter;
 import com.seafile.seadroid2.ui.repo.vh.AccountViewHolder;
-import com.seafile.seadroid2.ui.repo.vh.BlankViewHolder;
 import com.seafile.seadroid2.ui.repo.vh.DirentGalleryViewHolder;
 import com.seafile.seadroid2.ui.repo.vh.DirentGridViewHolder;
 import com.seafile.seadroid2.ui.repo.vh.DirentViewHolder;
@@ -231,18 +228,6 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
             public void onBind(@NonNull UnsupportedViewHolder holder, int position, @Nullable BaseModel item, @NonNull List<?> payloads) {
                 super.onBind(holder, position, item, payloads);
             }
-        }).addItemType(AbsLayoutItemType.BLANK, new OnMultiItem<BaseModel, BlankViewHolder>() {
-            @NonNull
-            @Override
-            public BlankViewHolder onCreate(@NonNull Context context, @NonNull ViewGroup viewGroup, int i) {
-                ItemBlankBinding binding = ItemBlankBinding.inflate(LayoutInflater.from(context), viewGroup, false);
-                return new BlankViewHolder(binding);
-            }
-
-            @Override
-            public void onBind(@NonNull BlankViewHolder holder, int i, @Nullable BaseModel baseModel) {
-
-            }
         }).onItemViewType(new OnItemViewTypeListener<BaseModel>() {
             @Override
             public int onItemViewType(int i, @NonNull List<? extends BaseModel> list) {
@@ -262,8 +247,6 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
                     return AbsLayoutItemType.SEARCH;
                 } else if (list.get(i) instanceof Account) {
                     return AbsLayoutItemType.ACCOUNT;
-                } else if (list.get(i) instanceof BlankModel) {
-                    return AbsLayoutItemType.BLANK;
                 }
                 return AbsLayoutItemType.NOT_SUPPORTED;
             }
@@ -573,7 +556,8 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
 //        holder.binding.getRoot().setBackground(AnimatedStateListDrawableCompatUtils.createDrawableCompat(getContext()));
 
         //set background color for item
-        holder.itemView.setBackground(noneShapeBackgroundDrawable);
+//        holder.itemView.setBackground(noneShapeBackgroundDrawable);
+        holder.itemView.setBackground(null);
 
         if (model.isDir() || repoEncrypted || (!Utils.isViewableImage(model.name) && !Utils.isVideoFile(model.name))) {
             holder.binding.itemIcon.setImageResource(model.getIcon());
@@ -810,38 +794,39 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
     public void filterListBySearchKeyword(String searchContent) {
         this.searchContent = searchContent;
 
-        if (CollectionUtils.isEmpty(finalList)) {
+        if (CollectionUtils.isEmpty(cacheLastList)) {
+            submitList(null);
             return;
         }
 
         List<BaseModel> filterList;
         if (!TextUtils.isEmpty(searchContent)) {
-            filterList = finalList.stream().filter(_searchFilter).collect(Collectors.toList());
+            filterList = cacheLastList.stream().filter(_searchFilter).collect(Collectors.toList());
         } else {
-            filterList = finalList;
+            filterList = cacheLastList;
         }
         notify(filterList);
     }
 
-    private List<BaseModel> finalList;
+    private List<BaseModel> cacheLastList;
 
     public void notifyDataChanged(List<BaseModel> list) {
         if (CollectionUtils.isEmpty(list)) {
-            finalList = null;
+            cacheLastList = null;
             submitList(null);
             return;
         }
 
-        finalList = new ArrayList<>(list);
+        cacheLastList = new ArrayList<>(list);
         if (CollectionUtils.isEmpty(getItems())) {
-            submitList(finalList);
+            submitList(cacheLastList);
             return;
         }
 
-        if (finalList.size() == 1) {
-            submitList(finalList);
+        if (cacheLastList.size() == 1) {
+            submitList(cacheLastList);
         } else {
-            notify(finalList);
+            notify(cacheLastList);
         }
     }
 
