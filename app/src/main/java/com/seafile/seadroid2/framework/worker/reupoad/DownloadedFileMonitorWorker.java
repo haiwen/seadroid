@@ -105,7 +105,7 @@ public class DownloadedFileMonitorWorker extends BaseUploadWorker {
                 break;
             }
 
-            SLogs.d(DownloadedFileMonitorWorker.class, "downloaded filePath: " + missFieldDataTransferModel.full_path);
+            SLogs.d(DownloadedFileMonitorWorker.class, "downloaded file path: " + missFieldDataTransferModel.full_path);
             File file = new File(missFieldDataTransferModel.full_path);
             if (!FileUtils.isFileExists(file)) {
                 continue;
