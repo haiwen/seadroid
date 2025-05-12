@@ -1,14 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/dialog_root_container"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-    <LinearLayout
-        android:id="@+id/container"
+    <TextView
+        android:id="@+id/title"
+        style="@style/TextAppearance.Material3.TitleMedium"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginHorizontal="?attr/dialogPreferredPadding"
         android:layout_marginTop="?attr/dialogPreferredPadding"
+        android:text="@string/app_name" />
+
+    <LinearLayout
+        android:id="@+id/child_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
         android:orientation="vertical"
         android:paddingHorizontal="?attr/dialogPreferredPadding" />
 

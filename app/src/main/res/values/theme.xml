@@ -21,14 +21,14 @@
         <item name="actionModeCloseDrawable">@drawable/baseline_close_24</item>
 
         <item name="textInputStyle">@style/App.Widget.TextInput</item>
-        <item name="searchViewStyle">@style/SearchViewStyle</item>
+        <item name="searchViewStyle">@style/App.Widget.SearchView</item>
 
         <item name="bottomSheetDialogTheme">@style/ThemeOverlay.App.BottomSheetDialog</item>
         <item name="materialButtonStyle">@style/App.Widget.Button</item>
-        <item name="materialAlertDialogTheme">@style/AppCompatAlertDialogStyle</item>
+        <item name="materialAlertDialogTheme">@style/App.AppCompat.AlertDialog</item>
         <item name="bottomNavigationStyle">@style/App.Widget.BottomNavigationView</item>
-        <item name="actionOverflowMenuStyle">@style/OverflowMenuStyle</item>
-
+        <item name="actionOverflowMenuStyle">@style/App.Widget.OverflowMenu</item>
+        <item name="editTextStyle">@style/App.Widget.EditText</item>
         <item name="simpleMenuPreferenceStyle">@style/Preference.Material3.SimpleMenuPreference
         </item>
         <item name="switchPreferenceCompatStyle">
@@ -60,7 +60,9 @@
 
     <!-- BottomSheet -->
     <style name="ThemeOverlay.App.BottomSheetDialog" parent="ThemeOverlay.Material3.BottomSheetDialog">
-        <item name="bottomSheetStyle">@style/ModalBottomSheetDialog</item>
+        <item name="bottomSheetStyle">@style/App.Widget.BottomSheetDialog</item>
+        <item name="android:windowSoftInputMode">adjustNothing</item>
+        <item name="android:windowIsFloating">false</item>
     </style>
 
     <style name="AppTheme.Material3" parent="BaseTheme.App.Toolbar">

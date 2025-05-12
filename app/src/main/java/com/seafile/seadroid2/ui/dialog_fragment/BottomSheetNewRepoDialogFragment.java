@@ -1,13 +1,19 @@
 package com.seafile.seadroid2.ui.dialog_fragment;
 
+import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
+import android.text.method.HideReturnsTransformationMethod;
+import android.text.method.PasswordTransformationMethod;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.lifecycle.Observer;
 
+import com.blankj.utilcode.util.KeyboardUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.google.android.material.materialswitch.MaterialSwitch;
 import com.google.android.material.textfield.TextInputEditText;
@@ -25,37 +31,82 @@ public class BottomSheetNewRepoDialogFragment extends RequestBottomSheetDialogFr
         return R.layout.dialog_new_repo;
     }
 
+    @Override
+    protected String getTitle() {
+        return getString(R.string.create_new_repo);
+    }
+
     private int passwordMinLength = 4;
 
     @Override
     protected void initView(LinearLayout parentView) {
         super.initView(parentView);
 
-        TextView title = parentView.findViewById(R.id.title);
-        title.setText(R.string.create_new_repo);
-
         passwordMinLength = getResources().getInteger(R.integer.minimum_password_length);
 
+        TextInputEditText inputEditText1 = getDialogView().findViewById(R.id.edit_text_pwd1);
+        TextInputEditText inputEditText2 = getDialogView().findViewById(R.id.edit_text_pwd2);
+
+        TextInputLayout inputLayout1 = getDialogView().findViewById(R.id.edit_text_pwd1_layout);
+        inputLayout1.setEndIconOnClickListener(v -> {
+            if (inputEditText1.getTransformationMethod() instanceof PasswordTransformationMethod) {
+                inputEditText1.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+                inputLayout1.setEndIconDrawable(R.drawable.icon_eye_open);
+            } else {
+                inputEditText1.setTransformationMethod(PasswordTransformationMethod.getInstance());
+                inputLayout1.setEndIconDrawable(R.drawable.icon_eye_close);
+            }
+
+            String input = inputEditText1.getText().toString().trim();
+            if (!TextUtils.isEmpty(input)) {
+                inputEditText1.setSelection(input.length());
+            }
+        });
+
+        TextInputLayout inputLayout2 = getDialogView().findViewById(R.id.edit_text_pwd2_layout);
+        inputLayout2.setEndIconOnClickListener(v -> {
+            if (inputEditText2.getTransformationMethod() instanceof PasswordTransformationMethod) {
+                inputEditText2.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+                inputLayout2.setEndIconDrawable(R.drawable.icon_eye_open);
+            } else {
+                inputEditText2.setTransformationMethod(PasswordTransformationMethod.getInstance());
+                inputLayout2.setEndIconDrawable(R.drawable.icon_eye_close);
+            }
+
+            String input = inputEditText2.getText().toString().trim();
+            if (!TextUtils.isEmpty(input)) {
+                inputEditText2.setSelection(input.length());
+            }
+        });
+
+        inputEditText1.setHint(getResources().getString(R.string.passwd_min_len_limit_hint, passwordMinLength));
+
         MaterialSwitch materialSwitch = parentView.findViewById(R.id.widget_switch);
-        TextInputLayout pwd1 = parentView.findViewById(R.id.new_repo_input_layout_pwd_1);
-        TextInputLayout pwd2 = parentView.findViewById(R.id.new_repo_input_layout_pwd_2);
-        pwd1.setHint(String.format(
-                getResources().getString(R.string.passwd_min_len_limit_hint),
-                passwordMinLength
-        ));
-
-        TextInputEditText pwdt1 = parentView.findViewById(R.id.new_repo_edit_pwd_1);
-        TextInputEditText pwdt2 = parentView.findViewById(R.id.new_repo_edit_pwd_2);
-
         materialSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            pwd1.setVisibility(isChecked ? View.VISIBLE : View.GONE);
-            pwd2.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+            inputLayout1.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+            inputLayout2.setVisibility(isChecked ? View.VISIBLE : View.GONE);
 
-            pwdt1.setText(null);
-            pwdt2.setText(null);
+            inputEditText1.setText(null);
+            inputEditText2.setText(null);
         });
     }
 
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        EditText editText = getDialogView().findViewById(R.id.edit_name);
+        if (editText == null) {
+            return;
+        }
+        editText.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                editText.requestFocus();
+                KeyboardUtils.showSoftInput(editText);
+            }
+        }, 200);
+    }
 
     public void initViewModel() {
         getViewModel().getSeafExceptionLiveData().observe(this, new Observer<SeafException>() {
@@ -64,7 +115,7 @@ public class BottomSheetNewRepoDialogFragment extends RequestBottomSheetDialogFr
                 ToastUtils.showLong(e.getMessage());
                 refreshData(false);
 
-                dismiss();
+                dismissDialogWithIme();
             }
         });
 
@@ -74,7 +125,7 @@ public class BottomSheetNewRepoDialogFragment extends RequestBottomSheetDialogFr
 
             refreshData();
 
-            dismiss();
+            dismissDialogWithIme();
         });
 
         getViewModel().getRefreshLiveData().observe(this, this::showLoading);
@@ -86,11 +137,15 @@ public class BottomSheetNewRepoDialogFragment extends RequestBottomSheetDialogFr
             return;
         }
 
-        TextInputEditText name = getDialogView().findViewById(R.id.new_repo_edit_name);
+        EditText name = getDialogView().findViewById(R.id.edit_name);
+
+
+
         MaterialSwitch materialSwitch = getDialogView().findViewById(R.id.widget_switch);
         if (materialSwitch.isChecked()) {
-            TextInputEditText pwd1 = getDialogView().findViewById(R.id.new_repo_edit_pwd_1);
-            String pwd1Str = pwd1.getText() == null ? "" : pwd1.getText().toString();
+
+            TextInputEditText inputEditText1 = getDialogView().findViewById(R.id.edit_text_pwd1);
+            String pwd1Str = inputEditText1.getText() == null ? "" : inputEditText1.getText().toString();
 
             String nameStr = name.getText() == null ? "" : name.getText().toString();
             nameStr = StringUtils.trimEnd(nameStr, " ");
@@ -104,7 +159,7 @@ public class BottomSheetNewRepoDialogFragment extends RequestBottomSheetDialogFr
 
     private boolean checkData() {
 
-        TextInputEditText name = getDialogView().findViewById(R.id.new_repo_edit_name);
+        EditText name = getDialogView().findViewById(R.id.edit_name);
         Editable editable = name.getText();
         if (editable == null || editable.length() == 0 || TextUtils.isEmpty(editable.toString().trim())) {
             ToastUtils.showLong(R.string.repo_name_empty);
@@ -116,11 +171,12 @@ public class BottomSheetNewRepoDialogFragment extends RequestBottomSheetDialogFr
             return true;
         }
 
-        TextInputEditText pwd1 = getDialogView().findViewById(R.id.new_repo_edit_pwd_1);
-        TextInputEditText pwd2 = getDialogView().findViewById(R.id.new_repo_edit_pwd_2);
 
-        Editable editable1 = pwd1.getText();
-        Editable editable2 = pwd2.getText();
+        TextInputEditText inputEditText1 = getDialogView().findViewById(R.id.edit_text_pwd1);
+        TextInputEditText inputEditText2 = getDialogView().findViewById(R.id.edit_text_pwd2);
+
+        Editable editable1 = inputEditText1.getText();
+        Editable editable2 = inputEditText2.getText();
         boolean editableBool1 = editable1 == null || editable1.length() == 0 || TextUtils.isEmpty(editable1.toString().trim());
         boolean editableBool2 = editable2 == null || editable2.length() == 0 || TextUtils.isEmpty(editable2.toString().trim());
 

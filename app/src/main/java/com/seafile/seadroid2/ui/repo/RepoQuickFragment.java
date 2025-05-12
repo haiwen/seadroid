@@ -88,6 +88,7 @@ import com.seafile.seadroid2.ui.base.fragment.BaseFragmentWithVM;
 import com.seafile.seadroid2.ui.bottomsheetmenu.BottomSheetMenuAdapter;
 import com.seafile.seadroid2.ui.dialog_fragment.BottomSheetNewDirFileDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.BottomSheetNewRepoDialogFragment;
+import com.seafile.seadroid2.ui.dialog_fragment.BottomSheetPasswordDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.BottomSheetRenameDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.CopyMoveDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.DeleteFileDialogFragment;
@@ -1229,9 +1230,13 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     }
 
     private void showPasswordDialogCallback(String repo_id, String repo_name, OnResultListener<RepoModel> resultListener) {
-        PasswordDialogFragment dialogFragment = PasswordDialogFragment.newInstance(repo_id, repo_name);
-        dialogFragment.setResultListener(resultListener);
-        dialogFragment.show(getChildFragmentManager(), PasswordDialogFragment.class.getSimpleName());
+        BottomSheetPasswordDialogFragment passwordDialogFragment = BottomSheetPasswordDialogFragment.newInstance(repo_id, repo_name);
+        passwordDialogFragment.setResultListener(resultListener);
+        passwordDialogFragment.show(getChildFragmentManager(), BottomSheetPasswordDialogFragment.class.getSimpleName());
+
+//        PasswordDialogFragment dialogFragment = PasswordDialogFragment.newInstance(repo_id, repo_name);
+//        dialogFragment.setResultListener(resultListener);
+//        dialogFragment.show(getChildFragmentManager(), PasswordDialogFragment.class.getSimpleName());
     }
 
     private void saveScrollPosition() {

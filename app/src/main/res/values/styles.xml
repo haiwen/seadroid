@@ -35,14 +35,14 @@
     </style>
 
 
-    <style name="SearchViewStyle" parent="Widget.AppCompat.SearchView">
+    <style name="App.Widget.SearchView" parent="Widget.AppCompat.SearchView">
         <item name="searchIcon">@null</item>
         <item name="searchHintIcon">@null</item>
         <item name="layout">@layout/layout_search_view</item>
         <item name="queryBackground">@null</item>
     </style>
 
-
+    <!-- ActionMode -->
     <style name="App.ActionMode.LightTheme" parent="Widget.Material3.ActionMode">
         <item name="android:background">@color/bar_background_color</item>
         <item name="background">@color/bar_background_color</item>
@@ -50,7 +50,7 @@
         <item name="titleTextStyle">@style/TextAppearance.Material3.ActionBar.Subtitle</item>
     </style>
 
-
+    <!-- BottomNavigationView -->
     <style name="App.Widget.BottomNavigationView" parent="Widget.Material3.BottomNavigationView">
         <item name="itemActiveIndicatorStyle">@null</item>
         <item name="android:background">@color/bar_background_color</item>
@@ -64,7 +64,8 @@
         <item name="itemPaddingBottom">14dp</item>
     </style>
 
-    <style name="OverflowMenuStyle" parent="@style/Widget.Material3.PopupMenu.Overflow">
+    <!-- OverflowMenuStyle -->
+    <style name="App.Widget.OverflowMenu" parent="@style/Widget.Material3.PopupMenu.Overflow">
         <item name="overlapAnchor">false</item>
         <item name="android:dropDownVerticalOffset">10dip</item>
         <item name="android:dropDownHorizontalOffset">-10dip</item>
@@ -76,7 +77,7 @@
     </style>
 
     <!-- BottomSheet -->
-    <style name="ModalBottomSheetDialog" parent="Widget.Material3.BottomSheet.Modal">
+    <style name="App.Widget.BottomSheetDialog" parent="Widget.Material3.BottomSheet.Modal">
         <item name="backgroundTint">@color/bar_background_color</item>
         <item name="shapeAppearance">@style/ShapeAppearance.App.LargeComponent</item>
     </style>
@@ -87,16 +88,16 @@
     </style>
 
 
-    <style name="AppCompatAlertDialogStyle" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+    <style name="App.AppCompat.AlertDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
         <item name="alertDialogStyle">@style/App.AlertDialog.Material3</item>
-        <item name="materialAlertDialogTitleTextStyle">@style/AppCompatAlertDialog.TitleTextStyle
+        <item name="materialAlertDialogTitleTextStyle">@style/App.AppCompat.AlertDialog.Title
         </item>
 
         <item name="android:background">@color/white</item>
 
-        <item name="buttonBarPositiveButtonStyle">@style/AppCompatAlertDialog.ButtonStyle</item>
-        <item name="buttonBarNegativeButtonStyle">@style/AppCompatAlertDialog.ButtonStyle</item>
-        <item name="buttonBarNeutralButtonStyle">@style/AppCompatAlertDialog.ButtonStyle</item>
+        <item name="buttonBarPositiveButtonStyle">@style/App.AppCompat.AlertDialog.Button</item>
+        <item name="buttonBarNegativeButtonStyle">@style/App.AppCompat.AlertDialog.Button</item>
+        <item name="buttonBarNeutralButtonStyle">@style/App.AppCompat.AlertDialog.Button</item>
 
         <!--        <item name="android:windowElevation">0dp</item>-->
 
@@ -106,12 +107,12 @@
         <item name="colorOnSurface">@color/md_theme_onSurface</item>
     </style>
 
-    <style name="AppCompatAlertDialog.TitleTextStyle" parent="MaterialAlertDialog.MaterialComponents.Title.Text">
+    <style name="App.AppCompat.AlertDialog.Title" parent="MaterialAlertDialog.MaterialComponents.Title.Text">
         <item name="android:textColor">@color/light_black</item>
         <item name="android:textSize">20sp</item>
     </style>
 
-    <style name="AppCompatAlertDialog.ButtonStyle" parent="Widget.Material3.Button.TextButton.Dialog">
+    <style name="App.AppCompat.AlertDialog.Button" parent="Widget.Material3.Button.TextButton.Dialog">
         <item name="android:textColor">@color/fancy_orange</item>
         <item name="android:textSize">16sp</item>
     </style>
@@ -172,6 +173,14 @@
         <item name="colorError">@color/red</item>
     </style>
 
+    <!-- EditText -->
+    <style name="App.Widget.EditText" parent="Widget.AppCompat.EditText">
+        <item name="android:background">@drawable/shape_solid_grey88_radius_8</item>
+        <item name="android:textColor">@color/bar_title_color</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:paddingHorizontal">16dp</item>
+        <item name="android:paddingVertical">16dp</item>
+    </style>
 
     <!-- Preference -->
     <style name="Preference.Material3.SimpleMenuPreference" parent="Preference.SimpleMenuPreference">

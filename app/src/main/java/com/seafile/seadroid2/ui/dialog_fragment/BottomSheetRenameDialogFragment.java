@@ -3,23 +3,23 @@ package com.seafile.seadroid2.ui.dialog_fragment;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.Observer;
 
+import com.blankj.utilcode.util.KeyboardUtils;
 import com.blankj.utilcode.util.ToastUtils;
+import com.google.android.material.textfield.TextInputEditText;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
-import com.seafile.seadroid2.framework.model.ResultModel;
-import com.seafile.seadroid2.framework.model.dirents.FileCreateModel;
 import com.seafile.seadroid2.framework.util.StringUtils;
 import com.seafile.seadroid2.ui.base.fragment.RequestBottomSheetDialogFragmentWithVM;
-import com.seafile.seadroid2.ui.dialog_fragment.viewmodel.NewDirViewModel;
 import com.seafile.seadroid2.ui.dialog_fragment.viewmodel.RenameRepoViewModel;
 
 public class BottomSheetRenameDialogFragment extends RequestBottomSheetDialogFragmentWithVM<RenameRepoViewModel> {
@@ -85,6 +85,15 @@ public class BottomSheetRenameDialogFragment extends RequestBottomSheetDialogFra
         return R.layout.dialog_new_dir_file;
     }
 
+    @Override
+    protected String getTitle() {
+        int res = getTitleRes();
+        if (res != 0) {
+            return getString(res);
+        }
+        return null;
+    }
+
 
     public int getTitleRes() {
         if (TextUtils.equals("repo", type)) {
@@ -103,7 +112,7 @@ public class BottomSheetRenameDialogFragment extends RequestBottomSheetDialogFra
             return;
         }
 
-        EditText editText = getDialogView().findViewById(R.id.new_edit_name);
+        EditText editText = getDialogView().findViewById(R.id.edit_name);
         String newName = editText.getText().toString();
         newName = StringUtils.trimEnd(newName, " ");
 
@@ -121,12 +130,25 @@ public class BottomSheetRenameDialogFragment extends RequestBottomSheetDialogFra
     protected void initView(LinearLayout containerView) {
         super.initView(containerView);
 
-
-        TextView title = containerView.findViewById(R.id.title);
-        title.setText(getTitleRes());
-
-        EditText editText = getDialogView().findViewById(R.id.new_edit_name);
+        EditText editText = getDialogView().findViewById(R.id.edit_name);
         editText.setText(curName);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        EditText editText = getDialogView().findViewById(R.id.edit_name);
+        if (editText == null) {
+            return;
+        }
+        editText.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                editText.requestFocus();
+                KeyboardUtils.showSoftInput(editText);
+            }
+        }, 200);
     }
 
     @Override
@@ -137,7 +159,7 @@ public class BottomSheetRenameDialogFragment extends RequestBottomSheetDialogFra
             @Override
             public void onChanged(SeafException e) {
                 if (e != null) {
-                    setInputError(R.id.text_input, e.getMessage());
+                    ToastUtils.showLong(e.getMessage());
                 }
             }
         });
@@ -149,7 +171,7 @@ public class BottomSheetRenameDialogFragment extends RequestBottomSheetDialogFra
 
                 refreshData();
 
-                dismiss();
+                dismissDialogWithIme();
             }
         });
 
@@ -162,7 +184,7 @@ public class BottomSheetRenameDialogFragment extends RequestBottomSheetDialogFra
     }
 
     private boolean checkData() {
-        EditText editText = getDialogView().findViewById(R.id.new_edit_name);
+        EditText editText = getDialogView().findViewById(R.id.edit_name);
         Editable editable = editText.getText();
         if (editable == null || editable.length() == 0) {
             return false;

@@ -32,13 +32,13 @@
         <item name="itemPaddingBottom">14dp</item>
     </style>
 
-    <style name="AppCompatAlertDialogStyle" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+    <style name="App.AppCompat.AlertDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
         <item name="alertDialogStyle">@style/App.AlertDialog.Material3</item>
-        <item name="materialAlertDialogTitleTextStyle">@style/AppCompatAlertDialog.TitleTextStyle
+        <item name="materialAlertDialogTitleTextStyle">@style/App.AppCompat.AlertDialog.Title
         </item>
-        <item name="buttonBarPositiveButtonStyle">@style/AppCompatAlertDialog.ButtonStyle</item>
-        <item name="buttonBarNegativeButtonStyle">@style/AppCompatAlertDialog.ButtonStyle</item>
-        <item name="buttonBarNeutralButtonStyle">@style/AppCompatAlertDialog.ButtonStyle</item>
+        <item name="buttonBarPositiveButtonStyle">@style/App.AppCompat.AlertDialog.Button</item>
+        <item name="buttonBarNegativeButtonStyle">@style/App.AppCompat.AlertDialog.Button</item>
+        <item name="buttonBarNeutralButtonStyle">@style/App.AppCompat.AlertDialog.Button</item>
 
         <item name="colorPrimary">@color/white</item>
         <!--        <item name="colorSecondary">@color/md_theme_secondary</item>-->
@@ -47,12 +47,12 @@
     </style>
 
 
-    <style name="AppCompatAlertDialog.TitleTextStyle" parent="MaterialAlertDialog.MaterialComponents.Title.Text">
+    <style name="App.AppCompat.AlertDialog.Title" parent="MaterialAlertDialog.MaterialComponents.Title.Text">
         <item name="android:textColor">@color/light_gray</item>
         <item name="android:textSize">20sp</item>
     </style>
 
-    <style name="AppCompatAlertDialog.ButtonStyle" parent="Widget.Material3.Button.TextButton.Dialog">
+    <style name="App.AppCompat.AlertDialog.Button" parent="Widget.Material3.Button.TextButton.Dialog">
         <item name="android:textColor">@color/fancy_orange</item>
         <item name="android:textSize">16sp</item>
     </style>

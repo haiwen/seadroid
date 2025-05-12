@@ -5,36 +5,40 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.Observer;
 
+import com.blankj.utilcode.util.KeyboardUtils;
+import com.blankj.utilcode.util.ToastUtils;
+import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.model.TResultModel;
-import com.seafile.seadroid2.ui.base.fragment.RequestCustomDialogFragmentWithVM;
+import com.seafile.seadroid2.ui.base.fragment.RequestBottomSheetDialogFragmentWithVM;
 import com.seafile.seadroid2.ui.dialog_fragment.listener.OnResultListener;
 import com.seafile.seadroid2.ui.dialog_fragment.viewmodel.PasswordViewModel;
 
-public class PasswordDialogFragment extends RequestCustomDialogFragmentWithVM<PasswordViewModel> {
-    private String repoId;
-    private String repoName;
+public class BottomSheetPasswordDialogFragment extends RequestBottomSheetDialogFragmentWithVM<PasswordViewModel> {
 
+    private String repoName, repoId;
     private OnResultListener<RepoModel> resultListener;
 
     public void setResultListener(OnResultListener<RepoModel> resultListener) {
         this.resultListener = resultListener;
     }
 
-    public static PasswordDialogFragment newInstance(String repoId, String repoName) {
+    public static BottomSheetPasswordDialogFragment newInstance(String repoId, String repoName) {
         Bundle args = new Bundle();
         args.putString("repoId", repoId);
         args.putString("repoName", repoName);
-        PasswordDialogFragment fragment = new PasswordDialogFragment();
+        BottomSheetPasswordDialogFragment fragment = new BottomSheetPasswordDialogFragment();
         fragment.setArguments(args);
         return fragment;
     }
@@ -42,6 +46,7 @@ public class PasswordDialogFragment extends RequestCustomDialogFragmentWithVM<Pa
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         Bundle args = getArguments();
         if (args != null) {
             repoId = args.getString("repoId");
@@ -51,46 +56,24 @@ public class PasswordDialogFragment extends RequestCustomDialogFragmentWithVM<Pa
         }
     }
 
+
     @Override
     protected int getLayoutId() {
-        return R.layout.view_dialog_password;
+        return R.layout.dialog_password_input;
     }
 
     @Override
-    public String getDialogTitleString() {
+    protected String getTitle() {
         return repoName;
     }
 
     @Override
-    protected void onNegativeClicked() {
+    protected void initView(LinearLayout parentView) {
+        super.initView(parentView);
 
-        if (resultListener != null) {
-            resultListener.onResultData(null);
-        }
+        TextInputEditText editText = getDialogView().findViewById(R.id.password);
 
-        super.onNegativeClicked();
-    }
-
-    @Override
-    protected void onPositiveClick() {
-        if (!checkData()) {
-            return;
-        }
-
-        EditText editText = getDialogView().findViewById(R.id.password);
-        String password = editText.getText().toString();
-
-        //verify password
-        getViewModel().verifyPwd(repoId, password);
-    }
-
-    @Override
-    protected void initView(LinearLayout containerView) {
-        super.initView(containerView);
-
-        EditText editText = getDialogView().findViewById(R.id.password);
-        TextInputLayout passwordInputLayout = getDialogView().findViewById(R.id.password_hint);
-
+        TextInputLayout passwordInputLayout = getDialogView().findViewById(R.id.password_layout);
         passwordInputLayout.setEndIconOnClickListener(v -> {
             if (editText.getTransformationMethod() instanceof PasswordTransformationMethod) {
                 editText.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
@@ -108,13 +91,46 @@ public class PasswordDialogFragment extends RequestCustomDialogFragmentWithVM<Pa
     }
 
     @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        TextInputEditText editText = getDialogView().findViewById(R.id.password);
+        if (editText == null) {
+            return;
+        }
+        editText.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                editText.requestFocus();
+                KeyboardUtils.showSoftInput(editText);
+            }
+        }, 200);
+
+    }
+
+    @Override
+    protected void onPositiveClick() {
+        if (!checkData()) {
+            return;
+        }
+
+        TextInputEditText editText = getDialogView().findViewById(R.id.password);
+        String password = editText.getText().toString();
+
+        //verify password
+        getViewModel().verifyPwd(repoId, password);
+    }
+
+    @Override
     protected void initViewModel() {
         super.initViewModel();
 
         getViewModel().getSeafExceptionLiveData().observe(this, new Observer<SeafException>() {
             @Override
             public void onChanged(SeafException seafException) {
-                setInputError(R.id.password_hint, seafException.getMessage());
+                if (seafException != null) {
+                    ToastUtils.showLong(seafException.getMessage());
+                }
             }
         });
 
@@ -127,9 +143,9 @@ public class PasswordDialogFragment extends RequestCustomDialogFragmentWithVM<Pa
                         resultListener.onResultData(tResultModel.data);
                     }
 
-                    dismiss();
+                    dismissDialogWithIme();
                 } else if (!TextUtils.isEmpty(tResultModel.error_msg)) {
-                    setInputError(R.id.password_hint, tResultModel.error_msg);
+                    ToastUtils.showLong(tResultModel.error_msg);
                 }
             }
         });
