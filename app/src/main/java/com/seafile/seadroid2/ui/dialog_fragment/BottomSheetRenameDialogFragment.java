@@ -5,6 +5,7 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.lifecycle.Observer;
@@ -14,22 +15,22 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.framework.model.ResultModel;
+import com.seafile.seadroid2.framework.model.dirents.FileCreateModel;
 import com.seafile.seadroid2.framework.util.StringUtils;
-import com.seafile.seadroid2.ui.base.fragment.RequestCustomDialogFragmentWithVM;
+import com.seafile.seadroid2.ui.base.fragment.RequestBottomSheetDialogFragmentWithVM;
+import com.seafile.seadroid2.ui.dialog_fragment.viewmodel.NewDirViewModel;
 import com.seafile.seadroid2.ui.dialog_fragment.viewmodel.RenameRepoViewModel;
 
-@Deprecated
-public class RenameDialogFragment extends RequestCustomDialogFragmentWithVM<RenameRepoViewModel> {
-
+public class BottomSheetRenameDialogFragment extends RequestBottomSheetDialogFragmentWithVM<RenameRepoViewModel> {
     /**
      * "repo" or "dir" or "file"
      */
     private String type;
     private String curName, repoId, repoName, curPath;
 
-    public static RenameDialogFragment newInstance(String curName, String repoId, String type) {
-
-        RenameDialogFragment fragment = new RenameDialogFragment();
+    public static BottomSheetRenameDialogFragment newInstance(String curName, String repoId, String type) {
+        BottomSheetRenameDialogFragment fragment = new BottomSheetRenameDialogFragment();
         Bundle bundle = new Bundle();
         bundle.putString("name", curName);
         bundle.putString("path", "/");
@@ -39,9 +40,9 @@ public class RenameDialogFragment extends RequestCustomDialogFragmentWithVM<Rena
         return fragment;
     }
 
-    public static RenameDialogFragment newInstance(String curName, String curPath, String repoId, String repoName, String type) {
+    public static BottomSheetRenameDialogFragment newInstance(String curName, String curPath, String repoId, String repoName, String type) {
 
-        RenameDialogFragment fragment = new RenameDialogFragment();
+        BottomSheetRenameDialogFragment fragment = new BottomSheetRenameDialogFragment();
         Bundle bundle = new Bundle();
         bundle.putString("name", curName);
         bundle.putString("path", curPath);
@@ -65,6 +66,11 @@ public class RenameDialogFragment extends RequestCustomDialogFragmentWithVM<Rena
         curName = bundle.getString("name");
         curPath = bundle.getString("path");
         repoId = bundle.getString("repoId");
+
+        if (TextUtils.isEmpty(repoId)) {
+            throw new IllegalArgumentException("this dialogFragment need a repoId param");
+        }
+
         if (bundle.containsKey("repoName")) {
             repoName = bundle.getString("repoName");
         } else {
@@ -76,11 +82,11 @@ public class RenameDialogFragment extends RequestCustomDialogFragmentWithVM<Rena
 
     @Override
     protected int getLayoutId() {
-        return R.layout.view_dialog_new_file;
+        return R.layout.dialog_new_dir_file;
     }
 
-    @Override
-    public int getDialogTitleRes() {
+
+    public int getTitleRes() {
         if (TextUtils.equals("repo", type)) {
             return R.string.rename_repo;
         } else if (TextUtils.equals("dir", type)) {
@@ -97,7 +103,7 @@ public class RenameDialogFragment extends RequestCustomDialogFragmentWithVM<Rena
             return;
         }
 
-        EditText editText = getDialogView().findViewById(R.id.new_file_name);
+        EditText editText = getDialogView().findViewById(R.id.new_edit_name);
         String newName = editText.getText().toString();
         newName = StringUtils.trimEnd(newName, " ");
 
@@ -115,11 +121,11 @@ public class RenameDialogFragment extends RequestCustomDialogFragmentWithVM<Rena
     protected void initView(LinearLayout containerView) {
         super.initView(containerView);
 
-        if (TextUtils.isEmpty(repoId)) {
-            throw new IllegalArgumentException("this dialogFragment need a repoId param");
-        }
 
-        EditText editText = getDialogView().findViewById(R.id.new_file_name);
+        TextView title = containerView.findViewById(R.id.title);
+        title.setText(getTitleRes());
+
+        EditText editText = getDialogView().findViewById(R.id.new_edit_name);
         editText.setText(curName);
     }
 
@@ -156,7 +162,7 @@ public class RenameDialogFragment extends RequestCustomDialogFragmentWithVM<Rena
     }
 
     private boolean checkData() {
-        EditText editText = getDialogView().findViewById(R.id.new_file_name);
+        EditText editText = getDialogView().findViewById(R.id.new_edit_name);
         Editable editable = editText.getText();
         if (editable == null || editable.length() == 0) {
             return false;

@@ -154,9 +154,10 @@ public class ActivityViewModel extends BaseViewModel {
 
     public void checkRemoteAndOpen(String repo_id, String path, Consumer<String> consumer) {
         getSecondRefreshLiveData().setValue(true);
-        Single<DirentFileModel> detailSingle = HttpIO.getCurrentInstance().execute(FileService.class).getFileDetail(repo_id, path);
 
+        Single<DirentFileModel> detailSingle = HttpIO.getCurrentInstance().execute(FileService.class).getFileDetail(repo_id, path);
         Single<List<FileCacheStatusEntity>> dbSingle = AppDatabase.getInstance().fileCacheStatusDAO().getByFullPath(repo_id, path);
+
         Single<String> fileIdSingle = dbSingle.flatMap(new Function<List<FileCacheStatusEntity>, SingleSource<String>>() {
             @Override
             public SingleSource<String> apply(List<FileCacheStatusEntity> f) {
@@ -180,12 +181,15 @@ public class ActivityViewModel extends BaseViewModel {
                 return detailSingle.flatMap(new Function<DirentFileModel, SingleSource<? extends String>>() {
                     @Override
                     public SingleSource<? extends String> apply(DirentFileModel direntFileModel) throws Exception {
+
                         if (direntFileModel == null) {
                             return Single.just("");
                         }
-                        if (!direntFileModel.id.equals(local_file_id)) {
+
+                        if (!TextUtils.equals(local_file_id, direntFileModel.id)) {
                             return Single.just("");
                         }
+
                         return Single.just(local_file_id);
                     }
                 });

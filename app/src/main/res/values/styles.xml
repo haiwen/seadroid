@@ -75,6 +75,18 @@
 
     </style>
 
+    <!-- BottomSheet -->
+    <style name="ModalBottomSheetDialog" parent="Widget.Material3.BottomSheet.Modal">
+        <item name="backgroundTint">@color/bar_background_color</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.App.LargeComponent</item>
+    </style>
+
+    <style name="ShapeAppearance.App.LargeComponent" parent="ShapeAppearance.Material3.LargeComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">16dp</item>
+    </style>
+
+
     <style name="AppCompatAlertDialogStyle" parent="ThemeOverlay.Material3.MaterialAlertDialog">
         <item name="alertDialogStyle">@style/App.AlertDialog.Material3</item>
         <item name="materialAlertDialogTitleTextStyle">@style/AppCompatAlertDialog.TitleTextStyle
@@ -118,13 +130,13 @@
     <!-- Button.OutlinedButton -->
     <style name="App.Widget.Button.OutlinedButton" parent="Widget.Material3.Button.OutlinedButton">
         <item name="textAllCaps">false</item>
-        <item name="android:textColor">@color/light_black</item>
+        <item name="android:textColor">@color/bar_title_color</item>
         <item name="materialThemeOverlay">@style/ThemeOverlay.App.Button.OutlinedButton</item>
         <item name="shapeAppearance">@style/ShapeAppearance.Material3.MediumComponent</item>
     </style>
 
     <style name="ThemeOverlay.App.Button.OutlinedButton" parent="ThemeOverlay.Material3.Button">
-        <item name="colorContainer">@color/white</item>
+        <item name="colorContainer">@color/bar_background_color</item>
         <item name="colorOnContainer">@color/md_theme_onPrimary</item>
     </style>
 
@@ -209,14 +221,6 @@
     <style name="ShapeCorner2Style">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">2dp</item>
-    </style>
-    <!-- BottomSheet DayNight -->
-    <style name="ThemeOverlay.Catalog.BottomSheetDialog.Scrollable" parent="Theme.Material3.DayNight.BottomSheetDialog">
-        <item name="bottomSheetStyle">@style/Widget.Catalog.BottomSheet.Modal.Scrollable</item>
-    </style>
-
-    <style name="Widget.Catalog.BottomSheet.Modal.Scrollable" parent="Widget.Material3.BottomSheet.Modal">
-        <item name="paddingBottomSystemWindowInsets">false</item>
     </style>
 
 

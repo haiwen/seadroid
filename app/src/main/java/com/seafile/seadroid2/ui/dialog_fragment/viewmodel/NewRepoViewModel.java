@@ -25,7 +25,6 @@ public class NewRepoViewModel extends BaseViewModel {
     }
 
     public void createNewRepo(String repoName, String description, String password) {
-
         if (TextUtils.isEmpty(repoName)) {
             return;
         }

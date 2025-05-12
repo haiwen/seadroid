@@ -86,6 +86,9 @@ import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.base.fragment.BaseFragmentWithVM;
 import com.seafile.seadroid2.ui.bottomsheetmenu.BottomSheetMenuAdapter;
+import com.seafile.seadroid2.ui.dialog_fragment.BottomSheetNewDirFileDialogFragment;
+import com.seafile.seadroid2.ui.dialog_fragment.BottomSheetNewRepoDialogFragment;
+import com.seafile.seadroid2.ui.dialog_fragment.BottomSheetRenameDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.CopyMoveDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.DeleteFileDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.DeleteRepoDialogFragment;
@@ -1424,29 +1427,6 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         return DataManager.getLocalRepoFile(account, repoId, repoName, fullPathInRepo);
     }
 
-    private void checkLocalFileStatus(String repoId, String repoName, String fullPathInRepo, java.util.function.Consumer<File> consumer) {
-        if (consumer == null) {
-            return;
-        }
-
-        File file = getLocalDestinationFile(repoId, repoName, fullPathInRepo);
-        if (!file.exists()) {
-            consumer.accept(null);
-            return;
-        }
-
-        getViewModel().checkDownloadStatus(repoId, fullPathInRepo, new Consumer<FileCacheStatusEntity>() {
-            @Override
-            public void accept(FileCacheStatusEntity fileCacheStatusEntity) throws Exception {
-                if (fileCacheStatusEntity == null) {
-                    consumer.accept(null);
-                } else {
-                    consumer.accept(file);
-                }
-            }
-        });
-    }
-
     private void open(RepoModel repoModel, DirentModel dirent) {
         open(repoModel, dirent, null);
     }
@@ -1470,6 +1450,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
         if (fileName.endsWith(Constants.Format.DOT_SDOC)) {
             SDocWebViewActivity.openSdoc(getContext(), repoModel.repo_name, repoModel.repo_id, dirent.parent_dir + dirent.name);
+
             return;
         }
 
@@ -1483,6 +1464,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                     fileActivityLauncher.launch(intent);
                 }
             }).show();
+
             return;
         }
 
@@ -1494,17 +1476,6 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 Intent intent = FileActivity.start(requireContext(), dirent, FileReturnActionEnum.OPEN_TEXT_MIME);
                 fileActivityLauncher.launch(intent);
             }
-//            checkLocalFileStatus(dirent.repo_id, dirent.repo_name, dirent.full_path, new java.util.function.Consumer<File>() {
-//                @Override
-//                public void accept(File file) {
-//                    if (file == null) {
-//                        Intent intent = FileActivity.start(requireContext(), dirent, FileReturnActionEnum.OPEN_TEXT_MIME);
-//                        fileActivityLauncher.launch(intent);
-//                    } else {
-//                        MarkdownActivity.start(requireContext(), file.getAbsolutePath(), dirent.repo_id, dirent.full_path);
-//                    }
-//                }
-//            });
 
             return;
         }
@@ -1520,27 +1491,15 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
         closeActionMode();
 
-        DirentModel direntModel = (DirentModel) direntModels.get(0);
+        DirentModel dirent = (DirentModel) direntModels.get(0);
 
-        File local = getLocalDestinationFile(direntModel.repo_id, direntModel.repo_name, direntModel.full_path);
-        if (local.exists()) {
+        File local = getLocalDestinationFile(dirent.repo_id, dirent.repo_name, dirent.full_path);
+        if (TextUtils.equals(dirent.id, dirent.local_file_id) && local.exists()) {
             WidgetUtils.openWith(requireActivity(), local);
         } else {
-            Intent intent = FileActivity.start(requireActivity(), direntModel, FileReturnActionEnum.OPEN_WITH);
+            Intent intent = FileActivity.start(requireActivity(), dirent, FileReturnActionEnum.OPEN_WITH);
             fileActivityLauncher.launch(intent);
         }
-
-//        checkLocalFileStatus(direntModel.repo_id, direntModel.repo_name, direntModel.full_path, new java.util.function.Consumer<File>() {
-//            @Override
-//            public void accept(File file) {
-//                if (file == null) {
-//                    Intent intent = FileActivity.start(requireContext(), direntModel, FileReturnActionEnum.OPEN_WITH);
-//                    fileActivityLauncher.launch(intent);
-//                } else {
-//                    WidgetUtils.openWith(requireActivity(), file);
-//                }
-//            }
-//        });
     }
 
     public void download(List<BaseModel> direntModels) {
@@ -1553,11 +1512,11 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             return;
         }
 
+        closeActionMode();
+
         List<DirentModel> direntModels1 = direntModels.stream().map(m -> (DirentModel) m).collect(Collectors.toList());
         List<String> uids = direntModels1.stream().map(m -> m.uid).collect(Collectors.toList());
         BackgroundJobManagerImpl.getInstance().startDownloadChain(uids);
-
-        closeActionMode();
     }
 
     public void rename(List<BaseModel> models) {
@@ -1567,13 +1526,13 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             return;
         }
 
-        RenameDialogFragment dialogFragment;
+        BottomSheetRenameDialogFragment dialogFragment;
 
         BaseModel first = models.get(0);
         if (first instanceof DirentModel dirent) {
-            dialogFragment = RenameDialogFragment.newInstance(dirent.name, dirent.full_path, dirent.repo_id, dirent.repo_name, dirent.type);
+            dialogFragment = BottomSheetRenameDialogFragment.newInstance(dirent.name, dirent.full_path, dirent.repo_id, dirent.repo_name, dirent.type);
         } else if (first instanceof RepoModel repo) {
-            dialogFragment = RenameDialogFragment.newInstance(repo.repo_name, repo.repo_id, "repo");
+            dialogFragment = BottomSheetRenameDialogFragment.newInstance(repo.repo_name, repo.repo_id, "repo");
         } else {
             return;
         }
@@ -1588,7 +1547,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 loadData(RefreshStatusEnum.ONLY_REMOTE, false);
             }
         });
-        dialogFragment.show(getChildFragmentManager(), RenameDialogFragment.class.getSimpleName());
+        dialogFragment.show(getChildFragmentManager(), BottomSheetRenameDialogFragment.class.getSimpleName());
     }
 
     public void deleteRepo(List<BaseModel> repoModels) {
@@ -1672,26 +1631,22 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         }).show();
     }
 
-
     private void exportFile(List<BaseModel> dirents) {
+        closeActionMode();
+
         if (CollectionUtils.isEmpty(dirents)) {
             return;
         }
 
-        DirentModel direntModel = (DirentModel) dirents.get(0);
+        DirentModel dirent = (DirentModel) dirents.get(0);
 
-        checkLocalFileStatus(direntModel.repo_id, direntModel.repo_name, direntModel.full_path, new java.util.function.Consumer<File>() {
-            @Override
-            public void accept(File file) {
-                if (file == null) {
-                    Intent intent = FileActivity.start(requireContext(), direntModel, FileReturnActionEnum.EXPORT);
-                    fileActivityLauncher.launch(intent);
-                } else {
-                    Objs.exportFile(RepoQuickFragment.this, file);
-                }
-            }
-        });
-
+        File local = getLocalDestinationFile(dirent.repo_id, dirent.repo_name, dirent.full_path);
+        if (TextUtils.equals(dirent.id, dirent.local_file_id) && local.exists()) {
+            WidgetUtils.openWith(requireActivity(), local);
+        } else {
+            Intent intent = FileActivity.start(requireActivity(), dirent, FileReturnActionEnum.EXPORT);
+            fileActivityLauncher.launch(intent);
+        }
     }
 
 
@@ -1844,21 +1799,19 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             return;
         }
 
-        checkLocalFileStatus(dirent.repo_id, dirent.repo_name, dirent.full_path, new java.util.function.Consumer<File>() {
-            @Override
-            public void accept(File file) {
-                if (file == null) {
-                    Intent intent = FileActivity.start(requireContext(), dirent, FileReturnActionEnum.SHARE);
-                    fileActivityLauncher.launch(intent);
-                } else {
-                    Objs.shareFileToWeChat(RepoQuickFragment.this, file);
-                }
-            }
-        });
+        File local = getLocalDestinationFile(dirent.repo_id, dirent.repo_name, dirent.full_path);
+        if (TextUtils.equals(dirent.id, dirent.local_file_id) && local.exists()) {
+            WidgetUtils.openWith(requireActivity(), local);
+        } else {
+            Intent intent = FileActivity.start(requireActivity(), dirent, FileReturnActionEnum.SHARE);
+            fileActivityLauncher.launch(intent);
+        }
     }
 
 
-    ////////////////add task/////////////
+    /**
+     * re-upload the local downloaded files
+     */
     private void addUploadTask(List<BaseModel> dirents, boolean isReplace) {
         if (CollectionUtils.isEmpty(dirents)) {
             return;
@@ -1900,8 +1853,8 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
      * create a new repo
      */
     private void showNewRepoDialog() {
-        NewRepoDialogFragment dialogFragment = new NewRepoDialogFragment();
-        dialogFragment.setRefreshListener(new OnRefreshDataListener() {
+        BottomSheetNewRepoDialogFragment bottomSheetNewRepoDialogFragment = new BottomSheetNewRepoDialogFragment();
+        bottomSheetNewRepoDialogFragment.setRefreshListener(new OnRefreshDataListener() {
             @Override
             public void onActionStatus(boolean isDone) {
                 if (isDone) {
@@ -1909,7 +1862,8 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 }
             }
         });
-        dialogFragment.show(getChildFragmentManager(), NewRepoDialogFragment.class.getSimpleName());
+        bottomSheetNewRepoDialogFragment.show(getChildFragmentManager(), BottomSheetNewRepoDialogFragment.class.getSimpleName());
+
     }
 
     /**
@@ -1979,8 +1933,9 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
                 String rid = GlobalNavContext.getCurrentNavContext().getRepoModel().repo_id;
                 String parentPath = GlobalNavContext.getCurrentNavContext().getNavPath();
-                NewDirFileDialogFragment dialogFragment = NewDirFileDialogFragment.newInstance(rid, parentPath, true);
-                dialogFragment.setRefreshListener(new OnRefreshDataListener() {
+
+                BottomSheetNewDirFileDialogFragment sheetDialog = BottomSheetNewDirFileDialogFragment.newInstance(rid, parentPath, true);
+                sheetDialog.setRefreshListener(new OnRefreshDataListener() {
                     @Override
                     public void onActionStatus(boolean isDone) {
                         if (isDone) {
@@ -1988,7 +1943,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                         }
                     }
                 });
-                dialogFragment.show(getChildFragmentManager(), NewDirFileDialogFragment.class.getSimpleName());
+                sheetDialog.show(getChildFragmentManager(), BottomSheetNewDirFileDialogFragment.class.getSimpleName());
             }
         });
     }
@@ -2005,8 +1960,9 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
                 String rid = GlobalNavContext.getCurrentNavContext().getRepoModel().repo_id;
                 String parentPath = GlobalNavContext.getCurrentNavContext().getNavPath();
-                NewDirFileDialogFragment dialogFragment = NewDirFileDialogFragment.newInstance(rid, parentPath, false);
-                dialogFragment.setRefreshListener(new OnRefreshDataListener() {
+
+                BottomSheetNewDirFileDialogFragment sheetDialog = BottomSheetNewDirFileDialogFragment.newInstance(rid, parentPath, false);
+                sheetDialog.setRefreshListener(new OnRefreshDataListener() {
                     @Override
                     public void onActionStatus(boolean isDone) {
                         if (isDone) {
@@ -2014,7 +1970,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                         }
                     }
                 });
-                dialogFragment.show(getChildFragmentManager(), NewDirFileDialogFragment.class.getSimpleName());
+                sheetDialog.show(getChildFragmentManager(), BottomSheetNewDirFileDialogFragment.class.getSimpleName());
             }
         });
     }

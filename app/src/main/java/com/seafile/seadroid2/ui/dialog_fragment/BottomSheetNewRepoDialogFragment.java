@@ -4,6 +4,7 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.lifecycle.Observer;
 
@@ -14,39 +15,37 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.framework.util.StringUtils;
-import com.seafile.seadroid2.ui.base.fragment.RequestCustomDialogFragmentWithVM;
+import com.seafile.seadroid2.ui.base.fragment.RequestBottomSheetDialogFragmentWithVM;
 import com.seafile.seadroid2.ui.dialog_fragment.viewmodel.NewRepoViewModel;
 
-@Deprecated
-public class NewRepoDialogFragment extends RequestCustomDialogFragmentWithVM<NewRepoViewModel> {
+public class BottomSheetNewRepoDialogFragment extends RequestBottomSheetDialogFragmentWithVM<NewRepoViewModel> {
 
     @Override
     protected int getLayoutId() {
-        return R.layout.view_dialog_new_repo;
-    }
-
-    @Override
-    public int getDialogTitleRes() {
-        return R.string.create_new_repo;
+        return R.layout.dialog_new_repo;
     }
 
     private int passwordMinLength = 4;
+
     @Override
-    public void initView(LinearLayout containerView) {
-        super.initView(containerView);
+    protected void initView(LinearLayout parentView) {
+        super.initView(parentView);
+
+        TextView title = parentView.findViewById(R.id.title);
+        title.setText(R.string.create_new_repo);
 
         passwordMinLength = getResources().getInteger(R.integer.minimum_password_length);
 
-        MaterialSwitch materialSwitch = getDialogView().findViewById(R.id.widget_switch);
-        TextInputLayout pwd1 = getDialogView().findViewById(R.id.new_repo_input_layout_pwd_1);
-        TextInputLayout pwd2 = getDialogView().findViewById(R.id.new_repo_input_layout_pwd_2);
+        MaterialSwitch materialSwitch = parentView.findViewById(R.id.widget_switch);
+        TextInputLayout pwd1 = parentView.findViewById(R.id.new_repo_input_layout_pwd_1);
+        TextInputLayout pwd2 = parentView.findViewById(R.id.new_repo_input_layout_pwd_2);
         pwd1.setHint(String.format(
                 getResources().getString(R.string.passwd_min_len_limit_hint),
                 passwordMinLength
         ));
 
-        TextInputEditText pwdt1 = getDialogView().findViewById(R.id.new_repo_edit_pwd_1);
-        TextInputEditText pwdt2 = getDialogView().findViewById(R.id.new_repo_edit_pwd_2);
+        TextInputEditText pwdt1 = parentView.findViewById(R.id.new_repo_edit_pwd_1);
+        TextInputEditText pwdt2 = parentView.findViewById(R.id.new_repo_edit_pwd_2);
 
         materialSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             pwd1.setVisibility(isChecked ? View.VISIBLE : View.GONE);
@@ -57,7 +56,7 @@ public class NewRepoDialogFragment extends RequestCustomDialogFragmentWithVM<New
         });
     }
 
-    @Override
+
     public void initViewModel() {
         getViewModel().getSeafExceptionLiveData().observe(this, new Observer<SeafException>() {
             @Override
@@ -68,6 +67,7 @@ public class NewRepoDialogFragment extends RequestCustomDialogFragmentWithVM<New
                 dismiss();
             }
         });
+
         getViewModel().getCreateRepoLiveData().observe(this, repoModel -> {
             String d = String.format(getResources().getString(R.string.create_new_repo_success), repoModel.repo_name);
             ToastUtils.showLong(d);

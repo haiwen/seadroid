@@ -49,7 +49,7 @@ public class BottomSheetMenuFragment extends BottomSheetDialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(requireContext(), R.style.ThemeOverlay_Catalog_BottomSheetDialog_Scrollable);
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(requireContext());
         bottomSheetDialog.setContentView(R.layout.layout_bottom_sheet_menu_dialog);
         bottomSheetDialog.setDismissWithAnimation(true);
 

@@ -119,6 +119,7 @@ public class DownloadedFileMonitorWorker extends BaseUploadWorker {
             //if the file is not in the database, it means that the app has been deleted.
             //this data is useless
             if (CollectionUtils.isEmpty(cacheList)) {
+                SLogs.d(DownloadedFileMonitorWorker.class, "file is not in the database: " + file.getName());
                 continue;
             }
 
@@ -165,7 +166,7 @@ public class DownloadedFileMonitorWorker extends BaseUploadWorker {
             showToast(R.string.updated);
         }
 
-        SLogs.d(DownloadedFileMonitorWorker.class, "downloaded file monitor: complete: " + wasThereSuccessfulUploaded);
+        SLogs.d(DownloadedFileMonitorWorker.class, "downloaded file monitor: complete, upload successful? -> " + wasThereSuccessfulUploaded);
 
         //
         Bundle b = new Bundle();

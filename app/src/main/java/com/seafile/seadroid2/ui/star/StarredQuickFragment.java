@@ -323,43 +323,37 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
                 }
             }).show();
         } else if (Utils.isTextMimeType(model.obj_name)) {
-            getViewModel().checkRemoteAndOpen(model.repo_id, model.path, new Consumer<String>() {
-                @Override
-                public void accept(String s) throws Exception {
-                    if (TextUtils.isEmpty(s)) {
-                        Intent intent = FileActivity.startFromStarred(requireContext(), model, FileReturnActionEnum.OPEN_TEXT_MIME);
-                        fileActivityLauncher.launch(intent);
-                    } else {
-                        File file = getLocalDestinationFile(model.repo_id, model.repo_name, model.path);
-                        if (file.exists()) {
-                            MarkdownActivity.start(requireContext(), file.getAbsolutePath(), model.repo_id, model.path);
-                        } else {
-                            Intent intent = FileActivity.startFromStarred(requireContext(), model, FileReturnActionEnum.OPEN_TEXT_MIME);
-                            fileActivityLauncher.launch(intent);
-                        }
-                    }
-                }
-            });
+            openWith(model, FileReturnActionEnum.OPEN_TEXT_MIME);
         } else {
             //Open with another app
-            openWith(model);
+            openWith(model, FileReturnActionEnum.OPEN_WITH);
         }
+    }
+
+    private void openWith(StarredModel model, FileReturnActionEnum actionEnum) {
+        getViewModel().checkRemoteAndOpen(model.repo_id, model.path, new Consumer<String>() {
+            @Override
+            public void accept(String fileId) {
+                File local = getLocalDestinationFile(model.repo_id, model.repo_name, model.path);
+                if (!TextUtils.isEmpty(fileId) && local.exists()) {
+                    if (TextUtils.equals(FileReturnActionEnum.OPEN_WITH.name(), actionEnum.name())) {
+                        WidgetUtils.openWith(requireContext(), local);
+
+                    } else if (TextUtils.equals(FileReturnActionEnum.OPEN_TEXT_MIME.name(), actionEnum.name())) {
+                        MarkdownActivity.start(requireContext(), local.getAbsolutePath(), model.repo_id, model.path);
+
+                    }
+                } else {
+                    Intent intent = FileActivity.startFromStarred(requireContext(), model, actionEnum);
+                    fileActivityLauncher.launch(intent);
+                }
+            }
+        });
     }
 
     private File getLocalDestinationFile(String repoId, String repoName, String fullPathInRepo) {
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
-
         return DataManager.getLocalRepoFile(account, repoId, repoName, fullPathInRepo);
-    }
-
-    private void openWith(StarredModel model) {
-        File local = getLocalDestinationFile(model.repo_id, model.repo_name, model.path);
-        if (local.exists()) {
-            WidgetUtils.openWith(requireContext(), local);
-        } else {
-            Intent intent = FileActivity.startFromStarred(requireContext(), model, FileReturnActionEnum.OPEN_WITH);
-            fileActivityLauncher.launch(intent);
-        }
     }
 
     private final ActivityResultLauncher<Intent> imagePreviewActivityLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {

@@ -11,7 +11,9 @@
         <item name="windowActionModeOverlay">true</item>
         <item name="windowNoTitle">true</item>
 
-        <item name="swipeRefreshLayoutProgressSpinnerBackgroundColor">@color/swipe_refresh_background_color</item>
+        <item name="swipeRefreshLayoutProgressSpinnerBackgroundColor">
+            @color/swipe_refresh_background_color
+        </item>
 
         <item name="android:windowBackground">@color/window_background_color</item>
 
@@ -21,6 +23,7 @@
         <item name="textInputStyle">@style/App.Widget.TextInput</item>
         <item name="searchViewStyle">@style/SearchViewStyle</item>
 
+        <item name="bottomSheetDialogTheme">@style/ThemeOverlay.App.BottomSheetDialog</item>
         <item name="materialButtonStyle">@style/App.Widget.Button</item>
         <item name="materialAlertDialogTheme">@style/AppCompatAlertDialogStyle</item>
         <item name="bottomNavigationStyle">@style/App.Widget.BottomNavigationView</item>
@@ -53,6 +56,11 @@
         <item name="android:colorControlHighlight">@color/fancy_light_black</item>
 
         <item name="minTouchTargetSize">0dp</item>
+    </style>
+
+    <!-- BottomSheet -->
+    <style name="ThemeOverlay.App.BottomSheetDialog" parent="ThemeOverlay.Material3.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/ModalBottomSheetDialog</item>
     </style>
 
     <style name="AppTheme.Material3" parent="BaseTheme.App.Toolbar">

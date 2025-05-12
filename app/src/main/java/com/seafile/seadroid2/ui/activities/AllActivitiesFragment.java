@@ -33,6 +33,7 @@ import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.databinding.LayoutFrameSwipeRvBinding;
 import com.seafile.seadroid2.enums.FileReturnActionEnum;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
+import com.seafile.seadroid2.framework.db.entities.StarredModel;
 import com.seafile.seadroid2.framework.model.ResultModel;
 import com.seafile.seadroid2.framework.model.activities.ActivityModel;
 import com.seafile.seadroid2.framework.datastore.DataManager;
@@ -339,45 +340,41 @@ public class AllActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel>
                 }
             }).show();
         } else if (Utils.isTextMimeType(activityModel.name)) {
-            getViewModel().checkRemoteAndOpen(activityModel.repo_id, activityModel.path, new Consumer<String>() {
-                @Override
-                public void accept(String s) {
-                    if (TextUtils.isEmpty(s)) {
-                        Intent intent = FileActivity.startFromActivity(requireContext(), activityModel, FileReturnActionEnum.OPEN_TEXT_MIME);
-                        fileActivityLauncher.launch(intent);
-                    } else {
-                        File file = getLocalDestinationFile(activityModel.repo_id, activityModel.repo_name, activityModel.path);
-                        if (file.exists()) {
-                            MarkdownActivity.start(requireContext(), file.getAbsolutePath(), activityModel.repo_id, activityModel.path);
-                        } else {
-                            Intent intent = FileActivity.startFromActivity(requireContext(), activityModel, FileReturnActionEnum.OPEN_TEXT_MIME);
-                            fileActivityLauncher.launch(intent);
-                        }
-                    }
-                }
-            });
+            openWith(activityModel, FileReturnActionEnum.OPEN_TEXT_MIME);
         } else {
-
             //Open with another app
-            openWith(activityModel);
+            openWith(activityModel, FileReturnActionEnum.OPEN_WITH);
         }
+    }
+
+
+    private void openWith(ActivityModel model, FileReturnActionEnum actionEnum) {
+        getViewModel().checkRemoteAndOpen(model.repo_id, model.path, new Consumer<String>() {
+            @Override
+            public void accept(String fileId) {
+                File local = getLocalDestinationFile(model.repo_id, model.repo_name, model.path);
+                if (!TextUtils.isEmpty(fileId) && local.exists()) {
+
+                    if (TextUtils.equals(FileReturnActionEnum.OPEN_WITH.name(), actionEnum.name())) {
+
+                        WidgetUtils.openWith(requireContext(), local);
+                    } else if (TextUtils.equals(FileReturnActionEnum.OPEN_TEXT_MIME.name(), actionEnum.name())) {
+                        MarkdownActivity.start(requireContext(), local.getAbsolutePath(), model.repo_id, model.path);
+
+                    }
+                } else {
+                    Intent intent = FileActivity.startFromActivity(requireContext(), model, FileReturnActionEnum.OPEN_WITH);
+                    fileActivityLauncher.launch(intent);
+                }
+            }
+        });
     }
 
     private File getLocalDestinationFile(String repoId, String repoName, String fullPathInRepo) {
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
-
         return DataManager.getLocalRepoFile(account, repoId, repoName, fullPathInRepo);
     }
 
-    private void openWith(ActivityModel model) {
-        File local = getLocalDestinationFile(model.repo_id, model.repo_name, model.path);
-        if (local.exists()) {
-            WidgetUtils.openWith(requireContext(), local);
-        } else {
-            Intent intent = FileActivity.startFromActivity(requireContext(), model, FileReturnActionEnum.OPEN_WITH);
-            fileActivityLauncher.launch(intent);
-        }
-    }
 
     private final ActivityResultLauncher<Intent> imagePreviewActivityLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
         @Override
@@ -420,11 +417,11 @@ public class AllActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel>
             File destinationFile = new File(localFullPath);
 
             if (TextUtils.equals(FileReturnActionEnum.EXPORT.name(), action)) {
-
+                //nothing to do
             } else if (TextUtils.equals(FileReturnActionEnum.SHARE.name(), action)) {
-
+                //nothing to do
             } else if (TextUtils.equals(FileReturnActionEnum.DOWNLOAD_VIDEO.name(), action)) {
-
+                //nothing to do
             } else if (TextUtils.equals(FileReturnActionEnum.OPEN_WITH.name(), action)) {
 
                 WidgetUtils.openWith(requireContext(), destinationFile);

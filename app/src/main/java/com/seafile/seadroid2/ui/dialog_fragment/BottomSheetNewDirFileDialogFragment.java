@@ -3,32 +3,38 @@ package com.seafile.seadroid2.ui.dialog_fragment;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.lifecycle.Observer;
 
 import com.blankj.utilcode.util.ToastUtils;
+import com.google.android.material.materialswitch.MaterialSwitch;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
-import com.seafile.seadroid2.framework.util.StringUtils;
-import com.seafile.seadroid2.ui.base.fragment.RequestCustomDialogFragmentWithVM;
 import com.seafile.seadroid2.framework.model.ResultModel;
 import com.seafile.seadroid2.framework.model.dirents.FileCreateModel;
+import com.seafile.seadroid2.framework.util.StringUtils;
+import com.seafile.seadroid2.ui.base.fragment.RequestBottomSheetDialogFragmentWithVM;
 import com.seafile.seadroid2.ui.dialog_fragment.viewmodel.NewDirViewModel;
+import com.seafile.seadroid2.ui.dialog_fragment.viewmodel.NewRepoViewModel;
 
-@Deprecated
-public class NewDirFileDialogFragment extends RequestCustomDialogFragmentWithVM<NewDirViewModel> {
+public class BottomSheetNewDirFileDialogFragment extends RequestBottomSheetDialogFragmentWithVM<NewDirViewModel> {
+
     private String parentDir, repoId;
     private boolean isDir;
 
-    public static NewDirFileDialogFragment newInstance(String repoId, String parentDir, boolean isDir) {
+    public static BottomSheetNewDirFileDialogFragment newInstance(String repoId, String parentDir, boolean isDir) {
         Bundle args = new Bundle();
         args.putString("repo_id", repoId);
         args.putString("parent_dir", parentDir);
         args.putBoolean("is_dir", isDir);
-        NewDirFileDialogFragment fragment = new NewDirFileDialogFragment();
+        BottomSheetNewDirFileDialogFragment fragment = new BottomSheetNewDirFileDialogFragment();
         fragment.setArguments(args);
         return fragment;
     }
@@ -46,16 +52,27 @@ public class NewDirFileDialogFragment extends RequestCustomDialogFragmentWithVM<
         parentDir = args.getString("parent_dir");
         isDir = args.getBoolean("is_dir");
 
+        if (TextUtils.isEmpty(parentDir)) {
+            throw new IllegalArgumentException("this dialogFragment need parentDir param");
+        }
+
+        if (TextUtils.isEmpty(repoId)) {
+            throw new IllegalArgumentException("this dialogFragment need repoId param");
+        }
     }
+
 
     @Override
     protected int getLayoutId() {
-        return R.layout.view_dialog_new_file;
+        return R.layout.dialog_new_dir_file;
     }
 
     @Override
-    public int getDialogTitleRes() {
-        return isDir ? R.string.create_new_dir : R.string.create_new_file;
+    protected void initView(LinearLayout parentView) {
+        super.initView(parentView);
+
+        TextView title = parentView.findViewById(R.id.title);
+        title.setText(isDir ? R.string.create_new_dir : R.string.create_new_file);
     }
 
     @Override
@@ -64,7 +81,7 @@ public class NewDirFileDialogFragment extends RequestCustomDialogFragmentWithVM<
             return;
         }
 
-        EditText name = getDialogView().findViewById(R.id.new_file_name);
+        EditText name = getDialogView().findViewById(R.id.new_edit_name);
         String pathName = name.getText().toString();
         pathName = (parentDir + "/" + pathName);
         pathName = StringUtils.trimEnd(pathName, " ");
@@ -73,19 +90,6 @@ public class NewDirFileDialogFragment extends RequestCustomDialogFragmentWithVM<
             getViewModel().createNewDir(pathName, repoId);
         } else {
             getViewModel().createNewFile(pathName, repoId);
-        }
-    }
-
-    @Override
-    protected void initView(LinearLayout containerView) {
-        super.initView(containerView);
-
-        if (TextUtils.isEmpty(parentDir)) {
-            throw new IllegalArgumentException("this dialogFragment need parentDir param");
-        }
-
-        if (TextUtils.isEmpty(repoId)) {
-            throw new IllegalArgumentException("this dialogFragment need repoId param");
         }
     }
 
@@ -112,7 +116,7 @@ public class NewDirFileDialogFragment extends RequestCustomDialogFragmentWithVM<
                         setInputError(R.id.text_input, resultModel.error_msg);
                     } else {
 
-                        EditText name = getDialogView().findViewById(R.id.new_file_name);
+                        EditText name = getDialogView().findViewById(R.id.new_edit_name);
                         String pathName = name.getText().toString();
 
                         ToastUtils.showLong(getString(R.string.create_new_folder_success, pathName));
@@ -130,7 +134,7 @@ public class NewDirFileDialogFragment extends RequestCustomDialogFragmentWithVM<
                     if (!TextUtils.isEmpty(fileCreateModel.error_msg)) {
                         setInputError(R.id.text_input, fileCreateModel.error_msg);
                     } else {
-                        EditText name = getDialogView().findViewById(R.id.new_file_name);
+                        EditText name = getDialogView().findViewById(R.id.new_edit_name);
                         String pathName = name.getText().toString();
 
                         ToastUtils.showLong(getString(R.string.create_new_file_success, pathName));
@@ -148,7 +152,7 @@ public class NewDirFileDialogFragment extends RequestCustomDialogFragmentWithVM<
     }
 
     private boolean checkData() {
-        EditText editText = getDialogView().findViewById(R.id.new_file_name);
+        EditText editText = getDialogView().findViewById(R.id.new_edit_name);
         Editable editable = editText.getText();
         if (editable == null || editable.length() == 0) {
             if (isDir) {

@@ -127,23 +127,6 @@ public class RepoViewModel extends BaseViewModel {
         return _objListLiveData;
     }
 
-    public void checkDownloadStatus(String repoId, String path, Consumer<FileCacheStatusEntity> consumer) {
-        if (consumer == null) {
-            throw new IllegalArgumentException("consumer is null");
-        }
-        Single<List<FileCacheStatusEntity>> listSingle = AppDatabase.getInstance().fileCacheStatusDAO().getByFullPath(repoId, path);
-        addSingleDisposable(listSingle, new Consumer<List<FileCacheStatusEntity>>() {
-            @Override
-            public void accept(List<FileCacheStatusEntity> fileCacheStatusEntities) throws Exception {
-                if (CollectionUtils.isEmpty(fileCacheStatusEntities)) {
-                    consumer.accept(null);
-                } else {
-                    consumer.accept(fileCacheStatusEntities.get(0));
-                }
-            }
-        });
-    }
-
     public void decryptRepo(String repoId, Consumer<String> consumer) {
         if (consumer == null) {
             throw new IllegalArgumentException("consumer is null");
