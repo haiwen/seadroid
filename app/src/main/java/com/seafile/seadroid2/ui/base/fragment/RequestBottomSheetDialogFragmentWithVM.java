@@ -115,7 +115,6 @@ public abstract class RequestBottomSheetDialogFragmentWithVM<VM extends BaseView
         bottomSheetDialog.setCancelable(true);
         bottomSheetDialog.setCanceledOnTouchOutside(true);
         bottomSheetDialog.setDismissWithAnimation(true);
-
         return bottomSheetDialog;
     }
 

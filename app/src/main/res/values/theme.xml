@@ -19,10 +19,9 @@
 
         <item name="actionModeStyle">@style/App.ActionMode.LightTheme</item>
         <item name="actionModeCloseDrawable">@drawable/baseline_close_24</item>
-
         <item name="textInputStyle">@style/App.Widget.TextInput</item>
         <item name="searchViewStyle">@style/App.Widget.SearchView</item>
-
+        <item name="tabStyle">@style/App.Widget.TabLayout</item>
         <item name="bottomSheetDialogTheme">@style/ThemeOverlay.App.BottomSheetDialog</item>
         <item name="materialButtonStyle">@style/App.Widget.Button</item>
         <item name="materialAlertDialogTheme">@style/App.AppCompat.AlertDialog</item>

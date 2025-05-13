@@ -131,7 +131,10 @@ public class BottomSheetRenameDialogFragment extends RequestBottomSheetDialogFra
         super.initView(containerView);
 
         EditText editText = getDialogView().findViewById(R.id.edit_name);
-        editText.setText(curName);
+        if (!TextUtils.isEmpty(curName)) {
+            editText.setText(curName);
+            editText.setSelection(curName.length());
+        }
     }
 
     @Override

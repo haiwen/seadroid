@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <style name="ToolBarStyle" parent="Widget.Material3.Toolbar">
+    <!-- Toolbar -->
+    <style name="App.Widget.ToolBarStyle" parent="Widget.Material3.Toolbar">
         <item name="colorControlNormal">@color/bar_icon_tint_color</item>
         <item name="popupTheme">@style/ThemeOverlay.Material3.Light</item>
         <item name="theme">@style/ThemeOverlay.Material3.Light</item>
@@ -14,7 +15,14 @@
         <item name="titleTextAppearance">?attr/textAppearanceTitleMedium</item>
     </style>
 
-    <style name="ToolBarStyle.Editor" parent="">
+    <style name="App.Widget.TabLayout" parent="Widget.Material3.TabLayout">
+        <item name="tabIndicatorColor">@color/fancy_orange</item>
+        <item name="android:background">@drawable/tab_background_drawable</item>
+        <item name="android:contentInsetStart">?actionBarInsetStart</item>
+        <item name="tabSelectedTextColor">@color/fancy_orange</item>
+    </style>
+
+    <style name="App.Widget.ToolBar.Editor" parent="">
         <item name="popupTheme">@style/ThemeOverlay.Material3.Light</item>
         <item name="theme">@style/ThemeOverlay.Material3.Light</item>
         <item name="android:background">@color/toolbar_editor_background_color</item>
@@ -26,14 +34,6 @@
         <item name="navigationIcon">@drawable/baseline_arrow_back_24</item>
         <item name="navigationIconTint">@color/toolbar_editor_title_color</item>
     </style>
-
-    <style name="TabLayoutStyle" parent="Widget.Material3.TabLayout">
-        <item name="tabIndicatorColor">@color/fancy_orange</item>
-        <item name="android:background">@drawable/tab_background_drawable</item>
-        <item name="android:contentInsetStart">?actionBarInsetStart</item>
-        <item name="tabSelectedTextColor">@color/fancy_orange</item>
-    </style>
-
 
     <style name="App.Widget.SearchView" parent="Widget.AppCompat.SearchView">
         <item name="searchIcon">@null</item>
@@ -50,7 +50,8 @@
         <item name="titleTextStyle">@style/TextAppearance.Material3.ActionBar.Subtitle</item>
     </style>
 
-    <!-- BottomNavigationView -->
+
+    <!-- App.BottomNavigationView -->
     <style name="App.Widget.BottomNavigationView" parent="Widget.Material3.BottomNavigationView">
         <item name="itemActiveIndicatorStyle">@null</item>
         <item name="android:background">@color/bar_background_color</item>
@@ -64,7 +65,7 @@
         <item name="itemPaddingBottom">14dp</item>
     </style>
 
-    <!-- OverflowMenuStyle -->
+    <!-- App.OverflowMenuStyle -->
     <style name="App.Widget.OverflowMenu" parent="@style/Widget.Material3.PopupMenu.Overflow">
         <item name="overlapAnchor">false</item>
         <item name="android:dropDownVerticalOffset">10dip</item>
@@ -76,7 +77,7 @@
 
     </style>
 
-    <!-- BottomSheet -->
+    <!-- App.BottomSheet -->
     <style name="App.Widget.BottomSheetDialog" parent="Widget.Material3.BottomSheet.Modal">
         <item name="backgroundTint">@color/bar_background_color</item>
         <item name="shapeAppearance">@style/ShapeAppearance.App.LargeComponent</item>
@@ -88,8 +89,9 @@
     </style>
 
 
+    <!-- App.AlertDialog -->
     <style name="App.AppCompat.AlertDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
-        <item name="alertDialogStyle">@style/App.AlertDialog.Material3</item>
+        <item name="alertDialogStyle">@style/App.AppCompat.AlertDialog.Material3</item>
         <item name="materialAlertDialogTitleTextStyle">@style/App.AppCompat.AlertDialog.Title
         </item>
 
@@ -117,7 +119,7 @@
         <item name="android:textSize">16sp</item>
     </style>
 
-    <style name="App.AlertDialog.Material3" parent="MaterialAlertDialog.Material3">
+    <style name="App.AppCompat.AlertDialog.Material3" parent="MaterialAlertDialog.Material3">
         <item name="shapeAppearance">@style/ShapeAppearance.App.MediumComponent</item>
         <item name="shapeAppearanceOverlay">@null</item>
     </style>
@@ -128,9 +130,10 @@
     </style>
 
 
-    <!-- Button.OutlinedButton -->
+    <!-- App.Button.OutlinedButton -->
     <style name="App.Widget.Button.OutlinedButton" parent="Widget.Material3.Button.OutlinedButton">
         <item name="textAllCaps">false</item>
+        <item name="android:gravity">center</item>
         <item name="android:textColor">@color/bar_title_color</item>
         <item name="materialThemeOverlay">@style/ThemeOverlay.App.Button.OutlinedButton</item>
         <item name="shapeAppearance">@style/ShapeAppearance.Material3.MediumComponent</item>
@@ -138,12 +141,14 @@
 
     <style name="ThemeOverlay.App.Button.OutlinedButton" parent="ThemeOverlay.Material3.Button">
         <item name="colorContainer">@color/bar_background_color</item>
-        <item name="colorOnContainer">@color/md_theme_onPrimary</item>
+        <item name="colorOnContainer">@color/material_grey_900</item>
     </style>
 
-    <!-- Button -->
+    <!-- App.Button -->
     <style name="App.Widget.Button" parent="Widget.Material3.Button">
         <item name="textAllCaps">false</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textSize">16sp</item>
         <item name="android:textAppearance">@style/TextAppearance.App.Button</item>
         <item name="materialThemeOverlay">@style/ThemeOverlay.App.Button</item>
         <item name="shapeAppearance">@style/ShapeAppearance.Material3.MediumComponent</item>
@@ -157,10 +162,10 @@
 
     <style name="ThemeOverlay.App.Button" parent="ThemeOverlay.Material3.Button">
         <item name="colorContainer">@color/md_theme_primary</item>
-        <item name="colorOnContainer">@color/md_theme_onPrimary</item>
+        <item name="colorOnContainer">@color/material_grey_50</item>
     </style>
 
-    <!-- TextInput -->
+    <!-- App.TextInput -->
     <style name="App.Widget.TextInput" parent="Widget.Material3.TextInputLayout.OutlinedBox">
         <item name="materialThemeOverlay">@style/ThemeOverlay.App.TextInputLayout</item>
         <item name="hintTextColor">?attr/colorOnSurface</item>
@@ -173,7 +178,7 @@
         <item name="colorError">@color/red</item>
     </style>
 
-    <!-- EditText -->
+    <!-- App.EditText -->
     <style name="App.Widget.EditText" parent="Widget.AppCompat.EditText">
         <item name="android:background">@drawable/shape_solid_grey88_radius_8</item>
         <item name="android:textColor">@color/bar_title_color</item>
@@ -203,6 +208,7 @@
         <item name="android:divider">@null</item>
         <item name="android:dividerHeight">0dp</item>
     </style>
+
     <!-- Notifications -->
     <style name="NotificationTitle" parent="@android:style/TextAppearance">
         <item name="android:textColor">#ff000000</item>

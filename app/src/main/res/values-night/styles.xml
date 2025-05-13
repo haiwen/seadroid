@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-
-    <style name="ToolBarStyle" parent="Widget.Material3.Toolbar">
+    <!-- Toolbar -->
+    <style name="App.Widget.ToolBarStyle" parent="Widget.Material3.Toolbar">
         <item name="colorControlNormal">@color/bar_icon_tint_color</item>
         <item name="popupTheme">@style/ThemeOverlay.Material3.Dark</item>
         <item name="theme">@style/ThemeOverlay.Material3.Dark</item>
@@ -13,13 +13,16 @@
         <item name="navigationIconTint">@color/bar_icon_tint_color</item>
     </style>
 
-    <style name="TabLayoutStyle" parent="Widget.Material3.TabLayout">
+    <!-- App.TabLayout -->
+    <style name="App.Widget.TabLayout" parent="Widget.Material3.TabLayout">
         <item name="tabIndicatorColor">@color/fancy_orange</item>
         <item name="android:background">@color/bar_background_color</item>
         <item name="android:contentInsetStart">?actionBarInsetStart</item>
         <item name="tabSelectedTextColor">@color/fancy_orange</item>
     </style>
 
+
+    <!-- App.BottomNavigationView -->
     <style name="App.Widget.BottomNavigationView" parent="Widget.Material3.BottomNavigationView">
         <item name="itemActiveIndicatorStyle">@null</item>
         <item name="android:background">@color/bar_background_color</item>
@@ -32,8 +35,9 @@
         <item name="itemPaddingBottom">14dp</item>
     </style>
 
+    <!-- App.AlertDialog -->
     <style name="App.AppCompat.AlertDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
-        <item name="alertDialogStyle">@style/App.AlertDialog.Material3</item>
+        <item name="alertDialogStyle">@style/App.AppCompat.AlertDialog.Material3</item>
         <item name="materialAlertDialogTitleTextStyle">@style/App.AppCompat.AlertDialog.Title
         </item>
         <item name="buttonBarPositiveButtonStyle">@style/App.AppCompat.AlertDialog.Button</item>
@@ -58,7 +62,7 @@
     </style>
 
 
-    <style name="App.AlertDialog.Material3" parent="MaterialAlertDialog.Material3">
+    <style name="App.AppCompat.AlertDialog.Material3" parent="MaterialAlertDialog.Material3">
         <item name="shapeAppearance">@style/ShapeAppearance.App.MediumComponent</item>
         <item name="shapeAppearanceOverlay">@null</item>
     </style>
