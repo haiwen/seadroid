@@ -264,7 +264,6 @@ public class RepoViewModel extends BaseViewModel {
         addSingleDisposable(singleDB, new Consumer<List<BaseModel>>() {
             @Override
             public void accept(List<BaseModel> list) {
-
                 getObjListLiveData().setValue(list);
 
                 if (isLoadRemoteData && NetworkUtils.isConnected()) {

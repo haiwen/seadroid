@@ -49,6 +49,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
@@ -62,9 +63,8 @@ import io.reactivex.functions.Function;
 
 public class Objs {
 
-    ////////////////////////////
-    //////starred
-    ////////////////////////////
+
+    //////////////////////////////////starred////////////////////////////
 
     public static Single<List<StarredModel>> getStarredSingleFromServer(Account account) {
         Single<StarredWrapperModel> netSingle = HttpIO.getInstanceByAccount(account).execute(StarredService.class).getStarItems();
@@ -92,20 +92,18 @@ public class Objs {
         });
     }
 
-    ////////////////////////////
-    //////repo
-    ////////////////////////////
+
+    //////////////////////////////////repo////////////////////////////
 
     public static Single<List<BaseModel>> getReposSingleFromServer(Account account) {
         Single<RepoWrapperModel> netSingle = HttpIO.getInstanceByAccount(account).execute(RepoService.class).getReposAsync();
-        Single<List<RepoModel>> dbListSingle = AppDatabase.getInstance().repoDao().getListByAccount(account.getSignature());
 
-        return Single.zip(netSingle, dbListSingle, new BiFunction<RepoWrapperModel, List<RepoModel>, List<RepoModel>>() {
+        return netSingle.flatMap(new Function<RepoWrapperModel, SingleSource<List<RepoModel>>>() {
             @Override
-            public List<RepoModel> apply(RepoWrapperModel repoWrapperModel, List<RepoModel> dbModels) throws Exception {
+            public SingleSource<List<RepoModel>> apply(RepoWrapperModel repoWrapperModel) throws Exception {
                 //get data from server and convert to local data
                 if (CollectionUtils.isEmpty(repoWrapperModel.repos)) {
-                    return Collections.emptyList();
+                    return Single.just(Collections.emptyList());
                 }
 
                 for (RepoModel repoModel : repoWrapperModel.repos) {
@@ -113,11 +111,11 @@ public class Objs {
                     repoModel.last_modified_long = Times.convertMtime2Long(repoModel.last_modified);
                 }
 
-                return repoWrapperModel.repos;
+                return Single.just(repoWrapperModel.repos);
             }
         }).flatMap(new Function<List<RepoModel>, SingleSource<List<RepoModel>>>() {
             @Override
-            public SingleSource<List<RepoModel>> apply(List<RepoModel> localList) throws Exception {
+            public SingleSource<List<RepoModel>> apply(List<RepoModel> willSaveIntoLocalList) throws Exception {
                 // delete local db
                 Completable deleteCompletable = AppDatabase.getInstance().repoDao().deleteAll();
                 Single<Long> deleteSingle = deleteCompletable.toSingleDefault(0L);
@@ -125,34 +123,34 @@ public class Objs {
                 return deleteSingle.flatMap(new Function<Long, SingleSource<List<RepoModel>>>() {
                     @Override
                     public SingleSource<List<RepoModel>> apply(Long aLong) throws Exception {
-                        return Single.just(localList);
+                        return Single.just(willSaveIntoLocalList);
                     }
                 });
             }
         }).flatMap(new Function<List<RepoModel>, SingleSource<List<RepoModel>>>() {
             @Override
-            public SingleSource<List<RepoModel>> apply(List<RepoModel> localList) throws Exception {
+            public SingleSource<List<RepoModel>> apply(List<RepoModel> willSaveIntoLocalList) throws Exception {
                 //insert into db
 
-                if (CollectionUtils.isEmpty(localList)) {
-                    return Single.just(localList);
+                if (CollectionUtils.isEmpty(willSaveIntoLocalList)) {
+                    return Single.just(willSaveIntoLocalList);
                 }
 
-                Completable insertCompletable = AppDatabase.getInstance().repoDao().insertAll(localList);
+                Completable insertCompletable = AppDatabase.getInstance().repoDao().insertAll(willSaveIntoLocalList);
                 Single<Long> longSingle = insertCompletable.toSingleDefault(0L);
                 return longSingle.flatMap(new Function<Long, SingleSource<List<RepoModel>>>() {
                     @Override
                     public SingleSource<List<RepoModel>> apply(Long aLong) throws Exception {
-                        return Single.just(localList);
+                        return Single.just(willSaveIntoLocalList);
                     }
                 });
             }
         }).flatMap(new Function<List<RepoModel>, SingleSource<List<BaseModel>>>() {
             @Override
-            public SingleSource<List<BaseModel>> apply(List<RepoModel> localList) throws Exception {
+            public SingleSource<List<BaseModel>> apply(List<RepoModel> savedIntoLocalList) throws Exception {
                 //parse to adapter list data
 
-                List<BaseModel> models = Objs.convertToAdapterList(localList, false);
+                List<BaseModel> models = Objs.convertToAdapterList(savedIntoLocalList, false);
                 return Single.just(models);
             }
         });
@@ -231,7 +229,6 @@ public class Objs {
             newRepos = repos.stream().sorted(new Comparator<RepoModel>() {
                 @Override
                 public int compare(RepoModel o1, RepoModel o2) {
-
                     if (isAscending) {
                         return Long.compare(o1.last_modified_long, o2.last_modified_long);
                     }
@@ -245,9 +242,6 @@ public class Objs {
 
         } else if (newRepos.size() == 1) {
             newRepos.get(0).item_position = ItemPositionEnum.ALL;
-        } else if (newRepos.size() == 2) {
-            newRepos.get(0).item_position = ItemPositionEnum.START;
-            newRepos.get(1).item_position = ItemPositionEnum.END;
         } else {
             newRepos.get(0).item_position = ItemPositionEnum.START;
             newRepos.get(newRepos.size() - 1).item_position = ItemPositionEnum.END;
@@ -259,6 +253,9 @@ public class Objs {
         TreeMap<String, List<RepoModel>> map = new TreeMap<String, List<RepoModel>>();
         for (RepoModel repo : repos) {
             if (TextUtils.equals(repo.type, RepoType.TYPE_GROUP)) {
+                if (repo.group_name == null) {
+                    repo.group_name = "";
+                }
                 List<RepoModel> l = map.computeIfAbsent(repo.group_name, k -> Lists.newArrayList());
                 l.add(repo);
             } else {
@@ -269,9 +266,8 @@ public class Objs {
         return map;
     }
 
-    ////////////////////////////
-    //////dirent
-    ////////////////////////////
+
+    //////////////////////////////////dirent////////////////////////////
     public static Single<List<DirentModel>> getDirentsSingleFromServer(Account account, String repoId, String repoName, String parentDir) {
 
         Single<DirentWrapperModel> netSingle = HttpIO.getInstanceByAccount(account).execute(RepoService.class).getDirentsAsync(repoId, parentDir);

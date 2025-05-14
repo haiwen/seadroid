@@ -8,7 +8,6 @@ public class SLogs extends Logs {
         String brand = android.os.Build.BRAND;
         String model = android.os.Build.MODEL;
         String release = android.os.Build.VERSION.RELEASE;
-        AppUtils.AppInfo appInfo = AppUtils.getAppInfo();
 
         d("App Env Info:");
         d("{" +
@@ -16,8 +15,6 @@ public class SLogs extends Logs {
                 "\n    Model: " + model +
                 "\n    Release: " + release +
                 "\n}");
-        assert appInfo != null;
-        d(appInfo.toString());
     }
 
     public static String getDeviceBrand() {

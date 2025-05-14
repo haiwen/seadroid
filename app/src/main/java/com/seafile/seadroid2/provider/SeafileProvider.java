@@ -345,8 +345,9 @@ public class SeafileProvider extends DocumentsProvider {
         // the android API asks us to be quick, so just use the cache.
         List<RepoModel> repoModels = AppDatabase.getInstance().repoDao().getByIdSync(repoId);
         if (CollectionUtils.isEmpty(repoModels)) {
-            throw new IllegalArgumentException();
+            throw new FileNotFoundException();
         }
+
         RepoModel repoModel = repoModels.get(0);
         if (repoModel == null) {
             throw new FileNotFoundException();
@@ -751,7 +752,7 @@ public class SeafileProvider extends DocumentsProvider {
 
         row.add(Root.COLUMN_ROOT_ID, rootId);
         row.add(Root.COLUMN_DOCUMENT_ID, docId);
-        row.add(Root.COLUMN_ICON, R.drawable.ic_launcher);
+        row.add(Root.COLUMN_ICON, R.mipmap.ic_launcher);
         row.add(Root.COLUMN_FLAGS, Root.FLAG_SUPPORTS_IS_CHILD);//| Root.FLAG_SUPPORTS_CREATE
         row.add(Root.COLUMN_TITLE, account.getServerHost());
         row.add(Root.COLUMN_SUMMARY, account.getEmail());
@@ -771,7 +772,7 @@ public class SeafileProvider extends DocumentsProvider {
         row.add(Document.COLUMN_DISPLAY_NAME, account.getServerHost());
         row.add(Document.COLUMN_LAST_MODIFIED, null);
         row.add(Document.COLUMN_FLAGS, 0);
-        row.add(Document.COLUMN_ICON, R.drawable.ic_launcher);
+        row.add(Document.COLUMN_ICON, R.mipmap.ic_launcher);
         row.add(Document.COLUMN_SIZE, null);
         row.add(Document.COLUMN_MIME_TYPE, Document.MIME_TYPE_DIR);
     }

@@ -8,6 +8,6 @@
         android:layout_width="128dp"
         android:layout_height="128dp"
         android:layout_gravity="center"
-        android:src="@drawable/ic_launcher" />
+        android:src="@mipmap/ic_launcher" />
 
 </LinearLayout>

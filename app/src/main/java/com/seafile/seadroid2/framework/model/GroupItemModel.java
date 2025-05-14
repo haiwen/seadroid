@@ -45,11 +45,6 @@ public class GroupItemModel extends BaseModel {
         title = SeadroidApplication.getInstance().getString(name);
     }
 
-    public GroupItemModel(String title) {
-        this.title = title;
-        checkable = false;
-    }
-
     public GroupItemModel(String title, List<RepoModel> repoList) {
         this.title = title;
         repo_list.addAll(repoList);
