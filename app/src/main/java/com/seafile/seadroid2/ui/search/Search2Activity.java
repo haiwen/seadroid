@@ -369,42 +369,43 @@ public class Search2Activity extends BaseActivityWithVM<SearchViewModel> impleme
     }
 
     private void open(RepoModel repoModel, SearchModel searchedFile, String fileName, String filePath) {
-        if (fileName.endsWith(Constants.Format.DOT_SDOC)) {
-            SDocWebViewActivity.openSdoc(this, repoModel.repo_name, repoModel.repo_id, filePath);
-        } else if (Utils.isViewableImage(fileName) && !repoModel.encrypted) {
-            // Encrypted repo does not support gallery,
-            // because pic thumbnail under encrypted repo was not supported at the server side
-            Intent intent = CarouselImagePreviewActivity.startThisFromSearch(this, searchedFile);
-            startActivity(intent);
-        } else if (Utils.isVideoFile(fileName)) { // is video file
-            final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
-            builder.setItems(R.array.video_download_array, new DialogInterface.OnClickListener() {
-                @OptIn(markerClass = UnstableApi.class)
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    if (which == 0) {
-                        CustomExoVideoPlayerActivity.startThis(Search2Activity.this, fileName, repoModel.repo_id, filePath,null);
-                    } else if (which == 1) {
-                        Intent intent = FileActivity.startFromSearch(Search2Activity.this, searchedFile, "video_download");
-                        fileActivityLauncher.launch(intent);
-                    }
-                }
-            }).show();
-        } else {
-            checkFileAndStartFileActivity(searchedFile, true);
-        }
+//        if (fileName.endsWith(Constants.Format.DOT_SDOC)) {
+//            SDocWebViewActivity.openSdoc(this, repoModel.repo_name, repoModel.repo_id, filePath);
+//        } else if (Utils.isViewableImage(fileName) && !repoModel.encrypted) {
+//            // Encrypted repo does not support gallery,
+//            // because pic thumbnail under encrypted repo was not supported at the server side
+//            Intent intent = CarouselImagePreviewActivity.startThisFromSearch(this, searchedFile);
+//            startActivity(intent);
+//        } else if (Utils.isVideoFile(fileName)) { // is video file
+//            final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
+//            builder.setItems(R.array.video_download_array, new DialogInterface.OnClickListener() {
+//                @OptIn(markerClass = UnstableApi.class)
+//                @Override
+//                public void onClick(DialogInterface dialog, int which) {
+//                    if (which == 0) {
+//                        CustomExoVideoPlayerActivity.startThis(Search2Activity.this, fileName, repoModel.repo_id, filePath,null);
+//                    } else if (which == 1) {
+//                        Intent intent = FileActivity.startFromSearch(Search2Activity.this, searchedFile, "video_download");
+//                        fileActivityLauncher.launch(intent);
+//                    }
+//                }
+//            }).show();
+//        } else {
+//            checkFileAndStartFileActivity(searchedFile, true);
+//        }
     }
+
 
     private void checkFileAndStartFileActivity(SearchModel searchedFile, boolean isOpenWith) {
 
-        Account account = SupportAccountManager.getInstance().getCurrentAccount();
-        File localFile = DataManager.getLocalRepoFile(account, searchedFile.repo_id, searchedFile.repo_name, searchedFile.fullpath);
-        if (localFile.exists()) {
-            WidgetUtils.openWith(this, localFile);
-        } else {
-            Intent intent = FileActivity.startFromSearch(this, searchedFile, "search");
-            fileActivityLauncher.launch(intent);
-        }
+//        Account account = SupportAccountManager.getInstance().getCurrentAccount();
+//        File localFile = DataManager.getLocalRepoFile(account, searchedFile.repo_id, searchedFile.repo_name, searchedFile.fullpath);
+//        if (localFile.exists()) {
+//            WidgetUtils.openWith(this, localFile);
+//        } else {
+//            Intent intent = FileActivity.startFromSearch(this, searchedFile, "search");
+//            fileActivityLauncher.launch(intent);
+//        }
     }
 
     private void navTo(SearchModel model) {

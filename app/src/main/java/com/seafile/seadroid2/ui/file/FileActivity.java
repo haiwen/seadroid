@@ -18,6 +18,7 @@ import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.databinding.FileActivityBinding;
+import com.seafile.seadroid2.enums.FileReturnActionEnum;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.db.entities.StarredModel;
@@ -51,28 +52,22 @@ public class FileActivity extends BaseActivityWithVM<FileViewModel> implements T
     private DirentModel direntModel;
     private Account account;
 
-    public static Intent start(Context context, DirentModel direntModel, String action) {
+    public static Intent start(Context context, DirentModel direntModel, FileReturnActionEnum actionEnum) {
         Intent starter = new Intent(context, FileActivity.class);
         starter.putExtra("dirent", direntModel);
-        starter.putExtra("action", action);
+        starter.putExtra("action", actionEnum.name());
         return starter;
     }
 
-    public static Intent startFromStarred(Context context, StarredModel model, String action) {
+    public static Intent startFromStarred(Context context, StarredModel model, FileReturnActionEnum actionEnum) {
         DirentModel direntModel = DirentModel.convertStarredModelToThis(model);
-        return start(context, direntModel, action);
+        return start(context, direntModel, actionEnum);
     }
 
-    public static Intent startFromSearch(Context context, SearchModel model, String action) {
-        DirentModel direntModel = DirentModel.convertSearchModelToThis(model);
-        return start(context, direntModel, action);
-    }
-
-    public static Intent startFromActivity(Context context, ActivityModel model, String action) {
+    public static Intent startFromActivity(Context context, ActivityModel model, FileReturnActionEnum actionEnum) {
         DirentModel direntModel = DirentModel.convertActivityModelToThis(model);
-        return start(context, direntModel, action);
+        return start(context, direntModel, actionEnum);
     }
-
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

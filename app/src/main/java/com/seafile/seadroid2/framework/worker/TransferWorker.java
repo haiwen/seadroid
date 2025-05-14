@@ -110,6 +110,7 @@ public abstract class TransferWorker extends BaseWorker {
         if (TextUtils.isEmpty(r)) {
             return;
         }
+
         if (Looper.getMainLooper().getThread() == Thread.currentThread()) {
             Toast.makeText(getApplicationContext(), r, Toast.LENGTH_LONG).show();
         } else {

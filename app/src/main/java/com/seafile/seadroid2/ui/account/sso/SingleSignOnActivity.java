@@ -69,8 +69,6 @@ public class SingleSignOnActivity extends BaseActivityWithVM<SingleSignOnViewMod
     }
 
     private void initView() {
-
-
         String url = getIntent().getStringExtra(SeafileAuthenticatorActivity.SINGLE_SIGN_ON_SERVER_URL);
         if (!TextUtils.isEmpty(url)) {
             binding.serverEditText.setText(url);

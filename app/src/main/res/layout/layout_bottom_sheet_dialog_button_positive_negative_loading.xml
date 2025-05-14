@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="end|center_vertical"
+    android:orientation="horizontal">
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/text_view_negative"
+        style="@style/App.Widget.Button.OutlinedButton"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/long_btn_height"
+        android:layout_marginEnd="8dp"
+        android:layout_weight="1"
+        android:text="@string/cancel" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/text_view_positive"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/long_btn_height"
+        android:layout_marginStart="8dp"
+        android:layout_weight="1"
+        android:text="@string/ok" />
+
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="24dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:layout_marginEnd="?attr/dialogPreferredPadding"
+        android:paddingHorizontal="4dp"
+        android:visibility="gone" />
+</LinearLayout>

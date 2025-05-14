@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-
-    <style name="ToolBarStyle" parent="Widget.Material3.Toolbar">
+    <!-- Toolbar -->
+    <style name="App.Widget.ToolBarStyle" parent="Widget.Material3.Toolbar">
         <item name="colorControlNormal">@color/bar_icon_tint_color</item>
         <item name="popupTheme">@style/ThemeOverlay.Material3.Dark</item>
         <item name="theme">@style/ThemeOverlay.Material3.Dark</item>
@@ -13,13 +13,16 @@
         <item name="navigationIconTint">@color/bar_icon_tint_color</item>
     </style>
 
-    <style name="TabLayoutStyle" parent="Widget.Material3.TabLayout">
+    <!-- App.TabLayout -->
+    <style name="App.Widget.TabLayout" parent="Widget.Material3.TabLayout">
         <item name="tabIndicatorColor">@color/fancy_orange</item>
         <item name="android:background">@color/bar_background_color</item>
         <item name="android:contentInsetStart">?actionBarInsetStart</item>
         <item name="tabSelectedTextColor">@color/fancy_orange</item>
     </style>
 
+
+    <!-- App.BottomNavigationView -->
     <style name="App.Widget.BottomNavigationView" parent="Widget.Material3.BottomNavigationView">
         <item name="itemActiveIndicatorStyle">@null</item>
         <item name="android:background">@color/bar_background_color</item>
@@ -32,13 +35,14 @@
         <item name="itemPaddingBottom">14dp</item>
     </style>
 
-    <style name="AppCompatAlertDialogStyle" parent="ThemeOverlay.Material3.MaterialAlertDialog">
-        <item name="alertDialogStyle">@style/App.AlertDialog.Material3</item>
-        <item name="materialAlertDialogTitleTextStyle">@style/AppCompatAlertDialog.TitleTextStyle
+    <!-- App.AlertDialog -->
+    <style name="App.AppCompat.AlertDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="alertDialogStyle">@style/App.AppCompat.AlertDialog.Material3</item>
+        <item name="materialAlertDialogTitleTextStyle">@style/App.AppCompat.AlertDialog.Title
         </item>
-        <item name="buttonBarPositiveButtonStyle">@style/AppCompatAlertDialog.ButtonStyle</item>
-        <item name="buttonBarNegativeButtonStyle">@style/AppCompatAlertDialog.ButtonStyle</item>
-        <item name="buttonBarNeutralButtonStyle">@style/AppCompatAlertDialog.ButtonStyle</item>
+        <item name="buttonBarPositiveButtonStyle">@style/App.AppCompat.AlertDialog.Button</item>
+        <item name="buttonBarNegativeButtonStyle">@style/App.AppCompat.AlertDialog.Button</item>
+        <item name="buttonBarNeutralButtonStyle">@style/App.AppCompat.AlertDialog.Button</item>
 
         <item name="colorPrimary">@color/white</item>
         <!--        <item name="colorSecondary">@color/md_theme_secondary</item>-->
@@ -47,18 +51,18 @@
     </style>
 
 
-    <style name="AppCompatAlertDialog.TitleTextStyle" parent="MaterialAlertDialog.MaterialComponents.Title.Text">
+    <style name="App.AppCompat.AlertDialog.Title" parent="MaterialAlertDialog.MaterialComponents.Title.Text">
         <item name="android:textColor">@color/light_gray</item>
         <item name="android:textSize">20sp</item>
     </style>
 
-    <style name="AppCompatAlertDialog.ButtonStyle" parent="Widget.Material3.Button.TextButton.Dialog">
+    <style name="App.AppCompat.AlertDialog.Button" parent="Widget.Material3.Button.TextButton.Dialog">
         <item name="android:textColor">@color/fancy_orange</item>
         <item name="android:textSize">16sp</item>
     </style>
 
 
-    <style name="App.AlertDialog.Material3" parent="MaterialAlertDialog.Material3">
+    <style name="App.AppCompat.AlertDialog.Material3" parent="MaterialAlertDialog.Material3">
         <item name="shapeAppearance">@style/ShapeAppearance.App.MediumComponent</item>
         <item name="shapeAppearanceOverlay">@null</item>
     </style>

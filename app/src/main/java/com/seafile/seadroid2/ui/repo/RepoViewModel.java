@@ -25,6 +25,7 @@ import com.seafile.seadroid2.framework.crypto.SecurePasswordManager;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.db.entities.EncKeyCacheEntity;
+import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
 import com.seafile.seadroid2.framework.db.entities.PermissionEntity;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.model.BaseModel;
@@ -125,7 +126,6 @@ public class RepoViewModel extends BaseViewModel {
     public MutableLiveData<List<BaseModel>> getObjListLiveData() {
         return _objListLiveData;
     }
-
 
     public void decryptRepo(String repoId, Consumer<String> consumer) {
         if (consumer == null) {
@@ -264,7 +264,6 @@ public class RepoViewModel extends BaseViewModel {
         addSingleDisposable(singleDB, new Consumer<List<BaseModel>>() {
             @Override
             public void accept(List<BaseModel> list) {
-
                 getObjListLiveData().setValue(list);
 
                 if (isLoadRemoteData && NetworkUtils.isConnected()) {

@@ -90,6 +90,8 @@
     <color name="switch_thumb_color">@color/fancy_orange</color>
     <color name="switch_track_color">#E3E3E3</color>
 
+    <color name="edit_text_background_color">@color/material_grey_919</color>
+
     <!-- search -->
     <color name="search_bg_color">#5e5e5e</color>
     <color name="search_stroke_color">#2c2c2c</color>

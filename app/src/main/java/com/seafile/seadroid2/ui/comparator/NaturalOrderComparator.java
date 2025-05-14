@@ -18,7 +18,7 @@ public class NaturalOrderComparator implements Comparator<Object> {
         } catch (Exception e) {
             collator = Collator.getInstance(Locale.ROOT);
         }
-        this.collator.setStrength(Collator.SECONDARY); // 忽略大小写和重音
+        this.collator.setStrength(Collator.SECONDARY);
     }
 
     @Override
@@ -75,7 +75,7 @@ public class NaturalOrderComparator implements Comparator<Object> {
                 continue;
             }
 
-            // **确保数字排在字母前**
+            // make sure the numbers come before the letters
             if (Character.isDigit(c1)) return -1;
             if (Character.isDigit(c2)) return 1;
 
@@ -85,7 +85,7 @@ public class NaturalOrderComparator implements Comparator<Object> {
                 return casePriority;
             }
 
-            // 使用 Collator 比较字符（忽略大小写和重音）
+            // Compare characters using Collator (ignore case)
             int cmp = collator.compare(Character.toString(c1), Character.toString(c2));
             if (cmp != 0) {
                 return cmp;
@@ -104,11 +104,11 @@ public class NaturalOrderComparator implements Comparator<Object> {
         boolean isLower1 = Character.isLowerCase(c1);
         boolean isLower2 = Character.isLowerCase(c2);
 
-        // 小写优先逻辑
+        //lowercase first logic
         if (isLower1 && !isLower2) return -1;
         if (!isLower1 && isLower2) return 1;
 
-        // 同大小写状态时保持原始顺序
+        // The original order is maintained when it is in the same case
         return Character.compare(c1, c2);
     }
 

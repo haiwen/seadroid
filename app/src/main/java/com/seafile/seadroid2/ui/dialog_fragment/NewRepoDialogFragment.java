@@ -17,6 +17,7 @@ import com.seafile.seadroid2.framework.util.StringUtils;
 import com.seafile.seadroid2.ui.base.fragment.RequestCustomDialogFragmentWithVM;
 import com.seafile.seadroid2.ui.dialog_fragment.viewmodel.NewRepoViewModel;
 
+@Deprecated
 public class NewRepoDialogFragment extends RequestCustomDialogFragmentWithVM<NewRepoViewModel> {
 
     @Override
@@ -29,7 +30,7 @@ public class NewRepoDialogFragment extends RequestCustomDialogFragmentWithVM<New
         return R.string.create_new_repo;
     }
 
-    private int passwordMinLength = 0;
+    private int passwordMinLength = 4;
     @Override
     public void initView(LinearLayout containerView) {
         super.initView(containerView);

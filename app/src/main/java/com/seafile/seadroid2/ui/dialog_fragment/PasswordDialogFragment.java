@@ -88,10 +88,6 @@ public class PasswordDialogFragment extends RequestCustomDialogFragmentWithVM<Pa
     protected void initView(LinearLayout containerView) {
         super.initView(containerView);
 
-        if (TextUtils.isEmpty(repoId)) {
-            throw new IllegalArgumentException("this dialogFragment need repoId param");
-        }
-
         EditText editText = getDialogView().findViewById(R.id.password);
         TextInputLayout passwordInputLayout = getDialogView().findViewById(R.id.password_hint);
 

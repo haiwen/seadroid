@@ -32,10 +32,12 @@ import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.bus.BusHelper;
 import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.databinding.LayoutFrameSwipeRvBinding;
+import com.seafile.seadroid2.enums.FileReturnActionEnum;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.db.entities.StarredModel;
 import com.seafile.seadroid2.framework.model.ResultModel;
 import com.seafile.seadroid2.framework.datastore.DataManager;
+import com.seafile.seadroid2.framework.util.Objs;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.base.fragment.BaseFragmentWithVM;
@@ -50,6 +52,7 @@ import com.seafile.seadroid2.ui.main.MainViewModel;
 import com.seafile.seadroid2.ui.markdown.MarkdownActivity;
 import com.seafile.seadroid2.ui.media.image.CarouselImagePreviewActivity;
 import com.seafile.seadroid2.ui.media.player.CustomExoVideoPlayerActivity;
+import com.seafile.seadroid2.ui.repo.RepoQuickFragment;
 import com.seafile.seadroid2.ui.sdoc.SDocWebViewActivity;
 import com.seafile.seadroid2.view.TipsViews;
 
@@ -315,48 +318,42 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
                 if (which == 0) {
                     CustomExoVideoPlayerActivity.startThis(getContext(), model.obj_name, model.repo_id, model.path, null);
                 } else if (which == 1) {
-                    Intent intent = FileActivity.startFromStarred(requireContext(), model, "video_download");
+                    Intent intent = FileActivity.startFromStarred(requireContext(), model, FileReturnActionEnum.DOWNLOAD_VIDEO);
                     fileActivityLauncher.launch(intent);
                 }
             }).show();
         } else if (Utils.isTextMimeType(model.obj_name)) {
-            getViewModel().checkRemoteAndOpen(model.repo_id, model.path, new Consumer<String>() {
-                @Override
-                public void accept(String s) throws Exception {
-                    if (TextUtils.isEmpty(s)) {
-                        Intent intent = FileActivity.startFromStarred(requireContext(), model, "open_markdown");
-                        fileActivityLauncher.launch(intent);
-                    } else {
-                        File file = getLocalDestinationFile(model.repo_id, model.repo_name, model.path);
-                        if (file.exists()) {
-                            MarkdownActivity.start(requireContext(), file.getAbsolutePath(), model.repo_id, model.path);
-                        } else {
-                            Intent intent = FileActivity.startFromStarred(requireContext(), model, "open_markdown");
-                            fileActivityLauncher.launch(intent);
-                        }
-                    }
-                }
-            });
+            openWith(model, FileReturnActionEnum.OPEN_TEXT_MIME);
         } else {
             //Open with another app
-            openWith(model);
+            openWith(model, FileReturnActionEnum.OPEN_WITH);
         }
+    }
+
+    private void openWith(StarredModel model, FileReturnActionEnum actionEnum) {
+        getViewModel().checkRemoteAndOpen(model.repo_id, model.path, new Consumer<String>() {
+            @Override
+            public void accept(String fileId) {
+                File local = getLocalDestinationFile(model.repo_id, model.repo_name, model.path);
+                if (!TextUtils.isEmpty(fileId) && local.exists()) {
+                    if (TextUtils.equals(FileReturnActionEnum.OPEN_WITH.name(), actionEnum.name())) {
+                        WidgetUtils.openWith(requireContext(), local);
+
+                    } else if (TextUtils.equals(FileReturnActionEnum.OPEN_TEXT_MIME.name(), actionEnum.name())) {
+                        MarkdownActivity.start(requireContext(), local.getAbsolutePath(), model.repo_id, model.path);
+
+                    }
+                } else {
+                    Intent intent = FileActivity.startFromStarred(requireContext(), model, actionEnum);
+                    fileActivityLauncher.launch(intent);
+                }
+            }
+        });
     }
 
     private File getLocalDestinationFile(String repoId, String repoName, String fullPathInRepo) {
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
-
         return DataManager.getLocalRepoFile(account, repoId, repoName, fullPathInRepo);
-    }
-
-    private void openWith(StarredModel model) {
-        File local = getLocalDestinationFile(model.repo_id, model.repo_name, model.path);
-        if (local.exists()) {
-            WidgetUtils.openWith(requireContext(), local);
-        } else {
-            Intent intent = FileActivity.startFromStarred(requireContext(), model, "open_with");
-            fileActivityLauncher.launch(intent);
-        }
     }
 
     private final ActivityResultLauncher<Intent> imagePreviewActivityLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
@@ -377,11 +374,16 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
                 return;
             }
 
-            String action = o.getData().getStringExtra("action");
-            String repoId = o.getData().getStringExtra("repo_id");
-            String targetFile = o.getData().getStringExtra("target_file");
-            String localFullPath = o.getData().getStringExtra("destination_path");
-            boolean isUpdateWhenFileExists = o.getData().getBooleanExtra("is_update", false);
+            Intent data = o.getData();
+            if (o.getData() == null) {
+                return;
+            }
+
+            String action = data.getStringExtra("action");
+            String repoId = data.getStringExtra("repo_id");
+            String targetFile = data.getStringExtra("target_file");
+            String localFullPath = data.getStringExtra("destination_path");
+            boolean isUpdateWhenFileExists = data.getBooleanExtra("is_update", false);
 
             if (TextUtils.isEmpty(localFullPath)) {
                 return;
@@ -392,11 +394,17 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
             }
 
             File destinationFile = new File(localFullPath);
-            if ("open_with".equals(action)) {
+
+            if (TextUtils.equals(FileReturnActionEnum.EXPORT.name(), action)) {
+
+            } else if (TextUtils.equals(FileReturnActionEnum.SHARE.name(), action)) {
+
+            } else if (TextUtils.equals(FileReturnActionEnum.DOWNLOAD_VIDEO.name(), action)) {
+
+            } else if (TextUtils.equals(FileReturnActionEnum.OPEN_WITH.name(), action)) {
+
                 WidgetUtils.openWith(requireContext(), destinationFile);
-            } else if ("video_download".equals(action)) {
-                //
-            } else if ("open_markdown".equals(action)) {
+            } else if (TextUtils.equals(FileReturnActionEnum.OPEN_TEXT_MIME.name(), action)) {
 
                 MarkdownActivity.start(requireContext(), localFullPath, repoId, targetFile);
             }

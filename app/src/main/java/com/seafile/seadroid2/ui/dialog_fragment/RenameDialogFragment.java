@@ -18,6 +18,7 @@ import com.seafile.seadroid2.framework.util.StringUtils;
 import com.seafile.seadroid2.ui.base.fragment.RequestCustomDialogFragmentWithVM;
 import com.seafile.seadroid2.ui.dialog_fragment.viewmodel.RenameRepoViewModel;
 
+@Deprecated
 public class RenameDialogFragment extends RequestCustomDialogFragmentWithVM<RenameRepoViewModel> {
 
     /**

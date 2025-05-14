@@ -18,7 +18,7 @@
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar_actionbar"
-        style="@style/ToolBarStyle"
+        style="@style/App.Widget.ToolBarStyle"
         android:layout_width="match_parent"
         android:layout_height="?actionBarSize"
         android:background="@color/bar_background_color"

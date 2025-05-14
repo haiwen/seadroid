@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/bottom_sheet_container"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <androidx.appcompat.widget.AppCompatEditText
+            android:id="@+id/edit_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/name_hint" />
+
+        <com.google.android.material.materialswitch.MaterialSwitch
+            android:id="@+id/widget_switch"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginTop="16dp"
+            android:text="@string/encrypt"
+            android:visibility="visible" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/edit_text_pwd1_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:visibility="gone"
+            app:boxBackgroundMode="none"
+            app:hintEnabled="false"
+            app:passwordToggleDrawable="@drawable/icon_eye_close"
+            app:passwordToggleEnabled="true"
+            app:passwordToggleTint="@color/alert_dialog_onsurface_color">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edit_text_pwd1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/shape_solid_grey88_radius_8"
+                android:hint="@string/passwd_min_len_limit_hint"
+                android:importantForAutofill="auto"
+                android:inputType="textPassword"
+                android:textSize="14sp" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/edit_text_pwd2_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:visibility="gone"
+            app:boxBackgroundMode="none"
+            app:hintEnabled="false"
+            app:passwordToggleDrawable="@drawable/icon_eye_close"
+            app:passwordToggleEnabled="true"
+            app:passwordToggleTint="@color/alert_dialog_onsurface_color">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edit_text_pwd2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/shape_solid_grey88_radius_8"
+                android:hint="@string/passwd_confirmation_hint"
+                android:importantForAutofill="auto"
+                android:inputType="textPassword"
+                android:textSize="14sp" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+
+    </LinearLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

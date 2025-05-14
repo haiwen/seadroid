@@ -7,10 +7,10 @@
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar_actionbar"
+        style="@style/App.Widget.ToolBarStyle"
         android:layout_width="match_parent"
         android:layout_height="?actionBarSize"
-        app:contentInsetStartWithNavigation="0dp"
-        app:theme="@style/ToolBarStyle" />
+        app:contentInsetStartWithNavigation="0dp" />
 
     <ProgressBar
         android:id="@+id/tool_progress_bar"

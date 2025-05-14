@@ -343,7 +343,17 @@ public class FileProfileDialog extends BottomSheetDialogFragment {
         if (model.value instanceof OffsetDateTime date) {
             View ltr = LayoutInflater.from(view.getContext()).inflate(R.layout.layout_textview, null);
 
-            String d = date.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME).replace("T"," ");
+            String d = date.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME).replace("T", " ");
+            ltr.<TextView>findViewById(R.id.text_view).setText(d);
+
+            view.<FlexboxLayout>findViewById(R.id.flex_box).addView(ltr, getFlexParams());
+        } else if (model.value instanceof String date) {
+
+            View ltr = LayoutInflater.from(view.getContext()).inflate(R.layout.layout_textview, null);
+
+            Date date1 = TimeUtils.string2Date(date, DateFormatType.DATE_XXX);
+            String d = TimeUtils.date2String(date1, DateFormatType.DATE_YMD_HMS);
+
             ltr.<TextView>findViewById(R.id.text_view).setText(d);
 
             view.<FlexboxLayout>findViewById(R.id.flex_box).addView(ltr, getFlexParams());

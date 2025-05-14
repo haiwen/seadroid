@@ -4,14 +4,7 @@ package com.seafile.seadroid2;
 import android.app.Application;
 import android.content.Context;
 
-import androidx.appcompat.app.AppCompatDelegate;
-import androidx.work.Configuration;
-import androidx.work.WorkManager;
-
 import com.jeremyliao.liveeventbus.LiveEventBus;
-import com.seafile.seadroid2.compat.AppCompatKt;
-import com.seafile.seadroid2.enums.NightMode;
-import com.seafile.seadroid2.framework.datastore.sp.Sorts;
 import com.seafile.seadroid2.framework.monitor.ActivityMonitor;
 import com.seafile.seadroid2.framework.notification.base.NotificationUtils;
 import com.seafile.seadroid2.framework.util.CrashHandler;
@@ -28,9 +21,6 @@ public class SeadroidApplication extends Application {
         super.onCreate();
 
         instance = this;
-
-        //
-        Sorts.init();
 
         //init slogs
         SLogs.init();

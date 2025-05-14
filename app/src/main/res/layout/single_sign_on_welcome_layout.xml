@@ -36,9 +36,7 @@
             android:id="@+id/next_btn"
             android:layout_width="match_parent"
             android:layout_height="@dimen/long_btn_height"
-            android:onClick="login"
             android:text="@string/lockpattern_continue_button_text"
-            android:textColor="@color/white"
             android:textSize="@dimen/long_btn_txt_size" />
     </LinearLayout>
 

@@ -18,6 +18,7 @@ import com.seafile.seadroid2.framework.model.ResultModel;
 import com.seafile.seadroid2.framework.model.dirents.FileCreateModel;
 import com.seafile.seadroid2.ui.dialog_fragment.viewmodel.NewDirViewModel;
 
+@Deprecated
 public class NewDirFileDialogFragment extends RequestCustomDialogFragmentWithVM<NewDirViewModel> {
     private String parentDir, repoId;
     private boolean isDir;

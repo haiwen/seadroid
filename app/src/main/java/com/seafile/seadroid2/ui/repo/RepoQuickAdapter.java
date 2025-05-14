@@ -318,12 +318,10 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
     }
 
     private void onBindGroup(GroupItemViewHolder holder, GroupItemModel model, int position, List<?> payloads) {
-        if (!TextUtils.isEmpty(model.title)) {
-            if ("Organization".equals(model.title)) {
-                holder.binding.itemGroupTitle.setText(R.string.shared_with_all);
-            } else {
-                holder.binding.itemGroupTitle.setText(model.title);
-            }
+        if ("Organization".equals(model.title)) {
+            holder.binding.itemGroupTitle.setText(R.string.shared_with_all);
+        } else {
+            holder.binding.itemGroupTitle.setText(model.title);
         }
 
         if (selectType.ordinal() >= RepoSelectType.ONLY_ACCOUNT.ordinal()) {
