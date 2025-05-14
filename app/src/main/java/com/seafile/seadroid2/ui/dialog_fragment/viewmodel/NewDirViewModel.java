@@ -37,12 +37,10 @@ public class NewDirViewModel extends BaseViewModel {
 
         getRefreshLiveData().setValue(true);
 
-        Map<String, String> requestDataMap = new HashMap<>();
-        requestDataMap.put("operation", "mkdir");
+        Map<String, String> bodyMap = new HashMap<>();
+        bodyMap.put("operation", "mkdir");
 
-        Map<String, RequestBody> bodyMap = genRequestBody(requestDataMap);
-
-        Single<String> single = HttpIO.getCurrentInstance().execute(DialogService.class).createDir(repo_id, p, bodyMap);
+        Single<String> single = HttpIO.getCurrentInstance().execute(DialogService.class).createDir2(repo_id, p, bodyMap);
         addSingleDisposable(single, new Consumer<String>() {
             @Override
             public void accept(String resultModel) throws Exception {
