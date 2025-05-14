@@ -45,6 +45,7 @@ import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -268,8 +269,7 @@ public class DocProfileView extends LinearLayout {
             case ColumnType.NUMBER -> R.drawable.ic_number;
             case ColumnType.RATE -> R.drawable.ic_star_32;
             case ColumnType.URL -> R.drawable.ic_url;
-            case ColumnType.LINK ->
-                    "_tags".equals(key) ? R.drawable.ic_tag : R.drawable.ic_links;
+            case ColumnType.LINK -> "_tags".equals(key) ? R.drawable.ic_tag : R.drawable.ic_links;
 
             default -> R.drawable.ic_single_line_text;
         };
@@ -331,7 +331,17 @@ public class DocProfileView extends LinearLayout {
         if (model.value instanceof OffsetDateTime date) {
             View ltr = LayoutInflater.from(view.getContext()).inflate(R.layout.layout_textview, null);
 
-            String d = date.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME).replace("T"," ");
+            String d = date.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME).replace("T", " ");
+            ltr.<TextView>findViewById(R.id.text_view).setText(d);
+
+            view.<FlexboxLayout>findViewById(R.id.flex_box).addView(ltr, getFlexParams());
+        } else if (model.value instanceof String date) {
+
+            View ltr = LayoutInflater.from(view.getContext()).inflate(R.layout.layout_textview, null);
+
+            Date date1 = TimeUtils.string2Date(date, DateFormatType.DATE_XXX);
+            String d = TimeUtils.date2String(date1, DateFormatType.DATE_YMD_HMS);
+
             ltr.<TextView>findViewById(R.id.text_view).setText(d);
 
             view.<FlexboxLayout>findViewById(R.id.flex_box).addView(ltr, getFlexParams());

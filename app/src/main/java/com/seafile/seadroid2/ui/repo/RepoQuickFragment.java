@@ -1161,6 +1161,10 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
      */
     public boolean backTo() {
         if (GlobalNavContext.getCurrentNavContext().inRepo()) {
+            if (adapter == null) {
+                return false;
+            }
+
             if (adapter.isOnActionMode()) {
                 adapter.setOnActionMode(false);
             } else {
