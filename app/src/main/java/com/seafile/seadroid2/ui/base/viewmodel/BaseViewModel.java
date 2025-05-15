@@ -252,34 +252,34 @@ public class BaseViewModel extends ViewModel {
         if (throwable instanceof SeafException) {
             SeafException seafException = (SeafException) throwable;
             if (seafException.getCode() == SeafException.INVALID_PASSWORD.getCode()) {
-                return SeadroidApplication.getAppContext().getString(R.string.wrong_password);
+                return SeadroidApplication.getAppString(R.string.wrong_password);
             }
         } else if (throwable instanceof HttpException) {
             HttpException httpException = (HttpException) throwable;
             if (httpException.response() != null && httpException.response().errorBody() != null) {
 
                 if (504 == httpException.code()) {
-                    return SeadroidApplication.getAppContext().getString(R.string.network_unavailable);
+                    return SeadroidApplication.getAppString(R.string.network_unavailable);
                 }
 
                 String json = null;
                 try {
                     json = httpException.response().errorBody().string();
                     if (TextUtils.isEmpty(json)) {
-                        return SeadroidApplication.getAppContext().getString(R.string.unknow_error);
+                        return SeadroidApplication.getAppString(R.string.unknow_error);
                     }
                 } catch (IOException ioException) {
                     ioException.printStackTrace();
                 }
 
                 if (TextUtils.isEmpty(json)) {
-                    return SeadroidApplication.getAppContext().getString(R.string.unknow_error);
+                    return SeadroidApplication.getAppString(R.string.unknow_error);
                 }
 
                 if (json.contains("{\"error_msg\":")) {
                     ResultModel resultModel = GsonUtils.fromJson(json, ResultModel.class);
                     if (TextUtils.equals("Wrong password", resultModel.error_msg)) {
-                        return SeadroidApplication.getAppContext().getString(R.string.wrong_password);
+                        return SeadroidApplication.getAppString(R.string.wrong_password);
                     }
 
                     return resultModel.error_msg;
@@ -296,18 +296,18 @@ public class BaseViewModel extends ViewModel {
 //
 ////                {"error_msg":"Wrong password"}
 //
-//                return SeadroidApplication.getAppContext().getString(R.string.no_permission);
+//                return SeadroidApplication.getAppString(R.string.no_permission);
 //            }
         } else if (throwable instanceof SSLHandshakeException) {
             SSLHandshakeException sslHandshakeException = (SSLHandshakeException) throwable;
             SLogs.e(sslHandshakeException.getMessage());
-            return SeadroidApplication.getAppContext().getString(R.string.network_unavailable);
+            return SeadroidApplication.getAppString(R.string.network_unavailable);
         } else if (throwable instanceof SocketTimeoutException) {
             SocketTimeoutException socketTimeoutException = (SocketTimeoutException) throwable;
             SLogs.e(socketTimeoutException.getMessage());
-            return SeadroidApplication.getAppContext().getString(R.string.network_unavailable);
+            return SeadroidApplication.getAppString(R.string.network_unavailable);
         }
 
-        return SeadroidApplication.getAppContext().getString(R.string.unknow_error);
+        return SeadroidApplication.getAppString(R.string.unknow_error);
     }
 }

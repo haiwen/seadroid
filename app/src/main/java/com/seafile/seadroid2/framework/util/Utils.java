@@ -243,7 +243,7 @@ public class Utils {
     public static String translateCommitTime(long timestampInMillis) {
         long now = System.currentTimeMillis();
         if (now <= timestampInMillis) {
-            return SeadroidApplication.getAppContext().getString(R.string.just_now);
+            return SeadroidApplication.getAppString(R.string.just_now);
         }
 
         long delta = (now - timestampInMillis) / 1000;
@@ -258,17 +258,17 @@ public class Utils {
             SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
             return fmt.format(d);
         } else if (days > 0) {
-            return SeadroidApplication.getAppContext().getString(R.string.days_ago, days);
+            return SeadroidApplication.getAppString(R.string.days_ago, days);
         } else if (seconds >= 60 * 60) {
             long hours = seconds / 3600;
-            return SeadroidApplication.getAppContext().getString(R.string.hours_ago, hours);
+            return SeadroidApplication.getAppString(R.string.hours_ago, hours);
         } else if (seconds >= 60) {
             long minutes = seconds / 60;
-            return SeadroidApplication.getAppContext().getString(R.string.minutes_ago, minutes);
+            return SeadroidApplication.getAppString(R.string.minutes_ago, minutes);
         } else if (seconds > 0) {
-            return SeadroidApplication.getAppContext().getString(R.string.seconds_ago, seconds);
+            return SeadroidApplication.getAppString(R.string.seconds_ago, seconds);
         } else {
-            return SeadroidApplication.getAppContext().getString(R.string.just_now);
+            return SeadroidApplication.getAppString(R.string.just_now);
         }
     }
 

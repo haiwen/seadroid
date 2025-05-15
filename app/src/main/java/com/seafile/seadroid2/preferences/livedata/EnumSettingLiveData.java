@@ -27,7 +27,7 @@ public class EnumSettingLiveData<E extends Enum<E>> extends SettingsLiveData<E> 
     @Override
     protected E getDefaultValue(@StringRes int defaultValueRes) {
         if (defaultValueRes != ResourcesCompat.ID_NULL) {
-            String idStr = SeadroidApplication.getInstance().getString(defaultValueRes);
+            String idStr = SeadroidApplication.getAppString(defaultValueRes);
             int id = Integer.parseInt(idStr);
             return enumValues[id];
         }

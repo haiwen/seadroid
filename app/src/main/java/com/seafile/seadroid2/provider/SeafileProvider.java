@@ -29,7 +29,6 @@ import android.graphics.Point;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.CancellationSignal;
-import android.os.FileObserver;
 import android.os.Handler;
 import android.os.ParcelFileDescriptor;
 import android.provider.DocumentsContract;
@@ -48,7 +47,6 @@ import com.bumptech.glide.request.RequestOptions;
 import com.seafile.seadroid2.BuildConfig;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
-import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.config.RepoType;
@@ -57,33 +55,25 @@ import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.db.entities.StarredModel;
-import com.seafile.seadroid2.framework.http.BaseOkHttpClient;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.model.BaseModel;
+import com.seafile.seadroid2.framework.model.dirents.CachedDirentModel;
 import com.seafile.seadroid2.framework.model.dirents.DirentFileModel;
-import com.seafile.seadroid2.framework.model.repo.DirentWrapperModel;
 import com.seafile.seadroid2.framework.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.framework.util.GlideApp;
 import com.seafile.seadroid2.framework.util.Objs;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Utils;
-import com.seafile.seadroid2.framework.worker.TransferWorker;
-import com.seafile.seadroid2.listener.ProgressListener;
 import com.seafile.seadroid2.ui.dialog_fragment.DialogService;
 import com.seafile.seadroid2.ui.file.FileService;
-import com.seafile.seadroid2.ui.repo.RepoService;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.output.TeeOutputStream;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URLEncoder;
@@ -91,26 +81,18 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.Callable;
-import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 
-import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
-import okhttp3.MediaType;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.ResponseBody;
-import okio.BufferedSink;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -150,13 +132,6 @@ public class SeafileProvider extends DocumentsProvider {
             Document.COLUMN_SUMMARY
     };
 
-    /**
-     * this flag is used to avoid infinite loops due to background refreshes
-     */
-    private boolean returnCachedData = false;
-
-    private final Set<Account> reachableAccounts = new ConcurrentSkipListSet<Account>();
-
     private android.accounts.AccountManager androidAccountManager;
 
     private final OnAccountsUpdateListener accountListener = new OnAccountsUpdateListener() {
@@ -169,6 +144,7 @@ public class SeafileProvider extends DocumentsProvider {
 
     @Override
     public boolean onCreate() {
+
         androidAccountManager = android.accounts.AccountManager.get(getContext());
 
         androidAccountManager.addOnAccountsUpdatedListener(accountListener, null, true);
@@ -198,6 +174,16 @@ public class SeafileProvider extends DocumentsProvider {
     }
 
     /**
+     * Create a MatrixCursor
+     *
+     * @param netProjection column list
+     */
+    private static MatrixCursor createCursor(String[] netProjection) {
+
+        return new MatrixCursor(netProjection);
+    }
+
+    /**
      * Create a MatrixCursor with the option to enable the extraLoading flag.
      *
      * @param netProjection column list
@@ -205,87 +191,103 @@ public class SeafileProvider extends DocumentsProvider {
      * @return the Cursor object
      */
     private static MatrixCursor createCursor(String[] netProjection, final boolean extraLoading, final boolean isReachable) {
-        return new MatrixCursor(netProjection) {
-            @Override
-            public Bundle getExtras() {
-                Bundle b = new Bundle();
-                b.putBoolean(DocumentsContract.EXTRA_LOADING, extraLoading);
-                if (!extraLoading && !isReachable) {
-                    b.putString(DocumentsContract.EXTRA_ERROR, "Could not connect with server");
-                }
-                return b;
-            }
-        };
+
+        MatrixCursor matrixCursor = new MatrixCursor(netProjection);
+
+        Bundle bundle = matrixCursor.getExtras();
+        bundle.putBoolean(DocumentsContract.EXTRA_LOADING, extraLoading);
+        if (!extraLoading && !isReachable) {
+            bundle.putString(DocumentsContract.EXTRA_ERROR, "Could not connect with server");
+        } else if (extraLoading) {
+            bundle.putString(DocumentsContract.EXTRA_ERROR, "loading");
+        }
+
+        matrixCursor.setExtras(bundle);
+        return matrixCursor;
     }
 
+    private Uri toNotifyUri(String parentDocumentId) {
+        return DocumentsContract.buildChildDocumentsUri(AUTHORITY_OF_DOCUMENTS, parentDocumentId);
+    }
+
+    /**
+     * query the children of a given parent document.
+     */
     @Override
     public Cursor queryChildDocuments(String parentDocumentId, String[] projection, String sortOrder) throws FileNotFoundException {
 
         SLogs.d(SeafileProvider.class, "queryChildDocuments: " + parentDocumentId);
 
-        String[] netProjection = netProjection(projection, SUPPORTED_DOCUMENT_PROJECTION);
+        if (TextUtils.isEmpty(parentDocumentId)) {
+            throw throwFileNotFoundException(R.string.saf_bad_mime_type);
+        }
 
         Account account = DocumentIdParser.getAccountFromId(parentDocumentId);
         if (account == null) {
             throw throwFileNotFoundException(R.string.saf_account_not_found_exception);
         }
 
+        String[] netProjection = netProjection(projection, SUPPORTED_DOCUMENT_PROJECTION);
         String repoId = DocumentIdParser.getRepoIdFromId(parentDocumentId);
         String path = DocumentIdParser.getPathFromId(parentDocumentId);
+
+        final Uri notifyUri = toNotifyUri(parentDocumentId);
 
         if (repoId.isEmpty()) {
             // in this case the user is asking for a list of repositories
 
-            MatrixCursor result;
-
+            MatrixCursor matrixCursor = createCursor(netProjection);
 
             List<RepoModel> repos = AppDatabase.getInstance().repoDao().getListByAccountSync(account.getSignature());
             if (!CollectionUtils.isEmpty(repos)) {
-                reachableAccounts.add(account);
-                result = createCursor(netProjection, false, reachableAccounts.contains(account));
-            } else {
-                // fetch a new repo list in the background
-                if (!returnCachedData) {
-                    result = createCursor(netProjection, true, reachableAccounts.contains(account));
-                    returnCachedData = true;
-                    fetchReposAsync(account, result);
-                } else {
-                    result = createCursor(netProjection, false, reachableAccounts.contains(account));
-
-                    returnCachedData = false;
+                for (RepoModel repoModel : repos) {
+                    includeRepo(matrixCursor, account, repoModel);
                 }
             }
 
-            includeStarredFilesRepo(result, account);
+            int dataStatus = SeadroidApplication.getDocumentCache().get(parentDocumentId);
+            SLogs.d(SeafileProvider.class, "queryChildDocuments: repo-> dataStatus=" + dataStatus);
 
-            for (RepoModel repoModel : repos) {
-                includeRepo(result, account, repoModel);
+            if (dataStatus == -1) {
+                // tell the client that more entries will arrive shortly.
+                Bundle bundle = new Bundle();
+                bundle.putBoolean(DocumentsContract.EXTRA_LOADING, true);
+                bundle.putString(DocumentsContract.EXTRA_INFO, "loading data");
+                matrixCursor.setExtras(bundle);
+
+                fetchReposAsync(account, notifyUri, matrixCursor);
             }
-            return result;
 
-        } else if (DocumentIdParser.isStarredFiles(parentDocumentId)) {
+            includeStarredDir(matrixCursor, account);
+
+            return matrixCursor;
+
+        } else if (DocumentIdParser.isStarredDir(parentDocumentId)) {
             // the user is asking for the list of starred files
 
-            MatrixCursor result;
+            MatrixCursor matrixCursor = createCursor(netProjection);
             List<StarredModel> starredList = AppDatabase.getInstance().starredDirentDAO().getListByAccountSync(account.getSignature());
             if (!CollectionUtils.isEmpty(starredList)) {
-
-            }
-            if (!returnCachedData) {
-                result = createCursor(netProjection, true, reachableAccounts.contains(account));
-                returnCachedData = true;
-                fetchStarredAsync(account, result);
-            } else {
-                result = createCursor(netProjection, false, reachableAccounts.contains(account));
-                returnCachedData = false;
-            }
-
-            if (!CollectionUtils.isEmpty(starredList)) {
                 for (StarredModel starredModel : starredList) {
-                    includeStarredFileDirent(result, account, starredModel);
+                    includeStarredFileDirent(matrixCursor, account, starredModel);
                 }
             }
-            return result;
+
+            int dataStatus = SeadroidApplication.getDocumentCache().get(parentDocumentId);
+            SLogs.d(SeafileProvider.class, "queryChildDocuments:starred-> parentDocumentId= " + parentDocumentId + ", dataStatus=" + dataStatus);
+
+            if (dataStatus == -1) {
+                // tell the client that more entries will arrive shortly.
+                Bundle bundle = new Bundle();
+                bundle.putBoolean(DocumentsContract.EXTRA_LOADING, true);
+                bundle.putString(DocumentsContract.EXTRA_INFO, "loading data");
+                matrixCursor.setExtras(bundle);
+
+                fetchStarredAsync(account, notifyUri, matrixCursor);
+            }
+
+
+            return matrixCursor;
 
         } else {
             // in this case, the repository is known. the user wants the entries of a specific
@@ -294,53 +296,69 @@ public class SeafileProvider extends DocumentsProvider {
             // the android API asks us to be quick, so just use the cache.
             List<RepoModel> repoModels = AppDatabase.getInstance().repoDao().getByIdSync(repoId);
             if (CollectionUtils.isEmpty(repoModels)) {
-                throw new FileNotFoundException();
+                throw throwFileNotFoundException(R.string.repo_not_found);
             }
+
             final RepoModel repoModel = repoModels.get(0);
             if (repoModel == null) {
-                throw new FileNotFoundException();
+                throw throwFileNotFoundException(R.string.repo_not_found);
             }
 
+
+            // todo :maybe we can check if the user has decrypted it or not. if yes, then the data can be read and returned.
+
+            // old
             // encrypted repos are not supported (we can't ask the user for the passphrase)
             if (repoModel.encrypted) {
-                throw new FileNotFoundException();
+                throw throwFileNotFoundException(R.string.saf_write_diretory_exception);
             }
 
-            MatrixCursor result;
-
-            // fetch new dirents in the background
-            if (!returnCachedData) {
-                result = createCursor(netProjection, true, reachableAccounts.contains(account));
-                returnCachedData = true;
-                fetchDirentAsync(account, repoModel, path, result);
-            } else {
-                result = createCursor(netProjection, false, reachableAccounts.contains(account));
-                returnCachedData = false;
-            }
+            MatrixCursor matrixCursor = createCursor(netProjection);
 
             if (!path.endsWith("/")) {
                 path += "/";
             }
+
             List<DirentModel> direntModels = AppDatabase.getInstance().direntDao().getListByParentPathSync(repoId, path);
-            // in the meantime return cached ones
             if (!CollectionUtils.isEmpty(direntModels)) {
                 if (path.endsWith("/")) {
                     path = StringUtils.substringBeforeLast(path, "/");
                 }
 
                 for (DirentModel direntModel : direntModels) {
-                    includeDirent(result, account, repoModel, path, direntModel);
+                    includeDirent(matrixCursor, account, repoModel, direntModel);
                 }
             }
-            return result;
-        }
 
+
+            int dataStatus = SeadroidApplication.getDocumentCache().get(parentDocumentId);
+            SLogs.d(SeafileProvider.class, "queryChildDocuments:dirent-> parentDocumentId= " + parentDocumentId + ", dataStatus=" + dataStatus);
+
+            if (dataStatus == -1) {
+                // tell the client that more entries will arrive shortly.
+                Bundle bundle = new Bundle();
+                bundle.putBoolean(DocumentsContract.EXTRA_LOADING, true);
+                bundle.putString(DocumentsContract.EXTRA_INFO, "loading data");
+                matrixCursor.setExtras(bundle);
+
+                fetchDirentAsync(account, notifyUri, repoModel, path, matrixCursor);
+            }
+
+            return matrixCursor;
+        }
     }
 
+    /**
+     * query the meta data of a file/folder.
+     */
     @Override
     public Cursor queryDocument(String documentId, String[] projection) throws FileNotFoundException {
 
         SLogs.d(SeafileProvider.class, "queryDocument: " + documentId);
+
+        if (TextUtils.isEmpty(documentId)) {
+            throw throwFileNotFoundException(R.string.saf_bad_mime_type);
+        }
 
         String[] netProjection = netProjection(projection, SUPPORTED_DOCUMENT_PROJECTION);
         MatrixCursor result = new MatrixCursor(netProjection);
@@ -363,16 +381,16 @@ public class SeafileProvider extends DocumentsProvider {
         // the android API asks us to be quick, so just use the cache.
         List<RepoModel> repoModels = AppDatabase.getInstance().repoDao().getByIdSync(repoId);
         if (CollectionUtils.isEmpty(repoModels)) {
-            throw new FileNotFoundException();
+            throw throwFileNotFoundException(R.string.repo_not_found);
         }
 
         RepoModel repoModel = repoModels.get(0);
         if (repoModel == null) {
-            throw new FileNotFoundException();
+            throw throwFileNotFoundException(R.string.repo_not_found);
         }
 
-        if (DocumentIdParser.isStarredFiles(documentId)) {
-            includeStarredFilesRepo(result, account);
+        if (DocumentIdParser.isStarredDir(documentId)) {
+            includeStarredDir(result, account);
         } else if (path.equals(PATH_SEPARATOR)) {
             // this is the base of the repository. this is special, as we give back the information
             // about the repository itself, not some directory in it.
@@ -380,40 +398,13 @@ public class SeafileProvider extends DocumentsProvider {
         } else {
 //             the general case. a query about a file/directory in a repository.
 
-//             again we only use cached info in this function. that shouldn't be an issue, as
-//             very likely there has been a SeafileProvider.queryChildDocuments() call just moments
-//             earlier.
-
-            // /同学/AccessKey_1406844958260436.csv
-            String parentPath = Utils.getParentPath(path);
-            String fileName = Utils.getFileNameFromPath(path);
-
-            if (TextUtils.isEmpty(parentPath) || !parentPath.endsWith("/")) {
-                parentPath += "/";
-            }
-
-            List<DirentModel> direntModels = AppDatabase.getInstance().direntDao().getListByParentPathSync(repoId, parentPath);
-            List<StarredModel> starredModels = AppDatabase.getInstance().starredDirentDAO().getListByAccountSync(account.getSignature());
-
+//             again we only use cached info in this function. that shouldn't be an issue
+//             as very likely there has been a SeafileProvider.queryChildDocuments() call just moments earlier.
+            List<DirentModel> direntModels = AppDatabase.getInstance().direntDao().getListByFullPathSync(repoId, path);
             if (!CollectionUtils.isEmpty(direntModels)) {
                 // the file is in the dirent of the parent directory
-
-                // look for the requested file in the dirents of the parent dir
-                for (DirentModel direntModel : direntModels) {
-                    if (direntModel.name.equals(fileName)) {
-                        includeDirent(result, account, repoModel, parentPath, direntModel);
-                        break;
-                    }
-                }
-            } else if (!CollectionUtils.isEmpty(starredModels)) {
-                //maybe the requested file is a starred file?
-
-                // look for the requested file in the list of starred files
-                for (StarredModel file : starredModels) {
-                    if (file.path.equals(path)) {
-                        includeStarredFileDirent(result, account, file);
-                    }
-                }
+                DirentModel direntModel = direntModels.get(0);
+                includeDirent(result, account, repoModel, direntModel);
             }
         }
 
@@ -442,7 +433,7 @@ public class SeafileProvider extends DocumentsProvider {
 
         String path = DocumentIdParser.getPathFromId(documentId);
         if (TextUtils.isEmpty(path)) {
-            throw new IllegalArgumentException();
+            throw throwFileNotFoundException(R.string.saf_bad_mime_type);
         }
 
         String repoId = DocumentIdParser.getRepoIdFromId(documentId);
@@ -499,8 +490,15 @@ public class SeafileProvider extends DocumentsProvider {
                         " and mode " + mode);
             }
         } else {
-
             //read
+
+            
+            List<DirentModel> direntModels = AppDatabase.getInstance().direntDao().getListByFullPathSync(repoId, path);
+            if (CollectionUtils.isEmpty(direntModels)) {
+                throw new FileNotFoundException("could not find file");
+            }
+
+            DirentModel direntModel = direntModels.get(0);
 
             File file = DataManager.getLocalRepoFile(account, repoModel.repo_id, repoModel.repo_name, path);
             if (file.exists()) {
@@ -517,73 +515,28 @@ public class SeafileProvider extends DocumentsProvider {
                 throw throwFileNotFoundException(R.string.network_error);
             }
 
-
             try {
-                // 1. 创建管道
-                ParcelFileDescriptor[] pipe = ParcelFileDescriptor.createPipe();
-                final ParcelFileDescriptor readFd = pipe[0];  // 返回给系统
-                final ParcelFileDescriptor writeFd = pipe[1]; // 你来写入下载内容
+                return PipeDownloadHelper.streamDownloadToPipe(account, repoModel.repo_id, repoModel.repo_name, path, direntModel.dir_id, signal, new PipeDownloadHelper.ProgressListener() {
+                    @Override
+                    public void onProgress(long bytesRead) {
 
+                    }
 
-                // 3. 后台线程同时下载并写入 pipe 和本地文件
-                CompletableFuture.runAsync(() -> {
-                    try (OutputStream pipeOut = new FileOutputStream(writeFd.getFileDescriptor())) {
-                        File targetFile = DataManager.getLocalRepoFile(account, repoModel.repo_id, repoModel.repo_name, path);
+                    @Override
+                    public void onComplete() {
+                        SLogs.d(SeafileProvider.class, "download complete");
+                        //                    // 下载完成后，通知系统文件已准备好
+                        //                    getContext().getContentResolver().notifyChange(DocumentIdParser.getUriFromId(documentId), null);
+                    }
 
-                        // 创建本地缓存文件
-                        try (OutputStream fileOut = new FileOutputStream(targetFile)) {
-                            // 同时写入两个输出流
-                            SeaTeeOutputStream teeOut = new SeaTeeOutputStream(pipeOut, fileOut);
-                            getFile(teeOut, signal, account, repoModel, path);
-                        }
-
-                    } catch (Exception e) {
-                        Log.e(SeafileProvider.class.getSimpleName(), "Download failed", e);
-                    } finally {
-                        try {
-                            writeFd.close();
-                        } catch (IOException ignored) {
-                        }
+                    @Override
+                    public void onError(Exception e) {
+                        SLogs.d(SeafileProvider.class, "download failed: " + e.getMessage());
                     }
                 });
-                return readFd; // 3. 返回读取端给系统
-
             } catch (IOException e) {
                 throw new FileNotFoundException("Pipe creation failed: " + e.getMessage());
             }
-
-//            // open the file. this might involve talking to the seafile server. this will hang until it is done.
-//            final Future<ParcelFileDescriptor> future = ConcurrentAsyncTask.submit(new Callable<ParcelFileDescriptor>() {
-//
-//                @Override
-//                public ParcelFileDescriptor call() throws Exception {
-//                    File f = getFile(signal, account, repoModel, path);
-//                    return makeParcelFileDescriptor(f, mode);
-//                }
-//            });
-//
-//            if (signal != null) {
-//                signal.setOnCancelListener(new CancellationSignal.OnCancelListener() {
-//                    @Override
-//                    public void onCancel() {
-//                        Log.d(DEBUG_TAG, "openDocument cancelling download");
-//                        future.cancel(true);
-//                    }
-//                });
-//            }
-//
-//            try {
-//                return future.get();
-//            } catch (InterruptedException e) {
-//                Log.d(DEBUG_TAG, "openDocument cancelled download");
-//                throw new FileNotFoundException();
-//            } catch (CancellationException e) {
-//                Log.d(DEBUG_TAG, "openDocumentThumbnail cancelled download");
-//                throw new FileNotFoundException();
-//            } catch (ExecutionException e) {
-//                Log.d(DEBUG_TAG, "could not open file", e);
-//                throw new FileNotFoundException();
-//            }
         }
     }
 
@@ -600,86 +553,14 @@ public class SeafileProvider extends DocumentsProvider {
         return ParcelFileDescriptor.open(file, accessMode);
     }
 
-    /**
-     * Load a file from the Seafile server.
-     * <p>
-     * This might take a while, therefore we have to listen to the CancellationSignal and abort
-     * if it says so.
-     *
-     * @param signal  CancellationSignal
-     * @param account account
-     * @param repo    The repository where the file lies
-     * @param path    File path
-     * @return
-     * @throws FileNotFoundException
-     */
-    private File getFile(SeaTeeOutputStream teeOutputStream, final CancellationSignal signal, Account account, RepoModel repo, String path) throws FileNotFoundException {
-
-        try {
-            //get download url
-            HttpIO httpIo = HttpIO.getInstanceByAccount(account);
-            if (httpIo == null) {
-                throw new FileNotFoundException();
-            }
-
-            Call<String> urlCall = httpIo.execute(FileService.class).getFileDownloadLinkSync(repo.repo_id, path, 1);
-
-            Response<String> downloadUrlResp = urlCall.execute();
-            if (!downloadUrlResp.isSuccessful()) {
-                throw new FileNotFoundException();
-            }
-
-            String downloadUrl = downloadUrlResp.body();
-            if (TextUtils.isEmpty(downloadUrl)) {
-                throw new FileNotFoundException();
-            }
-
-
-            //download
-            File targetFile = DataManager.getLocalRepoFile(account, repo.repo_id, repo.repo_name, path);
-            SLogs.d(SeafileProvider.class, "start download");
-            SLogs.d(SeafileProvider.class, "targetFile = " + targetFile);
-
-            Request request = new Request.Builder().url(downloadUrl).build();
-            okhttp3.Call downloadCall = httpIo.getOkHttpClient().getOkClient().newCall(request);
-
-            // 支持取消操作
-            if (signal != null) {
-                signal.setOnCancelListener(() -> downloadCall.cancel());
-            }
-
-            try (okhttp3.Response response = downloadCall.execute()) {
-                if (!response.isSuccessful()) {
-                    throw new IOException("Failed to download: " + response.code());
-                }
-
-                try (okhttp3.ResponseBody body = response.body(); InputStream in = body.byteStream()) {
-
-                    byte[] buf = new byte[8192];
-                    int len;
-                    while ((len = in.read(buf)) != -1) {
-                        teeOutputStream.write(buf, 0, len);
-                    }
-                    teeOutputStream.flush();
-                }
-            }
-
-            return targetFile;
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
 
     @Override
     public AssetFileDescriptor openDocumentThumbnail(String documentId, Point sizeHint, CancellationSignal signal) throws FileNotFoundException {
+        SLogs.d(SeafileProvider.class, "openDocumentThumbnail(): " + documentId);
 
         if (TextUtils.isEmpty(documentId)) {
-            SLogs.d(SeafileProvider.class, "openDocumentThumbnail(): documentId is null.");
-            throw new FileNotFoundException();
+            throw throwFileNotFoundException(R.string.saf_bad_mime_type);
         }
-
-        SLogs.d(SeafileProvider.class, "openDocumentThumbnail(): " + documentId);
 
         Account account = DocumentIdParser.getAccountFromId(documentId);
         if (account == null) {
@@ -690,101 +571,91 @@ public class SeafileProvider extends DocumentsProvider {
         String repoId = DocumentIdParser.getRepoIdFromId(documentId);
 
         if (repoId.isEmpty()) {
-            throw new FileNotFoundException();
-        }
-
-        String mimeType = Utils.getFileMimeType(documentId);
-        if (!mimeType.startsWith("image/")) {
-            throw new FileNotFoundException();
+            throw throwFileNotFoundException(R.string.repo_not_found);
         }
 
         List<RepoModel> repoModels = AppDatabase.getInstance().repoDao().getByIdSync(repoId);
         if (CollectionUtils.isEmpty(repoModels)) {
-            throw new IllegalArgumentException();
-        }
-        final RepoModel repoModel = repoModels.get(0);
-        if (repoModel == null) {
-            throw new IllegalArgumentException();
+            throw throwFileNotFoundException(R.string.repo_not_found);
         }
 
-        final ParcelFileDescriptor[] pair;
+        final RepoModel repoModel = repoModels.get(0);
+        if (repoModel == null) {
+            throw throwFileNotFoundException(R.string.repo_not_found);
+        }
+
+
+        String mimeType = Utils.getFileMimeType(documentId);
+        if (!mimeType.startsWith("image/")) {
+            throw throwFileNotFoundException(R.string.saf_bad_mime_type);
+        }
+
+        File file = DataManager.getLocalRepoFile(account, repoModel.repo_id, repoModel.repo_name, path);
+        if (file.exists()) {
+            ParcelFileDescriptor pfd = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY);
+            return new AssetFileDescriptor(pfd, 0, file.length());
+        }
+
+        //local don't exists
+        if (!NetworkUtils.isConnected()) {
+            throw throwFileNotFoundException(R.string.network_error);
+        }
+
         try {
-            pair = ParcelFileDescriptor.createReliablePipe();
+            ParcelFileDescriptor[] pipe = ParcelFileDescriptor.createPipe();
+            ParcelFileDescriptor readFd = pipe[0];
+            ParcelFileDescriptor writeFd = pipe[1];
+
+            // do thumbnail download in another thread to avoid possible network access in UI thread
+
+            CompletableFuture<Void> completableFuture = CompletableFuture.runAsync(new Runnable() {
+                @Override
+                public void run() {
+                    try (FileOutputStream fileStream = new FileOutputStream(writeFd.getFileDescriptor())) {
+                        String pathEnc = URLEncoder.encode(path, "UTF-8");
+                        String urlPath = account.getServer() + String.format("api2/repos/%s/thumbnail/?p=%s&size=%s", repoId, pathEnc, sizeHint.x);
+
+                        SLogs.d(SeafileProvider.class, "urlPath = " + urlPath);
+
+                        RequestOptions requestOptions = new RequestOptions()
+                                .diskCacheStrategy(DiskCacheStrategy.ALL);
+
+                        Bitmap bitmap = GlideApp.with(getContext())
+                                .asBitmap()
+                                .apply(requestOptions)
+                                .load(urlPath)
+                                .centerCrop()
+                                .submit(sizeHint.x, sizeHint.y)
+                                .get();
+                        if (bitmap != null) {
+                            bitmap.compress(Bitmap.CompressFormat.PNG, 50, fileStream);
+                        }
+
+                    } catch (Exception e) {
+                        SLogs.e(e);
+                    } finally {
+                        IOUtils.closeQuietly(writeFd);
+                    }
+                }
+            });
+
+
+            if (signal != null) {
+                signal.setOnCancelListener(new CancellationSignal.OnCancelListener() {
+                    @Override
+                    public void onCancel() {
+                        Log.d(DEBUG_TAG, "openDocumentThumbnail() cancelling download");
+                        completableFuture.cancel(true);
+                        IOUtils.closeQuietly(writeFd);
+                    }
+                });
+            }
+
+            return new AssetFileDescriptor(readFd, 0, AssetFileDescriptor.UNKNOWN_LENGTH);
+
         } catch (IOException e) {
             throw new FileNotFoundException();
         }
-
-        // do thumbnail download in another thread to avoid possible network access in UI thread
-        Future<Bitmap> future = ConcurrentAsyncTask.submit(new Callable<Bitmap>() {
-            @Override
-            public Bitmap call() throws Exception {
-                Bitmap bitmap = null;
-                try (FileOutputStream fileStream = new FileOutputStream(pair[1].getFileDescriptor())) {
-
-                    File localFile = DataManager.getLocalRepoFile(account, repoId, repoModel.repo_name, path);
-                    String urlPath;
-                    if (localFile.exists()) {
-                        urlPath = "file://" + localFile.getAbsolutePath();
-                        SLogs.d(SeafileProvider.class, "urlPath = " + urlPath);
-                    } else {
-                        String pathEnc = URLEncoder.encode(path, "UTF-8");
-                        urlPath = account.getServer() + String.format("api2/repos/%s/thumbnail/?p=%s&size=%s", repoId, pathEnc, sizeHint.x);
-                        SLogs.d(SeafileProvider.class, "urlPath = " + urlPath);
-                    }
-
-                    RequestOptions requestOptions = new RequestOptions()
-                            .diskCacheStrategy(DiskCacheStrategy.ALL);
-
-                    bitmap = GlideApp.with(getContext())
-                            .asBitmap()
-                            .apply(requestOptions)
-                            .load(urlPath)
-                            .centerCrop()
-                            .submit(sizeHint.x, sizeHint.y)
-                            .get();
-                    if (bitmap != null) {
-                        bitmap.compress(Bitmap.CompressFormat.PNG, 50, fileStream);
-                    }
-
-                } catch (UnsupportedEncodingException e) {
-                    throw new RuntimeException(e);
-                } catch (ExecutionException e) {
-                    throw new RuntimeException(e);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                } finally {
-                    IOUtils.closeQuietly(pair[1]);
-                }
-
-                return bitmap;
-            }
-        });
-
-        if (signal != null) {
-            signal.setOnCancelListener(new CancellationSignal.OnCancelListener() {
-                @Override
-                public void onCancel() {
-                    Log.d(DEBUG_TAG, "openDocumentThumbnail() cancelling download");
-                    future.cancel(true);
-                    IOUtils.closeQuietly(pair[1]);
-                }
-            });
-        }
-
-        try {
-            Bitmap bitmap = future.get();
-            if (bitmap != null) {
-                FileOutputStream fileStream = new FileOutputStream(pair[1].getFileDescriptor());
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, fileStream);
-            }
-
-        } catch (ExecutionException e) {
-            throw new RuntimeException(e);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-
-        return new AssetFileDescriptor(pair[0], 0, AssetFileDescriptor.UNKNOWN_LENGTH);
     }
 
     @Override
@@ -881,7 +752,8 @@ public class SeafileProvider extends DocumentsProvider {
      * @param account the account to add.
      */
     private void includeRoot(MatrixCursor result, Account account) {
-        String docId = DocumentIdParser.buildId(account, null, null);
+
+        String docId = DocumentIdParser.buildId(account);
         String rootId = DocumentIdParser.buildRootId(account);
 
         SLogs.d(SeafileProvider.class, "includeRoot - docId -> " + docId);
@@ -904,7 +776,7 @@ public class SeafileProvider extends DocumentsProvider {
      * @param account the account to add.
      */
     private void includeDocIdRoot(MatrixCursor result, Account account) {
-        String docId = DocumentIdParser.buildId(account, null, null);
+        String docId = DocumentIdParser.buildId(account);
 
         final MatrixCursor.RowBuilder row = result.newRow();
         row.add(Document.COLUMN_DOCUMENT_ID, docId);
@@ -924,7 +796,8 @@ public class SeafileProvider extends DocumentsProvider {
      * @param repoModel the repo to add.
      */
     private void includeRepo(MatrixCursor result, Account account, RepoModel repoModel) {
-        String docId = DocumentIdParser.buildId(account, repoModel.repo_id, null);
+
+        String docId = DocumentIdParser.buildRepoDocId(account, repoModel.repo_id);
 
         int flags = 0;
         if (repoModel.hasWritePermission()) {
@@ -939,7 +812,6 @@ public class SeafileProvider extends DocumentsProvider {
         row.add(Document.COLUMN_ICON, repoModel.getIcon());
         row.add(Document.COLUMN_SIZE, repoModel.size);
 
-//        row.add(Document.COLUMN_SUMMARY, null);
         if (RepoType.TYPE_MINE.equals(repoModel.type)) {
             row.add(Document.COLUMN_SUMMARY, R.string.personal);
         } else if (RepoType.TYPE_SHARED.equals(repoModel.type)) {
@@ -950,49 +822,50 @@ public class SeafileProvider extends DocumentsProvider {
             row.add(Document.COLUMN_SUMMARY, null);
         }
 
-        if (repoModel.encrypted || !reachableAccounts.contains(account)) {
+        if (repoModel.encrypted) {
             row.add(Document.COLUMN_MIME_TYPE, null); // undocumented: will grey out the entry
         } else {
             row.add(Document.COLUMN_MIME_TYPE, Document.MIME_TYPE_DIR);
         }
     }
 
-    private void includeStarredFilesRepo(MatrixCursor result, Account account) {
-        String docId = DocumentIdParser.buildStarredFilesId(account);
+    private void includeStarredDir(MatrixCursor result, Account account) {
+
+        String docMagicId = DocumentIdParser.buildMagicStarredDirId(account);
 
         final MatrixCursor.RowBuilder row = result.newRow();
-        row.add(Document.COLUMN_DOCUMENT_ID, docId);
+        row.add(Document.COLUMN_DOCUMENT_ID, docMagicId);
 
-        row.add(Document.COLUMN_DISPLAY_NAME, SeadroidApplication.getAppContext()
-                .getResources().getString(R.string.tabs_starred));
+        row.add(Document.COLUMN_DISPLAY_NAME, SeadroidApplication.getAppString(R.string.tabs_starred));
         row.add(Document.COLUMN_ICON, R.drawable.star_normal);
         row.add(Document.COLUMN_FLAGS, 0);
 
-        if (!reachableAccounts.contains(account)) {
-            row.add(Document.COLUMN_MIME_TYPE, null); // undocumented: will grey out the entry
-        } else {
-            row.add(Document.COLUMN_MIME_TYPE, Document.MIME_TYPE_DIR);
-        }
-
+        row.add(Document.COLUMN_MIME_TYPE, Document.MIME_TYPE_DIR);
     }
 
     /**
      * add a dirent to the cursor.
      *
-     * @param result     the cursor to write the row into.
-     * @param parentPath the path of the parent directory
-     * @param entry      the seafile dirent to add
+     * @param result the cursor to write the row into.
+     * @param entry  the seafile dirent to add
      */
-    private void includeDirent(MatrixCursor result, Account account, RepoModel repoModel, String parentPath, DirentModel entry) {
-        String fullPath = Utils.pathJoin(parentPath, entry.name);
+    private void includeDirent(MatrixCursor result, Account account, RepoModel repoModel, DirentModel entry) {
 
-        String docId = DocumentIdParser.buildId(account, repoModel.repo_id, fullPath);
+        String docId = DocumentIdParser.buildId(account, repoModel.repo_id, entry.full_path, entry.isDir());
 
-        String mimeType;
-        if (entry.isDir())
+        final MatrixCursor.RowBuilder row = result.newRow();
+        row.add(Document.COLUMN_DOCUMENT_ID, docId);
+        row.add(Document.COLUMN_DISPLAY_NAME, entry.name);
+        row.add(Document.COLUMN_SIZE, entry.size);
+        row.add(Document.COLUMN_SUMMARY, null);
+        row.add(Document.COLUMN_LAST_MODIFIED, entry.mtime * 1000);
+
+        String mimeType; // if mimeType is null, undocumented: will grey out the entry
+        if (entry.isDir()) {
             mimeType = DocumentsContract.Document.MIME_TYPE_DIR;
-        else
+        } else {
             mimeType = Utils.getFileMimeType(docId);
+        }
 
         int flags = 0;
         // only offer a thumbnail if the file is an image
@@ -1007,20 +880,8 @@ public class SeafileProvider extends DocumentsProvider {
                 flags |= Document.FLAG_SUPPORTS_WRITE;
             }
         }
-
-        final MatrixCursor.RowBuilder row = result.newRow();
-        row.add(Document.COLUMN_DOCUMENT_ID, docId);
-        row.add(Document.COLUMN_DISPLAY_NAME, entry.name);
-        row.add(Document.COLUMN_SIZE, entry.size);
-        row.add(Document.COLUMN_SUMMARY, null);
-        row.add(Document.COLUMN_LAST_MODIFIED, entry.mtime * 1000);
         row.add(Document.COLUMN_FLAGS, flags);
-
-        if (!reachableAccounts.contains(account)) {
-            row.add(Document.COLUMN_MIME_TYPE, null); // undocumented: will grey out the entry
-        } else {
-            row.add(Document.COLUMN_MIME_TYPE, mimeType);
-        }
+        row.add(Document.COLUMN_MIME_TYPE, mimeType);
 
     }
 
@@ -1032,7 +893,31 @@ public class SeafileProvider extends DocumentsProvider {
     private void includeStarredFileDirent(MatrixCursor result, Account account, StarredModel starredModel) {
         String docId = DocumentIdParser.buildId(account, starredModel.repo_id, starredModel.path);
 
-        String mimeType;
+
+        final MatrixCursor.RowBuilder row = result.newRow();
+        row.add(Document.COLUMN_DOCUMENT_ID, docId);
+
+        String displayName;
+        if (starredModel.isRepo()) {
+            displayName = starredModel.repo_name;
+
+            if (starredModel.repo_encrypted) {
+                row.add(Document.COLUMN_ICON, R.drawable.baseline_repo_encrypted_24);
+            } else {
+                row.add(Document.COLUMN_ICON, R.drawable.baseline_repo_24);
+            }
+        } else {
+            displayName = starredModel.obj_name;
+        }
+
+        if (starredModel.deleted) {
+            String deleted = SeadroidApplication.getAppString(R.string.deleted);
+            displayName = "(" + deleted + ") " + displayName;
+        }
+
+        row.add(Document.COLUMN_DISPLAY_NAME, displayName);
+
+        String mimeType; // if mimeType is null, undocumented: will grey out the entry
         if (starredModel.is_dir) {
             mimeType = DocumentsContract.Document.MIME_TYPE_DIR;
         } else {
@@ -1041,19 +926,12 @@ public class SeafileProvider extends DocumentsProvider {
 
         int flags = 0;
         // only offer a thumbnail if the file is an image
-        if (mimeType.startsWith("image/")) {
+        if (!starredModel.repo_encrypted && mimeType.startsWith("image/")) {
             flags |= Document.FLAG_SUPPORTS_THUMBNAIL;
         }
-
-        final MatrixCursor.RowBuilder row = result.newRow();
-        row.add(Document.COLUMN_DOCUMENT_ID, docId);
-        row.add(Document.COLUMN_DISPLAY_NAME, starredModel.obj_name);
-//        row.add(Document.COLUMN_SIZE, starredModel.getSize());
-        row.add(Document.COLUMN_SUMMARY, null);
-        row.add(Document.COLUMN_LAST_MODIFIED, starredModel.mtime_long);
         row.add(Document.COLUMN_FLAGS, flags);
 
-        if (starredModel.repo_encrypted || !reachableAccounts.contains(account)) {
+        if (starredModel.repo_encrypted || starredModel.deleted || TextUtils.isEmpty(starredModel.obj_name)) {
             row.add(Document.COLUMN_MIME_TYPE, null); // undocumented: will grey out the entry
         } else {
             row.add(Document.COLUMN_MIME_TYPE, mimeType);
@@ -1072,12 +950,10 @@ public class SeafileProvider extends DocumentsProvider {
      * @param path      the path of the directory.
      * @param result    Cursor object over which to signal the client.
      */
-    private void fetchDirentAsync(Account account, RepoModel repoModel, String path, MatrixCursor result) {
-
-        String id = DocumentIdParser.buildId(account, repoModel.repo_id, path);
-        final Uri uri = DocumentsContract.buildChildDocumentsUri(AUTHORITY_OF_DOCUMENTS, id);
-
-        result.setNotificationUri(getContext().getContentResolver(), uri);
+    private void fetchDirentAsync(Account account, Uri notifyUri, RepoModel repoModel, String path, MatrixCursor result) {
+        result.setNotificationUri(getContext().getContentResolver(), notifyUri);
+        String docId = DocumentsContract.getDocumentId(notifyUri);
+        SLogs.d(SeafileProvider.class, "fetchDirentAsync: " + docId);
 
         if (!path.endsWith("/")) {
             path = path + "/";
@@ -1089,16 +965,13 @@ public class SeafileProvider extends DocumentsProvider {
                 .subscribe(new Consumer<List<DirentModel>>() {
                     @Override
                     public void accept(List<DirentModel> direntModels) throws Exception {
-                        reachableAccounts.add(account);
-
-                        notifyChanged(uri);
+                        SeadroidApplication.getDocumentCache().put(docId);
+                        notifyChanged(notifyUri);
                     }
                 }, new Consumer<Throwable>() {
                     @Override
                     public void accept(Throwable throwable) throws Exception {
-                        reachableAccounts.remove(account);
-
-                        notifyChanged(uri);
+                        notifyChanged(notifyUri);
                     }
                 });
         compositeDisposable.add(disposable);
@@ -1113,29 +986,24 @@ public class SeafileProvider extends DocumentsProvider {
      * @param account account
      * @param result  Cursor object over which to signal the client.
      */
-    private void fetchStarredAsync(Account account, MatrixCursor result) {
-
-        String id = DocumentIdParser.buildStarredFilesId(account);
-        final Uri uri = DocumentsContract.buildChildDocumentsUri(AUTHORITY_OF_DOCUMENTS, id);
-        result.setNotificationUri(getContext().getContentResolver(), uri);
+    private void fetchStarredAsync(Account account, Uri notifyUri, MatrixCursor result) {
+        result.setNotificationUri(getContext().getContentResolver(), notifyUri);
+        String docId = DocumentsContract.getDocumentId(notifyUri);
+        SLogs.d(SeafileProvider.class, "fetchStarredAsync - docId -> " + docId);
 
         Single<List<StarredModel>> listSingle = Objs.getStarredSingleFromServer(account);
-
         Disposable disposable = listSingle.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Consumer<List<StarredModel>>() {
                     @Override
                     public void accept(List<StarredModel> starredModels) throws Exception {
-                        reachableAccounts.add(account);
-
-                        notifyChanged(uri);
+                        SeadroidApplication.getDocumentCache().put(docId);
+                        notifyChanged(notifyUri);
                     }
                 }, new Consumer<Throwable>() {
                     @Override
                     public void accept(Throwable throwable) throws Exception {
-                        reachableAccounts.remove(account);
-
-                        notifyChanged(uri);
+                        notifyChanged(notifyUri);
                     }
                 });
         compositeDisposable.add(disposable);
@@ -1151,10 +1019,11 @@ public class SeafileProvider extends DocumentsProvider {
      * @param account account
      * @param result  Cursor object over which to signal the client.
      */
-    private void fetchReposAsync(Account account, MatrixCursor result) {
-        String id = DocumentIdParser.buildId(account, null, null);
-        final Uri uri = DocumentsContract.buildChildDocumentsUri(AUTHORITY_OF_DOCUMENTS, id);
-        result.setNotificationUri(getContext().getContentResolver(), uri);
+    private void fetchReposAsync(Account account, Uri notifyUri, MatrixCursor result) {
+        result.setNotificationUri(getContext().getContentResolver(), notifyUri);
+
+        String docId = DocumentsContract.getDocumentId(notifyUri);
+        SLogs.d(SeafileProvider.class, "fetchReposAsync - docId -> " + docId);
 
         Single<List<BaseModel>> resultSingle = Objs.getReposSingleFromServer(account);
         Disposable disposable = resultSingle.subscribeOn(Schedulers.io())
@@ -1162,44 +1031,35 @@ public class SeafileProvider extends DocumentsProvider {
                 .subscribe(new Consumer<List<BaseModel>>() {
                     @Override
                     public void accept(List<BaseModel> baseModels) throws Exception {
-                        reachableAccounts.add(account);
-
-                        notifyChanged(uri);
+                        SeadroidApplication.getDocumentCache().put(docId);
+                        notifyChanged(notifyUri);
                     }
                 }, new Consumer<Throwable>() {
                     @Override
                     public void accept(Throwable throwable) throws Exception {
-                        reachableAccounts.remove(account);
-
-                        notifyChanged(uri);
+                        notifyChanged(notifyUri);
                     }
                 });
         compositeDisposable.add(disposable);
     }
 
     private void notifyChanged(Uri uri) {
-        // The notification has to be sent only *after* queryChildDocuments has
-        // finished. To be safe, wait a bit.
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException e1) {
-        }
-
         // notify the SAF to to do a new queryChildDocuments
+        SLogs.d(SeafileProvider.class, "notifyChanged - uri -> " + uri);
         getContext().getContentResolver().notifyChange(uri, null);
     }
 
-    private CompositeDisposable compositeDisposable = new CompositeDisposable();
+    private final CompositeDisposable compositeDisposable = new CompositeDisposable();
 
-//    @Override
-//    public void shutdown() {
-//        super.shutdown();
-//
-//        releaseResources();
-//    }
+    @Override
+    public void shutdown() {
+        super.shutdown();
+
+        releaseResources();
+    }
 
     private void releaseResources() {
-        if (compositeDisposable != null && !compositeDisposable.isDisposed()) {
+        if (!compositeDisposable.isDisposed()) {
             compositeDisposable.clear();
         }
     }

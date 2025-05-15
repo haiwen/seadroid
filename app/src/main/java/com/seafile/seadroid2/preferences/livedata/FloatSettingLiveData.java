@@ -26,7 +26,7 @@ public class FloatSettingLiveData extends SettingsLiveData<Float> {
 
     @Override
     protected Float getDefaultValue(@DimenRes int defaultValueRes) {
-        return ResourcesCompat.getFloat(SeadroidApplication.getInstance().getResources(), defaultValueRes);
+        return ResourcesCompat.getFloat(SeadroidApplication.getAppContext().getResources(), defaultValueRes);
     }
 
     @Override

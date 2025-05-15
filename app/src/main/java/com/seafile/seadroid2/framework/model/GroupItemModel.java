@@ -35,14 +35,14 @@ public class GroupItemModel extends BaseModel {
     public GroupItemModel(@StringRes int nameRes) {
         this.name = nameRes;
         checkable = false;
-        title = SeadroidApplication.getInstance().getString(name);
+        title = SeadroidApplication.getAppString(nameRes);
     }
 
     public GroupItemModel(@StringRes int nameRes, List<RepoModel> repoList) {
         this.name = nameRes;
         repo_list.addAll(repoList);
         checkable = false;
-        title = SeadroidApplication.getInstance().getString(name);
+        title = SeadroidApplication.getAppString(nameRes);
     }
 
     public GroupItemModel(String title, List<RepoModel> repoList) {

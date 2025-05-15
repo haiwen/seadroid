@@ -38,9 +38,9 @@ public class StarredModel extends BaseModel implements Parcelable {
     public long mtime_long;
 
     public String getSubtitle() {
-        if (deleted) {
-            return "";
-        }
+//        if (deleted) {
+//            return "";
+//        }
 
         if (TextUtils.isEmpty(mtime)) {
             return repo_name;
@@ -58,18 +58,6 @@ public class StarredModel extends BaseModel implements Parcelable {
 
     public boolean isRepo() {
         return TextUtils.equals("/", path) && is_dir;
-    }
-
-    public static DirentModel convert2DirentModel(StarredModel model) {
-        DirentModel d = new DirentModel();
-        d.full_path = model.path;
-        d.type = model.is_dir ? "dir" : "file";
-        d.mtime = 0;
-        d.name = model.obj_name;
-        d.repo_id = model.repo_id;
-        d.repo_name = model.repo_name;
-        d.parent_dir = Utils.getParentPath(model.path);
-        return d;
     }
 
     @Override

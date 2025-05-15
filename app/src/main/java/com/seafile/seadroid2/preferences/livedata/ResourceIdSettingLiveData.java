@@ -38,7 +38,7 @@ public class ResourceIdSettingLiveData extends SettingsLiveData<Integer> {
             return defaultValue;
         }
 
-        int v = SeadroidApplication.getInstance().getResources().getIdentifier(string, null, SeadroidApplication.getInstance().getPackageName());
+        int v = SeadroidApplication.getAppContext().getResources().getIdentifier(string, null, SeadroidApplication.getAppContext().getPackageName());
         if (v != 0) {
             return v;
         }
@@ -48,7 +48,7 @@ public class ResourceIdSettingLiveData extends SettingsLiveData<Integer> {
 
     @Override
     protected void putValue(SharedPreferences sharedPreferences, String key, @AnyRes Integer value) {
-        String n = SeadroidApplication.getInstance().getResources().getResourceName(value);
+        String n = SeadroidApplication.getAppContext().getResources().getResourceName(value);
         sharedPreferences.edit().putString(key, n).apply();
     }
 }

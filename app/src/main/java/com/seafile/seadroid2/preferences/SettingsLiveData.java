@@ -60,7 +60,7 @@ public abstract class SettingsLiveData<T> extends ProtectedUnPeekLiveData<T> imp
     protected abstract T getDefaultValue(@AnyRes int defaultValueRes);
 
     private String getKey(@StringRes int keyRes, String keySuffix) {
-        String key = SeadroidApplication.getInstance().getString(keyRes);
+        String key = SeadroidApplication.getAppContext().getString(keyRes);
         return keySuffix != null ? key + "_" + keySuffix : key;
     }
 

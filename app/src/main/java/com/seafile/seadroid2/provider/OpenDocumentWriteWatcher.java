@@ -3,11 +3,15 @@ package com.seafile.seadroid2.provider;
 import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
+import android.webkit.MimeTypeMap;
 
+import com.blankj.utilcode.util.FileUtils;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.annotation.Todo;
 import com.seafile.seadroid2.enums.SaveTo;
 import com.seafile.seadroid2.enums.TransferDataSource;
+import com.seafile.seadroid2.framework.db.AppDatabase;
+import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
 import com.seafile.seadroid2.framework.http.BaseOkHttpClient;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.util.SLogs;
@@ -161,6 +165,7 @@ public class OpenDocumentWriteWatcher {
             Log.e("SeafileProvider", "Upload failed: " + e.getMessage());
         }
     }
+
 
     /**
      * 提交 WorkManager 上传任务
