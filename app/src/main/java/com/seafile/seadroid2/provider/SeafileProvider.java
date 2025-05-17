@@ -31,6 +31,7 @@ import android.os.Bundle;
 import android.os.CancellationSignal;
 import android.os.Handler;
 import android.os.ParcelFileDescriptor;
+import android.os.storage.StorageManager;
 import android.provider.DocumentsContract;
 import android.provider.DocumentsContract.Document;
 import android.provider.DocumentsContract.Root;
@@ -71,9 +72,11 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URLEncoder;
@@ -464,35 +467,32 @@ public class SeafileProvider extends DocumentsProvider {
 
             String displayName = Utils.getFileNameFromPath(path);
             try {
-                File tempFile = DataManager.createTempFile();
-                tempFile.deleteOnExit();
-                if (!tempFile.canWrite()) {
-                    throw new FileNotFoundException("can not write to temp file");
-                }
+                // 创建管道：readFd 给系统写入，writeFd 你来读取并上传
+                ParcelFileDescriptor[] pipe = ParcelFileDescriptor.createPipe();
+                ParcelFileDescriptor readFd = pipe[0];   // 返回给系统（系统向此写入）
+                ParcelFileDescriptor writeFd = pipe[1];  // 用于你读取上传
 
-                Handler handler = new Handler(getContext().getMainLooper());
-                ParcelFileDescriptor pfd = ParcelFileDescriptor.open(tempFile,
-                        ParcelFileDescriptor.MODE_WRITE_ONLY
-                                | ParcelFileDescriptor.MODE_CREATE
-                                | ParcelFileDescriptor.MODE_TRUNCATE,
-                        handler, new ParcelFileDescriptor.OnCloseListener() {
-                            @Override
-                            public void onClose(IOException e) {
-                                SLogs.e(e);
-                            }
-                        });
+                CompletableFuture.runAsync(() -> {
+                    try (InputStream in = new FileInputStream(readFd.getFileDescriptor())) {
+                        OpenDocumentWriteWatcher.uploadStreamToCloud(account, repoModel.repo_id, path, displayName, in);
+                    } catch (Exception e) {
+                        Log.e("DocumentsProvider", "Upload failed", e);
+                    } finally {
+                        try {
+                            readFd.close();
+                        } catch (IOException ignored) {
+                        }
+                    }
+                });
 
-                OpenDocumentWriteWatcher.scheduleUploadAfterClose(getContext(), account, repoModel.repo_id, repoModel.repo_name, displayName, path, tempFile, documentId);
-
-                return pfd;
+                return writeFd;
             } catch (IOException e) {
-                throw new FileNotFoundException("Failed to open document with id " + documentId +
-                        " and mode " + mode);
+                throw new FileNotFoundException("Failed to open document with id " + documentId + " and mode " + mode);
             }
         } else {
             //read
 
-            
+
             List<DirentModel> direntModels = AppDatabase.getInstance().direntDao().getListByFullPathSync(repoId, path);
             if (CollectionUtils.isEmpty(direntModels)) {
                 throw new FileNotFoundException("could not find file");
@@ -517,16 +517,12 @@ public class SeafileProvider extends DocumentsProvider {
 
             try {
                 return PipeDownloadHelper.streamDownloadToPipe(account, repoModel.repo_id, repoModel.repo_name, path, direntModel.dir_id, signal, new PipeDownloadHelper.ProgressListener() {
-                    @Override
-                    public void onProgress(long bytesRead) {
-
-                    }
 
                     @Override
                     public void onComplete() {
                         SLogs.d(SeafileProvider.class, "download complete");
-                        //                    // 下载完成后，通知系统文件已准备好
-                        //                    getContext().getContentResolver().notifyChange(DocumentIdParser.getUriFromId(documentId), null);
+                        // 下载完成后，通知系统文件已准备好
+//                        getContext().getContentResolver().notifyChange(DocumentIdParser.getUriFromId(documentId), null);
                     }
 
                     @Override
@@ -705,31 +701,6 @@ public class SeafileProvider extends DocumentsProvider {
 
             String r = DocumentIdParser.buildId(account, repoId, Utils.pathJoin(parentPath, displayName));
             return Utils.pathJoin(r, "/");
-        }
-
-        //check if target already exist. if yes, abort
-        try {
-            String fullPath = Utils.pathJoin(parentPath, displayName);
-            Call<DirentFileModel> call = HttpIO.getCurrentInstance().execute(FileService.class).getFileDetailCall(repoId, fullPath);
-            Response<DirentFileModel> res = call.execute();
-            if (res.isSuccessful()) {
-                DirentFileModel b = res.body();
-                if (b != null) {
-                    throw throwFileNotFoundException(R.string.saf_file_exist);
-                } else {
-                    //not found in remote, can create it.
-                }
-            } else {
-                if (res.code() == HttpURLConnection.HTTP_NOT_FOUND) {
-                    //not found in remote, can create it.
-                } else {
-                    throw throwFileNotFoundException(R.string.network_error);
-                }
-            }
-
-
-        } catch (IOException e) {
-            throw throwFileNotFoundException(R.string.network_error);
         }
 
         return DocumentIdParser.buildId(account, repoId, Utils.pathJoin(parentPath, displayName));

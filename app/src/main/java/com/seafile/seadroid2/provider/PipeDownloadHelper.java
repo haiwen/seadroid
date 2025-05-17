@@ -16,6 +16,8 @@ import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.ui.file.FileService;
 
+import org.apache.commons.io.output.TeeOutputStream;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -38,8 +40,6 @@ import okhttp3.Response;
 public class PipeDownloadHelper {
 
     public interface ProgressListener {
-        void onProgress(long bytesRead);
-
         void onComplete();
 
         void onError(Exception e);
@@ -62,12 +62,14 @@ public class PipeDownloadHelper {
         CompletableFuture.runAsync(() -> {
 
             File destinationFile = DataManager.getLocalRepoFile(account, repoId, repoName, remoteFullPath);
+            TeeOutputStream teeOut = null;
 
-            try (OutputStream pipeOut = new FileOutputStream(writeFd.getFileDescriptor());
-                 OutputStream fileOut = new FileOutputStream(destinationFile)) {
+            try {
+                OutputStream pipeOut = new FileOutputStream(writeFd.getFileDescriptor());
+                OutputStream fileOut = new FileOutputStream(destinationFile);
+                teeOut = new TeeOutputStream(pipeOut, fileOut);
 
-                OutputStream teeOut = new TeeOutputStream(pipeOut, fileOut);
-                downloadFile(account, repoId, repoName, remoteFullPath, teeOut, signal, listener);
+                downloadFile(account, repoId, repoName, remoteFullPath, teeOut, signal);
 
                 saveIntoLocalDb(repoId, repoName, account.getSignature(), remoteFullPath, destinationFile, fileId);
 
@@ -77,6 +79,9 @@ public class PipeDownloadHelper {
                 listenerIfNotNull(listener, l -> l.onError(e));
             } finally {
                 try {
+                    if (teeOut != null) {
+                        teeOut.close();
+                    }
                     writeFd.close();
                 } catch (IOException ignored) {
                 }
@@ -92,8 +97,7 @@ public class PipeDownloadHelper {
             String repoName,
             String path,
             OutputStream out,
-            @Nullable CancellationSignal signal,
-            @Nullable ProgressListener listener
+            @Nullable CancellationSignal signal
     ) throws IOException {
 
         String url = buildDownloadUrl(account, repoId, path);
@@ -123,9 +127,6 @@ public class PipeDownloadHelper {
             while ((read = in.read(buffer)) != -1) {
                 out.write(buffer, 0, read);
                 total += read;
-
-                long finalTotal = total;
-                listenerIfNotNull(listener, l -> l.onProgress(finalTotal));
             }
 
             out.flush();
@@ -192,41 +193,6 @@ public class PipeDownloadHelper {
     }
 
     // 用于同时输出到 pipe + 本地文件
-    public static class TeeOutputStream extends OutputStream {
-        private final OutputStream out1;
-        private final OutputStream out2;
 
-        public TeeOutputStream(OutputStream out1, OutputStream out2) {
-            this.out1 = out1;
-            this.out2 = out2;
-        }
-
-        @Override
-        public void write(int b) throws IOException {
-            out1.write(b);
-            out2.write(b);
-        }
-
-        @Override
-        public void write(byte[] b, int off, int len) throws IOException {
-            out1.write(b, off, len);
-            out2.write(b, off, len);
-        }
-
-        @Override
-        public void flush() throws IOException {
-            out1.flush();
-            out2.flush();
-        }
-
-        @Override
-        public void close() throws IOException {
-            try {
-                out1.close();
-            } finally {
-                out2.close();
-            }
-        }
-    }
 
 }
