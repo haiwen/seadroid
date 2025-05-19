@@ -15,7 +15,7 @@
         android:importantForAccessibility="no"
         android:padding="12dp"
         app:tint="@color/bar_icon_tint_color"
-        tools:src="@drawable/ic_cancel" />
+        tools:src="@drawable/ic_launcher_foreground" />
 
     <TextView
         android:id="@+id/text"

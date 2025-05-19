@@ -36,6 +36,8 @@ import com.seafile.seadroid2.framework.model.permission.PermissionWrapperModel;
 import com.seafile.seadroid2.framework.model.repo.Dirent2Model;
 import com.seafile.seadroid2.framework.datastore.sp.SettingsManager;
 import com.seafile.seadroid2.framework.http.HttpIO;
+import com.seafile.seadroid2.framework.model.search.SearchModel;
+import com.seafile.seadroid2.framework.model.search.SearchWrapperModel;
 import com.seafile.seadroid2.framework.util.Objs;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Utils;
@@ -43,6 +45,7 @@ import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
 import com.seafile.seadroid2.ui.bottomsheetmenu.ActionMenu;
 import com.seafile.seadroid2.ui.dialog_fragment.DialogService;
+import com.seafile.seadroid2.ui.search.SearchService;
 import com.seafile.seadroid2.ui.star.StarredService;
 
 import java.util.ArrayList;
@@ -964,4 +967,64 @@ public class RepoViewModel extends BaseViewModel {
             return single1.toFlowable();
         }
     }
+
+
+    ////////////////////////// search ////////////////////////////
+
+    private final MutableLiveData<List<SearchModel>> mListLiveData = new MutableLiveData<>();
+
+    public MutableLiveData<List<SearchModel>> getSearchListLiveData() {
+        return mListLiveData;
+    }
+
+    public void searchNext(String repoId, String q, int pageNo, int pageSize) {
+        if (TextUtils.isEmpty(q)) {
+            return;
+        }
+
+        getRefreshLiveData().setValue(true);
+
+        Account account = SupportAccountManager.getInstance().getCurrentAccount();
+        String repo = TextUtils.isEmpty(repoId) ? "all" : repoId;
+        Single<SearchWrapperModel> single = HttpIO.getCurrentInstance().execute(SearchService.class).search(repo, q, "all", pageNo, pageSize);
+        addSingleDisposable(single, new Consumer<SearchWrapperModel>() {
+            @Override
+            public void accept(SearchWrapperModel searchWrapperModel) throws Exception {
+
+                if (searchWrapperModel == null || searchWrapperModel.results == null) {
+                    getSearchListLiveData().setValue(CollectionUtils.newArrayList());
+                    getRefreshLiveData().setValue(false);
+                    return;
+                }
+
+                List<SearchModel> results = searchWrapperModel.results;
+
+                for (SearchModel result : results) {
+                    result.related_account = account.getSignature();
+                }
+
+                //calculate item_position
+                if (CollectionUtils.isEmpty(results)) {
+
+                } else if (results.size() == 1) {
+                    results.get(0).item_position = ItemPositionEnum.ALL;
+                } else {
+                    results.get(0).item_position = ItemPositionEnum.START;
+                    results.get(results.size() - 1).item_position = ItemPositionEnum.END;
+                }
+
+                getSearchListLiveData().setValue(results);
+                getRefreshLiveData().setValue(false);
+            }
+        }, new Consumer<Throwable>() {
+            @Override
+            public void accept(Throwable throwable) throws Exception {
+                getSeafExceptionLiveData().setValue(getExceptionByThrowable(throwable));
+
+                getRefreshLiveData().setValue(false);
+            }
+        });
+    }
+
+
 }

@@ -482,6 +482,7 @@ Email: support@seafile.com<br>
   <string name="search_content_empty">没找到</string>
   <string name="search_server_not_support">此服务器不支持搜索</string>
   <string name="search_library_not_found">没找到资料库，它可能已被删除</string>
+  <string name="search_in_this_library">在当前资料库中搜索文件</string>
   <!--star a file-->
   <string name="star_file_succeed">星标添加成功</string>
   <string name="star_file_failed">星标添加失败</string>

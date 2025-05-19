@@ -90,7 +90,7 @@ public class PhotoViewModel extends BaseViewModel {
                 configModel.setMetadataConfigModel(metadataConfigModel);
                 configModel.setDetail(fileDetailModel);
                 //
-                configModel.initDefaultIfMetaEnable(fileDetailModel);
+                configModel.initDefaultIfMetaNotEnable(fileDetailModel);
                 return configModel;
             }
         }).flatMap(new Function<FileProfileConfigModel, SingleSource<FileProfileConfigModel>>() {

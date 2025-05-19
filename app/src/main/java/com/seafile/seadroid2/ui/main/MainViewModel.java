@@ -42,30 +42,11 @@ import io.reactivex.Single;
 import io.reactivex.functions.Consumer;
 
 public class MainViewModel extends BaseViewModel {
-
-    private final MutableLiveData<String> _on_search_live_data = new MutableLiveData<>();
-
     //force refresh repo/dirents
     private final MutableLiveData<Boolean> _on_force_refresh_repo_list_live_data = new MutableLiveData<>();
 
-    private final MutableLiveData<Boolean> _search_view_expanded_live_data = new MutableLiveData<>(false);
-
-    public MutableLiveData<Boolean> getSearchViewExpandedLiveData() {
-        return _search_view_expanded_live_data;
-    }
-
-    public MutableLiveData<String> getSearchViewQueryLiveData() {
-        return _search_view_query_live_data;
-    }
-
-
-    private final MutableLiveData<String> _search_view_query_live_data = new MutableLiveData<>();
     private final MutableLiveData<ServerInfo> _server_info_live_data = new MutableLiveData<>();
 
-
-    public MutableLiveData<String> getOnSearchLiveData() {
-        return _on_search_live_data;
-    }
 
     public MutableLiveData<Boolean> getOnForceRefreshRepoListLiveData() {
         return _on_force_refresh_repo_list_live_data;

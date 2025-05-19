@@ -83,8 +83,20 @@
             android:scaleType="centerInside"
             android:src="@drawable/baseline_starred_outline_24"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/gallery_share_photo"
+            app:layout_constraintEnd_toStartOf="@+id/gallery_copy_photo"
             app:layout_constraintStart_toEndOf="@+id/gallery_detail"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/gallery_copy_photo"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/ripple_icon_middle"
+            android:scaleType="centerInside"
+            android:src="@drawable/baseline_copy_24"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/gallery_share_photo"
+            app:layout_constraintStart_toEndOf="@+id/gallery_star_photo"
             app:layout_constraintTop_toTopOf="parent" />
 
         <com.google.android.material.imageview.ShapeableImageView
@@ -96,7 +108,7 @@
             android:src="@drawable/baseline_share_24"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/gallery_star_photo"
+            app:layout_constraintStart_toEndOf="@+id/gallery_copy_photo"
             app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

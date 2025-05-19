@@ -60,9 +60,9 @@ import com.seafile.seadroid2.view.photoview.ScrollStatus;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePreviewViewModel> implements Toolbar.OnMenuItemClickListener {
+public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePreviewViewModel> {
     private ActivityCarouselImagePreviewBinding binding;
-
+    private Toolbar toolbar;
     private ViewPager2Adapter pagerAdapter;
     private ThumbnailAdapter thumbnailAdapter;
 
@@ -157,15 +157,13 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
         ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) binding.toolbarActionbar.getLayoutParams();
         layoutParams.topMargin = BarUtils.getStatusBarHeight();
 
-        Toolbar toolbar = getActionBarToolbar();
+        toolbar = getActionBarToolbar();
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setTitle(null);
 
             toolbar.setNavigationOnClickListener(v -> {
-                setResult(RESULT_OK);
-
                 checkBack();
             });
         }
@@ -232,6 +230,8 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
                 shareFile();
             } else if (id == R.id.gallery_detail) {
                 toggleChildFragmentDetailLayout();
+            } else if (id == R.id.gallery_copy_photo) {
+                copy();
             }
         };
 
@@ -239,6 +239,7 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
         binding.galleryDetail.setOnClickListener(onClickListener);
         binding.galleryStarPhoto.setOnClickListener(onClickListener);
         binding.gallerySharePhoto.setOnClickListener(onClickListener);
+        binding.galleryCopyPhoto.setOnClickListener(onClickListener);
     }
 
     private void initViewModel() {
@@ -291,6 +292,10 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
                 if (whoScrolled == 1) {
                     whoScrolled = -1;
                     return;
+                }
+
+                if (toolbar != null) {
+                    toolbar.setTitle(thumbnailAdapter.getItems().get(position + 1).name);
                 }
 
                 whoScrolled = 0;
@@ -726,24 +731,6 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        Toolbar toolbar = getActionBarToolbar();
-        toolbar.inflateMenu(R.menu.menu_image_list_preview);
-        toolbar.setOnMenuItemClickListener(this);
-
-        return true;
-    }
-
-    @Override
-    public boolean onMenuItemClick(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            checkBack();
-        } else if (item.getItemId() == R.id.copy) {
-            copy();
-        }
-        return super.onOptionsItemSelected(item);
-    }
 
     private DirentModel getSelectedDirent() {
         List<DirentModel> direntList = thumbnailAdapter.getItems();

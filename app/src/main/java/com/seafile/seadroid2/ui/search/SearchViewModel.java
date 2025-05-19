@@ -10,9 +10,9 @@ import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.enums.ItemPositionEnum;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
+import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.model.search.SearchModel;
 import com.seafile.seadroid2.framework.model.search.SearchWrapperModel;
-import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
 import com.seafile.seadroid2.ui.repo.RepoService;
@@ -61,16 +61,13 @@ public class SearchViewModel extends BaseViewModel {
 
                 } else if (results.size() == 1) {
                     results.get(0).item_position = ItemPositionEnum.ALL;
-                } else if (results.size() == 2) {
-                    results.get(0).item_position = ItemPositionEnum.START;
-                    results.get(1).item_position = ItemPositionEnum.END;
                 } else {
                     results.get(0).item_position = ItemPositionEnum.START;
                     results.get(results.size() - 1).item_position = ItemPositionEnum.END;
                 }
 
                 getSearchListLiveData().setValue(results);
-                getRefreshLiveData().setValue(false);
+//                getRefreshLiveData().setValue(false);
             }
         }, new Consumer<Throwable>() {
             @Override

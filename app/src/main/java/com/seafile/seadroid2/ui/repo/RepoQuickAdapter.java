@@ -789,42 +789,45 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         return -1;
     }
 
-    public void filterListBySearchKeyword(String searchContent) {
-        this.searchContent = searchContent;
 
-        if (CollectionUtils.isEmpty(cacheLastList)) {
+    private final List<BaseModel> cacheLastList = new ArrayList<>();
+    private boolean isCachedLastList = false;
+
+    public void notifySearchDataChanged(List<SearchModel> searchlist, boolean isSearching) {
+        if (!isCachedLastList && isSearching) {
+            isCachedLastList = true;
+            cacheLastList.clear();
+            cacheLastList.addAll(getItems());
+        }
+
+        if (isSearching) {
             submitList(null);
-            return;
-        }
-
-        List<BaseModel> filterList;
-        if (!TextUtils.isEmpty(searchContent)) {
-            filterList = cacheLastList.stream().filter(_searchFilter).collect(Collectors.toList());
+            submitList(searchlist);
         } else {
-            filterList = cacheLastList;
+            if (!isCachedLastList){
+                return;
+            }
+            isCachedLastList = false;
+            submitList(new ArrayList<>(cacheLastList));
+            cacheLastList.clear();
         }
-        notify(filterList);
     }
-
-    private List<BaseModel> cacheLastList;
 
     public void notifyDataChanged(List<BaseModel> list) {
         if (CollectionUtils.isEmpty(list)) {
-            cacheLastList = null;
             submitList(null);
             return;
         }
 
-        cacheLastList = new ArrayList<>(list);
         if (CollectionUtils.isEmpty(getItems())) {
-            submitList(cacheLastList);
+            submitList(list);
             return;
         }
 
-        if (cacheLastList.size() == 1) {
-            submitList(cacheLastList);
+        if (list.size() == 1) {
+            submitList(list);
         } else {
-            notify(cacheLastList);
+            notify(list);
         }
     }
 
@@ -929,26 +932,4 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         }
 
     }
-
-    private String searchContent;
-    private final Predicate<? super BaseModel> _searchFilter = new Predicate<>() {
-        @Override
-        public boolean test(BaseModel baseModel) {
-            if (TextUtils.isEmpty(searchContent)) {
-                return true;
-            }
-
-            if (baseModel instanceof Account) {
-                return false;
-            } else if (baseModel instanceof GroupItemModel) {
-                return false;
-            } else if (baseModel instanceof RepoModel m) {
-                return m.repo_name.toLowerCase().contains(searchContent.toLowerCase());
-            } else if (baseModel instanceof DirentModel m) {
-                return m.name.toLowerCase().contains(searchContent.toLowerCase());
-            } else {
-                return false;
-            }
-        }
-    };
 }

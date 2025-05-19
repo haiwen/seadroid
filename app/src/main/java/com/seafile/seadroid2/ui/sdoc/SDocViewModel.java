@@ -66,7 +66,7 @@ public class SDocViewModel extends BaseViewModel {
                 configModel.setMetadataConfigModel(metadataConfigModel);
                 configModel.setDetail(fileDetailModel);
                 //
-                configModel.initDefaultIfMetaEnable(fileDetailModel);
+                configModel.initDefaultIfMetaNotEnable(fileDetailModel);
                 return configModel;
             }
         }).flatMap(new io.reactivex.functions.Function<FileProfileConfigModel, SingleSource<FileProfileConfigModel>>() {

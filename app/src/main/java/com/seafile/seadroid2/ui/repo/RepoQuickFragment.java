@@ -51,7 +51,6 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
-import com.seafile.seadroid2.annotation.Todo;
 import com.seafile.seadroid2.bus.BusHelper;
 import com.seafile.seadroid2.config.AbsLayoutItemType;
 import com.seafile.seadroid2.config.Constants;
@@ -67,7 +66,6 @@ import com.seafile.seadroid2.enums.RefreshStatusEnum;
 import com.seafile.seadroid2.enums.SortBy;
 import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
-import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
 import com.seafile.seadroid2.framework.db.entities.PermissionEntity;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.model.BaseModel;
@@ -93,10 +91,6 @@ import com.seafile.seadroid2.ui.dialog_fragment.BottomSheetRenameDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.CopyMoveDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.DeleteFileDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.DeleteRepoDialogFragment;
-import com.seafile.seadroid2.ui.dialog_fragment.NewDirFileDialogFragment;
-import com.seafile.seadroid2.ui.dialog_fragment.NewRepoDialogFragment;
-import com.seafile.seadroid2.ui.dialog_fragment.PasswordDialogFragment;
-import com.seafile.seadroid2.ui.dialog_fragment.RenameDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.listener.OnRefreshDataListener;
 import com.seafile.seadroid2.ui.dialog_fragment.listener.OnResultListener;
 import com.seafile.seadroid2.ui.file.FileActivity;
@@ -105,7 +99,6 @@ import com.seafile.seadroid2.ui.markdown.MarkdownActivity;
 import com.seafile.seadroid2.ui.media.image.CarouselImagePreviewActivity;
 import com.seafile.seadroid2.ui.media.player.CustomExoVideoPlayerActivity;
 import com.seafile.seadroid2.ui.sdoc.SDocWebViewActivity;
-import com.seafile.seadroid2.ui.search.SearchViewModel;
 import com.seafile.seadroid2.ui.selector.ObjSelectorActivity;
 import com.seafile.seadroid2.ui.star.StarredQuickFragment;
 import com.seafile.seadroid2.view.TipsViews;
@@ -131,7 +124,6 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     private RepoQuickAdapter adapter;
 
     private MainViewModel mainViewModel;
-    private SearchViewModel searchViewModel;
 
     private final Map<String, ScrollState> scrollPositionMap = Maps.newHashMap();
     private final Map<String, Long> pathLoadTimeMap = Maps.newHashMap();
@@ -156,7 +148,6 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         super.onCreate(savedInstanceState);
 
         mainViewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
-        searchViewModel = new ViewModelProvider(this).get(SearchViewModel.class);
     }
 
     @Override
@@ -242,7 +233,13 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
                 //search
                 MenuItem searchMenuItem = menu.findItem(R.id.menu_action_search);
-                SearchView searchView = new SearchView(requireContext());
+                final SearchView searchView = new SearchView(requireContext());
+                if (GlobalNavContext.getCurrentNavContext().inRepo()) {
+                    searchView.setQueryHint(getString(R.string.search_in_this_library));
+                } else {
+                    searchView.setQueryHint(getString(R.string.search_menu_item));
+                }
+
                 searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                     @Override
                     public boolean onQueryTextSubmit(String query) {
@@ -254,9 +251,9 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                         searchView.postDelayed(new Runnable() {
                             @Override
                             public void run() {
-                                mainViewModel.getOnSearchLiveData().setValue(newText);
+                                search(newText);
                             }
-                        }, 1000);
+                        }, 500);
                         return false;
                     }
                 });
@@ -531,18 +528,10 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             loadData(RefreshStatusEnum.ONLY_REMOTE, false);
         });
 
-
-        mainViewModel.getOnSearchLiveData().observe(getViewLifecycleOwner(), new Observer<String>() {
-            @Override
-            public void onChanged(String s) {
-                search(s);
-            }
-        });
-
-        searchViewModel.getSearchListLiveData().observe(getViewLifecycleOwner(), new Observer<List<SearchModel>>() {
+        getViewModel().getSearchListLiveData().observe(getViewLifecycleOwner(), new Observer<List<SearchModel>>() {
             @Override
             public void onChanged(List<SearchModel> searchModels) {
-                deduplicateSearchData(searchModels);
+                notifySearchData(searchModels);
             }
         });
 
@@ -962,19 +951,21 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         return newList;
     }
 
-    @Todo("The search results logic needs to be refactored")
     private void search(String keyword) {
-        adapter.filterListBySearchKeyword(keyword);
-
-        //
         if (!TextUtils.isEmpty(keyword)) {
-            searchViewModel.searchNext(keyword, 1, 20);
+            if (GlobalNavContext.getCurrentNavContext().inRepo()) {
+                String repo_id = GlobalNavContext.getCurrentNavContext().getRepoModel().repo_id;
+                getViewModel().searchNext(repo_id, keyword, 1, 20);
+            } else {
+                getViewModel().searchNext(null, keyword, 1, 20);
+            }
+        } else {
+            adapter.notifySearchDataChanged(null, false);
         }
     }
 
-    @Todo("The search results logic needs to be refactored")
-    private void deduplicateSearchData(List<SearchModel> searchModels) {
-        adapter.addAll(searchModels);
+    private void notifySearchData(List<SearchModel> searchModels) {
+        adapter.notifySearchDataChanged(searchModels, true);
     }
 
     private void showEmptyView() {

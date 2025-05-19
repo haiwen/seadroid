@@ -10,7 +10,7 @@
         <item name="titleTextColor">@color/bar_title_color</item>
         <item name="colorSurface">@color/white</item>
         <item name="android:textSize">14sp</item>
-        <item name="navigationIcon">@drawable/baseline_arrow_back_24</item>
+        <item name="navigationIcon">@drawable/baseline_back_24</item>
         <item name="navigationIconTint">@color/bar_title_color</item>
         <item name="titleTextAppearance">?attr/textAppearanceTitleMedium</item>
     </style>
