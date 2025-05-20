@@ -601,7 +601,7 @@ public class DataMigrationActivity extends AppCompatActivity {
 
         queryFileCacheOfDataDB();
         queryStarredFileCacheOfDataDB();
-        queryRepoDirOfDataDB();
+//        queryRepoDirOfDataDB();
         queryDirentsCacheOfDataDB();
         queryEncKeyOfDataDB();
     }
@@ -761,62 +761,62 @@ public class DataMigrationActivity extends AppCompatActivity {
 
     }
 
-    private void queryRepoDirOfDataDB() {
-        String table = "RepoDir";
-
-        DatabaseHelper dbHelper = DatabaseHelper.getDatabaseHelper();
-        SQLiteDatabase database = dbHelper.getWritableDatabase();
-        boolean isExists = checkTableExists(database, table);
-        if (!isExists) {
-            return;
-        }
-
-        Cursor c = database.query(
-                table,
-                null,
-                null,
-                null,
-                null,   // don't group the rows
-                null,   // don't filter by row groups
-                null    // The sort order
-        );
-
-        try {
-            c.moveToFirst();
-            while (!c.isAfterLast()) {
-                int idIndex = c.getColumnIndexOrThrow("id");
-                int repoIdIndex = c.getColumnIndexOrThrow("repo_id");
-                int repoDirIndex = c.getColumnIndexOrThrow("repo_dir");
-                int accountIndex = c.getColumnIndexOrThrow("account");
-
-
-//                item.id = c.getLong(idIndex);
-                String repo_id = c.getString(repoIdIndex);
-                String repo_dir = c.getString(repoDirIndex);
-//                item.related_account = c.getString(accountIndex);
-
-                Optional<RepoModel> repoModelOp = accountRepoList.stream().filter(repo -> repo.repo_id.equals(repo_id)).findFirst();
-                if (repoModelOp.isPresent()) {
-                    RepoModel repo = repoModelOp.get();
-                    Account account = SupportAccountManager.getInstance().getSpecialAccount(repo.related_account);
-                    if (account != null) {
-                        List<String> list = DataManager.getRepoMapping();
-                        list.add(repo_id + DataStoreKeys.SEPARATOR + repo_dir);
-
-                        String v = GsonUtils.toJson(list);
-                        DataStoreManager.getInstanceByUser(account.getSignature()).writeString(DataStoreKeys.DS_REPO_DIR_MAPPING, v);
-                    }
-                }
-
-
-                c.moveToNext();
-            }
-        } finally {
-            c.close();
-        }
-
-        SLogs.d("--------------------" + table + " -> 完成");
-    }
+//    private void queryRepoDirOfDataDB() {
+//        String table = "RepoDir";
+//
+//        DatabaseHelper dbHelper = DatabaseHelper.getDatabaseHelper();
+//        SQLiteDatabase database = dbHelper.getWritableDatabase();
+//        boolean isExists = checkTableExists(database, table);
+//        if (!isExists) {
+//            return;
+//        }
+//
+//        Cursor c = database.query(
+//                table,
+//                null,
+//                null,
+//                null,
+//                null,   // don't group the rows
+//                null,   // don't filter by row groups
+//                null    // The sort order
+//        );
+//
+//        try {
+//            c.moveToFirst();
+//            while (!c.isAfterLast()) {
+//                int idIndex = c.getColumnIndexOrThrow("id");
+//                int repoIdIndex = c.getColumnIndexOrThrow("repo_id");
+//                int repoDirIndex = c.getColumnIndexOrThrow("repo_dir");
+//                int accountIndex = c.getColumnIndexOrThrow("account");
+//
+//
+////                item.id = c.getLong(idIndex);
+//                String repo_id = c.getString(repoIdIndex);
+//                String repo_dir = c.getString(repoDirIndex);
+////                item.related_account = c.getString(accountIndex);
+//
+//                Optional<RepoModel> repoModelOp = accountRepoList.stream().filter(repo -> repo.repo_id.equals(repo_id)).findFirst();
+//                if (repoModelOp.isPresent()) {
+//                    RepoModel repo = repoModelOp.get();
+//                    Account account = SupportAccountManager.getInstance().getSpecialAccount(repo.related_account);
+//                    if (account != null) {
+//                        List<String> list = DataManager.getRepoMapping();
+//                        list.add(repo_id + DataStoreKeys.SEPARATOR + repo_dir);
+//
+//                        String v = GsonUtils.toJson(list);
+//                        DataStoreManager.getInstanceByUser(account.getSignature()).writeString(DataStoreKeys.DS_REPO_DIR_MAPPING, v);
+//                    }
+//                }
+//
+//
+//                c.moveToNext();
+//            }
+//        } finally {
+//            c.close();
+//        }
+//
+//        SLogs.d("--------------------" + table + " -> 完成");
+//    }
 
     private void queryDirentsCacheOfDataDB() {
         String table = "DirentsCache";

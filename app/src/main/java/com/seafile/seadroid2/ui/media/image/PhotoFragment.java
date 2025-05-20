@@ -163,8 +163,7 @@ public class PhotoFragment extends BaseFragment {
 
     private File getLocalDestinationFile(String repoId, String repoName, String fullPathInRepo) {
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
-
-        return DataManager.getLocalRepoFile(account, repoId, repoName, fullPathInRepo);
+        return DataManager.getLocalFileCachePath(account, repoId, repoName, fullPathInRepo);
     }
 
     private void intViewModel() {

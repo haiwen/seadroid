@@ -31,7 +31,7 @@
         <item name="colorSurface">@color/white</item>
         <item name="colorControlNormal">@color/white</item>
         <item name="android:colorControlNormal">@color/white</item>
-        <item name="navigationIcon">@drawable/baseline_arrow_back_24</item>
+        <item name="navigationIcon">@drawable/baseline_back_24</item>
         <item name="navigationIconTint">@color/toolbar_editor_title_color</item>
     </style>
 

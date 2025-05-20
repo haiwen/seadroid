@@ -24,7 +24,6 @@ import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.db.entities.StarredModel;
 import com.seafile.seadroid2.framework.model.activities.ActivityModel;
 import com.seafile.seadroid2.framework.model.dirents.DirentFileModel;
-import com.seafile.seadroid2.framework.model.search.SearchModel;
 import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.util.Icons;
 import com.seafile.seadroid2.framework.util.SLogs;
@@ -208,7 +207,7 @@ public class FileActivity extends BaseActivityWithVM<FileViewModel> implements T
     private File getLocalDestinationFile(String repoId, String repoName, String fullPathInRepo) {
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
 
-        return DataManager.getLocalRepoFile(account, repoId, repoName, fullPathInRepo);
+        return DataManager.getLocalFileCachePath(account, repoId, repoName, fullPathInRepo);
     }
 
 

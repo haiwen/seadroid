@@ -60,8 +60,8 @@ public class CopyMoveViewModel extends BaseViewModel {
                     String srcFullPath = Utils.pathJoin(srcParentDir, direntModel.name);
                     String dstFullPath = Utils.pathJoin(dstParentDir, direntModel.name);
 
-                    File srcFile = DataManager.getLocalRepoFile(account, srcRepoId, srcRepoName, srcFullPath);
-                    File dstFile = DataManager.getLocalRepoFile(account, dstRepoId, dstRepoName, dstFullPath);
+                    File srcFile = DataManager.getLocalFileCachePath(account, srcRepoId, srcRepoName, srcFullPath);
+                    File dstFile = DataManager.getLocalFileCachePath(account, dstRepoId, dstRepoName, dstFullPath);
                     if (java.nio.file.Files.exists(srcFile.toPath())) {
                         Path path = java.nio.file.Files.move(srcFile.toPath(), dstFile.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
                         SLogs.d("move dirent:" + path.toString());

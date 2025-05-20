@@ -62,10 +62,10 @@ public class RenameRepoViewModel extends BaseViewModel {
                 return Single.create(new SingleOnSubscribe<String>() {
                     @Override
                     public void subscribe(SingleEmitter<String> emitter) throws Exception {
-                        File oldRepoFolder = DataManager.getOrCreateRepoMappingDir(account, repoId, oldRepoName);
+                        File oldRepoFolder = DataManager.getLocalRepoDir(account, repoId, oldRepoName);
 
                         if (oldRepoFolder.exists()) {
-                            File newRepoFolder = DataManager.renameRepoName(account, repoId, newRepoName);
+                            File newRepoFolder = DataManager.getLocalRepoDir(account, repoId, newRepoName);
                             Files.move(oldRepoFolder.toPath(), newRepoFolder.toPath(), StandardCopyOption.REPLACE_EXISTING);
                         }
 
@@ -121,8 +121,8 @@ public class RenameRepoViewModel extends BaseViewModel {
                         String parentPath = Utils.getParentPath(oldFolderFullPath);
                         String newFolderFullPath = Utils.pathJoin(parentPath, newName);
 
-                        File srcFile = DataManager.getLocalRepoFile(account, repoId, repoName, oldFolderFullPath);
-                        File dstFile = DataManager.getLocalRepoFile(account, repoId, repoName, newFolderFullPath);
+                        File srcFile = DataManager.getLocalFileCachePath(account, repoId, repoName, oldFolderFullPath);
+                        File dstFile = DataManager.getLocalFileCachePath(account, repoId, repoName, newFolderFullPath);
                         Path srcPath = srcFile.toPath();
                         if (srcFile.exists()) {
                             boolean r = srcFile.renameTo(dstFile);
@@ -237,8 +237,8 @@ public class RenameRepoViewModel extends BaseViewModel {
 
                         String newFullPath = Utils.pathJoin(parentPath, newName);
 
-                        File srcFile = DataManager.getLocalRepoFile(account, repoId, repoName, oldFullPath);
-                        File dstFile = DataManager.getLocalRepoFile(account, repoId, repoName, newFullPath);
+                        File srcFile = DataManager.getLocalFileCachePath(account, repoId, repoName, oldFullPath);
+                        File dstFile = DataManager.getLocalFileCachePath(account, repoId, repoName, newFullPath);
                         Path srcPath = srcFile.toPath();
                         if (srcFile.exists()) {
                             java.nio.file.Files.move(srcPath, srcPath.resolveSibling(newName), StandardCopyOption.REPLACE_EXISTING);

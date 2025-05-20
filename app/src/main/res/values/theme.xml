@@ -80,8 +80,8 @@
         <item name="titleTextColor">@color/white</item>
         <item name="actionMenuTextColor">@android:color/white</item>
         <item name="android:colorControlNormal">@android:color/white</item>
-        <item name="android:homeAsUpIndicator">@drawable/baseline_arrow_back_24</item>
-        <item name="homeAsUpIndicator">@drawable/baseline_arrow_back_24</item>
+        <item name="android:homeAsUpIndicator">@drawable/baseline_back_24</item>
+        <item name="homeAsUpIndicator">@drawable/baseline_back_24</item>
         <item name="android:alertDialogTheme">@style/ThemeOverlay.Editor.AlertDialogTheme</item>
     </style>
 

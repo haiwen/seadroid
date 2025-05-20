@@ -329,7 +329,7 @@ public class DownloadWorker extends BaseDownloadWorker {
                     throw SeafException.NETWORK_EXCEPTION;
                 }
 
-                File localFile = DataManager.getLocalRepoFile(account, currentTransferModel.repo_id, currentTransferModel.repo_name, currentTransferModel.full_path);
+                File localFile = DataManager.getLocalFileCachePath(account, currentTransferModel.repo_id, currentTransferModel.repo_name, currentTransferModel.full_path);
 
 
                 long fileSize = responseBody.contentLength();

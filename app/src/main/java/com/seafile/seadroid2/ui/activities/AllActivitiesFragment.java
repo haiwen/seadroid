@@ -20,7 +20,6 @@ import androidx.annotation.OptIn;
 import androidx.lifecycle.Observer;
 import androidx.media3.common.util.UnstableApi;
 
-import com.blankj.utilcode.util.NetworkUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.chad.library.adapter4.QuickAdapterHelper;
 import com.chad.library.adapter4.loadState.LoadState;
@@ -33,7 +32,6 @@ import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.databinding.LayoutFrameSwipeRvBinding;
 import com.seafile.seadroid2.enums.FileReturnActionEnum;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
-import com.seafile.seadroid2.framework.db.entities.StarredModel;
 import com.seafile.seadroid2.framework.model.ResultModel;
 import com.seafile.seadroid2.framework.model.activities.ActivityModel;
 import com.seafile.seadroid2.framework.datastore.DataManager;
@@ -372,7 +370,7 @@ public class AllActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel>
 
     private File getLocalDestinationFile(String repoId, String repoName, String fullPathInRepo) {
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
-        return DataManager.getLocalRepoFile(account, repoId, repoName, fullPathInRepo);
+        return DataManager.getLocalFileCachePath(account, repoId, repoName, fullPathInRepo);
     }
 
 

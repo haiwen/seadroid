@@ -28,7 +28,6 @@ import com.seafile.seadroid2.framework.worker.ExistingFileStrategy;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
-import com.seafile.seadroid2.framework.worker.upload.FolderBackupScanWorker;
 import com.seafile.seadroid2.ui.file.FileService;
 
 import java.io.IOException;
@@ -126,7 +125,7 @@ public class DownloadFileScannerWorker extends TransferWorker {
             transferModel.full_path = String.format("%s/%s", pendingModel.parent_dir, pendingModel.name);
         }
         transferModel.setParentPath(Utils.getParentPath(transferModel.full_path));
-        transferModel.target_path = DataManager.getLocalRepoFile(account, transferModel.repo_id, transferModel.repo_name, transferModel.full_path).getAbsolutePath();
+        transferModel.target_path = DataManager.getLocalFileCachePath(account, transferModel.repo_id, transferModel.repo_name, transferModel.full_path).getAbsolutePath();
 
         transferModel.transfer_status = TransferStatus.WAITING;
         transferModel.data_source = TransferDataSource.DOWNLOAD;
@@ -161,7 +160,7 @@ public class DownloadFileScannerWorker extends TransferWorker {
                 transferModel.full_path = String.format("%s/%s", model.parent_dir, model.name);
             }
             transferModel.setParentPath(Utils.getParentPath(transferModel.full_path));
-            transferModel.target_path = DataManager.getLocalRepoFile(account, transferModel.repo_id, transferModel.repo_name, transferModel.full_path).getAbsolutePath();
+            transferModel.target_path = DataManager.getLocalFileCachePath(account, transferModel.repo_id, transferModel.repo_name, transferModel.full_path).getAbsolutePath();
 
             transferModel.transfer_status = TransferStatus.WAITING;
             transferModel.data_source = TransferDataSource.DOWNLOAD;

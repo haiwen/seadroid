@@ -45,6 +45,7 @@ import com.blankj.utilcode.util.NetworkUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.chad.library.adapter4.BaseQuickAdapter;
 import com.github.panpf.recycler.sticky.StickyItemDecoration;
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.common.collect.Maps;
 import com.seafile.seadroid2.R;
@@ -225,6 +226,8 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     private final HashMap<String, Boolean> menuIdState = new HashMap<>();
 
     public void onCreateMenuHost() {
+        MaterialToolbar toolbar =requireActivity().findViewById(R.id.toolbar);
+
         MenuHost menuHost = requireActivity();
         menuHost.addMenuProvider(new MenuProvider() {
             @Override
@@ -262,11 +265,13 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 searchMenuItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
                     @Override
                     public boolean onMenuItemActionExpand(@NonNull MenuItem item) {
+                        menuIdState.put("search", menu.findItem(R.id.menu_action_search).isVisible());
                         menuIdState.put("sortGroup", menu.findItem(R.id.menu_action_sort).isVisible());
                         menuIdState.put("createRepo", menu.findItem(R.id.create_repo).isVisible());
                         menuIdState.put("add", menu.findItem(R.id.add).isVisible());
                         menuIdState.put("select", menu.findItem(R.id.select).isVisible());
 
+                        menu.findItem(R.id.menu_action_search).setVisible(false);
                         menu.findItem(R.id.menu_action_sort).setVisible(false);
                         menu.findItem(R.id.create_repo).setVisible(false);
                         menu.findItem(R.id.add).setVisible(false);
@@ -278,6 +283,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                     @Override
                     public boolean onMenuItemActionCollapse(@NonNull MenuItem item) {
 
+                        menu.findItem(R.id.menu_action_search).setVisible(Boolean.TRUE.equals(menuIdState.get("search")));
                         menu.findItem(R.id.menu_action_sort).setVisible(Boolean.TRUE.equals(menuIdState.get("sortGroup")));
                         menu.findItem(R.id.create_repo).setVisible(Boolean.TRUE.equals(menuIdState.get("createRepo")));
                         menu.findItem(R.id.add).setVisible(Boolean.TRUE.equals(menuIdState.get("add")));
@@ -1424,7 +1430,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
     private File getLocalDestinationFile(String repoId, String repoName, String fullPathInRepo) {
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
-        return DataManager.getLocalRepoFile(account, repoId, repoName, fullPathInRepo);
+        return DataManager.getLocalFileCachePath(account, repoId, repoName, fullPathInRepo);
     }
 
     private void open(RepoModel repoModel, DirentModel dirent) {

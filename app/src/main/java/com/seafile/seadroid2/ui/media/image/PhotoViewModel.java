@@ -287,7 +287,7 @@ public class PhotoViewModel extends BaseViewModel {
             public void subscribe(SingleEmitter<File> emitter) throws Exception {
 
                 Account currentAccount = SupportAccountManager.getInstance().getCurrentAccount();
-                File destinationFile = DataManager.getLocalRepoFile(currentAccount, direntModel.repo_id, direntModel.repo_name, direntModel.full_path);
+                File destinationFile = DataManager.getLocalFileCachePath(currentAccount, direntModel.repo_id, direntModel.repo_name, direntModel.full_path);
 
                 Request request = new Request.Builder()
                         .url(dlink)

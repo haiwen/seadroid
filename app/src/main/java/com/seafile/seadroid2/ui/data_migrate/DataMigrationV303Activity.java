@@ -76,10 +76,10 @@ public class DataMigrationV303Activity extends AppCompatActivity {
             //
             Settings.initUserSettings(account);
 
-            String repoKV = DataStoreManager.getInstanceByUser(account.getSignature()).readString(DataStoreKeys.DS_REPO_DIR_MAPPING);
-            if (!TextUtils.isEmpty(repoKV)) {
-                Settings.getCurrentAccountSharedPreferences().edit().putString(DataStoreKeys.DS_REPO_DIR_MAPPING, repoKV).commit();
-            }
+//            String repoKV = DataStoreManager.getInstanceByUser(account.getSignature()).readString(DataStoreKeys.DS_REPO_DIR_MAPPING);
+//            if (!TextUtils.isEmpty(repoKV)) {
+//                Settings.getCurrentAccountSharedPreferences().edit().putString(DataStoreKeys.DS_REPO_DIR_MAPPING, repoKV).commit();
+//            }
 
 
             //gesture lock

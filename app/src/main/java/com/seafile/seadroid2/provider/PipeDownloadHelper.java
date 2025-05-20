@@ -61,7 +61,7 @@ public class PipeDownloadHelper {
 
         CompletableFuture.runAsync(() -> {
 
-            File destinationFile = DataManager.getLocalRepoFile(account, repoId, repoName, remoteFullPath);
+            File destinationFile = DataManager.getLocalFileCachePath(account, repoId, repoName, remoteFullPath);
             TeeOutputStream teeOut = null;
 
             try {

@@ -29,9 +29,7 @@ import android.graphics.Point;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.CancellationSignal;
-import android.os.Handler;
 import android.os.ParcelFileDescriptor;
-import android.os.storage.StorageManager;
 import android.provider.DocumentsContract;
 import android.provider.DocumentsContract.Document;
 import android.provider.DocumentsContract.Root;
@@ -58,15 +56,11 @@ import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.db.entities.StarredModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.model.BaseModel;
-import com.seafile.seadroid2.framework.model.dirents.CachedDirentModel;
-import com.seafile.seadroid2.framework.model.dirents.DirentFileModel;
-import com.seafile.seadroid2.framework.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.framework.util.GlideApp;
 import com.seafile.seadroid2.framework.util.Objs;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.ui.dialog_fragment.DialogService;
-import com.seafile.seadroid2.ui.file.FileService;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -77,18 +71,12 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.FutureTask;
 
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -96,8 +84,6 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
-import retrofit2.Call;
-import retrofit2.Response;
 
 /**
  * DocumentProvider for the Storage Access Framework.
@@ -186,29 +172,6 @@ public class SeafileProvider extends DocumentsProvider {
         return new MatrixCursor(netProjection);
     }
 
-    /**
-     * Create a MatrixCursor with the option to enable the extraLoading flag.
-     *
-     * @param netProjection column list
-     * @param extraLoading  if true, the client will expect that more entries will arrive shortly.
-     * @return the Cursor object
-     */
-    private static MatrixCursor createCursor(String[] netProjection, final boolean extraLoading, final boolean isReachable) {
-
-        MatrixCursor matrixCursor = new MatrixCursor(netProjection);
-
-        Bundle bundle = matrixCursor.getExtras();
-        bundle.putBoolean(DocumentsContract.EXTRA_LOADING, extraLoading);
-        if (!extraLoading && !isReachable) {
-            bundle.putString(DocumentsContract.EXTRA_ERROR, "Could not connect with server");
-        } else if (extraLoading) {
-            bundle.putString(DocumentsContract.EXTRA_ERROR, "loading");
-        }
-
-        matrixCursor.setExtras(bundle);
-        return matrixCursor;
-    }
-
     private Uri toNotifyUri(String parentDocumentId) {
         return DocumentsContract.buildChildDocumentsUri(AUTHORITY_OF_DOCUMENTS, parentDocumentId);
     }
@@ -255,7 +218,8 @@ public class SeafileProvider extends DocumentsProvider {
                 // tell the client that more entries will arrive shortly.
                 Bundle bundle = new Bundle();
                 bundle.putBoolean(DocumentsContract.EXTRA_LOADING, true);
-                bundle.putString(DocumentsContract.EXTRA_INFO, "loading data");
+                String loadingText = SeadroidApplication.getAppString(R.string.pull_to_refresh_refreshing_label);
+                bundle.putString(DocumentsContract.EXTRA_INFO, loadingText);
                 matrixCursor.setExtras(bundle);
 
                 fetchReposAsync(account, notifyUri, matrixCursor);
@@ -277,13 +241,14 @@ public class SeafileProvider extends DocumentsProvider {
             }
 
             int dataStatus = SeadroidApplication.getDocumentCache().get(parentDocumentId);
-            SLogs.d(SeafileProvider.class, "queryChildDocuments:starred-> parentDocumentId= " + parentDocumentId + ", dataStatus=" + dataStatus);
+            SLogs.d(SeafileProvider.class, "queryChildDocuments: starred-> parentDocumentId= " + parentDocumentId + ", dataStatus=" + dataStatus);
 
             if (dataStatus == -1) {
                 // tell the client that more entries will arrive shortly.
                 Bundle bundle = new Bundle();
                 bundle.putBoolean(DocumentsContract.EXTRA_LOADING, true);
-                bundle.putString(DocumentsContract.EXTRA_INFO, "loading data");
+                String loadingText = SeadroidApplication.getAppString(R.string.pull_to_refresh_refreshing_label);
+                bundle.putString(DocumentsContract.EXTRA_INFO, loadingText);
                 matrixCursor.setExtras(bundle);
 
                 fetchStarredAsync(account, notifyUri, matrixCursor);
@@ -341,7 +306,8 @@ public class SeafileProvider extends DocumentsProvider {
                 // tell the client that more entries will arrive shortly.
                 Bundle bundle = new Bundle();
                 bundle.putBoolean(DocumentsContract.EXTRA_LOADING, true);
-                bundle.putString(DocumentsContract.EXTRA_INFO, "loading data");
+                String loadingText = SeadroidApplication.getAppString(R.string.pull_to_refresh_refreshing_label);
+                bundle.putString(DocumentsContract.EXTRA_INFO, loadingText);
                 matrixCursor.setExtras(bundle);
 
                 fetchDirentAsync(account, notifyUri, repoModel, path, matrixCursor);
@@ -451,8 +417,6 @@ public class SeafileProvider extends DocumentsProvider {
         }
 
         final boolean isWrite = (mode.indexOf('w') != -1);
-        final int accessMode = ParcelFileDescriptor.parseMode(mode);
-
         if (isWrite) {
             //write
 
@@ -469,8 +433,8 @@ public class SeafileProvider extends DocumentsProvider {
             try {
                 // 创建管道：readFd 给系统写入，writeFd 你来读取并上传
                 ParcelFileDescriptor[] pipe = ParcelFileDescriptor.createPipe();
-                ParcelFileDescriptor readFd = pipe[0];   // 返回给系统（系统向此写入）
-                ParcelFileDescriptor writeFd = pipe[1];  // 用于你读取上传
+                ParcelFileDescriptor readFd = pipe[0];
+                ParcelFileDescriptor writeFd = pipe[1];
 
                 CompletableFuture.runAsync(() -> {
                     try (InputStream in = new FileInputStream(readFd.getFileDescriptor())) {
@@ -500,7 +464,7 @@ public class SeafileProvider extends DocumentsProvider {
 
             DirentModel direntModel = direntModels.get(0);
 
-            File file = DataManager.getLocalRepoFile(account, repoModel.repo_id, repoModel.repo_name, path);
+            File file = DataManager.getLocalFileCachePath(account, repoModel.repo_id, repoModel.repo_name, path);
             if (file.exists()) {
                 try {
                     return makeParcelFileDescriptor(file, mode);
@@ -586,7 +550,7 @@ public class SeafileProvider extends DocumentsProvider {
             throw throwFileNotFoundException(R.string.saf_bad_mime_type);
         }
 
-        File file = DataManager.getLocalRepoFile(account, repoModel.repo_id, repoModel.repo_name, path);
+        File file = DataManager.getLocalFileCachePath(account, repoModel.repo_id, repoModel.repo_name, path);
         if (file.exists()) {
             ParcelFileDescriptor pfd = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY);
             return new AssetFileDescriptor(pfd, 0, file.length());
@@ -657,10 +621,6 @@ public class SeafileProvider extends DocumentsProvider {
     @Override
     public String createDocument(String parentDocumentId, String mimeType, String displayName) throws FileNotFoundException {
         Log.d(DEBUG_TAG, "createDocument: " + parentDocumentId + "; " + mimeType + "; " + displayName);
-
-        //cloud.seafile.com (f4f550ea33e14f82aab7da71be0d13fa@auth.local)::::afdf379f-62f6-48da-8494-af86e0ba0fdf
-        //application/vnd.openxmlformats-officedocument.presentationml.presentation
-        //ONLYOFFICE Sample Presentation.pptx
 
         if (TextUtils.isEmpty(parentDocumentId) || TextUtils.isEmpty(mimeType) || TextUtils.isEmpty(displayName)) {
             throw throwFileNotFoundException(R.string.saf_bad_mime_type);
