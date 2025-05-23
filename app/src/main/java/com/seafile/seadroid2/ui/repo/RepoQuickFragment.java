@@ -194,15 +194,24 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         loadData(RefreshStatusEnum.ONLY_LOCAL, false);
     }
 
-    private void initRv() {
-        StickyItemDecoration decoration = new StickyItemDecoration.Builder()
+    private StickyItemDecoration decoration;
+
+    public StickyItemDecoration getDecoration() {
+        if (decoration != null) {
+            return decoration;
+        }
+
+        decoration = new StickyItemDecoration.Builder()
                 .itemType(AbsLayoutItemType.GROUP_ITEM)
                 .invisibleOriginItemWhenStickyItemShowing(false)
                 .disabledScrollUpStickyItem(false)
                 .showInContainer(binding.stickyContainer)
                 .build();
+        return decoration;
+    }
 
-        binding.rv.addItemDecoration(decoration);
+    private void initRv() {
+        binding.rv.addItemDecoration(getDecoration());
 
         binding.rv.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -964,6 +973,9 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
     private void search(String keyword) {
         if (!TextUtils.isEmpty(keyword)) {
+            //hide sticky view
+            binding.stickyContainer.setVisibility(View.GONE);
+
             if (GlobalNavContext.getCurrentNavContext().inRepo()) {
                 String repo_id = GlobalNavContext.getCurrentNavContext().getRepoModel().repo_id;
                 getViewModel().searchNext(repo_id, keyword, 1, 20);
@@ -971,6 +983,9 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 getViewModel().searchNext(null, keyword, 1, 20);
             }
         } else {
+            //show sticky view
+            binding.stickyContainer.setVisibility(View.VISIBLE);
+
             adapter.notifySearchDataChanged(null, false);
         }
     }
@@ -1057,12 +1072,14 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                     @Override
                     public void accept(Boolean aBoolean) {
                         if (aBoolean) {
+                            binding.stickyContainer.setVisibility(View.GONE);
                             GlobalNavContext.push(repoModel);
                             loadData(getRefreshStatus(), true);
                         }
                     }
                 });
             } else {
+                binding.stickyContainer.setVisibility(View.GONE);
                 GlobalNavContext.push(repoModel);
                 loadData(getRefreshStatus(), true);
             }
@@ -1180,6 +1197,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
                 loadData(RefreshStatusEnum.ONLY_LOCAL, true);
             }
+
             return true;
         }
         return false;

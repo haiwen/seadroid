@@ -762,7 +762,6 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         return -1;
     }
 
-
     private final List<BaseModel> cacheLastList = new ArrayList<>();
     private boolean isCachedLastList = false;
 
