@@ -11,6 +11,7 @@ import com.seafile.seadroid2.enums.ItemPositionEnum;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
+import com.seafile.seadroid2.framework.model.repo.RepoInfoModel;
 import com.seafile.seadroid2.framework.model.search.SearchModel;
 import com.seafile.seadroid2.framework.model.search.SearchWrapperModel;
 import com.seafile.seadroid2.framework.util.SLogs;
@@ -83,16 +84,18 @@ public class SearchViewModel extends BaseViewModel {
         //from db
         Single<List<RepoModel>> singleDb = AppDatabase.getInstance().repoDao().getRepoById(repoId);
 
-        Single<RepoModel> singleNet = HttpIO.getCurrentInstance().execute(RepoService.class).getRepoInfo(repoId);
+        Single<RepoInfoModel> singleNet = HttpIO.getCurrentInstance().execute(RepoService.class).getRepoInfo(repoId);
 
         Single<RepoModel> single = singleDb.flatMap(new Function<List<RepoModel>, SingleSource<RepoModel>>() {
             @Override
             public SingleSource<RepoModel> apply(List<RepoModel> repoModels) throws Exception {
                 if (CollectionUtils.isEmpty(repoModels)) {
-                    return singleNet.flatMap(new Function<RepoModel, SingleSource<RepoModel>>() {
+                    return singleNet.flatMap(new Function<RepoInfoModel, SingleSource<RepoModel>>() {
                         @Override
-                        public SingleSource<RepoModel> apply(RepoModel repoModel) throws Exception {
+                        public SingleSource<RepoModel> apply(RepoInfoModel repoInfoModel) throws Exception {
 
+                            Account account = SupportAccountManager.getInstance().getCurrentAccount();
+                            RepoModel repoModel = RepoInfoModel.toRepoModel(account, repoInfoModel);
                             //insert
                             AppDatabase.getInstance().repoDao().insert(repoModel);
 

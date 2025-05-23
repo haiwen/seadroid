@@ -97,6 +97,10 @@ public class ExceptionUtils {
                 return SeafException.INVALID_PASSWORD;
             }
 
+            if (bodyString.toLowerCase().contains("operation not supported")) {
+                return SeafException.OPERATION_NOT_SUPPORTED_EXCEPTION;
+            }
+
             return SeafException.NOT_FOUND_LOGGED_USER_EXCEPTION;
         }
 

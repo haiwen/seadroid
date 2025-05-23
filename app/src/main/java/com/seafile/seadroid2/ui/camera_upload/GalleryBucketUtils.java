@@ -137,7 +137,7 @@ public class GalleryBucketUtils {
                 BUCKET_ORDER_BY        // Ordering
         );
 
-        List<Bucket> buckets = new ArrayList<Bucket>();
+        List<Bucket> buckets = new ArrayList<>();
 
         if (cursor == null) {
             return buckets;
@@ -200,7 +200,7 @@ public class GalleryBucketUtils {
                 BUCKET_ORDER_BY        // Ordering
         );
 
-        List<Bucket> buckets = new ArrayList<Bucket>();
+        List<Bucket> buckets = new ArrayList<>();
 
         if (cursor == null) {
             return buckets;
@@ -258,7 +258,7 @@ public class GalleryBucketUtils {
                 sortOrder
         );
 
-        List<Bucket> buckets = new ArrayList<Bucket>();
+        List<Bucket> buckets = new ArrayList<>();
 
         if (cursor == null) {
             return buckets;
@@ -320,7 +320,7 @@ public class GalleryBucketUtils {
                 sortOrder
         );
 
-        List<Bucket> buckets = new ArrayList<Bucket>();
+        List<Bucket> buckets = new ArrayList<>();
 
         if (cursor == null) {
             return buckets;

@@ -61,10 +61,7 @@ public class ObjSelectorViewModel extends BaseViewModel {
         if (!CollectionUtils.isEmpty(results)) {
             if (results.size() == 1) {
                 results.get(0).item_position = ItemPositionEnum.ALL;
-            } else if (results.size() == 2) {
-                results.get(0).item_position = ItemPositionEnum.START;
-                results.get(1).item_position = ItemPositionEnum.END;
-            } else {
+            }  else {
                 results.get(0).item_position = ItemPositionEnum.START;
                 results.get(results.size() - 1).item_position = ItemPositionEnum.END;
             }

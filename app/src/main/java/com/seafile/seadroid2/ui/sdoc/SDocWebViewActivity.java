@@ -29,7 +29,6 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.databinding.ActivitySeaWebviewProBinding;
-import com.seafile.seadroid2.databinding.ToolbarActionbarProgressBarBinding;
 import com.seafile.seadroid2.enums.WebViewPreviewType;
 import com.seafile.seadroid2.framework.model.sdoc.FileProfileConfigModel;
 import com.seafile.seadroid2.framework.model.sdoc.OutlineItemModel;
@@ -46,7 +45,6 @@ import com.seafile.seadroid2.view.webview.SeaWebView;
 
 public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
     private ActivitySeaWebviewProBinding binding;
-    private ToolbarActionbarProgressBarBinding toolBinding;
 
     private SeaWebView mWebView;
     private String repoId;
@@ -77,12 +75,9 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
             return;
         }
 
-        toolBinding = ToolbarActionbarProgressBarBinding.bind(binding.toolProgressBar.getRoot());
-
+        init();
 
         initUI();
-
-        init();
 
         initViewModel();
 
@@ -126,15 +121,29 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
     }
 
     private void initUI() {
-        Toolbar toolbar = toolBinding.toolbarActionbar;
-        toolbar.setTitle("");
-        setSupportActionBar(toolbar);
+        Toolbar toolbar = getActionBarToolbar();
+//        toolbar.setTitle("");
         toolbar.setNavigationOnClickListener(v -> {
             finish();
         });
 
-        mWebView = PreloadWebView.getInstance().getWebView(this);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setTitle(null);
+        }
 
+        getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (mWebView != null && mWebView.canGoBack()) {
+                    mWebView.goBack();
+                } else {
+                    finish();
+                }
+            }
+        });
+
+        mWebView = PreloadWebView.getInstance().getWebView(this);
 
         if (WebViewFeature.isFeatureSupported(WebViewFeature.ALGORITHMIC_DARKENING)) {
             WebSettingsCompat.setAlgorithmicDarkeningAllowed(mWebView.getSettings(), true);
@@ -166,16 +175,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
             }
         });
 
-        getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
-            @Override
-            public void handleOnBackPressed() {
-                if (mWebView != null && mWebView.canGoBack()) {
-                    mWebView.goBack();
-                } else {
-                    finish();
-                }
-            }
-        });
+
     }
 
     private void initViewModel() {
@@ -370,11 +370,11 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
     };
 
     private void setBarProgress(int p) {
-        toolBinding.toolProgressBar.setProgress(p, true);
+        binding.toolProgressBar.setProgress(p, true);
 
         if (p != 100) {
-            if (toolBinding.toolProgressBar.getVisibility() != View.VISIBLE) {
-                toolBinding.toolProgressBar.setVisibility(View.VISIBLE);
+            if (binding.toolProgressBar.getVisibility() != View.VISIBLE) {
+                binding.toolProgressBar.setVisibility(View.VISIBLE);
             }
         }
 
@@ -383,7 +383,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
 
     private void hideProgressBar() {
         if (curProgress == 100) {
-            toolBinding.toolProgressBar.setVisibility(View.GONE);
+            binding.toolProgressBar.setVisibility(View.GONE);
         }
     }
 

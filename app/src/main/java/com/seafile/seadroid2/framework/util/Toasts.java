@@ -12,8 +12,6 @@ import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.annotation.Todo;
 import com.seafile.seadroid2.annotation.Unstable;
 
-@Unstable
-@Todo
 public class Toasts {
 
     public static void show(@StringRes final int resId) {

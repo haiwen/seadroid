@@ -87,7 +87,6 @@ public class Search2Activity extends BaseActivityWithVM<SearchViewModel> impleme
         super.onCreate(savedInstanceState);
 
         binding = ActivitySearch2Binding.inflate(getLayoutInflater());
-
         setContentView(binding.getRoot());
 
         initView(savedInstanceState);

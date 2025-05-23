@@ -19,6 +19,7 @@ import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.EncryptUtils;
 import com.blankj.utilcode.util.SizeUtils;
 import com.bumptech.glide.signature.ObjectKey;
+import com.seafile.seadroid2.GlideApp;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
@@ -34,14 +35,13 @@ import com.seafile.seadroid2.databinding.ItemRepoBinding;
 import com.seafile.seadroid2.databinding.ItemUnsupportedBinding;
 import com.seafile.seadroid2.enums.FileViewType;
 import com.seafile.seadroid2.enums.ItemPositionEnum;
-import com.seafile.seadroid2.enums.RepoSelectType;
+import com.seafile.seadroid2.enums.ObjSelectType;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.model.BaseModel;
 import com.seafile.seadroid2.framework.model.GroupItemModel;
 import com.seafile.seadroid2.framework.model.search.SearchModel;
-import com.seafile.seadroid2.framework.util.GlideApp;
 import com.seafile.seadroid2.framework.util.ThumbnailUtils;
 import com.seafile.seadroid2.framework.util.URLs;
 import com.seafile.seadroid2.framework.util.Utils;
@@ -58,7 +58,6 @@ import com.seafile.seadroid2.widget.prefs.background_pref.BackgroundShapeUtils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
@@ -69,26 +68,12 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
 
     private boolean repoEncrypted = false;
     private FileViewType fileViewType = FileViewType.LIST;
-    private RepoSelectType selectType = RepoSelectType.NOT_SELECTABLE;
+    private ObjSelectType selectType = ObjSelectType.NOT_SELECTABLE;
     private int itemBackColor;
-    /**
-     * <pre>
-     *  -1 no limited
-     *   0 do not write this value
-     * >=1 max count
-     * </pre>
-     */
-    private int selectedMaxCount = 1;
 
-    public void setSelectType(RepoSelectType selectType) {
+    public void setSelectType(ObjSelectType selectType) {
         this.selectType = selectType;
     }
-
-    public void setSelectType(RepoSelectType selectType, int selectedMaxCount) {
-        this.selectType = selectType;
-        this.selectedMaxCount = selectedMaxCount;
-    }
-
 
     public void setRepoEncrypted(boolean repoEncrypted) {
         this.repoEncrypted = repoEncrypted;
@@ -310,10 +295,15 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
                     .into(holder.binding.listItemAccountIcon);
         }
 
-        if (selectType.ordinal() >= RepoSelectType.ONLY_ACCOUNT.ordinal()) {
-            holder.binding.itemSelectView.setVisibility(account.is_checked ? View.VISIBLE : View.INVISIBLE);
+        if (selectType.ordinal() == ObjSelectType.ACCOUNT.ordinal()) {
+            holder.binding.itemSelectView.setVisibility(View.VISIBLE);
+            if (model.is_checked) {
+                holder.binding.itemSelectView.setImageResource(R.drawable.ic_checkbox_checked);
+            } else {
+                holder.binding.itemSelectView.setImageResource(R.drawable.ic_checkbox_unchecked);
+            }
         } else {
-            holder.binding.itemSelectView.setVisibility(View.INVISIBLE);
+            holder.binding.itemSelectView.setVisibility(View.GONE);
         }
     }
 
@@ -324,7 +314,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
             holder.binding.itemGroupTitle.setText(model.title);
         }
 
-        if (selectType.ordinal() >= RepoSelectType.ONLY_ACCOUNT.ordinal()) {
+        if (ObjSelectType.NOT_SELECTABLE != selectType) {
             holder.binding.itemGroupExpand.setRotation(0);
             holder.binding.itemGroupExpand.setVisibility(View.GONE);
             holder.binding.getRoot().setClickable(false);
@@ -367,7 +357,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         holder.binding.itemSubtitle.setText(model.getSubtitle());
         holder.binding.itemIcon.setImageResource(model.getIcon());
 
-        if (selectType.ordinal() == RepoSelectType.ONLY_REPO.ordinal() || onActionMode) {
+        if (selectType == ObjSelectType.REPO || onActionMode) {
             holder.binding.itemMultiSelect.setVisibility(View.VISIBLE);
 
             if (model.is_checked) {
@@ -441,9 +431,9 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         }
 
         //action mode
-        updateItemMultiSelectView(holder.binding.itemMultiSelect, model.is_checked);
+        updateItemMultiSelectView(holder.binding.itemMultiSelect, model);
 
-        if (selectType.ordinal() < RepoSelectType.ONLY_ACCOUNT.ordinal()) {
+        if (ObjSelectType.NOT_SELECTABLE == selectType) {
             holder.binding.itemTitle.setTextColor(ContextCompat.getColor(getContext(), R.color.item_title_color));
             holder.binding.itemSubtitle.setTextColor(ContextCompat.getColor(getContext(), R.color.item_subtitle_color));
 //            if (onActionMode) {
@@ -527,7 +517,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         }
 
         //action mode
-        updateItemMultiSelectView(holder.binding.itemMultiSelect, model.is_checked);
+        updateItemMultiSelectView(holder.binding.itemMultiSelect, model);
 
         if (model.isDir()) {
             holder.binding.itemDownloadStatus.setVisibility(View.GONE);
@@ -563,7 +553,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
             loadImage(model, holder.binding.itemIcon, largeSize);
         }
 
-        updateItemMultiSelectView(holder.binding.itemMultiSelect, model.is_checked);
+        updateItemMultiSelectView(holder.binding.itemMultiSelect, model);
     }
 
     private void updateItemMultiSelectViewWithPayload(ImageView imageView, boolean isChecked) {
@@ -574,12 +564,12 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         }
     }
 
-    private void updateItemMultiSelectView(ImageView imageView, boolean isChecked) {
+    private void updateItemMultiSelectView(ImageView imageView, DirentModel model) {
         if (onActionMode) {
             imageView.setVisibility(View.VISIBLE);
 //            holder.binding.getRoot().setChecked(model.is_checked);
 
-            if (isChecked) {
+            if (model.is_checked) {
                 imageView.setImageResource(R.drawable.ic_checkbox_checked);
             } else {
                 imageView.setImageResource(R.drawable.ic_checkbox_unchecked);
@@ -728,50 +718,33 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
     /**
      * @return is selected?
      */
-    public boolean selectItemByMode(int position) {
+    public void selectItemByMode(int position) {
         BaseModel item = getItems().get(position);
 
-        //single
-        if (selectedMaxCount == 1) {
-            int selectedPosition = getSelectedPositionByMode();
-            if (selectedPosition == position) {
-                item.is_checked = !item.is_checked;
-                notifyItemChanged(selectedPosition);
-                return item.is_checked;
-
-            } else if (selectedPosition > -1) {
-                //Deselect an item that has already been selected
-                getItems().get(selectedPosition).is_checked = false;
-                notifyItemChanged(selectedPosition);
-
-                item.is_checked = true;
-                notifyItemChanged(position);
-            } else {
-                item.is_checked = true;
-                notifyItemChanged(position);
-            }
-        } else {
-            long selectedCount = getSelectedCountBySelectType();
-            if (selectedCount >= selectedMaxCount) {
-                return false;
-            }
-
+        int selectedPosition = getSelectedPositionByMode();
+        if (selectedPosition == position) {
             item.is_checked = !item.is_checked;
+            notifyItemChanged(selectedPosition);
+        } else if (selectedPosition > -1) {
+            //Deselect an item that has already been selected
+            getItems().get(selectedPosition).is_checked = false;
+            notifyItemChanged(selectedPosition);
+
+            item.is_checked = true;
             notifyItemChanged(position);
-
-            return item.is_checked;
+        } else {
+            item.is_checked = true;
+            notifyItemChanged(position);
         }
-
-        return true;
     }
 
     private long getSelectedCountBySelectType() {
-        if (RepoSelectType.ONLY_ACCOUNT == selectType) {
+        if (ObjSelectType.ACCOUNT == selectType) {
             return getItems().stream()
                     .filter(Account.class::isInstance)
                     .filter(f -> f.is_checked)
                     .count();
-        } else if (RepoSelectType.ONLY_REPO == selectType) {
+        } else if (ObjSelectType.REPO == selectType) {
             return getItems().stream()
                     .filter(RepoModel.class::isInstance)
                     .filter(f -> f.is_checked)
@@ -804,7 +777,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
             submitList(null);
             submitList(searchlist);
         } else {
-            if (!isCachedLastList){
+            if (!isCachedLastList) {
                 return;
             }
             isCachedLastList = false;

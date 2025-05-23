@@ -89,9 +89,9 @@
             app:backgroundColor="@color/pref_background_color"
             app:backgroundRadius="8dp"
             app:dividerColor="@color/pref_divider_color"
-            app:dividerPosition="bottom"
+            app:dividerPosition="none"
             app:iconSpaceReserved="false"
-            app:radiusPosition="top" />
+            app:radiusPosition="all" />
 
         <com.seafile.seadroid2.widget.prefs.TextTitleSummaryPreference
             android:key="@string/pref_key_album_backup_repo_select"
@@ -140,9 +140,9 @@
             app:backgroundColor="@color/pref_background_color"
             app:backgroundRadius="8dp"
             app:dividerColor="@color/pref_divider_color"
-            app:dividerPosition="bottom"
+            app:dividerPosition="none"
             app:iconSpaceReserved="false"
-            app:radiusPosition="top" />
+            app:radiusPosition="all" />
 
         <com.seafile.seadroid2.widget.prefs.SimpleMenuPreference
             android:defaultValue="@string/pref_key_default_value_folder_backup_network_mode"

@@ -66,7 +66,7 @@ public class AlbumBackupAdapter extends AbstractThreadedSyncAdapter {
                               SyncResult syncResult) {
 
         boolean isForce = extras.getBoolean(ContentResolver.SYNC_EXTRAS_MANUAL);
-        SLogs.d(AlbumBackupAdapter.class, "onPerformSync, isForce -> " + isForce);
+        SLogs.d(AlbumBackupAdapter.class, "onPerformSync(), isForce -> " + isForce);
         Account seafileAccount = SupportAccountManager.getInstance().getSeafileAccount(account);
 
         // this should never occur, as camera upload is supposed to be disabled once the camera upload account signs out.

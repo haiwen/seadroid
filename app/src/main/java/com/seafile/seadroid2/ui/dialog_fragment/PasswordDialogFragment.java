@@ -14,15 +14,19 @@ import androidx.lifecycle.Observer;
 import com.google.android.material.textfield.TextInputLayout;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
+import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.model.TResultModel;
 import com.seafile.seadroid2.ui.base.fragment.RequestCustomDialogFragmentWithVM;
 import com.seafile.seadroid2.ui.dialog_fragment.listener.OnResultListener;
 import com.seafile.seadroid2.ui.dialog_fragment.viewmodel.PasswordViewModel;
 
+@Deprecated
 public class PasswordDialogFragment extends RequestCustomDialogFragmentWithVM<PasswordViewModel> {
     private String repoId;
     private String repoName;
+    private Account account;
 
     private OnResultListener<RepoModel> resultListener;
 
@@ -39,15 +43,39 @@ public class PasswordDialogFragment extends RequestCustomDialogFragmentWithVM<Pa
         return fragment;
     }
 
+    public static PasswordDialogFragment newInstance(Account account, String repoId, String repoName) {
+        Bundle args = new Bundle();
+        args.putString("repoId", repoId);
+        args.putString("repoName", repoName);
+        args.putParcelable("account", account);
+        PasswordDialogFragment fragment = new PasswordDialogFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         Bundle args = getArguments();
         if (args != null) {
+            account = args.getParcelable("account");
             repoId = args.getString("repoId");
             repoName = args.getString("repoName");
+
+            if (account == null) {
+                account = SupportAccountManager.getInstance().getCurrentAccount();
+            }
+
+            if (TextUtils.isEmpty(repoId)) {
+                throw new IllegalArgumentException("this dialogFragment need repoId param");
+            }
+
+            if (TextUtils.isEmpty(repoName)) {
+                throw new IllegalArgumentException("this dialogFragment need repoName param");
+            }
         } else {
-            throw new IllegalArgumentException("this dialogFragment need repoId param");
+            throw new IllegalArgumentException("this dialogFragment need params");
         }
     }
 
@@ -81,7 +109,7 @@ public class PasswordDialogFragment extends RequestCustomDialogFragmentWithVM<Pa
         String password = editText.getText().toString();
 
         //verify password
-        getViewModel().verifyPwd(repoId, password);
+        getViewModel().verifyPwd(account, repoId, password);
     }
 
     @Override

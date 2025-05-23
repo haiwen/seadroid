@@ -1,7 +1,6 @@
 package com.seafile.seadroid2.ui.folder_backup;
 
 import static com.seafile.seadroid2.ui.folder_backup.FolderBackupConfigActivity.BACKUP_SELECT_PATHS;
-import static com.seafile.seadroid2.ui.folder_backup.FolderBackupConfigActivity.FOLDER_BACKUP_SELECT_TYPE;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -19,10 +18,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.chad.library.adapter4.QuickAdapterHelper;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.ui.bottomsheetmenu.BottomSheetHelper;
-import com.seafile.seadroid2.ui.bottomsheetmenu.BottomSheetMenuFragment;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
 import com.seafile.seadroid2.ui.base.BaseActivity;
+import com.seafile.seadroid2.ui.bottomsheetmenu.BottomSheetHelper;
+import com.seafile.seadroid2.ui.bottomsheetmenu.BottomSheetMenuFragment;
+import com.seafile.seadroid2.ui.settings.TabSettings2Fragment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,7 +44,6 @@ public class FolderBackupSelectedPathActivity extends BaseActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(FolderBackupSelectedPathActivity.this, FolderBackupConfigActivity.class);
-                intent.putExtra(FOLDER_BACKUP_SELECT_TYPE, "folder");
                 folderBackupConfigLauncher.launch(intent);
             }
         });
@@ -131,7 +130,7 @@ public class FolderBackupSelectedPathActivity extends BaseActivity {
 
     public void setFinishPage() {
         Intent intent = new Intent();
-        intent.putExtra(FOLDER_BACKUP_SELECT_TYPE, "folder");
+        intent.putExtra(TabSettings2Fragment.FB_SELECT_TYPE, "folder");
 
         if (isSettingsChanged()){
             List<String> selectedFolderPaths = mAdapter.getItems();

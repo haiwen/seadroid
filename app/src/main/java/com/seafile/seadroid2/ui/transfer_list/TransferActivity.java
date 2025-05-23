@@ -67,7 +67,6 @@ public class TransferActivity extends BaseActivity {
         initViewPager();
 
         Toolbar toolbar = getActionBarToolbar();
-        setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setTitle(R.string.transfer_tasks);

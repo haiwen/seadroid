@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.tabs.TabLayoutMediator;
+import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.databinding.CucActivityLayoutBinding;
@@ -17,6 +18,7 @@ import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.SystemSwitchUtils;
+import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.ui.adapter.ViewPager2Adapter;
 import com.seafile.seadroid2.ui.base.BaseActivity;
 import com.seafile.seadroid2.ui.camera_upload.config_fragment.BucketsFragment;
@@ -25,7 +27,7 @@ import com.seafile.seadroid2.ui.camera_upload.config_fragment.HowToUploadFragmen
 import com.seafile.seadroid2.ui.camera_upload.config_fragment.ReadyToScanFragment;
 import com.seafile.seadroid2.ui.camera_upload.config_fragment.WhatToUploadFragment;
 import com.seafile.seadroid2.ui.folder_backup.RepoConfig;
-import com.seafile.seadroid2.ui.selector.ObjSelectorFragment;
+import com.seafile.seadroid2.ui.selector.RepoSelectorFragment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -76,9 +78,8 @@ public class CameraUploadConfigActivity extends BaseActivity {
     private void initView() {
         fragmentList.clear();
 
-        Account account = SupportAccountManager.getInstance().getCurrentAccount();
         if (isChooseRepoPage) {
-            fragmentList.add(ObjSelectorFragment.newInstance(account));
+            fragmentList.add(RepoSelectorFragment.newInstance());
             binding.tabs.setVisibility(View.GONE);
         } else if (isChooseDirPage) {
             fragmentList.add(new BucketsFragment());
@@ -88,7 +89,7 @@ public class CameraUploadConfigActivity extends BaseActivity {
             fragmentList.add(new HowToUploadFragment());
             fragmentList.add(new WhatToUploadFragment());
             fragmentList.add(new BucketsFragment());
-            fragmentList.add(ObjSelectorFragment.newInstance(account));
+            fragmentList.add(RepoSelectorFragment.newInstance());
             fragmentList.add(new ReadyToScanFragment());
         }
 
@@ -141,18 +142,20 @@ public class CameraUploadConfigActivity extends BaseActivity {
 
             } else if (fragment instanceof BucketsFragment bucketsFragment) {
                 List<String> selectedBuckets = bucketsFragment.getSelectedBuckets();
-                if (bucketsFragment.isAutoScanSelected()) {
-                    selectedBuckets.clear();
-                }
+                if (selectedBuckets != null) {
+                    if (bucketsFragment.isAutoScanSelected()) {
+                        selectedBuckets.clear();
+                    }
 
-                AlbumBackupSharePreferenceHelper.writeBucketIds(selectedBuckets);
-            } else if (fragment instanceof ObjSelectorFragment cloudLibrarySelectorFragment) {
+                    AlbumBackupSharePreferenceHelper.writeBucketIds(selectedBuckets);
+                }
+            } else if (fragment instanceof RepoSelectorFragment cloudLibrarySelectorFragment) {
                 Pair<Account, RepoModel> pair = cloudLibrarySelectorFragment.getBackupInfo();
                 mAccount = pair.first;
                 repoModel = pair.second;
 
                 if (repoModel == null || mAccount == null) {
-                    SLogs.d("----------No repo is selected");
+                    Toasts.show(R.string.settings_camera_upload_repo_hint);
                     return;
                 }
 
@@ -171,6 +174,7 @@ public class CameraUploadConfigActivity extends BaseActivity {
         setResult(RESULT_OK, intent);
         finish();
     }
+
 
     private void initOnBackPressedDispatcher() {
         getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {

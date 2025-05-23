@@ -219,7 +219,6 @@ public class DownloadWorker extends BaseDownloadWorker {
 
             currentTransferModel.retry_times = currentTransferModel.retry_times + 1;
             if (seafException == SeafException.INVALID_PASSWORD) {
-                SLogs.e("上传文件时发生了异常，将进行重试: " + seafException.getMessage());
                 boolean decryptResult = decryptRepo(currentTransferModel.repo_id);
                 if (decryptResult) {
                     transferFile(account);
@@ -377,9 +376,9 @@ public class DownloadWorker extends BaseDownloadWorker {
 
     @Todo("todo")
     public boolean isRetry(SeafException result) {
-//        if (result.equals(SeafException.INVALID_PASSWORD)) {
-//            return true;
-//        }
+        if (result.equals(SeafException.INVALID_PASSWORD)) {
+            return true;
+        }
         return false;
     }
 

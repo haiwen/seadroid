@@ -1,10 +1,5 @@
 package com.seafile.seadroid2.ui.share;
 
-import static com.seafile.seadroid2.ui.selector.ObjSelectorActivity.DATA_ACCOUNT;
-import static com.seafile.seadroid2.ui.selector.ObjSelectorActivity.DATA_DIR;
-import static com.seafile.seadroid2.ui.selector.ObjSelectorActivity.DATA_REPO_ID;
-import static com.seafile.seadroid2.ui.selector.ObjSelectorActivity.DATA_REPO_NAME;
-
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -30,15 +25,17 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.bus.BusHelper;
 import com.seafile.seadroid2.databinding.ActivityShareToSeafileBinding;
+import com.seafile.seadroid2.enums.ObjSelectType;
 import com.seafile.seadroid2.enums.TransferDataSource;
-import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
+import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
 import com.seafile.seadroid2.ui.selector.ObjSelectorActivity;
+import com.seafile.seadroid2.config.ObjKey;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,8 +66,11 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
 
         initWorkerBusObserver();
 
-        Intent chooserIntent = new Intent(this, ObjSelectorActivity.class);
-        objSelectorLauncher.launch(chooserIntent);
+        //launch obj selector activity
+        Bundle bundle = new Bundle();
+        bundle.putBoolean("isFilterUnavailable", false);
+        Intent intent = ObjSelectorActivity.getIntent(this, ObjSelectType.ACCOUNT, ObjSelectType.DIR, bundle);
+        objSelectorLauncher.launch(intent);
     }
 
     private final ActivityResultLauncher<Intent> objSelectorLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
@@ -83,10 +83,15 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
             }
 
             Intent intent = o.getData();
-            dstRepoId = intent.getStringExtra(DATA_REPO_ID);
-            dstRepoName = intent.getStringExtra(DATA_REPO_NAME);
-            dstDir = intent.getStringExtra(DATA_DIR);
-            account = intent.getParcelableExtra(DATA_ACCOUNT);
+            if (intent == null) {
+                finish();
+                return;
+            }
+
+            account = intent.getParcelableExtra(ObjKey.ACCOUNT);
+            dstRepoId = intent.getStringExtra(ObjKey.REPO_ID);
+            dstRepoName = intent.getStringExtra(ObjKey.REPO_NAME);
+            dstDir = intent.getStringExtra(ObjKey.DIR);
 
             notifyFileOverwriting();
         }

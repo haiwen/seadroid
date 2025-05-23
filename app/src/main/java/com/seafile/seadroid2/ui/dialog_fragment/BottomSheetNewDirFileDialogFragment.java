@@ -15,14 +15,18 @@ import com.blankj.utilcode.util.KeyboardUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
+import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.framework.model.ResultModel;
 import com.seafile.seadroid2.framework.model.dirents.FileCreateModel;
 import com.seafile.seadroid2.framework.util.StringUtils;
+import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.ui.base.fragment.RequestBottomSheetDialogFragmentWithVM;
 import com.seafile.seadroid2.ui.dialog_fragment.viewmodel.NewDirViewModel;
 
 public class BottomSheetNewDirFileDialogFragment extends RequestBottomSheetDialogFragmentWithVM<NewDirViewModel> {
 
+    private Account account;
     private String parentDir, repoId;
     private boolean isDir;
 
@@ -31,6 +35,17 @@ public class BottomSheetNewDirFileDialogFragment extends RequestBottomSheetDialo
         args.putString("repo_id", repoId);
         args.putString("parent_dir", parentDir);
         args.putBoolean("is_dir", isDir);
+        BottomSheetNewDirFileDialogFragment fragment = new BottomSheetNewDirFileDialogFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    public static BottomSheetNewDirFileDialogFragment newInstance(Account account, String repoId, String parentDir, boolean isDir) {
+        Bundle args = new Bundle();
+        args.putString("repo_id", repoId);
+        args.putString("parent_dir", parentDir);
+        args.putBoolean("is_dir", isDir);
+        args.putParcelable("account", account);
         BottomSheetNewDirFileDialogFragment fragment = new BottomSheetNewDirFileDialogFragment();
         fragment.setArguments(args);
         return fragment;
@@ -48,6 +63,11 @@ public class BottomSheetNewDirFileDialogFragment extends RequestBottomSheetDialo
         repoId = args.getString("repo_id");
         parentDir = args.getString("parent_dir");
         isDir = args.getBoolean("is_dir");
+
+        account = args.getParcelable("account");
+        if (account == null) {
+            account = SupportAccountManager.getInstance().getCurrentAccount();
+        }
 
         if (TextUtils.isEmpty(parentDir)) {
             throw new IllegalArgumentException("this dialogFragment need parentDir param");
@@ -82,13 +102,12 @@ public class BottomSheetNewDirFileDialogFragment extends RequestBottomSheetDialo
 
         EditText name = getDialogView().findViewById(R.id.edit_name);
         String pathName = name.getText().toString();
-        pathName = (parentDir + "/" + pathName);
-        pathName = StringUtils.trimEnd(pathName, " ");
+        pathName = Utils.pathJoin(parentDir, pathName).trim();
 
         if (isDir) {
-            getViewModel().createNewDir(pathName, repoId);
+            getViewModel().createNewDir(account, pathName, repoId);
         } else {
-            getViewModel().createNewFile(pathName, repoId);
+            getViewModel().createNewFile(account, pathName, repoId);
         }
     }
 
@@ -129,7 +148,7 @@ public class BottomSheetNewDirFileDialogFragment extends RequestBottomSheetDialo
                 @Override
                 public void onChanged(ResultModel resultModel) {
                     if (!TextUtils.isEmpty(resultModel.error_msg)) {
-                        setInputError(R.id.text_input, resultModel.error_msg);
+                        ToastUtils.showLong(resultModel.error_msg);
                     } else {
 
                         EditText name = getDialogView().findViewById(R.id.edit_name);
@@ -148,7 +167,7 @@ public class BottomSheetNewDirFileDialogFragment extends RequestBottomSheetDialo
                 @Override
                 public void onChanged(FileCreateModel fileCreateModel) {
                     if (!TextUtils.isEmpty(fileCreateModel.error_msg)) {
-                        setInputError(R.id.text_input, fileCreateModel.error_msg);
+                        ToastUtils.showLong(fileCreateModel.error_msg);
                     } else {
                         EditText name = getDialogView().findViewById(R.id.edit_name);
                         String pathName = name.getText().toString();

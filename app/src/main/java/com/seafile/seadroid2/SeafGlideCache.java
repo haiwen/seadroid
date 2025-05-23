@@ -1,9 +1,6 @@
-package com.seafile.seadroid2.framework.util;
+package com.seafile.seadroid2;
 
 import android.content.Context;
-import android.webkit.CookieManager;
-import android.webkit.WebSettings;
-import android.webkit.WebView;
 
 import androidx.annotation.NonNull;
 
@@ -15,27 +12,17 @@ import com.bumptech.glide.integration.okhttp3.OkHttpUrlLoader;
 import com.bumptech.glide.load.engine.cache.DiskLruCacheFactory;
 import com.bumptech.glide.load.model.GlideUrl;
 import com.bumptech.glide.module.AppGlideModule;
-import com.seafile.seadroid2.SeadroidApplication;
-import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.http.UnsafeOkHttpClient;
 import com.seafile.seadroid2.framework.http.interceptor.CurrentTokenInterceptor;
-import com.seafile.seadroid2.framework.http.interceptor.HeaderInterceptor;
+import com.seafile.seadroid2.framework.util.SLogs;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLSession;
-
-import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 
 @GlideModule
-public class GlideCache extends AppGlideModule {
+public class SeafGlideCache extends AppGlideModule {
 
 
     @Override

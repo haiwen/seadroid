@@ -14,7 +14,7 @@
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingVertical="8dp"
+
         android:paddingStart="16dp"
         android:paddingEnd="16dp">
 
@@ -53,11 +53,12 @@
 
         <ImageView
             android:id="@+id/item_select_view"
-            android:layout_width="@dimen/lv_iv_action_width"
-            android:layout_height="@dimen/lv_iv_action_width"
-            android:padding="12dp"
-            android:src="@drawable/cuc_repo_selected"
-            android:visibility="invisible" />
+            android:layout_width="@dimen/lv_multi_select_width"
+            android:layout_height="@dimen/lv_multi_select_height"
+            android:layout_gravity="center"
+            android:padding="6dp"
+            android:src="@drawable/ic_checkbox_checked"
+            android:visibility="gone" />
     </LinearLayout>
 
 

@@ -45,7 +45,6 @@ import com.blankj.utilcode.util.NetworkUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.chad.library.adapter4.BaseQuickAdapter;
 import com.github.panpf.recycler.sticky.StickyItemDecoration;
-import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.common.collect.Maps;
 import com.seafile.seadroid2.R;
@@ -62,6 +61,7 @@ import com.seafile.seadroid2.databinding.LayoutFastRvBinding;
 import com.seafile.seadroid2.enums.ActionModeCallbackType;
 import com.seafile.seadroid2.enums.FileReturnActionEnum;
 import com.seafile.seadroid2.enums.FileViewType;
+import com.seafile.seadroid2.enums.ObjSelectType;
 import com.seafile.seadroid2.enums.OpType;
 import com.seafile.seadroid2.enums.RefreshStatusEnum;
 import com.seafile.seadroid2.enums.SortBy;
@@ -101,6 +101,7 @@ import com.seafile.seadroid2.ui.media.image.CarouselImagePreviewActivity;
 import com.seafile.seadroid2.ui.media.player.CustomExoVideoPlayerActivity;
 import com.seafile.seadroid2.ui.sdoc.SDocWebViewActivity;
 import com.seafile.seadroid2.ui.selector.ObjSelectorActivity;
+import com.seafile.seadroid2.config.ObjKey;
 import com.seafile.seadroid2.ui.star.StarredQuickFragment;
 import com.seafile.seadroid2.view.TipsViews;
 import com.seafile.seadroid2.view.ViewSortPopupWindow;
@@ -226,17 +227,15 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     private final HashMap<String, Boolean> menuIdState = new HashMap<>();
 
     public void onCreateMenuHost() {
-        MaterialToolbar toolbar =requireActivity().findViewById(R.id.toolbar);
-
         MenuHost menuHost = requireActivity();
         menuHost.addMenuProvider(new MenuProvider() {
             @Override
             public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {
                 menuInflater.inflate(R.menu.fragment_browser_menu, menu);
 
-                //search
-                MenuItem searchMenuItem = menu.findItem(R.id.menu_action_search);
+                //search view
                 final SearchView searchView = new SearchView(requireContext());
+                searchView.setSubmitButtonEnabled(false);
                 if (GlobalNavContext.getCurrentNavContext().inRepo()) {
                     searchView.setQueryHint(getString(R.string.search_in_this_library));
                 } else {
@@ -260,24 +259,30 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                         return false;
                     }
                 });
+
+                //search item
+                MenuItem searchMenuItem = menu.findItem(R.id.menu_action_search);
                 searchMenuItem.collapseActionView();
                 searchMenuItem.setActionView(searchView);
                 searchMenuItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
                     @Override
                     public boolean onMenuItemActionExpand(@NonNull MenuItem item) {
+
+                        // Save the state of Menu
                         menuIdState.put("search", menu.findItem(R.id.menu_action_search).isVisible());
                         menuIdState.put("sortGroup", menu.findItem(R.id.menu_action_sort).isVisible());
                         menuIdState.put("createRepo", menu.findItem(R.id.create_repo).isVisible());
                         menuIdState.put("add", menu.findItem(R.id.add).isVisible());
                         menuIdState.put("select", menu.findItem(R.id.select).isVisible());
 
+                        // hide other menu items
                         menu.findItem(R.id.menu_action_search).setVisible(false);
                         menu.findItem(R.id.menu_action_sort).setVisible(false);
                         menu.findItem(R.id.create_repo).setVisible(false);
                         menu.findItem(R.id.add).setVisible(false);
                         menu.findItem(R.id.select).setVisible(false);
 
-                        return true;
+                        return true; // Return true to collapse the action view.
                     }
 
                     @Override
@@ -290,11 +295,11 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                         menu.findItem(R.id.select).setVisible(Boolean.TRUE.equals(menuIdState.get("select")));
 
                         menuHost.invalidateMenu();
-                        return true;
+                        return true; // Return true to expand the action view.
                     }
                 });
 
-                //sort
+                //sort pop view
                 MenuItem sortMenuItem = menu.findItem(R.id.menu_action_sort);
                 sortMenuItem.setActionView(R.layout.menu_view_sort);
                 sortMenuItem.getActionView().setOnClickListener(v -> {
@@ -1689,8 +1694,8 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
         copyMoveContext = new CopyMoveContext(repoID, repoName, dirPath, direntModels, op);
 
-        Intent intent = new Intent(requireContext(), ObjSelectorActivity.class);
-        intent.putExtra(ObjSelectorActivity.DATA_ACCOUNT, SupportAccountManager.getInstance().getCurrentAccount());
+        //launch obj selector activity
+        Intent intent = ObjSelectorActivity.getCurrentAccountIntent(requireContext(), ObjSelectType.REPO, ObjSelectType.DIR);
         copyMoveLauncher.launch(intent);
     }
 
@@ -1701,9 +1706,9 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 return;
             }
 
-            String dstRepoId = o.getData().getStringExtra(ObjSelectorActivity.DATA_REPO_ID);
-            String dstDir = o.getData().getStringExtra(ObjSelectorActivity.DATA_DIR);
-            String disRepoName = o.getData().getStringExtra(ObjSelectorActivity.DATA_REPO_NAME);
+            String dstRepoId = o.getData().getStringExtra(ObjKey.REPO_ID);
+            String dstDir = o.getData().getStringExtra(ObjKey.DIR);
+            String disRepoName = o.getData().getStringExtra(ObjKey.REPO_NAME);
 
             copyMoveContext.setDest(dstRepoId, dstDir, disRepoName);
 

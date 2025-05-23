@@ -10,6 +10,7 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.blankj.utilcode.util.SpanUtils;
+import com.seafile.seadroid2.GlideApp;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.config.AbsLayoutItemType;
 import com.seafile.seadroid2.config.GlideLoadConfig;
@@ -18,7 +19,6 @@ import com.seafile.seadroid2.databinding.ItemGroupItemBinding;
 import com.seafile.seadroid2.framework.model.BaseModel;
 import com.seafile.seadroid2.framework.model.GroupItemModel;
 import com.seafile.seadroid2.framework.model.activities.ActivityModel;
-import com.seafile.seadroid2.framework.util.GlideApp;
 import com.seafile.seadroid2.framework.util.SystemSwitchUtils;
 import com.seafile.seadroid2.ui.base.adapter.BaseMultiAdapter;
 import com.seafile.seadroid2.ui.viewholder.GroupItemViewHolder;

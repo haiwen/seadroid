@@ -19,6 +19,8 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
+import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.model.TResultModel;
 import com.seafile.seadroid2.ui.base.fragment.RequestBottomSheetDialogFragmentWithVM;
@@ -27,6 +29,7 @@ import com.seafile.seadroid2.ui.dialog_fragment.viewmodel.PasswordViewModel;
 
 public class BottomSheetPasswordDialogFragment extends RequestBottomSheetDialogFragmentWithVM<PasswordViewModel> {
 
+    private Account account;
     private String repoName, repoId;
     private OnResultListener<RepoModel> resultListener;
 
@@ -43,16 +46,39 @@ public class BottomSheetPasswordDialogFragment extends RequestBottomSheetDialogF
         return fragment;
     }
 
+    public static BottomSheetPasswordDialogFragment newInstance(Account account, String repoId, String repoName) {
+        Bundle args = new Bundle();
+        args.putString("repoId", repoId);
+        args.putString("repoName", repoName);
+        args.putParcelable("account", account);
+        BottomSheetPasswordDialogFragment fragment = new BottomSheetPasswordDialogFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         Bundle args = getArguments();
         if (args != null) {
+            account = args.getParcelable("account");
             repoId = args.getString("repoId");
             repoName = args.getString("repoName");
+
+            if (account == null) {
+                account = SupportAccountManager.getInstance().getCurrentAccount();
+            }
+
+            if (TextUtils.isEmpty(repoId)) {
+                throw new IllegalArgumentException("this dialogFragment need repoId param");
+            }
+
+            if (TextUtils.isEmpty(repoName)) {
+                throw new IllegalArgumentException("this dialogFragment need repoName param");
+            }
         } else {
-            throw new IllegalArgumentException("this dialogFragment need repoId param");
+            throw new IllegalArgumentException("this dialogFragment need params");
         }
     }
 
@@ -118,7 +144,7 @@ public class BottomSheetPasswordDialogFragment extends RequestBottomSheetDialogF
         String password = editText.getText().toString();
 
         //verify password
-        getViewModel().verifyPwd(repoId, password);
+        getViewModel().verifyPwd(account, repoId, password);
     }
 
     @Override

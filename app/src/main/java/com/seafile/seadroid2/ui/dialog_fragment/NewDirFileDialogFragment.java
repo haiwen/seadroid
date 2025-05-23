@@ -70,9 +70,11 @@ public class NewDirFileDialogFragment extends RequestCustomDialogFragmentWithVM<
         pathName = StringUtils.trimEnd(pathName, " ");
 
         if (isDir) {
-            getViewModel().createNewDir(pathName, repoId);
+            //need to update this account field
+            getViewModel().createNewDir(null, pathName, repoId);
         } else {
-            getViewModel().createNewFile(pathName, repoId);
+            //need to update this account field
+            getViewModel().createNewFile(null, pathName, repoId);
         }
     }
 

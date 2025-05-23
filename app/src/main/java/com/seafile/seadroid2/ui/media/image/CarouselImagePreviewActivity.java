@@ -9,8 +9,6 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Pair;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.LinearInterpolator;
@@ -25,7 +23,6 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
-import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.blankj.utilcode.util.BarUtils;
@@ -39,6 +36,7 @@ import com.seafile.seadroid2.compat.ContextCompatKt;
 import com.seafile.seadroid2.context.CopyMoveContext;
 import com.seafile.seadroid2.databinding.ActivityCarouselImagePreviewBinding;
 import com.seafile.seadroid2.enums.ItemPositionEnum;
+import com.seafile.seadroid2.enums.ObjSelectType;
 import com.seafile.seadroid2.enums.OpType;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
@@ -54,6 +52,7 @@ import com.seafile.seadroid2.ui.dialog_fragment.CopyMoveDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.DeleteFileDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.listener.OnRefreshDataListener;
 import com.seafile.seadroid2.ui.selector.ObjSelectorActivity;
+import com.seafile.seadroid2.config.ObjKey;
 import com.seafile.seadroid2.view.photoview.ScrollDirection;
 import com.seafile.seadroid2.view.photoview.ScrollStatus;
 
@@ -813,7 +812,9 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
      */
     private void chooseCopyMoveDest(DirentModel direntModel, OpType op) {
         copyMoveContext = new CopyMoveContext(repoId, repoName, parentDir, CollectionUtils.newArrayList(direntModel), op);
-        copyMoveLauncher.launch(ObjSelectorActivity.getStartIntent(this));
+
+        Intent intent = ObjSelectorActivity.getCurrentAccountIntent(this, ObjSelectType.REPO, ObjSelectType.DIR);
+        copyMoveLauncher.launch(intent);
     }
 
     private final ActivityResultLauncher<Intent> copyMoveLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
@@ -823,9 +824,9 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
                 return;
             }
 
-            String dstRepoId = o.getData().getStringExtra(ObjSelectorActivity.DATA_REPO_ID);
-            String dstDir = o.getData().getStringExtra(ObjSelectorActivity.DATA_DIR);
-            String disRepoName = o.getData().getStringExtra(ObjSelectorActivity.DATA_REPO_NAME);
+            String dstRepoId = o.getData().getStringExtra(ObjKey.REPO_ID);
+            String disRepoName = o.getData().getStringExtra(ObjKey.REPO_NAME);
+            String dstDir = o.getData().getStringExtra(ObjKey.DIR);
 
             copyMoveContext.setDest(dstRepoId, dstDir, disRepoName);
 

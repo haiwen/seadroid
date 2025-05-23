@@ -30,6 +30,7 @@ public class CameraUploadManager {
     /**
      * The authority of the camera sync service
      */
+    //com.seafile.seadroid2.debug.cameraupload.provider
     public static final String AUTHORITY = BuildConfig.APPLICATION_ID + ".cameraupload.provider";
 
     /**
@@ -41,8 +42,11 @@ public class CameraUploadManager {
             SLogs.d("No one has turned on album backup");
             return;
         }
-
-        ContentResolver.requestSync(cameraAccount.getAndroidAccount(), AUTHORITY, Bundle.EMPTY);
+        SLogs.d("performSync()");
+        Bundle settingsBundle = new Bundle();
+        settingsBundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
+        settingsBundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
+        ContentResolver.requestSync(cameraAccount.getAndroidAccount(), AUTHORITY, settingsBundle);
     }
 
     public void performSync(boolean isForce) {

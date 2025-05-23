@@ -8,6 +8,7 @@ import androidx.lifecycle.MutableLiveData;
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.TimeUtils;
 import com.seafile.seadroid2.SeafException;
+import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.framework.crypto.Crypto;
 import com.seafile.seadroid2.framework.crypto.SecurePasswordManager;
 import com.seafile.seadroid2.framework.db.AppDatabase;
@@ -18,6 +19,7 @@ import com.seafile.seadroid2.framework.model.TResultModel;
 import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.datastore.sp.SettingsManager;
 import com.seafile.seadroid2.framework.http.HttpIO;
+import com.seafile.seadroid2.framework.model.repo.RepoInfoModel;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
 import com.seafile.seadroid2.ui.dialog_fragment.DialogService;
@@ -52,48 +54,51 @@ public class PasswordViewModel extends BaseViewModel {
         return ActionResultLiveData;
     }
 
-    public void verifyPwd(String repoId, String password) {
+    public void verifyPwd(Account account, String repoId, String password) {
 
         Single<List<RepoModel>> singleOneDb = AppDatabase.getInstance().repoDao().getByIdAsync(repoId);
         addSingleDisposable(singleOneDb, new Consumer<List<RepoModel>>() {
             @Override
             public void accept(List<RepoModel> repoModels) throws Exception {
                 if (CollectionUtils.isEmpty(repoModels) || TextUtils.isEmpty(repoModels.get(0).magic)) {
-                    getRepoModel(repoId, new Consumer<RepoModel>() {
+                    getRepoModel(account, repoId, new Consumer<RepoModel>() {
                         @Override
                         public void accept(RepoModel uRepoModel) {
-                            remoteVerify(uRepoModel, password);
+                            remoteVerify(account, uRepoModel, password);
                         }
                     });
                 } else {
-                    remoteVerify(repoModels.get(0), password);
+                    remoteVerify(account, repoModels.get(0), password);
                 }
             }
         });
     }
 
-    public void getRepoModel(String repoId, Consumer<RepoModel> consumer) {
-        Single<RepoModel> singleNet = HttpIO.getCurrentInstance().execute(RepoService.class).getRepoInfo(repoId);
+    public void getRepoModel(Account account, String repoId, Consumer<RepoModel> consumer) {
+        Single<RepoInfoModel> singleNet = HttpIO.getInstanceByAccount(account).execute(RepoService.class).getRepoInfo(repoId);
         Single<List<RepoModel>> singleDb = AppDatabase.getInstance().repoDao().getByIdAsync(repoId);
 
-        Single<RepoModel> sr = Single.zip(singleNet, singleDb, new BiFunction<RepoModel, List<RepoModel>, RepoModel>() {
+        Single<RepoModel> sr = Single.zip(singleNet, singleDb, new BiFunction<RepoInfoModel, List<RepoModel>, RepoModel>() {
             @Override
-            public RepoModel apply(RepoModel netRepoModel, List<RepoModel> localRepoModels) {
+            public RepoModel apply(RepoInfoModel netRepoModel, List<RepoModel> localRepoModels) {
 
+                RepoModel localRepoModel;
                 if (CollectionUtils.isEmpty(localRepoModels)) {
-                    return null;
+                    localRepoModel = RepoInfoModel.toRepoModel(account, netRepoModel);
+
+                    AppDatabase.getInstance().repoDao().insert(localRepoModel);
+                } else {
+                    localRepoModel = localRepoModels.get(0);
+
+                    //update local db
+                    localRepoModel.magic = netRepoModel.magic;
+                    localRepoModel.random_key = netRepoModel.random_key;
+                    localRepoModel.enc_version = netRepoModel.enc_version;
+                    localRepoModel.file_count = netRepoModel.file_count;
+                    localRepoModel.root = netRepoModel.root;
+
+                    AppDatabase.getInstance().repoDao().update(localRepoModel);
                 }
-
-                RepoModel localRepoModel = localRepoModels.get(0);
-
-                //update local db
-                localRepoModel.magic = netRepoModel.magic;
-                localRepoModel.random_key = netRepoModel.random_key;
-                localRepoModel.enc_version = netRepoModel.enc_version;
-                localRepoModel.file_count = netRepoModel.file_count;
-                localRepoModel.root = netRepoModel.root;
-
-                AppDatabase.getInstance().repoDao().update(localRepoModel);
 
                 return localRepoModel;
             }
@@ -113,7 +118,7 @@ public class PasswordViewModel extends BaseViewModel {
         });
     }
 
-    private void remoteVerify(RepoModel repoModel, String password) {
+    private void remoteVerify(Account account, RepoModel repoModel, String password) {
         if (TextUtils.isEmpty(password) || TextUtils.isEmpty(repoModel.repo_id)) {
             getActionResultLiveData().setValue(new TResultModel<>());
             return;
@@ -125,7 +130,7 @@ public class PasswordViewModel extends BaseViewModel {
         requestDataMap.put("password", password);
         Map<String, RequestBody> bodyMap = genRequestBody(requestDataMap);
 
-        Single<ResultModel> netSingle = HttpIO.getCurrentInstance().execute(DialogService.class).setPassword(repoModel.repo_id, bodyMap);
+        Single<ResultModel> netSingle = HttpIO.getInstanceByAccount(account).execute(DialogService.class).setPassword(repoModel.repo_id, bodyMap);
 
         Single<Exception> insertEncSingle = Single.create(new SingleOnSubscribe<Exception>() {
             @Override

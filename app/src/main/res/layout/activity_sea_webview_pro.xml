@@ -18,10 +18,39 @@
             app:layout_scrollFlags="scroll|enterAlways"
             app:toolbarId="@+id/toolbar_actionbar">
 
-            <include
-                android:id="@+id/tool_progress_bar"
-                layout="@layout/toolbar_actionbar_progress_bar"
-                app:layout_collapseMode="parallax" />
+            <LinearLayout
+                android:id="@+id/toolbar_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_collapseMode="parallax">
+
+                <com.google.android.material.appbar.MaterialToolbar
+                    android:id="@+id/toolbar_actionbar"
+                    style="@style/App.Widget.ToolBarStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="?actionBarSize"
+                    app:contentInsetStartWithNavigation="0dp" />
+
+                <ProgressBar
+                    android:id="@+id/tool_progress_bar"
+                    style="@android:style/Widget.ProgressBar.Horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:indeterminate="false"
+                    android:max="100"
+                    android:maxHeight="1dp"
+                    android:minHeight="1dp"
+                    android:progress="10"
+                    android:progressDrawable="@drawable/seekbar_for_webview_style" />
+
+                <com.google.android.material.divider.MaterialDivider
+                    android:id="@+id/view_toolbar_bottom_line"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:dividerColor="@color/toolbar_divider_color" />
+            </LinearLayout>
+
         </com.google.android.material.appbar.CollapsingToolbarLayout>
 
     </com.google.android.material.appbar.AppBarLayout>

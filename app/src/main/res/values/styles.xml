@@ -11,6 +11,7 @@
         <item name="colorSurface">@color/white</item>
         <item name="android:textSize">14sp</item>
         <item name="navigationIcon">@drawable/baseline_back_24</item>
+        <item name="collapseIcon">@drawable/baseline_back_24</item>
         <item name="navigationIconTint">@color/bar_title_color</item>
         <item name="titleTextAppearance">?attr/textAppearanceTitleMedium</item>
     </style>
@@ -35,11 +36,14 @@
         <item name="navigationIconTint">@color/toolbar_editor_title_color</item>
     </style>
 
-    <style name="App.Widget.SearchView" parent="Widget.AppCompat.SearchView">
+    <style name="App.Widget.SearchView" parent="Widget.Material3.SearchView">
         <item name="searchIcon">@null</item>
         <item name="searchHintIcon">@null</item>
+        <item name="closeIcon">@drawable/baseline_close_24</item>
+        <item name="goIcon">@null</item>
+        <item name="commitIcon">@null</item>
         <item name="layout">@layout/layout_search_view</item>
-        <item name="queryBackground">@null</item>
+        <item name="queryBackground">@drawable/shape_search</item>
     </style>
 
     <!-- ActionMode -->

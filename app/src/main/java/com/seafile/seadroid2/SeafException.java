@@ -44,6 +44,7 @@ public class SeafException extends Exception {
     public static final SeafException IO_EXCEPTION = new SeafException(25, "io exception");
     public static final SeafException PERMISSION_EXCEPTION = new SeafException(26, "miss permission");
     public static final SeafException NETWORK_UNAVAILABLE = new SeafException(27, SeadroidApplication.getAppString(R.string.network_unavailable));
+    public static final SeafException OPERATION_NOT_SUPPORTED_EXCEPTION = new SeafException(27, "Operation not supported");
 
     public SeafException(int code, String msg) {
         super(msg);

@@ -19,18 +19,18 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.databinding.FileActivityBinding;
 import com.seafile.seadroid2.enums.FileReturnActionEnum;
+import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.db.entities.StarredModel;
 import com.seafile.seadroid2.framework.model.activities.ActivityModel;
 import com.seafile.seadroid2.framework.model.dirents.DirentFileModel;
-import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.util.Icons;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.ExistingFileStrategy;
 import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
-import com.seafile.seadroid2.ui.dialog_fragment.PasswordDialogFragment;
+import com.seafile.seadroid2.ui.dialog_fragment.BottomSheetPasswordDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.listener.OnResultListener;
 
 import java.io.File;
@@ -268,15 +268,19 @@ public class FileActivity extends BaseActivityWithVM<FileViewModel> implements T
     }
 
     private void handlePassword() {
-        PasswordDialogFragment dialogFragment = PasswordDialogFragment.newInstance(direntModel.repo_id, direntModel.repo_name);
+        BottomSheetPasswordDialogFragment dialogFragment = BottomSheetPasswordDialogFragment.newInstance(direntModel.repo_id, direntModel.repo_name);
         dialogFragment.setResultListener(new OnResultListener<RepoModel>() {
             @Override
             public void onResultData(RepoModel newRepoModel) {
+                if (newRepoModel == null) {
+                    return;
+                }
+
                 loadData();
             }
         });
 
-        dialogFragment.show(getSupportFragmentManager(), PasswordDialogFragment.class.getSimpleName());
+        dialogFragment.show(getSupportFragmentManager(), BottomSheetPasswordDialogFragment.class.getSimpleName());
     }
 
     @Override

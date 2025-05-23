@@ -91,8 +91,6 @@ public class MainActivity extends BaseActivity {
         setContentView(binding.getRoot());
 
         setSupportActionBar(getActionBarToolbar());
-        // enable ActionBar app icon to behave as action back
-        enableUpButton(false);
 
         curAccount = SupportAccountManager.getInstance().getCurrentAccount();
         if (curAccount == null || !curAccount.hasValidToken()) {

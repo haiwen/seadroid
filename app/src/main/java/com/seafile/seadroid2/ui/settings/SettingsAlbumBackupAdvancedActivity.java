@@ -2,6 +2,7 @@ package com.seafile.seadroid2.ui.settings;
 
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.View;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
@@ -18,7 +19,7 @@ import com.seafile.seadroid2.databinding.SettingsAlbumBackupActivityLayoutBindin
 import com.seafile.seadroid2.ui.base.BaseActivity;
 
 
-public class SettingsAlbumBackupAdvancedActivity extends BaseActivity implements Toolbar.OnMenuItemClickListener, PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
+public class SettingsAlbumBackupAdvancedActivity extends BaseActivity implements PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
 
     private SettingsAlbumBackupActivityLayoutBinding binding;
     private SettingsAlbumBackupAdvanced2Fragment settingsAlbumBackupAdvanced2Fragment;
@@ -32,13 +33,17 @@ public class SettingsAlbumBackupAdvancedActivity extends BaseActivity implements
         setContentView(binding.getRoot());
 
         Toolbar toolbar = getActionBarToolbar();
-        setSupportActionBar(toolbar);
-        toolbar.setOnMenuItemClickListener(this);
-
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                goBack();
+            }
+        });
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setTitle(R.string.settings_camera_upload_advanced_feature_title);
         }
+
         settingsAlbumBackupAdvanced2Fragment = SettingsAlbumBackupAdvanced2Fragment.newInstance();
         FragmentUtils.add(getSupportFragmentManager(), settingsAlbumBackupAdvanced2Fragment, R.id.settings_fragment_container);
 
@@ -48,20 +53,6 @@ public class SettingsAlbumBackupAdvancedActivity extends BaseActivity implements
                 goBack();
             }
         });
-    }
-
-    @Override
-    public boolean onMenuItemClick(MenuItem item) {
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            goBack();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     private void goBack() {
