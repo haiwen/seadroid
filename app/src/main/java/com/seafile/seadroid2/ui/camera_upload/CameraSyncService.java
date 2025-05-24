@@ -4,6 +4,8 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 
+import com.seafile.seadroid2.framework.util.SLogs;
+
 /**
  * Camera Sync Service.
  * <p>
@@ -15,6 +17,7 @@ public class CameraSyncService extends Service {
 
     @Override
     public void onCreate() {
+        SLogs.d("CameraSyncService", "onCreate");
         synchronized (sSyncAdapterLock) {
             if (albumBackupAdapter == null) {
                 albumBackupAdapter = new AlbumBackupAdapter(getApplicationContext());

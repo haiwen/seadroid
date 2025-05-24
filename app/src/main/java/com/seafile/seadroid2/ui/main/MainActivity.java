@@ -55,7 +55,7 @@ import java.util.Map;
 import java.util.Optional;
 
 public class MainActivity extends BaseActivity {
-
+    private final String TAG = "MainActivity";
     public static final int INDEX_LIBRARY_TAB = 0;
 
     private ActivityMainBinding binding;
@@ -207,7 +207,7 @@ public class MainActivity extends BaseActivity {
     @Override
     public void onRestart() {
         super.onRestart();
-        SLogs.d("onRestart");
+        SLogs.d(TAG, "onRestart");
 
 //        Account cAccount = SupportAccountManager.getInstance().getCurrentAccount();
 //        if (curAccount == null || !curAccount.equals(cAccount)) {
@@ -238,7 +238,7 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        SLogs.d("onNewIntent");
+        SLogs.d(TAG, "onNewIntent");
 
         // if the user started the Seadroid app from the Launcher, keep the old Activity
         final String intentAction = intent.getAction();
@@ -249,9 +249,9 @@ public class MainActivity extends BaseActivity {
         }
 
         Account selectedAccount = SupportAccountManager.getInstance().getCurrentAccount();
-        SLogs.d("Current account: " + curAccount);
+        SLogs.d(TAG, "Current account: " + curAccount);
         if (!curAccount.equals(selectedAccount)) {
-            SLogs.d("Account switched, restarting activity.");
+            SLogs.d(TAG, "Account switched, restarting activity.");
             finishAndStartAccountsActivity();
             return;
         }
@@ -410,14 +410,14 @@ public class MainActivity extends BaseActivity {
         public void onServiceConnected(ComponentName name, IBinder service) {
             FileSyncService.FileSyncBinder binder = (FileSyncService.FileSyncBinder) service;
             syncService = binder.getService();
-            SLogs.d("bond FileSyncService");
+            SLogs.d(TAG, "bond FileSyncService");
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
             syncService = null;
             isBound = false;
-            SLogs.d("FileSyncService disconnected");
+            SLogs.d(TAG, "FileSyncService disconnected");
         }
     };
 

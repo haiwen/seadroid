@@ -69,6 +69,7 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
         //launch obj selector activity
         Bundle bundle = new Bundle();
         bundle.putBoolean("isFilterUnavailable", false);
+        bundle.putBoolean("isAddStarredGroup", true);
         Intent intent = ObjSelectorActivity.getIntent(this, ObjSelectType.ACCOUNT, ObjSelectType.DIR, bundle);
         objSelectorLauncher.launch(intent);
     }

@@ -46,7 +46,7 @@ public class SeafGlideCache extends AppGlideModule {
             OkHttpClient client = getClient();
             registry.replace(GlideUrl.class, InputStream.class, new OkHttpUrlLoader.Factory(client));
         } catch (IllegalStateException e) {
-            SLogs.d("No current account?");
+            SLogs.d("SeaGlideCache","No current account?");
         }
     }
 

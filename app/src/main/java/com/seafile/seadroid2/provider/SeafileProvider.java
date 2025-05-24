@@ -94,7 +94,7 @@ import io.reactivex.schedulers.Schedulers;
  * contained in Seafile repositories.
  */
 public class SeafileProvider extends DocumentsProvider {
-    public static final String DEBUG_TAG = "SeafileProvider";
+    private final String TAG = "SeafileProvider";
 
     public static final String PATH_SEPARATOR = "/";
     public static final String AUTHORITY_OF_DOCUMENTS = BuildConfig.APPLICATION_ID + ".documents";
@@ -147,7 +147,7 @@ public class SeafileProvider extends DocumentsProvider {
         String[] netProjection = netProjection(projection, SUPPORTED_ROOT_PROJECTION);
         MatrixCursor result = new MatrixCursor(netProjection);
 
-        SLogs.d(SeafileProvider.class, "queryRoots()");
+        SLogs.d(TAG, "queryRoots()");
 
         // add a Root for every signed in Seafile account we have.
         for (Account a : SupportAccountManager.getInstance().getAccountList()) {
@@ -182,7 +182,7 @@ public class SeafileProvider extends DocumentsProvider {
     @Override
     public Cursor queryChildDocuments(String parentDocumentId, String[] projection, String sortOrder) throws FileNotFoundException {
 
-        SLogs.d(SeafileProvider.class, "queryChildDocuments: " + parentDocumentId);
+        SLogs.d(TAG, "queryChildDocuments()", parentDocumentId);
 
         if (TextUtils.isEmpty(parentDocumentId)) {
             throw throwFileNotFoundException(R.string.saf_bad_mime_type);
@@ -212,7 +212,7 @@ public class SeafileProvider extends DocumentsProvider {
             }
 
             int dataStatus = SeadroidApplication.getDocumentCache().get(parentDocumentId);
-            SLogs.d(SeafileProvider.class, "queryChildDocuments: repo-> dataStatus=" + dataStatus);
+            SLogs.d(TAG, "queryChildDocuments()", "repo -> dataStatus=" + dataStatus);
 
             if (dataStatus == -1) {
                 // tell the client that more entries will arrive shortly.
@@ -241,7 +241,7 @@ public class SeafileProvider extends DocumentsProvider {
             }
 
             int dataStatus = SeadroidApplication.getDocumentCache().get(parentDocumentId);
-            SLogs.d(SeafileProvider.class, "queryChildDocuments: starred-> parentDocumentId= " + parentDocumentId + ", dataStatus=" + dataStatus);
+            SLogs.d(TAG, "queryChildDocuments()", "starred -> parentDocumentId= " + parentDocumentId + ", dataStatus=" + dataStatus);
 
             if (dataStatus == -1) {
                 // tell the client that more entries will arrive shortly.
@@ -300,7 +300,7 @@ public class SeafileProvider extends DocumentsProvider {
 
 
             int dataStatus = SeadroidApplication.getDocumentCache().get(parentDocumentId);
-            SLogs.d(SeafileProvider.class, "queryChildDocuments:dirent-> parentDocumentId= " + parentDocumentId + ", dataStatus=" + dataStatus);
+            SLogs.d(TAG, "queryChildDocuments()", "dirent-> parentDocumentId= " + parentDocumentId + ", dataStatus=" + dataStatus);
 
             if (dataStatus == -1) {
                 // tell the client that more entries will arrive shortly.
@@ -323,7 +323,7 @@ public class SeafileProvider extends DocumentsProvider {
     @Override
     public Cursor queryDocument(String documentId, String[] projection) throws FileNotFoundException {
 
-        SLogs.d(SeafileProvider.class, "queryDocument: " + documentId);
+        SLogs.d(TAG, "queryDocument()", documentId);
 
         if (TextUtils.isEmpty(documentId)) {
             throw throwFileNotFoundException(R.string.saf_bad_mime_type);
@@ -455,8 +455,7 @@ public class SeafileProvider extends DocumentsProvider {
             }
         } else {
             //read
-
-
+            
             List<DirentModel> direntModels = AppDatabase.getInstance().direntDao().getListByFullPathSync(repoId, path);
             if (CollectionUtils.isEmpty(direntModels)) {
                 throw new FileNotFoundException("could not find file");
@@ -469,7 +468,8 @@ public class SeafileProvider extends DocumentsProvider {
                 try {
                     return makeParcelFileDescriptor(file, mode);
                 } catch (IOException e) {
-                    Log.d(DEBUG_TAG, "could not open file", e);
+                    SLogs.d(TAG, "openDocument()", "could not open file");
+                    SLogs.e(e);
                     throw new FileNotFoundException();
                 }
             }
@@ -484,14 +484,14 @@ public class SeafileProvider extends DocumentsProvider {
 
                     @Override
                     public void onComplete() {
-                        SLogs.d(SeafileProvider.class, "download complete");
+                        SLogs.d(TAG, "openDocument()", "download complete");
                         // 下载完成后，通知系统文件已准备好
 //                        getContext().getContentResolver().notifyChange(DocumentIdParser.getUriFromId(documentId), null);
                     }
 
                     @Override
                     public void onError(Exception e) {
-                        SLogs.d(SeafileProvider.class, "download failed: " + e.getMessage());
+                        SLogs.d(TAG, "openDocument()", "download failed: " + e.getMessage());
                     }
                 });
             } catch (IOException e) {
@@ -516,7 +516,7 @@ public class SeafileProvider extends DocumentsProvider {
 
     @Override
     public AssetFileDescriptor openDocumentThumbnail(String documentId, Point sizeHint, CancellationSignal signal) throws FileNotFoundException {
-        SLogs.d(SeafileProvider.class, "openDocumentThumbnail(): " + documentId);
+        SLogs.d(TAG, "openDocumentThumbnail()", documentId);
 
         if (TextUtils.isEmpty(documentId)) {
             throw throwFileNotFoundException(R.string.saf_bad_mime_type);
@@ -575,7 +575,7 @@ public class SeafileProvider extends DocumentsProvider {
                         String pathEnc = URLEncoder.encode(path, "UTF-8");
                         String urlPath = account.getServer() + String.format("api2/repos/%s/thumbnail/?p=%s&size=%s", repoId, pathEnc, sizeHint.x);
 
-                        SLogs.d(SeafileProvider.class, "urlPath = " + urlPath);
+                        SLogs.d(TAG, "openDocumentThumbnail()", "urlPath = " + urlPath);
 
                         RequestOptions requestOptions = new RequestOptions()
                                 .diskCacheStrategy(DiskCacheStrategy.ALL);
@@ -604,7 +604,7 @@ public class SeafileProvider extends DocumentsProvider {
                 signal.setOnCancelListener(new CancellationSignal.OnCancelListener() {
                     @Override
                     public void onCancel() {
-                        Log.d(DEBUG_TAG, "openDocumentThumbnail() cancelling download");
+                        SLogs.d(TAG, "openDocumentThumbnail()", "cancelling download");
                         completableFuture.cancel(true);
                         IOUtils.closeQuietly(writeFd);
                     }
@@ -620,7 +620,7 @@ public class SeafileProvider extends DocumentsProvider {
 
     @Override
     public String createDocument(String parentDocumentId, String mimeType, String displayName) throws FileNotFoundException {
-        Log.d(DEBUG_TAG, "createDocument: " + parentDocumentId + "; " + mimeType + "; " + displayName);
+        SLogs.d(TAG, "createDocument()", "parentDocumentId: " + parentDocumentId, "mimeType: " + mimeType, "displayName: " + displayName);
 
         if (TextUtils.isEmpty(parentDocumentId) || TextUtils.isEmpty(mimeType) || TextUtils.isEmpty(displayName)) {
             throw throwFileNotFoundException(R.string.saf_bad_mime_type);
@@ -651,19 +651,22 @@ public class SeafileProvider extends DocumentsProvider {
         }
 
         if (mimeType.equals(Document.MIME_TYPE_DIR)) {
+            SLogs.d(TAG, "createDocument()", "mimeType is Document.MIME_TYPE_DIR, will create dir in cloud");
             Map<String, String> requestDataMap = new HashMap<>();
             requestDataMap.put("operation", "mkdir");
 
             String result = HttpIO.getInstanceByAccount(account).execute(DialogService.class).createDirSync(repoId, parentPath, requestDataMap);
             if (TextUtils.equals("success", result)) {
-                SLogs.d(SeafileProvider.class, "createDocument:create dir success");
+                SLogs.d(TAG, "createDocument()", "create dir success");
             }
 
             String r = DocumentIdParser.buildId(account, repoId, Utils.pathJoin(parentPath, displayName));
             return Utils.pathJoin(r, "/");
         }
 
-        return DocumentIdParser.buildId(account, repoId, Utils.pathJoin(parentPath, displayName));
+        String buildId = DocumentIdParser.buildId(account, repoId, Utils.pathJoin(parentPath, displayName));
+        SLogs.d(TAG, "createDocument()", "buildId = " + buildId);
+        return buildId;
     }
 
     private FileNotFoundException throwFileNotFoundException(@StringRes int resId) {
@@ -687,8 +690,8 @@ public class SeafileProvider extends DocumentsProvider {
         String docId = DocumentIdParser.buildId(account);
         String rootId = DocumentIdParser.buildRootId(account);
 
-        SLogs.d(SeafileProvider.class, "includeRoot - docId -> " + docId);
-        SLogs.d(SeafileProvider.class, "includeRoot - rootId -> " + rootId);
+        SLogs.d(TAG, "includeRoot()", "docId = " + docId);
+        SLogs.d(TAG, "includeRoot()", "rootId = " + rootId);
 
         final MatrixCursor.RowBuilder row = result.newRow();
 
@@ -884,8 +887,8 @@ public class SeafileProvider extends DocumentsProvider {
     private void fetchDirentAsync(Account account, Uri notifyUri, RepoModel repoModel, String path, MatrixCursor result) {
         result.setNotificationUri(getContext().getContentResolver(), notifyUri);
         String docId = DocumentsContract.getDocumentId(notifyUri);
-        SLogs.d(SeafileProvider.class, "fetchDirentAsync: " + docId);
 
+        SLogs.d(TAG, "fetchDirentAsync()", "docId = " + docId);
         if (!path.endsWith("/")) {
             path = path + "/";
         }
@@ -896,12 +899,17 @@ public class SeafileProvider extends DocumentsProvider {
                 .subscribe(new Consumer<List<DirentModel>>() {
                     @Override
                     public void accept(List<DirentModel> direntModels) throws Exception {
+                        SLogs.d(TAG, "fetchDirentAsync()", "success: " + docId);
+
                         SeadroidApplication.getDocumentCache().put(docId);
                         notifyChanged(notifyUri);
                     }
                 }, new Consumer<Throwable>() {
                     @Override
                     public void accept(Throwable throwable) throws Exception {
+                        SLogs.d(TAG, "fetchDirentAsync()", "failed: " + docId);
+                        SLogs.e(throwable);
+
                         notifyChanged(notifyUri);
                     }
                 });
@@ -920,7 +928,7 @@ public class SeafileProvider extends DocumentsProvider {
     private void fetchStarredAsync(Account account, Uri notifyUri, MatrixCursor result) {
         result.setNotificationUri(getContext().getContentResolver(), notifyUri);
         String docId = DocumentsContract.getDocumentId(notifyUri);
-        SLogs.d(SeafileProvider.class, "fetchStarredAsync - docId -> " + docId);
+        SLogs.d(TAG, "fetchStarredAsync()", "docId = " + docId);
 
         Single<List<StarredModel>> listSingle = Objs.getStarredSingleFromServer(account);
         Disposable disposable = listSingle.subscribeOn(Schedulers.io())
@@ -928,12 +936,16 @@ public class SeafileProvider extends DocumentsProvider {
                 .subscribe(new Consumer<List<StarredModel>>() {
                     @Override
                     public void accept(List<StarredModel> starredModels) throws Exception {
+                        SLogs.d(TAG, "fetchStarredAsync()", "success: " + docId);
                         SeadroidApplication.getDocumentCache().put(docId);
                         notifyChanged(notifyUri);
                     }
                 }, new Consumer<Throwable>() {
                     @Override
                     public void accept(Throwable throwable) throws Exception {
+                        SLogs.d(TAG, "fetchDirentAsync()", "failed: " + docId);
+                        SLogs.e(throwable);
+
                         notifyChanged(notifyUri);
                     }
                 });
@@ -954,7 +966,7 @@ public class SeafileProvider extends DocumentsProvider {
         result.setNotificationUri(getContext().getContentResolver(), notifyUri);
 
         String docId = DocumentsContract.getDocumentId(notifyUri);
-        SLogs.d(SeafileProvider.class, "fetchReposAsync - docId -> " + docId);
+        SLogs.d(TAG, "fetchReposAsync()", "docId = " + docId);
 
         Single<List<BaseModel>> resultSingle = Objs.getReposSingleFromServer(account);
         Disposable disposable = resultSingle.subscribeOn(Schedulers.io())
@@ -962,12 +974,15 @@ public class SeafileProvider extends DocumentsProvider {
                 .subscribe(new Consumer<List<BaseModel>>() {
                     @Override
                     public void accept(List<BaseModel> baseModels) throws Exception {
+                        SLogs.d(TAG, "fetchReposAsync()", "success: " + docId);
                         SeadroidApplication.getDocumentCache().put(docId);
                         notifyChanged(notifyUri);
                     }
                 }, new Consumer<Throwable>() {
                     @Override
                     public void accept(Throwable throwable) throws Exception {
+                        SLogs.d(TAG, "fetchReposAsync()", "failed: " + docId);
+                        SLogs.e(throwable);
                         notifyChanged(notifyUri);
                     }
                 });
@@ -976,7 +991,7 @@ public class SeafileProvider extends DocumentsProvider {
 
     private void notifyChanged(Uri uri) {
         // notify the SAF to to do a new queryChildDocuments
-        SLogs.d(SeafileProvider.class, "notifyChanged - uri -> " + uri);
+        SLogs.d(TAG, "notifyChanged()", "uri = " + uri);
         getContext().getContentResolver().notifyChange(uri, null);
     }
 

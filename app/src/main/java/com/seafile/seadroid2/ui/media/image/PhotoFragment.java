@@ -62,7 +62,7 @@ import java.util.HashMap;
 import java.util.Locale;
 
 public class PhotoFragment extends BaseFragment {
-
+    private final String TAG = "PhotoFragment";
     private FragmentPhotoViewBinding binding;
 
     private String repoId, repoName, fullPath;
@@ -578,7 +578,7 @@ public class PhotoFragment extends BaseFragment {
                     public boolean onResourceReady(@NonNull GifDrawable resource, @NonNull Object model, Target<GifDrawable> target, @NonNull DataSource dataSource, boolean isFirstResource) {
                         binding.progressBar.setVisibility(View.GONE);
                         // 图片加载成功
-                        SLogs.d(PhotoFragment.class, dataSource.name() + ": " + isFirstResource + ": " + rawUrl);
+                        SLogs.d(TAG, "loadOriGifUrl()", dataSource.name() + ": " + isFirstResource + ": " + rawUrl);
                         return false;
                     }
                 })
@@ -615,8 +615,8 @@ public class PhotoFragment extends BaseFragment {
 
             // 1. 读取相机型号
             String cameraModel = exifInterface.getAttribute(ExifInterface.TAG_MODEL);
-            SLogs.d(PhotoFragment.class, "ExifData - 相机型号: " + cameraModel);
             exifMap.put("_model", cameraModel);
+            SLogs.d(TAG, "ExifData", "相机型号: " + cameraModel);
 
             // 2. 读取创建时间
             String dateTime = exifInterface.getAttribute(ExifInterface.TAG_DATETIME);
@@ -627,8 +627,8 @@ public class PhotoFragment extends BaseFragment {
             if (!TextUtils.isEmpty(dateTime)) {
                 long m = TimeUtils.string2Millis(dateTime, "yyyy:MM:dd HH:mm:ss");
                 String d = TimeUtils.millis2String(m, "yyyy-MM-dd HH:mm:ss");
-                SLogs.d(PhotoFragment.class, "ExifData - 创建时间: " + d);
                 exifMap.put("_datetime", d);
+                SLogs.d(TAG, "ExifData", "创建时间: " + d);
             }
 
 
@@ -636,13 +636,13 @@ public class PhotoFragment extends BaseFragment {
             int width = exifInterface.getAttributeInt(ExifInterface.TAG_IMAGE_WIDTH, 0);
             int height = exifInterface.getAttributeInt(ExifInterface.TAG_IMAGE_LENGTH, 0);
             String wh = width + "x" + height;
-            SLogs.d(PhotoFragment.class, "ExifData - 尺寸: " + wh);
             exifMap.put("_width_height", wh);
+            SLogs.d(TAG, "ExifData", "尺寸: " + wh);
 
             // 4. 读取色彩空间
             String colorSpace = exifInterface.getAttribute(ExifInterface.TAG_COLOR_SPACE);
-            SLogs.d(PhotoFragment.class, "ExifData - 色彩空间: " + colorSpace);
             exifMap.put("_color_space", colorSpace);
+            SLogs.d(TAG, "ExifData", "色彩空间: " + colorSpace);
 
 //            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
 //                ImageDecoder.Source source = ImageDecoder.createSource(new File(localPath));
@@ -657,28 +657,28 @@ public class PhotoFragment extends BaseFragment {
 
             // 5. 读取焦距
             String focalLength = exifInterface.getAttribute(ExifInterface.TAG_FOCAL_LENGTH);
-            SLogs.d(PhotoFragment.class, "ExifData - 焦距: " + focalLength);
+            SLogs.d(TAG, "ExifData", "焦距: " + focalLength);
             exifMap.put("_focal_length", focalLength);
 
             // 6. 读取光圈值
             String apertureValue = exifInterface.getAttribute(ExifInterface.TAG_APERTURE_VALUE);
-            SLogs.d(PhotoFragment.class, "ExifData - 光圈值: " + apertureValue);
+            SLogs.d(TAG, "ExifData", "光圈值: " + apertureValue);
             exifMap.put("_aperture_value", apertureValue);
 
             // 7. 读取光圈数（F-number）
             String fNumber = exifInterface.getAttribute(ExifInterface.TAG_F_NUMBER);
-            SLogs.d(PhotoFragment.class, "ExifData - 光圈数: " + fNumber);
+            SLogs.d(TAG, "ExifData", "光圈数: " + fNumber);
             exifMap.put("_f_nubmer", fNumber);
 
             // 8. 读取曝光时间
             String exposureTime = exifInterface.getAttribute(ExifInterface.TAG_EXPOSURE_TIME);
-            SLogs.d(PhotoFragment.class, "ExifData - 曝光时间: " + exposureTime);
+            SLogs.d(TAG, "ExifData", "曝光时间: " + exposureTime);
 
             // 将曝光时间转换为分数形式
             if (exposureTime != null) {
                 double exposureValue = Double.parseDouble(exposureTime);
                 String formattedExposureTime = formatExposureTime(exposureValue);
-                SLogs.d(PhotoFragment.class, "ExifData - Formatted Exposure Time: " + formattedExposureTime);
+                SLogs.d(TAG, "ExifData", "Formatted Exposure Time: " + formattedExposureTime);
                 exifMap.put("_exposure_time", formattedExposureTime);
             }
         } catch (IOException e) {
@@ -735,7 +735,7 @@ public class PhotoFragment extends BaseFragment {
                     exifBinding.exifFocalLength.setText(focalLengthValue + " mm");
 
                 } else {
-                    SLogs.d(PhotoFragment.class, "ExifData - 焦距: " + focalLength + " mm");
+                    SLogs.d(TAG, "ExifData", "焦距: " + focalLength + " mm");
                     exifBinding.exifFocalLength.setText(focalLength + " mm");
                 }
             } else {

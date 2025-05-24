@@ -14,12 +14,11 @@ import androidx.work.WorkerParameters;
 import com.seafile.seadroid2.bus.BusHelper;
 import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.enums.TransferStatus;
-import com.seafile.seadroid2.framework.file_monitor.FileSyncService;
-import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.notification.GeneralNotificationHelper;
 import com.seafile.seadroid2.framework.util.HttpUtils;
 import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 import com.seafile.seadroid2.ui.file.FileService;
 
 import java.io.IOException;
@@ -30,7 +29,7 @@ import okhttp3.RequestBody;
 import retrofit2.Response;
 
 public abstract class TransferWorker extends BaseWorker {
-
+    private final String TAG = "TransferWorker";
     public static final int SEGMENT_SIZE = 8192;
 
     public static final String KEY_DATA_SOURCE = "key_data_source";
@@ -77,9 +76,9 @@ public abstract class TransferWorker extends BaseWorker {
                 .execute();
 
         if (response.isSuccessful()) {
-            SLogs.d(TransferWorker.class, "folder create success：" + path);
+            SLogs.d(TAG, "mkdirRemote()", "folder create success：" + path);
         } else {
-            SLogs.d(TransferWorker.class, "folder create failed：" + response.errorBody().string());
+            SLogs.d(TAG, "mkdirRemote()", "folder create failed：" + response.errorBody().string());
         }
     }
 

@@ -14,7 +14,6 @@ import com.blankj.utilcode.util.EncryptUtils;
 import com.seafile.seadroid2.bus.BusHelper;
 import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.enums.TransferOpType;
-import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.datastore.StorageManager;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
@@ -22,6 +21,7 @@ import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
+import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
 
 import org.apache.commons.io.monitor.FileAlterationListener;
@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FileSyncService extends Service {
+    private final String TAG = "FileSyncService";
     private MediaContentObserver mediaContentObserver;
     private SupportFileAlterationMonitor fileMonitor;
 
@@ -217,8 +218,7 @@ public class FileSyncService extends Service {
         try {
             List<FileAlterationObserver> observerList = new ArrayList<>();
             for (String str : pathList) {
-
-                SLogs.d(FileSyncService.class, "backup path: " + str);
+                SLogs.d(TAG, "startFolderMonitor()", "backup path: " + str);
                 FileAlterationObserver observer = new FileAlterationObserver(str, FILE_FILTER);
 
                 observer.addListener(new FileSyncService.FolderStateChangedListener());
@@ -282,48 +282,48 @@ public class FileSyncService extends Service {
 
         @Override
         public void onStart(FileAlterationObserver observer) {
-            SLogs.d(FileSyncService.class, "monitor start: " + observer.getDirectory());
+            SLogs.d(TAG, "onStart()");
         }
 
         @Override
         public void onDirectoryCreate(File directory) {
-            SLogs.d(FileSyncService.class, "onDirectoryCreate = " + directory.getAbsolutePath());
+            SLogs.d(TAG, "onDirectoryCreate()", directory.getAbsolutePath());
 //            doBackup("create", directory);
         }
 
         @Override
         public void onDirectoryChange(File directory) {
-            SLogs.d(FileSyncService.class, "onDirectoryChange = " + directory.getAbsolutePath());
+            SLogs.d(TAG, "onDirectoryChange()", directory.getAbsolutePath());
 //            doBackup("change", directory);
         }
 
         @Override
         public void onDirectoryDelete(File directory) {
-            SLogs.d(FileSyncService.class, "onDirectoryDelete = " + directory.getAbsolutePath());
+            SLogs.d(TAG, "onDirectoryDelete()", directory.getAbsolutePath());
 //            doBackup("delete", directory);
         }
 
         @Override
         public void onFileCreate(File file) {
-            SLogs.d(FileSyncService.class, "onFileCreate = " + file.getAbsolutePath());
+            SLogs.d(TAG, "onFileCreate()", file.getAbsolutePath());
             doBackup("create", file);
         }
 
         @Override
         public void onFileChange(File file) {
-            SLogs.d(FileSyncService.class, "onFileChange = " + file.getAbsolutePath());
+            SLogs.d(TAG, "onFileChange()", file.getAbsolutePath());
             doBackup("change", file);
         }
 
         @Override
         public void onFileDelete(File file) {
-            SLogs.d(FileSyncService.class, "onFileDelete = " + file.getAbsolutePath());
+            SLogs.d(TAG, "onFileDelete()", file.getAbsolutePath());
 //            doBackup("delete", file);
         }
 
         @Override
         public void onStop(FileAlterationObserver observer) {
-            SLogs.d(FileSyncService.class, "monitor stop");
+            SLogs.d(TAG, "onStop()");
         }
     }
 
@@ -335,7 +335,7 @@ public class FileSyncService extends Service {
     }
 
     private void destroy() {
-        SLogs.d(FileSyncService.class, "file monitor service destroy");
+        SLogs.d(TAG, "onDestroy()", "file monitor service destroy");
         stopFolderMonitor();
 
         //

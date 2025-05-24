@@ -22,6 +22,7 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.config.ObjKey;
+import com.seafile.seadroid2.context.GlobalNavContext;
 import com.seafile.seadroid2.context.NavContext;
 import com.seafile.seadroid2.databinding.ActivitySelectorObjBinding;
 import com.seafile.seadroid2.enums.FileViewType;
@@ -32,6 +33,7 @@ import com.seafile.seadroid2.framework.db.entities.PermissionEntity;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.model.BaseModel;
 import com.seafile.seadroid2.ui.base.BaseActivity;
+import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
 import com.seafile.seadroid2.ui.dialog_fragment.BottomSheetNewDirFileDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.BottomSheetPasswordDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.NewDirFileDialogFragment;
@@ -47,7 +49,7 @@ import io.reactivex.functions.Consumer;
 /**
  * can select account、repo、dir
  */
-public class ObjSelectorActivity extends BaseActivity {
+public class ObjSelectorActivity extends BaseActivityWithVM<ObjSelectorViewModel> {
     private ObjSelectType mCurrentStepType = ObjSelectType.ACCOUNT;
     private ObjSelectType initType = ObjSelectType.ACCOUNT;
     private ObjSelectType selectType = ObjSelectType.ACCOUNT;
@@ -61,7 +63,6 @@ public class ObjSelectorActivity extends BaseActivity {
     private final NavContext mNavContext = new NavContext(false);
 
     private RepoQuickAdapter adapter;
-    private ObjSelectorViewModel viewModel;
     private Account mAccount;
 
     public static Intent getCurrentAccountIntent(Context context, ObjSelectType initType, ObjSelectType selectType) {
@@ -96,9 +97,6 @@ public class ObjSelectorActivity extends BaseActivity {
 
         binding = ActivitySelectorObjBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
-        //view model
-        viewModel = new ViewModelProvider(this).get(ObjSelectorViewModel.class);
 
         Intent intent = getIntent();
         if (intent == null) {
@@ -245,14 +243,14 @@ public class ObjSelectorActivity extends BaseActivity {
     }
 
     private void initViewModel() {
-        viewModel.getRefreshLiveData().observe(this, new Observer<Boolean>() {
+        getViewModel().getRefreshLiveData().observe(this, new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean aBoolean) {
                 binding.swipeRefreshLayout.setRefreshing(aBoolean);
             }
         });
 
-        viewModel.getObjsListLiveData().observe(this, new Observer<List<BaseModel>>() {
+        getViewModel().getObjsListLiveData().observe(this, new Observer<List<BaseModel>>() {
             @Override
             public void onChanged(List<BaseModel> baseModels) {
                 notifyDataChanged(baseModels);
@@ -272,7 +270,7 @@ public class ObjSelectorActivity extends BaseActivity {
 
         QuickAdapterHelper helper = new QuickAdapterHelper.Builder(adapter).build();
         binding.rv.setAdapter(helper.getAdapter());
-        binding.rv.setPadding(0, Constants.DP.DP_16, 0, Constants.DP.DP_16);
+        binding.rv.setPadding(0, Constants.DP.DP_8, 0, Constants.DP.DP_32);
         binding.rv.setClipToPadding(false);
     }
 
@@ -323,7 +321,7 @@ public class ObjSelectorActivity extends BaseActivity {
     }
 
     private void doEncrypt(RepoModel repoModel) {
-        viewModel.getEncCacheDB(repoModel.repo_id, new Consumer<EncKeyCacheEntity>() {
+        getViewModel().getEncCacheDB(repoModel.repo_id, new Consumer<EncKeyCacheEntity>() {
             @Override
             public void accept(EncKeyCacheEntity encKeyCacheEntity) throws Exception {
                 long now = TimeUtils.getNowMills();
@@ -381,7 +379,7 @@ public class ObjSelectorActivity extends BaseActivity {
             return;
         }
 
-        viewModel.getPermissionFromLocal(repo_id, pNum, new Consumer<PermissionEntity>() {
+        getViewModel().getPermissionFromLocal(repo_id, pNum, new Consumer<PermissionEntity>() {
             @Override
             public void accept(PermissionEntity entity) throws Exception {
                 if (!entity.isValid()) {
@@ -395,6 +393,11 @@ public class ObjSelectorActivity extends BaseActivity {
     }
 
     private void showNewDirDialog() {
+        if (mAccount == null) {
+            ToastUtils.showLong(R.string.choose_an_account);
+            return;
+        }
+
         if (!mNavContext.inRepo()) {
             ToastUtils.showLong(R.string.choose_a_library);
             return;
@@ -426,27 +429,28 @@ public class ObjSelectorActivity extends BaseActivity {
 
         if (mCurrentStepType == ObjSelectType.ACCOUNT) {
 
-            bar.setDisplayHomeAsUpEnabled(false);
             bar.setTitle(R.string.choose_an_account);
 
-            viewModel.loadAccount();
+            getViewModel().loadAccount();
         } else if (mCurrentStepType == ObjSelectType.REPO) {
 
-            bar.setDisplayHomeAsUpEnabled(true);
             bar.setTitle(R.string.choose_a_library);
 
             boolean isFilterUnavailable = true;
+            boolean isAddStarredGroup = false;
             if (getIntent().hasExtra("isFilterUnavailable")) {
                 isFilterUnavailable = getIntent().getBooleanExtra("isFilterUnavailable", true);
             }
 
-            viewModel.loadReposFromNet(mAccount, isFilterUnavailable);
+            if (getIntent().hasExtra("isAddStarredGroup")) {
+                isAddStarredGroup = getIntent().getBooleanExtra("isAddStarredGroup", false);
+            }
+
+            getViewModel().loadReposFromNet(mAccount, isFilterUnavailable, isAddStarredGroup);
         } else if (mCurrentStepType == ObjSelectType.DIR) {
 
-            bar.setDisplayHomeAsUpEnabled(true);
             bar.setTitle(R.string.choose_a_folder);
-
-            viewModel.loadDirentsFromNet(mAccount, mNavContext);
+            getViewModel().loadDirentsFromNet(mAccount, mNavContext);
         }
     }
 
@@ -466,15 +470,6 @@ public class ObjSelectorActivity extends BaseActivity {
         tipView.setText(textRes);
         adapter.setStateView(tipView);
         adapter.setStateViewEnable(true);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            stepBack();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     private void stepBack() {

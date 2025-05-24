@@ -31,6 +31,7 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 public class BackgroundJobManagerImpl {
+    private static final String TAG = "BackgroundJobManagerImpl";
     public static final String TAG_ALL = "*";
     public static final String TAG_TRANSFER = TAG_ALL + ":transfer";
     public static final String TAG_ALBUM_BACKUP = TAG_TRANSFER + ":album_backup";
@@ -55,7 +56,7 @@ public class BackgroundJobManagerImpl {
     }
 
     private <T extends ListenableWorker> OneTimeWorkRequest.Builder oneTimeRequestBuilder(Class<T> tClass) {
-        SLogs.d(BackgroundJobManagerImpl.class, "Creating WorkRequest for: " + tClass.getSimpleName());
+        SLogs.d(TAG, "oneTimeRequestBuilder()", "Creating WorkRequest for: " + tClass.getSimpleName());
 
         return new OneTimeWorkRequest.Builder(tClass)
                 .setBackoffCriteria(BackoffPolicy.LINEAR, 5, TimeUnit.SECONDS)
@@ -96,7 +97,8 @@ public class BackgroundJobManagerImpl {
     ////////////////////// media //////////////////////
 
     public void startMediaBackupChain(boolean isForce) {
-        SLogs.d(BackgroundJobManagerImpl.class, "startMediaBackupChain: isForce:" + isForce);
+        SLogs.d(TAG, "startMediaBackupChain()", "isForce:" + isForce);
+
         cancelMediaBackupChain();
 
         OneTimeWorkRequest scanRequest = getMediaScannerWorkerRequest(isForce);
@@ -156,7 +158,7 @@ public class BackgroundJobManagerImpl {
     ////////////////////// upload folder //////////////////////
 
     public void startFolderBackupChain(boolean isForce) {
-        SLogs.d(BackgroundJobManagerImpl.class, "startFolderBackupChain: isForce:" + isForce);
+        SLogs.d(TAG, "startFolderBackupChain()", "isForce:" + isForce);
         cancelFolderBackupWorker();
 
         OneTimeWorkRequest scanRequest = getFolderBackupScanWorkerRequest(isForce);
@@ -208,13 +210,13 @@ public class BackgroundJobManagerImpl {
     }
 
     public void cancelFolderBackupWorker() {
-        SLogs.d(BackgroundJobManagerImpl.class, "cancelFolderBackupWorker");
+        SLogs.d(TAG, "cancelFolderBackupWorker()");
         cancelByTag(TAG_FOLDER_BACKUP);
     }
 
     ////////////////////// upload file //////////////////////
     public void startFileUploadWorker() {
-        SLogs.d(BackgroundJobManagerImpl.class, "startFileUploadWorker");
+        SLogs.d(TAG, "startFileUploadWorker()");
         String workerName = FileUploadWorker.class.getSimpleName();
         OneTimeWorkRequest request = getFileUploadRequest();
         getWorkManager().enqueueUniqueWork(workerName, ExistingWorkPolicy.KEEP, request);
@@ -245,7 +247,7 @@ public class BackgroundJobManagerImpl {
     }
 
     public void startDownloadChain(List<String> direntIds) {
-        SLogs.d(BackgroundJobManagerImpl.class, "start download chain");
+        SLogs.d(TAG, "startDownloadChain()");
         OneTimeWorkRequest scanRequest = getDownloadScanRequest(direntIds);
         OneTimeWorkRequest downloadRequest = getDownloadRequest();
 
@@ -299,7 +301,7 @@ public class BackgroundJobManagerImpl {
     ////////////////////// downloaded file monitor //////////////////////
 
     public void startCheckDownloadedFileChain() {
-        SLogs.d(BackgroundJobManagerImpl.class, "startCheckDownloadedFileChain");
+        SLogs.d(TAG, "startCheckDownloadedFileChain()");
         OneTimeWorkRequest checkRequest = getCheckDownloadedFileRequest();
 
         String workerName = DownloadedFileMonitorWorker.class.getSimpleName();

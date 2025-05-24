@@ -2,6 +2,7 @@ package com.seafile.seadroid2.framework.worker.upload;
 
 import android.app.ForegroundServiceStartNotAllowedException;
 import android.content.Context;
+import android.nfc.Tag;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -39,6 +40,7 @@ import java.util.UUID;
  * @see BackgroundJobManagerImpl#TAG_TRANSFER
  */
 public class MediaBackupUploadWorker extends BaseUploadWorker {
+    private final String TAG = "MediaBackupUploadWorker";
     public static final UUID UID = UUID.nameUUIDFromBytes(MediaBackupUploadWorker.class.getSimpleName().getBytes());
 
     private final AlbumBackupNotificationHelper notificationManager;
@@ -74,7 +76,7 @@ public class MediaBackupUploadWorker extends BaseUploadWorker {
     @NonNull
     @Override
     public ListenableWorker.Result doWork() {
-        SLogs.d(MediaBackupUploadWorker.class, "started execution");
+        SLogs.d(TAG, "doWork()", "started execution");
 
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
         if (account == null) {
@@ -84,14 +86,14 @@ public class MediaBackupUploadWorker extends BaseUploadWorker {
 
         boolean canContinue = can();
         if (!canContinue) {
-            SLogs.d(MediaBackupUploadWorker.class, "settings missing config or not turned on");
+            SLogs.d(TAG, "doWork()", "settings missing config or not turned on");
             return returnSuccess();
         }
 
         //
         int totalPendingCount = GlobalTransferCacheList.ALBUM_BACKUP_QUEUE.getPendingCount();
         if (totalPendingCount <= 0) {
-            SLogs.d(MediaBackupUploadWorker.class, "backup queue is empty");
+            SLogs.d(TAG, "doWork()", "backup queue is empty");
             return returnSuccess();
         }
 
@@ -152,7 +154,7 @@ public class MediaBackupUploadWorker extends BaseUploadWorker {
         }
 
         showToast(R.string.upload_finished);
-        SLogs.d(MediaBackupUploadWorker.class, "complete");
+        SLogs.d(TAG, "doWork()", "complete");
         //
         //
         Bundle b = new Bundle();

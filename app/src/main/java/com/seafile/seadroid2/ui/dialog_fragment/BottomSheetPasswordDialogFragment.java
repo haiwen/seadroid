@@ -23,6 +23,7 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.model.TResultModel;
+import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.ui.base.fragment.RequestBottomSheetDialogFragmentWithVM;
 import com.seafile.seadroid2.ui.dialog_fragment.listener.OnResultListener;
 import com.seafile.seadroid2.ui.dialog_fragment.viewmodel.PasswordViewModel;
@@ -188,7 +189,7 @@ public class BottomSheetPasswordDialogFragment extends RequestBottomSheetDialogF
         EditText editText = getDialogView().findViewById(R.id.password);
         Editable editable = editText.getText();
         if (editable == null || editable.length() == 0 || TextUtils.isEmpty(editable.toString().trim())) {
-            setInputError(R.id.password_hint, getString(R.string.password_empty));
+            Toasts.show(R.string.password_empty);
             return false;
         }
 

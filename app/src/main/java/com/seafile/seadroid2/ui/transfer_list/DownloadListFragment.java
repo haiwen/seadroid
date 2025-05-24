@@ -18,6 +18,7 @@ import com.seafile.seadroid2.framework.worker.TransferWorker;
 import com.seafile.seadroid2.ui.settings.TabSettings2Fragment;
 
 public class DownloadListFragment extends TransferListFragment {
+    private final String TAG = "DownloadListFragment";
 
     public static DownloadListFragment newInstance() {
         Bundle args = new Bundle();
@@ -53,7 +54,7 @@ public class DownloadListFragment extends TransferListFragment {
         String result = map.getString(TransferWorker.KEY_DATA_RESULT);
         String transferId = map.getString(TransferWorker.KEY_TRANSFER_ID);
         int transferCount = map.getInt(TransferWorker.KEY_TRANSFER_COUNT);
-        SLogs.d("download list fragment, event: " + statusEvent + ", dataSource: " + dataSource + ", count: " + transferCount);
+        SLogs.d(TAG, "on event: " + statusEvent + ", dataSource: " + dataSource + ", count: " + transferCount);
 
         if (!TextUtils.equals(TransferDataSource.DOWNLOAD.name(), dataSource)) {
             return;
@@ -73,7 +74,7 @@ public class DownloadListFragment extends TransferListFragment {
             notifyProgressById(transferModel, statusEvent);
         } else if (TextUtils.equals(statusEvent, TransferEvent.EVENT_FILE_TRANSFER_FAILED)) {
 
-            SLogs.d(DownloadListFragment.class, transferModel.toString());
+            SLogs.d(TAG, transferModel.toString());
             notifyProgressById(transferModel, statusEvent);
 
         } else if (TextUtils.equals(statusEvent, TransferEvent.EVENT_FILE_TRANSFER_SUCCESS)) {

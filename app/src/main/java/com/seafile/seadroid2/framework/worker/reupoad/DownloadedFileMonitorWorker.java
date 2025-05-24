@@ -46,6 +46,7 @@ import retrofit2.Call;
  * Check the change status of the downloaded file
  */
 public class DownloadedFileMonitorWorker extends BaseUploadWorker {
+    private final String TAG = "DownloadedFileMonitorWorker";
     private final FileBackupNotificationHelper notificationManager;
 
     public DownloadedFileMonitorWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
@@ -79,7 +80,7 @@ public class DownloadedFileMonitorWorker extends BaseUploadWorker {
     }
 
     private Result start() {
-        SLogs.d(DownloadedFileMonitorWorker.class, "started execution");
+        SLogs.d(TAG, "start()", "started execution");
 
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
         if (account == null) {
@@ -88,13 +89,12 @@ public class DownloadedFileMonitorWorker extends BaseUploadWorker {
 
         int totalPendingCount = GlobalTransferCacheList.CHANGED_FILE_MONITOR_QUEUE.getPendingCount();
 
-        SLogs.d(DownloadedFileMonitorWorker.class, "pending count: " + totalPendingCount);
-
+        SLogs.d(TAG, "start()", "pending count: " + totalPendingCount);
         if (totalPendingCount <= 0) {
             return Result.success();
         }
 
-        SLogs.d(DownloadedFileMonitorWorker.class, "start transfer");
+        SLogs.d(TAG, "start()", "start transfer");
         showNotification();
 
         String interruptibleExceptionMsg = null;
@@ -105,7 +105,7 @@ public class DownloadedFileMonitorWorker extends BaseUploadWorker {
                 break;
             }
 
-            SLogs.d(DownloadedFileMonitorWorker.class, "downloaded file path: " + missFieldDataTransferModel.full_path);
+            SLogs.d(TAG, "start()", "downloaded file path: " + missFieldDataTransferModel.full_path);
             File file = new File(missFieldDataTransferModel.full_path);
             if (!FileUtils.isFileExists(file)) {
                 continue;
@@ -119,7 +119,8 @@ public class DownloadedFileMonitorWorker extends BaseUploadWorker {
             //if the file is not in the database, it means that the app has been deleted.
             //this data is useless
             if (CollectionUtils.isEmpty(cacheList)) {
-                SLogs.d(DownloadedFileMonitorWorker.class, "file is not in the database: " + file.getName());
+                SLogs.d(TAG, "start()", "file is not in the database: " + file.getName());
+
                 continue;
             }
 
@@ -132,7 +133,7 @@ public class DownloadedFileMonitorWorker extends BaseUploadWorker {
                     }
 
                     transfer(account, tm);
-                    SLogs.d(DownloadedFileMonitorWorker.class, "transfer complete");
+                    SLogs.d(TAG, "start()", "transfer complete");
                     wasThereSuccessfulUploaded = true;
                 } catch (Exception e) {
                     SeafException seafException = ExceptionUtils.parseByThrowable(e);
@@ -166,8 +167,7 @@ public class DownloadedFileMonitorWorker extends BaseUploadWorker {
             showToast(R.string.updated);
         }
 
-        SLogs.d(DownloadedFileMonitorWorker.class, "downloaded file monitor: complete, upload successful? -> " + wasThereSuccessfulUploaded);
-
+        SLogs.d(TAG, "start()", "downloaded file monitor: complete, upload successful? -> " + wasThereSuccessfulUploaded);
         //
         Bundle b = new Bundle();
         b.putString(TransferWorker.KEY_DATA_RESULT, interruptibleExceptionMsg);
@@ -181,7 +181,8 @@ public class DownloadedFileMonitorWorker extends BaseUploadWorker {
     private TransferModel parseFile(Account account, FileCacheStatusEntity downloadedEntity, String localPath) throws IOException {
         File file = new File(localPath);
         if (!file.exists()) {
-            SLogs.d(DownloadedFileMonitorWorker.class, "local file is not exists: " + localPath);
+            SLogs.d(TAG, "parseFile()", "local file is not exists: " + localPath);
+
             return null;
         }
 
@@ -195,7 +196,7 @@ public class DownloadedFileMonitorWorker extends BaseUploadWorker {
             DirentFileModel fileModel = getDirentDetail(downloadedEntity.repo_id, downloadedEntity.full_path);
             //if not exists in the remote, stop it, no need to upload again
             if (fileModel == null) {
-                SLogs.d(DownloadedFileMonitorWorker.class, "file is not exists in remote: " + localPath);
+                SLogs.d(TAG, "parseFile()", "file is not exists in remote: " + localPath);
                 return null;
             }
         } catch (IOException e) {
@@ -219,8 +220,7 @@ public class DownloadedFileMonitorWorker extends BaseUploadWorker {
         transferModel.transfer_status = TransferStatus.WAITING;
         transferModel.setId(transferModel.genStableId());
 
-        SLogs.d(DownloadedFileMonitorWorker.class, "add to FILE_UPLOAD_QUEUE : " + transferModel.toString());
-
+        SLogs.d(TAG, transferModel.toString());
         return transferModel;
     }
 
@@ -229,13 +229,13 @@ public class DownloadedFileMonitorWorker extends BaseUploadWorker {
         Call<DirentFileModel> fileDetailCall = HttpIO.getCurrentInstance().execute(FileService.class).getFileDetailCall(repoId, path);
         retrofit2.Response<DirentFileModel> res = fileDetailCall.execute();
         if (!res.isSuccessful()) {
-            SLogs.d(DownloadedFileMonitorWorker.class, "request dirents failed");
+            SLogs.d(TAG, "request dirents failed");
             return null;
         }
 
         DirentFileModel t = res.body();
         if (t == null) {
-            SLogs.d(DownloadedFileMonitorWorker.class, "request dirents is null");
+            SLogs.d(TAG, "request dirents is null");
             return null;
         }
 

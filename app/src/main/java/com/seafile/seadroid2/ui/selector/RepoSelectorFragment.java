@@ -133,7 +133,7 @@ public class RepoSelectorFragment extends BaseFragmentWithVM<ObjSelectorViewMode
     }
 
     private void loadData() {
-        getViewModel().loadReposFromNet(mAccount, true);
+        getViewModel().loadReposFromNet(mAccount, true, false);
     }
 
 

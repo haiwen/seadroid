@@ -44,6 +44,8 @@ import com.seafile.seadroid2.view.webview.PreloadWebView;
 import com.seafile.seadroid2.view.webview.SeaWebView;
 
 public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
+    private final String TAG = "SDocWebViewActivity";
+
     private ActivitySeaWebviewProBinding binding;
 
     private SeaWebView mWebView;
@@ -217,7 +219,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         mWebView.callJsFunction("sdoc.outline.data.select", param, new CallBackFunction() {
             @Override
             public void onCallBack(String data) {
-                SLogs.d(SDocWebViewActivity.class, data);
+                SLogs.d(TAG, "callJsOutline()", data);
             }
         });
     }
@@ -252,12 +254,12 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
                     value = StringUtils.deString(value).replace("\\", "");
                     pageOptionsData = GsonUtils.fromJson(value, SDocPageOptionsModel.class);
                     if (pageOptionsData == null || !pageOptionsData.canUse()) {
-                        SLogs.d(SDocWebViewActivity.class, "read sodc page options data from web, an exception occurred in the parsing data");
+                        SLogs.d(TAG, "readSDocPageOptionsData()", "read sodc page options data from web, an exception occurred in the parsing data");
                     } else {
                         continuation.accept(pageOptionsData);
                     }
                 } else {
-                    SLogs.d(SDocWebViewActivity.class, "read sodc page options data from web: " + value);
+                    SLogs.d(TAG, "readSDocPageOptionsData()", "read sodc page options data from web: " + value);
                     ToastUtils.showShort(R.string.unknow_error);
                 }
             }
@@ -277,7 +279,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
             @Override
             public void onReceiveValue(String value) {
                 if (TextUtils.isEmpty(value)) {
-                    SLogs.d(SDocWebViewActivity.class, value);
+                    SLogs.d(TAG, "readSDocPageOptionsData()", value);
                     ToastUtils.showShort(R.string.empty_data);
                     continuation.accept(value);
                     return;
@@ -304,9 +306,9 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         mWebView.evaluateJavascript(js, new ValueCallback<String>() {
             @Override
             public void onReceiveValue(String value) {
-                SLogs.d(SDocWebViewActivity.class, value);
+                SLogs.d(TAG, "readSeafileTokenData()", value);
                 if (TextUtils.isEmpty(value)) {
-                    SLogs.d(SDocWebViewActivity.class, "doc uuid is empty.");
+                    SLogs.d(TAG, "readSeafileTokenData()", "doc uuid is empty.");
                     ToastUtils.showShort("outline is empty.");
                     return;
                 }

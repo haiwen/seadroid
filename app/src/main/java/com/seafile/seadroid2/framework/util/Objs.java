@@ -150,13 +150,21 @@ public class Objs {
             public SingleSource<List<BaseModel>> apply(List<RepoModel> savedIntoLocalList) throws Exception {
                 //parse to adapter list data
 
-                List<BaseModel> models = Objs.convertToAdapterList(savedIntoLocalList, false);
+                List<BaseModel> models = Objs.convertToAdapterList(savedIntoLocalList);
                 return Single.just(models);
             }
         });
     }
 
+    public static List<BaseModel> convertToAdapterList(List<RepoModel> list) {
+        return convertToAdapterList(list, false, false);
+    }
+
     public static List<BaseModel> convertToAdapterList(List<RepoModel> list, boolean isFilterUnavailable) {
+        return convertToAdapterList(list, false, false);
+    }
+
+    public static List<BaseModel> convertToAdapterList(List<RepoModel> list, boolean isFilterUnavailable, boolean isAddStarredGroup) {
         if (CollectionUtils.isEmpty(list)) {
             return Collections.emptyList();
         }
@@ -168,6 +176,14 @@ public class Objs {
         List<BaseModel> newRvList = CollectionUtils.newArrayList();
 
         TreeMap<String, List<RepoModel>> treeMap = groupRepos(list);
+
+        // add starred group if needed
+        if (isAddStarredGroup) {
+            List<RepoModel> starredList = list.stream().filter(f -> f.starred).collect(Collectors.toList());
+            List<RepoModel> sortedList = sortRepos(starredList);
+            newRvList.add(new GroupItemModel(R.string.tabs_starred, sortedList));
+            newRvList.addAll(sortedList);
+        }
 
         //mine
         List<RepoModel> mineList = treeMap.get(RepoType.TYPE_MINE);
@@ -312,7 +328,7 @@ public class Objs {
                 return insertAllSingle.flatMap(new Function<Long, SingleSource<List<DirentModel>>>() {
                     @Override
                     public SingleSource<List<DirentModel>> apply(Long aLong) throws Exception {
-                        SLogs.d("The list has been inserted into the local database");
+                        SLogs.d("getDirentsSingleFromServer()", "The list has been inserted into the local database");
                         return Single.just(direntModels);
                     }
                 });

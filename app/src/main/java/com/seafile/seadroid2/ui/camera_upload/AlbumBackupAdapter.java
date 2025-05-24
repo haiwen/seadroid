@@ -20,6 +20,7 @@ import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
  * It is not called directly, but managed by the Android Sync Manager instead.
  */
 public class AlbumBackupAdapter extends AbstractThreadedSyncAdapter {
+    private final String TAG = "AlbumBackupAdapter";
 
     /**
      * Set up the sync adapter
@@ -36,26 +37,26 @@ public class AlbumBackupAdapter extends AbstractThreadedSyncAdapter {
     @Override
     public void onSecurityException(android.accounts.Account account, Bundle extras, String authority, SyncResult syncResult) {
         super.onSecurityException(account, extras, authority, syncResult);
-        SLogs.d(AlbumBackupAdapter.class, "syncResult -> " + syncResult.toString());
+        SLogs.d(TAG, "onSecurityException()", "syncResult -> " + syncResult.toString());
     }
 
     @Override
     public boolean onUnsyncableAccount() {
-        SLogs.d(AlbumBackupAdapter.class, "onUnsyncableAccount");
+        SLogs.d(TAG, "onUnsyncableAccount()");
         return super.onUnsyncableAccount();
     }
 
     @Override
     public void onSyncCanceled(Thread thread) {
         super.onSyncCanceled(thread);
-        SLogs.d(AlbumBackupAdapter.class, "onSyncCanceled ->" + thread.getName());
+        SLogs.d(TAG, "onSyncCanceled()", thread.getName());
         BackgroundJobManagerImpl.getInstance().cancelMediaBackupChain();
     }
 
     @Override
     public void onSyncCanceled() {
         super.onSyncCanceled();
-        SLogs.d(AlbumBackupAdapter.class, "onSyncCanceled");
+        SLogs.d(TAG, "onSyncCanceled()");
         BackgroundJobManagerImpl.getInstance().cancelMediaBackupChain();
     }
 
@@ -66,12 +67,13 @@ public class AlbumBackupAdapter extends AbstractThreadedSyncAdapter {
                               SyncResult syncResult) {
 
         boolean isForce = extras.getBoolean(ContentResolver.SYNC_EXTRAS_MANUAL);
-        SLogs.d(AlbumBackupAdapter.class, "onPerformSync(), isForce -> " + isForce);
+        SLogs.d(TAG, "onPerformSync()", " isForce = " + isForce);
+
         Account seafileAccount = SupportAccountManager.getInstance().getSeafileAccount(account);
 
         // this should never occur, as camera upload is supposed to be disabled once the camera upload account signs out.
         if (!seafileAccount.hasValidToken()) {
-            SLogs.d(AlbumBackupAdapter.class, "This account has no auth token. Disable camera upload.");
+            SLogs.d(TAG, "onPerformSync()", "This account has no auth token. Disable camera upload.");
             syncResult.stats.numAuthExceptions++;
 
             // we're logged out on this account. disable camera upload.

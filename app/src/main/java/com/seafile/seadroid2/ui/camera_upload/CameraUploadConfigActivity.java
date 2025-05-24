@@ -149,8 +149,8 @@ public class CameraUploadConfigActivity extends BaseActivity {
 
                     AlbumBackupSharePreferenceHelper.writeBucketIds(selectedBuckets);
                 }
-            } else if (fragment instanceof RepoSelectorFragment cloudLibrarySelectorFragment) {
-                Pair<Account, RepoModel> pair = cloudLibrarySelectorFragment.getBackupInfo();
+            } else if (fragment instanceof RepoSelectorFragment repoSelectorFragment) {
+                Pair<Account, RepoModel> pair = repoSelectorFragment.getBackupInfo();
                 mAccount = pair.first;
                 repoModel = pair.second;
 

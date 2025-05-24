@@ -40,6 +40,7 @@ import java.util.UUID;
  * @see BackgroundJobManagerImpl#TAG_TRANSFER
  */
 public class FileUploadWorker extends BaseUploadWorker {
+    private final String TAG = "FileUploadWorker";
     public static final UUID UID = UUID.nameUUIDFromBytes(FileUploadWorker.class.getSimpleName().getBytes());
 
     private final FileBackupNotificationHelper notificationManager;
@@ -79,8 +80,7 @@ public class FileUploadWorker extends BaseUploadWorker {
      * The task here may not be from the current account
      */
     private ListenableWorker.Result start() {
-
-        SLogs.d(FileUploadWorker.class, "started execution");
+        SLogs.d(TAG, "start()", "started execution");
 
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
         if (account == null) {
@@ -99,7 +99,7 @@ public class FileUploadWorker extends BaseUploadWorker {
         String interruptibleExceptionMsg = null;
 
         while (true) {
-            SLogs.d("start upload file worker");
+            SLogs.d(TAG, "start()", "start upload file worker");
             if (isStopped()) {
                 break;
             }
@@ -144,7 +144,7 @@ public class FileUploadWorker extends BaseUploadWorker {
         }
 
         showToast(R.string.upload_finished);
-        SLogs.d(FileUploadWorker.class, "complete");
+        SLogs.d(TAG, "start()", "complete");
 
         Bundle b = new Bundle();
         b.putString(TransferWorker.KEY_DATA_RESULT, interruptibleExceptionMsg);

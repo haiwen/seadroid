@@ -35,7 +35,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 
 public class SettingsAlbumBackupAdvanced2Fragment extends RenameSharePreferenceFragmentCompat {
-
+    private final String TAG = "SettingsAlbumBackupAdvanced2Fragment";
     private final Account currentAccount = SupportAccountManager.getInstance().getCurrentAccount();
 
     private final Object[] initSettingsArray = new Object[4];
@@ -122,21 +122,21 @@ public class SettingsAlbumBackupAdvanced2Fragment extends RenameSharePreferenceF
         Settings.ALBUM_BACKUP_ADVANCE_DATA_PLAN_SWITCH.observe(getViewLifecycleOwner(), new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean isChecked) {
-                SLogs.d(SettingsAlbumBackupAdvanced2Fragment.class, "AlbumBackup-Advance-DataPlan：" + isChecked);
+                SLogs.d(TAG, "AlbumBackup-Advance-DataPlan：" + isChecked);
             }
         });
 
         Settings.ALBUM_BACKUP_ADVANCE_ALLOW_VIDEO_SWITCH.observe(getViewLifecycleOwner(), new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean isChecked) {
-                SLogs.d(SettingsAlbumBackupAdvanced2Fragment.class, "AlbumBackup-Advance-Video：" + isChecked);
+                SLogs.d(TAG, "AlbumBackup-Advance-Video：" + isChecked);
             }
         });
 
         Settings.ALBUM_BACKUP_ADVANCE_BUCKETS_SWITCH.observe(getViewLifecycleOwner(), new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean isChecked) {
-                SLogs.d(SettingsAlbumBackupAdvanced2Fragment.class, "AlbumBackup-Advance-CustomBucket：" + isChecked);
+                SLogs.d(TAG, "AlbumBackup-Advance-CustomBucket：" + isChecked);
 
                 switchBucket(isChecked);
             }
@@ -145,7 +145,7 @@ public class SettingsAlbumBackupAdvanced2Fragment extends RenameSharePreferenceF
         Settings.ALBUM_BACKUP_ADVANCE_BUCKETS_SELECT.observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(String s) {
-                SLogs.d(SettingsAlbumBackupAdvanced2Fragment.class, "AlbumBackup-Advance-BucketList：" + s);
+                SLogs.d(TAG, "AlbumBackup-Advance-BucketList：" + s);
                 if (isFirstLoadData) {
                     return;
                 }

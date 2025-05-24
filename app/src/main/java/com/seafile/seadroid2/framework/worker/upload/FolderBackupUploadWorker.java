@@ -40,6 +40,7 @@ import java.util.UUID;
  * @see BackgroundJobManagerImpl#TAG_TRANSFER
  */
 public class FolderBackupUploadWorker extends BaseUploadWorker {
+    private final String TAG = "FolderBackupUploadWorker";
     public static final UUID UID = UUID.nameUUIDFromBytes(FolderBackupUploadWorker.class.getSimpleName().getBytes());
 
     private final FolderBackupNotificationHelper notificationManager;
@@ -89,7 +90,7 @@ public class FolderBackupUploadWorker extends BaseUploadWorker {
 
 
     private Result start() {
-        SLogs.d(FolderBackupUploadWorker.class, "started execution");
+        SLogs.d(TAG, "start()", "started execution");
 
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
         if (account == null) {
@@ -98,7 +99,7 @@ public class FolderBackupUploadWorker extends BaseUploadWorker {
 
         boolean canContinue = can();
         if (!canContinue) {
-            SLogs.d(FolderBackupUploadWorker.class, "settings missing config or not turned on");
+            SLogs.d(TAG, "start()", "settings missing config or not turned on");
             return returnSuccess();
         }
 
@@ -106,7 +107,7 @@ public class FolderBackupUploadWorker extends BaseUploadWorker {
         //
         int totalPendingCount = GlobalTransferCacheList.FOLDER_BACKUP_QUEUE.getPendingCount();
         if (totalPendingCount <= 0) {
-            SLogs.d(FolderBackupUploadWorker.class, "backup queue is empty");
+            SLogs.d(TAG, "start()", "backup queue is empty");
             return returnSuccess();
         }
 
@@ -165,7 +166,7 @@ public class FolderBackupUploadWorker extends BaseUploadWorker {
         }
 
         showToast(R.string.upload_finished);
-        SLogs.d(FolderBackupUploadWorker.class, "complete");
+        SLogs.d(TAG, "start()", "complete");
 
         //
         Bundle b = new Bundle();

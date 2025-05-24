@@ -52,6 +52,8 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 
 public class PhotoViewModel extends BaseViewModel {
+    private final String TAG = "PhotoViewModel";
+
     private final MutableLiveData<String> _downloadedUrlLiveData = new MutableLiveData<>();
     private final MutableLiveData<String> _originalUrlLiveData = new MutableLiveData<>();
     private final MutableLiveData<SeafException> _fileDetailExceptionLiveData = new MutableLiveData<>();
@@ -310,8 +312,8 @@ public class PhotoViewModel extends BaseViewModel {
 
                     long fileSize = responseBody.contentLength();
                     if (fileSize == -1) {
-                        SLogs.d("download file error -> contentLength is -1");
-                        SLogs.d(destinationFile.getAbsolutePath());
+                        SLogs.d(TAG, "getDownloadSingle()", "download file error -> contentLength is -1");
+                        SLogs.d(TAG, destinationFile.getAbsolutePath());
 
                         fileSize = direntModel.size;
                     }
@@ -341,10 +343,10 @@ public class PhotoViewModel extends BaseViewModel {
                         FileCacheStatusEntity entity = getSaveEntity(direntModel, destinationFile);
                         AppDatabase.getInstance().fileCacheStatusDAO().insert(entity);
 
-                        SLogs.d(PhotoViewModel.class, "move file success: " + path);
+                        SLogs.d(TAG, "getDownloadSingle()", "move file success: " + path);
                         emitter.onSuccess(destinationFile);
                     } else {
-                        SLogs.d(PhotoViewModel.class, "move file failed: " + path);
+                        SLogs.d(TAG, "getDownloadSingle()", "move file failed: " + path);
                         emitter.onError(SeafException.TRANSFER_FILE_EXCEPTION);
                     }
                 } catch (Exception e) {

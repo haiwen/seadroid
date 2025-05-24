@@ -52,7 +52,7 @@ public class AccountUtils {
         cookieManager.removeAllCookies(new ValueCallback<Boolean>() {
             @Override
             public void onReceiveValue(Boolean value) {
-                SLogs.d("removeAllCookie? " + value);
+                SLogs.d("AccountUtils", "removeAllCookie? " + value);
             }
         });
     }
@@ -87,7 +87,7 @@ public class AccountUtils {
         cookieManager.removeAllCookies(new ValueCallback<Boolean>() {
             @Override
             public void onReceiveValue(Boolean value) {
-                SLogs.d("removeAllCookie? " + value);
+                SLogs.d("AccountUtils", "removeAllCookie? " + value);
             }
         });
     }

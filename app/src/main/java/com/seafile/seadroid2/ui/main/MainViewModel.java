@@ -42,6 +42,7 @@ import io.reactivex.Single;
 import io.reactivex.functions.Consumer;
 
 public class MainViewModel extends BaseViewModel {
+    private final String TAG = "MainViewModel";
     //force refresh repo/dirents
     private final MutableLiveData<Boolean> _on_force_refresh_repo_list_live_data = new MutableLiveData<>();
 
@@ -179,13 +180,13 @@ public class MainViewModel extends BaseViewModel {
         //sourceUri content://com.android.providers.media.documents/document/image:1000182224
         TransferModel transferModel = gen(context, account, repoModel.repo_id, repoModel.repo_name, sourceUri, fileName, parentDir, isReplace);
         GlobalTransferCacheList.FILE_UPLOAD_QUEUE.put(transferModel);
-        SLogs.d(MainViewModel.class, "addUploadTask uri: complete");
+        SLogs.d(TAG, "addUploadTask()", "uri = " + sourceUri);
     }
 
     public void addUploadTask(Context context, Account account, RepoModel repoModel, String localFileAbsPath, String parentDir, boolean isReplace) {
         TransferModel transferModel = gen(context, account, repoModel.repo_id, repoModel.repo_name, localFileAbsPath, parentDir, isReplace);
         GlobalTransferCacheList.FILE_UPLOAD_QUEUE.put(transferModel);
-        SLogs.d(MainViewModel.class, "addUploadTask uri: complete");
+        SLogs.d(TAG, "addUploadTask()", "localPath = " + localFileAbsPath);
     }
 
     private TransferModel gen(Context context, Account account, String repo_id, String repo_name, String fileAbsPath, String parentDir, boolean isReplace) {

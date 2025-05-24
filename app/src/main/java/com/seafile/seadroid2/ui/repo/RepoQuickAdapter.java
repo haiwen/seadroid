@@ -261,10 +261,9 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
     }
 
     private void onBindAccount(AccountViewHolder holder, BaseModel model, int position) {
-//        holder.binding.getRoot().setBackground(null);
-
         Account account = (Account) model;
 
+        holder.binding.getRoot().setBackground(null);
         //set background color for item
         if (model.item_position == ItemPositionEnum.START) {
             holder.itemView.setBackground(topShapeBackgroundDrawable);

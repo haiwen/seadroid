@@ -69,6 +69,7 @@ import retrofit2.Call;
  * @see BackgroundJobManagerImpl#TAG_TRANSFER
  */
 public class FolderBackupScanWorker extends BaseScanWorker {
+    private final String TAG = "FolderBackupScanWorker";
     public static final UUID UID = UUID.nameUUIDFromBytes(FolderBackupScanWorker.class.getSimpleName().getBytes());
 
     private final FolderBackupScanNotificationHelper notificationManager;
@@ -97,7 +98,7 @@ public class FolderBackupScanWorker extends BaseScanWorker {
                 ForegroundInfo foregroundInfo = notificationManager.getForegroundNotification(title, subTitle);
                 showForegroundAsync(foregroundInfo);
             } catch (ForegroundServiceStartNotAllowedException e) {
-                SLogs.d(e.getMessage());
+                SLogs.e(e.getMessage());
             }
         } else {
             ForegroundInfo foregroundInfo = notificationManager.getForegroundNotification(title, subTitle);
@@ -108,7 +109,7 @@ public class FolderBackupScanWorker extends BaseScanWorker {
     @NonNull
     @Override
     public Result doWork() {
-        SLogs.d(FolderBackupScanWorker.class, "started execution");
+        SLogs.d(TAG, "doWork()", "started execution");
         account = SupportAccountManager.getInstance().getCurrentAccount();
         if (account == null) {
             return returnSuccess();
@@ -116,19 +117,19 @@ public class FolderBackupScanWorker extends BaseScanWorker {
 
         boolean isTurnOn = FolderBackupSharePreferenceHelper.readBackupSwitch();
         if (!isTurnOn) {
-            SLogs.d(FolderBackupScanWorker.class, "The folder scan task was not started, because the switch is off");
+            SLogs.d(TAG, "doWork()", "The folder scan task was not started, because the switch is off");
             return returnSuccess();
         }
 
         repoConfig = FolderBackupSharePreferenceHelper.readRepoConfig();
         if (repoConfig == null || StringUtils.isEmpty(repoConfig.getRepoId())) {
-            SLogs.d(FolderBackupScanWorker.class, "The folder scan task was not started, because the repo is not selected");
+            SLogs.d(TAG, "doWork()", "The folder scan task was not started, because the repo is not selected");
             return returnSuccess();
         }
 
         List<String> backupPaths = FolderBackupSharePreferenceHelper.readBackupPathsAsList();
         if (CollectionUtils.isEmpty(backupPaths)) {
-            SLogs.d(FolderBackupScanWorker.class, "The folder scan task was not started, because the folder path is not selected");
+            SLogs.d(TAG, "doWork()", "The folder scan task was not started, because the folder path is not selected");
 
             return returnSuccess();
         }
@@ -172,13 +173,13 @@ public class FolderBackupScanWorker extends BaseScanWorker {
         Call<List<DirentRecursiveFileModel>> direntWrapperModelCall = HttpIO.getCurrentInstance().execute(RepoService.class).getDirRecursiveFileCall(repoId, parentPath);
         retrofit2.Response<List<DirentRecursiveFileModel>> res = direntWrapperModelCall.execute();
         if (!res.isSuccessful()) {
-            SLogs.d(FolderBackupScanWorker.class, "request dirents failed");
+            SLogs.d(TAG, "request dirents failed");
             return null;
         }
 
         List<DirentRecursiveFileModel> tempWrapperList = res.body();
         if (tempWrapperList == null) {
-            SLogs.d(FolderBackupScanWorker.class, "request dirents is null");
+            SLogs.d(TAG, "request dirents is null");
             return null;
         }
 
@@ -206,13 +207,13 @@ public class FolderBackupScanWorker extends BaseScanWorker {
             backupPath = Utils.pathJoin("/", backupPath, "/");
 
             compare(repoModel, backupPath, lastTime, ignorePath);
-            SLogs.d(FolderBackupScanWorker.class, "folder backup path: " + backupPath);
-            SLogs.d(FolderBackupScanWorker.class, "folder backup：need to upload files count: " + GlobalTransferCacheList.FOLDER_BACKUP_QUEUE.getTotalCount());
+            SLogs.d(TAG, "traverseBackupPath()", "folder backup path: " + backupPath);
+            SLogs.d(TAG, "traverseBackupPath()", "folder backup：need to upload files count: " + GlobalTransferCacheList.FOLDER_BACKUP_QUEUE.getTotalCount());
         }
 
         stopwatch.stop();
         long diff = stopwatch.elapsed(TimeUnit.MILLISECONDS);
-        SLogs.d(FolderBackupScanWorker.class, "folder backup scan time：" + stopwatch);
+        SLogs.d(TAG, "traverseBackupPath()", "folder backup scan time：" + stopwatch);
         long now = System.currentTimeMillis();
         FolderBackupSharePreferenceHelper.writeLastScanTime(now - diff);
     }
@@ -263,7 +264,7 @@ public class FolderBackupScanWorker extends BaseScanWorker {
 
             FileBackupStatusEntity dbTransferEntity = dbTransferMap.getOrDefault(fullPathFileName, null);
             if (dbTransferEntity != null) {
-                SLogs.d(FolderBackupScanWorker.class, "folder backup: skip file: " + fullPathFileName + ", because it has been uploaded");
+                SLogs.d(TAG, "compare()", "folder backup: skip file: " + fullPathFileName + ", because it has been uploaded");
                 continue;
             }
 
@@ -295,12 +296,12 @@ public class FolderBackupScanWorker extends BaseScanWorker {
 
                 if (firstOp.isPresent()) {
                     //skip: the document with the same name exists in the remote repository
-                    SLogs.d(FolderBackupScanWorker.class, "folder backup: skip file: " + fullPathFileName + ", because the same name exists remotely");
+                    SLogs.d(TAG, "compare()", "folder backup: skip file: " + fullPathFileName + ", because the same name exists remotely");
                     continue;
                 }
             }
 
-            SLogs.d(FolderBackupScanWorker.class, "folder backup: new file: " + localFile.getAbsolutePath());
+            SLogs.d(TAG, "compare()", "folder backup: new file: " + localFile.getAbsolutePath());
             TransferModel transferModel = TransferModel.convert(localFile, backupPath);
             transferModel.related_account = account.getSignature();
             transferModel.repo_id = repoConfig.getRepoId();

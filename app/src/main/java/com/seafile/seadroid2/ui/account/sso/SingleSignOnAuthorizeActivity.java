@@ -31,6 +31,7 @@ import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.framework.util.DeviceIdManager;
+import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.ssl.CertsManager;
 import com.seafile.seadroid2.ui.account.AccountViewModel;
@@ -47,7 +48,7 @@ import java.security.cert.X509Certificate;
  * Single sign on Authorize page, use cookie to get authorized data
  */
 public class SingleSignOnAuthorizeActivity extends BaseActivityWithVM<AccountViewModel> implements Toolbar.OnMenuItemClickListener {
-    public static final String DEBUG_TAG = SingleSignOnAuthorizeActivity.class.getSimpleName();
+    public final String TAG = "SingleSignOnAuthorizeActivity";
 
     public static final String SEAHUB_SHIB_COOKIE_NAME = "seahub_auth";
     private WebView mWebview;
@@ -84,7 +85,7 @@ public class SingleSignOnAuthorizeActivity extends BaseActivityWithVM<AccountVie
     }
 
     private void openAuthorizePage(String url) {
-        Log.d(DEBUG_TAG, "server url is " + url);
+        SLogs.d(TAG, "server url is " + url);
         if (TextUtils.isEmpty(url)) {
             ToastUtils.showLong(R.string.err_server_andress_empty);
             return;
@@ -125,7 +126,7 @@ public class SingleSignOnAuthorizeActivity extends BaseActivityWithVM<AccountVie
             e.printStackTrace();
         }
 
-        Log.d(DEBUG_TAG, "url " + url);
+        SLogs.d(TAG, "url " + url);
 
         mWebview.loadUrl(url);
 
@@ -230,17 +231,17 @@ public class SingleSignOnAuthorizeActivity extends BaseActivityWithVM<AccountVie
 
         @Override
         public void onReceivedSslError(WebView view, final SslErrorHandler handler, SslError error) {
-            Log.d(DEBUG_TAG, "onReceivedSslError " + error.getCertificate().toString());
+            SLogs.d(TAG, "onReceivedSslError " + error.getCertificate().toString());
 
             final Account account = new Account(serverUrl, null, null, null, null, false);
             SslCertificate sslCert = error.getCertificate();
 
             X509Certificate savedCert = CertsManager.instance().getCertificate(account);
             if (Utils.isSameCert(sslCert, savedCert)) {
-                Log.d(DEBUG_TAG, "trust this cert");
+                SLogs.d(TAG, "trust this cert");
                 handler.proceed();
             } else {
-                Log.d(DEBUG_TAG, "cert is not trusted");
+                SLogs.d(TAG, "cert is not trusted");
                 SslConfirmDialog dialog = new SslConfirmDialog(account,
                         Utils.getX509CertFromSslCertHack(sslCert),
                         new SslConfirmDialog.Listener() {
@@ -263,7 +264,7 @@ public class SingleSignOnAuthorizeActivity extends BaseActivityWithVM<AccountVie
 
         @Override
         public void onPageFinished(WebView webView, String url) {
-            Log.d(DEBUG_TAG, "onPageFinished " + serverUrl);
+            SLogs.d(TAG, "onPageFinished " + serverUrl);
             showPageLoading(false);
 
             String cookie = getCookie(serverUrl, SEAHUB_SHIB_COOKIE_NAME);
@@ -279,7 +280,7 @@ public class SingleSignOnAuthorizeActivity extends BaseActivityWithVM<AccountVie
 
                 getViewModel().loadAccountInfo(account, account.getToken());
             } catch (MalformedURLException e) {
-                Log.e(DEBUG_TAG, e.getMessage());
+                SLogs.e(e);
             }
         }
     }
@@ -301,8 +302,8 @@ public class SingleSignOnAuthorizeActivity extends BaseActivityWithVM<AccountVie
 
         if (email.isEmpty() || token.isEmpty())
             return null;
-        Log.d(DEBUG_TAG, "email: " + email);
-        Log.d(DEBUG_TAG, "token: " + token);
+        SLogs.d(TAG, "email: " + email);
+        SLogs.d(TAG, "token: *********");
 
         return new Account(url, email, "", null, token, true);
     }
@@ -317,7 +318,7 @@ public class SingleSignOnAuthorizeActivity extends BaseActivityWithVM<AccountVie
         if (cookies == null)
             return null;
 
-        Log.d(DEBUG_TAG, "All the cookies in a string:" + cookies);
+        SLogs.d(TAG, "find all the cookies");
 
         String[] allCookies = cookies.split(";");
 
