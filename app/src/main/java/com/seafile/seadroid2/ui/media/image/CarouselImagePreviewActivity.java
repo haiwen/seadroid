@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.view.View;
@@ -45,6 +46,7 @@ import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.model.activities.ActivityModel;
 import com.seafile.seadroid2.framework.model.search.SearchModel;
 import com.seafile.seadroid2.framework.util.Objs;
+import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.ui.adapter.ViewPager2Adapter;
 import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
@@ -64,6 +66,8 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
     private Toolbar toolbar;
     private ViewPager2Adapter pagerAdapter;
     private ThumbnailAdapter thumbnailAdapter;
+    private final String KEY_CURRENT_PAGE = "current_page";
+
 
     /**
      * actionbar: toolBar/statusBar/navBar/bottomActionBar/thumbnailListBar
@@ -74,7 +78,7 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
     private String repoId, repoName, parentDir, name;
     private boolean load_other_images_in_same_directory = false;
 
-//    public static Intent startThisFromDocsComment(Context context, String url) {
+    //    public static Intent startThisFromDocsComment(Context context, String url) {
 //        Intent intent = new Intent(context, CarouselImagePreviewActivity.class);
 //        intent.putExtra("image_url", url);//Load other images in the same folder
 //        intent.putExtra("load_other_images_in_same_directory", false);//Load other images in the same folder
@@ -131,6 +135,19 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
         return intent;
     }
 
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState, @NonNull PersistableBundle outPersistentState) {
+        super.onSaveInstanceState(outState, outPersistentState);
+        outState.putInt(KEY_CURRENT_PAGE, binding.pager.getCurrentItem());
+        outState.putString("repo_id", repoId);
+        outState.putString("repo_name", repoName);
+        outState.putString("parent_dir", parentDir);
+        outState.putString("name", name);
+        outState.putBoolean("load_other_images_in_same_directory", load_other_images_in_same_directory);
+    }
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -138,46 +155,12 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
         binding = ActivityCarouselImagePreviewBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        // full screen
-        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
+        initParams(savedInstanceState);
 
-        int currentNightMode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
-        isNightMode = currentNightMode == Configuration.UI_MODE_NIGHT_YES;
-
-        //init status bar
-        int color = ContextCompatKt.getColorCompat(this, R.color.bar_background_color);
-        BarUtils.setStatusBarColor(this, color);
-        BarUtils.setStatusBarLightMode(this, !isNightMode);
-        BarUtils.setNavBarColor(this, color);
-        BarUtils.setNavBarLightMode(this, !isNightMode);
-
-
-        //init toolbar margin top
-        ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) binding.toolbarActionbar.getLayoutParams();
-        layoutParams.topMargin = BarUtils.getStatusBarHeight();
-
-        toolbar = getActionBarToolbar();
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle(null);
-
-            toolbar.setNavigationOnClickListener(v -> {
-                checkBack();
-            });
-        }
-
-        getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
-            @Override
-            public void handleOnBackPressed() {
-                checkBack();
-            }
-        });
-
-        initParams();
+        initStatusBar();
+        initNightMode();
+        initToolbar();
         initView();
-
-
         initPager();
         initThumbnailList();
 
@@ -199,23 +182,74 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
         finish();
     }
 
-    private void initParams() {
-        Intent intent = getIntent();
-        if (intent == null) {
-            throw new RuntimeException("intent is null");
+
+    private void initParams(Bundle savedInstanceState) {
+        if (savedInstanceState != null) {
+            int currentPage = savedInstanceState.getInt(KEY_CURRENT_PAGE, 0);
+            binding.pager.setCurrentItem(currentPage, false);
+
+            repoId = savedInstanceState.getString("repo_id");
+            repoName = savedInstanceState.getString("repo_name");
+            parentDir = savedInstanceState.getString("parent_dir");
+            name = savedInstanceState.getString("name");
+
+            load_other_images_in_same_directory = savedInstanceState.getBoolean("load_other_images_in_same_directory", false);
+        } else {
+            Intent intent = getIntent();
+            if (intent == null) {
+                throw new RuntimeException("intent is null");
+            }
+
+            repoId = intent.getStringExtra("repo_id");
+            if (TextUtils.isEmpty(repoId)) {
+                throw new RuntimeException("repoId is empty");
+            }
+
+
+            repoName = intent.getStringExtra("repo_name");
+            parentDir = intent.getStringExtra("parent_dir");
+            name = intent.getStringExtra("name");
+
+            load_other_images_in_same_directory = intent.getBooleanExtra("load_other_images_in_same_directory", false);
         }
 
-        repoId = intent.getStringExtra("repo_id");
-        if (TextUtils.isEmpty(repoId)) {
-            throw new RuntimeException("repoId is empty");
+
+    }
+
+    private void initStatusBar() {
+        //init status bar
+        int color = ContextCompatKt.getColorCompat(this, R.color.bar_background_color);
+        BarUtils.setStatusBarColor(this, color);
+        BarUtils.setStatusBarLightMode(this, !isNightMode);
+        BarUtils.setNavBarColor(this, color);
+        BarUtils.setNavBarLightMode(this, !isNightMode);
+    }
+
+    private void initNightMode() {
+        int currentNightMode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        isNightMode = currentNightMode == Configuration.UI_MODE_NIGHT_YES;
+    }
+
+    private void initToolbar() {
+        toolbar = getActionBarToolbar();
+        toolbar.setNavigationOnClickListener(v -> {
+            checkBack();
+        });
+
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setTitle(null);
         }
+        //init toolbar margin top
+        ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) binding.toolbarActionbar.getLayoutParams();
+        layoutParams.topMargin = BarUtils.getStatusBarHeight();
 
-
-        repoName = intent.getStringExtra("repo_name");
-        parentDir = intent.getStringExtra("parent_dir");
-        name = intent.getStringExtra("name");
-
-        load_other_images_in_same_directory = intent.getBooleanExtra("load_other_images_in_same_directory", false);
+        getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                checkBack();
+            }
+        });
     }
 
     private void initView() {
@@ -330,32 +364,6 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
 
         CenterSnapHelper snapHelper = new CenterSnapHelper();
         snapHelper.attachToRecyclerView(binding.thumbnailRecyclerView);
-
-//        binding.thumbnailRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-//            @Override
-//            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
-//                super.onScrollStateChanged(recyclerView, newState);
-//
-//                // 滚动停止时
-//                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-//                    View snapView = snapHelper.findSnapView(getCenterScaleLayoutManager());
-//                    if (snapView != null) {
-//                        if (whoScrolled == 0) {
-//                            whoScrolled = -1;
-//                            return;
-//                        }
-//
-//                        int position = getCenterScaleLayoutManager().getPosition(snapView);
-//
-//                        whoScrolled = 1;
-//                        animateToolbar();
-//                        notifyCurrentStarredStatus();
-//                        binding.pager.setCurrentItem(position - 1, false);
-//
-//                    }
-//                }
-//            }
-//        });
     }
 
     private CenterScaleLayoutManager decorationManager;
@@ -423,12 +431,6 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
         thumbnailAdapter.notify(newList);
 
         navToSelectedPage();
-//        binding.thumbnailRecyclerView.postDelayed(new Runnable() {
-//            @Override
-//            public void run() {
-//                navToSelectedPage();
-//            }
-//        }, 50);
     }
 
     private String server_url;

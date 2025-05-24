@@ -112,23 +112,38 @@ public class PhotoFragment extends BaseFragment {
     }
 
     @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("repoId", repoId);
+        outState.putString("repoName", repoName);
+        outState.putString("fullPath", fullPath);
+        outState.putString("image_url", imageUrl);
+    }
+
+    @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Bundle args = getArguments();
-        if (args == null) {
-            return;
+        if (savedInstanceState != null) {
+            repoId = savedInstanceState.getString("repoId");
+            repoName = savedInstanceState.getString("repoName");
+            fullPath = savedInstanceState.getString("fullPath");
+            imageUrl = savedInstanceState.getString("image_url");
+        }else {
+            Bundle args = getArguments();
+            if (args == null) {
+                return;
+            }
+
+            repoId = args.getString("repoId");
+            repoName = args.getString("repoName");
+            fullPath = args.getString("fullPath");
+            imageUrl = args.getString("image_url");
+            serverUrl = args.getString("serverUrl");
         }
 
         int currentNightMode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
         isNightMode = currentNightMode == Configuration.UI_MODE_NIGHT_YES;
-
-
-        repoId = args.getString("repoId");
-        repoName = args.getString("repoName");
-        fullPath = args.getString("fullPath");
-        imageUrl = args.getString("image_url");
-        serverUrl = args.getString("serverUrl");
 
         if (TextUtils.isEmpty(repoId) && TextUtils.isEmpty(imageUrl)) {
             throw new IllegalStateException("the args is invalid");
@@ -137,9 +152,6 @@ public class PhotoFragment extends BaseFragment {
         if (!TextUtils.isEmpty(imageUrl)) {
             canScrollBottomLayout = false;
         }
-
-        viewModel = new ViewModelProvider(this).get(PhotoViewModel.class);
-        parentViewModel = new ViewModelProvider(requireActivity()).get(ImagePreviewViewModel.class);
     }
 
 
@@ -153,6 +165,9 @@ public class PhotoFragment extends BaseFragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        viewModel = new ViewModelProvider(this).get(PhotoViewModel.class);
+        parentViewModel = new ViewModelProvider(requireActivity()).get(ImagePreviewViewModel.class);
 
         intViewModel();
 

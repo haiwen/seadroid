@@ -10,6 +10,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import androidx.activity.OnBackPressedCallback;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.Observer;
@@ -42,10 +43,18 @@ public class EditorActivity extends BaseActivityWithVM<EditorViewModel> implemen
     private boolean isSave = true;
     private String lastContentMD5 = null;
 
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("local_path", localPath);
+        outState.putString("repo_id", repoId);
+        outState.putString("file_path_in_repo", filePathInRepo);
+    }
+
     public static void start(Context context, String localPath, String repoId, String filePathInRepo) {
         Intent starter = new Intent(context, EditorActivity.class);
-        starter.putExtra("path", localPath);
-        starter.putExtra("full_path", filePathInRepo);
+        starter.putExtra("local_path", localPath);
+        starter.putExtra("remote_full_path", filePathInRepo);
         starter.putExtra("repo_id", repoId);
         context.startActivity(starter);
     }
@@ -63,10 +72,17 @@ public class EditorActivity extends BaseActivityWithVM<EditorViewModel> implemen
         mMarkdownEditText = findViewById(R.id.edit_md);
         mHorizontalEditScrollView = findViewById(R.id.scroll_edit);
 
-        Intent intent = getIntent();
-        localPath = intent.getStringExtra("path");
-        repoId = intent.getStringExtra("repo_id");
-        filePathInRepo = intent.getStringExtra("full_path");
+        if (savedInstanceState != null) {
+            localPath = savedInstanceState.getString("local_path");
+            repoId = savedInstanceState.getString("repo_id");
+            filePathInRepo = savedInstanceState.getString("file_path_in_repo");
+        } else {
+            Intent intent = getIntent();
+            localPath = intent.getStringExtra("local_path");
+            repoId = intent.getStringExtra("repo_id");
+            filePathInRepo = intent.getStringExtra("remote_full_path");
+        }
+
 
         getSupportActionBar().setTitle(new File(localPath).getName());
 
@@ -118,7 +134,6 @@ public class EditorActivity extends BaseActivityWithVM<EditorViewModel> implemen
             @Override
             public void onChanged(String s) {
                 isSave = true;
-//                Toast.makeText(EditorActivity.this, getString(R.string.editor_file_save_success), Toast.LENGTH_SHORT).show();
                 finish();
             }
         });
@@ -198,19 +213,14 @@ public class EditorActivity extends BaseActivityWithVM<EditorViewModel> implemen
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                getOnBackPressedDispatcher().onBackPressed();
-                break;
-            case R.id.edit_undo:
-                mPerformEdit.undo();
-                break;
-            case R.id.edit_redo:
-                mPerformEdit.redo();
-                break;
-            case R.id.edit_save:
-                saveFile();
-                break;
+        if (item.getItemId() == R.id.edit_undo) {
+            getOnBackPressedDispatcher().onBackPressed();
+        } else if (item.getItemId() == R.id.edit_undo) {
+            mPerformEdit.undo();
+        } else if (item.getItemId() == R.id.edit_redo) {
+            mPerformEdit.redo();
+        } else if (item.getItemId() == R.id.edit_save) {
+            saveFile();
         }
         return super.onOptionsItemSelected(item);
     }

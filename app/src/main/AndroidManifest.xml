@@ -120,16 +120,6 @@
             android:launchMode="singleTop"
             android:windowSoftInputMode="adjustPan" />
 
-        <activity
-            android:name=".ui.gesture.UnlockGesturePasswordActivity"
-            android:launchMode="singleTop"
-            android:screenOrientation="portrait" />
-
-        <activity
-            android:name=".ui.gesture.CreateGesturePasswordActivity"
-            android:launchMode="singleTask"
-            android:screenOrientation="portrait" />
-
         <activity android:name=".ui.markdown.MarkdownActivity" />
 
         <activity
@@ -172,37 +162,15 @@
 
         <activity
             android:name=".ui.editor.EditorActivity"
-            android:screenOrientation="portrait"
             android:theme="@style/AppTheme.Editor" />
-
-        <provider
-            android:name=".ui.search.RecentSearchSuggestionsProvider"
-            android:authorities="${applicationId}.ui.search.RecentSearchSuggestionsProvider" />
-
-        <activity
-            android:name=".ui.search.Search2Activity"
-            android:configChanges="uiMode"
-            android:exported="true"
-            android:launchMode="singleTop"
-            android:voiceSearchMode="showVoiceSearchButton|launchRecognizer">
-            <intent-filter>
-                <action android:name="android.intent.action.SEARCH" />
-            </intent-filter>
-            <meta-data
-                android:name="android.app.searchable"
-                android:resource="@xml/searchable" />
-        </activity>
 
         <activity android:name=".ui.folder_backup.FolderBackupSelectedPathActivity" />
 
         <activity
             android:name=".ui.media.player.CustomExoVideoPlayerActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:screenOrientation="sensor" />
+            android:configChanges="orientation|keyboardHidden|screenSize" />
 
-        <activity
-            android:name=".ui.webview.SeaWebViewActivity"
-            android:screenOrientation="portrait" />
+        <activity android:name=".ui.webview.SeaWebViewActivity" />
         <activity android:name=".ui.data_migrate.DataMigrationActivity" />
         <activity android:name=".ui.selector.ObjSelectorActivity" />
         <activity android:name=".ui.transfer_list.TransferActivity" />
@@ -211,12 +179,8 @@
         <activity android:name=".ui.data_migrate.DataMigrationV303Activity" />
         <activity android:name=".ui.sdoc.SDocWebViewActivity" />
         <activity android:name=".ui.docs_comment.DocsCommentsActivity" />
-        <activity
-            android:name=".ui.media.image.CarouselImagePreviewActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".ui.media.image.OnlyImagePreviewActivity"
-            android:screenOrientation="portrait" />
+        <activity android:name=".ui.media.image.CarouselImagePreviewActivity" />
+        <activity android:name=".ui.media.image.OnlyImagePreviewActivity" />
 
         <provider
             android:name=".provider.SeafileProvider"

@@ -5,7 +5,6 @@ import android.webkit.ValueCallback;
 
 import com.blankj.utilcode.util.NotificationUtils;
 import com.seafile.seadroid2.framework.datastore.DataStoreManager;
-import com.seafile.seadroid2.framework.datastore.sp_livedata.GestureLockSharePreferenceHelper;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
@@ -17,9 +16,6 @@ import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
 public class AccountUtils {
 
     public static void logout(Account account) {
-
-        // turn off the gesture lock
-        GestureLockSharePreferenceHelper.disable();
 
         Settings.initUserSettings();
 

@@ -6,7 +6,6 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Build;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
@@ -49,7 +48,7 @@ public class CrashHandler implements UncaughtExceptionHandler {
     public void uncaughtException(Thread thread, Throwable ex) {
         if (myHandleException(ex) && mDefaultHandler != null) {
             SLogs.e("=============uncaughtException");
-            Toast.makeText(mContext, mContext.getString(R.string.UncaughtExceptionHandler_err), Toast.LENGTH_SHORT).show();
+            Toasts.show(R.string.UncaughtExceptionHandler_err);
             mDefaultHandler.uncaughtException(thread, ex);
         } else {
             SLogs.e("===else==========uncaughtException");
