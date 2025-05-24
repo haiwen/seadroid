@@ -87,17 +87,25 @@ public class CustomExoVideoPlayerActivity extends BaseActivityWithVM<PlayerViewM
             throw new IllegalArgumentException("no filePath param");
         }
 
-        fileName = intent.getStringExtra("fileName");
-        repoId = intent.getStringExtra("repoId");
-        filePath = intent.getStringExtra("filePath");
-        fileId = intent.getStringExtra("fileId");
 
         if (savedInstanceState != null) {
+            fileName = savedInstanceState.getString("fileName");
+            repoId = savedInstanceState.getString("repoId");
+            filePath = savedInstanceState.getString("filePath");
+            fileId = savedInstanceState.getString("fileId");
+
             startAutoPlay = savedInstanceState.getBoolean(KEY_AUTO_PLAY);
             hasFullScreen = savedInstanceState.getBoolean(KEY_FULL_SCREEN);
             startPosition = savedInstanceState.getLong(KEY_POSITION);
             startItemIndex = savedInstanceState.getInt(KEY_ITEM_INDEX);
         } else {
+
+            fileName = intent.getStringExtra("fileName");
+            repoId = intent.getStringExtra("repoId");
+            filePath = intent.getStringExtra("filePath");
+            fileId = intent.getStringExtra("fileId");
+
+
             clearStartPosition();
         }
 
@@ -210,10 +218,16 @@ public class CustomExoVideoPlayerActivity extends BaseActivityWithVM<PlayerViewM
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         updateStartPosition();
+
         outState.putLong(KEY_POSITION, startPosition);
         outState.putBoolean(KEY_AUTO_PLAY, startAutoPlay);
         outState.putBoolean(KEY_FULL_SCREEN, hasFullScreen);
         outState.putInt(KEY_ITEM_INDEX, startItemIndex);
+
+        outState.putString("fileName", fileName);
+        outState.putString("repoId", repoId);
+        outState.putString("filePath", filePath);
+        outState.putString("fileId", fileId);
     }
 
     private void setPlayIcon(boolean isPlay) {

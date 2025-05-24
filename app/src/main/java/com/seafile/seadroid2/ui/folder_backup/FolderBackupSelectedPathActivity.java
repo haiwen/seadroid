@@ -13,6 +13,8 @@ import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -31,11 +33,18 @@ public class FolderBackupSelectedPathActivity extends BaseActivity {
     private RecyclerView mRecyclerView;
     private FolderBackupSelectedPathAdapter mAdapter;
     private QuickAdapterHelper helper;
+    private List<String> initBackupSelectPaths;
 
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putStringArrayList("initBackupSelectPaths", new ArrayList<>(initBackupSelectPaths));
+        outState.putStringArrayList("itemPaths", new ArrayList<>(mAdapter.getItems()));
+    }
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+
         setContentView(R.layout.folder_backup_selected_path_activity);
 
         initOnBackPressedDispatcher();
@@ -48,25 +57,39 @@ public class FolderBackupSelectedPathActivity extends BaseActivity {
             }
         });
 
-
-        setSupportActionBar(getActionBarToolbar());
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle(R.string.settings_folder_backup_select_title);
+        Toolbar toolbar = getActionBarToolbar();
+        if (toolbar != null) {
+            toolbar.setNavigationOnClickListener(v -> {
+                setFinishPage();
+            });
+        }
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setTitle(R.string.settings_folder_backup_select_title);
+        }
 
         mRecyclerView = findViewById(R.id.lv_search);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this, RecyclerView.VERTICAL, false));
 
         initAdapter();
 
-        initData();
+        List<String> items;
+        if (savedInstanceState != null) {
+            initBackupSelectPaths = savedInstanceState.getStringArrayList("initBackupSelectPaths");
+            items = savedInstanceState.getStringArrayList("itemPaths");
+            mAdapter.submitList(items);
+        } else {
+            initBackupSelectPaths = FolderBackupSharePreferenceHelper.readBackupPathsAsList();
+            items = new ArrayList<>(initBackupSelectPaths);// note that: new ArrayList
+        }
+
+        if (initBackupSelectPaths == null) {
+            initBackupSelectPaths = new ArrayList<>();
+        }
+        mAdapter.submitList(items);
+
     }
 
-    private List<String> initBackupSelectPaths;
-
-    private void initData() {
-        initBackupSelectPaths = FolderBackupSharePreferenceHelper.readBackupPathsAsList();
-        mAdapter.submitList(initBackupSelectPaths);
-    }
 
     private void initAdapter() {
         mAdapter = new FolderBackupSelectedPathAdapter();
@@ -132,11 +155,11 @@ public class FolderBackupSelectedPathActivity extends BaseActivity {
         Intent intent = new Intent();
         intent.putExtra(TabSettings2Fragment.FB_SELECT_TYPE, "folder");
 
-        if (isSettingsChanged()){
+        if (isSettingsChanged()) {
             List<String> selectedFolderPaths = mAdapter.getItems();
             intent.putStringArrayListExtra(BACKUP_SELECT_PATHS, (ArrayList<String>) selectedFolderPaths);
             setResult(RESULT_OK, intent);
-        }else {
+        } else {
             setResult(RESULT_CANCELED, intent);
         }
         finish();

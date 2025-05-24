@@ -51,13 +51,12 @@ public class ProgressRequestBody extends RequestBody {
                 if (readCount == -1) break;
 
                 sink.write(buffer, readCount);
-                bytesWrittenSinceUpdate += readCount;
 
+                bytesWrittenSinceUpdate += readCount;
                 // Throttle progress updates
                 long now = System.currentTimeMillis();
                 if (now - lastUpdateTime >= UPDATE_INTERVAL_MS) {
                     updateProgress(bytesWrittenSinceUpdate, fileLength);
-                    bytesWrittenSinceUpdate = 0;
                     lastUpdateTime = now;
                 }
             }

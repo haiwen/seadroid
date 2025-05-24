@@ -11,7 +11,6 @@ import android.view.MenuItem;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.Observer;
 
@@ -49,6 +48,10 @@ public class EditorActivity extends BaseActivityWithVM<EditorViewModel> implemen
         outState.putString("local_path", localPath);
         outState.putString("repo_id", repoId);
         outState.putString("file_path_in_repo", filePathInRepo);
+
+        if (mMarkdownEditText != null) {
+            outState.putString("edit_content", mMarkdownEditText.getText().toString());
+        }
     }
 
     public static void start(Context context, String localPath, String repoId, String filePathInRepo) {
@@ -64,28 +67,42 @@ public class EditorActivity extends BaseActivityWithVM<EditorViewModel> implemen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_editor);
 
-        Toolbar toolbar = getActionBarToolbar();
-        toolbar.setOnMenuItemClickListener(this);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-        mMarkdownEditText = findViewById(R.id.edit_md);
-        mHorizontalEditScrollView = findViewById(R.id.scroll_edit);
+        initView();
+        initViewModel();
+        initMarkdown();
 
         if (savedInstanceState != null) {
             localPath = savedInstanceState.getString("local_path");
             repoId = savedInstanceState.getString("repo_id");
             filePathInRepo = savedInstanceState.getString("file_path_in_repo");
+            String editContent = savedInstanceState.getString("edit_content");
+            if (!TextUtils.isEmpty(editContent)) {
+                mMarkdownEditText.setText(editContent);
+            }
+
+
         } else {
             Intent intent = getIntent();
             localPath = intent.getStringExtra("local_path");
             repoId = intent.getStringExtra("repo_id");
             filePathInRepo = intent.getStringExtra("remote_full_path");
-        }
 
+            if (!NetworkUtils.isConnected()) {
+                ToastUtils.showLong(R.string.network_unavailable);
+            }
+
+            loadData();
+        }
 
         getSupportActionBar().setTitle(new File(localPath).getName());
 
+    }
+
+    private void initView(){
+        Toolbar toolbar = getActionBarToolbar();
+        toolbar.setOnMenuItemClickListener(this);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
@@ -97,19 +114,10 @@ public class EditorActivity extends BaseActivityWithVM<EditorViewModel> implemen
             }
         });
 
-        if (!NetworkUtils.isConnected()) {
-            ToastUtils.showLong(R.string.network_unavailable);
-        }
-    }
+        mMarkdownEditText = findViewById(R.id.edit_md);
+        mHorizontalEditScrollView = findViewById(R.id.scroll_edit);
 
-    @Override
-    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-        initViewModel();
-        markdown();
-        loadData();
     }
-
     private void initViewModel() {
         getViewModel().getRefreshLiveData().observe(this, new Observer<Boolean>() {
             @Override
@@ -152,7 +160,7 @@ public class EditorActivity extends BaseActivityWithVM<EditorViewModel> implemen
         });
     }
 
-    private void markdown() {
+    private void initMarkdown() {
         MarkdownConfiguration markdownConfiguration = new MarkdownConfiguration.Builder(this)
                 .setDefaultImageSize(50, 50)
                 .setBlockQuotesLineColor(0xffdddddd)

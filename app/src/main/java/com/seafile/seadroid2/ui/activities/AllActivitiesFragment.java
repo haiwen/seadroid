@@ -67,12 +67,24 @@ public class AllActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel>
         return fragment;
     }
 
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt("page", page);
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (savedInstanceState != null) {
+            page = savedInstanceState.getInt("page");
+        }
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = LayoutFrameSwipeRvBinding.inflate(inflater, container, false);
-        binding.swipeRefreshLayout.setOnRefreshListener(this::reload);
-
         return binding.getRoot();
     }
 
@@ -80,18 +92,14 @@ public class AllActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel>
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        binding.swipeRefreshLayout.setOnRefreshListener(this::reload);
+
         initAdapter();
 
         initViewModel();
     }
 
-    @Override
-    public void onConfigurationChanged(@NonNull Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-
-        SLogs.i(newConfig.uiMode);
-
-    }
 
     @Override
     public void onFirstResume() {

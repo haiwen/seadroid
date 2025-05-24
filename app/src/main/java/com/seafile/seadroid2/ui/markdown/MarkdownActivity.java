@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.FileProvider;
@@ -49,19 +50,34 @@ public class MarkdownActivity extends BaseActivityWithVM<EditorViewModel> implem
     }
 
     @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("local_path", path);
+        outState.putString("repo_id", repoId);
+        outState.putString("full_path", fullPathInRemote);
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_markdown);
 
-        Intent intent = getIntent();
-        path = intent.getStringExtra("local_path");
-        repoId = intent.getStringExtra("repo_id");
-        fullPathInRemote = intent.getStringExtra("full_path");
+        if (savedInstanceState != null) {
+            path = savedInstanceState.getString("local_path");
+            repoId = savedInstanceState.getString("repo_id");
+            fullPathInRemote = savedInstanceState.getString("full_path");
+        } else {
+            Intent intent = getIntent();
+            path = intent.getStringExtra("local_path");
+            repoId = intent.getStringExtra("repo_id");
+            fullPathInRemote = intent.getStringExtra("full_path");
+        }
 
         if (path == null) return;
 
         markdownView = findViewById(R.id.markdownView);
 //        markdownView.setWebViewClient(new ImageLoadWebViewClient());
+        initMarkdown();
 
         Toolbar toolbar = getActionBarToolbar();
         toolbar.setOnMenuItemClickListener(this);
@@ -79,7 +95,7 @@ public class MarkdownActivity extends BaseActivityWithVM<EditorViewModel> implem
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
 
-        initMarkdown();
+
     }
 
 

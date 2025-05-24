@@ -2,7 +2,6 @@ package com.seafile.seadroid2.ui.sdoc;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -29,7 +28,6 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.databinding.ActivitySeaWebviewProBinding;
-import com.seafile.seadroid2.enums.WebViewPreviewType;
 import com.seafile.seadroid2.framework.model.sdoc.FileProfileConfigModel;
 import com.seafile.seadroid2.framework.model.sdoc.OutlineItemModel;
 import com.seafile.seadroid2.framework.model.sdoc.SDocPageOptionsModel;
@@ -49,7 +47,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
     private ActivitySeaWebviewProBinding binding;
 
     private SeaWebView mWebView;
-    private String repoId;
+    private String repoId, repoName;
     private String path;
     private String targetUrl;
 
@@ -57,12 +55,24 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
 
     public static void openSdoc(Context context, String repoName, String repoID, String path) {
         Intent intent = new Intent(context, SDocWebViewActivity.class);
-        intent.putExtra("previewType", WebViewPreviewType.SDOC.name());
         intent.putExtra("repoName", repoName);
         intent.putExtra("repoID", repoID);
         intent.putExtra("filePath", path);
         ActivityUtils.startActivity(intent);
     }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (mWebView != null) {
+            mWebView.saveState(outState);
+        }
+        outState.putString("repoId", repoId);
+        outState.putString("repoName", repoName);
+        outState.putString("path", path);
+        outState.putString("targetUrl", targetUrl);
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,48 +87,45 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
             return;
         }
 
-        init();
-
         initUI();
 
         initViewModel();
 
-        //let's go
-        mWebView.load(targetUrl);
+        if (savedInstanceState != null) {
+            repoId = savedInstanceState.getString("repoId");
+            repoName = savedInstanceState.getString("repoName");
+            path = savedInstanceState.getString("path");
+            targetUrl = savedInstanceState.getString("targetUrl");
+
+            mWebView.restoreState(savedInstanceState);
+        } else {
+            initData();
+
+            //let's go
+            mWebView.load(targetUrl);
+        }
+
     }
 
-    private void init() {
+    private void initData() {
         Intent intent = getIntent();
-
-        if (!intent.hasExtra("previewType")) {
-            throw new IllegalArgumentException("need a previewType param");
+        if (intent == null) {
+            throw new IllegalArgumentException("intent is null");
         }
 
-        String previewType = intent.getStringExtra("previewType");
-        if (!WebViewPreviewType.contains(previewType)) {
-            throw new IllegalArgumentException("need a previewType param");
+        repoId = intent.getStringExtra("repoID");
+        repoName = intent.getStringExtra("repoName");
+        path = intent.getStringExtra("filePath");
+
+        if (TextUtils.isEmpty(repoId) || TextUtils.isEmpty(path)) {
+            throw new IllegalArgumentException("repoId or path is null");
         }
 
-        WebViewPreviewType previewTypeEnum = WebViewPreviewType.valueOf(previewType);
-
-        if (previewTypeEnum == WebViewPreviewType.SDOC) {
-
-            String repoName = intent.getStringExtra("repoName");
-            repoId = intent.getStringExtra("repoID");
-            path = intent.getStringExtra("filePath");
-
-            if (TextUtils.isEmpty(repoId) || TextUtils.isEmpty(path)) {
-                throw new IllegalArgumentException("repoId or path is null");
-            }
-
-            Account account = SupportAccountManager.getInstance().getCurrentAccount();
-            if (account != null) {
-                targetUrl = account.server + "lib/" + repoId + "/file" + path;
-            } else {
-                throw new IllegalArgumentException("no login");
-            }
+        Account account = SupportAccountManager.getInstance().getCurrentAccount();
+        if (account != null) {
+            targetUrl = account.server + "lib/" + repoId + "/file" + path;
         } else {
-            throw new IllegalArgumentException("previewType is not SDOC");
+            throw new IllegalArgumentException("no login");
         }
     }
 
@@ -324,12 +331,6 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
             }
         });
     }
-
-    @Override
-    public void onConfigurationChanged(@NonNull Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-    }
-
 
     private int curProgress = 0;
     private final WebChromeClient mWebChromeClient = new WebChromeClient() {

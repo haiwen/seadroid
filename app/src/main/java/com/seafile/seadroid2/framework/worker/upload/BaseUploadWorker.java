@@ -176,6 +176,7 @@ public abstract class BaseUploadWorker extends TransferWorker {
 
         //notify first
         sendProgressEvent(currentTransferModel);
+
         notifyProgress(currentTransferModel.file_name, 0);
         SLogs.d(TAG, "transferFile()", "start transfer, remote path: " + currentTransferModel.target_path);
 
