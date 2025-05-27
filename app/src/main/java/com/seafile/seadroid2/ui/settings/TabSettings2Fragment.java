@@ -8,6 +8,7 @@ import static com.seafile.seadroid2.framework.notification.base.NotificationUtil
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Spanned;
@@ -21,6 +22,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 import androidx.core.text.HtmlCompat;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -29,9 +31,12 @@ import androidx.preference.Preference;
 
 import com.blankj.utilcode.util.AppUtils;
 import com.blankj.utilcode.util.CollectionUtils;
+import com.blankj.utilcode.util.FileUtils;
+import com.blankj.utilcode.util.PathUtils;
 import com.blankj.utilcode.util.TimeUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.seafile.seadroid2.BuildConfig;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
@@ -46,6 +51,7 @@ import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePre
 import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.util.PermissionUtil;
 import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
@@ -53,6 +59,7 @@ import com.seafile.seadroid2.framework.worker.TransferWorker;
 import com.seafile.seadroid2.preferences.RenameSharePreferenceFragmentCompat;
 import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.ui.SplashActivity;
+import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.account.AccountsActivity;
 import com.seafile.seadroid2.ui.camera_upload.CameraUploadConfigActivity;
 import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
@@ -70,7 +77,9 @@ import com.seafile.seadroid2.ui.webview.SeaWebViewActivity;
 import com.seafile.seadroid2.widget.prefs.SimpleMenuPreference;
 import com.seafile.seadroid2.widget.prefs.TextSwitchPreference;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -95,6 +104,8 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
     private ListPreference mFolderBackupNetworkMode;
     private Preference mFolderBackupSelectRepo;
     private Preference mFolderBackupSelectFolder;
+
+    private Preference mExportLogFiles;
 //    private Preference mFolderBackupState;
 
     private Preference mTransferDownloadState;
@@ -393,6 +404,58 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
                 builder.show();
                 return true;
             });
+        }
+
+        Preference exportLogFiles = findPreference(getString(R.string.pref_key_export_log_files));
+        if (exportLogFiles != null) {
+            exportLogFiles.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(@NonNull Preference preference) {
+                    exportLogFile();
+                    return false;
+                }
+            });
+        }
+    }
+
+    private void exportLogFile() {
+
+        String p = PathUtils.getExternalAppFilesPath();
+        String logPath = p + "/logs";
+        if (!FileUtils.isDir(logPath)) {
+            Toasts.show(R.string.export_log_file_not_exists);
+            return;
+        }
+
+        List<File> listFile = FileUtils.listFilesInDir(logPath, new Comparator<File>() {
+            @Override
+            public int compare(File o1, File o2) {
+                return Long.compare(o2.lastModified(), o1.lastModified());
+            }
+        });
+
+        if (listFile.isEmpty()) {
+            Toasts.show(R.string.export_log_file_not_exists);
+            return;
+        }
+
+        File latestFile = listFile.get(0);
+        if (!latestFile.exists()) {
+            Toasts.show(R.string.export_log_file_not_exists);
+            return;
+        }
+
+        Intent openIntent = new Intent();
+        openIntent.setAction(Intent.ACTION_VIEW);
+        Uri uri = FileProvider.getUriForFile(requireContext(), BuildConfig.FILE_PROVIDER_AUTHORITIES, latestFile);
+        openIntent.setDataAndType(uri, "text/plain");
+        openIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
+        boolean isAvailable = WidgetUtils.isIntentAvailable(requireContext(), openIntent);
+        if (isAvailable) {
+            startActivity(openIntent);
+        } else {
+            String message = String.format(requireContext().getString(R.string.op_exception_suitable_app_not_found), "text/plain");
+            ToastUtils.showLong(message);
         }
     }
 

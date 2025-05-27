@@ -43,7 +43,11 @@ public class Logs {
      * will delete log files that have not been modified for a period of time
      */
     private static final long MAX_TIME = 30L * 24 * 60 * 60 * 1000;// 30 days
+    private static final long MAX_SIZE = 1024 * 1024 * 50;// 50M
 
+    /**
+     * init log
+     */
     public static void init() {
         LogConfiguration config = new LogConfiguration.Builder()
                 .logLevel(BuildConfig.DEBUG ? LogLevel.ALL : LogLevel.DEBUG)
@@ -62,9 +66,9 @@ public class Logs {
 
         Printer filePrinter = new FilePrinter
                 .Builder(logPath)
-                .fileNameGenerator(new DateFileNameGenerator())
+                .fileNameGenerator(new LogFileNameGenerator())
                 .flattener(new ClassicFlattener())
-                .backupStrategy(new FileSizeBackupStrategy2(1024 * 1024, 30))
+                .backupStrategy(new FileSizeBackupStrategy2(MAX_SIZE, 30))
                 .cleanStrategy(new FileLastModifiedCleanStrategy(MAX_TIME))
                 .build();
 

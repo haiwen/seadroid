@@ -41,6 +41,7 @@
   <string name="personal">Личные</string>
   <string name="shared">Общедоступно</string>
   <string name="libraries">Библиотеки</string>
+  <string name="my_libraries">Мои собственные библиотеки</string>
   <string name="cached">Кэшированы</string>
   <string name="activities">Активность</string>
   <string name="pick_upload_type">Загрузить</string>
@@ -501,6 +502,7 @@
   <string name="search_content_empty">Ничего не было найдено</string>
   <string name="search_server_not_support">Упс, поиск недоступен на этом сервере!</string>
   <string name="search_library_not_found">Невозможно найти эту библиотеку. Возможно, она была удалена</string>
+  <string name="search_in_this_library">Поиск файлов в этой библиотеке</string>
   <!--star a file-->
   <string name="star_file_succeed">Файл успешно помечен</string>
   <string name="star_file_failed">Не удалось пометить файл</string>
@@ -693,4 +695,5 @@
   <string name="image_color_space_uncalibrated">Некалиброванный</string>
   <string name="image_color_space_undefined">Неопределенный</string>
   <!--end-->
+  <string name="offline">Не в сети</string>
 </resources>

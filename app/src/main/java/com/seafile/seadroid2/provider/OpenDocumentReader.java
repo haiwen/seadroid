@@ -13,6 +13,7 @@ import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
 import com.seafile.seadroid2.framework.http.HttpIO;
+import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.ui.file.FileService;
 
@@ -37,7 +38,8 @@ import okhttp3.Response;
  * We implement the data channel via "createPipe()" to make it an asynchronous transfer mode,
  * where data is written to the pipeline in real time when data is downloaded via OkHttp
  */
-public class PipeDownloadHelper {
+public class OpenDocumentReader {
+    private static final String TAG = "OpenDocumentReader";
 
     public interface ProgressListener {
         void onComplete();
@@ -100,7 +102,8 @@ public class PipeDownloadHelper {
             @Nullable CancellationSignal signal
     ) throws IOException {
 
-        String url = buildDownloadUrl(account, repoId, path);
+        String url = requestDownloadUrl(account, repoId, path);
+        SLogs.d(TAG, "download url: " + url);
 
         HttpIO httpIo = HttpIO.getInstanceByAccount(account);
         if (httpIo == null) {
@@ -111,15 +114,22 @@ public class PipeDownloadHelper {
         Call call = httpIo.getOkHttpClient().getOkClient().newCall(request);
 
         if (signal != null) {
-            signal.setOnCancelListener(call::cancel);
+            signal.setOnCancelListener(new CancellationSignal.OnCancelListener() {
+                @Override
+                public void onCancel() {
+                    if (!call.isCanceled()) {
+                        call.cancel();
+                    }
+                }
+            });
         }
 
         Response response = call.execute();
-
         try (response; InputStream in = response.body().byteStream()) {
             if (!response.isSuccessful()) {
                 throw new IOException("Download failed: " + response.code());
             }
+
             byte[] buffer = new byte[8192];
             int read;
             long total = 0;
@@ -129,6 +139,7 @@ public class PipeDownloadHelper {
                 total += read;
             }
 
+            SLogs.d(TAG, "Total bytes downloaded: " + Utils.readableFileSize(total));
             out.flush();
         }
     }
@@ -139,7 +150,7 @@ public class PipeDownloadHelper {
         }
     }
 
-    private static String buildDownloadUrl(Account account, String repoId, String path) throws FileNotFoundException {
+    private static String requestDownloadUrl(Account account, String repoId, String path) throws FileNotFoundException {
 
         try {
             HttpIO httpIo = HttpIO.getInstanceByAccount(account);
@@ -152,12 +163,12 @@ public class PipeDownloadHelper {
 
             retrofit2.Response<String> downloadUrlResp = urlCall.execute();
             if (!downloadUrlResp.isSuccessful()) {
-                throw new FileNotFoundException();
+                throw new FileNotFoundException("request download url failed, request is not successful");
             }
 
             String downloadUrl = downloadUrlResp.body();
             if (TextUtils.isEmpty(downloadUrl)) {
-                throw new FileNotFoundException();
+                throw new FileNotFoundException("request download url failed, download url is empty");
             }
 
             return downloadUrl;
@@ -187,12 +198,9 @@ public class PipeDownloadHelper {
         entity.created_at = System.currentTimeMillis();
         entity.modified_at = entity.created_at;
 
-        entity.uid = entity.getUID();
+        entity.uid = entity.genUID();
 
         AppDatabase.getInstance().fileCacheStatusDAO().insert(entity);
+        SLogs.d(TAG, "save into local db success", "fileId: " + entity.file_id, "fullPath: " + entity.full_path);
     }
-
-    // 用于同时输出到 pipe + 本地文件
-
-
 }

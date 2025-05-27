@@ -124,7 +124,6 @@ public class DownloadedFileMonitorWorker extends BaseUploadWorker {
                 continue;
             }
 
-
             try {
                 try {
                     TransferModel tm = parseFile(account, cacheList.get(0), file.getAbsolutePath());

@@ -410,6 +410,7 @@
     <string name="settings_about_privacy_policy">Privacy Policy</string>
     <string name="settings_about_version_title">App Version</string>
     <string name="settings_about_author_title">About the author</string>
+    <string name="settings_export_run_logs">Export log files</string>
     <string name="settings_about_author_info">
         <![CDATA[
         <h5>Seafile Android Client</h5>
@@ -708,9 +709,11 @@
     <string name="image_color_space_rgb" translatable="false">RGB</string>
     <string name="image_color_space_uncalibrated">Uncalibrated</string>
     <string name="image_color_space_undefined">Undefined</string>
-    <!-- end -->
 
     <string name="transfer_default_state" translatable="false">0</string>
 
     <string name="offline">Offline</string>
+
+    <string name="export_log_file_not_exists">No log file is available for export.</string>
+
 </resources>

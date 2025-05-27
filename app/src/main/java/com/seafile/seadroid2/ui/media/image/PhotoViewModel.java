@@ -376,7 +376,7 @@ public class PhotoViewModel extends BaseViewModel {
         entity.created_at = System.currentTimeMillis();
         entity.modified_at = entity.created_at;
 
-        entity.uid = entity.getUID();
+        entity.uid = entity.genUID();
         return entity;
     }
 

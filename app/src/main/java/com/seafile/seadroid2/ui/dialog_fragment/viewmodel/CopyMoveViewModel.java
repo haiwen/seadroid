@@ -88,7 +88,7 @@ public class CopyMoveViewModel extends BaseViewModel {
 
                                 String s = cacheEntity.getParent_path().replaceFirst(srcFullPath, dstFullPath);
                                 cacheEntity.setParent_path(s);
-                                cacheEntity.uid = cacheEntity.getUID();
+                                cacheEntity.uid = cacheEntity.genUID();
 
                                 //insert
                                 AppDatabase.getInstance().fileCacheStatusDAO().insert(cacheEntity);
@@ -108,7 +108,7 @@ public class CopyMoveViewModel extends BaseViewModel {
                             cacheEntity.repo_name = dstRepoName;
                             cacheEntity.full_path = Utils.pathJoin(dstParentDir, direntModel.name);
                             cacheEntity.setParent_path(Utils.getParentPath(cacheEntity.full_path));
-                            cacheEntity.uid = cacheEntity.getUID();
+                            cacheEntity.uid = cacheEntity.genUID();
 
                             //insert
                             AppDatabase.getInstance().fileCacheStatusDAO().insert(cacheEntity);

@@ -150,6 +150,7 @@ public class SafeOkHttpClient extends BaseOkHttpClient {
         builder.writeTimeout(DEFAULT_TIME_OUT, TimeUnit.MILLISECONDS);
         builder.readTimeout(DEFAULT_TIME_OUT, TimeUnit.MILLISECONDS);
         builder.connectTimeout(DEFAULT_TIME_OUT, TimeUnit.MILLISECONDS);
+        builder.retryOnConnectionFailure(false);
 
         okHttpClient = builder.build();
         return okHttpClient;

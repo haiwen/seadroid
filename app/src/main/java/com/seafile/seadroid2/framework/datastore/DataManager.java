@@ -113,7 +113,7 @@ public class DataManager {
         }
 
         String accountDir = DataManager.getAccountDir(account);
-        String repoDirName = String.format("%s(%s)", repo_name, repo_id.substring(0, 4));
+        String repoDirName = String.format("%s_%s", repo_name, repo_id.substring(0, 4));
         return new File(accountDir, repoDirName);
     }
 

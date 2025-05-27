@@ -137,19 +137,19 @@ public class StarredViewModel extends BaseViewModel {
         getSecondRefreshLiveData().setValue(true);
         Single<DirentFileModel> detailSingle = HttpIO.getCurrentInstance().execute(FileService.class).getFileDetail(repo_id, path);
 
-        Single<List<FileCacheStatusEntity>> dbSingle = AppDatabase.getInstance().fileCacheStatusDAO().getByFullPath(repo_id, path);
-        Single<String> fileIdSingle = dbSingle.flatMap(new Function<List<FileCacheStatusEntity>, SingleSource<String>>() {
+        Single<List<FileCacheStatusEntity>> cacheDbSingle = AppDatabase.getInstance().fileCacheStatusDAO().getByFullPath(repo_id, path);
+        Single<String> fileIdSingle = cacheDbSingle.flatMap(new Function<List<FileCacheStatusEntity>, SingleSource<String>>() {
             @Override
-            public SingleSource<String> apply(List<FileCacheStatusEntity> f) {
-                if (CollectionUtils.isEmpty(f)) {
+            public SingleSource<String> apply(List<FileCacheStatusEntity> cacheStatusEntities) {
+                if (CollectionUtils.isEmpty(cacheStatusEntities)) {
                     return Single.just("");
                 }
 
-                if (TextUtils.isEmpty(f.get(0).file_id)) {
+                if (TextUtils.isEmpty(cacheStatusEntities.get(0).file_id)) {
                     return Single.just("");
                 }
 
-                return Single.just(f.get(0).file_id);
+                return Single.just(cacheStatusEntities.get(0).file_id);
             }
         }).flatMap(new Function<String, SingleSource<String>>() {
             @Override
@@ -164,6 +164,7 @@ public class StarredViewModel extends BaseViewModel {
                         if (direntFileModel == null) {
                             return Single.just("");
                         }
+                        //check file id, if not equal, then need to download
                         if (!direntFileModel.id.equals(local_file_id)) {
                             return Single.just("");
                         }

@@ -180,7 +180,7 @@ public class RenameRepoViewModel extends BaseViewModel {
                                 cacheEntity.setParent_path(newFolderFullPath);
                                 cacheEntity.target_path = cacheEntity.target_path.replace(oldFolderFullPath, newFolderFullPath);
                                 cacheEntity.full_path = Utils.pathJoin(newFolderFullPath, cacheEntity.file_name);
-                                cacheEntity.uid = cacheEntity.getUID();
+                                cacheEntity.uid = cacheEntity.genUID();
                                 AppDatabase.getInstance().fileCacheStatusDAO().insert(cacheEntity);
                             }
                         }
@@ -261,7 +261,7 @@ public class RenameRepoViewModel extends BaseViewModel {
                             cacheEntity.full_path = newFullPath;
                             cacheEntity.file_format = FileUtils.getFileExtension(dstFile);
                             cacheEntity.mime_type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(cacheEntity.file_format);
-                            cacheEntity.uid = cacheEntity.getUID();
+                            cacheEntity.uid = cacheEntity.genUID();
                             AppDatabase.getInstance().fileCacheStatusDAO().insert(cacheEntity);
                         }
 

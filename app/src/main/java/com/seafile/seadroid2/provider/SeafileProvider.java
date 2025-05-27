@@ -53,6 +53,7 @@ import com.seafile.seadroid2.config.RepoType;
 import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
+import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.db.entities.StarredModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
@@ -143,11 +144,10 @@ public class SeafileProvider extends DocumentsProvider {
 
     @Override
     public Cursor queryRoots(String[] projection) throws FileNotFoundException {
+        SLogs.d(TAG, "queryRoots()");
 
         String[] netProjection = netProjection(projection, SUPPORTED_ROOT_PROJECTION);
         MatrixCursor result = new MatrixCursor(netProjection);
-
-        SLogs.d(TAG, "queryRoots()");
 
         // add a Root for every signed in Seafile account we have.
         for (Account a : SupportAccountManager.getInstance().getAccountList()) {
@@ -273,7 +273,8 @@ public class SeafileProvider extends DocumentsProvider {
             }
 
 
-            // todo :maybe we can check if the user has decrypted it or not. if yes, then the data can be read and returned.
+            // todo
+            // maybe we can check if the user has decrypted it or not. if yes, then the data can be read and returned directly.
 
             // old
             // encrypted repos are not supported (we can't ask the user for the passphrase)
@@ -387,7 +388,7 @@ public class SeafileProvider extends DocumentsProvider {
 
     @Override
     public ParcelFileDescriptor openDocument(final String documentId, final String mode, final CancellationSignal signal) throws FileNotFoundException {
-
+        SLogs.d(TAG, "openDocument()", documentId);
         if (TextUtils.isEmpty(documentId) || TextUtils.isEmpty(mode)) {
             throw throwFileNotFoundException(R.string.saf_bad_mime_type);
         }
@@ -419,84 +420,116 @@ public class SeafileProvider extends DocumentsProvider {
         final boolean isWrite = (mode.indexOf('w') != -1);
         if (isWrite) {
             //write
-
-            if (documentId.endsWith("/")) {
-                // 返回一个黑洞的 ParcelFileDescriptor，系统会写进去但实际丢弃
-                return ParcelFileDescriptor.open(new File("/dev/null"), ParcelFileDescriptor.MODE_WRITE_ONLY);
-            }
-
-            if (!repoModel.hasWritePermission()) {
-                throw throwFileNotFoundException(R.string.saf_write_diretory_exception);
-            }
-
-            String displayName = Utils.getFileNameFromPath(path);
-            try {
-                // 创建管道：readFd 给系统写入，writeFd 你来读取并上传
-                ParcelFileDescriptor[] pipe = ParcelFileDescriptor.createPipe();
-                ParcelFileDescriptor readFd = pipe[0];
-                ParcelFileDescriptor writeFd = pipe[1];
-
-                CompletableFuture.runAsync(() -> {
-                    try (InputStream in = new FileInputStream(readFd.getFileDescriptor())) {
-                        OpenDocumentWriteWatcher.uploadStreamToCloud(account, repoModel.repo_id, path, displayName, in);
-                    } catch (Exception e) {
-                        Log.e("DocumentsProvider", "Upload failed", e);
-                    } finally {
-                        try {
-                            readFd.close();
-                        } catch (IOException ignored) {
-                        }
-                    }
-                });
-
-                return writeFd;
-            } catch (IOException e) {
-                throw new FileNotFoundException("Failed to open document with id " + documentId + " and mode " + mode);
-            }
+            return writeDocument(documentId, mode, account, repoModel, path, signal);
         } else {
             //read
-            
-            List<DirentModel> direntModels = AppDatabase.getInstance().direntDao().getListByFullPathSync(repoId, path);
-            if (CollectionUtils.isEmpty(direntModels)) {
-                throw new FileNotFoundException("could not find file");
-            }
+            return readDocument(documentId, mode, account, repoModel, path, signal);
+        }
+    }
 
-            DirentModel direntModel = direntModels.get(0);
+    private ParcelFileDescriptor writeDocument(final String documentId, final String mode, Account account, RepoModel repoModel, String path, final CancellationSignal signal) throws FileNotFoundException {
+        if (documentId.endsWith("/")) {
+            // 返回一个黑洞的 ParcelFileDescriptor，系统会写进去但实际丢弃
+            return ParcelFileDescriptor.open(new File("/dev/null"), ParcelFileDescriptor.MODE_WRITE_ONLY);
+        }
 
-            File file = DataManager.getLocalFileCachePath(account, repoModel.repo_id, repoModel.repo_name, path);
-            if (file.exists()) {
-                try {
-                    return makeParcelFileDescriptor(file, mode);
-                } catch (IOException e) {
-                    SLogs.d(TAG, "openDocument()", "could not open file");
-                    SLogs.e(e);
-                    throw new FileNotFoundException();
+        if (!repoModel.hasWritePermission()) {
+            throw throwFileNotFoundException(R.string.saf_write_diretory_exception);
+        }
+
+        String displayName = Utils.getFileNameFromPath(path);
+        try {
+            // 创建管道：readFd 给系统写入，writeFd 你来读取并上传
+            ParcelFileDescriptor[] pipe = ParcelFileDescriptor.createPipe();
+            ParcelFileDescriptor readFd = pipe[0];
+            ParcelFileDescriptor writeFd = pipe[1];
+
+            CompletableFuture.runAsync(() -> {
+                try (InputStream in = new FileInputStream(readFd.getFileDescriptor())) {
+                    OpenDocumentWriter.uploadStreamToCloud(account, repoModel.repo_id, repoModel.repo_name, path, displayName, in);
+                } catch (Exception e) {
+                    Log.e("DocumentsProvider", "Upload failed", e);
+                } finally {
+                    try {
+                        readFd.close();
+                    } catch (IOException ignored) {
+                    }
+                }
+            });
+
+            return writeFd;
+        } catch (IOException e) {
+            throw new FileNotFoundException("Failed to open document with id " + documentId + " and mode " + mode);
+        }
+    }
+
+    private ParcelFileDescriptor readDocument(final String documentId, final String mode, Account account, RepoModel repoModel, String path, final CancellationSignal signal) throws FileNotFoundException {
+        // Check whether the remote data exists. If it doesn't, throw an exception,
+        // because we have already inserted it into the local database in queryChildDocuments().
+        List<DirentModel> direntModels = AppDatabase.getInstance().direntDao().getListByFullPathSync(repoModel.repo_id, path);
+        if (CollectionUtils.isEmpty(direntModels)) {
+            throw new FileNotFoundException("could not find file");
+        }
+
+        DirentModel direntModel = direntModels.get(0);
+
+        // Check if the local cache database exists. If the file has not been downloaded,
+        // it will not exist in the cache database. In that case, throw an exception.
+        List<FileCacheStatusEntity> caches = AppDatabase.getInstance().fileCacheStatusDAO().getByFullPathSync(repoModel.repo_id, path);
+        if (!CollectionUtils.isEmpty(caches)) {
+
+            FileCacheStatusEntity cacheStatusEntity = caches.get(0);
+
+            //check if local file is same as remote file
+            if (TextUtils.equals(direntModel.id, cacheStatusEntity.file_id)) {
+                //check if local file exists
+                File file = DataManager.getLocalFileCachePath(account, repoModel.repo_id, repoModel.repo_name, path);
+                if (file.exists()) {
+                    try {
+                        return makeParcelFileDescriptor(file, mode);
+                    } catch (IOException e) {
+                        SLogs.d(TAG, "openDocument()", "could not open file");
+                        SLogs.e(e);
+                        throw new FileNotFoundException();
+                    }
                 }
             }
+        }
 
-            //local don't exists
-            if (!NetworkUtils.isConnected()) {
-                throw throwFileNotFoundException(R.string.network_error);
-            }
 
-            try {
-                return PipeDownloadHelper.streamDownloadToPipe(account, repoModel.repo_id, repoModel.repo_name, path, direntModel.dir_id, signal, new PipeDownloadHelper.ProgressListener() {
+        //local don't exists
+        if (!NetworkUtils.isConnected()) {
+            throw throwFileNotFoundException(R.string.network_error);
+        }
 
-                    @Override
-                    public void onComplete() {
-                        SLogs.d(TAG, "openDocument()", "download complete");
-                        // 下载完成后，通知系统文件已准备好
+        try {
+            return OpenDocumentReader.streamDownloadToPipe(account, repoModel.repo_id, repoModel.repo_name, path, direntModel.id, signal, new OpenDocumentReader.ProgressListener() {
+
+                @Override
+                public void onComplete() {
+                    SLogs.d(TAG, "openDocument()", "download complete");
+                    // 下载完成后，通知系统文件已准备好
 //                        getContext().getContentResolver().notifyChange(DocumentIdParser.getUriFromId(documentId), null);
-                    }
+                }
 
-                    @Override
-                    public void onError(Exception e) {
-                        SLogs.d(TAG, "openDocument()", "download failed: " + e.getMessage());
+                @Override
+                public void onError(Exception e) {
+                    String msg = e.getMessage();
+                    if (msg != null && (
+                            msg.contains("Software caused connection abort") ||
+                                    msg.contains("Broken pipe") ||
+                                    msg.contains("EBADF") ||
+                                    msg.contains("stream was reset")
+                    )) {
+                        SLogs.d(TAG, "openDocument(): Pipe closed by reader, safe to ignore");
+                    } else {
+                        SLogs.d(TAG, "openDocument(): Error occurred: " + e.getMessage());
                     }
-                });
-            } catch (IOException e) {
-                throw new FileNotFoundException("Pipe creation failed: " + e.getMessage());
-            }
+                    SLogs.e(e);
+                }
+            });
+        } catch (IOException e) {
+            throw new FileNotFoundException("Pipe creation failed: " + e.getMessage());
         }
     }
 
@@ -672,8 +705,10 @@ public class SeafileProvider extends DocumentsProvider {
     private FileNotFoundException throwFileNotFoundException(@StringRes int resId) {
         if (getContext() != null) {
             String s = getContext().getString(resId);
+            SLogs.e(TAG, "throwFileNotFoundException()", s);
             return new FileNotFoundException(s);
         }
+        SLogs.e(TAG, "throwFileNotFoundException()");
         return new FileNotFoundException();
     }
 
@@ -889,6 +924,7 @@ public class SeafileProvider extends DocumentsProvider {
         String docId = DocumentsContract.getDocumentId(notifyUri);
 
         SLogs.d(TAG, "fetchDirentAsync()", "docId = " + docId);
+
         if (!path.endsWith("/")) {
             path = path + "/";
         }

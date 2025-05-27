@@ -88,4 +88,5 @@
     <string name="pref_key_about_version">key_about_version</string>
     <string name="pref_key_about_privacy">key_privacy_policy</string>
     <string name="pref_key_about_author">key_about_author</string>
+    <string name="pref_key_export_log_files">key_export_log_files</string>
 </resources>

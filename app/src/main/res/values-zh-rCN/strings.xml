@@ -388,6 +388,7 @@
   <string name="settings_about_privacy_policy">隐私政策</string>
   <string name="settings_about_version_title">应用版本号</string>
   <string name="settings_about_author_title">关于我们</string>
+  <string name="settings_export_run_logs">导出日志</string>
   <string name="settings_about_author_info">
 <![CDATA[
 <h2>Seafile Android Client</h2>
@@ -668,6 +669,6 @@ Email: support@seafile.com<br>
   <string name="image_dimensions">尺寸</string>
   <string name="image_color_space_uncalibrated">未校准</string>
   <string name="image_color_space_undefined">未定义</string>
-  <!--end-->
   <string name="offline">离线</string>
+  <string name="export_log_file_not_exists">没有可用于导出的日志文件</string>
 </resources>

@@ -133,7 +133,7 @@ public class FileCacheStatusEntity extends BaseModel {
      * md5(related_account + transfer_action + full_path)
      */
     @NonNull
-    public String getUID() {
+    public String genUID() {
         if (TextUtils.isEmpty(related_account)) {
             throw new IllegalArgumentException("related_account can not be null.");
         }
@@ -182,7 +182,7 @@ public class FileCacheStatusEntity extends BaseModel {
         entity.created_at = System.currentTimeMillis();
         entity.modified_at = entity.created_at;
 
-        entity.uid = entity.getUID();
+        entity.uid = entity.genUID();
 
         return entity;
     }

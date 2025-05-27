@@ -37,6 +37,7 @@ import com.seafile.seadroid2.framework.model.star.StarredWrapperModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.listener.OnCreateDirentShareLinkListener;
 import com.seafile.seadroid2.preferences.Settings;
+import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.comparator.NaturalOrderComparator;
 import com.seafile.seadroid2.ui.dialog_fragment.AppChoiceDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.GetShareLinkPasswordDialogFragment;
@@ -535,31 +536,13 @@ public class Objs {
     }
 
 
-    public static List<ResolveInfo> getAppsByIntent(Intent intent) {
-        PackageManager pm = SeadroidApplication.getAppContext().getPackageManager();
-        List<ResolveInfo> infos = pm.queryIntentActivities(intent, 0);
-
-        // Remove seafile app from the list
-        String seadroidPackageName = SeadroidApplication.getAppContext().getPackageName();
-        ResolveInfo info;
-        Iterator<ResolveInfo> iter = infos.iterator();
-        while (iter.hasNext()) {
-            info = iter.next();
-            if (info.activityInfo.packageName.equals(seadroidPackageName)) {
-                iter.remove();
-            }
-        }
-
-        return infos;
-    }
-
     public static void showChooseAppDialog(Context context, FragmentManager fragmentManager, DirentShareLinkModel shareLinkModel, boolean isDir) {
         String title = context.getString(isDir ? R.string.share_dir_link : R.string.share_file_link);
 
         Intent shareIntent = new Intent();
         shareIntent.setAction(Intent.ACTION_SEND);
         shareIntent.setType("text/plain");
-        List<ResolveInfo> infos = getAppsByIntent(shareIntent);
+        List<ResolveInfo> infos = WidgetUtils.getAppsByIntent(shareIntent);
 
         AppChoiceDialogFragment dialog = new AppChoiceDialogFragment();
         dialog.addCustomAction(0,
@@ -691,7 +674,7 @@ public class Objs {
         sendIntent.putExtra(Intent.EXTRA_STREAM, uri);
 
         // Get a list of apps
-        List<ResolveInfo> infos = getAppsByIntent(sendIntent);
+        List<ResolveInfo> infos = WidgetUtils.getAppsByIntent(sendIntent);
         if (infos.isEmpty()) {
             ToastUtils.showLong(R.string.no_app_available);
             return;

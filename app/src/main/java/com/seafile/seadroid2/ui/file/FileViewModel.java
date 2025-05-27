@@ -125,7 +125,7 @@ public class FileViewModel extends BaseViewModel {
                 entity.created_at = System.currentTimeMillis();
                 entity.modified_at = entity.created_at;
 
-                entity.uid = entity.getUID();
+                entity.uid = entity.genUID();
                 AppDatabase.getInstance().fileCacheStatusDAO().insert(entity);
 
                 emitter.onSuccess(true);
