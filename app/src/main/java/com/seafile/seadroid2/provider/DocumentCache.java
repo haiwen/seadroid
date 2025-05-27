@@ -6,7 +6,7 @@ import java.util.concurrent.TimeUnit;
 
 public class DocumentCache {
 
-    private static final long CACHE_EXPIRATION = TimeUnit.MILLISECONDS.convert(30, TimeUnit.SECONDS);
+    private static final long CACHE_EXPIRATION = TimeUnit.MILLISECONDS.convert(15, TimeUnit.SECONDS);
     private final Map<String, Long> mCache = new ConcurrentHashMap<>();
 
     public int get(String documentId) {

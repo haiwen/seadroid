@@ -5,21 +5,31 @@ import android.content.Intent;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
+import android.text.TextUtils;
 
 import androidx.annotation.Nullable;
 import androidx.lifecycle.Observer;
 
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.EncryptUtils;
+import com.blankj.utilcode.util.FileUtils;
+import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.bus.BusHelper;
+import com.seafile.seadroid2.enums.SaveTo;
 import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.enums.TransferOpType;
+import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.datastore.StorageManager;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
+import com.seafile.seadroid2.framework.db.AppDatabase;
+import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
+import com.seafile.seadroid2.framework.worker.ExistingFileStrategy;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
@@ -32,12 +42,14 @@ import java.io.FileFilter;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 public class FileSyncService extends Service {
     private final String TAG = "FileSyncService";
     private MediaContentObserver mediaContentObserver;
     private SupportFileAlterationMonitor fileMonitor;
-
+    private final List<String> monitorPathList = new ArrayList<>();
     /**
      * <p>
      * Since the file download location of the app is located in the <b>/Android/</b> directory,
@@ -115,12 +127,73 @@ public class FileSyncService extends Service {
 
         initIgnorePath();
 
-        //start local path and app cache path listener
-        startFolderMonitor();
-
         registerMediaContentObserver();
         startWorkers();
         observeTransferBus();
+
+        initFolderMonitorPath();
+
+        compareFirstAndStartMonitor();
+    }
+
+
+    // 主线程 Executor（封装 Handler）
+    private final Executor mainThreadExecutor = new Executor() {
+        private final Handler handler = new Handler(Looper.getMainLooper());
+
+        @Override
+        public void execute(Runnable command) {
+            handler.post(command);
+        }
+    };
+
+    private void compareFirstAndStartMonitor() {
+        CompletableFuture.runAsync(() -> {
+            Account account = SupportAccountManager.getInstance().getCurrentAccount();
+            if (account == null) {
+                SLogs.d(TAG, "scanLocalCacheFile", "account is null");
+                return;
+            }
+
+            List<FileCacheStatusEntity> cacheList = AppDatabase.getInstance().fileCacheStatusDAO().getByAccountSync(account.getSignature());
+
+            if (CollectionUtils.isEmpty(cacheList)) {
+                return;
+            }
+            SLogs.d(TAG, "scanLocalCacheFile: cacheList size is " + cacheList.size());
+
+            for (FileCacheStatusEntity entity : cacheList) {
+                File file = new File(entity.target_path);
+                if (!file.exists()) {
+                    SLogs.d(TAG, "scanLocalCacheFile", "local file not exists, path: " + entity.target_path);
+                    continue;
+                }
+
+                if (entity.file_md5 == null) {
+                    SLogs.d(TAG, "scanLocalCacheFile", "file_md5 is null, path: " + entity.target_path);
+                    continue;
+                }
+
+                String localMD5 = FileUtils.getFileMD5ToString(file).toLowerCase();
+                if (TextUtils.equals(entity.file_md5, localMD5)) {
+                    SLogs.d(TAG, "scanLocalCacheFile", "skip: local file md5 is same, path: " + entity.full_path);
+                    continue;
+                }
+
+                SLogs.d(TAG, "scanLocalCacheFile", "file md5 is different, path: " + entity.full_path);
+                //
+                onAppCacheFileChanged(file);
+            }
+
+            //
+            BackgroundJobManagerImpl.getInstance().startCheckDownloadedFileChain();
+        }).thenRunAsync(new Runnable() {
+            @Override
+            public void run() {
+                //start local path and app cache path listener
+                startFolderMonitor();
+            }
+        }, mainThreadExecutor);
     }
 
     private void registerMediaContentObserver() {
@@ -178,15 +251,22 @@ public class FileSyncService extends Service {
         return true;
     };
 
+    private void initFolderMonitorPath() {
+        monitorPathList.clear();
+
+        List<String> pathList = FolderBackupSharePreferenceHelper.readBackupPathsAsList();
+        boolean isFound = pathList.stream().anyMatch(IGNORE_PATHS::contains);
+        if (!isFound) {
+            pathList.add(IGNORE_PATHS.get(0));
+        }
+
+        monitorPathList.addAll(pathList);
+    }
+
     private void startFolderMonitor() {
         boolean isBackupEnable = FolderBackupSharePreferenceHelper.readBackupSwitch();
         if (isBackupEnable) {
-            List<String> pathList = FolderBackupSharePreferenceHelper.readBackupPathsAsList();
-            boolean isFound = pathList.stream().anyMatch(IGNORE_PATHS::contains);
-            if (!isFound) {
-                pathList.add(IGNORE_PATHS.get(0));
-            }
-            startFolderMonitor(pathList);
+            startFolderMonitor(monitorPathList);
         } else {
             resetFolderMonitor();
         }
@@ -250,6 +330,8 @@ public class FileSyncService extends Service {
         if (file.getAbsolutePath().startsWith(IGNORE_PATHS.get(0))) {
             if ("change".equals(action)) {
                 onAppCacheFileChanged(file);
+
+                BackgroundJobManagerImpl.getInstance().startCheckDownloadedFileChain();
             }
         } else {
             BackgroundJobManagerImpl.getInstance().startFolderBackupChain(true);
@@ -271,7 +353,6 @@ public class FileSyncService extends Service {
         String id = EncryptUtils.encryptMD5ToString(file.getAbsolutePath());
         transferModel.setId(id);
         GlobalTransferCacheList.CHANGED_FILE_MONITOR_QUEUE.put(transferModel);
-        BackgroundJobManagerImpl.getInstance().startCheckDownloadedFileChain();
     }
 
     private class FolderStateChangedListener implements FileAlterationListener {

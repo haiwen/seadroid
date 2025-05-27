@@ -403,6 +403,7 @@
   <string name="settings_about_privacy_policy">Политика конфиденциальности</string>
   <string name="settings_about_version_title">Версия</string>
   <string name="settings_about_author_title">Об авторе</string>
+  <string name="settings_export_run_logs">Экспорт файлов журнала</string>
   <string name="settings_about_author_info">
         <![CDATA[
         <h5>Seafile Android Client</h5>
@@ -694,6 +695,6 @@
   <string name="image_dimensions">Размеры</string>
   <string name="image_color_space_uncalibrated">Некалиброванный</string>
   <string name="image_color_space_undefined">Неопределенный</string>
-  <!--end-->
   <string name="offline">Не в сети</string>
+  <string name="export_log_file_not_exists">Файл журнала недоступен для экспорта.</string>
 </resources>

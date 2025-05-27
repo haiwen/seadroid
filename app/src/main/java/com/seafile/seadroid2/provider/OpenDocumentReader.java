@@ -47,50 +47,27 @@ public class OpenDocumentReader {
         void onError(Exception e);
     }
 
-    public static ParcelFileDescriptor streamDownloadToPipe(
+    public static void streamDownloadToPipe(
             Account account,
             String repoId,
             String repoName,
             String remoteFullPath,
             String fileId,
+            OutputStream teeOut,
+            File destinationFile,
             @Nullable CancellationSignal signal,
             @Nullable ProgressListener listener
-    ) throws IOException {
+    ) throws FileNotFoundException {
+        try {
+            downloadFile(account, repoId, repoName, remoteFullPath, teeOut, signal);
 
-        ParcelFileDescriptor[] pipe = ParcelFileDescriptor.createPipe();
-        final ParcelFileDescriptor readFd = pipe[0];  // 返回给系统，交给第三方 App，用于"读取数据"
-        final ParcelFileDescriptor writeFd = pipe[1]; // 你来写入下载内容，自己使用，用于"写入数据"
+            saveIntoLocalDb(repoId, repoName, account.getSignature(), remoteFullPath, destinationFile, fileId);
 
-        CompletableFuture.runAsync(() -> {
+            listenerIfNotNull(listener, ProgressListener::onComplete);
 
-            File destinationFile = DataManager.getLocalFileCachePath(account, repoId, repoName, remoteFullPath);
-            TeeOutputStream teeOut = null;
-
-            try {
-                OutputStream pipeOut = new FileOutputStream(writeFd.getFileDescriptor());
-                OutputStream fileOut = new FileOutputStream(destinationFile);
-                teeOut = new TeeOutputStream(pipeOut, fileOut);
-
-                downloadFile(account, repoId, repoName, remoteFullPath, teeOut, signal);
-
-                saveIntoLocalDb(repoId, repoName, account.getSignature(), remoteFullPath, destinationFile, fileId);
-
-                listenerIfNotNull(listener, ProgressListener::onComplete);
-
-            } catch (Exception e) {
-                listenerIfNotNull(listener, l -> l.onError(e));
-            } finally {
-                try {
-                    if (teeOut != null) {
-                        teeOut.close();
-                    }
-                    writeFd.close();
-                } catch (IOException ignored) {
-                }
-            }
-        });
-
-        return readFd;
+        } catch (Exception e) {
+            listenerIfNotNull(listener, l -> l.onError(e));
+        }
     }
 
     private static void downloadFile(
@@ -98,9 +75,9 @@ public class OpenDocumentReader {
             String repoId,
             String repoName,
             String path,
-            OutputStream out,
+            OutputStream teeOut,
             @Nullable CancellationSignal signal
-    ) throws IOException {
+    ) throws FileNotFoundException {
 
         String url = requestDownloadUrl(account, repoId, path);
         SLogs.d(TAG, "download url: " + url);
@@ -118,14 +95,14 @@ public class OpenDocumentReader {
                 @Override
                 public void onCancel() {
                     if (!call.isCanceled()) {
+                        SLogs.d(TAG, "Download cancelled");
                         call.cancel();
                     }
                 }
             });
         }
 
-        Response response = call.execute();
-        try (response; InputStream in = response.body().byteStream()) {
+        try (Response response = call.execute(); InputStream in = response.body().byteStream()) {
             if (!response.isSuccessful()) {
                 throw new IOException("Download failed: " + response.code());
             }
@@ -135,12 +112,16 @@ public class OpenDocumentReader {
             long total = 0;
 
             while ((read = in.read(buffer)) != -1) {
-                out.write(buffer, 0, read);
+                teeOut.write(buffer, 0, read);
                 total += read;
             }
 
             SLogs.d(TAG, "Total bytes downloaded: " + Utils.readableFileSize(total));
-            out.flush();
+            teeOut.flush();
+        } catch (IOException e) {
+            SLogs.d(TAG, "Download failed: " + e.getMessage());
+            SLogs.e(e);
+            throw new FileNotFoundException("Download failed: " + e.getMessage());
         }
     }
 
@@ -173,7 +154,9 @@ public class OpenDocumentReader {
 
             return downloadUrl;
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            SLogs.d(TAG, "request download url failed, " + e.getMessage());
+            SLogs.e(e);
+            throw new FileNotFoundException("request download url failed, " + e.getMessage());
         }
     }
 
@@ -201,6 +184,6 @@ public class OpenDocumentReader {
         entity.uid = entity.genUID();
 
         AppDatabase.getInstance().fileCacheStatusDAO().insert(entity);
-        SLogs.d(TAG, "save into local db success", "fileId: " + entity.file_id, "fullPath: " + entity.full_path);
+        SLogs.d(TAG, "save into local db success", "fileId: " + fileId, "md5: " + entity.file_md5, "fullPath: " + entity.full_path);
     }
 }

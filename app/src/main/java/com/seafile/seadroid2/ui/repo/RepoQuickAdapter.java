@@ -69,7 +69,6 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
     private boolean repoEncrypted = false;
     private FileViewType fileViewType = FileViewType.LIST;
     private ObjSelectType selectType = ObjSelectType.NOT_SELECTABLE;
-    private int itemBackColor;
 
     public void setSelectType(ObjSelectType selectType) {
         this.selectType = selectType;
@@ -247,7 +246,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
     @Override
     public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
         super.onAttachedToRecyclerView(recyclerView);
-        itemBackColor = ContextCompat.getColor(getContext(), R.color.bar_background_color);
+        int itemBackColor = ContextCompat.getColor(getContext(), R.color.bar_background_color);
 
         topShapeBackgroundDrawable = BackgroundShapeUtils.genBackgroundDrawable(BackgroundShapeUtils.SHAPE_TOP, itemBackColor, Constants.DP.DP_8);
         bottomShapeBackgroundDrawable = BackgroundShapeUtils.genBackgroundDrawable(BackgroundShapeUtils.SHAPE_BOTTOM, itemBackColor, Constants.DP.DP_8);
@@ -308,6 +307,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
 
     private void onBindGroup(GroupItemViewHolder holder, GroupItemModel model, int position, List<?> payloads) {
         if ("Organization".equals(model.title)) {
+            //maybe it's a group,but it is old, so we keep this code.
             holder.binding.itemGroupTitle.setText(R.string.shared_with_all);
         } else {
             holder.binding.itemGroupTitle.setText(model.title);

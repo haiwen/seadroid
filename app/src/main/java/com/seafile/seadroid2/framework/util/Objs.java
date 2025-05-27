@@ -162,7 +162,7 @@ public class Objs {
     }
 
     public static List<BaseModel> convertToAdapterList(List<RepoModel> list, boolean isFilterUnavailable) {
-        return convertToAdapterList(list, false, false);
+        return convertToAdapterList(list, isFilterUnavailable, false);
     }
 
     public static List<BaseModel> convertToAdapterList(List<RepoModel> list, boolean isFilterUnavailable, boolean isAddStarredGroup) {
@@ -178,7 +178,7 @@ public class Objs {
 
         TreeMap<String, List<RepoModel>> treeMap = groupRepos(list);
 
-        // add starred group if needed
+        // ShareToSeafileActivity used it, otherwise, we does not need to add it here
         if (isAddStarredGroup) {
             List<RepoModel> starredList = list.stream().filter(f -> f.starred).collect(Collectors.toList());
             List<RepoModel> sortedList = sortRepos(starredList);
@@ -202,9 +202,19 @@ public class Objs {
             newRvList.addAll(sortedList);
         }
 
+
+        //shared
+        List<RepoModel> publicList = treeMap.get(RepoType.TYPE_PUBLIC);
+        if (!CollectionUtils.isEmpty(publicList)) {
+            List<RepoModel> sortedList = sortRepos(publicList);
+            newRvList.add(new GroupItemModel(R.string.shared_with_all, sortedList));
+            newRvList.addAll(sortedList);
+        }
+
         for (String key : treeMap.keySet()) {
             if (TextUtils.equals(key, RepoType.TYPE_MINE)) {
             } else if (TextUtils.equals(key, RepoType.TYPE_SHARED)) {
+            } else if (TextUtils.equals(key, RepoType.TYPE_PUBLIC)) {
             } else {
                 List<RepoModel> groupList = treeMap.get(key);
                 if (!CollectionUtils.isEmpty(groupList)) {

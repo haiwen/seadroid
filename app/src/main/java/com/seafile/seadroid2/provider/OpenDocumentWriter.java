@@ -1,10 +1,12 @@
 package com.seafile.seadroid2.provider;
 
+import android.os.CancellationSignal;
 import android.text.TextUtils;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.blankj.utilcode.util.FileUtils;
 import com.seafile.seadroid2.account.Account;
@@ -14,6 +16,7 @@ import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.model.dirents.DirentFileModel;
 import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
 import com.seafile.seadroid2.ui.file.FileService;
@@ -43,7 +46,11 @@ import retrofit2.Response;
 public class OpenDocumentWriter {
     private static final String TAG = "OpenDocumentWriter";
 
-    public static void uploadStreamToCloud(Account account, String repoId, String repoName, String fullPath, String displayName, InputStream in) throws FileNotFoundException {
+    public static void uploadStreamToCloud(
+            Account account, String repoId,
+            String repoName, String fullPath,
+            String displayName, InputStream in,
+            @Nullable CancellationSignal signal) throws FileNotFoundException {
 
         boolean isExists = false;
         String uploadUrl;
@@ -104,11 +111,13 @@ public class OpenDocumentWriter {
 
         builder.addFormDataPart("replace", isExists ? "1" : "0");
 
-        File tempFile = null;
+        File tempFile;
         try {
             tempFile = DataManager.createTempFile();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            SLogs.d(TAG, "Create temp file failed: " + e.getMessage());
+            SLogs.e(e);
+            throw new FileNotFoundException("Create temp file failed");
         }
 
         try (FileOutputStream fileOutputStream = new FileOutputStream(tempFile);
@@ -152,6 +161,18 @@ public class OpenDocumentWriter {
                     .getOkClient()
                     .newCall(request);
 
+            if (signal != null) {
+                signal.setOnCancelListener(new CancellationSignal.OnCancelListener() {
+                    @Override
+                    public void onCancel() {
+                        if (!call.isCanceled()) {
+                            SLogs.d(TAG, "Upload cancelled");
+                            call.cancel();
+                        }
+                    }
+                });
+            }
+
             try (okhttp3.Response response = call.execute()) {
                 if (response.isSuccessful()) {
                     File localFile = DataManager.getLocalFileCachePath(account, repoId, repoName, fullPath);
@@ -166,7 +187,6 @@ public class OpenDocumentWriter {
                                 // if the returned data is abnormal due to some reason,
                                 // it is set to null and uploaded when the next scan arrives
                                 SLogs.d(TAG, "Upload successful", "but file id is empty", "targetPath: " + fullPath);
-
                             } else {
                                 SLogs.d(TAG, "Upload successful", "fileId：" + resStr, "targetPath: " + fullPath);
                                 String fileId = resStr.replace("\"", "");
@@ -184,7 +204,9 @@ public class OpenDocumentWriter {
                 }
             }
         } catch (IOException e) {
-            Log.e("SeafileProvider", "Upload failed: " + e.getMessage());
+            SLogs.d(TAG, "Upload failed: " + e.getMessage());
+            SLogs.e(e);
+            throw new FileNotFoundException("Upload failed: " + e.getMessage());
         }
     }
 
@@ -209,6 +231,6 @@ public class OpenDocumentWriter {
         cache.uid = cache.genUID();
 
         AppDatabase.getInstance().fileCacheStatusDAO().insert(cache);
-        SLogs.d(TAG, "save into local db success", "fileId: " + fileId, "fullPath: " + fullPath);
+        SLogs.d(TAG, "save into local db success", "fileId: " + fileId, "md5: " + cache.file_md5, "fullPath: " + fullPath);
     }
 }

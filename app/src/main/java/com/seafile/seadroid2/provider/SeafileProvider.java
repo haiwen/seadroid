@@ -35,7 +35,6 @@ import android.provider.DocumentsContract.Document;
 import android.provider.DocumentsContract.Root;
 import android.provider.DocumentsProvider;
 import android.text.TextUtils;
-import android.util.Log;
 
 import androidx.annotation.StringRes;
 
@@ -64,6 +63,7 @@ import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.ui.dialog_fragment.DialogService;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.output.TeeOutputStream;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
@@ -72,12 +72,14 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -420,14 +422,14 @@ public class SeafileProvider extends DocumentsProvider {
         final boolean isWrite = (mode.indexOf('w') != -1);
         if (isWrite) {
             //write
-            return writeDocument(documentId, mode, account, repoModel, path, signal);
+            return writeDocumentAsync(documentId, mode, account, repoModel, path, signal);
         } else {
             //read
-            return readDocument(documentId, mode, account, repoModel, path, signal);
+            return readDocumentAsync(documentId, mode, account, repoModel, path, signal);
         }
     }
 
-    private ParcelFileDescriptor writeDocument(final String documentId, final String mode, Account account, RepoModel repoModel, String path, final CancellationSignal signal) throws FileNotFoundException {
+    private ParcelFileDescriptor writeDocumentAsync(final String documentId, final String mode, Account account, RepoModel repoModel, String path, final CancellationSignal signal) throws FileNotFoundException {
         if (documentId.endsWith("/")) {
             // 返回一个黑洞的 ParcelFileDescriptor，系统会写进去但实际丢弃
             return ParcelFileDescriptor.open(new File("/dev/null"), ParcelFileDescriptor.MODE_WRITE_ONLY);
@@ -446,9 +448,9 @@ public class SeafileProvider extends DocumentsProvider {
 
             CompletableFuture.runAsync(() -> {
                 try (InputStream in = new FileInputStream(readFd.getFileDescriptor())) {
-                    OpenDocumentWriter.uploadStreamToCloud(account, repoModel.repo_id, repoModel.repo_name, path, displayName, in);
+                    OpenDocumentWriter.uploadStreamToCloud(account, repoModel.repo_id, repoModel.repo_name, path, displayName, in, signal);
                 } catch (Exception e) {
-                    Log.e("DocumentsProvider", "Upload failed", e);
+                    SLogs.d(TAG, "Failed to open document, upload failed", e.getMessage());
                 } finally {
                     try {
                         readFd.close();
@@ -463,7 +465,7 @@ public class SeafileProvider extends DocumentsProvider {
         }
     }
 
-    private ParcelFileDescriptor readDocument(final String documentId, final String mode, Account account, RepoModel repoModel, String path, final CancellationSignal signal) throws FileNotFoundException {
+    private ParcelFileDescriptor readDocumentAsync(final String documentId, final String mode, Account account, RepoModel repoModel, String path, final CancellationSignal signal) throws FileNotFoundException {
         // Check whether the remote data exists. If it doesn't, throw an exception,
         // because we have already inserted it into the local database in queryChildDocuments().
         List<DirentModel> direntModels = AppDatabase.getInstance().direntDao().getListByFullPathSync(repoModel.repo_id, path);
@@ -503,33 +505,156 @@ public class SeafileProvider extends DocumentsProvider {
         }
 
         try {
-            return OpenDocumentReader.streamDownloadToPipe(account, repoModel.repo_id, repoModel.repo_name, path, direntModel.id, signal, new OpenDocumentReader.ProgressListener() {
+            ParcelFileDescriptor[] pipe = ParcelFileDescriptor.createReliableSocketPair();
+            final ParcelFileDescriptor toSystemFd = pipe[0];  // 返回给系统，交给第三方 App，用于"读取数据"
+            final ParcelFileDescriptor mySideFd = pipe[1]; // 你来写入下载内容，自己使用，用于"写入数据"
 
-                @Override
-                public void onComplete() {
-                    SLogs.d(TAG, "openDocument()", "download complete");
-                    // 下载完成后，通知系统文件已准备好
-//                        getContext().getContentResolver().notifyChange(DocumentIdParser.getUriFromId(documentId), null);
-                }
+            CompletableFuture.runAsync(() -> {
 
-                @Override
-                public void onError(Exception e) {
-                    String msg = e.getMessage();
-                    if (msg != null && (
-                            msg.contains("Software caused connection abort") ||
-                                    msg.contains("Broken pipe") ||
-                                    msg.contains("EBADF") ||
-                                    msg.contains("stream was reset")
-                    )) {
-                        SLogs.d(TAG, "openDocument(): Pipe closed by reader, safe to ignore");
-                    } else {
-                        SLogs.d(TAG, "openDocument(): Error occurred: " + e.getMessage());
+                File destinationFile = DataManager.getLocalFileCachePath(account, repoModel.repo_id, repoModel.repo_name, path);
+
+                try (OutputStream pipeOut = new FileOutputStream(mySideFd.getFileDescriptor());
+                     OutputStream fileOut = new FileOutputStream(destinationFile);
+                     TeeOutputStream teeOut = new TeeOutputStream(pipeOut, fileOut)) {
+
+                    OpenDocumentReader.streamDownloadToPipe(account, repoModel.repo_id, repoModel.repo_name, path, direntModel.id, teeOut, destinationFile, signal, new OpenDocumentReader.ProgressListener() {
+
+                        @Override
+                        public void onComplete() {
+                            SLogs.d(TAG, "openDocument()", "download complete");
+                        }
+
+                        @Override
+                        public void onError(Exception e) {
+
+                            String msg = e.getMessage();
+                            if (msg != null && (
+                                    msg.contains("Software caused connection abort") ||
+                                            msg.contains("Broken pipe") ||
+                                            msg.contains("EBADF") ||
+                                            msg.contains("stream was reset")
+                            )) {
+                                SLogs.d(TAG, "openDocument(): Pipe closed by reader, safe to ignore");
+                            } else {
+                                SLogs.d(TAG, "openDocument(): Error occurred: " + e.getMessage());
+                            }
+                            SLogs.e(e);
+                        }
+                    });
+
+                } catch (IOException e) {
+                    try {
+                        SLogs.d(TAG, "download failed: " + e.getMessage());
+                        SLogs.e(e);
+                        throw new FileNotFoundException("Failed to open document, download failed: " + e.getMessage());
+                    } catch (FileNotFoundException ignored) {
                     }
-                    SLogs.e(e);
+                } finally {
+                    try {
+                        mySideFd.close();
+                    } catch (IOException ignored) {
+                    }
                 }
             });
+
+            return toSystemFd;
         } catch (IOException e) {
-            throw new FileNotFoundException("Pipe creation failed: " + e.getMessage());
+            throw new FileNotFoundException("Failed to open document with id " + documentId + " and mode " + mode);
+        }
+    }
+
+    private ParcelFileDescriptor readDocumentSync(final String documentId, final String mode, Account account, RepoModel repoModel, String path, final CancellationSignal signal) throws FileNotFoundException {
+        // Check whether the remote data exists. If it doesn't, throw an exception,
+        // because we have already inserted it into the local database in queryChildDocuments().
+        List<DirentModel> direntModels = AppDatabase.getInstance().direntDao().getListByFullPathSync(repoModel.repo_id, path);
+        if (CollectionUtils.isEmpty(direntModels)) {
+            throw new FileNotFoundException("could not find file");
+        }
+
+        DirentModel direntModel = direntModels.get(0);
+
+        // Check if the local cache database exists. If the file has not been downloaded,
+        // it will not exist in the cache database. In that case, throw an exception.
+        List<FileCacheStatusEntity> caches = AppDatabase.getInstance().fileCacheStatusDAO().getByFullPathSync(repoModel.repo_id, path);
+        if (!CollectionUtils.isEmpty(caches)) {
+
+            FileCacheStatusEntity cacheStatusEntity = caches.get(0);
+
+            //check if local file is same as remote file
+            if (TextUtils.equals(direntModel.id, cacheStatusEntity.file_id)) {
+                //check if local file exists
+                File file = DataManager.getLocalFileCachePath(account, repoModel.repo_id, repoModel.repo_name, path);
+                if (file.exists()) {
+                    try {
+                        return makeParcelFileDescriptor(file, mode);
+                    } catch (IOException e) {
+                        SLogs.d(TAG, "openDocument()", "could not open file");
+                        SLogs.e(e);
+                        throw new FileNotFoundException();
+                    }
+                }
+            }
+        }
+
+
+        //local don't exists
+        if (!NetworkUtils.isConnected()) {
+            throw throwFileNotFoundException(R.string.network_error);
+        }
+
+        final AtomicBoolean downloadResult = new AtomicBoolean(false);
+        File destinationFile = DataManager.getLocalFileCachePath(account, repoModel.repo_id, repoModel.repo_name, path);
+
+        CompletableFuture<Void> downloadFuture = CompletableFuture.runAsync(() -> {
+
+            try (OutputStream fileOut = new FileOutputStream(destinationFile)) {
+
+
+                OpenDocumentReader.streamDownloadToPipe(account, repoModel.repo_id, repoModel.repo_name, path, direntModel.id, fileOut, destinationFile, signal, new OpenDocumentReader.ProgressListener() {
+
+                    @Override
+                    public void onComplete() {
+                        downloadResult.set(true);
+                        SLogs.d(TAG, "openDocument()", "download complete");
+                        // 下载完成后，通知系统文件已准备好
+//                            getContext().getContentResolver().notifyChange(toNotifyUri(documentId), null);
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        downloadResult.set(true);
+                        String msg = e.getMessage();
+                        if (msg != null && (
+                                msg.contains("Software caused connection abort") ||
+                                        msg.contains("Broken pipe") ||
+                                        msg.contains("EBADF") ||
+                                        msg.contains("stream was reset")
+                        )) {
+                            SLogs.d(TAG, "openDocument(): Pipe closed by reader, safe to ignore");
+                        } else {
+                            SLogs.d(TAG, "openDocument(): Error occurred: " + e.getMessage());
+                        }
+                        SLogs.e(e);
+                    }
+                });
+
+            } catch (IOException e) {
+                SLogs.d(TAG, "openDocument()", "could not open file");
+                SLogs.e(e);
+            }
+        });
+
+        downloadFuture.join();
+        if (!downloadResult.get()) {
+            throw new FileNotFoundException("Error downloading file: " + destinationFile.getName());
+        }
+
+        try {
+            return makeParcelFileDescriptor(destinationFile, mode);
+        } catch (IOException e) {
+            SLogs.d(TAG, "openDocument()", "could not open file");
+            SLogs.e(e);
+            throw new FileNotFoundException("could not open file");
         }
     }
 

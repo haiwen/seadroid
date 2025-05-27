@@ -31,6 +31,10 @@ public interface FileCacheStatusDAO {
     @Update
     Completable updateAsync(FileCacheStatusEntity entity);
 
+    @Query("select * from file_cache_status where related_account = :account order by created_at")
+    List<FileCacheStatusEntity> getByAccountSync(String account);
+
+
     @Query("select * from file_cache_status where related_account = :relate_account and target_path = :target_path order by created_at limit 1")
     List<FileCacheStatusEntity> getByTargetPathSync(String relate_account, String target_path);
 
