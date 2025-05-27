@@ -29,7 +29,6 @@ public class SeafGlideCache extends AppGlideModule {
     @Override
     public void applyOptions(@NonNull Context context, @NonNull GlideBuilder builder) {
         super.applyOptions(context, builder);
-//        String rootPath = SeadroidApplication.getAppContext().getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath();
         String rootPath = PathUtils.getExternalAppFilesPath();
         File dirPath = new File(rootPath + "/cache/glide/");
         builder.setDiskCache(new DiskLruCacheFactory(dirPath.getAbsolutePath(), 1024 * 1024 * 500));
