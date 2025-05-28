@@ -65,6 +65,7 @@ public class ShareToSeafileViewModel extends BaseViewModel {
                     String fileName = Utils.getFilenameFromUri(context, uri);
                     for (DirentModel direntModel : wrapperModel.dirent_list) {
                         if (TextUtils.equals(direntModel.name, fileName)) {
+                            SLogs.d(ShareToSeafileActivity.TAG, "exists in remote: " + fileName);
                             existsList.add(direntModel);
                             break;
                         }

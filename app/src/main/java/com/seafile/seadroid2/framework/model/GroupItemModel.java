@@ -21,15 +21,12 @@ public class GroupItemModel extends BaseModel {
     public final List<RepoModel> repo_list = new ArrayList<>();
 
     public void addAllRepoList(List<RepoModel> repoList) {
+        repo_list.clear();
         repo_list.addAll(repoList);
     }
 
     public List<RepoModel> getRepoList() {
         return repo_list;
-    }
-
-    public void clearRepoList() {
-        repo_list.clear();
     }
 
     public GroupItemModel(@StringRes int nameRes) {
@@ -49,6 +46,10 @@ public class GroupItemModel extends BaseModel {
         this.title = title;
         repo_list.addAll(repoList);
         checkable = false;
+    }
+
+    public String getTitle() {
+        return title;
     }
 
     @Override

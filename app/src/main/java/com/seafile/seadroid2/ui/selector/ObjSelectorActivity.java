@@ -296,7 +296,13 @@ public class ObjSelectorActivity extends BaseActivityWithVM<ObjSelectorViewModel
         } else if (baseModel instanceof RepoModel repoModel) {
 
             if (isOnlyChooseRepo) {
-                mNavContext.push(repoModel);
+
+                boolean isSelected = adapter.getItems().get(position).is_checked;
+                if (isSelected) {
+                    mNavContext.pop();
+                } else {
+                    mNavContext.push(repoModel);
+                }
                 adapter.selectItemByMode(position);
                 return;
             }
@@ -481,6 +487,7 @@ public class ObjSelectorActivity extends BaseActivityWithVM<ObjSelectorViewModel
             break;
             case REPO: {
                 if (initType == ObjSelectType.ACCOUNT) {
+                    mAccount = null;
                     mCurrentStepType = ObjSelectType.ACCOUNT;
                     loadData();
                 } else {

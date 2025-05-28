@@ -878,7 +878,6 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
                     return newT.equals(oldT);
                 }
 
-
                 if (getItems().get(oldItemPosition) instanceof SearchModel newT) {
                     SearchModel oldT = (SearchModel) newList.get(newItemPosition);
                     return newT.equals(oldT);

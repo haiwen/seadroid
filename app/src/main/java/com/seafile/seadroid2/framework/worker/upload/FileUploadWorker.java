@@ -82,11 +82,6 @@ public class FileUploadWorker extends BaseUploadWorker {
     private ListenableWorker.Result start() {
         SLogs.d(TAG, "start()", "started execution");
 
-        Account account = SupportAccountManager.getInstance().getCurrentAccount();
-        if (account == null) {
-            return returnSuccess();
-        }
-
         int totalPendingCount = GlobalTransferCacheList.FILE_UPLOAD_QUEUE.getPendingCount();
         if (totalPendingCount <= 0) {
             return returnSuccess();
@@ -113,7 +108,12 @@ public class FileUploadWorker extends BaseUploadWorker {
 
             try {
                 try {
-                    transfer(account, transferModel);
+                    Account specialAccount = SupportAccountManager.getInstance().getSpecialAccount(transferModel.related_account);
+                    if (specialAccount == null) {
+                        return returnSuccess();
+                    }
+
+                    transfer(specialAccount, transferModel);
 
                 } catch (Exception e) {
                     SeafException seafException = ExceptionUtils.parseByThrowable(e);

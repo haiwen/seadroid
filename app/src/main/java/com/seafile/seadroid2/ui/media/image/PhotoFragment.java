@@ -129,7 +129,7 @@ public class PhotoFragment extends BaseFragment {
             repoName = savedInstanceState.getString("repoName");
             fullPath = savedInstanceState.getString("fullPath");
             imageUrl = savedInstanceState.getString("image_url");
-        }else {
+        } else {
             Bundle args = getArguments();
             if (args == null) {
                 return;
@@ -703,6 +703,17 @@ public class PhotoFragment extends BaseFragment {
         return exifMap;
     }
 
+    private String getMapContent(HashMap<String, String> map, String key) {
+        if (map == null || map.isEmpty()) {
+            return "-";
+        }
+        String value = map.get(key);
+        if (TextUtils.isEmpty(value)) {
+            return "-";
+        }
+        return value;
+    }
+
     private void addTextView(HashMap<String, String> map) {
         if (map == null || map.isEmpty()) {
             return;
@@ -713,15 +724,15 @@ public class PhotoFragment extends BaseFragment {
 
         String imageCaptureTime = getResources().getString(R.string.image_capture_time);
         String imageDimensions = getResources().getString(R.string.image_dimensions);
-        String captureTime = imageCaptureTime + ": " + map.get("_datetime");
-        String imageSize = imageDimensions + ": " + map.get("_width_height");
+        String captureTime = imageCaptureTime + ": " + getMapContent(map, "_datetime");
+        String imageSize = imageDimensions + ": " + getMapContent(map, "_width_height");
 
-        exifBinding.exifModel.setText(map.get("_model"));
+        exifBinding.exifModel.setText(getMapContent(map, "_model"));
         exifBinding.exifDatetime.setText(captureTime);
         exifBinding.exifWh.setText(imageSize);
 
 
-        String colorSpace = map.get("_color_space");
+        String colorSpace = getMapContent(map, "_color_space");
         if (!TextUtils.isEmpty(colorSpace)) {
             int colorSpaceValue = Integer.parseInt(colorSpace);
             switch (colorSpaceValue) {
@@ -739,7 +750,7 @@ public class PhotoFragment extends BaseFragment {
             exifBinding.exifColorSpace.setText(R.string.image_color_space_undefined);
         }
 
-        String focalLength = map.get("_focal_length");
+        String focalLength = getMapContent(map, "_focal_length");
         if (focalLength != null) {
             if (focalLength.contains("/")) {
                 String[] parts = focalLength.split("/");
@@ -758,7 +769,7 @@ public class PhotoFragment extends BaseFragment {
             }
         }
 
-        String apertureValue = map.get("_aperture_value");
+        String apertureValue = getMapContent(map, "_aperture_value");
         if (apertureValue != null) {
             if (apertureValue.contains("/")) {
                 String[] parts = apertureValue.split("/");
@@ -778,10 +789,10 @@ public class PhotoFragment extends BaseFragment {
         }
 
         //
-        String fNumber = map.get("_f_nubmer");
+        String fNumber = getMapContent(map, "_f_nubmer");
         exifBinding.exifFNumber.setText("f/" + fNumber);
 
-        String formattedExposureTime = map.get("_exposure_time");
+        String formattedExposureTime = getMapContent(map, "_exposure_time");
         if (!TextUtils.isEmpty(formattedExposureTime)) {
             exifBinding.exifExposureTime.setText(formattedExposureTime + "s");
         }

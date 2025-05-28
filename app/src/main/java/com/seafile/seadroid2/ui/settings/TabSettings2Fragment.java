@@ -688,7 +688,8 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
         }
 
         if (TransferDataSource.ALBUM_BACKUP.name().equals(dataSource)
-                || TransferDataSource.FOLDER_BACKUP.name().equals(dataSource)) {
+                || TransferDataSource.FOLDER_BACKUP.name().equals(dataSource)
+                || TransferDataSource.FILE_BACKUP.name().equals(dataSource)) {
             int totalPendingCount = GlobalTransferCacheList.getUploadPendingCount();
             if (totalPendingCount == 0 && !isFinish) {
                 totalPendingCount = 1;

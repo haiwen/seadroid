@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 import com.blankj.utilcode.util.ClipboardUtils;
+import com.blankj.utilcode.util.CloneUtils;
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.google.common.collect.Lists;
@@ -181,9 +182,26 @@ public class Objs {
         // ShareToSeafileActivity used it, otherwise, we does not need to add it here
         if (isAddStarredGroup) {
             List<RepoModel> starredList = list.stream().filter(f -> f.starred).collect(Collectors.toList());
-            List<RepoModel> sortedList = sortRepos(starredList);
-            newRvList.add(new GroupItemModel(R.string.tabs_starred, sortedList));
-            newRvList.addAll(sortedList);
+            if (!CollectionUtils.isEmpty(starredList)) {
+
+                List<RepoModel> newRepoList = new ArrayList<>();
+                for (RepoModel repoModel : starredList) {
+                    RepoModel r =  CloneUtils.deepClone(repoModel,RepoModel.class);
+                    newRepoList.add(r);
+                }
+
+                List<RepoModel> sList = sortRepos(newRepoList);//clone list
+                GroupItemModel groupItemModel = new GroupItemModel(R.string.tabs_starred);
+                for (RepoModel r : sList) {
+                    //temp set group_name and group_id
+                    r.group_name = groupItemModel.getTitle();
+                    r.group_id = -1;
+                }
+
+                groupItemModel.addAllRepoList(sList);
+                newRvList.add(groupItemModel);
+                newRvList.addAll(sList);
+            }
         }
 
         //mine

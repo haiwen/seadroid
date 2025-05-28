@@ -55,7 +55,6 @@ public class ObjSelectorViewModel extends BaseViewModel {
         });
     }
 
-
     public void loadAccount() {
         List<Account> results = SupportAccountManager.getInstance().getSignedInAccountList();
         if (!CollectionUtils.isEmpty(results)) {
@@ -132,9 +131,6 @@ public class ObjSelectorViewModel extends BaseViewModel {
 
                 } else if (newDirentModels.size() == 1) {
                     newDirentModels.get(0).item_position = ItemPositionEnum.ALL;
-                } else if (newDirentModels.size() == 2) {
-                    newDirentModels.get(0).item_position = ItemPositionEnum.START;
-                    newDirentModels.get(1).item_position = ItemPositionEnum.END;
                 } else {
                     newDirentModels.get(0).item_position = ItemPositionEnum.START;
                     newDirentModels.get(newDirentModels.size() - 1).item_position = ItemPositionEnum.END;
@@ -212,7 +208,7 @@ public class ObjSelectorViewModel extends BaseViewModel {
                 PermissionEntity permission = new PermissionEntity(repoId, wrapperModel.permission);
 
                 AppDatabase.getInstance().permissionDAO().insert(permission);
-                SLogs.d("The list has been inserted into the local database");
+                SLogs.d("ObjSelectorViewModel - The list has been inserted into the local database");
 
                 return Single.just(permission);
             }

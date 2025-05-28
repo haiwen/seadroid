@@ -8,6 +8,7 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
@@ -98,11 +99,13 @@ public class EditorActivity extends BaseActivityWithVM<EditorViewModel> implemen
 
     }
 
-    private void initView(){
+    private void initView() {
         Toolbar toolbar = getActionBarToolbar();
         toolbar.setOnMenuItemClickListener(this);
         setSupportActionBar(toolbar);
+
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
@@ -118,6 +121,7 @@ public class EditorActivity extends BaseActivityWithVM<EditorViewModel> implemen
         mHorizontalEditScrollView = findViewById(R.id.scroll_edit);
 
     }
+
     private void initViewModel() {
         getViewModel().getRefreshLiveData().observe(this, new Observer<Boolean>() {
             @Override
@@ -221,7 +225,13 @@ public class EditorActivity extends BaseActivityWithVM<EditorViewModel> implemen
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.edit_undo) {
+        if (item.getItemId() == android.R.id.home) {
+            if (isSave) {
+                finish();
+            } else {
+                saveFile();
+            }
+        } else if (item.getItemId() == R.id.edit_undo) {
             getOnBackPressedDispatcher().onBackPressed();
         } else if (item.getItemId() == R.id.edit_undo) {
             mPerformEdit.undo();

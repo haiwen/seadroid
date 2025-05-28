@@ -207,7 +207,7 @@ public abstract class BaseUploadWorker extends TransferWorker {
         RequestBody requestBody = builder.build();
 
         //get upload link
-        String uploadUrl = getFileUploadUrl(currentTransferModel.repo_id, currentTransferModel.getParentPath(), currentTransferModel.transfer_strategy == ExistingFileStrategy.REPLACE);
+        String uploadUrl = getFileUploadUrl(account, currentTransferModel.repo_id, currentTransferModel.getParentPath(), currentTransferModel.transfer_strategy == ExistingFileStrategy.REPLACE);
         if (TextUtils.isEmpty(uploadUrl)) {
             throw SeafException.REQUEST_TRANSFER_URL_EXCEPTION;
         }
@@ -224,7 +224,7 @@ public abstract class BaseUploadWorker extends TransferWorker {
                 .build();
 
         if (okHttpClient == null) {
-            okHttpClient = HttpIO.getCurrentInstance().getOkHttpClient().getOkClient();
+            okHttpClient = HttpIO.getInstanceByAccount(account).getOkHttpClient().getOkClient();
         }
         newCall = okHttpClient.newCall(request);
 
@@ -282,15 +282,15 @@ public abstract class BaseUploadWorker extends TransferWorker {
         return false;
     }
 
-    private String getFileUploadUrl(String repoId, String target_dir, boolean isUpdate) throws IOException, SeafException {
+    private String getFileUploadUrl(Account account, String repoId, String target_dir, boolean isUpdate) throws IOException, SeafException {
         retrofit2.Response<String> res;
         if (isUpdate) {
-            res = HttpIO.getCurrentInstance()
+            res = HttpIO.getInstanceByAccount(account)
                     .execute(FileService.class)
                     .getFileUpdateLink(repoId)
                     .execute();
         } else {
-            res = HttpIO.getCurrentInstance()
+            res = HttpIO.getInstanceByAccount(account)
                     .execute(FileService.class)
                     .getFileUploadLink(repoId, "/")
                     .execute();

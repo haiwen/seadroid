@@ -28,6 +28,7 @@ import com.seafile.seadroid2.databinding.ActivityShareToSeafileBinding;
 import com.seafile.seadroid2.enums.ObjSelectType;
 import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
@@ -121,7 +122,7 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
             return;
         }
 
-        SLogs.d(TAG, "on event: " + statusEvent + ", dataSource: " + dataSource);
+        SLogs.d(TAG, "on event: " + statusEvent, "dataSource: " + dataSource, "result: " + result);
         if (TextUtils.equals(statusEvent, TransferEvent.EVENT_SCANNING)) {
 
         } else if (TextUtils.equals(statusEvent, TransferEvent.EVENT_SCAN_FINISH)) {
@@ -144,10 +145,12 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
         } else if (TextUtils.equals(statusEvent, TransferEvent.EVENT_FILE_TRANSFER_FAILED)) {
             binding.progressText.setText("0%");
             binding.progressBar.setProgress(0);
+            Toasts.show(R.string.upload_failed);
         } else if (TextUtils.equals(statusEvent, TransferEvent.EVENT_FILE_TRANSFER_SUCCESS)) {
             binding.progressText.setText("100%");
             binding.progressBar.setProgress(100);
         } else if (TextUtils.equals(statusEvent, TransferEvent.EVENT_TRANSFER_FINISH)) {
+
             finish();
         }
     }
@@ -194,8 +197,8 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
         if (Intent.ACTION_SEND.equals(action)) {
             if ("text/plain".equals(type)) {
                 String sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
-                SLogs.d("Seafile receive content: " + sharedText);
-                ToastUtils.showLong(R.string.not_supported_share);
+                SLogs.d(TAG, "Seafile receive content: " + sharedText);
+                Toasts.show(R.string.not_supported_share);
             } else {
                 Uri fileUri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
                 if (fileUri != null) {
@@ -214,6 +217,8 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
             return;
         }
 
+        SLogs.d(TAG, "fileUris: " + fileUris);
+
         ArrayList<Uri> finalFileUris = fileUris;
         getViewModel().checkRemoteExists(this, account, dstRepoId, dstRepoName, dstDir, fileUris, new Consumer<Boolean>() {
             @Override
@@ -221,7 +226,7 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
                 if (b) {
                     showExistsDialog(ShareToSeafileActivity.this, finalFileUris);
                 } else {
-                    SLogs.d(TAG, "gen transfer model, and insert into queue");
+                    SLogs.d(TAG, "gen transfer model, and insert into queue, and upload it");
                     getViewModel().upload(ShareToSeafileActivity.this, account, dstRepoId, dstRepoName, dstDir, finalFileUris, false);
                 }
             }

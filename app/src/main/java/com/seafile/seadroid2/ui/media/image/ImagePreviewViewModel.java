@@ -108,7 +108,7 @@ public class ImagePreviewViewModel extends BaseViewModel {
                     @Override
                     public SingleSource<Pair<RepoModel, List<DirentModel>>> apply(DirentFileModel direntFileModel) throws Exception {
                         if (!TextUtils.isEmpty(direntFileModel.error_msg)) {
-                            throw SeafException.NOT_FOUND_EXCEPTION;
+                            throw new SeafException(0, direntFileModel.error_msg);
                         }
 
                         DirentModel direntModel = DirentModel.convertDetailModelToThis(direntFileModel, fullPath, repoId, repoName);
