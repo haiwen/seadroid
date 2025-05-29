@@ -11,7 +11,7 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.DiffUtil;
 
 import com.blankj.utilcode.util.CollectionUtils;
-import com.seafile.seadroid2.GlideApp;
+import com.seafile.seadroid2.framework.glide.GlideApp;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.config.GlideLoadConfig;
 import com.seafile.seadroid2.databinding.ItemStarredBinding;

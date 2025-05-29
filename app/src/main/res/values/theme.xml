@@ -2,7 +2,12 @@
 <resources>
 
     <style name="BaseTheme.App.Toolbar" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- app window background color -->
+        <item name="android:windowBackground">@color/window_background_color</item>
+
         <item name="android:statusBarColor">@color/bar_background_color</item>
+        <item name="android:navigationBarColor">@color/bar_background_color</item>
+
         <item name="android:windowLightStatusBar">?isLightTheme</item> <!-- android 6.0+ -->
 
         <!-- action mode -->
@@ -15,7 +20,6 @@
             @color/swipe_refresh_background_color
         </item>
 
-        <item name="android:windowBackground">@color/window_background_color</item>
 
         <item name="actionModeStyle">@style/App.ActionMode.LightTheme</item>
         <item name="actionModeCloseDrawable">@drawable/baseline_close_24</item>

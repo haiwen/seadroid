@@ -20,7 +20,7 @@ import com.blankj.utilcode.util.ScreenUtils;
 import com.blankj.utilcode.util.SizeUtils;
 import com.bumptech.glide.Glide;
 import com.google.android.flexbox.FlexboxLayout;
-import com.seafile.seadroid2.GlideApp;
+import com.seafile.seadroid2.framework.glide.GlideApp;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.config.GlideLoadConfig;
 import com.seafile.seadroid2.databinding.ItemFileCommentBinding;

@@ -216,6 +216,9 @@
   <string name="tabs_library">资料库</string>
   <string name="tabs_activity">文件活动</string>
   <string name="tabs_starred">星标文件</string>
+  <string name="starred_repos">星标资料库</string>
+  <string name="starred_files">星标文件</string>
+  <string name="starred_folder">星标文件夹</string>
   <string name="provide_password">请提供资料库\"%s\"的密码</string>
   <string name="upload_waiting">等待上传</string>
   <string name="upload_finished">上传完成</string>

@@ -30,7 +30,7 @@ import com.blankj.utilcode.util.ScreenUtils;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.signature.ObjectKey;
-import com.seafile.seadroid2.GlideApp;
+import com.seafile.seadroid2.framework.glide.GlideApp;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.databinding.ItemThumbnailItemVerticalBinding;
 import com.seafile.seadroid2.enums.ItemPositionEnum;

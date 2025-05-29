@@ -43,7 +43,7 @@ import com.blankj.utilcode.util.NetworkUtils;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.seafile.seadroid2.BuildConfig;
-import com.seafile.seadroid2.GlideApp;
+import com.seafile.seadroid2.framework.glide.GlideApp;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.account.Account;
@@ -55,6 +55,7 @@ import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.db.entities.StarredModel;
+import com.seafile.seadroid2.framework.glide.GlideImage;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.model.BaseModel;
 import com.seafile.seadroid2.framework.util.Objs;
@@ -64,7 +65,6 @@ import com.seafile.seadroid2.ui.dialog_fragment.DialogService;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.TeeOutputStream;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -79,7 +79,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Supplier;
 
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -141,6 +143,8 @@ public class SeafileProvider extends DocumentsProvider {
 
         androidAccountManager.addOnAccountsUpdatedListener(accountListener, null, true);
 
+        SLogs.init();
+
         return true;
     }
 
@@ -184,7 +188,7 @@ public class SeafileProvider extends DocumentsProvider {
     @Override
     public Cursor queryChildDocuments(String parentDocumentId, String[] projection, String sortOrder) throws FileNotFoundException {
 
-        SLogs.d(TAG, "queryChildDocuments()", parentDocumentId);
+        SLogs.d(TAG, "queryChildDocuments()", "parentDocumentId = " + parentDocumentId);
 
         if (TextUtils.isEmpty(parentDocumentId)) {
             throw throwFileNotFoundException(R.string.saf_bad_mime_type);
@@ -206,17 +210,11 @@ public class SeafileProvider extends DocumentsProvider {
 
             MatrixCursor matrixCursor = createCursor(netProjection);
 
-            List<RepoModel> repos = AppDatabase.getInstance().repoDao().getListByAccountSync(account.getSignature());
-            if (!CollectionUtils.isEmpty(repos)) {
-                for (RepoModel repoModel : repos) {
-                    includeRepo(matrixCursor, account, repoModel);
-                }
-            }
+            // if the data is not cached, then fetch it from the server.
+            boolean dataIsExpires = SeadroidApplication.getDocumentCache().isExpired(parentDocumentId);
+            SLogs.d(TAG, "queryChildDocuments()", "repo cache expired? " + dataIsExpires, "parentDocumentId = " + parentDocumentId);
 
-            int dataStatus = SeadroidApplication.getDocumentCache().get(parentDocumentId);
-            SLogs.d(TAG, "queryChildDocuments()", "repo -> dataStatus=" + dataStatus);
-
-            if (dataStatus == -1) {
+            if (dataIsExpires) {
                 // tell the client that more entries will arrive shortly.
                 Bundle bundle = new Bundle();
                 bundle.putBoolean(DocumentsContract.EXTRA_LOADING, true);
@@ -225,6 +223,11 @@ public class SeafileProvider extends DocumentsProvider {
                 matrixCursor.setExtras(bundle);
 
                 fetchReposAsync(account, notifyUri, matrixCursor);
+            } else {
+                List<RepoModel> repos = queryReposSync(account);
+                for (RepoModel repoModel : repos) {
+                    includeRepo(matrixCursor, account, repoModel);
+                }
             }
 
             includeStarredDir(matrixCursor, account);
@@ -235,17 +238,12 @@ public class SeafileProvider extends DocumentsProvider {
             // the user is asking for the list of starred files
 
             MatrixCursor matrixCursor = createCursor(netProjection);
-            List<StarredModel> starredList = AppDatabase.getInstance().starredDirentDAO().getListByAccountSync(account.getSignature());
-            if (!CollectionUtils.isEmpty(starredList)) {
-                for (StarredModel starredModel : starredList) {
-                    includeStarredFileDirent(matrixCursor, account, starredModel);
-                }
-            }
 
-            int dataStatus = SeadroidApplication.getDocumentCache().get(parentDocumentId);
-            SLogs.d(TAG, "queryChildDocuments()", "starred -> parentDocumentId= " + parentDocumentId + ", dataStatus=" + dataStatus);
 
-            if (dataStatus == -1) {
+            boolean dataIsExpires = SeadroidApplication.getDocumentCache().isExpired(parentDocumentId);
+            SLogs.d(TAG, "queryChildDocuments()", "starred cache expired? " + dataIsExpires, "parentDocumentId = " + parentDocumentId);
+
+            if (dataIsExpires) {
                 // tell the client that more entries will arrive shortly.
                 Bundle bundle = new Bundle();
                 bundle.putBoolean(DocumentsContract.EXTRA_LOADING, true);
@@ -254,8 +252,12 @@ public class SeafileProvider extends DocumentsProvider {
                 matrixCursor.setExtras(bundle);
 
                 fetchStarredAsync(account, notifyUri, matrixCursor);
+            } else {
+                List<StarredModel> starredList = queryStarredDocsSync(account);
+                for (StarredModel starredModel : starredList) {
+                    includeStarredFileDirent(matrixCursor, account, starredModel);
+                }
             }
-
 
             return matrixCursor;
 
@@ -264,7 +266,7 @@ public class SeafileProvider extends DocumentsProvider {
             // directory in the given repository.
 
             // the android API asks us to be quick, so just use the cache.
-            List<RepoModel> repoModels = AppDatabase.getInstance().repoDao().getByIdSync(repoId);
+            List<RepoModel> repoModels = queryRepoSync(repoId);
             if (CollectionUtils.isEmpty(repoModels)) {
                 throw throwFileNotFoundException(R.string.repo_not_found);
             }
@@ -273,7 +275,6 @@ public class SeafileProvider extends DocumentsProvider {
             if (repoModel == null) {
                 throw throwFileNotFoundException(R.string.repo_not_found);
             }
-
 
             // todo
             // maybe we can check if the user has decrypted it or not. if yes, then the data can be read and returned directly.
@@ -290,22 +291,10 @@ public class SeafileProvider extends DocumentsProvider {
                 path += "/";
             }
 
-            List<DirentModel> direntModels = AppDatabase.getInstance().direntDao().getListByParentPathSync(repoId, path);
-            if (!CollectionUtils.isEmpty(direntModels)) {
-                if (path.endsWith("/")) {
-                    path = StringUtils.substringBeforeLast(path, "/");
-                }
+            boolean dataIsExpires = SeadroidApplication.getDocumentCache().isExpired(parentDocumentId);
+            SLogs.d(TAG, "queryChildDocuments()", "dirent cache expired? " + dataIsExpires, "parentDocumentId = " + parentDocumentId);
 
-                for (DirentModel direntModel : direntModels) {
-                    includeDirent(matrixCursor, account, repoModel, direntModel);
-                }
-            }
-
-
-            int dataStatus = SeadroidApplication.getDocumentCache().get(parentDocumentId);
-            SLogs.d(TAG, "queryChildDocuments()", "dirent-> parentDocumentId= " + parentDocumentId + ", dataStatus=" + dataStatus);
-
-            if (dataStatus == -1) {
+            if (dataIsExpires) {
                 // tell the client that more entries will arrive shortly.
                 Bundle bundle = new Bundle();
                 bundle.putBoolean(DocumentsContract.EXTRA_LOADING, true);
@@ -314,6 +303,12 @@ public class SeafileProvider extends DocumentsProvider {
                 matrixCursor.setExtras(bundle);
 
                 fetchDirentAsync(account, notifyUri, repoModel, path, matrixCursor);
+            } else {
+                List<DirentModel> direntModels = queryDirentsSync(account, repoId, path);
+
+                for (DirentModel direntModel : direntModels) {
+                    includeDirent(matrixCursor, account, repoModel, direntModel);
+                }
             }
 
             return matrixCursor;
@@ -351,7 +346,7 @@ public class SeafileProvider extends DocumentsProvider {
         }
 
         // the android API asks us to be quick, so just use the cache.
-        List<RepoModel> repoModels = AppDatabase.getInstance().repoDao().getByIdSync(repoId);
+        List<RepoModel> repoModels = queryRepoSync(repoId);
         if (CollectionUtils.isEmpty(repoModels)) {
             throw throwFileNotFoundException(R.string.repo_not_found);
         }
@@ -372,7 +367,7 @@ public class SeafileProvider extends DocumentsProvider {
 
 //             again we only use cached info in this function. that shouldn't be an issue
 //             as very likely there has been a SeafileProvider.queryChildDocuments() call just moments earlier.
-            List<DirentModel> direntModels = AppDatabase.getInstance().direntDao().getListByFullPathSync(repoId, path);
+            List<DirentModel> direntModels = queryDirentSync(account, repoId, path);
             if (!CollectionUtils.isEmpty(direntModels)) {
                 // the file is in the dirent of the parent directory
                 DirentModel direntModel = direntModels.get(0);
@@ -409,7 +404,9 @@ public class SeafileProvider extends DocumentsProvider {
         }
 
         String repoId = DocumentIdParser.getRepoIdFromId(documentId);
-        List<RepoModel> repoModels = AppDatabase.getInstance().repoDao().getByIdSync(repoId);
+
+
+        List<RepoModel> repoModels = queryRepoSync(repoId);
         if (CollectionUtils.isEmpty(repoModels)) {
             throw throwFileNotFoundException(R.string.repo_not_found);
         }
@@ -468,7 +465,7 @@ public class SeafileProvider extends DocumentsProvider {
     private ParcelFileDescriptor readDocumentAsync(final String documentId, final String mode, Account account, RepoModel repoModel, String path, final CancellationSignal signal) throws FileNotFoundException {
         // Check whether the remote data exists. If it doesn't, throw an exception,
         // because we have already inserted it into the local database in queryChildDocuments().
-        List<DirentModel> direntModels = AppDatabase.getInstance().direntDao().getListByFullPathSync(repoModel.repo_id, path);
+        List<DirentModel> direntModels = queryDirentSync(account, repoModel.repo_id, path);
         if (CollectionUtils.isEmpty(direntModels)) {
             throw new FileNotFoundException("could not find file");
         }
@@ -477,7 +474,7 @@ public class SeafileProvider extends DocumentsProvider {
 
         // Check if the local cache database exists. If the file has not been downloaded,
         // it will not exist in the cache database. In that case, throw an exception.
-        List<FileCacheStatusEntity> caches = AppDatabase.getInstance().fileCacheStatusDAO().getByFullPathSync(repoModel.repo_id, path);
+        List<FileCacheStatusEntity> caches = queryFileCachesSync(account, repoModel.repo_id, path);
         if (!CollectionUtils.isEmpty(caches)) {
 
             FileCacheStatusEntity cacheStatusEntity = caches.get(0);
@@ -566,7 +563,7 @@ public class SeafileProvider extends DocumentsProvider {
     private ParcelFileDescriptor readDocumentSync(final String documentId, final String mode, Account account, RepoModel repoModel, String path, final CancellationSignal signal) throws FileNotFoundException {
         // Check whether the remote data exists. If it doesn't, throw an exception,
         // because we have already inserted it into the local database in queryChildDocuments().
-        List<DirentModel> direntModels = AppDatabase.getInstance().direntDao().getListByFullPathSync(repoModel.repo_id, path);
+        List<DirentModel> direntModels = queryDirentSync(account, repoModel.repo_id, path);
         if (CollectionUtils.isEmpty(direntModels)) {
             throw new FileNotFoundException("could not find file");
         }
@@ -575,7 +572,8 @@ public class SeafileProvider extends DocumentsProvider {
 
         // Check if the local cache database exists. If the file has not been downloaded,
         // it will not exist in the cache database. In that case, throw an exception.
-        List<FileCacheStatusEntity> caches = AppDatabase.getInstance().fileCacheStatusDAO().getByFullPathSync(repoModel.repo_id, path);
+
+        List<FileCacheStatusEntity> caches = queryFileCachesSync(account, repoModel.repo_id, path);
         if (!CollectionUtils.isEmpty(caches)) {
 
             FileCacheStatusEntity cacheStatusEntity = caches.get(0);
@@ -692,7 +690,7 @@ public class SeafileProvider extends DocumentsProvider {
             throw throwFileNotFoundException(R.string.repo_not_found);
         }
 
-        List<RepoModel> repoModels = AppDatabase.getInstance().repoDao().getByIdSync(repoId);
+        List<RepoModel> repoModels = queryRepoSync(repoId);
         if (CollectionUtils.isEmpty(repoModels)) {
             throw throwFileNotFoundException(R.string.repo_not_found);
         }
@@ -705,7 +703,11 @@ public class SeafileProvider extends DocumentsProvider {
 
         String mimeType = Utils.getFileMimeType(documentId);
         if (!mimeType.startsWith("image/")) {
-            throw throwFileNotFoundException(R.string.saf_bad_mime_type);
+            throw throwFileNotFoundException(String.format("%s mime is not supported", mimeType));
+        }
+
+        if (mimeType.startsWith("image/x-photoshop") || mimeType.startsWith("application/vnd.adobe")) {
+            throw throwFileNotFoundException("adobe mime is not supported yet.");
         }
 
         File file = DataManager.getLocalFileCachePath(account, repoModel.repo_id, repoModel.repo_name, path);
@@ -735,16 +737,18 @@ public class SeafileProvider extends DocumentsProvider {
 
                         SLogs.d(TAG, "openDocumentThumbnail()", "urlPath = " + urlPath);
 
-                        RequestOptions requestOptions = new RequestOptions()
-                                .diskCacheStrategy(DiskCacheStrategy.ALL);
+                        GlideImage glideImage = new GlideImage(urlPath, account.token);
+
+                        RequestOptions options = new RequestOptions().diskCacheStrategy(DiskCacheStrategy.ALL);
 
                         Bitmap bitmap = GlideApp.with(getContext())
                                 .asBitmap()
-                                .apply(requestOptions)
-                                .load(urlPath)
+                                .load(glideImage)
+                                .apply(options)
                                 .centerCrop()
                                 .submit(sizeHint.x, sizeHint.y)
                                 .get();
+
                         if (bitmap != null) {
                             bitmap.compress(Bitmap.CompressFormat.PNG, 50, fileStream);
                         }
@@ -798,7 +802,7 @@ public class SeafileProvider extends DocumentsProvider {
         }
 
         String repoId = DocumentIdParser.getRepoIdFromId(parentDocumentId);
-        List<RepoModel> repos = AppDatabase.getInstance().repoDao().getRepoByIdSync(repoId);
+        List<RepoModel> repos = queryRepoSync(repoId);
         if (CollectionUtils.isEmpty(repos)) {
             throw throwFileNotFoundException(R.string.repo_not_found);
         }
@@ -828,13 +832,18 @@ public class SeafileProvider extends DocumentsProvider {
     }
 
     private FileNotFoundException throwFileNotFoundException(@StringRes int resId) {
-        if (getContext() != null) {
-            String s = getContext().getString(resId);
-            SLogs.e(TAG, "throwFileNotFoundException()", s);
-            return new FileNotFoundException(s);
+        if (getContext() == null) {
+            SLogs.d(TAG, "throwFileNotFoundException()", "context is null, we can't get string resource");
+            return new FileNotFoundException();
         }
-        SLogs.e(TAG, "throwFileNotFoundException()");
-        return new FileNotFoundException();
+
+        String s = getContext().getString(resId);
+        return throwFileNotFoundException(s);
+    }
+
+    private FileNotFoundException throwFileNotFoundException(String msg) {
+        SLogs.d(TAG, "throwFileNotFoundException()", msg);
+        return new FileNotFoundException(msg);
     }
 
     /**
@@ -1033,6 +1042,52 @@ public class SeafileProvider extends DocumentsProvider {
 
     }
 
+
+    private List<DirentModel> queryDirentSync(Account account, String repoId, String path) throws FileNotFoundException {
+        try {
+            return CompletableFuture.supplyAsync(new Supplier<List<DirentModel>>() {
+                @Override
+                public List<DirentModel> get() {
+                    return AppDatabase.getInstance().direntDao().getListByFullPathSync(repoId, path);
+                }
+            }).get();
+        } catch (ExecutionException | InterruptedException e) {
+            SLogs.d(TAG, "queryDirentSync()", "failed", e.getMessage());
+            SLogs.e(e);
+            throw new FileNotFoundException(e.getMessage());
+        }
+    }
+
+    private List<DirentModel> queryDirentsSync(Account account, String repoId, String path) throws FileNotFoundException {
+        try {
+            return CompletableFuture.supplyAsync(new Supplier<List<DirentModel>>() {
+                @Override
+                public List<DirentModel> get() {
+                    return AppDatabase.getInstance().direntDao().getListByParentPathSync(repoId, path);
+                }
+            }).get();
+        } catch (ExecutionException | InterruptedException e) {
+            SLogs.d(TAG, "queryDirentsSync()", "failed", e.getMessage());
+            SLogs.e(e);
+            throw new FileNotFoundException(e.getMessage());
+        }
+    }
+
+    private List<FileCacheStatusEntity> queryFileCachesSync(Account account, String repoId, String path) throws FileNotFoundException {
+        try {
+            return CompletableFuture.supplyAsync(new Supplier<List<FileCacheStatusEntity>>() {
+                @Override
+                public List<FileCacheStatusEntity> get() {
+                    return AppDatabase.getInstance().fileCacheStatusDAO().getByFullPathSync(repoId, path);
+                }
+            }).get();
+        } catch (ExecutionException | InterruptedException e) {
+            SLogs.d(TAG, "queryFileCachesSync()", "failed", e.getMessage());
+            SLogs.e(e);
+            throw new FileNotFoundException(e.getMessage());
+        }
+    }
+
     /**
      * Fetches a dirent (list of entries of a directory) from Seafile asynchronously.
      * <p>
@@ -1059,22 +1114,42 @@ public class SeafileProvider extends DocumentsProvider {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Consumer<List<DirentModel>>() {
                     @Override
-                    public void accept(List<DirentModel> direntModels) throws Exception {
-                        SLogs.d(TAG, "fetchDirentAsync()", "success: " + docId);
+                    public void accept(List<DirentModel> direntModels) {
+                        SLogs.d(TAG, "fetchDirentAsync()", "success", "docId = " + docId);
 
                         SeadroidApplication.getDocumentCache().put(docId);
                         notifyChanged(notifyUri);
                     }
                 }, new Consumer<Throwable>() {
                     @Override
-                    public void accept(Throwable throwable) throws Exception {
-                        SLogs.d(TAG, "fetchDirentAsync()", "failed: " + docId);
+                    public void accept(Throwable throwable) {
+                        SLogs.d(TAG, "fetchDirentAsync()", "failed", "docId = " + docId);
                         SLogs.e(throwable);
 
                         notifyChanged(notifyUri);
                     }
                 });
         compositeDisposable.add(disposable);
+    }
+
+    /**
+     * query starred documents from local database asynchronously.
+     *
+     * @param account account.
+     */
+    private List<StarredModel> queryStarredDocsSync(Account account) throws FileNotFoundException {
+        try {
+            return CompletableFuture.supplyAsync(new Supplier<List<StarredModel>>() {
+                @Override
+                public List<StarredModel> get() {
+                    return AppDatabase.getInstance().starredDirentDAO().getListByAccountSync(account.getSignature());
+                }
+            }).get();
+        } catch (ExecutionException | InterruptedException e) {
+            SLogs.d(TAG, "queryStarredDocsSync()", "failed", e.getMessage());
+            SLogs.e(e);
+            throw new FileNotFoundException(e.getMessage());
+        }
     }
 
     /**
@@ -1096,15 +1171,15 @@ public class SeafileProvider extends DocumentsProvider {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Consumer<List<StarredModel>>() {
                     @Override
-                    public void accept(List<StarredModel> starredModels) throws Exception {
-                        SLogs.d(TAG, "fetchStarredAsync()", "success: " + docId);
+                    public void accept(List<StarredModel> starredModels) {
+                        SLogs.d(TAG, "fetchStarredAsync()", "success", "docId = " + docId);
                         SeadroidApplication.getDocumentCache().put(docId);
                         notifyChanged(notifyUri);
                     }
                 }, new Consumer<Throwable>() {
                     @Override
-                    public void accept(Throwable throwable) throws Exception {
-                        SLogs.d(TAG, "fetchDirentAsync()", "failed: " + docId);
+                    public void accept(Throwable throwable) {
+                        SLogs.d(TAG, "fetchDirentAsync()", "failed", "docId = " + docId);
                         SLogs.e(throwable);
 
                         notifyChanged(notifyUri);
@@ -1113,6 +1188,45 @@ public class SeafileProvider extends DocumentsProvider {
         compositeDisposable.add(disposable);
     }
 
+    /**
+     * query special repo from local database asynchronously.
+     */
+    private List<RepoModel> queryRepoSync(String repoId) throws FileNotFoundException {
+        try {
+            return CompletableFuture.supplyAsync(new Supplier<List<RepoModel>>() {
+                @Override
+                public List<RepoModel> get() {
+                    return AppDatabase.getInstance().repoDao().getByIdSync(repoId);
+                }
+            }).get();
+        } catch (ExecutionException | InterruptedException e) {
+            SLogs.d(TAG, "queryRepoSync()", "failed", e.getMessage());
+            SLogs.e(e);
+            throw new FileNotFoundException(e.getMessage());
+        }
+
+    }
+
+    /**
+     * query repos from local database asynchronously.
+     *
+     * @param account account.
+     */
+    private List<RepoModel> queryReposSync(Account account) throws FileNotFoundException {
+        try {
+            return CompletableFuture.supplyAsync(new Supplier<List<RepoModel>>() {
+                @Override
+                public List<RepoModel> get() {
+                    return AppDatabase.getInstance().repoDao().getListByAccountSync(account.getSignature());
+                }
+            }).get();
+        } catch (ExecutionException | InterruptedException e) {
+            SLogs.d(TAG, "queryReposSync()", "failed", e.getMessage());
+            SLogs.e(e);
+            throw new FileNotFoundException(e.getMessage());
+        }
+
+    }
 
     /**
      * Fetches a new list of repositories from Seafile asynchronously.
@@ -1134,15 +1248,15 @@ public class SeafileProvider extends DocumentsProvider {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Consumer<List<BaseModel>>() {
                     @Override
-                    public void accept(List<BaseModel> baseModels) throws Exception {
-                        SLogs.d(TAG, "fetchReposAsync()", "success: " + docId);
+                    public void accept(List<BaseModel> baseModels) {
+                        SLogs.d(TAG, "fetchReposAsync()", "success", "docId = " + docId);
                         SeadroidApplication.getDocumentCache().put(docId);
                         notifyChanged(notifyUri);
                     }
                 }, new Consumer<Throwable>() {
                     @Override
-                    public void accept(Throwable throwable) throws Exception {
-                        SLogs.d(TAG, "fetchReposAsync()", "failed: " + docId);
+                    public void accept(Throwable throwable) {
+                        SLogs.d(TAG, "fetchReposAsync()", "failed", "docId = " + docId);
                         SLogs.e(throwable);
                         notifyChanged(notifyUri);
                     }

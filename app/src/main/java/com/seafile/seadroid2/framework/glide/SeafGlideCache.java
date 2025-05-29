@@ -1,4 +1,4 @@
-package com.seafile.seadroid2;
+package com.seafile.seadroid2.framework.glide;
 
 import android.content.Context;
 
@@ -44,6 +44,9 @@ public class SeafGlideCache extends AppGlideModule {
         try {
             OkHttpClient client = getClient();
             registry.replace(GlideUrl.class, InputStream.class, new OkHttpUrlLoader.Factory(client));
+
+            registry.append(GlideImage.class, InputStream.class, new GlideImageModelLoaderFactory());
+
         } catch (IllegalStateException e) {
             SLogs.d("SeaGlideCache","No current account?");
         }
@@ -54,22 +57,6 @@ public class SeafGlideCache extends AppGlideModule {
         OkHttpClient.Builder builder = unsafeOkHttpClient.getBuilder();
         builder.followRedirects(true);
         builder.addInterceptor(new CurrentTokenInterceptor());
-//        builder.addInterceptor(new Interceptor() {
-//            @Override
-//            public Response intercept(Chain chain) throws IOException {
-//                Request request = chain.request();
-//                String url = request.url().toString();
-//
-//                String kie = CookieManager.getInstance().getCookie(URLs.getHost(url));
-//                Request.Builder requestBuilder = request.newBuilder();
-//                if (kie != null) {
-//                    requestBuilder.addHeader("Cookie", kie);
-//                }
-//
-//                Request newRequest = requestBuilder.build();
-//                return chain.proceed(newRequest);
-//            }
-//        });
         return builder.build();
     }
 }

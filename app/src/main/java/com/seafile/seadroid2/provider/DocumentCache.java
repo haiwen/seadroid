@@ -6,20 +6,21 @@ import java.util.concurrent.TimeUnit;
 
 public class DocumentCache {
 
-    private static final long CACHE_EXPIRATION = TimeUnit.MILLISECONDS.convert(15, TimeUnit.SECONDS);
+    private static final long CACHE_EXPIRATION = TimeUnit.MILLISECONDS.convert(5, TimeUnit.SECONDS);
     private final Map<String, Long> mCache = new ConcurrentHashMap<>();
 
-    public int get(String documentId) {
+
+    public boolean isExpired(String documentId) {
         Long expireTimeLong = mCache.get(documentId);
         if (expireTimeLong == null) {
-            return -1;//not found, need to load
+            return true;//not found, need to re-load
         }
 
         if (expireTimeLong + CACHE_EXPIRATION < System.currentTimeMillis()) {
-            return -1;//expired, need to load
+            return true;//expired, need to re-load
         }
 
-        return 1;//ok
+        return false;//ok
     }
 
 

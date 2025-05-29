@@ -8,6 +8,8 @@ import com.blankj.utilcode.util.CollectionUtils;
 import com.seafile.seadroid2.config.ColumnType;
 import com.seafile.seadroid2.framework.model.user.UserModel;
 import com.seafile.seadroid2.framework.model.user.UserWrapperModel;
+import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.ui.media.image.PhotoFragment;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -50,11 +52,7 @@ public class FileProfileConfigModel implements Parcelable {
         return detail;
     }
 
-    public void initDefaultIfMetaNotEnable(FileDetailModel detail) {
-        if (getMetaEnabled()) {
-            return;
-        }
-
+    public void initDefaultIfMetaNotEnable() {
         if (detail == null) {
             return;
         }
@@ -87,7 +85,7 @@ public class FileProfileConfigModel implements Parcelable {
         m.put("_file_mtime", getDetail().getLastModified());
         recordWrapperModel.results.add(m);
 
-        setRecordWrapperModel(recordWrapperModel);
+        addRecordWrapperModel(recordWrapperModel);
 
         //add a default user with last modifier user info
         UserWrapperModel wrapperModel = new UserWrapperModel();
@@ -99,6 +97,8 @@ public class FileProfileConfigModel implements Parcelable {
         r.setContactEmail(getDetail().getLastModifierContactEmail());
         wrapperModel.user_list.add(r);
         setRelatedUserList(wrapperModel);
+
+        SLogs.d(PhotoFragment.TAG, "initDefaultIfMetaNotEnable()", "detail = " + detail.getName());
     }
 
     public void setRelatedUserWrapperModel(UserWrapperModel relatedUserWrapperModel) {
@@ -115,10 +115,7 @@ public class FileProfileConfigModel implements Parcelable {
         return relatedUserList;
     }
 
-    public void setRecordWrapperModel(FileRecordWrapperModel recordWrapperModel) {
-        this.recordResults.clear();
-        this.recordMetaData.clear();
-
+    public void addRecordWrapperModel(FileRecordWrapperModel recordWrapperModel) {
         this.recordResults.addAll(recordWrapperModel.results);
 
         List<MetadataModel> metadata = swapSizePosition(recordWrapperModel.metadata);
@@ -129,6 +126,7 @@ public class FileProfileConfigModel implements Parcelable {
         if (CollectionUtils.isEmpty(metadata)) {
             return CollectionUtils.newArrayList();
         }
+
         int index = -1;
         for (int i = 0; i < metadata.size(); i++) {
             if (TextUtils.equals(metadata.get(i).key, "_size")) {

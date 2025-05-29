@@ -1,6 +1,6 @@
 package com.seafile.seadroid2.ui.dialog_fragment.viewmodel;
 
-import com.seafile.seadroid2.GlideApp;
+import com.seafile.seadroid2.framework.glide.GlideApp;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
 import com.seafile.seadroid2.framework.datastore.StorageManager;

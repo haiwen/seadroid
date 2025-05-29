@@ -231,6 +231,9 @@
     <string name="tabs_library">Libraries</string>
     <string name="tabs_activity">Activities</string>
     <string name="tabs_starred">Starred</string>
+    <string name="starred_repos">Starred libraries</string>
+    <string name="starred_files">Starred files</string>
+    <string name="starred_folder">Starred folder</string>
     <string name="provide_password">Provide the password for library \"%s\"</string>
     <string name="upload_waiting">Upload waiting</string>
     <string name="upload_finished">Upload finished</string>

@@ -119,7 +119,7 @@ public class Objs {
             @Override
             public SingleSource<List<RepoModel>> apply(List<RepoModel> willSaveIntoLocalList) throws Exception {
                 // delete local db
-                Completable deleteCompletable = AppDatabase.getInstance().repoDao().deleteAll();
+                Completable deleteCompletable = AppDatabase.getInstance().repoDao().deleteAllByAccount(account.getSignature());
                 Single<Long> deleteSingle = deleteCompletable.toSingleDefault(0L);
 
                 return deleteSingle.flatMap(new Function<Long, SingleSource<List<RepoModel>>>() {
@@ -186,12 +186,12 @@ public class Objs {
 
                 List<RepoModel> newRepoList = new ArrayList<>();
                 for (RepoModel repoModel : starredList) {
-                    RepoModel r =  CloneUtils.deepClone(repoModel,RepoModel.class);
+                    RepoModel r = CloneUtils.deepClone(repoModel, RepoModel.class);
                     newRepoList.add(r);
                 }
 
-                List<RepoModel> sList = sortRepos(newRepoList);//clone list
-                GroupItemModel groupItemModel = new GroupItemModel(R.string.tabs_starred);
+                List<RepoModel> sList = sortRepos(newRepoList);
+                GroupItemModel groupItemModel = new GroupItemModel(R.string.starred_repos);
                 for (RepoModel r : sList) {
                     //temp set group_name and group_id
                     r.group_name = groupItemModel.getTitle();

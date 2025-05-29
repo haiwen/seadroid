@@ -73,9 +73,6 @@ public interface DirentDAO {
     @Query("DELETE FROM dirents where parent_dir = :parent_dir and repo_id = :repo_id")
     void deleteAllByParentPathSync(String repo_id, String parent_dir);
 
-    @Query("DELETE FROM dirents")
-    Completable deleteAll();
-
     @Delete()
     void delete(DirentModel direntModel);
 

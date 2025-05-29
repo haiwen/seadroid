@@ -52,7 +52,6 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 
 public class PhotoViewModel extends BaseViewModel {
-    private final String TAG = "PhotoViewModel";
 
     private final MutableLiveData<String> _downloadedUrlLiveData = new MutableLiveData<>();
     private final MutableLiveData<String> _originalUrlLiveData = new MutableLiveData<>();
@@ -82,8 +81,17 @@ public class PhotoViewModel extends BaseViewModel {
     }
 
     public void getFileDetail(String repoId, String path) {
-        Single<FileDetailModel> detailSingle = HttpIO.getCurrentInstance().execute(SDocService.class).getFileDetail(repoId, path);
-        Single<MetadataConfigModel> metadataSingle = HttpIO.getCurrentInstance().execute(SDocService.class).getMetadata(repoId).onErrorReturnItem(new MetadataConfigModel());
+        SLogs.d(PhotoFragment.TAG, "getFileDetail()", path);
+
+        Single<FileDetailModel> detailSingle = HttpIO.getCurrentInstance()
+                .execute(SDocService.class)
+                .getFileDetail(repoId, path);
+
+        Single<MetadataConfigModel> metadataSingle = HttpIO
+                .getCurrentInstance()
+                .execute(SDocService.class)
+                .getMetadata(repoId)
+                .onErrorReturnItem(new MetadataConfigModel());
 
         Single<FileProfileConfigModel> s = Single.zip(metadataSingle, detailSingle, new BiFunction<MetadataConfigModel, FileDetailModel, FileProfileConfigModel>() {
             @Override
@@ -91,8 +99,6 @@ public class PhotoViewModel extends BaseViewModel {
                 FileProfileConfigModel configModel = new FileProfileConfigModel();
                 configModel.setMetadataConfigModel(metadataConfigModel);
                 configModel.setDetail(fileDetailModel);
-                //
-                configModel.initDefaultIfMetaNotEnable(fileDetailModel);
                 return configModel;
             }
         }).flatMap(new Function<FileProfileConfigModel, SingleSource<FileProfileConfigModel>>() {
@@ -121,30 +127,54 @@ public class PhotoViewModel extends BaseViewModel {
                     if (TextUtils.isEmpty(parent_dir)) {
                         parent_dir = "/";
                     }
-                    Single<UserWrapperModel> userSingle = HttpIO.getCurrentInstance().execute(SDocService.class).getRelatedUsers(repoId);
+
+                    SLogs.d(PhotoFragment.TAG, "metadata enabled", "path = " + path);
+                    //user
+                    Single<UserWrapperModel> userSingle = HttpIO.getCurrentInstance()
+                            .execute(SDocService.class)
+                            .getRelatedUsers(repoId);
                     singles.add(userSingle);
 
-                    Single<FileRecordWrapperModel> recordSingle = HttpIO.getCurrentInstance().execute(SDocService.class).getRecords(repoId, parent_dir, name, name);
+                    //record
+                    SLogs.d(PhotoFragment.TAG, "parent_dir: " + parent_dir + ", name: " + name);
+                    Single<FileRecordWrapperModel> recordSingle = HttpIO.getCurrentInstance()
+                            .execute(SDocService.class)
+                            .getRecords(repoId, parent_dir, name, name)
+                            .onErrorReturnItem(new FileRecordWrapperModel());
                     singles.add(recordSingle);
                 }
 
                 if (configModel.getTagsEnabled()) {
-                    Single<FileTagWrapperModel> tagSingle = HttpIO.getCurrentInstance().execute(SDocService.class).getTags(repoId);
+                    SLogs.d(PhotoFragment.TAG, "tag enabled", "path = " + path);
+                    //tag
+                    Single<FileTagWrapperModel> tagSingle = HttpIO.getCurrentInstance()
+                            .execute(SDocService.class)
+                            .getTags(repoId)
+                            .onErrorReturnItem(new FileTagWrapperModel());
                     singles.add(tagSingle);
                 }
 
                 if (singles.isEmpty()) {
+                    configModel.initDefaultIfMetaNotEnable();
                     return Single.just(configModel);
                 }
 
                 return Single.zip(singles, new Function<Object[], FileProfileConfigModel>() {
                     @Override
                     public FileProfileConfigModel apply(Object[] results) throws Exception {
+
                         if (configModel.getMetaEnabled()) {
                             UserWrapperModel u = (UserWrapperModel) results[0];
-                            FileRecordWrapperModel r = (FileRecordWrapperModel) results[1];
                             configModel.setRelatedUserWrapperModel(u);
-                            configModel.setRecordWrapperModel(r);
+
+                            FileRecordWrapperModel r = (FileRecordWrapperModel) results[1];
+                            if (r.results.isEmpty()) {
+                                configModel.initDefaultIfMetaNotEnable();
+                            } else {
+                                configModel.addRecordWrapperModel(r);
+                            }
+                        } else {
+                            configModel.initDefaultIfMetaNotEnable();
                         }
 
                         if (configModel.getMetaEnabled() && configModel.getTagsEnabled()) {
@@ -312,8 +342,8 @@ public class PhotoViewModel extends BaseViewModel {
 
                     long fileSize = responseBody.contentLength();
                     if (fileSize == -1) {
-                        SLogs.d(TAG, "getDownloadSingle()", "download file error -> contentLength is -1");
-                        SLogs.d(TAG, destinationFile.getAbsolutePath());
+                        SLogs.d(PhotoFragment.TAG, "getDownloadSingle()", "download file error -> contentLength is -1");
+                        SLogs.d(PhotoFragment.TAG, destinationFile.getAbsolutePath());
 
                         fileSize = direntModel.size;
                     }
@@ -343,10 +373,10 @@ public class PhotoViewModel extends BaseViewModel {
                         FileCacheStatusEntity entity = getSaveEntity(direntModel, destinationFile);
                         AppDatabase.getInstance().fileCacheStatusDAO().insert(entity);
 
-                        SLogs.d(TAG, "getDownloadSingle()", "move file success: " + path);
+                        SLogs.d(PhotoFragment.TAG, "getDownloadSingle()", "move file success: " + path);
                         emitter.onSuccess(destinationFile);
                     } else {
-                        SLogs.d(TAG, "getDownloadSingle()", "move file failed: " + path);
+                        SLogs.d(PhotoFragment.TAG, "getDownloadSingle()", "move file failed: " + path);
                         emitter.onError(SeafException.TRANSFER_FILE_EXCEPTION);
                     }
                 } catch (Exception e) {

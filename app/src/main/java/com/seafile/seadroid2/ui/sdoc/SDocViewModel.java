@@ -65,8 +65,6 @@ public class SDocViewModel extends BaseViewModel {
                 FileProfileConfigModel configModel = new FileProfileConfigModel();
                 configModel.setMetadataConfigModel(metadataConfigModel);
                 configModel.setDetail(fileDetailModel);
-                //
-                configModel.initDefaultIfMetaNotEnable(fileDetailModel);
                 return configModel;
             }
         }).flatMap(new io.reactivex.functions.Function<FileProfileConfigModel, SingleSource<FileProfileConfigModel>>() {
@@ -108,6 +106,7 @@ public class SDocViewModel extends BaseViewModel {
                 }
 
                 if (singles.isEmpty()) {
+                    configModel.initDefaultIfMetaNotEnable();
                     return Single.just(configModel);
                 }
 
@@ -116,9 +115,16 @@ public class SDocViewModel extends BaseViewModel {
                     public FileProfileConfigModel apply(Object[] results) throws Exception {
                         if (configModel.getMetaEnabled()) {
                             UserWrapperModel u = (UserWrapperModel) results[0];
-                            FileRecordWrapperModel r = (FileRecordWrapperModel) results[1];
                             configModel.setRelatedUserWrapperModel(u);
-                            configModel.setRecordWrapperModel(r);
+
+                            FileRecordWrapperModel r = (FileRecordWrapperModel) results[1];
+                            if (r.results.isEmpty()) {
+                                configModel.initDefaultIfMetaNotEnable();
+                            } else {
+                                configModel.addRecordWrapperModel(r);
+                            }
+                        } else {
+                            configModel.initDefaultIfMetaNotEnable();
                         }
 
                         if (configModel.getMetaEnabled() && configModel.getTagsEnabled()) {
