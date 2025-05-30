@@ -46,7 +46,6 @@ public class ProgressUriRequestBody extends RequestBody {
 
     @Override
     public void writeTo(@NonNull BufferedSink sink) throws IOException {
-        // 读取文件内容
         try (InputStream inputStream = context.getContentResolver().openInputStream(uri)) {
 
             long fileLength = contentLength();

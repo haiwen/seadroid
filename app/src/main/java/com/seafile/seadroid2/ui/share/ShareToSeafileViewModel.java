@@ -14,6 +14,7 @@ import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.model.repo.DirentWrapperModel;
+import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.util.Utils;
@@ -64,6 +65,7 @@ public class ShareToSeafileViewModel extends BaseViewModel {
                     String fileName = Utils.getFilenameFromUri(context, uri);
                     for (DirentModel direntModel : wrapperModel.dirent_list) {
                         if (TextUtils.equals(direntModel.name, fileName)) {
+                            SLogs.d(ShareToSeafileActivity.TAG, "exists in remote: " + fileName);
                             existsList.add(direntModel);
                             break;
                         }
@@ -93,6 +95,7 @@ public class ShareToSeafileViewModel extends BaseViewModel {
             String fileName = Utils.getFilenameFromUri(context, uri);
             TransferModel transferModel = gen(context, account, repoId, repoName, uri, fileName, parentDir, isReplace);
             GlobalTransferCacheList.FILE_UPLOAD_QUEUE.put(transferModel);
+            SLogs.d(ShareToSeafileActivity.TAG, "gen model file name: " + fileName);
         }
 
         getActionLiveData().setValue(true);

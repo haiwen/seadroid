@@ -28,7 +28,7 @@ public class FileCacheStatusEntity extends BaseModel {
 
 
     /**
-     * this field value is md5(account.email + transfer_action + full_path)
+     * this field value is md5(related_account + repo_id + full_path)
      */
     @PrimaryKey
     @NonNull
@@ -49,10 +49,8 @@ public class FileCacheStatusEntity extends BaseModel {
      * </p>
      * <pre>
      * {@code
-     *     transfer_action = DOWNLOAD
-     *     data_source = DOWNLOAD
      *     full_path = /a/d.txt (in remote repo)
-     *     -> target_path = /storage/emulated/0/Android/media/com.xxx/Seafile/account@xxx.com (xxx.com)/My Library/a/d.txt
+     *     -> target_path = /sdcard/Android/media/{package_name}/Seafile/{account}/{repo_name}/a/d.txt
      * }
      * </pre>
      */
@@ -60,9 +58,8 @@ public class FileCacheStatusEntity extends BaseModel {
     /**
      * <pre>
      * {@code
-     *     transfer_action = DOWNLOAD
      *     full_path = /a/b.txt
-     *     target_path = /storage/emulated/0/Android/media/com.xxx/Seafile/account@xxx.com (xxx.com)/My Library/a/b.txt
+     *     target_path = /sdcard/Android/media/{package_name}/Seafile/{account}/{repo_name}/a/d.txt
      *     -> parent_path = full_path's parent: /a/
      * }
      * </pre>
@@ -126,7 +123,7 @@ public class FileCacheStatusEntity extends BaseModel {
 
     @Override
     public String toString() {
-        return "FileTransferEntity{" +
+        return "FileCacheStatusEntity{" +
                 ", repo_name='" + repo_name + '\'' +
                 ", full_path='" + full_path + '\'' +
                 '}';
@@ -136,7 +133,7 @@ public class FileCacheStatusEntity extends BaseModel {
      * md5(related_account + transfer_action + full_path)
      */
     @NonNull
-    public String getUID() {
+    public String genUID() {
         if (TextUtils.isEmpty(related_account)) {
             throw new IllegalArgumentException("related_account can not be null.");
         }
@@ -185,7 +182,7 @@ public class FileCacheStatusEntity extends BaseModel {
         entity.created_at = System.currentTimeMillis();
         entity.modified_at = entity.created_at;
 
-        entity.uid = entity.getUID();
+        entity.uid = entity.genUID();
 
         return entity;
     }

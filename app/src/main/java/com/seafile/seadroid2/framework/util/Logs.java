@@ -14,12 +14,16 @@ import com.elvishew.xlog.printer.file.backup.FileSizeBackupStrategy2;
 import com.elvishew.xlog.printer.file.clean.FileLastModifiedCleanStrategy;
 import com.elvishew.xlog.printer.file.naming.DateFileNameGenerator;
 import com.elvishew.xlog.printer.file.naming.FileNameGenerator;
+import com.google.common.base.Strings;
 import com.seafile.seadroid2.BuildConfig;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.TimeZone;
+
+import kotlin.text.StringsKt;
 
 /**
  * <p>
@@ -39,7 +43,11 @@ public class Logs {
      * will delete log files that have not been modified for a period of time
      */
     private static final long MAX_TIME = 30L * 24 * 60 * 60 * 1000;// 30 days
+    private static final long MAX_SIZE = 1024 * 1024 * 50;// 50M
 
+    /**
+     * init log
+     */
     public static void init() {
         LogConfiguration config = new LogConfiguration.Builder()
                 .logLevel(BuildConfig.DEBUG ? LogLevel.ALL : LogLevel.DEBUG)
@@ -58,9 +66,9 @@ public class Logs {
 
         Printer filePrinter = new FilePrinter
                 .Builder(logPath)
-                .fileNameGenerator(new DateFileNameGenerator())
+                .fileNameGenerator(new LogFileNameGenerator())
                 .flattener(new ClassicFlattener())
-                .backupStrategy(new FileSizeBackupStrategy2(1024 * 1024, 30))
+                .backupStrategy(new FileSizeBackupStrategy2(MAX_SIZE, 30))
                 .cleanStrategy(new FileLastModifiedCleanStrategy(MAX_TIME))
                 .build();
 
@@ -80,14 +88,6 @@ public class Logs {
         XLog.v(object);
     }
 
-    public static void v(Object[] array) {
-        XLog.v(array);
-    }
-
-    public static void v(String format, Object... args) {
-        XLog.v(format, args);
-    }
-
     public static void v(String msg) {
         XLog.v(msg);
     }
@@ -101,21 +101,37 @@ public class Logs {
         XLog.d(object);
     }
 
-    public static void d(Object[] array) {
-        XLog.d(array);
-    }
+    public static void d(String... logs) {
+        if (logs == null || logs.length == 0) {
+            return;
+        }
 
-    public static void d(String format, Object... args) {
-        XLog.d(format, args);
+        if (logs.length == 1) {
+            d(logs[0]);
+            return;
+        }
+
+        StringBuilder logBuilder = new StringBuilder();
+        for (String s : logs) {
+            logBuilder.append(s).append(", ");
+        }
+        String log = logBuilder.toString();
+        if (log.endsWith(", ")) {
+            log = log.substring(0, log.length() - 2);
+        }
+        d(log);
     }
 
     public static void d(String msg) {
         XLog.d(msg);
     }
 
-    public static void d(Class<?> clz, String msg) {
-        XLog.d(clz.getSimpleName() + " -> " + msg);
+    public static void dDebug(String msg) {
+        if (BuildConfig.DEBUG) {
+            XLog.d(msg);
+        }
     }
+
 
     public static void d(String msg, Throwable tr) {
         XLog.d(msg, tr);

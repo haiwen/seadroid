@@ -28,7 +28,6 @@ import com.seafile.seadroid2.framework.worker.ExistingFileStrategy;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
-import com.seafile.seadroid2.framework.worker.upload.FolderBackupScanWorker;
 import com.seafile.seadroid2.ui.file.FileService;
 
 import java.io.IOException;
@@ -44,6 +43,7 @@ import java.util.List;
  * @see BackgroundJobManagerImpl#TAG_TRANSFER
  */
 public class DownloadFileScannerWorker extends TransferWorker {
+    private final String TAG = "DownloadFileScannerWorker";
     private final DownloadNotificationHelper notificationHelper;
 
     public DownloadFileScannerWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
@@ -55,7 +55,7 @@ public class DownloadFileScannerWorker extends TransferWorker {
     @NonNull
     @Override
     public Result doWork() {
-        SLogs.d(DownloadFileScannerWorker.class, "started execution");
+        SLogs.d(TAG, "doWork()", "started execution");
 
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
         if (account == null) {
@@ -73,8 +73,8 @@ public class DownloadFileScannerWorker extends TransferWorker {
 
         //send a scan event
         sendWorkerEvent(TransferDataSource.DOWNLOAD, TransferEvent.EVENT_SCANNING);
-        SLogs.d(DownloadFileScannerWorker.class, "start scan");
 
+        SLogs.d(TAG, "doWork()", "start scan");
         String[] direntIds = direntIdStr.split(",");
         List<String> ids = Arrays.asList(direntIds);
 
@@ -95,8 +95,8 @@ public class DownloadFileScannerWorker extends TransferWorker {
                 SLogs.e(e);
             }
         }
-        SLogs.d(DownloadFileScannerWorker.class, "complete");
 
+        SLogs.d(TAG, "doWork()", "complete");
         //success
         return returnSuccess();
     }
@@ -126,7 +126,7 @@ public class DownloadFileScannerWorker extends TransferWorker {
             transferModel.full_path = String.format("%s/%s", pendingModel.parent_dir, pendingModel.name);
         }
         transferModel.setParentPath(Utils.getParentPath(transferModel.full_path));
-        transferModel.target_path = DataManager.getLocalRepoFile(account, transferModel.repo_id, transferModel.repo_name, transferModel.full_path).getAbsolutePath();
+        transferModel.target_path = DataManager.getLocalFileCachePath(account, transferModel.repo_id, transferModel.repo_name, transferModel.full_path).getAbsolutePath();
 
         transferModel.transfer_status = TransferStatus.WAITING;
         transferModel.data_source = TransferDataSource.DOWNLOAD;
@@ -161,14 +161,15 @@ public class DownloadFileScannerWorker extends TransferWorker {
                 transferModel.full_path = String.format("%s/%s", model.parent_dir, model.name);
             }
             transferModel.setParentPath(Utils.getParentPath(transferModel.full_path));
-            transferModel.target_path = DataManager.getLocalRepoFile(account, transferModel.repo_id, transferModel.repo_name, transferModel.full_path).getAbsolutePath();
+            transferModel.target_path = DataManager.getLocalFileCachePath(account, transferModel.repo_id, transferModel.repo_name, transferModel.full_path).getAbsolutePath();
 
             transferModel.transfer_status = TransferStatus.WAITING;
             transferModel.data_source = TransferDataSource.DOWNLOAD;
             transferModel.created_at = System.nanoTime();
             transferModel.transfer_strategy = ExistingFileStrategy.REPLACE;
             transferModel.setId(transferModel.genStableId());
-            SLogs.d("download: " + transferModel.full_path);
+            SLogs.d(TAG, transferModel.full_path);
+
             GlobalTransferCacheList.DOWNLOAD_QUEUE.put(transferModel);
         }
 

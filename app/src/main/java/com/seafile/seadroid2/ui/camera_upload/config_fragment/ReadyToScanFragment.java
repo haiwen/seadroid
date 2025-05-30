@@ -14,7 +14,7 @@ public class ReadyToScanFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return LayoutInflater.from(getContext()).inflate(R.layout.cuc_ready_to_scan_fragment, null);
+        return inflater.inflate(R.layout.cuc_ready_to_scan_fragment, container, false);
     }
 }
 

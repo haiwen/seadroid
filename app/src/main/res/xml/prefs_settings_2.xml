@@ -89,9 +89,9 @@
             app:backgroundColor="@color/pref_background_color"
             app:backgroundRadius="8dp"
             app:dividerColor="@color/pref_divider_color"
-            app:dividerPosition="bottom"
+            app:dividerPosition="none"
             app:iconSpaceReserved="false"
-            app:radiusPosition="top" />
+            app:radiusPosition="all" />
 
         <com.seafile.seadroid2.widget.prefs.TextTitleSummaryPreference
             android:key="@string/pref_key_album_backup_repo_select"
@@ -140,9 +140,9 @@
             app:backgroundColor="@color/pref_background_color"
             app:backgroundRadius="8dp"
             app:dividerColor="@color/pref_divider_color"
-            app:dividerPosition="bottom"
+            app:dividerPosition="none"
             app:iconSpaceReserved="false"
-            app:radiusPosition="top" />
+            app:radiusPosition="all" />
 
         <com.seafile.seadroid2.widget.prefs.SimpleMenuPreference
             android:defaultValue="@string/pref_key_default_value_folder_backup_network_mode"
@@ -306,9 +306,19 @@
             android:title="@string/settings_about_author_title"
             app:backgroundColor="@color/pref_background_color"
             app:backgroundRadius="8dp"
+            app:dividerColor="@color/pref_divider_color"
+            app:dividerPosition="bottom"
+            app:iconSpaceReserved="false"
+            app:radiusPosition="none" />
+
+        <com.seafile.seadroid2.widget.prefs.TextMorePreference
+            android:key="@string/pref_key_export_log_files"
+            android:title="@string/settings_export_run_logs"
+            app:backgroundColor="@color/pref_background_color"
+            app:backgroundRadius="8dp"
+            app:dividerPosition="none"
             app:iconSpaceReserved="false"
             app:radiusPosition="bottom" />
-
     </com.seafile.seadroid2.widget.prefs.CardPreferenceCategory>
 
     <com.seafile.seadroid2.widget.prefs.CardPreferenceCategory

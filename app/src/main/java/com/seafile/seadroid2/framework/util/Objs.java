@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 import com.blankj.utilcode.util.ClipboardUtils;
+import com.blankj.utilcode.util.CloneUtils;
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.google.common.collect.Lists;
@@ -37,6 +38,7 @@ import com.seafile.seadroid2.framework.model.star.StarredWrapperModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.listener.OnCreateDirentShareLinkListener;
 import com.seafile.seadroid2.preferences.Settings;
+import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.comparator.NaturalOrderComparator;
 import com.seafile.seadroid2.ui.dialog_fragment.AppChoiceDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.GetShareLinkPasswordDialogFragment;
@@ -117,7 +119,7 @@ public class Objs {
             @Override
             public SingleSource<List<RepoModel>> apply(List<RepoModel> willSaveIntoLocalList) throws Exception {
                 // delete local db
-                Completable deleteCompletable = AppDatabase.getInstance().repoDao().deleteAll();
+                Completable deleteCompletable = AppDatabase.getInstance().repoDao().deleteAllByAccount(account.getSignature());
                 Single<Long> deleteSingle = deleteCompletable.toSingleDefault(0L);
 
                 return deleteSingle.flatMap(new Function<Long, SingleSource<List<RepoModel>>>() {
@@ -150,13 +152,21 @@ public class Objs {
             public SingleSource<List<BaseModel>> apply(List<RepoModel> savedIntoLocalList) throws Exception {
                 //parse to adapter list data
 
-                List<BaseModel> models = Objs.convertToAdapterList(savedIntoLocalList, false);
+                List<BaseModel> models = Objs.convertToAdapterList(savedIntoLocalList);
                 return Single.just(models);
             }
         });
     }
 
+    public static List<BaseModel> convertToAdapterList(List<RepoModel> list) {
+        return convertToAdapterList(list, false, false);
+    }
+
     public static List<BaseModel> convertToAdapterList(List<RepoModel> list, boolean isFilterUnavailable) {
+        return convertToAdapterList(list, isFilterUnavailable, false);
+    }
+
+    public static List<BaseModel> convertToAdapterList(List<RepoModel> list, boolean isFilterUnavailable, boolean isAddStarredGroup) {
         if (CollectionUtils.isEmpty(list)) {
             return Collections.emptyList();
         }
@@ -168,6 +178,31 @@ public class Objs {
         List<BaseModel> newRvList = CollectionUtils.newArrayList();
 
         TreeMap<String, List<RepoModel>> treeMap = groupRepos(list);
+
+        // ShareToSeafileActivity used it, otherwise, we does not need to add it here
+        if (isAddStarredGroup) {
+            List<RepoModel> starredList = list.stream().filter(f -> f.starred).collect(Collectors.toList());
+            if (!CollectionUtils.isEmpty(starredList)) {
+
+                List<RepoModel> newRepoList = new ArrayList<>();
+                for (RepoModel repoModel : starredList) {
+                    RepoModel r = CloneUtils.deepClone(repoModel, RepoModel.class);
+                    newRepoList.add(r);
+                }
+
+                List<RepoModel> sList = sortRepos(newRepoList);
+                GroupItemModel groupItemModel = new GroupItemModel(R.string.starred_repos);
+                for (RepoModel r : sList) {
+                    //temp set group_name and group_id
+                    r.group_name = groupItemModel.getTitle();
+                    r.group_id = -1;
+                }
+
+                groupItemModel.addAllRepoList(sList);
+                newRvList.add(groupItemModel);
+                newRvList.addAll(sList);
+            }
+        }
 
         //mine
         List<RepoModel> mineList = treeMap.get(RepoType.TYPE_MINE);
@@ -185,9 +220,19 @@ public class Objs {
             newRvList.addAll(sortedList);
         }
 
+
+        //shared
+        List<RepoModel> publicList = treeMap.get(RepoType.TYPE_PUBLIC);
+        if (!CollectionUtils.isEmpty(publicList)) {
+            List<RepoModel> sortedList = sortRepos(publicList);
+            newRvList.add(new GroupItemModel(R.string.shared_with_all, sortedList));
+            newRvList.addAll(sortedList);
+        }
+
         for (String key : treeMap.keySet()) {
             if (TextUtils.equals(key, RepoType.TYPE_MINE)) {
             } else if (TextUtils.equals(key, RepoType.TYPE_SHARED)) {
+            } else if (TextUtils.equals(key, RepoType.TYPE_PUBLIC)) {
             } else {
                 List<RepoModel> groupList = treeMap.get(key);
                 if (!CollectionUtils.isEmpty(groupList)) {
@@ -312,7 +357,7 @@ public class Objs {
                 return insertAllSingle.flatMap(new Function<Long, SingleSource<List<DirentModel>>>() {
                     @Override
                     public SingleSource<List<DirentModel>> apply(Long aLong) throws Exception {
-                        SLogs.d("The list has been inserted into the local database");
+                        SLogs.d("getDirentsSingleFromServer()", "The list has been inserted into the local database");
                         return Single.just(direntModels);
                     }
                 });
@@ -519,31 +564,13 @@ public class Objs {
     }
 
 
-    public static List<ResolveInfo> getAppsByIntent(Intent intent) {
-        PackageManager pm = SeadroidApplication.getAppContext().getPackageManager();
-        List<ResolveInfo> infos = pm.queryIntentActivities(intent, 0);
-
-        // Remove seafile app from the list
-        String seadroidPackageName = SeadroidApplication.getAppContext().getPackageName();
-        ResolveInfo info;
-        Iterator<ResolveInfo> iter = infos.iterator();
-        while (iter.hasNext()) {
-            info = iter.next();
-            if (info.activityInfo.packageName.equals(seadroidPackageName)) {
-                iter.remove();
-            }
-        }
-
-        return infos;
-    }
-
     public static void showChooseAppDialog(Context context, FragmentManager fragmentManager, DirentShareLinkModel shareLinkModel, boolean isDir) {
         String title = context.getString(isDir ? R.string.share_dir_link : R.string.share_file_link);
 
         Intent shareIntent = new Intent();
         shareIntent.setAction(Intent.ACTION_SEND);
         shareIntent.setType("text/plain");
-        List<ResolveInfo> infos = getAppsByIntent(shareIntent);
+        List<ResolveInfo> infos = WidgetUtils.getAppsByIntent(shareIntent);
 
         AppChoiceDialogFragment dialog = new AppChoiceDialogFragment();
         dialog.addCustomAction(0,
@@ -675,7 +702,7 @@ public class Objs {
         sendIntent.putExtra(Intent.EXTRA_STREAM, uri);
 
         // Get a list of apps
-        List<ResolveInfo> infos = getAppsByIntent(sendIntent);
+        List<ResolveInfo> infos = WidgetUtils.getAppsByIntent(sendIntent);
         if (infos.isEmpty()) {
             ToastUtils.showLong(R.string.no_app_available);
             return;

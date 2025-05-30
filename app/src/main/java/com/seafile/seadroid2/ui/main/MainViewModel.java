@@ -42,30 +42,12 @@ import io.reactivex.Single;
 import io.reactivex.functions.Consumer;
 
 public class MainViewModel extends BaseViewModel {
-
-    private final MutableLiveData<String> _on_search_live_data = new MutableLiveData<>();
-
+    private final String TAG = "MainViewModel";
     //force refresh repo/dirents
     private final MutableLiveData<Boolean> _on_force_refresh_repo_list_live_data = new MutableLiveData<>();
 
-    private final MutableLiveData<Boolean> _search_view_expanded_live_data = new MutableLiveData<>(false);
-
-    public MutableLiveData<Boolean> getSearchViewExpandedLiveData() {
-        return _search_view_expanded_live_data;
-    }
-
-    public MutableLiveData<String> getSearchViewQueryLiveData() {
-        return _search_view_query_live_data;
-    }
-
-
-    private final MutableLiveData<String> _search_view_query_live_data = new MutableLiveData<>();
     private final MutableLiveData<ServerInfo> _server_info_live_data = new MutableLiveData<>();
 
-
-    public MutableLiveData<String> getOnSearchLiveData() {
-        return _on_search_live_data;
-    }
 
     public MutableLiveData<Boolean> getOnForceRefreshRepoListLiveData() {
         return _on_force_refresh_repo_list_live_data;
@@ -135,6 +117,7 @@ public class MainViewModel extends BaseViewModel {
         String appCacheUriPrefix = "content://" + context.getPackageName() + ".documents";
         List<Uri> uris = uriList.stream().filter(f -> f != null && !f.toString().startsWith(appCacheUriPrefix)).collect(Collectors.toList());
         if (CollectionUtils.isEmpty(uris)) {
+            SLogs.d(TAG, "multipleCheckRemoteDirent()", "uris is in the app cache directory, can't upload");
             if (consumer != null) {
                 consumer.accept(false);
             }
@@ -148,7 +131,17 @@ public class MainViewModel extends BaseViewModel {
             @Override
             public void accept(DirentWrapperModel wrapperModel) throws Exception {
                 if (wrapperModel == null || CollectionUtils.isEmpty(wrapperModel.dirent_list)) {
-                    consumer.accept(false);
+                    SLogs.d(TAG, "multipleCheckRemoteDirent()", "request " + parentDir + " children result is null or empty.");
+
+                    for (Uri uri : uris) {
+                        String fileName = Utils.getFilenameFromUri(context, uri);
+                        TransferModel transferModel = gen(context, account, repoId, repoName, uri, fileName, parentDir, false);
+                        GlobalTransferCacheList.FILE_UPLOAD_QUEUE.put(transferModel);
+                    }
+
+                    if (consumer != null) {
+                        consumer.accept(true);
+                    }
                     return;
                 }
 
@@ -158,6 +151,8 @@ public class MainViewModel extends BaseViewModel {
                     TransferModel transferModel = gen(context, account, repoId, repoName, uri, fileName, parentDir, isExists);
                     GlobalTransferCacheList.FILE_UPLOAD_QUEUE.put(transferModel);
                 }
+
+                SLogs.d(TAG, "multipleCheckRemoteDirent()", "can upload " + uris.size() + " files");
 
                 if (consumer != null) {
                     consumer.accept(true);
@@ -198,13 +193,13 @@ public class MainViewModel extends BaseViewModel {
         //sourceUri content://com.android.providers.media.documents/document/image:1000182224
         TransferModel transferModel = gen(context, account, repoModel.repo_id, repoModel.repo_name, sourceUri, fileName, parentDir, isReplace);
         GlobalTransferCacheList.FILE_UPLOAD_QUEUE.put(transferModel);
-        SLogs.d(MainViewModel.class, "addUploadTask uri: complete");
+        SLogs.d(TAG, "addUploadTask()", "uri = " + sourceUri);
     }
 
     public void addUploadTask(Context context, Account account, RepoModel repoModel, String localFileAbsPath, String parentDir, boolean isReplace) {
         TransferModel transferModel = gen(context, account, repoModel.repo_id, repoModel.repo_name, localFileAbsPath, parentDir, isReplace);
         GlobalTransferCacheList.FILE_UPLOAD_QUEUE.put(transferModel);
-        SLogs.d(MainViewModel.class, "addUploadTask uri: complete");
+        SLogs.d(TAG, "addUploadTask()", "localPath = " + localFileAbsPath);
     }
 
     private TransferModel gen(Context context, Account account, String repo_id, String repo_name, String fileAbsPath, String parentDir, boolean isReplace) {

@@ -51,6 +51,8 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 
 public abstract class BaseUploadWorker extends TransferWorker {
+    private final String TAG = "BaseUploadWorker";
+
     public abstract BaseTransferNotificationHelper getNotification();
 
     public BaseUploadWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
@@ -67,7 +69,8 @@ public abstract class BaseUploadWorker extends TransferWorker {
     private final FileTransferProgressListener.TransferProgressListener progressListener = new FileTransferProgressListener.TransferProgressListener() {
         @Override
         public void onProgressNotify(TransferModel transferModel, int percent, long transferredSize, long totalSize) {
-            SLogs.d(BaseUploadWorker.class, "UPLOAD: " + transferModel.file_name + " -> progress：" + percent);
+            SLogs.d(TAG, "onProgressNotify()", "UPLOAD: " + transferModel.file_name + " -> progress：" + percent);
+
             transferModel.transferred_size = transferredSize;
             GlobalTransferCacheList.updateTransferModel(transferModel);
 
@@ -84,7 +87,7 @@ public abstract class BaseUploadWorker extends TransferWorker {
     public void onStopped() {
         super.onStopped();
 
-        SLogs.e("BaseUploadWorker onStopped");
+        SLogs.d(TAG, "onStopped()");
 
         if (newCall != null) {
             newCall.cancel();
@@ -112,8 +115,9 @@ public abstract class BaseUploadWorker extends TransferWorker {
     public void transfer(Account account, TransferModel transferModel) throws SeafException, IOException {
         try {
             currentTransferModel = CloneUtils.deepClone(transferModel, TransferModel.class);
-            SLogs.d(BaseUploadWorker.class, "transfer start：");
-            SLogs.d(currentTransferModel.toString());
+            SLogs.d(TAG, "transfer start, model:");
+            SLogs.d(TAG, currentTransferModel.toString());
+
             transferFile(account);
 
             sendProgressFinishEvent(currentTransferModel);
@@ -134,12 +138,12 @@ public abstract class BaseUploadWorker extends TransferWorker {
 
     private void transferFile(Account account) throws IOException, SeafException {
         if (account == null) {
-            SLogs.d(BaseUploadWorker.class, "account is null, can not upload file");
+            SLogs.d(TAG, "transferFile()", "account is null, can not upload file");
             throw SeafException.NOT_FOUND_USER_EXCEPTION;
         }
 
         if (TextUtils.isEmpty(account.token)) {
-            SLogs.d(BaseUploadWorker.class, "account is not logged in : " + account);
+            SLogs.d(TAG, "transferFile()", "account is not logged in : " + account);
             throw SeafException.NOT_FOUND_LOGGED_USER_EXCEPTION;
         }
 
@@ -147,7 +151,7 @@ public abstract class BaseUploadWorker extends TransferWorker {
             return;
         }
 
-        SLogs.d(BaseUploadWorker.class, "start transfer, local file path: " + currentTransferModel.full_path);
+        SLogs.d(TAG, "transferFile()", "start transfer, local file path: " + currentTransferModel.full_path);
 
         //net
         MultipartBody.Builder builder = new MultipartBody.Builder();
@@ -172,8 +176,9 @@ public abstract class BaseUploadWorker extends TransferWorker {
 
         //notify first
         sendProgressEvent(currentTransferModel);
+
         notifyProgress(currentTransferModel.file_name, 0);
-        SLogs.d(BaseUploadWorker.class, "start transfer, remote path: " + currentTransferModel.target_path);
+        SLogs.d(TAG, "transferFile()", "start transfer, remote path: " + currentTransferModel.target_path);
 
         //update
         currentTransferModel.transferred_size = 0;
@@ -202,14 +207,14 @@ public abstract class BaseUploadWorker extends TransferWorker {
         RequestBody requestBody = builder.build();
 
         //get upload link
-        String uploadUrl = getFileUploadUrl(currentTransferModel.repo_id, currentTransferModel.getParentPath(), currentTransferModel.transfer_strategy == ExistingFileStrategy.REPLACE);
+        String uploadUrl = getFileUploadUrl(account, currentTransferModel.repo_id, currentTransferModel.getParentPath(), currentTransferModel.transfer_strategy == ExistingFileStrategy.REPLACE);
         if (TextUtils.isEmpty(uploadUrl)) {
             throw SeafException.REQUEST_TRANSFER_URL_EXCEPTION;
         }
 
         //
         if (newCall != null && newCall.isExecuted()) {
-            SLogs.d(BaseUploadWorker.class, "newCall has executed(), cancel it");
+            SLogs.d(TAG, "transferFile()", "newCall has executed(), cancel it");
             newCall.cancel();
         }
 
@@ -219,7 +224,7 @@ public abstract class BaseUploadWorker extends TransferWorker {
                 .build();
 
         if (okHttpClient == null) {
-            okHttpClient = HttpIO.getCurrentInstance().getOkHttpClient().getOkClient();
+            okHttpClient = HttpIO.getInstanceByAccount(account).getOkHttpClient().getOkClient();
         }
         newCall = okHttpClient.newCall(request);
 
@@ -235,7 +240,7 @@ public abstract class BaseUploadWorker extends TransferWorker {
                         } else {
                             String fileId = str.replace("\"", "");
 
-                            SLogs.d(BaseUploadWorker.class, "result，file ID：" + str);
+                            SLogs.d(TAG, "transferFile()", "result，file ID：" + str);
                             updateToSuccess(fileId);
                         }
                     } else {
@@ -250,7 +255,7 @@ public abstract class BaseUploadWorker extends TransferWorker {
                 ResponseBody body = response.body();
                 if (body != null) {
                     String b = body.string();
-                    SLogs.d(BaseUploadWorker.class, "upload failed：" + b);
+                    SLogs.d(TAG, "transferFile()", "upload failed：" + b);
                     //
                     if (!newCall.isCanceled()) {
                         newCall.cancel();
@@ -272,20 +277,20 @@ public abstract class BaseUploadWorker extends TransferWorker {
             }
             return true;
         } catch (Exception e) {
-            SLogs.e("URI权限检查失败: " + e.getMessage());
+            SLogs.e("check URI permission failed: " + e.getMessage());
         }
         return false;
     }
 
-    private String getFileUploadUrl(String repoId, String target_dir, boolean isUpdate) throws IOException, SeafException {
+    private String getFileUploadUrl(Account account, String repoId, String target_dir, boolean isUpdate) throws IOException, SeafException {
         retrofit2.Response<String> res;
         if (isUpdate) {
-            res = HttpIO.getCurrentInstance()
+            res = HttpIO.getInstanceByAccount(account)
                     .execute(FileService.class)
                     .getFileUpdateLink(repoId)
                     .execute();
         } else {
-            res = HttpIO.getCurrentInstance()
+            res = HttpIO.getInstanceByAccount(account)
                     .execute(FileService.class)
                     .getFileUploadLink(repoId, "/")
                     .execute();

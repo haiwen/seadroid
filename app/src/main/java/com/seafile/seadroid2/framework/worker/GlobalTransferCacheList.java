@@ -16,8 +16,9 @@ public class GlobalTransferCacheList {
     public static final TransferQueue CHANGED_FILE_MONITOR_QUEUE = new TransferQueue();
 
     public static int getUploadPendingCount() {
-        return FOLDER_BACKUP_QUEUE.getPendingCount() + ALBUM_BACKUP_QUEUE.getPendingCount();
+        return FOLDER_BACKUP_QUEUE.getPendingCount() + ALBUM_BACKUP_QUEUE.getPendingCount() + FILE_UPLOAD_QUEUE.getPendingCount();
     }
+
     public static int getDownloadPendingCount() {
         return DOWNLOAD_QUEUE.getPendingCount();
     }

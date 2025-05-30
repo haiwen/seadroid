@@ -31,11 +31,19 @@ public interface FileCacheStatusDAO {
     @Update
     Completable updateAsync(FileCacheStatusEntity entity);
 
+    @Query("select * from file_cache_status where related_account = :account order by created_at")
+    List<FileCacheStatusEntity> getByAccountSync(String account);
+
+
     @Query("select * from file_cache_status where related_account = :relate_account and target_path = :target_path order by created_at limit 1")
     List<FileCacheStatusEntity> getByTargetPathSync(String relate_account, String target_path);
 
     @Query("select * from file_cache_status where repo_id = :repoId and full_path = :fullPath order by created_at limit 1")
     Single<List<FileCacheStatusEntity>> getByFullPath(String repoId, String fullPath);
+
+    @Query("select * from file_cache_status where repo_id = :repoId and full_path = :fullPath order by created_at limit 1")
+    List<FileCacheStatusEntity> getByFullPathSync(String repoId, String fullPath);
+
 
     @Query("select * from file_cache_status where repo_id = :repoId and parent_path = :parentPath order by created_at")
     List<FileCacheStatusEntity> getByParentPathSync(String repoId, String parentPath);

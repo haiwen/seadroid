@@ -1,12 +1,10 @@
-package com.seafile.seadroid2.framework.util;
+package com.seafile.seadroid2.framework.glide;
 
 import android.content.Context;
-import android.webkit.CookieManager;
-import android.webkit.WebSettings;
-import android.webkit.WebView;
 
 import androidx.annotation.NonNull;
 
+import com.blankj.utilcode.util.PathUtils;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.GlideBuilder;
 import com.bumptech.glide.Registry;
@@ -15,36 +13,24 @@ import com.bumptech.glide.integration.okhttp3.OkHttpUrlLoader;
 import com.bumptech.glide.load.engine.cache.DiskLruCacheFactory;
 import com.bumptech.glide.load.model.GlideUrl;
 import com.bumptech.glide.module.AppGlideModule;
-import com.seafile.seadroid2.SeadroidApplication;
-import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.http.UnsafeOkHttpClient;
 import com.seafile.seadroid2.framework.http.interceptor.CurrentTokenInterceptor;
-import com.seafile.seadroid2.framework.http.interceptor.HeaderInterceptor;
+import com.seafile.seadroid2.framework.util.SLogs;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLSession;
-
-import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 
 @GlideModule
-public class GlideCache extends AppGlideModule {
+public class SeafGlideCache extends AppGlideModule {
 
 
     @Override
     public void applyOptions(@NonNull Context context, @NonNull GlideBuilder builder) {
         super.applyOptions(context, builder);
-//        String rootPath = SeadroidApplication.getAppContext().getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath();
-        File[] externalMediaDirs = SeadroidApplication.getAppContext().getExternalMediaDirs();
-        String rootPath = externalMediaDirs[0].getAbsolutePath();
-        File dirPath = new File(rootPath + "/GlideCache/");
+        String rootPath = PathUtils.getExternalAppFilesPath();
+        File dirPath = new File(rootPath + "/cache/glide/");
         builder.setDiskCache(new DiskLruCacheFactory(dirPath.getAbsolutePath(), 1024 * 1024 * 500));
     }
 
@@ -58,8 +44,11 @@ public class GlideCache extends AppGlideModule {
         try {
             OkHttpClient client = getClient();
             registry.replace(GlideUrl.class, InputStream.class, new OkHttpUrlLoader.Factory(client));
+
+            registry.append(GlideImage.class, InputStream.class, new GlideImageModelLoaderFactory());
+
         } catch (IllegalStateException e) {
-            SLogs.d("No current account?");
+            SLogs.d("SeaGlideCache","No current account?");
         }
     }
 
@@ -68,22 +57,6 @@ public class GlideCache extends AppGlideModule {
         OkHttpClient.Builder builder = unsafeOkHttpClient.getBuilder();
         builder.followRedirects(true);
         builder.addInterceptor(new CurrentTokenInterceptor());
-//        builder.addInterceptor(new Interceptor() {
-//            @Override
-//            public Response intercept(Chain chain) throws IOException {
-//                Request request = chain.request();
-//                String url = request.url().toString();
-//
-//                String kie = CookieManager.getInstance().getCookie(URLs.getHost(url));
-//                Request.Builder requestBuilder = request.newBuilder();
-//                if (kie != null) {
-//                    requestBuilder.addHeader("Cookie", kie);
-//                }
-//
-//                Request newRequest = requestBuilder.build();
-//                return chain.proceed(newRequest);
-//            }
-//        });
         return builder.build();
     }
 }

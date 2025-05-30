@@ -24,7 +24,7 @@ public class StringSettingLiveData extends SettingsLiveData<String> {
         if (defaultValueRes == Resources.ID_NULL) {
             return null;
         }
-        return SeadroidApplication.getInstance().getString(defaultValueRes);
+        return SeadroidApplication.getAppString(defaultValueRes);
     }
 
     @Override

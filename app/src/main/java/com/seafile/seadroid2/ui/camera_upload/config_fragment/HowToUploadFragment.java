@@ -7,6 +7,8 @@ import android.view.ViewGroup;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.seafile.seadroid2.R;
@@ -22,16 +24,18 @@ public class HowToUploadFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View rootView = LayoutInflater.from(getContext()).inflate(R.layout.cuc_how_to_upload_fragment, null);
+        return inflater.inflate(R.layout.cuc_how_to_upload_fragment, container, false);
+    }
 
-        mRadioGroup = rootView.findViewById(R.id.cuc_wifi_radio_group);
-        mDataPlanRadioBtn = rootView.findViewById(R.id.cuc_wifi_or_data_plan_rb);
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        mRadioGroup = view.findViewById(R.id.cuc_wifi_radio_group);
+        mDataPlanRadioBtn = view.findViewById(R.id.cuc_wifi_or_data_plan_rb);
 
         if (AlbumBackupSharePreferenceHelper.readAllowDataPlanSwitch()) {
             mDataPlanRadioBtn.setChecked(true);
         }
-
-        return rootView;
     }
 
     public boolean getHowToUpload() {

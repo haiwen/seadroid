@@ -4,7 +4,7 @@ public class DataStoreKeys {
     public static final String SEPARATOR = "::::";
 
     //data store
-    public static final String DS_REPO_DIR_MAPPING = "data_store_repo_dir_mapping";
+//    public static final String DS_REPO_DIR_MAPPING = "data_store_repo_dir_mapping";
     public static final String LATEST_ACCOUNT = "latest_account";
 
     public static final String ACCOUNT_CURRENT_OLD = "com.seafile.seadroid.account_name";

@@ -2,7 +2,6 @@ package com.seafile.seadroid2.ui.sdoc;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -29,8 +28,6 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.databinding.ActivitySeaWebviewProBinding;
-import com.seafile.seadroid2.databinding.ToolbarActionbarProgressBarBinding;
-import com.seafile.seadroid2.enums.WebViewPreviewType;
 import com.seafile.seadroid2.framework.model.sdoc.FileProfileConfigModel;
 import com.seafile.seadroid2.framework.model.sdoc.OutlineItemModel;
 import com.seafile.seadroid2.framework.model.sdoc.SDocPageOptionsModel;
@@ -45,11 +42,12 @@ import com.seafile.seadroid2.view.webview.PreloadWebView;
 import com.seafile.seadroid2.view.webview.SeaWebView;
 
 public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
+    private final String TAG = "SDocWebViewActivity";
+
     private ActivitySeaWebviewProBinding binding;
-    private ToolbarActionbarProgressBarBinding toolBinding;
 
     private SeaWebView mWebView;
-    private String repoId;
+    private String repoId, repoName;
     private String path;
     private String targetUrl;
 
@@ -57,12 +55,24 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
 
     public static void openSdoc(Context context, String repoName, String repoID, String path) {
         Intent intent = new Intent(context, SDocWebViewActivity.class);
-        intent.putExtra("previewType", WebViewPreviewType.SDOC.name());
         intent.putExtra("repoName", repoName);
         intent.putExtra("repoID", repoID);
         intent.putExtra("filePath", path);
         ActivityUtils.startActivity(intent);
     }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (mWebView != null) {
+            mWebView.saveState(outState);
+        }
+        outState.putString("repoId", repoId);
+        outState.putString("repoName", repoName);
+        outState.putString("path", path);
+        outState.putString("targetUrl", targetUrl);
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,64 +87,72 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
             return;
         }
 
-        toolBinding = ToolbarActionbarProgressBarBinding.bind(binding.toolProgressBar.getRoot());
-
-
         initUI();
-
-        init();
 
         initViewModel();
 
-        //let's go
-        mWebView.load(targetUrl);
+        if (savedInstanceState != null) {
+            repoId = savedInstanceState.getString("repoId");
+            repoName = savedInstanceState.getString("repoName");
+            path = savedInstanceState.getString("path");
+            targetUrl = savedInstanceState.getString("targetUrl");
+
+            mWebView.restoreState(savedInstanceState);
+        } else {
+            initData();
+
+            //let's go
+            mWebView.load(targetUrl);
+        }
+
     }
 
-    private void init() {
+    private void initData() {
         Intent intent = getIntent();
-
-        if (!intent.hasExtra("previewType")) {
-            throw new IllegalArgumentException("need a previewType param");
+        if (intent == null) {
+            throw new IllegalArgumentException("intent is null");
         }
 
-        String previewType = intent.getStringExtra("previewType");
-        if (!WebViewPreviewType.contains(previewType)) {
-            throw new IllegalArgumentException("need a previewType param");
+        repoId = intent.getStringExtra("repoID");
+        repoName = intent.getStringExtra("repoName");
+        path = intent.getStringExtra("filePath");
+
+        if (TextUtils.isEmpty(repoId) || TextUtils.isEmpty(path)) {
+            throw new IllegalArgumentException("repoId or path is null");
         }
 
-        WebViewPreviewType previewTypeEnum = WebViewPreviewType.valueOf(previewType);
-
-        if (previewTypeEnum == WebViewPreviewType.SDOC) {
-
-            String repoName = intent.getStringExtra("repoName");
-            repoId = intent.getStringExtra("repoID");
-            path = intent.getStringExtra("filePath");
-
-            if (TextUtils.isEmpty(repoId) || TextUtils.isEmpty(path)) {
-                throw new IllegalArgumentException("repoId or path is null");
-            }
-
-            Account account = SupportAccountManager.getInstance().getCurrentAccount();
-            if (account != null) {
-                targetUrl = account.server + "lib/" + repoId + "/file" + path;
-            } else {
-                throw new IllegalArgumentException("no login");
-            }
+        Account account = SupportAccountManager.getInstance().getCurrentAccount();
+        if (account != null) {
+            targetUrl = account.server + "lib/" + repoId + "/file" + path;
         } else {
-            throw new IllegalArgumentException("previewType is not SDOC");
+            throw new IllegalArgumentException("no login");
         }
     }
 
     private void initUI() {
-        Toolbar toolbar = toolBinding.toolbarActionbar;
-        toolbar.setTitle("");
-        setSupportActionBar(toolbar);
+        Toolbar toolbar = getActionBarToolbar();
+//        toolbar.setTitle("");
         toolbar.setNavigationOnClickListener(v -> {
             finish();
         });
 
-        mWebView = PreloadWebView.getInstance().getWebView(this);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setTitle(null);
+        }
 
+        getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (mWebView != null && mWebView.canGoBack()) {
+                    mWebView.goBack();
+                } else {
+                    finish();
+                }
+            }
+        });
+
+        mWebView = PreloadWebView.getInstance().getWebView(this);
 
         if (WebViewFeature.isFeatureSupported(WebViewFeature.ALGORITHMIC_DARKENING)) {
             WebSettingsCompat.setAlgorithmicDarkeningAllowed(mWebView.getSettings(), true);
@@ -166,16 +184,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
             }
         });
 
-        getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
-            @Override
-            public void handleOnBackPressed() {
-                if (mWebView != null && mWebView.canGoBack()) {
-                    mWebView.goBack();
-                } else {
-                    finish();
-                }
-            }
-        });
+
     }
 
     private void initViewModel() {
@@ -217,7 +226,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         mWebView.callJsFunction("sdoc.outline.data.select", param, new CallBackFunction() {
             @Override
             public void onCallBack(String data) {
-                SLogs.d(SDocWebViewActivity.class, data);
+                SLogs.d(TAG, "callJsOutline()", data);
             }
         });
     }
@@ -252,12 +261,12 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
                     value = StringUtils.deString(value).replace("\\", "");
                     pageOptionsData = GsonUtils.fromJson(value, SDocPageOptionsModel.class);
                     if (pageOptionsData == null || !pageOptionsData.canUse()) {
-                        SLogs.d(SDocWebViewActivity.class, "read sodc page options data from web, an exception occurred in the parsing data");
+                        SLogs.d(TAG, "readSDocPageOptionsData()", "read sodc page options data from web, an exception occurred in the parsing data");
                     } else {
                         continuation.accept(pageOptionsData);
                     }
                 } else {
-                    SLogs.d(SDocWebViewActivity.class, "read sodc page options data from web: " + value);
+                    SLogs.d(TAG, "readSDocPageOptionsData()", "read sodc page options data from web: " + value);
                     ToastUtils.showShort(R.string.unknow_error);
                 }
             }
@@ -277,7 +286,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
             @Override
             public void onReceiveValue(String value) {
                 if (TextUtils.isEmpty(value)) {
-                    SLogs.d(SDocWebViewActivity.class, value);
+                    SLogs.d(TAG, "readSDocPageOptionsData()", value);
                     ToastUtils.showShort(R.string.empty_data);
                     continuation.accept(value);
                     return;
@@ -304,9 +313,9 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         mWebView.evaluateJavascript(js, new ValueCallback<String>() {
             @Override
             public void onReceiveValue(String value) {
-                SLogs.d(SDocWebViewActivity.class, value);
+                SLogs.d(TAG, "readSeafileTokenData()", value);
                 if (TextUtils.isEmpty(value)) {
-                    SLogs.d(SDocWebViewActivity.class, "doc uuid is empty.");
+                    SLogs.d(TAG, "readSeafileTokenData()", "doc uuid is empty.");
                     ToastUtils.showShort("outline is empty.");
                     return;
                 }
@@ -322,12 +331,6 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
             }
         });
     }
-
-    @Override
-    public void onConfigurationChanged(@NonNull Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-    }
-
 
     private int curProgress = 0;
     private final WebChromeClient mWebChromeClient = new WebChromeClient() {
@@ -370,11 +373,11 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
     };
 
     private void setBarProgress(int p) {
-        toolBinding.toolProgressBar.setProgress(p, true);
+        binding.toolProgressBar.setProgress(p, true);
 
         if (p != 100) {
-            if (toolBinding.toolProgressBar.getVisibility() != View.VISIBLE) {
-                toolBinding.toolProgressBar.setVisibility(View.VISIBLE);
+            if (binding.toolProgressBar.getVisibility() != View.VISIBLE) {
+                binding.toolProgressBar.setVisibility(View.VISIBLE);
             }
         }
 
@@ -383,7 +386,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
 
     private void hideProgressBar() {
         if (curProgress == 100) {
-            toolBinding.toolProgressBar.setVisibility(View.GONE);
+            binding.toolProgressBar.setVisibility(View.GONE);
         }
     }
 

@@ -26,7 +26,7 @@ import retrofit2.Response;
  */
 public class Authenticator extends AbstractAccountAuthenticator {
 
-    private String DEBUG_TAG = "SeafileAuthenticator";
+    private final String TAG = "SeafileAuthenticator";
     private final Context context;
 
     /**
@@ -79,7 +79,7 @@ public class Authenticator extends AbstractAccountAuthenticator {
 
     public Authenticator(Context context) {
         super(context);
-        Log.d(DEBUG_TAG, "SeafileAuthenticator created.");
+        SLogs.d(TAG, "SeafileAuthenticator created.");
         this.context = context;
     }
 
@@ -88,7 +88,7 @@ public class Authenticator extends AbstractAccountAuthenticator {
      */
     @Override
     public Bundle editProperties(AccountAuthenticatorResponse r, String s) {
-        Log.d(DEBUG_TAG, "editProperties");
+        SLogs.d(TAG, "editProperties");
 
         throw new UnsupportedOperationException();
     }
@@ -100,7 +100,7 @@ public class Authenticator extends AbstractAccountAuthenticator {
                              String[] requiredFeatures,
                              Bundle options) throws NetworkErrorException {
 
-        Log.d(DEBUG_TAG, "addAccount of type " + accountType);
+        SLogs.d(TAG, "addAccount of type " + accountType);
 
         if (authTokenType != null && !authTokenType.equals(Authenticator.AUTHTOKEN_TYPE)) {
             Bundle result = new Bundle();
@@ -124,7 +124,7 @@ public class Authenticator extends AbstractAccountAuthenticator {
             AccountAuthenticatorResponse response,
             android.accounts.Account account,
             Bundle bundle) throws NetworkErrorException {
-        Log.d(DEBUG_TAG, "confirmCredentials");
+        SLogs.d(TAG, "confirmCredentials");
 
 
         try {
@@ -134,7 +134,7 @@ public class Authenticator extends AbstractAccountAuthenticator {
 
             if (res.isSuccessful()) {
                 AccountInfo accountInfo = res.body();
-                SLogs.d(accountInfo.toString());
+                SLogs.d(TAG, accountInfo.toString());
             } else {
                 if (res.code() == HttpURLConnection.HTTP_UNAUTHORIZED) {
                     // Token is invalid
@@ -143,7 +143,7 @@ public class Authenticator extends AbstractAccountAuthenticator {
                     result.putInt(AccountManager.KEY_ERROR_CODE, AccountManager.ERROR_CODE_INVALID_RESPONSE);
                     result.putString(AccountManager.KEY_ERROR_MESSAGE, "Authentication error.");
                     return result;
-                }else {
+                } else {
                     throw new NetworkErrorException();
                 }
             }
@@ -163,7 +163,7 @@ public class Authenticator extends AbstractAccountAuthenticator {
                                android.accounts.Account account,
                                String authTokenType,
                                Bundle options) throws NetworkErrorException {
-        Log.d(DEBUG_TAG, "getAuthToken");
+        SLogs.d(TAG, "getAuthToken");
 
         if (authTokenType != null && !authTokenType.equals(Authenticator.AUTHTOKEN_TYPE)) {
             final Bundle result = new Bundle();
@@ -201,7 +201,7 @@ public class Authenticator extends AbstractAccountAuthenticator {
     public Bundle updateCredentials(AccountAuthenticatorResponse response,
                                     android.accounts.Account account,
                                     String authTokenType, Bundle options) throws NetworkErrorException {
-        Log.d(DEBUG_TAG, "updateCredentials");
+        SLogs.d(TAG, "updateCredentials");
 
         if (authTokenType != null && !authTokenType.equals(Authenticator.AUTHTOKEN_TYPE)) {
             final Bundle result = new Bundle();
@@ -228,7 +228,7 @@ public class Authenticator extends AbstractAccountAuthenticator {
     @Override
     public Bundle hasFeatures(AccountAuthenticatorResponse r,
                               android.accounts.Account account, String[] strings) throws NetworkErrorException {
-        Log.d(DEBUG_TAG, "hasFeatures");
+        SLogs.d(TAG, "hasFeatures");
 
         final Bundle result = new Bundle();
         result.putBoolean(android.accounts.AccountManager.KEY_BOOLEAN_RESULT, true);

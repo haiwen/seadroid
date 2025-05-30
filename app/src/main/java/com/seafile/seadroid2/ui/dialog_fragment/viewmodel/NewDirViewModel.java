@@ -5,6 +5,7 @@ import android.text.TextUtils;
 import androidx.lifecycle.MutableLiveData;
 
 import com.seafile.seadroid2.SeafException;
+import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
 import com.seafile.seadroid2.framework.model.ResultModel;
 import com.seafile.seadroid2.framework.model.dirents.FileCreateModel;
@@ -30,7 +31,7 @@ public class NewDirViewModel extends BaseViewModel {
         return createFileLiveData;
     }
 
-    public void createNewDir(String p, String repo_id) {
+    public void createNewDir(Account account, String p, String repo_id) {
         if (TextUtils.isEmpty(p)) {
             return;
         }
@@ -39,22 +40,21 @@ public class NewDirViewModel extends BaseViewModel {
 
         Map<String, String> requestDataMap = new HashMap<>();
         requestDataMap.put("operation", "mkdir");
-
         Map<String, RequestBody> bodyMap = genRequestBody(requestDataMap);
 
-        Single<String> single = HttpIO.getCurrentInstance().execute(DialogService.class).createDir(repo_id, p, bodyMap);
+        Single<String> single = HttpIO.getInstanceByAccount(account).execute(DialogService.class).createDirWithApi2(repo_id, p, bodyMap);
         addSingleDisposable(single, new Consumer<String>() {
             @Override
             public void accept(String resultModel) throws Exception {
                 getRefreshLiveData().setValue(false);
 
+                ResultModel r = new ResultModel();
                 if (TextUtils.equals("success", resultModel)) {
-                    ResultModel resultModel1 = new ResultModel();
-                    resultModel1.success = true;
-                    getCreateDirLiveData().setValue(resultModel1);
+                    r.success = true;
                 } else {
-                    getCreateDirLiveData().setValue(null);
+                    r.error_msg = resultModel;
                 }
+                getCreateDirLiveData().setValue(r);
             }
         }, new Consumer<Throwable>() {
             @Override
@@ -68,7 +68,7 @@ public class NewDirViewModel extends BaseViewModel {
         });
     }
 
-    public void createNewFile(String filePathName, String repo_id) {
+    public void createNewFile(Account account, String filePathName, String repo_id) {
         if (TextUtils.isEmpty(filePathName)) {
             return;
         }
@@ -80,7 +80,7 @@ public class NewDirViewModel extends BaseViewModel {
 
         Map<String, RequestBody> bodyMap = genRequestBody(requestDataMap);
 
-        Single<FileCreateModel> single = HttpIO.getCurrentInstance().execute(DialogService.class).createFile(repo_id, filePathName, bodyMap);
+        Single<FileCreateModel> single = HttpIO.getInstanceByAccount(account).execute(DialogService.class).createFile(repo_id, filePathName, bodyMap);
         addSingleDisposable(single, new Consumer<FileCreateModel>() {
             @Override
             public void accept(FileCreateModel resultModel) throws Exception {

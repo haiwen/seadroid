@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/search_bar"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -49,7 +50,21 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_gravity="center_vertical"
-            android:orientation="horizontal">
+            android:layout_marginVertical="4dp"
+            android:background="@drawable/shape_search"
+            android:orientation="horizontal"
+            android:paddingHorizontal="8dp">
+
+            <ImageView
+                android:id="@+id/custom_search_hint_icon"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="0dp"
+                android:layout_marginEnd="4dp"
+                android:contentDescription="@string/abc_searchview_description_search"
+                android:src="@drawable/baseline_search_24"
+                app:tint="@color/bottom_bar_icon_tint_color" />
 
             <view
                 android:id="@+id/search_src_text"
@@ -57,29 +72,29 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_gravity="center_vertical"
-                android:layout_marginVertical="4dp"
                 android:layout_weight="1"
-                android:background="@drawable/shape_search"
+                android:background="@null"
                 android:dropDownAnchor="@id/search_edit_frame"
                 android:dropDownHeight="wrap_content"
                 android:dropDownHorizontalOffset="0dip"
                 android:dropDownVerticalOffset="0dip"
-                android:ellipsize="end"
+                android:gravity="center_vertical"
                 android:imeOptions="actionSearch"
                 android:inputType="text|textAutoComplete|textNoSuggestions"
-                android:paddingHorizontal="16dp"
-                android:singleLine="true" />
+                android:maxLines="1"
+                android:textColor="@color/item_title_color"
+                android:textSize="@dimen/lv_title_txt_size" />
 
             <ImageView
                 android:id="@+id/search_close_btn"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
                 android:layout_gravity="center_vertical"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="@string/abc_searchview_description_clear"
                 android:focusable="true"
-                android:paddingLeft="8dip"
-                android:paddingRight="8dip" />
+                android:padding="8dp"
+                app:tint="@color/bottom_bar_icon_tint_color" />
 
         </LinearLayout>
 

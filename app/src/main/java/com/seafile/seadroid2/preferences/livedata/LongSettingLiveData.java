@@ -24,7 +24,7 @@ public class LongSettingLiveData extends SettingsLiveData<Long> {
 
     @Override
     protected Long getDefaultValue(@StringRes int defaultValueRes) {
-        String l = SeadroidApplication.getInstance().getString(defaultValueRes);
+        String l = SeadroidApplication.getAppString(defaultValueRes);
         return Long.parseLong(l);
     }
 

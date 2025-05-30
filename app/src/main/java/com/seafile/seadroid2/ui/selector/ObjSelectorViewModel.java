@@ -55,15 +55,11 @@ public class ObjSelectorViewModel extends BaseViewModel {
         });
     }
 
-
     public void loadAccount() {
         List<Account> results = SupportAccountManager.getInstance().getSignedInAccountList();
         if (!CollectionUtils.isEmpty(results)) {
             if (results.size() == 1) {
                 results.get(0).item_position = ItemPositionEnum.ALL;
-            } else if (results.size() == 2) {
-                results.get(0).item_position = ItemPositionEnum.START;
-                results.get(1).item_position = ItemPositionEnum.END;
             } else {
                 results.get(0).item_position = ItemPositionEnum.START;
                 results.get(results.size() - 1).item_position = ItemPositionEnum.END;
@@ -77,7 +73,7 @@ public class ObjSelectorViewModel extends BaseViewModel {
     /**
      * @param isFilterUnavailable Filter out encrypted and read-only repo
      */
-    public void loadReposFromNet(Account account, boolean isFilterUnavailable) {
+    public void loadReposFromNet(Account account, boolean isFilterUnavailable, boolean isAddStarredGroup) {
         getRefreshLiveData().setValue(true);
 
         Single<RepoWrapperModel> single = HttpIO.getInstanceByAccount(account).execute(RepoService.class).getReposAsync();
@@ -100,7 +96,7 @@ public class ObjSelectorViewModel extends BaseViewModel {
                     repoModel.last_modified_long = Times.convertMtime2Long(repoModel.last_modified);
                 }
 
-                List<BaseModel> list2 = Objs.convertToAdapterList(list1, isFilterUnavailable);
+                List<BaseModel> list2 = Objs.convertToAdapterList(list1, isFilterUnavailable, isAddStarredGroup);
                 getObjsListLiveData().setValue(list2);
                 getRefreshLiveData().setValue(false);
             }
@@ -135,9 +131,6 @@ public class ObjSelectorViewModel extends BaseViewModel {
 
                 } else if (newDirentModels.size() == 1) {
                     newDirentModels.get(0).item_position = ItemPositionEnum.ALL;
-                } else if (newDirentModels.size() == 2) {
-                    newDirentModels.get(0).item_position = ItemPositionEnum.START;
-                    newDirentModels.get(1).item_position = ItemPositionEnum.END;
                 } else {
                     newDirentModels.get(0).item_position = ItemPositionEnum.START;
                     newDirentModels.get(newDirentModels.size() - 1).item_position = ItemPositionEnum.END;
@@ -215,7 +208,7 @@ public class ObjSelectorViewModel extends BaseViewModel {
                 PermissionEntity permission = new PermissionEntity(repoId, wrapperModel.permission);
 
                 AppDatabase.getInstance().permissionDAO().insert(permission);
-                SLogs.d("The list has been inserted into the local database");
+                SLogs.d("ObjSelectorViewModel - The list has been inserted into the local database");
 
                 return Single.just(permission);
             }

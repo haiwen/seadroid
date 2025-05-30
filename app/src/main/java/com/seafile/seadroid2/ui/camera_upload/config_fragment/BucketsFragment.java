@@ -1,6 +1,5 @@
 package com.seafile.seadroid2.ui.camera_upload.config_fragment;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,12 +15,16 @@ import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.seafile.seadroid2.framework.glide.GlideApp;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
-import com.seafile.seadroid2.framework.util.GlideApp;
-import com.seafile.seadroid2.ui.camera_upload.CameraUploadConfigActivity;
+import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.ui.camera_upload.GalleryBucketUtils;
 
 import java.util.ArrayList;
@@ -31,8 +34,6 @@ import java.util.List;
  * Buckets fragment
  */
 public class BucketsFragment extends Fragment {
-
-    private CameraUploadConfigActivity mActivity;
     private RadioGroup mRadioGroup;
 
     private TranslateAnimation mSlideInAnimation;
@@ -40,13 +41,58 @@ public class BucketsFragment extends Fragment {
     private GridView mGridView;
     private List<GalleryBucketUtils.Bucket> buckets;
     private boolean[] selectedBuckets;
-    private ImageAdapter imageAdapter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.cuc_local_directory_fragment, container, false);
+    }
 
-        mActivity = (CameraUploadConfigActivity) getActivity();
-        View rootView = mActivity.getLayoutInflater().inflate(R.layout.cuc_local_directory_fragment, null);
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        initAnimation();
+
+        mGridView = view.findViewById(R.id.cuc_bucket_selection_grid);
+        mRadioGroup = view.findViewById(R.id.cuc_local_directory_radio_group);
+
+        if (AlbumBackupSharePreferenceHelper.readBucketIds().isEmpty()) {
+            // auto scan
+            mGridView.setVisibility(View.INVISIBLE);
+            mGridView.setEnabled(false);
+            mRadioGroup.check(R.id.cuc_local_directory_auto_scan_rb);
+        } else {
+            // pick custom folders to scan
+            mGridView.setVisibility(View.VISIBLE);
+            mGridView.setEnabled(true);
+            mRadioGroup.check(R.id.cuc_local_directory_pick_folders_rb);
+        }
+
+        mRadioGroup.setOnCheckedChangeListener(onCheckedChangeListener);
+
+        buckets = GalleryBucketUtils.getMediaBuckets(SeadroidApplication.getAppContext());
+        if (buckets == null) {
+            SLogs.e("BucketsFragment", "buckets is null");
+            Toasts.show(R.string.permission_not_granted);
+            return;
+        }
+
+        selectedBuckets = new boolean[buckets.size()];
+
+        List<String> currentBucketList = AlbumBackupSharePreferenceHelper.readBucketIds();
+        for (int i = 0; i < this.buckets.size(); i++) {
+            GalleryBucketUtils.Bucket b = this.buckets.get(i);
+            if (!currentBucketList.isEmpty())
+                selectedBuckets[i] = currentBucketList.contains(b.bucketId);
+            else
+                selectedBuckets[i] = b.isCameraBucket;
+        }
+
+        ImageAdapter imageAdapter = new ImageAdapter();
+        mGridView.setAdapter(imageAdapter);
+    }
+
+    private void initAnimation() {
         mSlideInAnimation = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0.0f,
                 Animation.RELATIVE_TO_SELF, 0.0f,
                 Animation.RELATIVE_TO_SELF, 2.0f,
@@ -63,43 +109,6 @@ public class BucketsFragment extends Fragment {
         mSlideOutAnimation.setDuration(200);
         mSlideOutAnimation.setInterpolator(new AccelerateDecelerateInterpolator());
         mSlideOutAnimation.setAnimationListener(slideOutListener);
-        mGridView = rootView.findViewById(R.id.cuc_bucket_selection_grid);
-        mRadioGroup = rootView.findViewById(R.id.cuc_local_directory_radio_group);
-
-        if (AlbumBackupSharePreferenceHelper.readBucketIds().isEmpty()) {
-            // auto scan
-            mGridView.setVisibility(View.INVISIBLE);
-            mGridView.setEnabled(false);
-            mRadioGroup.check(R.id.cuc_local_directory_auto_scan_rb);
-        } else {
-            // pick custom folders to scan
-            mGridView.setVisibility(View.VISIBLE);
-            mGridView.setEnabled(true);
-            mRadioGroup.check(R.id.cuc_local_directory_pick_folders_rb);
-        }
-
-        mRadioGroup.setOnCheckedChangeListener(onCheckedChangeListener);
-
-        buckets = GalleryBucketUtils.getMediaBuckets(getActivity().getApplicationContext());
-        if (buckets == null) {
-            return rootView;
-        }
-
-        selectedBuckets = new boolean[buckets.size()];
-
-        List<String> currentBucketList = AlbumBackupSharePreferenceHelper.readBucketIds();
-        for (int i = 0; i < this.buckets.size(); i++) {
-            GalleryBucketUtils.Bucket b = this.buckets.get(i);
-            if (!currentBucketList.isEmpty())
-                selectedBuckets[i] = currentBucketList.contains(b.bucketId);
-            else
-                selectedBuckets[i] = b.isCameraBucket;
-        }
-
-        imageAdapter = new ImageAdapter();
-        mGridView.setAdapter(imageAdapter);
-
-        return rootView;
     }
 
     /**
@@ -109,15 +118,12 @@ public class BucketsFragment extends Fragment {
 
         @Override
         public void onCheckedChanged(RadioGroup radioGroup, int radioButtonId) {
-            switch (radioButtonId) {
-                case R.id.cuc_local_directory_auto_scan_rb:
-                    mGridView.startAnimation(mSlideOutAnimation);
-                    mGridView.setEnabled(false);
-                    break;
-                case R.id.cuc_local_directory_pick_folders_rb:
-                    mGridView.startAnimation(mSlideInAnimation);
-                    mGridView.setEnabled(true);
-                    break;
+            if (radioButtonId == R.id.cuc_local_directory_auto_scan_rb) {
+                mGridView.startAnimation(mSlideOutAnimation);
+                mGridView.setEnabled(false);
+            } else if (radioButtonId == R.id.cuc_local_directory_pick_folders_rb) {
+                mGridView.startAnimation(mSlideInAnimation);
+                mGridView.setEnabled(true);
             }
         }
     };
@@ -170,10 +176,10 @@ public class BucketsFragment extends Fragment {
 
 
     public class ImageAdapter extends BaseAdapter {
-        private LayoutInflater mInflater;
+        private final LayoutInflater mInflater;
 
         public ImageAdapter() {
-            mInflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            mInflater = LayoutInflater.from(requireContext());
         }
 
         public int getCount() {
@@ -234,6 +240,11 @@ public class BucketsFragment extends Fragment {
     }
 
     public List<String> getSelectedBuckets() {
+        if (buckets == null) {
+            Toasts.show(R.string.permission_not_granted);
+            return null;
+        }
+
         List<String> ret = new ArrayList<>();
         for (int i = 0; i < buckets.size(); i++) {
             if (selectedBuckets[i]) {

@@ -18,6 +18,7 @@ import com.seafile.seadroid2.framework.worker.TransferWorker;
 import com.seafile.seadroid2.ui.settings.TabSettings2Fragment;
 
 public class DownloadListFragment extends TransferListFragment {
+    private final String TAG = "DownloadListFragment";
 
     public static DownloadListFragment newInstance() {
         Bundle args = new Bundle();
@@ -53,7 +54,7 @@ public class DownloadListFragment extends TransferListFragment {
         String result = map.getString(TransferWorker.KEY_DATA_RESULT);
         String transferId = map.getString(TransferWorker.KEY_TRANSFER_ID);
         int transferCount = map.getInt(TransferWorker.KEY_TRANSFER_COUNT);
-        SLogs.d("download list fragment, event: " + statusEvent + ", dataSource: " + dataSource + ", count: " + transferCount);
+        SLogs.d(TAG, "on event: " + statusEvent + ", dataSource: " + dataSource + ", count: " + transferCount);
 
         if (!TextUtils.equals(TransferDataSource.DOWNLOAD.name(), dataSource)) {
             return;
@@ -73,7 +74,7 @@ public class DownloadListFragment extends TransferListFragment {
             notifyProgressById(transferModel, statusEvent);
         } else if (TextUtils.equals(statusEvent, TransferEvent.EVENT_FILE_TRANSFER_FAILED)) {
 
-            SLogs.d(DownloadListFragment.class, transferModel.toString());
+            SLogs.d(TAG, transferModel.toString());
             notifyProgressById(transferModel, statusEvent);
 
         } else if (TextUtils.equals(statusEvent, TransferEvent.EVENT_FILE_TRANSFER_SUCCESS)) {
@@ -84,66 +85,5 @@ public class DownloadListFragment extends TransferListFragment {
         }
 
     }
-
-//    @Override
-//    public void deleteSelectedItems(List<FileTransferEntity> list) {
-//        showDeleteConfirmDialog(list);
-//    }
-
-//    private void showDeleteConfirmDialog(List<FileTransferEntity> list) {
-//        if (CollectionUtils.isEmpty(list)) {
-//            return;
-//        }
-//
-//        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext());
-//        builder.setTitle(R.string.delete_records);
-//
-//        String deleteFile = getString(R.string.delete_local_file_sametime);
-//        CharSequence[] sequences = new CharSequence[1];
-//        sequences[0] = deleteFile;
-//        boolean[] booleans = new boolean[1];
-//        booleans[0] = true;
-//        builder.setMultiChoiceItems(sequences, booleans, new DialogInterface.OnMultiChoiceClickListener() {
-//            @Override
-//            public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-//                booleans[which] = isChecked;
-//            }
-//        });
-//
-//        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-//            @Override
-//            public void onClick(DialogInterface dialog, int which) {
-//                doDeleteSelectedItem(list, booleans[0]);
-//                dialog.dismiss();
-//            }
-//        });
-//
-//        builder.setNegativeButton(R.string.cancel, (dialog, which) -> dialog.dismiss());
-//        builder.show();
-//    }
-
-//    private void doDeleteSelectedItem(List<FileTransferEntity> list, boolean isDeleteLocalFile) {
-//        getViewModel().getShowLoadingDialogLiveData().setValue(true);
-//
-//        BackgroundJobManagerImpl.getInstance().cancelDownloadWorker();
-//
-//        getViewModel().removeSpecialDownloadListTask(list, isDeleteLocalFile, new Consumer<Boolean>() {
-//            @Override
-//            public void accept(Boolean aBoolean) {
-//
-//                BackgroundJobManagerImpl.getInstance().startDownloadChainWorker();
-//
-//                //You never know which item a user will select, so we need to remove them one by one, and then resort.
-//                for (FileTransferEntity fileTransferEntity : list) {
-//                    removeSpecialEntity(fileTransferEntity.uid);
-//                }
-//
-//                getViewModel().getShowLoadingDialogLiveData().setValue(false);
-//
-//                ToastUtils.showLong(R.string.deleted);
-//            }
-//        });
-//    }
-
 }
 

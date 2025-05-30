@@ -35,7 +35,6 @@ import io.reactivex.functions.Function;
 import okhttp3.RequestBody;
 
 public class ImagePreviewViewModel extends BaseViewModel {
-    private final MutableLiveData<List<DirentModel>> _imageListLiveData = new MutableLiveData<>();
     private final MutableLiveData<Boolean> _starredLiveData = new MutableLiveData<>();
     private final MutableLiveData<Pair<RepoModel, List<DirentModel>>> _repoAndListLiveData = new MutableLiveData<>();
 
@@ -51,10 +50,6 @@ public class ImagePreviewViewModel extends BaseViewModel {
 
     public MutableLiveData<Boolean> getStarredLiveData() {
         return _starredLiveData;
-    }
-
-    public MutableLiveData<List<DirentModel>> getImageListLiveData() {
-        return _imageListLiveData;
     }
 
     public void load(String repoId, String repoName, String parentPath, String name, boolean isLoadOtherImagesInSameDirectory) {
@@ -108,7 +103,7 @@ public class ImagePreviewViewModel extends BaseViewModel {
                     @Override
                     public SingleSource<Pair<RepoModel, List<DirentModel>>> apply(DirentFileModel direntFileModel) throws Exception {
                         if (!TextUtils.isEmpty(direntFileModel.error_msg)) {
-                            throw SeafException.NOT_FOUND_EXCEPTION;
+                            throw new SeafException(0, direntFileModel.error_msg);
                         }
 
                         DirentModel direntModel = DirentModel.convertDetailModelToThis(direntFileModel, fullPath, repoId, repoName);

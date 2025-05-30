@@ -7,13 +7,13 @@ package com.seafile.seadroid2.enums;
  * ONLY_REPO: only select repo
  * </pre>
  */
-public enum RepoSelectType {
+public enum ObjSelectType {
     NOT_SELECTABLE(-1),
-    ONLY_ACCOUNT(0),
-    ONLY_REPO(1),
+    ACCOUNT(0),
+    REPO(1),
     DIR(2);
 
-    RepoSelectType(int i) {
+    ObjSelectType(int i) {
 
     }
 }

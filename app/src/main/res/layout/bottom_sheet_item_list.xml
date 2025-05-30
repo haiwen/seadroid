@@ -14,7 +14,7 @@
         android:layout_height="48dp"
         android:importantForAccessibility="no"
         android:padding="14dp"
-        tools:src="@drawable/ic_cancel" />
+        tools:src="@drawable/ic_launcher_foreground" />
 
     <TextView
         android:id="@+id/text"

@@ -5,6 +5,7 @@ import com.seafile.seadroid2.framework.model.dirents.DirentRecursiveFileModel;
 import com.seafile.seadroid2.framework.model.permission.PermissionListWrapperModel;
 import com.seafile.seadroid2.framework.model.permission.PermissionWrapperModel;
 import com.seafile.seadroid2.framework.model.repo.DirentWrapperModel;
+import com.seafile.seadroid2.framework.model.repo.RepoInfoModel;
 import com.seafile.seadroid2.framework.model.repo.RepoWrapperModel;
 
 import java.util.List;
@@ -23,7 +24,7 @@ public interface RepoService {
     Call<RepoWrapperModel> getReposSync();
 
     @GET("api2/repos/{repo_id}/")
-    Single<RepoModel> getRepoInfo(@Path("repo_id") String repoId);
+    Single<RepoInfoModel> getRepoInfo(@Path("repo_id") String repoId);
 
     @GET("api/v2.1/repos/{repo_id}/dir/?with_thumbnail=true")
     Single<DirentWrapperModel> getDirentsAsync(@Path("repo_id") String repoId, @Query("p") String path);

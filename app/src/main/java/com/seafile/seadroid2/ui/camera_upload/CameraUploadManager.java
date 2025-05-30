@@ -2,7 +2,6 @@ package com.seafile.seadroid2.ui.camera_upload;
 
 import android.content.ContentResolver;
 import android.os.Bundle;
-import android.util.Log;
 
 import com.seafile.seadroid2.BuildConfig;
 import com.seafile.seadroid2.account.Account;
@@ -20,7 +19,7 @@ import java.util.List;
  * service.
  */
 public class CameraUploadManager {
-
+    private final String TAG = "CameraUploadManager";
     private static final CameraUploadManager INSTANCE = new CameraUploadManager();
 
     public static CameraUploadManager getInstance() {
@@ -30,6 +29,7 @@ public class CameraUploadManager {
     /**
      * The authority of the camera sync service
      */
+    //com.seafile.seadroid2.debug.cameraupload.provider
     public static final String AUTHORITY = BuildConfig.APPLICATION_ID + ".cameraupload.provider";
 
     /**
@@ -38,16 +38,19 @@ public class CameraUploadManager {
     public void performSync() {
         Account cameraAccount = getCameraAccount();
         if (cameraAccount == null) {
-            SLogs.d("No one has turned on album backup");
+            SLogs.d(TAG, "No one has turned on album backup");
             return;
         }
-
-        ContentResolver.requestSync(cameraAccount.getAndroidAccount(), AUTHORITY, Bundle.EMPTY);
+        SLogs.d(TAG, "performSync()");
+        Bundle settingsBundle = new Bundle();
+        settingsBundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
+        settingsBundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
+        ContentResolver.requestSync(cameraAccount.getAndroidAccount(), AUTHORITY, settingsBundle);
     }
 
     public void performSync(boolean isForce) {
 
-        Log.d(CameraUploadManager.class.getName(), "performSyncByStatus()");
+        SLogs.d(TAG, "performSyncByStatus()");
 
         Bundle b = new Bundle();
         b.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, isForce);

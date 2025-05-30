@@ -63,6 +63,7 @@
     <color name="bar_icon_tint_color">@color/material_grey_900</color>
     <color name="bar_background_translucent_color">@color/material_grey_100_translucent</color>
     <color name="swipe_refresh_background_color">@color/material_grey_100</color>
+    <color name="child_activity_background_color">@color/white</color>
 
     <!-- bottom navigation bar icon tint color -->
     <color name="bottom_bar_icon_tint_color">@color/material_grey_599</color>

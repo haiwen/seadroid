@@ -8,19 +8,7 @@ public class Constants {
         throw new IllegalStateException("Constants class"); //NON-NLS(1)
     }
 
-
-    public static final int PERIODIC_SCAN_INTERVALS = 1000 * 60 * 5; //5m
     public static final String URL_PRIVACY = "https://www.seafile.com/privacy/";
-
-    public static class ObjType {
-        private ObjType() {
-            throw new IllegalStateException("Don't instantiate this class");
-        }
-
-        public static final String REPO = "repo";
-        public static final String DIR = "dir";
-        public static final String FILE = "file";
-    }
 
     public static class Account {
         private Account() {

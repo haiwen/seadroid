@@ -22,7 +22,7 @@ public class IntegerSettingLiveData extends SettingsLiveData<Integer> {
 
     @Override
     protected Integer getDefaultValue(@IntegerRes int defaultValueRes) {
-        return SeadroidApplication.getInstance().getResources().getInteger(defaultValueRes);
+        return SeadroidApplication.getAppInteger(defaultValueRes);
     }
 
     @Override

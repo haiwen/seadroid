@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.activity.OnBackPressedCallback;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
@@ -39,6 +40,13 @@ public class OnlyImagePreviewActivity extends BaseActivityWithVM<ImagePreviewVie
     }
 
     @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putStringArrayList("image_urls", new ArrayList<>(imageUrls));
+        outState.putInt("position", position);
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
@@ -48,7 +56,17 @@ public class OnlyImagePreviewActivity extends BaseActivityWithVM<ImagePreviewVie
         BarUtils.setNavBarVisibility(this, false);
         BarUtils.setStatusBarVisibility(this, false);
 
-        initData();
+        if (savedInstanceState != null) {
+            imageUrls = savedInstanceState.getStringArrayList("image_urls");
+            position = savedInstanceState.getInt("position");
+        } else {
+            if (getIntent() == null) {
+                throw new IllegalArgumentException("Intent is null");
+            }
+
+            imageUrls = getIntent().getStringArrayListExtra("image_urls");
+            position = getIntent().getIntExtra("position", 0);
+        }
 
         initView();
         initViewModel();
@@ -68,14 +86,6 @@ public class OnlyImagePreviewActivity extends BaseActivityWithVM<ImagePreviewVie
         notifyFragmentList();
     }
 
-    private void initData() {
-        if (getIntent() == null) {
-            throw new IllegalArgumentException("Intent is null");
-        }
-
-        imageUrls = getIntent().getStringArrayListExtra("image_urls");
-        position = getIntent().getIntExtra("position", 0);
-    }
 
     private void initView() {
 

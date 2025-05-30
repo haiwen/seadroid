@@ -27,14 +27,13 @@ public class BaseActivity extends AppCompatActivity {
         }
     }
 
-    protected Toolbar getActionBarToolbar() {
+    public Toolbar getActionBarToolbar() {
         if (mActionBarToolbar == null) {
-            mActionBarToolbar = (Toolbar) findViewById(R.id.toolbar_actionbar);
+            mActionBarToolbar = findViewById(R.id.toolbar_actionbar);
             if (mActionBarToolbar != null) {
                 // Depending on which version of Android you are on the Toolbar or the ActionBar may be
                 // active so the a11y description is set here.
-                mActionBarToolbar.setNavigationContentDescription(getResources().getString(R.string
-                        .navdrawer_description_a11y));
+                mActionBarToolbar.setNavigationContentDescription(R.string.navdrawer_description_a11y);
                 setSupportActionBar(mActionBarToolbar);
             }
         }

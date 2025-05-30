@@ -179,13 +179,7 @@ public class TransferListAdapter extends BaseMultiAdapter<Object> {
                 stateTextRes = R.string.notification_upload_started_title;
             }
 
-            int percent;
-            if (totalSize == 0) {
-                percent = 0;
-            } else {
-                percent = (int) (transferredSize * 100 / totalSize);
-            }
-
+            int percent = calc(transferredSize, totalSize);
             holder.binding.transferFileProgressBar.setProgress(percent);
 
             progressBarVisible = true;
@@ -245,11 +239,13 @@ public class TransferListAdapter extends BaseMultiAdapter<Object> {
             long totalSize = bundle.getLong(TransferWorker.KEY_TRANSFER_TOTAL_SIZE, 0);
 
             String sizeStr = Utils.readableFileSize(totalSize);
-
-            sizeStr = String.format("%s / %s", Utils.readableFileSize(transferredSize), sizeStr);
-            holder.binding.transferFileSize.setText(sizeStr);
+            String tStr = Utils.readableFileSize(transferredSize);
+            String text = String.format("%s / %s", tStr, sizeStr);
 
             int p = calc(transferredSize, totalSize);
+            text = p + "% · " + text;
+
+            holder.binding.transferFileSize.setText(text);
             holder.binding.transferFileProgressBar.setProgress(p);
         }
     }

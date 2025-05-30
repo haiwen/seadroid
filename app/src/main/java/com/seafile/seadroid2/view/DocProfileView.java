@@ -100,8 +100,7 @@ public class DocProfileView extends LinearLayout {
                 metadata.type = "collaborator";
                 metadata.value = CollectionUtils.newArrayList(getValueByKey(metadata.name));
             } else {
-                Object v = getValueByKey(metadata.name);
-                metadata.value = v;
+                metadata.value = getValueByKey(metadata.name);
             }
         }
         configModel.setRecordMetaDataList(metadataList);

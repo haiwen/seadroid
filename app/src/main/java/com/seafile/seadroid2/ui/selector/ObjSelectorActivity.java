@@ -17,24 +17,26 @@ import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.TimeUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.chad.library.adapter4.QuickAdapterHelper;
-import com.github.panpf.recycler.sticky.StickyItemDecoration;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
-import com.seafile.seadroid2.config.AbsLayoutItemType;
 import com.seafile.seadroid2.config.Constants;
+import com.seafile.seadroid2.config.ObjKey;
+import com.seafile.seadroid2.context.GlobalNavContext;
 import com.seafile.seadroid2.context.NavContext;
 import com.seafile.seadroid2.databinding.ActivitySelectorObjBinding;
 import com.seafile.seadroid2.enums.FileViewType;
-import com.seafile.seadroid2.enums.RepoSelectType;
+import com.seafile.seadroid2.enums.ObjSelectType;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.db.entities.EncKeyCacheEntity;
 import com.seafile.seadroid2.framework.db.entities.PermissionEntity;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.model.BaseModel;
 import com.seafile.seadroid2.ui.base.BaseActivity;
+import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
+import com.seafile.seadroid2.ui.dialog_fragment.BottomSheetNewDirFileDialogFragment;
+import com.seafile.seadroid2.ui.dialog_fragment.BottomSheetPasswordDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.NewDirFileDialogFragment;
-import com.seafile.seadroid2.ui.dialog_fragment.PasswordDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.listener.OnRefreshDataListener;
 import com.seafile.seadroid2.ui.dialog_fragment.listener.OnResultListener;
 import com.seafile.seadroid2.ui.repo.RepoQuickAdapter;
@@ -45,35 +47,47 @@ import java.util.List;
 import io.reactivex.functions.Consumer;
 
 /**
- * can select repo、dir、account
+ * can select account、repo、dir
  */
-public class ObjSelectorActivity extends BaseActivity {
-    private static final int STEP_CHOOSE_ACCOUNT = 1;
-    private static final int STEP_CHOOSE_REPO = 2;
-    private static final int STEP_CHOOSE_DIR = 3;
-    private int mStep = 1;
+public class ObjSelectorActivity extends BaseActivityWithVM<ObjSelectorViewModel> {
+    private ObjSelectType mCurrentStepType = ObjSelectType.ACCOUNT;
+    private ObjSelectType initType = ObjSelectType.ACCOUNT;
+    private ObjSelectType selectType = ObjSelectType.ACCOUNT;
 
-    public static final String DATA_ACCOUNT = "account";
-    public static final String DATA_REPO_ID = "repoID";
-    public static final String DATA_REPO_NAME = "repoNAME";
-    public static final String DATA_REPO_PERMISSION = "permission";
-    public static final String DATA_DIRECTORY_PATH = "dirPath";
-    public static final String DATA_DIR = "dir";
-
-
-    private boolean canChooseAccount;
+    //    private boolean canChooseAccount;
     private boolean isOnlyChooseRepo;
+    private boolean isOnlyChooseAccount;
 
     private ActivitySelectorObjBinding binding;
+
     private final NavContext mNavContext = new NavContext(false);
 
     private RepoQuickAdapter adapter;
-    private ObjSelectorViewModel viewModel;
     private Account mAccount;
 
-    public static Intent getStartIntent(Context context) {
+    public static Intent getCurrentAccountIntent(Context context, ObjSelectType initType, ObjSelectType selectType) {
+        Intent intent = getIntent(context, initType, selectType, null);
+        intent.putExtra(ObjKey.ACCOUNT, SupportAccountManager.getInstance().getCurrentAccount());
+        return intent;
+    }
+
+    public static Intent getCurrentAccountIntent(Context context, ObjSelectType initType, ObjSelectType selectType, Bundle extras) {
+        Intent intent = getIntent(context, initType, selectType, extras);
+        intent.putExtra(ObjKey.ACCOUNT, SupportAccountManager.getInstance().getCurrentAccount());
+        return intent;
+    }
+
+    public static Intent getIntent(Context context, ObjSelectType initType, ObjSelectType selectType) {
+        return getIntent(context, initType, selectType, null);
+    }
+
+    public static Intent getIntent(Context context, ObjSelectType initType, ObjSelectType selectType, Bundle extras) {
         Intent intent = new Intent(context, ObjSelectorActivity.class);
-        intent.putExtra(ObjSelectorActivity.DATA_ACCOUNT, SupportAccountManager.getInstance().getCurrentAccount());
+        intent.putExtra("init_type", initType.ordinal());
+        intent.putExtra("select_type", selectType.ordinal());
+        if (extras != null) {
+            intent.putExtras(extras);
+        }
         return intent;
     }
 
@@ -84,14 +98,26 @@ public class ObjSelectorActivity extends BaseActivity {
         binding = ActivitySelectorObjBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        //view model
-        viewModel = new ViewModelProvider(this).get(ObjSelectorViewModel.class);
-
         Intent intent = getIntent();
-        if (intent != null) {
-            Account account = intent.getParcelableExtra(DATA_ACCOUNT);
+        if (intent == null) {
+            throw new IllegalArgumentException("Intent is null");
+        }
+
+        initType = ObjSelectType.values()[intent.getIntExtra("init_type", 0)];
+        selectType = ObjSelectType.values()[intent.getIntExtra("select_type", 0)];
+
+        if (initType == null || selectType == null) {
+            throw new IllegalArgumentException("initType or selectType is null");
+        }
+
+        mCurrentStepType = initType;
+        isOnlyChooseRepo = selectType == ObjSelectType.REPO && initType == ObjSelectType.REPO;
+        isOnlyChooseAccount = selectType == ObjSelectType.ACCOUNT && initType == ObjSelectType.ACCOUNT;
+
+        if (ObjSelectType.ACCOUNT != initType) {
+            Account account = intent.getParcelableExtra(ObjKey.ACCOUNT);
             if (account == null) {
-                canChooseAccount = true;
+                mAccount = SupportAccountManager.getInstance().getCurrentAccount();
             } else {
                 mAccount = account;
             }
@@ -105,7 +131,12 @@ public class ObjSelectorActivity extends BaseActivity {
         });
 
         Toolbar toolbar = getActionBarToolbar();
-        setSupportActionBar(toolbar);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                stepBack();
+            }
+        });
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setTitle(R.string.app_name);
@@ -115,12 +146,6 @@ public class ObjSelectorActivity extends BaseActivity {
         initViewModel();
         initRv();
 
-        if (canChooseAccount) {
-            mStep = STEP_CHOOSE_ACCOUNT;
-        } else {
-            mStep = STEP_CHOOSE_REPO;
-        }
-
         checkLoginState();
     }
 
@@ -128,7 +153,7 @@ public class ObjSelectorActivity extends BaseActivity {
         binding.swipeRefreshLayout.setOnRefreshListener(this::loadData);
 
         if (isOnlyChooseRepo) {
-            binding.ok.setVisibility(View.GONE);
+            binding.cancel.setVisibility(View.GONE);
             binding.newFolder.setVisibility(View.GONE);
         }
 
@@ -166,33 +191,66 @@ public class ObjSelectorActivity extends BaseActivity {
     }
 
     private void onOkClick() {
-        if (!mNavContext.inRepo()) {
-            ToastUtils.showLong(R.string.choose_a_library);
+        if (selectType == ObjSelectType.REPO || selectType == ObjSelectType.DIR) {
+            if (mAccount == null) {
+                ToastUtils.showLong(R.string.choose_an_account);
+                return;
+            }
+            if (mNavContext.getRepoModel() == null) {
+                ToastUtils.showLong(R.string.choose_a_library);
+                return;
+            }
+        }
+
+        if (selectType == ObjSelectType.ACCOUNT && mAccount == null) {
+            ToastUtils.showLong(R.string.choose_an_account);
             return;
         }
 
-        String repoName = mNavContext.getRepoModel().repo_name;
-        String repoID = mNavContext.getRepoModel().repo_id;
-        String dir = mNavContext.getNavPath();
 
         Intent intent = new Intent();
-        intent.putExtra(DATA_REPO_NAME, repoName);
-        intent.putExtra(DATA_REPO_ID, repoID);
-        intent.putExtra(DATA_DIR, dir);
-        intent.putExtra(DATA_ACCOUNT, mAccount);
+
+        Bundle bundle = getIntent().getExtras();
+        if (bundle != null) {
+            intent.putExtras(bundle);
+        }
+
+        if (selectType == ObjSelectType.REPO) {
+
+            String repoName = mNavContext.getRepoModel().repo_name;
+            String repoID = mNavContext.getRepoModel().repo_id;
+
+            intent.putExtra(ObjKey.ACCOUNT, mAccount);
+            intent.putExtra(ObjKey.REPO_NAME, repoName);
+            intent.putExtra(ObjKey.REPO_ID, repoID);
+        } else if (selectType == ObjSelectType.DIR) {
+
+            String repoName = mNavContext.getRepoModel().repo_name;
+            String repoID = mNavContext.getRepoModel().repo_id;
+            String dir = mNavContext.getNavPath();
+
+            intent.putExtra(ObjKey.ACCOUNT, mAccount);
+            intent.putExtra(ObjKey.REPO_NAME, repoName);
+            intent.putExtra(ObjKey.REPO_ID, repoID);
+            intent.putExtra(ObjKey.DIR, dir);
+
+        } else if (selectType == ObjSelectType.ACCOUNT) {
+            intent.putExtra(ObjKey.ACCOUNT, mAccount);
+        }
+
         setResult(RESULT_OK, intent);
         finish();
     }
 
     private void initViewModel() {
-        viewModel.getRefreshLiveData().observe(this, new Observer<Boolean>() {
+        getViewModel().getRefreshLiveData().observe(this, new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean aBoolean) {
                 binding.swipeRefreshLayout.setRefreshing(aBoolean);
             }
         });
 
-        viewModel.getObjsListLiveData().observe(this, new Observer<List<BaseModel>>() {
+        getViewModel().getObjsListLiveData().observe(this, new Observer<List<BaseModel>>() {
             @Override
             public void onChanged(List<BaseModel> baseModels) {
                 notifyDataChanged(baseModels);
@@ -202,17 +260,17 @@ public class ObjSelectorActivity extends BaseActivity {
 
     private void initRv() {
         adapter = new RepoQuickAdapter();
-        adapter.setSelectType(RepoSelectType.DIR);
+        adapter.setSelectType(selectType);
         adapter.setFileViewType(FileViewType.LIST);
 
         adapter.setOnItemClickListener((baseQuickAdapter, view, i) -> {
             BaseModel baseModel = adapter.getItems().get(i);
-            onItemClick(baseModel);
+            onItemClick(baseModel, i);
         });
 
         QuickAdapterHelper helper = new QuickAdapterHelper.Builder(adapter).build();
         binding.rv.setAdapter(helper.getAdapter());
-        binding.rv.setPadding(0, Constants.DP.DP_16, 0, Constants.DP.DP_16);
+        binding.rv.setPadding(0, Constants.DP.DP_8, 0, Constants.DP.DP_32);
         binding.rv.setClipToPadding(false);
     }
 
@@ -224,19 +282,35 @@ public class ObjSelectorActivity extends BaseActivity {
         }
     }
 
-    private void onItemClick(BaseModel baseModel) {
-        if (baseModel instanceof Account) {
+    private void onItemClick(BaseModel baseModel, int position) {
+        if (baseModel instanceof Account account) {
+            mAccount = account;
 
-            mAccount = (Account) baseModel;
-            mStep = STEP_CHOOSE_REPO;
+            if (isOnlyChooseAccount) {
+                adapter.selectItemByMode(position);
+                return;
+            }
+
+            mCurrentStepType = ObjSelectType.REPO;
             loadData();
-        } else if (baseModel instanceof RepoModel) {
+        } else if (baseModel instanceof RepoModel repoModel) {
 
-            RepoModel repoModel = (RepoModel) baseModel;
+            if (isOnlyChooseRepo) {
+
+                boolean isSelected = adapter.getItems().get(position).is_checked;
+                if (isSelected) {
+                    mNavContext.pop();
+                } else {
+                    mNavContext.push(repoModel);
+                }
+                adapter.selectItemByMode(position);
+                return;
+            }
+
             if (repoModel.encrypted) {
                 doEncrypt(repoModel);
             } else {
-                mStep = STEP_CHOOSE_DIR;
+                mCurrentStepType = ObjSelectType.DIR;
                 mNavContext.push(repoModel);
                 loadData();
             }
@@ -250,19 +324,17 @@ public class ObjSelectorActivity extends BaseActivity {
             mNavContext.push(model);
             loadData();
         }
-
-
     }
 
     private void doEncrypt(RepoModel repoModel) {
-        viewModel.getEncCacheDB(repoModel.repo_id, new Consumer<EncKeyCacheEntity>() {
+        getViewModel().getEncCacheDB(repoModel.repo_id, new Consumer<EncKeyCacheEntity>() {
             @Override
             public void accept(EncKeyCacheEntity encKeyCacheEntity) throws Exception {
                 long now = TimeUtils.getNowMills();
                 if (encKeyCacheEntity == null || encKeyCacheEntity.expire_time_long == 0) {
                     showPasswordDialog(repoModel);
                 } else if (now < encKeyCacheEntity.expire_time_long) {
-                    mStep = STEP_CHOOSE_DIR;
+                    mCurrentStepType = ObjSelectType.DIR;
                     mNavContext.push(repoModel);
                     loadData();
                 } else {
@@ -273,17 +345,18 @@ public class ObjSelectorActivity extends BaseActivity {
     }
 
     private void showPasswordDialog(RepoModel repoModel) {
-        PasswordDialogFragment dialogFragment = PasswordDialogFragment.newInstance(repoModel.repo_id, repoModel.repo_name);
-        dialogFragment.setResultListener(new OnResultListener<RepoModel>() {
+        BottomSheetPasswordDialogFragment passwordDialogFragment = BottomSheetPasswordDialogFragment.newInstance(mAccount, repoModel.repo_id, repoModel.repo_name);
+        passwordDialogFragment.setResultListener(new OnResultListener<RepoModel>() {
             @Override
-            public void onResultData(RepoModel uRepoModel) {
-                mStep = STEP_CHOOSE_DIR;
-                mNavContext.push(repoModel);
-                loadData();
+            public void onResultData(RepoModel repoModel) {
+                if (repoModel != null) {
+                    mCurrentStepType = ObjSelectType.DIR;
+                    mNavContext.push(repoModel);
+                    loadData();
+                }
             }
         });
-
-        dialogFragment.show(getSupportFragmentManager(), PasswordDialogFragment.class.getSimpleName());
+        passwordDialogFragment.show(getSupportFragmentManager(), BottomSheetPasswordDialogFragment.class.getSimpleName());
     }
 
     private void checkCurrentPathHasWritePermission(java.util.function.Consumer<Boolean> consumer) {
@@ -312,7 +385,7 @@ public class ObjSelectorActivity extends BaseActivity {
             return;
         }
 
-        viewModel.getPermissionFromLocal(repo_id, pNum, new Consumer<PermissionEntity>() {
+        getViewModel().getPermissionFromLocal(repo_id, pNum, new Consumer<PermissionEntity>() {
             @Override
             public void accept(PermissionEntity entity) throws Exception {
                 if (!entity.isValid()) {
@@ -326,6 +399,11 @@ public class ObjSelectorActivity extends BaseActivity {
     }
 
     private void showNewDirDialog() {
+        if (mAccount == null) {
+            ToastUtils.showLong(R.string.choose_an_account);
+            return;
+        }
+
         if (!mNavContext.inRepo()) {
             ToastUtils.showLong(R.string.choose_a_library);
             return;
@@ -333,10 +411,9 @@ public class ObjSelectorActivity extends BaseActivity {
 
         checkCurrentPathHasWritePermission(aBoolean -> {
 
-
             String rid = mNavContext.getRepoModel().repo_id;
             String parentPath = mNavContext.getNavPath();
-            NewDirFileDialogFragment dialogFragment = NewDirFileDialogFragment.newInstance(rid, parentPath, true);
+            BottomSheetNewDirFileDialogFragment dialogFragment = BottomSheetNewDirFileDialogFragment.newInstance(mAccount, rid, parentPath, true);
             dialogFragment.setRefreshListener(new OnRefreshDataListener() {
                 @Override
                 public void onActionStatus(boolean isDone) {
@@ -345,7 +422,7 @@ public class ObjSelectorActivity extends BaseActivity {
                     }
                 }
             });
-            dialogFragment.show(getSupportFragmentManager(), NewDirFileDialogFragment.class.getSimpleName());
+            dialogFragment.show(getSupportFragmentManager(), BottomSheetNewDirFileDialogFragment.class.getSimpleName());
         });
     }
 
@@ -356,33 +433,39 @@ public class ObjSelectorActivity extends BaseActivity {
             return;
         }
 
-        if (mStep == STEP_CHOOSE_ACCOUNT) {
+        if (mCurrentStepType == ObjSelectType.ACCOUNT) {
 
-            bar.setDisplayHomeAsUpEnabled(false);
             bar.setTitle(R.string.choose_an_account);
 
-            viewModel.loadAccount();
-        } else if (mStep == STEP_CHOOSE_REPO) {
+            getViewModel().loadAccount();
+        } else if (mCurrentStepType == ObjSelectType.REPO) {
 
-            bar.setDisplayHomeAsUpEnabled(true);
             bar.setTitle(R.string.choose_a_library);
 
-            viewModel.loadReposFromNet(mAccount, false);
-        } else if (mStep == STEP_CHOOSE_DIR) {
+            boolean isFilterUnavailable = true;
+            boolean isAddStarredGroup = false;
+            if (getIntent().hasExtra("isFilterUnavailable")) {
+                isFilterUnavailable = getIntent().getBooleanExtra("isFilterUnavailable", true);
+            }
 
-            bar.setDisplayHomeAsUpEnabled(true);
+            if (getIntent().hasExtra("isAddStarredGroup")) {
+                isAddStarredGroup = getIntent().getBooleanExtra("isAddStarredGroup", false);
+            }
+
+            getViewModel().loadReposFromNet(mAccount, isFilterUnavailable, isAddStarredGroup);
+        } else if (mCurrentStepType == ObjSelectType.DIR) {
+
             bar.setTitle(R.string.choose_a_folder);
-
-            viewModel.loadDirentsFromNet(mAccount, mNavContext);
+            getViewModel().loadDirentsFromNet(mAccount, mNavContext);
         }
     }
 
     private void showEmptyTip() {
-        if (mStep == STEP_CHOOSE_ACCOUNT) {
+        if (mCurrentStepType == ObjSelectType.ACCOUNT) {
             showAdapterTip(R.string.no_account);
-        } else if (mStep == STEP_CHOOSE_REPO) {
+        } else if (mCurrentStepType == ObjSelectType.REPO) {
             showAdapterTip(R.string.no_repo);
-        } else if (mStep == STEP_CHOOSE_DIR) {
+        } else if (mCurrentStepType == ObjSelectType.DIR) {
             showAdapterTip(R.string.dir_empty);
         }
     }
@@ -395,25 +478,17 @@ public class ObjSelectorActivity extends BaseActivity {
         adapter.setStateViewEnable(true);
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            stepBack();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
     private void stepBack() {
-        switch (mStep) {
-            case STEP_CHOOSE_ACCOUNT: {
+        switch (mCurrentStepType) {
+            case ACCOUNT: {
                 setResult(RESULT_CANCELED);
                 finish();
             }
             break;
-            case STEP_CHOOSE_REPO: {
-                if (canChooseAccount) {
-                    mStep = STEP_CHOOSE_ACCOUNT;
+            case REPO: {
+                if (initType == ObjSelectType.ACCOUNT) {
+                    mAccount = null;
+                    mCurrentStepType = ObjSelectType.ACCOUNT;
                     loadData();
                 } else {
                     setResult(RESULT_CANCELED);
@@ -421,12 +496,11 @@ public class ObjSelectorActivity extends BaseActivity {
                 }
             }
             break;
-            case STEP_CHOOSE_DIR: {
+            case DIR: {
                 if (mNavContext.inRepoRoot()) {
-                    mStep = STEP_CHOOSE_REPO;
-                } else {
-                    mNavContext.pop();
+                    mCurrentStepType = ObjSelectType.REPO;
                 }
+                mNavContext.pop();
                 loadData();
             }
             break;

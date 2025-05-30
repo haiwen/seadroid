@@ -67,6 +67,8 @@ import okhttp3.ResponseBody;
  * @see BackgroundJobManagerImpl#TAG_TRANSFER
  */
 public class DownloadWorker extends BaseDownloadWorker {
+    private final String TAG = "DownloadWorker";
+
     private final DownloadNotificationHelper notificationHelper;
     private final FileTransferProgressListener transferProgressListener;
     private TransferModel currentTransferModel;
@@ -82,7 +84,7 @@ public class DownloadWorker extends BaseDownloadWorker {
         notificationHelper = new DownloadNotificationHelper(context);
 
         transferProgressListener = new FileTransferProgressListener((transferModel, percent, transferredSize, totalSize) -> {
-            SLogs.d(DownloadWorker.class, "DOWNLOAD: " + transferModel.file_name + " -> progress：" + percent);
+            SLogs.d(TAG, "onProgressNotify()", transferModel.file_name + " -> progress：" + percent);
             transferModel.transferred_size = transferredSize;
             GlobalTransferCacheList.updateTransferModel(transferModel);
 
@@ -107,7 +109,7 @@ public class DownloadWorker extends BaseDownloadWorker {
     @NonNull
     @Override
     public Result doWork() {
-        SLogs.d(DownloadWorker.class, "started execution");
+        SLogs.d(TAG, "doWork()", "started execution");
 
         Account account = getCurrentAccount();
         if (account == null) {
@@ -117,7 +119,7 @@ public class DownloadWorker extends BaseDownloadWorker {
         //count
         int totalPendingCount = GlobalTransferCacheList.DOWNLOAD_QUEUE.getPendingCount();
         if (totalPendingCount <= 0) {
-            SLogs.d(DownloadWorker.class, "download list is empty.");
+            SLogs.d(TAG, "doWork()", "download list is empty.");
             return returnSuccess();
         }
 
@@ -141,8 +143,7 @@ public class DownloadWorker extends BaseDownloadWorker {
 
             try {
                 int p = GlobalTransferCacheList.DOWNLOAD_QUEUE.getPendingCount();
-                SLogs.d(DownloadWorker.class, "pending count: " + p + ", download start：" + transferModel.full_path);
-
+                SLogs.d(TAG, "doWork()", "pending count: " + p + ", download start：" + transferModel.full_path);
                 currentTransferModel = CloneUtils.deepClone(transferModel, TransferModel.class);
                 transferFile(account);
 
@@ -160,8 +161,7 @@ public class DownloadWorker extends BaseDownloadWorker {
             }
         }
 
-        SLogs.d(DownloadWorker.class, "all task complete");
-
+        SLogs.d(TAG, "doWork()", "all task complete");
         //
         if (TextUtils.isEmpty(interruptibleExceptionMsg)) {
             showToast(R.string.download_finished);
@@ -197,11 +197,9 @@ public class DownloadWorker extends BaseDownloadWorker {
 
             sendProgressFinishEvent(currentTransferModel);
 
-            SLogs.d(DownloadWorker.class, "download complete：" + currentTransferModel.full_path);
-
+            SLogs.d(TAG, "transferFile()", "download complete：" + currentTransferModel.full_path);
         } catch (Exception e) {
-            SLogs.e("download file failed -> " + currentTransferModel.full_path);
-
+            SLogs.d(TAG, "transferFile()", "download file failed -> " + currentTransferModel.full_path);
             SeafException seafException = ExceptionUtils.parseByThrowable(e);
             SLogs.e(seafException);
             checkInterrupt(account, seafException);
@@ -219,7 +217,6 @@ public class DownloadWorker extends BaseDownloadWorker {
 
             currentTransferModel.retry_times = currentTransferModel.retry_times + 1;
             if (seafException == SeafException.INVALID_PASSWORD) {
-                SLogs.e("上传文件时发生了异常，将进行重试: " + seafException.getMessage());
                 boolean decryptResult = decryptRepo(currentTransferModel.repo_id);
                 if (decryptResult) {
                     transferFile(account);
@@ -314,7 +311,7 @@ public class DownloadWorker extends BaseDownloadWorker {
             if (!response.isSuccessful()) {
                 int code = response.code();
                 String b = response.body() != null ? response.body().string() : null;
-                SLogs.d("upload failed：" + b);
+                SLogs.d(TAG, "download()", "download failed：" + code + ", resBody is : " + b);
 
                 //
                 newCall.cancel();
@@ -325,16 +322,17 @@ public class DownloadWorker extends BaseDownloadWorker {
             try (ResponseBody responseBody = response.body()) {
                 if (responseBody == null) {
                     int code = response.code();
-                    SLogs.e(" upload failed：" + code + ", resBody is null: " + currentTransferModel.target_path);
+                    SLogs.d(TAG, "download()", "download failed：" + code + ", resBody is null ", currentTransferModel.target_path);
+
                     throw SeafException.NETWORK_EXCEPTION;
                 }
 
-                File localFile = DataManager.getLocalRepoFile(account, currentTransferModel.repo_id, currentTransferModel.repo_name, currentTransferModel.full_path);
+                File localFile = DataManager.getLocalFileCachePath(account, currentTransferModel.repo_id, currentTransferModel.repo_name, currentTransferModel.full_path);
 
 
                 long fileSize = responseBody.contentLength();
                 if (fileSize == -1) {
-                    SLogs.e("download file error -> contentLength is -1, " + localFile.getAbsolutePath());
+                    SLogs.d(TAG, "download()", "download failed：contentLength is -1", localFile.getAbsolutePath());
                     fileSize = currentTransferModel.file_size;
                 }
 
@@ -377,9 +375,9 @@ public class DownloadWorker extends BaseDownloadWorker {
 
     @Todo("todo")
     public boolean isRetry(SeafException result) {
-//        if (result.equals(SeafException.INVALID_PASSWORD)) {
-//            return true;
-//        }
+        if (result.equals(SeafException.INVALID_PASSWORD)) {
+            return true;
+        }
         return false;
     }
 
@@ -463,9 +461,10 @@ public class DownloadWorker extends BaseDownloadWorker {
         retrofit2.Response<ResultModel> res = setPasswordCall.execute();
         if (res.isSuccessful()) {
             ResultModel resultModel = res.body();
-            SLogs.d("setPassword: " + resultModel);
+            SLogs.d(TAG, "setPassword()", "set password success");
         } else {
             int code = res.code();
+            SLogs.d(TAG, "setPassword()", "set password failed: " + code);
             try (ResponseBody responseBody = res.errorBody()) {
                 if (responseBody != null) {
                     throw ExceptionUtils.parse(code, responseBody.string());
@@ -474,7 +473,6 @@ public class DownloadWorker extends BaseDownloadWorker {
                 }
             }
         }
-
     }
 
     private void insert(String repoId, String password) {

@@ -112,7 +112,7 @@ public class DirentModel extends BaseModel implements Parcelable {
         }
         if (isDir())
             return timestamp;
-        return Utils.readableFileSize(size) + ", " + timestamp;
+        return Utils.readableFileSize(size) + " · " + timestamp;
     }
 
     public int getIcon() {

@@ -6,6 +6,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RadioGroup;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.seafile.seadroid2.R;
@@ -19,14 +21,16 @@ public class WhatToUploadFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.cuc_what_to_upload_fragment, container, false);
+    }
 
-        View rootView = LayoutInflater.from(getContext()).inflate(R.layout.cuc_what_to_upload_fragment, null);
-        mRadioGroup = rootView.findViewById(R.id.cuc_upload_radio_group);
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        mRadioGroup = view.findViewById(R.id.cuc_upload_radio_group);
         if (AlbumBackupSharePreferenceHelper.readAllowVideoSwitch()) {
             mRadioGroup.check(R.id.cuc_upload_photos_and_videos_rb);
         }
-
-        return rootView;
     }
 
     public boolean getWhatToUpload() {

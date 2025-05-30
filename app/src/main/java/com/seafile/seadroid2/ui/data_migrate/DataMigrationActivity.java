@@ -16,7 +16,6 @@ import androidx.preference.PreferenceManager;
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.EncryptUtils;
 import com.blankj.utilcode.util.FileUtils;
-import com.blankj.utilcode.util.GsonUtils;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountInfo;
@@ -25,14 +24,6 @@ import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.databinding.ActivityDataMigrationBinding;
 import com.seafile.seadroid2.enums.TransferDataSource;
-import com.seafile.seadroid2.framework.model.DatabaseHelper;
-import com.seafile.seadroid2.framework.db.AppDatabase;
-import com.seafile.seadroid2.framework.db.entities.EncKeyCacheEntity;
-import com.seafile.seadroid2.framework.db.entities.FileBackupStatusEntity;
-import com.seafile.seadroid2.framework.db.entities.FolderBackupMonitorEntity;
-import com.seafile.seadroid2.framework.db.entities.RepoModel;
-import com.seafile.seadroid2.framework.model.repo.RepoWrapperModel;
-import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.datastore.DataStoreKeys;
 import com.seafile.seadroid2.framework.datastore.DataStoreManager;
 import com.seafile.seadroid2.framework.datastore.StorageManager;
@@ -40,7 +31,14 @@ import com.seafile.seadroid2.framework.datastore.sp.AlbumBackupManager;
 import com.seafile.seadroid2.framework.datastore.sp.AppDataManager;
 import com.seafile.seadroid2.framework.datastore.sp.FolderBackupManager;
 import com.seafile.seadroid2.framework.datastore.sp.SettingsManager;
+import com.seafile.seadroid2.framework.db.AppDatabase;
+import com.seafile.seadroid2.framework.db.entities.EncKeyCacheEntity;
+import com.seafile.seadroid2.framework.db.entities.FileBackupStatusEntity;
+import com.seafile.seadroid2.framework.db.entities.FolderBackupMonitorEntity;
+import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
+import com.seafile.seadroid2.framework.model.DatabaseHelper;
+import com.seafile.seadroid2.framework.model.repo.RepoWrapperModel;
 import com.seafile.seadroid2.framework.monitor.MonitorDBHelper;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Utils;
@@ -75,6 +73,8 @@ import retrofit2.Response;
  * Migrating data from sqlite database to Room
  */
 public class DataMigrationActivity extends AppCompatActivity {
+    private final String TAG = "DataMigrationActivity";
+
     private ActivityDataMigrationBinding binding;
     private final CompositeDisposable compositeDisposable = new CompositeDisposable();
 
@@ -209,18 +209,18 @@ public class DataMigrationActivity extends AppCompatActivity {
         //
         int storageDir = sharedPref.getInt(SettingsManager.SHARED_PREF_STORAGE_DIR, Integer.MIN_VALUE);
         DataStoreManager.getCommonSharePreference().writeInteger(SettingsManager.SHARED_PREF_STORAGE_DIR, storageDir);
-        SLogs.d("migrated: storageDir -> " + storageDir);
+        SLogs.d(TAG, "migrated: storageDir -> " + storageDir);
 
         //privacy
         int privacy = sharedPref.getInt(SettingsManager.PRIVACY_POLICY_CONFIRMED, Integer.MIN_VALUE);
         DataStoreManager.getCommonSharePreference().writeInteger(SettingsManager.PRIVACY_POLICY_CONFIRMED, privacy);
-        SLogs.d("migrated: privacy -> " + privacy);
+        SLogs.d(TAG, "migrated: privacy -> " + privacy);
 
 
         //com.seafile.seadroid.account_name
         String curAccount = sharedPref.getString(DataStoreKeys.ACCOUNT_CURRENT_OLD, null);
         DataStoreManager.getCommonSharePreference().writeString(DataStoreKeys.KEY_CURRENT_ACCOUNT, curAccount);
-        SLogs.d("migrated: curAccount -> " + curAccount);
+        SLogs.d(TAG, "migrated: curAccount -> " + curAccount);
 
     }
 
@@ -274,7 +274,7 @@ public class DataMigrationActivity extends AppCompatActivity {
         if (repoId != null && account != null) {
             RepoConfig config = new RepoConfig(repoId, repoName, account.email, account.getSignature());
             AlbumBackupManager.writeRepoConfig(config);
-            SLogs.d("migrated: repoConfig -> " + config);
+            SLogs.d(TAG, "migrated: repoConfig -> " + config);
 
         }
 
@@ -282,29 +282,29 @@ public class DataMigrationActivity extends AppCompatActivity {
         SharedPreferences pm = PreferenceManager.getDefaultSharedPreferences(SeadroidApplication.getAppContext());
         //is enable
         boolean isEnable = pm.getBoolean(SettingsManager.CAMERA_UPLOAD_SWITCH_KEY, false);
-        SLogs.d("migrated: album backup switch -> " + isEnable);
+        SLogs.d(TAG, "migrated: album backup switch -> " + isEnable);
         AlbumBackupManager.writeBackupSwitch(isEnable);
 
         //video
         boolean isVideoAllowed = pm.getBoolean(SettingsManager.CAMERA_UPLOAD_ALLOW_VIDEOS_SWITCH_KEY, false);
         AlbumBackupManager.writeAllowVideoSwitch(isVideoAllowed);
-        SLogs.d("migrated: isVideoAllowed -> " + isVideoAllowed);
+        SLogs.d(TAG, "migrated: isVideoAllowed -> " + isVideoAllowed);
 
         //data plan
         boolean isDataPlanAllowed = pm.getBoolean(SettingsManager.CAMERA_UPLOAD_ALLOW_DATA_PLAN_SWITCH_KEY, false);
         AlbumBackupManager.writeAllowDataPlanSwitch(isDataPlanAllowed);
-        SLogs.d("migrated: isDataPlanAllowed -> " + isDataPlanAllowed);
+        SLogs.d(TAG, "migrated: isDataPlanAllowed -> " + isDataPlanAllowed);
 
         //custom
         boolean isCustomAlbum = pm.getBoolean(SettingsManager.CAMERA_UPLOAD_CUSTOM_BUCKETS_KEY, false);
         AlbumBackupManager.writeCustomAlbumSwitch(isCustomAlbum);
-        SLogs.d("migrated: isCustomAlbum -> " + isCustomAlbum);
+        SLogs.d(TAG, "migrated: isCustomAlbum -> " + isCustomAlbum);
 
         //bucket ids
         String bucketIdsStr = sharedPref.getString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_BUCKETS, "");
         List<String> ids = Arrays.asList(TextUtils.split(bucketIdsStr, ","));
         AlbumBackupManager.writeBucketIds(ids);
-        SLogs.d("migrated: bucketIds -> " + bucketIdsStr);
+        SLogs.d(TAG, "migrated: bucketIds -> " + bucketIdsStr);
     }
 
     /**
@@ -390,13 +390,13 @@ public class DataMigrationActivity extends AppCompatActivity {
             c.close();
         }
 
-        SLogs.d("--------------------" + table);
+        SLogs.d(TAG, "--------------------" + table);
         for (FileBackupStatusEntity entity : list) {
-            SLogs.d(entity.toString());
+            SLogs.d(TAG, entity.toString());
         }
 
         AppDatabase.getInstance().fileTransferDAO().insertAll(list);
-        SLogs.d("--------------------" + table + " -> 完成");
+        SLogs.d(TAG, "--------------------" + table + " -> 完成");
     }
 
 
@@ -483,14 +483,14 @@ public class DataMigrationActivity extends AppCompatActivity {
             c.close();
         }
 
-        SLogs.d("--------------------" + table);
+        SLogs.d(TAG, "--------------------" + table);
 
         for (FileBackupStatusEntity entity : list) {
-            SLogs.d(entity.toString());
+            SLogs.d(TAG, entity.toString());
         }
 
         AppDatabase.getInstance().fileTransferDAO().insertAll(list);
-        SLogs.d("--------------------" + table + " -> 完成");
+        SLogs.d(TAG, "--------------------" + table + " -> 完成");
     }
 
     private void queryRepoConfigOfFolderBackDB() {
@@ -570,7 +570,7 @@ public class DataMigrationActivity extends AppCompatActivity {
 
             if (account != null) {
                 FolderBackupManager.writeBackupPaths(selectFolderPaths);
-                SLogs.d("migrated: selectFolderPaths -> " + selectFolderPaths.size());
+                SLogs.d(TAG, "migrated: selectFolderPaths -> " + selectFolderPaths.size());
             }
         }
 
@@ -580,16 +580,16 @@ public class DataMigrationActivity extends AppCompatActivity {
         //folder_backup_switch
         boolean folder_backup_switch = pm.getBoolean(SettingsManager.FOLDER_BACKUP_SWITCH_KEY, false);
         FolderBackupManager.writeBackupSwitch(folder_backup_switch);
-        SLogs.d("migrated: folder_backup_switch -> " + folder_backup_switch);
+        SLogs.d(TAG, "migrated: folder_backup_switch -> " + folder_backup_switch);
 
         //mode
         String network = pm.getString(SettingsManager.FOLDER_BACKUP_MODE, "WIFI");
         FolderBackupManager.writeNetworkMode(network);//PreferenceManager -> DataStore
-        SLogs.d("migrated: networkMode -> " + network);
+        SLogs.d(TAG, "migrated: networkMode -> " + network);
 
         //true
         FolderBackupManager.writeSkipHiddenFiles(true);
-        SLogs.d("migrated: jumpHidden -> " + true);
+        SLogs.d(TAG, "migrated: jumpHidden -> " + true);
     }
 
     private void queryDataDB() {
@@ -601,7 +601,7 @@ public class DataMigrationActivity extends AppCompatActivity {
 
         queryFileCacheOfDataDB();
         queryStarredFileCacheOfDataDB();
-        queryRepoDirOfDataDB();
+//        queryRepoDirOfDataDB();
         queryDirentsCacheOfDataDB();
         queryEncKeyOfDataDB();
     }
@@ -703,13 +703,13 @@ public class DataMigrationActivity extends AppCompatActivity {
             c.close();
         }
 
-        SLogs.d("--------------------" + table);
+        SLogs.d(TAG, "--------------------" + table);
         for (FileBackupStatusEntity entity : list) {
-            SLogs.d(entity.toString());
+            SLogs.d(TAG, entity.toString());
         }
 
         AppDatabase.getInstance().fileTransferDAO().insertAll(list);
-        SLogs.d("--------------------" + table + " -> 完成");
+        SLogs.d(TAG, "--------------------" + table + " -> 完成");
 
     }
 
@@ -761,62 +761,62 @@ public class DataMigrationActivity extends AppCompatActivity {
 
     }
 
-    private void queryRepoDirOfDataDB() {
-        String table = "RepoDir";
-
-        DatabaseHelper dbHelper = DatabaseHelper.getDatabaseHelper();
-        SQLiteDatabase database = dbHelper.getWritableDatabase();
-        boolean isExists = checkTableExists(database, table);
-        if (!isExists) {
-            return;
-        }
-
-        Cursor c = database.query(
-                table,
-                null,
-                null,
-                null,
-                null,   // don't group the rows
-                null,   // don't filter by row groups
-                null    // The sort order
-        );
-
-        try {
-            c.moveToFirst();
-            while (!c.isAfterLast()) {
-                int idIndex = c.getColumnIndexOrThrow("id");
-                int repoIdIndex = c.getColumnIndexOrThrow("repo_id");
-                int repoDirIndex = c.getColumnIndexOrThrow("repo_dir");
-                int accountIndex = c.getColumnIndexOrThrow("account");
-
-
-//                item.id = c.getLong(idIndex);
-                String repo_id = c.getString(repoIdIndex);
-                String repo_dir = c.getString(repoDirIndex);
-//                item.related_account = c.getString(accountIndex);
-
-                Optional<RepoModel> repoModelOp = accountRepoList.stream().filter(repo -> repo.repo_id.equals(repo_id)).findFirst();
-                if (repoModelOp.isPresent()) {
-                    RepoModel repo = repoModelOp.get();
-                    Account account = SupportAccountManager.getInstance().getSpecialAccount(repo.related_account);
-                    if (account != null) {
-                        List<String> list = DataManager.getRepoMapping();
-                        list.add(repo_id + DataStoreKeys.SEPARATOR + repo_dir);
-
-                        String v = GsonUtils.toJson(list);
-                        DataStoreManager.getInstanceByUser(account.getSignature()).writeString(DataStoreKeys.DS_REPO_DIR_MAPPING, v);
-                    }
-                }
-
-
-                c.moveToNext();
-            }
-        } finally {
-            c.close();
-        }
-
-        SLogs.d("--------------------" + table + " -> 完成");
-    }
+//    private void queryRepoDirOfDataDB() {
+//        String table = "RepoDir";
+//
+//        DatabaseHelper dbHelper = DatabaseHelper.getDatabaseHelper();
+//        SQLiteDatabase database = dbHelper.getWritableDatabase();
+//        boolean isExists = checkTableExists(database, table);
+//        if (!isExists) {
+//            return;
+//        }
+//
+//        Cursor c = database.query(
+//                table,
+//                null,
+//                null,
+//                null,
+//                null,   // don't group the rows
+//                null,   // don't filter by row groups
+//                null    // The sort order
+//        );
+//
+//        try {
+//            c.moveToFirst();
+//            while (!c.isAfterLast()) {
+//                int idIndex = c.getColumnIndexOrThrow("id");
+//                int repoIdIndex = c.getColumnIndexOrThrow("repo_id");
+//                int repoDirIndex = c.getColumnIndexOrThrow("repo_dir");
+//                int accountIndex = c.getColumnIndexOrThrow("account");
+//
+//
+////                item.id = c.getLong(idIndex);
+//                String repo_id = c.getString(repoIdIndex);
+//                String repo_dir = c.getString(repoDirIndex);
+////                item.related_account = c.getString(accountIndex);
+//
+//                Optional<RepoModel> repoModelOp = accountRepoList.stream().filter(repo -> repo.repo_id.equals(repo_id)).findFirst();
+//                if (repoModelOp.isPresent()) {
+//                    RepoModel repo = repoModelOp.get();
+//                    Account account = SupportAccountManager.getInstance().getSpecialAccount(repo.related_account);
+//                    if (account != null) {
+//                        List<String> list = DataManager.getRepoMapping();
+//                        list.add(repo_id + DataStoreKeys.SEPARATOR + repo_dir);
+//
+//                        String v = GsonUtils.toJson(list);
+//                        DataStoreManager.getInstanceByUser(account.getSignature()).writeString(DataStoreKeys.DS_REPO_DIR_MAPPING, v);
+//                    }
+//                }
+//
+//
+//                c.moveToNext();
+//            }
+//        } finally {
+//            c.close();
+//        }
+//
+//        SLogs.d(TAG,"--------------------" + table + " -> 完成");
+//    }
 
     private void queryDirentsCacheOfDataDB() {
         String table = "DirentsCache";
@@ -915,13 +915,13 @@ public class DataMigrationActivity extends AppCompatActivity {
             c.close();
         }
 
-        SLogs.d("--------------------" + table);
+        SLogs.d(TAG, "--------------------" + table);
         for (EncKeyCacheEntity entity : list) {
-            SLogs.d(entity.toString());
+            SLogs.d(TAG, entity.toString());
         }
 
         AppDatabase.getInstance().encKeyCacheDAO().insertAllSync(list);
-        SLogs.d("--------------------" + table + " -> 完成");
+        SLogs.d(TAG, "--------------------" + table + " -> 完成");
 
     }
 
@@ -967,7 +967,7 @@ public class DataMigrationActivity extends AppCompatActivity {
 
         //Not stored in the database
 //        AppDatabase.getInstance().certDAO().insertAll(list);
-        SLogs.d("--------------------" + table + " -> 完成");
+        SLogs.d(TAG, "--------------------" + table + " -> 完成");
 
     }
 
@@ -1024,11 +1024,11 @@ public class DataMigrationActivity extends AppCompatActivity {
             c.close();
         }
 
-        SLogs.d("--------------------" + table);
+        SLogs.d(TAG, "--------------------" + table);
         list.forEach(new Consumer<FolderBackupMonitorEntity>() {
             @Override
             public void accept(FolderBackupMonitorEntity entity) {
-                SLogs.d(entity.toString());
+                SLogs.d(TAG, entity.toString());
             }
         });
 
@@ -1039,14 +1039,14 @@ public class DataMigrationActivity extends AppCompatActivity {
                 .subscribe(new Action() {
                     @Override
                     public void run() throws Exception {
-                        SLogs.d("--------------------" + table + " -> 完成");
+                        SLogs.d(TAG, "--------------------" + table + " -> 完成");
                     }
                 }));
     }
 
     private void finishMigration() {
         AppDataManager.setMigratedWhenV300(1);
-        SLogs.d("finishMigration");
+        SLogs.d(TAG, "finishMigration");
 
         setResult(RESULT_OK);
 

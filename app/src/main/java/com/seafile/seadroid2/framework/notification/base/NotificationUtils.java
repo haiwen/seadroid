@@ -50,7 +50,7 @@ public class NotificationUtils {
 
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         if (notificationManager == null) {
-            SLogs.d("NotificationManager is null.");
+            SLogs.d("NotificationUtils", "NotificationManager is null.");
             return;
         }
 

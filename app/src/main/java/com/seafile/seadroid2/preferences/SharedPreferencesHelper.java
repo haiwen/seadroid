@@ -10,12 +10,12 @@ import com.seafile.seadroid2.SeadroidApplication;
 public class SharedPreferencesHelper {
     public static SharedPreferences getSharedPreferences(String nameSuffix) {
         if (TextUtils.isEmpty(nameSuffix)) {
-            return PreferenceManager.getDefaultSharedPreferences(SeadroidApplication.getInstance());
+            return PreferenceManager.getDefaultSharedPreferences(SeadroidApplication.getAppContext());
         } else {
-            String pName = PreferenceManagerCompat.getDefaultSharedPreferencesName(SeadroidApplication.getInstance(), nameSuffix);
+            String pName = PreferenceManagerCompat.getDefaultSharedPreferencesName(SeadroidApplication.getAppContext(), nameSuffix);
 
             int mode = PreferenceManagerCompat.getDefaultSharedPreferencesMode();
-            return SeadroidApplication.getInstance().getSharedPreferences(pName, mode);
+            return SeadroidApplication.getAppContext().getSharedPreferences(pName, mode);
         }
     }
 }

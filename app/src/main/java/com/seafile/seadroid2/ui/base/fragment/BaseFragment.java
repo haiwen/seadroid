@@ -9,10 +9,6 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.framework.util.SLogs;
 
 public class BaseFragment extends Fragment {
-    public void d(String e) {
-        SLogs.d(this.getClass().getSimpleName() + " => " + e);
-    }
-
     private boolean isFirstLoadData = true;
 
     @Override

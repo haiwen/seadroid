@@ -33,7 +33,10 @@ public interface DialogService {
 
     @Multipart
     @POST("api2/repos/{repo_id}/dir/")
-    Single<String> createDir(@Path("repo_id") String repoId, @Query("p") String path, @PartMap Map<String, RequestBody> map);
+    Single<String> createDirWithApi2(@Path("repo_id") String repoId, @Query("p") String path, @PartMap Map<String, RequestBody> map);
+
+    @POST("api2/repos/{repo_id}/dir/")
+    String createDirSync(@Path("repo_id") String repoId, @Query("p") String path, @Body Map<String, String> map);
 
     @Multipart
     @POST("api/v2.1/repos/{repo_id}/file/")

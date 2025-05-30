@@ -30,7 +30,7 @@ public class StringSetSettingLiveData extends SettingsLiveData<Set<String>> {
 
     @Override
     protected Set<String> getDefaultValue(@StringRes int defaultValueRes) {
-        String[] arr = SeadroidApplication.getInstance().getResources().getStringArray(defaultValueRes);
+        String[] arr = SeadroidApplication.getAppContext().getResources().getStringArray(defaultValueRes);
         return Set.of(arr);
     }
 

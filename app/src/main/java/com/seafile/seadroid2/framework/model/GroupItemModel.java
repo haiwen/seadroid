@@ -21,6 +21,7 @@ public class GroupItemModel extends BaseModel {
     public final List<RepoModel> repo_list = new ArrayList<>();
 
     public void addAllRepoList(List<RepoModel> repoList) {
+        repo_list.clear();
         repo_list.addAll(repoList);
     }
 
@@ -28,27 +29,27 @@ public class GroupItemModel extends BaseModel {
         return repo_list;
     }
 
-    public void clearRepoList() {
-        repo_list.clear();
-    }
-
     public GroupItemModel(@StringRes int nameRes) {
         this.name = nameRes;
         checkable = false;
-        title = SeadroidApplication.getInstance().getString(name);
+        title = SeadroidApplication.getAppString(nameRes);
     }
 
     public GroupItemModel(@StringRes int nameRes, List<RepoModel> repoList) {
         this.name = nameRes;
         repo_list.addAll(repoList);
         checkable = false;
-        title = SeadroidApplication.getInstance().getString(name);
+        title = SeadroidApplication.getAppString(nameRes);
     }
 
     public GroupItemModel(String title, List<RepoModel> repoList) {
         this.title = title;
         repo_list.addAll(repoList);
         checkable = false;
+    }
+
+    public String getTitle() {
+        return title;
     }
 
     @Override

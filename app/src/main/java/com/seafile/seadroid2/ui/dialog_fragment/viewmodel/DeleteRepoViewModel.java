@@ -51,7 +51,6 @@ public class DeleteRepoViewModel extends BaseViewModel {
 
                 SLogs.d("DeleteRepoViewModel deleteRepo result: repoId = " + pair.getFirst() + ", result = " + pair.getSecond());
 
-
                 String repoId = pair.getFirst();
                 String o = pair.getSecond();
 

@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
@@ -54,6 +55,14 @@ public class DocsCommentsActivity extends BaseMediaSelectorActivity<DocsCommentV
     }
 
     @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable("pageOption", pageOptionsModel);
+        Parcelable listParcelable = linearLayoutManager.onSaveInstanceState();
+        outState.putParcelable("listParcelable", listParcelable);
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
@@ -61,14 +70,7 @@ public class DocsCommentsActivity extends BaseMediaSelectorActivity<DocsCommentV
         bindingOfToolbar = ToolbarActionbarBinding.bind(binding.toolbar.getRoot());
 
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-
         setContentView(binding.getRoot());
-
-        if (getIntent() == null || !getIntent().hasExtra("pageOption")) {
-            throw new IllegalArgumentException("pageOption is null");
-        }
-
-        pageOptionsModel = getIntent().getParcelableExtra("pageOption");
 
         initView();
 
@@ -76,8 +78,31 @@ public class DocsCommentsActivity extends BaseMediaSelectorActivity<DocsCommentV
 
         initAdapter();
 
-        refreshData();
 
+        if (savedInstanceState != null) {
+            pageOptionsModel = savedInstanceState.getParcelable("pageOption");
+            if (pageOptionsModel == null) {
+                throw new IllegalArgumentException("pageOption is null");
+            }
+            bindingOfToolbar.toolbarActionbar.setTitle(pageOptionsModel.docName);
+
+            Parcelable listParcelable = savedInstanceState.getParcelable("listParcelable");
+            if (listParcelable!= null) {
+                linearLayoutManager.onRestoreInstanceState(listParcelable);
+            }
+        } else {
+            if (getIntent() == null || !getIntent().hasExtra("pageOption")) {
+                throw new IllegalArgumentException("pageOption is null");
+            }
+
+            pageOptionsModel = getIntent().getParcelableExtra("pageOption");
+            if (pageOptionsModel == null) {
+                throw new IllegalArgumentException("pageOption is null");
+            }
+            bindingOfToolbar.toolbarActionbar.setTitle(pageOptionsModel.docName);
+        }
+
+        refreshData();
     }
 
 
@@ -88,7 +113,6 @@ public class DocsCommentsActivity extends BaseMediaSelectorActivity<DocsCommentV
 
         toolbar.setTitle("");
         setSupportActionBar(toolbar);
-        toolbar.setTitle(pageOptionsModel.docName);
 
         toolbar.setNavigationOnClickListener(v -> {
             finish();

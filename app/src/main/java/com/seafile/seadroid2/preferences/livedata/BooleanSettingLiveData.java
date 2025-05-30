@@ -31,7 +31,7 @@ public class BooleanSettingLiveData extends SettingsLiveData<Boolean> {
 
     @Override
     protected Boolean getDefaultValue(@BoolRes int defaultValueRes) {
-        return SeadroidApplication.getInstance().getResources().getBoolean(defaultValueRes);
+        return SeadroidApplication.getAppBoolean(defaultValueRes);
     }
 
     @Override

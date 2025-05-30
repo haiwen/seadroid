@@ -29,7 +29,7 @@ public class FileBackupStatusEntity extends BaseModel {
 
 
     /**
-     * this field value is md5(account.email + transfer_action + full_path)
+     * this field value is md5(related_account + repo_id + data_source + full_path)
      */
     @PrimaryKey
     @NonNull
@@ -37,9 +37,9 @@ public class FileBackupStatusEntity extends BaseModel {
 
     /**
      * <h2>Original file path</h2>
-     * <p>The value of this field depends on the type of transfer_action and data_source</p>
+     * <p>The value of this field depends on the type of data_source</p>
      * <br>
-     * <p><b>UPLOAD (ALBUM_BACKUP/FOLDER_BACKUP) </b></p>
+     * <p><b>ALBUM_BACKUP/FOLDER_BACKUP</b></p>
      * <p>
      * full_path is the absolute path to the file stored locally ("/storage/emulated/0/").
      * <br>
@@ -51,72 +51,41 @@ public class FileBackupStatusEntity extends BaseModel {
 
     /**
      * <h2>Destination path<h2/>
-     * <p>The value of this field depends on the type of transfer_action and data_source</p>
-     * <p><b>UPLOAD: ALBUM_BACKUP</b></p>
+     * <p>The value of this field depends on the type of data_source</p>
+     * <p><b>ALBUM_BACKUP</b></p>
      * <p>
      * target_path's format is "/My Photos/" + buckName.
      * <p/>
      * <pre>
      * {@code
-     *     transfer_action = UPLOAD
      *     data_source = ALBUM_BACKUP
      *     full_path = /storage/emulated/0/DCIM/mm/xxx.jpg
-     *     -> target_path = /My Photos/mm/xxx.jpg
+     *     -> target_path = /My Photos/mm/xxx.jpg (in remote)
      * }
      * </pre>
-     * <p><b>UPLOAD: FOLDER_BACKUP</b></p>
+     * <p><b>FOLDER_BACKUP</b></p>
      * <p>
      * target_path is the name stored in the repository, which is the parent directory of <b><i>full_path<i/></b>.
      * </p>
      * <pre>
      * {@code
-     *     transfer_action = UPLOAD
      *     data_source = FOLDER_BACKUP
      *     full_path = /storage/emulated/0/Download/mm/xxx.jpg (locally)
-     *     -> target_path = /mm/xxx.jpg (in remote repo)
-     * }
-     * </pre>
-     * <p><b>or</b></p>
-     * <p>
-     * target_path is special dir in repo.
-     * </p>
-     * <pre>
-     * {@code
-     *     transfer_action = UPLOAD
-     *     data_source = FILE_BACKUP
-     *     full_path = /storage/emulated/0/Download/mm/xxx.jpg (locally)
-     *     -> target_path = /test/test1/xxx.jpg (in remote repo)
+     *     -> target_path = /mm/xxx.jpg (in remote)
      * }
      * </pre>
      */
     public String target_path;
 
     /**
-     * <p>The value of this field depends on the type of transfer_action and data_source</p>
-     *
-     * <p><b>UPLOAD</b></p>
      * <p>
      * parent_path is the parent directory of <b><i>target_path<i/></b>.<br>
      * </p>
      * <pre>
      * {@code
-     *     transfer_action = UPLOAD
      *     full_path = /storage/emulated/0/DCIM/mm/xxx.jpg
      *     target_path = /My Photos/mm/xxx.jpg
      *     -> parent_path = /mm/
-     * }
-     * </pre>
-     *
-     * <p><b>DOWNLOAD</b></p>
-     * <p>
-     * parent_path is the parent directory of <b><i>full_path<i/></b>.
-     * </p>
-     * <pre>
-     * {@code
-     *     transfer_action = DOWNLOAD
-     *     full_path = /a/d.txt
-     *     target_path = /storage/emulated/0/Android/media/com.xxx/Seafile/account@xxx.com (xxx.com)/My Library/a/b.txt
-     *     -> parent_path = /a/
      * }
      * </pre>
      */
@@ -189,11 +158,9 @@ public class FileBackupStatusEntity extends BaseModel {
 
     @Override
     public String toString() {
-        return "FileTransferEntity{" +
-                ", v=" + v +
+        return "FileBackupStatusEntity{" +
                 ", source='" + data_source + '\'' +
                 ", repo_name='" + repo_name + '\'' +
-                ", related_account='" + related_account + '\'' +
                 ", full_path='" + full_path + '\'' +
                 '}';
     }

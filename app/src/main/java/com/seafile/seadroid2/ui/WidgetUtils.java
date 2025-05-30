@@ -31,6 +31,7 @@ import com.seafile.seadroid2.ui.base.BaseActivity;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -39,9 +40,25 @@ import java.util.List;
 public class WidgetUtils {
     public static final String MIME_ANDROID = "application/vnd.android.package-archive";
 
+    public static List<ResolveInfo> getAppsByIntent(Intent intent) {
+        PackageManager pm = SeadroidApplication.getAppContext().getPackageManager();
+        List<ResolveInfo> infos = pm.queryIntentActivities(intent, 0);
+
+        // Remove seafile app from the list
+        String seadroidPackageName = SeadroidApplication.getAppContext().getPackageName();
+        ResolveInfo info;
+        Iterator<ResolveInfo> iter = infos.iterator();
+        while (iter.hasNext()) {
+            info = iter.next();
+            if (info.activityInfo.packageName.equals(seadroidPackageName)) {
+                iter.remove();
+            }
+        }
+
+        return infos;
+    }
 
     public static void openWith(Context context, File file) {
-
         String suffix = FileUtils.getFileExtension(file);
         String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(suffix);
 
@@ -85,7 +102,7 @@ public class WidgetUtils {
         }
     }
 
-    private static boolean isIntentAvailable(Context context, Intent intent) {
+    public static boolean isIntentAvailable(Context context, Intent intent) {
         if (Build.VERSION.SDK_INT < 30) {
             return context.getPackageManager().resolveActivity(intent, 0) != null;
         }

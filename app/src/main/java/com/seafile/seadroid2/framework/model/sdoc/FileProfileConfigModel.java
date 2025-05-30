@@ -2,18 +2,20 @@ package com.seafile.seadroid2.framework.model.sdoc;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.TextUtils;
 
 import com.blankj.utilcode.util.CollectionUtils;
 import com.seafile.seadroid2.config.ColumnType;
 import com.seafile.seadroid2.framework.model.user.UserModel;
 import com.seafile.seadroid2.framework.model.user.UserWrapperModel;
+import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.ui.media.image.PhotoFragment;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 public class FileProfileConfigModel implements Parcelable {
     private FileDetailModel detail;
@@ -50,11 +52,7 @@ public class FileProfileConfigModel implements Parcelable {
         return detail;
     }
 
-    public void initDefaultIfMetaEnable(FileDetailModel detail) {
-        if (getMetaEnabled()) {
-            return;
-        }
-
+    public void initDefaultIfMetaNotEnable() {
         if (detail == null) {
             return;
         }
@@ -87,7 +85,7 @@ public class FileProfileConfigModel implements Parcelable {
         m.put("_file_mtime", getDetail().getLastModified());
         recordWrapperModel.results.add(m);
 
-        setRecordWrapperModel(recordWrapperModel);
+        addRecordWrapperModel(recordWrapperModel);
 
         //add a default user with last modifier user info
         UserWrapperModel wrapperModel = new UserWrapperModel();
@@ -99,6 +97,8 @@ public class FileProfileConfigModel implements Parcelable {
         r.setContactEmail(getDetail().getLastModifierContactEmail());
         wrapperModel.user_list.add(r);
         setRelatedUserList(wrapperModel);
+
+        SLogs.d(PhotoFragment.TAG, "initDefaultIfMetaNotEnable()", "detail = " + detail.getName());
     }
 
     public void setRelatedUserWrapperModel(UserWrapperModel relatedUserWrapperModel) {
@@ -115,12 +115,38 @@ public class FileProfileConfigModel implements Parcelable {
         return relatedUserList;
     }
 
-    public void setRecordWrapperModel(FileRecordWrapperModel recordWrapperModel) {
-        this.recordResults.clear();
-        this.recordMetaData.clear();
-
+    public void addRecordWrapperModel(FileRecordWrapperModel recordWrapperModel) {
         this.recordResults.addAll(recordWrapperModel.results);
-        this.recordMetaData.addAll(recordWrapperModel.metadata);
+
+        List<MetadataModel> metadata = swapSizePosition(recordWrapperModel.metadata);
+        this.recordMetaData.addAll(metadata);
+    }
+
+    private List<MetadataModel> swapSizePosition(List<MetadataModel> metadata) {
+        if (CollectionUtils.isEmpty(metadata)) {
+            return CollectionUtils.newArrayList();
+        }
+
+        int index = -1;
+        for (int i = 0; i < metadata.size(); i++) {
+            if (TextUtils.equals(metadata.get(i).key, "_size")) {
+                index = i;
+                break;
+            }
+        }
+
+        if (index == -1) {
+            return metadata;
+        }
+
+        if (index == 0) {
+            return metadata;
+        }
+
+        MetadataModel sizeModel = metadata.get(index);
+        metadata.remove(index);
+        metadata.add(0, sizeModel);
+        return metadata;
     }
 
     public void setTagWrapperModel(FileTagWrapperModel tagWrapperModel) {

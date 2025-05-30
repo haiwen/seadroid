@@ -50,16 +50,9 @@ public interface RepoDAO {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(RepoModel repoModel);
 
-
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertAllSync(List<RepoModel> list);
 
     @Query("DELETE FROM repos where related_account = :cur_account_email")
     Completable deleteAllByAccount(String cur_account_email);
-
-    @Query("DELETE FROM repos where repo_id IN (:ids)")
-    Completable deleteAllByIds(List<String> ids);
-
-    @Query("DELETE FROM repos")
-    Completable deleteAll();
 }

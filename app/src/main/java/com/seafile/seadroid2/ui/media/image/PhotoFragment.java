@@ -44,8 +44,8 @@ import com.seafile.seadroid2.databinding.FragmentPhotoViewBinding;
 import com.seafile.seadroid2.databinding.ViewImageExifContainerBinding;
 import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
+import com.seafile.seadroid2.framework.glide.GlideApp;
 import com.seafile.seadroid2.framework.model.sdoc.FileProfileConfigModel;
-import com.seafile.seadroid2.framework.util.GlideApp;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.ThumbnailUtils;
 import com.seafile.seadroid2.ui.base.fragment.BaseFragment;
@@ -62,7 +62,7 @@ import java.util.HashMap;
 import java.util.Locale;
 
 public class PhotoFragment extends BaseFragment {
-
+    public static final String TAG = "PhotoFragment";
     private FragmentPhotoViewBinding binding;
 
     private String repoId, repoName, fullPath;
@@ -112,23 +112,38 @@ public class PhotoFragment extends BaseFragment {
     }
 
     @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("repoId", repoId);
+        outState.putString("repoName", repoName);
+        outState.putString("fullPath", fullPath);
+        outState.putString("image_url", imageUrl);
+    }
+
+    @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Bundle args = getArguments();
-        if (args == null) {
-            return;
+        if (savedInstanceState != null) {
+            repoId = savedInstanceState.getString("repoId");
+            repoName = savedInstanceState.getString("repoName");
+            fullPath = savedInstanceState.getString("fullPath");
+            imageUrl = savedInstanceState.getString("image_url");
+        } else {
+            Bundle args = getArguments();
+            if (args == null) {
+                return;
+            }
+
+            repoId = args.getString("repoId");
+            repoName = args.getString("repoName");
+            fullPath = args.getString("fullPath");
+            imageUrl = args.getString("image_url");
+            serverUrl = args.getString("serverUrl");
         }
 
         int currentNightMode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
         isNightMode = currentNightMode == Configuration.UI_MODE_NIGHT_YES;
-
-
-        repoId = args.getString("repoId");
-        repoName = args.getString("repoName");
-        fullPath = args.getString("fullPath");
-        imageUrl = args.getString("image_url");
-        serverUrl = args.getString("serverUrl");
 
         if (TextUtils.isEmpty(repoId) && TextUtils.isEmpty(imageUrl)) {
             throw new IllegalStateException("the args is invalid");
@@ -137,9 +152,6 @@ public class PhotoFragment extends BaseFragment {
         if (!TextUtils.isEmpty(imageUrl)) {
             canScrollBottomLayout = false;
         }
-
-        viewModel = new ViewModelProvider(this).get(PhotoViewModel.class);
-        parentViewModel = new ViewModelProvider(requireActivity()).get(ImagePreviewViewModel.class);
     }
 
 
@@ -154,6 +166,9 @@ public class PhotoFragment extends BaseFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        viewModel = new ViewModelProvider(this).get(PhotoViewModel.class);
+        parentViewModel = new ViewModelProvider(requireActivity()).get(ImagePreviewViewModel.class);
+
         intViewModel();
 
         initView();
@@ -163,8 +178,7 @@ public class PhotoFragment extends BaseFragment {
 
     private File getLocalDestinationFile(String repoId, String repoName, String fullPathInRepo) {
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
-
-        return DataManager.getLocalRepoFile(account, repoId, repoName, fullPathInRepo);
+        return DataManager.getLocalFileCachePath(account, repoId, repoName, fullPathInRepo);
     }
 
     private void intViewModel() {
@@ -534,7 +548,7 @@ public class PhotoFragment extends BaseFragment {
 //                });
 
 //        String oriCacheKey = EncryptUtils.encryptMD5ToString(repoId + fullPath);
-        //new OriGlideUrl()
+        //new GlideImage()
         GlideApp.with(this)
                 .load(oriUrl)
                 .diskCacheStrategy(DiskCacheStrategy.NONE)
@@ -550,11 +564,12 @@ public class PhotoFragment extends BaseFragment {
                     @Override
                     public boolean onResourceReady(@NonNull Drawable resource, @NonNull Object model, Target<Drawable> target, @NonNull DataSource dataSource, boolean isFirstResource) {
                         binding.progressBar.setVisibility(View.GONE);
-                        // 图片加载成功
-//                        SLogs.e("原图：" + dataSource.name() + ": " + isFirstResource + ": " + oriCacheKey + ": " + oriUrl);
-
-                        HashMap<String, String> hashMap = loadExifMeta(oriUrl);
-                        addTextView(hashMap);
+                        try {
+                            HashMap<String, String> hashMap = loadExifMeta(oriUrl);
+                            addTextView(hashMap);
+                        } catch (Exception e) {
+                            SLogs.e(e.getMessage());
+                        }
                         return false;
                     }
                 })
@@ -579,7 +594,7 @@ public class PhotoFragment extends BaseFragment {
                     public boolean onResourceReady(@NonNull GifDrawable resource, @NonNull Object model, Target<GifDrawable> target, @NonNull DataSource dataSource, boolean isFirstResource) {
                         binding.progressBar.setVisibility(View.GONE);
                         // 图片加载成功
-                        SLogs.d(PhotoFragment.class, dataSource.name() + ": " + isFirstResource + ": " + rawUrl);
+                        SLogs.d(TAG, "loadOriGifUrl()", dataSource.name() + ": " + isFirstResource + ": " + rawUrl);
                         return false;
                     }
                 })
@@ -616,19 +631,20 @@ public class PhotoFragment extends BaseFragment {
 
             // 1. 读取相机型号
             String cameraModel = exifInterface.getAttribute(ExifInterface.TAG_MODEL);
-            SLogs.d(PhotoFragment.class, "ExifData - 相机型号: " + cameraModel);
-            exifMap.put("_model", cameraModel);
+            SLogs.d(TAG, "ExifData", "相机型号: " + cameraModel);
+            if (!TextUtils.isEmpty(cameraModel)) {
+                exifMap.put("_model", cameraModel);
+            }
 
             // 2. 读取创建时间
             String dateTime = exifInterface.getAttribute(ExifInterface.TAG_DATETIME);
             if (TextUtils.isEmpty(dateTime)) {
                 dateTime = exifInterface.getAttribute(ExifInterface.TAG_DATETIME_ORIGINAL);
             }
-
+            SLogs.d(TAG, "ExifData", "创建时间: " + dateTime);
             if (!TextUtils.isEmpty(dateTime)) {
                 long m = TimeUtils.string2Millis(dateTime, "yyyy:MM:dd HH:mm:ss");
                 String d = TimeUtils.millis2String(m, "yyyy-MM-dd HH:mm:ss");
-                SLogs.d(PhotoFragment.class, "ExifData - 创建时间: " + d);
                 exifMap.put("_datetime", d);
             }
 
@@ -637,13 +653,15 @@ public class PhotoFragment extends BaseFragment {
             int width = exifInterface.getAttributeInt(ExifInterface.TAG_IMAGE_WIDTH, 0);
             int height = exifInterface.getAttributeInt(ExifInterface.TAG_IMAGE_LENGTH, 0);
             String wh = width + "x" + height;
-            SLogs.d(PhotoFragment.class, "ExifData - 尺寸: " + wh);
             exifMap.put("_width_height", wh);
+            SLogs.d(TAG, "ExifData", "尺寸: " + wh);
 
             // 4. 读取色彩空间
             String colorSpace = exifInterface.getAttribute(ExifInterface.TAG_COLOR_SPACE);
-            SLogs.d(PhotoFragment.class, "ExifData - 色彩空间: " + colorSpace);
-            exifMap.put("_color_space", colorSpace);
+            SLogs.d(TAG, "ExifData", "色彩空间: " + colorSpace);
+            if (!TextUtils.isEmpty(colorSpace)) {
+                exifMap.put("_color_space", colorSpace);
+            }
 
 //            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
 //                ImageDecoder.Source source = ImageDecoder.createSource(new File(localPath));
@@ -658,28 +676,42 @@ public class PhotoFragment extends BaseFragment {
 
             // 5. 读取焦距
             String focalLength = exifInterface.getAttribute(ExifInterface.TAG_FOCAL_LENGTH);
-            SLogs.d(PhotoFragment.class, "ExifData - 焦距: " + focalLength);
-            exifMap.put("_focal_length", focalLength);
+            SLogs.d(TAG, "ExifData", "焦距: " + focalLength);
+            if (!TextUtils.isEmpty(focalLength)) {
+                exifMap.put("_focal_length", focalLength);
+            }
 
             // 6. 读取光圈值
             String apertureValue = exifInterface.getAttribute(ExifInterface.TAG_APERTURE_VALUE);
-            SLogs.d(PhotoFragment.class, "ExifData - 光圈值: " + apertureValue);
-            exifMap.put("_aperture_value", apertureValue);
+            SLogs.d(TAG, "ExifData", "光圈值: " + apertureValue);
+            if (!TextUtils.isEmpty(apertureValue)) {
+                exifMap.put("_aperture_value", apertureValue);
+            }
 
             // 7. 读取光圈数（F-number）
             String fNumber = exifInterface.getAttribute(ExifInterface.TAG_F_NUMBER);
-            SLogs.d(PhotoFragment.class, "ExifData - 光圈数: " + fNumber);
-            exifMap.put("_f_nubmer", fNumber);
+            SLogs.d(TAG, "ExifData", "光圈数: " + fNumber);
+            if (!TextUtils.isEmpty(fNumber)) {
+                double fDouble = Double.parseDouble(fNumber);
+                exifMap.put("_f_nubmer", String.format(Locale.getDefault(), "%.2f", fDouble));
+            }
 
             // 8. 读取曝光时间
             String exposureTime = exifInterface.getAttribute(ExifInterface.TAG_EXPOSURE_TIME);
-            SLogs.d(PhotoFragment.class, "ExifData - 曝光时间: " + exposureTime);
-
-            // 将曝光时间转换为分数形式
-            if (exposureTime != null) {
+            SLogs.d(TAG, "ExifData", "曝光时间: " + exposureTime);
+            if (TextUtils.isEmpty(exposureTime)) {
                 double exposureValue = Double.parseDouble(exposureTime);
-                String formattedExposureTime = formatExposureTime(exposureValue);
-                SLogs.d(PhotoFragment.class, "ExifData - Formatted Exposure Time: " + formattedExposureTime);
+
+                String formattedExposureTime;
+                if (exposureValue < 1.0) {
+                    double reciprocal = 1.0 / exposureValue;
+                    long roundedReciprocal = Math.round(reciprocal);
+                    formattedExposureTime = "1/" + roundedReciprocal;
+                } else {
+                    formattedExposureTime = String.format(Locale.getDefault(), "%.2f sec", exposureTime);
+                }
+
+                SLogs.d(TAG, "ExifData", "Formatted Exposure Time: " + formattedExposureTime);
                 exifMap.put("_exposure_time", formattedExposureTime);
             }
         } catch (IOException e) {
@@ -689,7 +721,19 @@ public class PhotoFragment extends BaseFragment {
         return exifMap;
     }
 
-    private void addTextView(HashMap<String, String> map) {
+    private String getMapContent(HashMap<String, String> map, String key) {
+        if (map == null || map.isEmpty()) {
+            return "-";
+        }
+        String value = map.get(key);
+        if (TextUtils.isEmpty(value)) {
+            return "-";
+        }
+
+        return value;
+    }
+
+    private void addTextView(HashMap<String, String> map) throws Exception {
         if (map == null || map.isEmpty()) {
             return;
         }
@@ -699,16 +743,17 @@ public class PhotoFragment extends BaseFragment {
 
         String imageCaptureTime = getResources().getString(R.string.image_capture_time);
         String imageDimensions = getResources().getString(R.string.image_dimensions);
-        String captureTime = imageCaptureTime + ": " + map.get("_datetime");
-        String imageSize = imageDimensions + ": " + map.get("_width_height");
+        String captureTime = imageCaptureTime + ": " + getMapContent(map, "_datetime");
+        String imageSize = imageDimensions + ": " + getMapContent(map, "_width_height");
 
-        exifBinding.exifModel.setText(map.get("_model"));
+        exifBinding.exifModel.setText(getMapContent(map, "_model"));
         exifBinding.exifDatetime.setText(captureTime);
         exifBinding.exifWh.setText(imageSize);
 
-
-        String colorSpace = map.get("_color_space");
-        if (!TextUtils.isEmpty(colorSpace)) {
+        String colorSpace = getMapContent(map, "_color_space");
+        if (TextUtils.equals(colorSpace, "-")) {
+            exifBinding.exifColorSpace.setText(R.string.image_color_space_undefined);
+        } else {
             int colorSpaceValue = Integer.parseInt(colorSpace);
             switch (colorSpaceValue) {
                 case ExifInterface.COLOR_SPACE_S_RGB:
@@ -721,54 +766,58 @@ public class PhotoFragment extends BaseFragment {
                     exifBinding.exifColorSpace.setText(R.string.image_color_space_undefined);
                     break;
             }
-        } else {
-            exifBinding.exifColorSpace.setText(R.string.image_color_space_undefined);
         }
 
-        String focalLength = map.get("_focal_length");
-        if (focalLength != null) {
-            if (focalLength.contains("/")) {
-                String[] parts = focalLength.split("/");
-                if (parts.length == 2) {
-                    float numerator = Float.parseFloat(parts[0]);
-                    float denominator = Float.parseFloat(parts[1]);
-                    float focalLengthValue = numerator / denominator;
-                    exifBinding.exifFocalLength.setText(focalLengthValue + " mm");
+        String focalLength = getMapContent(map, "_focal_length");
+        if (TextUtils.equals(focalLength, "-")) {
+            exifBinding.exifFocalLength.setText(focalLength);
+        } else if (focalLength.contains("/")) {
+            String[] parts = focalLength.split("/");
+            if (parts.length == 2) {
+                float numerator = Float.parseFloat(parts[0]);
+                float denominator = Float.parseFloat(parts[1]);
+                float focalLengthValue = numerator / denominator;
+                exifBinding.exifFocalLength.setText(focalLengthValue + " mm");
 
-                } else {
-                    SLogs.d(PhotoFragment.class, "ExifData - 焦距: " + focalLength + " mm");
-                    exifBinding.exifFocalLength.setText(focalLength + " mm");
-                }
             } else {
+                SLogs.d(TAG, "ExifData", "焦距: " + focalLength + " mm");
                 exifBinding.exifFocalLength.setText(focalLength + " mm");
             }
+        } else {
+            exifBinding.exifFocalLength.setText(focalLength + " mm");
         }
 
-        String apertureValue = map.get("_aperture_value");
-        if (apertureValue != null) {
-            if (apertureValue.contains("/")) {
-                String[] parts = apertureValue.split("/");
-                if (parts.length == 2) {
-                    float numerator = Float.parseFloat(parts[0]);
-                    float denominator = Float.parseFloat(parts[1]);
-                    float aperture = numerator / denominator;
-                    String r = String.format(Locale.getDefault(), "%.2f", aperture);
-                    exifBinding.exifApertureValue.setText(r);
+        String apertureValue = getMapContent(map, "_aperture_value");
+        if (TextUtils.equals(apertureValue, "-")) {
+            exifBinding.exifApertureValue.setText(apertureValue);
+        } else if (apertureValue.contains("/")) {
+            String[] parts = apertureValue.split("/");
+            if (parts.length == 2) {
+                float numerator = Float.parseFloat(parts[0]);
+                float denominator = Float.parseFloat(parts[1]);
+                float aperture = numerator / denominator;
+                String r = String.format(Locale.getDefault(), "%.2f", aperture);
+                exifBinding.exifApertureValue.setText(r);
 
-                } else {
-                    exifBinding.exifApertureValue.setText(apertureValue);
-                }
             } else {
                 exifBinding.exifApertureValue.setText(apertureValue);
             }
+        } else {
+            exifBinding.exifApertureValue.setText(apertureValue);
         }
 
         //
-        String fNumber = map.get("_f_nubmer");
-        exifBinding.exifFNumber.setText("f/" + fNumber);
+        String fNumber = getMapContent(map, "_f_nubmer");
+        if (TextUtils.equals(fNumber, "-")) {
+            exifBinding.exifFNumber.setText(fNumber);
+        } else {
+            exifBinding.exifFNumber.setText("f/" + fNumber);
+        }
 
-        String formattedExposureTime = map.get("_exposure_time");
-        if (!TextUtils.isEmpty(formattedExposureTime)) {
+        String formattedExposureTime = getMapContent(map, "_exposure_time");
+        if (TextUtils.equals(formattedExposureTime, "-")) {
+            exifBinding.exifExposureTime.setText(formattedExposureTime);
+        } else {
             exifBinding.exifExposureTime.setText(formattedExposureTime + "s");
         }
 
@@ -786,17 +835,6 @@ public class PhotoFragment extends BaseFragment {
         vl.rightMargin = Constants.DP.DP_16;
 
         binding.bottomDetailsContainer.addView(exifBinding.getRoot(), vl);
-    }
-
-
-    private String formatExposureTime(double exposureTime) {
-        if (exposureTime < 1.0) {
-            double reciprocal = 1.0 / exposureTime;
-            long roundedReciprocal = Math.round(reciprocal);
-            return "1/" + roundedReciprocal;
-        } else {
-            return String.format(Locale.getDefault(), "%.2f sec", exposureTime);
-        }
     }
 
 

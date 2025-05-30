@@ -2,27 +2,14 @@ package com.seafile.seadroid2.framework.datastore;
 
 import android.text.TextUtils;
 
-import com.blankj.utilcode.util.FileUtils;
-import com.blankj.utilcode.util.GsonUtils;
-import com.google.common.io.Files;
-import com.google.gson.reflect.TypeToken;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.framework.util.Utils;
-import com.seafile.seadroid2.preferences.Settings;
-
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 public class DataManager {
-
-    // private static final long SET_PASSWORD_INTERVAL = 59 * 60 * 1000; // 59 min
-    // private static final long SET_PASSWORD_INTERVAL = 5 * 1000; // 5s
     public static final long SET_PASSWORD_INTERVAL = 1000 * 60 * 60 * 24;//1 days
     private static final StorageManager storageManager = StorageManager.getInstance();
 
@@ -103,151 +90,41 @@ public class DataManager {
         return Utils.pathJoin(path, p);
     }
 
-    public static List<String> getRepoMapping() {
-
-        String names = Settings.getCurrentAccountSharedPreferences().getString(DataStoreKeys.DS_REPO_DIR_MAPPING, null);
-        Type listType = new TypeToken<List<String>>() {
-        }.getType();
-
-        List<String> list = GsonUtils.fromJson(names, listType);
-        if (null == list) {
-            list = new ArrayList<>();
-        }
-        return list;
-    }
 
     /**
-     * The data format in DataStore is as follows:
+     * @return local repo directory
+     * @date 2025/5/20
+     * @description local repo dir structure:
+     * [account-dir]/[repo-id(0-4)]_[repo-name]
      * <p>
-     * repo-id::::new-repo-name
-     * </p>
+     * for example:<p>
+     * repo_id: 1234567890987654321<p>
+     * repo_name: My Library
+     * <p>
+     * The local repo dir will be:
+     * /storage/emulated/0/Android/data/com.seafile.seadroid2(.debug)/foo@bar.com (cloud.seafile.com)/1234_My Library
      */
-    private static String getSpecialRepoMappingName(String repo_id) {
-        List<String> list = getRepoMapping();
-        for (String set : list) {
-            String[] sp = StringUtils.split(set, DataStoreKeys.SEPARATOR);
-            if (repo_id.equals(sp[0])) {
-                return sp[1];
-            }
+    public static File getLocalRepoDir(Account account, String repo_id, String repo_name) {
+        if (TextUtils.isEmpty(repo_id)) {
+            throw new IllegalArgumentException("repo_id is empty");
         }
-
-        return null;
-    }
-
-
-    private static boolean checkSpecialRepoMappingDir(String repo_name) {
-        List<String> list = getRepoMapping();
-        for (String set : list) {
-            String[] sp = StringUtils.split(set, DataStoreKeys.SEPARATOR);
-            if (repo_name.equals(sp[1])) {
-                return true;
-            }
+        if (TextUtils.isEmpty(repo_name)) {
+            throw new IllegalArgumentException("repo_name is empty");
         }
-
-        return false;
-    }
-
-    public static File renameRepoName(Account account, String repo_id, String new_repo_name) {
-        String accountDir = DataManager.getAccountDir(account);
-        File repoDir;
-        String uniqueRepoName;
-        int i = 0;
-        while (true) {
-            if (i == 0) {
-                uniqueRepoName = new_repo_name;
-            } else {
-                uniqueRepoName = new_repo_name + " (" + i + ")";
-            }
-
-            boolean isDuplicate = checkSpecialRepoMappingDir(uniqueRepoName);
-            repoDir = new File(accountDir, uniqueRepoName);
-            if (!repoDir.exists() && !isDuplicate) {
-                break;
-            }
-
-            i++;
-        }
-
-        if (!repoDir.mkdirs()) {
-            throw new RuntimeException("Could not create repo directory " + uniqueRepoName
-                    + "Phone storage space is insufficient or too many " + uniqueRepoName + " directory in phone");
-        }
-
-        List<String> list = getRepoMapping();
-        List<String> list2 = new ArrayList<>();
-        for (String set : list) {
-            String[] sp = StringUtils.split(set, DataStoreKeys.SEPARATOR);
-            if (repo_id.equals(sp[0])) {
-                sp[1] = uniqueRepoName;
-                list2.add(sp[0] + DataStoreKeys.SEPARATOR + sp[1]);
-            } else {
-                list2.add(set);
-            }
-        }
-
-        String v = GsonUtils.toJson(list2);
-        Settings.getCurrentAccountSharedPreferences().edit().putString(DataStoreKeys.DS_REPO_DIR_MAPPING, v).commit();
-
-        return repoDir;
-    }
-
-    public static File getOrCreateRepoMappingDir(Account account, String repo_id, String repo_name) {
 
         String accountDir = DataManager.getAccountDir(account);
-        String repoDirName = getSpecialRepoMappingName(repo_id);
-
-        File repoDir;
-        if (!TextUtils.isEmpty(repoDirName)) {
-            repoDir = new File(accountDir, repoDirName);
-            if (!repoDir.exists()) {
-                if (!repoDir.mkdirs()) {
-                    throw new RuntimeException("Could not create library directory " + repoDir);
-                }
-            }
-        } else {
-            String uniqueRepoName;
-            int i = 0;
-            while (true) {
-                if (i == 0) {
-                    uniqueRepoName = repo_name;
-                } else {
-                    uniqueRepoName = repo_name + " (" + i + ")";
-                }
-
-                boolean isDuplicate = checkSpecialRepoMappingDir(uniqueRepoName);
-                repoDir = new File(accountDir, uniqueRepoName);
-                if (!repoDir.exists() && !isDuplicate) {
-                    break;
-                }
-
-                i++;
-            }
-
-            if (!repoDir.mkdirs()) {
-                throw new RuntimeException("Could not create repo directory " + uniqueRepoName
-                        + "Phone storage space is insufficient or too many " + uniqueRepoName + " directory in phone");
-            }
-
-
-            List<String> list = getRepoMapping();
-            list.add(repo_id + DataStoreKeys.SEPARATOR + uniqueRepoName);
-            String v = GsonUtils.toJson(list);
-
-            Settings.getCurrentAccountSharedPreferences().edit().putString(DataStoreKeys.DS_REPO_DIR_MAPPING, v).commit();
-        }
-
-        return repoDir;
+        String repoDirName = String.format("%s_%s", repo_name, repo_id.substring(0, 4));
+        return new File(accountDir, repoDirName);
     }
-
 
     /**
      * Each repo is placed under [account-dir]/[repo-name]. When a
      * file is downloaded, it's placed in its repo, with its full path.
      */
-    public static File getLocalRepoFile(Account account, String repoId, String repoName, String path) throws RuntimeException {
-        File file = getOrCreateRepoMappingDir(account, repoId, repoName);
+    public static File getLocalFileCachePath(Account account, String repoId, String repoName, String path) throws RuntimeException {
+        String filePath = getLocalRepoDir(account, repoId, repoName).getAbsolutePath();
 
-        String localPath = Utils.pathJoin(file.getAbsolutePath(), path);
+        String localPath = Utils.pathJoin(filePath, path);
 
         //build valid file path and name
         localPath = com.seafile.seadroid2.framework.util.FileUtils.buildValidFilePathName(localPath);
