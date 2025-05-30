@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="AppTheme.Starting" parent="Theme.Material3.Dark.NoActionBar">
-        <item name="windowSplashScreenBackground">@color/md_theme_surface</item>
+    <style name="App.Theme.Splash" parent="Theme.Material3.Dark.NoActionBar">
+        <item name="windowSplashScreenBackground">@color/black</item>
+        <item name="android:windowBackground">@color/black</item>
     </style>
 
 </resources>

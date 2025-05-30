@@ -117,6 +117,7 @@ public class MainViewModel extends BaseViewModel {
         String appCacheUriPrefix = "content://" + context.getPackageName() + ".documents";
         List<Uri> uris = uriList.stream().filter(f -> f != null && !f.toString().startsWith(appCacheUriPrefix)).collect(Collectors.toList());
         if (CollectionUtils.isEmpty(uris)) {
+            SLogs.d(TAG, "multipleCheckRemoteDirent()", "uris is in the app cache directory, can't upload");
             if (consumer != null) {
                 consumer.accept(false);
             }
@@ -130,7 +131,17 @@ public class MainViewModel extends BaseViewModel {
             @Override
             public void accept(DirentWrapperModel wrapperModel) throws Exception {
                 if (wrapperModel == null || CollectionUtils.isEmpty(wrapperModel.dirent_list)) {
-                    consumer.accept(false);
+                    SLogs.d(TAG, "multipleCheckRemoteDirent()", "request " + parentDir + " children result is null or empty.");
+
+                    for (Uri uri : uris) {
+                        String fileName = Utils.getFilenameFromUri(context, uri);
+                        TransferModel transferModel = gen(context, account, repoId, repoName, uri, fileName, parentDir, false);
+                        GlobalTransferCacheList.FILE_UPLOAD_QUEUE.put(transferModel);
+                    }
+
+                    if (consumer != null) {
+                        consumer.accept(true);
+                    }
                     return;
                 }
 
@@ -140,6 +151,8 @@ public class MainViewModel extends BaseViewModel {
                     TransferModel transferModel = gen(context, account, repoId, repoName, uri, fileName, parentDir, isExists);
                     GlobalTransferCacheList.FILE_UPLOAD_QUEUE.put(transferModel);
                 }
+
+                SLogs.d(TAG, "multipleCheckRemoteDirent()", "can upload " + uris.size() + " files");
 
                 if (consumer != null) {
                     consumer.accept(true);

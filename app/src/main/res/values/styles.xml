@@ -124,13 +124,8 @@
     </style>
 
     <style name="App.AppCompat.AlertDialog.Material3" parent="MaterialAlertDialog.Material3">
-        <item name="shapeAppearance">@style/ShapeAppearance.App.MediumComponent</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.App.LargeComponent</item>
         <item name="shapeAppearanceOverlay">@null</item>
-    </style>
-
-    <style name="ShapeAppearance.App.MediumComponent" parent="ShapeAppearance.Material3.MediumComponent">
-        <item name="cornerFamily">rounded</item>
-        <item name="cornerSize">16dp</item>
     </style>
 
 
@@ -159,9 +154,7 @@
     </style>
 
     <style name="TextAppearance.App.Button" parent="TextAppearance.Material3.TitleMedium">
-        <!--        <item name="fontFamily">@font/</item>-->
-        <!--        <item name="android:fontFamily">@font/</item>-->
-        <item name="android:textColor">@color/white</item>
+        <!--        <item name="android:textColor">@color/white</item>-->
     </style>
 
     <style name="ThemeOverlay.App.Button" parent="ThemeOverlay.Material3.Button">
@@ -199,7 +192,7 @@
     </style>
 
     <style name="Widget.Material3.Preference.SimpleMenuPreference.PopupMenu" parent="Widget.Preference.SimpleMenuPreference.PopupMenu">
-        <item name="android:popupBackground">@drawable/m3_popupmenu_background_overlay</item>
+        <!--        <item name="android:popupBackground">@drawable/m3_popupmenu_background_overlay</item>-->
         <item name="android:background">@color/white</item>"
     </style>
 
