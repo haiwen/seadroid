@@ -112,6 +112,7 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/login_button"
+        android:textColor="@color/black"
         android:layout_width="match_parent"
         android:layout_height="@dimen/long_btn_height"
         android:layout_marginStart="@dimen/app_padding_horizontal"
