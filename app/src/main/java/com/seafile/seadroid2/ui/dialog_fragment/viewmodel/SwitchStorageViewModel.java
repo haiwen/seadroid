@@ -19,7 +19,11 @@ public class SwitchStorageViewModel extends BaseViewModel {
     public void switchStorage(StorageManager.Location location, Consumer<Boolean> consumer) {
         Single<Boolean> s = Single.create(new SingleOnSubscribe<Boolean>() {
             @Override
-            public void subscribe(SingleEmitter<Boolean> emitter) throws Exception {
+            public void subscribe(SingleEmitter<Boolean> emitter) {
+                if (emitter.isDisposed()){
+                    return;
+                }
+
                 if (location == null) {
                     SLogs.d("location is null: " + System.currentTimeMillis());
                     emitter.onSuccess(true);
@@ -45,7 +49,6 @@ public class SwitchStorageViewModel extends BaseViewModel {
                     SLogs.d("reEnable camera upload");
                     CameraUploadManager.getInstance().setCameraAccount(camAccount);
                 }
-
                 emitter.onSuccess(true);
             }
         });

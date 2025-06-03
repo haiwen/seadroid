@@ -135,6 +135,10 @@ public class PasswordViewModel extends BaseViewModel {
         Single<Exception> insertEncSingle = Single.create(new SingleOnSubscribe<Exception>() {
             @Override
             public void subscribe(SingleEmitter<Exception> emitter) {
+                if (emitter.isDisposed()){
+                    return;
+                }
+
                 try {
                     EncKeyCacheEntity entity = new EncKeyCacheEntity();
                     entity.v = 2; //A symmetrical algorithm is used
@@ -208,6 +212,10 @@ public class PasswordViewModel extends BaseViewModel {
         Single<Exception> verifySingle = Single.create(new SingleOnSubscribe<Exception>() {
             @Override
             public void subscribe(SingleEmitter<Exception> emitter) {
+                if (emitter.isDisposed()){
+                    return;
+                }
+
                 try {
                     Crypto.verifyRepoPassword(repoModel.repo_id, password, repoModel.enc_version, repoModel.magic);
 
@@ -230,6 +238,10 @@ public class PasswordViewModel extends BaseViewModel {
         Single<Exception> insertEncSingle = Single.create(new SingleOnSubscribe<Exception>() {
             @Override
             public void subscribe(SingleEmitter<Exception> emitter) {
+                if (emitter.isDisposed()){
+                    return;
+                }
+                
                 try {
                     Pair<String, String> pair = Crypto.generateKey(password, repoModel.random_key, repoModel.enc_version);
 

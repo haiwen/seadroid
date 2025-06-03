@@ -65,6 +65,10 @@ public class SettingsFragmentViewModel extends BaseViewModel {
         Single<String> single = Single.create(new SingleOnSubscribe<String>() {
             @Override
             public void subscribe(SingleEmitter<String> emitter) throws Exception {
+                if (emitter.isDisposed()){
+                    return;
+                }
+
                 long l = StorageManager.getInstance().getUsedSpace();
 
                 String total = FileUtils.byteCountToDisplaySize(l);

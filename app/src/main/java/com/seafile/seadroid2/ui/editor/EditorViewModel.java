@@ -23,6 +23,10 @@ public class EditorViewModel extends BaseViewModel {
         Single<String> single = Single.create(new SingleOnSubscribe<String>() {
             @Override
             public void subscribe(SingleEmitter<String> emitter) throws Exception {
+                if (emitter.isDisposed()){
+                    return;
+                }
+
                 String content = FileIOUtils.readFile2String(path);
                 if (content == null) {
                     emitter.onError(SeafException.UNKNOWN_EXCEPTION);
@@ -117,6 +121,9 @@ public class EditorViewModel extends BaseViewModel {
         return Single.create(new SingleOnSubscribe<Boolean>() {
             @Override
             public void subscribe(SingleEmitter<Boolean> emitter) throws Exception {
+                if (emitter.isDisposed()){
+                    return;
+                }
                 FileIOUtils.writeFileFromString(path, content, false);
                 emitter.onSuccess(true);
             }

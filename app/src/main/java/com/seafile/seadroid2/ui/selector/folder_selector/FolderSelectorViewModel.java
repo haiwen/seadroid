@@ -53,6 +53,10 @@ public class FolderSelectorViewModel extends BaseViewModel {
         Single<List<FileBean>> single = Single.create(new SingleOnSubscribe<List<FileBean>>() {
             @Override
             public void subscribe(SingleEmitter<List<FileBean>> emitter) throws Exception {
+                if (emitter.isDisposed()){
+                    return;
+                }
+
                 File file = FileTools.getFileByPath(path);
                 if (file == null) {
                     emitter.onSuccess(Collections.emptyList());

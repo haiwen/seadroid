@@ -96,7 +96,7 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
             dstRepoName = intent.getStringExtra(ObjKey.REPO_NAME);
             dstDir = intent.getStringExtra(ObjKey.DIR);
 
-            SLogs.d(TAG, "account: " + account, "repoId: " + dstRepoId, "repoName: " + dstRepoName, "dir: " + dstDir);
+            SLogs.d(TAG, "account: " + account.getSignature(), "repoId: " + dstRepoId, "repoName: " + dstRepoName, "dir: " + dstDir);
             notifyFileOverwriting();
         }
     });

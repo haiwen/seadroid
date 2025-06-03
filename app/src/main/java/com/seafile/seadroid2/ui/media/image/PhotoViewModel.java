@@ -317,6 +317,9 @@ public class PhotoViewModel extends BaseViewModel {
         return Single.create(new SingleOnSubscribe<File>() {
             @Override
             public void subscribe(SingleEmitter<File> emitter) throws Exception {
+                if (emitter.isDisposed()){
+                    return;
+                }
 
                 Account currentAccount = SupportAccountManager.getInstance().getCurrentAccount();
                 File destinationFile = DataManager.getLocalFileCachePath(currentAccount, direntModel.repo_id, direntModel.repo_name, direntModel.full_path);
@@ -380,7 +383,9 @@ public class PhotoViewModel extends BaseViewModel {
                         emitter.onError(SeafException.TRANSFER_FILE_EXCEPTION);
                     }
                 } catch (Exception e) {
-                    emitter.onError(e);
+                    if (!emitter.isDisposed()) {
+                        emitter.onError(e);
+                    }
                 }
             }
         });

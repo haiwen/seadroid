@@ -14,6 +14,7 @@ import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.model.repo.DirentWrapperModel;
+import com.seafile.seadroid2.framework.util.FileUtils;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
@@ -45,6 +46,10 @@ public class ShareToSeafileViewModel extends BaseViewModel {
         Single<Boolean> single = Single.create(new SingleOnSubscribe<Boolean>() {
             @Override
             public void subscribe(SingleEmitter<Boolean> emitter) throws Exception {
+                if (emitter.isDisposed()){
+                    return;
+                }
+
                 Call<DirentWrapperModel> call = HttpIO.getInstanceByAccount(account).execute(RepoService.class).getDirentsSync(repoId, parentDir);
                 Response<DirentWrapperModel> res = call.execute();
                 if (!res.isSuccessful()) {
@@ -105,7 +110,7 @@ public class ShareToSeafileViewModel extends BaseViewModel {
         //content://com.android.providers.media.documents/document/image:1000182224
         TransferModel transferModel = gen(account, repo_id, repo_name, fileName, parentDir, isReplace);
         transferModel.full_path = sourceUri.toString();
-        transferModel.file_size = Utils.getFileSize(context, sourceUri);
+        transferModel.file_size = FileUtils.getFileSize(context, sourceUri);
         transferModel.setId(transferModel.genStableId());
         return transferModel;
     }

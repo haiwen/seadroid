@@ -21,6 +21,7 @@ import com.seafile.seadroid2.framework.model.ServerInfo;
 import com.seafile.seadroid2.framework.model.dirents.DirentFileModel;
 import com.seafile.seadroid2.framework.model.repo.DirentWrapperModel;
 import com.seafile.seadroid2.framework.model.server.ServerInfoModel;
+import com.seafile.seadroid2.framework.util.FileUtils;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.ExistingFileStrategy;
@@ -217,7 +218,7 @@ public class MainViewModel extends BaseViewModel {
         //content://com.android.providers.media.documents/document/image:1000182224
         TransferModel transferModel = gen(account, repo_id, repo_name, fileName, parentDir, isReplace);
         transferModel.full_path = sourceUri.toString();
-        transferModel.file_size = Utils.getFileSize(context, sourceUri);
+        transferModel.file_size = FileUtils.getFileSize(context, sourceUri);
         transferModel.setId(transferModel.genStableId());
         return transferModel;
     }

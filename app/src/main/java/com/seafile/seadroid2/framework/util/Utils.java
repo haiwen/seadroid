@@ -25,6 +25,7 @@ import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.annotation.NotSupport;
 import com.seafile.seadroid2.config.Constants;
 
+import org.apache.commons.io.FileUtils;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
@@ -347,41 +348,6 @@ public class Utils {
         return context.getContentResolver().getType(uri);
     }
 
-    public static long getFileSize(Context context, Uri uri) {
-        long size = -1;
-        Cursor cursor = context.getContentResolver().query(uri, null, null, null, null);
-        if (cursor != null) {
-            try {
-                if (cursor.moveToFirst()) {
-                    int sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE);
-                    if (!cursor.isNull(sizeIndex)) {
-                        size = cursor.getLong(sizeIndex);
-                    }
-                }
-            } finally {
-                cursor.close();
-            }
-        }
-        return size;
-    }
-
-    public static long getFileCreateTime(Context context, Uri uri) {
-        String[] projection = {DocumentsContract.Document.COLUMN_LAST_MODIFIED};
-        Cursor cursor = context.getContentResolver().query(uri, projection, null, null, null);
-        if (cursor != null) {
-            try {
-                if (cursor.moveToFirst()) {
-                    int lastModifiedIndex = cursor.getColumnIndex(DocumentsContract.Document.COLUMN_LAST_MODIFIED);
-                    if (!cursor.isNull(lastModifiedIndex)) {
-                        return cursor.getLong(lastModifiedIndex);
-                    }
-                }
-            } finally {
-                cursor.close();
-            }
-        }
-        return -1; // 如果无法获取创建时间，返回 -1
-    }
 
     public static String getStackTrace(Exception e) {
         StringWriter buffer = new StringWriter();
@@ -637,6 +603,7 @@ public class Utils {
 
     /**
      * Convert latitude to a fixed format
+     *
      * @return eg: "N50°1'33""
      */
     public static String convertLatitude(double lat) {
@@ -654,6 +621,7 @@ public class Utils {
 
     /**
      * Convert longitude to a fixed format
+     *
      * @return eg: "E116°18'26""
      */
     public static String convertLongitude(double lng) {
@@ -670,7 +638,7 @@ public class Utils {
     }
 
     /**
-     * 将经纬度值转换为固定格式
+     * Converts latitude and longitude values to a fixed format
      *
      * @param coordinate 经纬度值
      * @param direction  方向（N/S/E/W）

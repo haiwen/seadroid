@@ -206,10 +206,8 @@ public class FileActivity extends BaseActivityWithVM<FileViewModel> implements T
 
     private File getLocalDestinationFile(String repoId, String repoName, String fullPathInRepo) {
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
-
         return DataManager.getLocalFileCachePath(account, repoId, repoName, fullPathInRepo);
     }
-
 
     private void onFileDownloadProgress(long transferredSize, long totalSize) {
         if (binding.progressBar.isIndeterminate()) {

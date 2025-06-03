@@ -107,6 +107,10 @@ public class FileViewModel extends BaseViewModel {
         Single<Boolean> single = Single.create(new SingleOnSubscribe<Boolean>() {
             @Override
             public void subscribe(SingleEmitter<Boolean> emitter) throws Exception {
+                if (emitter.isDisposed()){
+                    return;
+                }
+                
                 FileCacheStatusEntity entity = new FileCacheStatusEntity();
                 entity.v = 2;//new version
                 entity.repo_id = direntModel.repo_id;

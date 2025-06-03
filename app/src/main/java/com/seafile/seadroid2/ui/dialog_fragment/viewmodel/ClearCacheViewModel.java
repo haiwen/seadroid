@@ -16,6 +16,10 @@ public class ClearCacheViewModel extends BaseViewModel {
         Single<Boolean> s = Single.create(new SingleOnSubscribe<Boolean>() {
             @Override
             public void subscribe(SingleEmitter<Boolean> emitter) throws Exception {
+                if (emitter.isDisposed()){
+                    return;
+                }
+
                 StorageManager storageManager = StorageManager.getInstance();
                 storageManager.clearCache();
 

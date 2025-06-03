@@ -14,6 +14,7 @@ import androidx.work.ForegroundInfo;
 import androidx.work.WorkerParameters;
 
 import com.blankj.utilcode.util.CloneUtils;
+import com.blankj.utilcode.util.TimeUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
@@ -24,6 +25,9 @@ import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.FileBackupStatusEntity;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
+import com.seafile.seadroid2.framework.util.FileUtils;
+import com.seafile.seadroid2.framework.util.Times;
+import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.notification.base.BaseTransferNotificationHelper;
@@ -41,6 +45,11 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.FileTime;
+import java.util.Date;
 
 import okhttp3.Call;
 import okhttp3.MultipartBody;
@@ -185,15 +194,19 @@ public abstract class BaseUploadWorker extends TransferWorker {
         currentTransferModel.transfer_status = TransferStatus.IN_PROGRESS;
         GlobalTransferCacheList.updateTransferModel(currentTransferModel);
 
+//        long createdTime = -1;
         //uri: content://
         if (currentTransferModel.full_path.startsWith("content://")) {
-            boolean isHasPermission = hasPermission(Uri.parse(currentTransferModel.full_path));
+            Uri uri = Uri.parse(currentTransferModel.full_path);
+            boolean isHasPermission = FileUtils.isUriHasPermission(getApplicationContext(), uri);
             if (!isHasPermission) {
                 throw SeafException.PERMISSION_EXCEPTION;
             }
 
             ProgressUriRequestBody progressRequestBody = new ProgressUriRequestBody(getApplicationContext(), Uri.parse(currentTransferModel.full_path), currentTransferModel.file_size, fileTransferProgressListener);
             builder.addFormDataPart("file", currentTransferModel.file_name, progressRequestBody);
+
+//            createdTime = FileUtils.getCreatedTimeFromUri(getApplicationContext(), uri);
         } else {
             File file = new File(currentTransferModel.full_path);
             if (!file.exists()) {
@@ -202,7 +215,16 @@ public abstract class BaseUploadWorker extends TransferWorker {
 
             ProgressRequestBody progressRequestBody = new ProgressRequestBody(file, fileTransferProgressListener);
             builder.addFormDataPart("file", currentTransferModel.file_name, progressRequestBody);
+//            createdTime = FileUtils.getCreatedTimeFromPath(getApplicationContext(), file);
         }
+
+
+//        if (createdTime != -1) {
+//            String cTime = Times.convertLong2Time(createdTime);
+//            SLogs.d(TAG, "file create timestamp : " + cTime);
+//            builder.addFormDataPart("last_modify", cTime);
+//        }
+
 
         RequestBody requestBody = builder.build();
 
@@ -267,20 +289,6 @@ public abstract class BaseUploadWorker extends TransferWorker {
         }
     }
 
-    private boolean hasPermission(Uri uri) {
-        try {
-            ContentResolver resolver = getApplicationContext().getContentResolver();
-            AssetFileDescriptor afd = resolver.openAssetFileDescriptor(uri, "r");
-            if (afd != null) {
-                afd.close();
-                return true;
-            }
-            return true;
-        } catch (Exception e) {
-            SLogs.e("check URI permission failed: " + e.getMessage());
-        }
-        return false;
-    }
 
     private String getFileUploadUrl(Account account, String repoId, String target_dir, boolean isUpdate) throws IOException, SeafException {
         retrofit2.Response<String> res;

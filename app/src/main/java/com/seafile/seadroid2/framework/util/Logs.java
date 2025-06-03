@@ -195,6 +195,28 @@ public class Logs {
         XLog.e(format, args);
     }
 
+
+    public static void e(String... logs) {
+        if (logs == null || logs.length == 0) {
+            return;
+        }
+
+        if (logs.length == 1) {
+            d(logs[0]);
+            return;
+        }
+
+        StringBuilder logBuilder = new StringBuilder();
+        for (String s : logs) {
+            logBuilder.append(s).append(", ");
+        }
+        String log = logBuilder.toString();
+        if (log.endsWith(", ")) {
+            log = log.substring(0, log.length() - 2);
+        }
+        e(log);
+    }
+
     public static void e(String msg) {
         XLog.e(msg);
     }

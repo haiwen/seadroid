@@ -88,7 +88,10 @@ public class AccountViewModel extends BaseViewModel {
         Single<Account> single = Single.create(new SingleOnSubscribe<Account>() {
             @Override
             public void subscribe(SingleEmitter<Account> emitter) throws Exception {
-
+                if (emitter.isDisposed()){
+                    return;
+                }
+                
                 //the SYNC way
 
                 Call<TokenModel> call = getLoginCall(tempAccount, pwd, authToken, isRememberDevice);
