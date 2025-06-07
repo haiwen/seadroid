@@ -50,7 +50,7 @@ public class FileViewModel extends BaseViewModel {
         addSingleDisposable(detailSingle, consumer, new Consumer<Throwable>() {
             @Override
             public void accept(Throwable throwable) throws Exception {
-                SeafException seafException = getExceptionByThrowable(throwable);
+                SeafException seafException = getSeafExceptionByThrowable(throwable);
                 getSeafExceptionLiveData().setValue(seafException);
             }
         });
@@ -82,7 +82,7 @@ public class FileViewModel extends BaseViewModel {
 
                     java.nio.file.Files.deleteIfExists(tempFile.toPath());
 
-                    SeafException seafException = getExceptionByThrowable(throwable);
+                    SeafException seafException = getSeafExceptionByThrowable(throwable);
                     getSeafExceptionLiveData().setValue(seafException);
                 }
             }, new Action() {

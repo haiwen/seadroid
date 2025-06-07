@@ -104,25 +104,78 @@
             app:isPreferenceVisible="false"
             app:radiusPosition="none" />
 
-        <com.seafile.seadroid2.widget.prefs.TextMorePreference
-            android:key="@string/pref_key_album_backup_advanced"
-            android:summary="@string/settings_camera_upload_advanced_feature_subtitle"
-            android:title="@string/settings_camera_upload_advanced_feature_title"
+        <com.seafile.seadroid2.widget.prefs.TextSwitchPreference
+            android:defaultValue="false"
+            android:key="@string/pref_key_album_backup_advanced_data_plan_switch"
+            android:summaryOff="@string/settings_camera_upload_default_wifi"
+            android:summaryOn="@string/settings_camera_upload_data_plan_allowed"
+            android:title="@string/settings_camera_upload_allow_data_plan"
             app:backgroundColor="@color/pref_background_color"
             app:backgroundRadius="8dp"
+            app:dividerColor="@color/pref_divider_color"
+            app:dividerPosition="bottom"
+            app:iconSpaceReserved="false"
+            app:isPreferenceVisible="false"
+            app:radiusPosition="none" />
+
+        <com.seafile.seadroid2.widget.prefs.TextSwitchPreference
+            android:defaultValue="false"
+            android:key="@string/pref_key_album_backup_advanced_allow_video_switch"
+            android:summaryOff="@string/settings_camera_upload_default_photos"
+            android:summaryOn="@string/settings_camera_upload_videos_allowed"
+            android:title="@string/settings_camera_upload_allow_videos"
+            app:backgroundColor="@color/pref_background_color"
+            app:backgroundRadius="8dp"
+            app:dividerColor="@color/pref_divider_color"
+            app:dividerPosition="bottom"
+            app:iconSpaceReserved="false"
+            app:isPreferenceVisible="false"
+            app:radiusPosition="none" />
+
+        <com.seafile.seadroid2.widget.prefs.TextSwitchPreference
+            android:key="@string/pref_key_album_backup_advanced_buckets_switch"
+            android:summaryOff="@string/settings_camera_upload_advanced_custom_directories_off"
+            android:summaryOn="@string/settings_camera_upload_advanced_custom_directories_on"
+            android:title="@string/settings_camera_upload_advanced_custom_directories"
+            app:backgroundColor="@color/pref_background_color"
+            app:backgroundRadius="8dp"
+            app:dividerPosition="bottom"
+            app:iconSpaceReserved="false"
+            app:isPreferenceVisible="false"
+            app:radiusPosition="none" />
+
+        <com.seafile.seadroid2.widget.prefs.TextTitleSummaryPreference
+            android:key="@string/pref_key_album_backup_advanced_buckets_select"
+            android:summary="@string/settings_camera_upload_dir_auto_scan"
+            android:title="@string/settings_camera_upload_choose_dir"
+
+            app:backgroundColor="@color/pref_background_color"
+            app:backgroundRadius="8dp"
+            app:dividerColor="@color/pref_divider_color"
+            app:dividerPosition="none"
             app:iconSpaceReserved="false"
             app:isPreferenceVisible="false"
             app:radiusPosition="bottom" />
 
-        <com.seafile.seadroid2.widget.prefs.TextTitleSummaryPreference
-            android:key="@string/pref_key_album_backup_state"
-            android:summary="@string/folder_backup_waiting_state"
-            android:title="@string/camera_upload_state"
-            app:backgroundColor="@color/pref_background_color"
-            app:backgroundRadius="8dp"
-            app:iconSpaceReserved="false"
-            app:isPreferenceVisible="false"
-            app:radiusPosition="bottom" />
+        <!--        <com.seafile.seadroid2.widget.prefs.TextMorePreference-->
+        <!--            android:key="@string/pref_key_album_backup_advanced"-->
+        <!--            android:summary="@string/settings_camera_upload_advanced_feature_subtitle"-->
+        <!--            android:title="@string/settings_camera_upload_advanced_feature_title"-->
+        <!--            app:backgroundColor="@color/pref_background_color"-->
+        <!--            app:backgroundRadius="8dp"-->
+        <!--            app:iconSpaceReserved="false"-->
+        <!--            app:isPreferenceVisible="false"-->
+        <!--            app:radiusPosition="bottom" />-->
+
+        <!--        <com.seafile.seadroid2.widget.prefs.TextTitleSummaryPreference-->
+        <!--            android:key="@string/pref_key_album_backup_state"-->
+        <!--            android:summary="@string/folder_backup_waiting_state"-->
+        <!--            android:title="@string/camera_upload_state"-->
+        <!--            app:backgroundColor="@color/pref_background_color"-->
+        <!--            app:backgroundRadius="8dp"-->
+        <!--            app:iconSpaceReserved="false"-->
+        <!--            app:isPreferenceVisible="false"-->
+        <!--            app:radiusPosition="bottom" />-->
     </com.seafile.seadroid2.widget.prefs.CardPreferenceCategory>
 
     <com.seafile.seadroid2.widget.prefs.CardPreferenceCategory

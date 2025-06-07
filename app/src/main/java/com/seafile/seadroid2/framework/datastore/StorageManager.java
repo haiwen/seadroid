@@ -10,6 +10,7 @@ import android.util.Log;
 
 import androidx.core.os.EnvironmentCompat;
 
+import com.blankj.utilcode.util.PathUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.framework.datastore.sp.AppDataManager;
@@ -76,20 +77,9 @@ public abstract class StorageManager implements MediaScannerConnection.OnScanCom
         CLASSIC_LOCATION = buildClassicLocation();
     }
 
-    /**
-     * Fetch instance of the StorageManager
-     *
-     * @return
-     */
-    public final static StorageManager getInstance() {
+    public static StorageManager getInstance() {
         if (instance == null) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                instance = new StorageManagerLollipop();
-            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                instance = new StorageManagerKitKat();
-            } else {
-                instance = new StorageManagerGingerbread();
-            }
+            instance = new StorageManagerLollipop();
         }
         return instance;
     }
@@ -97,12 +87,14 @@ public abstract class StorageManager implements MediaScannerConnection.OnScanCom
     private Location buildClassicLocation() {
         Location classic = new Location();
         classic.id = -1; // Android IDs start at 0. so "-1" is safe for us
+
         File[] externalMediaDirs = SeadroidApplication.getAppContext().getExternalMediaDirs();
         String rootPath = externalMediaDirs[0].getAbsolutePath();
-//        String rootPath = SeadroidApplication.getAppContext().getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath();
-//        classic.mediaPath = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Seafile/");
         classic.mediaPath = new File(rootPath + "/Seafile/");
-        classic.cachePath = new File(classic.mediaPath, "cache");
+
+        //
+        String appCachePath = PathUtils.getExternalAppCachePath();
+        classic.cachePath = new File(appCachePath);
 
 
 //        classic.externalImagePath = Environment.DIRECTORY_DCIM+"";
@@ -137,14 +129,14 @@ public abstract class StorageManager implements MediaScannerConnection.OnScanCom
      *
      * @return
      */
-    protected abstract File[] getSystemMediaDirs();
+    protected abstract File[] getMediaCacheDirs();
 
     /**
      * Get the cache directories offered by Android.
      *
      * @return
      */
-    protected abstract File[] getSystemCacheDirs();
+    protected abstract File[] getAppCacheDir();
 
     /**
      * Get partition size of the mount point containing dir
@@ -185,9 +177,9 @@ public abstract class StorageManager implements MediaScannerConnection.OnScanCom
 
         retList.add(CLASSIC_LOCATION);
 
-        File[] dirs = getSystemMediaDirs();
-        File[] cacheDirs = getSystemCacheDirs();
-        for (int i = 0; i < dirs.length; i++) {
+        File[] mediaDirs = getMediaCacheDirs();
+        File[] cacheDir = getAppCacheDir();
+        for (int i = 0; i < mediaDirs.length; i++) {
 
             // omit the mount point where CLASSIC_LOCATION lies (would be duplicate)
             if (i == 0)
@@ -195,13 +187,13 @@ public abstract class StorageManager implements MediaScannerConnection.OnScanCom
 
             Location location = new Location();
             location.id = i;
-            location.mediaPath = dirs[i];
-            location.cachePath = cacheDirs[i];
+            location.mediaPath = mediaDirs[i];
+            location.cachePath = cacheDir[i];
             retList.add(location);
         }
 
         // add current selection at the end, even if the storage is currently unavailable
-        if (selectedDir != CLASSIC_LOCATION.id && selectedDir >= dirs.length) {
+        if (selectedDir != CLASSIC_LOCATION.id && selectedDir >= mediaDirs.length) {
             Location location = new Location();
             location.id = selectedDir;
             location.mediaPath = null;
@@ -392,9 +384,27 @@ public abstract class StorageManager implements MediaScannerConnection.OnScanCom
      * @return base of where to store temp files
      */
     public final File getTempDir() {
-        File base = getMediaDir();
+        File base = getStorageLocation().cachePath;
         File tmpDir = new File(base, ".temp");
         return getDirectoryCreateIfNeeded(tmpDir);
+    }
+
+    public final File getLogDir() {
+        File base = getStorageLocation().cachePath;
+        File f = new File(base, "logs");
+        return getDirectoryCreateIfNeeded(f);
+    }
+
+    public final File getGlideCacheDir() {
+        File base = getStorageLocation().cachePath;
+        File f = new File(base, "glide");
+        return getDirectoryCreateIfNeeded(f);
+    }
+
+    public final File getTakeCameraDir() {
+        File base = getStorageLocation().cachePath;
+        File f = new File(base, "camera");
+        return getDirectoryCreateIfNeeded(f);
     }
 
     /**
@@ -409,17 +419,6 @@ public abstract class StorageManager implements MediaScannerConnection.OnScanCom
     public final File getJsonCacheDir() {
         File base = getContext().getCacheDir();
         return getDirectoryCreateIfNeeded(base);
-    }
-
-    /**
-     * Store thumbnails in a subdirectory below the Seadroid cache directory.
-     *
-     * @return base of where to store thumbnails
-     */
-    public final File getThumbnailsDir() {
-        File base = getStorageLocation().cachePath;
-        File thumbnailsDir = new File(base, "thumbnails");
-        return getDirectoryCreateIfNeeded(thumbnailsDir);
     }
 
     /**
@@ -460,7 +459,6 @@ public abstract class StorageManager implements MediaScannerConnection.OnScanCom
         FileUtils.deleteQuietly(getMediaDir());
         FileUtils.deleteQuietly(getJsonCacheDir());
         FileUtils.deleteQuietly(getTempDir());
-        FileUtils.deleteQuietly(getThumbnailsDir());
 
         notifyAndroidGalleryDirectoryChange(fileList);
     }
@@ -486,11 +484,10 @@ public abstract class StorageManager implements MediaScannerConnection.OnScanCom
      */
     public final long getUsedSpace() {
         File mediaDir = getMediaDir();
-        File thumbDir = getThumbnailsDir();
 
-        if (!mediaDir.exists() || !thumbDir.exists()) return 0L;
+        if (!mediaDir.exists()) return 0L;
 
-        return FileUtils.sizeOfDirectory(mediaDir) + FileUtils.sizeOfDirectory(thumbDir);
+        return FileUtils.sizeOfDirectory(mediaDir);
     }
 
     public static class Location {

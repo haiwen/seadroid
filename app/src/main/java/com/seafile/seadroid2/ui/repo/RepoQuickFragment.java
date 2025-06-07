@@ -2074,10 +2074,10 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             }
 
             if (permission_media_select_type == 0) {
-                uriPair = TakeCameras.buildTakePhotoUri(requireContext());
+                uriPair = TakeCameras.buildPhotoUri(requireContext());
                 takePhotoLauncher.launch(uriPair.getFirst());
             } else if (permission_media_select_type == 1) {
-                uriPair = TakeCameras.buildTakeVideoUri(requireContext());
+                uriPair = TakeCameras.buildVideoUri(requireContext());
                 takePhotoLauncher.launch(uriPair.getFirst());
             }
         }

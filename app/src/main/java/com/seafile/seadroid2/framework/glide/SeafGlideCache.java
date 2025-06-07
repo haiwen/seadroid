@@ -13,6 +13,7 @@ import com.bumptech.glide.integration.okhttp3.OkHttpUrlLoader;
 import com.bumptech.glide.load.engine.cache.DiskLruCacheFactory;
 import com.bumptech.glide.load.model.GlideUrl;
 import com.bumptech.glide.module.AppGlideModule;
+import com.seafile.seadroid2.framework.datastore.StorageManager;
 import com.seafile.seadroid2.framework.http.UnsafeOkHttpClient;
 import com.seafile.seadroid2.framework.http.interceptor.CurrentTokenInterceptor;
 import com.seafile.seadroid2.framework.util.SLogs;
@@ -29,9 +30,8 @@ public class SeafGlideCache extends AppGlideModule {
     @Override
     public void applyOptions(@NonNull Context context, @NonNull GlideBuilder builder) {
         super.applyOptions(context, builder);
-        String rootPath = PathUtils.getExternalAppFilesPath();
-        File dirPath = new File(rootPath + "/cache/glide/");
-        builder.setDiskCache(new DiskLruCacheFactory(dirPath.getAbsolutePath(), 1024 * 1024 * 500));
+        File glideCacheDirFile = StorageManager.getInstance().getGlideCacheDir();
+        builder.setDiskCache(new DiskLruCacheFactory(glideCacheDirFile.getAbsolutePath(), 1024 * 1024 * 500));
     }
 
     @Override
@@ -48,9 +48,10 @@ public class SeafGlideCache extends AppGlideModule {
             registry.append(GlideImage.class, InputStream.class, new GlideImageModelLoaderFactory());
 
         } catch (IllegalStateException e) {
-            SLogs.d("SeaGlideCache","No current account?");
+            SLogs.d("SeaGlideCache", "No current account?");
         }
     }
+
 
     private OkHttpClient getClient() {
         UnsafeOkHttpClient unsafeOkHttpClient = new UnsafeOkHttpClient();

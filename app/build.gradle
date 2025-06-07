@@ -275,6 +275,11 @@ android {
         implementation 'commons-io:commons-io:2.16.1'
         //https://github.com/apache/commons-lang
         implementation 'com.github.apache:commons-lang:rel~commons-lang-3.12.0'
+        //https://github.com/apache/commons-imaging
+        implementation 'com.github.apache:commons-imaging:sanselan-0.97-incubator'
+        //https://github.com/drewnoakes/metadata-extractor
+        implementation 'com.drewnoakes:metadata-extractor:2.19.0'
+
 
         //Rxjava
         implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'

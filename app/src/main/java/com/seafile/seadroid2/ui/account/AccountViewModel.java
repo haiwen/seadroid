@@ -76,7 +76,7 @@ public class AccountViewModel extends BaseViewModel {
             public void accept(Throwable throwable) throws Exception {
                 getRefreshLiveData().setValue(false);
 
-                SeafException seafException = getExceptionByThrowable(throwable);
+                SeafException seafException = getSeafExceptionByThrowable(throwable);
                 getAccountSeafExceptionLiveData().setValue(new Pair<>(loginAccount, seafException));
             }
         });
@@ -120,7 +120,7 @@ public class AccountViewModel extends BaseViewModel {
 
                 if (!accountInfoResponse.isSuccessful()) {
                     HttpException httpException = new HttpException(response);
-                    throw getExceptionByThrowable(httpException);
+                    throw getSeafExceptionByThrowable(httpException);
                 }
 
                 AccountInfo accountInfo = accountInfoResponse.body();
@@ -150,7 +150,7 @@ public class AccountViewModel extends BaseViewModel {
             public void accept(Throwable throwable) throws Exception {
                 getRefreshLiveData().setValue(false);
 
-                SeafException seafException = getExceptionByThrowable(throwable);
+                SeafException seafException = getSeafExceptionByThrowable(throwable);
                 getAccountSeafExceptionLiveData().setValue(new Pair<>(tempAccount, seafException));
             }
         });

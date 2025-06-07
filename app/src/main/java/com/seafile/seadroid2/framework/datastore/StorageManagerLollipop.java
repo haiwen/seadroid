@@ -9,11 +9,10 @@ import java.io.File;
 /**
  * StorageManager implementation for Lollipop or newer devices.
  */
-@TargetApi(Build.VERSION_CODES.LOLLIPOP)
 public class StorageManagerLollipop extends StorageManager {
 
     @Override
-    protected File[] getSystemMediaDirs() {
+    protected File[] getMediaCacheDirs() {
         /*
          * Since Lollipop there is a proper media directory on every storage device.
          * It is indexed by the gallery and the best place for Seafile to store cached files.
@@ -22,7 +21,7 @@ public class StorageManagerLollipop extends StorageManager {
     }
 
     @Override
-    protected File[] getSystemCacheDirs() {
+    protected File[] getAppCacheDir() {
         return getContext().getExternalCacheDirs();
     }
 

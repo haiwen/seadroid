@@ -7,11 +7,9 @@ import com.seafile.seadroid2.framework.util.Utils;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.UUID;
 
 public class DataManager {
     public static final long SET_PASSWORD_INTERVAL = 1000 * 60 * 60 * 24;//1 days
-    private static final StorageManager storageManager = StorageManager.getInstance();
 
     public DataManager() {
     }
@@ -24,26 +22,8 @@ public class DataManager {
      * @throws IOException if the file could not be created.
      */
     public static File createTempFile() throws IOException {
-        return File.createTempFile("file-", ".tmp", storageManager.getTempDir());
+        return File.createTempFile("file-", ".tmp", StorageManager.getInstance().getTempDir());
     }
-
-    /**
-     * Creates and returns a temporary directory. It is guarantied that the directory is unique and
-     * empty. The caller has to delete that directory himself.
-     *
-     * @return a newly created directory.
-     * @throws IOException if the directory could not be created.
-     */
-    public static File createTempDir() throws IOException {
-        String dirName = "dir-" + UUID.randomUUID();
-        File dir = new File(storageManager.getTempDir(), dirName);
-        if (dir.mkdir()) {
-            return dir;
-        } else {
-            throw new IOException("Could not create temp directory");
-        }
-    }
-
 
     /**
      * The account directory structure of Seafile is like this:
@@ -102,7 +82,7 @@ public class DataManager {
      * repo_name: My Library
      * <p>
      * The local repo dir will be:
-     * /storage/emulated/0/Android/data/com.seafile.seadroid2(.debug)/foo@bar.com (cloud.seafile.com)/1234_My Library
+     * /storage/emulated/0/Android/data/com.seafile.seadroid2(.debug)/foo@bar.com (cloud.seafile.com)/My Library_1234
      */
     public static File getLocalRepoDir(Account account, String repo_id, String repo_name) {
         if (TextUtils.isEmpty(repo_id)) {

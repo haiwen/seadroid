@@ -112,7 +112,7 @@ public class PasswordViewModel extends BaseViewModel {
         }, new Consumer<Throwable>() {
             @Override
             public void accept(Throwable throwable) throws Exception {
-                SeafException seafException = getExceptionByThrowable(throwable);
+                SeafException seafException = getSeafExceptionByThrowable(throwable);
                 getSeafExceptionLiveData().setValue(seafException);
             }
         });
@@ -200,7 +200,7 @@ public class PasswordViewModel extends BaseViewModel {
             getActionResultLiveData().setValue(tResultModel);
         }, throwable -> {
 
-            SeafException seafException = getExceptionByThrowable(throwable);
+            SeafException seafException = getSeafExceptionByThrowable(throwable);
             getSeafExceptionLiveData().setValue(seafException);
             getRefreshLiveData().setValue(false);
         });

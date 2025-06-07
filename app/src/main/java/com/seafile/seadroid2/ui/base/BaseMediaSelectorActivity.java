@@ -44,7 +44,7 @@ public class BaseMediaSelectorActivity<T extends BaseViewModel> extends BaseActi
             @Override
             public void onActivityResult(Boolean result) {
                 if (result) {
-                    uriPair = TakeCameras.buildTakePhotoUri(BaseMediaSelectorActivity.this);
+                    uriPair = TakeCameras.buildPhotoUri(BaseMediaSelectorActivity.this);
                     takePhotoLauncher.launch(uriPair.getFirst());
                 } else {
                     ToastUtils.showLong(R.string.permission_camera);
@@ -56,7 +56,7 @@ public class BaseMediaSelectorActivity<T extends BaseViewModel> extends BaseActi
             @Override
             public void onActivityResult(Boolean result) {
                 if (result) {
-                    uriPair = TakeCameras.buildTakePhotoUri(BaseMediaSelectorActivity.this);
+                    uriPair = TakeCameras.buildPhotoUri(BaseMediaSelectorActivity.this);
                     shootVideoLauncher.launch(uriPair.getFirst());
                 } else {
                     ToastUtils.showLong(R.string.permission_camera);

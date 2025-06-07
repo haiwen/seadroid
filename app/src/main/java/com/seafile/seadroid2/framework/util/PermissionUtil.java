@@ -12,18 +12,14 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.provider.Settings;
-import android.view.View;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.blankj.utilcode.util.CollectionUtils;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.snackbar.Snackbar;
 import com.seafile.seadroid2.R;
 
 import java.util.Arrays;
@@ -35,78 +31,8 @@ public class PermissionUtil {
     public static final int PERMISSIONS_POST_NOTIFICATIONS = 8;
     public static final int REQUEST_CODE_MANAGE_ALL_FILES = 16;
 
-    public static boolean checkSelfPermission(Context context, String permission) {
-        return ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED;
-    }
-
     public static boolean shouldShowRequestPermissionRationale(Activity activity, String permission) {
         return ActivityCompat.shouldShowRequestPermissionRationale(activity, permission);
-    }
-
-    public static String[] getStoragePermissions() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            return new String[]{Manifest.permission.MANAGE_EXTERNAL_STORAGE};
-        } else {
-            return new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
-        }
-    }
-
-    public static boolean checkExternalStoragePermission(Context context) {
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {//13
-//            return checkSelfPermission(context, Manifest.permission.READ_MEDIA_IMAGES) ||
-//                    checkSelfPermission(context, Manifest.permission.READ_MEDIA_VIDEO);
-//        } else
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            return Environment.isExternalStorageManager();
-        } else {
-            return checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        }
-    }
-
-    public static void requestExternalStoragePermission(
-            Context context,
-            ActivityResultLauncher<String[]> multiplePermissionLauncher,
-            ActivityResultLauncher<Intent> storagePermissionLauncher,
-            DialogInterface.OnClickListener onCancel) {
-
-        if (!checkExternalStoragePermission(context)) {
-            int msg = R.string.permission_manage_external_storage_rationale;
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
-                msg = R.string.permission_read_external_storage_rationale;
-            }
-
-            new MaterialAlertDialogBuilder(context)
-                    .setMessage(msg)
-                    .setNegativeButton(R.string.cancel, (dialog, which) -> {
-                        dialog.dismiss();
-                        if (onCancel != null) {
-                            onCancel.onClick(dialog, which);
-                        }
-                    })
-                    .setPositiveButton(R.string.ok, (dialog, which) -> {
-                        dialog.dismiss();
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                            storagePermissionLauncher.launch(getManageAllFilesIntent(context));
-                        } else {
-                            multiplePermissionLauncher.launch(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE});
-                        }
-                    })
-                    .show();
-        }
-    }
-
-    public static void requestExternalStoragePermission(
-            Context context,
-            ActivityResultLauncher<String[]> multiplePermissionLauncher,
-            ActivityResultLauncher<Intent> storagePermissionLauncher) {
-        requestExternalStoragePermission(context, multiplePermissionLauncher, storagePermissionLauncher, null);
-    }
-
-    public static Intent goToAppSettings(Context context) {
-        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-        Uri uri = Uri.fromParts("package", context.getPackageName(), null);
-        intent.setData(uri);
-        return intent;
     }
 
     private static boolean shouldShowRequestPermissionsRationale(Activity activity, String[] permissions) {
@@ -116,6 +42,34 @@ public class PermissionUtil {
             }
         }
         return false;
+    }
+
+    public static boolean hasNotificationPermission(Context context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            return ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED;
+        } else {
+            return false; // Android 12 及以下无需手动授权
+        }
+    }
+
+    public static void requestNotificationPermission(Activity activity) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (hasNotificationPermission(activity)) {
+                ActivityCompat.requestPermissions(activity,
+                        new String[]{Manifest.permission.POST_NOTIFICATIONS},
+                        PERMISSIONS_POST_NOTIFICATIONS);
+            }
+        }
+    }
+
+    public static boolean hasStoragePermission(Context context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            // Android 11 and +
+            return Environment.isExternalStorageManager(); // need MANAGE_EXTERNAL_STORAGE
+        } else {
+            // Android 10 and -
+            return ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
+        }
     }
 
 
@@ -156,7 +110,7 @@ public class PermissionUtil {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.R)
-    private static Intent getManageAllFilesIntent(Context context) {
+    public static Intent getManageAllFilesIntent(Context context) {
         Intent intent = new Intent();
         intent.setAction(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
         Uri uri = Uri.parse("package:" + context.getPackageName());

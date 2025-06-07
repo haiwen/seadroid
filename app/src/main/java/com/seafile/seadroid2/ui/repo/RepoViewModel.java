@@ -25,7 +25,6 @@ import com.seafile.seadroid2.framework.crypto.SecurePasswordManager;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.db.entities.EncKeyCacheEntity;
-import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
 import com.seafile.seadroid2.framework.db.entities.PermissionEntity;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.model.BaseModel;
@@ -303,7 +302,7 @@ public class RepoViewModel extends BaseViewModel {
             public void accept(Throwable throwable) throws Exception {
                 getRefreshLiveData().setValue(false);
 
-                SeafException seafException = getExceptionByThrowable(throwable);
+                SeafException seafException = getSeafExceptionByThrowable(throwable);
                 if (seafException == SeafException.REMOTE_WIPED_EXCEPTION) {
                     //post a request
                     completeRemoteWipe();
@@ -311,6 +310,7 @@ public class RepoViewModel extends BaseViewModel {
 
                 getObjListLiveData().setValue(null);
                 getSeafExceptionLiveData().setValue(seafException);
+
             }
         });
     }
@@ -505,7 +505,7 @@ public class RepoViewModel extends BaseViewModel {
             public void accept(Throwable throwable) throws Exception {
                 getRefreshLiveData().setValue(false);
 
-                SeafException seafException = getExceptionByThrowable(throwable);
+                SeafException seafException = getSeafExceptionByThrowable(throwable);
                 if (seafException == SeafException.REMOTE_WIPED_EXCEPTION) {
                     //post a request
                     completeRemoteWipe();
@@ -1019,7 +1019,7 @@ public class RepoViewModel extends BaseViewModel {
         }, new Consumer<Throwable>() {
             @Override
             public void accept(Throwable throwable) throws Exception {
-                getSeafExceptionLiveData().setValue(getExceptionByThrowable(throwable));
+                getSeafExceptionLiveData().setValue(getSeafExceptionByThrowable(throwable));
 
                 getRefreshLiveData().setValue(false);
             }

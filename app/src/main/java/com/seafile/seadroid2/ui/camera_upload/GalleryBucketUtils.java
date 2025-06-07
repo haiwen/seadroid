@@ -88,21 +88,6 @@ public class GalleryBucketUtils {
      * @return the list of buckets.
      */
     public static List<Bucket> getMediaBuckets(Context context) {
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED) {
-                return null;
-            }
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            if (ContextCompat.checkSelfPermission(context, Manifest.permission.MANAGE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                return null;
-            }
-        } else {
-            if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                return null;
-            }
-        }
-
         List<Bucket> videos;
         List<Bucket> images;
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {

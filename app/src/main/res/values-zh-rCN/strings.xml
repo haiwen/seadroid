@@ -335,18 +335,18 @@
   <string name="settings_contacts_upload_start_backup">备份</string>
   <string name="settings_contacts_upload_start_backup_hint">点击开始备份通讯录</string>
   <!--Camera Upload Preference-->
-  <string name="settings_camera_upload_info_title">上传照片</string>
+  <string name="settings_camera_upload_info_title">照片备份</string>
   <string name="settings_camera_upload_service_started">上传服务已启动</string>
   <string name="settings_camera_upload_service_stopped">上传服务已关闭</string>
-  <string name="settings_camera_upload_allow_data_plan">允许使用移动流量套餐</string>
-  <string name="settings_camera_upload_allow_videos">允许上传视频</string>
+  <string name="settings_camera_upload_allow_data_plan">使用移动流量</string>
+  <string name="settings_camera_upload_allow_videos">备份视频</string>
   <string name="settings_camera_upload_default_wifi">默认使用WiFi上传</string>
-  <string name="settings_camera_upload_data_plan_allowed">支持移动流量套餐上传</string>
+  <string name="settings_camera_upload_data_plan_allowed">使用移动流量</string>
   <string name="settings_camera_upload_default_photos">默认只上传图片</string>
   <string name="settings_camera_upload_videos_allowed">支持视频上传</string>
-  <string name="settings_camera_upload_change_repo_title">上传资料库</string>
+  <string name="settings_camera_upload_change_repo_title">上传位置</string>
   <string name="settings_camera_upload_repo_hint">请先选择一个资料库来上传照片</string>
-  <string name="settings_camera_upload_turn_on">打开照片上传</string>
+  <string name="settings_camera_upload_turn_on">开启照片备份</string>
   <string name="settings_camera_upload_choose_dir">更改相册</string>
   <string name="settings_camera_upload_dir_auto_scan">默认自动扫描照片</string>
   <string name="settings_camera_upload_lib_not_found">资料库不存在</string>

@@ -103,9 +103,11 @@ public abstract class BaseUploadWorker extends TransferWorker {
             newCall = null;
         }
 
-        currentTransferModel.transfer_status = TransferStatus.CANCELLED;
-        currentTransferModel.err_msg = SeafException.USER_CANCELLED_EXCEPTION.getMessage();
-        GlobalTransferCacheList.updateTransferModel(currentTransferModel);
+        if (currentTransferModel != null) {
+            currentTransferModel.transfer_status = TransferStatus.CANCELLED;
+            currentTransferModel.err_msg = SeafException.USER_CANCELLED_EXCEPTION.getMessage();
+            GlobalTransferCacheList.updateTransferModel(currentTransferModel);
+        }
 
         if (fileTransferProgressListener != null) {
             fileTransferProgressListener.setProgressListener(null);

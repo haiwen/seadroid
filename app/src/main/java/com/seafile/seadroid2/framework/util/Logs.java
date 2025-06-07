@@ -16,6 +16,7 @@ import com.elvishew.xlog.printer.file.naming.DateFileNameGenerator;
 import com.elvishew.xlog.printer.file.naming.FileNameGenerator;
 import com.google.common.base.Strings;
 import com.seafile.seadroid2.BuildConfig;
+import com.seafile.seadroid2.framework.datastore.StorageManager;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -58,14 +59,10 @@ public class Logs {
                 .build();
         Printer androidPrinter = new AndroidPrinter(true);
 
-        // /storage/emulated/0/Android/data/package/files/logs
-        // /sdcard/Android/data/package/files/logs
-        String p = PathUtils.getExternalAppFilesPath();
-        String logPath = p + "/logs";
-        FileUtils.createOrExistsDir(logPath);
-
+        // /storage/emulated/0/Android/data/package/cache/logs/
+        String p = StorageManager.getInstance().getLogDir().getAbsolutePath();
         Printer filePrinter = new FilePrinter
-                .Builder(logPath)
+                .Builder(p)
                 .fileNameGenerator(new LogFileNameGenerator())
                 .flattener(new ClassicFlattener())
                 .backupStrategy(new FileSizeBackupStrategy2(MAX_SIZE, 30))
