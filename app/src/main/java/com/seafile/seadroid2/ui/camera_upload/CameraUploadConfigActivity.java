@@ -12,17 +12,14 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.google.android.material.tabs.TabLayoutMediator;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.databinding.CucActivityLayoutBinding;
-import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
-import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.util.SystemSwitchUtils;
 import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.ui.adapter.ViewPager2Adapter;
 import com.seafile.seadroid2.ui.base.BaseActivity;
 import com.seafile.seadroid2.ui.camera_upload.config_fragment.BucketsFragment;
-import com.seafile.seadroid2.ui.camera_upload.config_fragment.ConfigWelcomeFragment;
 import com.seafile.seadroid2.ui.camera_upload.config_fragment.HowToUploadFragment;
 import com.seafile.seadroid2.ui.camera_upload.config_fragment.ReadyToScanFragment;
 import com.seafile.seadroid2.ui.camera_upload.config_fragment.WhatToUploadFragment;
@@ -85,35 +82,51 @@ public class CameraUploadConfigActivity extends BaseActivity {
             fragmentList.add(new BucketsFragment());
             binding.tabs.setVisibility(View.GONE);
         } else {
-            fragmentList.add(new ConfigWelcomeFragment());
-            fragmentList.add(new HowToUploadFragment());
-            fragmentList.add(new WhatToUploadFragment());
-            fragmentList.add(new BucketsFragment());
             fragmentList.add(RepoSelectorFragment.newInstance());
-            fragmentList.add(new ReadyToScanFragment());
+            fragmentList.add(new BucketsFragment());
+            fragmentList.add(new WhatToUploadFragment());
+            fragmentList.add(new HowToUploadFragment());
         }
 
         ViewPager2Adapter viewPager2Adapter = new ViewPager2Adapter(this);
         viewPager2Adapter.addFragments(fragmentList);
         binding.pager.setAdapter(viewPager2Adapter);
-        binding.pager.setOffscreenPageLimit(6);
-        binding.pager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
-            @Override
-            public void onPageSelected(int position) {
-                super.onPageSelected(position);
-                mCurrentPosition = position;
 
-                checkLastPosition(position);
-            }
-        });
+        if (isChooseRepoPage || isChooseDirPage) {
+            binding.pager.setOffscreenPageLimit(1);
+        } else {
+            binding.pager.setOffscreenPageLimit(6);
+            binding.pager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+                @Override
+                public void onPageSelected(int position) {
+                    super.onPageSelected(position);
+                    mCurrentPosition = position;
 
-        new TabLayoutMediator(binding.tabs, binding.pager, (tab, position) -> {
-        }).attach();
+                    checkLastPosition(position);
+                }
+            });
+            new TabLayoutMediator(binding.tabs, binding.pager, (tab, position) -> {
+            }).attach();
+        }
 
         binding.confirmButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                saveSettings();
+                int size = fragmentList.size();
+                if (size == 1) {
+                    saveSettings();
+                } else if (binding.pager.getCurrentItem() == 0) {
+                    binding.pager.setCurrentItem(1);
+                } else if (binding.pager.getCurrentItem() == size - 1) {
+                    saveSettings();
+                }
+            }
+        });
+
+        binding.nextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                binding.pager.setCurrentItem(binding.pager.getCurrentItem() + 1);
             }
         });
 
@@ -124,9 +137,21 @@ public class CameraUploadConfigActivity extends BaseActivity {
         int size = fragmentList.size();
         if (size == 1) {
             binding.confirmButton.setVisibility(View.VISIBLE);
+            binding.confirmButton.setText(R.string.confirm);
+            binding.nextView.setVisibility(View.GONE);
+
+        } else if (position == 0) {
+            binding.confirmButton.setText(R.string.start);
+            binding.confirmButton.setVisibility(View.GONE);
+
+            binding.nextView.setVisibility(View.VISIBLE);
         } else if (position == size - 1) {
+            binding.confirmButton.setText(R.string.confirm);
             binding.confirmButton.setVisibility(View.VISIBLE);
+
+            binding.nextView.setVisibility(View.GONE);
         } else {
+            binding.nextView.setVisibility(View.VISIBLE);
             binding.confirmButton.setVisibility(View.GONE);
         }
     }

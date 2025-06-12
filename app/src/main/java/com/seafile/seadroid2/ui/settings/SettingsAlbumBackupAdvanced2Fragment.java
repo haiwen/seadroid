@@ -27,6 +27,8 @@ import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.ui.camera_upload.AlbumBackupAdapter;
 import com.seafile.seadroid2.ui.camera_upload.CameraUploadConfigActivity;
 import com.seafile.seadroid2.ui.camera_upload.GalleryBucketUtils;
+import com.seafile.seadroid2.widget.prefs.DividerPositionEnum;
+import com.seafile.seadroid2.widget.prefs.RadiusPositionEnum;
 import com.seafile.seadroid2.widget.prefs.TextSwitchPreference;
 import com.seafile.seadroid2.widget.prefs.TextTitleSummaryPreference;
 
@@ -183,11 +185,11 @@ public class SettingsAlbumBackupAdvanced2Fragment extends RenameSharePreferenceF
 
     private void initBucket(boolean isChecked) {
         if (isChecked) {
-            bucketsSwitch.setDividerPosition(2);
-            bucketsSwitch.setRadiusPosition(0);
+            bucketsSwitch.setDividerPosition(DividerPositionEnum.BOTTOM);
+            bucketsSwitch.setRadiusPosition(RadiusPositionEnum.NONE);
         } else {
-            bucketsSwitch.setDividerPosition(0);
-            bucketsSwitch.setRadiusPosition(3);
+            bucketsSwitch.setDividerPosition(DividerPositionEnum.NONE);
+            bucketsSwitch.setRadiusPosition(RadiusPositionEnum.BOTTOM);
         }
 
         selectedBucketPref.setVisible(isChecked);

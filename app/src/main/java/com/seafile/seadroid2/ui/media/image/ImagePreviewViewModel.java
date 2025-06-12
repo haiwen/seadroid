@@ -6,16 +6,16 @@ import android.util.Pair;
 import androidx.lifecycle.MutableLiveData;
 
 import com.blankj.utilcode.util.CollectionUtils;
-import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
+import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.model.ResultModel;
 import com.seafile.seadroid2.framework.model.dirents.DirentFileModel;
 import com.seafile.seadroid2.framework.model.repo.Dirent2Model;
+import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.framework.util.Utils;
-import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
 import com.seafile.seadroid2.ui.file.FileService;
 import com.seafile.seadroid2.ui.star.StarredService;
@@ -145,7 +145,7 @@ public class ImagePreviewViewModel extends BaseViewModel {
                 getRefreshLiveData().setValue(false);
                 SeafException seafException = getSeafExceptionByThrowable(throwable);
                 getSeafExceptionLiveData().setValue(seafException);
-                ToastUtils.showLong(seafException.getMessage());
+                Toasts.show(seafException.getMessage());
             }
         });
     }
@@ -176,7 +176,7 @@ public class ImagePreviewViewModel extends BaseViewModel {
                 getRefreshLiveData().setValue(false);
 
                 String errMsg = getErrorMsgByThrowable(throwable);
-                ToastUtils.showLong(errMsg);
+                Toasts.show(errMsg);
             }
         });
     }
@@ -201,7 +201,7 @@ public class ImagePreviewViewModel extends BaseViewModel {
                 getRefreshLiveData().setValue(false);
 
                 String errMsg = getErrorMsgByThrowable(throwable);
-                ToastUtils.showLong(errMsg);
+                Toasts.show(errMsg);
             }
         });
     }

@@ -10,6 +10,9 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
+import com.seafile.seadroid2.framework.http.callback.ProgressCallback;
+import com.seafile.seadroid2.framework.http.download.BinaryFileDownloader;
+import com.seafile.seadroid2.framework.http.download.BinaryFileWriter;
 import com.seafile.seadroid2.framework.model.dirents.DirentFileModel;
 import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.http.HttpIO;
@@ -21,15 +24,21 @@ import org.reactivestreams.Publisher;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
+import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
+import io.reactivex.FlowableEmitter;
+import io.reactivex.FlowableOnSubscribe;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
+import okhttp3.OkHttpClient;
 
 public class FileViewModel extends BaseViewModel {
     private final MutableLiveData<Long[]> progressLiveData = new MutableLiveData<>();
@@ -67,7 +76,7 @@ public class FileViewModel extends BaseViewModel {
             Flowable<Long[]> flowable = urlFlowable.flatMap(new Function<String, Publisher<Long[]>>() {
                 @Override
                 public Publisher<Long[]> apply(String url) throws Exception {
-                    return HttpIO.getCurrentInstance().downloadBinary(url, tempFile);
+                    return downloadBinary(url, tempFile);
                 }
             });
 
@@ -103,14 +112,48 @@ public class FileViewModel extends BaseViewModel {
         }
     }
 
+    public Flowable<Long[]> downloadBinary(String url, File destinationFile) {
+
+        return Flowable.create(new FlowableOnSubscribe<Long[]>() {
+            @Override
+            public void subscribe(FlowableEmitter<Long[]> emitter) throws Exception {
+                OkHttpClient client = HttpIO.getCurrentInstance().getOkHttpClient().getOkClient();
+
+                try (OutputStream outputStream = Files.newOutputStream(destinationFile.toPath())) {
+                    BinaryFileWriter fileWriter = new BinaryFileWriter(outputStream, new ProgressCallback() {
+                        @Override
+                        public void onProgress(long transferSize, long totalSize) {
+                            if (!emitter.isCancelled()) {
+                                emitter.onNext(new Long[]{transferSize, totalSize});
+                            }
+                        }
+                    });
+
+                    try (BinaryFileDownloader fileDownloader = new BinaryFileDownloader(client, fileWriter)) {
+                        fileDownloader.download(url);
+
+                        if (!emitter.isCancelled()) {
+                            emitter.onComplete();
+                        }
+
+                    } catch (Exception e) {
+                        if (!emitter.isCancelled()) {
+                            emitter.onError(e);
+                        }
+                    }
+                }
+            }
+        }, BackpressureStrategy.BUFFER);
+    }
+
     public void saveToDb(Account account, DirentModel direntModel, File destinationFile, Consumer<Boolean> consumer) {
         Single<Boolean> single = Single.create(new SingleOnSubscribe<Boolean>() {
             @Override
             public void subscribe(SingleEmitter<Boolean> emitter) throws Exception {
-                if (emitter.isDisposed()){
+                if (emitter.isDisposed()) {
                     return;
                 }
-                
+
                 FileCacheStatusEntity entity = new FileCacheStatusEntity();
                 entity.v = 2;//new version
                 entity.repo_id = direntModel.repo_id;

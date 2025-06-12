@@ -15,7 +15,7 @@ android {
         compileSdk rootProject.ext.compileSdkVersion
 
         versionCode 190
-        versionName "3.0.15-alpha"
+        versionName "3.0.15"
         multiDexEnabled true
 
         resValue "string", "authorities", defaultConfig.applicationId + '.debug.cameraupload.provider'
@@ -302,7 +302,6 @@ android {
 //        implementation 'com.github.Chrisbanes:PhotoView:2.3.0'
 
         //https://jitpack.io
-//        implementation 'com.github.zhwanng:XXPermissions:1.0.2'
         implementation 'com.github.haiwen:MarkdownView:v0.19.4'
         implementation 'com.github.yydcdut.RxMarkdown:markdown-processor:v0.1.3'
 

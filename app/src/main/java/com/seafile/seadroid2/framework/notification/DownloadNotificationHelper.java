@@ -21,7 +21,6 @@ public class DownloadNotificationHelper extends BaseTransferNotificationHelper {
     public Intent getTransferIntent() {
         Intent dIntent = new Intent(context, TransferActivity.class);
         dIntent.putExtra(NOTIFICATION_MESSAGE_KEY, NOTIFICATION_OPEN_DOWNLOAD_TAB);
-        dIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         return dIntent;
     }
 

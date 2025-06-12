@@ -1,15 +1,9 @@
 package com.seafile.seadroid2.framework.worker;
 
 public class TransferEvent {
-    /**
-     * scanning
-     */
-    public static final String EVENT_SCANNING = "scanning";
 
-    /**
-     * a scan-end event<br/>
-     * <b>NOTICE: This event will be sent in Result.success(data) instead of in setProgressAsync()<b/>
-     */
+    // scan
+    public static final String EVENT_SCANNING = "scanning";
     public static final String EVENT_SCAN_FINISH = "scan_end";
 
     /**
@@ -28,7 +22,12 @@ public class TransferEvent {
     public static final String EVENT_FILE_TRANSFER_FAILED = "file_transfer_failed";
 
     /**
+     * The transfer worker is start.
+     */
+    public static final String EVENT_TRANSFER_TASK_START = "transfer_task_start";
+
+    /**
      * The transfer worker is complete.
      */
-    public static final String EVENT_TRANSFER_FINISH = "transfer_finish";
+    public static final String EVENT_TRANSFER_TASK_COMPLETE = "transfer_task_complete";
 }

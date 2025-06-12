@@ -20,7 +20,7 @@ public class FileTransferProgressListener {
         this.progressListener = progressListener;
     }
 
-    public void setTransferModel(TransferModel transferModel) {
+    public void setCurrentTransferModel(TransferModel transferModel) {
         this.transferModel = CloneUtils.deepClone(transferModel, TransferModel.class);
     }
 

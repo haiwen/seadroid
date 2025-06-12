@@ -68,14 +68,14 @@ public abstract class BaseNotification {
         }
     }
 
-    public void showNotification(int nid, String title, String content, Intent intent) {
+    public Notification getNotification(int nid, String title, String content, Intent intent) {
         if (!hasPermission) {
-            return;
+            return null;
         }
-
         builder.setContentTitle(title);
         builder.setContentText(content);
-
+        builder.setOngoing(true);
+        builder.setPriority(NotificationCompat.PRIORITY_HIGH);
         if (null == intent) {
             builder.setContentIntent(null);
         } else {
@@ -85,8 +85,22 @@ public abstract class BaseNotification {
                     FLAG_IMMUTABLE);
             builder.setContentIntent(pendingIntent);
         }
+        return builder.build();
+    }
 
-        notificationManager.notify(nid, builder.build());
+    public void showNotification(int nid, String title) {
+        Notification notification = getNotification(nid, title, null, null);
+        notificationManager.notify(nid, notification);
+    }
+
+    public void showNotification(int nid, String title, String content) {
+        Notification notification = getNotification(nid, title, content, null);
+        notificationManager.notify(nid, notification);
+    }
+
+    public void showNotification(int nid, String title, String content, Intent intent) {
+        Notification notification = getNotification(nid, title, content, intent);
+        notificationManager.notify(nid, notification);
     }
 
     public void notifyProgress(int nid, String title, String subTitle, int percent, Intent intent) {
@@ -164,8 +178,9 @@ public abstract class BaseNotification {
     }
 
     ////////////////
+
     /// cancel
-    ////////////////
+    /// /////////////
     public void cancel(int nid) {
         cancel(nid, 0);
     }

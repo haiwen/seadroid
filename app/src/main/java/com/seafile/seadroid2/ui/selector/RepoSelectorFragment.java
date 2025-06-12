@@ -50,7 +50,6 @@ public class RepoSelectorFragment extends BaseFragmentWithVM<ObjSelectorViewMode
         super.onCreate(savedInstanceState);
 
         mAccount = SupportAccountManager.getInstance().getCurrentAccount();
-
     }
 
 
@@ -75,8 +74,6 @@ public class RepoSelectorFragment extends BaseFragmentWithVM<ObjSelectorViewMode
 
     private void initView() {
         binding.swipeRefreshLayout.setOnRefreshListener(this::loadData);
-
-        binding.cucMultiSelectionUpLayout.setVisibility(GONE);
     }
 
     private void initViewModel() {

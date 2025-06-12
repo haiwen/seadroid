@@ -219,6 +219,9 @@
   <string name="tabs_library">Библиотеки</string>
   <string name="tabs_activity">Активность</string>
   <string name="tabs_starred">Помеченные</string>
+  <string name="starred_repos">Отмеченные звездочками библиотеки</string>
+  <string name="starred_files">Отмеченные звездочками файлы</string>
+  <string name="starred_folder">Отмеченная звездочкой папка</string>
   <string name="provide_password">Задать пароль для библиотеки \"%s\"</string>
   <string name="upload_waiting">Ожидание загрузки</string>
   <string name="upload_finished">Загрузка завершена</string>
@@ -367,11 +370,8 @@
   <!--Camera Upload Configuration View-->
   <string name="settings_cuc_title">Помощник по настройке</string>
   <string name="settings_cuc_welcome_text">Спасибо за использование помощника по настройке загрузки фото. \nЧтобы освоиться с сервисом загрузки фото, вам нужно пройти всего лишь несколько шагов.</string>
-  <string name="settings_cuc_network_title">Как загружать</string>
   <string name="settings_cuc_network_wifi">Только Wi-Fi</string>
   <string name="settings_cuc_network_data_plan">Wi-Fi или мобильные данные</string>
-  <string name="settings_cuc_option_hint">Выберите нужный вариант. \nВы можете изменить эти параметры позже в меню Настройки.</string>
-  <string name="settings_cuc_type_title">Что загружать</string>
   <string name="settings_cuc_type_photo">Только фото</string>
   <string name="settings_cuc_type_video">Фото и видео</string>
   <string name="settings_cuc_local_dir_title">Выбрать альбомы</string>
@@ -381,7 +381,6 @@
     <item quantity="many">%1$d элементов</item>
     <item quantity="other">%1$d элементов</item>
   </plurals>
-  <string name="settings_cuc_remote_lib_title">Выбрать удаленную библиотеку</string>
   <string name="settings_cuc_remote_lib_account">Выберите аккаунт</string>
   <string name="settings_cuc_remote_lib_repo">%s выбранных элементов</string>
   <string name="settings_cuc_upload_to_parent_folder">К родительской папке</string>

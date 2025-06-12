@@ -10,7 +10,6 @@ import android.net.http.SslError;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.util.Pair;
 import android.view.MenuItem;
 import android.view.View;
@@ -25,13 +24,13 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.Observer;
 
 import com.blankj.utilcode.util.NetworkUtils;
-import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.framework.util.DeviceIdManager;
 import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.ssl.CertsManager;
 import com.seafile.seadroid2.ui.account.AccountViewModel;
@@ -87,14 +86,14 @@ public class SingleSignOnAuthorizeActivity extends BaseActivityWithVM<AccountVie
     private void openAuthorizePage(String url) {
         SLogs.d(TAG, "server url is " + url);
         if (TextUtils.isEmpty(url)) {
-            ToastUtils.showLong(R.string.err_server_andress_empty);
+            Toasts.show(R.string.err_server_andress_empty);
             return;
         }
 
         serverUrl = url;
 
         if (!NetworkUtils.isConnected()) {
-            ToastUtils.showLong(R.string.network_down);
+            Toasts.show(R.string.network_down);
             return;
         }
 
@@ -217,14 +216,14 @@ public class SingleSignOnAuthorizeActivity extends BaseActivityWithVM<AccountVie
 
     private void displaySSLError() {
         showPageLoading(false);
-        ToastUtils.showLong(R.string.ssl_error);
+        Toasts.show(R.string.ssl_error);
     }
 
     class CustomWebviewClient extends WebViewClient {
         @Override
         public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
             // Display error messages
-            ToastUtils.showLong(String.format((R.string.shib_load_page_error) + description));
+            Toasts.show(String.format((R.string.shib_load_page_error) + description));
 
             showPageLoading(false);
         }

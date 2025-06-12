@@ -8,7 +8,6 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
@@ -17,10 +16,10 @@ import androidx.lifecycle.Observer;
 
 import com.blankj.utilcode.util.EncryptUtils;
 import com.blankj.utilcode.util.NetworkUtils;
-import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
 import com.seafile.seadroid2.ui.editor.widget.HorizontalEditScrollView;
 import com.seafile.seadroid2.view.PerformEdit;
@@ -89,7 +88,7 @@ public class EditorActivity extends BaseActivityWithVM<EditorViewModel> implemen
             filePathInRepo = intent.getStringExtra("remote_full_path");
 
             if (!NetworkUtils.isConnected()) {
-                ToastUtils.showLong(R.string.network_unavailable);
+                Toasts.show(R.string.network_unavailable);
             }
 
             loadData();
@@ -138,7 +137,7 @@ public class EditorActivity extends BaseActivityWithVM<EditorViewModel> implemen
             @Override
             public void onChanged(SeafException seafException) {
                 SLogs.e(seafException);
-                ToastUtils.showLong(R.string.editor_file_save_failed);
+                Toasts.show(R.string.editor_file_save_failed);
             }
         });
 

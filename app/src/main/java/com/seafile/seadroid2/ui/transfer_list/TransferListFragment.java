@@ -11,7 +11,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.view.ActionMode;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -19,7 +18,6 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.FileUtils;
-import com.blankj.utilcode.util.ToastUtils;
 import com.chad.library.adapter4.QuickAdapterHelper;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.seafile.seadroid2.R;
@@ -27,11 +25,13 @@ import com.seafile.seadroid2.databinding.LayoutFrameSwipeRvBinding;
 import com.seafile.seadroid2.enums.TransferAction;
 import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.enums.TransferStatus;
-import com.seafile.seadroid2.framework.worker.TransferWorker;
-import com.seafile.seadroid2.framework.worker.queue.TransferModel;
+import com.seafile.seadroid2.framework.service.TransferService;
+import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
+import com.seafile.seadroid2.framework.worker.TransferWorker;
+import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 import com.seafile.seadroid2.ui.base.fragment.BaseFragment;
 import com.seafile.seadroid2.ui.bottomsheetmenu.BottomSheetHelper;
 import com.seafile.seadroid2.ui.bottomsheetmenu.BottomSheetMenuFragment;
@@ -196,7 +196,7 @@ public abstract class TransferListFragment extends BaseFragment {
             public void onClick(DialogInterface dialog, int which) {
 
                 try {
-                    ToastUtils.showLong(R.string.deleted);
+                    Toasts.show(R.string.deleted);
                     doDelete(model, booleans[0]);
                     removeSpecialEntity(model.getId());
                 } catch (ExecutionException | InterruptedException e) {
@@ -220,7 +220,7 @@ public abstract class TransferListFragment extends BaseFragment {
             public void onClick(DialogInterface dialog, int which) {
 
                 try {
-                    ToastUtils.showLong(R.string.deleted);
+                    Toasts.show(R.string.deleted);
                     doDelete(model, false);
                     removeSpecialEntity(model.getId());
                 } catch (ExecutionException | InterruptedException e) {
@@ -237,38 +237,39 @@ public abstract class TransferListFragment extends BaseFragment {
     }
 
     private void doDelete(TransferModel transferModel, boolean isDeleteLocalFile) throws ExecutionException, InterruptedException {
-        if (TransferDataSource.DOWNLOAD == transferModel.data_source) {
-            if (transferModel.transfer_status == TransferStatus.IN_PROGRESS) {
-                BackgroundJobManagerImpl.getInstance().cancelDownloadWorker();
-            }
+        TransferService.stopTransferService(requireContext(), transferModel);
 
-            GlobalTransferCacheList.DOWNLOAD_QUEUE.remove(transferModel.getId());
+        if (TransferDataSource.DOWNLOAD == transferModel.data_source) {
+//            if (transferModel.transfer_status == TransferStatus.IN_PROGRESS) {
+//                BackgroundJobManagerImpl.getInstance().cancelDownloadWorker();
+//            }
+//            GlobalTransferCacheList.DOWNLOAD_QUEUE.remove(transferModel.getId());
 
             if (isDeleteLocalFile) {
                 FileUtils.delete(transferModel.target_path);
             }
 
-            BackgroundJobManagerImpl.getInstance().startDownloadWorker();
+//            BackgroundJobManagerImpl.getInstance().startDownloadWorker();
 
         } else if (TransferDataSource.FILE_BACKUP == transferModel.data_source) {
-            GlobalTransferCacheList.FILE_UPLOAD_QUEUE.remove(transferModel.getId());
 
-            if (transferModel.transfer_status == TransferStatus.IN_PROGRESS) {
-                BackgroundJobManagerImpl.getInstance().cancelFolderBackupWorker();
-            }
+//            GlobalTransferCacheList.FILE_UPLOAD_QUEUE.remove(transferModel.getId());
+//            if (transferModel.transfer_status == TransferStatus.IN_PROGRESS) {
+//                BackgroundJobManagerImpl.getInstance().cancelFolderBackupWorker();
+//            }
 
         } else if (TransferDataSource.FOLDER_BACKUP == transferModel.data_source) {
-            GlobalTransferCacheList.FOLDER_BACKUP_QUEUE.remove(transferModel.getId());
-
-            if (transferModel.transfer_status == TransferStatus.IN_PROGRESS) {
-                BackgroundJobManagerImpl.getInstance().startFolderBackupChain(true);
-            }
+//            GlobalTransferCacheList.FOLDER_BACKUP_QUEUE.remove(transferModel.getId());
+///
+//            if (transferModel.transfer_status == TransferStatus.IN_PROGRESS) {
+//                BackgroundJobManagerImpl.getInstance().startFolderBackupChain(true);
+//            }
         } else if (TransferDataSource.ALBUM_BACKUP == transferModel.data_source) {
-            GlobalTransferCacheList.ALBUM_BACKUP_QUEUE.remove(transferModel.getId());
-
-            if (transferModel.transfer_status == TransferStatus.IN_PROGRESS) {
-                BackgroundJobManagerImpl.getInstance().startMediaBackupChain(true);
-            }
+//            GlobalTransferCacheList.ALBUM_BACKUP_QUEUE.remove(transferModel.getId());
+//
+//            if (transferModel.transfer_status == TransferStatus.IN_PROGRESS) {
+//                BackgroundJobManagerImpl.getInstance().startMediaBackupChain(true);
+//            }
         }
     }
 

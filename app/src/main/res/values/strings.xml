@@ -379,11 +379,12 @@
     <!--Camera Upload Configuration View-->
     <string name="settings_cuc_title">Configuration Helper</string>
     <string name="settings_cuc_welcome_text">Thanks for using the camera upload configuration helper. \nTo help you get started with the camera upload service, you\'ll be guided through a few initial steps.</string>
-    <string name="settings_cuc_network_title">How to upload</string>
+    <string name="settings_cuc_network_title">How to backup</string>
     <string name="settings_cuc_network_wifi">Wi-Fi only</string>
     <string name="settings_cuc_network_data_plan">Wi-Fi or data plan</string>
-    <string name="settings_cuc_option_hint">Choose your preferred option. \nYou can change these options later in Settings.</string>
-    <string name="settings_cuc_type_title">What to upload</string>
+    <string name="settings_cuc_how_hint">Please select how you want to back up</string>
+    <string name="settings_cuc_what_hint">Please select what you want to back up</string>
+    <string name="settings_cuc_type_title">What to backup</string>
     <string name="settings_cuc_type_photo">Photos only</string>
     <string name="settings_cuc_type_video">Photos and videos</string>
     <string name="settings_cuc_local_dir_title">Select albums</string>
@@ -391,7 +392,7 @@
         <item quantity="one">%1$d item</item>
         <item quantity="other">%1$d items</item>
     </plurals>
-    <string name="settings_cuc_remote_lib_title">Select Remote Library</string>
+    <string name="settings_cuc_remote_lib_title">Where to backup</string>
     <string name="settings_cuc_remote_lib_account">Choose an account</string>
     <string name="settings_cuc_remote_lib_repo">%s was selected</string>
     <string name="settings_cuc_upload_to_parent_folder">Up to Parent Folder</string>
@@ -718,5 +719,8 @@
     <string name="offline">Offline</string>
 
     <string name="export_log_file_not_exists">No log file is available for export.</string>
+
+    <string name="start">Start</string>
+    <string name="next">Next</string>
 
 </resources>

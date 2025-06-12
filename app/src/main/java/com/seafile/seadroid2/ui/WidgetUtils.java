@@ -21,12 +21,12 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.content.FileProvider;
 
 import com.blankj.utilcode.util.FileUtils;
-import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.BuildConfig;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.framework.notification.base.NotificationUtils;
 import com.seafile.seadroid2.framework.util.FileExports;
+import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.ui.base.BaseActivity;
 
 import java.io.File;
@@ -85,7 +85,7 @@ public class WidgetUtils {
                 suffix = mime;
             }
             String message = String.format(context.getString(R.string.op_exception_suitable_app_not_found), suffix);
-            ToastUtils.showLong(message);
+            Toasts.show(message);
         }
     }
 
@@ -98,7 +98,7 @@ public class WidgetUtils {
         if (isAvailable) {
             context.startActivity(intent);
         } else {
-            ToastUtils.showLong(R.string.activity_not_found);
+            Toasts.show(R.string.activity_not_found);
         }
     }
 

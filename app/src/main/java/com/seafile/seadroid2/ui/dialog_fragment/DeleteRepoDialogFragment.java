@@ -1,7 +1,6 @@
 package com.seafile.seadroid2.ui.dialog_fragment;
 
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -9,11 +8,11 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.Observer;
 
 import com.blankj.utilcode.util.CollectionUtils;
-import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
-import com.seafile.seadroid2.ui.base.fragment.RequestCustomDialogFragmentWithVM;
 import com.seafile.seadroid2.framework.model.ResultModel;
+import com.seafile.seadroid2.framework.util.Toasts;
+import com.seafile.seadroid2.ui.base.fragment.RequestCustomDialogFragmentWithVM;
 import com.seafile.seadroid2.ui.dialog_fragment.viewmodel.DeleteRepoViewModel;
 
 import java.util.ArrayList;
@@ -66,7 +65,7 @@ public class DeleteRepoDialogFragment extends RequestCustomDialogFragmentWithVM<
         getViewModel().getSeafExceptionLiveData().observe(this, new Observer<SeafException>() {
             @Override
             public void onChanged(SeafException e) {
-                ToastUtils.showLong(e.getMessage());
+                Toasts.show(e.getMessage());
                 refreshData(false);
                 dismiss();
             }

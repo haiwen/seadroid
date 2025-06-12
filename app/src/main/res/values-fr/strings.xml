@@ -310,6 +310,7 @@
   <string name="next_button_label">Suivant</string>
   <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
   <string name="skip_button_label">Ignorer</string>
+  <!--Display mode-->
   <!--contacts  upload-->
   <string name="settings_contacts_upload_info_title">Sauvegarde des contacts</string>
   <string name="settings_contacts_upload_turn_on">Activer la sauvegarde des contacts</string>
@@ -345,11 +346,8 @@
   <!--Camera Upload Configuration View-->
   <string name="settings_cuc_title">Aide à la configuration</string>
   <string name="settings_cuc_welcome_text">Merci d\'utiliser l\'assistant de configuration d\'envoi de votre appareil photo.\nPour vous aider à commencer avec le service d\'envoi de l\'appareil photo, vous serez guidé au travers de quelques étapes.</string>
-  <string name="settings_cuc_network_title">Comment envoyer</string>
   <string name="settings_cuc_network_wifi">Wi-Fi seulement</string>
   <string name="settings_cuc_network_data_plan">Wi-Fi ou plan de données</string>
-  <string name="settings_cuc_option_hint">Choisissez votre option préférée. Vous pourrez changer ces options plus tard dans Paramètres.</string>
-  <string name="settings_cuc_type_title">Quoi envoyer</string>
   <string name="settings_cuc_type_photo">Seulement les photos</string>
   <string name="settings_cuc_type_video">Photos et  vidéos</string>
   <string name="settings_cuc_local_dir_title">Sélectionnez des albums</string>
@@ -358,7 +356,6 @@
     <item quantity="many">%1$d éléments</item>
     <item quantity="other">%1$d éléments</item>
   </plurals>
-  <string name="settings_cuc_remote_lib_title">Sélectionner la bibliothèque distante</string>
   <string name="settings_cuc_remote_lib_account">Choisir un compte</string>
   <string name="settings_cuc_remote_lib_repo">%s a été sélectionné</string>
   <string name="settings_cuc_upload_to_parent_folder">Vers dossier parent</string>
@@ -595,4 +592,6 @@ E-mail : support@seafile.com<br>
   <string name="clear">Nettoyer</string>
   <string name="clear_all">Tout nettoyer</string>
   <!--share link-->
+  <!--menu-->
+  <!--sdoc-->
 </resources>

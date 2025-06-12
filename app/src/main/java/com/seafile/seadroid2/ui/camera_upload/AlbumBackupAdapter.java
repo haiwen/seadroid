@@ -10,6 +10,7 @@ import android.os.Bundle;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
+import com.seafile.seadroid2.framework.service.TransferService;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 
@@ -50,14 +51,16 @@ public class AlbumBackupAdapter extends AbstractThreadedSyncAdapter {
     public void onSyncCanceled(Thread thread) {
         super.onSyncCanceled(thread);
         SLogs.d(TAG, "onSyncCanceled()", thread.getName());
-        BackgroundJobManagerImpl.getInstance().cancelMediaBackupChain();
+//        BackgroundJobManagerImpl.getInstance().cancelMediaBackupChain();
+        TransferService.stopPhotoBackupService(getContext());
     }
 
     @Override
     public void onSyncCanceled() {
         super.onSyncCanceled();
         SLogs.d(TAG, "onSyncCanceled()");
-        BackgroundJobManagerImpl.getInstance().cancelMediaBackupChain();
+        TransferService.stopPhotoBackupService(getContext());
+//        BackgroundJobManagerImpl.getInstance().cancelMediaBackupChain();
     }
 
     @Override
@@ -87,6 +90,7 @@ public class AlbumBackupAdapter extends AbstractThreadedSyncAdapter {
         }
 
         // start
-        BackgroundJobManagerImpl.getInstance().startMediaBackupChain(isForce);
+//        BackgroundJobManagerImpl.getInstance().startMediaBackupChain(isForce);
+        TransferService.startPhotoBackupService(getContext());
     }
 }

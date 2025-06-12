@@ -317,7 +317,7 @@ public class PhotoViewModel extends BaseViewModel {
         return Single.create(new SingleOnSubscribe<File>() {
             @Override
             public void subscribe(SingleEmitter<File> emitter) throws Exception {
-                if (emitter.isDisposed()){
+                if (emitter.isDisposed()) {
                     return;
                 }
 
@@ -333,13 +333,17 @@ public class PhotoViewModel extends BaseViewModel {
 
                 try (Response response = newCall.execute()) {
                     if (!response.isSuccessful()) {
-                        emitter.onError(SeafException.NETWORK_EXCEPTION);
+                        if (!emitter.isDisposed()) {
+                            emitter.onError(SeafException.NETWORK_EXCEPTION);
+                        }
                         return;
                     }
 
                     ResponseBody responseBody = response.body();
                     if (responseBody == null) {
-                        emitter.onError(SeafException.NETWORK_EXCEPTION);
+                        if (!emitter.isDisposed()) {
+                            emitter.onError(SeafException.NETWORK_EXCEPTION);
+                        }
                         return;
                     }
 
@@ -363,7 +367,9 @@ public class PhotoViewModel extends BaseViewModel {
                     }
 
                     if (!java.nio.file.Files.exists(tempFile.toPath())) {
-                        emitter.onError(SeafException.TRANSFER_FILE_EXCEPTION);
+                        if (!emitter.isDisposed()) {
+                            emitter.onError(SeafException.TRANSFER_FILE_EXCEPTION);
+                        }
                         return;
                     }
 
@@ -377,10 +383,14 @@ public class PhotoViewModel extends BaseViewModel {
                         AppDatabase.getInstance().fileCacheStatusDAO().insert(entity);
 
                         SLogs.d(PhotoFragment.TAG, "getDownloadSingle()", "move file success: " + path);
-                        emitter.onSuccess(destinationFile);
+                        if (!emitter.isDisposed()) {
+                            emitter.onSuccess(destinationFile);
+                        }
                     } else {
                         SLogs.d(PhotoFragment.TAG, "getDownloadSingle()", "move file failed: " + path);
-                        emitter.onError(SeafException.TRANSFER_FILE_EXCEPTION);
+                        if (!emitter.isDisposed()) {
+                            emitter.onError(SeafException.TRANSFER_FILE_EXCEPTION);
+                        }
                     }
                 } catch (Exception e) {
                     if (!emitter.isDisposed()) {

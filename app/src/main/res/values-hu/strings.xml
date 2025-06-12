@@ -280,6 +280,7 @@
   <string name="next_button_label">Következő</string>
   <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
   <string name="skip_button_label">Kihagy</string>
+  <!--Display mode-->
   <!--contacts  upload-->
   <string name="settings_contacts_upload_info_title">Névjegyek mentése</string>
   <string name="settings_contacts_upload_turn_on">Névjegyek mentésének engedélyezése</string>
@@ -315,11 +316,8 @@
   <!--Camera Upload Configuration View-->
   <string name="settings_cuc_title">Beállítási segéd</string>
   <string name="settings_cuc_welcome_text">Köszönjük, hogy a kamera feltöltési segédet használja.\nA kamera feltöltési szolgáltatás elindításához átvezetjük a kezdő lépéseken.</string>
-  <string name="settings_cuc_network_title">Hogyan lehet feltölteni</string>
   <string name="settings_cuc_network_wifi">Csak Wi-Fi</string>
   <string name="settings_cuc_network_data_plan">Wi-Fi vagy mobil internet</string>
-  <string name="settings_cuc_option_hint">Válassza ki a preferált beállítást. \nEzeket a beállításokat később bármikor megváltoztathatja.</string>
-  <string name="settings_cuc_type_title">Mit tölt fel</string>
   <string name="settings_cuc_type_photo">Csak fénykép</string>
   <string name="settings_cuc_type_video">Fénykép és videó</string>
   <string name="settings_cuc_local_dir_title">Válassza ki az albumokat</string>
@@ -327,7 +325,6 @@
     <item quantity="one">%1$d elem</item>
     <item quantity="other">%1$d elem</item>
   </plurals>
-  <string name="settings_cuc_remote_lib_title">Távoli kötet kiválasztása</string>
   <string name="settings_cuc_remote_lib_account">Fiók kiválasztása</string>
   <string name="settings_cuc_remote_lib_repo">%s kiválasztva</string>
   <string name="settings_cuc_upload_to_parent_folder">Egy könyvtárral feljebb</string>
@@ -488,4 +485,6 @@
   <!--Folder backup Preference-->
   <!--action-->
   <!--share link-->
+  <!--menu-->
+  <!--sdoc-->
 </resources>

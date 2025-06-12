@@ -9,12 +9,12 @@ import android.widget.LinearLayout;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.Observer;
 
-import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.framework.util.StringUtils;
+import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.ui.base.fragment.RequestCustomDialogFragmentWithVM;
 import com.seafile.seadroid2.ui.dialog_fragment.viewmodel.RenameRepoViewModel;
 
@@ -139,7 +139,7 @@ public class RenameDialogFragment extends RequestCustomDialogFragmentWithVM<Rena
         getViewModel().getActionLiveData().observe(this, new Observer<String>() {
             @Override
             public void onChanged(String s) {
-                ToastUtils.showLong(R.string.rename_successful);
+                Toasts.show(R.string.rename_successful);
 
                 refreshData();
 

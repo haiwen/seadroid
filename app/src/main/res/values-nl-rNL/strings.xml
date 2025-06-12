@@ -272,6 +272,7 @@
   <string name="next_button_label">Volgende</string>
   <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
   <string name="skip_button_label">Overslaan</string>
+  <!--Display mode-->
   <!--contacts  upload-->
   <string name="settings_contacts_upload_start_backup">Backup</string>
   <!--Camera Upload Preference-->
@@ -297,11 +298,8 @@
   <string name="settings_camera_upload_advanced_custom_directories_off">Apparaat automatisch scannen</string>
   <!--Camera Upload Configuration View-->
   <string name="settings_cuc_title">Configuratiehulp</string>
-  <string name="settings_cuc_network_title">Hoe uploaden?</string>
   <string name="settings_cuc_network_wifi">Alleen WiFi</string>
   <string name="settings_cuc_network_data_plan">WiFi of gegevensabonnement</string>
-  <string name="settings_cuc_option_hint">Kies je voorkeursoptie.\nJe kunt deze opties later in de instellingen wijzigen.</string>
-  <string name="settings_cuc_type_title">Wat te uploaden?</string>
   <string name="settings_cuc_type_photo">Alleen foto\'s</string>
   <string name="settings_cuc_type_video">Foto\'s en video\'s</string>
   <string name="settings_cuc_local_dir_title">Albums selecteren</string>
@@ -309,7 +307,6 @@
     <item quantity="one">%1$d item</item>
     <item quantity="other">%1$d items</item>
   </plurals>
-  <string name="settings_cuc_remote_lib_title">Externe bibliotheek selecteren</string>
   <string name="settings_cuc_remote_lib_account">Kies een account</string>
   <string name="settings_cuc_remote_lib_repo">%s is geselecteerd</string>
   <string name="settings_cuc_upload_to_parent_folder">Een map omhoog</string>
@@ -453,4 +450,6 @@
   <!--Folder backup Preference-->
   <!--action-->
   <!--share link-->
+  <!--menu-->
+  <!--sdoc-->
 </resources>

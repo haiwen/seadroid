@@ -204,6 +204,39 @@
 
     </LinearLayout>
 
+    <LinearLayout
+        android:id="@+id/menu_sort_type"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:foreground="?attr/selectableItemBackground"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingVertical="@dimen/pop_item_padding_vertical"
+        android:visibility="gone">
+
+        <ImageView
+            android:id="@+id/menu_sort_type_icon"
+            android:layout_width="@dimen/pop_icon_width"
+            android:layout_height="@dimen/pop_icon_height"
+            android:layout_marginHorizontal="@dimen/pop_icon_margin_horizontal"
+            android:clickable="false"
+            android:padding="@dimen/pop_icon_padding"
+            android:src="@drawable/popup_window_icon"
+            app:tint="@color/material_grey_500" />
+
+        <TextView
+            android:id="@+id/menu_sort_type_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:maxLines="@integer/popup_window_title_max_lines"
+            android:text="@string/menu_action_sort_by_last_modified"
+            android:textColor="@color/item_title_color"
+            android:textSize="@dimen/pop_title_text_size" />
+
+    </LinearLayout>
+
     <com.google.android.material.divider.MaterialDivider
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

@@ -1,0 +1,667 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="welcome_to_seafile">Seafile ga hush kelibsiz</string>
+  <string name="select_account">Boshlash uchun akkaunt tanlang</string>
+  <string name="edit_account">Tahrirlash</string>
+  <string name="ignore">Etibor bermaslik</string>
+  <string name="delete_account">O\'chirish</string>
+  <string name="delete">O\'chirish</string>
+  <string name="deleted">O\'chirilgan</string>
+  <string name="delete_repo">Bu kutubxonani o\'chirishga ishonchingiz komilmi?</string>
+  <string name="delete_file">Bu fayl yoki papkani o\'chirishga ishonchingiz komilmi?</string>
+  <string name="delete_records">Rekord larni o\'chirishga ishonchingiz komilmi?</string>
+  <string name="delete_records_and_file">Rekordlar va lokal yuklab olingan fayllarni o\'chirib tashlashga ishonchingiz komilmi?</string>
+  <string name="delete_successful">Muvofaqqiyatli o\'chirildi</string>
+  <string name="delete_repo_title">Kutubxonani o\'chirish</string>
+  <string name="delete_file_f">Faylni o\'chirish</string>
+  <string name="delete_local_file_sametime">Bir vaqtning o\'zida lokal fayllarni o\'chirish</string>
+  <string name="recover_library">Kutubxonani qayta tiklash</string>
+  <string name="recover_file">Faylni qayta tiklash</string>
+  <string name="move_file">Faylni boshqa joyga ko\'chirish</string>
+  <string name="update_file">Faylni qayta yangilash</string>
+  <string name="recover_folder">Papkani qayta tiklash</string>
+  <string name="move_folder">Papkani boshqa joyga ko\'chirish</string>
+  <string name="delete_dir">Papkani o\'chirish</string>
+  <string name="name_hint">Nom</string>
+  <string name="server">Server</string>
+  <string name="server_hint">Server manzili</string>
+  <string name="email_hint">Email yoki Username</string>
+  <string name="passwd_hint">Parol</string>
+  <string name="passwd_min_len_limit_hint">Parol (kamida %dta hariflar)</string>
+  <string name="passwd_confirmation_hint">Qayta parol</string>
+  <string name="login">Kirish</string>
+  <string name="open_file">Ochish</string>
+  <string name="download_file">Yuklab olish</string>
+  <string name="redownload_file">Qayta yuklab olish</string>
+  <string name="cancel_download">Bekor qilish</string>
+  <string name="unknown_file_type">Nomalum fayl-turi</string>
+  <string name="activity_not_found">Bu faylni ochish uchun ilova topilmadi</string>
+  <string name="refresh">Yangilash</string>
+  <string name="add_account">Akkaunt qo\'shish</string>
+  <string name="personal">Shaxsiy</string>
+  <string name="shared">Ulashilgan</string>
+  <string name="libraries">Kutubxonalar</string>
+  <string name="my_libraries">Mening kutubxonalarim</string>
+  <string name="cached">Keshlangan</string>
+  <string name="activities">Tarix</string>
+  <string name="pick_upload_type">Yuklash</string>
+  <string name="transfer_tasks">Ro\'yxatni uzatish</string>
+  <string name="accounts">Akkauntlar</string>
+  <string name="settings">Sozlamalar</string>
+  <string-array name="pick_upload_array">
+    <item>Fayl</item>
+    <item>Rasimlar/Videolar</item>
+    <item>Boshqalar</item>
+  </string-array>
+  <string name="choose_server">Seafile serverini tanlang</string>
+  <string-array name="choose_server_array">
+    <item>Yagona Kirish</item>
+    <item>Boshqa Seafile Server</item>
+  </string-array>
+  <string name="network_down">Internet bilan aloqa yo\'q</string>
+  <string name="unknow_error">Kutilmagan xatolik</string>
+  <string name="invalid_server_address">Noto\'g\'ri server manzili</string>
+  <string name="err_server_andress_empty">Server manzili bo\'sh bo\'lishi mumkin emas</string>
+  <string name="err_email_empty">Email bo\'sh bo\'lishi mumkin emas</string>
+  <string name="err_passwd_empty">Parol bo\'sh bo\'lishi mumkin emas</string>
+  <string name="err_passwd_too_short">Parol juda qisqa</string>
+  <string name="err_passwd_mismatch">Parollar mos kelmadi</string>
+  <string name="err_login_failed">Kirish muvaffaqiyatsiz</string>
+  <string name="err_wrong_user_or_passwd">Email yoki parol xatoligi</string>
+  <string name="err_token_expired">Autentifikatsiya muddati tugadi, qayta kiring</string>
+  <string name="upload">Yuklash</string>
+  <string name="uploaded">Yuklangan</string>
+  <string name="re_upload">Qayta Yuklash</string>
+  <string name="updated">Qayta yangilangan</string>
+  <string name="download_failed">Yuklab olish muvaffaqiyatsiz</string>
+  <string name="download_waiting">Yuklab olish kutilmoqda</string>
+  <string name="download_finished">Yuklab olish tugatildi</string>
+  <string name="download_cancelled">Yuklab olish bekor qilindi</string>
+  <string name="task_cancel">Bekor qilish</string>
+  <string name="task_retry">Qayta urunish</string>
+  <string name="task_remove">Olib tashlash</string>
+  <string name="task_remove_all_cancelled">Barcha beror qilingan topshiriqlarni olib tashlash</string>
+  <string name="task_remove_all_finished">Barcha yakunlangan topshiriqlarni olib tashlash</string>
+  <string name="repo_action_delete">O\'chirish</string>
+  <string name="repo_action_rename">Qayta nomlash</string>
+  <string name="file_action_star">Yulduzcha</string>
+  <string name="file_action_download">Yuklab olish</string>
+  <string name="file_action_update">Yuklash</string>
+  <string name="file_share">Ulashish</string>
+  <string name="file_action_share_wechat">WeChat ga ulashish</string>
+  <string name="file_action_share_link">Linkni ulashish</string>
+  <string name="file_action_share_encrypt">Parolli linkni ulashish</string>
+  <string name="file_action_export">Eksport qilish</string>
+  <string name="file_action_open">Bilan ochish</string>
+  <string name="file_action_delete">O\'chirish</string>
+  <string name="file_action_rename">Qayta nomlash</string>
+  <string name="file_action_copy">Ko\'chirib olish</string>
+  <string name="file_action_move">Boshqa joyga ko\'chirish</string>
+  <string name="file_action_open_as">...sifatida ochish</string>
+  <string name="file_action_more">Ko\'proq</string>
+  <string name="file_action_more_title">O\'zingiz hohlagan variantni tanlang</string>
+  <string-array name="file_action_more_array">
+    <item>Eksport qilish</item>
+    <item>Nusxalash</item>
+    <item>Boshqa joyga ko\'chirish</item>
+    <item>Yulduzlash</item>
+  </string-array>
+  <string-array name="file_type_array">
+    <item>Matn</item>
+    <item>Ovoz</item>
+    <item>Video</item>
+    <item>Rasm</item>
+    <item>Boshqa</item>
+  </string-array>
+  <string name="wait">Kuting</string>
+  <string name="image_gallery_NoImageView_text">Rasm topilmadi</string>
+  <string name="pick_photo_video_title">Yuklash uchun rasmlar/videolarni tanlang</string>
+  <string name="select_upload_items">Yuklash uchun narsalarni tanlang</string>
+  <plurals name="n_upload_items_selected">
+    <item quantity="other">%1$dta narsalar tanlandi</item>
+  </plurals>
+  <string name="repo_name_empty">Iltimos kutubxona nomini kiriting</string>
+  <string name="dir_name_empty">Iltimos papka nomini kiriting</string>
+  <string name="file_name_empty">Iltimos fayl nomini kiriting</string>
+  <string name="password_empty">Iltimos parolni kiriting</string>
+  <string name="wrong_password">noto\'g\'ri parol</string>
+  <string name="library_read_only">Bu kutubxona faqat-o\'qish</string>
+  <string name="error_when_load_dirents">Papkani yuklashda xatolik.\n Yangilash uchun bosing</string>
+  <string name="error_when_load_repos">Kutubxonalarni yuklashda xatolik.\n Yangilash uchun bosing</string>
+  <string name="error_when_load_activities">Tarixni yuklashda xatolik.\n Yangilash uchun bosing</string>
+  <string name="error_when_load_starred">Ulashilgan fayllarni yuklashda xatolik.\n Yangilash uchun bosing</string>
+  <string name="dir_empty">Bu papka bo\'sh</string>
+  <string name="no_repo">Sizda hali kutubxonalar yo\'q</string>
+  <string name="no_album_type_data">Sizda oldindan-koʻrish uchun albom turlari yoʻq.</string>
+  <string name="no_app_available">Hech qanday ilova topilmadi</string>
+  <string name="add_to_seafile">Seafile ga qo\'shish</string>
+  <string name="ok">OK</string>
+  <string name="no_account">Iltimos oldin Seafile da akkaunt yarating</string>
+  <string name="choose_an_account">Akkaunt tanlash</string>
+  <string name="choose_a_library">Kutubxona tanlash</string>
+  <string name="choose_a_folder">Papka tanlash</string>
+  <string name="load_accounts_fail">Seafile akkaunlarini yuklab bo\'lmadi</string>
+  <string name="load_libraries_fail">Kutubxonalarni yuklab bo\'lmadi</string>
+  <string name="load_dir_fail">Bu papkadagi narsalarni yuklab bo\'lmadi</string>
+  <string name="not_supported">Hozirgi paytda qo\'llab bo\'lmaydi</string>
+  <string name="not_supported_share">Bu turdagi ulashishni qo\'llab bo\'lmaydi</string>
+  <string name="edit">Tahrirlash</string>
+  <string name="select">Tanlash</string>
+  <string name="create_draft">Qoralama yaratish</string>
+  <string name="rename_draft">Qoralamani qayta nomlash</string>
+  <string name="del_draft">Qoralamani o\'chirish</string>
+  <string name="update_draft">Qoralamani o\'zgartirish</string>
+  <string name="release_draft">Qoralamani chiqarish</string>
+  <string name="encrypt">Shifrlash (Encrypt)</string>
+  <string name="download_folder">Papkani yuklab olish</string>
+  <string name="download_folder_title">O\'zingiz hohlagan variantni tanlang</string>
+  <string-array name="download_folder_options_array">
+    <item>Yuklab olish papkasi</item>
+    <item>Yuklab olish papka va ichki papkalari</item>
+  </string-array>
+  <string name="add_repo">Yangi kutibxona</string>
+  <string name="add_file">Qo\'shish</string>
+  <string-array name="add_file_options_array">
+    <item>Fayl yaratish</item>
+    <item>Papka yaratish</item>
+    <item>Fayl yuklash</item>
+    <item>Rasmga olish</item>
+  </string-array>
+  <string-array name="video_download_array">
+    <item>ijro etish</item>
+    <item>yuklab olish</item>
+  </string-array>
+  <string name="create_new_repo">Yangi kutubxona yaratish</string>
+  <string name="create_new_repo_success">Kutubxona muvofaqqiyatli yaratildi %s</string>
+  <string name="create_new_folder_success">Papka muvofaqqiyatli yaratildi %s</string>
+  <string name="create_new_file_success">Fayl muvofaqqiyatli yaratildi %s</string>
+  <string name="create_new_file">Yangi fayl yaratish</string>
+  <string name="create_files">Fayllar yaratish</string>
+  <string name="create_new_dir">Yangi papka yaratish</string>
+  <string name="camera">Shu yerga rasmga olish</string>
+  <string name="download">Yuklab olish</string>
+  <string name="open">Ochish</string>
+  <string name="last_modified">ohirgi o\'zgartirilgan</string>
+  <string name="file_modified">o\'zgartirilgan</string>
+  <string name="file_size">fayl hajmi</string>
+  <string name="library_not_found">Kutubxona o\'chirildi</string>
+  <string name="file_not_found">Fayl \"%s\" o\'chirildi</string>
+  <string name="export_file">Bu faylni Eksport qilish</string>
+  <string name="no_upload_tasks">Hali yuklash vazifalari yo\'q</string>
+  <string name="no_download_tasks">Hali yuklab olish vazifalari yo\'q</string>
+  <string name="seahub_url_hint">Etibor bering: Server manzilida Port raqami bo\'lishi kerak. Masalan, www.example.com:8000</string>
+  <string name="copy_link">Havolani nusxalash</string>
+  <string name="share_link_no_permission">Sizda bu amalni bajarish uchun ruxsat yo‘q.</string>
+  <string name="share_file_link">Ushbu faylga havolani ulashing</string>
+  <string name="share_dir_link">Ushbu papkaga havolani ulashing</string>
+  <string name="share_input_password">ulashish parolini kiriting</string>
+  <string name="generating_link">Havola yaratilmoqda…</string>
+  <string name="generating_link_title">Havola yaratilmoqda</string>
+  <string name="link_ready_to_be_pasted">Havola joylash uchun tayyor</string>
+  <string name="rename_repo">Kutubxonani qayta nomlash</string>
+  <string name="rename_file">Faylni qayta nomlash</string>
+  <string name="rename_dir">Papkani qayta nomlash</string>
+  <string name="rename_successful">Qayta nomlash muvofaqqiyatli amalga oshirildi.</string>
+  <string-array name="nav_array">
+    <item>Fayllar</item>
+    <item>Yuklamalar</item>
+    <item>Akkauntlar</item>
+    <item>Zaxira rasmlar</item>
+  </string-array>
+  <string name="navigate_to_directory">Katalogga o\'ting</string>
+  <string name="no_starred_file">Hali yuldizlangan fayl yo\'q</string>
+  <string name="added_to_upload_tasks">Yuklash boshlandi</string>
+  <string name="added_photo_to_upload_tasks">Rasmni yuklash boshlandi</string>
+  <string name="take_photo_successfully">Rasmga olish muvofaqqiyatli</string>
+  <string name="tabs_library">Kutubxonalar</string>
+  <string name="tabs_activity">Amallar</string>
+  <string name="tabs_starred">Yulduzlangan</string>
+  <string name="provide_password">\"%s\" kutubxona uchun parolni taqdim eting</string>
+  <string name="upload_waiting">Yuklash kutilmoqda</string>
+  <string name="upload_finished">Yuklash yakunlandi</string>
+  <string name="upload_cancelled">Yuklash bekor qilindi</string>
+  <string name="upload_failed">Yuklashda xatolik</string>
+  <string name="upload_file_exist">Fayl allaqachon bor</string>
+  <string name="upload_duplicate_found">%s nomlik narsa bu joyda allaqachon bor.\n Uni yuklayotganingiz bilan almashtirishni istaysizmi?</string>
+  <string name="upload_replace_all">Hammasini Almashtirish</string>
+  <string name="upload_keep_both">Ikkalasini sab qolish</string>
+  <string name="upload_replace">Almashtirish</string>
+  <string name="days_ago">%d kun oldin</string>
+  <string name="hours_ago">%d soat oldin</string>
+  <string name="minutes_ago">%d minut oldin</string>
+  <string name="seconds_ago">%d sekund oldin</string>
+  <string name="just_now">Hozirgina</string>
+  <string name="open_as">... kabi ochish</string>
+  <string name="select_upload_files">Yuklash uchun fayllarni tanlang</string>
+  <string name="storage_removed">Ombor olib tashlandi</string>
+  <string name="storage_space_insufficient">Omborda yetarli jo\'y yo\'q</string>
+  <string name="error_selecting_file">Fayl tanlashda muammo yuz berdi</string>
+  <plurals name="n_upload_files_selected">
+    <item quantity="other">%1$d ta fayllar tanlandi</item>
+  </plurals>
+  <string name="empty_folder">Bo\'sh papka</string>
+  <string name="choose_file">Fayl tanlash</string>
+  <string name="ssl_error">Havfsizlikni tekshirishda muammo</string>
+  <string name="ssl_not_trusted">%sning havfsizlik sertifikati ishonchsiz </string>
+  <string name="ssl_confirm">%sning havfsizlik sertifikati ishonchsiz. Davom etishni hohlaysizmi?</string>
+  <string name="ssl_confirm_cert_changed">%s noto\'gri havsizlik sertifikatini ishlatyapti. Ulanish havfsiz emas. Baribir davom etilsinmi?</string>
+  <string name="ssl_confirm_title">Ishonchsiz Ulanish</string>
+  <string name="issued_to">ga Berilgan</string>
+  <string name="finger_prints">Barmoq izlari</string>
+  <string name="period_of_validity">Yaroqlilik muddati</string>
+  <string name="sha1">SHA-1 %s</string>
+  <string name="md5">MD5 %s</string>
+  <string name="not_available">mavjud emas</string>
+  <string name="serial_number">Ishlab chiqarish raqami %s</string>
+  <string name="not_before">%sdan amal qiladi</string>
+  <string name="not_after">%sgacha amal qiladi</string>
+  <string name="yes">Xa</string>
+  <string name="no">Yo\'q</string>
+  <string name="remember_my_choice">Mening tanlovimni saqlab qol</string>
+  <string name="copied_successfully">Muvofaqqiyatli nusxalandi</string>
+  <string name="moved_successfully">Muvofaqqiyatli ko\'chirildi</string>
+  <string name="internal_server_error">Serverda xatolik</string>
+  <string name="copy_file_ing">Fayl nusxalanyapti</string>
+  <string name="move_file_ing">Fayl ko\'chirilyapti</string>
+  <string name="copy_file_from">%1$s dan\n %2$sga nusxalanyapti</string>
+  <string name="move_file_from">%1$sdan\n %2$sga ko\'chirilyapti</string>
+  <string name="copy_folder_ing">Papka nusxalanyapti</string>
+  <string name="move_folder_ing">Papka ko\'chirilyapti</string>
+  <string name="upload_started">Yuklash boshlandi</string>
+  <string name="cannot_copy_folder_to_subfolder">Siz papkani ichki papkasiga nusxalay olmaysiz</string>
+  <string name="cannot_move_folder_to_subfolder">Siz papkani ichki papkasiga ko\'chira olmaysiz</string>
+  <string name="cancel">Bekor qilish</string>
+  <string name="confirm">Tasdiqlash</string>
+  <string name="repo_not_found">Kutubxona topilmadi. U o\'chirilgan yoki shifrlangan bo\'lishi mumkin</string>
+  <string name="settings_account">Akkaunt</string>
+  <string name="settings_switch_account">Akkauntni o\'zgartirish</string>
+  <string name="settings_account_info_title">Foydalanuvchi ma\'lumotlari</string>
+  <string name="settings_account_info_load_data">yuklanmoqda...</string>
+  <string name="settings_account_space_title">Joy ishlatilgan</string>
+  <string name="settings_account_sign_out_title">Tizimdan chiqish</string>
+  <string name="settings_account_sign_out_hint">Tizimdan chiqish uchun bosing</string>
+  <string name="settings_account_sign_out_confirm">Tizimdan chiqishni hohlaysizmi?</string>
+  <string name="settings_night_mode_title">Tungi rejim</string>
+  <string name="security">Xavfsizlik</string>
+  <string name="gesture_lock">Imo-ishora qulfi</string>
+  <string name="gesture_lock_on">Imo-ishora qulfini yoqish</string>
+  <string name="gesture_lock_off">Imo-ishora qulfini o\'chirish</string>
+  <string name="lockscreen_access_pattern_hint">Iltimos, imo-ishora naqshini chizing</string>
+  <string name="lockscreen_access_pattern_start">Chizishni boshlash</string>
+  <string name="lockscreen_access_pattern_cleared">Naqsh tozalandi</string>
+  <string name="lockscreen_access_pattern_cell_added">Naqshli katak qo‘shildi</string>
+  <string name="lockscreen_access_pattern_detected">Pattern aniqlandi</string>
+  <string name="lockscreen_access_pattern_passwd_forget">Parolni unutdim</string>
+  <string name="lockscreen_access_pattern_failure">5 marta noto\'g\'ri terildi, yana urinishdan oldin 30 soniya kuting</string>
+  <plurals name="lockscreen_access_pattern_failure_left_try_seconds">
+    <item quantity="other">Yana %1$d sekunddan keyin urinib ko\'rishingiz mumkin</item>
+  </plurals>
+  <plurals name="lockscreen_access_pattern_failure_left_try_times">
+    <item quantity="other">Noto\'g\'ri naqsh, siz yana %1$d marta urinib ko\'rishingiz mumkin</item>
+  </plurals>
+  <string name="lockscreen_access_pattern_failure_not_long_enough">Ulanadigan nuqtalar yetarlicha uzun emas, iltimos yana urinib ko\'ring</string>
+  <string name="lockpattern_retry_button_text">Qayta urinish</string>
+  <string name="lockpattern_continue_button_text">Keyingisi</string>
+  <string name="lockpattern_confirm_button_text">OK</string>
+  <string name="lockpattern_recording_intro_header">Iltimos Imo-ishora naqshini chizing</string>
+  <string name="lockpattern_settings_help_how_to_record">Qanday qilib Imo-ishora naqshini chizishni o\'rganish</string>
+  <string name="lockpattern_recording_incorrect_too_short">Kamida 4 nuqta boʻylab suring, qayta urinib koʻring!</string>
+  <string name="lockpattern_pattern_entered_header">Naqsh saqlandi</string>
+  <string name="lockpattern_need_to_draw">Iltimos, imo-ishora naqshini chizing</string>
+  <string name="lockpattern_need_to_confirm">Iltimos naqshingizni tasdiqlang</string>
+  <string name="lockpattern_need_to_unlock_wrong">Naqshlar mos kelmadi. Yana urinib ko\'ring.</string>
+  <string name="lockpattern_pattern_confirmed_header">Naqshni saqlash uchun OK ni bosing</string>
+  <string name="lockpattern_recording_inprogress">Chizishni tugatganingizda barmog\'ingizni oling</string>
+  <string name="lockpattern_pattern_toast_saved">Imo-ishorali qulf naqshi muvofaqqiyatli saqlandi</string>
+  <!--Strings for possible PreferenceActivity Back/Next buttons-->
+  <string name="back_button_label">Orqaga</string>
+  <string name="next_button_label">Oldinga</string>
+  <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
+  <string name="skip_button_label">O\'tkazib yuborish</string>
+  <!--Display mode-->
+  <string name="settings_display_mode">Ko\'rsatish turi</string>
+  <!--contacts  upload-->
+  <string name="settings_contacts_upload_info_title">Kontaktlar zahirasi</string>
+  <string name="settings_contacts_upload_turn_on">Kontaktlar zahirasini yoqish</string>
+  <string name="settings_contacts_upload_service_started">Kontaktlar zahirasi yoqilgan</string>
+  <string name="settings_contacts_upload_service_stopped">Kontaktlar zahirasi o\'chirilgan</string>
+  <string name="settings_contacts_upload_repo_hint">Iltimos kontaklani zahiralash uchun kutubxonani tanlang</string>
+  <string name="settings_contacts_upload_change_repo_title">Kontakt zahiralash uchun kutubxonani o\'zgartirish</string>
+  <string name="settings_contacts_upload_repo_time">Ohirgi zahiralangan vaqt</string>
+  <string name="settings_contacts_upload_repo_history">Zahira rekordlari yo\'q</string>
+  <string name="settings_contacts_upload_start_backup">Zahiralash</string>
+  <string name="settings_contacts_upload_start_backup_hint">Kontaktlarni zahiralash uchun bosing</string>
+  <!--Camera Upload Preference-->
+  <string name="settings_camera_upload_info_title">Kamera Rasm Yuklash</string>
+  <string name="settings_camera_upload_service_started">Yuklash servisi boshlandi</string>
+  <string name="settings_camera_upload_service_stopped">Yuklash servisi to\'xtadi</string>
+  <string name="settings_camera_upload_allow_data_plan">Maʼlumot rejasiga ruxsat berish</string>
+  <string name="settings_camera_upload_allow_videos">Videolarni yuklashga ruxsat berish</string>
+  <string name="settings_camera_upload_default_wifi">Standard bo\'yicha faqat Wi-Fi ni ishlatish</string>
+  <string name="settings_camera_upload_data_plan_allowed">Ma\'lumotlar rejasiga ruxsat berilgan</string>
+  <string name="settings_camera_upload_default_photos">Faqat standard bo\'yicha rasmlarni yuklash</string>
+  <string name="settings_camera_upload_videos_allowed">Qo\'shilgan videolar</string>
+  <string name="settings_camera_upload_change_repo_title">Yuklash kutubxonasini o\'zgartirish</string>
+  <string name="settings_camera_upload_repo_hint">Iltimos birinchi kutubxona tanlang</string>
+  <string name="settings_camera_upload_turn_on">Kamera yuklashni yoqish</string>
+  <string name="settings_camera_upload_choose_dir">Albumlarni o\'zgartirish</string>
+  <string name="settings_camera_upload_dir_auto_scan">Standard bo\'yicha rasmlarni avto skanerlash</string>
+  <string name="settings_camera_upload_lib_not_found">Tanlangan kutibxonalar mavjud emas</string>
+  <string name="settings_camera_upload_advanced_feature_title">Kengaytirilgan variantlar</string>
+  <string name="settings_camera_upload_advanced_feature_subtitle">Alohida yuklash variantlari</string>
+  <string name="settings_camera_upload_advanced_custom_directories">Alohida yuklash albomlari</string>
+  <string name="settings_camera_upload_advanced_custom_directories_on">Rasm albomlarini tanlash</string>
+  <string name="settings_camera_upload_advanced_custom_directories_off">Qurilmani avto skanerlash</string>
+  <!--Camera Upload Configuration View-->
+  <string name="settings_cuc_title">Konfiguratsiya yordamchisi</string>
+  <string name="settings_cuc_welcome_text">Kamera yuklash konfiguratsiya yordamchisidan foydalanganingiz uchun rahmat. \nSizni kamera bilan yuklash servisi bilan foydalanishni boshlash uchun siz bir necha dastlabki qadamlardan o\'tasiz.</string>
+  <string name="settings_cuc_network_wifi">faqat Wi-Fi</string>
+  <string name="settings_cuc_network_data_plan">Wi-Fi yoki mobil trafik</string>
+  <string name="settings_cuc_type_photo">Faqat rasmlar</string>
+  <string name="settings_cuc_type_video">Rasmlar va Videolar</string>
+  <string name="settings_cuc_local_dir_title">Albumlarni tanlash</string>
+  <plurals name="settings_cuc_local_dir_items">
+    <item quantity="other">%1$d ta narsalar</item>
+  </plurals>
+  <string name="settings_cuc_remote_lib_account">Akkaunt tanlang</string>
+  <string name="settings_cuc_remote_lib_repo">%s tanlandi</string>
+  <string name="settings_cuc_upload_to_parent_folder">Yuqori papkagacha</string>
+  <string name="settings_cuc_auto_scan">Avtomatik kamera albomlarini tahmin qilish</string>
+  <string name="settings_cuc_pick_albums">Menga fotoalbomlarimni tanlashga ber</string>
+  <string name="settings_cuc_remote_lib_hint">O\'zingiz hohlagan akkaunt va kutubxonalarni tanlang. \nBu variyantlarni keyinchailk Sozlamalarda o\'zgartirishingiz mumkin.</string>
+  <string name="settings_cuc_finish_title">Yakunlash</string>
+  <string name="settings_cuc_ready">Quyidagini tasdiqlaganingizdan so\'ng Seafile fayllarni siz tanlagan papkalardan yuklashni boshlaydi. \nBu jarayonda bemalol ilovani yopishingiz mumkun.</string>
+  <string name="settings_cuc_swipe_left">Davom etish uchun chapga suring.</string>
+  <string name="settings_cuc_click_btn">Konfiguratsiya yordamchisini yopish uchun bosing.</string>
+  <string name="settings_cuc_loading">yuklanmoqda...</string>
+  <!--Camera Sync-->
+  <string name="sync_provider_camera_upload">Kamera rasmlar va videolari</string>
+  <string name="camera_sync_notification_title_failed">Kameradan yuklashda xatolik</string>
+  <string name="camera_sync_notification_repo_missing_failed">Server ombori yo\'qolgan.</string>
+  <string name="camera_sync_notification_auth_error_failed">Autentifikatsiya xatosi.</string>
+  <string name="camera_sync_rename_file">%s (Seafile tomonidan qayta nomlangan)</string>
+  <string name="settings_about_title">XAQIDA</string>
+  <string name="settings_about_privacy_policy">Maxfiylik siyosati</string>
+  <string name="settings_about_version_title">Ilova Versiyasi</string>
+  <string name="settings_about_author_title">Avtor haqida</string>
+  <string name="settings_about_author_info">
+        <![CDATA[
+        <h5>Seafile Android Klient</h5>
+        <p>%s</p>
+        <h5>Biz bilan bog\'laning</h5>
+        <p>
+            Twitter: Seafile<br>
+            Email: support@seafile.com<br>
+        </p>
+        <h5>Hissalar</h5>
+        <p>https://github.com/haiwen/seadroid.git</P>
+        <h5>Copyright ©2013-2023 Seafile Ltd.</h5>
+        ]]>
+    </string>
+  <string name="settings_advance_feature_title">KENGAYTIRILGAN XUSUSIYATLAR</string>
+  <string name="settings_transfer_title">YUKLASH &amp; YUKLAB OLISH</string>
+  <string name="settings_storage_title">KESH OMBORI</string>
+  <string name="settings_cache_title">Kesh hajmi</string>
+  <string name="settings_clear_cache_title">Keshni tozalash</string>
+  <string name="settings_clear_cache_hint">Keshni tozalashni hohlaysizmi?</string>
+  <string name="settings_clear_cache_success">Kesh muvofaqqiyatli tozalandi</string>
+  <string name="settings_clear_cache_failed">Keshni tozalashda xatolik</string>
+  <string name="settings_cache_empty">0 KB</string>
+  <string name="settings_cache_location_title">Kesh ombori jo\'yi</string>
+  <string name="dialog_switch_storage_info_text">Mavjud fayllar yangi omborga ko\'chiriladi. Bu biroz vaqt olishi mumkin.</string>
+  <string name="storage_manager_primary_storage">Asosiy ombor</string>
+  <string name="storage_manager_secondary_storage">Qo\'shimcha ombor</string>
+  <string name="storage_manager_storage_description">%1$s (%2$s bo\'sh/%3$s jami)</string>
+  <string name="storage_manager_storage_description_not_available">%1$s (mavjud emas)</string>
+  <!--pull to refresh-->
+  <string name="pull_to_refresh_pull_label">Yangilash uchun torting...</string>
+  <string name="pull_to_refresh_release_label">Yangilash uchun qo\'yib yuboring...</string>
+  <string name="pull_to_refresh_refreshing_label">Yuklanmoqda...</string>
+  <string name="pull_to_refresh_last_update">Ohirgi yangilash: </string>
+  <string name="pull_to_refresh_last_update_seconds_ago">%d sekund oldin</string>
+  <string name="pull_to_refresh_last_update_minutes_ago">%d minut oldin</string>
+  <string name="pull_to_refresh_last_update_hours_ago">%d soat oldin</string>
+  <!--storage access framework-->
+  <string name="saf_open_file_exception">%s faylni ochib bo\'lmadi</string>
+  <string name="saf_open_directory_exception">Papkani ochib bo\'lmadi</string>
+  <string name="saf_file_not_cached_exception">Fayl %s keshlanmagan</string>
+  <string name="saf_thumbnail_not_found_exception">%s thumbnail ni topib/ochib bo\'lmadi.</string>
+  <string name="saf_file_not_downloaded_exception">Fayl %s ni serverdan yuklab olib bo\'lmadi.</string>
+  <string name="saf_write_diretory_exception">Papgani o\'qishga/yozishga ochib bo\'lmadi.</string>
+  <string name="saf_account_not_found_exception">Seafile akkuntini topib bo\'lmadi.</string>
+  <string name="saf_upload_path_not_available">Yuklab bo\'lmadi, yo\'l mavjud emas</string>
+  <string name="saf_failed_to_create_directory">Papka %s ni yaratib bo\'lmadi</string>
+  <string name="saf_file_exist">Bu fayl allaqachon bor</string>
+  <string name="saf_bad_mime_type">Noto\'g\'ri so\'rov turi</string>
+  <!--Single Sign-On  SSO-->
+  <string name="shib_server_url_empty">Server bo\'m bo\'sh!</string>
+  <string name="shib_server_incorrect_prefix">Server https:// bilan boshlanishi kerak</string>
+  <string name="shib_load_page_error">Xatolik: </string>
+  <string name="shib_login_title">Yagona kirish</string>
+  <string name="shib_loading">yuklanmoqda...</string>
+  <!--Transfer List-->
+  <string name="transfer_list_network_error">Ulanishda xatolik yuz berdi, iltimos keyinroq qayta urinib ko\'ring!</string>
+  <string name="transfer_list_cancel_all">Hamma vazifalarni bekor qilish</string>
+  <string name="transfer_list_cancel_all_desc">Amalga oshirilayotgan barcha fayl o\'tkazish vazifalarini bekor qilish; ular qayta ishga tushirish tugmasi bosilganda davom etish uchun qayta tiklanadi.</string>
+  <string name="transfer_list_restart_all">Qayta ishga tushirish</string>
+  <string name="transfer_list_retry_failed_tasks">Muvaffaqqiyatsiz tugagan vazifalarni qayta urinib ko\'rish</string>
+  <string name="transfer_list_restart_cancelled_tasks">Bekor qilingan vazifalarni qayta ishga tushirish</string>
+  <string name="transfer_list_clear_failed_tasks">Muvaffaqqiyatsiz vazifalarni tozalash</string>
+  <string name="transfer_list_clear_all_tasks">Barcha vazifalarni tozalash</string>
+  <string name="transfer_list_clear_all_tasks_desc">Barcha uzatilgan rekordlarni olib tashlash; agar yuklangan bo\'lsa, u hamma yuklab olinganlarni o\'chiradi (ixtiyoriy: lokal fayllarni ham). agar u yuklangan bo\'lsa, u faqat yuklash rekordlarini o\'chiradi, lekin kelajakda ko\'rsatilgan fayllar qayta yuklanmaydi.</string>
+  <string name="transfer_list_clear_finished_tasks">Tugatilgan vazifalarni tozalash</string>
+  <string name="transfer_tabs_downloads">Royxat yuklab olish</string>
+  <string name="transfer_tabs_uploads">Ro\'yxat yuklash</string>
+  <string name="transfer_download_no_task">Barcha fayllar yuklab olindi</string>
+  <plurals name="transfer_download_started">
+    <item quantity="other">%1$d ta fayllarni yuklab olish boshlanyapti</item>
+  </plurals>
+  <string name="transfer_list_select_all">Barchasini tanlash</string>
+  <string name="transfer_list_deselect_all">Barchasini tanlamaslik</string>
+  <plurals name="transfer_list_items_selected">
+    <item quantity="other">%d ta narsalar tanlandi</item>
+  </plurals>
+  <!--Sort-->
+  <string name="sort_menu_item">Saralash</string>
+  <string name="sort_files">Saralash turi</string>
+  <string-array name="sort_files_options_array">
+    <item>Nom</item>
+    <item>Nom (Kam. tartib)</item>
+    <item>Ohirgi o\'zgartirilgan vaqt</item>
+    <item>Ohirgi o\'zgartirilgan vaqt (kam.t)</item>
+  </string-array>
+  <!--Search-->
+  <string name="search_menu_item">Qidirish</string>
+  <string name="search_bar_hint">Qidirilmoqda...</string>
+  <string name="search_txt_empty">Iltimos so\'zlarni kiriting</string>
+  <string name="search_content_empty">Hech narsa topilmadi</string>
+  <string name="search_server_not_support">Ups, qidirish bu server tomonidan qo\'lanmagan!</string>
+  <string name="search_library_not_found">Bu kutubxonani topib bo\'lmadi. O\'chirilgan bo\'lishi mumkin</string>
+  <string name="search_in_this_library">Bu kutubxonada fayllarni qidirish</string>
+  <!--star a file-->
+  <string name="star_file_succeed">Fayl muvaffaqiyatli yulduzlandi</string>
+  <string name="star_file_failed">Faylni yulduzlashda xatolik</string>
+  <!--unstar a file-->
+  <string name="unstar_file_failed">Fayldan yulduzni olishda xatolik</string>
+  <string name="unstar">Yulduzni olib tashlash</string>
+  <!--notification bar-->
+  <string name="notification_upload_started_title">Fayllarni yuklash...</string>
+  <string name="notification_download_started_title">Fayllarni yuklab olish...</string>
+  <string name="notification_upload_completed">Yuklash yakinlandi</string>
+  <plurals name="notification_upload_info">
+    <item quantity="other">%1$dta fayllar yuklanmoqda (%2$d%%)</item>
+  </plurals>
+  <plurals name="notification_download_info">
+    <item quantity="other">%1$d ta fayllar yuklab olinmoqda (%2$d %%)</item>
+  </plurals>
+  <string name="notification_download_completed">Yuklab olish yakunlandi</string>
+  <!--Gallery-->
+  <string name="gallery_load_photos_error">Rasmlarni yuklashda xatolik</string>
+  <string name="gallery_encrypted_repo_not_supported">Shifrlangan kutubxona qo‘llab-quvvatlanmagan</string>
+  <!--Overwrite existing files-->
+  <string name="overwrite_existing_file_title">Mavjud faylni almashtiring</string>
+  <string name="overwrite_existing_file_msg">Fayl allaqachon mavjud, uni almashtirishni hohlaysizmi?</string>
+  <string name="overwrite_existing_file_exist">Fayl allaqachon mavjud</string>
+  <!--Action Mode-->
+  <string name="action_mode_no_items_selected">Hech qanday narsa tanlanmagan</string>
+  <!--Accessibility description for navigation drawer-->
+  <!--permission-->
+  <string name="permission_manage_external_storage_rationale">Fayllarni ko\'rish uchun ombordagi fayllarni boshqarishga ruhsat bering</string>
+  <string name="permission_read_external_storage_rationale">Fayllarni ko\'rish uchun ruhsat bering</string>
+  <string name="permission_read_contacts_storage_rationale">Kontaktlarni ko\'rish uchun ruhsat bering</string>
+  <string name="permission_camera">Media fayllarni ko\'rish uchun kameraga ruhsat bering</string>
+  <string name="permission_not_granted">Ruhsat berilmagan</string>
+  <string name="history_change_title">O\'zgartirish tafsiflari</string>
+  <string name="no_more_activities">Boshqa faoliyat yo\'q</string>
+  <!--client side encryption and decryption-->
+  <string name="enc_on">Malumotlarni shifridan ochishni lokal qilish</string>
+  <string name="enc_off">Malumotlarni shifridan ochishni serverda qilish</string>
+  <string name="enc_title">Shifrlangan kutubxona datasini shifrdan ochish rejimi</string>
+  <!--clear password-->
+  <string name="clear_password_title">Kutubxona parolini tozalash</string>
+  <string name="clear_password_hint">Parolni tozalash uchun bosing</string>
+  <string name="clear_password_successful">Parolni tozalash muvaffaqiyatli</string>
+  <string name="clear_password_failed">Parolni tozalashda xatolik</string>
+  <string name="clear_password_warning">Parolni tozalashni hohlaysizmi?</string>
+  <string name="clear_password_auto">Avtomatik parolni tozalash</string>
+  <!--Two factor auth-->
+  <string name="two_factor_auth_error">autentifikatsiya kaliti talab qilinadi</string>
+  <string name="two_factor_auth_invalid">autentifikatsiya kaliti yaroqsiz</string>
+  <string name="two_factor_auth_token">Ikkinchi-bosqich autentifikatsiya kaliti</string>
+  <string name="two_factor_auth_token_empty">autentifikatsiya kaliti bo\'sh bo\'lishi mumkin emas</string>
+  <string name="two_factor_auth_remember_phone">U qurilmani eslab qolish</string>
+  <!--Operation Exceptions-->
+  <string name="op_exception_folder_deleted">Papka \"%s\" o\'chirildi</string>
+  <string name="op_exception_suitable_app_not_found">Mime turi %s uchun mos ilova topilmadi</string>
+  <string name="op_exception_failed_to_download_file">%s faylni yuklab olib bo\'lmadi</string>
+  <!--Home list title-->
+  <string name="shared_with_all">Hamma bilan ulashish</string>
+  <string name="add_password_protection">Parol himoyasini qo\'shish</string>
+  <string name="expiration_dates">Amal qilish muddatlari</string>
+  <string name="add_auto_expiration">Avtomatik amal qilish muddatini qo\'shing</string>
+  <string name="input_auto_expiration">Iltimos amal qilsh muddatlarini kiriting</string>
+  <!--editor-->
+  <string name="editor_lines_error">Bir nechta liniyalarni ishlatib bo\'lmaydi</string>
+  <string name="editor_file_save">Saqlab chiqishni hohlaysizmi?</string>
+  <string name="editor_file_save_success">Fayl muvaffaqiyatli saqlandi</string>
+  <string name="editor_file_save_failed">Keshni tozalashda xatolik</string>
+  <string name="editor_file_save_title">Fayl saqlandi</string>
+  <string name="description">Tavfsifnoma</string>
+  <string name="undo">berkor qilish</string>
+  <string name="redo">qayta tiklash</string>
+  <string name="link">Link</string>
+  <string name="channel_name_error">Xato haqida ogohlantirishlar</string>
+  <string name="channel_name_upload">Fayl yuklash haqida ma\'lumot</string>
+  <string name="channel_name_download">Fayl yuklab olish haqida ma\'lumot</string>
+  <string name="channel_name_album_backup">Albom-zaxira ma\'lumotlari</string>
+  <string name="channel_name_transfer">Fayl uzatish ma\'lumotlari</string>
+  <string name="above_quota">Kvotadan yuqori</string>
+  <string name="camera_upload_state">Yuklash malumoti</string>
+  <string name="waiting_state">Yuklash kutilmoqda</string>
+  <string name="Upload_completed">Oxirgi sinxronlash vaqti</string>
+  <string name="is_scanning">Skanerlanmoqda</string>
+  <string name="is_uploading">Yuklanmoqda</string>
+  <string name="network_unavailable">Tarmoq mavjud emas</string>
+  <string name="network_error">Tarmoq xatosi</string>
+  <string name="error_image_load">Yuklanmadi</string>
+  <string name="retry_with_click">qayta urunish uchun bosing</string>
+  <string name="required_password">Parol talab qilinadi.</string>
+  <string name="weak_password">Parol juda oddiy.</string>
+  <!--Folder backup Preference-->
+  <string name="settings_folder_backup_info_title">Zaxira papkasi</string>
+  <string name="settings_folder_backup_switch_title">Papka zaxiralashni yoqish</string>
+  <string name="settings_folder_backup_service_started">Zaxiralash servisi boshlangan</string>
+  <string name="settings_folder_backup_service_stopped">Zaxiralash servisi to\'xtatilgan</string>
+  <string name="settings_select_backup_folder_title">Papkani tanlang</string>
+  <string name="folder_file_item_size">Hajm %s</string>
+  <string name="folder_file_item_describe">fayl \%s\ | papka \%s\</string>
+  <string name="internal_storage">Ichki ombor</string>
+  <string name="selection_file_type">Iltimos zaxira papkasini tanlang</string>
+  <string name="select_backup_folder">Zaxira papkasini tanlash</string>
+  <string name="select_backup_libraries">Zaxira kutubxonalarini tanlash</string>
+  <string name="folder_backup_completed">Papka zaxiralangan</string>
+  <string name="get_permission_failed">%s ruxsatni olib bo\'lmadi, bazi xususiyatlarga tasir qilishi mumkin</string>
+  <string name="get_storage_permission_failed">Omborga ruhsat olib bo\'lmadi</string>
+  <string name="authorization_storage_permission">Avtorizatsiya butunlay rad etildi, saqlashga ruxsatni qoʻlda bering.</string>
+  <string name="settings_folder_backup_select_hint">0</string>
+  <string name="settings_folder_backup_select_title">Zahiralash papkalarini tanlang</string>
+  <string name="settings_folder_backup_traffic">Zahiralash rejimi</string>
+  <string name="settings_folder_backup_traffic_hint">WIFI</string>
+  <string name="settings_folder_backup_library">Zahiralash uchun kutubxona</string>
+  <string name="folder_backup_add">Zahiralash papkasini qo\'shish</string>
+  <string name="folder_backup_cancel">Zahiralashni bekor qilish</string>
+  <string name="folder_backup_waiting_state">Tayyor</string>
+  <string name="folder_backup_state">Zahira papkasi malumoti</string>
+  <string name="folder_backup_mode">WIFI yoki mobil trafik</string>
+  <string name="folder_backup_mode_title">Rejimni tanlang</string>
+  <string name="folder_backup_select_repo_hint">Kutibxonani tanlang</string>
+  <string name="folder_backup_select_repo_update">Zahira kutibxonasini o\'zgartirish</string>
+  <string name="UncaughtExceptionHandler_err">Ilova ishlashdan to\'xtab qoldi</string>
+  <string name="settings_file_backup_info_title">Zahira fayl</string>
+  <!--action-->
+  <string name="pause">To\'xtatish</string>
+  <string name="paused">To\'xtatilgan</string>
+  <string name="waiting">Kutilmoqda</string>
+  <string name="add">Qo\'shish</string>
+  <string name="modify">O\'zgartirish</string>
+  <string name="update">Yangilash</string>
+  <string name="clear">Tozalash</string>
+  <string name="close">Yopish</string>
+  <string name="clear_all">Barchasini tozalash</string>
+  <string name="done">Tayyor</string>
+  <string name="success">Muvofaqqiyat</string>
+  <string name="failed">Muvaffaqiyatsiz</string>
+  <string name="uploading">Yuklanmoqda</string>
+  <string name="downloading">Yuklab olinmoqda</string>
+  <string name="select_all">Barchasini tanlash</string>
+  <string name="replace_all">Barchasini almashtirish</string>
+  <string name="replace">Almashtirish</string>
+  <string name="replace_local_file">Lokal faylni almashtirish</string>
+  <string name="replace_remote_file">Remote faylni almashtirish</string>
+  <string name="do_not_replace">Almashtirma</string>
+  <string name="keep_both">Ikkalasini saqlab qolish</string>
+  <string name="off">O\'chiq</string>
+  <string name="on">Yoniq</string>
+  <string name="follow_system">Tizimga rioya qilish</string>
+  <string name="empty">Bo\'sh</string>
+  <string name="empty_data">Bo\'sh data</string>
+  <!--share link-->
+  <string name="link_permission_set_permission">Ruxsatnoma o\'rnatish</string>
+  <string name="link_permission_preview_and_download">Oldindan ko\'rish va yuklab olish</string>
+  <string name="link_permission_preview_only">Faqat oldindan ko\'rish</string>
+  <string name="link_permission_download_and_upload">Yuklab olish va yuklash</string>
+  <!--menu-->
+  <string name="menu_action_view_and_sort">Ko\'rsatish va tartiblash</string>
+  <string name="menu_action_view_list">Ro\'yxat</string>
+  <string name="menu_action_view_grid">Panjara</string>
+  <string name="menu_action_view_gallery">Gallereya</string>
+  <string name="menu_action_sort_by_name">Nom</string>
+  <string name="menu_action_sort_by_type">Tur</string>
+  <string name="menu_action_sort_by_size">Hajm</string>
+  <string name="menu_action_sort_by_last_modified">O\'hirgi o\'zgartirilgan</string>
+  <string name="menu_action_sort_order_ascending">O\'sish tartib</string>
+  <string name="menu_action_sort_directories_first">Papkalar birinchi</string>
+  <string name="menu_detail">Tafsilot</string>
+  <!--sdoc-->
+  <string name="_size">Hajm</string>
+  <string name="_last_modifier">Ohirgi o\'zgartiruvchi</string>
+  <string name="_last_modified_time">Ohirgi o\'zgartirilgan vaqt</string>
+  <string name="_reviewer">Ko\'rib chiquvchi</string>
+  <string name="_file_collaborators">Fayl hamkorlari</string>
+  <string name="_file_status">Fayl holati</string>
+  <string name="_in_progress">Jarayonda</string>
+  <string name="_in_review">Ko\'rib chiqishda</string>
+  <string name="_done">Tayyor</string>
+  <string name="_outdated">Muddati o\'tgan</string>
+  <string name="_tags">Yorliqlar</string>
+  <string name="_location">Joylashuv</string>
+  <string name="_owner">Fayl egasi</string>
+  <string name="mark_resolve">Hal qilingan deb belgilash</string>
+  <string name="delete_confirm">Bu narsani o\'chirishga ishonchingiz komilmi?</string>
+  <string name="canceled">Bekor qilingan</string>
+  <string name="image_capture_time">Olingan vaqt</string>
+  <string name="image_dimensions">O\'lchamlar</string>
+  <string name="image_color_space_uncalibrated">Kalibrlanmagan</string>
+  <string name="image_color_space_undefined">Aniqlanmagan</string>
+  <string name="offline">Offlayn</string>
+</resources>

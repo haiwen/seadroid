@@ -11,16 +11,15 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.FileProvider;
 
 import com.blankj.utilcode.util.FileUtils;
 import com.blankj.utilcode.util.NetworkUtils;
-import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.BuildConfig;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.framework.util.FileMimeUtils;
+import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
 import com.seafile.seadroid2.ui.editor.EditorActivity;
 import com.seafile.seadroid2.ui.editor.EditorViewModel;
@@ -86,18 +85,9 @@ public class MarkdownActivity extends BaseActivityWithVM<EditorViewModel> implem
         getSupportActionBar().setTitle(FileUtils.getFileName(path));
 
         if (!NetworkUtils.isConnected()) {
-            ToastUtils.showLong(R.string.network_unavailable);
+            Toasts.show(R.string.network_unavailable);
         }
     }
-
-
-    @Override
-    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-
-
-    }
-
 
     private void initMarkdown() {
 
@@ -182,7 +172,7 @@ public class MarkdownActivity extends BaseActivityWithVM<EditorViewModel> implem
             try {
                 startActivity(editAsText);
             } catch (ActivityNotFoundException e) {
-                ToastUtils.showLong(R.string.activity_not_found);
+                Toasts.show(R.string.activity_not_found);
             }
         }
     }

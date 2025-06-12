@@ -1,20 +1,14 @@
 package com.seafile.seadroid2.framework.worker.upload;
 
-import android.content.ContentResolver;
 import android.content.Context;
-import android.content.res.AssetFileDescriptor;
 import android.net.Uri;
-import android.os.Handler;
-import android.os.Looper;
 import android.text.TextUtils;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.work.ForegroundInfo;
 import androidx.work.WorkerParameters;
 
 import com.blankj.utilcode.util.CloneUtils;
-import com.blankj.utilcode.util.TimeUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
@@ -26,8 +20,6 @@ import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.FileBackupStatusEntity;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
 import com.seafile.seadroid2.framework.util.FileUtils;
-import com.seafile.seadroid2.framework.util.Times;
-import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.notification.base.BaseTransferNotificationHelper;
@@ -45,11 +37,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.nio.file.attribute.FileTime;
-import java.util.Date;
 
 import okhttp3.Call;
 import okhttp3.MultipartBody;
@@ -183,7 +170,7 @@ public abstract class BaseUploadWorker extends TransferWorker {
         }
 
         //
-        fileTransferProgressListener.setTransferModel(currentTransferModel);
+        fileTransferProgressListener.setCurrentTransferModel(currentTransferModel);
 
         //notify first
         sendProgressEvent(currentTransferModel);

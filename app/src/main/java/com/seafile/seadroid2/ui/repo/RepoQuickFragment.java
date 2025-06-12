@@ -42,7 +42,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.NetworkUtils;
-import com.blankj.utilcode.util.ToastUtils;
 import com.chad.library.adapter4.BaseQuickAdapter;
 import com.github.panpf.recycler.sticky.StickyItemDecoration;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -75,11 +74,13 @@ import com.seafile.seadroid2.framework.model.GroupItemModel;
 import com.seafile.seadroid2.framework.model.ResultModel;
 import com.seafile.seadroid2.framework.model.dirents.DirentFileModel;
 import com.seafile.seadroid2.framework.model.search.SearchModel;
+import com.seafile.seadroid2.framework.service.PreDownloadHelper;
+import com.seafile.seadroid2.framework.service.TransferService;
 import com.seafile.seadroid2.framework.util.Objs;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.TakeCameras;
+import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.framework.util.Utils;
-import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
 import com.seafile.seadroid2.preferences.Settings;
@@ -117,6 +118,9 @@ import io.reactivex.functions.Consumer;
 import kotlin.ranges.IntRange;
 
 public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
+
+    private static final String TAG = "RepoQuickFragment";
+
     private static final String KEY_REPO_SCROLL_POSITION = "repo_scroll_position";
     private final int PADDING_16 = Constants.DP.DP_16;
     private final int PADDING_32 = Constants.DP.DP_32;
@@ -622,7 +626,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         String transferId = map.getString(TransferWorker.KEY_TRANSFER_ID);
         int transferCount = map.getInt(TransferWorker.KEY_TRANSFER_COUNT);
 
-        SLogs.d("repo fragment, event: " + statusEvent + ", dataSource: " + dataSource + ", count: " + transferCount);
+        SLogs.d(TAG, "on event: " + statusEvent + ", dataSource: " + dataSource + ", count: " + transferCount);
 
         if (TextUtils.equals(statusEvent, TransferEvent.EVENT_SCANNING)) {
 
@@ -634,7 +638,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
         } else if (TextUtils.equals(statusEvent, TransferEvent.EVENT_FILE_TRANSFER_SUCCESS)) {
 
-        } else if (TextUtils.equals(statusEvent, TransferEvent.EVENT_TRANSFER_FINISH)) {
+        } else if (TextUtils.equals(statusEvent, TransferEvent.EVENT_TRANSFER_TASK_COMPLETE)) {
             if (transferCount > 0) {
                 loadData(RefreshStatusEnum.ONLY_REMOTE, false);
             }
@@ -1139,7 +1143,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             @Override
             public void accept(RepoModel repoModel) throws Exception {
                 if (repoModel == null) {
-                    ToastUtils.showLong(R.string.repo_not_found);
+                    Toasts.show(R.string.repo_not_found);
                     return;
                 }
 
@@ -1236,7 +1240,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                                 return;
                             }
 
-                            ToastUtils.showLong(r.error_msg);
+                            Toasts.show(r.error_msg);
 
                             showPasswordDialogCallback(repoModel.repo_id, repoModel.repo_name, new OnResultListener<RepoModel>() {
                                 @Override
@@ -1533,7 +1537,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
     public void download(List<BaseModel> direntModels) {
         if (!NetworkUtils.isConnected()) {
-            ToastUtils.showLong(R.string.network_unavailable);
+            Toasts.show(R.string.network_unavailable);
             return;
         }
 
@@ -1545,7 +1549,8 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
         List<DirentModel> direntModels1 = direntModels.stream().map(m -> (DirentModel) m).collect(Collectors.toList());
         List<String> uids = direntModels1.stream().map(m -> m.uid).collect(Collectors.toList());
-        BackgroundJobManagerImpl.getInstance().startDownloadChain(uids);
+        Account account = SupportAccountManager.getInstance().getCurrentAccount();
+        PreDownloadHelper.preDownload(requireContext(), account, uids);
     }
 
     public void rename(List<BaseModel> models) {
@@ -1570,7 +1575,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             @Override
             public void onActionStatus(boolean isDone) {
                 if (isDone) {
-                    ToastUtils.showLong(R.string.rename_successful);
+                    Toasts.show(R.string.rename_successful);
                 }
 
                 loadData(RefreshStatusEnum.ONLY_REMOTE, false);
@@ -1588,7 +1593,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         DeleteRepoDialogFragment dialogFragment = DeleteRepoDialogFragment.newInstance(repoIds);
         dialogFragment.setRefreshListener(isDone -> {
             if (isDone) {
-                ToastUtils.showLong(R.string.delete_successful);
+                Toasts.show(R.string.delete_successful);
             }
 
             closeActionMode();
@@ -1608,7 +1613,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             @Override
             public void onActionStatus(boolean isDone) {
                 if (isDone) {
-                    ToastUtils.showLong(R.string.delete_successful);
+                    Toasts.show(R.string.delete_successful);
                 }
 
                 closeActionMode();
@@ -1740,7 +1745,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         }
 
         if (!copyMoveContext.checkCopyMoveToSubfolder()) {
-            ToastUtils.showLong(copyMoveContext.isCopy()
+            Toasts.show(copyMoveContext.isCopy()
                     ? R.string.cannot_copy_folder_to_subfolder
                     : R.string.cannot_move_folder_to_subfolder);
             return;
@@ -1752,7 +1757,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             @Override
             public void onActionStatus(boolean isDone) {
                 if (isDone) {
-                    ToastUtils.showLong(copyMoveContext.isCopy() ? R.string.copied_successfully : R.string.moved_successfully);
+                    Toasts.show(copyMoveContext.isCopy() ? R.string.copied_successfully : R.string.moved_successfully);
                 }
 
                 loadData(RefreshStatusEnum.ONLY_REMOTE, false);
@@ -1797,7 +1802,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             }
 
             if (isUpdateWhenFileExists) {
-                ToastUtils.showLong(R.string.download_finished);
+                Toasts.show(R.string.download_finished);
             }
 
             loadData(RefreshStatusEnum.ONLY_REMOTE, false);
@@ -1869,8 +1874,12 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 mainViewModel.addUploadTask(requireContext(), account, targetRepoModel, file.getAbsolutePath(), targetDir, isReplace);
             }
 
-            ToastUtils.showLong(R.string.added_to_upload_tasks);
-            BackgroundJobManagerImpl.getInstance().startFileUploadWorker();
+            Toasts.show(R.string.added_to_upload_tasks);
+            // 启动上传
+            TransferService.startManualUploadService(requireContext());
+//            Intent uploadIntent = new Intent(requireContext(), FileUploadService.class);
+//            ContextCompat.startForegroundService(requireContext(), uploadIntent);
+//            BackgroundJobManagerImpl.getInstance().startFileUploadWorker();
         }
 
         closeActionMode();
@@ -1956,7 +1965,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             @Override
             public void accept(Boolean aBoolean) {
                 if (!aBoolean) {
-                    ToastUtils.showLong(R.string.library_read_only);
+                    Toasts.show(R.string.library_read_only);
                     return;
                 }
 
@@ -1982,7 +1991,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             @Override
             public void accept(Boolean aBoolean) {
                 if (!aBoolean) {
-                    ToastUtils.showLong(R.string.library_read_only);
+                    Toasts.show(R.string.library_read_only);
                     return;
                 }
 
@@ -2009,7 +2018,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             @Override
             public void accept(Boolean aBoolean) {
                 if (!aBoolean) {
-                    ToastUtils.showLong(R.string.library_read_only);
+                    Toasts.show(R.string.library_read_only);
                     return;
                 }
 
@@ -2028,7 +2037,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             @Override
             public void accept(Boolean aBoolean) {
                 if (!aBoolean) {
-                    ToastUtils.showLong(R.string.library_read_only);
+                    Toasts.show(R.string.library_read_only);
                     return;
                 }
 
@@ -2044,7 +2053,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             @Override
             public void accept(Boolean aBoolean) {
                 if (!aBoolean) {
-                    ToastUtils.showLong(R.string.library_read_only);
+                    Toasts.show(R.string.library_read_only);
                     return;
                 }
 
@@ -2069,7 +2078,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         @Override
         public void onActivityResult(Boolean result) {
             if (Boolean.FALSE.equals(result)) {
-                ToastUtils.showLong(R.string.permission_camera);
+                Toasts.show(R.string.permission_camera);
                 return;
             }
 
@@ -2160,10 +2169,13 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 dismissLoadingDialog();
 
                 if (aBoolean) {
-                    ToastUtils.showLong(R.string.added_to_upload_tasks);
+                    Toasts.show(R.string.added_to_upload_tasks);
 
                     //start worker
-                    BackgroundJobManagerImpl.getInstance().startFileUploadWorker();
+//                    BackgroundJobManagerImpl.getInstance().startFileUploadWorker();
+                    TransferService.startManualUploadService(requireContext());
+//                    Intent uploadIntent = new Intent(requireContext(), FileUploadService.class);
+//                    ContextCompat.startForegroundService(requireContext(), uploadIntent);
                 }
             }
         });
@@ -2237,8 +2249,11 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
         mainViewModel.addUploadTask(requireContext(), account, repoModel, localFile, targetDir, false);
 
-        ToastUtils.showLong(R.string.added_to_upload_tasks);
-        BackgroundJobManagerImpl.getInstance().startFileUploadWorker();
+        Toasts.show(R.string.added_to_upload_tasks);
+//        BackgroundJobManagerImpl.getInstance().startFileUploadWorker();
+//        Intent uploadIntent = new Intent(requireContext(), FileUploadService.class);
+//        ContextCompat.startForegroundService(requireContext(), uploadIntent);
+        TransferService.startManualUploadService(requireContext());
     }
 
     private void addUploadTask(RepoModel repoModel, String targetDir, Uri sourceUri, String fileName, boolean isReplace) {
@@ -2246,8 +2261,10 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
         mainViewModel.addUploadTask(requireContext(), account, repoModel, sourceUri, targetDir, fileName, isReplace);
 
-        ToastUtils.showLong(R.string.added_to_upload_tasks);
-        BackgroundJobManagerImpl.getInstance().startFileUploadWorker();
-
+        Toasts.show(R.string.added_to_upload_tasks);
+//        BackgroundJobManagerImpl.getInstance().startFileUploadWorker();
+//        Intent uploadIntent = new Intent(requireContext(), FileUploadService.class);
+//        ContextCompat.startForegroundService(requireContext(), uploadIntent);
+        TransferService.startManualUploadService(requireContext());
     }
 }

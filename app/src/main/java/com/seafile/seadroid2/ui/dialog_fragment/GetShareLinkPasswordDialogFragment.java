@@ -5,11 +5,11 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 
-import com.blankj.utilcode.util.ToastUtils;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.materialswitch.MaterialSwitch;
 import com.google.android.material.textfield.TextInputLayout;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.listener.OnCreateDirentShareLinkListener;
 import com.seafile.seadroid2.ui.base.fragment.RequestCustomDialogFragmentWithVM;
 import com.seafile.seadroid2.ui.dialog_fragment.viewmodel.GetShareLinkPasswordViewModel;
@@ -139,7 +139,7 @@ public class GetShareLinkPasswordDialogFragment extends RequestCustomDialogFragm
             String password = editText.getText().toString();
 
             if (TextUtils.isEmpty(password)) {
-                ToastUtils.showLong(R.string.password_empty);
+                Toasts.show(R.string.password_empty);
                 return false;
             }
         }
@@ -150,7 +150,7 @@ public class GetShareLinkPasswordDialogFragment extends RequestCustomDialogFragm
             String daysText = daysEditText.getText().toString();
 
             if (TextUtils.isEmpty(daysText)) {
-                ToastUtils.showLong(R.string.input_auto_expiration);
+                Toasts.show(R.string.input_auto_expiration);
                 return false;
             }
         }

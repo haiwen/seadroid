@@ -23,6 +23,7 @@ public class ProgressUriRequestBody extends RequestBody {
     private final FileTransferProgressListener fileTransferProgressListener;
     private final Context context;
     private final long size;
+    private boolean isStop = false;
 
     public ProgressUriRequestBody(Context context, Uri uri, long size, FileTransferProgressListener fileTransferProgressListener) {
         this.context = context;
@@ -30,6 +31,10 @@ public class ProgressUriRequestBody extends RequestBody {
         this.mediaType = MediaType.parse("application/octet-stream");
         this.fileTransferProgressListener = fileTransferProgressListener;
         this.size = size;
+    }
+
+    public void setStop(boolean stop) {
+        isStop = stop;
     }
 
     @Override
@@ -55,6 +60,18 @@ public class ProgressUriRequestBody extends RequestBody {
                 byte[] buffer = new byte[TransferWorker.SEGMENT_SIZE];
                 int readCount;
                 while ((readCount = inputStream.read(buffer)) != -1) {
+
+                    if (Thread.currentThread().isInterrupted()) {
+                        SLogs.e(new InterruptedException("Upload canceled"));
+                        return;
+                    }
+
+                    if (isStop) {
+                        return;
+                    }
+
+
+
                     sink.write(buffer, 0, readCount);
 
                     current += readCount;

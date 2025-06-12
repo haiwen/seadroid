@@ -19,14 +19,15 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.lifecycle.Observer;
 
 import com.blankj.utilcode.util.CollectionUtils;
-import com.blankj.utilcode.util.ToastUtils;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.bus.BusHelper;
+import com.seafile.seadroid2.config.ObjKey;
 import com.seafile.seadroid2.databinding.ActivityShareToSeafileBinding;
 import com.seafile.seadroid2.enums.ObjSelectType;
 import com.seafile.seadroid2.enums.TransferDataSource;
+import com.seafile.seadroid2.framework.service.TransferService;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
@@ -36,7 +37,6 @@ import com.seafile.seadroid2.framework.worker.TransferWorker;
 import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
 import com.seafile.seadroid2.ui.selector.ObjSelectorActivity;
-import com.seafile.seadroid2.config.ObjKey;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,9 +60,8 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
             @Override
             public void onChanged(Boolean aBoolean) {
                 SLogs.d(TAG, "can start file upload worker? " + aBoolean);
-                if (aBoolean) {
-                    BackgroundJobManagerImpl.getInstance().startFileUploadWorker();
-                }
+
+                TransferService.startManualUploadService(ShareToSeafileActivity.this);
             }
         });
 
@@ -149,7 +148,7 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
         } else if (TextUtils.equals(statusEvent, TransferEvent.EVENT_FILE_TRANSFER_SUCCESS)) {
             binding.progressText.setText("100%");
             binding.progressBar.setProgress(100);
-        } else if (TextUtils.equals(statusEvent, TransferEvent.EVENT_TRANSFER_FINISH)) {
+        } else if (TextUtils.equals(statusEvent, TransferEvent.EVENT_TRANSFER_TASK_COMPLETE)) {
 
             finish();
         }
@@ -185,7 +184,7 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
     private void notifyFileOverwriting() {
         Intent intent = getIntent();
         if (intent == null) {
-            ToastUtils.showLong("Invalid shared content");
+            Toasts.show("Invalid shared content");
             finish();
             return;
         }

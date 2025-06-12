@@ -292,6 +292,7 @@
   <string name="next_button_label">Seuraava</string>
   <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
   <string name="skip_button_label">Ohita</string>
+  <!--Display mode-->
   <!--contacts  upload-->
   <string name="settings_contacts_upload_info_title">Kontaktien varmuuskopiointi</string>
   <string name="settings_contacts_upload_turn_on">Ota käyttöön kontaktien varmuuskopiointi</string>
@@ -327,11 +328,8 @@
   <!--Camera Upload Configuration View-->
   <string name="settings_cuc_title">Asetusten avustaja</string>
   <string name="settings_cuc_welcome_text">Kiitos, että käytätte kameran lähetysasetusten avustajaa.\n Aloittaaksesi käyttämään kameran lähetyspalvelua ohjaamme sinut muutaman alkuaskeleen läpi.</string>
-  <string name="settings_cuc_network_title">Kuinka lähettää</string>
   <string name="settings_cuc_network_wifi">Vain Wi-Fi</string>
   <string name="settings_cuc_network_data_plan">Wi-Fi tai mobiiliverkko</string>
-  <string name="settings_cuc_option_hint">Valitse esisijainen vaihtoehto. \n voit muutttaa näitä valintoja Asetuksista myöhemmin.</string>
-  <string name="settings_cuc_type_title">Mitä lähettää</string>
   <string name="settings_cuc_type_photo">Vain valokuvat </string>
   <string name="settings_cuc_type_video">Valokuvat ja videot</string>
   <string name="settings_cuc_local_dir_title">Valitse albumit</string>
@@ -339,7 +337,6 @@
     <item quantity="one">%1$d kohde</item>
     <item quantity="other">%1$d kohteet</item>
   </plurals>
-  <string name="settings_cuc_remote_lib_title">Valitse etäkirjasto</string>
   <string name="settings_cuc_remote_lib_account">Valitse tili</string>
   <string name="settings_cuc_remote_lib_repo">%s valittiin</string>
   <string name="settings_cuc_upload_to_parent_folder">Ylähakemistoon</string>
@@ -511,4 +508,6 @@
   <!--Folder backup Preference-->
   <!--action-->
   <!--share link-->
+  <!--menu-->
+  <!--sdoc-->
 </resources>

@@ -3,27 +3,27 @@ package com.seafile.seadroid2.ui.selector;
 import androidx.lifecycle.MutableLiveData;
 
 import com.blankj.utilcode.util.CollectionUtils;
-import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.context.NavContext;
 import com.seafile.seadroid2.enums.ItemPositionEnum;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.db.entities.EncKeyCacheEntity;
 import com.seafile.seadroid2.framework.db.entities.PermissionEntity;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
-import com.seafile.seadroid2.framework.model.permission.PermissionWrapperModel;
-import com.seafile.seadroid2.framework.model.repo.RepoWrapperModel;
-import com.seafile.seadroid2.framework.util.Times;
-import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
-import com.seafile.seadroid2.context.NavContext;
-import com.seafile.seadroid2.framework.model.BaseModel;
-import com.seafile.seadroid2.framework.model.repo.DirentWrapperModel;
-import com.seafile.seadroid2.ui.repo.RepoService;
 import com.seafile.seadroid2.framework.http.HttpIO;
+import com.seafile.seadroid2.framework.model.BaseModel;
+import com.seafile.seadroid2.framework.model.permission.PermissionWrapperModel;
+import com.seafile.seadroid2.framework.model.repo.DirentWrapperModel;
+import com.seafile.seadroid2.framework.model.repo.RepoWrapperModel;
 import com.seafile.seadroid2.framework.util.Objs;
 import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.util.Times;
+import com.seafile.seadroid2.framework.util.Toasts;
+import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
+import com.seafile.seadroid2.ui.repo.RepoService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -145,7 +145,7 @@ public class ObjSelectorViewModel extends BaseViewModel {
                 getRefreshLiveData().setValue(false);
                 getExceptionLiveData().setValue(new Pair<>(400, SeafException.NETWORK_EXCEPTION));
                 String msg = getErrorMsgByThrowable(throwable);
-                ToastUtils.showLong(msg);
+                Toasts.show(msg);
             }
         });
     }

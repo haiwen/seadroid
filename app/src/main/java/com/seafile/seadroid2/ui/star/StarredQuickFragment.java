@@ -21,7 +21,6 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.media3.common.util.UnstableApi;
 
-import com.blankj.utilcode.util.ToastUtils;
 import com.chad.library.adapter4.BaseQuickAdapter;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.seafile.seadroid2.R;
@@ -36,6 +35,7 @@ import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.db.entities.StarredModel;
 import com.seafile.seadroid2.framework.model.ResultModel;
+import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.base.fragment.BaseFragmentWithVM;
@@ -190,7 +190,7 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
             @Override
             public void onChanged(Pair<String, ResultModel> pair) {
                 if (pair.getSecond().success) {
-                    ToastUtils.showLong(R.string.success);
+                    Toasts.show(R.string.success);
 
                     mainViewModel.getOnForceRefreshRepoListLiveData().setValue(true);
 
@@ -239,11 +239,11 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
         if (!starredModel.deleted) {
             decryptRepo(starredModel);
         } else if (starredModel.isRepo()) {
-            ToastUtils.showLong(getString(R.string.library_not_found));
+            Toasts.show(getString(R.string.library_not_found));
         } else if (starredModel.is_dir) {
-            ToastUtils.showLong(getString(R.string.op_exception_folder_deleted, starredModel.obj_name));
+            Toasts.show(getString(R.string.op_exception_folder_deleted, starredModel.obj_name));
         } else {
-            ToastUtils.showLong(getString(R.string.file_not_found, starredModel.obj_name));
+            Toasts.show(getString(R.string.file_not_found, starredModel.obj_name));
         }
     }
 
@@ -276,7 +276,7 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
                                 if (r.success) {
                                     open(model);
                                 } else {
-                                    ToastUtils.showLong(r.error_msg);
+                                    Toasts.show(r.error_msg);
                                     showPasswordDialogCallback(model.repo_id, model.repo_name, new OnResultListener<RepoModel>() {
                                         @Override
                                         public void onResultData(RepoModel repoModel) {
@@ -387,7 +387,7 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
             }
 
             if (isUpdateWhenFileExists) {
-                ToastUtils.showLong(R.string.download_finished);
+                Toasts.show(R.string.download_finished);
             }
 
             File destinationFile = new File(localFullPath);

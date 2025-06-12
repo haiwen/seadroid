@@ -24,7 +24,7 @@ import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.model.dirents.DirentFileModel;
-import com.seafile.seadroid2.framework.notification.FileBackupNotificationHelper;
+import com.seafile.seadroid2.framework.notification.FileUploadNotificationHelper;
 import com.seafile.seadroid2.framework.notification.FolderBackupNotificationHelper;
 import com.seafile.seadroid2.framework.util.ExceptionUtils;
 import com.seafile.seadroid2.framework.util.SLogs;
@@ -47,11 +47,11 @@ import retrofit2.Call;
  */
 public class DownloadedFileMonitorWorker extends BaseUploadWorker {
     private final String TAG = "DownloadedFileMonitorWorker";
-    private final FileBackupNotificationHelper notificationManager;
+    private final FileUploadNotificationHelper notificationManager;
 
     public DownloadedFileMonitorWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
-        notificationManager = new FileBackupNotificationHelper(context);
+        notificationManager = new FileUploadNotificationHelper(context);
     }
 
     @Override
@@ -171,7 +171,7 @@ public class DownloadedFileMonitorWorker extends BaseUploadWorker {
         Bundle b = new Bundle();
         b.putString(TransferWorker.KEY_DATA_RESULT, interruptibleExceptionMsg);
         b.putInt(TransferWorker.KEY_TRANSFER_COUNT, totalPendingCount);
-        sendWorkerEvent(TransferDataSource.DOWNLOAD, TransferEvent.EVENT_TRANSFER_FINISH, b);
+        sendWorkerEvent(TransferDataSource.DOWNLOAD, TransferEvent.EVENT_TRANSFER_TASK_COMPLETE, b);
 
         return Result.success();
     }

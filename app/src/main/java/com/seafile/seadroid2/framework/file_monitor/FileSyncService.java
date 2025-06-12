@@ -17,19 +17,17 @@ import com.blankj.utilcode.util.FileUtils;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.bus.BusHelper;
-import com.seafile.seadroid2.enums.SaveTo;
 import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.enums.TransferOpType;
-import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.datastore.StorageManager;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
+import com.seafile.seadroid2.framework.service.TransferService;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
-import com.seafile.seadroid2.framework.worker.ExistingFileStrategy;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
@@ -45,6 +43,9 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
+/**
+ * daemon service
+ */
 public class FileSyncService extends Service {
     private final String TAG = "FileSyncService";
     private MediaContentObserver mediaContentObserver;
@@ -136,8 +137,9 @@ public class FileSyncService extends Service {
         compareFirstAndStartMonitor();
     }
 
-
-    // 主线程 Executor（封装 Handler）
+    /**
+     * main thread executor
+     */
     private final Executor mainThreadExecutor = new Executor() {
         private final Handler handler = new Handler(Looper.getMainLooper());
 
@@ -186,7 +188,8 @@ public class FileSyncService extends Service {
             }
 
             //
-            BackgroundJobManagerImpl.getInstance().startCheckDownloadedFileChain();
+//            BackgroundJobManagerImpl.getInstance().startCheckDownloadedFileChain();
+            TransferService.startLocalFileUpdateService(getApplicationContext());
         }).thenRunAsync(new Runnable() {
             @Override
             public void run() {
@@ -203,9 +206,9 @@ public class FileSyncService extends Service {
 
     private void startWorkers() {
         CameraUploadManager.getInstance().performSync();
-        BackgroundJobManagerImpl.getInstance().startDownloadChain();
-        BackgroundJobManagerImpl.getInstance().startFolderBackupChain(false);
-        BackgroundJobManagerImpl.getInstance().startFileUploadWorker();
+
+//        BackgroundJobManagerImpl.getInstance().startFolderBackupChain(false);
+        TransferService.startFolderBackupService(getApplicationContext());
     }
 
     private void observeTransferBus() {
@@ -331,10 +334,12 @@ public class FileSyncService extends Service {
             if ("change".equals(action)) {
                 onAppCacheFileChanged(file);
 
-                BackgroundJobManagerImpl.getInstance().startCheckDownloadedFileChain();
+                TransferService.startLocalFileUpdateService(getApplicationContext());
+//                BackgroundJobManagerImpl.getInstance().startCheckDownloadedFileChain();
             }
         } else {
-            BackgroundJobManagerImpl.getInstance().startFolderBackupChain(true);
+//            BackgroundJobManagerImpl.getInstance().startFolderBackupChain(true);
+            TransferService.startFolderBackupService(getApplicationContext());
         }
     }
 
@@ -363,7 +368,7 @@ public class FileSyncService extends Service {
 
         @Override
         public void onStart(FileAlterationObserver observer) {
-            SLogs.d(TAG, "onStart()");
+            SLogs.d(TAG, "onStart()", observer.getDirectory().getPath());
         }
 
         @Override
@@ -404,7 +409,7 @@ public class FileSyncService extends Service {
 
         @Override
         public void onStop(FileAlterationObserver observer) {
-            SLogs.d(TAG, "onStop()");
+            SLogs.d(TAG, "onStop()",observer.getDirectory().getPath());
         }
     }
 

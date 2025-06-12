@@ -1,5 +1,6 @@
 package com.seafile.seadroid2.framework.notification.base;
 
+import android.app.Notification;
 import android.content.Context;
 import android.content.Intent;
 
@@ -49,6 +50,12 @@ public abstract class BaseTransferNotificationHelper extends BaseNotification {
         super.notifyProgress(getNotificationId(), fileName, getDefaultSubtitle(), percent, totalCount, getTransferIntent());
     }
 
+    public void showDefaultNotification() {
+        super.showNotification(getNotificationId(), getDefaultTitle(), getDefaultSubtitle(), getTransferIntent());
+    }
+    public Notification getNotification() {
+        return super.getNotification(getNotificationId(), getDefaultTitle(), getDefaultSubtitle(), getTransferIntent());
+    }
 
     //Foreground Notification
     public ForegroundInfo getForegroundNotification() {

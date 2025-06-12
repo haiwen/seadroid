@@ -26,11 +26,10 @@ import androidx.media3.ui.TimeBar;
 
 import com.blankj.utilcode.util.AppUtils;
 import com.blankj.utilcode.util.BarUtils;
-import com.blankj.utilcode.util.NetworkUtils;
-import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.databinding.ActivityExoPlayerBinding;
+import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
 import com.seafile.seadroid2.view.ExoPlayerView;
 
@@ -201,7 +200,7 @@ public class CustomExoVideoPlayerActivity extends BaseActivityWithVM<PlayerViewM
         getViewModel().getSeafExceptionLiveData().observe(this, new Observer<SeafException>() {
             @Override
             public void onChanged(SeafException e) {
-                ToastUtils.showLong(e.getMessage());
+                Toasts.show(e.getMessage());
                 resetAllView();
             }
         });

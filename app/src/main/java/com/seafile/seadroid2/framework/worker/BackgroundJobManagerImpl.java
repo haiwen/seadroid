@@ -241,7 +241,6 @@ public class BackgroundJobManagerImpl {
 
 
     ////////////////////// download //////////////////////
-
     public void startDownloadChain() {
         startDownloadChain(null);
     }
@@ -292,7 +291,6 @@ public class BackgroundJobManagerImpl {
                 .addTag(TAG_DOWNLOAD)
                 .build();
     }
-
 
     public void cancelDownloadWorker() {
         cancelByTag(TAG_DOWNLOAD);

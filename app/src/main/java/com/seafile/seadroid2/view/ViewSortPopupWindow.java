@@ -2,8 +2,6 @@ package com.seafile.seadroid2.view;
 
 import android.content.Context;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -15,7 +13,6 @@ import androidx.core.content.ContextCompat;
 
 import com.blankj.utilcode.util.SizeUtils;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.context.NavContext;
 import com.seafile.seadroid2.enums.FileViewType;
 import com.seafile.seadroid2.enums.SortBy;
@@ -62,6 +59,7 @@ public class ViewSortPopupWindow extends PopupWindow {
     private LinearLayout menuViewGallery;
     private LinearLayout menuSortName;
     private LinearLayout menuSortSize;
+    private LinearLayout menuSortType;
 
     private ImageView menuListIcon;
     private ImageView menuGridIcon;
@@ -69,6 +67,7 @@ public class ViewSortPopupWindow extends PopupWindow {
     private ImageView menuSortNameIcon;
     private ImageView menuSortSizeIcon;
     private ImageView menuSortLastModifiedIcon;
+    private ImageView menuSortTypeIcon;
     private ImageView menuSortAscendingIcon;
 
     private TextView menuViewListTitle;
@@ -81,6 +80,7 @@ public class ViewSortPopupWindow extends PopupWindow {
         menuViewGallery = view.findViewById(R.id.menu_view_gallery);
         menuSortName = view.findViewById(R.id.menu_sort_name);
         menuSortSize = view.findViewById(R.id.menu_sort_size);
+        menuSortType = view.findViewById(R.id.menu_sort_type);
 
 
         //icon
@@ -90,6 +90,7 @@ public class ViewSortPopupWindow extends PopupWindow {
         menuSortNameIcon = getContentView().findViewById(R.id.menu_sort_name_icon);
         menuSortSizeIcon = getContentView().findViewById(R.id.menu_sort_size_icon);
         menuSortLastModifiedIcon = getContentView().findViewById(R.id.menu_sort_last_modified_icon);
+        menuSortTypeIcon = getContentView().findViewById(R.id.menu_sort_type_icon);
         menuSortAscendingIcon = getContentView().findViewById(R.id.menu_sort_ascending_icon);
 
         //text
@@ -135,11 +136,18 @@ public class ViewSortPopupWindow extends PopupWindow {
             dismiss();
         });
 
+        view.findViewById(R.id.menu_sort_type).setOnClickListener(v -> {
+            goneAllIcon();
+            onContainerClick(R.id.menu_sort_type);
+            dismiss();
+        });
+
         view.findViewById(R.id.menu_sort_ascending).setOnClickListener(v -> {
             goneAllIcon();
             onContainerClick(R.id.menu_sort_ascending);
             dismiss();
         });
+
     }
 
     private void goneAllIcon() {
@@ -149,6 +157,7 @@ public class ViewSortPopupWindow extends PopupWindow {
         menuSortNameIcon.setVisibility(View.INVISIBLE);
         menuSortSizeIcon.setVisibility(View.INVISIBLE);
         menuSortLastModifiedIcon.setVisibility(View.INVISIBLE);
+        menuSortTypeIcon.setVisibility(View.INVISIBLE);
         menuSortAscendingIcon.setVisibility(View.INVISIBLE);
     }
 
@@ -171,6 +180,9 @@ public class ViewSortPopupWindow extends PopupWindow {
         } else if (clickedId == R.id.menu_sort_last_modified) {
             menuSortLastModifiedIcon.setVisibility(View.VISIBLE);
             Settings.FILE_LIST_SORT_BY.putValue(SortBy.LAST_MODIFIED);
+        } else if (clickedId == R.id.menu_sort_type) {
+            menuSortTypeIcon.setVisibility(View.VISIBLE);
+            Settings.FILE_LIST_SORT_BY.putValue(SortBy.TYPE);
         } else if (clickedId == R.id.menu_sort_ascending) {
             Boolean b = Settings.FILE_LIST_SORT_ASCENDING.queryValue();
             if (b) {
@@ -205,6 +217,8 @@ public class ViewSortPopupWindow extends PopupWindow {
             menuSortSizeIcon.setVisibility(View.VISIBLE);
         } else if (sortBy == SortBy.LAST_MODIFIED) {
             menuSortLastModifiedIcon.setVisibility(View.VISIBLE);
+        } else if (sortBy == SortBy.TYPE) {
+            menuSortTypeIcon.setVisibility(View.VISIBLE);
         } else {
             menuSortNameIcon.setVisibility(View.VISIBLE);
         }

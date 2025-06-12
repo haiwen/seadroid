@@ -224,6 +224,7 @@
   <string name="next_button_label">Další</string>
   <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
   <string name="skip_button_label">Přeskočit</string>
+  <!--Display mode-->
   <!--contacts  upload-->
   <!--Camera Upload Preference-->
   <string name="settings_camera_upload_info_title">Nahrání fotky z fotoaparátu</string>
@@ -295,4 +296,9 @@
   <!--Operation Exceptions-->
   <!--Home list title-->
   <!--editor-->
+  <!--Folder backup Preference-->
+  <!--action-->
+  <!--share link-->
+  <!--menu-->
+  <!--sdoc-->
 </resources>

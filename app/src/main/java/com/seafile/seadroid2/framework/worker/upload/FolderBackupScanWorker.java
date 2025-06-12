@@ -10,7 +10,6 @@ import androidx.work.ForegroundInfo;
 import androidx.work.WorkerParameters;
 
 import com.blankj.utilcode.util.CollectionUtils;
-import com.blankj.utilcode.util.ToastUtils;
 import com.google.common.base.Stopwatch;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
@@ -18,21 +17,20 @@ import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.enums.SaveTo;
 import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.enums.TransferResult;
+import com.seafile.seadroid2.framework.datastore.StorageManager;
+import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.FileBackupStatusEntity;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
-import com.seafile.seadroid2.framework.model.dirents.DirentRecursiveFileModel;
-import com.seafile.seadroid2.framework.worker.queue.TransferModel;
-import com.seafile.seadroid2.framework.datastore.StorageManager;
-import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.http.HttpIO;
+import com.seafile.seadroid2.framework.model.dirents.DirentRecursiveFileModel;
 import com.seafile.seadroid2.framework.notification.FolderBackupScanNotificationHelper;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Utils;
-import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
+import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 import com.seafile.seadroid2.ui.folder_backup.RepoConfig;
 import com.seafile.seadroid2.ui.repo.RepoService;
 
@@ -57,17 +55,6 @@ import java.util.stream.Collectors;
 
 import retrofit2.Call;
 
-
-/**
- * <p>
- * File Monitor is {@link com.seafile.seadroid2.framework.file_monitor.SupportFileAlterationMonitor}
- * </p>
- * <p>
- * Worker Tag:
- *
- * @see BackgroundJobManagerImpl#TAG_ALL
- * @see BackgroundJobManagerImpl#TAG_TRANSFER
- */
 public class FolderBackupScanWorker extends BaseScanWorker {
     private final String TAG = "FolderBackupScanWorker";
     public static final UUID UID = UUID.nameUUIDFromBytes(FolderBackupScanWorker.class.getSimpleName().getBytes());

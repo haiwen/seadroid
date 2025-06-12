@@ -3,7 +3,6 @@ package com.seafile.seadroid2.framework.util;
 import android.text.TextUtils;
 
 import com.blankj.utilcode.util.NetworkUtils;
-import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 
@@ -12,7 +11,6 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
-import java.security.cert.CertificateException;
 
 import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLHandshakeException;
@@ -100,16 +98,18 @@ public class ExceptionUtils {
             if (bodyString.toLowerCase().contains("operation not supported")) {
                 return SeafException.OPERATION_NOT_SUPPORTED_EXCEPTION;
             }
-
-            return SeafException.NOT_FOUND_LOGGED_USER_EXCEPTION;
+//{
+//  "non_field_errors" : [ "Not allowed to connect to android client." ]
+//}
+            return SeafException.REQUEST_EXCEPTION;
         }
 
         //504
         if (HttpURLConnection.HTTP_GATEWAY_TIMEOUT == errorCode) {
             if (NetworkUtils.isConnected()) {
-                ToastUtils.showLong(R.string.transfer_list_network_error);
+                Toasts.show(R.string.transfer_list_network_error);
             } else {
-                ToastUtils.showLong(R.string.network_unavailable);
+                Toasts.show(R.string.network_unavailable);
             }
 
             return SeafException.NETWORK_EXCEPTION;

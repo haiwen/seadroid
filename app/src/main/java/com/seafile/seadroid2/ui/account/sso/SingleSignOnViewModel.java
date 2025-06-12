@@ -5,14 +5,14 @@ import android.text.TextUtils;
 import androidx.lifecycle.MutableLiveData;
 
 import com.blankj.utilcode.util.EncryptUtils;
-import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountInfo;
+import com.seafile.seadroid2.framework.http.HttpIO;
+import com.seafile.seadroid2.framework.model.server.ServerInfoModel;
 import com.seafile.seadroid2.framework.model.sso.SSOLinkModel;
 import com.seafile.seadroid2.framework.model.sso.SSOStatusModel;
-import com.seafile.seadroid2.framework.model.server.ServerInfoModel;
-import com.seafile.seadroid2.framework.http.HttpIO;
+import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.ui.account.AccountService;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
 import com.seafile.seadroid2.ui.main.MainService;
@@ -61,7 +61,7 @@ public class SingleSignOnViewModel extends BaseViewModel {
                 getRefreshLiveData().setValue(false);
 
                 String errMsg = getErrorMsgByThrowable(throwable);
-                ToastUtils.showLong(errMsg);
+                Toasts.show(errMsg);
             }
         });
     }

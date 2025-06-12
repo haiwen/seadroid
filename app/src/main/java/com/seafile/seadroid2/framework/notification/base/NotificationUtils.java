@@ -21,12 +21,18 @@ public class NotificationUtils {
 
     public static final int NOTIFICATION_ID_ERROR = 100;
     public static final int NOTIFICATION_ID_GENERAL = 1010;
+
+    //contains download and upload
+    public static final int NOTIFICATION_ID_TRANSFER = 1011;
+
+
     public static final int NOTIFICATION_ID_DOWNLOAD = 2000;
 
     //folder
     public static final int NOTIFICATION_ID_UPLOAD_FOLDER_SCAN = 3010;
     public static final int NOTIFICATION_ID_UPLOAD_FOLDER = 3011;
     public static final int NOTIFICATION_ID_UPLOAD_FILE = 3011;
+    public static final int NOTIFICATION_ID_UPDATE_LOCAL_FILE = 3012;
 
     //album
     public static final int NOTIFICATION_ID_UPLOAD_ALBUM_BACKUP = 3020;
@@ -57,36 +63,10 @@ public class NotificationUtils {
         createChannel(context, notificationManager,
                 NOTIFICATION_CHANNEL_TRANSFER,
                 R.string.channel_name_transfer,
-                R.string.channel_name_transfer, NotificationManager.IMPORTANCE_DEFAULT);
-
-
-//        createChannel(context, notificationManager,
-//                NOTIFICATION_CHANNEL_TRANSFER,
-//                R.string.channel_name_download,
-//                R.string.notification_download_started_title, NotificationManager.IMPORTANCE_DEFAULT);
-//
-//        createChannel(context, notificationManager,
-//                NOTIFICATION_CHANNEL_TRANSFER,
-//                R.string.channel_name_upload,
-//                R.string.notification_upload_started_title, NotificationManager.IMPORTANCE_DEFAULT);
-//
-//        createChannel(context, notificationManager,
-//                NOTIFICATION_CHANNEL_TRANSFER,
-//                R.string.channel_name_upload,
-//                R.string.notification_upload_started_title, NotificationManager.IMPORTANCE_DEFAULT);
-//
-//        createChannel(context, notificationManager,
-//                NOTIFICATION_CHANNEL_TRANSFER,
-//                R.string.channel_name_upload,
-//                R.string.notification_upload_started_title, NotificationManager.IMPORTANCE_DEFAULT);
-//
-//        createChannel(context, notificationManager,
-//                NOTIFICATION_CHANNEL_TRANSFER,
-//                R.string.channel_name_album_backup,
-//                R.string.notification_upload_started_title, NotificationManager.IMPORTANCE_DEFAULT);
+                R.string.channel_name_transfer, NotificationManager.IMPORTANCE_HIGH);
 
         createChannel(context, notificationManager,
-                NotificationUtils.NOTIFICATION_CHANNEL_GENERAL,
+                NOTIFICATION_CHANNEL_GENERAL,
                 R.string.app_name,
                 R.string.app_name, NotificationManager.IMPORTANCE_HIGH);
     }

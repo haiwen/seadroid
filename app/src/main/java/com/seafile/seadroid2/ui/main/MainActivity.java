@@ -1,6 +1,5 @@
 package com.seafile.seadroid2.ui.main;
 
-import android.Manifest;
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
@@ -14,21 +13,15 @@ import android.text.TextUtils;
 import android.view.MenuItem;
 
 import androidx.activity.OnBackPressedCallback;
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.widget.ViewPager2;
-import androidx.work.OneTimeWorkRequest;
 
 import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.NetworkUtils;
-import com.blankj.utilcode.util.ToastUtils;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.seafile.seadroid2.R;
@@ -44,7 +37,6 @@ import com.seafile.seadroid2.framework.model.ServerInfo;
 import com.seafile.seadroid2.framework.util.PermissionUtil;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
-import com.seafile.seadroid2.framework.worker.upload.LivePhotoScanner;
 import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.ui.account.AccountsActivity;
 import com.seafile.seadroid2.ui.activities.AllActivitiesFragment;
@@ -53,7 +45,6 @@ import com.seafile.seadroid2.ui.base.BaseActivity;
 import com.seafile.seadroid2.ui.repo.RepoQuickFragment;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 public class MainActivity extends BaseActivity {

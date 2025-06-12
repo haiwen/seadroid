@@ -14,8 +14,10 @@ import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.model.repo.DirentWrapperModel;
+import com.seafile.seadroid2.framework.util.ExceptionUtils;
 import com.seafile.seadroid2.framework.util.FileUtils;
 import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.util.Utils;
@@ -46,7 +48,7 @@ public class ShareToSeafileViewModel extends BaseViewModel {
         Single<Boolean> single = Single.create(new SingleOnSubscribe<Boolean>() {
             @Override
             public void subscribe(SingleEmitter<Boolean> emitter) throws Exception {
-                if (emitter.isDisposed()){
+                if (emitter.isDisposed()) {
                     return;
                 }
 
@@ -85,6 +87,12 @@ public class ShareToSeafileViewModel extends BaseViewModel {
             @Override
             public void accept(Boolean b) throws Exception {
                 consumer.accept(b);
+            }
+        }, new Consumer<Throwable>() {
+            @Override
+            public void accept(Throwable throwable) throws Exception {
+                SeafException seafException = ExceptionUtils.parseByThrowable(throwable);
+                Toasts.show(seafException.getMessage());
             }
         });
     }

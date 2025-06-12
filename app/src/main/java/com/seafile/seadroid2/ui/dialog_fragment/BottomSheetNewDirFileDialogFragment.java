@@ -12,14 +12,13 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.Observer;
 
 import com.blankj.utilcode.util.KeyboardUtils;
-import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.framework.model.ResultModel;
 import com.seafile.seadroid2.framework.model.dirents.FileCreateModel;
-import com.seafile.seadroid2.framework.util.StringUtils;
+import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.ui.base.fragment.RequestBottomSheetDialogFragmentWithVM;
 import com.seafile.seadroid2.ui.dialog_fragment.viewmodel.NewDirViewModel;
@@ -135,7 +134,7 @@ public class BottomSheetNewDirFileDialogFragment extends RequestBottomSheetDialo
             @Override
             public void onChanged(SeafException e) {
 
-                ToastUtils.showLong(e.getMessage());
+                Toasts.show(e.getMessage());
 
                 refreshData(false);
 
@@ -148,13 +147,13 @@ public class BottomSheetNewDirFileDialogFragment extends RequestBottomSheetDialo
                 @Override
                 public void onChanged(ResultModel resultModel) {
                     if (!TextUtils.isEmpty(resultModel.error_msg)) {
-                        ToastUtils.showLong(resultModel.error_msg);
+                        Toasts.show(resultModel.error_msg);
                     } else {
 
                         EditText name = getDialogView().findViewById(R.id.edit_name);
                         String pathName = name.getText().toString();
 
-                        ToastUtils.showLong(getString(R.string.create_new_folder_success, pathName));
+                        Toasts.show(getString(R.string.create_new_folder_success, pathName));
 
                         refreshData();
 
@@ -167,12 +166,12 @@ public class BottomSheetNewDirFileDialogFragment extends RequestBottomSheetDialo
                 @Override
                 public void onChanged(FileCreateModel fileCreateModel) {
                     if (!TextUtils.isEmpty(fileCreateModel.error_msg)) {
-                        ToastUtils.showLong(fileCreateModel.error_msg);
+                        Toasts.show(fileCreateModel.error_msg);
                     } else {
                         EditText name = getDialogView().findViewById(R.id.edit_name);
                         String pathName = name.getText().toString();
 
-                        ToastUtils.showLong(getString(R.string.create_new_file_success, pathName));
+                        Toasts.show(getString(R.string.create_new_file_success, pathName));
 
                         refreshData();
 
@@ -191,9 +190,9 @@ public class BottomSheetNewDirFileDialogFragment extends RequestBottomSheetDialo
         Editable editable = editText.getText();
         if (editable == null || editable.length() == 0) {
             if (isDir) {
-                ToastUtils.showLong(R.string.dir_name_empty);
+                Toasts.show(R.string.dir_name_empty);
             } else {
-                ToastUtils.showLong(R.string.file_name_empty);
+                Toasts.show(R.string.file_name_empty);
             }
             return false;
         }
@@ -201,9 +200,9 @@ public class BottomSheetNewDirFileDialogFragment extends RequestBottomSheetDialo
         String t = editable.toString().trim();
         if (TextUtils.isEmpty(t)) {
             if (isDir) {
-                ToastUtils.showLong(R.string.dir_name_empty);
+                Toasts.show(R.string.dir_name_empty);
             } else {
-                ToastUtils.showLong(R.string.file_name_empty);
+                Toasts.show(R.string.file_name_empty);
             }
             return false;
         }
