@@ -48,6 +48,6 @@ public class TransferNotificationHelper extends BaseTransferNotificationHelper {
 
     @Override
     public int getNotificationId() {
-        return NotificationUtils.NOTIFICATION_ID_TRANSFER;
+        return NotificationUtils.NID_TRANSFER;
     }
 }

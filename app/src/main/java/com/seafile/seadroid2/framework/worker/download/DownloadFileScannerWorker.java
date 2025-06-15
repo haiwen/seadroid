@@ -102,7 +102,7 @@ public class DownloadFileScannerWorker extends TransferWorker {
     }
 
     protected Result returnSuccess() {
-        sendWorkerEvent(TransferDataSource.DOWNLOAD, TransferEvent.EVENT_SCAN_FINISH);
+        sendWorkerEvent(TransferDataSource.DOWNLOAD, TransferEvent.EVENT_SCAN_COMPLETE);
         return Result.success();
     }
 

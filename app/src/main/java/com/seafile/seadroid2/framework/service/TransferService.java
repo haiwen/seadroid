@@ -1,6 +1,5 @@
 package com.seafile.seadroid2.framework.service;
 
-import android.app.Notification;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ServiceInfo;
@@ -14,15 +13,13 @@ import androidx.annotation.Nullable;
 import androidx.core.app.ServiceCompat;
 import androidx.core.content.ContextCompat;
 
+import com.blankj.utilcode.util.CollectionUtils;
 import com.seafile.seadroid2.SeafException;
-import com.seafile.seadroid2.enums.TransferDataSource;
+import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
-import com.seafile.seadroid2.framework.notification.AlbumBackupNotificationHelper;
-import com.seafile.seadroid2.framework.notification.DownloadNotificationHelper;
-import com.seafile.seadroid2.framework.notification.FileUploadNotificationHelper;
-import com.seafile.seadroid2.framework.notification.FolderBackupNotificationHelper;
-import com.seafile.seadroid2.framework.notification.LocalFileUpdateNotificationHelper;
+import com.seafile.seadroid2.framework.notification.NotificationInfo;
+import com.seafile.seadroid2.framework.notification.TransferNotificationDispatcher;
 import com.seafile.seadroid2.framework.service.download.FileDownloader;
 import com.seafile.seadroid2.framework.service.upload.FileUploader;
 import com.seafile.seadroid2.framework.service.upload.FolderBackupScanner;
@@ -32,8 +29,10 @@ import com.seafile.seadroid2.framework.service.upload.MediaBackupScanner;
 import com.seafile.seadroid2.framework.service.upload.MediaBackupUploader;
 import com.seafile.seadroid2.framework.util.SafeLogs;
 import com.seafile.seadroid2.framework.worker.queue.TransferModel;
+import com.seafile.seadroid2.ui.folder_backup.RepoConfig;
 
 import java.lang.ref.WeakReference;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -45,11 +44,8 @@ import java.util.function.BiConsumer;
 public class TransferService extends EventService {
     private final String TAG = "TransferService";
 
-    private FileUploadNotificationHelper fileUploadNotificationHelper;
-    private FolderBackupNotificationHelper folderBackupNotificationHelper;
-    private AlbumBackupNotificationHelper albumBackupNotificationHelper;
-    private DownloadNotificationHelper downloadNotificationHelper;
-    private LocalFileUpdateNotificationHelper localFileUpdateNotificationHelper;
+
+    private TransferNotificationDispatcher transferNotificationDispatcher;
 
     private CompletableFuture<Void> photoUploadFuture;
     private CompletableFuture<Void> folderUploadFuture;
@@ -62,12 +58,11 @@ public class TransferService extends EventService {
 
     private ExecutorService _executor;
 
-    public static void startPhotoBackupService(Context context) {
-        startService(context, "START_PHOTO_BACKUP");
-    }
-
     public static void restartPhotoBackupService(Context context) {
-        startService(context, "RESTART_PHOTO_BACKUP");
+        Bundle bundle = new Bundle();
+        bundle.putBoolean("is_force", true);
+        bundle.putBoolean("is_restart", true);
+        startService(context, "RESTART_PHOTO_BACKUP", bundle);
     }
 
     public static void stopPhotoBackupService(Context context) {
@@ -79,7 +74,10 @@ public class TransferService extends EventService {
     }
 
     public static void restartFolderBackupService(Context context) {
-        startService(context, "RESTART_FOLDER_BACKUP");
+        Bundle bundle = new Bundle();
+        bundle.putBoolean("is_force", true);
+        bundle.putBoolean("is_restart", true);
+        startService(context, "START_FOLDER_BACKUP", bundle);
     }
 
     public static void stopFolderBackupService(Context context) {
@@ -127,7 +125,7 @@ public class TransferService extends EventService {
     public void onCreate() {
         super.onCreate();
 
-        initNotificationHelper();
+        transferNotificationDispatcher = new TransferNotificationDispatcher(getApplicationContext());
 
 
         _executor = Executors.newFixedThreadPool(5, new ThreadFactory() {
@@ -135,24 +133,10 @@ public class TransferService extends EventService {
 
             @Override
             public Thread newThread(Runnable r) {
-                return new Thread(r, "TransferWorker-" + count.getAndIncrement());
+                return new Thread(r, "TransferService-Task-" + count.getAndIncrement());
             }
         });
     }
-
-    private void initNotificationHelper() {
-        if (fileUploadNotificationHelper != null) {
-            return;
-        }
-
-        //init notification helper
-        fileUploadNotificationHelper = new FileUploadNotificationHelper(this);
-        folderBackupNotificationHelper = new FolderBackupNotificationHelper(this);
-        albumBackupNotificationHelper = new AlbumBackupNotificationHelper(this);
-        downloadNotificationHelper = new DownloadNotificationHelper(this);
-        localFileUpdateNotificationHelper = new LocalFileUpdateNotificationHelper(this);
-    }
-
 
     public static class TBinder extends Binder {
         private final WeakReference<TransferService> serviceRef;
@@ -186,20 +170,14 @@ public class TransferService extends EventService {
         SafeLogs.d(TAG, "onStartCommand()", "action: " + action);
 
         switch (action) {
-            case "START_PHOTO_BACKUP":
-                startPhotoBackup(intent);
-                break;
             case "RESTART_PHOTO_BACKUP":
-                restartPhotoBackup(intent);
+                startPhotoBackup(intent);
                 break;
             case "STOP_PHOTO_BACKUP":
                 stopPhotoBackup();
                 break;
             case "START_FOLDER_BACKUP":
                 startFolderBackup(intent);
-                break;
-            case "RESTART_FOLDER_BACKUP":
-                restartFolderBackup(intent);
                 break;
             case "STOP_FOLDER_BACKUP":
                 stopFolderBackup();
@@ -223,69 +201,48 @@ public class TransferService extends EventService {
     }
 
     private void startPhotoBackup(Intent intent) {
-        boolean isEnable = AlbumBackupSharePreferenceHelper.readBackupSwitch();
-        if (!isEnable) {
-            SafeLogs.e("album backup is disable");
-            return;
-        }
-
-        if (photoUploadFuture != null && !photoUploadFuture.isDone()) {
-            return;
-        }
-
-        if (foregroundStarted.compareAndSet(false, true)) {
-            dispatchForeground(albumBackupNotificationHelper.getNotificationId(), albumBackupNotificationHelper.getNotification());
-        } else {
-            albumBackupNotificationHelper.showDefaultNotification();
-        }
+        startForegroundNotification(FeatureDataSource.ALBUM_BACKUP);
 
         boolean isForce = true;
-        if (intent != null) {
-            Bundle bundle = intent.getExtras();
-            if (bundle != null) {
-                isForce = bundle.getBoolean("isForce", true);
-            }
+        boolean isRestart = false;
+
+        Bundle bundle = intent.getExtras();
+        if (bundle != null) {
+            isForce = bundle.getBoolean("is_force", true);
+            isRestart = bundle.getBoolean("is_restart", false);
         }
 
-        photoUploadFuture = runAlbumBackupTask(isForce, () -> {
-            SafeLogs.d(TAG, "startPhotoUpload()", "upload complete");
-        });
+        if (isRestart) {
+            // if running, then restart, if not run, start it.
+            if (photoUploadFuture != null && !photoUploadFuture.isDone() && mediaBackupUploader != null) {
+                //cancel
+                mediaBackupUploader.stop();
+                photoUploadFuture.cancel(true);
+
+                boolean finalIsForce = isForce;
+                photoUploadFuture.whenComplete(new BiConsumer<Void, Throwable>() {
+                    @Override
+                    public void accept(Void unused, Throwable throwable) {
+                        launchAlbumBackup(finalIsForce);
+                    }
+                });
+            } else {
+                launchAlbumBackup(isForce);
+            }
+        } else {
+            launchAlbumBackup(isForce);
+        }
     }
 
-    private void restartPhotoBackup(Intent intent) {
-        boolean isForce = true;
-        if (intent != null) {
-            Bundle bundle = intent.getExtras();
-            if (bundle != null) {
-                isForce = bundle.getBoolean("isForce", true);
-            }
-        }
+    private void launchAlbumBackup(boolean isForce) {
+        photoUploadFuture = runAlbumBackupTask(isForce, () -> {
+            SafeLogs.d(TAG, "startPhotoUpload()", "upload complete");
 
+            transferNotificationDispatcher.clearLater(FeatureDataSource.ALBUM_BACKUP);
 
-        if (photoUploadFuture == null || photoUploadFuture.isDone()) {
-            startPhotoBackup(intent);
-        } else {
-
-            if (foregroundStarted.compareAndSet(false, true)) {
-                dispatchForeground(albumBackupNotificationHelper.getNotificationId(), albumBackupNotificationHelper.getNotification());
-            } else {
-                albumBackupNotificationHelper.showDefaultNotification();
-            }
-
-            //cancel
-            photoUploadFuture.cancel(true);
-
-            boolean finalIsForce = isForce;
-            photoUploadFuture.whenComplete(new BiConsumer<Void, Throwable>() {
-                @Override
-                public void accept(Void unused, Throwable throwable) {
-                    photoUploadFuture = runAlbumBackupTask(finalIsForce, () -> {
-                        SafeLogs.d(TAG, "startPhotoUpload()", "upload complete");
-                        mediaBackupUploader = null;
-                    });
-                }
-            });
-        }
+            photoUploadFuture = null;
+            mediaBackupUploader = null;
+        });
     }
 
     private void stopPhotoBackup() {
@@ -293,86 +250,66 @@ public class TransferService extends EventService {
             mediaBackupUploader.stop();
         }
 
-        if (foregroundStarted.compareAndSet(false, true)) {
-            dispatchForeground(albumBackupNotificationHelper.getNotificationId(), albumBackupNotificationHelper.getNotification());
-        } else {
-            albumBackupNotificationHelper.showDefaultNotification();
-        }
+        startForegroundNotification(FeatureDataSource.ALBUM_BACKUP);
 
         if (photoUploadFuture != null && !photoUploadFuture.isDone()) {
             photoUploadFuture.cancel(true);
-            photoUploadFuture.whenComplete(new BiConsumer<Void, Throwable>() {
+        } else {
+            runTask(new Runnable() {
                 @Override
-                public void accept(Void unused, Throwable throwable) {
-                    photoUploadFuture = null;
-                    mediaBackupUploader = null;
-                    albumBackupNotificationHelper.cancel();
+                public void run() {
+                    SafeLogs.d(TAG, "stopPhotoUpload()", "upload task is not running");
                 }
-            });
+            }, null);
         }
     }
 
     private void startFolderBackup(Intent intent) {
-        boolean isEnable = FolderBackupSharePreferenceHelper.readBackupSwitch();
-        if (!isEnable) {
-            SafeLogs.e("folder backup is disable");
-            return;
-        }
-
-        if (folderUploadFuture != null && !folderUploadFuture.isDone()) {
-            return;
-        }
-
-        if (foregroundStarted.compareAndSet(false, true)) {
-            dispatchForeground(folderBackupNotificationHelper.getNotificationId(), folderBackupNotificationHelper.getNotification());
-        } else {
-            folderBackupNotificationHelper.showDefaultNotification();
-        }
+        startForegroundNotification(FeatureDataSource.FOLDER_BACKUP);
 
         boolean isForce = true;
+        boolean isRestart = false;
 
         Bundle bundle = intent.getExtras();
         if (bundle != null) {
-            isForce = bundle.getBoolean("isForce", true);
+            isForce = bundle.getBoolean("is_force", true);
+            isRestart = bundle.getBoolean("is_restart", false);
         }
 
+        if (isRestart) {
+            // if running, then restart, if not run, start it.
+            if (folderUploadFuture != null && !folderUploadFuture.isDone() && folderBackupUploader != null) {
+                //cancel
+                folderBackupUploader.stop();
+                folderUploadFuture.cancel(true);
+
+                boolean finalIsForce = isForce;
+                folderUploadFuture.whenComplete(new BiConsumer<Void, Throwable>() {
+                    @Override
+                    public void accept(Void unused, Throwable throwable) {
+                        launchFolderBackup(finalIsForce);
+                    }
+                });
+
+            } else {
+                launchFolderBackup(isForce);
+            }
+        } else {
+            //if running, then do nothing.
+            if (folderUploadFuture != null && !folderUploadFuture.isDone() && folderBackupUploader != null) {
+                return;
+            }
+            launchFolderBackup(isForce);
+        }
+    }
+
+    private void launchFolderBackup(boolean isForce) {
         folderUploadFuture = runFolderBackupTask(isForce, () -> {
             SafeLogs.d(TAG, "startFolderBackup()", "upload complete");
             folderBackupUploader = null;
+            folderUploadFuture = null;
+            transferNotificationDispatcher.releaseAcquire(FeatureDataSource.FOLDER_BACKUP);
         });
-    }
-
-    private void restartFolderBackup(Intent intent) {
-        boolean isForce = true;
-        Bundle bundle = intent.getExtras();
-        if (bundle != null) {
-            isForce = bundle.getBoolean("isForce", true);
-        }
-
-        if (folderUploadFuture == null || folderUploadFuture.isDone()) {
-            startFolderBackup(intent);
-        } else {
-
-            if (foregroundStarted.compareAndSet(false, true)) {
-                dispatchForeground(folderBackupNotificationHelper.getNotificationId(), folderBackupNotificationHelper.getNotification());
-            } else {
-                folderBackupNotificationHelper.showDefaultNotification();
-            }
-
-            //cancel
-            folderUploadFuture.cancel(true);
-
-            boolean finalIsForce = isForce;
-            folderUploadFuture.whenComplete(new BiConsumer<Void, Throwable>() {
-                @Override
-                public void accept(Void unused, Throwable throwable) {
-                    folderUploadFuture = runFolderBackupTask(finalIsForce, () -> {
-                        SafeLogs.d(TAG, "startFolderBackup()", "upload complete");
-                        folderBackupUploader = null;
-                    });
-                }
-            });
-        }
     }
 
     private void stopFolderBackup() {
@@ -380,23 +317,17 @@ public class TransferService extends EventService {
             folderBackupUploader.stop();
         }
 
-        if (foregroundStarted.compareAndSet(false, true)) {
-            dispatchForeground(folderBackupNotificationHelper.getNotificationId(), folderBackupNotificationHelper.getNotification());
-        } else {
-            folderBackupNotificationHelper.showDefaultNotification();
-        }
+        startForegroundNotification(FeatureDataSource.FOLDER_BACKUP);
 
         if (folderUploadFuture != null && !folderUploadFuture.isDone()) {
             folderUploadFuture.cancel(true);
-            folderUploadFuture.whenComplete(new BiConsumer<Void, Throwable>() {
+        } else {
+            runTask(new Runnable() {
                 @Override
-                public void accept(Void unused, Throwable throwable) {
-                    folderUploadFuture = null;
-                    folderBackupUploader = null;
-
-                    folderBackupNotificationHelper.cancel();
+                public void run() {
+                    SafeLogs.d(TAG, "stopFolderBackup()", "upload task is not running");
                 }
-            });
+            }, null);
         }
     }
 
@@ -405,11 +336,7 @@ public class TransferService extends EventService {
             return;
         }
 
-        if (foregroundStarted.compareAndSet(false, true)) {
-            dispatchForeground(fileUploadNotificationHelper.getNotificationId(), fileUploadNotificationHelper.getNotification());
-        } else {
-            fileUploadNotificationHelper.showDefaultNotification();
-        }
+        startForegroundNotification(FeatureDataSource.MANUAL_FILE_UPLOAD);
 
         manualUploadFuture = runFileUploadTask(() -> {
             SafeLogs.d(TAG, "startManualUpload()", "upload complete");
@@ -422,13 +349,11 @@ public class TransferService extends EventService {
             return;
         }
 
-        if (foregroundStarted.compareAndSet(false, true)) {
-            dispatchForeground(downloadNotificationHelper.getNotificationId(), downloadNotificationHelper.getNotification());
-        } else {
-            downloadNotificationHelper.showDefaultNotification();
-        }
+        startForegroundNotification(FeatureDataSource.DOWNLOAD);
+
         fileDownloadFuture = runDownloadTask(() -> {
             downloader = null;
+            transferNotificationDispatcher.releaseAcquire(FeatureDataSource.DOWNLOAD);
             SafeLogs.d(TAG, "startFileDownload()", "download complete");
         });
 
@@ -438,26 +363,27 @@ public class TransferService extends EventService {
         if (localFileUpdateFuture != null && !localFileUpdateFuture.isDone()) {
             return;
         }
-        if (foregroundStarted.compareAndSet(false, true)) {
-            dispatchForeground(localFileUpdateNotificationHelper.getNotificationId(), localFileUpdateNotificationHelper.getNotification());
-        } else {
-            localFileUpdateNotificationHelper.showDefaultNotification();
-        }
+
+        startForegroundNotification(FeatureDataSource.AUTOMATIC_UPDATE_FILE_FROM_LOCAL);
+
         localFileUpdateFuture = runLocalFileUpdateTask(() -> {
-            localFileUpdateNotificationHelper.cancel();
+            transferNotificationDispatcher.clearLater(FeatureDataSource.AUTOMATIC_UPDATE_FILE_FROM_LOCAL);
+            transferNotificationDispatcher.releaseAcquire(FeatureDataSource.AUTOMATIC_UPDATE_FILE_FROM_LOCAL);
             localFileUpdateFuture = null;
             SafeLogs.d(TAG, "startLocalFileUpdate()", "update complete");
         });
     }
 
-    private void dispatchForeground(int id, Notification notification) {
+    private void startForegroundNotification(FeatureDataSource source) {
+        NotificationInfo notificationInfo = transferNotificationDispatcher.getForegroundNotification(source);
         //start foreground service
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            ServiceCompat.startForeground(this, id, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC);
+            ServiceCompat.startForeground(this, notificationInfo.id, notificationInfo.notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC);
         } else {
-            startForeground(id, notification);
+            startForeground(notificationInfo.id, notificationInfo.notification);
         }
     }
+
 
     public void stopById(Bundle extras) {
         if (extras == null) {
@@ -470,20 +396,20 @@ public class TransferService extends EventService {
             return;
         }
 
-        if (TransferDataSource.ALBUM_BACKUP.name().equals(dataSource)) {
+        if (FeatureDataSource.ALBUM_BACKUP.name().equals(dataSource)) {
             if (mediaBackupUploader != null) {
                 mediaBackupUploader.stopById(modelId);
             }
-        } else if (TransferDataSource.FOLDER_BACKUP.name().equals(dataSource)) {
+        } else if (FeatureDataSource.FOLDER_BACKUP.name().equals(dataSource)) {
 
             if (folderBackupUploader != null) {
                 folderBackupUploader.stopById(modelId);
             }
-        } else if (TransferDataSource.FILE_BACKUP.name().equals(dataSource)) {
+        } else if (FeatureDataSource.MANUAL_FILE_UPLOAD.name().equals(dataSource)) {
             if (fileUploader != null) {
                 fileUploader.stopById(modelId);
             }
-        } else if (TransferDataSource.DOWNLOAD.name().equals(dataSource)) {
+        } else if (FeatureDataSource.DOWNLOAD.name().equals(dataSource)) {
             if (downloader != null) {
                 downloader.stopById(modelId);
             }
@@ -497,27 +423,27 @@ public class TransferService extends EventService {
     private LocalFileUpdater localFileUpdater;
 
     private CompletableFuture<Void> runAlbumBackupTask(boolean isForce, Runnable onComplete) {
-        CompletableFuture<Void> scanFuture = runAlbumBackupScanTask(isForce, () -> {
-            SafeLogs.d(TAG, "runAlbumBackupTask()", "scan complete");
-        });
-        Runnable uploadRunnable = getAlbumBackupUploadRunnable();
-        return scanFuture.thenRun(uploadRunnable).whenComplete(new BiConsumer<Void, Throwable>() {
-            @Override
-            public void accept(Void unused, Throwable throwable) {
-                SafeLogs.d(TAG, "runAlbumBackupTask()", "upload complete");
-                if (onComplete != null) onComplete.run();
-            }
-        });
-    }
-
-    private CompletableFuture<Void> runAlbumBackupScanTask(boolean isForce, Runnable onComplete) {
         return runTask(new Runnable() {
             @Override
             public void run() {
-                MediaBackupScanner scanner = new MediaBackupScanner(getApplicationContext(), albumBackupNotificationHelper);
-                SeafException seafException = scanner.scan(isForce);
-                if (seafException != SeafException.SUCCESS) {
-                    SafeLogs.d(TAG, "runAlbumBackupTask()", "scan error: " + seafException);
+                boolean isEnable = AlbumBackupSharePreferenceHelper.readBackupSwitch();
+                if (!isEnable) {
+                    SafeLogs.e("album backup is disable");
+                    return;
+                }
+
+                MediaBackupScanner scanner = new MediaBackupScanner(getApplicationContext());
+                SeafException scanSeafException = scanner.scan(isForce);
+                if (scanSeafException != SeafException.SUCCESS) {
+                    SafeLogs.d(TAG, "runAlbumBackupTask()", "scan error: " + scanSeafException);
+                } else {
+                    SafeLogs.d(TAG, "runAlbumBackupTask()", "scan success");
+                }
+
+                mediaBackupUploader = new MediaBackupUploader(getApplicationContext(), transferNotificationDispatcher);
+                SeafException uploadSeafException = mediaBackupUploader.upload();
+                if (uploadSeafException != SeafException.SUCCESS) {
+                    SafeLogs.d(TAG, "runAlbumBackupTask()", "scan error: " + uploadSeafException);
                 } else {
                     SafeLogs.d(TAG, "runAlbumBackupTask()", "scan success");
                 }
@@ -525,75 +451,45 @@ public class TransferService extends EventService {
         }, onComplete);
     }
 
-    private Runnable getAlbumBackupUploadRunnable() {
-        return new Runnable() {
-            @Override
-            public void run() {
-                mediaBackupUploader = new MediaBackupUploader(getApplicationContext(), albumBackupNotificationHelper);
-                SeafException seafException = mediaBackupUploader.upload();
-                if (seafException != SeafException.SUCCESS) {
-                    albumBackupNotificationHelper.cancel();
-                    SafeLogs.d(TAG, "runAlbumBackupTask()", "upload error: " + seafException);
-                } else {
-                    SafeLogs.d(TAG, "runAlbumBackupTask()", "upload success");
-                }
-            }
-        };
-    }
-
     private CompletableFuture<Void> runFolderBackupTask(boolean isForce, Runnable onComplete) {
-        CompletableFuture<Void> scanFuture = runFolderBackupScanTask(isForce, () -> {
-            SafeLogs.d(TAG, "runFolderBackupTask()", "scan complete");
-        });
-        Runnable uploadRunnable = getFolderBackupUploadRunnable();
-        return scanFuture.thenRun(uploadRunnable).whenComplete(new BiConsumer<Void, Throwable>() {
-            @Override
-            public void accept(Void unused, Throwable throwable) {
-                SafeLogs.d(TAG, "runFolderBackupTask()", "upload complete");
-                if (onComplete != null) onComplete.run();
-            }
-        });
-
-    }
-
-    private CompletableFuture<Void> runFolderBackupScanTask(boolean isForce, Runnable onComplete) {
         return runTask(new Runnable() {
             @Override
             public void run() {
-                FolderBackupScanner scanner = new FolderBackupScanner(getApplicationContext(), folderBackupNotificationHelper);
+                boolean isEnable = FolderBackupSharePreferenceHelper.readBackupSwitch();
+                if (!isEnable) {
+                    SafeLogs.e("folder backup is disable");
+                    return;
+                }
+
+                FolderBackupScanner scanner = new FolderBackupScanner(getApplicationContext());
                 SeafException scanSeafException = scanner.scan(isForce);
                 if (scanSeafException != SeafException.SUCCESS) {
                     SafeLogs.d(TAG, "runFolderBackupScanTask()", "scan error: " + scanSeafException);
                 } else {
                     SafeLogs.d(TAG, "runFolderBackupScanTask()", "scan success");
                 }
-            }
-        }, onComplete);
-    }
 
-    private Runnable getFolderBackupUploadRunnable() {
-        return new Runnable() {
-            @Override
-            public void run() {
-                folderBackupUploader = new FolderBackupUploader(getApplicationContext(), folderBackupNotificationHelper);
+                folderBackupUploader = new FolderBackupUploader(getApplicationContext(), transferNotificationDispatcher);
                 SeafException uploadSeafException = folderBackupUploader.upload();
+
+                transferNotificationDispatcher.releaseAcquire(FeatureDataSource.FOLDER_BACKUP);
                 if (uploadSeafException != SeafException.SUCCESS) {
                     SafeLogs.d(TAG, "runFolderBackupTask()", "upload error: " + uploadSeafException);
                 } else {
                     SafeLogs.d(TAG, "runFolderBackupTask()", "upload success");
                 }
             }
-        };
+        }, onComplete);
     }
 
     private CompletableFuture<Void> runFileUploadTask(Runnable onComplete) {
         return runTask(new Runnable() {
             @Override
             public void run() {
-                fileUploader = new FileUploader(getApplicationContext(), fileUploadNotificationHelper);
+                fileUploader = new FileUploader(getApplicationContext(), transferNotificationDispatcher);
                 SeafException seafException = fileUploader.upload();
+                transferNotificationDispatcher.releaseAcquire(FeatureDataSource.MANUAL_FILE_UPLOAD);
                 if (seafException != SeafException.SUCCESS) {
-                    fileUploadNotificationHelper.cancel();
                     SafeLogs.d(TAG, "runFileUploadTask()", "upload error: " + seafException);
                 } else {
                     SafeLogs.d(TAG, "runFileUploadTask()", "upload success");
@@ -606,10 +502,10 @@ public class TransferService extends EventService {
         return runTask(new Runnable() {
             @Override
             public void run() {
-                downloader = new FileDownloader(getApplicationContext(), downloadNotificationHelper);
+                downloader = new FileDownloader(getApplicationContext(), transferNotificationDispatcher);
                 SeafException seafException = downloader.download();
+                transferNotificationDispatcher.releaseAcquire(FeatureDataSource.DOWNLOAD);
                 if (seafException != SeafException.SUCCESS) {
-                    downloadNotificationHelper.cancel();
                     SafeLogs.d(TAG, "runDownloadTask()", "download error: " + seafException);
                 } else {
                     SafeLogs.d(TAG, "runDownloadTask()", "download success");
@@ -622,8 +518,9 @@ public class TransferService extends EventService {
         return runTask(new Runnable() {
             @Override
             public void run() {
-                localFileUpdater = new LocalFileUpdater(getApplicationContext(), localFileUpdateNotificationHelper);
+                localFileUpdater = new LocalFileUpdater(getApplicationContext(), transferNotificationDispatcher);
                 SeafException seafException = localFileUpdater.upload();
+                transferNotificationDispatcher.releaseAcquire(FeatureDataSource.AUTOMATIC_UPDATE_FILE_FROM_LOCAL);
                 if (seafException != SeafException.SUCCESS) {
                     SafeLogs.d(TAG, "runLocalFileUpdateTask()", "upload error: " + seafException);
                 } else {
@@ -635,9 +532,9 @@ public class TransferService extends EventService {
 
     private CompletableFuture<Void> runTask(Runnable runnable, Runnable onComplete) {
         runningTaskCount.incrementAndGet();
-        return CompletableFuture.runAsync(runnable, _executor).thenRun(new Runnable() {
+        return CompletableFuture.runAsync(runnable, _executor).whenComplete(new BiConsumer<Void, Throwable>() {
             @Override
-            public void run() {
+            public void accept(Void unused, Throwable throwable) {
                 if (onComplete != null) onComplete.run();
                 if (runningTaskCount.decrementAndGet() == 0) {
                     stopMyLife();
@@ -672,12 +569,7 @@ public class TransferService extends EventService {
 
     private void dismissAllNotification() {
         SafeLogs.e(TAG, "dismissAllNotification()");
-        int delay = 1000;
-        albumBackupNotificationHelper.cancel(delay);
-        folderBackupNotificationHelper.cancel(delay);
-        fileUploadNotificationHelper.cancel(delay);
-        downloadNotificationHelper.cancel(delay);
-        localFileUpdateNotificationHelper.cancel(delay);
+        transferNotificationDispatcher.clearAll(3000);
     }
 
     private void cancel(CompletableFuture<?> future) {

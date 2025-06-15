@@ -123,7 +123,7 @@ public class WidgetUtils {
                 .setSmallIcon(R.drawable.icon)
                 .setAutoCancel(true);
 
-        manager.notify(NotificationUtils.NOTIFICATION_ID_OPEN_APK, notificationBuilder.build());
+        manager.notify(NotificationUtils.NID_OPEN_APK, notificationBuilder.build());
 
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -138,12 +138,12 @@ public class WidgetUtils {
         intent.addFlags(FLAG_ACTIVITY_NEW_TASK);
 
         //open
-        PendingIntent pendingIntent = PendingIntent.getActivity(activity, NotificationUtils.NOTIFICATION_ID_OPEN_APK, intent, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        PendingIntent pendingIntent = PendingIntent.getActivity(activity, NotificationUtils.NID_OPEN_APK, intent, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         notificationBuilder.setContentTitle(file.getName() + " " + activity.getString(R.string.download_finished))
                 .setContentIntent(pendingIntent)
                 .addAction(R.drawable.action_open, activity.getString(R.string.open), pendingIntent)
                 .build();
-        manager.notify(NotificationUtils.NOTIFICATION_ID_OPEN_APK, notificationBuilder.build());
+        manager.notify(NotificationUtils.NID_OPEN_APK, notificationBuilder.build());
     }
 
 

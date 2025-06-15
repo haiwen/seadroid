@@ -91,6 +91,9 @@ public class MainActivity extends BaseActivity {
             return;
         }
 
+        //register bus
+        BusHelper.getCommonObserver().observe(this, busObserver);
+
         initSettings();
 
         initFireBase();
@@ -224,6 +227,9 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         NetworkUtils.unregisterNetworkStatusChangedListener(onNetworkStatusChangedListener);
+
+        //
+        BusHelper.getCommonObserver().removeObserver(busObserver);
 
         if (isBound) {
             unbindService(syncConnection);
@@ -599,4 +605,21 @@ public class MainActivity extends BaseActivity {
         finish();
         overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     }
+
+
+    private final Observer<String> busObserver = new Observer<String>() {
+        @Override
+        public void onChanged(String action) {
+            if (TextUtils.isEmpty(action)) {
+                return;
+            }
+
+            if (TextUtils.equals(action, "RESTART_FILE_MONITOR")) {
+                if (syncService != null) {
+                    syncService.restartFolderMonitor();
+                }
+            }
+
+        }
+    };
 }

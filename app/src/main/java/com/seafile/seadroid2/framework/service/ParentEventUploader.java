@@ -8,6 +8,7 @@ import com.blankj.utilcode.util.CloneUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.SaveTo;
 import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.enums.TransferResult;
@@ -16,7 +17,7 @@ import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.FileBackupStatusEntity;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
 import com.seafile.seadroid2.framework.http.HttpIO;
-import com.seafile.seadroid2.framework.notification.base.BaseTransferNotificationHelper;
+import com.seafile.seadroid2.framework.notification.TransferNotificationDispatcher;
 import com.seafile.seadroid2.framework.util.ExceptionUtils;
 import com.seafile.seadroid2.framework.util.FileUtils;
 import com.seafile.seadroid2.framework.util.SafeLogs;
@@ -44,12 +45,19 @@ import okhttp3.ResponseBody;
 
 public abstract class ParentEventUploader extends ParentEventTransfer {
     private final String TAG = "ParentEventUploader";
+    private final TransferNotificationDispatcher transferNotificationDispatcher;
 
-    public ParentEventUploader(Context context) {
+    public ParentEventUploader(Context context, TransferNotificationDispatcher transferNotificationDispatcher) {
         super(context);
-
+        this.transferNotificationDispatcher = transferNotificationDispatcher;
         _fileTransferProgressListener.setProgressListener(progressListener);
     }
+
+    public TransferNotificationDispatcher getTransferNotificationDispatcher() {
+        return transferNotificationDispatcher;
+    }
+
+    public abstract FeatureDataSource getFeatureDataSource();
 
     /**
      * listener
@@ -69,19 +77,17 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
 
             notifyProgress(transferModel.file_name, percent);
 
-            sendProgressEvent(transferModel);
+            sendProgressEvent(getFeatureDataSource(), transferModel);
         }
     };
 
 
-    public abstract BaseTransferNotificationHelper getNotificationHelper();
-
     private void notifyProgress(String fileName, int percent) {
-        if (getNotificationHelper() == null) {
+        if (transferNotificationDispatcher == null) {
             return;
         }
 
-        getNotificationHelper().notifyProgress(fileName, percent);
+        transferNotificationDispatcher.showProgress(getFeatureDataSource(), fileName, percent);
     }
 
     public void notifyError(SeafException seafException) {
@@ -90,15 +96,15 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
         }
 
         if (seafException == SeafException.OUT_OF_QUOTA) {
-            getGeneralNotificationHelper().showErrorNotification(R.string.above_quota, getNotificationHelper().getDefaultTitle());
+            getGeneralNotificationHelper().showErrorNotification(R.string.above_quota);
         } else if (seafException == SeafException.NETWORK_EXCEPTION) {
-            getGeneralNotificationHelper().showErrorNotification(R.string.network_error, getNotificationHelper().getDefaultTitle());
+            getGeneralNotificationHelper().showErrorNotification(R.string.network_error);
         } else if (seafException == SeafException.NOT_FOUND_USER_EXCEPTION) {
-            getGeneralNotificationHelper().showErrorNotification(R.string.saf_account_not_found_exception, getNotificationHelper().getDefaultTitle());
+            getGeneralNotificationHelper().showErrorNotification(R.string.saf_account_not_found_exception);
         } else if (seafException == SeafException.USER_CANCELLED_EXCEPTION) {
             //do nothing
         } else {
-            getGeneralNotificationHelper().showErrorNotification(seafException.getMessage(), getNotificationHelper().getDefaultTitle());
+            getGeneralNotificationHelper().showErrorNotification(seafException.getMessage());
         }
     }
 
@@ -151,14 +157,14 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
 
             transferFile(account);
 
-            sendProgressFinishEvent(currentTransferModel);
+            sendProgressCompleteEvent(getFeatureDataSource(), currentTransferModel);
 
         } catch (SeafException seafException) {
             // update db
             updateToFailed(seafException.getMessage());
 
             //send an event, update transfer entity first.
-            sendProgressFinishEvent(currentTransferModel);
+            sendProgressCompleteEvent(getFeatureDataSource(), currentTransferModel);
             throw seafException;
         }
     }
@@ -201,7 +207,7 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
         _fileTransferProgressListener.setCurrentTransferModel(currentTransferModel);
 
         //notify first
-        sendProgressEvent(currentTransferModel);
+        sendProgressEvent(getFeatureDataSource(), currentTransferModel);
 
         notifyProgress(currentTransferModel.file_name, 0);
         SafeLogs.d(TAG, "transferFile()", "start transfer, remote path: " + currentTransferModel.target_path);

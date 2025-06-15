@@ -4,7 +4,7 @@ import android.content.Context;
 import android.os.Bundle;
 
 import com.seafile.seadroid2.bus.BusHelper;
-import com.seafile.seadroid2.enums.TransferDataSource;
+import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.notification.GeneralNotificationHelper;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
@@ -48,42 +48,42 @@ public class ParentEventTransfer {
         return generalNotificationHelper;
     }
 
-    public void sendWorkerEvent(TransferDataSource dataSource, String event) {
-        send(dataSource, event);
+    protected void sendCompleteEvent(FeatureDataSource dataSource, String errMsg, int totalPendingCount) {
+        Bundle b = new Bundle();
+        b.putString(TransferWorker.KEY_DATA_RESULT, errMsg);
+        b.putInt(TransferWorker.KEY_TRANSFER_COUNT, totalPendingCount);
+        send(dataSource, TransferEvent.EVENT_TRANSFER_TASK_COMPLETE, b);
     }
 
-    public void sendWorkerEvent(TransferDataSource dataSource, String event, Bundle extra) {
-        send(dataSource, event, extra);
-    }
-
-    protected void sendFinishScanEvent(TransferDataSource dataSource, String content, int totalPendingCount) {
+    protected void sendScanCompleteEvent(FeatureDataSource dataSource, String content, int totalPendingCount) {
         Bundle b = new Bundle();
         b.putString(TransferWorker.KEY_DATA_RESULT, content);
         b.putInt(TransferWorker.KEY_TRANSFER_COUNT, totalPendingCount);
-        sendWorkerEvent(dataSource, TransferEvent.EVENT_SCAN_FINISH, b);
+        send(dataSource, TransferEvent.EVENT_SCAN_COMPLETE, b);
     }
 
-    public void sendProgressFinishEvent(TransferModel transferModel) {
+    public void sendProgressEvent(FeatureDataSource dataSource, TransferModel transferModel) {
+        Bundle b = new Bundle();
+        b.putString(KEY_TRANSFER_ID, transferModel.getId());
+        send(dataSource, TransferEvent.EVENT_FILE_IN_TRANSFER, b);
+    }
+
+    public void sendProgressCompleteEvent(FeatureDataSource dataSource, TransferModel transferModel) {
         Bundle b = new Bundle();
         b.putString(KEY_TRANSFER_ID, transferModel.getId());
         if (transferModel.transfer_status == TransferStatus.SUCCEEDED) {
-            send(transferModel.data_source, TransferEvent.EVENT_FILE_TRANSFER_SUCCESS, b);
+            send(dataSource, TransferEvent.EVENT_FILE_TRANSFER_SUCCESS, b);
         } else {
-            send(transferModel.data_source, TransferEvent.EVENT_FILE_TRANSFER_FAILED, b);
+            send(dataSource, TransferEvent.EVENT_FILE_TRANSFER_FAILED, b);
         }
     }
 
-    public void sendProgressEvent(TransferModel transferModel) {
-        Bundle b = new Bundle();
-        b.putString(KEY_TRANSFER_ID, transferModel.getId());
-        send(transferModel.data_source, TransferEvent.EVENT_FILE_IN_TRANSFER, b);
-    }
 
-    private void send(TransferDataSource dataSource, String event) {
+    public void send(FeatureDataSource dataSource, String event) {
         send(dataSource, event, null);
     }
 
-    private void send(TransferDataSource dataSource, String event, Bundle extra) {
+    private void send(FeatureDataSource dataSource, String event, Bundle extra) {
         Bundle b = new Bundle();
         b.putString(TransferWorker.KEY_DATA_SOURCE, dataSource.name());
         b.putString(TransferWorker.KEY_DATA_STATUS, event);

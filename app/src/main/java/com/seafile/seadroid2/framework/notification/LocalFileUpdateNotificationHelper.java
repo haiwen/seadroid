@@ -45,6 +45,6 @@ public class LocalFileUpdateNotificationHelper extends BaseTransferNotificationH
 
     @Override
     public int getNotificationId() {
-        return NotificationUtils.NOTIFICATION_ID_UPDATE_LOCAL_FILE;
+        return NotificationUtils.NID_UPDATE_LOCAL_FILE;
     }
 }

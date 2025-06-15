@@ -119,6 +119,8 @@ public class Logs {
         d(log);
     }
 
+
+
     public static void d(String msg) {
         XLog.d(msg);
     }

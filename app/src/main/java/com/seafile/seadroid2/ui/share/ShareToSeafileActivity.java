@@ -30,7 +30,6 @@ import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.framework.service.TransferService;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Toasts;
-import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
@@ -124,7 +123,7 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
         SLogs.d(TAG, "on event: " + statusEvent, "dataSource: " + dataSource, "result: " + result);
         if (TextUtils.equals(statusEvent, TransferEvent.EVENT_SCANNING)) {
 
-        } else if (TextUtils.equals(statusEvent, TransferEvent.EVENT_SCAN_FINISH)) {
+        } else if (TextUtils.equals(statusEvent, TransferEvent.EVENT_SCAN_COMPLETE)) {
 
         } else if (TextUtils.equals(statusEvent, TransferEvent.EVENT_FILE_IN_TRANSFER)) {
             TransferModel transferModel = getUploadModel(transferId);

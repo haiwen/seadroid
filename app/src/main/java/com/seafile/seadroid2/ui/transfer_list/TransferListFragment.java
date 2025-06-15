@@ -22,6 +22,7 @@ import com.chad.library.adapter4.QuickAdapterHelper;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.databinding.LayoutFrameSwipeRvBinding;
+import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.TransferAction;
 import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.enums.TransferStatus;
@@ -310,29 +311,25 @@ public abstract class TransferListFragment extends BaseFragment {
         getViewModel().loadData(getTransferAction(), 0, pageSize);
     }
 
-    protected TransferModel getUploadModel(String tId) {
+    protected TransferModel getUploadModel(String dataSource, String tId) {
         if (TextUtils.isEmpty(tId)) {
             return null;
         }
 
-        TransferModel u1 = GlobalTransferCacheList.FOLDER_BACKUP_QUEUE.getById(tId);
-        if (u1 != null) {
-            return u1;
+        if (TextUtils.equals(FeatureDataSource.ALBUM_BACKUP.name(), dataSource)) {
+            return GlobalTransferCacheList.ALBUM_BACKUP_QUEUE.getById(tId);
         }
 
-        TransferModel u2 = GlobalTransferCacheList.FILE_UPLOAD_QUEUE.getById(tId);
-        if (u2 != null) {
-            return u2;
+        if (TextUtils.equals(FeatureDataSource.FOLDER_BACKUP.name(), dataSource)) {
+            return GlobalTransferCacheList.FOLDER_BACKUP_QUEUE.getById(tId);
         }
 
-        TransferModel u3 = GlobalTransferCacheList.ALBUM_BACKUP_QUEUE.getById(tId);
-        if (u3 != null) {
-            return u3;
+        if (TextUtils.equals(FeatureDataSource.MANUAL_FILE_UPLOAD.name(), dataSource)) {
+            return GlobalTransferCacheList.FILE_UPLOAD_QUEUE.getById(tId);
         }
 
-        TransferModel u4 = GlobalTransferCacheList.DOWNLOAD_QUEUE.getById(tId);
-        if (u4 != null) {
-            return u4;
+        if (TextUtils.equals(FeatureDataSource.DOWNLOAD.name(), dataSource)) {
+            return GlobalTransferCacheList.DOWNLOAD_QUEUE.getById(tId);
         }
         return null;
     }

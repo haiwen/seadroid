@@ -10,10 +10,10 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
-import com.seafile.seadroid2.framework.notification.FolderBackupNotificationHelper;
-import com.seafile.seadroid2.framework.notification.base.BaseTransferNotificationHelper;
+import com.seafile.seadroid2.framework.notification.TransferNotificationDispatcher;
 import com.seafile.seadroid2.framework.service.ParentEventUploader;
 import com.seafile.seadroid2.framework.util.SafeLogs;
 import com.seafile.seadroid2.framework.util.Toasts;
@@ -27,16 +27,14 @@ import java.util.List;
 
 public class FolderBackupUploader extends ParentEventUploader {
     private final String TAG = "FolderBackupUploader";
-    private final FolderBackupNotificationHelper notificationManager;
 
-    public FolderBackupUploader(Context context, FolderBackupNotificationHelper notificationManager) {
-        super(context);
-        this.notificationManager = notificationManager;
+    public FolderBackupUploader(Context context, TransferNotificationDispatcher transferNotificationDispatcher) {
+        super(context, transferNotificationDispatcher);
     }
 
     @Override
-    public BaseTransferNotificationHelper getNotificationHelper() {
-        return notificationManager;
+    public FeatureDataSource getFeatureDataSource() {
+        return FeatureDataSource.FOLDER_BACKUP;
     }
 
     public void stop() {
@@ -70,7 +68,7 @@ public class FolderBackupUploader extends ParentEventUploader {
 
         SafeLogs.d(TAG, "start upload");
         //send a start event
-        sendWorkerEvent(TransferDataSource.FOLDER_BACKUP, TransferEvent.EVENT_TRANSFER_TASK_START);
+        send(FeatureDataSource.FOLDER_BACKUP, TransferEvent.EVENT_TRANSFER_TASK_START);
 
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
         if (account == null) {
@@ -105,24 +103,23 @@ public class FolderBackupUploader extends ParentEventUploader {
         boolean isAllowDataPlan = FolderBackupSharePreferenceHelper.readDataPlanAllowed();
         if (!isAllowDataPlan) {
             if (NetworkUtils.isMobileData()) {
-                SafeLogs.d(TAG, "data plan is not allowed", "current network type: ", NetworkUtils.getNetworkType().name());
+                SafeLogs.e(TAG, "data plan is not allowed", "current network type", NetworkUtils.getNetworkType().name());
                 return returnSuccess();
             }
 
-            SafeLogs.d(TAG, "data plan is not allowed", "current network type: ", NetworkUtils.getNetworkType().name());
+            SafeLogs.e(TAG, "data plan is not allowed", "current network type", NetworkUtils.getNetworkType().name());
         } else {
-            SafeLogs.d(TAG, "data plan is allowed", "current network type: ", NetworkUtils.getNetworkType().name());
+            SafeLogs.e(TAG, "data plan is allowed", "current network type", NetworkUtils.getNetworkType().name());
         }
-
 
         //
         int totalPendingCount = GlobalTransferCacheList.FOLDER_BACKUP_QUEUE.getPendingCount();
         if (totalPendingCount <= 0) {
-            SafeLogs.d(TAG, "backup queue is empty");
+            SafeLogs.e(TAG, "backup queue is empty");
             return returnSuccess();
         }
 
-        SafeLogs.d(TAG, "pending count: " + totalPendingCount);
+        SafeLogs.e(TAG, "pending count: " + totalPendingCount);
         SeafException resultSeafException = SeafException.SUCCESS;
 
         while (true) {
@@ -153,19 +150,16 @@ public class FolderBackupUploader extends ParentEventUploader {
         Toasts.show(R.string.upload_finished);
         SafeLogs.d(TAG, "all completed");
 
-        //
-        Bundle b = new Bundle();
+        String errorMsg = null;
         if (resultSeafException != SeafException.SUCCESS) {
-            b.putString(TransferWorker.KEY_DATA_RESULT, resultSeafException.getMessage());
+            errorMsg = resultSeafException.getMessage();
         }
-        b.putInt(TransferWorker.KEY_TRANSFER_COUNT, totalPendingCount);
-        sendWorkerEvent(TransferDataSource.FOLDER_BACKUP, TransferEvent.EVENT_TRANSFER_TASK_COMPLETE, b);
-
+        sendCompleteEvent(FeatureDataSource.FOLDER_BACKUP, errorMsg, totalPendingCount);
         return resultSeafException;
     }
 
     protected SeafException returnSuccess() {
-        sendWorkerEvent(TransferDataSource.FOLDER_BACKUP, TransferEvent.EVENT_TRANSFER_TASK_COMPLETE);
+        send(FeatureDataSource.FOLDER_BACKUP, TransferEvent.EVENT_TRANSFER_TASK_COMPLETE);
         return SeafException.SUCCESS;
     }
 }

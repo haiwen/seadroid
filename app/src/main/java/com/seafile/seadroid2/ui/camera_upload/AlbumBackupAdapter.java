@@ -12,7 +12,6 @@ import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.service.TransferService;
 import com.seafile.seadroid2.framework.util.SLogs;
-import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 
 /**
  * Sync adapter for media upload.
@@ -86,11 +85,11 @@ public class AlbumBackupAdapter extends AbstractThreadedSyncAdapter {
 
         boolean isEnable = AlbumBackupSharePreferenceHelper.readBackupSwitch();
         if (!isEnable) {
+            SLogs.d(TAG, "onPerformSync()", "backup switch is off");
             return;
         }
 
         // start
-//        BackgroundJobManagerImpl.getInstance().startMediaBackupChain(isForce);
-        TransferService.startPhotoBackupService(getContext());
+        TransferService.restartPhotoBackupService(getContext());
     }
 }

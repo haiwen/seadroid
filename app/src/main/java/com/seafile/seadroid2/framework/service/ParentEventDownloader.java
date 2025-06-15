@@ -10,7 +10,9 @@ import com.blankj.utilcode.util.TimeUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.SaveTo;
+import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.enums.TransferResult;
 import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.crypto.SecurePasswordManager;
@@ -21,7 +23,7 @@ import com.seafile.seadroid2.framework.db.entities.EncKeyCacheEntity;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.model.ResultModel;
-import com.seafile.seadroid2.framework.notification.base.BaseTransferNotificationHelper;
+import com.seafile.seadroid2.framework.notification.TransferNotificationDispatcher;
 import com.seafile.seadroid2.framework.util.ExceptionUtils;
 import com.seafile.seadroid2.framework.util.SafeLogs;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
@@ -52,12 +54,18 @@ import okhttp3.ResponseBody;
 public abstract class ParentEventDownloader extends ParentEventTransfer {
     private final String TAG = "ParentEventDownloader";
 
-    public ParentEventDownloader(Context context) {
+    private final TransferNotificationDispatcher transferNotificationDispatcher;
+
+    public ParentEventDownloader(Context context, TransferNotificationDispatcher transferNotificationDispatcher) {
         super(context);
+        this.transferNotificationDispatcher = transferNotificationDispatcher;
     }
 
-    public abstract BaseTransferNotificationHelper getNotificationHelper();
+    public TransferNotificationDispatcher getTransferNotificationDispatcher() {
+        return transferNotificationDispatcher;
+    }
 
+    public abstract FeatureDataSource getFeatureDataSource();
 
     private final FileTransferProgressListener transferProgressListener = new FileTransferProgressListener((transferModel, percent, transferredSize, totalSize) -> {
         SafeLogs.d(TAG, "onProgressNotify()", transferModel.file_name + " -> progress：" + percent);
@@ -67,15 +75,15 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
         notifyProgress(transferModel.file_name, percent);
 
         //
-        sendProgressEvent(transferModel);
+        sendProgressEvent(getFeatureDataSource(), transferModel);
     });
 
     private void notifyProgress(String fileName, int percent) {
-        if (getNotificationHelper() == null) {
+        if (getTransferNotificationDispatcher() == null) {
             return;
         }
 
-        getNotificationHelper().notifyProgress(fileName, percent);
+        getTransferNotificationDispatcher().showProgress(getFeatureDataSource(), fileName, percent);
     }
 
 
@@ -122,7 +130,7 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
 
             transferFile(account);
 
-            sendProgressFinishEvent(currentTransferModel);
+            sendProgressCompleteEvent(getFeatureDataSource(), currentTransferModel);
 
             SafeLogs.d(TAG, "transferFile()", "download complete：" + currentTransferModel.full_path);
         } catch (Exception e) {
@@ -232,7 +240,7 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
         transferProgressListener.setCurrentTransferModel(currentTransferModel);
 
         //
-        sendProgressEvent(currentTransferModel);
+        sendProgressEvent(getFeatureDataSource(), currentTransferModel);
 
         //
         notifyProgress(currentTransferModel.file_name, 0);

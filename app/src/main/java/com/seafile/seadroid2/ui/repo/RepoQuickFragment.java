@@ -626,11 +626,11 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         String transferId = map.getString(TransferWorker.KEY_TRANSFER_ID);
         int transferCount = map.getInt(TransferWorker.KEY_TRANSFER_COUNT);
 
-        SLogs.d(TAG, "on event: " + statusEvent + ", dataSource: " + dataSource + ", count: " + transferCount);
+        SLogs.d(TAG, "on event: " + statusEvent + ", dataSource: " + dataSource + ", transferCount: " + transferCount);
 
         if (TextUtils.equals(statusEvent, TransferEvent.EVENT_SCANNING)) {
 
-        } else if (TextUtils.equals(statusEvent, TransferEvent.EVENT_SCAN_FINISH)) {
+        } else if (TextUtils.equals(statusEvent, TransferEvent.EVENT_SCAN_COMPLETE)) {
 
         } else if (TextUtils.equals(statusEvent, TransferEvent.EVENT_FILE_IN_TRANSFER)) {
 

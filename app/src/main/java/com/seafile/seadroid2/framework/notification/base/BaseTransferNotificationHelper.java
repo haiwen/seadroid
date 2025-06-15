@@ -4,6 +4,7 @@ import android.app.Notification;
 import android.content.Context;
 import android.content.Intent;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.work.ForegroundInfo;
 
@@ -46,15 +47,13 @@ public abstract class BaseTransferNotificationHelper extends BaseNotification {
         super.notifyProgress(getNotificationId(), fileName, getDefaultTitle(), percent, getTransferIntent());
     }
 
-    public void notifyProgress(String fileName, int percent, int totalCount) {
-        super.notifyProgress(getNotificationId(), fileName, getDefaultSubtitle(), percent, totalCount, getTransferIntent());
-    }
-
     public void showDefaultNotification() {
         super.showNotification(getNotificationId(), getDefaultTitle(), getDefaultSubtitle(), getTransferIntent());
     }
+
+    @Nullable
     public Notification getNotification() {
-        return super.getNotification(getNotificationId(), getDefaultTitle(), getDefaultSubtitle(), getTransferIntent());
+        return super.getNotification(getDefaultTitle(), getDefaultSubtitle(), getTransferIntent());
     }
 
     //Foreground Notification

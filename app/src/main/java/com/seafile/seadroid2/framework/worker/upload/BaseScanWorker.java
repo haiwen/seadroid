@@ -50,7 +50,7 @@ public abstract class BaseScanWorker extends TransferWorker {
         Bundle b = new Bundle();
         b.putString(TransferWorker.KEY_DATA_RESULT, content);
         b.putInt(TransferWorker.KEY_TRANSFER_COUNT, totalPendingCount);
-        sendWorkerEvent(getDataSource(), TransferEvent.EVENT_SCAN_FINISH, b);
+        sendWorkerEvent(getDataSource(), TransferEvent.EVENT_SCAN_COMPLETE, b);
     }
 
 }

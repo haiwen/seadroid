@@ -10,6 +10,7 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.SaveTo;
 import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.enums.TransferResult;
@@ -20,7 +21,7 @@ import com.seafile.seadroid2.framework.db.entities.FileBackupStatusEntity;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.model.dirents.DirentRecursiveFileModel;
-import com.seafile.seadroid2.framework.notification.FolderBackupNotificationHelper;
+import com.seafile.seadroid2.framework.notification.TransferNotificationDispatcher;
 import com.seafile.seadroid2.framework.service.ParentEventTransfer;
 import com.seafile.seadroid2.framework.util.SafeLogs;
 import com.seafile.seadroid2.framework.util.Utils;
@@ -52,15 +53,13 @@ import retrofit2.Call;
 
 public class FolderBackupScanner extends ParentEventTransfer {
     private final String TAG = "FolderBackupScanner";
-    private final FolderBackupNotificationHelper notificationManager;
 
-    public FolderBackupScanner(Context context, FolderBackupNotificationHelper notificationManager) {
+    public FolderBackupScanner(Context context) {
         super(context);
-        this.notificationManager = notificationManager;
     }
 
     protected SeafException returnSuccess() {
-        sendWorkerEvent(TransferDataSource.FOLDER_BACKUP, TransferEvent.EVENT_SCAN_FINISH);
+        send(FeatureDataSource.FOLDER_BACKUP, TransferEvent.EVENT_SCAN_COMPLETE);
         return SeafException.SUCCESS;
     }
 
@@ -110,19 +109,15 @@ public class FolderBackupScanner extends ParentEventTransfer {
             FolderBackupSharePreferenceHelper.resetLastScanTime();
         }
 
-        //show notification: scan folder
-        String nContent = getContext().getString(R.string.is_scanning);
-        notificationManager.showNotification(notificationManager.getNotificationId(), notificationManager.getDefaultTitle(), nContent);
-
         //send a scan event
-        sendWorkerEvent(TransferDataSource.FOLDER_BACKUP, TransferEvent.EVENT_SCANNING);
+        send(FeatureDataSource.FOLDER_BACKUP, TransferEvent.EVENT_SCANNING);
 
         //scan
         SeafException seafException = traverseBackupPath(backupPaths, account, repoConfig);
 
         if (seafException != SeafException.SUCCESS) {
             SafeLogs.e(TAG, "scan failed");
-            sendWorkerEvent(TransferDataSource.FOLDER_BACKUP, TransferEvent.EVENT_SCAN_FINISH);
+            send(FeatureDataSource.FOLDER_BACKUP, TransferEvent.EVENT_SCAN_COMPLETE);
             return seafException;
         }
 
@@ -135,7 +130,7 @@ public class FolderBackupScanner extends ParentEventTransfer {
             }
         }
 
-        sendFinishScanEvent(TransferDataSource.FOLDER_BACKUP, content, totalPendingCount);
+        sendCompleteEvent(FeatureDataSource.FOLDER_BACKUP, content, totalPendingCount);
         return SeafException.SUCCESS;
     }
 
@@ -201,9 +196,10 @@ public class FolderBackupScanner extends ParentEventTransfer {
                 backupPath = Utils.pathJoin("/", backupPath, "/");
 
                 compare(repoConfig, account, repoModel, backupPath, lastTime, ignorePath);
-                SafeLogs.d(TAG, "traverseBackupPath()", "folder backup path: " + backupPath);
-                SafeLogs.d(TAG, "traverseBackupPath()", "folder backup：need to upload files count: " + GlobalTransferCacheList.FOLDER_BACKUP_QUEUE.getTotalCount());
+                SafeLogs.d(TAG, "traverseBackupPath()", backupPath);
             }
+
+            SafeLogs.e(TAG, "traverseBackupPath()", "need to upload files count: " + GlobalTransferCacheList.FOLDER_BACKUP_QUEUE.getTotalCount());
 
             stopwatch.stop();
             long diff = stopwatch.elapsed(TimeUnit.MILLISECONDS);

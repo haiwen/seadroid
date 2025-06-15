@@ -8,8 +8,10 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.framework.notification.FileUploadNotificationHelper;
+import com.seafile.seadroid2.framework.notification.TransferNotificationDispatcher;
 import com.seafile.seadroid2.framework.notification.base.BaseTransferNotificationHelper;
 import com.seafile.seadroid2.framework.service.ParentEventUploader;
 import com.seafile.seadroid2.framework.util.SafeLogs;
@@ -22,17 +24,15 @@ import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 public class FileUploader extends ParentEventUploader {
     private final String TAG = "FileUploader";
 
-    private final FileUploadNotificationHelper notificationManager;
-
-    public FileUploader(Context context, FileUploadNotificationHelper notificationManager) {
-        super(context);
-        this.notificationManager = notificationManager;
+    public FileUploader(Context context, TransferNotificationDispatcher transferNotificationDispatcher) {
+        super(context, transferNotificationDispatcher);
     }
 
     @Override
-    public BaseTransferNotificationHelper getNotificationHelper() {
-        return notificationManager;
+    public FeatureDataSource getFeatureDataSource() {
+        return FeatureDataSource.MANUAL_FILE_UPLOAD;
     }
+
 
     public void stopById(String modelId) {
         SafeLogs.d(TAG, "stopById()", "stop download by id: " + modelId);
@@ -54,7 +54,7 @@ public class FileUploader extends ParentEventUploader {
     public SeafException upload() {
         SafeLogs.d(TAG, "startUpload()", "start upload");
         //send a start event
-        sendWorkerEvent(TransferDataSource.FILE_BACKUP, TransferEvent.EVENT_TRANSFER_TASK_START);
+        send(FeatureDataSource.MANUAL_FILE_UPLOAD, TransferEvent.EVENT_TRANSFER_TASK_START);
 
         int totalPendingCount = GlobalTransferCacheList.FILE_UPLOAD_QUEUE.getPendingCount();
         if (totalPendingCount <= 0) {
@@ -98,18 +98,16 @@ public class FileUploader extends ParentEventUploader {
         Toasts.show(R.string.upload_finished);
         SafeLogs.d(TAG, "all completed");
 
-        Bundle b = new Bundle();
+        String errorMsg = null;
         if (resultSeafException != SeafException.SUCCESS) {
-            b.putString(TransferWorker.KEY_DATA_RESULT, resultSeafException.getMessage());
+            errorMsg = resultSeafException.getMessage();
         }
-        b.putInt(TransferWorker.KEY_TRANSFER_COUNT, totalPendingCount);
-        sendWorkerEvent(TransferDataSource.FILE_BACKUP, TransferEvent.EVENT_TRANSFER_TASK_COMPLETE, b);
-
+        sendCompleteEvent(FeatureDataSource.MANUAL_FILE_UPLOAD, errorMsg, totalPendingCount);
         return resultSeafException;
     }
 
     protected SeafException returnSuccess() {
-        sendWorkerEvent(TransferDataSource.FILE_BACKUP, TransferEvent.EVENT_TRANSFER_TASK_COMPLETE);
+        send(FeatureDataSource.MANUAL_FILE_UPLOAD, TransferEvent.EVENT_TRANSFER_TASK_COMPLETE);
         return SeafException.SUCCESS;
     }
 

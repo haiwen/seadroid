@@ -46,6 +46,6 @@ public class DownloadNotificationHelper extends BaseTransferNotificationHelper {
 
     @Override
     public int getNotificationId() {
-        return NotificationUtils.NOTIFICATION_ID_DOWNLOAD;
+        return NotificationUtils.NID_DOWNLOAD;
     }
 }

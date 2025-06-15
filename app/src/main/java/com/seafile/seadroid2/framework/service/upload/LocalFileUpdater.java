@@ -11,6 +11,7 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.SaveTo;
 import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.enums.TransferStatus;
@@ -19,6 +20,7 @@ import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.model.dirents.DirentFileModel;
 import com.seafile.seadroid2.framework.notification.LocalFileUpdateNotificationHelper;
+import com.seafile.seadroid2.framework.notification.TransferNotificationDispatcher;
 import com.seafile.seadroid2.framework.notification.base.BaseTransferNotificationHelper;
 import com.seafile.seadroid2.framework.service.ParentEventUploader;
 import com.seafile.seadroid2.framework.util.SafeLogs;
@@ -38,28 +40,25 @@ import retrofit2.Call;
 
 public class LocalFileUpdater extends ParentEventUploader {
     private final String TAG = "LocalFileUpdater";
-    private final LocalFileUpdateNotificationHelper notificationManager;
 
-    public LocalFileUpdater(Context context, LocalFileUpdateNotificationHelper notificationManager) {
-        super(context);
-        this.notificationManager = notificationManager;
+    public LocalFileUpdater(Context context, TransferNotificationDispatcher transferNotificationDispatcher) {
+        super(context, transferNotificationDispatcher);
     }
 
     @Override
-    public BaseTransferNotificationHelper getNotificationHelper() {
-        return notificationManager;
+    public FeatureDataSource getFeatureDataSource() {
+        return FeatureDataSource.AUTOMATIC_UPDATE_FILE_FROM_LOCAL;
     }
 
-
     protected SeafException returnSuccess() {
-        sendWorkerEvent(TransferDataSource.FILE_BACKUP, TransferEvent.EVENT_TRANSFER_TASK_COMPLETE);
+        send(FeatureDataSource.AUTOMATIC_UPDATE_FILE_FROM_LOCAL, TransferEvent.EVENT_TRANSFER_TASK_COMPLETE);
         return SeafException.SUCCESS;
     }
 
     public SeafException upload() {
         SafeLogs.d(TAG, "started execution");
         //send a start event
-        sendWorkerEvent(TransferDataSource.FILE_BACKUP, TransferEvent.EVENT_TRANSFER_TASK_START);
+        send(FeatureDataSource.AUTOMATIC_UPDATE_FILE_FROM_LOCAL, TransferEvent.EVENT_TRANSFER_TASK_START);
 
         if (!NetworkUtils.isConnected()) {
             SafeLogs.d(TAG, "network is not connected");
@@ -137,12 +136,11 @@ public class LocalFileUpdater extends ParentEventUploader {
 
         SafeLogs.d(TAG, "downloaded file monitor: complete, upload successful?" + resultSeafException.getMessage());
         //
-        Bundle b = new Bundle();
+        String errorMsg = null;
         if (resultSeafException != SeafException.SUCCESS) {
-            b.putString(TransferWorker.KEY_DATA_RESULT, resultSeafException.getMessage());
+            errorMsg = resultSeafException.getMessage();
         }
-        b.putInt(TransferWorker.KEY_TRANSFER_COUNT, totalPendingCount);
-        sendWorkerEvent(TransferDataSource.DOWNLOAD, TransferEvent.EVENT_TRANSFER_TASK_COMPLETE, b);
+        sendCompleteEvent(FeatureDataSource.AUTOMATIC_UPDATE_FILE_FROM_LOCAL, errorMsg, totalPendingCount);
 
         return SeafException.SUCCESS;
     }
@@ -165,7 +163,10 @@ public class LocalFileUpdater extends ParentEventUploader {
         DirentFileModel fileModel = getDirentDetail(downloadedEntity.repo_id, downloadedEntity.full_path);
 
         TransferModel transferModel = new TransferModel();
+        //
         transferModel.save_to = SaveTo.DB;
+        transferModel.data_source = TransferDataSource.DOWNLOAD;
+
         transferModel.created_at = System.nanoTime();
         transferModel.related_account = downloadedEntity.related_account;
         transferModel.repo_id = downloadedEntity.repo_id;
@@ -176,7 +177,6 @@ public class LocalFileUpdater extends ParentEventUploader {
         transferModel.full_path = downloadedEntity.target_path;
         transferModel.setParentPath(downloadedEntity.getParent_path());
         transferModel.file_size = file.length();
-        transferModel.data_source = TransferDataSource.DOWNLOAD;
         transferModel.transfer_strategy = ExistingFileStrategy.REPLACE;
         transferModel.transfer_status = TransferStatus.WAITING;
         transferModel.setId(transferModel.genStableId());

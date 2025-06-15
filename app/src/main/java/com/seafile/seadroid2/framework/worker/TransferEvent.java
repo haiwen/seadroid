@@ -4,7 +4,7 @@ public class TransferEvent {
 
     // scan
     public static final String EVENT_SCANNING = "scanning";
-    public static final String EVENT_SCAN_FINISH = "scan_end";
+    public static final String EVENT_SCAN_COMPLETE = "scan_end";
 
     /**
      * A file is being transferred to the target platform

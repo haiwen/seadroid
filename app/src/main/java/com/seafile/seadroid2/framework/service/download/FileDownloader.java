@@ -8,8 +8,10 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.framework.notification.DownloadNotificationHelper;
+import com.seafile.seadroid2.framework.notification.TransferNotificationDispatcher;
 import com.seafile.seadroid2.framework.notification.base.BaseTransferNotificationHelper;
 import com.seafile.seadroid2.framework.service.ParentEventDownloader;
 import com.seafile.seadroid2.framework.util.SafeLogs;
@@ -21,18 +23,14 @@ import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 
 public class FileDownloader extends ParentEventDownloader {
     private final String TAG = "FileDownloader";
-    private final DownloadNotificationHelper notificationManager;
 
-    public FileDownloader(Context context, DownloadNotificationHelper downloadNotificationHelper) {
-        super(context);
-
-        this.notificationManager = downloadNotificationHelper;
+    public FileDownloader(Context context, TransferNotificationDispatcher transferNotificationDispatcher) {
+        super(context, transferNotificationDispatcher);
     }
 
-
     @Override
-    public BaseTransferNotificationHelper getNotificationHelper() {
-        return notificationManager;
+    public FeatureDataSource getFeatureDataSource() {
+        return FeatureDataSource.DOWNLOAD;
     }
 
     public void stopById(String modelId) {
@@ -55,7 +53,7 @@ public class FileDownloader extends ParentEventDownloader {
     public SeafException download() {
         SafeLogs.d(TAG, "download()", "start download");
         //send a start event
-        sendWorkerEvent(TransferDataSource.DOWNLOAD, TransferEvent.EVENT_TRANSFER_TASK_START);
+        send(FeatureDataSource.DOWNLOAD, TransferEvent.EVENT_TRANSFER_TASK_START);
 
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
         if (account == null) {
@@ -102,18 +100,17 @@ public class FileDownloader extends ParentEventDownloader {
         }
 
         //
-        Bundle b = new Bundle();
+        String errorMsg = null;
         if (resultSeafException != SeafException.SUCCESS) {
-            b.putString(TransferWorker.KEY_DATA_RESULT, resultSeafException.getMessage());
+            errorMsg = resultSeafException.getMessage();
         }
-        b.putInt(TransferWorker.KEY_TRANSFER_COUNT, totalPendingCount);
-        sendWorkerEvent(TransferDataSource.DOWNLOAD, TransferEvent.EVENT_TRANSFER_TASK_COMPLETE, b);
 
+        sendCompleteEvent(FeatureDataSource.DOWNLOAD, errorMsg, totalPendingCount);
         return SeafException.SUCCESS;
     }
 
     protected SeafException returnSuccess() {
-        sendWorkerEvent(TransferDataSource.DOWNLOAD, TransferEvent.EVENT_TRANSFER_TASK_COMPLETE);
+        send(FeatureDataSource.DOWNLOAD, TransferEvent.EVENT_TRANSFER_TASK_COMPLETE);
         return SeafException.SUCCESS;
     }
 }

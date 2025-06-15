@@ -15,6 +15,7 @@ import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.SaveTo;
 import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.enums.TransferResult;
@@ -25,7 +26,7 @@ import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.db.entities.FileBackupStatusEntity;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.model.repo.DirentWrapperModel;
-import com.seafile.seadroid2.framework.notification.AlbumBackupNotificationHelper;
+import com.seafile.seadroid2.framework.notification.TransferNotificationDispatcher;
 import com.seafile.seadroid2.framework.service.ParentEventTransfer;
 import com.seafile.seadroid2.framework.util.HttpUtils;
 import com.seafile.seadroid2.framework.util.SafeLogs;
@@ -55,16 +56,14 @@ import retrofit2.Call;
 
 public class MediaBackupScanner extends ParentEventTransfer {
     private final String TAG = "MediaBackupScanner";
-    private final AlbumBackupNotificationHelper notificationManager;
     public static final String BASE_DIR = "My Photos";
 
-    public MediaBackupScanner(Context context, AlbumBackupNotificationHelper notificationManager) {
+    public MediaBackupScanner(Context context) {
         super(context);
-        this.notificationManager = notificationManager;
     }
 
     protected SeafException returnSuccess() {
-        sendWorkerEvent(TransferDataSource.ALBUM_BACKUP, TransferEvent.EVENT_SCAN_FINISH);
+        send(FeatureDataSource.ALBUM_BACKUP, TransferEvent.EVENT_SCAN_COMPLETE);
         return SeafException.SUCCESS;
     }
 
@@ -114,17 +113,13 @@ public class MediaBackupScanner extends ParentEventTransfer {
             AlbumBackupSharePreferenceHelper.resetLastScanTime();
         }
 
-        //show notification: scan
-        String nContent = getContext().getString(R.string.is_scanning);
-        notificationManager.showNotification(notificationManager.getNotificationId(), notificationManager.getDefaultTitle(), nContent);
-
         SafeLogs.d(TAG, "doWork()", "start scan");
-        sendWorkerEvent(TransferDataSource.ALBUM_BACKUP, TransferEvent.EVENT_SCANNING);
+        send(FeatureDataSource.ALBUM_BACKUP, TransferEvent.EVENT_SCANNING);
 
         SeafException seafException = loadMedia(account, repoConfig);
         if (seafException != SeafException.SUCCESS) {
             SafeLogs.d(TAG, "doWork()", "loadMedia() failed：" + seafException.getMessage());
-            sendWorkerEvent(TransferDataSource.ALBUM_BACKUP, TransferEvent.EVENT_SCAN_FINISH);
+            send(FeatureDataSource.ALBUM_BACKUP, TransferEvent.EVENT_SCAN_COMPLETE);
             return seafException;
         }
 
@@ -139,7 +134,7 @@ public class MediaBackupScanner extends ParentEventTransfer {
         }
 
         //
-        sendFinishScanEvent(TransferDataSource.ALBUM_BACKUP, content, totalPendingCount);
+        sendCompleteEvent(FeatureDataSource.ALBUM_BACKUP, content, totalPendingCount);
 
         return SeafException.SUCCESS;
     }

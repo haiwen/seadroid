@@ -14,11 +14,11 @@ public class SafeLogs {
         }
     }
 
-    public static void e(String TAG, String e) {
+    public static void e(String... logs) {
         if (Looper.myLooper() == Looper.getMainLooper()) {
-            safeE(TAG + ", " + e);
+            safeE(logs);
         } else {
-            mainHandler.post(() -> safeE(TAG + ", " + e));
+            mainHandler.post(() -> safeE(logs));
         }
     }
 
@@ -37,9 +37,9 @@ public class SafeLogs {
         }
     }
 
-    private static void safeE(String error) {
+    private static void safeE(String... logs) {
         try {
-            SLogs.e(error);
+            SLogs.e(logs);
         } catch (Throwable ignored) {
         }
     }

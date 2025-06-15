@@ -45,6 +45,6 @@ public class FileUploadNotificationHelper extends BaseTransferNotificationHelper
 
     @Override
     public int getNotificationId() {
-        return NotificationUtils.NOTIFICATION_ID_UPLOAD_FILE;
+        return NotificationUtils.NID_UPLOAD_FILE;
     }
 }

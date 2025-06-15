@@ -9,6 +9,7 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.blankj.utilcode.util.CollectionUtils;
 import com.google.android.material.tabs.TabLayoutMediator;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
@@ -21,7 +22,6 @@ import com.seafile.seadroid2.ui.adapter.ViewPager2Adapter;
 import com.seafile.seadroid2.ui.base.BaseActivity;
 import com.seafile.seadroid2.ui.camera_upload.config_fragment.BucketsFragment;
 import com.seafile.seadroid2.ui.camera_upload.config_fragment.HowToUploadFragment;
-import com.seafile.seadroid2.ui.camera_upload.config_fragment.ReadyToScanFragment;
 import com.seafile.seadroid2.ui.camera_upload.config_fragment.WhatToUploadFragment;
 import com.seafile.seadroid2.ui.folder_backup.RepoConfig;
 import com.seafile.seadroid2.ui.selector.RepoSelectorFragment;
@@ -167,12 +167,13 @@ public class CameraUploadConfigActivity extends BaseActivity {
 
             } else if (fragment instanceof BucketsFragment bucketsFragment) {
                 List<String> selectedBuckets = bucketsFragment.getSelectedBuckets();
-                if (selectedBuckets != null) {
-                    if (bucketsFragment.isAutoScanSelected()) {
-                        selectedBuckets.clear();
-                    }
-
+                boolean isAutoScan = bucketsFragment.isAutoScanSelected();
+                if (isAutoScan || CollectionUtils.isEmpty(selectedBuckets)) {
+                    AlbumBackupSharePreferenceHelper.writeBucketIds(null);
+                    AlbumBackupSharePreferenceHelper.writeCustomAlbumSwitch(false);
+                } else {
                     AlbumBackupSharePreferenceHelper.writeBucketIds(selectedBuckets);
+                    AlbumBackupSharePreferenceHelper.writeCustomAlbumSwitch(true);
                 }
             } else if (fragment instanceof RepoSelectorFragment repoSelectorFragment) {
                 Pair<Account, RepoModel> pair = repoSelectorFragment.getBackupInfo();

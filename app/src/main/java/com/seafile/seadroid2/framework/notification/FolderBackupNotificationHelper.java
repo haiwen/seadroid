@@ -45,6 +45,6 @@ public class FolderBackupNotificationHelper extends BaseTransferNotificationHelp
 
     @Override
     public int getNotificationId() {
-        return NotificationUtils.NOTIFICATION_ID_UPLOAD_FOLDER;
+        return NotificationUtils.NID_UPLOAD_FOLDER;
     }
 }
