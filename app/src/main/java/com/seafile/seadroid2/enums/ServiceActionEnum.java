@@ -1,0 +1,13 @@
+package com.seafile.seadroid2.enums;
+
+public enum ServiceActionEnum {
+    RESTART_PHOTO_BACKUP,
+    STOP_PHOTO_BACKUP,
+    START_FOLDER_BACKUP,
+    STOP_FOLDER_BACKUP,
+    START_MANUAL_UPLOAD,
+    START_SHARE_TO_SEAFILE_UPLOAD,
+    START_FILE_DOWNLOAD,
+    START_LOCAL_FILE_UPDATE,
+    STOP_TRANSFER;
+}

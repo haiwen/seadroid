@@ -24,11 +24,9 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.databinding.LayoutFrameSwipeRvBinding;
 import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.TransferAction;
-import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.service.TransferService;
 import com.seafile.seadroid2.framework.util.Toasts;
-import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
@@ -238,9 +236,9 @@ public abstract class TransferListFragment extends BaseFragment {
     }
 
     private void doDelete(TransferModel transferModel, boolean isDeleteLocalFile) throws ExecutionException, InterruptedException {
-        TransferService.stopTransferService(requireContext(), transferModel);
+        TransferService.stopTransfer(requireContext(), transferModel);
 
-        if (TransferDataSource.DOWNLOAD == transferModel.data_source) {
+        if (FeatureDataSource.DOWNLOAD == transferModel.data_source) {
 //            if (transferModel.transfer_status == TransferStatus.IN_PROGRESS) {
 //                BackgroundJobManagerImpl.getInstance().cancelDownloadWorker();
 //            }
@@ -252,20 +250,20 @@ public abstract class TransferListFragment extends BaseFragment {
 
 //            BackgroundJobManagerImpl.getInstance().startDownloadWorker();
 
-        } else if (TransferDataSource.FILE_BACKUP == transferModel.data_source) {
+        } else if (FeatureDataSource.MANUAL_FILE_UPLOAD == transferModel.data_source) {
 
 //            GlobalTransferCacheList.FILE_UPLOAD_QUEUE.remove(transferModel.getId());
 //            if (transferModel.transfer_status == TransferStatus.IN_PROGRESS) {
 //                BackgroundJobManagerImpl.getInstance().cancelFolderBackupWorker();
 //            }
 
-        } else if (TransferDataSource.FOLDER_BACKUP == transferModel.data_source) {
+        } else if (FeatureDataSource.FOLDER_BACKUP == transferModel.data_source) {
 //            GlobalTransferCacheList.FOLDER_BACKUP_QUEUE.remove(transferModel.getId());
 ///
 //            if (transferModel.transfer_status == TransferStatus.IN_PROGRESS) {
 //                BackgroundJobManagerImpl.getInstance().startFolderBackupChain(true);
 //            }
-        } else if (TransferDataSource.ALBUM_BACKUP == transferModel.data_source) {
+        } else if (FeatureDataSource.ALBUM_BACKUP == transferModel.data_source) {
 //            GlobalTransferCacheList.ALBUM_BACKUP_QUEUE.remove(transferModel.getId());
 //
 //            if (transferModel.transfer_status == TransferStatus.IN_PROGRESS) {

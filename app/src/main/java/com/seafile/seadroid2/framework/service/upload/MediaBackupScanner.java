@@ -351,7 +351,7 @@ public class MediaBackupScanner extends ParentEventTransfer {
             transferModel.repo_id = repoConfig.getRepoId();
             transferModel.repo_name = repoConfig.getRepoName();
 
-            transferModel.data_source = TransferDataSource.ALBUM_BACKUP;
+            transferModel.data_source = FeatureDataSource.ALBUM_BACKUP;
             transferModel.save_to = SaveTo.DB;
             transferModel.setId(transferModel.genStableId());
             GlobalTransferCacheList.ALBUM_BACKUP_QUEUE.put(bucketName, transferModel);

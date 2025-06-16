@@ -12,6 +12,7 @@ import androidx.room.PrimaryKey;
 
 import com.blankj.utilcode.util.EncryptUtils;
 import com.blankj.utilcode.util.FileUtils;
+import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.framework.model.BaseModel;
 import com.seafile.seadroid2.framework.worker.queue.TransferModel;
@@ -210,7 +211,7 @@ public class FileBackupStatusEntity extends BaseModel {
         entity.mime_type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(entity.file_format);
         entity.created_at = System.currentTimeMillis();
         entity.modified_at = entity.created_at;
-        entity.data_source = transferModel.data_source;
+        entity.data_source = FeatureDataSource.toTransferDataSource(transferModel.data_source);
 
         entity.uid = entity.getUID();
 

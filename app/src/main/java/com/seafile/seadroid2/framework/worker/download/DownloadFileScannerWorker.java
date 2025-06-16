@@ -11,6 +11,7 @@ import com.blankj.utilcode.util.CollectionUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.SaveTo;
 import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.enums.TransferStatus;
@@ -72,7 +73,7 @@ public class DownloadFileScannerWorker extends TransferWorker {
         showForegroundAsync(foregroundInfo);
 
         //send a scan event
-        sendWorkerEvent(TransferDataSource.DOWNLOAD, TransferEvent.EVENT_SCANNING);
+        sendWorkerEvent(FeatureDataSource.DOWNLOAD, TransferEvent.EVENT_SCANNING);
 
         SLogs.d(TAG, "doWork()", "start scan");
         String[] direntIds = direntIdStr.split(",");
@@ -102,7 +103,7 @@ public class DownloadFileScannerWorker extends TransferWorker {
     }
 
     protected Result returnSuccess() {
-        sendWorkerEvent(TransferDataSource.DOWNLOAD, TransferEvent.EVENT_SCAN_COMPLETE);
+        sendWorkerEvent(FeatureDataSource.DOWNLOAD, TransferEvent.EVENT_SCAN_COMPLETE);
         return Result.success();
     }
 
@@ -129,7 +130,7 @@ public class DownloadFileScannerWorker extends TransferWorker {
         transferModel.target_path = DataManager.getLocalFileCachePath(account, transferModel.repo_id, transferModel.repo_name, transferModel.full_path).getAbsolutePath();
 
         transferModel.transfer_status = TransferStatus.WAITING;
-        transferModel.data_source = TransferDataSource.DOWNLOAD;
+        transferModel.data_source = FeatureDataSource.DOWNLOAD;
         transferModel.created_at = System.nanoTime();
         transferModel.transfer_strategy = ExistingFileStrategy.REPLACE;
         transferModel.setId(transferModel.genStableId());
@@ -164,7 +165,7 @@ public class DownloadFileScannerWorker extends TransferWorker {
             transferModel.target_path = DataManager.getLocalFileCachePath(account, transferModel.repo_id, transferModel.repo_name, transferModel.full_path).getAbsolutePath();
 
             transferModel.transfer_status = TransferStatus.WAITING;
-            transferModel.data_source = TransferDataSource.DOWNLOAD;
+            transferModel.data_source = FeatureDataSource.DOWNLOAD;
             transferModel.created_at = System.nanoTime();
             transferModel.transfer_strategy = ExistingFileStrategy.REPLACE;
             transferModel.setId(transferModel.genStableId());

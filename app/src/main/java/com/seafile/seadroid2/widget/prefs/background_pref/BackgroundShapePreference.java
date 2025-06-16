@@ -84,12 +84,12 @@ public abstract class BackgroundShapePreference extends Preference {
         holder.itemView.setBackground(drawable);
 
         TextView titleTextView = (TextView) holder.findViewById(android.R.id.title);
-        if (titleTextView != null) {
+        if (titleTextView != null && titleTextColor != 0) {
             titleTextView.setTextColor(titleTextColor);
         }
 
         TextView summaryTextView = (TextView) holder.findViewById(android.R.id.summary);
-        if (summaryTextView != null) {
+        if (summaryTextView != null && summaryTextColor != 0) {
             summaryTextView.setTextColor(summaryTextColor);
         }
 
@@ -140,6 +140,10 @@ public abstract class BackgroundShapePreference extends Preference {
 
     public void setTitleTextColor(int titleTextColor) {
         this.titleTextColor = titleTextColor;
+        notifyChanged();
+    }
+    public void setSummaryTextColor(int summaryTextColor) {
+        this.summaryTextColor = summaryTextColor;
         notifyChanged();
     }
 }

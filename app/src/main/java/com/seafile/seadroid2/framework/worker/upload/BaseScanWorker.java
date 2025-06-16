@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.work.WorkerParameters;
 
 import com.blankj.utilcode.util.NetworkUtils;
+import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
@@ -20,9 +21,9 @@ public abstract class BaseScanWorker extends TransferWorker {
 
     protected boolean checkNetworkTypeIfAllowStartUploadWorker() {
         boolean isAllowData;
-        if (getDataSource() == TransferDataSource.ALBUM_BACKUP) {
+        if (getDataSource() == FeatureDataSource.ALBUM_BACKUP) {
             isAllowData = AlbumBackupSharePreferenceHelper.readAllowDataPlanSwitch();
-        } else if (getDataSource() == TransferDataSource.FOLDER_BACKUP) {
+        } else if (getDataSource() == FeatureDataSource.FOLDER_BACKUP) {
             isAllowData = FolderBackupSharePreferenceHelper.readDataPlanAllowed();
         } else {
             isAllowData = false;
@@ -35,7 +36,7 @@ public abstract class BaseScanWorker extends TransferWorker {
         return !NetworkUtils.isMobileData();
     }
 
-    public abstract TransferDataSource getDataSource();
+    public abstract FeatureDataSource getDataSource();
 
     protected Result returnSuccess() {
         sendFinishScanEvent();

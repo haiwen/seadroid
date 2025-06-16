@@ -19,14 +19,11 @@ import androidx.core.app.NotificationCompat;
 
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.enums.FeatureDataSource;
-import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.framework.notification.base.NotificationUtils;
 import com.seafile.seadroid2.ui.transfer_list.TransferActivity;
 
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class TransferNotificationDispatcher {
 
@@ -49,7 +46,7 @@ public class TransferNotificationDispatcher {
         put(FeatureDataSource.DOWNLOAD, NotificationUtils.NID_DOWNLOAD);
         put(FeatureDataSource.MANUAL_FILE_UPLOAD, NotificationUtils.NID_UPLOAD_FILE);
         put(FeatureDataSource.SHARE_FILE_TO_SEAFILE, NotificationUtils.NID_UPLOAD_FILE);
-        put(FeatureDataSource.AUTOMATIC_UPDATE_FILE_FROM_LOCAL, NotificationUtils.NID_UPLOAD_FILE);
+        put(FeatureDataSource.AUTO_UPDATE_LOCAL_FILE, NotificationUtils.NID_UPLOAD_FILE);
     }};
 
     public Integer getNotifyId(FeatureDataSource source) {
@@ -68,7 +65,7 @@ public class TransferNotificationDispatcher {
         return switch (source) {
             case ALBUM_BACKUP -> context.getString(R.string.settings_camera_upload_info_title);
             case FOLDER_BACKUP -> context.getString(R.string.settings_folder_backup_info_title);
-            case MANUAL_FILE_UPLOAD, SHARE_FILE_TO_SEAFILE, AUTOMATIC_UPDATE_FILE_FROM_LOCAL ->
+            case MANUAL_FILE_UPLOAD, SHARE_FILE_TO_SEAFILE, AUTO_UPDATE_LOCAL_FILE ->
                     context.getString(R.string.channel_name_upload);
             case DOWNLOAD -> context.getString(R.string.download);
         };
@@ -104,10 +101,6 @@ public class TransferNotificationDispatcher {
         }
 
         return dIntent;
-    }
-
-    public NotificationInfo getForegroundNotification(FeatureDataSource source) {
-        return getForegroundNotification(source, null);
     }
 
     public NotificationInfo getForegroundNotification(FeatureDataSource source, String subTitle) {

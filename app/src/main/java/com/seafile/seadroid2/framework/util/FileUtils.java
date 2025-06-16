@@ -9,7 +9,6 @@ import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.text.TextUtils;
-import android.util.Log;
 
 import java.io.File;
 import java.io.IOException;
@@ -153,7 +152,7 @@ public class FileUtils {
         }
     }
 
-    public static long getFileSize(Context context, Uri uri) {
+    public static long getEstimationFileSize(Context context, Uri uri) {
         long size = -1;
         Cursor cursor = context.getContentResolver().query(uri, null, null, null, null);
         if (cursor != null) {

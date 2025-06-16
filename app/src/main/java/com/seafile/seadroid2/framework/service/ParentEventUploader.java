@@ -10,7 +10,6 @@ import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.SaveTo;
-import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.enums.TransferResult;
 import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.db.AppDatabase;
@@ -360,7 +359,7 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
         GlobalTransferCacheList.updateTransferModel(currentTransferModel);
 
         if (currentTransferModel.save_to == SaveTo.DB) {
-            if (currentTransferModel.data_source == TransferDataSource.DOWNLOAD) {
+            if (currentTransferModel.data_source == FeatureDataSource.AUTO_UPDATE_LOCAL_FILE) {
                 FileCacheStatusEntity transferEntity = FileCacheStatusEntity.convertFromUpload(currentTransferModel, fileId);
                 AppDatabase.getInstance().fileCacheStatusDAO().insert(transferEntity);
 

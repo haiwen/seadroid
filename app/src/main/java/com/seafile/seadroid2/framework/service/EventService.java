@@ -4,7 +4,7 @@ import android.app.Service;
 import android.os.Bundle;
 
 import com.seafile.seadroid2.bus.BusHelper;
-import com.seafile.seadroid2.enums.TransferDataSource;
+import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.notification.GeneralNotificationHelper;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
@@ -41,11 +41,11 @@ public abstract class EventService extends Service {
         return generalNotificationHelper;
     }
 
-    public void sendWorkerEvent(TransferDataSource dataSource, String event) {
+    public void sendWorkerEvent(FeatureDataSource dataSource, String event) {
         send(dataSource, event);
     }
 
-    public void sendWorkerEvent(TransferDataSource dataSource, String event, Bundle extra) {
+    public void sendWorkerEvent(FeatureDataSource dataSource, String event, Bundle extra) {
         send(dataSource, event, extra);
     }
 
@@ -66,11 +66,11 @@ public abstract class EventService extends Service {
         send(transferModel.data_source, TransferEvent.EVENT_FILE_IN_TRANSFER, b);
     }
 
-    private void send(TransferDataSource dataSource, String event) {
+    private void send(FeatureDataSource dataSource, String event) {
         send(dataSource, event, null);
     }
 
-    private void send(TransferDataSource dataSource, String event, Bundle extra) {
+    private void send(FeatureDataSource dataSource, String event, Bundle extra) {
         Bundle b = new Bundle();
         b.putString(TransferWorker.KEY_DATA_SOURCE, dataSource.name());
         b.putString(TransferWorker.KEY_DATA_STATUS, event);

@@ -1,7 +1,6 @@
 package com.seafile.seadroid2.framework.service.upload;
 
 import android.content.Context;
-import android.os.Bundle;
 import android.text.TextUtils;
 
 import com.blankj.utilcode.util.CollectionUtils;
@@ -13,22 +12,18 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.SaveTo;
-import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.model.dirents.DirentFileModel;
-import com.seafile.seadroid2.framework.notification.LocalFileUpdateNotificationHelper;
 import com.seafile.seadroid2.framework.notification.TransferNotificationDispatcher;
-import com.seafile.seadroid2.framework.notification.base.BaseTransferNotificationHelper;
 import com.seafile.seadroid2.framework.service.ParentEventUploader;
 import com.seafile.seadroid2.framework.util.SafeLogs;
 import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.framework.worker.ExistingFileStrategy;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
-import com.seafile.seadroid2.framework.worker.TransferWorker;
 import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 import com.seafile.seadroid2.ui.file.FileService;
 
@@ -47,18 +42,18 @@ public class LocalFileUpdater extends ParentEventUploader {
 
     @Override
     public FeatureDataSource getFeatureDataSource() {
-        return FeatureDataSource.AUTOMATIC_UPDATE_FILE_FROM_LOCAL;
+        return FeatureDataSource.AUTO_UPDATE_LOCAL_FILE;
     }
 
     protected SeafException returnSuccess() {
-        send(FeatureDataSource.AUTOMATIC_UPDATE_FILE_FROM_LOCAL, TransferEvent.EVENT_TRANSFER_TASK_COMPLETE);
+        send(FeatureDataSource.AUTO_UPDATE_LOCAL_FILE, TransferEvent.EVENT_TRANSFER_TASK_COMPLETE);
         return SeafException.SUCCESS;
     }
 
     public SeafException upload() {
         SafeLogs.d(TAG, "started execution");
         //send a start event
-        send(FeatureDataSource.AUTOMATIC_UPDATE_FILE_FROM_LOCAL, TransferEvent.EVENT_TRANSFER_TASK_START);
+        send(FeatureDataSource.AUTO_UPDATE_LOCAL_FILE, TransferEvent.EVENT_TRANSFER_TASK_START);
 
         if (!NetworkUtils.isConnected()) {
             SafeLogs.d(TAG, "network is not connected");
@@ -71,7 +66,7 @@ public class LocalFileUpdater extends ParentEventUploader {
             return returnSuccess();
         }
 
-        int totalPendingCount = GlobalTransferCacheList.CHANGED_FILE_MONITOR_QUEUE.getPendingCount();
+        int totalPendingCount = GlobalTransferCacheList.LOCAL_FILE_MONITOR_QUEUE.getPendingCount();
         SafeLogs.d(TAG, "pending count: " + totalPendingCount);
         if (totalPendingCount <= 0) {
             SafeLogs.d(TAG, "pending count is 0");
@@ -81,7 +76,7 @@ public class LocalFileUpdater extends ParentEventUploader {
         SeafException resultSeafException = SeafException.SUCCESS;
 
         while (true) {
-            TransferModel missFieldDataTransferModel = GlobalTransferCacheList.CHANGED_FILE_MONITOR_QUEUE.pick(true);
+            TransferModel missFieldDataTransferModel = GlobalTransferCacheList.LOCAL_FILE_MONITOR_QUEUE.pick(true);
             if (missFieldDataTransferModel == null) {
                 SafeLogs.d(TAG, "model is null");
                 break;
@@ -140,7 +135,7 @@ public class LocalFileUpdater extends ParentEventUploader {
         if (resultSeafException != SeafException.SUCCESS) {
             errorMsg = resultSeafException.getMessage();
         }
-        sendCompleteEvent(FeatureDataSource.AUTOMATIC_UPDATE_FILE_FROM_LOCAL, errorMsg, totalPendingCount);
+        sendCompleteEvent(FeatureDataSource.AUTO_UPDATE_LOCAL_FILE, errorMsg, totalPendingCount);
 
         return SeafException.SUCCESS;
     }
@@ -165,7 +160,7 @@ public class LocalFileUpdater extends ParentEventUploader {
         TransferModel transferModel = new TransferModel();
         //
         transferModel.save_to = SaveTo.DB;
-        transferModel.data_source = TransferDataSource.DOWNLOAD;
+        transferModel.data_source = FeatureDataSource.AUTO_UPDATE_LOCAL_FILE;
 
         transferModel.created_at = System.nanoTime();
         transferModel.related_account = downloadedEntity.related_account;

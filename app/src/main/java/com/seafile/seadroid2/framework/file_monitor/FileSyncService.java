@@ -15,9 +15,10 @@ import com.blankj.utilcode.util.EncryptUtils;
 import com.blankj.utilcode.util.FileUtils;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
-import com.seafile.seadroid2.enums.TransferDataSource;
+import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.datastore.StorageManager;
+import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
@@ -27,6 +28,7 @@ import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
+import com.seafile.seadroid2.ui.folder_backup.RepoConfig;
 
 import org.apache.commons.io.monitor.FileAlterationListener;
 import org.apache.commons.io.monitor.FileAlterationObserver;
@@ -196,11 +198,14 @@ public class FileSyncService extends Service {
     }
 
     private void startWorkers() {
-        CameraUploadManager.getInstance().performSync();
+        if (AlbumBackupSharePreferenceHelper.isAlbumBackupEnable()) {
+            CameraUploadManager.getInstance().performSync();
+        }
 
-        TransferService.startFolderBackupService(getApplicationContext());
+        if (FolderBackupSharePreferenceHelper.isFolderBackupEnable()) {
+            TransferService.restartFolderBackupService(getApplicationContext());
+        }
     }
-
 
     @Override
     public void onTaskRemoved(Intent rootIntent) {
@@ -301,7 +306,7 @@ public class FileSyncService extends Service {
                 TransferService.startLocalFileUpdateService(getApplicationContext());
             }
         } else {
-            TransferService.startFolderBackupService(getApplicationContext());
+            TransferService.restartFolderBackupService(getApplicationContext());
         }
     }
 
@@ -310,7 +315,7 @@ public class FileSyncService extends Service {
         transferModel.file_name = file.getName();
         transferModel.file_size = file.length();
         transferModel.full_path = file.getAbsolutePath();
-        transferModel.data_source = TransferDataSource.DOWNLOAD;
+        transferModel.data_source = FeatureDataSource.AUTO_UPDATE_LOCAL_FILE;
 
         //repo data will be set in worker
 //        transferModel.related_account = fileCacheStatusEntity.related_account;
@@ -319,7 +324,7 @@ public class FileSyncService extends Service {
 
         String id = EncryptUtils.encryptMD5ToString(file.getAbsolutePath());
         transferModel.setId(id);
-        GlobalTransferCacheList.CHANGED_FILE_MONITOR_QUEUE.put(transferModel);
+        GlobalTransferCacheList.LOCAL_FILE_MONITOR_QUEUE.put(transferModel);
     }
 
     private class FolderStateChangedListener implements FileAlterationListener {
@@ -371,7 +376,7 @@ public class FileSyncService extends Service {
 
         @Override
         public void onStop(FileAlterationObserver observer) {
-            SLogs.d(TAG, "onStop()", observer.getDirectory().getPath());
+            SLogs.d(TAG, "onStop()");
         }
     }
 

@@ -46,7 +46,6 @@ import com.seafile.seadroid2.config.ObjKey;
 import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.NetworkMode;
 import com.seafile.seadroid2.enums.ObjSelectType;
-import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.framework.datastore.StorageManager;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
@@ -80,6 +79,7 @@ import com.seafile.seadroid2.widget.prefs.DividerPositionEnum;
 import com.seafile.seadroid2.widget.prefs.RadiusPositionEnum;
 import com.seafile.seadroid2.widget.prefs.SimpleMenuPreference;
 import com.seafile.seadroid2.widget.prefs.TextSwitchPreference;
+import com.seafile.seadroid2.widget.prefs.TextTitleSummaryPreference;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -102,8 +102,8 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
     private Preference mAlbumBackupRepo;
     private TextSwitchPreference mAlbumBackupAdvancedDataPlanSwitch;
     private TextSwitchPreference mAlbumBackupAdvancedVideoSwitch;
-    private TextSwitchPreference mAlbumBackupAdvancedCustomBucketSwitch;
-    private Preference mAlbumBackupAdvancedSelectedBucket;
+    //    private TextSwitchPreference mAlbumBackupAdvancedCustomBucketSwitch;
+    private TextTitleSummaryPreference mAlbumBackupAdvancedSelectedBucket;
 //    private Preference mAlbumBackupState;
 
     //folder backup
@@ -175,13 +175,11 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
         initWorkerBusObserver();
 
         // delay updates to avoid flickering
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                switchAlbumBackupState(mAlbumBackupSwitch.isChecked());
-                switchFolderBackupState(mFolderBackupSwitch.isChecked());
-            }
-        }, 500);
+        runMainThreadDelay(() -> {
+            switchAlbumBackupState(mAlbumBackupSwitch.isChecked());
+            switchFolderBackupState(mFolderBackupSwitch.isChecked());
+        });
+
     }
 
     @Override
@@ -270,7 +268,7 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
 
         mAlbumBackupAdvancedDataPlanSwitch = findPreference(getString(R.string.pref_key_album_backup_advanced_data_plan_switch));
         mAlbumBackupAdvancedVideoSwitch = findPreference(getString(R.string.pref_key_album_backup_advanced_allow_video_switch));
-        mAlbumBackupAdvancedCustomBucketSwitch = findPreference(getString(R.string.pref_key_album_backup_advanced_buckets_switch));
+//        mAlbumBackupAdvancedCustomBucketSwitch = findPreference(getString(R.string.pref_key_album_backup_advanced_buckets_switch));
         mAlbumBackupAdvancedSelectedBucket = findPreference(getString(R.string.pref_key_album_backup_advanced_buckets_select));
         if (mAlbumBackupAdvancedSelectedBucket != null) {
             mAlbumBackupAdvancedSelectedBucket.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -583,21 +581,21 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
             }
         });
 
-        Settings.ALBUM_BACKUP_ADVANCE_BUCKETS_SWITCH.observe(getViewLifecycleOwner(), new Observer<Boolean>() {
-            @Override
-            public void onChanged(Boolean aBoolean) {
-                SLogs.d(TAG, "album buckets switch：" + aBoolean);
-                if (aBoolean) {
-                    Intent intent = new Intent(requireActivity(), CameraUploadConfigActivity.class);
-                    intent.putExtra(CameraUploadConfigActivity.CAMERA_UPLOAD_LOCAL_DIRECTORIES, true);
-                    albumBackupSelectCustomAlbumLauncher.launch(intent);
-                } else {
-                    AlbumBackupSharePreferenceHelper.writeBucketIds(null);
-                    updateAlbumBackupPrefSummary();
-                    launchAlbumBackupWhenReady();
-                }
-            }
-        });
+//        Settings.ALBUM_BACKUP_ADVANCE_BUCKETS_SWITCH.observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+//            @Override
+//            public void onChanged(Boolean aBoolean) {
+//                SLogs.d(TAG, "album buckets switch：" + aBoolean);
+//                if (aBoolean) {
+//                    Intent intent = new Intent(requireActivity(), CameraUploadConfigActivity.class);
+//                    intent.putExtra(CameraUploadConfigActivity.CAMERA_UPLOAD_LOCAL_DIRECTORIES, true);
+//                    albumBackupSelectCustomAlbumLauncher.launch(intent);
+//                } else {
+//                    AlbumBackupSharePreferenceHelper.writeBucketIds(null);
+//                    updateAlbumBackupPrefSummary();
+//                    launchAlbumBackupWhenReady();
+//                }
+//            }
+//        });
 
 //        Settings.ALBUM_BACKUP_STATE.observe(getViewLifecycleOwner(), new Observer<String>() {
 //            @Override
@@ -750,15 +748,6 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
 
         // Cache size
         calculateCacheSize();
-
-//        //
-//        if (mAlbumBackupSwitch.isChecked()) {
-//            viewModel.countAlbumBackupPendingList(requireContext());
-//        }
-//
-//        if (mFolderBackupSwitch.isChecked()) {
-//            viewModel.countFolderBackupPendingList(requireContext());
-//        }
     }
 
     //0 : no one, 1 : camera, 2 : folder
@@ -772,6 +761,9 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
 
         } else {
             whoIsRequestingPermission = 1;
+
+            runMainThreadDelay(() -> switchAlbumBackupState(false));
+
             showRequestStoragePermissionDialog();
         }
     }
@@ -782,6 +774,9 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
             launchFolderBackupWhenReady();
         } else {
             whoIsRequestingPermission = 2;
+
+            runMainThreadDelay(() -> switchFolderBackupState(false));
+
             showRequestStoragePermissionDialog();
         }
     }
@@ -836,19 +831,18 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
         mAlbumBackupRepo.setVisible(isEnable);
         mAlbumBackupAdvancedDataPlanSwitch.setVisible(isEnable);
         mAlbumBackupAdvancedVideoSwitch.setVisible(isEnable);
-        mAlbumBackupAdvancedCustomBucketSwitch.setVisible(isEnable);
+//        mAlbumBackupAdvancedCustomBucketSwitch.setVisible(isEnable);
         mAlbumBackupAdvancedSelectedBucket.setVisible(isEnable);
 
 //        mAlbumBackupState.setVisible(isEnable);
 //        mAlbumBackupAdvanced.setVisible(isEnable);
 
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                updateAlbumBackupPrefSummary();
-            }
-        }, 500);
+        runMainThreadDelay(() -> updateAlbumBackupPrefSummary());
 
+    }
+
+    private void runMainThreadDelay(Runnable runnable) {
+        new Handler().postDelayed(runnable, 500);
     }
 
 
@@ -870,16 +864,17 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
             mAlbumBackupAdvancedVideoSwitch.setChecked(videoSwitch);
         }
 
-        boolean bucketSwitch = Settings.ALBUM_BACKUP_ADVANCE_BUCKETS_SWITCH.queryValue();
-        if (mAlbumBackupAdvancedCustomBucketSwitch != null) {
-            mAlbumBackupAdvancedCustomBucketSwitch.setChecked(bucketSwitch);
-        }
+//        boolean bucketSwitch = Settings.ALBUM_BACKUP_ADVANCE_BUCKETS_SWITCH.queryValue();
+//        if (mAlbumBackupAdvancedCustomBucketSwitch != null) {
+//            mAlbumBackupAdvancedCustomBucketSwitch.setChecked(bucketSwitch);
+//        }
 
         if (mAlbumBackupAdvancedSelectedBucket != null) {
             List<String> bucketIds = AlbumBackupSharePreferenceHelper.readBucketIds();
             if (CollectionUtils.isEmpty(bucketIds)) {
-                mAlbumBackupAdvancedSelectedBucket.setEnabled(false);
                 mAlbumBackupAdvancedSelectedBucket.setSummary(R.string.settings_camera_upload_dir_auto_scan);
+                int color = ContextCompat.getColor(requireContext(), R.color.light_grey);
+                mAlbumBackupAdvancedSelectedBucket.setSummaryTextColor(color);
             } else {
                 List<String> bucketNames = new ArrayList<>();
                 List<GalleryBucketUtils.Bucket> tempBuckets = GalleryBucketUtils.getMediaBuckets(SeadroidApplication.getAppContext());
@@ -892,8 +887,9 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
                         bucketNames.add(bucket.bucketName);
                     }
                 }
-                mAlbumBackupAdvancedSelectedBucket.setEnabled(true);
                 mAlbumBackupAdvancedSelectedBucket.setSummary(TextUtils.join(", ", bucketNames));
+                int color = ContextCompat.getColor(requireContext(), R.color.bar_title_color);
+                mAlbumBackupAdvancedSelectedBucket.setSummaryTextColor(color);
             }
         }
     }
@@ -907,9 +903,7 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
 
         GlobalTransferCacheList.ALBUM_BACKUP_QUEUE.clear();
 
-        boolean isEnable = AlbumBackupSharePreferenceHelper.readBackupSwitch();
-        RepoConfig repoConfig = AlbumBackupSharePreferenceHelper.readRepoConfig();
-        if (isEnable && repoConfig != null) {
+        if (AlbumBackupSharePreferenceHelper.isAlbumBackupEnable()) {
             CameraUploadManager.getInstance().setCameraAccount(currentAccount);
             CameraUploadManager.getInstance().performSync();
         } else {
@@ -963,15 +957,11 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
         FolderBackupSharePreferenceHelper.resetLastScanTime();
         GlobalTransferCacheList.FOLDER_BACKUP_QUEUE.clear();
 
-        boolean isEnable = FolderBackupSharePreferenceHelper.readBackupSwitch();
-        RepoConfig repoConfig = FolderBackupSharePreferenceHelper.readRepoConfig();
-        List<String> pathList = FolderBackupSharePreferenceHelper.readBackupPathsAsList();
-
         //
         BusHelper.getCommonObserver().post("RESTART_FILE_MONITOR");
 
-        if (isEnable && !CollectionUtils.isEmpty(pathList) && repoConfig != null) {
-            TransferService.startFolderBackupService(requireContext());
+        if (FolderBackupSharePreferenceHelper.isFolderBackupEnable()) {
+            TransferService.restartFolderBackupService(requireContext());
         } else {
             TransferService.stopFolderBackupService(requireContext());
         }

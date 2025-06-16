@@ -14,6 +14,7 @@ import com.google.common.base.Stopwatch;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.SaveTo;
 import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.enums.TransferResult;
@@ -70,8 +71,8 @@ public class FolderBackupScanWorker extends BaseScanWorker {
     }
 
     @Override
-    public TransferDataSource getDataSource() {
-        return TransferDataSource.FOLDER_BACKUP;
+    public FeatureDataSource getDataSource() {
+        return FeatureDataSource.FOLDER_BACKUP;
     }
 
     private void showNotification() {
@@ -130,7 +131,7 @@ public class FolderBackupScanWorker extends BaseScanWorker {
 
         try {
             //send a scan event
-            sendWorkerEvent(TransferDataSource.FOLDER_BACKUP, TransferEvent.EVENT_SCANNING);
+            sendWorkerEvent(FeatureDataSource.FOLDER_BACKUP, TransferEvent.EVENT_SCANNING);
 
             //do
             traverseBackupPath(backupPaths);
@@ -293,7 +294,7 @@ public class FolderBackupScanWorker extends BaseScanWorker {
             transferModel.related_account = account.getSignature();
             transferModel.repo_id = repoConfig.getRepoId();
             transferModel.repo_name = repoConfig.getRepoName();
-            transferModel.data_source = TransferDataSource.FOLDER_BACKUP;
+            transferModel.data_source = FeatureDataSource.FOLDER_BACKUP;
             transferModel.save_to = SaveTo.DB;
             transferModel.setId(transferModel.genStableId());
             GlobalTransferCacheList.FOLDER_BACKUP_QUEUE.put(transferModel);

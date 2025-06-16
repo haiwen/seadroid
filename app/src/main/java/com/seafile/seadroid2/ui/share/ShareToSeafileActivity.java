@@ -25,6 +25,7 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.bus.BusHelper;
 import com.seafile.seadroid2.config.ObjKey;
 import com.seafile.seadroid2.databinding.ActivityShareToSeafileBinding;
+import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.ObjSelectType;
 import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.framework.service.TransferService;
@@ -60,7 +61,7 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
             public void onChanged(Boolean aBoolean) {
                 SLogs.d(TAG, "can start file upload worker? " + aBoolean);
 
-                TransferService.startManualUploadService(ShareToSeafileActivity.this);
+                TransferService.startShareToSeafileUploadService(ShareToSeafileActivity.this);
             }
         });
 
@@ -116,7 +117,7 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
         String transferId = map.getString(TransferWorker.KEY_TRANSFER_ID);
         int transferCount = map.getInt(TransferWorker.KEY_TRANSFER_COUNT);
 
-        if (!TextUtils.equals(TransferDataSource.FILE_BACKUP.name(), dataSource)) {
+        if (!TextUtils.equals(FeatureDataSource.SHARE_FILE_TO_SEAFILE.name(), dataSource)) {
             return;
         }
 

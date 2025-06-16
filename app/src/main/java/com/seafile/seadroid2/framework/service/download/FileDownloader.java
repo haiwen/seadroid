@@ -21,6 +21,8 @@ import com.seafile.seadroid2.framework.worker.TransferEvent;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
 import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 
+import java.util.concurrent.locks.ReentrantLock;
+
 public class FileDownloader extends ParentEventDownloader {
     private final String TAG = "FileDownloader";
 

@@ -9,8 +9,8 @@ import androidx.lifecycle.MutableLiveData;
 import com.blankj.utilcode.util.CollectionUtils;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.SaveTo;
-import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.model.repo.DirentWrapperModel;
@@ -107,7 +107,7 @@ public class ShareToSeafileViewModel extends BaseViewModel {
         for (Uri uri : uris) {
             String fileName = Utils.getFilenameFromUri(context, uri);
             TransferModel transferModel = gen(context, account, repoId, repoName, uri, fileName, parentDir, isReplace);
-            GlobalTransferCacheList.FILE_UPLOAD_QUEUE.put(transferModel);
+            GlobalTransferCacheList.SHARE_FILE_TO_SEAFILE_QUEUE.put(transferModel);
             SLogs.d(ShareToSeafileActivity.TAG, "gen model file name: " + fileName);
         }
 
@@ -118,7 +118,7 @@ public class ShareToSeafileViewModel extends BaseViewModel {
         //content://com.android.providers.media.documents/document/image:1000182224
         TransferModel transferModel = gen(account, repo_id, repo_name, fileName, parentDir, isReplace);
         transferModel.full_path = sourceUri.toString();
-        transferModel.file_size = FileUtils.getFileSize(context, sourceUri);
+        transferModel.file_size = FileUtils.getEstimationFileSize(context, sourceUri);
         transferModel.setId(transferModel.genStableId());
         return transferModel;
     }
@@ -133,7 +133,7 @@ public class ShareToSeafileViewModel extends BaseViewModel {
         transferModel.target_path = Utils.pathJoin(parentDir, fileName);
         transferModel.setParentPath(parentDir);
         transferModel.file_name = fileName;
-        transferModel.data_source = TransferDataSource.FILE_BACKUP;
+        transferModel.data_source = FeatureDataSource.SHARE_FILE_TO_SEAFILE;
         transferModel.transfer_status = TransferStatus.WAITING;
         transferModel.transfer_strategy = isReplace ? ExistingFileStrategy.REPLACE : ExistingFileStrategy.KEEP;
         return transferModel;

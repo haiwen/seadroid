@@ -5,6 +5,7 @@ import android.text.TextUtils;
 import androidx.annotation.NonNull;
 
 import com.blankj.utilcode.util.EncryptUtils;
+import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.SaveTo;
 import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.enums.TransferStatus;
@@ -61,7 +62,7 @@ public class TransferModel implements Comparable<TransferModel> {
     public long file_size; //文件大小
     public long transferred_size; //已传输大小
     public TransferStatus transfer_status; //传输状态，用于传输列表页展示当前状态
-    public TransferDataSource data_source; //数据来源，用于区分不同的传输任务
+    public FeatureDataSource data_source; //数据来源，用于区分不同的传输任务
     public ExistingFileStrategy transfer_strategy = ExistingFileStrategy.APPEND;
     public String err_msg; //传输结果/异常内容
     /**

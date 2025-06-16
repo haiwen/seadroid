@@ -5,6 +5,7 @@ import android.content.Context;
 import com.blankj.utilcode.util.CollectionUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.SaveTo;
 import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.enums.TransferStatus;
@@ -102,7 +103,7 @@ public class PreDownloadHelper {
         transferModel.target_path = DataManager.getLocalFileCachePath(account, transferModel.repo_id, transferModel.repo_name, transferModel.full_path).getAbsolutePath();
 
         transferModel.transfer_status = TransferStatus.WAITING;
-        transferModel.data_source = TransferDataSource.DOWNLOAD;
+        transferModel.data_source = FeatureDataSource.DOWNLOAD;
         transferModel.created_at = System.nanoTime();
         transferModel.transfer_strategy = ExistingFileStrategy.REPLACE;
         transferModel.setId(transferModel.genStableId());
@@ -137,7 +138,7 @@ public class PreDownloadHelper {
             transferModel.target_path = DataManager.getLocalFileCachePath(account, transferModel.repo_id, transferModel.repo_name, transferModel.full_path).getAbsolutePath();
 
             transferModel.transfer_status = TransferStatus.WAITING;
-            transferModel.data_source = TransferDataSource.DOWNLOAD;
+            transferModel.data_source = FeatureDataSource.DOWNLOAD;
             transferModel.created_at = System.nanoTime();
             transferModel.transfer_strategy = ExistingFileStrategy.REPLACE;
             transferModel.setId(transferModel.genStableId());

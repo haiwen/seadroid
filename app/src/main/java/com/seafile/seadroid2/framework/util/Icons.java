@@ -63,6 +63,7 @@ public class Icons {
         suffixIconMap.put("mov", R.drawable.icon_format_video);
         suffixIconMap.put("css", R.drawable.icon_format_css);
         suffixIconMap.put("draw", R.drawable.icon_format_draw);
+        suffixIconMap.put("exdraw", R.drawable.icon_format_draw);
 
         //code
         return suffixIconMap;
