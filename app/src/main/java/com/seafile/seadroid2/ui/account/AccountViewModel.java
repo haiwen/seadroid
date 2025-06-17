@@ -93,7 +93,6 @@ public class AccountViewModel extends BaseViewModel {
                 }
                 
                 //the SYNC way
-
                 Call<TokenModel> call = getLoginCall(tempAccount, pwd, authToken, isRememberDevice);
                 Response<TokenModel> response = call.execute();
                 if (!response.isSuccessful()) {

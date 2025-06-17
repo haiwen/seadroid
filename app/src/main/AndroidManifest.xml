@@ -66,7 +66,7 @@
         android:networkSecurityConfig="@xml/network_security_config"
         android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
-        android:theme="@style/AppTheme.Material3">
+        android:theme="@style/V27.BaseTheme.App.Toolbar">
 
         <!--        <provider-->
         <!--            android:name="androidx.startup.InitializationProvider"-->
@@ -190,7 +190,7 @@
         <provider
             android:name=".provider.SeafileProvider"
             android:authorities="${applicationId}.documents"
-            android:enabled="@bool/atLeastKitKat"
+            android:enabled="true"
             android:exported="true"
             android:grantUriPermissions="true"
             android:permission="android.permission.MANAGE_DOCUMENTS">

@@ -79,10 +79,6 @@ public class ExceptionUtils {
     }
 
     public static SeafException parse(int errorCode, String bodyString) {
-        //401
-        if (HttpURLConnection.HTTP_UNAUTHORIZED == errorCode) {
-            return SeafException.NOT_FOUND_LOGGED_USER_EXCEPTION;
-        }
 
         //400
         if (HttpURLConnection.HTTP_BAD_REQUEST == errorCode) {
@@ -98,21 +94,17 @@ public class ExceptionUtils {
             if (bodyString.toLowerCase().contains("operation not supported")) {
                 return SeafException.OPERATION_NOT_SUPPORTED_EXCEPTION;
             }
-//{
-//  "non_field_errors" : [ "Not allowed to connect to android client." ]
-//}
+
+            //{
+            //  "non_field_errors" : [ "Not allowed to connect to android client." ]
+            //}
             return SeafException.REQUEST_EXCEPTION;
         }
 
-        //504
-        if (HttpURLConnection.HTTP_GATEWAY_TIMEOUT == errorCode) {
-            if (NetworkUtils.isConnected()) {
-                Toasts.show(R.string.transfer_list_network_error);
-            } else {
-                Toasts.show(R.string.network_unavailable);
-            }
 
-            return SeafException.NETWORK_EXCEPTION;
+        //401
+        if (HttpURLConnection.HTTP_UNAUTHORIZED == errorCode) {
+            return SeafException.NOT_FOUND_LOGGED_USER_EXCEPTION;
         }
 
         //403, need to re-logg-in
@@ -136,7 +128,7 @@ public class ExceptionUtils {
         }
 
         //500: HTTP_INTERNAL_ERROR
-        if (HttpURLConnection.HTTP_INTERNAL_ERROR == errorCode) {
+        if (errorCode >= HttpURLConnection.HTTP_INTERNAL_ERROR) {
             return SeafException.SERVER_INTERNAL_ERROR;
         }
 

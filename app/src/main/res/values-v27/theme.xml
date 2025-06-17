@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="V27.BaseTheme.App.Toolbar" parent="BaseTheme.App.Toolbar">
+        <item name="android:statusBarColor">@color/bar_background_color</item>
+        <item name="android:navigationBarColor">@color/bar_background_color</item>
+
+        <item name="android:windowLightStatusBar">?isLightTheme</item> <!-- android 6.0+ -->
+        <item name="android:windowLightNavigationBar">?isLightTheme</item> <!-- android 27->8.1+ -->
+    </style>
+</resources>

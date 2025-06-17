@@ -40,6 +40,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 
@@ -48,8 +49,17 @@ public class TransferService extends EventService {
 
     private TransferNotificationDispatcher transferNotificationDispatcher;
 
+    private static final ConcurrentHashMap<FeatureDataSource, CompletableFuture<Void>> _activeTasks = new ConcurrentHashMap<>();
+    private static final AtomicBoolean _isRunning = new AtomicBoolean(false);
     private final AtomicInteger runningTaskCount = new AtomicInteger(0);
-    private final ConcurrentHashMap<FeatureDataSource, CompletableFuture<Void>> _activeTasks = new ConcurrentHashMap<>();
+
+    public static boolean getServiceRunning() {
+        return _isRunning.get();
+    }
+
+    public static ConcurrentHashMap<FeatureDataSource, CompletableFuture<Void>> getActiveTasks() {
+        return _activeTasks;
+    }
 
     private ThreadPoolExecutor _executor;
     // 使用线程池工厂创建可配置的线程池
@@ -61,38 +71,38 @@ public class TransferService extends EventService {
         Bundle bundle = new Bundle();
         bundle.putBoolean("is_force", true);
         bundle.putBoolean("is_restart", true);
-        startService(context, "RESTART_PHOTO_BACKUP", bundle);
+        startService(context, ServiceActionEnum.RESTART_PHOTO_BACKUP.name(), bundle);
     }
 
     public static void stopPhotoBackupService(Context context) {
-        startService(context, "STOP_PHOTO_BACKUP");
+        startService(context, ServiceActionEnum.STOP_PHOTO_BACKUP.name());
     }
 
-    public static void restartFolderBackupService(Context context) {
+    public static void restartFolderBackupService(Context context, boolean isForce) {
         Bundle bundle = new Bundle();
-        bundle.putBoolean("is_force", true);
+        bundle.putBoolean("is_force", isForce);
         bundle.putBoolean("is_restart", true);
-        startService(context, "START_FOLDER_BACKUP", bundle);
+        startService(context, ServiceActionEnum.RESTART_FOLDER_BACKUP.name(), bundle);
     }
 
     public static void stopFolderBackupService(Context context) {
-        startService(context, "STOP_FOLDER_BACKUP");
+        startService(context, ServiceActionEnum.STOP_FOLDER_BACKUP.name());
     }
 
     public static void startManualUploadService(Context context) {
-        startService(context, "START_MANUAL_UPLOAD");
+        startService(context, ServiceActionEnum.START_MANUAL_UPLOAD.name());
     }
 
     public static void startShareToSeafileUploadService(Context context) {
-        startService(context, "START_SHARE_TO_SEAFILE_UPLOAD");
+        startService(context, ServiceActionEnum.START_SHARE_TO_SEAFILE_UPLOAD.name());
     }
 
     public static void startDownloadService(Context context) {
-        startService(context, "START_FILE_DOWNLOAD");
+        startService(context, ServiceActionEnum.START_FILE_DOWNLOAD.name());
     }
 
     public static void startLocalFileUpdateService(Context context) {
-        startService(context, "START_LOCAL_FILE_UPDATE");
+        startService(context, ServiceActionEnum.START_LOCAL_FILE_UPDATE.name());
     }
 
     public static void stopTransfer(Context context, TransferModel model) {
@@ -170,6 +180,9 @@ public class TransferService extends EventService {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+
+        _isRunning.set(true);
+
         if (intent == null) return START_STICKY;
 
         String action = intent.getAction();
@@ -189,7 +202,7 @@ public class TransferService extends EventService {
                 stopPhotoBackup();
 
                 break;
-            case START_FOLDER_BACKUP:
+            case RESTART_FOLDER_BACKUP:
                 startFolderBackup(intent);
 
                 break;
@@ -232,7 +245,7 @@ public class TransferService extends EventService {
 
         if (isRestart) {
             // if running, then restart, if not run, start it.
-            CompletableFuture<Void> future = _activeTasks.get(FeatureDataSource.ALBUM_BACKUP);
+            CompletableFuture<Void> future = getActiveTasks().get(FeatureDataSource.ALBUM_BACKUP);
             if (future != null && !future.isDone() && mediaBackupUploader != null) {
                 //cancel
                 mediaBackupUploader.stop();
@@ -259,7 +272,7 @@ public class TransferService extends EventService {
     private void stopPhotoBackup() {
         startForegroundNotification(FeatureDataSource.ALBUM_BACKUP);
 
-        CompletableFuture<Void> future = _activeTasks.get(FeatureDataSource.ALBUM_BACKUP);
+        CompletableFuture<Void> future = getActiveTasks().get(FeatureDataSource.ALBUM_BACKUP);
         if (future != null && !future.isDone() && mediaBackupUploader != null) {
             mediaBackupUploader.stop();
             future.cancel(true);
@@ -283,7 +296,7 @@ public class TransferService extends EventService {
 
         if (isRestart) {
             // if running, then restart, if not run, start it.
-            CompletableFuture<Void> folderUploadFuture = _activeTasks.get(FeatureDataSource.FOLDER_BACKUP);
+            CompletableFuture<Void> folderUploadFuture = getActiveTasks().get(FeatureDataSource.FOLDER_BACKUP);
             if (folderUploadFuture != null && !folderUploadFuture.isDone() && folderBackupUploader != null) {
                 //cancel
                 folderBackupUploader.stop();
@@ -311,7 +324,7 @@ public class TransferService extends EventService {
     private void stopFolderBackup() {
         startForegroundNotification(FeatureDataSource.FOLDER_BACKUP);
 
-        CompletableFuture<Void> future = _activeTasks.get(FeatureDataSource.FOLDER_BACKUP);
+        CompletableFuture<Void> future = getActiveTasks().get(FeatureDataSource.FOLDER_BACKUP);
         if (future != null && !future.isDone() && folderBackupUploader != null) {
             folderBackupUploader.stop();
 
@@ -385,7 +398,7 @@ public class TransferService extends EventService {
     private void manageTask(FeatureDataSource source, Bundle extras) {
         startForegroundNotification(source);
 
-        CompletableFuture<Void> existingTask = _activeTasks.get(source);
+        CompletableFuture<Void> existingTask = getActiveTasks().get(source);
         if (existingTask != null && !existingTask.isDone()) {
             SafeLogs.d(TAG, "manageTask()", source.name(), "task is already running");
             return;
@@ -434,9 +447,9 @@ public class TransferService extends EventService {
                 mediaBackupUploader = new MediaBackupUploader(getApplicationContext(), transferNotificationDispatcher);
                 SeafException uploadSeafException = mediaBackupUploader.upload();
                 if (uploadSeafException != SeafException.SUCCESS) {
-                    SafeLogs.d(TAG, "runAlbumBackupTask()", "scan error: " + uploadSeafException);
+                    SafeLogs.d(TAG, "runAlbumBackupTask()", "upload error: " + uploadSeafException);
                 } else {
-                    SafeLogs.d(TAG, "runAlbumBackupTask()", "scan success");
+                    SafeLogs.d(TAG, "runAlbumBackupTask()", "upload success");
                 }
             }
         }, new Runnable() {
@@ -444,11 +457,11 @@ public class TransferService extends EventService {
             public void run() {
                 mediaBackupUploader = null;
                 transferNotificationDispatcher.releaseAcquire(FeatureDataSource.ALBUM_BACKUP);
-                _activeTasks.remove(FeatureDataSource.ALBUM_BACKUP);
+                getActiveTasks().remove(FeatureDataSource.ALBUM_BACKUP);
             }
         });
 
-        _activeTasks.put(FeatureDataSource.ALBUM_BACKUP, completableFuture);
+        getActiveTasks().put(FeatureDataSource.ALBUM_BACKUP, completableFuture);
 
     }
 
@@ -490,11 +503,11 @@ public class TransferService extends EventService {
             public void run() {
                 folderBackupUploader = null;
                 transferNotificationDispatcher.releaseAcquire(FeatureDataSource.FOLDER_BACKUP);
-                _activeTasks.remove(FeatureDataSource.FOLDER_BACKUP);
+                getActiveTasks().remove(FeatureDataSource.FOLDER_BACKUP);
             }
         });
 
-        _activeTasks.put(FeatureDataSource.FOLDER_BACKUP, completableFuture);
+        getActiveTasks().put(FeatureDataSource.FOLDER_BACKUP, completableFuture);
     }
 
     private void runFileUploadTask() {
@@ -516,7 +529,7 @@ public class TransferService extends EventService {
 
             }
         });
-        _activeTasks.put(FeatureDataSource.MANUAL_FILE_UPLOAD, completableFuture);
+        getActiveTasks().put(FeatureDataSource.MANUAL_FILE_UPLOAD, completableFuture);
 
     }
 
@@ -538,10 +551,10 @@ public class TransferService extends EventService {
             public void run() {
                 downloader = null;
                 transferNotificationDispatcher.releaseAcquire(FeatureDataSource.DOWNLOAD);
-                _activeTasks.remove(FeatureDataSource.DOWNLOAD);
+                getActiveTasks().remove(FeatureDataSource.DOWNLOAD);
             }
         });
-        _activeTasks.put(FeatureDataSource.DOWNLOAD, completableFuture);
+        getActiveTasks().put(FeatureDataSource.DOWNLOAD, completableFuture);
     }
 
     private void runLocalFileUpdateTask() {
@@ -562,10 +575,10 @@ public class TransferService extends EventService {
             public void run() {
                 localFileUpdater = null;
                 transferNotificationDispatcher.releaseAcquire(FeatureDataSource.AUTO_UPDATE_LOCAL_FILE);
-                _activeTasks.remove(FeatureDataSource.AUTO_UPDATE_LOCAL_FILE);
+                getActiveTasks().remove(FeatureDataSource.AUTO_UPDATE_LOCAL_FILE);
             }
         });
-        _activeTasks.put(FeatureDataSource.AUTO_UPDATE_LOCAL_FILE, completableFuture);
+        getActiveTasks().put(FeatureDataSource.AUTO_UPDATE_LOCAL_FILE, completableFuture);
     }
 
     private void runShareToSeafileUploadTask() {
@@ -587,11 +600,11 @@ public class TransferService extends EventService {
             public void run() {
                 shareToSeafileUploader = null;
                 transferNotificationDispatcher.releaseAcquire(FeatureDataSource.SHARE_FILE_TO_SEAFILE);
-                _activeTasks.remove(FeatureDataSource.SHARE_FILE_TO_SEAFILE);
+                getActiveTasks().remove(FeatureDataSource.SHARE_FILE_TO_SEAFILE);
             }
         });
 
-        _activeTasks.put(FeatureDataSource.SHARE_FILE_TO_SEAFILE, completableFuture);
+        getActiveTasks().put(FeatureDataSource.SHARE_FILE_TO_SEAFILE, completableFuture);
     }
 
     private CompletableFuture<Void> runTask(Runnable runnable, Runnable onComplete) {
@@ -602,7 +615,8 @@ public class TransferService extends EventService {
                     @Override
                     public void accept(Void unused, Throwable throwable) {
                         if (onComplete != null) onComplete.run();
-                        if (runningTaskCount.decrementAndGet() == 0) {
+                        int currentCount = runningTaskCount.decrementAndGet();
+                        if (currentCount == 0) {
                             stopThisService();
                             SafeLogs.e(TAG + " - all task complete");
                         }
@@ -621,7 +635,7 @@ public class TransferService extends EventService {
     public void onDestroy() {
         SafeLogs.e(TAG, "onDestroy()");
 
-        _activeTasks.forEach((key, value) -> {
+        getActiveTasks().forEach((key, value) -> {
             cancel(value);
         });
 
@@ -639,6 +653,8 @@ public class TransferService extends EventService {
                 Thread.currentThread().interrupt(); // 恢复中断标志
             }
         }
+
+        _isRunning.set(false);
 
         super.onDestroy();
     }

@@ -2171,11 +2171,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 if (aBoolean) {
                     Toasts.show(R.string.added_to_upload_tasks);
 
-                    //start worker
-//                    BackgroundJobManagerImpl.getInstance().startFileUploadWorker();
                     TransferService.startManualUploadService(requireContext());
-//                    Intent uploadIntent = new Intent(requireContext(), FileUploadService.class);
-//                    ContextCompat.startForegroundService(requireContext(), uploadIntent);
                 }
             }
         });
@@ -2250,9 +2246,6 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         mainViewModel.addUploadTask(requireContext(), account, repoModel, localFile, targetDir, false);
 
         Toasts.show(R.string.added_to_upload_tasks);
-//        BackgroundJobManagerImpl.getInstance().startFileUploadWorker();
-//        Intent uploadIntent = new Intent(requireContext(), FileUploadService.class);
-//        ContextCompat.startForegroundService(requireContext(), uploadIntent);
         TransferService.startManualUploadService(requireContext());
     }
 
@@ -2262,9 +2255,6 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         mainViewModel.addUploadTask(requireContext(), account, repoModel, sourceUri, targetDir, fileName, isReplace);
 
         Toasts.show(R.string.added_to_upload_tasks);
-//        BackgroundJobManagerImpl.getInstance().startFileUploadWorker();
-//        Intent uploadIntent = new Intent(requireContext(), FileUploadService.class);
-//        ContextCompat.startForegroundService(requireContext(), uploadIntent);
         TransferService.startManualUploadService(requireContext());
     }
 }

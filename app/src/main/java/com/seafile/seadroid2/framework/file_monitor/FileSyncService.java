@@ -28,7 +28,6 @@ import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
-import com.seafile.seadroid2.ui.folder_backup.RepoConfig;
 
 import org.apache.commons.io.monitor.FileAlterationListener;
 import org.apache.commons.io.monitor.FileAlterationObserver;
@@ -203,7 +202,7 @@ public class FileSyncService extends Service {
         }
 
         if (FolderBackupSharePreferenceHelper.isFolderBackupEnable()) {
-            TransferService.restartFolderBackupService(getApplicationContext());
+            TransferService.restartFolderBackupService(getApplicationContext(), true);
         }
     }
 
@@ -306,7 +305,7 @@ public class FileSyncService extends Service {
                 TransferService.startLocalFileUpdateService(getApplicationContext());
             }
         } else {
-            TransferService.restartFolderBackupService(getApplicationContext());
+            TransferService.restartFolderBackupService(getApplicationContext(), true);
         }
     }
 

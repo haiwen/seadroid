@@ -16,7 +16,7 @@ public class SeafException extends Exception {
 
     public static final SeafException OUT_OF_QUOTA = new SeafException(HTTP_ABOVE_QUOTA, SeadroidApplication.getAppString(R.string.above_quota));
     public static final SeafException REQUEST_EXCEPTION = new SeafException(400, "request failed");
-    public static final SeafException SERVER_INTERNAL_ERROR = new SeafException(500, "server internal error");
+    public static final SeafException SERVER_INTERNAL_ERROR = new SeafException(500, SeadroidApplication.getAppString(R.string.internal_server_error));
 
     public static final SeafException UNKNOWN_EXCEPTION = new SeafException(1, "unknown error");
     public static final SeafException NETWORK_EXCEPTION = new SeafException(2, SeadroidApplication.getAppString(R.string.network_error));
