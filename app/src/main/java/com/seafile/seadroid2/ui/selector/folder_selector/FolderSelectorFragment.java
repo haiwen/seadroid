@@ -2,6 +2,7 @@ package com.seafile.seadroid2.ui.selector.folder_selector;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,12 +34,15 @@ public class FolderSelectorFragment extends BaseFragmentWithVM<FolderSelectorVie
 
     private FragmentFolderSelectorBinding binding;
     private LinearLayoutManager rvManager;
+    private LinearLayoutManager rvVolumeManager;
     private LinearLayoutManager rvTabbarManager;
 
     private List<String> allPathsList;
 
     private List<TabBarFileBean> mTabbarFileList;
+    private List<VolumeBean> mVolumeList;
     private String mCurrentPath;
+    private VolumeListAdapter mVolumeListAdapter;
     private FileListAdapter mFileListAdapter;
     private TabBarFileListAdapter mTabBarFileListAdapter;
     private FolderBackupConfigActivity mActivity;
@@ -56,8 +60,14 @@ public class FolderSelectorFragment extends BaseFragmentWithVM<FolderSelectorVie
         rvTabbarManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
         binding.rvOfPath.setLayoutManager(rvTabbarManager);
 
+        rvVolumeManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
+        binding.rvOfVolume.setLayoutManager(rvVolumeManager);
+
         mTabBarFileListAdapter = new TabBarFileListAdapter(getActivity(), mTabbarFileList);
         binding.rvOfPath.setAdapter(mTabBarFileListAdapter);
+
+        mVolumeListAdapter = new VolumeListAdapter(getActivity(), mVolumeList);
+        binding.rvOfVolume.setAdapter(mVolumeListAdapter);
 
 //        chooseDirPage = mActivity.isChooseDirPage();
         return binding.getRoot();
@@ -78,6 +88,14 @@ public class FolderSelectorFragment extends BaseFragmentWithVM<FolderSelectorVie
 
     private void initView() {
         binding.swipeRefreshLayout.setOnRefreshListener(this::loadData);
+
+        mVolumeListAdapter.setOnItemClickListener((volumeBean, position) -> {
+            mCurrentPath = volumeBean.getVolumePath();
+
+            refreshFileAndTabBar(TYPE_INIT_TAB_BAR);
+
+            loadData();
+        });
 
         mTabBarFileListAdapter.setOnItemClickListener((tabBarFileBean, position) -> {
             TabBarFileBean item = mTabbarFileList.get(position);
@@ -159,6 +177,13 @@ public class FolderSelectorFragment extends BaseFragmentWithVM<FolderSelectorVie
         }
 
         allPathsList = initRootPath(getActivity());
+
+        mVolumeList = new ArrayList<>();
+        for (String path : allPathsList) {
+            mVolumeList.add(new VolumeBean(path));
+        }
+        mVolumeListAdapter.updateVolumeList(mVolumeList);
+
         mTabbarFileList = new ArrayList<>();
         refreshFileAndTabBar(TYPE_INIT_TAB_BAR);
     }
