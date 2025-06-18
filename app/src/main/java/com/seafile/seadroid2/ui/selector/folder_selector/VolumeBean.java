@@ -1,17 +1,27 @@
 package com.seafile.seadroid2.ui.selector.folder_selector;
 
 public class VolumeBean {
-    private String volumePath;
+    private String path;
+    private String description;
 
-    public String getVolumePath() {
-        return volumePath;
+    public VolumeBean(String path, String description) {
+        this.path = path;
+        this.description = description;
     }
 
-    public void setVolumePath(String volumePath) {
-        this.volumePath = volumePath;
+    public String getPath() {
+        return path;
     }
 
-    public VolumeBean(String volumePath) {
-        this.volumePath = volumePath;
+    public void setPath(String path) {
+        this.path = path;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

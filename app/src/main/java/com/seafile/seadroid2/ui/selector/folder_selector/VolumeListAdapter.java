@@ -37,7 +37,7 @@ public class VolumeListAdapter extends RecyclerView.Adapter<VolumeViewHolder> {
     @Override
     public void onBindViewHolder(VolumeViewHolder holder, int position) {
         final VolumeBean volume = mVolumeList.get(position);
-        holder.tvPath.setText(volume.getVolumePath());
+        holder.tvDescription.setText(volume.getDescription());
 
         holder.llRoot.setOnClickListener(v -> {
             if (onItemClickListener != null) {

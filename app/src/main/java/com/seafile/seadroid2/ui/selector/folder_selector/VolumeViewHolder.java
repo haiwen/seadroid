@@ -9,12 +9,12 @@ import com.seafile.seadroid2.R;
 
 public class VolumeViewHolder extends RecyclerView.ViewHolder {
 
-    public TextView tvPath;
+    public TextView tvDescription;
     public LinearLayout llRoot;
 
     public VolumeViewHolder(View itemView) {
         super(itemView);
-        tvPath = itemView.findViewById(R.id.tv_path);
+        tvDescription = itemView.findViewById(R.id.tv_description);
         llRoot = itemView.findViewById(R.id.ll_root);
     }
 }
