@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.listener.OnItemClickListener;
 
 import java.util.List;
@@ -39,10 +40,25 @@ public class VolumeListAdapter extends RecyclerView.Adapter<VolumeViewHolder> {
         final VolumeBean volume = mVolumeList.get(position);
         holder.tvDescription.setText(volume.getDescription());
 
+        Context context = SeadroidApplication.getAppContext();
+
+        if (volume.isSelected()) {
+            holder.itemView.setBackgroundColor(context.getColor(R.color.fancy_orange));
+        } else {
+            holder.itemView.setBackgroundColor(0);
+        }
+
         holder.llRoot.setOnClickListener(v -> {
+            for (VolumeBean volumeBean : mVolumeList) {
+                volumeBean.setSelected(false);
+            }
+            volume.setSelected(true);
+
             if (onItemClickListener != null) {
                 onItemClickListener.onItemClick(volume, position);
             }
+
+            notifyDataSetChanged();
         });
     }
 
@@ -53,6 +69,11 @@ public class VolumeListAdapter extends RecyclerView.Adapter<VolumeViewHolder> {
 
     public void updateVolumeList(List<VolumeBean> newList) {
         this.mVolumeList = newList;
+
+        if (!this.mVolumeList.isEmpty()) {
+            this.mVolumeList.get(0).setSelected(true);
+        }
+
         notifyDataSetChanged();
     }
 }
