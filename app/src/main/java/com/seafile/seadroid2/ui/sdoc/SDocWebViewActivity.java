@@ -50,6 +50,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
     private String repoId, repoName;
     private String path;
     private String targetUrl;
+    private boolean isSdoc;
 
     private SDocPageOptionsModel pageOptionsData;
 
@@ -58,8 +59,19 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         intent.putExtra("repoName", repoName);
         intent.putExtra("repoID", repoID);
         intent.putExtra("filePath", path);
+        intent.putExtra("isSdoc", true);
         ActivityUtils.startActivity(intent);
     }
+
+    public static void openDraw(Context context, String repoName, String repoID, String path) {
+        Intent intent = new Intent(context, SDocWebViewActivity.class);
+        intent.putExtra("repoName", repoName);
+        intent.putExtra("repoID", repoID);
+        intent.putExtra("filePath", path);
+        intent.putExtra("isSdoc", false);
+        ActivityUtils.startActivity(intent);
+    }
+
 
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
@@ -104,7 +116,6 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
             //let's go
             mWebView.load(targetUrl);
         }
-
     }
 
     private void initData() {
@@ -116,6 +127,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         repoId = intent.getStringExtra("repoID");
         repoName = intent.getStringExtra("repoName");
         path = intent.getStringExtra("filePath");
+        isSdoc = intent.getBooleanExtra("isSdoc", false);
 
         if (TextUtils.isEmpty(repoId) || TextUtils.isEmpty(path)) {
             throw new IllegalArgumentException("repoId or path is null");
@@ -165,25 +177,29 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         mWebView.setLayoutParams(ll);
         binding.nsv.addView(mWebView);
 
-        binding.sdocOutline.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showOutlineDialog();
-            }
-        });
-        binding.sdocProfile.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getViewModel().loadFileDetail(repoId, path);
-            }
-        });
-        binding.sdocComment.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showCommentsActivity();
-            }
-        });
-
+        if (isSdoc) {
+            binding.llBottomBar.setVisibility(View.VISIBLE);
+            binding.sdocOutline.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    showOutlineDialog();
+                }
+            });
+            binding.sdocProfile.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    getViewModel().loadFileDetail(repoId, path);
+                }
+            });
+            binding.sdocComment.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    showCommentsActivity();
+                }
+            });
+        } else {
+            binding.llBottomBar.setVisibility(View.GONE);
+        }
 
     }
 

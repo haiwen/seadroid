@@ -11,6 +11,9 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.DiffUtil;
 
 import com.blankj.utilcode.util.CollectionUtils;
+import com.blankj.utilcode.util.EncryptUtils;
+import com.bumptech.glide.load.model.GlideUrl;
+import com.bumptech.glide.signature.ObjectKey;
 import com.seafile.seadroid2.framework.glide.GlideApp;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.config.GlideLoadConfig;
@@ -18,6 +21,7 @@ import com.seafile.seadroid2.databinding.ItemStarredBinding;
 import com.seafile.seadroid2.framework.db.entities.StarredModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.util.Icons;
+import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.ui.base.adapter.BaseAdapter;
 
 import java.util.List;
@@ -47,30 +51,19 @@ public class StarredAdapter extends BaseAdapter<StarredModel, StarredViewHolder>
             holder.binding.itemSubtitle.setText(model.getSubtitle());
         }
 
-//        MiniatureReasoning
-//        ffmpeg -re -i C:\Users\asus\Videos\xiyangyang.mp4 -c copy -f flv "rtmp://live-push.bilivideo.com/live-bvc/?streamname=xxx"
-
         //set item_icon
-        if (model.is_dir) {
-            if (TextUtils.equals(model.path, "/")) {
-                if (model.repo_encrypted) {
-                    holder.binding.itemIcon.setImageResource(R.drawable.baseline_repo_encrypted_24);
-                } else {
-                    holder.binding.itemIcon.setImageResource(R.drawable.baseline_repo_24);
-                }
-            } else {
-                holder.binding.itemIcon.setImageResource(R.drawable.baseline_folder_24);
-            }
+        if (model.deleted || TextUtils.isEmpty(model.encoded_thumbnail_src) || model.repo_encrypted || model.is_dir) {
+            holder.binding.itemIcon.setImageResource(model.getIcon());
         } else {
-            if (model.deleted || TextUtils.isEmpty(model.encoded_thumbnail_src) || model.repo_encrypted) {
-                holder.binding.itemIcon.setImageResource(Icons.getFileIcon(model.obj_name));
-            } else {
-                String url = convertThumbnailUrl(model.repo_id, model.path);
-                GlideApp.with(getContext())
-                        .load(url)
-                        .apply(GlideLoadConfig.getOptions())
-                        .into(holder.binding.itemIcon);
-            }
+//            String url = Utils.pathJoin(SERVER, model.encoded_thumbnail_src);
+            String url = convertThumbnailUrl(model.repo_id, model.path);
+            String thumbKey = EncryptUtils.encryptMD5ToString(url);
+
+            GlideApp.with(getContext())
+                    .load(url)
+                    .signature(new ObjectKey(thumbKey))
+                    .apply(GlideLoadConfig.getCustomDrawableOptions(model.getIcon()))
+                    .into(holder.binding.itemIcon);
         }
     }
 

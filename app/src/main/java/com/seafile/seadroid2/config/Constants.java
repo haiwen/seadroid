@@ -38,6 +38,8 @@ public class Constants {
 
         public static final String SDOC = "sdoc";
         public static final String DOT_SDOC = ".sdoc";
+        public static final String DOT_EXDRAW = ".exdraw";
+        public static final String DOT_DRAW = ".draw";
     }
 
     public static class DP {

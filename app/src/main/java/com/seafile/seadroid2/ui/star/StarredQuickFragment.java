@@ -308,6 +308,9 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
         } else if (model.obj_name.endsWith(Constants.Format.DOT_SDOC)) {
             SDocWebViewActivity.openSdoc(getContext(), model.repo_name, model.repo_id, model.path);
 
+        } else if (model.obj_name.endsWith(Constants.Format.DOT_DRAW) || model.obj_name.endsWith(Constants.Format.DOT_EXDRAW)) {
+            SDocWebViewActivity.openDraw(getContext(), model.repo_name, model.repo_id, model.path);
+
         } else if (Utils.isVideoFile(model.obj_name)) {
 
             MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext());

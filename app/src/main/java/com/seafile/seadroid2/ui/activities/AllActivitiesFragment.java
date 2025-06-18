@@ -332,6 +332,9 @@ public class AllActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel>
         } else if (activityModel.name.endsWith(Constants.Format.DOT_SDOC)) {
             SDocWebViewActivity.openSdoc(getContext(), activityModel.repo_name, activityModel.repo_id, activityModel.path);
 
+        } else if (activityModel.name.endsWith(Constants.Format.DOT_DRAW) || activityModel.name.endsWith(Constants.Format.DOT_EXDRAW)) {
+            SDocWebViewActivity.openDraw(getContext(), activityModel.repo_name, activityModel.repo_id, activityModel.path);
+
         } else if (Utils.isVideoFile(activityModel.name)) {
 
             MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext());
