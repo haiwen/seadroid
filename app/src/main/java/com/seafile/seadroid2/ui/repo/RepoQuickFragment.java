@@ -1669,6 +1669,22 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         }).show();
     }
 
+    private void shareFile(DirentModel dirent) {
+        if (dirent.isDir()) {
+            Objs.showCreateShareLinkDialog(requireContext(), getChildFragmentManager(), dirent, false);
+        } else {
+
+            File local = getLocalDestinationFile(dirent.repo_id, dirent.repo_name, dirent.full_path);
+            if (TextUtils.equals(dirent.id, dirent.local_file_id) && local.exists()) {
+                Objs.shareDirToWeChat(this, dirent.repo_id, dirent.full_path);
+            } else {
+                Intent intent = FileActivity.start(requireActivity(), dirent, FileReturnActionEnum.SHARE);
+                fileActivityLauncher.launch(intent);
+            }
+
+        }
+    }
+
     private void exportFile(List<BaseModel> dirents) {
         closeActionMode();
 
@@ -1678,9 +1694,9 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
         DirentModel dirent = (DirentModel) dirents.get(0);
 
-        File local = getLocalDestinationFile(dirent.repo_id, dirent.repo_name, dirent.full_path);
-        if (TextUtils.equals(dirent.id, dirent.local_file_id) && local.exists()) {
-            WidgetUtils.openWith(requireActivity(), local);
+        File destinationFile = getLocalDestinationFile(dirent.repo_id, dirent.repo_name, dirent.full_path);
+        if (TextUtils.equals(dirent.id, dirent.local_file_id) && destinationFile.exists()) {
+            Objs.exportFile(RepoQuickFragment.this, destinationFile);
         } else {
             Intent intent = FileActivity.start(requireActivity(), dirent, FileReturnActionEnum.EXPORT);
             fileActivityLauncher.launch(intent);
@@ -1830,21 +1846,6 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             }
         }
     });
-
-    private void shareFile(DirentModel dirent) {
-        if (dirent.isDir()) {
-            Objs.shareDirToWeChat(this, dirent.repo_id, dirent.full_path);
-            return;
-        }
-
-        File local = getLocalDestinationFile(dirent.repo_id, dirent.repo_name, dirent.full_path);
-        if (TextUtils.equals(dirent.id, dirent.local_file_id) && local.exists()) {
-            WidgetUtils.openWith(requireActivity(), local);
-        } else {
-            Intent intent = FileActivity.start(requireActivity(), dirent, FileReturnActionEnum.SHARE);
-            fileActivityLauncher.launch(intent);
-        }
-    }
 
 
     /**

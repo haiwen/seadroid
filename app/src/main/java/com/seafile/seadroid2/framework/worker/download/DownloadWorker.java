@@ -18,7 +18,6 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.annotation.Todo;
 import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.SaveTo;
-import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.enums.TransferResult;
 import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.crypto.SecurePasswordManager;
@@ -385,7 +384,7 @@ public class DownloadWorker extends BaseDownloadWorker {
     public boolean isInterrupt(SeafException result) {
         if (result.equals(SeafException.INVALID_PASSWORD) ||
                 result.equals(SeafException.SSL_EXCEPTION) ||
-                result.equals(SeafException.NOT_FOUND_LOGGED_USER_EXCEPTION) ||
+                result.equals(SeafException.UNAUTHORIZED_EXCEPTION) ||
                 result.equals(SeafException.NOT_FOUND_USER_EXCEPTION) ||
                 result.equals(SeafException.NOT_FOUND_DIR_EXCEPTION) ||
                 result.equals(SeafException.USER_CANCELLED_EXCEPTION)) {

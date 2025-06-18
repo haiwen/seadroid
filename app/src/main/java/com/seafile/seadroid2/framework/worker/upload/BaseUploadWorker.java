@@ -14,7 +14,6 @@ import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.SaveTo;
-import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.enums.TransferResult;
 import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.db.AppDatabase;
@@ -143,7 +142,7 @@ public abstract class BaseUploadWorker extends TransferWorker {
 
         if (TextUtils.isEmpty(account.token)) {
             SLogs.d(TAG, "transferFile()", "account is not logged in : " + account);
-            throw SeafException.NOT_FOUND_LOGGED_USER_EXCEPTION;
+            throw SeafException.UNAUTHORIZED_EXCEPTION;
         }
 
         if (isStopped()) {
@@ -336,7 +335,7 @@ public abstract class BaseUploadWorker extends TransferWorker {
         if (result.equals(SeafException.OUT_OF_QUOTA) ||
                 result.equals(SeafException.INVALID_PASSWORD) ||
                 result.equals(SeafException.SSL_EXCEPTION) ||
-                result.equals(SeafException.NOT_FOUND_LOGGED_USER_EXCEPTION) ||
+                result.equals(SeafException.UNAUTHORIZED_EXCEPTION) ||
                 result.equals(SeafException.NOT_FOUND_USER_EXCEPTION) ||
                 result.equals(SeafException.USER_CANCELLED_EXCEPTION)) {
             return true;

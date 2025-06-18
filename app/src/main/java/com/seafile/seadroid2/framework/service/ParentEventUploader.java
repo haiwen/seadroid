@@ -179,7 +179,7 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
 
         if (TextUtils.isEmpty(account.token)) {
             SafeLogs.d(TAG, "transferFile()", "account is not logged in : " + account);
-            throw SeafException.NOT_FOUND_LOGGED_USER_EXCEPTION;
+            throw SeafException.UNAUTHORIZED_EXCEPTION;
         }
 
         SafeLogs.d(TAG, "transferFile()", "start transfer, local file path: " + currentTransferModel.full_path);
@@ -376,7 +376,7 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
         if (result.equals(SeafException.OUT_OF_QUOTA) ||
                 result.equals(SeafException.INVALID_PASSWORD) ||
                 result.equals(SeafException.SSL_EXCEPTION) ||
-                result.equals(SeafException.NOT_FOUND_LOGGED_USER_EXCEPTION) ||
+                result.equals(SeafException.UNAUTHORIZED_EXCEPTION) ||
                 result.equals(SeafException.NOT_FOUND_USER_EXCEPTION) ||
                 result.equals(SeafException.USER_CANCELLED_EXCEPTION)) {
             return true;
