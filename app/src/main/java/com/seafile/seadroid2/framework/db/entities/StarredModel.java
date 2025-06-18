@@ -8,7 +8,9 @@ import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
+import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.framework.model.BaseModel;
+import com.seafile.seadroid2.framework.util.Icons;
 import com.seafile.seadroid2.framework.util.Times;
 import com.seafile.seadroid2.framework.util.Utils;
 
@@ -59,6 +61,21 @@ public class StarredModel extends BaseModel implements Parcelable {
     public boolean isRepo() {
         return TextUtils.equals("/", path) && is_dir;
     }
+
+    public int getIcon() {
+        if (is_dir) {
+            if (isRepo()) {
+                if (repo_encrypted) {
+                    return R.drawable.baseline_repo_encrypted_24;
+                }
+                return R.drawable.baseline_repo_24;
+            }
+            return R.drawable.baseline_folder_24;
+        } else {
+            return Icons.getFileIcon(obj_name);
+        }
+    }
+
 
     @Override
     public int describeContents() {

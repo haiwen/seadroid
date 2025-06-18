@@ -4,20 +4,21 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:foreground="?android:selectableItemBackground"
     android:background="@color/bar_background_color"
+    android:foreground="?android:selectableItemBackground"
     android:paddingHorizontal="16dp">
 
-    <ImageView
+    <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/item_icon"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        android:contentDescription="@null"
+        android:layout_width="@dimen/lv_icon_width"
+        android:layout_height="@dimen/lv_icon_width"
         android:layout_marginVertical="12dp"
-        android:src="@drawable/baseline_repo_24"
+        android:scaleType="centerCrop"
+        android:src="@drawable/icon_format_file"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:shapeAppearance="@style/ShapeCorner4Style" />
 
     <LinearLayout
         android:id="@+id/text_container"
@@ -50,20 +51,19 @@
 
     <ImageView
         android:id="@+id/expandable_toggle_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="@dimen/lv_icon_width"
+        android:layout_height="@dimen/lv_icon_width"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
         android:contentDescription="@string/file_action_more"
         android:foreground="@drawable/ripple_icon_little"
         android:padding="8dp"
-        android:scaleType="center"
         android:src="@drawable/baseline_more_vert_24"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:tint="@color/item_subtitle_color" />
+        app:tint="@color/light_grey" />
 
     <com.google.android.material.divider.MaterialDivider
         android:layout_width="match_parent"

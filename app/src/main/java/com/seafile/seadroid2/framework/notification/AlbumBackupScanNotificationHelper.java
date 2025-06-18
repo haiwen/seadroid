@@ -39,6 +39,6 @@ public class AlbumBackupScanNotificationHelper extends BaseTransferNotificationH
 
     @Override
     public int getNotificationId() {
-        return NotificationUtils.NOTIFICATION_ID_UPLOAD_ALBUM_BACKUP_SCAN;
+        return NotificationUtils.NID_UPLOAD_ALBUM_BACKUP_SCAN;
     }
 }

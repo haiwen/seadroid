@@ -7,20 +7,19 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.blankj.utilcode.util.GsonUtils;
-import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.BuildConfig;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.annotation.Todo;
-import com.seafile.seadroid2.framework.model.ResultModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
+import com.seafile.seadroid2.framework.model.ResultModel;
 import com.seafile.seadroid2.framework.util.ExceptionUtils;
 import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.ui.account.AccountService;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
@@ -95,7 +94,7 @@ public class BaseViewModel extends ViewModel {
         closeRefresh();
 
         if (BuildConfig.DEBUG) {
-            ToastUtils.showLong(throwable.getMessage());
+            Toasts.show(throwable.getMessage());
         }
 
         //check and callback
@@ -140,6 +139,7 @@ public class BaseViewModel extends ViewModel {
         compositeDisposable.add(closeable);
     }
 
+    //single
     public <T> void addSingleDisposable(Single<T> single, Consumer<T> consumer) {
         compositeDisposable.add(single
                 .subscribeOn(Schedulers.io())
@@ -154,6 +154,7 @@ public class BaseViewModel extends ViewModel {
                 .subscribe(consumer, throwable));
     }
 
+    //flowable
     public <T> void addFlowableDisposable(Flowable<T> flowable, Consumer<T> onNext) {
         compositeDisposable.add(flowable
                 .subscribeOn(Schedulers.io())
@@ -182,6 +183,7 @@ public class BaseViewModel extends ViewModel {
                 .subscribe(onNext, throwable, onComplete));
     }
 
+    //completable
     public <T> void addCompletableDisposable(Completable completable, Action action) {
         compositeDisposable.add(completable
                 .subscribeOn(Schedulers.io())
@@ -210,15 +212,7 @@ public class BaseViewModel extends ViewModel {
     }
 
 
-    private SeafException returnBadRequest(int code) {
-        if (HttpURLConnection.HTTP_BAD_REQUEST == code) {
-            return SeafException.REQUEST_EXCEPTION;
-        }
-
-        return SeafException.NETWORK_EXCEPTION;
-    }
-
-    public SeafException getExceptionByThrowable(Throwable throwable) throws IOException {
+    public SeafException getSeafExceptionByThrowable(Throwable throwable) throws IOException {
         return ExceptionUtils.parseByThrowable(throwable);
     }
 

@@ -16,6 +16,12 @@ import java.util.Arrays;
 import java.util.List;
 
 public class AlbumBackupSharePreferenceHelper {
+    public static boolean isAlbumBackupEnable() {
+        boolean isEnable = readBackupSwitch();
+        RepoConfig repoConfig = readRepoConfig();
+        return (isEnable && repoConfig != null);
+    }
+
     public static void writeBackupSwitch(boolean isChecked) {
         if (Settings.ALBUM_BACKUP_SWITCH == null) {
             return;

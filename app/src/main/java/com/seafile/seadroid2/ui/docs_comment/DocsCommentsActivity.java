@@ -20,7 +20,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.KeyboardUtils;
-import com.blankj.utilcode.util.ToastUtils;
 import com.chad.library.adapter4.BaseQuickAdapter;
 import com.chad.library.adapter4.QuickAdapterHelper;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -32,6 +31,7 @@ import com.seafile.seadroid2.framework.model.docs_comment.DocsCommentModel;
 import com.seafile.seadroid2.framework.model.docs_comment.DocsCommentsWrapperModel;
 import com.seafile.seadroid2.framework.model.sdoc.SDocPageOptionsModel;
 import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.ui.base.BaseMediaSelectorActivity;
 import com.seafile.seadroid2.view.rich_edittext.RichEditText;
 
@@ -171,7 +171,7 @@ public class DocsCommentsActivity extends BaseMediaSelectorActivity<DocsCommentV
         getViewModel().getSeafExceptionLiveData().observe(this, new Observer<SeafException>() {
             @Override
             public void onChanged(SeafException e) {
-                ToastUtils.showLong(e.getMessage());
+                Toasts.show(e.getMessage());
             }
         });
 
@@ -312,7 +312,7 @@ public class DocsCommentsActivity extends BaseMediaSelectorActivity<DocsCommentV
         }, new Consumer<String>() {
             @Override
             public void accept(String s) throws Exception {
-                ToastUtils.showLong(R.string.upload_failed);
+                Toasts.show(R.string.upload_failed);
             }
         });
     }

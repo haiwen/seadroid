@@ -301,6 +301,7 @@
   <string name="next_button_label">Dalej</string>
   <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
   <string name="skip_button_label">Pomiń</string>
+  <!--Display mode-->
   <!--contacts  upload-->
   <string name="settings_contacts_upload_info_title">Kopia zapasowa kontaktów</string>
   <string name="settings_contacts_upload_turn_on">Włącz kopię zapasową kontaktów</string>
@@ -336,11 +337,8 @@
   <!--Camera Upload Configuration View-->
   <string name="settings_cuc_title">Asystent konfiguracji</string>
   <string name="settings_cuc_welcome_text">Dziękujemy za skorzystanie z asystenta konfiguracji automatycznego przesyłania zdjęć.\nAby pomóc Ci rozpocząć korzystanie z usługi przesyłania zostaniesz przeprowadzony przez kilka kroków początkowych.</string>
-  <string name="settings_cuc_network_title">Jak przesyłać</string>
   <string name="settings_cuc_network_wifi">Tylko Wi-Fi</string>
   <string name="settings_cuc_network_data_plan">Wi-Fi lub transmisja komórkowa</string>
-  <string name="settings_cuc_option_hint">Wybierz swoje opcje. \nMożesz je potem zmienić w ustawieniach.</string>
-  <string name="settings_cuc_type_title">Co przesyłać</string>
   <string name="settings_cuc_type_photo">Tylko zdjęcia</string>
   <string name="settings_cuc_type_video">Zdjęcia i wideo</string>
   <string name="settings_cuc_local_dir_title">Zaznacz albumy</string>
@@ -350,7 +348,6 @@
     <item quantity="many">%1$d elementów</item>
     <item quantity="other">%1$d elementów</item>
   </plurals>
-  <string name="settings_cuc_remote_lib_title">Wybierz zdalną bibliotekę</string>
   <string name="settings_cuc_remote_lib_account">Wybierz konto</string>
   <string name="settings_cuc_remote_lib_repo">%s został wybrany</string>
   <string name="settings_cuc_upload_to_parent_folder">W górę do folderu nadrzędnego</string>
@@ -531,4 +528,6 @@
   <!--Folder backup Preference-->
   <!--action-->
   <!--share link-->
+  <!--menu-->
+  <!--sdoc-->
 </resources>

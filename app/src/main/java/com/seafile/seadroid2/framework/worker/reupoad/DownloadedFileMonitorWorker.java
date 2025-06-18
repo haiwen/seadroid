@@ -17,6 +17,7 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.SaveTo;
 import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.enums.TransferStatus;
@@ -24,7 +25,7 @@ import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.model.dirents.DirentFileModel;
-import com.seafile.seadroid2.framework.notification.FileBackupNotificationHelper;
+import com.seafile.seadroid2.framework.notification.FileUploadNotificationHelper;
 import com.seafile.seadroid2.framework.notification.FolderBackupNotificationHelper;
 import com.seafile.seadroid2.framework.util.ExceptionUtils;
 import com.seafile.seadroid2.framework.util.SLogs;
@@ -47,11 +48,11 @@ import retrofit2.Call;
  */
 public class DownloadedFileMonitorWorker extends BaseUploadWorker {
     private final String TAG = "DownloadedFileMonitorWorker";
-    private final FileBackupNotificationHelper notificationManager;
+    private final FileUploadNotificationHelper notificationManager;
 
     public DownloadedFileMonitorWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
-        notificationManager = new FileBackupNotificationHelper(context);
+        notificationManager = new FileUploadNotificationHelper(context);
     }
 
     @Override
@@ -87,7 +88,7 @@ public class DownloadedFileMonitorWorker extends BaseUploadWorker {
             return Result.success();
         }
 
-        int totalPendingCount = GlobalTransferCacheList.CHANGED_FILE_MONITOR_QUEUE.getPendingCount();
+        int totalPendingCount = GlobalTransferCacheList.LOCAL_FILE_MONITOR_QUEUE.getPendingCount();
 
         SLogs.d(TAG, "start()", "pending count: " + totalPendingCount);
         if (totalPendingCount <= 0) {
@@ -100,7 +101,7 @@ public class DownloadedFileMonitorWorker extends BaseUploadWorker {
         String interruptibleExceptionMsg = null;
         boolean wasThereSuccessfulUploaded = false;
         while (true) {
-            TransferModel missFieldDataTransferModel = GlobalTransferCacheList.CHANGED_FILE_MONITOR_QUEUE.pick(true);
+            TransferModel missFieldDataTransferModel = GlobalTransferCacheList.LOCAL_FILE_MONITOR_QUEUE.pick(true);
             if (missFieldDataTransferModel == null) {
                 break;
             }
@@ -171,7 +172,7 @@ public class DownloadedFileMonitorWorker extends BaseUploadWorker {
         Bundle b = new Bundle();
         b.putString(TransferWorker.KEY_DATA_RESULT, interruptibleExceptionMsg);
         b.putInt(TransferWorker.KEY_TRANSFER_COUNT, totalPendingCount);
-        sendWorkerEvent(TransferDataSource.DOWNLOAD, TransferEvent.EVENT_TRANSFER_FINISH, b);
+        sendWorkerEvent(FeatureDataSource.AUTO_UPDATE_LOCAL_FILE, TransferEvent.EVENT_TRANSFER_TASK_COMPLETE, b);
 
         return Result.success();
     }
@@ -214,7 +215,7 @@ public class DownloadedFileMonitorWorker extends BaseUploadWorker {
         transferModel.full_path = downloadedEntity.target_path;
         transferModel.setParentPath(downloadedEntity.getParent_path());
         transferModel.file_size = file.length();
-        transferModel.data_source = TransferDataSource.DOWNLOAD;
+        transferModel.data_source = FeatureDataSource.AUTO_UPDATE_LOCAL_FILE;
         transferModel.transfer_strategy = ExistingFileStrategy.REPLACE;
         transferModel.transfer_status = TransferStatus.WAITING;
         transferModel.setId(transferModel.genStableId());

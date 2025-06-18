@@ -61,7 +61,7 @@ public class NewDirViewModel extends BaseViewModel {
             public void accept(Throwable throwable) throws Exception {
                 getRefreshLiveData().setValue(false);
 
-                SeafException seafException = getExceptionByThrowable(throwable);
+                SeafException seafException = getSeafExceptionByThrowable(throwable);
                 getSeafExceptionLiveData().setValue(seafException);
                 getRefreshLiveData().setValue(false);
             }
@@ -95,7 +95,7 @@ public class NewDirViewModel extends BaseViewModel {
             public void accept(Throwable throwable) throws Exception {
                 getRefreshLiveData().setValue(false);
 
-                SeafException seafException = getExceptionByThrowable(throwable);
+                SeafException seafException = getSeafExceptionByThrowable(throwable);
                 getSeafExceptionLiveData().setValue(seafException);
                 getRefreshLiveData().setValue(false);
             }

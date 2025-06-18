@@ -309,6 +309,7 @@
   <string name="next_button_label">Siguiente</string>
   <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
   <string name="skip_button_label">Saltear</string>
+  <!--Display mode-->
   <!--contacts  upload-->
   <string name="settings_contacts_upload_info_title">Backup de contactos</string>
   <string name="settings_contacts_upload_turn_on">Habilitar backup de contactos</string>
@@ -344,11 +345,8 @@
   <!--Camera Upload Configuration View-->
   <string name="settings_cuc_title">Ayuda de configuración</string>
   <string name="settings_cuc_welcome_text">Gracias por usar la ayuda para configurar la subida de cámara. \nPara ayudarlo a preparar el servicio de subida de cámara, será guiado en los pasos iniciales.</string>
-  <string name="settings_cuc_network_title">Como subir</string>
   <string name="settings_cuc_network_wifi">Sólo Wi-Fi</string>
   <string name="settings_cuc_network_data_plan">Wi-Fi o plan de datos</string>
-  <string name="settings_cuc_option_hint">Escoja su opción preferida. \nLuego puede cambiar estas opciones en Configuración.</string>
-  <string name="settings_cuc_type_title">Que subir</string>
   <string name="settings_cuc_type_photo">Sólo fotos</string>
   <string name="settings_cuc_type_video">Fotos y videos</string>
   <string name="settings_cuc_local_dir_title">Seleccionar álbumes</string>
@@ -357,7 +355,6 @@
     <item quantity="many">%1$d items</item>
     <item quantity="other">%1$d items</item>
   </plurals>
-  <string name="settings_cuc_remote_lib_title">Seleccionar biblioteca remota</string>
   <string name="settings_cuc_remote_lib_account">Escoja una cuenta</string>
   <string name="settings_cuc_remote_lib_repo">%s fue seleccionada</string>
   <string name="settings_cuc_upload_to_parent_folder">Arriba a carpeta superior</string>
@@ -546,4 +543,6 @@
   <!--Folder backup Preference-->
   <!--action-->
   <!--share link-->
+  <!--menu-->
+  <!--sdoc-->
 </resources>

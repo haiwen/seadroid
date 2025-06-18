@@ -2,6 +2,7 @@ package com.seafile.seadroid2.framework.worker.body;
 
 import androidx.annotation.NonNull;
 
+import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.listener.FileTransferProgressListener;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
 
@@ -20,11 +21,16 @@ public class ProgressRequestBody extends RequestBody {
     private final File file;
     private final MediaType mediaType;
     private final FileTransferProgressListener fileTransferProgressListener;
+    private boolean isStop = false;
 
     public ProgressRequestBody(File file, FileTransferProgressListener fileTransferProgressListener) {
         this.file = file;
         this.mediaType = MediaType.parse("application/octet-stream");
         this.fileTransferProgressListener = fileTransferProgressListener;
+    }
+
+    public void setStop(boolean stop) {
+        isStop = stop;
     }
 
     @Override
@@ -47,6 +53,15 @@ public class ProgressRequestBody extends RequestBody {
             long bytesWrittenSinceUpdate = 0;
 
             while (true) {
+                if (Thread.currentThread().isInterrupted()) {
+                    SLogs.e(new InterruptedException("Upload canceled"));
+                    return;
+                }
+
+                if (isStop) {
+                    return;
+                }
+
                 long readCount = source.read(buffer, TransferWorker.SEGMENT_SIZE);
                 if (readCount == -1) break;
 

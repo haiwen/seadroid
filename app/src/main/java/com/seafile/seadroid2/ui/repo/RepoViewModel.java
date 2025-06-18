@@ -12,7 +12,6 @@ import androidx.lifecycle.MutableLiveData;
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.NetworkUtils;
 import com.blankj.utilcode.util.TimeUtils;
-import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
@@ -22,24 +21,24 @@ import com.seafile.seadroid2.enums.FileViewType;
 import com.seafile.seadroid2.enums.ItemPositionEnum;
 import com.seafile.seadroid2.enums.RefreshStatusEnum;
 import com.seafile.seadroid2.framework.crypto.SecurePasswordManager;
+import com.seafile.seadroid2.framework.datastore.sp.SettingsManager;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.db.entities.EncKeyCacheEntity;
-import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
 import com.seafile.seadroid2.framework.db.entities.PermissionEntity;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
+import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.model.BaseModel;
 import com.seafile.seadroid2.framework.model.ResultModel;
 import com.seafile.seadroid2.framework.model.TResultModel;
 import com.seafile.seadroid2.framework.model.dirents.CachedDirentModel;
 import com.seafile.seadroid2.framework.model.permission.PermissionWrapperModel;
 import com.seafile.seadroid2.framework.model.repo.Dirent2Model;
-import com.seafile.seadroid2.framework.datastore.sp.SettingsManager;
-import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.model.search.SearchModel;
 import com.seafile.seadroid2.framework.model.search.SearchWrapperModel;
 import com.seafile.seadroid2.framework.util.Objs;
 import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
@@ -303,7 +302,7 @@ public class RepoViewModel extends BaseViewModel {
             public void accept(Throwable throwable) throws Exception {
                 getRefreshLiveData().setValue(false);
 
-                SeafException seafException = getExceptionByThrowable(throwable);
+                SeafException seafException = getSeafExceptionByThrowable(throwable);
                 if (seafException == SeafException.REMOTE_WIPED_EXCEPTION) {
                     //post a request
                     completeRemoteWipe();
@@ -311,6 +310,7 @@ public class RepoViewModel extends BaseViewModel {
 
                 getObjListLiveData().setValue(null);
                 getSeafExceptionLiveData().setValue(seafException);
+
             }
         });
     }
@@ -505,7 +505,7 @@ public class RepoViewModel extends BaseViewModel {
             public void accept(Throwable throwable) throws Exception {
                 getRefreshLiveData().setValue(false);
 
-                SeafException seafException = getExceptionByThrowable(throwable);
+                SeafException seafException = getSeafExceptionByThrowable(throwable);
                 if (seafException == SeafException.REMOTE_WIPED_EXCEPTION) {
                     //post a request
                     completeRemoteWipe();
@@ -939,7 +939,7 @@ public class RepoViewModel extends BaseViewModel {
                 getShowLoadingDialogLiveData().setValue(false);
                 getStarredLiveData().setValue(false);
                 String errMsg = getErrorMsgByThrowable(throwable);
-                ToastUtils.showLong(errMsg);
+                Toasts.show(errMsg);
             }
         }, new Action() {
             @Override
@@ -1019,7 +1019,7 @@ public class RepoViewModel extends BaseViewModel {
         }, new Consumer<Throwable>() {
             @Override
             public void accept(Throwable throwable) throws Exception {
-                getSeafExceptionLiveData().setValue(getExceptionByThrowable(throwable));
+                getSeafExceptionLiveData().setValue(getSeafExceptionByThrowable(throwable));
 
                 getRefreshLiveData().setValue(false);
             }

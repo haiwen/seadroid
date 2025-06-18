@@ -9,27 +9,22 @@ import android.os.Looper;
 import android.text.TextUtils;
 
 import androidx.annotation.Nullable;
-import androidx.lifecycle.Observer;
 
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.EncryptUtils;
 import com.blankj.utilcode.util.FileUtils;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
-import com.seafile.seadroid2.bus.BusHelper;
-import com.seafile.seadroid2.enums.SaveTo;
-import com.seafile.seadroid2.enums.TransferDataSource;
-import com.seafile.seadroid2.enums.TransferOpType;
-import com.seafile.seadroid2.enums.TransferStatus;
+import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.datastore.StorageManager;
+import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
+import com.seafile.seadroid2.framework.service.TransferService;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Utils;
-import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
-import com.seafile.seadroid2.framework.worker.ExistingFileStrategy;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
@@ -45,11 +40,13 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
+/**
+ * daemon service
+ */
 public class FileSyncService extends Service {
     private final String TAG = "FileSyncService";
     private MediaContentObserver mediaContentObserver;
     private SupportFileAlterationMonitor fileMonitor;
-    private final List<String> monitorPathList = new ArrayList<>();
     /**
      * <p>
      * Since the file download location of the app is located in the <b>/Android/</b> directory,
@@ -128,16 +125,15 @@ public class FileSyncService extends Service {
         initIgnorePath();
 
         registerMediaContentObserver();
-        startWorkers();
-        observeTransferBus();
 
-        initFolderMonitorPath();
+        startWorkers();
 
         compareFirstAndStartMonitor();
     }
 
-
-    // 主线程 Executor（封装 Handler）
+    /**
+     * main thread executor
+     */
     private final Executor mainThreadExecutor = new Executor() {
         private final Handler handler = new Handler(Looper.getMainLooper());
 
@@ -185,13 +181,12 @@ public class FileSyncService extends Service {
                 onAppCacheFileChanged(file);
             }
 
-            //
-            BackgroundJobManagerImpl.getInstance().startCheckDownloadedFileChain();
+            TransferService.startLocalFileUpdateService(getApplicationContext());
         }).thenRunAsync(new Runnable() {
             @Override
             public void run() {
                 //start local path and app cache path listener
-                startFolderMonitor();
+                restartFolderMonitor();
             }
         }, mainThreadExecutor);
     }
@@ -202,39 +197,19 @@ public class FileSyncService extends Service {
     }
 
     private void startWorkers() {
-        CameraUploadManager.getInstance().performSync();
-        BackgroundJobManagerImpl.getInstance().startDownloadChain();
-        BackgroundJobManagerImpl.getInstance().startFolderBackupChain(false);
-        BackgroundJobManagerImpl.getInstance().startFileUploadWorker();
-    }
+        if (AlbumBackupSharePreferenceHelper.isAlbumBackupEnable()) {
+            CameraUploadManager.getInstance().performSync();
+        }
 
-    private void observeTransferBus() {
-        BusHelper.getTransferObserver().observeForever(transferOpTypeObserver);
+        if (FolderBackupSharePreferenceHelper.isFolderBackupEnable()) {
+            TransferService.restartFolderBackupService(getApplicationContext(), true);
+        }
     }
 
     @Override
     public void onTaskRemoved(Intent rootIntent) {
         super.onTaskRemoved(rootIntent);
         destroy();
-    }
-
-    private final Observer<TransferOpType> transferOpTypeObserver = new Observer<TransferOpType>() {
-        @Override
-        public void onChanged(TransferOpType transferOpType) {
-            onBusEvent(transferOpType);
-        }
-    };
-
-    private void onBusEvent(TransferOpType opType) {
-        if (TransferOpType.FILE_MONITOR_START == opType) {
-            startFolderMonitor();
-
-        } else if (TransferOpType.FILE_MONITOR_RESET == opType) {
-
-            resetFolderMonitor();
-
-            BackgroundJobManagerImpl.getInstance().cancelFolderBackupWorker();
-        }
     }
 
     private final FileFilter FILE_FILTER = file -> {
@@ -251,31 +226,9 @@ public class FileSyncService extends Service {
         return true;
     };
 
-    private void initFolderMonitorPath() {
-        monitorPathList.clear();
 
-        List<String> pathList = FolderBackupSharePreferenceHelper.readBackupPathsAsList();
-        boolean isFound = pathList.stream().anyMatch(IGNORE_PATHS::contains);
-        if (!isFound) {
-            pathList.add(IGNORE_PATHS.get(0));
-        }
-
-        monitorPathList.addAll(pathList);
-    }
-
-    private void startFolderMonitor() {
-        boolean isBackupEnable = FolderBackupSharePreferenceHelper.readBackupSwitch();
-        if (isBackupEnable) {
-            startFolderMonitor(monitorPathList);
-        } else {
-            resetFolderMonitor();
-        }
-    }
-
-    private void resetFolderMonitor() {
-        List<String> pathList = new ArrayList<>();
-        pathList.add(IGNORE_PATHS.get(0));
-        startFolderMonitor(pathList);
+    public void restartFolderMonitor() {
+        startFolderMonitor();
     }
 
     private void stopFolderMonitor() {
@@ -290,7 +243,9 @@ public class FileSyncService extends Service {
         }
     }
 
-    private void startFolderMonitor(List<String> pathList) {
+    private void startFolderMonitor() {
+        List<String> pathList = initFolderMonitorPath();
+
         if (CollectionUtils.isEmpty(pathList)) {
             return;
         }
@@ -318,6 +273,22 @@ public class FileSyncService extends Service {
         }
     }
 
+    private List<String> initFolderMonitorPath() {
+        List<String> monitorPathList = new ArrayList<>();
+        boolean isEnable = FolderBackupSharePreferenceHelper.readBackupSwitch();
+        List<String> pathList = FolderBackupSharePreferenceHelper.readBackupPathsAsList();
+        if (!isEnable || CollectionUtils.isEmpty(pathList)) {
+            monitorPathList.add(IGNORE_PATHS.get(0));
+        } else {
+            // if not found ignore path in the path list, add the first ignore path to the path list
+            boolean isFound = pathList.stream().anyMatch(IGNORE_PATHS::contains);
+            if (!isFound) {
+                pathList.add(IGNORE_PATHS.get(0));
+            }
+            monitorPathList.addAll(pathList);
+        }
+        return monitorPathList;
+    }
 
     /**
      * it doesn't the 'change' event happen when download a large file
@@ -331,10 +302,10 @@ public class FileSyncService extends Service {
             if ("change".equals(action)) {
                 onAppCacheFileChanged(file);
 
-                BackgroundJobManagerImpl.getInstance().startCheckDownloadedFileChain();
+                TransferService.startLocalFileUpdateService(getApplicationContext());
             }
         } else {
-            BackgroundJobManagerImpl.getInstance().startFolderBackupChain(true);
+            TransferService.restartFolderBackupService(getApplicationContext(), true);
         }
     }
 
@@ -343,7 +314,7 @@ public class FileSyncService extends Service {
         transferModel.file_name = file.getName();
         transferModel.file_size = file.length();
         transferModel.full_path = file.getAbsolutePath();
-        transferModel.data_source = TransferDataSource.DOWNLOAD;
+        transferModel.data_source = FeatureDataSource.AUTO_UPDATE_LOCAL_FILE;
 
         //repo data will be set in worker
 //        transferModel.related_account = fileCacheStatusEntity.related_account;
@@ -352,7 +323,7 @@ public class FileSyncService extends Service {
 
         String id = EncryptUtils.encryptMD5ToString(file.getAbsolutePath());
         transferModel.setId(id);
-        GlobalTransferCacheList.CHANGED_FILE_MONITOR_QUEUE.put(transferModel);
+        GlobalTransferCacheList.LOCAL_FILE_MONITOR_QUEUE.put(transferModel);
     }
 
     private class FolderStateChangedListener implements FileAlterationListener {
@@ -363,7 +334,7 @@ public class FileSyncService extends Service {
 
         @Override
         public void onStart(FileAlterationObserver observer) {
-            SLogs.d(TAG, "onStart()");
+            SLogs.d(TAG, "onStart()", observer.getDirectory().getPath());
         }
 
         @Override
@@ -410,17 +381,15 @@ public class FileSyncService extends Service {
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
 
         destroy();
+
+        super.onDestroy();
     }
 
     private void destroy() {
         SLogs.d(TAG, "onDestroy()", "file monitor service destroy");
         stopFolderMonitor();
-
-        //
-        BusHelper.getTransferObserver().removeObserver(transferOpTypeObserver);
 
         //
         if (mediaContentObserver != null) {

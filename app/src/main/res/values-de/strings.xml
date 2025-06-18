@@ -307,6 +307,7 @@ Zum Aktualisieren einmal antippen</string>
   <string name="next_button_label">Weiter</string>
   <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
   <string name="skip_button_label">Überspringen</string>
+  <!--Display mode-->
   <!--contacts  upload-->
   <string name="settings_contacts_upload_info_title">Kontakte sichern</string>
   <string name="settings_contacts_upload_turn_on">Kontakte sichern aktivieren</string>
@@ -342,11 +343,8 @@ Zum Aktualisieren einmal antippen</string>
   <!--Camera Upload Configuration View-->
   <string name="settings_cuc_title">Einrichtungsassistent</string>
   <string name="settings_cuc_welcome_text">Danke für die Benutzung des Einrichtungsassistenten. \nUm Ihnen den Start zu erleichtern, führen wir Sie in wenigen Schritten zum erfolgreichen Kamera-Upload.</string>
-  <string name="settings_cuc_network_title">Anleitung zum Hochladen</string>
   <string name="settings_cuc_network_wifi">Nur über WLAN</string>
   <string name="settings_cuc_network_data_plan">WLAN oder Mobilfunknetz</string>
-  <string name="settings_cuc_option_hint">Wählen Sie aus, was Sie bevorzugen.\nSie können das in den Einstellungen jederzeit anpassen.</string>
-  <string name="settings_cuc_type_title">Was soll hochgeladen werden</string>
   <string name="settings_cuc_type_photo">Nur Bilder</string>
   <string name="settings_cuc_type_video">Bilder und Videos</string>
   <string name="settings_cuc_local_dir_title">Alben auswählen</string>
@@ -354,7 +352,6 @@ Zum Aktualisieren einmal antippen</string>
     <item quantity="one">%1$d Objekt</item>
     <item quantity="other">%1$d Objekte</item>
   </plurals>
-  <string name="settings_cuc_remote_lib_title">Zielbibliothek auswählen</string>
   <string name="settings_cuc_remote_lib_account">Benutzerkonto auswählen</string>
   <string name="settings_cuc_remote_lib_repo">%s wurde ausgewählt</string>
   <string name="settings_cuc_upload_to_parent_folder">Zum übergeordneten Ordner</string>
@@ -539,4 +536,6 @@ Zum Aktualisieren einmal antippen</string>
   <!--Folder backup Preference-->
   <!--action-->
   <!--share link-->
+  <!--menu-->
+  <!--sdoc-->
 </resources>

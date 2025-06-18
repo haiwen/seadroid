@@ -3,7 +3,6 @@ package com.seafile.seadroid2.ui.selector;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
@@ -11,18 +10,15 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
 
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.TimeUtils;
-import com.blankj.utilcode.util.ToastUtils;
 import com.chad.library.adapter4.QuickAdapterHelper;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.config.ObjKey;
-import com.seafile.seadroid2.context.GlobalNavContext;
 import com.seafile.seadroid2.context.NavContext;
 import com.seafile.seadroid2.databinding.ActivitySelectorObjBinding;
 import com.seafile.seadroid2.enums.FileViewType;
@@ -32,11 +28,10 @@ import com.seafile.seadroid2.framework.db.entities.EncKeyCacheEntity;
 import com.seafile.seadroid2.framework.db.entities.PermissionEntity;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.model.BaseModel;
-import com.seafile.seadroid2.ui.base.BaseActivity;
+import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
 import com.seafile.seadroid2.ui.dialog_fragment.BottomSheetNewDirFileDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.BottomSheetPasswordDialogFragment;
-import com.seafile.seadroid2.ui.dialog_fragment.NewDirFileDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.listener.OnRefreshDataListener;
 import com.seafile.seadroid2.ui.dialog_fragment.listener.OnResultListener;
 import com.seafile.seadroid2.ui.repo.RepoQuickAdapter;
@@ -193,17 +188,17 @@ public class ObjSelectorActivity extends BaseActivityWithVM<ObjSelectorViewModel
     private void onOkClick() {
         if (selectType == ObjSelectType.REPO || selectType == ObjSelectType.DIR) {
             if (mAccount == null) {
-                ToastUtils.showLong(R.string.choose_an_account);
+                Toasts.show(R.string.choose_an_account);
                 return;
             }
             if (mNavContext.getRepoModel() == null) {
-                ToastUtils.showLong(R.string.choose_a_library);
+                Toasts.show(R.string.choose_a_library);
                 return;
             }
         }
 
         if (selectType == ObjSelectType.ACCOUNT && mAccount == null) {
-            ToastUtils.showLong(R.string.choose_an_account);
+            Toasts.show(R.string.choose_an_account);
             return;
         }
 
@@ -400,12 +395,12 @@ public class ObjSelectorActivity extends BaseActivityWithVM<ObjSelectorViewModel
 
     private void showNewDirDialog() {
         if (mAccount == null) {
-            ToastUtils.showLong(R.string.choose_an_account);
+            Toasts.show(R.string.choose_an_account);
             return;
         }
 
         if (!mNavContext.inRepo()) {
-            ToastUtils.showLong(R.string.choose_a_library);
+            Toasts.show(R.string.choose_a_library);
             return;
         }
 

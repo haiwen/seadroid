@@ -1,13 +1,8 @@
 package com.seafile.seadroid2.framework.worker.upload;
 
-import android.content.ContentResolver;
 import android.content.Context;
-import android.content.res.AssetFileDescriptor;
 import android.net.Uri;
-import android.os.Handler;
-import android.os.Looper;
 import android.text.TextUtils;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.work.ForegroundInfo;
@@ -17,13 +12,14 @@ import com.blankj.utilcode.util.CloneUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.SaveTo;
-import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.enums.TransferResult;
 import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.FileBackupStatusEntity;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
+import com.seafile.seadroid2.framework.util.FileUtils;
 import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.notification.base.BaseTransferNotificationHelper;
@@ -94,9 +90,11 @@ public abstract class BaseUploadWorker extends TransferWorker {
             newCall = null;
         }
 
-        currentTransferModel.transfer_status = TransferStatus.CANCELLED;
-        currentTransferModel.err_msg = SeafException.USER_CANCELLED_EXCEPTION.getMessage();
-        GlobalTransferCacheList.updateTransferModel(currentTransferModel);
+        if (currentTransferModel != null) {
+            currentTransferModel.transfer_status = TransferStatus.CANCELLED;
+            currentTransferModel.err_msg = SeafException.USER_CANCELLED_EXCEPTION.getMessage();
+            GlobalTransferCacheList.updateTransferModel(currentTransferModel);
+        }
 
         if (fileTransferProgressListener != null) {
             fileTransferProgressListener.setProgressListener(null);
@@ -144,7 +142,7 @@ public abstract class BaseUploadWorker extends TransferWorker {
 
         if (TextUtils.isEmpty(account.token)) {
             SLogs.d(TAG, "transferFile()", "account is not logged in : " + account);
-            throw SeafException.NOT_FOUND_LOGGED_USER_EXCEPTION;
+            throw SeafException.UNAUTHORIZED_EXCEPTION;
         }
 
         if (isStopped()) {
@@ -172,7 +170,7 @@ public abstract class BaseUploadWorker extends TransferWorker {
         }
 
         //
-        fileTransferProgressListener.setTransferModel(currentTransferModel);
+        fileTransferProgressListener.setCurrentTransferModel(currentTransferModel);
 
         //notify first
         sendProgressEvent(currentTransferModel);
@@ -185,15 +183,19 @@ public abstract class BaseUploadWorker extends TransferWorker {
         currentTransferModel.transfer_status = TransferStatus.IN_PROGRESS;
         GlobalTransferCacheList.updateTransferModel(currentTransferModel);
 
+//        long createdTime = -1;
         //uri: content://
         if (currentTransferModel.full_path.startsWith("content://")) {
-            boolean isHasPermission = hasPermission(Uri.parse(currentTransferModel.full_path));
+            Uri uri = Uri.parse(currentTransferModel.full_path);
+            boolean isHasPermission = FileUtils.isUriHasPermission(getApplicationContext(), uri);
             if (!isHasPermission) {
                 throw SeafException.PERMISSION_EXCEPTION;
             }
 
             ProgressUriRequestBody progressRequestBody = new ProgressUriRequestBody(getApplicationContext(), Uri.parse(currentTransferModel.full_path), currentTransferModel.file_size, fileTransferProgressListener);
             builder.addFormDataPart("file", currentTransferModel.file_name, progressRequestBody);
+
+//            createdTime = FileUtils.getCreatedTimeFromUri(getApplicationContext(), uri);
         } else {
             File file = new File(currentTransferModel.full_path);
             if (!file.exists()) {
@@ -202,7 +204,16 @@ public abstract class BaseUploadWorker extends TransferWorker {
 
             ProgressRequestBody progressRequestBody = new ProgressRequestBody(file, fileTransferProgressListener);
             builder.addFormDataPart("file", currentTransferModel.file_name, progressRequestBody);
+//            createdTime = FileUtils.getCreatedTimeFromPath(getApplicationContext(), file);
         }
+
+
+//        if (createdTime != -1) {
+//            String cTime = Times.convertLong2Time(createdTime);
+//            SLogs.d(TAG, "file create timestamp : " + cTime);
+//            builder.addFormDataPart("last_modify", cTime);
+//        }
+
 
         RequestBody requestBody = builder.build();
 
@@ -267,20 +278,6 @@ public abstract class BaseUploadWorker extends TransferWorker {
         }
     }
 
-    private boolean hasPermission(Uri uri) {
-        try {
-            ContentResolver resolver = getApplicationContext().getContentResolver();
-            AssetFileDescriptor afd = resolver.openAssetFileDescriptor(uri, "r");
-            if (afd != null) {
-                afd.close();
-                return true;
-            }
-            return true;
-        } catch (Exception e) {
-            SLogs.e("check URI permission failed: " + e.getMessage());
-        }
-        return false;
-    }
 
     private String getFileUploadUrl(Account account, String repoId, String target_dir, boolean isUpdate) throws IOException, SeafException {
         retrofit2.Response<String> res;
@@ -320,7 +317,7 @@ public abstract class BaseUploadWorker extends TransferWorker {
         GlobalTransferCacheList.updateTransferModel(currentTransferModel);
 
         if (currentTransferModel.save_to == SaveTo.DB) {
-            if (currentTransferModel.data_source == TransferDataSource.DOWNLOAD) {
+            if (currentTransferModel.data_source == FeatureDataSource.AUTO_UPDATE_LOCAL_FILE) {
                 FileCacheStatusEntity transferEntity = FileCacheStatusEntity.convertFromUpload(currentTransferModel, fileId);
                 AppDatabase.getInstance().fileCacheStatusDAO().insert(transferEntity);
 
@@ -338,7 +335,7 @@ public abstract class BaseUploadWorker extends TransferWorker {
         if (result.equals(SeafException.OUT_OF_QUOTA) ||
                 result.equals(SeafException.INVALID_PASSWORD) ||
                 result.equals(SeafException.SSL_EXCEPTION) ||
-                result.equals(SeafException.NOT_FOUND_LOGGED_USER_EXCEPTION) ||
+                result.equals(SeafException.UNAUTHORIZED_EXCEPTION) ||
                 result.equals(SeafException.NOT_FOUND_USER_EXCEPTION) ||
                 result.equals(SeafException.USER_CANCELLED_EXCEPTION)) {
             return true;

@@ -30,7 +30,7 @@
     <dimen name="tv_subtitle_margin_top">10dp</dimen>
     <dimen name="tv_title_margin_left">20dp</dimen>
 
-    <dimen name="section_margin_top">5dp</dimen>
+    <dimen name="section_margin_top">8dp</dimen>
 
     <dimen name="rv_item_account_height">80dp</dimen>
     <dimen name="rv_item_group_height">40dp</dimen>

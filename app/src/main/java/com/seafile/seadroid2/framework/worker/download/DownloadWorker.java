@@ -12,27 +12,27 @@ import androidx.work.WorkerParameters;
 import com.blankj.utilcode.util.CloneUtils;
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.TimeUtils;
-import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.annotation.Todo;
+import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.SaveTo;
-import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.enums.TransferResult;
 import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.crypto.SecurePasswordManager;
+import com.seafile.seadroid2.framework.datastore.DataManager;
+import com.seafile.seadroid2.framework.datastore.sp.SettingsManager;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.EncKeyCacheEntity;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
-import com.seafile.seadroid2.framework.model.ResultModel;
-import com.seafile.seadroid2.framework.datastore.DataManager;
-import com.seafile.seadroid2.framework.datastore.sp.SettingsManager;
 import com.seafile.seadroid2.framework.http.HttpIO;
+import com.seafile.seadroid2.framework.model.ResultModel;
 import com.seafile.seadroid2.framework.notification.DownloadNotificationHelper;
 import com.seafile.seadroid2.framework.notification.base.BaseNotification;
 import com.seafile.seadroid2.framework.util.ExceptionUtils;
 import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
@@ -128,7 +128,7 @@ public class DownloadWorker extends BaseDownloadWorker {
 
         //tip
         String tip = getApplicationContext().getResources().getQuantityString(R.plurals.transfer_download_started, totalPendingCount, totalPendingCount);
-        ToastUtils.showLong(tip);
+        Toasts.show(tip);
 
         String interruptibleExceptionMsg = null;
         while (true) {
@@ -171,7 +171,7 @@ public class DownloadWorker extends BaseDownloadWorker {
         Bundle b = new Bundle();
         b.putString(TransferWorker.KEY_DATA_RESULT, interruptibleExceptionMsg);
         b.putInt(TransferWorker.KEY_TRANSFER_COUNT, totalPendingCount);
-        sendWorkerEvent(TransferDataSource.DOWNLOAD, TransferEvent.EVENT_TRANSFER_FINISH, b);
+        sendWorkerEvent(FeatureDataSource.DOWNLOAD, TransferEvent.EVENT_TRANSFER_TASK_COMPLETE, b);
 
         return Result.success();
     }
@@ -182,7 +182,7 @@ public class DownloadWorker extends BaseDownloadWorker {
     }
 
     protected void sendFinishEvent() {
-        sendWorkerEvent(TransferDataSource.DOWNLOAD, TransferEvent.EVENT_TRANSFER_FINISH);
+        sendWorkerEvent(FeatureDataSource.DOWNLOAD, TransferEvent.EVENT_TRANSFER_TASK_COMPLETE);
     }
 
     private final int retryMaxCount = 1;
@@ -291,7 +291,7 @@ public class DownloadWorker extends BaseDownloadWorker {
     private OkHttpClient okHttpClient;
 
     private void download(Account account, String dlink, String fileId) throws Exception {
-        transferProgressListener.setTransferModel(currentTransferModel);
+        transferProgressListener.setCurrentTransferModel(currentTransferModel);
 
         currentTransferModel.transfer_status = TransferStatus.IN_PROGRESS;
         GlobalTransferCacheList.updateTransferModel(currentTransferModel);
@@ -384,7 +384,7 @@ public class DownloadWorker extends BaseDownloadWorker {
     public boolean isInterrupt(SeafException result) {
         if (result.equals(SeafException.INVALID_PASSWORD) ||
                 result.equals(SeafException.SSL_EXCEPTION) ||
-                result.equals(SeafException.NOT_FOUND_LOGGED_USER_EXCEPTION) ||
+                result.equals(SeafException.UNAUTHORIZED_EXCEPTION) ||
                 result.equals(SeafException.NOT_FOUND_USER_EXCEPTION) ||
                 result.equals(SeafException.NOT_FOUND_DIR_EXCEPTION) ||
                 result.equals(SeafException.USER_CANCELLED_EXCEPTION)) {

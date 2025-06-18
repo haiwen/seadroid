@@ -335,18 +335,18 @@
   <string name="settings_contacts_upload_start_backup">备份</string>
   <string name="settings_contacts_upload_start_backup_hint">点击开始备份通讯录</string>
   <!--Camera Upload Preference-->
-  <string name="settings_camera_upload_info_title">上传照片</string>
+  <string name="settings_camera_upload_info_title">照片备份</string>
   <string name="settings_camera_upload_service_started">上传服务已启动</string>
   <string name="settings_camera_upload_service_stopped">上传服务已关闭</string>
-  <string name="settings_camera_upload_allow_data_plan">允许使用移动流量套餐</string>
-  <string name="settings_camera_upload_allow_videos">允许上传视频</string>
+  <string name="settings_camera_upload_allow_data_plan">使用移动流量</string>
+  <string name="settings_camera_upload_allow_videos">备份视频</string>
   <string name="settings_camera_upload_default_wifi">默认使用WiFi上传</string>
-  <string name="settings_camera_upload_data_plan_allowed">支持移动流量套餐上传</string>
+  <string name="settings_camera_upload_data_plan_allowed">使用移动流量</string>
   <string name="settings_camera_upload_default_photos">默认只上传图片</string>
   <string name="settings_camera_upload_videos_allowed">支持视频上传</string>
-  <string name="settings_camera_upload_change_repo_title">上传资料库</string>
+  <string name="settings_camera_upload_change_repo_title">上传位置</string>
   <string name="settings_camera_upload_repo_hint">请先选择一个资料库来上传照片</string>
-  <string name="settings_camera_upload_turn_on">打开照片上传</string>
+  <string name="settings_camera_upload_turn_on">开启照片备份</string>
   <string name="settings_camera_upload_choose_dir">更改相册</string>
   <string name="settings_camera_upload_dir_auto_scan">默认自动扫描照片</string>
   <string name="settings_camera_upload_lib_not_found">资料库不存在</string>
@@ -358,18 +358,19 @@
   <!--Camera Upload Configuration View-->
   <string name="settings_cuc_title">配置助手</string>
   <string name="settings_cuc_welcome_text">感谢使用照片上传配置助手，\n在开始使用上传服务之前，将会引导你如何进行配置。</string>
-  <string name="settings_cuc_network_title">上传方式</string>
+  <string name="settings_cuc_network_title">备份方式选择</string>
   <string name="settings_cuc_network_wifi">仅限于Wi-Fi</string>
   <string name="settings_cuc_network_data_plan">Wi-Fi或者移动流量套餐</string>
-  <string name="settings_cuc_option_hint">选择你要配置的账户和资料库，这些设置以后可以在设置菜单里修改。</string>
-  <string name="settings_cuc_type_title">上传内容</string>
+  <string name="settings_cuc_how_hint">请选择你要备份的方式</string>
+  <string name="settings_cuc_what_hint">请选择你要备份的内容</string>
+  <string name="settings_cuc_type_title">备份内容选择</string>
   <string name="settings_cuc_type_photo">仅上传图片</string>
   <string name="settings_cuc_type_video">上传图片和视频</string>
-  <string name="settings_cuc_local_dir_title">选择相册</string>
+  <string name="settings_cuc_local_dir_title">相册选择</string>
   <plurals name="settings_cuc_local_dir_items">
     <item quantity="other">%1$d个文件</item>
   </plurals>
-  <string name="settings_cuc_remote_lib_title">选择云端资料库</string>
+  <string name="settings_cuc_remote_lib_title">备份位置选择</string>
   <string name="settings_cuc_remote_lib_account">请选择一个账户</string>
   <string name="settings_cuc_remote_lib_repo">%s被选中</string>
   <string name="settings_cuc_upload_to_parent_folder">上一级</string>
@@ -674,4 +675,6 @@ Email: support@seafile.com<br>
   <string name="image_color_space_undefined">未定义</string>
   <string name="offline">离线</string>
   <string name="export_log_file_not_exists">没有可用于导出的日志文件</string>
+  <string name="start">开始</string>
+  <string name="next">下一个</string>
 </resources>

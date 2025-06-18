@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -9,30 +9,57 @@
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/pager"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:paddingBottom="16dp" />
-
-    <Button
-        android:id="@+id/confirm_button"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/long_btn_height"
-        android:layout_gravity="bottom"
-        android:layout_marginHorizontal="16dp"
-        android:text="@string/confirm"
-        android:textColor="@color/white"
-        android:textSize="@dimen/long_btn_txt_size"
-        android:visibility="gone" />
+        android:layout_height="match_parent"
+        android:layout_marginBottom="64dp" />
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabs"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="16dp"
-        android:layout_gravity="bottom"
-        android:layout_marginBottom="4dp"
+        android:layout_gravity="bottom|start"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="32dp"
         android:background="@null"
         app:tabBackground="@drawable/indicator_selector"
         app:tabGravity="center"
         app:tabIndicatorFullWidth="false"
         app:tabIndicatorHeight="0dp" />
-</LinearLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/confirm_button"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/long_btn_height"
+        android:layout_gravity="bottom|end"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginBottom="16dp"
+        android:text="@string/start"
+        android:textColor="@color/white"
+        android:textSize="@dimen/long_btn_txt_size"
+        android:visibility="visible" />
+
+    <LinearLayout
+        android:id="@+id/next_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginBottom="16dp"
+        android:foreground="?selectableItemBackground"
+        android:gravity="bottom"
+        android:orientation="horizontal"
+        android:padding="16dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/next"
+            android:textColor="?colorPrimary" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginBottom="4dp"
+            android:src="@drawable/cuc_next" />
+    </LinearLayout>
+</FrameLayout>

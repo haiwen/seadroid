@@ -15,7 +15,6 @@ import androidx.fragment.app.FragmentManager;
 import com.blankj.utilcode.util.ClipboardUtils;
 import com.blankj.utilcode.util.CloneUtils;
 import com.blankj.utilcode.util.CollectionUtils;
-import com.blankj.utilcode.util.ToastUtils;
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.BuildConfig;
 import com.seafile.seadroid2.R;
@@ -28,6 +27,7 @@ import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.db.entities.StarredModel;
+import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.model.BaseModel;
 import com.seafile.seadroid2.framework.model.GroupItemModel;
 import com.seafile.seadroid2.framework.model.dirents.CachedDirentModel;
@@ -35,7 +35,6 @@ import com.seafile.seadroid2.framework.model.objs.DirentShareLinkModel;
 import com.seafile.seadroid2.framework.model.repo.DirentWrapperModel;
 import com.seafile.seadroid2.framework.model.repo.RepoWrapperModel;
 import com.seafile.seadroid2.framework.model.star.StarredWrapperModel;
-import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.listener.OnCreateDirentShareLinkListener;
 import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.ui.WidgetUtils;
@@ -49,9 +48,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Objects;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
@@ -259,7 +256,7 @@ public class Objs {
                 newRepos = repos.stream().sorted(new NaturalOrderComparator().reversed()).collect(Collectors.toList());
             }
         } else if (SortBy.TYPE == by) {
-            //todo not supported
+            newRepos = repos;
         } else if (SortBy.SIZE == by) {
             newRepos = repos.stream().sorted(new Comparator<RepoModel>() {
                 @Override
@@ -322,13 +319,15 @@ public class Objs {
                 return Single.create(new SingleOnSubscribe<List<DirentModel>>() {
                     @Override
                     public void subscribe(SingleEmitter<List<DirentModel>> emitter) throws Exception {
+                        if (emitter.isDisposed()) {
+                            return;
+                        }
                         List<DirentModel> list = parseDirentsForDB(
                                 direntWrapperModel.dirent_list,
                                 direntWrapperModel.dir_id,
                                 account.getSignature(),
                                 repoId,
                                 repoName);
-
                         emitter.onSuccess(list);
                     }
                 });
@@ -537,7 +536,18 @@ public class Objs {
                 newList = list.stream().sorted(new NaturalOrderComparator().reversed()).collect(Collectors.toList());
             }
         } else if (SortBy.TYPE == by) {
-            //todo not supported
+            if (isAscending) {
+                newList = list.stream().sorted(Comparator
+                                .comparing((DirentModel d) -> d.getFileExt().toLowerCase())
+                                .thenComparing(d -> d.name.toLowerCase()))
+                        .collect(Collectors.toList());
+            } else {
+                newList = list.stream().sorted(Comparator
+                                .comparing((DirentModel d) -> d.getFileExt().toLowerCase(), Comparator.reverseOrder())
+                                .thenComparing(d -> d.name.toLowerCase(), Comparator.reverseOrder()))
+                        .collect(Collectors.toList());
+            }
+
         } else if (SortBy.SIZE == by) {
             newList = list.stream().sorted(new Comparator<DirentModel>() {
                 @Override
@@ -590,7 +600,7 @@ public class Objs {
             @Override
             public void onCustomActionSelected(AppChoiceDialogFragment.CustomAction action) {
                 ClipboardUtils.copyText(shareLinkModel.link);
-                ToastUtils.showLong(R.string.link_ready_to_be_pasted);
+                Toasts.show(R.string.link_ready_to_be_pasted);
                 dialog.dismiss();
             }
         });
@@ -636,7 +646,7 @@ public class Objs {
 
         ResolveInfo weChatInfo = getWeChatIntent(shareIntent);
         if (weChatInfo == null) {
-            ToastUtils.showLong(R.string.no_app_available);
+            Toasts.show(R.string.no_app_available);
             return;
         }
 
@@ -676,7 +686,7 @@ public class Objs {
 
         ResolveInfo weChatInfo = getWeChatIntent(sendIntent);
         if (weChatInfo == null) {
-            ToastUtils.showLong(R.string.no_app_available);
+            Toasts.show(R.string.no_app_available);
             return;
         }
 
@@ -704,7 +714,7 @@ public class Objs {
         // Get a list of apps
         List<ResolveInfo> infos = WidgetUtils.getAppsByIntent(sendIntent);
         if (infos.isEmpty()) {
-            ToastUtils.showLong(R.string.no_app_available);
+            Toasts.show(R.string.no_app_available);
             return;
         }
 

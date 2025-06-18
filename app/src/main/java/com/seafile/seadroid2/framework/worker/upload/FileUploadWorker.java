@@ -11,14 +11,13 @@ import androidx.work.ListenableWorker;
 import androidx.work.WorkInfo;
 import androidx.work.WorkerParameters;
 
-import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.TransferDataSource;
-import com.seafile.seadroid2.framework.worker.queue.TransferModel;
-import com.seafile.seadroid2.framework.notification.FileBackupNotificationHelper;
+import com.seafile.seadroid2.framework.notification.FileUploadNotificationHelper;
 import com.seafile.seadroid2.framework.notification.base.BaseTransferNotificationHelper;
 import com.seafile.seadroid2.framework.util.ExceptionUtils;
 import com.seafile.seadroid2.framework.util.SLogs;
@@ -26,7 +25,7 @@ import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
-import com.seafile.seadroid2.framework.worker.reupoad.DownloadedFileMonitorWorker;
+import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 
 import java.util.UUID;
 
@@ -43,12 +42,12 @@ public class FileUploadWorker extends BaseUploadWorker {
     private final String TAG = "FileUploadWorker";
     public static final UUID UID = UUID.nameUUIDFromBytes(FileUploadWorker.class.getSimpleName().getBytes());
 
-    private final FileBackupNotificationHelper notificationManager;
+    private final FileUploadNotificationHelper notificationManager;
 
     public FileUploadWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
 
-        notificationManager = new FileBackupNotificationHelper(context);
+        notificationManager = new FileUploadNotificationHelper(context);
     }
 
     @Override
@@ -149,13 +148,13 @@ public class FileUploadWorker extends BaseUploadWorker {
         Bundle b = new Bundle();
         b.putString(TransferWorker.KEY_DATA_RESULT, interruptibleExceptionMsg);
         b.putInt(TransferWorker.KEY_TRANSFER_COUNT, totalPendingCount);
-        sendWorkerEvent(TransferDataSource.FILE_BACKUP, TransferEvent.EVENT_TRANSFER_FINISH, b);
+        sendWorkerEvent(FeatureDataSource.MANUAL_FILE_UPLOAD, TransferEvent.EVENT_TRANSFER_TASK_COMPLETE, b);
         return Result.success();
     }
 
 
     protected Result returnSuccess() {
-        sendWorkerEvent(TransferDataSource.FILE_BACKUP, TransferEvent.EVENT_TRANSFER_FINISH);
+        sendWorkerEvent(FeatureDataSource.MANUAL_FILE_UPLOAD, TransferEvent.EVENT_TRANSFER_TASK_COMPLETE);
         return Result.success();
     }
 }

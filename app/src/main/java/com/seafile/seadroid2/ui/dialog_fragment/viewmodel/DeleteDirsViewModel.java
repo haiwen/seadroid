@@ -39,7 +39,7 @@ public class DeleteDirsViewModel extends BaseViewModel {
             public void accept(Throwable throwable) throws Exception {
                 getRefreshLiveData().setValue(false);
 
-                SeafException seafException = getExceptionByThrowable(throwable);
+                SeafException seafException = getSeafExceptionByThrowable(throwable);
                 getSeafExceptionLiveData().setValue(seafException);
             }
         });
@@ -66,7 +66,7 @@ public class DeleteDirsViewModel extends BaseViewModel {
             public void accept(Throwable throwable) throws Exception {
                 getRefreshLiveData().setValue(false);
 
-                SeafException seafException = getExceptionByThrowable(throwable);
+                SeafException seafException = getSeafExceptionByThrowable(throwable);
                 getSeafExceptionLiveData().setValue(seafException);
             }
         }, new Action() {

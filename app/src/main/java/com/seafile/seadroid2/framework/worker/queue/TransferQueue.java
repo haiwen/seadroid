@@ -218,11 +218,12 @@ public class TransferQueue {
         addAllIntoQueueClearOld(li);
     }
 
-    public void remove(String transferId) {
-        if (TextUtils.isEmpty(transferId)) {
+    public void remove(String modelId) {
+        if (TextUtils.isEmpty(modelId)) {
             return;
         }
-        TransferModel transferModel = getTransferMap().get(transferId);
+
+        TransferModel transferModel = getTransferMap().get(modelId);
         if (transferModel == null) {
             return;
         }

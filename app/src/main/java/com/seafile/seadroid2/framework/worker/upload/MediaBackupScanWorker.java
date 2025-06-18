@@ -20,6 +20,7 @@ import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.SaveTo;
 import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.enums.TransferResult;
@@ -110,8 +111,8 @@ public class MediaBackupScanWorker extends BaseScanWorker {
     }
 
     @Override
-    public TransferDataSource getDataSource() {
-        return TransferDataSource.ALBUM_BACKUP;
+    public FeatureDataSource getDataSource() {
+        return FeatureDataSource.ALBUM_BACKUP;
     }
 
     @NonNull
@@ -153,7 +154,7 @@ public class MediaBackupScanWorker extends BaseScanWorker {
 
         try {
             SLogs.d(TAG, "doWork()", "start scan");
-            sendWorkerEvent(TransferDataSource.ALBUM_BACKUP, TransferEvent.EVENT_SCANNING);
+            sendWorkerEvent(FeatureDataSource.ALBUM_BACKUP, TransferEvent.EVENT_SCANNING);
 
             loadMedia();
 
@@ -376,7 +377,7 @@ public class MediaBackupScanWorker extends BaseScanWorker {
             transferModel.repo_id = repoConfig.getRepoId();
             transferModel.repo_name = repoConfig.getRepoName();
 
-            transferModel.data_source = TransferDataSource.ALBUM_BACKUP;
+            transferModel.data_source = FeatureDataSource.ALBUM_BACKUP;
             transferModel.save_to = SaveTo.DB;
             transferModel.setId(transferModel.genStableId());
             GlobalTransferCacheList.ALBUM_BACKUP_QUEUE.put(bucketName, transferModel);

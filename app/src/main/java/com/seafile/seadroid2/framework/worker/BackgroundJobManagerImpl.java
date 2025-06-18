@@ -217,6 +217,7 @@ public class BackgroundJobManagerImpl {
     ////////////////////// upload file //////////////////////
     public void startFileUploadWorker() {
         SLogs.d(TAG, "startFileUploadWorker()");
+
         String workerName = FileUploadWorker.class.getSimpleName();
         OneTimeWorkRequest request = getFileUploadRequest();
         getWorkManager().enqueueUniqueWork(workerName, ExistingWorkPolicy.KEEP, request);
@@ -230,7 +231,6 @@ public class BackgroundJobManagerImpl {
         return oneTimeRequestBuilder(FileUploadWorker.class)
                 .setId(FileUploadWorker.UID)
                 .setConstraints(constraints)
-                .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
                 .addTag(TAG_FILE_UPLOAD)
                 .build();
     }
@@ -241,7 +241,6 @@ public class BackgroundJobManagerImpl {
 
 
     ////////////////////// download //////////////////////
-
     public void startDownloadChain() {
         startDownloadChain(null);
     }
@@ -292,7 +291,6 @@ public class BackgroundJobManagerImpl {
                 .addTag(TAG_DOWNLOAD)
                 .build();
     }
-
 
     public void cancelDownloadWorker() {
         cancelByTag(TAG_DOWNLOAD);

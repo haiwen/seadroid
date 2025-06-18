@@ -278,6 +278,7 @@
   <string name="next_button_label">Next</string>
   <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
   <string name="skip_button_label">Skip</string>
+  <!--Display mode-->
   <!--contacts  upload-->
   <!--Camera Upload Preference-->
   <string name="settings_camera_upload_info_title">上傳照片</string>
@@ -303,18 +304,14 @@
   <!--Camera Upload Configuration View-->
   <string name="settings_cuc_title">配置助手</string>
   <string name="settings_cuc_welcome_text">感謝使用照片上傳配置助手，\n在開始使用上傳服務之前，將會引導你如何進行配置。</string>
-  <string name="settings_cuc_network_title">上傳方式</string>
   <string name="settings_cuc_network_wifi">僅限於Wi-Fi</string>
   <string name="settings_cuc_network_data_plan">Wi-Fi或者移動流量套餐</string>
-  <string name="settings_cuc_option_hint">選擇你要配置的帳戶和資料庫，這些設置以後可以在設置菜單里修改。</string>
-  <string name="settings_cuc_type_title">上傳內容</string>
   <string name="settings_cuc_type_photo">僅上傳圖片</string>
   <string name="settings_cuc_type_video">上傳圖片和視頻</string>
   <string name="settings_cuc_local_dir_title">選擇相冊</string>
   <plurals name="settings_cuc_local_dir_items">
     <item quantity="other">%1$d個文件</item>
   </plurals>
-  <string name="settings_cuc_remote_lib_title">選擇雲端資料庫</string>
   <string name="settings_cuc_remote_lib_account">請選擇一個帳戶</string>
   <string name="settings_cuc_remote_lib_repo">%s被選中</string>
   <string name="settings_cuc_upload_to_parent_folder">上一級</string>
@@ -482,4 +479,5 @@
   <!--action-->
   <!--share link-->
   <!--menu-->
+  <!--sdoc-->
 </resources>

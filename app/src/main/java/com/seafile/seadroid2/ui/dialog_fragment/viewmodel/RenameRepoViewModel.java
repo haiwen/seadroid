@@ -62,6 +62,10 @@ public class RenameRepoViewModel extends BaseViewModel {
                 return Single.create(new SingleOnSubscribe<String>() {
                     @Override
                     public void subscribe(SingleEmitter<String> emitter) throws Exception {
+                        if (emitter.isDisposed()){
+                            return;
+                        }
+
                         File oldRepoFolder = DataManager.getLocalRepoDir(account, repoId, oldRepoName);
 
                         if (oldRepoFolder.exists()) {
@@ -92,7 +96,7 @@ public class RenameRepoViewModel extends BaseViewModel {
         }, new Consumer<Throwable>() {
             @Override
             public void accept(Throwable throwable) throws Exception {
-                SeafException seafException = getExceptionByThrowable(throwable);
+                SeafException seafException = getSeafExceptionByThrowable(throwable);
                 getSeafExceptionLiveData().setValue(seafException);
                 getRefreshLiveData().setValue(false);
             }
@@ -118,6 +122,10 @@ public class RenameRepoViewModel extends BaseViewModel {
                 return Single.create(new SingleOnSubscribe<String>() {
                     @Override
                     public void subscribe(SingleEmitter<String> emitter) throws Exception {
+                        if (emitter.isDisposed()){
+                            return;
+                        }
+
                         String parentPath = Utils.getParentPath(oldFolderFullPath);
                         String newFolderFullPath = Utils.pathJoin(parentPath, newName);
 
@@ -202,7 +210,7 @@ public class RenameRepoViewModel extends BaseViewModel {
         }, new Consumer<Throwable>() {
             @Override
             public void accept(Throwable throwable) throws Exception {
-                SeafException seafException = getExceptionByThrowable(throwable);
+                SeafException seafException = getSeafExceptionByThrowable(throwable);
                 getSeafExceptionLiveData().setValue(seafException);
                 getRefreshLiveData().setValue(false);
             }
@@ -229,6 +237,9 @@ public class RenameRepoViewModel extends BaseViewModel {
                 return Single.create(new SingleOnSubscribe<FileCreateModel>() {
                     @Override
                     public void subscribe(SingleEmitter<FileCreateModel> emitter) throws IOException {
+                        if (emitter.isDisposed()){
+                            return;
+                        }
 
                         String parentPath = oldFullPath.replace(oldName, "");
                         if (TextUtils.isEmpty(parentPath)) {
@@ -282,7 +293,7 @@ public class RenameRepoViewModel extends BaseViewModel {
         }, new Consumer<Throwable>() {
             @Override
             public void accept(Throwable throwable) throws Exception {
-                SeafException seafException = getExceptionByThrowable(throwable);
+                SeafException seafException = getSeafExceptionByThrowable(throwable);
                 getSeafExceptionLiveData().setValue(seafException);
                 getRefreshLiveData().setValue(false);
             }

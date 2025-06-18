@@ -1,23 +1,24 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:paddingHorizontal="@dimen/tv_title_margin_left">
 
     <TextView
         android:id="@+id/cuc_local_library_header_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="16dp"
         android:layout_marginTop="@dimen/tv_title_margin_top"
+        android:textStyle="bold"
         android:text="@string/settings_cuc_local_dir_title"
-        android:textColor="@color/fancy_orange"
+        android:textColor="@color/black"
         android:textSize="@dimen/tv_title_txt_size" />
 
     <RadioGroup
+
         android:id="@+id/cuc_local_directory_radio_group"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="16dp"
         android:layout_marginTop="@dimen/section_margin_top"
         android:checkedButton="@+id/cuc_local_directory_auto_scan_rb">
 
@@ -42,7 +43,6 @@
         android:id="@+id/cuc_bucket_selection_grid"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginHorizontal="16dp"
         android:layout_marginVertical="8dp"
         android:layout_weight="1"
         android:columnWidth="150dp"

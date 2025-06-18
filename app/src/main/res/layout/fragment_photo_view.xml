@@ -84,7 +84,6 @@
 
             </LinearLayout>
 
-
         </com.seafile.seadroid2.view.DraggableScrollView>
 
         <ProgressBar

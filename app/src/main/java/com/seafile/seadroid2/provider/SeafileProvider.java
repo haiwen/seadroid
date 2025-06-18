@@ -438,7 +438,6 @@ public class SeafileProvider extends DocumentsProvider {
 
         String displayName = Utils.getFileNameFromPath(path);
         try {
-            // 创建管道：readFd 给系统写入，writeFd 你来读取并上传
             ParcelFileDescriptor[] pipe = ParcelFileDescriptor.createPipe();
             ParcelFileDescriptor readFd = pipe[0];
             ParcelFileDescriptor writeFd = pipe[1];

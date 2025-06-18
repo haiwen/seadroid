@@ -14,13 +14,13 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.Observer;
 
 import com.blankj.utilcode.util.KeyboardUtils;
-import com.blankj.utilcode.util.ToastUtils;
 import com.google.android.material.materialswitch.MaterialSwitch;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.framework.util.StringUtils;
+import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.ui.base.fragment.RequestBottomSheetDialogFragmentWithVM;
 import com.seafile.seadroid2.ui.dialog_fragment.viewmodel.NewRepoViewModel;
 
@@ -112,7 +112,7 @@ public class BottomSheetNewRepoDialogFragment extends RequestBottomSheetDialogFr
         getViewModel().getSeafExceptionLiveData().observe(this, new Observer<SeafException>() {
             @Override
             public void onChanged(SeafException e) {
-                ToastUtils.showLong(e.getMessage());
+                Toasts.show(e.getMessage());
                 refreshData(false);
 
                 dismissDialogWithIme();
@@ -121,7 +121,7 @@ public class BottomSheetNewRepoDialogFragment extends RequestBottomSheetDialogFr
 
         getViewModel().getCreateRepoLiveData().observe(this, repoModel -> {
             String d = String.format(getResources().getString(R.string.create_new_repo_success), repoModel.repo_name);
-            ToastUtils.showLong(d);
+            Toasts.show(d);
 
             refreshData();
 
@@ -162,7 +162,7 @@ public class BottomSheetNewRepoDialogFragment extends RequestBottomSheetDialogFr
         EditText name = getDialogView().findViewById(R.id.edit_name);
         Editable editable = name.getText();
         if (editable == null || editable.length() == 0 || TextUtils.isEmpty(editable.toString().trim())) {
-            ToastUtils.showLong(R.string.repo_name_empty);
+            Toasts.show(R.string.repo_name_empty);
             return false;
         }
 
@@ -181,17 +181,17 @@ public class BottomSheetNewRepoDialogFragment extends RequestBottomSheetDialogFr
         boolean editableBool2 = editable2 == null || editable2.length() == 0 || TextUtils.isEmpty(editable2.toString().trim());
 
         if (editableBool1 || editableBool2) {
-            ToastUtils.showLong(R.string.err_passwd_empty);
+            Toasts.show(R.string.err_passwd_empty);
             return false;
         }
 
         if (editable1.length() < passwordMinLength) {
-            ToastUtils.showLong(R.string.err_passwd_too_short);
+            Toasts.show(R.string.err_passwd_too_short);
             return false;
         }
 
         if (!TextUtils.equals(editable1, editable2)) {
-            ToastUtils.showLong(R.string.err_passwd_mismatch);
+            Toasts.show(R.string.err_passwd_mismatch);
             return false;
         }
         return true;

@@ -11,13 +11,16 @@ import androidx.annotation.NonNull;
 import androidx.work.ForegroundInfo;
 import androidx.work.WorkerParameters;
 
+import com.google.common.util.concurrent.ListenableFuture;
 import com.seafile.seadroid2.bus.BusHelper;
+import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.notification.GeneralNotificationHelper;
 import com.seafile.seadroid2.framework.util.HttpUtils;
 import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 import com.seafile.seadroid2.ui.file.FileService;
 
@@ -110,21 +113,14 @@ public abstract class TransferWorker extends BaseWorker {
             return;
         }
 
-        if (Looper.getMainLooper().getThread() == Thread.currentThread()) {
-            Toast.makeText(getApplicationContext(), r, Toast.LENGTH_LONG).show();
-        } else {
-            String finalR = r;
-            new Handler(Looper.getMainLooper()).post(() -> {
-                Toast.makeText(getApplicationContext(), finalR, Toast.LENGTH_LONG).show();
-            });
-        }
+        Toasts.show(r);
     }
 
-    public void sendWorkerEvent(TransferDataSource dataSource, String event) {
+    public void sendWorkerEvent(FeatureDataSource dataSource, String event) {
         send(dataSource, event);
     }
 
-    public void sendWorkerEvent(TransferDataSource dataSource, String event, Bundle extra) {
+    public void sendWorkerEvent(FeatureDataSource dataSource, String event, Bundle extra) {
         send(dataSource, event, extra);
     }
 
@@ -145,11 +141,11 @@ public abstract class TransferWorker extends BaseWorker {
         send(transferModel.data_source, TransferEvent.EVENT_FILE_IN_TRANSFER, b);
     }
 
-    private void send(TransferDataSource dataSource, String event) {
+    private void send(FeatureDataSource dataSource, String event) {
         send(dataSource, event, null);
     }
 
-    private void send(TransferDataSource dataSource, String event, Bundle extra) {
+    private void send(FeatureDataSource dataSource, String event, Bundle extra) {
         Bundle b = new Bundle();
         b.putString(TransferWorker.KEY_DATA_SOURCE, dataSource.name());
         b.putString(TransferWorker.KEY_DATA_STATUS, event);

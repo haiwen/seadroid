@@ -29,11 +29,11 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.blankj.utilcode.util.BarUtils;
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.NetworkUtils;
-import com.blankj.utilcode.util.ToastUtils;
 import com.chad.library.adapter4.BaseQuickAdapter;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.compat.ContextCompatKt;
+import com.seafile.seadroid2.config.ObjKey;
 import com.seafile.seadroid2.context.CopyMoveContext;
 import com.seafile.seadroid2.databinding.ActivityCarouselImagePreviewBinding;
 import com.seafile.seadroid2.enums.ItemPositionEnum;
@@ -46,7 +46,7 @@ import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.model.activities.ActivityModel;
 import com.seafile.seadroid2.framework.model.search.SearchModel;
 import com.seafile.seadroid2.framework.util.Objs;
-import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.ui.adapter.ViewPager2Adapter;
 import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
@@ -54,7 +54,6 @@ import com.seafile.seadroid2.ui.dialog_fragment.CopyMoveDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.DeleteFileDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.listener.OnRefreshDataListener;
 import com.seafile.seadroid2.ui.selector.ObjSelectorActivity;
-import com.seafile.seadroid2.config.ObjKey;
 import com.seafile.seadroid2.view.photoview.ScrollDirection;
 import com.seafile.seadroid2.view.photoview.ScrollStatus;
 
@@ -297,7 +296,7 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
         getViewModel().getStarredLiveData().observe(this, new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean aBoolean) {
-//                ToastUtils.showLong(aBoolean ? R.string.star_file_succeed : R.string.star_file_failed);
+//                Toasts.show(aBoolean ? R.string.star_file_succeed : R.string.star_file_failed);
 
                 int index = binding.pager.getCurrentItem();
                 thumbnailAdapter.getItems().get(index + 1).starred = aBoolean;
@@ -777,7 +776,7 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
 
     private void starFile() {
         if (!NetworkUtils.isConnected()) {
-            ToastUtils.showLong(R.string.network_down);
+            Toasts.show(R.string.network_down);
             return;
         }
 
@@ -842,7 +841,7 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
         }
 
         if (!copyMoveContext.checkCopyMoveToSubfolder()) {
-            ToastUtils.showLong(copyMoveContext.isCopy()
+            Toasts.show(copyMoveContext.isCopy()
                     ? R.string.cannot_copy_folder_to_subfolder
                     : R.string.cannot_move_folder_to_subfolder);
             return;
@@ -855,7 +854,7 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
             public void onActionStatus(boolean isDone) {
                 if (isDone) {
                     setResult(RESULT_OK);
-                    ToastUtils.showLong(copyMoveContext.isCopy() ? R.string.copied_successfully : R.string.moved_successfully);
+                    Toasts.show(copyMoveContext.isCopy() ? R.string.copied_successfully : R.string.moved_successfully);
                 }
             }
         });

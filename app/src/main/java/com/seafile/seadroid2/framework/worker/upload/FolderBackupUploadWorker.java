@@ -11,13 +11,12 @@ import androidx.work.WorkInfo;
 import androidx.work.WorkerParameters;
 
 import com.blankj.utilcode.util.CollectionUtils;
-import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.TransferDataSource;
-import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.notification.FolderBackupNotificationHelper;
 import com.seafile.seadroid2.framework.notification.base.BaseTransferNotificationHelper;
@@ -27,6 +26,7 @@ import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
+import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 import com.seafile.seadroid2.ui.folder_backup.RepoConfig;
 
 import java.util.List;
@@ -172,7 +172,7 @@ public class FolderBackupUploadWorker extends BaseUploadWorker {
         Bundle b = new Bundle();
         b.putString(TransferWorker.KEY_DATA_RESULT, interruptibleExceptionMsg);
         b.putInt(TransferWorker.KEY_TRANSFER_COUNT, totalPendingCount);
-        sendWorkerEvent(TransferDataSource.FOLDER_BACKUP, TransferEvent.EVENT_TRANSFER_FINISH, b);
+        sendWorkerEvent(FeatureDataSource.FOLDER_BACKUP, TransferEvent.EVENT_TRANSFER_TASK_COMPLETE, b);
         return Result.success();
     }
 
@@ -180,7 +180,7 @@ public class FolderBackupUploadWorker extends BaseUploadWorker {
     private RepoConfig repoConfig;
 
     protected Result returnSuccess() {
-        sendWorkerEvent(TransferDataSource.FOLDER_BACKUP, TransferEvent.EVENT_TRANSFER_FINISH);
+        sendWorkerEvent(FeatureDataSource.FOLDER_BACKUP, TransferEvent.EVENT_TRANSFER_TASK_COMPLETE);
         return Result.success();
     }
 

@@ -76,7 +76,7 @@ public class AccountViewModel extends BaseViewModel {
             public void accept(Throwable throwable) throws Exception {
                 getRefreshLiveData().setValue(false);
 
-                SeafException seafException = getExceptionByThrowable(throwable);
+                SeafException seafException = getSeafExceptionByThrowable(throwable);
                 getAccountSeafExceptionLiveData().setValue(new Pair<>(loginAccount, seafException));
             }
         });
@@ -88,9 +88,11 @@ public class AccountViewModel extends BaseViewModel {
         Single<Account> single = Single.create(new SingleOnSubscribe<Account>() {
             @Override
             public void subscribe(SingleEmitter<Account> emitter) throws Exception {
-
+                if (emitter.isDisposed()){
+                    return;
+                }
+                
                 //the SYNC way
-
                 Call<TokenModel> call = getLoginCall(tempAccount, pwd, authToken, isRememberDevice);
                 Response<TokenModel> response = call.execute();
                 if (!response.isSuccessful()) {
@@ -117,7 +119,7 @@ public class AccountViewModel extends BaseViewModel {
 
                 if (!accountInfoResponse.isSuccessful()) {
                     HttpException httpException = new HttpException(response);
-                    throw getExceptionByThrowable(httpException);
+                    throw getSeafExceptionByThrowable(httpException);
                 }
 
                 AccountInfo accountInfo = accountInfoResponse.body();
@@ -147,7 +149,7 @@ public class AccountViewModel extends BaseViewModel {
             public void accept(Throwable throwable) throws Exception {
                 getRefreshLiveData().setValue(false);
 
-                SeafException seafException = getExceptionByThrowable(throwable);
+                SeafException seafException = getSeafExceptionByThrowable(throwable);
                 getAccountSeafExceptionLiveData().setValue(new Pair<>(tempAccount, seafException));
             }
         });

@@ -2,6 +2,9 @@ package com.seafile.seadroid2.ui.account.sso;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.view.View;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResult;
@@ -11,19 +14,15 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.Observer;
 
-import android.text.Editable;
-import android.text.TextUtils;
-import android.view.View;
-
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.NetworkUtils;
-import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.databinding.SingleSignOnWelcomeLayoutBinding;
 import com.seafile.seadroid2.framework.model.server.ServerInfoModel;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.StringUtils;
+import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.account.SeafileAuthenticatorActivity;
 import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
@@ -159,12 +158,12 @@ public class SingleSignOnActivity extends BaseActivityWithVM<SingleSignOnViewMod
 
     private boolean isServerHostValid(String hostUrl) {
         if (TextUtils.isEmpty(hostUrl)) {
-            ToastUtils.showLong(R.string.shib_server_url_empty);
+            Toasts.show(R.string.shib_server_url_empty);
             return false;
         }
 
         if (!hostUrl.startsWith(SINGLE_SIGN_ON_HTTPS_PREFIX)) {
-            ToastUtils.showLong(getString(R.string.shib_server_incorrect_prefix));
+            Toasts.show(getString(R.string.shib_server_incorrect_prefix));
             return false;
         }
 
@@ -173,7 +172,7 @@ public class SingleSignOnActivity extends BaseActivityWithVM<SingleSignOnViewMod
                 .replace("https://", "")
                 .replace("http://", "");
         if (TextUtils.isEmpty(serverUrl1)) {
-            ToastUtils.showLong(R.string.err_server_andress_empty);
+            Toasts.show(R.string.err_server_andress_empty);
             return false;
         }
 
@@ -195,7 +194,7 @@ public class SingleSignOnActivity extends BaseActivityWithVM<SingleSignOnViewMod
 
     private void openAuthorizePage(String serverUrl) {
         if (!NetworkUtils.isConnected()) {
-            ToastUtils.showLong(R.string.network_down);
+            Toasts.show(R.string.network_down);
             return;
         }
 

@@ -1,23 +1,18 @@
 package com.seafile.seadroid2.ui.main;
 
-import android.Manifest;
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.text.TextUtils;
 import android.view.MenuItem;
 
 import androidx.activity.OnBackPressedCallback;
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.fragment.app.Fragment;
@@ -27,7 +22,6 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.NetworkUtils;
-import com.blankj.utilcode.util.ToastUtils;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.seafile.seadroid2.R;
@@ -51,7 +45,6 @@ import com.seafile.seadroid2.ui.base.BaseActivity;
 import com.seafile.seadroid2.ui.repo.RepoQuickFragment;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 public class MainActivity extends BaseActivity {
@@ -97,6 +90,9 @@ public class MainActivity extends BaseActivity {
             finishAndStartAccountsActivity();
             return;
         }
+
+        //register bus
+        BusHelper.getCommonObserver().observe(this, busObserver);
 
         initSettings();
 
@@ -177,14 +173,27 @@ public class MainActivity extends BaseActivity {
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
 
-        requestPermissions();
+//        OneTimeWorkRequest oneTimeWorkRequest = new OneTimeWorkRequest.Builder(LivePhotoScanner.class).build();
+//        BackgroundJobManagerImpl.getInstance().getWorkManager().enqueue(oneTimeWorkRequest);
+
+        requestNotificationPermission();
     }
 
-    private void requestPermissions() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            startMultiplePermissionLauncher.launch(new String[]{Manifest.permission.POST_NOTIFICATIONS, Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_VIDEO});
-        } else {
-            PermissionUtil.requestExternalStoragePermission(this, multiplePermissionLauncher, manageStoragePermissionLauncher);
+    private void requestNotificationPermission() {
+        if (PermissionUtil.hasNotificationPermission(this)) {
+            PermissionUtil.requestNotificationPermission(this);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == PermissionUtil.PERMISSIONS_POST_NOTIFICATIONS) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+            } else {
+                SLogs.d(TAG, "Notification permission denied");
+            }
         }
     }
 
@@ -218,6 +227,9 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         NetworkUtils.unregisterNetworkStatusChangedListener(onNetworkStatusChangedListener);
+
+        //
+        BusHelper.getCommonObserver().removeObserver(busObserver);
 
         if (isBound) {
             unbindService(syncConnection);
@@ -594,50 +606,20 @@ public class MainActivity extends BaseActivity {
         overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     }
 
-    private final ActivityResultLauncher<String[]> multiplePermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), new ActivityResultCallback<Map<String, Boolean>>() {
+
+    private final Observer<String> busObserver = new Observer<String>() {
         @Override
-        public void onActivityResult(Map<String, Boolean> o) {
-            if (o.isEmpty()) {
+        public void onChanged(String action) {
+            if (TextUtils.isEmpty(action)) {
                 return;
             }
 
-            for (Map.Entry<String, Boolean> stringBooleanEntry : o.entrySet()) {
-                if (Boolean.FALSE.equals(stringBooleanEntry.getValue())) {
-                    ToastUtils.showLong(R.string.get_storage_permission_failed);
-                    return;
-                }
-            }
-        }
-    });
-
-    private final ActivityResultLauncher<Intent> manageStoragePermissionLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
-        @Override
-        public void onActivityResult(ActivityResult o) {
-            if (!PermissionUtil.checkExternalStoragePermission(MainActivity.this)) {
-                ToastUtils.showLong(R.string.get_storage_permission_failed);
-            }
-        }
-    });
-
-    private final ActivityResultLauncher<String[]> startMultiplePermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), new ActivityResultCallback<Map<String, Boolean>>() {
-        @Override
-        public void onActivityResult(Map<String, Boolean> o) {
-            if (o.isEmpty()) {
-                return;
-            }
-
-            boolean mediaIsRefuse = false;
-            for (Map.Entry<String, Boolean> e : o.entrySet()) {
-                if (Boolean.FALSE.equals(e.getValue()) && !TextUtils.equals(Manifest.permission.POST_NOTIFICATIONS, e.getKey())) {
-                    mediaIsRefuse = true;
+            if (TextUtils.equals(action, "RESTART_FILE_MONITOR")) {
+                if (syncService != null) {
+                    syncService.restartFolderMonitor();
                 }
             }
 
-            if (mediaIsRefuse) {
-                ToastUtils.showLong(getString(R.string.get_permission_failed, "IMAGE/VIDEO"));
-            }
-
-            PermissionUtil.requestExternalStoragePermission(MainActivity.this, multiplePermissionLauncher, manageStoragePermissionLauncher);
         }
-    });
+    };
 }

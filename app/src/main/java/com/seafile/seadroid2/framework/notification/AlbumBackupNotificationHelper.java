@@ -45,6 +45,6 @@ public class AlbumBackupNotificationHelper extends BaseTransferNotificationHelpe
 
     @Override
     public int getNotificationId() {
-        return NotificationUtils.NOTIFICATION_ID_UPLOAD_ALBUM_BACKUP;
+        return NotificationUtils.NID_TRANSFER_UPLOAD_ALBUM_BACKUP;
     }
 }

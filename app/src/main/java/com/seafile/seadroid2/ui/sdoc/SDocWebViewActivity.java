@@ -22,7 +22,6 @@ import androidx.webkit.WebViewFeature;
 import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.GsonUtils;
 import com.blankj.utilcode.util.NetworkUtils;
-import com.blankj.utilcode.util.ToastUtils;
 import com.github.lzyzsd.jsbridge.CallBackFunction;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
@@ -33,6 +32,7 @@ import com.seafile.seadroid2.framework.model.sdoc.OutlineItemModel;
 import com.seafile.seadroid2.framework.model.sdoc.SDocPageOptionsModel;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.StringUtils;
+import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.listener.OnItemClickListener;
 import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
 import com.seafile.seadroid2.ui.docs_comment.DocsCommentsActivity;
@@ -50,6 +50,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
     private String repoId, repoName;
     private String path;
     private String targetUrl;
+    private boolean isSdoc;
 
     private SDocPageOptionsModel pageOptionsData;
 
@@ -58,8 +59,19 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         intent.putExtra("repoName", repoName);
         intent.putExtra("repoID", repoID);
         intent.putExtra("filePath", path);
+        intent.putExtra("isSdoc", true);
         ActivityUtils.startActivity(intent);
     }
+
+    public static void openDraw(Context context, String repoName, String repoID, String path) {
+        Intent intent = new Intent(context, SDocWebViewActivity.class);
+        intent.putExtra("repoName", repoName);
+        intent.putExtra("repoID", repoID);
+        intent.putExtra("filePath", path);
+        intent.putExtra("isSdoc", false);
+        ActivityUtils.startActivity(intent);
+    }
+
 
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
@@ -82,7 +94,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         setContentView(binding.getRoot());
 
         if (!NetworkUtils.isConnected()) {
-            ToastUtils.showLong(R.string.network_unavailable);
+            Toasts.show(R.string.network_unavailable);
             finish();
             return;
         }
@@ -104,7 +116,6 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
             //let's go
             mWebView.load(targetUrl);
         }
-
     }
 
     private void initData() {
@@ -116,6 +127,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         repoId = intent.getStringExtra("repoID");
         repoName = intent.getStringExtra("repoName");
         path = intent.getStringExtra("filePath");
+        isSdoc = intent.getBooleanExtra("isSdoc", false);
 
         if (TextUtils.isEmpty(repoId) || TextUtils.isEmpty(path)) {
             throw new IllegalArgumentException("repoId or path is null");
@@ -165,25 +177,29 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         mWebView.setLayoutParams(ll);
         binding.nsv.addView(mWebView);
 
-        binding.sdocOutline.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showOutlineDialog();
-            }
-        });
-        binding.sdocProfile.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getViewModel().loadFileDetail(repoId, path);
-            }
-        });
-        binding.sdocComment.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showCommentsActivity();
-            }
-        });
-
+        if (isSdoc) {
+            binding.llBottomBar.setVisibility(View.VISIBLE);
+            binding.sdocOutline.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    showOutlineDialog();
+                }
+            });
+            binding.sdocProfile.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    getViewModel().loadFileDetail(repoId, path);
+                }
+            });
+            binding.sdocComment.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    showCommentsActivity();
+                }
+            });
+        } else {
+            binding.llBottomBar.setVisibility(View.GONE);
+        }
 
     }
 
@@ -267,7 +283,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
                     }
                 } else {
                     SLogs.d(TAG, "readSDocPageOptionsData()", "read sodc page options data from web: " + value);
-                    ToastUtils.showShort(R.string.unknow_error);
+                    Toasts.showShort(R.string.unknow_error);
                 }
             }
         });
@@ -287,7 +303,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
             public void onReceiveValue(String value) {
                 if (TextUtils.isEmpty(value)) {
                     SLogs.d(TAG, "readSDocPageOptionsData()", value);
-                    ToastUtils.showShort(R.string.empty_data);
+                    Toasts.showShort(R.string.empty_data);
                     continuation.accept(value);
                     return;
                 }
@@ -316,7 +332,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
                 SLogs.d(TAG, "readSeafileTokenData()", value);
                 if (TextUtils.isEmpty(value)) {
                     SLogs.d(TAG, "readSeafileTokenData()", "doc uuid is empty.");
-                    ToastUtils.showShort("outline is empty.");
+                    Toasts.showShort("outline is empty.");
                     return;
                 }
 

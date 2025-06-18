@@ -10,4 +10,8 @@ public class Times {
         Date date = TimeUtils.string2Date(mtime, DateFormatType.DATE_XXX);
         return TimeUtils.date2Millis(date);
     }
+
+    public static String convertLong2Time(long time) {
+        return TimeUtils.millis2String(time, DateFormatType.DATE_XXX);
+    }
 }

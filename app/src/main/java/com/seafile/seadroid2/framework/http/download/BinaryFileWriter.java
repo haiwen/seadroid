@@ -21,12 +21,16 @@ public class BinaryFileWriter implements AutoCloseable {
 
     public long write(InputStream inputStream, long totalSize) throws IOException {
         try (BufferedInputStream input = new BufferedInputStream(inputStream)) {
+
             byte[] dataBuffer = new byte[CHUNK_SIZE];
             int readBytes;
             long totalBytes = 0;
+
             while ((readBytes = input.read(dataBuffer)) != -1) {
                 totalBytes += readBytes;
-                outputStream.write(dataBuffer, 0, readBytes);
+                if (outputStream != null) {
+                    outputStream.write(dataBuffer, 0, readBytes);
+                }
 
                 long now = System.currentTimeMillis();
                 if (now - temp > 250) {
@@ -42,6 +46,8 @@ public class BinaryFileWriter implements AutoCloseable {
 
     @Override
     public void close() throws Exception {
-        outputStream.close();
+        if (outputStream != null) {
+            outputStream.close();
+        }
     }
 }

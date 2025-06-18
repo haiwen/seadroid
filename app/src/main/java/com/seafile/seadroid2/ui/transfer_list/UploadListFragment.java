@@ -9,13 +9,13 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.Observer;
 
 import com.seafile.seadroid2.bus.BusHelper;
+import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.TransferAction;
 import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
-import com.seafile.seadroid2.ui.settings.TabSettings2Fragment;
 
 public class UploadListFragment extends TransferListFragment {
     private final String TAG = "UploadListFragment";
@@ -59,18 +59,21 @@ public class UploadListFragment extends TransferListFragment {
         int transferCount = map.getInt(TransferWorker.KEY_TRANSFER_COUNT);
         SLogs.d(TAG, "on event: " + statusEvent + ", dataSource: " + dataSource + ", count: " + transferCount);
 
-        if (TextUtils.equals(TransferDataSource.DOWNLOAD.name(), dataSource)) {
+        if (!TextUtils.equals(FeatureDataSource.ALBUM_BACKUP.name(), dataSource) &&
+                !TextUtils.equals(FeatureDataSource.FOLDER_BACKUP.name(), dataSource) &&
+                !TextUtils.equals(FeatureDataSource.MANUAL_FILE_UPLOAD.name(), dataSource)
+        ) {
             return;
         }
 
-        TransferModel transferModel = getUploadModel(transferId);
+        TransferModel transferModel = getUploadModel(dataSource, transferId);
         if (transferModel == null) {
             return;
         }
 
         if (TextUtils.equals(statusEvent, TransferEvent.EVENT_SCANNING)) {
 
-        } else if (TextUtils.equals(statusEvent, TransferEvent.EVENT_SCAN_FINISH)) {
+        } else if (TextUtils.equals(statusEvent, TransferEvent.EVENT_SCAN_COMPLETE)) {
 
         } else if (TextUtils.equals(statusEvent, TransferEvent.EVENT_FILE_IN_TRANSFER)) {
 
@@ -83,7 +86,7 @@ public class UploadListFragment extends TransferListFragment {
         } else if (TextUtils.equals(statusEvent, TransferEvent.EVENT_FILE_TRANSFER_SUCCESS)) {
 
             notifyProgressById(transferModel, statusEvent);
-        } else if (TextUtils.equals(statusEvent, TransferEvent.EVENT_TRANSFER_FINISH)) {
+        } else if (TextUtils.equals(statusEvent, TransferEvent.EVENT_TRANSFER_TASK_COMPLETE)) {
             loadData();
         }
 

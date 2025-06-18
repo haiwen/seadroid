@@ -359,7 +359,7 @@ public class DocsCommentViewModel extends BaseViewModel {
             @Override
             public void accept(Throwable throwable) throws Exception {
                 getRefreshLiveData().setValue(false);
-                getSeafExceptionLiveData().setValue(getExceptionByThrowable(throwable));
+                getSeafExceptionLiveData().setValue(getSeafExceptionByThrowable(throwable));
             }
         });
     }

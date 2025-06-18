@@ -10,10 +10,10 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 
-import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.TakeCameras;
+import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
 import com.seafile.seadroid2.ui.bottomsheetmenu.BottomSheetHelper;
 import com.seafile.seadroid2.ui.bottomsheetmenu.OnMenuClickListener;
@@ -44,10 +44,10 @@ public class BaseMediaSelectorActivity<T extends BaseViewModel> extends BaseActi
             @Override
             public void onActivityResult(Boolean result) {
                 if (result) {
-                    uriPair = TakeCameras.buildTakePhotoUri(BaseMediaSelectorActivity.this);
+                    uriPair = TakeCameras.buildPhotoUri(BaseMediaSelectorActivity.this);
                     takePhotoLauncher.launch(uriPair.getFirst());
                 } else {
-                    ToastUtils.showLong(R.string.permission_camera);
+                    Toasts.show(R.string.permission_camera);
                 }
             }
         });
@@ -56,10 +56,10 @@ public class BaseMediaSelectorActivity<T extends BaseViewModel> extends BaseActi
             @Override
             public void onActivityResult(Boolean result) {
                 if (result) {
-                    uriPair = TakeCameras.buildTakePhotoUri(BaseMediaSelectorActivity.this);
+                    uriPair = TakeCameras.buildPhotoUri(BaseMediaSelectorActivity.this);
                     shootVideoLauncher.launch(uriPair.getFirst());
                 } else {
-                    ToastUtils.showLong(R.string.permission_camera);
+                    Toasts.show(R.string.permission_camera);
                 }
             }
         });
@@ -70,7 +70,7 @@ public class BaseMediaSelectorActivity<T extends BaseViewModel> extends BaseActi
                 if (o) {
                     fileChooseLauncher.launch("*/*");
                 } else {
-                    ToastUtils.showLong(R.string.permission_manage_external_storage_rationale);
+                    Toasts.show(R.string.permission_manage_external_storage_rationale);
                 }
             }
         });

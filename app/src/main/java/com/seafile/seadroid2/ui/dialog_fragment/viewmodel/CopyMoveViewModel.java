@@ -56,6 +56,10 @@ public class CopyMoveViewModel extends BaseViewModel {
         Single<ResultModel> moveSingle = Single.create(new SingleOnSubscribe<ResultModel>() {
             @Override
             public void subscribe(SingleEmitter<ResultModel> emitter) throws Exception {
+                if (emitter.isDisposed()){
+                    return;
+                }
+
                 for (DirentModel direntModel : direntList) {
                     String srcFullPath = Utils.pathJoin(srcParentDir, direntModel.name);
                     String dstFullPath = Utils.pathJoin(dstParentDir, direntModel.name);
@@ -119,6 +123,7 @@ public class CopyMoveViewModel extends BaseViewModel {
 
                 ResultModel resultModel = new ResultModel();
                 resultModel.success = true;
+
                 emitter.onSuccess(resultModel);
             }
         });
@@ -142,7 +147,7 @@ public class CopyMoveViewModel extends BaseViewModel {
             public void accept(Throwable throwable) throws Exception {
                 getRefreshLiveData().setValue(false);
 
-                SeafException seafException = getExceptionByThrowable(throwable);
+                SeafException seafException = getSeafExceptionByThrowable(throwable);
                 getSeafExceptionLiveData().setValue(seafException);
             }
         });
@@ -176,7 +181,7 @@ public class CopyMoveViewModel extends BaseViewModel {
             public void accept(Throwable throwable) throws Exception {
                 getRefreshLiveData().setValue(false);
 
-                SeafException seafException = getExceptionByThrowable(throwable);
+                SeafException seafException = getSeafExceptionByThrowable(throwable);
                 getSeafExceptionLiveData().setValue(seafException);
             }
         });

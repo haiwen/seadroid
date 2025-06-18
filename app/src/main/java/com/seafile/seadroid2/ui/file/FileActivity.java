@@ -12,7 +12,6 @@ import androidx.lifecycle.Observer;
 
 import com.blankj.utilcode.util.FileUtils;
 import com.blankj.utilcode.util.NetworkUtils;
-import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
@@ -27,6 +26,7 @@ import com.seafile.seadroid2.framework.model.activities.ActivityModel;
 import com.seafile.seadroid2.framework.model.dirents.DirentFileModel;
 import com.seafile.seadroid2.framework.util.Icons;
 import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.ExistingFileStrategy;
 import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
@@ -75,7 +75,7 @@ public class FileActivity extends BaseActivityWithVM<FileViewModel> implements T
         setContentView(binding.getRoot());
 
         if (!NetworkUtils.isConnected()) {
-            ToastUtils.showLong(R.string.network_unavailable);
+            Toasts.show(R.string.network_unavailable);
             finishWithCancel();
             return;
         }
@@ -110,7 +110,7 @@ public class FileActivity extends BaseActivityWithVM<FileViewModel> implements T
         if (NetworkUtils.isConnected()) {
             loadData();
         } else {
-            ToastUtils.showLong(R.string.network_error);
+            Toasts.show(R.string.network_error);
             finishWithCancel();
         }
     }
@@ -151,7 +151,7 @@ public class FileActivity extends BaseActivityWithVM<FileViewModel> implements T
             @Override
             public void accept(DirentFileModel direntFileModel) throws Exception {
                 if (direntFileModel == null) {
-                    ToastUtils.showLong(R.string.file_not_found);
+                    Toasts.show(R.string.file_not_found);
                     finishWithCancel();
                     return;
                 }
@@ -187,7 +187,7 @@ public class FileActivity extends BaseActivityWithVM<FileViewModel> implements T
 
     private void cancelDownload() {
         getViewModel().disposeAll();
-        ToastUtils.showLong(R.string.download_cancelled);
+        Toasts.show(R.string.download_cancelled);
         finishWithCancel();
     }
 
@@ -206,10 +206,8 @@ public class FileActivity extends BaseActivityWithVM<FileViewModel> implements T
 
     private File getLocalDestinationFile(String repoId, String repoName, String fullPathInRepo) {
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
-
         return DataManager.getLocalFileCachePath(account, repoId, repoName, fullPathInRepo);
     }
-
 
     private void onFileDownloadProgress(long transferredSize, long totalSize) {
         if (binding.progressBar.isIndeterminate()) {
@@ -249,13 +247,13 @@ public class FileActivity extends BaseActivityWithVM<FileViewModel> implements T
 
         if (seafException == SeafException.NOT_FOUND_EXCEPTION) {
             // file deleted
-            ToastUtils.showLong(String.format("The file \"%s\" has been deleted", direntModel.name));
+            Toasts.show(String.format("The file \"%s\" has been deleted", direntModel.name));
 
             finishWithCancel();
         } else if (seafException == SeafException.INVALID_PASSWORD) {
             handlePassword();
         } else {
-            ToastUtils.showLong(String.format("Failed to download file \"%s\"", seafException.getMessage()));
+            Toasts.show(String.format("Failed to download file \"%s\"", seafException.getMessage()));
 
             finishWithCancel();
         }

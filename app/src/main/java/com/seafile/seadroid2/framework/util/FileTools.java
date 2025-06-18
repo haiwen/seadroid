@@ -42,7 +42,7 @@ public class FileTools {
     }
 
     public static int[] getChildrenNumber(File file) {
-        boolean isJumpHiddenFile = FolderBackupSharePreferenceHelper.isFolderBackupSkipHiddenFiles();
+        boolean isSkipHiddenFile = FolderBackupSharePreferenceHelper.isFolderBackupSkipHiddenFiles();
 
         File[] files = file.listFiles();
         int[] numbers = new int[]{0, 0};
@@ -51,7 +51,7 @@ public class FileTools {
         }
 
         for (File value : files) {
-            if (isJumpHiddenFile && value.isHidden()) {
+            if (isSkipHiddenFile && value.isHidden()) {
                 continue;
             }
 

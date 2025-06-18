@@ -212,7 +212,7 @@ public class StarredViewModel extends BaseViewModel {
             @Override
             public void accept(Throwable throwable) throws Exception {
                 getRefreshLiveData().setValue(false);
-                SeafException seafException = getExceptionByThrowable(throwable);
+                SeafException seafException = getSeafExceptionByThrowable(throwable);
 
                 if (seafException == SeafException.REMOTE_WIPED_EXCEPTION) {
                     //post a request

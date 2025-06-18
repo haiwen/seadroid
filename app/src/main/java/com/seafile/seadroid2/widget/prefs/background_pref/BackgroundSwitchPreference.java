@@ -15,6 +15,8 @@ import androidx.preference.SwitchPreferenceCompat;
 
 import com.google.android.material.divider.MaterialDivider;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.widget.prefs.DividerPositionEnum;
+import com.seafile.seadroid2.widget.prefs.RadiusPositionEnum;
 
 public abstract class BackgroundSwitchPreference extends SwitchPreferenceCompat {
     public BackgroundSwitchPreference(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
@@ -105,27 +107,19 @@ public abstract class BackgroundSwitchPreference extends SwitchPreferenceCompat 
         notifyChanged();
     }
 
-    /**
-     * dp
-     */
     public void setBackgroundRadius(int backgroundRadius) {
         this.backgroundRadius = backgroundRadius;
         notifyChanged();
     }
 
-    /**
-     * @param radiusPosition 0: none, 1: all, 2: top, 3: bottom
-     */
-    public void setRadiusPosition(int radiusPosition) {
-        this.radiusPosition = radiusPosition;
+
+    public void setRadiusPosition(RadiusPositionEnum radiusEnum) {
+        this.radiusPosition = radiusEnum.ordinal();
         notifyChanged();
     }
 
-    /**
-     * @param dividerPosition 0: none, 1: top, 2: bottom, 3: top and bottom
-     */
-    public void setDividerPosition(int dividerPosition) {
-        this.dividerPosition = dividerPosition;
+    public void setDividerPosition(DividerPositionEnum dividerEnum) {
+        this.dividerPosition = dividerEnum.ordinal();
         notifyChanged();
     }
 

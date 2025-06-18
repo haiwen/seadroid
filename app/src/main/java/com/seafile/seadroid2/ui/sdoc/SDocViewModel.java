@@ -6,7 +6,6 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.blankj.utilcode.util.CloneUtils;
 import com.blankj.utilcode.util.CollectionUtils;
-import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
@@ -23,6 +22,7 @@ import com.seafile.seadroid2.framework.model.user.UserWrapperModel;
 import com.seafile.seadroid2.framework.util.ExceptionUtils;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.StringUtils;
+import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
 
 import java.util.ArrayList;
@@ -153,7 +153,7 @@ public class SDocViewModel extends BaseViewModel {
             public void accept(Throwable throwable) {
                 getSecondRefreshLiveData().setValue(false);
                 SeafException seafException = ExceptionUtils.parseByThrowable(throwable);
-                ToastUtils.showLong(seafException.getMessage());
+                Toasts.show(seafException.getMessage());
             }
         });
     }

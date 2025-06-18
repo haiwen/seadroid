@@ -21,6 +21,13 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 
 public class FolderBackupSharePreferenceHelper {
+    public static boolean isFolderBackupEnable() {
+        boolean isEnable = FolderBackupSharePreferenceHelper.readBackupSwitch();
+        RepoConfig repoConfig = FolderBackupSharePreferenceHelper.readRepoConfig();
+        List<String> pathList = FolderBackupSharePreferenceHelper.readBackupPathsAsList();
+
+        return (isEnable && !CollectionUtils.isEmpty(pathList) && repoConfig != null);
+    }
 
     public static void writeBackupSwitch(boolean isChecked) {
         if (Settings.FOLDER_BACKUP_SWITCH == null) {

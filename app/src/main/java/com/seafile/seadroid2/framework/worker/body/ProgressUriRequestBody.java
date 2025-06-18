@@ -22,14 +22,19 @@ public class ProgressUriRequestBody extends RequestBody {
     private final MediaType mediaType;
     private final FileTransferProgressListener fileTransferProgressListener;
     private final Context context;
-    private final long size;
+    private final long estimationSize;
+    private boolean isStop = false;
 
     public ProgressUriRequestBody(Context context, Uri uri, long size, FileTransferProgressListener fileTransferProgressListener) {
         this.context = context;
         this.uri = uri;
         this.mediaType = MediaType.parse("application/octet-stream");
         this.fileTransferProgressListener = fileTransferProgressListener;
-        this.size = size;
+        this.estimationSize = size;
+    }
+
+    public void setStop(boolean stop) {
+        isStop = stop;
     }
 
     @Override
@@ -37,9 +42,14 @@ public class ProgressUriRequestBody extends RequestBody {
         return mediaType;
     }
 
+    /**
+     * -1: chunked.
+     * We can't calculate the data length of a stream.
+     * Here, we use the chunk mode, and the data length is unknown.
+     */
     @Override
     public long contentLength() throws IOException {
-        return size;
+        return super.contentLength();
     }
 
     public long temp = System.currentTimeMillis();
@@ -47,14 +57,23 @@ public class ProgressUriRequestBody extends RequestBody {
     @Override
     public void writeTo(@NonNull BufferedSink sink) throws IOException {
         try (InputStream inputStream = context.getContentResolver().openInputStream(uri)) {
-
-            long fileLength = contentLength();
             long current = 0;
 
             if (inputStream != null) {
                 byte[] buffer = new byte[TransferWorker.SEGMENT_SIZE];
                 int readCount;
                 while ((readCount = inputStream.read(buffer)) != -1) {
+
+                    if (Thread.currentThread().isInterrupted()) {
+                        SLogs.e(new InterruptedException("Upload canceled"));
+                        return;
+                    }
+
+                    if (isStop) {
+                        return;
+                    }
+
+
                     sink.write(buffer, 0, readCount);
 
                     current += readCount;
@@ -64,14 +83,14 @@ public class ProgressUriRequestBody extends RequestBody {
                     if (nowt - temp >= 1000) {
                         temp = nowt;
                         if (fileTransferProgressListener != null) {
-                            fileTransferProgressListener.onProgressNotify(current, fileLength);
+                            fileTransferProgressListener.onProgressNotify(current, estimationSize);
                         }
                     }
                 }
 
                 //notify complete
                 if (fileTransferProgressListener != null) {
-                    fileTransferProgressListener.onProgressNotify(fileLength, fileLength);
+                    fileTransferProgressListener.onProgressNotify(estimationSize, estimationSize);
                 }
             }
         } catch (IOException e) {

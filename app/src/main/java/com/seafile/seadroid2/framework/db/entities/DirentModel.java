@@ -90,6 +90,22 @@ public class DirentModel extends BaseModel implements Parcelable {
     @Ignore
     private String timestamp;
 
+    @Ignore
+    private String file_ext;
+
+    public String getFileExt() {
+        if (TextUtils.isEmpty(file_ext)) {
+            if (type.equals("dir")) {
+                return "";// Folders are ranked first (you can also use "~" to put them behind)
+            }
+
+            int lastDot = name.lastIndexOf('.');
+            if (lastDot == -1 || lastDot == name.length() - 1) return "";
+            file_ext = name.substring(lastDot + 1).toLowerCase();
+        }
+        return file_ext;
+    }
+
     public String getUID() {
         return EncryptUtils.encryptMD5ToString(repo_id + parent_dir + name).toLowerCase();
     }

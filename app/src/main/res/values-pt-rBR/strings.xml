@@ -209,6 +209,7 @@
   <string name="next_button_label">Proximo</string>
   <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
   <string name="skip_button_label">Pular</string>
+  <!--Display mode-->
   <!--contacts  upload-->
   <!--Camera Upload Preference-->
   <string name="settings_camera_upload_info_title">Camera carregamento de foto</string>
@@ -229,14 +230,10 @@
   <string name="settings_camera_upload_advanced_custom_directories_off">Auto scan do dispositivo</string>
   <!--Camera Upload Configuration View-->
   <string name="settings_cuc_title">Ajudante de configuração</string>
-  <string name="settings_cuc_network_title">Como Realizar upload</string>
   <string name="settings_cuc_network_wifi">Somente Wi-Fi</string>
   <string name="settings_cuc_network_data_plan">Wi-Fi ou plano de dados</string>
-  <string name="settings_cuc_option_hint">Escolha a sua opção preferida. \ n Você pode alterar essas opções mais tarde em Configurações.</string>
-  <string name="settings_cuc_type_title">Fazer o upload de</string>
   <string name="settings_cuc_type_photo">Somente fotos</string>
   <string name="settings_cuc_type_video">Fotos e Videos</string>
-  <string name="settings_cuc_remote_lib_title">Selecione  uma bliblioteca remota</string>
   <string name="settings_cuc_remote_lib_account">Escolha uma conta</string>
   <string name="settings_cuc_remote_lib_repo">%s foi selecionado</string>
   <string name="settings_cuc_upload_to_parent_folder">Subir pasta</string>
@@ -290,6 +287,7 @@
   <string name="transfer_list_deselect_all">Deselecionar tudo</string>
   <plurals name="transfer_list_items_selected">
     <item quantity="one">%d item selecionado</item>
+    <item quantity="many">%d items selecionados</item>
     <item quantity="other">%d items selecionados</item>
   </plurals>
   <!--Sort-->
@@ -331,4 +329,9 @@
   <!--Operation Exceptions-->
   <!--Home list title-->
   <!--editor-->
+  <!--Folder backup Preference-->
+  <!--action-->
+  <!--share link-->
+  <!--menu-->
+  <!--sdoc-->
 </resources>

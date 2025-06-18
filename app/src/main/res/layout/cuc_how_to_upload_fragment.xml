@@ -1,50 +1,44 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent">
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingHorizontal="@dimen/tv_title_margin_left">
 
     <TextView
         android:id="@+id/cuc_wifi_title_tv"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginLeft="@dimen/tv_title_margin_left"
         android:layout_marginTop="@dimen/tv_title_margin_top"
         android:text="@string/settings_cuc_network_title"
-        android:textColor="@color/fancy_orange"
-        android:textSize="@dimen/tv_title_txt_size" />
+        android:textColor="@color/black"
+        android:textSize="@dimen/tv_title_txt_size"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/cuc_wifi_hint_tv"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/cuc_wifi_title_tv"
-        android:layout_below="@+id/cuc_wifi_title_tv"
-        android:layout_marginRight="30dp"
         android:layout_marginTop="@dimen/section_margin_top"
-        android:text="@string/settings_cuc_option_hint"
+        android:text="@string/settings_cuc_how_hint"
         android:textColor="@color/fancy_gray"
-        android:textSize="@dimen/tv_subtitle_txt_size" />
-
-    <TextView
-            android:id="@+id/cuc_swipe_left_txt_tv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignLeft="@+id/cuc_wifi_hint_tv"
-            android:layout_below="@+id/cuc_wifi_hint_tv"
-            android:layout_marginTop="@dimen/tv_subtitle_margin_top"
-            android:text="@string/settings_cuc_swipe_left"
-            android:textColor="@color/fancy_gray"
-            android:textSize="@dimen/tv_subtitle_txt_size" />
+        android:textSize="@dimen/tv_subtitle_txt_size"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cuc_wifi_title_tv" />
 
     <RadioGroup
         android:id="@+id/cuc_wifi_radio_group"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/section_margin_top"
         android:checkedButton="@+id/cuc_wifi_only_rb"
-        android:layout_alignLeft="@+id/cuc_swipe_left_txt_tv"
-        android:layout_below="@+id/cuc_swipe_left_txt_tv"
-        android:layout_marginTop="@dimen/section_margin_top" >
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cuc_wifi_hint_tv">
 
         <RadioButton
             android:id="@+id/cuc_wifi_only_rb"
@@ -60,7 +54,16 @@
             android:layout_marginTop="@dimen/rb_margin_top"
             android:text="@string/settings_cuc_network_data_plan"
             android:textSize="@dimen/tv_subtitle_txt_size" />
-        
+
     </RadioGroup>
 
-</RelativeLayout>
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="32dp"
+        android:layout_marginBottom="64dp"
+        android:src="@drawable/cuc_1"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

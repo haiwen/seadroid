@@ -12,7 +12,6 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.blankj.utilcode.util.CollectionUtils;
-import com.blankj.utilcode.util.ToastUtils;
 import com.chad.library.adapter4.QuickAdapterHelper;
 import com.google.common.collect.Maps;
 import com.seafile.seadroid2.R;
@@ -20,6 +19,7 @@ import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.databinding.FragmentFolderSelectorBinding;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.util.FileTools;
+import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.ui.base.fragment.BaseFragmentWithVM;
 import com.seafile.seadroid2.ui.folder_backup.FolderBackupConfigActivity;
 import com.seafile.seadroid2.ui.repo.ScrollState;
@@ -118,7 +118,7 @@ public class FolderSelectorFragment extends BaseFragmentWithVM<FolderSelectorVie
 
             FileBean item = mFileListAdapter.getItems().get(i);
             if (!item.isDir()) {
-                ToastUtils.showLong(R.string.selection_file_type);
+                Toasts.show(R.string.selection_file_type);
                 return;
             }
 

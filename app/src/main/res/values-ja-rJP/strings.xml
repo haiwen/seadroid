@@ -301,6 +301,7 @@
   <string name="next_button_label">次へ</string>
   <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
   <string name="skip_button_label">スキップ</string>
+  <!--Display mode-->
   <!--contacts  upload-->
   <string name="settings_contacts_upload_info_title">連絡先のバックアップ</string>
   <string name="settings_contacts_upload_turn_on">連絡先のバックアップを有効にする</string>
@@ -336,18 +337,14 @@
   <!--Camera Upload Configuration View-->
   <string name="settings_cuc_title">設定ヘルパー</string>
   <string name="settings_cuc_welcome_text">カメラアップロードの設定ヘルパーをご利用いただきありがとうございます。 \nカメラアップロードサービスを始めるために役立つ、簡単に最初のステップをご案内します。</string>
-  <string name="settings_cuc_network_title">アップロード方法</string>
   <string name="settings_cuc_network_wifi">Wi-Fi のみ</string>
   <string name="settings_cuc_network_data_plan">Wi-Fi またはデータプラン</string>
-  <string name="settings_cuc_option_hint">お好みのオプションを選択してください。 \nこのオプションは後で設定から変更することができます。</string>
-  <string name="settings_cuc_type_title">アップロード対象</string>
   <string name="settings_cuc_type_photo">写真のみ</string>
   <string name="settings_cuc_type_video">写真とビデオ</string>
   <string name="settings_cuc_local_dir_title">アルバムを選択</string>
   <plurals name="settings_cuc_local_dir_items">
     <item quantity="other">%1$d アイテム</item>
   </plurals>
-  <string name="settings_cuc_remote_lib_title">リモートライブラリーを選択</string>
   <string name="settings_cuc_remote_lib_account">アカウントを選択</string>
   <string name="settings_cuc_remote_lib_repo">%s を選択しました</string>
   <string name="settings_cuc_upload_to_parent_folder">親のフォルダーに移動</string>
@@ -526,4 +523,6 @@
   <!--Folder backup Preference-->
   <!--action-->
   <!--share link-->
+  <!--menu-->
+  <!--sdoc-->
 </resources>

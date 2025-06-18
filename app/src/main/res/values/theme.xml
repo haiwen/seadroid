@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!-- App Theme -->
-    <style name="AppTheme.Material3" parent="BaseTheme.App.Toolbar" />
-
     <!-- Splash Theme-->
     <style name="App.Theme.Splash" parent="Theme.Material3.Light.NoActionBar">
         <item name="windowSplashScreenBackground">@color/white</item>
@@ -13,10 +10,6 @@
     <style name="BaseTheme.App.Toolbar" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- app window background color -->
         <item name="android:windowBackground">@color/window_background_color</item>
-
-
-        <item name="android:statusBarColor">@color/bar_background_color</item>
-        <item name="android:navigationBarColor">@color/bar_background_color</item>
 
         <item name="android:windowLightStatusBar">?isLightTheme</item> <!-- android 6.0+ -->
 

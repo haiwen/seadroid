@@ -245,6 +245,7 @@
   <string name="next_button_label">Næst</string>
   <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
   <string name="skip_button_label">Sleppa</string>
+  <!--Display mode-->
   <!--contacts  upload-->
   <!--Camera Upload Preference-->
   <string name="settings_camera_upload_info_title">Hlaða Upp Myndum Myndavélar</string>
@@ -268,11 +269,8 @@
   <string name="settings_camera_upload_advanced_custom_directories_off">Sjálfvirk skimun tækis</string>
   <!--Camera Upload Configuration View-->
   <string name="settings_cuc_title">Stillingahjálp</string>
-  <string name="settings_cuc_network_title">Hvernig á að hlaða upp</string>
   <string name="settings_cuc_network_wifi">Aðeins Wi-Fi</string>
   <string name="settings_cuc_network_data_plan">Wi-Fi eða 3G/4G</string>
-  <string name="settings_cuc_option_hint">Veldu það sem hentar þér. \nÞú getur breytt þessum valmöguleikum síðar í Stillingum.</string>
-  <string name="settings_cuc_type_title">Hverju á að hlaða upp</string>
   <string name="settings_cuc_type_photo">Aðeins myndum</string>
   <string name="settings_cuc_type_video">Myndum og kvikmyndum</string>
   <string name="settings_cuc_local_dir_title">Veldu myndasöfn</string>
@@ -280,7 +278,6 @@
     <item quantity="one">%1$d atriði</item>
     <item quantity="other">%1$d atriði</item>
   </plurals>
-  <string name="settings_cuc_remote_lib_title">Veldu Fjartengt Safn</string>
   <string name="settings_cuc_remote_lib_account">Veldu reikning</string>
   <string name="settings_cuc_remote_lib_repo">%s varð fyrir valinu</string>
   <string name="settings_cuc_upload_to_parent_folder">Upp í Yfirskráasafn</string>
@@ -397,4 +394,9 @@
   <!--Operation Exceptions-->
   <!--Home list title-->
   <!--editor-->
+  <!--Folder backup Preference-->
+  <!--action-->
+  <!--share link-->
+  <!--menu-->
+  <!--sdoc-->
 </resources>

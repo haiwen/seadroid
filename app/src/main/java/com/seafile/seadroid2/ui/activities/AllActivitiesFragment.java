@@ -2,7 +2,6 @@ package com.seafile.seadroid2.ui.activities;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -20,7 +19,6 @@ import androidx.annotation.OptIn;
 import androidx.lifecycle.Observer;
 import androidx.media3.common.util.UnstableApi;
 
-import com.blankj.utilcode.util.ToastUtils;
 import com.chad.library.adapter4.QuickAdapterHelper;
 import com.chad.library.adapter4.loadState.LoadState;
 import com.chad.library.adapter4.loadState.trailing.TrailingLoadStateAdapter;
@@ -35,7 +33,7 @@ import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.model.ResultModel;
 import com.seafile.seadroid2.framework.model.activities.ActivityModel;
-import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.base.adapter.LogicLoadMoreAdapter;
@@ -214,11 +212,11 @@ public class AllActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel>
     private void checkAndOpen(ActivityModel model) {
         if ("delete".equals(model.op_type)) {
             if ("repo".equals(model.obj_type)) {
-                ToastUtils.showLong(getString(R.string.library_not_found));
+                Toasts.show(getString(R.string.library_not_found));
             } else if ("dir".equals(model.obj_type)) {
-                ToastUtils.showLong(getString(R.string.op_exception_folder_deleted, model.name));
+                Toasts.show(getString(R.string.op_exception_folder_deleted, model.name));
             } else if ("file".equals(model.obj_type)) {
-                ToastUtils.showLong(getString(R.string.file_not_found, model.name));
+                Toasts.show(getString(R.string.file_not_found, model.name));
             }
             return;
         }
@@ -227,7 +225,7 @@ public class AllActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel>
             @Override
             public void accept(RepoModel repoModel) throws Exception {
                 if (repoModel == null) {
-                    ToastUtils.showLong(R.string.repo_not_found);
+                    Toasts.show(R.string.repo_not_found);
                     return;
                 }
 
@@ -246,7 +244,7 @@ public class AllActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel>
                     MainActivity.navToThis(requireContext(), model.repo_id, model.repo_name, "/", true);
                     break;
                 default:
-                    ToastUtils.showLong(R.string.not_supported);
+                    Toasts.show(R.string.not_supported);
                     break;
             }
 
@@ -258,7 +256,7 @@ public class AllActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel>
                     MainActivity.navToThis(requireContext(), model.repo_id, model.repo_name, model.path, true);
                     break;
                 default:
-                    ToastUtils.showLong(R.string.not_supported);
+                    Toasts.show(R.string.not_supported);
                     break;
             }
         } else if ("file".equals(model.obj_type)) {
@@ -269,7 +267,7 @@ public class AllActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel>
                     decryptRepo(repoModel, model);
                     break;
                 default:
-                    ToastUtils.showLong(R.string.not_supported);
+                    Toasts.show(R.string.not_supported);
                     break;
             }
         }
@@ -304,7 +302,7 @@ public class AllActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel>
                                 if (r.success) {
                                     open(model);
                                 } else {
-                                    ToastUtils.showLong(r.error_msg);
+                                    Toasts.show(r.error_msg);
                                     showPasswordDialogCallback(model.repo_id, model.repo_name, new OnResultListener<RepoModel>() {
                                         @Override
                                         public void onResultData(RepoModel repoModel) {
@@ -333,6 +331,9 @@ public class AllActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel>
 
         } else if (activityModel.name.endsWith(Constants.Format.DOT_SDOC)) {
             SDocWebViewActivity.openSdoc(getContext(), activityModel.repo_name, activityModel.repo_id, activityModel.path);
+
+        } else if (activityModel.name.endsWith(Constants.Format.DOT_DRAW) || activityModel.name.endsWith(Constants.Format.DOT_EXDRAW)) {
+            SDocWebViewActivity.openDraw(getContext(), activityModel.repo_name, activityModel.repo_id, activityModel.path);
 
         } else if (Utils.isVideoFile(activityModel.name)) {
 
@@ -416,7 +417,7 @@ public class AllActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel>
             }
 
             if (isUpdateWhenFileExists) {
-                ToastUtils.showLong(R.string.download_finished);
+                Toasts.show(R.string.download_finished);
             }
 
 

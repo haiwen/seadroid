@@ -1,0 +1,703 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="welcome_to_seafile">مرحبا بك في سيفايل Seafile</string>
+  <string name="select_account">اختر حسابًا للبدء</string>
+  <string name="edit_account">تحرير</string>
+  <string name="ignore">تجاهل</string>
+  <string name="delete_account">حذف</string>
+  <string name="delete">حذف</string>
+  <string name="deleted">حذف</string>
+  <string name="delete_repo">هل تريد فعلا حذف هذه المكتبة؟</string>
+  <string name="delete_file">هل تريد فعلا حذف هذا الملف أو المجلد؟</string>
+  <string name="delete_records">هل أنت متأكد أنك تريد حذف السجلات؟</string>
+  <string name="delete_records_and_file">هل أنت متأكد أنك تريد حذف السجلات والملفات التي تم تنزيلها محليًا؟</string>
+  <string name="delete_successful">حُذف بنجاح</string>
+  <string name="delete_repo_title">حذف مكتبة</string>
+  <string name="delete_file_f">حذف ملف</string>
+  <string name="delete_local_file_sametime">حذف الملفات المحلية أيضاً</string>
+  <string name="recover_library">استعادة مكتبة</string>
+  <string name="recover_file">استعادة ملف</string>
+  <string name="move_file">نقل ملف</string>
+  <string name="update_file">حدّث ملف</string>
+  <string name="recover_folder">إستعادة مجلد</string>
+  <string name="move_folder">نقل مجلد</string>
+  <string name="delete_dir">حذف مجلد</string>
+  <string name="name_hint">الاسم</string>
+  <string name="server">الخادم</string>
+  <string name="server_hint">عنوان الخادم</string>
+  <string name="email_hint">البريد الإلكتروني أو اسم المستخدم</string>
+  <string name="passwd_hint">كلمة المرور</string>
+  <string name="passwd_min_len_limit_hint">كلمة المرور ( على الأقل %d محرف)</string>
+  <string name="passwd_confirmation_hint">تكرار كلمة المرور</string>
+  <string name="login">تسجيل الدخول</string>
+  <string name="open_file">فتح</string>
+  <string name="download_file">تنزيل</string>
+  <string name="redownload_file">تنزيل مجددًا</string>
+  <string name="cancel_download">إلغاء</string>
+  <string name="unknown_file_type">نوع ملف غير معروف</string>
+  <string name="activity_not_found">لا يوجد تطبيق مناسب لفتح هذا الملف</string>
+  <string name="refresh">تحديث</string>
+  <string name="add_account">إضافة حساب</string>
+  <string name="personal">شخصي</string>
+  <string name="shared">مُشارك</string>
+  <string name="libraries">المكتبات</string>
+  <string name="my_libraries">مكتباتي</string>
+  <string name="cached">التخزين المؤقت</string>
+  <string name="activities">النشاطات</string>
+  <string name="pick_upload_type">تحميل</string>
+  <string name="transfer_tasks">قائمة النقل</string>
+  <string name="accounts">الحسابات</string>
+  <string name="settings">الإعدادت</string>
+  <string name="choose_server">اختر خادم سيفايل -Seafile-</string>
+  <string-array name="choose_server_array">
+    <item>تسجيل الدخول الموحّد</item>
+    <item>اختر خادم Seafile</item>
+  </string-array>
+  <string name="network_down">لا يوجد إتصال بالشبكة</string>
+  <string name="unknow_error">خطأ غير معروف</string>
+  <string name="invalid_server_address">عنوان الخادم غير صحيح</string>
+  <string name="err_server_andress_empty">لا يمكن ترك عنوان الخادم فارغًا</string>
+  <string name="err_email_empty">لا يمكن ترك البريد الإلكتروني فارغًا</string>
+  <string name="err_passwd_empty">كلمة المرور لا يمكن أن تكون فارغة</string>
+  <string name="err_passwd_too_short">كلمة المرور قصيرة جدًا</string>
+  <string name="err_passwd_mismatch">كلمة المرور وتكرارها غير متطابقين</string>
+  <string name="err_login_failed">فشل تسجيل الدخول</string>
+  <string name="err_wrong_user_or_passwd">خطأ في البريد الإلكتروني أو كلمة المرور </string>
+  <string name="err_token_expired">انتهت صلاحية التوثيق، يرجى تسجيل الدخول مرة أخرى</string>
+  <string name="upload">تحميل</string>
+  <string name="uploaded">تم التحميل</string>
+  <string name="re_upload">تحميل مرة أخرى</string>
+  <string name="updated">تم التحديث</string>
+  <string name="download_failed">فشل التنزيل</string>
+  <string name="download_waiting">انتظار التنزيل</string>
+  <string name="download_finished">انتهى التنزيل</string>
+  <string name="download_cancelled">تم إلغاء التنزيل</string>
+  <string name="task_cancel">إلغاء</string>
+  <string name="task_retry">إعادة المحاولة</string>
+  <string name="task_remove">حذف</string>
+  <string name="task_remove_all_cancelled">حذف جميع المهام الملغاة</string>
+  <string name="task_remove_all_finished">حذف جميع المهام المكتملة</string>
+  <string name="repo_action_delete">حذف</string>
+  <string name="repo_action_rename">إعادة التسمية</string>
+  <string name="file_action_star">تفضيل</string>
+  <string name="file_action_download">تنزيل</string>
+  <string name="file_action_update">تحميل</string>
+  <string name="file_share">مشاركة</string>
+  <string name="file_action_share_wechat">شارك على WeChat</string>
+  <string name="file_action_share_link">رابط المشاركة</string>
+  <string name="file_action_share_encrypt">شارك الرابط مع كلمة المرور</string>
+  <string name="file_action_export">تصدير</string>
+  <string name="file_action_open">افتح باستخدام</string>
+  <string name="file_action_delete">حذف</string>
+  <string name="file_action_rename">إعادة التسمية</string>
+  <string name="file_action_copy">نسخ</string>
+  <string name="file_action_move">نقل</string>
+  <string name="file_action_open_as">فتح كـ</string>
+  <string name="file_action_more">المزيد</string>
+  <string name="file_action_more_title">اختر خيارك المفضل</string>
+  <string-array name="file_action_more_array">
+    <item>تصدير</item>
+    <item>نسخ</item>
+    <item>نقل</item>
+    <item>تفضيل</item>
+  </string-array>
+  <string-array name="file_type_array">
+    <item>نص</item>
+    <item>صوت</item>
+    <item>فيديو</item>
+    <item>صورة</item>
+    <item>آخر</item>
+  </string-array>
+  <string name="wait">انتظر</string>
+  <string name="image_gallery_NoImageView_text">لم يُعثر على صورة</string>
+  <string name="pick_photo_video_title">اختر صور/فيديوهات للتحميل</string>
+  <string name="select_upload_items">حدد عناصرًا للتحميل</string>
+  <plurals name="n_upload_items_selected">
+    <item quantity="zero">%1$d عنصر مختار</item>
+    <item quantity="one">%1$d عنصر مختار</item>
+    <item quantity="two">عنصران %1$d مختاران</item>
+    <item quantity="few">%1$d عناصر مختارة</item>
+    <item quantity="many">%1$d عنصر مختار</item>
+    <item quantity="other">%1$d عنصر مختار</item>
+  </plurals>
+  <string name="repo_name_empty">الرجاء إدخال اسم المكتبة</string>
+  <string name="dir_name_empty">الرجاء إدخال اسم المجلد</string>
+  <string name="file_name_empty">الرجاء إدخال اسم الملف</string>
+  <string name="password_empty">الرجاء إدخال كلمة المرور</string>
+  <string name="wrong_password">كلمة المرور خاطئة</string>
+  <string name="library_read_only">هذه المكتبة للقراءة فقط</string>
+  <string name="error_when_load_dirents">خطأ عند رفع المجلد.\n انقر للتحديث</string>
+  <string name="error_when_load_repos">خطأ عند تحميل المكتبات.
+انقر للتحديث</string>
+  <string name="error_when_load_activities">خطأ عند تحميل الأنشطة.
+انقر للتحديث</string>
+  <string name="error_when_load_starred">خطأ عند تحميل الملفات المفضلة.
+انقر للتحديث</string>
+  <string name="dir_empty">المجلد فارغ</string>
+  <string name="no_repo">لا يوجد مكتبات بعد</string>
+  <string name="no_album_type_data">ليس لديك أي أنواع ألبومات متاحة للمعاينة.</string>
+  <string name="no_app_available">لا يمكن العثور على التطبيق</string>
+  <string name="add_to_seafile">إضافة إلى Seafile</string>
+  <string name="ok">حسنا</string>
+  <string name="no_account">يرجى إعداد حساب على Seafile أولاً.</string>
+  <string name="choose_an_account">اختر حسابًا</string>
+  <string name="choose_a_library">اختر مكتبةً</string>
+  <string name="choose_a_folder">اختر مجلدًا</string>
+  <string name="load_accounts_fail">فشل في تحميل حسابات Seafile</string>
+  <string name="load_libraries_fail">فشل في تحميل المكتبات</string>
+  <string name="load_dir_fail">فشل في تحميل محتويات هذا المجلد</string>
+  <string name="not_supported">غير مدعوم في هذا الوقت</string>
+  <string name="not_supported_share">هذا النوع من المشاركة غير مدعوم</string>
+  <string name="edit">تحرير</string>
+  <string name="select">اختيار</string>
+  <string name="create_draft">أنشئ مسود</string>
+  <string name="rename_draft">أعد تسمية المسودة</string>
+  <string name="del_draft">احذف المسودة</string>
+  <string name="update_draft">حدّث المسودة</string>
+  <string name="release_draft">إصدار المسودة</string>
+  <string name="encrypt">تشفير</string>
+  <string name="download_folder">تنزيل مجلد</string>
+  <string name="download_folder_title">اختر خيارك المفضل</string>
+  <string-array name="download_folder_options_array">
+    <item>تنزيل المجلد</item>
+    <item>تنزيل المجلد والمجلدات الفرعية</item>
+  </string-array>
+  <string name="add_repo">مكتبة جديدة</string>
+  <string name="add_file">إضافة</string>
+  <string-array name="video_download_array">
+    <item>تشغيل</item>
+    <item>تنزيل</item>
+  </string-array>
+  <string name="create_new_repo">إنشاء مكتبة جديدة</string>
+  <string name="create_new_repo_success">أنشأت المكتبة بنجاح %s</string>
+  <string name="create_new_folder_success">أنشئ المجلد بنجاح %s</string>
+  <string name="create_new_file_success">أنشئ الملف بنجاح %s</string>
+  <string name="create_new_file">إنشاء ملف جديد</string>
+  <string name="create_files">إنشاء ملفات</string>
+  <string name="create_new_dir">إنشاء مجلد جديد</string>
+  <string name="camera">إلتقاط صورة هنا</string>
+  <string name="download">تنزيل</string>
+  <string name="open">فتح</string>
+  <string name="last_modified">آخر تعديل</string>
+  <string name="file_modified">تم التعديل</string>
+  <string name="file_size">حجم الملف</string>
+  <string name="library_not_found">تم حذف المكتبة</string>
+  <string name="file_not_found">تم حذف الملف \"%s\"</string>
+  <string name="export_file">تصدير هذا الملف</string>
+  <string name="no_upload_tasks">لا توجد مهام تحميل حتى الآن</string>
+  <string name="no_download_tasks">لا يوجد مهام تنزيل حتى الآن</string>
+  <string name="seahub_url_hint">ملاحظة: يجب أن يحتوي عنوان الخادم على المنفذ. على سبيل المثال، www.example.com:8000</string>
+  <string name="copy_link">نسخ الرابط</string>
+  <string name="share_link_no_permission">ليس لديك الصلاحيات لأداء هذا الإجراء.</string>
+  <string name="share_file_link">شارك رابطًا لهذا الملف</string>
+  <string name="share_dir_link">شارك رابطًا لهذا المجلد</string>
+  <string name="share_input_password">أدخل كلمة المرور المشاركة</string>
+  <string name="generating_link">يتم توليد الرابط...</string>
+  <string name="generating_link_title">إنشاء رابط</string>
+  <string name="link_ready_to_be_pasted">الرابط جاهز ليتم لصقه</string>
+  <string name="rename_repo">إعادة تسمية المكتبة</string>
+  <string name="rename_file">إعادة تسمية الملف</string>
+  <string name="rename_dir">إعادة تسمية المجلد</string>
+  <string name="rename_successful">تمت إعادة التسمية</string>
+  <string-array name="nav_array">
+    <item>الملفات</item>
+    <item>التحميلات</item>
+    <item>الحسابات</item>
+    <item>النسخ الإحتياطي للصور</item>
+  </string-array>
+  <string name="navigate_to_directory">انتقل إلى المجلد</string>
+  <string name="no_starred_file">لا يوجد ملفات مفضلة حتى الآن</string>
+  <string name="added_to_upload_tasks">بدأت عملية التحميل</string>
+  <string name="added_photo_to_upload_tasks">بدأ رفع الصور</string>
+  <string name="take_photo_successfully">تم التقاط الصورة بنجاح</string>
+  <string name="tabs_library">المكتبات</string>
+  <string name="tabs_activity">الأنشطة</string>
+  <string name="tabs_starred">المفضلة</string>
+  <string name="starred_repos">المكتبات المفضلة</string>
+  <string name="starred_files">الملفات المفضلة</string>
+  <string name="starred_folder">المجلدات المفضلة</string>
+  <string name="provide_password">أجخل كلمة المرور المكتبة \"%s\"</string>
+  <string name="upload_waiting">إنتظار التحميل</string>
+  <string name="upload_finished">تم التحميل</string>
+  <string name="upload_cancelled">ألغي التحميل</string>
+  <string name="upload_failed">فشل التحميل</string>
+  <string name="upload_file_exist">الملف موجود بالفعل</string>
+  <string name="upload_duplicate_found">يوجد عنصر بالاسم \"%s\" موجود بالفعل في هذا الموقع. هل ترغب في استبداله بالملف الذي تنوي تحميلة؟</string>
+  <string name="upload_replace_all">استبدل الكل</string>
+  <string name="upload_keep_both">احتفظ بكليهما</string>
+  <string name="upload_replace">استبدل</string>
+  <string name="days_ago">قبل %d أيام</string>
+  <string name="hours_ago">%d ساعة مضت</string>
+  <string name="minutes_ago">%d دقائق مضت</string>
+  <string name="seconds_ago">%d ثوانٍ مضت</string>
+  <string name="just_now">للتو</string>
+  <string name="open_as">فتح بواسطة</string>
+  <string name="select_upload_files">حدد الملفات المراد تحميلها</string>
+  <string name="storage_removed">تمت إزالة وحدة التخزين</string>
+  <string name="storage_space_insufficient">مساحة التخزين غير كافية</string>
+  <string name="error_selecting_file">خطأ عند اختيار الملف</string>
+  <plurals name="n_upload_files_selected">
+    <item quantity="zero">%1$d ملف محدد</item>
+    <item quantity="one">%1$d ملف محدد</item>
+    <item quantity="two">%1$d ملفان محددان</item>
+    <item quantity="few">%1$d ملفات محددة</item>
+    <item quantity="many">%1$d ملفات محددة</item>
+    <item quantity="other">%1$dملف محدد</item>
+  </plurals>
+  <string name="empty_folder">مجلد فارغ</string>
+  <string name="choose_file">اختر ملفًا</string>
+  <string name="ssl_error">فشل التحقق الأمني</string>
+  <string name="ssl_not_trusted">شهادة الأمان للـ%s غير موثوقة</string>
+  <string name="ssl_confirm">شهادة الأمان الخاصة بـ %s غير موثوقة. هل تريد المتابعة؟</string>
+  <string name="ssl_confirm_cert_changed">%s يستخدم شهادة آمان غير صالحة. الإتصال غير آمن. المتابعة على أية حال؟</string>
+  <string name="ssl_confirm_title">إتصال غير موثوق</string>
+  <string name="issued_to">صدر إلى</string>
+  <string name="finger_prints">بصمات الأصابع</string>
+  <string name="period_of_validity">فترة الصلاحية</string>
+  <string name="sha1">SHA-1 %s</string>
+  <string name="md5">MD5 %s</string>
+  <string name="not_available">غير متوفر</string>
+  <string name="serial_number">رقم التسلسل %s</string>
+  <string name="not_before">صالح من %s</string>
+  <string name="not_after">صالح حتى %s</string>
+  <string name="yes">نعم</string>
+  <string name="no">لا</string>
+  <string name="remember_my_choice">تذكر اختياري</string>
+  <string name="copied_successfully">نُسخ بنجاح</string>
+  <string name="moved_successfully">نُقل بنجاح</string>
+  <string name="internal_server_error">خطأ داخلي في الخادم</string>
+  <string name="copy_file_ing">نسخ الملف</string>
+  <string name="move_file_ing">نقل الملف</string>
+  <string name="copy_file_from">نسخ من %1$s \n إلى %2$s</string>
+  <string name="move_file_from">النقل من %1$s \n إلى %2$s</string>
+  <string name="copy_folder_ing">نسخ المجلد</string>
+  <string name="move_folder_ing">نقل المجلد</string>
+  <string name="upload_started">تم بدء التحميل</string>
+  <string name="cannot_copy_folder_to_subfolder">لا يمكنك نسخ مجلد إلى مجلده الفرعي</string>
+  <string name="cannot_move_folder_to_subfolder">لا يمكنك نقل مجلد إلى مجلد فرعي له</string>
+  <string name="cancel">إلغاء</string>
+  <string name="confirm">تأكيد</string>
+  <string name="repo_not_found">لم يتم العثور على هذه المكتبة. قد يكون قد تم حذفها أو تشفيرها.</string>
+  <string name="settings_account">الحساب</string>
+  <string name="settings_switch_account">تبديل الحساب</string>
+  <string name="settings_account_info_title">معلومات المستخدم</string>
+  <string name="settings_account_info_load_data">يتم التحميل...</string>
+  <string name="settings_account_space_title">المساحة المستخدمة</string>
+  <string name="settings_account_sign_out_title">تسجيل الخروج</string>
+  <string name="settings_account_sign_out_hint">إضغط لتسجيل الدخول</string>
+  <string name="settings_account_sign_out_confirm">هل تريد تسجيل الدخول؟</string>
+  <string name="settings_night_mode_title">الوضع الليلي</string>
+  <string name="security">الأمان</string>
+  <string name="gesture_lock">قفل الإيماءة</string>
+  <string name="gesture_lock_on">قفل الإيماءة مفعل</string>
+  <string name="gesture_lock_off">قفل الإيماءة معطل</string>
+  <string name="lockscreen_access_pattern_hint">يرجى رسم نمط القفل</string>
+  <string name="lockscreen_access_pattern_start">ابدأ بالرسم</string>
+  <string name="lockscreen_access_pattern_cleared">حُذف النمط</string>
+  <string name="lockscreen_access_pattern_cell_added">أُضيف نمط الخلية</string>
+  <string name="lockscreen_access_pattern_detected">اكتُشف النمط</string>
+  <string name="lockscreen_access_pattern_passwd_forget">نسيت كلمة المرور</string>
+  <string name="lockscreen_access_pattern_failure">فشلت 5 مرات، يرجى الانتظار 30 ثانية قبل المحاولة مرة أخرى</string>
+  <plurals name="lockscreen_access_pattern_failure_left_try_seconds">
+    <item quantity="zero">يمكنك إعادة المحاولة بعد %1$d ثانية</item>
+    <item quantity="one">يمكنك إعادة المحاولة بعد %1$d ثانية</item>
+    <item quantity="two">يمكنك إعادة المحاولة بعد %1$d ثانيتين</item>
+    <item quantity="few">يمكنك إعادة المحاولة بعد %1$d ثوانٍ</item>
+    <item quantity="many">يمكنك إعادة المحاولة بعد %1$d ثوانٍ</item>
+    <item quantity="other">يمكنك إعادة المحاولة بعد %1$d ثانية</item>
+  </plurals>
+  <plurals name="lockscreen_access_pattern_failure_left_try_times">
+    <item quantity="zero">نمط غير صحيح، يمكنك المحاولة %1$d مرة أخرى.</item>
+    <item quantity="one">نمط غير صحيح، يمكنك المحاولة %1$d مرة أخرى.</item>
+    <item quantity="two">النمط غير صحيح، يمكنك المحاولة %1$d مرتين أخريين</item>
+    <item quantity="few">النمط غير صحيح، يمكنك المحاولة %1$d مرات أخرى</item>
+    <item quantity="many">النمط غير صحيح، يمكنك المحاولة %1$d مرات أخرى</item>
+    <item quantity="other">النمط غير صحيح، يمكنك المحاولة %1$d مرات أخرى</item>
+  </plurals>
+  <string name="lockscreen_access_pattern_failure_not_long_enough">نقاط الربط غير كافية، يرجى المحاولة مرة أخرى</string>
+  <string name="lockpattern_retry_button_text">أعد المحاولة</string>
+  <string name="lockpattern_continue_button_text">التالي</string>
+  <string name="lockpattern_confirm_button_text">حسنًا</string>
+  <string name="lockpattern_recording_intro_header">يرجى رسم نمط القفل</string>
+  <string name="lockpattern_settings_help_how_to_record">تعلم كيفية رسم نمط القفل بالإيماءة</string>
+  <string name="lockpattern_recording_incorrect_too_short">اسحب عبر ما لا يقل عن 4 نقاط، حاول مرة أخرى!</string>
+  <string name="lockpattern_pattern_entered_header">حُفظ النمط</string>
+  <string name="lockpattern_need_to_draw">يرجى رسم نمط القفل</string>
+  <string name="lockpattern_need_to_confirm">يرجى تأكيد نمطك</string>
+  <string name="lockpattern_need_to_unlock_wrong">النمط لم يتطابق. حاول مرة أخرى.</string>
+  <string name="lockpattern_pattern_confirmed_header">اضغط على موافق لحفظ نمطك</string>
+  <string name="lockpattern_recording_inprogress">أفلت الإصبع عند الانتهاء من الرسم</string>
+  <string name="lockpattern_pattern_toast_saved">نمط قفل الإيماءة حُفظ بنجاح</string>
+  <!--Strings for possible PreferenceActivity Back/Next buttons-->
+  <string name="back_button_label">الخلف</string>
+  <string name="next_button_label">التالي</string>
+  <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
+  <string name="skip_button_label">تجاوز</string>
+  <!--Display mode-->
+  <string name="settings_display_mode">وضع العرض</string>
+  <!--contacts  upload-->
+  <string name="settings_contacts_upload_info_title">نسخ احتياطي لجهات الاتصال</string>
+  <string name="settings_contacts_upload_turn_on">فعل النسخ الاحتياطي لجهات الاتصال</string>
+  <string name="settings_contacts_upload_service_started">فُعل النسخ الاحتياطي لجهات الاتصال</string>
+  <string name="settings_contacts_upload_service_stopped">عُطّل النسخ الاحتياطي لجهات الاتصال</string>
+  <string name="settings_contacts_upload_repo_hint">يرجى اختيار مكتبة لنسخة جهات الاتصال الإحتياطية</string>
+  <string name="settings_contacts_upload_change_repo_title">غيّر المكتبة المستخدمة للنسخ الاحتياطي لجهات الإتصال</string>
+  <string name="settings_contacts_upload_repo_time">تاريخ آخر نسخ احتياطي</string>
+  <string name="settings_contacts_upload_repo_history">لا يوجد سجل نسخة احتياطية</string>
+  <string name="settings_contacts_upload_start_backup">نسخة احتياطية</string>
+  <string name="settings_contacts_upload_start_backup_hint">انقر لبدء النسخ الاحتياطي لجهات الاتصال</string>
+  <!--Camera Upload Preference-->
+  <string name="settings_camera_upload_info_title">تحميل صورة آلة التصوير -الكاميرا-</string>
+  <string name="settings_camera_upload_service_started">بدأت خدمة التحميل</string>
+  <string name="settings_camera_upload_service_stopped">توقفت خدمة التحميل</string>
+  <string name="settings_camera_upload_allow_data_plan">السماح بخطة البيانات</string>
+  <string name="settings_camera_upload_allow_videos">السماح بتحميل الصور المتحركة -الفيديوهات-</string>
+  <string name="settings_camera_upload_default_wifi">استخدم Wi-Fi فقط بشكل افتراضي</string>
+  <string name="settings_camera_upload_data_plan_allowed">سُمح بخطة البيانات</string>
+  <string name="settings_camera_upload_default_photos">افتراضياً ارفع الصور فقط</string>
+  <string name="settings_camera_upload_videos_allowed">مقاطع الفيديو مضمنة</string>
+  <string name="settings_camera_upload_change_repo_title">تغيير مكتبة التحميل</string>
+  <string name="settings_camera_upload_repo_hint">يرجى اختيار مكتبة أولاً</string>
+  <string name="settings_camera_upload_turn_on">شغّل تحميل صور آلة التصوير -الكاميرا-</string>
+  <string name="settings_camera_upload_choose_dir">تغيير الألبومات</string>
+  <string name="settings_camera_upload_dir_auto_scan">المسح التلقائي للصور افتراضيًا</string>
+  <string name="settings_camera_upload_lib_not_found">المكتبة المحددة غير موجودة</string>
+  <string name="settings_camera_upload_advanced_feature_title">الخيارات المتقدمة</string>
+  <string name="settings_camera_upload_advanced_feature_subtitle">خيارات التحميل المخصصة</string>
+  <string name="settings_camera_upload_advanced_custom_directories">ألبومات التحميل المخصصة</string>
+  <string name="settings_camera_upload_advanced_custom_directories_on">اختر ألبومات الصور</string>
+  <string name="settings_camera_upload_advanced_custom_directories_off">مسح الجهاز تلقائيا</string>
+  <!--Camera Upload Configuration View-->
+  <string name="settings_cuc_title">مساعد الضبط</string>
+  <string name="settings_cuc_welcome_text">شكرًا لاستخدام مساعد ضبط رفع صور آلة التصوير -الكاميرا-. \nلمساعدتك في البدء مع خدمة رفع صور آلة التصوير، سيتم إرشادك خلال الخطوات الأولية.</string>
+  <string name="settings_cuc_network_wifi">Wi-Fi فقط</string>
+  <string name="settings_cuc_network_data_plan">واي فاي أو خطة البيانات</string>
+  <string name="settings_cuc_type_photo">الصور فقط</string>
+  <string name="settings_cuc_type_video">الصور والفيديوهات</string>
+  <string name="settings_cuc_local_dir_title">اختر الألبومات</string>
+  <plurals name="settings_cuc_local_dir_items">
+    <item quantity="zero">%1$d عنصر</item>
+    <item quantity="one">%1$dعنصر</item>
+    <item quantity="two">%1$d عنصرين</item>
+    <item quantity="few">%1$d عنصر</item>
+    <item quantity="many">%1$d عنصر</item>
+    <item quantity="other">%1$d عناصر</item>
+  </plurals>
+  <string name="settings_cuc_remote_lib_account">اختر حسابًا</string>
+  <string name="settings_cuc_remote_lib_repo">%s تم تحديده</string>
+  <string name="settings_cuc_upload_to_parent_folder">إلى المجلد الأصلي</string>
+  <string name="settings_cuc_auto_scan">تخمين ألبومات الكاميرا تلقائيًا</string>
+  <string name="settings_cuc_pick_albums">دعني أختار ألبومات الصور خاصتي</string>
+  <string name="settings_cuc_remote_lib_hint">اختر الحساب والمكتبة المفضلة لديك. \nيمكنك تغيير هذه الخيارات لاحقًا من الإعدادات.</string>
+  <string name="settings_cuc_finish_title">الإنهاء</string>
+  <string name="settings_cuc_ready">سيبدأ سيفايل -Seafile- برفع الملفات من المجلدات المحددة بعد تأكيدك أدناه.\nيمكنك إغلاق التطبيق أثناء هذه العملية.</string>
+  <string name="settings_cuc_swipe_left">اسحب إلى اليسار للمتابعة.</string>
+  <string name="settings_cuc_click_btn">انقر لإغلاق مساعد الضبط.</string>
+  <string name="settings_cuc_loading">تحميل...</string>
+  <!--Camera Sync-->
+  <string name="sync_provider_camera_upload">صور ومقاطع فيديو الكاميرا</string>
+  <string name="camera_sync_notification_title_failed">فشل تحميل صور آلة التصوير</string>
+  <string name="camera_sync_notification_repo_missing_failed">مستودع الخادم مفقود.</string>
+  <string name="camera_sync_notification_auth_error_failed">خطأ في المصادقة.</string>
+  <string name="camera_sync_rename_file">%s (تمت إعادة تسميته بواسطة Seafile)</string>
+  <string name="settings_about_title">حول</string>
+  <string name="settings_about_privacy_policy">سياسة الخصوصية</string>
+  <string name="settings_about_version_title">إصدار التطبيق</string>
+  <string name="settings_about_author_title">حول الكاتب</string>
+  <string name="settings_export_run_logs">تصدير ملفات السجلات</string>
+  <string name="settings_about_author_info">
+ <![CDATA[
+<h5>تطبيق Seafile لنظام أندرويد
+<p>%s</p>
+<h5>اتصل بنا</h5>
+<p>
+    تويتر: Seafile<br>
+    البريد الإلكتروني: support@seafile.com<br>
+</p>
+<h5>المساهمات</h5>
+<p>https://github.com/haiwen/seadroid.git</P>
+<h5>حقوق النشر ©2013-2023 Seafile Ltd.</h5>
+ ]]></string>
+  <string name="settings_advance_feature_title">الميزات المتقدمة</string>
+  <string name="settings_transfer_title">التحميل والتنزيل</string>
+  <string name="settings_storage_title">تخزين الذاكرة المؤقتة</string>
+  <string name="settings_cache_title">حجم الذاكرة المؤقتة</string>
+  <string name="settings_clear_cache_title">مسح الذاكرة المؤقتة</string>
+  <string name="settings_clear_cache_hint">هل ترغب في مسح ذاكرة التخزين المؤقت؟</string>
+  <string name="settings_clear_cache_success">تم مسح الذاكرة المؤقتة بنجاح</string>
+  <string name="settings_clear_cache_failed">فشل تنظيف ذاكرة التخزين المؤقتة.</string>
+  <string name="settings_cache_empty">0 كيلوبايت</string>
+  <string name="settings_cache_location_title">موقع تخزين الذاكرة المؤقتة</string>
+  <string name="dialog_switch_storage_info_text">الملفات الحالية ستتم نقلها إلى ذاكرة التخزين الجديد. قد يستغرق ذلك بعض الوقت.</string>
+  <string name="storage_manager_primary_storage">ذاكرة التخزين الأساسية</string>
+  <string name="storage_manager_secondary_storage">ذاكرة التخزين الثانوية</string>
+  <string name="storage_manager_storage_description">%1$s (%2$s متاح/%3$s إجمالي)</string>
+  <string name="storage_manager_storage_description_not_available">%1$s (غير متاح)</string>
+  <!--pull to refresh-->
+  <string name="pull_to_refresh_pull_label">اسحب للتحديث...</string>
+  <string name="pull_to_refresh_release_label">اترك للتحديث ...</string>
+  <string name="pull_to_refresh_refreshing_label">تحميل...</string>
+  <string name="pull_to_refresh_last_update">آخر تحديث:</string>
+  <string name="pull_to_refresh_last_update_seconds_ago">%d ثانية مضت</string>
+  <string name="pull_to_refresh_last_update_minutes_ago">منذ %d دقيقة مضت</string>
+  <string name="pull_to_refresh_last_update_hours_ago">منذ %d ساعة مضت</string>
+  <!--storage access framework-->
+  <string name="saf_open_file_exception">لا يمكن فتح الملف %s.</string>
+  <string name="saf_open_directory_exception">لا يمكن فتح الدليل.</string>
+  <string name="saf_file_not_cached_exception">الملف %s غير مخزن مؤقتًا.</string>
+  <string name="saf_thumbnail_not_found_exception">فشل العثور على الصورة المصغرة أو فتحها %s.</string>
+  <string name="saf_file_not_downloaded_exception">لم يتمكن من تنزيل الملف %s من الخادم.</string>
+  <string name="saf_write_diretory_exception">لا يمكن فتح المجلد للقراءة / الكتابة.</string>
+  <string name="saf_account_not_found_exception">لم يعثر على حساب Seafile.</string>
+  <string name="saf_upload_path_not_available">غير قادر على التحميل، لا يوجد مسار متاح</string>
+  <string name="saf_failed_to_create_directory">تعذر إنشاء المجلد %s</string>
+  <string name="saf_file_exist">هذا الملف موجود بالفعل</string>
+  <string name="saf_bad_mime_type">طلب غير صالح</string>
+  <!--Single Sign-On  SSO-->
+  <string name="shib_server_url_empty">الخادم فارغ!</string>
+  <string name="shib_server_incorrect_prefix">يجب أن يبدأ الخادم بـ https://</string>
+  <string name="shib_load_page_error">خطأ:  </string>
+  <string name="shib_login_title">تسجيل الدخول الموحد</string>
+  <string name="shib_loading">تحميل...</string>
+  <!--Transfer List-->
+  <string name="transfer_list_network_error">خطأ في اتصال الشبكة، يرجى المحاولة في وقت لاحق!</string>
+  <string name="transfer_list_cancel_all">إلغاء جميع المهام</string>
+  <string name="transfer_list_cancel_all_desc">إلغاء جميع مهام نقل الملفات الجارية؛ حيث سيتم استعادتها لمواصلة نقل الملفات عند النقر فوق زر إعادة التشغيل.</string>
+  <string name="transfer_list_restart_all">أعد التشغيل</string>
+  <string name="transfer_list_retry_failed_tasks">أعد تشغيل المهام الفاشلة</string>
+  <string name="transfer_list_restart_cancelled_tasks">أعد تشغيل المهام الملغاة</string>
+  <string name="transfer_list_clear_failed_tasks">مسح المهام الفاشلة</string>
+  <string name="transfer_list_clear_all_tasks">مسح جميع المهام</string>
+  <string name="transfer_list_clear_all_tasks_desc">قم بإزالة جميع سجلات النقل؛ إذا كان تنزيلًا، فسيؤدي ذلك إلى حذف جميع سجلات التنزيل (اختياريًا: الملفات المحلية أيضًا). إذا كان تحميلًا، فسيؤدي ذلك فقط إلى حذف سجلات التحميل، ولكن لن تتم إعادة تحميل الملفات المستهدفة المقابلة في المستقبل.</string>
+  <string name="transfer_list_clear_finished_tasks">مسح المهام المنتهية</string>
+  <string name="transfer_tabs_downloads">قائمة التنزيل</string>
+  <string name="transfer_tabs_uploads">قائمة التحميل</string>
+  <string name="transfer_download_no_task">تم تنزيل جميع الملفات</string>
+  <plurals name="transfer_download_started">
+    <item quantity="zero">البدء في تحميل %1$d ملف</item>
+    <item quantity="one">بدء تحميل %1$d ملف</item>
+    <item quantity="two">بدء تحميل %1$d ملفين</item>
+    <item quantity="few">بدء تحميل %1$d ملفات</item>
+    <item quantity="many">بدء تحميل %1$d ملفات</item>
+    <item quantity="other">البدء في تنزيل %1$d ملف</item>
+  </plurals>
+  <string name="transfer_list_select_all">اختر الكل</string>
+  <string name="transfer_list_deselect_all">ألغِ تحديد الكل</string>
+  <plurals name="transfer_list_items_selected">
+    <item quantity="zero">%d عنصر محدد</item>
+    <item quantity="one">%d عنصر محدد</item>
+    <item quantity="two">%d عنصرين محددين</item>
+    <item quantity="few">%d عناصر محددة</item>
+    <item quantity="many">%d عناصر محددة</item>
+    <item quantity="other">%d عنصر محدد</item>
+  </plurals>
+  <!--Sort-->
+  <string name="sort_menu_item">رتّب</string>
+  <string name="sort_files">رتب حسب</string>
+  <string-array name="sort_files_options_array"/>
+  <!--Search-->
+  <string name="search_menu_item">البحث</string>
+  <string name="search_bar_hint">يبحث...</string>
+  <string name="search_txt_empty">الرجاء إدخال كلمات البحث</string>
+  <string name="search_content_empty">لم يعثر على نتائج</string>
+  <string name="search_server_not_support">عذرًا ، البحث غير مدعوم على هذا الخادم!</string>
+  <string name="search_library_not_found">لم يعثر على هذه المكتبة. ربما قد تم حذفها</string>
+  <string name="search_in_this_library">البحث عن الملفات في هذه المكتبة</string>
+  <!--star a file-->
+  <string name="star_file_succeed">تم تفضيل الملف بنجاح</string>
+  <string name="star_file_failed">فشل في تفضيل الملف</string>
+  <!--unstar a file-->
+  <string name="unstar_file_failed">فشل إلغاء تفضيل الملف</string>
+  <string name="unstar">إلغاء التفضيل</string>
+  <!--notification bar-->
+  <string name="notification_upload_started_title">جاري تحميل الملفات…</string>
+  <string name="notification_download_started_title">جاري تنزيل الملفات…</string>
+  <string name="notification_upload_completed">تم التحميل</string>
+  <plurals name="notification_upload_info">
+    <item quantity="zero">تحميل %1$d ملف (%2$d%%)</item>
+    <item quantity="one">تحميل ملف %1$d (%2$d%%)</item>
+    <item quantity="two">تحميل ملفان %1$d (%2$d%%)</item>
+    <item quantity="few">تحميل %1$d ملفات (%2$d%%)</item>
+    <item quantity="many">تحميل %1$d ملف (%2$d%%)</item>
+    <item quantity="other">تحميل %1$d ملف (%2$d%%)</item>
+  </plurals>
+  <plurals name="notification_download_info">
+    <item quantity="zero">تنزيل ملف %1$d (%2$d%%)</item>
+    <item quantity="one">تنزيل ملف %1$d (%2$d%%)</item>
+    <item quantity="two">تنزيل ملفان %1$d (%2$d%%)</item>
+    <item quantity="few">تنزيل %1$d ملفات (%2$d%%)</item>
+    <item quantity="many">تنزيل %1$d ملف (%2$d%%)</item>
+    <item quantity="other">تنزيل %1$d ملف (%2$d%%)</item>
+  </plurals>
+  <string name="notification_download_completed">تم التنزيل</string>
+  <!--Gallery-->
+  <string name="gallery_load_photos_error">خطأ في تحميل الصور</string>
+  <string name="gallery_encrypted_repo_not_supported">لم يتم دعم المكتبة المشفرة</string>
+  <!--Overwrite existing files-->
+  <string name="overwrite_existing_file_title">استبدال الملف الموجود</string>
+  <string name="overwrite_existing_file_msg">الملف موجود بالفعل، هل تريد استبداله؟</string>
+  <string name="overwrite_existing_file_exist">الملف موجود بالفعل</string>
+  <!--Action Mode-->
+  <string name="action_mode_no_items_selected">لم يتم تحديد أي عناصر</string>
+  <!--Accessibility description for navigation drawer-->
+  <!--permission-->
+  <string name="permission_manage_external_storage_rationale">لمعالجة الملفات، إسمح بإدارة جميع الملفات على وحدة تخزين خارجية</string>
+  <string name="permission_read_external_storage_rationale">لمعالجة الملفات، اسمح بالوصول إلى صلاحيات التخزين.</string>
+  <string name="permission_read_contacts_storage_rationale">لمعالجة جهات الاتصال، اسمح بالوصول إلى لجهات الاتصال.</string>
+  <string name="permission_camera">لمعالجة الصور ، اسمح بصلاحيات ألة التصوير -الكاميرا-.</string>
+  <string name="permission_not_granted">لم يتم منح الصلاحية</string>
+  <string name="history_change_title">تفاصيل التعديل</string>
+  <string name="no_more_activities">لا مزيد من الأنشطة</string>
+  <!--client side encryption and decryption-->
+  <string name="enc_on">فك تشفير البيانات محليا</string>
+  <string name="enc_off">فك تشفير البيانات على الخادم</string>
+  <string name="enc_title">وضع فك تشفير بيانات المكتبة المشفرة</string>
+  <!--clear password-->
+  <string name="clear_password_title">مسح كلمة سر المكتبة</string>
+  <string name="clear_password_hint">انقر لمسح كلمة السر</string>
+  <string name="clear_password_successful">تم مسح كلمة السر بنجاح</string>
+  <string name="clear_password_failed">فشل مسح كلمة السر</string>
+  <string name="clear_password_warning">هل تريد مسح كلمة السر؟</string>
+  <string name="clear_password_auto">مسح كلمات السر تلقائيًا</string>
+  <!--Two factor auth-->
+  <string name="two_factor_auth_error">رمز المصادقة مطلوب</string>
+  <string name="two_factor_auth_invalid">رمز المصادقة غير صالح</string>
+  <string name="two_factor_auth_token">رمز المصادقة الثنائية</string>
+  <string name="two_factor_auth_token_empty">لا يمكن أن يكون رمز المصادقة فارغًا</string>
+  <string name="two_factor_auth_remember_phone">تذكر هذا الجهاز</string>
+  <!--Operation Exceptions-->
+  <string name="op_exception_folder_deleted">تم حذف المجلد \"%s\"</string>
+  <string name="op_exception_suitable_app_not_found">لم يتم العثور على التطبيق المناسب لنوع الوسائط-MIME-: %s </string>
+  <string name="op_exception_failed_to_download_file">فشل في تنزيل الملف %s</string>
+  <!--Home list title-->
+  <string name="shared_with_all">العامه</string>
+  <string name="add_password_protection">إضافة كلمة سر للحماية</string>
+  <string name="expiration_dates">تواريخ انتهاء الصلاحية</string>
+  <string name="add_auto_expiration">أضف خاصية انتهاء الصلاحية التلقائي</string>
+  <string name="input_auto_expiration">الرجاء إدخال تواريخ انتهاء الصلاحية</string>
+  <!--editor-->
+  <string name="editor_lines_error">غير قادر على وضع سطور متعددة</string>
+  <string name="editor_file_save">هل تريد الحفظ والخروج؟</string>
+  <string name="editor_file_save_success">تم حفظ الملف بنجاح</string>
+  <string name="editor_file_save_failed">فشل مسح ذاكرة التخزين المؤقت</string>
+  <string name="editor_file_save_title">حفظ الملف</string>
+  <string name="description">الوصف</string>
+  <string name="undo">تراجع</string>
+  <string name="redo">أعد</string>
+  <string name="link">الرابط</string>
+  <string name="channel_name_error">تنبيهات الأخطاء</string>
+  <string name="channel_name_upload">معلومات تحميل الملف</string>
+  <string name="channel_name_download">معلومات تنزيل الملف</string>
+  <string name="channel_name_album_backup">معلومات النسخ الاحتياطي لدفتر الصور -الالبوم-</string>
+  <string name="channel_name_transfer">معلومات نقل الملفات</string>
+  <string name="above_quota">فوق الحصة</string>
+  <string name="camera_upload_state">معلومات التحميل</string>
+  <string name="waiting_state">إنتظار التحميل</string>
+  <string name="Upload_completed">إنتهت المزامنة الأخيرة في</string>
+  <string name="is_scanning">جاري الفحص</string>
+  <string name="is_uploading">جاري التحميل</string>
+  <string name="network_unavailable">الشبكة غير متاحة</string>
+  <string name="network_error">خطأ في الشبكة</string>
+  <string name="error_image_load">التحميل فشل</string>
+  <string name="retry_with_click">انقر لإعادة المحاولة</string>
+  <string name="required_password">كلمة السر مطلوبة.</string>
+  <string name="weak_password">كلمة السر ضعيفة جداً.</string>
+  <!--Folder backup Preference-->
+  <string name="settings_folder_backup_info_title">مجلد النسخ الاحتياطي</string>
+  <string name="settings_folder_backup_switch_title">تشغيل النسخ الاحتياطي للمجلد</string>
+  <string name="settings_folder_backup_service_started">بدأت خدمة النسخ الاحتياطي</string>
+  <string name="settings_folder_backup_service_stopped">تم إيقاف خدمة النسخ الاحتياطي</string>
+  <string name="settings_select_backup_folder_title">حدد المجلد</string>
+  <string name="folder_file_item_size">الحجم %s</string>
+  <string name="folder_file_item_describe">الملف \%s\ | المجلد \%s\</string>
+  <string name="internal_storage">التخزين الداخلي</string>
+  <string name="selection_file_type">الرجاء تحديد مجلد النسخ الاحتياطي</string>
+  <string name="select_backup_folder">حدد مجلد النسخ الاحتياطي</string>
+  <string name="select_backup_libraries">حدد مكتبات النسخ الاحتياطي</string>
+  <string name="folder_backup_completed">تم عمل نسخة احتياطية للمجلد</string>
+  <string name="get_permission_failed">فشل الحصول على إذن %s ، قد تتأثر بعض الميزات</string>
+  <string name="get_storage_permission_failed">فشل في الحصول على صلاحية التخزين</string>
+  <string name="authorization_storage_permission">تم رفض الصلاحية بشكل دائم، يرجى منح صلاحية التخزين يدويًا.</string>
+  <string name="settings_folder_backup_select_hint">0</string>
+  <string name="settings_folder_backup_select_title">مجلدات النسخ الاحتياطي المحددة</string>
+  <string name="settings_folder_backup_traffic">وضع النسخ الاحتياطي</string>
+  <string name="settings_folder_backup_traffic_hint">الشبكة اللاسلكية  -WIFI-</string>
+  <string name="settings_folder_backup_library">النسخ الاحتياطي للمكتبة إلى</string>
+  <string name="folder_backup_add">إضافة مجلد احتياطي</string>
+  <string name="folder_backup_cancel">إلغاء النسخ الاحتياطي</string>
+  <string name="folder_backup_waiting_state">تم</string>
+  <string name="folder_backup_state">معلومات النسخ الاحتياطي للمجلد</string>
+  <string name="folder_backup_mode">الشبكة اللاسلكية -WIFI- أو بيانات الجوال</string>
+  <string name="folder_backup_mode_title">اختر الوضع</string>
+  <string name="folder_backup_select_repo_hint">حدد مكتبة</string>
+  <string name="folder_backup_select_repo_update">تغيير مكتبة النسخ الاحتياطي</string>
+  <string name="UncaughtExceptionHandler_err">توقف التطبيق عن التشغيل</string>
+  <string name="settings_file_backup_info_title">ملف النسخ الاحتياطي</string>
+  <!--action-->
+  <string name="pause">توقف مؤقت</string>
+  <string name="paused">متوقف مؤقتا</string>
+  <string name="waiting">ينتظر</string>
+  <string name="add">أضف</string>
+  <string name="modify">تعديل</string>
+  <string name="update">تحديث</string>
+  <string name="clear">أزل</string>
+  <string name="close">أغلق</string>
+  <string name="clear_all">أزل الجميع</string>
+  <string name="done">تم</string>
+  <string name="success">نجح</string>
+  <string name="failed">فشل</string>
+  <string name="uploading">جاري التحميل</string>
+  <string name="downloading">جاري التنزيل</string>
+  <string name="select_all">حدد الكل</string>
+  <string name="replace_all">استبدال الكل</string>
+  <string name="replace">إستبدل</string>
+  <string name="replace_local_file">استبدال الملف المحلي</string>
+  <string name="replace_remote_file">استبدال الملف السحابي</string>
+  <string name="do_not_replace">لا تستبدل</string>
+  <string name="keep_both">احتفظ بكليهما</string>
+  <string name="off">معطل</string>
+  <string name="on">مفعل</string>
+  <string name="follow_system">اتبع النظام</string>
+  <string name="empty">فارغ</string>
+  <string name="empty_data">بيانات فارغة</string>
+  <!--share link-->
+  <string name="link_permission_set_permission">تعيين الصلاحيات</string>
+  <string name="link_permission_preview_and_download">المعاينة والتنزيل</string>
+  <string name="link_permission_preview_only">معاينة فقط</string>
+  <string name="link_permission_download_and_upload">تنزيل وتحميل</string>
+  <!--menu-->
+  <string name="menu_action_view_and_sort">العرض والفرز</string>
+  <string name="menu_action_view_list">القائمة</string>
+  <string name="menu_action_view_grid">الشبكي</string>
+  <string name="menu_action_view_gallery">المعرض</string>
+  <string name="menu_action_sort_by_name">الاسم</string>
+  <string name="menu_action_sort_by_type">النوع</string>
+  <string name="menu_action_sort_by_size">الحجم</string>
+  <string name="menu_action_sort_by_last_modified">تم التعديل الأخير</string>
+  <string name="menu_action_sort_order_ascending">تصاعدي</string>
+  <string name="menu_action_sort_directories_first">المجلدات أولا</string>
+  <string name="menu_detail">التفاصيل</string>
+  <!--sdoc-->
+  <string name="_size">الحجم</string>
+  <string name="_last_modifier">التعديل الأخير</string>
+  <string name="_last_modified_time">آخر وقت التعديل</string>
+  <string name="_reviewer">المُراجع</string>
+  <string name="_file_collaborators">متعاونو الملفات</string>
+  <string name="_file_status">حالة الملف</string>
+  <string name="_in_progress">في التَقَدم</string>
+  <string name="_in_review">في المراجعة</string>
+  <string name="_done">تم</string>
+  <string name="_outdated">قديمة</string>
+  <string name="_tags">الوسوم</string>
+  <string name="_location">الموقع</string>
+  <string name="_owner">مالك الملف</string>
+  <string name="mark_resolve">وضع علامة تم الحل</string>
+  <string name="delete_confirm">هل أنت متأكد أنك تريد حذف هذا العنصر؟</string>
+  <string name="canceled">ألغيت</string>
+  <string name="image_capture_time">وقت الالتقاط</string>
+  <string name="image_dimensions">الأبعاد</string>
+  <string name="image_color_space_uncalibrated">غير معايرة</string>
+  <string name="image_color_space_undefined">غير محدد</string>
+  <string name="offline">غير متصل</string>
+  <string name="export_log_file_not_exists">لا يتوفر ملف سجل للتصدير.</string>
+</resources>

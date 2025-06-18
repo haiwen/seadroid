@@ -14,7 +14,6 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.Observer;
 
 import com.blankj.utilcode.util.KeyboardUtils;
-import com.blankj.utilcode.util.ToastUtils;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.seafile.seadroid2.R;
@@ -156,7 +155,7 @@ public class BottomSheetPasswordDialogFragment extends RequestBottomSheetDialogF
             @Override
             public void onChanged(SeafException seafException) {
                 if (seafException != null) {
-                    ToastUtils.showLong(seafException.getMessage());
+                    Toasts.show(seafException.getMessage());
                 }
             }
         });
@@ -172,7 +171,7 @@ public class BottomSheetPasswordDialogFragment extends RequestBottomSheetDialogF
 
                     dismissDialogWithIme();
                 } else if (!TextUtils.isEmpty(tResultModel.error_msg)) {
-                    ToastUtils.showLong(tResultModel.error_msg);
+                    Toasts.show(tResultModel.error_msg);
                 }
             }
         });

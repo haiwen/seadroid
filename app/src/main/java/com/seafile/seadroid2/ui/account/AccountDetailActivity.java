@@ -83,8 +83,9 @@ public class AccountDetailActivity extends BaseActivityWithVM<AccountViewModel> 
             mSessionKey = mAccountManager.getUserData(account, Authenticator.SESSION_KEY);
             // isFromEdit = mAccountManager.getUserData(account, Authenticator.KEY_EMAIL);
 
-            if (server.startsWith(Constants.Protocol.HTTPS))
+            if (!TextUtils.isEmpty(server) && server.startsWith(Constants.Protocol.HTTPS)) {
                 binding.httpsCheckbox.setChecked(true);
+            }
 
             binding.serverUrl.setText(server);
             binding.emailAddress.setText(email);
@@ -92,8 +93,9 @@ public class AccountDetailActivity extends BaseActivityWithVM<AccountViewModel> 
 
             binding.seahubUrlHint.setVisibility(View.GONE);
         } else if (defaultServerUri != null) {
-            if (defaultServerUri.startsWith(Constants.Protocol.HTTPS))
+            if (defaultServerUri.startsWith(Constants.Protocol.HTTPS)) {
                 binding.httpsCheckbox.setChecked(true);
+            }
             binding.serverUrl.setText(defaultServerUri);
             binding.emailAddress.requestFocus();
 
@@ -331,7 +333,12 @@ public class AccountDetailActivity extends BaseActivityWithVM<AccountViewModel> 
             @Override
             public void afterTextChanged(Editable s) {
                 // Don't allow the user to edit the "https://" or "http://" part of the serverText
-                String url = binding.serverUrl.getText().toString();
+                Editable editable = binding.serverUrl.getText();
+                if (editable == null) {
+                    return;
+                }
+
+                String url = editable.toString();
                 boolean isHttps = binding.httpsCheckbox.isChecked();
                 String prefix = isHttps ? Constants.Protocol.HTTPS : Constants.Protocol.HTTP;
                 if (!url.startsWith(prefix)) {

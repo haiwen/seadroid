@@ -134,6 +134,7 @@
   <string name="upload_started">Η μεταφόρτωση άρχισε</string>
   <!--Strings for possible PreferenceActivity Back/Next buttons-->
   <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
+  <!--Display mode-->
   <!--contacts  upload-->
   <!--Camera Upload Preference-->
   <string name="settings_camera_upload_info_title">Μεταφόρτωση φωτογραφιών</string>
@@ -146,9 +147,6 @@
   <string name="settings_camera_upload_lib_not_found">Η επιλεγμένη βιβλιοθήκη δεν υπάρχει</string>
   <string name="settings_camera_upload_advanced_feature_subtitle">Μη τυπικές ρυθμίσεις μεταφόρτωσης</string>
   <!--Camera Upload Configuration View-->
-  <string name="settings_cuc_network_title">Πώς να μεταφορτώσετε</string>
-  <string name="settings_cuc_type_title">Τί να μεταφορτώσετε</string>
-  <string name="settings_cuc_remote_lib_title">Επιλέξτε απομακρυσμένη βιβλιοθήκη</string>
   <!--Camera Sync-->
   <!--pull to refresh-->
   <!--storage access framework-->
@@ -178,4 +176,9 @@
   <!--Operation Exceptions-->
   <!--Home list title-->
   <!--editor-->
+  <!--Folder backup Preference-->
+  <!--action-->
+  <!--share link-->
+  <!--menu-->
+  <!--sdoc-->
 </resources>

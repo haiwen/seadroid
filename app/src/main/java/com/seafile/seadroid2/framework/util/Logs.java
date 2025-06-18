@@ -16,6 +16,7 @@ import com.elvishew.xlog.printer.file.naming.DateFileNameGenerator;
 import com.elvishew.xlog.printer.file.naming.FileNameGenerator;
 import com.google.common.base.Strings;
 import com.seafile.seadroid2.BuildConfig;
+import com.seafile.seadroid2.framework.datastore.StorageManager;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -58,14 +59,10 @@ public class Logs {
                 .build();
         Printer androidPrinter = new AndroidPrinter(true);
 
-        // /storage/emulated/0/Android/data/package/files/logs
-        // /sdcard/Android/data/package/files/logs
-        String p = PathUtils.getExternalAppFilesPath();
-        String logPath = p + "/logs";
-        FileUtils.createOrExistsDir(logPath);
-
+        // /storage/emulated/0/Android/data/package/cache/logs/
+        String p = StorageManager.getInstance().getLogDir().getAbsolutePath();
         Printer filePrinter = new FilePrinter
-                .Builder(logPath)
+                .Builder(p)
                 .fileNameGenerator(new LogFileNameGenerator())
                 .flattener(new ClassicFlattener())
                 .backupStrategy(new FileSizeBackupStrategy2(MAX_SIZE, 30))
@@ -121,6 +118,8 @@ public class Logs {
         }
         d(log);
     }
+
+
 
     public static void d(String msg) {
         XLog.d(msg);
@@ -193,6 +192,28 @@ public class Logs {
 
     public static void e(String format, Object... args) {
         XLog.e(format, args);
+    }
+
+
+    public static void e(String... logs) {
+        if (logs == null || logs.length == 0) {
+            return;
+        }
+
+        if (logs.length == 1) {
+            d(logs[0]);
+            return;
+        }
+
+        StringBuilder logBuilder = new StringBuilder();
+        for (String s : logs) {
+            logBuilder.append(s).append(", ");
+        }
+        String log = logBuilder.toString();
+        if (log.endsWith(", ")) {
+            log = log.substring(0, log.length() - 2);
+        }
+        e(log);
     }
 
     public static void e(String msg) {

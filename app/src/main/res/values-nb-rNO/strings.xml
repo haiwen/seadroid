@@ -239,6 +239,7 @@
   <string name="next_button_label">Neste</string>
   <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
   <string name="skip_button_label">Hopp over</string>
+  <!--Display mode-->
   <!--contacts  upload-->
   <!--Camera Upload Preference-->
   <string name="settings_camera_upload_info_title">Opplasting av kamerabilder</string>
@@ -259,18 +260,14 @@
   <string name="settings_camera_upload_advanced_custom_directories_off">Automatisk leting på enheten</string>
   <!--Camera Upload Configuration View-->
   <string name="settings_cuc_title">Konfigurasjonsassistent</string>
-  <string name="settings_cuc_network_title">Hvordan laste opp</string>
   <string name="settings_cuc_network_wifi">Kun Wi-Fi</string>
   <string name="settings_cuc_network_data_plan">Wi-Fi eller mobildata</string>
-  <string name="settings_cuc_option_hint">Velg dine preferanser. \nDu akn endre disse valgene senere i \"innstillinger\".</string>
-  <string name="settings_cuc_type_title">Hva vil du laste opp</string>
   <string name="settings_cuc_type_photo">Bare bilder</string>
   <string name="settings_cuc_type_video">Bilder og videoer</string>
   <plurals name="settings_cuc_local_dir_items">
     <item quantity="one">%1$d element</item>
     <item quantity="other">%1$d elementer</item>
   </plurals>
-  <string name="settings_cuc_remote_lib_title">Velg biblioteket på server</string>
   <string name="settings_cuc_remote_lib_account">Velg en konto</string>
   <string name="settings_cuc_remote_lib_repo">%s ble valgt</string>
   <string name="settings_cuc_upload_to_parent_folder">Opp til forrige mappe</string>
@@ -379,4 +376,9 @@
   <!--Operation Exceptions-->
   <!--Home list title-->
   <!--editor-->
+  <!--Folder backup Preference-->
+  <!--action-->
+  <!--share link-->
+  <!--menu-->
+  <!--sdoc-->
 </resources>

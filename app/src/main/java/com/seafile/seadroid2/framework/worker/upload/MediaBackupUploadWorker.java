@@ -2,7 +2,6 @@ package com.seafile.seadroid2.framework.worker.upload;
 
 import android.app.ForegroundServiceStartNotAllowedException;
 import android.content.Context;
-import android.nfc.Tag;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -13,13 +12,11 @@ import androidx.work.ListenableWorker;
 import androidx.work.WorkInfo;
 import androidx.work.WorkerParameters;
 
-import com.blankj.utilcode.util.ToastUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
-import com.seafile.seadroid2.enums.TransferDataSource;
-import com.seafile.seadroid2.framework.worker.queue.TransferModel;
+import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.notification.AlbumBackupNotificationHelper;
 import com.seafile.seadroid2.framework.notification.base.BaseTransferNotificationHelper;
@@ -29,6 +26,7 @@ import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
+import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 import com.seafile.seadroid2.ui.folder_backup.RepoConfig;
 
 import java.util.UUID;
@@ -160,12 +158,12 @@ public class MediaBackupUploadWorker extends BaseUploadWorker {
         Bundle b = new Bundle();
         b.putString(TransferWorker.KEY_DATA_RESULT, interruptibleExceptionMsg);
         b.putInt(TransferWorker.KEY_TRANSFER_COUNT, totalPendingCount);
-        sendWorkerEvent(TransferDataSource.ALBUM_BACKUP, TransferEvent.EVENT_TRANSFER_FINISH, b);
+        sendWorkerEvent(FeatureDataSource.ALBUM_BACKUP, TransferEvent.EVENT_TRANSFER_TASK_COMPLETE, b);
         return Result.success();
     }
 
     protected Result returnSuccess() {
-        sendWorkerEvent(TransferDataSource.ALBUM_BACKUP, TransferEvent.EVENT_TRANSFER_FINISH);
+        sendWorkerEvent(FeatureDataSource.ALBUM_BACKUP, TransferEvent.EVENT_TRANSFER_TASK_COMPLETE);
         return Result.success();
     }
 
