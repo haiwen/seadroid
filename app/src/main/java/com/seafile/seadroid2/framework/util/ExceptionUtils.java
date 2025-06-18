@@ -142,8 +142,16 @@ public class ExceptionUtils {
             return SeafException.NOT_FOUND_EXCEPTION;
         }
 
+        //HTTP_423_LOCKED: File is locked
+        if (423 == errorCode) {
+            return SeafException.REQUEST_EXCEPTION;
+        }
         //HTTP_441_REPO_PASSWD_MAGIC_REQUIRED = 441
 //        if (441 == errorCode) {
+//        }
+
+        //HTTP_409_CONFLICT
+//        if (409 == errorCode) {
 //        }
 
         //HTTP_440_REPO_PASSWD_REQUIRED = 440
