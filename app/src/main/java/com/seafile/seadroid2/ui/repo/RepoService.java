@@ -1,6 +1,5 @@
 package com.seafile.seadroid2.ui.repo;
 
-import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.model.dirents.DirentRecursiveFileModel;
 import com.seafile.seadroid2.framework.model.permission.PermissionListWrapperModel;
 import com.seafile.seadroid2.framework.model.permission.PermissionWrapperModel;

@@ -19,7 +19,6 @@ import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.EncryptUtils;
 import com.blankj.utilcode.util.SizeUtils;
 import com.bumptech.glide.signature.ObjectKey;
-import com.seafile.seadroid2.framework.glide.GlideApp;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
@@ -38,6 +37,7 @@ import com.seafile.seadroid2.enums.ItemPositionEnum;
 import com.seafile.seadroid2.enums.ObjSelectType;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
+import com.seafile.seadroid2.framework.glide.GlideApp;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.model.BaseModel;
 import com.seafile.seadroid2.framework.model.GroupItemModel;
@@ -424,7 +424,10 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
 //        holder.binding.getRoot().setBackground(AnimatedStateListDrawableCompatUtils.createDrawableCompat(getContext()));
 
         if (model.isDir() || repoEncrypted || (!Utils.isViewableImage(model.name) && !Utils.isVideoFile(model.name))) {
-            holder.binding.itemIcon.setImageResource(model.getIcon());
+            GlideApp.with(getContext())
+                    .load(model.getIcon())
+                    .apply(GlideLoadConfig.getCacheableThumbnailOptions())
+                    .into(holder.binding.itemIcon);
         } else {
             loadImage(model, holder.binding.itemIcon, smallSize);
         }
@@ -509,7 +512,10 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
 
         if (model.isDir() || repoEncrypted || (!Utils.isViewableImage(model.name) && !Utils.isVideoFile(model.name))) {
             holder.binding.itemIcon.setScaleType(ImageView.ScaleType.FIT_CENTER);
-            holder.binding.itemIcon.setImageResource(model.getIcon());
+            GlideApp.with(getContext())
+                    .load(model.getIcon())
+                    .apply(GlideLoadConfig.getCacheableThumbnailOptions())
+                    .into(holder.binding.itemIcon);
         } else {
             holder.binding.itemIcon.setScaleType(ImageView.ScaleType.CENTER_CROP);
             loadImage(model, holder.binding.itemIcon, largeSize);
@@ -547,7 +553,10 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         holder.itemView.setBackground(null);
 
         if (model.isDir() || repoEncrypted || (!Utils.isViewableImage(model.name) && !Utils.isVideoFile(model.name))) {
-            holder.binding.itemIcon.setImageResource(model.getIcon());
+            GlideApp.with(getContext())
+                    .load(model.getIcon())
+                    .apply(GlideLoadConfig.getCacheableThumbnailOptions())
+                    .into(holder.binding.itemIcon);
         } else {
             loadImage(model, holder.binding.itemIcon, largeSize);
         }
