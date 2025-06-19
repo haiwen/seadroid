@@ -2,7 +2,9 @@ package com.seafile.seadroid2.framework.util;
 
 import android.text.TextUtils;
 
+import com.google.gson.Gson;
 import com.seafile.seadroid2.SeafException;
+import com.seafile.seadroid2.framework.model.ErrorModel;
 
 import org.json.JSONObject;
 
@@ -83,30 +85,34 @@ public class ExceptionUtils {
 
         SLogs.d("parse errorCode: " + errorCode + ", bodyString: " + bodyString);
 
-        String lowerBody = null;
+        String errorContent = null;
         if (!TextUtils.isEmpty(bodyString)) {
-            lowerBody = bodyString.toLowerCase();
+            Gson gson = new Gson();
+            ErrorModel errorModel = gson.fromJson(bodyString, ErrorModel.class);
+            if (errorModel != null) {
+                errorContent = errorModel.getError();
+            }
         }
 
         //400
         if (HttpURLConnection.HTTP_BAD_REQUEST == errorCode) {
             //"Repo is encrypted. Please provide password to view it."
-            if (!TextUtils.isEmpty(lowerBody) && lowerBody.contains("please provide password to view it")) {
+            if (!TextUtils.isEmpty(errorContent) && errorContent.toLowerCase().contains("please provide password to view it")) {
                 return SeafException.INVALID_PASSWORD;
             }
 
-            if (!TextUtils.isEmpty(lowerBody) && lowerBody.contains("wrong password")) {
+            if (!TextUtils.isEmpty(errorContent) && errorContent.toLowerCase().contains("wrong password")) {
                 return SeafException.INVALID_PASSWORD;
             }
 
-            if (!TextUtils.isEmpty(lowerBody) && lowerBody.contains("operation not supported")) {
+            if (!TextUtils.isEmpty(errorContent) && errorContent.toLowerCase().contains("operation not supported")) {
                 return SeafException.REQUEST_EXCEPTION;
             }
 
             //{
             //  "non_field_errors" : [ "Not allowed to connect to android client." ]
             //}
-            return SeafException.REQUEST_EXCEPTION;
+            return new SeafException(400, errorContent);
         }
 
         //401
@@ -124,7 +130,7 @@ public class ExceptionUtils {
 
         //403 forbidden
         if (HttpURLConnection.HTTP_FORBIDDEN == errorCode) {
-            if (!TextUtils.isEmpty(lowerBody) && lowerBody.contains("password is required") || lowerBody.contains("invalid password")) {
+            if (!TextUtils.isEmpty(errorContent) && (errorContent.toLowerCase().contains("password is required") || errorContent.toLowerCase().contains("invalid password"))) {
                 return SeafException.UNAUTHORIZED_EXCEPTION;
             }
 

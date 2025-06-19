@@ -4,12 +4,17 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
+import com.blankj.utilcode.util.TimeUtils;
+import com.google.android.material.datepicker.MaterialDatePicker;
+import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.materialswitch.MaterialSwitch;
 import com.google.android.material.textfield.TextInputLayout;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.framework.util.Toasts;
+import com.seafile.seadroid2.listener.Callback;
 import com.seafile.seadroid2.listener.OnCreateDirentShareLinkListener;
 import com.seafile.seadroid2.ui.base.fragment.RequestCustomDialogFragmentWithVM;
 import com.seafile.seadroid2.ui.dialog_fragment.viewmodel.GetShareLinkPasswordViewModel;
@@ -19,6 +24,8 @@ public class GetShareLinkPasswordDialogFragment extends RequestCustomDialogFragm
     private String repoId, path;
     private boolean isAdvance = true;
     private OnCreateDirentShareLinkListener onCreateDirentShareLinkListener;
+    private final String expirationFormat = "yyyy/MM/dd";
+    private Long selectedExpirationDateLong;
 
     public void init(String repoId, String path, boolean isAdvance) {
         this.repoId = repoId;
@@ -54,9 +61,9 @@ public class GetShareLinkPasswordDialogFragment extends RequestCustomDialogFragm
                 return;
             }
 
-            getViewModel().createShareLink(repoId, path, getPassword(), getDays(), null);
+            getViewModel().createShareLink(repoId, path, getPassword(), selectedExpirationDateLong, null);
         } else {
-            getViewModel().getFirstShareLink(repoId, path, null, null);
+            getViewModel().getFirstShareLink(repoId, path);
         }
     }
 
@@ -68,11 +75,6 @@ public class GetShareLinkPasswordDialogFragment extends RequestCustomDialogFragm
     public String getPassword() {
         EditText editText = getDialogView().findViewById(R.id.password);
         return editText.getText().toString();
-    }
-
-    public String getDays() {
-        EditText daysEditText = getDialogView().findViewById(R.id.days);
-        return daysEditText.getText().toString();
     }
 
     @Override
@@ -92,11 +94,42 @@ public class GetShareLinkPasswordDialogFragment extends RequestCustomDialogFragm
             });
 
             TextInputLayout daysTextInput = getDialogView().findViewById(R.id.days_text_input);
+            EditText daysTextView = getDialogView().findViewById(R.id.days);
+            daysTextView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    showDatePicker(new Callback<Long>() {
+                        @Override
+                        public void callback(Long aLong) {
+                            selectedExpirationDateLong = aLong;
+                            String ymd = TimeUtils.millis2String(aLong, expirationFormat);
+                            daysTextView.setText(ymd);
+                        }
+                    });
+                }
+            });
+
             MaterialSwitch daysSwitch = getDialogView().findViewById(R.id.add_expiration);
             daysSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
                 daysTextInput.setVisibility(isChecked ? View.VISIBLE : View.GONE);
             });
         }
+    }
+
+    private void showDatePicker(Callback<Long> call) {
+        if (call == null) {
+            throw new NullPointerException("call is null");
+        }
+
+        MaterialDatePicker<Long> picker = MaterialDatePicker.Builder.datePicker().build();
+        picker.addOnPositiveButtonClickListener(new MaterialPickerOnPositiveButtonClickListener<Long>() {
+            @Override
+            public void onPositiveButtonClick(Long selection) {
+                if (selection == null) return;
+                call.callback(selection);
+            }
+        });
+        picker.show(getChildFragmentManager(), MaterialDatePicker.class.getName());
     }
 
     @Override
@@ -119,7 +152,7 @@ public class GetShareLinkPasswordDialogFragment extends RequestCustomDialogFragm
 
     private void showErrorDialog(String errMsg) {
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext());
-        builder.setMessage(getErrorMsg(errMsg));
+        builder.setTitle(getErrorMsg(errMsg));
         builder.setPositiveButton(R.string.ok, (dialog, which) -> dialog.dismiss());
         builder.show();
     }
@@ -149,8 +182,8 @@ public class GetShareLinkPasswordDialogFragment extends RequestCustomDialogFragm
             EditText daysEditText = getDialogView().findViewById(R.id.days);
             String daysText = daysEditText.getText().toString();
 
-            if (TextUtils.isEmpty(daysText)) {
-                Toasts.show(R.string.input_auto_expiration);
+            if (TextUtils.isEmpty(daysText) || selectedExpirationDateLong == null) {
+                Toasts.show(R.string.tip_select_an_expiration_dates);
                 return false;
             }
         }
