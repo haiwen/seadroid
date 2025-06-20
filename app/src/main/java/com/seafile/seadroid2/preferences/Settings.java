@@ -71,6 +71,7 @@ public class Settings {
 
     //folder backup
     public static SettingsLiveData<Boolean> FOLDER_BACKUP_SWITCH;
+    public static SettingsLiveData<Boolean> FOLDER_BACKUP_SYNC_HIDDEN_FILES;
     public static SettingsLiveData<NetworkMode> FOLDER_BACKUP_NETWORK_MODE;
     public static SettingsLiveData<String> FOLDER_BACKUP_SELECTED_REPO;
     public static SettingsLiveData<String> FOLDER_BACKUP_SELECTED_FOLDERS;
@@ -160,6 +161,7 @@ public class Settings {
 
         //
         FOLDER_BACKUP_SWITCH = new BooleanSettingLiveData(_account.getEncryptSignature(), R.string.pref_key_folder_backup_switch);
+        FOLDER_BACKUP_SYNC_HIDDEN_FILES = new BooleanSettingLiveData(_account.getEncryptSignature(), R.string.pref_key_folder_backup_sync_hidden_files);
         FOLDER_BACKUP_STATE = new StringSettingLiveData(_account.getEncryptSignature(), R.string.pref_key_folder_backup_state, R.string.done);
         FOLDER_BACKUP_SELECTED_REPO = new StringSettingLiveData(_account.getEncryptSignature(), R.string.pref_key_folder_backup_repo_select, Resources.ID_NULL);
         FOLDER_BACKUP_SELECTED_FOLDERS = new StringSettingLiveData(_account.getEncryptSignature(), R.string.pref_key_folder_backup_folder_select, Resources.ID_NULL);
@@ -189,6 +191,7 @@ public class Settings {
         REGISTER_LIST.add(ALBUM_BACKUP_ADVANCE_BUCKETS_SELECT);
         REGISTER_LIST.add(ALBUM_BACKUP_ADVANCE_SELECTED_BUCKETS_STRING);
         REGISTER_LIST.add(FOLDER_BACKUP_SWITCH);
+        REGISTER_LIST.add(FOLDER_BACKUP_SYNC_HIDDEN_FILES);
         REGISTER_LIST.add(FOLDER_BACKUP_STATE);
         REGISTER_LIST.add(FOLDER_BACKUP_NETWORK_MODE);
         REGISTER_LIST.add(FOLDER_BACKUP_SELECTED_REPO);
