@@ -12,6 +12,13 @@
         android:textSize="@dimen/tv_title_txt_size" />
 
     <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_of_volume"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clipToPadding="false"
+        android:paddingHorizontal="16dp" />
+
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_of_path"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

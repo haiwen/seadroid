@@ -1,7 +1,11 @@
 package com.seafile.seadroid2.ui.selector.folder_selector;
 
 import android.app.Activity;
+import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.storage.StorageManager;
+import android.os.storage.StorageVolume;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +29,8 @@ import com.seafile.seadroid2.ui.folder_backup.FolderBackupConfigActivity;
 import com.seafile.seadroid2.ui.repo.ScrollState;
 import com.seafile.seadroid2.view.TipsViews;
 
+import java.io.File;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -33,12 +39,15 @@ public class FolderSelectorFragment extends BaseFragmentWithVM<FolderSelectorVie
 
     private FragmentFolderSelectorBinding binding;
     private LinearLayoutManager rvManager;
+    private LinearLayoutManager rvVolumeManager;
     private LinearLayoutManager rvTabbarManager;
 
     private List<String> allPathsList;
 
     private List<TabBarFileBean> mTabbarFileList;
+    private List<VolumeBean> mVolumeList;
     private String mCurrentPath;
+    private VolumeListAdapter mVolumeListAdapter;
     private FileListAdapter mFileListAdapter;
     private TabBarFileListAdapter mTabBarFileListAdapter;
     private FolderBackupConfigActivity mActivity;
@@ -56,8 +65,14 @@ public class FolderSelectorFragment extends BaseFragmentWithVM<FolderSelectorVie
         rvTabbarManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
         binding.rvOfPath.setLayoutManager(rvTabbarManager);
 
+        rvVolumeManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
+        binding.rvOfVolume.setLayoutManager(rvVolumeManager);
+
         mTabBarFileListAdapter = new TabBarFileListAdapter(getActivity(), mTabbarFileList);
         binding.rvOfPath.setAdapter(mTabBarFileListAdapter);
+
+        mVolumeListAdapter = new VolumeListAdapter(getActivity(), mVolumeList);
+        binding.rvOfVolume.setAdapter(mVolumeListAdapter);
 
 //        chooseDirPage = mActivity.isChooseDirPage();
         return binding.getRoot();
@@ -78,6 +93,14 @@ public class FolderSelectorFragment extends BaseFragmentWithVM<FolderSelectorVie
 
     private void initView() {
         binding.swipeRefreshLayout.setOnRefreshListener(this::loadData);
+
+        mVolumeListAdapter.setOnItemClickListener((volumeBean, position) -> {
+            mCurrentPath = volumeBean.getPath();
+
+            refreshFileAndTabBar(TYPE_INIT_TAB_BAR);
+
+            loadData();
+        });
 
         mTabBarFileListAdapter.setOnItemClickListener((tabBarFileBean, position) -> {
             TabBarFileBean item = mTabbarFileList.get(position);
@@ -159,6 +182,13 @@ public class FolderSelectorFragment extends BaseFragmentWithVM<FolderSelectorVie
         }
 
         allPathsList = initRootPath(getActivity());
+
+        mVolumeList = new ArrayList<>();
+        for (String path : allPathsList) {
+            mVolumeList.add(new VolumeBean(path, getPrettyVolumeName(getContext(), path)));
+        }
+        mVolumeListAdapter.updateVolumeList(mVolumeList);
+
         mTabbarFileList = new ArrayList<>();
         refreshFileAndTabBar(TYPE_INIT_TAB_BAR);
     }
@@ -226,9 +256,40 @@ public class FolderSelectorFragment extends BaseFragmentWithVM<FolderSelectorVie
     public static final int TYPE_DEL_TAB_BAR = 1;
     public static final int TYPE_INIT_TAB_BAR = 2;
 
+    public static String getPrettyVolumeName(Context context, String volumePath) {
+        StorageManager storageManager = (StorageManager) context.getSystemService(Context.STORAGE_SERVICE);
+
+        if (storageManager == null) {
+            return volumePath;
+        }
+
+        List<StorageVolume> volumes = storageManager.getStorageVolumes();
+        for (StorageVolume volume : volumes) {
+            try {
+                File dir;
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    dir = volume.getDirectory();
+                } else {
+                    // Before API 30 way to get a volume path
+                    Method getPathMethod = StorageVolume.class.getDeclaredMethod("getPathFile");
+                    dir = (File) getPathMethod.invoke(volume);
+                }
+
+                if (dir != null && dir.getAbsolutePath().equals(volumePath)) {
+                    return volume.getDescription(context); // e.g. "Internal storage" or "SD card"
+                }
+            } catch (Exception e) {
+                // Will fallback to volumePath
+            }
+        }
+
+        return volumePath;
+    }
+
     public static void getTabbarFileBeanList(List<TabBarFileBean> tabbarList, String path, List<String> allPathsList) {
         if (allPathsList.contains(path)) {
-            tabbarList.add(0, new TabBarFileBean(path, SeadroidApplication.getAppContext().getString(R.string.internal_storage)));
+            tabbarList.add(0, new TabBarFileBean(path, getPrettyVolumeName(SeadroidApplication.getAppContext(), path)));
         }
     }
 
