@@ -616,6 +616,10 @@
     <string name="settings_folder_backup_service_started">Backup service started</string>
     <string name="settings_folder_backup_service_stopped">Backup service stopped</string>
     <string name="settings_select_backup_folder_title">Select folder</string>
+    <string name="settings_sync_hidden_files_switch">Sync hidden files</string>
+    <string name="settings_sync_hidden_files_disabled">Hidden files are not synced</string>
+    <string name="settings_sync_hidden_files_enabled">Hidden files are synced</string>
+    <string name="settings_sync_hidden_title">Syncing hidden files</string>
     <string name="folder_file_item_size">Size %s</string>
     <string name="folder_file_item_describe">file \%s\ | folder \%s\</string>
     <string name="internal_storage">Internal storage</string>
