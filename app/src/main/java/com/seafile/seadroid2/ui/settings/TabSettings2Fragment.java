@@ -109,6 +109,7 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
 
     //folder backup
     private TextSwitchPreference mFolderBackupSwitch;
+    private TextSwitchPreference mFolderBackupSyncHiddenFilesSwitch;
     private ListPreference mFolderBackupNetworkMode;
     private Preference mFolderBackupSelectRepo;
     private Preference mFolderBackupSelectFolder;
@@ -296,6 +297,7 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
         mFolderBackupSelectFolder = findPreference(getString(R.string.pref_key_folder_backup_folder_select));
 //        mFolderBackupState = findPreference(getString(R.string.pref_key_folder_backup_state));
         mFolderBackupNetworkMode = findPreference(getString(R.string.pref_key_folder_backup_network_mode));
+        mFolderBackupSyncHiddenFilesSwitch = findPreference(getString(R.string.pref_key_folder_backup_sync_hidden_files));
 
         //repo
         if (mFolderBackupSelectRepo != null) {
@@ -610,11 +612,21 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
                     //clear
                     FolderBackupSharePreferenceHelper.writeRepoConfig(null);
                     FolderBackupSharePreferenceHelper.writeBackupPathsAsString(null);
+                    FolderBackupSharePreferenceHelper.writeSkipHiddenFiles(true);
 
                     switchFolderBackupState(false);
 
                     launchFolderBackupWhenReady(true);
                 }
+            }
+        });
+
+        Settings.FOLDER_BACKUP_SYNC_HIDDEN_FILES.observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+                SLogs.d(TAG, "Sync hidden files " + !aBoolean);
+                // button label is "show hidden files", if enable we don't skip
+                FolderBackupSharePreferenceHelper.writeSkipHiddenFiles(!aBoolean);
             }
         });
 
@@ -910,12 +922,14 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
         } else {
             mFolderBackupSwitch.setRadiusPosition(RadiusPositionEnum.ALL);
             mFolderBackupSwitch.setDividerPosition(DividerPositionEnum.NONE);
+            mFolderBackupSyncHiddenFilesSwitch.setChecked(false);
 //            mFolderBackupState.setSummary(null);
         }
 
         mFolderBackupNetworkMode.setVisible(isEnable);
         mFolderBackupSelectRepo.setVisible(isEnable);
         mFolderBackupSelectFolder.setVisible(isEnable);
+        mFolderBackupSyncHiddenFilesSwitch.setVisible(isEnable);
 //        mFolderBackupState.setVisible(isEnable);
 
         updateFolderBackupPrefSummary();
