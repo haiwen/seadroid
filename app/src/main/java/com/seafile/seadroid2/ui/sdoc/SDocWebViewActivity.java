@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.webkit.ConsoleMessage;
 import android.webkit.ValueCallback;
@@ -27,6 +29,7 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.databinding.ActivitySeaWebviewProBinding;
+import com.seafile.seadroid2.enums.ObjSelectType;
 import com.seafile.seadroid2.framework.model.sdoc.FileProfileConfigModel;
 import com.seafile.seadroid2.framework.model.sdoc.OutlineItemModel;
 import com.seafile.seadroid2.framework.model.sdoc.SDocPageOptionsModel;
@@ -49,25 +52,28 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
     private SeaWebView mWebView;
     private String repoId, repoName;
     private String path;
+    private String fileName;
     private String targetUrl;
     private boolean isSdoc;
 
     private SDocPageOptionsModel pageOptionsData;
 
-    public static void openSdoc(Context context, String repoName, String repoID, String path) {
+    public static void openSdoc(Context context, String repoName, String repoID, String path, String name) {
         Intent intent = new Intent(context, SDocWebViewActivity.class);
         intent.putExtra("repoName", repoName);
         intent.putExtra("repoID", repoID);
         intent.putExtra("filePath", path);
+        intent.putExtra("fileName", name);
         intent.putExtra("isSdoc", true);
         ActivityUtils.startActivity(intent);
     }
 
-    public static void openDraw(Context context, String repoName, String repoID, String path) {
+    public static void openDraw(Context context, String repoName, String repoID, String path, String name) {
         Intent intent = new Intent(context, SDocWebViewActivity.class);
         intent.putExtra("repoName", repoName);
         intent.putExtra("repoID", repoID);
         intent.putExtra("filePath", path);
+        intent.putExtra("fileName", name);
         intent.putExtra("isSdoc", false);
         ActivityUtils.startActivity(intent);
     }
@@ -99,6 +105,8 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
             return;
         }
 
+        initData();
+
         initUI();
 
         initViewModel();
@@ -111,8 +119,6 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
 
             mWebView.restoreState(savedInstanceState);
         } else {
-            initData();
-
             //let's go
             mWebView.load(targetUrl);
         }
@@ -127,6 +133,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         repoId = intent.getStringExtra("repoID");
         repoName = intent.getStringExtra("repoName");
         path = intent.getStringExtra("filePath");
+        fileName = intent.getStringExtra("fileName");
         isSdoc = intent.getBooleanExtra("isSdoc", false);
 
         if (TextUtils.isEmpty(repoId) || TextUtils.isEmpty(path)) {
@@ -143,14 +150,13 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
 
     private void initUI() {
         Toolbar toolbar = getActionBarToolbar();
-//        toolbar.setTitle("");
         toolbar.setNavigationOnClickListener(v -> {
             finish();
         });
 
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle(null);
+            getSupportActionBar().setTitle(fileName);
         }
 
         getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
@@ -220,6 +226,53 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         });
     }
 
+    private MenuItem editMenuItem;
+    private boolean isEditMode = false;
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        if (!isSdoc) {
+            return super.onCreateOptionsMenu(menu);
+        }
+
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_sdoc_preview, menu);
+        editMenuItem = menu.findItem(R.id.sdoc_edit);
+        editMenuItem.setVisible(true);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.sdoc_edit) {
+            switchEditMode();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    public void switchEditMode() {
+        if (isEditMode) {
+            isEditMode = false;
+            editMenuItem.setTitle(R.string.edit);
+//            mWebView.callJsFunction("sdoc.edit.mode", "false", new CallBackFunction() {
+//                @Override
+//                public void onCallBack(String data) {
+//                    SLogs.d(TAG, "switchEditMode()", data);
+//                }
+//            });
+        } else {
+            isEditMode = true;
+            editMenuItem.setTitle(R.string.complete);
+//            mWebView.callJsFunction("sdoc.edit.mode", "true", new CallBackFunction() {
+//                @Override
+//                public void onCallBack(String data) {
+//                    SLogs.d(TAG, "switchEditMode()", data);
+//                }
+//            });
+        }
+    }
+
     private void showOutlineDialog() {
         readSDocOutlineList(new Consumer<String>() {
             @Override
@@ -245,6 +298,10 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
                 SLogs.d(TAG, "callJsOutline()", data);
             }
         });
+    }
+
+    private void write() {
+
     }
 
     private void showCommentsActivity() {

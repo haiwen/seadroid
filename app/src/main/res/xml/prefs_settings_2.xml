@@ -202,7 +202,7 @@
             android:key="@string/pref_key_folder_backup_sync_hidden_files"
             android:summaryOff="@string/settings_sync_hidden_files_disabled"
             android:summaryOn="@string/settings_sync_hidden_files_enabled"
-            android:title="@string/settings_sync_hidden_title"
+            android:title="@string/settings_sync_hidden_files_switch"
             app:backgroundColor="@color/pref_background_color"
             app:backgroundRadius="8dp"
             app:dividerColor="@color/pref_divider_color"

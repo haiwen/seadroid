@@ -370,8 +370,12 @@
   <!--Camera Upload Configuration View-->
   <string name="settings_cuc_title">Помощник по настройке</string>
   <string name="settings_cuc_welcome_text">Спасибо за использование помощника по настройке загрузки фото. \nЧтобы освоиться с сервисом загрузки фото, вам нужно пройти всего лишь несколько шагов.</string>
+  <string name="settings_cuc_network_title">Как создать резервную копию</string>
   <string name="settings_cuc_network_wifi">Только Wi-Fi</string>
   <string name="settings_cuc_network_data_plan">Wi-Fi или мобильные данные</string>
+  <string name="settings_cuc_how_hint">Выберите способ создания резервной копии</string>
+  <string name="settings_cuc_what_hint">Выберите то, резервную копию чего вы хотите создать</string>
+  <string name="settings_cuc_type_title">Что нужно сделать для резервного копирования</string>
   <string name="settings_cuc_type_photo">Только фото</string>
   <string name="settings_cuc_type_video">Фото и видео</string>
   <string name="settings_cuc_local_dir_title">Выбрать альбомы</string>
@@ -381,6 +385,7 @@
     <item quantity="many">%1$d элементов</item>
     <item quantity="other">%1$d элементов</item>
   </plurals>
+  <string name="settings_cuc_remote_lib_title">Где сделать резервную копию</string>
   <string name="settings_cuc_remote_lib_account">Выберите аккаунт</string>
   <string name="settings_cuc_remote_lib_repo">%s выбранных элементов</string>
   <string name="settings_cuc_upload_to_parent_folder">К родительской папке</string>
@@ -696,4 +701,6 @@
   <string name="image_color_space_undefined">Неопределенный</string>
   <string name="offline">Не в сети</string>
   <string name="export_log_file_not_exists">Файл журнала недоступен для экспорта.</string>
+  <string name="start">Начать</string>
+  <string name="next">Далее</string>
 </resources>

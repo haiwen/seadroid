@@ -1492,12 +1492,12 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         }
 
         if (fileName.endsWith(Constants.Format.DOT_SDOC)) {
-            SDocWebViewActivity.openSdoc(getContext(), repoModel.repo_name, repoModel.repo_id, dirent.parent_dir + dirent.name);
+            SDocWebViewActivity.openSdoc(getContext(), repoModel.repo_name, repoModel.repo_id, dirent.parent_dir + dirent.name, dirent.name);
             return;
         }
 
         if (fileName.endsWith(Constants.Format.DOT_DRAW) || fileName.endsWith(Constants.Format.DOT_EXDRAW)) {
-            SDocWebViewActivity.openDraw(getContext(), repoModel.repo_name, repoModel.repo_id, dirent.parent_dir + dirent.name);
+            SDocWebViewActivity.openDraw(getContext(), repoModel.repo_name, repoModel.repo_id, dirent.parent_dir + dirent.name, dirent.name);
             return;
         }
 

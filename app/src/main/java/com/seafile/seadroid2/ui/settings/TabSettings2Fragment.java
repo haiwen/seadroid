@@ -627,6 +627,8 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
                 SLogs.d(TAG, "Sync hidden files " + !aBoolean);
                 // button label is "show hidden files", if enable we don't skip
                 FolderBackupSharePreferenceHelper.writeSkipHiddenFiles(!aBoolean);
+
+                launchFolderBackupWhenReady(true);
             }
         });
 
@@ -934,12 +936,19 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
         mFolderBackupSyncHiddenFilesSwitch.setVisible(isEnable);
 //        mFolderBackupState.setVisible(isEnable);
 
-        updateFolderBackupPrefSummary();
+        runMainThreadDelay(() -> updateFolderBackupPrefSummary());
+
     }
 
     private void updateFolderBackupPrefSummary() {
-        RepoConfig repoConfig = FolderBackupSharePreferenceHelper.readRepoConfig();
 
+        boolean hiddenSwitch = Settings.FOLDER_BACKUP_SYNC_HIDDEN_FILES.queryValue();
+        if (mFolderBackupSyncHiddenFilesSwitch != null) {
+            mFolderBackupSyncHiddenFilesSwitch.setChecked(hiddenSwitch);
+        }
+
+
+        RepoConfig repoConfig = FolderBackupSharePreferenceHelper.readRepoConfig();
         if (repoConfig != null && !TextUtils.isEmpty(repoConfig.getRepoName())) {
             mFolderBackupSelectRepo.setSummary(repoConfig.getRepoName());
         } else {
