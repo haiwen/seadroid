@@ -59,6 +59,7 @@ import com.seafile.seadroid2.context.GlobalNavContext;
 import com.seafile.seadroid2.context.NavContext;
 import com.seafile.seadroid2.databinding.LayoutFastRvBinding;
 import com.seafile.seadroid2.enums.ActionModeCallbackType;
+import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.FileReturnActionEnum;
 import com.seafile.seadroid2.enums.FileViewType;
 import com.seafile.seadroid2.enums.ObjSelectType;
@@ -626,7 +627,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         String transferId = map.getString(TransferWorker.KEY_TRANSFER_ID);
         int transferCount = map.getInt(TransferWorker.KEY_TRANSFER_COUNT);
 
-        SLogs.d(TAG, "on event: " + statusEvent + ", dataSource: " + dataSource + ", transferCount: " + transferCount);
+        SLogs.d(TAG, "on event: " + statusEvent + ", dataSource: " + dataSource);
 
         if (TextUtils.equals(statusEvent, TransferEvent.EVENT_SCANNING)) {
 
@@ -642,6 +643,15 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             if (transferCount > 0) {
                 loadData(RefreshStatusEnum.ONLY_REMOTE, false);
             }
+        } else if (TextUtils.equals(statusEvent, TransferEvent.EVENT_TRANSFER_TASK_CANCELLED)) {
+
+            if (FeatureDataSource.ALBUM_BACKUP.name().equals(dataSource) || FeatureDataSource.FOLDER_BACKUP.name().equals(dataSource)) {
+                Toasts.show(R.string.upload_cancelled);
+            } else if (FeatureDataSource.DOWNLOAD.name().equals(dataSource)) {
+                Toasts.show(R.string.download_cancelled);
+            }
+
+            loadData(RefreshStatusEnum.ONLY_REMOTE, false);
         }
     }
 

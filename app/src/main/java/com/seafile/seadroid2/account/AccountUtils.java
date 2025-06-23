@@ -35,7 +35,7 @@ public class AccountUtils {
         CameraUploadManager.getInstance().disableSpecialAccountCameraUpload(account);
 
         //cancel all jobs
-        BackgroundJobManagerImpl.getInstance().cancelAllJobs();
+//        BackgroundJobManagerImpl.getInstance().cancelAllJobs();
 
         //reset IO instance for new account
         HttpIO.resetLoggedInInstance();
@@ -68,9 +68,6 @@ public class AccountUtils {
 
         //switch camera upload
         CameraUploadManager.getInstance().setCameraAccount(account);
-
-        //cancel all jobs
-        BackgroundJobManagerImpl.getInstance().cancelAllJobs();
 
         //reset IO instance for new account
         HttpIO.resetLoggedInInstance();

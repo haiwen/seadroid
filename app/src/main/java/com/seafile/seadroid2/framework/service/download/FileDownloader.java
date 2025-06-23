@@ -35,6 +35,19 @@ public class FileDownloader extends ParentEventDownloader {
         return FeatureDataSource.DOWNLOAD;
     }
 
+    public void stop() {
+        SafeLogs.d(TAG, "stop()");
+
+        //clear
+        GlobalTransferCacheList.DOWNLOAD_QUEUE.clear();
+
+        //stop
+        stopThis();
+
+        send(FeatureDataSource.DOWNLOAD, TransferEvent.EVENT_TRANSFER_TASK_CANCELLED);
+    }
+
+
     public void stopById(String modelId) {
         SafeLogs.d(TAG, "stopById()", "stop download by id: " + modelId);
 

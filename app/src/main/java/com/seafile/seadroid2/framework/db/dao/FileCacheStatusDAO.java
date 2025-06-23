@@ -54,4 +54,12 @@ public interface FileCacheStatusDAO {
     @Query("UPDATE file_cache_status SET repo_name = :newRepoName WHERE repo_id = :repoId")
     void updateRepoNameByRepoId(String repoId, String newRepoName);
 
+    @Query("SELECT * FROM file_cache_status")
+    List<FileCacheStatusEntity> getAll();
+
+    @Query("SELECT * FROM file_cache_status LIMIT :limit OFFSET :offset")
+    List<FileCacheStatusEntity> getPaged(int limit, int offset);
+
+    @Update
+    void updateAll(List<FileCacheStatusEntity> items);
 }

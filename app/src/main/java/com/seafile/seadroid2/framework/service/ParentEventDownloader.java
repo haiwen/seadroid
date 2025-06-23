@@ -113,7 +113,6 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
         if (newCall != null) {
             newCall.cancel();
         }
-
     }
 
     public void transfer(Account account, TransferModel transferModel) throws SeafException {

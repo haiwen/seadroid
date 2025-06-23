@@ -49,6 +49,18 @@ public class DataManager {
      * "seafile.mycompany.com". Two repos, "Documents" and "Manuals", has
      * been viewed.
      */
+    public static String getAccountMediaDir(Account account) {
+        if (account == null) {
+            return null;
+        }
+
+        String p = getAccountDir(account);
+
+        String path = StorageManager.getInstance().getMediaDir().getAbsolutePath();
+
+        return Utils.pathJoin(path, p);
+    }
+
     public static String getAccountDir(Account account) {
         if (account == null) {
             return null;
@@ -65,9 +77,7 @@ public class DataManager {
         String p = String.format("%s (%s)", username, server);
         p = p.replaceAll("[^\\w\\d\\.@\\(\\) ]", "_");
 
-        String path = StorageManager.getInstance().getMediaDir().getAbsolutePath();
-
-        return Utils.pathJoin(path, p);
+        return p;
     }
 
 
@@ -92,7 +102,7 @@ public class DataManager {
             throw new IllegalArgumentException("repo_name is empty");
         }
 
-        String accountDir = DataManager.getAccountDir(account);
+        String accountDir = DataManager.getAccountMediaDir(account);
         String repoDirName = String.format("%s_%s", repo_name, repo_id.substring(0, 4));
         return new File(accountDir, repoDirName);
     }

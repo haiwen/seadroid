@@ -50,11 +50,11 @@ public class AppDataManager {
         DataStoreManager.getCommonSharePreference().writeBoolean(SettingsManager.CLIENT_ENC_SWITCH_KEY, isChecked);
     }
 
-    public static int readStorageDir() {
+    public static int readStorageDirId() {
         return DataStoreManager.getCommonSharePreference().readInteger(SettingsManager.SHARED_PREF_STORAGE_DIR, Integer.MIN_VALUE);
     }
 
-    public static void writeStorageDir(int nightMode) {
-        DataStoreManager.getCommonSharePreference().writeInteger(SettingsManager.SHARED_PREF_STORAGE_DIR, nightMode);
+    public static void writeStorageDirId(int id) {
+        DataStoreManager.getCommonSharePreference().writeInteger(SettingsManager.SHARED_PREF_STORAGE_DIR, id);
     }
 }

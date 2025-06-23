@@ -123,7 +123,7 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
      * the model is in the downloading, it will be stopped.
      */
     public void stopThis() {
-        SafeLogs.d(TAG, "stop()", "stop download");
+        SafeLogs.d(TAG, "stopThis()", getFeatureDataSource().name());
         isStop = true;
 
         if (uriRequestBody != null) {

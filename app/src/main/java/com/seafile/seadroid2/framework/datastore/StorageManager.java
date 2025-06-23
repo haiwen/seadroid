@@ -5,21 +5,26 @@ import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.os.storage.StorageVolume;
 import android.text.format.Formatter;
 import android.util.Log;
+import android.util.Pair;
 
 import androidx.core.os.EnvironmentCompat;
 
 import com.blankj.utilcode.util.PathUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
-import com.seafile.seadroid2.framework.datastore.sp.AppDataManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.framework.datastore.sp.AppDataManager;
+import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.util.Toasts;
 
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -88,40 +93,93 @@ public abstract class StorageManager implements MediaScannerConnection.OnScanCom
         Location classic = new Location();
         classic.id = -1; // Android IDs start at 0. so "-1" is safe for us
 
-        File[] externalMediaDirs = SeadroidApplication.getAppContext().getExternalMediaDirs();
+        File[] externalMediaDirs = getMediaCacheDirs();
         String rootPath = externalMediaDirs[0].getAbsolutePath();
+
+        // /storage/emulated/0/Android/media/package/Seafile/
         classic.mediaPath = new File(rootPath + "/Seafile/");
 
-        //
-        String appCachePath = PathUtils.getExternalAppCachePath();
+        // /storage/emulated/0/Android/data/package/cache
+        File[] externalCacheDirs = getAppCacheDir();
+        String appCachePath = externalCacheDirs[0].getAbsolutePath();
         classic.cachePath = new File(appCachePath);
-
-
-//        classic.externalImagePath = Environment.DIRECTORY_DCIM+"";
 
         fillLocationInfo(classic);
         return classic;
     }
 
+    /**
+     * fill description info
+     */
     private void fillLocationInfo(Location loc) {
         loc.available = loc.mediaPath != null && EnvironmentCompat.getStorageState(loc.mediaPath).equals(Environment.MEDIA_MOUNTED);
 
-        String label;
+        //
+        if (loc.mediaPath != null) {
+            Pair<String, String> prettyVolumeName = getPrettyVolumeName(loc.mediaPath.getAbsolutePath());
+            if (prettyVolumeName != null) {
+                loc.volume = prettyVolumeName.first;
+                loc.label = prettyVolumeName.second;
+            }
+        }
+
+
+        String storageName;
         // labels "primary/secondary" are as defined by https://possiblemobile.com/2014/03/android-external-storage/
         if (loc.id <= 0) {
-            label = getContext().getString(R.string.storage_manager_primary_storage);
+            storageName = getContext().getString(R.string.storage_manager_primary_storage);
         } else {
-            label = getContext().getString(R.string.storage_manager_secondary_storage);
+            storageName = getContext().getString(R.string.storage_manager_secondary_storage);
         }
+
         if (loc.available) {
             loc.description = getContext().getString(R.string.storage_manager_storage_description,
-                    label,
+                    storageName,
                     Formatter.formatFileSize(getContext(), getStorageFreeSpace(loc.mediaPath)),
                     Formatter.formatFileSize(getContext(), getStorageSize(loc.mediaPath)));
         } else {
             loc.description = getContext().getString(R.string.storage_manager_storage_description_not_available,
-                    label);
+                    storageName);
         }
+    }
+
+
+    public Pair<String, String> getPrettyVolumeName(String volumePath) {
+        android.os.storage.StorageManager storageManager = (android.os.storage.StorageManager) getContext().getSystemService(Context.STORAGE_SERVICE);
+        if (storageManager == null) {
+            return null;
+        }
+
+        List<StorageVolume> volumes = storageManager.getStorageVolumes();
+        for (StorageVolume volume : volumes) {
+            try {
+                File dir;
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    dir = volume.getDirectory();
+                } else {
+                    // Before API 30 way to get a volume path
+                    Method getPathMethod = StorageVolume.class.getDeclaredMethod("getPathFile");
+                    dir = (File) getPathMethod.invoke(volume);
+                }
+
+                if (dir == null) {
+                    continue;
+                }
+
+                if (!volumePath.startsWith(dir.getAbsolutePath())) {
+                    continue;
+                }
+
+                String label = volume.getDescription(getContext());
+                String name = dir.getAbsolutePath();
+                return new Pair<>(name, label); // e.g. "Internal storage" or "SD card"
+            } catch (Exception e) {
+                // Will fallback to volumePath
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -172,15 +230,11 @@ public abstract class StorageManager implements MediaScannerConnection.OnScanCom
 
     public final ArrayList<Location> getStorageLocations() {
         ArrayList<Location> retList = new ArrayList<>();
-
-        int selectedDir = AppDataManager.readStorageDir();
-
         retList.add(CLASSIC_LOCATION);
 
         File[] mediaDirs = getMediaCacheDirs();
         File[] cacheDir = getAppCacheDir();
         for (int i = 0; i < mediaDirs.length; i++) {
-
             // omit the mount point where CLASSIC_LOCATION lies (would be duplicate)
             if (i == 0)
                 continue;
@@ -192,17 +246,18 @@ public abstract class StorageManager implements MediaScannerConnection.OnScanCom
             retList.add(location);
         }
 
+        int selectedDirId = AppDataManager.readStorageDirId();
         // add current selection at the end, even if the storage is currently unavailable
-        if (selectedDir != CLASSIC_LOCATION.id && selectedDir >= mediaDirs.length) {
+        if (selectedDirId != CLASSIC_LOCATION.id && selectedDirId >= mediaDirs.length) {
             Location location = new Location();
-            location.id = selectedDir;
+            location.id = selectedDirId;
             location.mediaPath = null;
             location.cachePath = null;
             retList.add(location);
         }
 
         for (Location loc : retList) {
-            loc.currentSelection = (loc.id == selectedDir);
+            loc.selected = (loc.id == selectedDirId);
             fillLocationInfo(loc); // fill in size & description info
         }
 
@@ -218,39 +273,50 @@ public abstract class StorageManager implements MediaScannerConnection.OnScanCom
      * @param id the ID of the new storage location
      */
     public final void setStorageDir(int id) {
-
-        int oldID = AppDataManager.readStorageDir();
-
+        int oldID = AppDataManager.readStorageDirId();
         if (oldID == id)
             return;
 
+        Location oldLocation = lookupStorageLocation(oldID);
         Location newLocation = lookupStorageLocation(id);
 
-        File newMediaDir = newLocation.mediaPath;
-
-        if (newLocation.mediaPath == null || !EnvironmentCompat.getStorageState(newMediaDir).equals(Environment.MEDIA_MOUNTED)) {
-            Log.i(DEBUG_TAG, "Selected storage dir is unavailable! " + newMediaDir);
+        if (newLocation == null) {
+            Toasts.show(R.string.not_available);
+            SLogs.d(DEBUG_TAG, "Selected storage dir is not available! " + id);
             return;
         }
 
-        Location oldLocation = lookupStorageLocation(oldID);
-        if (oldLocation != null) {
+        File newMediaDir = newLocation.mediaPath;
+        if (newLocation.mediaPath == null || !EnvironmentCompat.getStorageState(newMediaDir).equals(Environment.MEDIA_MOUNTED)) {
+            Toasts.show(R.string.not_available);
+            SLogs.d(DEBUG_TAG, "Selected storage dir is unavailable! ", id + "");
+            return;
+        }
 
+        if (!newLocation.available) {
+            Toasts.show(R.string.not_available);
+            SLogs.d(DEBUG_TAG, "Selected storage dir is unavailable! ", newMediaDir.getAbsolutePath());
+            return;
+        }
+
+        if (oldLocation != null) {
             try {
                 // move cached files from old location to new location (might take a while)
                 List<Account> list = SupportAccountManager.getInstance().getAccountList();
                 for (Account account : list) {
-                    String accDir = DataManager.getAccountDir(account);
+                    //default account media dir
+                    String accDir = DataManager.getAccountMediaDir(account);
                     File oldAccountDir = new File(accDir);
 
                     if (oldAccountDir.isDirectory()) {
                         FileUtils.copyDirectoryToDirectory(oldAccountDir, newMediaDir);
                     }
                 }
+
                 notifyAndroidGalleryDirectoryChange(FileUtils.listFiles(newMediaDir, null, true));
 
             } catch (Exception e) {
-                Log.e(DEBUG_TAG, "Could not move cache to new location", e);
+                SLogs.e(DEBUG_TAG, "Could not move cache to new location", e.getMessage());
                 return;
             }
 
@@ -258,8 +324,8 @@ public abstract class StorageManager implements MediaScannerConnection.OnScanCom
             clearCache();
         }
 
-        Log.i(DEBUG_TAG, "Setting storage directory to " + newMediaDir);
-        AppDataManager.writeStorageDir(id);
+        SLogs.d(DEBUG_TAG, "Setting storage directory to " + newMediaDir);
+        AppDataManager.writeStorageDirId(id);
     }
 
     /**
@@ -283,9 +349,7 @@ public abstract class StorageManager implements MediaScannerConnection.OnScanCom
          * If there is already CLASSIC_LOCATION present on the system, prefer it
          */
         if (CLASSIC_LOCATION.mediaPath.exists() && CLASSIC_LOCATION.mediaPath.isDirectory()) {
-
             return CLASSIC_LOCATION;
-
         } else {
 
             // auto-select the location with the most free space available
@@ -318,7 +382,7 @@ public abstract class StorageManager implements MediaScannerConnection.OnScanCom
         return getDirectoryCreateIfNeeded(getStorageLocation().mediaPath);
     }
 
-    private Location lookupStorageLocation(int id) {
+    public Location lookupStorageLocation(int id) {
         for (Location location : getStorageLocations()) {
             if (location.id == id)
                 return location;
@@ -335,27 +399,37 @@ public abstract class StorageManager implements MediaScannerConnection.OnScanCom
      */
     public Location getStorageLocation() {
 
-        int storageDirID = AppDataManager.readStorageDir();
+        int storageDirID = AppDataManager.readStorageDirId();
         Location storageLocation = lookupStorageLocation(storageDirID);
 
         // if there is one configured but unavailable, use fallback
-        if (storageDirID >= 0 && !storageLocation.available) {
-            Log.i(DEBUG_TAG, "Configured storage location " + storageDirID + " has become unavailable, falling back.");
+        if (storageDirID >= 0 && storageLocation != null && !storageLocation.available) {
+            Log.e(DEBUG_TAG, "Configured storage location " + storageDirID + " has become unavailable, falling back.");
+            String storageName = getContext().getString(R.string.storage_manager_secondary_storage);
+            String t = getContext().getString(R.string.storage_manager_storage_description_not_available, storageName);
+            Toasts.show(t);
+
+            AppDataManager.writeStorageDirId(CLASSIC_LOCATION.id);
+            return CLASSIC_LOCATION;
+        }
+
+        if (storageLocation == null || !storageLocation.available) {
+            Log.e(DEBUG_TAG, "Storage location " + storageDirID + " has become unavailable, falling back.");
+
+            String storageName = getContext().getString(R.string.storage_manager_secondary_storage);
+            String t = getContext().getString(R.string.storage_manager_storage_description_not_available, storageName);
+            Toasts.show(t);
+
+            AppDataManager.writeStorageDirId(CLASSIC_LOCATION.id);
             return CLASSIC_LOCATION;
         }
 
         // on first start of Seadroid, no location is configured yet
         if (storageDirID == Integer.MIN_VALUE) {
-
             storageLocation = getPreferredStorage();
 
-            Log.i(DEBUG_TAG, "First start of Seadroid, auto-setting storage directory to " + storageLocation.id);
-            AppDataManager.writeStorageDir(storageLocation.id);
-        }
-
-        if (storageLocation == null || !storageLocation.available) {
-            Log.i(DEBUG_TAG, "Storage location " + storageLocation.id + " has become unavailable, falling back.");
-            return CLASSIC_LOCATION;
+            Log.e(DEBUG_TAG, "First start of Seadroid, auto-setting storage directory to " + storageLocation.id);
+            AppDataManager.writeStorageDirId(storageLocation.id);
         }
 
         // an explicit path is configured
@@ -457,6 +531,8 @@ public abstract class StorageManager implements MediaScannerConnection.OnScanCom
         Collection<File> fileList = FileUtils.listFiles(getMediaDir(), null, true);
 
         FileUtils.deleteQuietly(getMediaDir());
+        FileUtils.deleteQuietly(getTakeCameraDir());
+        FileUtils.deleteQuietly(getGlideCacheDir());
         FileUtils.deleteQuietly(getJsonCacheDir());
         FileUtils.deleteQuietly(getTempDir());
 
@@ -468,7 +544,7 @@ public abstract class StorageManager implements MediaScannerConnection.OnScanCom
      * remember to clear cache from database after called this method
      */
     public final void clearAccount(Account account) {
-        String accDir = DataManager.getAccountDir(account);
+        String accDir = DataManager.getAccountMediaDir(account);
         File accountDir = new File(accDir);
         Collection<File> fileList = FileUtils.listFiles(accountDir, null, true);
 
@@ -495,6 +571,10 @@ public abstract class StorageManager implements MediaScannerConnection.OnScanCom
          * Our internal ID of this storage.
          */
         public int id;
+
+        public String label;
+
+        public String volume;
 
         /**
          * Base media directory
@@ -529,6 +609,6 @@ public abstract class StorageManager implements MediaScannerConnection.OnScanCom
         /**
          * Is this the currently selected location?
          */
-        public boolean currentSelection;
+        public boolean selected;
     }
 }

@@ -1,14 +1,11 @@
 package com.seafile.seadroid2.ui.comparator;
 
-import com.seafile.seadroid2.framework.db.entities.DirentModel;
-import com.seafile.seadroid2.framework.db.entities.RepoModel;
-
 import java.math.BigInteger;
 import java.text.Collator;
 import java.util.Comparator;
 import java.util.Locale;
 
-public class NaturalOrderComparator implements Comparator<Object> {
+public abstract class NaturalOrderComparator<T> implements Comparator<T> {
     private Collator collator;
 
     public NaturalOrderComparator() {
@@ -22,12 +19,14 @@ public class NaturalOrderComparator implements Comparator<Object> {
     }
 
     @Override
-    public Comparator<Object> reversed() {
+    public Comparator<T> reversed() {
         return Comparator.super.reversed();
     }
 
+    public abstract String extractName(T t);
+
     @Override
-    public int compare(Object s1, Object s2) {
+    public int compare(T s1, T s2) {
         if (s1 == null && s2 == null) return 0; // all null
         if (s1 == null) return -1;
         if (s2 == null) return 1;
@@ -112,12 +111,6 @@ public class NaturalOrderComparator implements Comparator<Object> {
         return Character.compare(c1, c2);
     }
 
-    private String extractName(Object obj) {
-        if (obj instanceof RepoModel) return ((RepoModel) obj).repo_name;
-        if (obj instanceof DirentModel) return ((DirentModel) obj).name;
-        if (obj instanceof String) return (String) obj;
-        throw new IllegalArgumentException("Unsupported type: " + obj.getClass().getName());
-    }
 
     private BigInteger extractNumber(String s, int start) {
         int end = start;

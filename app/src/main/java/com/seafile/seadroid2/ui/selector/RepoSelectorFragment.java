@@ -1,7 +1,5 @@
 package com.seafile.seadroid2.ui.selector;
 
-import static android.view.View.GONE;
-
 import android.os.Bundle;
 import android.util.Pair;
 import android.view.LayoutInflater;

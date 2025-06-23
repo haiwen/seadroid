@@ -317,6 +317,7 @@ public class BackgroundJobManagerImpl {
     }
 
 
+    @Deprecated
     public void cancelAllJobs() {
         getWorkManager().cancelAllWork();
     }

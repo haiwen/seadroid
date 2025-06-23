@@ -1,7 +1,5 @@
 package com.seafile.seadroid2.framework.datastore;
 
-import android.annotation.TargetApi;
-import android.os.Build;
 import android.os.StatFs;
 
 import java.io.File;

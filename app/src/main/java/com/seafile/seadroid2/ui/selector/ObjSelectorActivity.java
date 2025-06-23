@@ -160,11 +160,11 @@ public class ObjSelectorActivity extends BaseActivityWithVM<ObjSelectorViewModel
         getMenuInflater().inflate(R.menu.menu_share_to_seafile, menu);
         createFolderMenuItem = menu.findItem(R.id.create_new_folder);
         if (mCurrentStepType == ObjSelectType.ACCOUNT) {
-            seOperateViewVisible(false);
+            setOperateViewVisible(false);
         } else if (mCurrentStepType == ObjSelectType.REPO) {
-            seOperateViewVisible(false);
+            setOperateViewVisible(false);
         } else {
-            seOperateViewVisible(true);
+            setOperateViewVisible(true);
         }
         return true;
     }
@@ -178,7 +178,7 @@ public class ObjSelectorActivity extends BaseActivityWithVM<ObjSelectorViewModel
         return super.onOptionsItemSelected(item);
     }
 
-    public void seOperateViewVisible(boolean visible) {
+    public void setOperateViewVisible(boolean visible) {
         if (isOnlyChooseAccount || isOnlyChooseRepo) {
             return;
         }
@@ -460,14 +460,14 @@ public class ObjSelectorActivity extends BaseActivityWithVM<ObjSelectorViewModel
 
             bar.setTitle(R.string.choose_an_account);
 
-            seOperateViewVisible(false);
+            setOperateViewVisible(false);
 
             getViewModel().loadAccount();
         } else if (mCurrentStepType == ObjSelectType.REPO) {
 
             bar.setTitle(R.string.choose_a_library);
 
-            seOperateViewVisible(false);
+            setOperateViewVisible(false);
 
             boolean isFilterUnavailable = true;
             boolean isAddStarredGroup = false;
@@ -482,7 +482,7 @@ public class ObjSelectorActivity extends BaseActivityWithVM<ObjSelectorViewModel
             getViewModel().loadReposFromNet(mAccount, isFilterUnavailable, isAddStarredGroup);
         } else if (mCurrentStepType == ObjSelectType.DIR) {
 
-            seOperateViewVisible(true);
+            setOperateViewVisible(true);
 
             bar.setTitle(R.string.choose_a_folder);
             getViewModel().loadDirentsFromNet(mAccount, mNavContext);

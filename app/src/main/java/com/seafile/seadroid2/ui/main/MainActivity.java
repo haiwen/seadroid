@@ -237,8 +237,6 @@ public class MainActivity extends BaseActivity {
             syncService = null;
         }
 
-        BackgroundJobManagerImpl.getInstance().cancelAllJobs();
-
         super.onDestroy();
     }
 

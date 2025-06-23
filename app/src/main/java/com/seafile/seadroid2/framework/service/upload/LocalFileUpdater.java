@@ -69,7 +69,6 @@ public class LocalFileUpdater extends ParentEventUploader {
         int totalPendingCount = GlobalTransferCacheList.LOCAL_FILE_MONITOR_QUEUE.getPendingCount();
         SafeLogs.d(TAG, "pending count: " + totalPendingCount);
         if (totalPendingCount <= 0) {
-            SafeLogs.d(TAG, "pending count is 0");
             return returnSuccess();
         }
 

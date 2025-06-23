@@ -89,7 +89,7 @@ public class TransferActivity extends BaseActivity {
         binding.slidingTabs.setSelectedTabIndicator(R.drawable.cat_tabs_rounded_line_indicator);
         binding.slidingTabs.setTabIndicatorFullWidth(false);
         binding.slidingTabs.setTabGravity(TabLayout.GRAVITY_CENTER);
-
+        
         binding.slidingTabs.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {

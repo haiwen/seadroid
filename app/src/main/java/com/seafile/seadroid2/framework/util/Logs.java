@@ -69,6 +69,7 @@ public class Logs {
                 .cleanStrategy(new FileLastModifiedCleanStrategy(MAX_TIME))
                 .build();
 
+
         XLog.init(config, androidPrinter, filePrinter);
     }
 

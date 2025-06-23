@@ -29,8 +29,8 @@ public class SeadroidApplication extends Application {
 
         Log.e("SeadroidApplication", "onCreate()");
 
-        //init slogs
-        SLogs.init();
+        //init xlog in com.seafile.seadroid2.provider.SeafileProvider#onCreate()
+//        SLogs.init();
 
         //print current app env info
         SLogs.printAppEnvInfo();

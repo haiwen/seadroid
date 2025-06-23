@@ -699,7 +699,7 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
         String transferId = map.getString(TransferWorker.KEY_TRANSFER_ID);
         int transferCount = map.getInt(TransferWorker.KEY_TRANSFER_COUNT);
 
-        SLogs.d(TAG, "on event: " + statusEvent + ", dataSource: " + dataSource + ", transferCount: " + transferCount);
+        SLogs.d(TAG, "on event: " + statusEvent + ", dataSource: " + dataSource);
 
         if (TextUtils.equals(statusEvent, TransferEvent.EVENT_SCANNING)) {
             refreshPendingCount(dataSource, statusEvent, true, result);
@@ -712,6 +712,8 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
         } else if (TextUtils.equals(statusEvent, TransferEvent.EVENT_FILE_TRANSFER_SUCCESS)) {
             refreshPendingCount(dataSource, statusEvent, false, result);
         } else if (TextUtils.equals(statusEvent, TransferEvent.EVENT_TRANSFER_TASK_COMPLETE)) {
+            refreshPendingCount(dataSource, statusEvent, true, result);
+        } else if (TextUtils.equals(statusEvent, TransferEvent.EVENT_TRANSFER_TASK_CANCELLED)) {
             refreshPendingCount(dataSource, statusEvent, true, result);
         }
     }

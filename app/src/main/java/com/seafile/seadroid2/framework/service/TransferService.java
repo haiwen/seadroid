@@ -30,6 +30,7 @@ import com.seafile.seadroid2.framework.service.upload.MediaBackupScanner;
 import com.seafile.seadroid2.framework.service.upload.MediaBackupUploader;
 import com.seafile.seadroid2.framework.service.upload.ShareToSeafileUploader;
 import com.seafile.seadroid2.framework.util.SafeLogs;
+import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 
 import java.lang.ref.WeakReference;
@@ -99,6 +100,10 @@ public class TransferService extends EventService {
 
     public static void startDownloadService(Context context) {
         startService(context, ServiceActionEnum.START_FILE_DOWNLOAD.name());
+    }
+
+    public static void stopDownloadService(Context context) {
+        startService(context, ServiceActionEnum.STOP_FILE_DOWNLOAD.name());
     }
 
     public static void startLocalFileUpdateService(Context context) {
@@ -222,6 +227,9 @@ public class TransferService extends EventService {
                 manageTask(FeatureDataSource.DOWNLOAD, intent.getExtras());
 
                 break;
+            case STOP_FILE_DOWNLOAD:
+                stopDownload();
+                break;
             case START_LOCAL_FILE_UPDATE:
                 manageTask(FeatureDataSource.AUTO_UPDATE_LOCAL_FILE, intent.getExtras());
 
@@ -339,6 +347,23 @@ public class TransferService extends EventService {
         }
     }
 
+    private void stopDownload() {
+        startForegroundNotification(FeatureDataSource.DOWNLOAD);
+
+        CompletableFuture<Void> future = getActiveTasks().get(FeatureDataSource.DOWNLOAD);
+        if (future != null && !future.isDone() && downloader != null) {
+            downloader.stop();
+
+            future.cancel(true);
+        } else {
+            runTask(new Runnable() {
+                @Override
+                public void run() {
+                    SafeLogs.d(TAG, "stopDownload()", "download task is not running");
+                }
+            }, null);
+        }
+    }
 
     private void startForegroundNotification(FeatureDataSource source) {
         String scanning = getApplicationContext().getString(R.string.is_scanning);

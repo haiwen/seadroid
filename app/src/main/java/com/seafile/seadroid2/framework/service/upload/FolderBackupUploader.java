@@ -45,6 +45,9 @@ public class FolderBackupUploader extends ParentEventUploader {
 
         //stop
         stopThis();
+
+        send(FeatureDataSource.FOLDER_BACKUP, TransferEvent.EVENT_TRANSFER_TASK_CANCELLED);
+
     }
 
     public void stopById(String modelId) {

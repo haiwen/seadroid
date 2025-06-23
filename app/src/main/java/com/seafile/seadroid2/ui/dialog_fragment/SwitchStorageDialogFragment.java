@@ -5,24 +5,20 @@ import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
+import androidx.lifecycle.Observer;
+
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.framework.datastore.StorageManager;
-import com.seafile.seadroid2.framework.util.SLogs;
-import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
-import com.seafile.seadroid2.ui.base.fragment.CustomDialogFragment;
+import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.ui.base.fragment.RequestCustomDialogFragmentWithVM;
-import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
 import com.seafile.seadroid2.ui.dialog_fragment.viewmodel.SwitchStorageViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import io.reactivex.functions.Consumer;
-
 public class SwitchStorageDialogFragment extends RequestCustomDialogFragmentWithVM<SwitchStorageViewModel> {
 
-    private List<RadioButton> buttonList = new ArrayList<>();
+    private final List<RadioButton> buttonList = new ArrayList<>();
     private int currentLocationId = -1;
     private RadioGroup group;
 
@@ -42,21 +38,21 @@ public class SwitchStorageDialogFragment extends RequestCustomDialogFragmentWith
 
     @Override
     protected void onPositiveClick() {
-        StorageManager.Location location = null;
+        StorageManager.Location newLocation = null;
         int selectedId = group.getCheckedRadioButtonId();
         for (RadioButton b : buttonList) {
             if (b.getId() == selectedId) {
-                location = (StorageManager.Location) b.getTag();
+                newLocation = (StorageManager.Location) b.getTag();
                 break;
             }
         }
 
-        getViewModel().switchStorage(location, new Consumer<Boolean>() {
-            @Override
-            public void accept(Boolean aBoolean) throws Exception {
-                dismiss();
-            }
-        });
+        if (newLocation == null || !newLocation.available) {
+            Toasts.show(R.string.not_available);
+            return;
+        }
+
+        getViewModel().switchStorage(requireContext(), newLocation);
     }
 
     @Override
@@ -79,11 +75,32 @@ public class SwitchStorageDialogFragment extends RequestCustomDialogFragmentWith
             group.addView(b);
             buttonList.add(b);
 
-            if (location.currentSelection)
+            if (location.selected)
                 currentLocationId = b.getId();
 
         }
         group.check(currentLocationId);
 
+    }
+
+    @Override
+    protected void initViewModel() {
+        super.initViewModel();
+
+        getViewModel().getActionLiveData().observe(this, new Observer<String>() {
+            @Override
+            public void onChanged(String s) {
+                refreshData();
+
+                dismiss();
+            }
+        });
+
+        getViewModel().getRefreshLiveData().observe(this, new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+                showLoading(aBoolean);
+            }
+        });
     }
 }

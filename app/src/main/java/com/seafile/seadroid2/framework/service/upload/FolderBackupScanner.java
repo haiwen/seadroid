@@ -322,7 +322,10 @@ public class FolderBackupScanner extends ParentEventTransfer {
 
     private List<File> traverseFiles(String path, long lastScanTime, String ignorePath) {
         Deque<File> stack = new ArrayDeque<>();
-        stack.push(new File(path));
+        File pathFile = new File(path);
+        if (pathFile.exists() && pathFile.canRead()){
+            stack.push(pathFile);
+        }
 
         List<File> filePathList = new ArrayList<>();
         boolean isSkipHiddenFile = FolderBackupSharePreferenceHelper.isFolderBackupSkipHiddenFiles();
