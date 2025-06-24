@@ -58,6 +58,9 @@ public class AllActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel>
     private QuickAdapterHelper helper;
     private int page = 0;
 
+    private ActivityResultLauncher<Intent> fileActivityLauncher;
+    private ActivityResultLauncher<Intent> imagePreviewActivityLauncher;
+
     public static AllActivitiesFragment newInstance() {
         Bundle args = new Bundle();
         AllActivitiesFragment fragment = new AllActivitiesFragment();
@@ -96,6 +99,65 @@ public class AllActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel>
         initAdapter();
 
         initViewModel();
+    }
+
+    private void registerLauncher() {
+
+        imagePreviewActivityLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+            @Override
+            public void onActivityResult(ActivityResult o) {
+                if (o.getResultCode() != Activity.RESULT_OK) {
+                    return;
+                }
+
+                reload();
+            }
+        });
+
+        fileActivityLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+            @Override
+            public void onActivityResult(ActivityResult o) {
+                if (o.getResultCode() != Activity.RESULT_OK) {
+                    return;
+                }
+
+                Intent data = o.getData();
+                if (o.getData() == null) {
+                    return;
+                }
+
+                String action = data.getStringExtra("action");
+                String repoId = data.getStringExtra("repo_id");
+                String targetFile = data.getStringExtra("target_file");
+                String localFullPath = data.getStringExtra("destination_path");
+                boolean isUpdateWhenFileExists = data.getBooleanExtra("is_update", false);
+
+                if (TextUtils.isEmpty(localFullPath)) {
+                    return;
+                }
+
+                if (isUpdateWhenFileExists) {
+                    Toasts.show(R.string.download_finished);
+                }
+
+
+                File destinationFile = new File(localFullPath);
+
+                if (TextUtils.equals(FileReturnActionEnum.EXPORT.name(), action)) {
+                    //nothing to do
+                } else if (TextUtils.equals(FileReturnActionEnum.SHARE.name(), action)) {
+                    //nothing to do
+                } else if (TextUtils.equals(FileReturnActionEnum.DOWNLOAD_VIDEO.name(), action)) {
+                    //nothing to do
+                } else if (TextUtils.equals(FileReturnActionEnum.OPEN_WITH.name(), action)) {
+
+                    WidgetUtils.openWith(requireContext(), destinationFile);
+                } else if (TextUtils.equals(FileReturnActionEnum.OPEN_TEXT_MIME.name(), action)) {
+
+                    MarkdownActivity.start(requireContext(), localFullPath, repoId, targetFile);
+                }
+            }
+        });
     }
 
 
@@ -330,10 +392,10 @@ public class AllActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel>
             imagePreviewActivityLauncher.launch(getIntent);
 
         } else if (activityModel.name.endsWith(Constants.Format.DOT_SDOC)) {
-            SDocWebViewActivity.openSdoc(getContext(), activityModel.repo_name, activityModel.repo_id, activityModel.path,activityModel.name);
+            SDocWebViewActivity.openSdoc(getContext(), activityModel.repo_name, activityModel.repo_id, activityModel.path, activityModel.name);
 
         } else if (activityModel.name.endsWith(Constants.Format.DOT_DRAW) || activityModel.name.endsWith(Constants.Format.DOT_EXDRAW)) {
-            SDocWebViewActivity.openDraw(getContext(), activityModel.repo_name, activityModel.repo_id, activityModel.path,activityModel.name);
+            SDocWebViewActivity.openDraw(getContext(), activityModel.repo_name, activityModel.repo_id, activityModel.path, activityModel.name);
 
         } else if (Utils.isVideoFile(activityModel.name)) {
 
@@ -383,59 +445,4 @@ public class AllActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel>
     }
 
 
-    private final ActivityResultLauncher<Intent> imagePreviewActivityLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
-        @Override
-        public void onActivityResult(ActivityResult o) {
-            if (o.getResultCode() != Activity.RESULT_OK) {
-                return;
-            }
-
-            reload();
-        }
-    });
-
-    private final ActivityResultLauncher<Intent> fileActivityLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
-        @Override
-        public void onActivityResult(ActivityResult o) {
-            if (o.getResultCode() != Activity.RESULT_OK) {
-                return;
-            }
-
-            Intent data = o.getData();
-            if (o.getData() == null) {
-                return;
-            }
-
-            String action = data.getStringExtra("action");
-            String repoId = data.getStringExtra("repo_id");
-            String targetFile = data.getStringExtra("target_file");
-            String localFullPath = data.getStringExtra("destination_path");
-            boolean isUpdateWhenFileExists = data.getBooleanExtra("is_update", false);
-
-            if (TextUtils.isEmpty(localFullPath)) {
-                return;
-            }
-
-            if (isUpdateWhenFileExists) {
-                Toasts.show(R.string.download_finished);
-            }
-
-
-            File destinationFile = new File(localFullPath);
-
-            if (TextUtils.equals(FileReturnActionEnum.EXPORT.name(), action)) {
-                //nothing to do
-            } else if (TextUtils.equals(FileReturnActionEnum.SHARE.name(), action)) {
-                //nothing to do
-            } else if (TextUtils.equals(FileReturnActionEnum.DOWNLOAD_VIDEO.name(), action)) {
-                //nothing to do
-            } else if (TextUtils.equals(FileReturnActionEnum.OPEN_WITH.name(), action)) {
-
-                WidgetUtils.openWith(requireContext(), destinationFile);
-            } else if (TextUtils.equals(FileReturnActionEnum.OPEN_TEXT_MIME.name(), action)) {
-
-                MarkdownActivity.start(requireContext(), localFullPath, repoId, targetFile);
-            }
-        }
-    });
 }

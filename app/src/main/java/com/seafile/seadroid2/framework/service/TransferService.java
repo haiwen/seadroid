@@ -229,6 +229,7 @@ public class TransferService extends EventService {
                 break;
             case STOP_FILE_DOWNLOAD:
                 stopDownload();
+
                 break;
             case START_LOCAL_FILE_UPDATE:
                 manageTask(FeatureDataSource.AUTO_UPDATE_LOCAL_FILE, intent.getExtras());
@@ -244,6 +245,7 @@ public class TransferService extends EventService {
     }
 
     private void startPhotoBackup(Intent intent) {
+        startForegroundNotification(FeatureDataSource.ALBUM_BACKUP);
 
         boolean isRestart = false;
         Bundle extras = intent.getExtras();
@@ -274,6 +276,11 @@ public class TransferService extends EventService {
     }
 
     private void launchAlbumBackup(Bundle extras) {
+        CompletableFuture<Void> future = getActiveTasks().get(FeatureDataSource.ALBUM_BACKUP);
+        if (future != null && !future.isDone() && mediaBackupUploader != null) {
+            SafeLogs.d(TAG, "launchAlbumBackup()", "album backup upload task is running");
+            return;
+        }
         manageTask(FeatureDataSource.ALBUM_BACKUP, extras);
     }
 
@@ -296,6 +303,7 @@ public class TransferService extends EventService {
 
     private void startFolderBackup(Intent intent) {
         boolean isRestart = false;
+        startForegroundNotification(FeatureDataSource.FOLDER_BACKUP);
 
         Bundle extras = intent.getExtras();
         if (extras != null) {
@@ -326,6 +334,11 @@ public class TransferService extends EventService {
     }
 
     private void launchFolderBackup(Bundle extras) {
+        CompletableFuture<Void> folderUploadFuture = getActiveTasks().get(FeatureDataSource.FOLDER_BACKUP);
+        if (folderUploadFuture != null && !folderUploadFuture.isDone() && folderBackupUploader != null) {
+            SafeLogs.d(TAG, "launchFolderBackup()", "folder backup upload task is running");
+            return;
+        }
         manageTask(FeatureDataSource.FOLDER_BACKUP, extras);
     }
 

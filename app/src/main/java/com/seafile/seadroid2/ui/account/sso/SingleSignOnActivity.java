@@ -42,12 +42,15 @@ public class SingleSignOnActivity extends BaseActivityWithVM<SingleSignOnViewMod
 
     private SingleSignOnWelcomeLayoutBinding binding;
 
+    private ActivityResultLauncher<Intent> authLauncher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = SingleSignOnWelcomeLayoutBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        registerAuthLauncher();
 
         initView();
         initViewModel();
@@ -63,6 +66,16 @@ public class SingleSignOnActivity extends BaseActivityWithVM<SingleSignOnViewMod
                 } else {
                     finish();
                 }
+            }
+        });
+    }
+
+    private void registerAuthLauncher() {
+        authLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+            @Override
+            public void onActivityResult(ActivityResult o) {
+                setResult(o.getResultCode(), o.getData());
+                finish();
             }
         });
     }
@@ -204,13 +217,6 @@ public class SingleSignOnActivity extends BaseActivityWithVM<SingleSignOnViewMod
         authLauncher.launch(intent);
     }
 
-    private final ActivityResultLauncher<Intent> authLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
-        @Override
-        public void onActivityResult(ActivityResult o) {
-            setResult(o.getResultCode(), o.getData());
-            finish();
-        }
-    });
 
     private String ssoLink = null;
 
@@ -296,7 +302,7 @@ public class SingleSignOnActivity extends BaseActivityWithVM<SingleSignOnViewMod
     }
 
     @Override
-    protected void onDestroy() {
+    public void onDestroy() {
         super.onDestroy();
         stopAction();
     }

@@ -57,6 +57,8 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
         binding = ActivityShareToSeafileBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        registerResultLauncher();
+
         getViewModel().getActionLiveData().observe(this, new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean aBoolean) {
@@ -77,30 +79,36 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
         objSelectorLauncher.launch(intent);
     }
 
-    private final ActivityResultLauncher<Intent> objSelectorLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+    private ActivityResultLauncher<Intent> objSelectorLauncher;
 
-        @Override
-        public void onActivityResult(ActivityResult o) {
-            if (o.getResultCode() != Activity.RESULT_OK) {
-                finish();
-                return;
+    private void registerResultLauncher() {
+
+        objSelectorLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+
+            @Override
+            public void onActivityResult(ActivityResult o) {
+                if (o.getResultCode() != Activity.RESULT_OK) {
+                    finish();
+                    return;
+                }
+
+                Intent intent = o.getData();
+                if (intent == null) {
+                    finish();
+                    return;
+                }
+
+                account = intent.getParcelableExtra(ObjKey.ACCOUNT);
+                dstRepoId = intent.getStringExtra(ObjKey.REPO_ID);
+                dstRepoName = intent.getStringExtra(ObjKey.REPO_NAME);
+                dstDir = intent.getStringExtra(ObjKey.DIR);
+
+                SLogs.d(TAG, "account: " + account.getSignature(), "repoId: " + dstRepoId, "repoName: " + dstRepoName, "dir: " + dstDir);
+                notifyFileOverwriting();
             }
+        });
 
-            Intent intent = o.getData();
-            if (intent == null) {
-                finish();
-                return;
-            }
-
-            account = intent.getParcelableExtra(ObjKey.ACCOUNT);
-            dstRepoId = intent.getStringExtra(ObjKey.REPO_ID);
-            dstRepoName = intent.getStringExtra(ObjKey.REPO_NAME);
-            dstDir = intent.getStringExtra(ObjKey.DIR);
-
-            SLogs.d(TAG, "account: " + account.getSignature(), "repoId: " + dstRepoId, "repoName: " + dstRepoName, "dir: " + dstDir);
-            notifyFileOverwriting();
-        }
-    });
+    }
 
     private void initWorkerBusObserver() {
         BusHelper.getTransferProgressObserver().observe(this, new Observer<Bundle>() {

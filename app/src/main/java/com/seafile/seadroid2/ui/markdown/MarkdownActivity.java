@@ -178,7 +178,7 @@ public class MarkdownActivity extends BaseActivityWithVM<EditorViewModel> implem
     }
 
     @Override
-    protected void onDestroy() {
+    public void onDestroy() {
         super.onDestroy();
 
         if (markdownView != null) {

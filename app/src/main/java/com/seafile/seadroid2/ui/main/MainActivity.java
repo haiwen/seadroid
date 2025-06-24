@@ -34,6 +34,7 @@ import com.seafile.seadroid2.databinding.ActivityMainBinding;
 import com.seafile.seadroid2.enums.NightMode;
 import com.seafile.seadroid2.framework.file_monitor.FileSyncService;
 import com.seafile.seadroid2.framework.model.ServerInfo;
+import com.seafile.seadroid2.framework.service.TransferService;
 import com.seafile.seadroid2.framework.util.PermissionUtil;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
@@ -617,7 +618,6 @@ public class MainActivity extends BaseActivity {
                     syncService.restartFolderMonitor();
                 }
             }
-
         }
     };
 }

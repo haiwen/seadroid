@@ -148,6 +148,8 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        registerResultLauncher();
+
         getListView().setPadding(0, 0, 0, Constants.DP.DP_32);
         getListView().setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.window_background_color));
     }
@@ -1031,144 +1033,155 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
         viewModel.calculateCacheSize();
     }
 
-    /**
-     * custom album backup activity result launcher
-     */
-    private final ActivityResultLauncher<Intent> albumBackupSelectCustomAlbumLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
-        @Override
-        public void onActivityResult(ActivityResult o) {
-            if (o.getResultCode() == RESULT_OK) {
-                updateAlbumBackupPrefSummary();
-                launchAlbumBackupWhenReady(true);
+    private ActivityResultLauncher<Intent> albumBackupSelectCustomAlbumLauncher;
+    private ActivityResultLauncher<Intent> albumBackupSelectRepoLauncher;
+    private ActivityResultLauncher<Intent> albumBackupConfigLauncher;
+    private ActivityResultLauncher<Intent> folderBackupConfigLauncher;
+    private ActivityResultLauncher<String[]> readWritePermissionLauncher;
+    private ActivityResultLauncher<Intent> manageAllFilesPermissionLauncher;
+
+    private void registerResultLauncher() {
+
+        /**
+         * custom album backup activity result launcher
+         */
+        albumBackupSelectCustomAlbumLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+            @Override
+            public void onActivityResult(ActivityResult o) {
+                if (o.getResultCode() == RESULT_OK) {
+                    updateAlbumBackupPrefSummary();
+                    launchAlbumBackupWhenReady(true);
+                }
             }
-        }
-    });
+        });
 
-    /**
-     * select repo activity result launcher
-     */
-    private final ActivityResultLauncher<Intent> albumBackupSelectRepoLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
-        @Override
-        public void onActivityResult(ActivityResult o) {
-            if (o.getResultCode() == RESULT_OK) {
-                updateAlbumBackupPrefSummary();
-                launchAlbumBackupWhenReady(true);
+        /**
+         * select repo activity result launcher
+         */
+        albumBackupSelectRepoLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+            @Override
+            public void onActivityResult(ActivityResult o) {
+                if (o.getResultCode() == RESULT_OK) {
+                    updateAlbumBackupPrefSummary();
+                    launchAlbumBackupWhenReady(true);
+                }
             }
-        }
-    });
+        });
 
-    /**
-     * launch config activity result launcher
-     */
-    private final ActivityResultLauncher<Intent> albumBackupConfigLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
-        @Override
-        public void onActivityResult(ActivityResult o) {
-            if (o == null) {
-                return;
-            }
-
-            // close switch when user cancel
-            if (o.getResultCode() != RESULT_OK) {
-                switchAlbumBackupState(false);
-                return;
-            }
-
-            switchAlbumBackupState(true);
-
-            launchAlbumBackupWhenReady(true);
-        }
-    });
-
-    private final ActivityResultLauncher<Intent> folderBackupConfigLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
-        @Override
-        public void onActivityResult(ActivityResult o) {
-            if (o.getResultCode() != RESULT_OK) {
-                return;
-            }
-
-            Intent data = o.getData();
-            if (null == data) {
-                return;
-            }
-
-            String selectType = data.getStringExtra(FB_SELECT_TYPE);
-            if ("repo".equals(selectType)) {
-
-                RepoConfig repoConfig = null;
-                if (data.hasExtra(ObjKey.REPO_ID)) {
-                    Account account = data.getParcelableExtra(ObjKey.ACCOUNT);
-                    String repoId = data.getStringExtra(ObjKey.REPO_ID);
-                    String repoName = data.getStringExtra(ObjKey.REPO_NAME);
-
-                    repoConfig = new RepoConfig(repoId, repoName, account.getEmail(), account.getSignature());
+        /**
+         * launch config activity result launcher
+         */
+        albumBackupConfigLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+            @Override
+            public void onActivityResult(ActivityResult o) {
+                if (o == null) {
+                    return;
                 }
 
-                FolderBackupSharePreferenceHelper.writeRepoConfig(repoConfig);
+                // close switch when user cancel
+                if (o.getResultCode() != RESULT_OK) {
+                    switchAlbumBackupState(false);
+                    return;
+                }
 
-            } else if ("folder".equals(selectType)) {
+                switchAlbumBackupState(true);
 
-                ArrayList<String> selectedFolderPaths = data.getStringArrayListExtra(FolderBackupConfigActivity.BACKUP_SELECT_PATHS);
-                FolderBackupSharePreferenceHelper.writeBackupPathsAsString(selectedFolderPaths);
-
+                launchAlbumBackupWhenReady(true);
             }
+        });
 
-            updateFolderBackupPrefSummary();
+        folderBackupConfigLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+            @Override
+            public void onActivityResult(ActivityResult o) {
+                if (o.getResultCode() != RESULT_OK) {
+                    return;
+                }
 
-            launchFolderBackupWhenReady(true);
-        }
-    });
+                Intent data = o.getData();
+                if (null == data) {
+                    return;
+                }
 
-    private final ActivityResultLauncher<String[]> readWritePermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), new ActivityResultCallback<Map<String, Boolean>>() {
-        @Override
-        public void onActivityResult(Map<String, Boolean> o) {
-            if (o.isEmpty()) {
-                return;
+                String selectType = data.getStringExtra(FB_SELECT_TYPE);
+                if ("repo".equals(selectType)) {
+
+                    RepoConfig repoConfig = null;
+                    if (data.hasExtra(ObjKey.REPO_ID)) {
+                        Account account = data.getParcelableExtra(ObjKey.ACCOUNT);
+                        String repoId = data.getStringExtra(ObjKey.REPO_ID);
+                        String repoName = data.getStringExtra(ObjKey.REPO_NAME);
+
+                        repoConfig = new RepoConfig(repoId, repoName, account.getEmail(), account.getSignature());
+                    }
+
+                    FolderBackupSharePreferenceHelper.writeRepoConfig(repoConfig);
+
+                } else if ("folder".equals(selectType)) {
+
+                    ArrayList<String> selectedFolderPaths = data.getStringArrayListExtra(FolderBackupConfigActivity.BACKUP_SELECT_PATHS);
+                    FolderBackupSharePreferenceHelper.writeBackupPathsAsString(selectedFolderPaths);
+
+                }
+
+                updateFolderBackupPrefSummary();
+
+                launchFolderBackupWhenReady(true);
             }
+        });
 
-            for (Map.Entry<String, Boolean> stringBooleanEntry : o.entrySet()) {
-                if (Boolean.FALSE.equals(stringBooleanEntry.getValue())) {
+        readWritePermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), new ActivityResultCallback<Map<String, Boolean>>() {
+            @Override
+            public void onActivityResult(Map<String, Boolean> o) {
+                if (o.isEmpty()) {
+                    return;
+                }
 
-                    Toasts.show(R.string.permission_manage_external_storage_rationale);
+                for (Map.Entry<String, Boolean> stringBooleanEntry : o.entrySet()) {
+                    if (Boolean.FALSE.equals(stringBooleanEntry.getValue())) {
 
+                        Toasts.show(R.string.permission_manage_external_storage_rationale);
+
+                        if (whoIsRequestingPermission == 1) {
+                            switchAlbumBackupState(false);
+                        } else if (whoIsRequestingPermission == 2) {
+                            switchFolderBackupState(false);
+                        }
+                        return;
+                    }
+                }
+
+                if (whoIsRequestingPermission == 1) {
+
+                    Intent intent = new Intent(requireActivity(), CameraUploadConfigActivity.class);
+                    albumBackupConfigLauncher.launch(intent);
+
+                } else if (whoIsRequestingPermission == 2) {
+                    //on livedata change
+                }
+            }
+        });
+
+        manageAllFilesPermissionLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+            @Override
+            public void onActivityResult(ActivityResult o) {
+                if (PermissionUtil.hasStoragePermission(requireContext())) {
+                    if (whoIsRequestingPermission == 1) {
+
+                        Intent intent = new Intent(requireActivity(), CameraUploadConfigActivity.class);
+                        albumBackupConfigLauncher.launch(intent);
+                    } else if (whoIsRequestingPermission == 2) {
+                        //on livedata change
+                    }
+                } else {
+                    Toasts.show(R.string.get_storage_permission_failed);
                     if (whoIsRequestingPermission == 1) {
                         switchAlbumBackupState(false);
                     } else if (whoIsRequestingPermission == 2) {
                         switchFolderBackupState(false);
                     }
-                    return;
                 }
             }
+        });
 
-            if (whoIsRequestingPermission == 1) {
-
-                Intent intent = new Intent(requireActivity(), CameraUploadConfigActivity.class);
-                albumBackupConfigLauncher.launch(intent);
-
-            } else if (whoIsRequestingPermission == 2) {
-                //on livedata change
-            }
-        }
-    });
-
-    private final ActivityResultLauncher<Intent> manageAllFilesPermissionLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
-        @Override
-        public void onActivityResult(ActivityResult o) {
-            if (PermissionUtil.hasStoragePermission(requireContext())) {
-                if (whoIsRequestingPermission == 1) {
-
-                    Intent intent = new Intent(requireActivity(), CameraUploadConfigActivity.class);
-                    albumBackupConfigLauncher.launch(intent);
-                } else if (whoIsRequestingPermission == 2) {
-                    //on livedata change
-                }
-            } else {
-                Toasts.show(R.string.get_storage_permission_failed);
-                if (whoIsRequestingPermission == 1) {
-                    switchAlbumBackupState(false);
-                } else if (whoIsRequestingPermission == 2) {
-                    switchFolderBackupState(false);
-                }
-            }
-        }
-    });
+    }
 }

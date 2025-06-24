@@ -18,6 +18,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.blankj.utilcode.util.CollectionUtils;
 import com.chad.library.adapter4.QuickAdapterHelper;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
@@ -35,6 +36,8 @@ public class FolderBackupSelectedPathActivity extends BaseActivity {
     private QuickAdapterHelper helper;
     private List<String> initBackupSelectPaths;
 
+    private ActivityResultLauncher<Intent> folderBackupConfigLauncher;
+
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -47,6 +50,7 @@ public class FolderBackupSelectedPathActivity extends BaseActivity {
 
         setContentView(R.layout.folder_backup_selected_path_activity);
 
+        registerFolderBackupConfigLauncher();
         initOnBackPressedDispatcher();
 
         findViewById(R.id.add_backup_folder).setOnClickListener(new View.OnClickListener() {
@@ -88,6 +92,26 @@ public class FolderBackupSelectedPathActivity extends BaseActivity {
         }
         mAdapter.submitList(items);
 
+    }
+
+    private void registerFolderBackupConfigLauncher() {
+
+        folderBackupConfigLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+            @Override
+            public void onActivityResult(ActivityResult o) {
+                if (o.getResultCode() != Activity.RESULT_OK) {
+                    return;
+                }
+
+                Intent data = o.getData();
+                if (null == data) {
+                    return;
+                }
+
+                ArrayList<String> selectedFolderPaths = data.getStringArrayListExtra(BACKUP_SELECT_PATHS);
+                mAdapter.submitList(selectedFolderPaths);
+            }
+        });
     }
 
 
@@ -157,7 +181,11 @@ public class FolderBackupSelectedPathActivity extends BaseActivity {
 
         if (isSettingsChanged()) {
             List<String> selectedFolderPaths = mAdapter.getItems();
-            intent.putStringArrayListExtra(BACKUP_SELECT_PATHS, (ArrayList<String>) selectedFolderPaths);
+            if (CollectionUtils.isEmpty(selectedFolderPaths)) {
+                intent.putStringArrayListExtra(BACKUP_SELECT_PATHS, new ArrayList<>());
+            } else {
+                intent.putStringArrayListExtra(BACKUP_SELECT_PATHS, (ArrayList<String>) selectedFolderPaths);
+            }
             setResult(RESULT_OK, intent);
         } else {
             setResult(RESULT_CANCELED, intent);
@@ -165,20 +193,4 @@ public class FolderBackupSelectedPathActivity extends BaseActivity {
         finish();
     }
 
-    private final ActivityResultLauncher<Intent> folderBackupConfigLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
-        @Override
-        public void onActivityResult(ActivityResult o) {
-            if (o.getResultCode() != Activity.RESULT_OK) {
-                return;
-            }
-
-            Intent data = o.getData();
-            if (null == data) {
-                return;
-            }
-
-            ArrayList<String> selectedFolderPaths = data.getStringArrayListExtra(BACKUP_SELECT_PATHS);
-            mAdapter.submitList(selectedFolderPaths);
-        }
-    });
 }

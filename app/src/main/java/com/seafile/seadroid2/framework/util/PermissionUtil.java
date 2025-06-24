@@ -3,7 +3,6 @@ package com.seafile.seadroid2.framework.util;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -13,14 +12,11 @@ import android.os.Build;
 import android.os.Environment;
 import android.provider.Settings;
 
-import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.blankj.utilcode.util.CollectionUtils;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.seafile.seadroid2.R;
 
 import java.util.Arrays;
 import java.util.List;

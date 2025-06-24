@@ -274,6 +274,11 @@ public class RepoViewModel extends BaseViewModel {
                     getShowEmptyViewLiveData().setValue(CollectionUtils.isEmpty(list));
                 }
             }
+        }, new Consumer<Throwable>() {
+            @Override
+            public void accept(Throwable throwable) throws Exception {
+                SLogs.e(throwable);
+            }
         });
     }
 

@@ -10,7 +10,7 @@ public class WebViewActionConstant {
     public static class CallJsFunction {
         public final static String SDOC_OUTLINES_DATA_GET = "sdoc.outline.data.get";
         public final static String SDOC_OUTLINES_DATA_SELECT = "sdoc.outline.data.select";
-
+        public final static String SDOC_EDITOR_DATA_EDIT = "sdoc.editor.data.edit";
         public static class CallJsFunctionRequestCode {
             public final static int REQ = 1001;
         }

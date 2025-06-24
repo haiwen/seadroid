@@ -28,8 +28,8 @@ import com.github.lzyzsd.jsbridge.CallBackFunction;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.config.WebViewActionConstant;
 import com.seafile.seadroid2.databinding.ActivitySeaWebviewProBinding;
-import com.seafile.seadroid2.enums.ObjSelectType;
 import com.seafile.seadroid2.framework.model.sdoc.FileProfileConfigModel;
 import com.seafile.seadroid2.framework.model.sdoc.OutlineItemModel;
 import com.seafile.seadroid2.framework.model.sdoc.SDocPageOptionsModel;
@@ -245,32 +245,10 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.sdoc_edit) {
-            switchEditMode();
+            callJsSdocEditorEnitable(isEditMode);
             return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    public void switchEditMode() {
-        if (isEditMode) {
-            isEditMode = false;
-            editMenuItem.setTitle(R.string.edit);
-//            mWebView.callJsFunction("sdoc.edit.mode", "false", new CallBackFunction() {
-//                @Override
-//                public void onCallBack(String data) {
-//                    SLogs.d(TAG, "switchEditMode()", data);
-//                }
-//            });
-        } else {
-            isEditMode = true;
-            editMenuItem.setTitle(R.string.complete);
-//            mWebView.callJsFunction("sdoc.edit.mode", "true", new CallBackFunction() {
-//                @Override
-//                public void onCallBack(String data) {
-//                    SLogs.d(TAG, "switchEditMode()", data);
-//                }
-//            });
-        }
     }
 
     private void showOutlineDialog() {
@@ -282,7 +260,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
                     @Override
                     public void onItemClick(OutlineItemModel outlineItemModel, int position) {
 
-                        callJsOutline(outlineItemModel);
+                        callJsSelectOutline(outlineItemModel);
                     }
                 });
                 dialog.show(getSupportFragmentManager(), SDocOutlineDialog.class.getSimpleName());
@@ -290,19 +268,53 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         });
     }
 
-    private void callJsOutline(OutlineItemModel outlineItemModel) {
+
+    private void callJsGetOutline(OutlineItemModel outlineItemModel) {
         String param = GsonUtils.toJson(outlineItemModel);
-        mWebView.callJsFunction("sdoc.outline.data.select", param, new CallBackFunction() {
+        mWebView.callJsFunction(WebViewActionConstant.CallJsFunction.SDOC_OUTLINES_DATA_GET, param, new CallBackFunction() {
             @Override
             public void onCallBack(String data) {
-                SLogs.d(TAG, "callJsOutline()", data);
+                SLogs.d(TAG, "callJsGetOutline()", data);
             }
         });
     }
 
-    private void write() {
-
+    private void callJsSelectOutline(OutlineItemModel outlineItemModel) {
+        String param = GsonUtils.toJson(outlineItemModel);
+        mWebView.callJsFunction(WebViewActionConstant.CallJsFunction.SDOC_OUTLINES_DATA_SELECT, param, new CallBackFunction() {
+            @Override
+            public void onCallBack(String data) {
+                SLogs.d(TAG, "callJsSelectOutline()", data);
+            }
+        });
     }
+
+
+    private void callJsSdocEditorEnitable(boolean startEdit) {
+        String data = String.valueOf(startEdit);
+        mWebView.callJsFunction(WebViewActionConstant.CallJsFunction.SDOC_EDITOR_DATA_EDIT, data, new CallBackFunction() {
+            @Override
+            public void onCallBack(String data) {
+                SLogs.d(TAG, "callJsSdocEditorEnitable()", data);
+                if (TextUtils.isEmpty(data)) {
+                    Toasts.showShort(R.string.unknow_error);
+                    return;
+                }
+                if (!data.contains("success")) {
+                    Toasts.showShort(R.string.unknow_error);
+                    return;
+                }
+
+                isEditMode = !isEditMode;
+                if (isEditMode) {
+                    editMenuItem.setTitle(R.string.edit);
+                } else {
+                    editMenuItem.setTitle(R.string.complete);
+                }
+            }
+        });
+    }
+
 
     private void showCommentsActivity() {
         readSDocPageOptionsData(new Consumer<SDocPageOptionsModel>() {
@@ -372,6 +384,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
             }
         });
     }
+    // Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.5735.61 Mobile Safari/537.36
 
     @Deprecated
     private void readSeafileTokenData(Consumer<String> continuation) {
@@ -489,7 +502,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
     }
 
     @Override
-    protected void onDestroy() {
+    public void onDestroy() {
         super.onDestroy();
 
         destroyWebView();

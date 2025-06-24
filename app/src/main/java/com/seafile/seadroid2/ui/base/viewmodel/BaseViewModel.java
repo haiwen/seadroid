@@ -103,18 +103,14 @@ public class BaseViewModel extends ViewModel {
 
     public void disposeAll() {
         compositeDisposable.clear();
-        SLogs.d("CompositeDisposable clear all");
+        SLogs.d("CompositeDisposable dispose all");
     }
 
     @Override
     protected void onCleared() {
         super.onCleared();
         SLogs.d("onCleared");
-
-        if (!compositeDisposable.isDisposed()) {
-            compositeDisposable.dispose();
-            SLogs.d("CompositeDisposable dispose");
-        }
+        compositeDisposable.clear();
     }
 
     @Todo("it need to be optimized")

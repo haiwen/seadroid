@@ -76,7 +76,7 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
 
     private String repoId, repoName, parentDir, name;
     private boolean load_other_images_in_same_directory = false;
-
+    private ActivityResultLauncher<Intent> copyMoveLauncher;
     //    public static Intent startThisFromDocsComment(Context context, String url) {
 //        Intent intent = new Intent(context, CarouselImagePreviewActivity.class);
 //        intent.putExtra("image_url", url);//Load other images in the same folder
@@ -154,6 +154,8 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
         binding = ActivityCarouselImagePreviewBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        registerCopyMoveLauncher();
+
         initParams(savedInstanceState);
 
         initStatusBar();
@@ -166,6 +168,25 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
         initViewModel();
 
         getViewModel().load(repoId, repoName, parentDir, name, load_other_images_in_same_directory);
+    }
+
+    private void registerCopyMoveLauncher() {
+        copyMoveLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+            @Override
+            public void onActivityResult(ActivityResult o) {
+                if (o.getResultCode() != Activity.RESULT_OK || o.getData() == null) {
+                    return;
+                }
+
+                String dstRepoId = o.getData().getStringExtra(ObjKey.REPO_ID);
+                String disRepoName = o.getData().getStringExtra(ObjKey.REPO_NAME);
+                String dstDir = o.getData().getStringExtra(ObjKey.DIR);
+
+                copyMoveContext.setDest(dstRepoId, dstDir, disRepoName);
+
+                doCopyMove();
+            }
+        });
     }
 
     private void checkBack() {
@@ -817,23 +838,6 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
         Intent intent = ObjSelectorActivity.getCurrentAccountIntent(this, ObjSelectType.REPO, ObjSelectType.DIR);
         copyMoveLauncher.launch(intent);
     }
-
-    private final ActivityResultLauncher<Intent> copyMoveLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
-        @Override
-        public void onActivityResult(ActivityResult o) {
-            if (o.getResultCode() != Activity.RESULT_OK || o.getData() == null) {
-                return;
-            }
-
-            String dstRepoId = o.getData().getStringExtra(ObjKey.REPO_ID);
-            String disRepoName = o.getData().getStringExtra(ObjKey.REPO_NAME);
-            String dstDir = o.getData().getStringExtra(ObjKey.DIR);
-
-            copyMoveContext.setDest(dstRepoId, dstDir, disRepoName);
-
-            doCopyMove();
-        }
-    });
 
     private void doCopyMove() {
         if (copyMoveContext == null) {

@@ -13,9 +13,20 @@ public class BaseDialogFragmentWithVM<VM extends BaseViewModel> extends BaseDial
     private VM tvm;
 
     public VM getViewModel() {
+        if (null == tvm) {
+            initTvm();
+        }
         return tvm;
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (tvm != null) {
+            tvm.disposeAll();
+            tvm = null;
+        }
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -32,15 +43,5 @@ public class BaseDialogFragmentWithVM<VM extends BaseViewModel> extends BaseDial
     private Class<VM> getViewModelClass() {
         ParameterizedType type = (ParameterizedType) getClass().getGenericSuperclass();
         return (Class<VM>) type.getActualTypeArguments()[0];
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-
-        if (tvm != null) {
-            tvm.disposeAll();
-            tvm = null;
-        }
     }
 }

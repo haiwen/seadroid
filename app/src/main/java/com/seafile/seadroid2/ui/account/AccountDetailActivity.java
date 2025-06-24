@@ -253,7 +253,7 @@ public class AccountDetailActivity extends BaseActivityWithVM<AccountViewModel> 
     }
 
     @Override
-    protected void onDestroy() {
+    public void onDestroy() {
         dismissLoadingDialog();
         super.onDestroy();
     }

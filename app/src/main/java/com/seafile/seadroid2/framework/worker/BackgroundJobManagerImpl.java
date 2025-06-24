@@ -1,5 +1,6 @@
 package com.seafile.seadroid2.framework.worker;
 
+import android.content.Context;
 import android.text.TextUtils;
 
 import androidx.work.BackoffPolicy;
@@ -20,6 +21,7 @@ import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.worker.download.DownloadFileScannerWorker;
 import com.seafile.seadroid2.framework.worker.download.DownloadWorker;
 import com.seafile.seadroid2.framework.worker.reupoad.DownloadedFileMonitorWorker;
+import com.seafile.seadroid2.framework.worker.starter.AlbumBackupTransferServiceStarterWorker;
 import com.seafile.seadroid2.framework.worker.upload.FileUploadWorker;
 import com.seafile.seadroid2.framework.worker.upload.FolderBackupScanWorker;
 import com.seafile.seadroid2.framework.worker.upload.FolderBackupUploadWorker;
@@ -94,7 +96,22 @@ public class BackgroundJobManagerImpl {
         return WorkManager.getInstance(SeadroidApplication.getAppContext());
     }
 
-    ////////////////////// media //////////////////////
+
+    /// /////////////////// starter //////////////////////
+    public static void startAlbumBackupTransferService(Context context) {
+        OneTimeWorkRequest request = new OneTimeWorkRequest.Builder(AlbumBackupTransferServiceStarterWorker.class)
+                .setConstraints(new Constraints.Builder().build())
+                .setInitialDelay(0, TimeUnit.SECONDS)
+                .build();
+
+        WorkManager.getInstance(context).enqueueUniqueWork(
+                AlbumBackupTransferServiceStarterWorker.class.getName(),
+                ExistingWorkPolicy.REPLACE,
+                request
+        );
+    }
+
+    /// /////////////////// media //////////////////////
 
     public void startMediaBackupChain(boolean isForce) {
         SLogs.d(TAG, "startMediaBackupChain()", "isForce:" + isForce);
@@ -155,7 +172,7 @@ public class BackgroundJobManagerImpl {
         cancelByTag(TAG_ALBUM_BACKUP);
     }
 
-    ////////////////////// upload folder //////////////////////
+    /// /////////////////// upload folder //////////////////////
 
     public void startFolderBackupChain(boolean isForce) {
         SLogs.d(TAG, "startFolderBackupChain()", "isForce:" + isForce);
@@ -214,7 +231,7 @@ public class BackgroundJobManagerImpl {
         cancelByTag(TAG_FOLDER_BACKUP);
     }
 
-    ////////////////////// upload file //////////////////////
+    /// /////////////////// upload file //////////////////////
     public void startFileUploadWorker() {
         SLogs.d(TAG, "startFileUploadWorker()");
 
@@ -240,7 +257,7 @@ public class BackgroundJobManagerImpl {
     }
 
 
-    ////////////////////// download //////////////////////
+    /// /////////////////// download //////////////////////
     public void startDownloadChain() {
         startDownloadChain(null);
     }
@@ -296,7 +313,7 @@ public class BackgroundJobManagerImpl {
         cancelByTag(TAG_DOWNLOAD);
     }
 
-    ////////////////////// downloaded file monitor //////////////////////
+    /// /////////////////// downloaded file monitor //////////////////////
 
     public void startCheckDownloadedFileChain() {
         SLogs.d(TAG, "startCheckDownloadedFileChain()");

@@ -298,11 +298,4 @@ public abstract class RequestBottomSheetDialogFragmentWithVM<VM extends BaseView
 
     protected void initViewModel() {
     }
-
-
-    @Override
-    public void onDestroyView() {
-        getViewModel().disposeAll();
-        super.onDestroyView();
-    }
 }
