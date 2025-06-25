@@ -12,7 +12,6 @@ import android.util.Pair;
 
 import androidx.core.os.EnvironmentCompat;
 
-import com.blankj.utilcode.util.PathUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.account.Account;
@@ -89,18 +88,22 @@ public abstract class StorageManager implements MediaScannerConnection.OnScanCom
         return instance;
     }
 
+    public void resetInstance() {
+        instance = new StorageManagerLollipop();
+    }
+
     private Location buildClassicLocation() {
         Location classic = new Location();
         classic.id = -1; // Android IDs start at 0. so "-1" is safe for us
 
-        File[] externalMediaDirs = getMediaCacheDirs();
+        File[] externalMediaDirs = getDefaultMediaCacheDirs();
         String rootPath = externalMediaDirs[0].getAbsolutePath();
 
         // /storage/emulated/0/Android/media/package/Seafile/
         classic.mediaPath = new File(rootPath + "/Seafile/");
 
         // /storage/emulated/0/Android/data/package/cache
-        File[] externalCacheDirs = getAppCacheDir();
+        File[] externalCacheDirs = getDefaultAppCacheDir();
         String appCachePath = externalCacheDirs[0].getAbsolutePath();
         classic.cachePath = new File(appCachePath);
 
@@ -123,13 +126,16 @@ public abstract class StorageManager implements MediaScannerConnection.OnScanCom
             }
         }
 
-
         String storageName;
         // labels "primary/secondary" are as defined by https://possiblemobile.com/2014/03/android-external-storage/
         if (loc.id <= 0) {
-            storageName = getContext().getString(R.string.storage_manager_primary_storage);
+            storageName = loc.label + " (" + getContext().getString(R.string.storage_manager_primary_storage) + ")";
         } else {
-            storageName = getContext().getString(R.string.storage_manager_secondary_storage);
+            if (loc.available) {
+                storageName = loc.label + " (" + getContext().getString(R.string.storage_manager_secondary_storage) + ")";
+            } else {
+                storageName = getContext().getString(R.string.storage_manager_secondary_storage);
+            }
         }
 
         if (loc.available) {
@@ -138,8 +144,7 @@ public abstract class StorageManager implements MediaScannerConnection.OnScanCom
                     Formatter.formatFileSize(getContext(), getStorageFreeSpace(loc.mediaPath)),
                     Formatter.formatFileSize(getContext(), getStorageSize(loc.mediaPath)));
         } else {
-            loc.description = getContext().getString(R.string.storage_manager_storage_description_not_available,
-                    storageName);
+            loc.description = getContext().getString(R.string.storage_manager_storage_description_not_available, storageName);
         }
     }
 
@@ -187,14 +192,14 @@ public abstract class StorageManager implements MediaScannerConnection.OnScanCom
      *
      * @return
      */
-    protected abstract File[] getMediaCacheDirs();
+    protected abstract File[] getDefaultMediaCacheDirs();
 
     /**
      * Get the cache directories offered by Android.
      *
      * @return
      */
-    protected abstract File[] getAppCacheDir();
+    protected abstract File[] getDefaultAppCacheDir();
 
     /**
      * Get partition size of the mount point containing dir
@@ -232,8 +237,8 @@ public abstract class StorageManager implements MediaScannerConnection.OnScanCom
         ArrayList<Location> retList = new ArrayList<>();
         retList.add(CLASSIC_LOCATION);
 
-        File[] mediaDirs = getMediaCacheDirs();
-        File[] cacheDir = getAppCacheDir();
+        File[] mediaDirs = getDefaultMediaCacheDirs();
+        File[] cacheDir = getDefaultAppCacheDir();
         for (int i = 0; i < mediaDirs.length; i++) {
             // omit the mount point where CLASSIC_LOCATION lies (would be duplicate)
             if (i == 0)
@@ -379,7 +384,7 @@ public abstract class StorageManager implements MediaScannerConnection.OnScanCom
      * @return the base directory for media storage to be used in Seadroid.
      */
     public final File getMediaDir() {
-        return getDirectoryCreateIfNeeded(getStorageLocation().mediaPath);
+        return getDirectoryCreateIfNeeded(getSelectedStorageLocation().mediaPath);
     }
 
     public Location lookupStorageLocation(int id) {
@@ -397,7 +402,7 @@ public abstract class StorageManager implements MediaScannerConnection.OnScanCom
      *
      * @return Location info
      */
-    public Location getStorageLocation() {
+    public Location getSelectedStorageLocation() {
 
         int storageDirID = AppDataManager.readStorageDirId();
         Location storageLocation = lookupStorageLocation(storageDirID);
@@ -458,25 +463,25 @@ public abstract class StorageManager implements MediaScannerConnection.OnScanCom
      * @return base of where to store temp files
      */
     public final File getTempDir() {
-        File base = getStorageLocation().cachePath;
+        File base = getSelectedStorageLocation().cachePath;
         File tmpDir = new File(base, ".temp");
         return getDirectoryCreateIfNeeded(tmpDir);
     }
 
     public final File getLogDir() {
-        File base = getStorageLocation().cachePath;
+        File base = getSelectedStorageLocation().cachePath;
         File f = new File(base, "logs");
         return getDirectoryCreateIfNeeded(f);
     }
 
     public final File getGlideCacheDir() {
-        File base = getStorageLocation().cachePath;
+        File base = getSelectedStorageLocation().cachePath;
         File f = new File(base, "glide");
         return getDirectoryCreateIfNeeded(f);
     }
 
     public final File getTakeCameraDir() {
-        File base = getStorageLocation().cachePath;
+        File base = getSelectedStorageLocation().cachePath;
         File f = new File(base, "camera");
         return getDirectoryCreateIfNeeded(f);
     }

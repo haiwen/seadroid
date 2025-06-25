@@ -6,21 +6,16 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.blankj.utilcode.util.GsonUtils;
 import com.seafile.seadroid2.BuildConfig;
-import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.annotation.Todo;
 import com.seafile.seadroid2.framework.http.HttpIO;
-import com.seafile.seadroid2.framework.model.ResultModel;
 import com.seafile.seadroid2.framework.util.ExceptionUtils;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.ui.account.AccountService;
 
 import java.io.IOException;
-import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,7 +34,6 @@ import kotlin.Pair;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import retrofit2.HttpException;
-import retrofit2.Response;
 
 public class BaseViewModel extends ViewModel {
     private final MutableLiveData<Boolean> _refreshLiveData = new MutableLiveData<>(false);
@@ -89,7 +83,7 @@ public class BaseViewModel extends ViewModel {
         });
     }
 
-    private final Consumer<Throwable> throwable = throwable -> {
+    private final Consumer<Throwable> defaultThrowable = throwable -> {
         SLogs.e(throwable);
         closeRefresh();
 
@@ -135,12 +129,12 @@ public class BaseViewModel extends ViewModel {
         compositeDisposable.add(closeable);
     }
 
-    //single
+    /// /////////////// single ///////////////////
     public <T> void addSingleDisposable(Single<T> single, Consumer<T> consumer) {
         compositeDisposable.add(single
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(consumer, throwable));
+                .subscribe(consumer, defaultThrowable));
     }
 
     public <T> void addSingleDisposable(Single<T> single, Consumer<T> consumer, Consumer<Throwable> throwable) {
@@ -150,19 +144,19 @@ public class BaseViewModel extends ViewModel {
                 .subscribe(consumer, throwable));
     }
 
-    //flowable
+    /// /////////////// flowable ///////////////////
     public <T> void addFlowableDisposable(Flowable<T> flowable, Consumer<T> onNext) {
         compositeDisposable.add(flowable
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread(), true)
-                .subscribe(onNext, throwable));
+                .subscribe(onNext, defaultThrowable));
     }
 
     public <T> void addFlowableDisposable(Flowable<T> flowable, Consumer<T> onNext, Action onComplete) {
         compositeDisposable.add(flowable
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(onNext, throwable, onComplete));
+                .subscribe(onNext, defaultThrowable, onComplete));
     }
 
     public <T> void addFlowableDisposable(Flowable<T> flowable, Consumer<T> onNext, Consumer<Throwable> throwable) {
@@ -179,12 +173,12 @@ public class BaseViewModel extends ViewModel {
                 .subscribe(onNext, throwable, onComplete));
     }
 
-    //completable
+    /// /////////////// completable ///////////////////
     public <T> void addCompletableDisposable(Completable completable, Action action) {
         compositeDisposable.add(completable
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(action, throwable));
+                .subscribe(action, defaultThrowable));
     }
 
     public <T> void addCompletableDisposable(Completable completable, Action action, Consumer<Throwable> throwable1) {
@@ -194,11 +188,8 @@ public class BaseViewModel extends ViewModel {
                 .subscribe(action, throwable1));
     }
 
-
     private void checkException(Throwable throwable) {
-        if (throwable instanceof HttpException) {
-            HttpException httpException = (HttpException) throwable;
-
+        if (throwable instanceof HttpException httpException) {
             if (httpException.getCause() instanceof SSLHandshakeException) {
                 getExceptionLiveData().setValue(new kotlin.Pair<>(httpException.code(), SeafException.SSL_EXCEPTION));
             } else {
@@ -207,97 +198,12 @@ public class BaseViewModel extends ViewModel {
         }
     }
 
-
     public SeafException getSeafExceptionByThrowable(Throwable throwable) throws IOException {
         return ExceptionUtils.parseByThrowable(throwable);
     }
 
-    public SeafException getExceptionByThrowableForLogin(Throwable throwable, boolean withAuthToken) throws IOException {
-        if (throwable == null) {
-            return SeafException.UNKNOWN_EXCEPTION;
-        }
-
-        if (throwable instanceof HttpException) {
-            HttpException httpException = (HttpException) throwable;
-
-            Response<?> resp = httpException.response();
-
-            if (resp != null) {
-                String otp = resp.headers().get("X-Seafile-OTP");
-                if ("required".equals(otp)) {
-                    if (withAuthToken) {
-                        return SeafException.TWO_FACTOR_AUTH_TOKEN_INVALID_EXCEPTION;
-                    } else {
-                        return SeafException.TWO_FACTOR_AUTH_TOKEN_MISSING_EXCEPTION;
-                    }
-                }
-            }
-        }
-
-        return ExceptionUtils.parseByThrowable(throwable);
-    }
-
-
     public String getErrorMsgByThrowable(Throwable throwable) {
-        if (throwable instanceof SeafException) {
-            SeafException seafException = (SeafException) throwable;
-            if (seafException.getCode() == SeafException.INVALID_PASSWORD.getCode()) {
-                return SeadroidApplication.getAppString(R.string.wrong_password);
-            }
-        } else if (throwable instanceof HttpException) {
-            HttpException httpException = (HttpException) throwable;
-            if (httpException.response() != null && httpException.response().errorBody() != null) {
-
-                if (504 == httpException.code()) {
-                    return SeadroidApplication.getAppString(R.string.network_unavailable);
-                }
-
-                String json = null;
-                try {
-                    json = httpException.response().errorBody().string();
-                    if (TextUtils.isEmpty(json)) {
-                        return SeadroidApplication.getAppString(R.string.unknow_error);
-                    }
-                } catch (IOException ioException) {
-                    ioException.printStackTrace();
-                }
-
-                if (TextUtils.isEmpty(json)) {
-                    return SeadroidApplication.getAppString(R.string.unknow_error);
-                }
-
-                if (json.contains("{\"error_msg\":")) {
-                    ResultModel resultModel = GsonUtils.fromJson(json, ResultModel.class);
-                    if (TextUtils.equals("Wrong password", resultModel.error_msg)) {
-                        return SeadroidApplication.getAppString(R.string.wrong_password);
-                    }
-
-                    return resultModel.error_msg;
-                }
-
-                return json;
-            }
-
-//            if (httpException.code() == 404) {
-//                if (httpException.response() != null && httpException.response().errorBody() != null) {
-//
-//                }
-//            } else if (httpException.code() == 400) {
-//
-////                {"error_msg":"Wrong password"}
-//
-//                return SeadroidApplication.getAppString(R.string.no_permission);
-//            }
-        } else if (throwable instanceof SSLHandshakeException) {
-            SSLHandshakeException sslHandshakeException = (SSLHandshakeException) throwable;
-            SLogs.e(sslHandshakeException.getMessage());
-            return SeadroidApplication.getAppString(R.string.network_unavailable);
-        } else if (throwable instanceof SocketTimeoutException) {
-            SocketTimeoutException socketTimeoutException = (SocketTimeoutException) throwable;
-            SLogs.e(socketTimeoutException.getMessage());
-            return SeadroidApplication.getAppString(R.string.network_unavailable);
-        }
-
-        return SeadroidApplication.getAppString(R.string.unknow_error);
+        SeafException seafException = ExceptionUtils.parseByThrowable(throwable);
+        return seafException.getMessage();
     }
 }

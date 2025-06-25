@@ -7,6 +7,8 @@ import android.os.storage.StorageManager;
 import android.os.storage.StorageVolume;
 import android.text.TextUtils;
 
+import androidx.core.os.EnvironmentCompat;
+
 import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.model.StorageInfo;
 import com.seafile.seadroid2.ui.selector.folder_selector.StringTools;
@@ -213,17 +215,22 @@ public class FileTools {
                 }
 
                 String state = volume.getState();
-                if (dir != null && dir.exists() &&
-                        (Environment.MEDIA_MOUNTED.equals(state) || Environment.MEDIA_MOUNTED_READ_ONLY.equals(state))) {
+                boolean isAvailable = dir != null && dir.exists() &&
+                        (Environment.MEDIA_MOUNTED.equals(state) || Environment.MEDIA_MOUNTED_READ_ONLY.equals(state));
 
-                    String path = dir.getAbsolutePath();
-                    boolean isRemovable = volume.isRemovable();
-                    boolean isPrimary = volume.isPrimary();
-                    String label = volume.getDescription(context);
+                String path = dir == null ? null : dir.getAbsolutePath();
+                boolean isRemovable = volume.isRemovable();
+                boolean isPrimary = volume.isPrimary();
+                String label = volume.getDescription(context);
 
-                    if (pathSet.add(path)) {
-                        result.add(new StorageInfo(path, label, isRemovable, isPrimary));
-                    }
+                if (pathSet.add(path)) {
+                    StorageInfo storageInfo = new StorageInfo();
+                    storageInfo.setPath(path);
+                    storageInfo.setLabel(label);
+                    storageInfo.setRemovable(isRemovable);
+                    storageInfo.setPrimary(isPrimary);
+                    storageInfo.setAvailable(isAvailable);
+                    result.add(storageInfo);
                 }
             } catch (Exception e) {
                 // Will fallback to volumePath

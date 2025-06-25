@@ -220,7 +220,7 @@ public abstract class BaseUploadWorker extends TransferWorker {
         //get upload link
         String uploadUrl = getFileUploadUrl(account, currentTransferModel.repo_id, currentTransferModel.getParentPath(), currentTransferModel.transfer_strategy == ExistingFileStrategy.REPLACE);
         if (TextUtils.isEmpty(uploadUrl)) {
-            throw SeafException.REQUEST_TRANSFER_URL_EXCEPTION;
+            throw SeafException.REQUEST_URL_EXCEPTION;
         }
 
         //
@@ -272,7 +272,7 @@ public abstract class BaseUploadWorker extends TransferWorker {
                         newCall.cancel();
                     }
                     body.close();
-                    throw ExceptionUtils.parse(code, b);
+                    throw ExceptionUtils.parseHttpException(code, b);
                 }
             }
         }
@@ -294,7 +294,7 @@ public abstract class BaseUploadWorker extends TransferWorker {
         }
 
         if (!res.isSuccessful()) {
-            throw SeafException.REQUEST_TRANSFER_URL_EXCEPTION;
+            throw SeafException.REQUEST_URL_EXCEPTION;
         }
 
         String urlStr = res.body();

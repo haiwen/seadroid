@@ -1,13 +1,9 @@
 package com.seafile.seadroid2.ui.selector.folder_selector;
 
 import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.storage.StorageManager;
-import android.os.storage.StorageVolume;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,12 +11,14 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.blankj.utilcode.util.CollectionUtils;
 import com.google.android.material.tabs.TabLayout;
 import com.google.common.collect.Maps;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.bus.BusHelper;
 import com.seafile.seadroid2.databinding.FragmentFolderSelectorBinding;
 import com.seafile.seadroid2.enums.ItemPositionEnum;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
@@ -32,12 +30,11 @@ import com.seafile.seadroid2.ui.base.fragment.BaseFragmentWithVM;
 import com.seafile.seadroid2.ui.repo.ScrollState;
 import com.seafile.seadroid2.view.TipsViews;
 
-import java.io.File;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
+import java.util.stream.Collectors;
 
 public class FolderSelectorFragment extends BaseFragmentWithVM<FolderSelectorViewModel> {
 
@@ -63,15 +60,10 @@ public class FolderSelectorFragment extends BaseFragmentWithVM<FolderSelectorVie
     private List<StorageInfo> volumeList;
 
     @Override
-    public void onStart() {
-        super.onStart();
-        startWatching();
-    }
-
-    @Override
     public void onDestroy() {
         super.onDestroy();
-        stopWatching();
+
+        BusHelper.getCommonObserver().removeObserver(busObserver);
     }
 
     @Override
@@ -84,12 +76,47 @@ public class FolderSelectorFragment extends BaseFragmentWithVM<FolderSelectorVie
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        initViewModel();
+        BusHelper.getCommonObserver().observe(getViewLifecycleOwner(), busObserver);
 
+        initViewModel();
         initView();
 
-        initRootPath();
+        reload();
+    }
 
+    private final Observer<String> busObserver = new Observer<String>() {
+        @Override
+        public void onChanged(String actionStr) {
+            if (TextUtils.isEmpty(actionStr)) {
+                return;
+            }
+
+            String action;
+            String path;
+            if (actionStr.contains("-")) {
+                String[] s = actionStr.split("-");
+                action = s[0];
+                path = s[1];
+            } else {
+                action = actionStr;
+                path = "";
+            }
+
+            if (Intent.ACTION_MEDIA_MOUNTED.equals(action)) {
+                SLogs.d(TAG, "Storage", "设备挂载");
+                reload();
+            } else if (Intent.ACTION_MEDIA_UNMOUNTED.equals(action)) {
+                SLogs.d(TAG, "Storage", "设备卸载");
+                reload();
+            } else if (Intent.ACTION_MEDIA_REMOVED.equals(action)) {
+                SLogs.d(TAG, "Storage", "设备移除");
+                reload();
+            }
+        }
+    };
+
+    private void reload() {
+        initRootPath();
         initData();
 
         initNavListAdapter();
@@ -130,58 +157,18 @@ public class FolderSelectorFragment extends BaseFragmentWithVM<FolderSelectorVie
 
         // init nav path list data
         if (!volumeList.isEmpty()) {
+            getNavPathList().clear();
+
             StorageInfo storageInfo = volumeList.get(0);
             TabVolumeBean tabVolumeBean = new TabVolumeBean(storageInfo.path, storageInfo.label, ItemPositionEnum.ALL);
             getNavPathList().add(tabVolumeBean);
         }
     }
 
-
     private void initData() {
         List<String> selectPaths = FolderBackupSharePreferenceHelper.readBackupPathsAsList();
         if (!CollectionUtils.isEmpty(selectPaths)) {
             getViewModel().setSelectFilePathList(selectPaths);
-        }
-    }
-
-    /**
-     * Start observing mount/unmount events
-     */
-    public void startWatching() {
-        if (mountReceiver != null) return;
-        mountReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                if (Intent.ACTION_MEDIA_MOUNTED.equals(intent.getAction()) ||
-                        Intent.ACTION_MEDIA_REMOVED.equals(intent.getAction()) ||
-                        Intent.ACTION_MEDIA_UNMOUNTED.equals(intent.getAction())) {
-                    notifyMountChanged();
-                }
-            }
-        };
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(Intent.ACTION_MEDIA_MOUNTED);
-        filter.addAction(Intent.ACTION_MEDIA_REMOVED);
-        filter.addAction(Intent.ACTION_MEDIA_UNMOUNTED);
-        filter.addDataScheme("file");
-        requireContext().registerReceiver(mountReceiver, filter);
-    }
-
-    private void notifyMountChanged() {
-        List<StorageInfo> newVolumeList = FileTools.getAllStorageInfos(requireContext());
-        for (StorageInfo info : newVolumeList) {
-            SLogs.d("新存储 Storage", "路径: " + info.path + "，类型: " + info.label +
-                    "，可移除: " + info.isRemovable + "，是否主存储: " + info.isPrimary);
-        }
-    }
-
-    /**
-     * Stop observing
-     */
-    public void stopWatching() {
-        if (mountReceiver != null) {
-            requireContext().unregisterReceiver(mountReceiver);
-            mountReceiver = null;
         }
     }
 
@@ -199,7 +186,6 @@ public class FolderSelectorFragment extends BaseFragmentWithVM<FolderSelectorVie
 
             if (mNavPathAdapter.getItemCount() > 1) {
                 navSpecialPath(item);
-
             }
 
             loadData();
@@ -242,28 +228,21 @@ public class FolderSelectorFragment extends BaseFragmentWithVM<FolderSelectorVie
 
     private void addNavPathListData(TabVolumeBean bean) {
         getNavPathList().add(bean);
-        resetNavPathItemPosition();
+        resetNavPathListItemPosition();
         notifyNavPathListDataChanged();
     }
 
-    private void resetNavPathItemPosition() {
-        for (TabVolumeBean tabVolumeBean : getNavPathList()) {
-            tabVolumeBean.setItemPosition(ItemPositionEnum.NONE);
-        }
-
-        if (getNavPathList().size() == 1) {
-            getNavPathList().get(0).setItemPosition(ItemPositionEnum.ALL);
-        } else {
-            getNavPathList().get(0).setItemPosition(ItemPositionEnum.START);
-            getNavPathList().get(getNavPathList().size() - 1).setItemPosition(ItemPositionEnum.END);
-        }
-    }
 
     private void initTabLayout() {
-//        if (volumeList == null || volumeList.size() == 1) {
-//            binding.slidingTabs.setVisibility(View.GONE);
-//            return;
-//        }
+        binding.slidingTabs.removeAllTabs();
+
+        List<StorageInfo> vList = volumeList.stream().filter(StorageInfo::isAvailable).collect(Collectors.toList());
+
+        if (vList.size() == 1) {
+            binding.slidingTabs.setVisibility(View.GONE);
+            return;
+        }
+
 
         binding.slidingTabs.setVisibility(View.VISIBLE);
         binding.slidingTabs.setTabIndicatorAnimationMode(TabLayout.INDICATOR_ANIMATION_MODE_ELASTIC);
@@ -271,7 +250,7 @@ public class FolderSelectorFragment extends BaseFragmentWithVM<FolderSelectorVie
         binding.slidingTabs.setTabIndicatorFullWidth(false);
         binding.slidingTabs.setTabGravity(TabLayout.GRAVITY_CENTER);
 
-        for (StorageInfo storageInfo : volumeList) {
+        for (StorageInfo storageInfo : vList) {
             TabLayout.Tab tab = binding.slidingTabs.newTab();
             tab.setTag(storageInfo.path);
             tab.setText(storageInfo.label);
@@ -294,7 +273,7 @@ public class FolderSelectorFragment extends BaseFragmentWithVM<FolderSelectorVie
                             break;
                         }
                     }
-                    resetNavPathItemPosition();
+                    resetNavPathListItemPosition();
                     notifyNavPathListDataChanged();
 
                     mCurrentPath = tag;
@@ -332,7 +311,10 @@ public class FolderSelectorFragment extends BaseFragmentWithVM<FolderSelectorVie
         if (getNavPathList().size() == 1) {
             return false;
         } else {
+
             getNavPathList().remove(getNavPathList().size() - 1);
+            resetNavPathListItemPosition();
+
             TabVolumeBean bean = getNavPathList().get(getNavPathList().size() - 1);
             mCurrentPath = bean.getFilePath();
             notifyNavPathListDataChanged();
@@ -373,37 +355,6 @@ public class FolderSelectorFragment extends BaseFragmentWithVM<FolderSelectorVie
         return getViewModel().getSelectFilePathList();
     }
 
-    public String getPrettyVolumeName(String volumePath) {
-        StorageManager storageManager = (StorageManager) requireContext().getSystemService(Context.STORAGE_SERVICE);
-
-        if (storageManager == null) {
-            return volumePath;
-        }
-
-        List<StorageVolume> volumes = storageManager.getStorageVolumes();
-        for (StorageVolume volume : volumes) {
-            try {
-                File dir;
-
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    dir = volume.getDirectory();
-                } else {
-                    // Before API 30 way to get a volume path
-                    Method getPathMethod = StorageVolume.class.getDeclaredMethod("getPathFile");
-                    dir = (File) getPathMethod.invoke(volume);
-                }
-
-                if (dir != null && dir.getAbsolutePath().equals(volumePath)) {
-                    return volume.getDescription(requireContext()); // e.g. "Internal storage" or "SD card"
-                }
-            } catch (Exception e) {
-                // Will fallback to volumePath
-            }
-        }
-
-        return volumePath;
-    }
-
     private void navSpecialPath(TabVolumeBean bean) {
         if (getNavPathList().size() == 1) {
             return;
@@ -418,19 +369,33 @@ public class FolderSelectorFragment extends BaseFragmentWithVM<FolderSelectorVie
 
         getNavPathList().clear();
         getNavPathList().addAll(newPathList);
-        resetNavPathItemPosition();
+
+        resetNavPathListItemPosition();
         notifyNavPathListDataChanged();
     }
 
     private void notifyNavPathListDataChanged() {
         if (mNavPathAdapter != null) {
             mNavPathAdapter.updateListData(getNavPathList());
-            mNavPathAdapter.notifyDataSetChanged();
 
             if (mNavPathAdapter.getItemCount() > 0) {
                 rvTabbarManager.scrollToPosition(mNavPathAdapter.getItemCount() - 1);
             }
         }
     }
+
+    private void resetNavPathListItemPosition() {
+        for (TabVolumeBean tabVolumeBean : getNavPathList()) {
+            tabVolumeBean.setItemPosition(ItemPositionEnum.NONE);
+        }
+
+        if (getNavPathList().size() == 1) {
+            getNavPathList().get(0).setItemPosition(ItemPositionEnum.ALL);
+        } else {
+            getNavPathList().get(0).setItemPosition(ItemPositionEnum.START);
+            getNavPathList().get(getNavPathList().size() - 1).setItemPosition(ItemPositionEnum.END);
+        }
+    }
+
 }
 

@@ -1,6 +1,7 @@
 package com.seafile.seadroid2.ui.base;
 
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 
 import androidx.appcompat.app.ActionBar;
@@ -67,6 +68,7 @@ public class BaseActivity extends AppCompatActivity {
     public void showLoadingDialog() {
         if (loadingDialog == null) {
             MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
+            builder.setCancelable(false);
             builder.setView(R.layout.layout_dialog_progress_bar);
             loadingDialog = builder.create();
         }

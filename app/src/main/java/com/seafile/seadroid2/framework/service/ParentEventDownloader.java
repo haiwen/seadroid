@@ -202,13 +202,13 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
         }
 
         if (!res.isSuccessful()) {
-            throw SeafException.REQUEST_TRANSFER_URL_EXCEPTION;
+            throw SeafException.REQUEST_URL_EXCEPTION;
         }
 
         String fileId = res.headers().get("oid");
         String dlink = res.body();
         if (TextUtils.isEmpty(dlink)) {
-            throw SeafException.REQUEST_TRANSFER_URL_EXCEPTION;
+            throw SeafException.REQUEST_URL_EXCEPTION;
         }
 
 
@@ -223,14 +223,14 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
             dlink = dlink.substring(0, i) + "/" + URLEncoder.encode(dlink.substring(i + 1), "UTF-8");
         } catch (UnsupportedEncodingException e) {
             SafeLogs.e(TAG, e.getMessage());
-            throw SeafException.REQUEST_TRANSFER_URL_EXCEPTION;
+            throw SeafException.REQUEST_URL_EXCEPTION;
         }
 
         // should return "\"http://gonggeng.org:8082/...\"" or "\"https://gonggeng.org:8082/...\"
         if (dlink.startsWith("http") && fileId != null) {
             return new Pair<>(dlink, fileId);
         } else {
-            throw SeafException.REQUEST_TRANSFER_URL_EXCEPTION;
+            throw SeafException.REQUEST_URL_EXCEPTION;
         }
     }
 
@@ -276,7 +276,7 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
                 //
                 newCall.cancel();
 
-                throw ExceptionUtils.parse(code, b);
+                throw ExceptionUtils.parseHttpException(code, b);
             }
 
             try (ResponseBody responseBody = response.body()) {
@@ -429,9 +429,9 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
             SafeLogs.d(TAG, "setPassword()", "set password failed: " + code);
             try (ResponseBody responseBody = res.errorBody()) {
                 if (responseBody != null) {
-                    throw ExceptionUtils.parse(code, responseBody.string());
+                    throw ExceptionUtils.parseHttpException(code, responseBody.string());
                 } else {
-                    throw ExceptionUtils.parse(code, null);
+                    throw ExceptionUtils.parseHttpException(code, null);
                 }
             }
         }

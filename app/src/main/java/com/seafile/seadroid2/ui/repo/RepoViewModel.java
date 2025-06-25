@@ -246,7 +246,6 @@ public class RepoViewModel extends BaseViewModel {
     }
 
     private void loadReposFromLocal(Account account, boolean isLoadRemoteData, boolean isBlank) {
-
         //clear list
         if (isBlank) {
             getObjListLiveData().setValue(null);

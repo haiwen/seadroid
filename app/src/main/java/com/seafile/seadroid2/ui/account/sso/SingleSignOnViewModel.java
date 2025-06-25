@@ -12,6 +12,7 @@ import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.model.server.ServerInfoModel;
 import com.seafile.seadroid2.framework.model.sso.SSOLinkModel;
 import com.seafile.seadroid2.framework.model.sso.SSOStatusModel;
+import com.seafile.seadroid2.framework.util.ExceptionUtils;
 import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.ui.account.AccountService;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
@@ -59,7 +60,6 @@ public class SingleSignOnViewModel extends BaseViewModel {
             @Override
             public void accept(Throwable throwable) throws Exception {
                 getRefreshLiveData().setValue(false);
-
                 String errMsg = getErrorMsgByThrowable(throwable);
                 Toasts.show(errMsg);
             }

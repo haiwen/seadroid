@@ -4,7 +4,6 @@ import android.content.Context;
 
 import androidx.lifecycle.MutableLiveData;
 
-import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.enums.FeatureDataSource;
@@ -15,7 +14,6 @@ import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
 import com.seafile.seadroid2.framework.service.TransferService;
 import com.seafile.seadroid2.framework.util.SLogs;
-import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
 
@@ -45,7 +43,7 @@ public class SwitchStorageViewModel extends BaseViewModel {
             return;
         }
 
-        StorageManager.Location currentLocation = StorageManager.getInstance().getStorageLocation();
+        StorageManager.Location currentLocation = StorageManager.getInstance().getSelectedStorageLocation();
         if (currentLocation.id == newLocation.id) {
             SLogs.d("location is same", newLocation.label);
             getActionLiveData().setValue("success");

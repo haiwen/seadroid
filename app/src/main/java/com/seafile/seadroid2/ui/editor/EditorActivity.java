@@ -154,11 +154,13 @@ public class EditorActivity extends BaseActivityWithVM<EditorViewModel> implemen
         getViewModel().read(localPath, new Consumer<String>() {
             @Override
             public void accept(String s) throws Exception {
-                if (!TextUtils.isEmpty(s)) {
-                    lastContentMD5 = EncryptUtils.encryptMD5ToString(s);
-
-                    mPerformEdit.setDefaultText(s);
+                if (TextUtils.isEmpty(s)) {
+                    return;
                 }
+
+                lastContentMD5 = EncryptUtils.encryptMD5ToString(s);
+
+                mPerformEdit.setDefaultText(s);
             }
         });
     }

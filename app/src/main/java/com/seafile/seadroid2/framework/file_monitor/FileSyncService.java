@@ -253,6 +253,12 @@ public class FileSyncService extends Service {
         try {
             List<FileAlterationObserver> observerList = new ArrayList<>();
             for (String str : pathList) {
+                boolean isExists = FileUtils.isFileExists(str);
+                if (!isExists) {
+                    SLogs.d(TAG, "startFolderMonitor()", "backup path not exists: " + str);
+                    continue;
+                }
+
                 SLogs.d(TAG, "startFolderMonitor()", "backup path: " + str);
                 FileAlterationObserver observer = new FileAlterationObserver(str, FILE_FILTER);
 

@@ -1,6 +1,7 @@
 package com.seafile.seadroid2.ui.dialog_fragment;
 
 import android.os.Bundle;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -8,6 +9,7 @@ import android.widget.RadioGroup;
 import androidx.lifecycle.Observer;
 
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.framework.datastore.StorageManager;
 import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.ui.base.fragment.RequestCustomDialogFragmentWithVM;
@@ -65,6 +67,7 @@ public class SwitchStorageDialogFragment extends RequestCustomDialogFragmentWith
         super.initView(containerView);
 
         group = getDialogView().findViewById(R.id.storage_options);
+
         ArrayList<StorageManager.Location> options = StorageManager.getInstance().getStorageLocations();
 
         for (StorageManager.Location location : options) {
@@ -72,7 +75,9 @@ public class SwitchStorageDialogFragment extends RequestCustomDialogFragmentWith
             b.setText(location.description);
             b.setTag(location);
             b.setEnabled(location.available);
-            group.addView(b);
+            RadioGroup.LayoutParams vlp = new RadioGroup.LayoutParams(-1, -2);
+            vlp.bottomMargin = Constants.DP.DP_8;
+            group.addView(b, vlp);
             buttonList.add(b);
 
             if (location.selected)

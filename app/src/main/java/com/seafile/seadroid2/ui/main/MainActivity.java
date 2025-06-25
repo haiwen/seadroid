@@ -1,12 +1,15 @@
 package com.seafile.seadroid2.ui.main;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.text.TextUtils;
@@ -27,6 +30,7 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.bus.BusAction;
 import com.seafile.seadroid2.bus.BusHelper;
 import com.seafile.seadroid2.context.GlobalNavContext;
 import com.seafile.seadroid2.context.NavContext;
@@ -34,7 +38,9 @@ import com.seafile.seadroid2.databinding.ActivityMainBinding;
 import com.seafile.seadroid2.enums.NightMode;
 import com.seafile.seadroid2.framework.file_monitor.FileSyncService;
 import com.seafile.seadroid2.framework.model.ServerInfo;
+import com.seafile.seadroid2.framework.model.StorageInfo;
 import com.seafile.seadroid2.framework.service.TransferService;
+import com.seafile.seadroid2.framework.util.FileTools;
 import com.seafile.seadroid2.framework.util.PermissionUtil;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
@@ -226,8 +232,17 @@ public class MainActivity extends BaseActivity {
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+
+        startWatching();
+    }
+
+    @Override
     protected void onDestroy() {
         NetworkUtils.unregisterNetworkStatusChangedListener(onNetworkStatusChangedListener);
+
+        stopWatching();
 
         //
         BusHelper.getCommonObserver().removeObserver(busObserver);
@@ -535,7 +550,6 @@ public class MainActivity extends BaseActivity {
         }
     }
 
-
     private int lastNightMode;
     private int lastOrientation;
 
@@ -613,11 +627,62 @@ public class MainActivity extends BaseActivity {
                 return;
             }
 
-            if (TextUtils.equals(action, "RESTART_FILE_MONITOR")) {
+            if (TextUtils.equals(action, BusAction.RESTART_FILE_MONITOR)) {
                 if (syncService != null) {
                     syncService.restartFolderMonitor();
                 }
             }
         }
     };
+
+
+    /**
+     * Start observing mount/unmount events
+     */
+    public void startWatching() {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Intent.ACTION_MEDIA_MOUNTED);
+        filter.addAction(Intent.ACTION_MEDIA_REMOVED);
+        filter.addAction(Intent.ACTION_MEDIA_UNMOUNTED);
+        filter.addDataScheme("file");
+        registerReceiver(storageReceiver, filter);
+    }
+
+    private final BroadcastReceiver storageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (action == null) {
+                return;
+            }
+
+            Uri data = intent.getData();
+            if (data != null) {
+                String path = data.getPath();
+
+                if (Intent.ACTION_MEDIA_MOUNTED.equals(action)) {
+                    SLogs.d("Storage", "设备挂载: " + path);//设备挂载: /storage/67DA-5855
+                    notifyMountChanged(action, path);
+                } else if (Intent.ACTION_MEDIA_UNMOUNTED.equals(action)) {
+                    SLogs.d("Storage", "设备卸载: " + path);//设备卸载: /storage/67DA-5855
+                    notifyMountChanged(action, path);
+                } else if (Intent.ACTION_MEDIA_REMOVED.equals(action)) {
+                    SLogs.d("Storage", "设备移除: " + path);//设备移除: /storage/67DA-5855
+                    notifyMountChanged(action, path);
+                }
+            }
+        }
+    };
+
+    private void notifyMountChanged(String action, String path) {
+        BusHelper.getCommonObserver().postOrderly(action + "-" + path);
+    }
+
+    /**
+     * Stop observing
+     */
+    public void stopWatching() {
+        unregisterReceiver(storageReceiver);
+    }
+
 }

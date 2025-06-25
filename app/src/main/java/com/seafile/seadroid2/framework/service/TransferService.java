@@ -106,6 +106,7 @@ public class TransferService extends EventService {
         startService(context, ServiceActionEnum.STOP_FILE_DOWNLOAD.name());
     }
 
+
     public static void startLocalFileUpdateService(Context context) {
         startService(context, ServiceActionEnum.START_LOCAL_FILE_UPDATE.name());
     }
@@ -118,7 +119,11 @@ public class TransferService extends EventService {
         Bundle bundle = new Bundle();
         bundle.putString("model", model.getId());
         bundle.putString("source", model.data_source.toString());
-        startService(context, "STOP_TRANSFER", bundle);
+        startService(context, ServiceActionEnum.STOP_TRANSFER.name(), bundle);
+    }
+
+    public static void stopService(Context context) {
+        startService(context, ServiceActionEnum.STOP_SERVICE.name());
     }
 
     public static void startService(Context context, String action) {
@@ -199,6 +204,10 @@ public class TransferService extends EventService {
         SafeLogs.d(TAG, "onStartCommand()", "action: " + action);
 
         switch (actionEnum) {
+            case STOP_SERVICE:
+                stopAll();
+                break;
+
             case RESTART_PHOTO_BACKUP:
                 startPhotoBackup(intent);
 
@@ -660,6 +669,17 @@ public class TransferService extends EventService {
                         }
                     }
                 });
+    }
+
+    private void stopAll() {
+        getActiveTasks().forEach(new BiConsumer<FeatureDataSource, CompletableFuture<Void>>() {
+            @Override
+            public void accept(FeatureDataSource featureDataSource, CompletableFuture<Void> voidCompletableFuture) {
+                if (voidCompletableFuture != null && !voidCompletableFuture.isDone()) {
+                    voidCompletableFuture.cancel(true);
+                }
+            }
+        });
     }
 
     private void stopThisService() {

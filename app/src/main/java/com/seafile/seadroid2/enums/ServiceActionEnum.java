@@ -1,6 +1,7 @@
 package com.seafile.seadroid2.enums;
 
 public enum ServiceActionEnum {
+    STOP_SERVICE,
     RESTART_PHOTO_BACKUP,
     STOP_PHOTO_BACKUP,
     RESTART_FOLDER_BACKUP,

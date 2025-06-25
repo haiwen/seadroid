@@ -262,13 +262,13 @@ public class DownloadWorker extends BaseDownloadWorker {
                 .execute();
 
         if (!res.isSuccessful()) {
-            throw SeafException.REQUEST_TRANSFER_URL_EXCEPTION;
+            throw SeafException.REQUEST_URL_EXCEPTION;
         }
 
         String fileId = res.headers().get("oid");
         String dlink = res.body();
         if (dlink == null) {
-            throw SeafException.REQUEST_TRANSFER_URL_EXCEPTION;
+            throw SeafException.REQUEST_URL_EXCEPTION;
         }
 
         dlink = StringUtils.replace(dlink, "\"", "");
@@ -316,7 +316,7 @@ public class DownloadWorker extends BaseDownloadWorker {
                 //
                 newCall.cancel();
 
-                throw ExceptionUtils.parse(code, b);
+                throw ExceptionUtils.parseHttpException(code, b);
             }
 
             try (ResponseBody responseBody = response.body()) {
@@ -467,9 +467,9 @@ public class DownloadWorker extends BaseDownloadWorker {
             SLogs.d(TAG, "setPassword()", "set password failed: " + code);
             try (ResponseBody responseBody = res.errorBody()) {
                 if (responseBody != null) {
-                    throw ExceptionUtils.parse(code, responseBody.string());
+                    throw ExceptionUtils.parseHttpException(code, responseBody.string());
                 } else {
-                    throw ExceptionUtils.parse(code, null);
+                    throw ExceptionUtils.parseHttpException(code, null);
                 }
             }
         }
