@@ -18,6 +18,7 @@ import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.config.WebViewActionConstant;
 import com.seafile.seadroid2.framework.model.WebRouteModel;
 import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.util.SafeLogs;
 import com.seafile.seadroid2.view.NestedWebView;
 import com.seafile.seadroid2.view.webview.strategy.AppShowToastStrategy;
 import com.seafile.seadroid2.view.webview.strategy.AppVersionGetStrategy;
@@ -30,7 +31,7 @@ import java.util.Locale;
 public class SeaWebView extends NestedWebView {
     public static final String PATH_ACCOUNT_LOGIN = "accounts/login/";
     public static String URL_LOGIN = null;
-
+    private final String SEAFILE_UA = "Seafile Android/3.0";
     private final SeaWebViewClient mWebViewClient = new SeaWebViewClient(this);
 
     public SeaWebView(@NonNull Context context) {
@@ -81,6 +82,16 @@ public class SeaWebView extends NestedWebView {
         webSettings.setDisplayZoomControls(false);
         webSettings.setMixedContentMode(WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE);
         webSettings.setDefaultTextEncodingName("UTF-8");
+
+        //ua
+        String ua = webSettings.getUserAgentString();
+        if (TextUtils.isEmpty(ua)) {
+            ua = SEAFILE_UA;
+        } else {
+            ua += " " + SEAFILE_UA;
+        }
+        webSettings.setUserAgentString(ua);
+        SLogs.d("seafile webview ua: " + ua);
 
         CookieManager cookieManager = CookieManager.getInstance();
         cookieManager.setAcceptThirdPartyCookies(this, true);

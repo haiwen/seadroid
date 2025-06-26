@@ -961,7 +961,6 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
     }
 
     private void updateFolderBackupPrefSummary() {
-
         boolean hiddenSwitch = Settings.FOLDER_BACKUP_SYNC_HIDDEN_FILES.queryValue();
         if (mFolderBackupSyncHiddenFilesSwitch != null) {
             mFolderBackupSyncHiddenFilesSwitch.setChecked(hiddenSwitch);
