@@ -657,25 +657,27 @@ public class MainActivity extends BaseActivity {
             }
 
             Uri data = intent.getData();
-            if (data != null) {
-                String path = data.getPath();
+            if (data == null) {
+                return;
+            }
 
-                if (Intent.ACTION_MEDIA_MOUNTED.equals(action)) {
-                    SLogs.d("Storage", "设备挂载: " + path);//设备挂载: /storage/67DA-5855
-                    notifyMountChanged(action, path);
-                } else if (Intent.ACTION_MEDIA_UNMOUNTED.equals(action)) {
-                    SLogs.d("Storage", "设备卸载: " + path);//设备卸载: /storage/67DA-5855
-                    notifyMountChanged(action, path);
-                } else if (Intent.ACTION_MEDIA_REMOVED.equals(action)) {
-                    SLogs.d("Storage", "设备移除: " + path);//设备移除: /storage/67DA-5855
-                    notifyMountChanged(action, path);
-                }
+            String path = data.getPath();
+
+            if (Intent.ACTION_MEDIA_MOUNTED.equals(action)) {
+                SLogs.d("Storage", "设备挂载: " + path);//设备挂载: /storage/67DA-5855
+                notifyMountChanged(action, path);
+            } else if (Intent.ACTION_MEDIA_UNMOUNTED.equals(action)) {
+                SLogs.d("Storage", "设备卸载: " + path);//设备卸载: /storage/67DA-5855
+                notifyMountChanged(action, path);
+            } else if (Intent.ACTION_MEDIA_REMOVED.equals(action)) {
+                SLogs.d("Storage", "设备移除: " + path);//设备移除: /storage/67DA-5855
+                notifyMountChanged(action, path);
             }
         }
     };
 
     private void notifyMountChanged(String action, String path) {
-        BusHelper.getCommonObserver().postOrderly(action + "-" + path);
+        BusHelper.getCommonObserver().post(action + "-" + path);
     }
 
     /**
