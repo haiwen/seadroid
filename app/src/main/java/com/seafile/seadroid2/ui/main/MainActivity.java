@@ -664,13 +664,13 @@ public class MainActivity extends BaseActivity {
             String path = data.getPath();
 
             if (Intent.ACTION_MEDIA_MOUNTED.equals(action)) {
-                SLogs.d("Storage", "设备挂载: " + path);//设备挂载: /storage/67DA-5855
+                SLogs.d("Storage", "mounted: " + path);//mounted: /storage/67DA-5855
                 notifyMountChanged(action, path);
             } else if (Intent.ACTION_MEDIA_UNMOUNTED.equals(action)) {
-                SLogs.d("Storage", "设备卸载: " + path);//设备卸载: /storage/67DA-5855
+                SLogs.d("Storage", "unmounted: " + path);//unmounted: /storage/67DA-5855
                 notifyMountChanged(action, path);
             } else if (Intent.ACTION_MEDIA_REMOVED.equals(action)) {
-                SLogs.d("Storage", "设备移除: " + path);//设备移除: /storage/67DA-5855
+                SLogs.d("Storage", "removed: " + path);//removed: /storage/67DA-5855
                 notifyMountChanged(action, path);
             }
         }
