@@ -31,6 +31,7 @@ import com.seafile.seadroid2.framework.service.upload.MediaBackupUploader;
 import com.seafile.seadroid2.framework.service.upload.ShareToSeafileUploader;
 import com.seafile.seadroid2.framework.util.SafeLogs;
 import com.seafile.seadroid2.framework.util.Toasts;
+import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 
 import java.lang.ref.WeakReference;
@@ -398,7 +399,6 @@ public class TransferService extends EventService {
         }
     }
 
-
     public void stopById(Bundle extras) {
         if (extras == null) {
             return;
@@ -413,21 +413,29 @@ public class TransferService extends EventService {
         if (FeatureDataSource.ALBUM_BACKUP.name().equals(dataSource)) {
             if (mediaBackupUploader != null) {
                 mediaBackupUploader.stopById(modelId);
+            }else {
+                GlobalTransferCacheList.ALBUM_BACKUP_QUEUE.remove(modelId);
             }
 
         } else if (FeatureDataSource.FOLDER_BACKUP.name().equals(dataSource)) {
             if (folderBackupUploader != null) {
                 folderBackupUploader.stopById(modelId);
+            }else {
+                GlobalTransferCacheList.FOLDER_BACKUP_QUEUE.remove(modelId);
             }
 
         } else if (FeatureDataSource.MANUAL_FILE_UPLOAD.name().equals(dataSource)) {
             if (fileUploader != null) {
                 fileUploader.stopById(modelId);
+            }else {
+                GlobalTransferCacheList.FILE_UPLOAD_QUEUE.remove(modelId);
             }
 
         } else if (FeatureDataSource.DOWNLOAD.name().equals(dataSource)) {
             if (downloader != null) {
                 downloader.stopById(modelId);
+            }else {
+                GlobalTransferCacheList.DOWNLOAD_QUEUE.remove(modelId);
             }
         }
 

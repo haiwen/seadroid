@@ -19,6 +19,9 @@ import androidx.preference.PreferenceViewHolder;
 
 import com.google.android.material.divider.MaterialDivider;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.config.Constants;
+import com.seafile.seadroid2.widget.prefs.DividerPositionEnum;
+import com.seafile.seadroid2.widget.prefs.RadiusPositionEnum;
 
 public abstract class BackgroundShapePreference extends Preference {
 
@@ -65,7 +68,7 @@ public abstract class BackgroundShapePreference extends Preference {
             radiusPosition = typedArray.getInt(R.styleable.PrefShape_radiusPosition, 0);
 
             backgroundColor = typedArray.getColor(R.styleable.PrefShape_backgroundColor, ContextCompat.getColor(getContext(), R.color.bar_background_color));
-            backgroundRadius = typedArray.getDimensionPixelSize(R.styleable.PrefShape_backgroundRadius, 8);
+            backgroundRadius = typedArray.getDimensionPixelSize(R.styleable.PrefShape_backgroundRadius, Constants.DP.DP_8);
 
             dividerPosition = typedArray.getInt(R.styleable.PrefShape_dividerPosition, 0);
             dividerColor = typedArray.getColor(R.styleable.PrefShape_dividerColor, ContextCompat.getColor(getContext(), R.color.divider_color));
@@ -128,13 +131,13 @@ public abstract class BackgroundShapePreference extends Preference {
         notifyChanged();
     }
 
-    public void setRadiusPosition(int radiusPosition) {
-        this.radiusPosition = radiusPosition;
+    public void setRadiusPosition(RadiusPositionEnum radiusEnum) {
+        this.radiusPosition = radiusEnum.ordinal();
         notifyChanged();
     }
 
-    public void setDividerPosition(int dividerPosition) {
-        this.dividerPosition = dividerPosition;
+    public void setDividerPosition(DividerPositionEnum dividerEnum) {
+        this.dividerPosition = dividerEnum.ordinal();
         notifyChanged();
     }
 
@@ -142,6 +145,7 @@ public abstract class BackgroundShapePreference extends Preference {
         this.titleTextColor = titleTextColor;
         notifyChanged();
     }
+
     public void setSummaryTextColor(int summaryTextColor) {
         this.summaryTextColor = summaryTextColor;
         notifyChanged();

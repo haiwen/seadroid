@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.text.TextUtils;
 
+import com.seafile.seadroid2.framework.service.scan.FolderScanHelper;
+import com.seafile.seadroid2.framework.service.scan.JobSchedulerHelper;
 import com.seafile.seadroid2.framework.util.Utils;
 
 /**
@@ -29,7 +31,7 @@ public class BootAutostart extends BroadcastReceiver {
 
         if (TextUtils.equals(Intent.ACTION_BOOT_COMPLETED, intent.getAction())
                 || TextUtils.equals(Intent.ACTION_MY_PACKAGE_REPLACED, intent.getAction())) {
-            Utils.startCameraSyncJob(context);
+//            JobSchedulerHelper.scheduleFolderBackupJob(context.getApplicationContext());
         }
     }
 

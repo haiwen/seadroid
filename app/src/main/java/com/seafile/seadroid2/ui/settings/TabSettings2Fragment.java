@@ -50,12 +50,12 @@ import com.seafile.seadroid2.enums.ObjSelectType;
 import com.seafile.seadroid2.framework.datastore.StorageManager;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
-import com.seafile.seadroid2.framework.model.StorageInfo;
+import com.seafile.seadroid2.framework.service.BackgroundWorkManager;
 import com.seafile.seadroid2.framework.service.TransferService;
-import com.seafile.seadroid2.framework.util.FileTools;
 import com.seafile.seadroid2.framework.util.PermissionUtil;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Toasts;
+import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
@@ -234,8 +234,6 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
         initCachePref();
 
         initAboutPref();
-
-        initPolicyPref();
     }
 
     private void initAccountPref() {
@@ -409,11 +407,35 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
     }
 
     private void initAboutPref() {
+        String country = Locale.getDefault().getCountry();
+        String language = Locale.getDefault().getLanguage();
+        Preference policyPref = findPreference(getString(R.string.pref_key_about_privacy));
+        boolean isZh = TextUtils.equals("CN", country) || TextUtils.equals("zh", language);
+        if (policyPref != null) {
+            if (isZh) {
+                policyPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(@NonNull Preference preference) {
+                        SeaWebViewActivity.openUrlDirectly(requireContext(), Constants.URL_PRIVACY);
+                        return true;
+                    }
+                });
+            } else {
+                policyPref.setVisible(false);
+            }
+        }
+
         String appVersion = AppUtils.getAppVersionName();
 
         // App Version
-        Preference versionPref = findPreference(getString(R.string.pref_key_about_version));
+        TextTitleSummaryPreference versionPref = findPreference(getString(R.string.pref_key_about_version));
         if (versionPref != null) {
+            if (isZh) {
+
+            } else {
+                versionPref.setRadiusPosition(RadiusPositionEnum.TOP);
+                versionPref.setDividerPosition(DividerPositionEnum.BOTTOM);
+            }
             versionPref.setSummary(appVersion);
         }
 
@@ -481,24 +503,6 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
         }
     }
 
-    private void initPolicyPref() {
-        String country = Locale.getDefault().getCountry();
-        String language = Locale.getDefault().getLanguage();
-        Preference policyPref = findPreference(getString(R.string.pref_key_about_privacy));
-        if (policyPref != null) {
-            if (TextUtils.equals("CN", country) || TextUtils.equals("zh", language)) {
-                policyPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                    @Override
-                    public boolean onPreferenceClick(@NonNull Preference preference) {
-                        SeaWebViewActivity.openUrlDirectly(requireContext(), Constants.URL_PRIVACY);
-                        return true;
-                    }
-                });
-            } else {
-                policyPref.setVisible(false);
-            }
-        }
-    }
 
     private void onPreferenceSignOutClicked() {
         SignOutDialogFragment dialogFragment = new SignOutDialogFragment();
@@ -924,6 +928,8 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
         if (AlbumBackupSharePreferenceHelper.isAlbumBackupEnable()) {
             CameraUploadManager.getInstance().setCameraAccount(currentAccount);
             CameraUploadManager.getInstance().performSync(isForce);
+
+            BackgroundWorkManager.getInstance().scheduleAlbumBackupPeriodicScan();
         } else {
             //stop
             if (TransferService.getServiceRunning()) {
@@ -931,6 +937,8 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
                 if (future != null && !future.isDone()) {
                     TransferService.stopPhotoBackupService(requireContext());
                     CameraUploadManager.getInstance().disableCameraUpload();
+
+                    BackgroundWorkManager.getInstance().stopAlbumBackupPeriodicScan();
                 }
             }
         }
@@ -994,8 +1002,17 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
         BusHelper.getCommonObserver().post(BusAction.RESTART_FILE_MONITOR);
 
         if (FolderBackupSharePreferenceHelper.isFolderBackupEnable()) {
+            //start periodic folder backup scan worker
+            BackgroundJobManagerImpl.getInstance().scheduleFolderBackupScan();
+
+            //start folder backup service
             TransferService.restartFolderBackupService(requireContext(), isForce);
         } else {
+
+            // stop periodic folder backup service
+            BackgroundJobManagerImpl.getInstance().stopFolderBackupPeriodicTransferService();
+
+
             if (TransferService.getServiceRunning()) {
                 CompletableFuture<Void> future = TransferService.getActiveTasks().getOrDefault(FeatureDataSource.FOLDER_BACKUP, null);
                 if (future != null && !future.isDone()) {

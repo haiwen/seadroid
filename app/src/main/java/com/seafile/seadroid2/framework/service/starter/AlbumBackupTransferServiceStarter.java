@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.framework.worker.starter;
+package com.seafile.seadroid2.framework.service.starter;
 
 import android.content.Context;
 
@@ -8,8 +8,8 @@ import androidx.work.WorkerParameters;
 
 import com.seafile.seadroid2.framework.service.TransferService;
 
-public class AlbumBackupTransferServiceStarterWorker extends Worker {
-    public AlbumBackupTransferServiceStarterWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
+public class AlbumBackupTransferServiceStarter extends Worker {
+    public AlbumBackupTransferServiceStarter(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
     }
 

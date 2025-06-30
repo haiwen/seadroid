@@ -230,7 +230,8 @@
         <service
             android:name=".ui.camera_upload.CameraSyncService"
             android:enabled="true"
-            android:exported="true">
+            android:exported="true"
+            android:permission="android.permission.BIND_SYNC_ADAPTER">
             <intent-filter>
                 <action android:name="android.content.SyncAdapter" />
             </intent-filter>
@@ -245,6 +246,11 @@
         <service
             android:name=".framework.file_monitor.FileSyncService"
             android:exported="false" />
+
+<!--        <service-->
+<!--            android:name=".framework.service.scan.FolderBackupScanJobService"-->
+<!--            android:exported="true"-->
+<!--            android:permission="android.permission.BIND_JOB_SERVICE" />-->
 
         <!--        <receiver-->
         <!--            android:name=".BootAutostart"-->

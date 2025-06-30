@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.framework.worker.upload;
+package com.seafile.seadroid2.framework.service.starter;
 
 import android.content.Context;
 
@@ -24,10 +24,11 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.List;
 import java.util.UUID;
 
-public class FolderBackupScanWorker extends Worker {
-    public static final String TAG = "FolderBackupScanWorker";
+public class FolderBackupScanStarter extends Worker {
+    public static final String TAG = "FolderBackupScanStarter";
+    public static final UUID UID = UUID.nameUUIDFromBytes(FolderBackupScanStarter.class.getSimpleName().getBytes());
 
-    public FolderBackupScanWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
+    public FolderBackupScanStarter(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
     }
 

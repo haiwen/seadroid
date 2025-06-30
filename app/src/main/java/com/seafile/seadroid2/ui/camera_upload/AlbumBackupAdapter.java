@@ -7,21 +7,12 @@ import android.content.Context;
 import android.content.SyncResult;
 import android.os.Bundle;
 
-import androidx.work.Constraints;
-import androidx.work.ExistingWorkPolicy;
-import androidx.work.OneTimeWorkRequest;
-import androidx.work.WorkManager;
-
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
-import com.seafile.seadroid2.bus.BusHelper;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.service.TransferService;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
-import com.seafile.seadroid2.framework.worker.starter.AlbumBackupTransferServiceStarterWorker;
-
-import java.util.concurrent.TimeUnit;
 
 /**
  * Sync adapter for media upload.

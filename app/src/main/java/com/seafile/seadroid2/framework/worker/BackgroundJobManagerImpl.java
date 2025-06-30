@@ -6,6 +6,7 @@ import android.text.TextUtils;
 import androidx.work.BackoffPolicy;
 import androidx.work.Constraints;
 import androidx.work.Data;
+import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.ExistingWorkPolicy;
 import androidx.work.ListenableWorker;
 import androidx.work.NetworkType;
@@ -21,9 +22,9 @@ import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.worker.download.DownloadFileScannerWorker;
 import com.seafile.seadroid2.framework.worker.download.DownloadWorker;
 import com.seafile.seadroid2.framework.worker.reupoad.DownloadedFileMonitorWorker;
-import com.seafile.seadroid2.framework.worker.starter.AlbumBackupTransferServiceStarterWorker;
+import com.seafile.seadroid2.framework.service.starter.AlbumBackupTransferServiceStarter;
+import com.seafile.seadroid2.framework.service.starter.FolderBackupScanStarter;
 import com.seafile.seadroid2.framework.worker.upload.FileUploadWorker;
-import com.seafile.seadroid2.framework.worker.upload.FolderBackupScanWorker;
 import com.seafile.seadroid2.framework.worker.upload.FolderBackupUploadWorker;
 import com.seafile.seadroid2.framework.worker.upload.MediaBackupScanWorker;
 import com.seafile.seadroid2.framework.worker.upload.MediaBackupUploadWorker;
@@ -67,17 +68,11 @@ public class BackgroundJobManagerImpl {
                 .addTag(tClass.getSimpleName());
     }
 
-    private <T extends ListenableWorker> PeriodicWorkRequest.Builder periodicRequestBuilder(Class<T> tClass, long intervalMins, long flexIntervalMins) {
-        if (intervalMins == 0) {
-            intervalMins = DEFAULT_PERIODIC_JOB_INTERVAL_MINUTES;
-        }
-        if (flexIntervalMins == 0) {
-            flexIntervalMins = DEFAULT_PERIODIC_JOB_INTERVAL_MINUTES;
-        }
-        return new PeriodicWorkRequest.Builder(tClass, intervalMins, TimeUnit.MINUTES, flexIntervalMins, TimeUnit.MINUTES)
+    private <T extends ListenableWorker> PeriodicWorkRequest.Builder periodicRequestBuilder(Class<T> tClass) {
+        return new PeriodicWorkRequest.Builder(tClass, DEFAULT_PERIODIC_JOB_INTERVAL_MINUTES, TimeUnit.MINUTES)
                 .addTag(TAG_ALL)
                 .addTag(TAG_TRANSFER)
-                .addTag(TAG_TRANSFER + ":" + tClass.getSimpleName());
+                .addTag(tClass.getSimpleName());
     }
 
     public void cancelById(UUID uid) {
@@ -99,17 +94,18 @@ public class BackgroundJobManagerImpl {
 
     /// /////////////////// starter //////////////////////
     public static void startAlbumBackupTransferService(Context context) {
-        OneTimeWorkRequest request = new OneTimeWorkRequest.Builder(AlbumBackupTransferServiceStarterWorker.class)
+        OneTimeWorkRequest request = new OneTimeWorkRequest.Builder(AlbumBackupTransferServiceStarter.class)
                 .setConstraints(new Constraints.Builder().build())
                 .setInitialDelay(0, TimeUnit.SECONDS)
                 .build();
 
         WorkManager.getInstance(context).enqueueUniqueWork(
-                AlbumBackupTransferServiceStarterWorker.class.getName(),
+                AlbumBackupTransferServiceStarter.class.getName(),
                 ExistingWorkPolicy.REPLACE,
                 request
         );
     }
+
 
     /// /////////////////// media //////////////////////
 
@@ -174,33 +170,40 @@ public class BackgroundJobManagerImpl {
 
     /// /////////////////// upload folder //////////////////////
 
-    public void startFolderBackupChain(boolean isForce) {
-        SLogs.d(TAG, "startFolderBackupChain()", "isForce:" + isForce);
+
+    /**
+     * Schedules a periodic FolderBackupScanWorker.
+     * The FolderBackupScanWorker itself will enqueue a FolderBackupUploadWorker if needed.
+     */
+    public void scheduleFolderBackupScan() {
+        SLogs.d(TAG, "startFolderBackupChain()");
         cancelFolderBackupWorker();
 
-        OneTimeWorkRequest scanRequest = getFolderBackupScanWorkerRequest(isForce);
-        OneTimeWorkRequest uploadRequest = getFolderBackupUploadWorkerRequest();
+        PeriodicWorkRequest scanPeriodicRequest = getFolderBackupScanWorkerRequest();
 
-        String workerName = FolderBackupScanWorker.class.getSimpleName();
-
-        getWorkManager()
-                .beginUniqueWork(workerName, ExistingWorkPolicy.KEEP, scanRequest)
-                .then(uploadRequest)
-                .enqueue();
+        getWorkManager().enqueueUniquePeriodicWork(
+                FolderBackupScanStarter.TAG,
+                ExistingPeriodicWorkPolicy.KEEP,
+                scanPeriodicRequest
+        );
+    }
+    
+    public void stopFolderBackupPeriodicTransferService() {
+        getWorkManager().cancelUniqueWork(FolderBackupScanStarter.TAG);
     }
 
-    private OneTimeWorkRequest getFolderBackupScanWorkerRequest(boolean isForce) {
+    private PeriodicWorkRequest getFolderBackupScanWorkerRequest() {
         Data data = new Data.Builder()
-                .putBoolean(TransferWorker.DATA_FORCE_TRANSFER_KEY, isForce)
+                .putBoolean(TransferWorker.DATA_FORCE_TRANSFER_KEY, true)
                 .build();
 
         Constraints constraints = new Constraints.Builder()
                 .setRequiredNetworkType(NetworkType.CONNECTED)
                 .build();
 
-        return oneTimeRequestBuilder(FolderBackupScanWorker.class)
+        return periodicRequestBuilder(FolderBackupScanStarter.class)
                 .setInputData(data)
-                .setId(FolderBackupScanWorker.UID)
+                .setId(FolderBackupScanStarter.UID)
                 .addTag(TAG_FOLDER_BACKUP)
                 .setConstraints(constraints)
                 .build();

@@ -62,7 +62,6 @@ public class Utils {
     private static final String DEBUG_TAG = "Utils";
     private static final String HIDDEN_PREFIX = ".";
     private static HashMap<String, Integer> suffixIconMap = null;
-    private static final int JOB_ID = 0;
 
     private Utils() {
     }
@@ -573,18 +572,6 @@ public class Utils {
         }
     }
 
-
-    public static void startCameraSyncJob(Context context) {
-//        JobScheduler mJobScheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
-//        JobInfo.Builder builder = new JobInfo.Builder(JOB_ID, new ComponentName(context.getPackageName(), MediaSchedulerService.class.getName()));
-//        builder.setMinimumLatency(5 * 1000);// Set to execute after at least 15 minutes delay
-//        builder.setOverrideDeadline(60 * 60 * 1000);// The setting is delayed by 20 minutes,
-//        builder.setRequiresCharging(false);
-//        builder.setRequiresDeviceIdle(false);
-//        builder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY);
-//        builder.setPersisted(true);
-//        mJobScheduler.schedule(builder.build());
-    }
 
     public static String getSyncCompletedTime() {
         SimpleDateFormat formatter = new SimpleDateFormat("MM-dd HH:mm");
