@@ -140,13 +140,11 @@ public class AlbumScanHelper {
 
             //query images
             hasResult = loadImages(context, lastScanTime, account, repoConfig, bucketIdList, true);
-            if (hasResult) {
-                return true;
-            }
-
-            //query videos
-            if (AlbumBackupSharePreferenceHelper.readAllowVideoSwitch()) {
-                loadVideos(context, lastScanTime, account, repoConfig, bucketIdList, true);
+            if (!hasResult) {
+                //query videos
+                if (AlbumBackupSharePreferenceHelper.readAllowVideoSwitch()) {
+                    hasResult = loadVideos(context, lastScanTime, account, repoConfig, bucketIdList, true);
+                }
             }
 
         } finally {

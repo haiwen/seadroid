@@ -150,12 +150,14 @@ public class FolderBackupUploader extends ParentEventUploader {
             }
         }
 
-        Toasts.show(R.string.upload_finished);
-        SafeLogs.d(TAG, "all completed");
-
         String errorMsg = null;
         if (resultSeafException != SeafException.SUCCESS) {
             errorMsg = resultSeafException.getMessage();
+            SafeLogs.d(TAG, "all completed", "error msg: " + errorMsg);
+            Toasts.show(R.string.backup_finished);
+        } else {
+            Toasts.show(R.string.backup_completed);
+            SafeLogs.d(TAG, "all completed");
         }
         sendCompleteEvent(FeatureDataSource.FOLDER_BACKUP, errorMsg, totalPendingCount);
         return resultSeafException;

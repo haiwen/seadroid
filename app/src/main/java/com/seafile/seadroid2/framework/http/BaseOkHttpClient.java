@@ -39,8 +39,6 @@ public abstract class BaseOkHttpClient {
         this.cache = new Cache(httpCacheDirectory, MAX_CACHE_SIZE);
     }
 
-    public abstract OkHttpClient getOkClient();
-
     protected List<Interceptor> getInterceptors() {
 
         List<Interceptor> interceptors = getInterceptorsWithoutToken();

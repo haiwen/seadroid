@@ -302,7 +302,7 @@ public class DownloadWorker extends BaseDownloadWorker {
                 .build();
 
         if (okHttpClient == null) {
-            okHttpClient = HttpIO.getCurrentInstance().getOkHttpClient().getOkClient();
+            okHttpClient = HttpIO.getCurrentInstance().getSafeClient().getOkClient();
         }
 
         Call newCall = okHttpClient.newCall(request);

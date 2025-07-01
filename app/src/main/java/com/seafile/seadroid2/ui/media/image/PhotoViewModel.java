@@ -329,7 +329,7 @@ public class PhotoViewModel extends BaseViewModel {
                         .get()
                         .build();
 
-                Call newCall = HttpIO.getCurrentInstance().getOkHttpClient().getOkClient().newCall(request);
+                Call newCall = HttpIO.getCurrentInstance().getSafeClient().getOkClient().newCall(request);
 
                 try (Response response = newCall.execute()) {
                     if (!response.isSuccessful()) {

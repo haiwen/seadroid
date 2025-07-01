@@ -68,27 +68,28 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:theme="@style/V27.BaseTheme.App.Toolbar">
 
-        <!--        <provider-->
-        <!--            android:name="androidx.startup.InitializationProvider"-->
-        <!--            android:authorities="${applicationId}.androidx-startup"-->
-        <!--            android:exported="false"-->
-        <!--            tools:node="merge">-->
-        <!--            &lt;!&ndash; This entry makes ExampleLoggerInitializer discoverable. &ndash;&gt;-->
-        <!--            <meta-data  android:name="com.example.ExampleLoggerInitializer"-->
-        <!--                android:value="androidx.startup" />-->
-        <!--        </provider>-->
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="merge">
+            <!-- This entry makes ExampleLoggerInitializer discoverable. -->
+            <meta-data
+                android:name="com.example.ExampleLoggerInitializer"
+                android:value="androidx.startup" />
+        </provider>
 
-        <!--        <provider-->
-        <!--            android:name="androidx.startup.InitializationProvider"-->
-        <!--            android:authorities="${applicationId}.androidx-startup"-->
-        <!--            android:exported="false"-->
-        <!--            tools:node="merge">-->
-        <!--            &lt;!&ndash; If you are using androidx.startup to initialize other components &ndash;&gt;-->
-        <!--            <meta-data-->
-        <!--                android:name="androidx.work.WorkManagerInitializer"-->
-        <!--                android:value="androidx.startup"-->
-        <!--                tools:node="remove" />-->
-        <!--        </provider>-->
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="merge">
+            <!-- If you are using androidx.startup to initialize other components -->
+            <meta-data
+                android:name="androidx.work.WorkManagerInitializer"
+                android:value="androidx.startup"
+                tools:node="remove" />
+        </provider>
 
         <service
             android:name="androidx.work.impl.foreground.SystemForegroundService"
@@ -247,10 +248,10 @@
             android:name=".framework.file_monitor.FileSyncService"
             android:exported="false" />
 
-<!--        <service-->
-<!--            android:name=".framework.service.scan.FolderBackupScanJobService"-->
-<!--            android:exported="true"-->
-<!--            android:permission="android.permission.BIND_JOB_SERVICE" />-->
+        <!--        <service-->
+        <!--            android:name=".framework.service.scan.FolderBackupScanJobService"-->
+        <!--            android:exported="true"-->
+        <!--            android:permission="android.permission.BIND_JOB_SERVICE" />-->
 
         <!--        <receiver-->
         <!--            android:name=".BootAutostart"-->

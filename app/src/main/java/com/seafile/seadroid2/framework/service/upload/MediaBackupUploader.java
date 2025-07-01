@@ -150,14 +150,16 @@ public class MediaBackupUploader extends ParentEventUploader {
 
         }
 
-
-        Toasts.show(R.string.upload_finished);
-        SafeLogs.d(TAG, "all completed");
-
         //
         String errorMsg = null;
         if (resultSeafException != SeafException.SUCCESS) {
             errorMsg = resultSeafException.getMessage();
+
+            SafeLogs.d(TAG, "all completed", "error msg: " + errorMsg);
+            Toasts.show(R.string.backup_finished);
+        } else {
+            SafeLogs.d(TAG, "all completed");
+            Toasts.show(R.string.backup_completed);
         }
         sendCompleteEvent(FeatureDataSource.ALBUM_BACKUP, errorMsg, totalPendingCount);
         return resultSeafException;

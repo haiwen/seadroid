@@ -13,6 +13,7 @@ import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePre
 import com.seafile.seadroid2.framework.service.ParentEventTransfer;
 import com.seafile.seadroid2.framework.service.scan.AlbumScanHelper;
 import com.seafile.seadroid2.framework.util.SafeLogs;
+import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
 import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
@@ -31,7 +32,9 @@ public class MediaBackupScanner extends ParentEventTransfer {
     }
 
     public SeafException scan(boolean isForce) {
-        SafeLogs.d(TAG, "doWork()", "started execution");
+        Toasts.showShort("相册扫描器启动");
+        SafeLogs.e(TAG, "相册扫描器启动");
+
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
         if (account == null) {
             return returnSuccess();

@@ -90,13 +90,17 @@ public class ShareToSeafileUploader extends ParentEventUploader {
             }
         }
 
-        Toasts.show(R.string.upload_finished);
-        SafeLogs.d(TAG, "all completed");
-
         String errorMsg = null;
         if (resultSeafException != SeafException.SUCCESS) {
             errorMsg = resultSeafException.getMessage();
+
+            SafeLogs.d(TAG, "all completed", "error: " + errorMsg);
+            Toasts.show(R.string.upload_finished);
+        } else {
+            SafeLogs.d(TAG, "all completed");
+            Toasts.show(R.string.upload_completed);
         }
+
         sendCompleteEvent(FeatureDataSource.SHARE_FILE_TO_SEAFILE, errorMsg, totalPendingCount);
         return resultSeafException;
     }

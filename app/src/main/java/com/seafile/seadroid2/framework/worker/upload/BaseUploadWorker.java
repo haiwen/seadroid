@@ -235,7 +235,7 @@ public abstract class BaseUploadWorker extends TransferWorker {
                 .build();
 
         if (okHttpClient == null) {
-            okHttpClient = HttpIO.getInstanceByAccount(account).getOkHttpClient().getOkClient();
+            okHttpClient = HttpIO.getInstanceByAccount(account).getSafeClient().getOkClient();
         }
         newCall = okHttpClient.newCall(request);
 

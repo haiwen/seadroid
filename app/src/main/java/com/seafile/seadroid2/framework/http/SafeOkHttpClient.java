@@ -10,6 +10,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -24,6 +25,7 @@ import javax.net.ssl.X509TrustManager;
 import okhttp3.ConnectionSpec;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
+import okhttp3.Protocol;
 
 public class SafeOkHttpClient extends BaseOkHttpClient {
     private final List<Interceptor> _interceptors = new ArrayList<>();
@@ -76,14 +78,19 @@ public class SafeOkHttpClient extends BaseOkHttpClient {
         }
     }
 
-    private OkHttpClient okHttpClient;
-
-    @Override
     public OkHttpClient getOkClient() {
-        if (okHttpClient != null) {
-            return okHttpClient;
-        }
+        return getOkClient(false);
+    }
 
+    public OkHttpClient getOkClient(boolean isForceUseHttp_1_1) {
+        OkHttpClient.Builder builder = getOkClientBuilder();
+        if (isForceUseHttp_1_1) {
+            builder.protocols(Collections.singletonList(Protocol.HTTP_1_1));
+        }
+        return builder.build();
+    }
+
+    private OkHttpClient.Builder getOkClientBuilder() {
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
 
         //https
@@ -150,8 +157,8 @@ public class SafeOkHttpClient extends BaseOkHttpClient {
         builder.writeTimeout(DEFAULT_TIME_OUT, TimeUnit.MILLISECONDS);
         builder.readTimeout(DEFAULT_TIME_OUT, TimeUnit.MILLISECONDS);
         builder.connectTimeout(DEFAULT_TIME_OUT, TimeUnit.MILLISECONDS);
-
-        okHttpClient = builder.build();
-        return okHttpClient;
+        return builder;
     }
+
+
 }

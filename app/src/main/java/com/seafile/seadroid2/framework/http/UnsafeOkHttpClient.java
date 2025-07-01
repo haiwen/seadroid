@@ -93,7 +93,6 @@ public class UnsafeOkHttpClient extends BaseOkHttpClient {
         return builder;
     }
 
-    @Override
     public OkHttpClient getOkClient() {
         OkHttpClient.Builder builder = getBuilder();
         return builder.build();

@@ -117,7 +117,7 @@ public class FileViewModel extends BaseViewModel {
         return Flowable.create(new FlowableOnSubscribe<Long[]>() {
             @Override
             public void subscribe(FlowableEmitter<Long[]> emitter) throws Exception {
-                OkHttpClient client = HttpIO.getCurrentInstance().getOkHttpClient().getOkClient();
+                OkHttpClient client = HttpIO.getCurrentInstance().getSafeClient().getOkClient();
 
                 try (OutputStream outputStream = Files.newOutputStream(destinationFile.toPath())) {
                     BinaryFileWriter fileWriter = new BinaryFileWriter(outputStream, new ProgressCallback() {

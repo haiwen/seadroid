@@ -1,6 +1,8 @@
 package com.seafile.seadroid2.framework.service.starter;
 
 import android.content.Context;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
@@ -10,24 +12,46 @@ import androidx.work.WorkerParameters;
 import com.blankj.utilcode.util.NetworkUtils;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.service.TransferService;
 import com.seafile.seadroid2.framework.service.scan.AlbumScanHelper;
 import com.seafile.seadroid2.framework.util.SafeLogs;
+import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
 import com.seafile.seadroid2.ui.folder_backup.RepoConfig;
 
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+
 public class AlbumBackupScanStarter extends Worker {
     public static final String TAG = "AlbumBackupScanStarter";
+    public static final UUID UID = UUID.nameUUIDFromBytes(AlbumBackupScanStarter.class.getSimpleName().getBytes());
 
     public AlbumBackupScanStarter(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
     }
 
+    private static boolean canExc() {
+        if (!TransferService.getServiceRunning()) {
+            return true;
+        }
+
+        CompletableFuture<Void> future = TransferService.getActiveTasks().getOrDefault(FeatureDataSource.ALBUM_BACKUP, null);
+        return future == null || future.isDone();
+    }
+
     @NonNull
     @Override
     public Result doWork() {
-        SafeLogs.d(TAG, "doWork()", "started execution");
+        Toasts.showShort("相册扫描 Worker 启动");
+        SafeLogs.e(TAG, "相册扫描 Worker 启动");
+
+        if (!canExc()) {
+            SafeLogs.d(TAG, "doWork()", "The album scan task was not started, because the transfer service is not running");
+            return Result.success();
+        }
+
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
         if (account == null) {
             return Result.success();

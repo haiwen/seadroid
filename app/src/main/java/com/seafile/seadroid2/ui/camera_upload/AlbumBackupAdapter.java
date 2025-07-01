@@ -10,6 +10,7 @@ import android.os.Bundle;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
+import com.seafile.seadroid2.framework.service.BackgroundWorkManager;
 import com.seafile.seadroid2.framework.service.TransferService;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
@@ -91,6 +92,6 @@ public class AlbumBackupAdapter extends AbstractThreadedSyncAdapter {
         }
 
         // start
-        BackgroundJobManagerImpl.startAlbumBackupTransferService(getContext());
+        BackgroundWorkManager.getInstance().startAlbumBackupTransferService(getContext());
     }
 }

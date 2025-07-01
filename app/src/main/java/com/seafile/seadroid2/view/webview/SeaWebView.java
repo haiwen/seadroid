@@ -15,6 +15,7 @@ import com.github.lzyzsd.jsbridge.BridgeHandler;
 import com.github.lzyzsd.jsbridge.CallBackFunction;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.config.WebViewActionConstant;
 import com.seafile.seadroid2.framework.model.WebRouteModel;
 import com.seafile.seadroid2.framework.util.SLogs;
@@ -30,7 +31,6 @@ import java.util.Locale;
 public class SeaWebView extends NestedWebView {
     public static final String PATH_ACCOUNT_LOGIN = "accounts/login/";
     public static String URL_LOGIN = null;
-    private final String SEAFILE_UA = "Seafile Android/3.0";
     private final String JS_FUNCTION_NAME = "callJsFunction";
     private final SeaWebViewClient mWebViewClient = new SeaWebViewClient(this);
 
@@ -86,9 +86,9 @@ public class SeaWebView extends NestedWebView {
         //ua
         String ua = webSettings.getUserAgentString();
         if (TextUtils.isEmpty(ua)) {
-            ua = SEAFILE_UA;
+            ua = Constants.UA.SEAFILE_ANDROID_UA;
         } else {
-            ua += " " + SEAFILE_UA;
+            ua += " " + Constants.UA.SEAFILE_ANDROID_UA;
         }
         webSettings.setUserAgentString(ua);
         SLogs.d("seafile webview ua: " + ua);

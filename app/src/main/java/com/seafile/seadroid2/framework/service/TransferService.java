@@ -114,7 +114,7 @@ public class TransferService extends EventService {
 
     public static void stopTransfer(Context context, TransferModel model) {
         if (model == null) {
-            return;
+            throw new IllegalArgumentException("model is null");
         }
 
         Bundle bundle = new Bundle();
@@ -246,8 +246,7 @@ public class TransferService extends EventService {
 
                 break;
             case STOP_TRANSFER:
-                Bundle extras = intent.getExtras();
-                stopById(extras);
+                stopById(intent.getExtras());
                 break;
         }
 
@@ -401,42 +400,53 @@ public class TransferService extends EventService {
 
     public void stopById(Bundle extras) {
         if (extras == null) {
-            return;
+            throw new RuntimeException("You must provide a valid bundle.");
         }
 
         String modelId = extras.getString("model");
         String dataSource = extras.getString("source");
+
         if (TextUtils.isEmpty(modelId) || TextUtils.isEmpty(dataSource)) {
-            return;
+            throw new RuntimeException("You must provide a valid parameter.");
         }
 
         if (FeatureDataSource.ALBUM_BACKUP.name().equals(dataSource)) {
+            startForegroundNotification(FeatureDataSource.ALBUM_BACKUP);
+
             if (mediaBackupUploader != null) {
                 mediaBackupUploader.stopById(modelId);
-            }else {
+            } else {
                 GlobalTransferCacheList.ALBUM_BACKUP_QUEUE.remove(modelId);
             }
 
         } else if (FeatureDataSource.FOLDER_BACKUP.name().equals(dataSource)) {
+            startForegroundNotification(FeatureDataSource.FOLDER_BACKUP);
+
             if (folderBackupUploader != null) {
                 folderBackupUploader.stopById(modelId);
-            }else {
+            } else {
                 GlobalTransferCacheList.FOLDER_BACKUP_QUEUE.remove(modelId);
             }
 
         } else if (FeatureDataSource.MANUAL_FILE_UPLOAD.name().equals(dataSource)) {
+            startForegroundNotification(FeatureDataSource.MANUAL_FILE_UPLOAD);
+
             if (fileUploader != null) {
                 fileUploader.stopById(modelId);
-            }else {
+            } else {
                 GlobalTransferCacheList.FILE_UPLOAD_QUEUE.remove(modelId);
             }
 
         } else if (FeatureDataSource.DOWNLOAD.name().equals(dataSource)) {
+            startForegroundNotification(FeatureDataSource.DOWNLOAD);
+
             if (downloader != null) {
                 downloader.stopById(modelId);
-            }else {
+            } else {
                 GlobalTransferCacheList.DOWNLOAD_QUEUE.remove(modelId);
             }
+        } else {
+            throw new RuntimeException("You must provide a valid data source.");
         }
 
         SafeLogs.d(TAG, "stopById()", "stopped: " + modelId);

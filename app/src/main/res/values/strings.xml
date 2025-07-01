@@ -81,6 +81,7 @@
     <string name="download_failed">Download failed</string>
     <string name="download_waiting">Download waiting</string>
     <string name="download_finished">Download finished</string>
+    <string name="download_completed">Download completed</string>
     <string name="download_cancelled">Download cancelled</string>
     <string name="task_cancel">Cancel</string>
     <string name="task_retry">Retry</string>
@@ -237,6 +238,7 @@
     <string name="provide_password">Provide the password for library \"%s\"</string>
     <string name="upload_waiting">Upload waiting</string>
     <string name="upload_finished">Upload finished</string>
+    <string name="upload_completed">Upload completed</string>
     <string name="upload_cancelled">Upload cancelled</string>
     <string name="upload_failed">Upload failed</string>
     <string name="upload_file_exist">File already exists</string>
@@ -728,7 +730,8 @@
     <string name="skip">Skip</string>
     <string name="previous">Previous</string>
     <string name="complete">Complete</string>
-
+    <string name="backup_completed">Backup completed</string>
+    <string name="backup_finished">Backup finished</string>
     <string name="export_log_file_not_exists">No log file is available for export.</string>
 
     <string name="file_transfer_stopped">The file transfer was stopped</string>

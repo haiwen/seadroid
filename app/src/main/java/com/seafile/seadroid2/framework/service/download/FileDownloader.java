@@ -107,17 +107,16 @@ public class FileDownloader extends ParentEventDownloader {
             }
         }
 
-        SafeLogs.d(TAG, "download()", "all completed");
-
-        //
-        if (resultSeafException != SeafException.SUCCESS) {
-            Toasts.show(R.string.download_finished);
-        }
-
         //
         String errorMsg = null;
         if (resultSeafException != SeafException.SUCCESS) {
             errorMsg = resultSeafException.getMessage();
+
+            SafeLogs.d(TAG, "download()", "all completed", "errorMsg: " + errorMsg);
+            Toasts.show(R.string.download_finished);
+        } else {
+            SafeLogs.d(TAG, "download()", "all completed");
+            Toasts.show(R.string.download_completed);
         }
 
         sendCompleteEvent(FeatureDataSource.DOWNLOAD, errorMsg, totalPendingCount);

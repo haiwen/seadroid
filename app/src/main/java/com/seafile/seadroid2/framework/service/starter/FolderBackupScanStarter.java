@@ -1,6 +1,8 @@
 package com.seafile.seadroid2.framework.service.starter;
 
 import android.content.Context;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 
 import androidx.annotation.NonNull;
 import androidx.work.Worker;
@@ -10,10 +12,12 @@ import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.NetworkUtils;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.service.TransferService;
 import com.seafile.seadroid2.framework.service.scan.FolderScanHelper;
 import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.util.SafeLogs;
 import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
@@ -23,6 +27,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public class FolderBackupScanStarter extends Worker {
     public static final String TAG = "FolderBackupScanStarter";
@@ -32,15 +37,23 @@ public class FolderBackupScanStarter extends Worker {
         super(context, workerParams);
     }
 
+    private static boolean canExc() {
+        if (!TransferService.getServiceRunning()) {
+            return true;
+        }
+
+        CompletableFuture<Void> future = TransferService.getActiveTasks().getOrDefault(FeatureDataSource.FOLDER_BACKUP, null);
+        return future == null || future.isDone();
+    }
+
     @NonNull
     @Override
     public Result doWork() {
-        Toasts.show("文件夹扫描 Worker 启动");
+        SafeLogs.e(TAG, "文件夹扫描 Worker 启动");
+        Toasts.showShort("文件夹扫描 Worker 启动");
 
-        SLogs.d(TAG, "doWork()", "started execution");
-        boolean isServiceRunning = TransferService.getServiceRunning();
-        if (isServiceRunning) {
-            SLogs.d(TAG, "The folder scan task was not started, because the transfer service is running");
+        if (!canExc()) {
+            SLogs.d(TAG, "The folder scan task was not started, because the transfer service is not running");
             return Result.success();
         }
 

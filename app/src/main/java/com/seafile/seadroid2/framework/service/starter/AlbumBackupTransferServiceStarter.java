@@ -8,6 +8,9 @@ import androidx.work.WorkerParameters;
 
 import com.seafile.seadroid2.framework.service.TransferService;
 
+/**
+ * Because the ForegroundService could not be started from the background
+ */
 public class AlbumBackupTransferServiceStarter extends Worker {
     public AlbumBackupTransferServiceStarter(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);

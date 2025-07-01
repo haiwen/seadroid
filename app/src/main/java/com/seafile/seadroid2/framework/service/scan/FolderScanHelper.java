@@ -17,6 +17,7 @@ import com.seafile.seadroid2.framework.db.entities.FileBackupStatusEntity;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.model.dirents.DirentRecursiveFileModel;
+import com.seafile.seadroid2.framework.service.TransferService;
 import com.seafile.seadroid2.framework.util.SafeLogs;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
@@ -37,6 +38,7 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.regex.Pattern;
@@ -56,7 +58,6 @@ public class FolderScanHelper {
 
         return !NetworkUtils.isMobileData();
     }
-
 
     private static List<DirentRecursiveFileModel> getDirentWrapper(String repoId, String parentPath) throws SeafException {
         //get parent dirent list from remote
@@ -106,7 +107,6 @@ public class FolderScanHelper {
             stopwatch = Stopwatch.createStarted();
 
             for (String backupPath : backupPathsList) {
-
                 backupPath = Utils.pathJoin("/", backupPath, "/");
 
                 int c = compareCount(repoConfig, account, repoModel, backupPath, lastTime, ignorePath);
@@ -202,7 +202,6 @@ public class FolderScanHelper {
         // remote dirent list
         List<DirentRecursiveFileModel> remoteList = getDirentWrapper(repoModel.repo_id, parentPath);
 
-
         for (File localFile : localFiles) {
 
             // backupPath is /storage/emulated/0/aaa/bbb/
@@ -215,7 +214,7 @@ public class FolderScanHelper {
 
             FileBackupStatusEntity dbTransferEntity = dbTransferMap.getOrDefault(fullPathFileName, null);
             if (dbTransferEntity != null) {
-                SafeLogs.d(TAG, "compare()", "folder backup: skip file: " + fullPathFileName + ", because it has been uploaded");
+                SafeLogs.d(TAG, "compareCount()", "folder backup: skip file: " + fullPathFileName + ", because it has been uploaded");
                 continue;
             }
 
@@ -247,11 +246,15 @@ public class FolderScanHelper {
 
                 if (firstOp.isPresent()) {
                     //skip: the document with the same name exists in the remote repository
-                    SafeLogs.d(TAG, "compare()", "folder backup: skip file: " + fullPathFileName + ", because the same name exists remotely");
+                    SafeLogs.d(TAG, "compareCount()", "folder backup: skip file: " + fullPathFileName + ", because the same name exists remotely");
                     continue;
                 }
             }
+
             backupableCount++;
+
+            // As long as there is one file that needs to be uploaded, the folder is considered to be backupable
+            break;
         }
 
         return backupableCount;

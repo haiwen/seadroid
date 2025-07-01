@@ -929,16 +929,18 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
             CameraUploadManager.getInstance().setCameraAccount(currentAccount);
             CameraUploadManager.getInstance().performSync(isForce);
 
+            // start periodic album backup scan worker
             BackgroundWorkManager.getInstance().scheduleAlbumBackupPeriodicScan();
         } else {
             //stop
+            // stop periodic album backup scan worker
+            BackgroundWorkManager.getInstance().stopAlbumBackupPeriodicScan();
+
             if (TransferService.getServiceRunning()) {
                 CompletableFuture<Void> future = TransferService.getActiveTasks().getOrDefault(FeatureDataSource.ALBUM_BACKUP, null);
                 if (future != null && !future.isDone()) {
                     TransferService.stopPhotoBackupService(requireContext());
                     CameraUploadManager.getInstance().disableCameraUpload();
-
-                    BackgroundWorkManager.getInstance().stopAlbumBackupPeriodicScan();
                 }
             }
         }

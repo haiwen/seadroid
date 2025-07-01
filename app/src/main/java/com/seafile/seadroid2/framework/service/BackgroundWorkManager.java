@@ -14,6 +14,7 @@ import androidx.work.OneTimeWorkRequest;
 import androidx.work.OutOfQuotaPolicy;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
+import androidx.work.WorkRequest;
 
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
@@ -56,7 +57,9 @@ public class BackgroundWorkManager {
         SLogs.d(TAG, "oneTimeRequestBuilder()", "Creating WorkRequest for: " + tClass.getSimpleName());
 
         return new OneTimeWorkRequest.Builder(tClass)
-                .setBackoffCriteria(BackoffPolicy.LINEAR, 5, TimeUnit.SECONDS);
+                .setBackoffCriteria(BackoffPolicy.LINEAR, WorkRequest.MIN_BACKOFF_MILLIS, TimeUnit.MILLISECONDS)
+                .setInitialDelay(0, TimeUnit.SECONDS)
+                .addTag(tClass.getSimpleName());
     }
 
     private <T extends ListenableWorker> PeriodicWorkRequest.Builder periodicRequestBuilder(Class<T> tClass) {
@@ -67,19 +70,20 @@ public class BackgroundWorkManager {
         return WorkManager.getInstance(SeadroidApplication.getAppContext());
     }
 
-    public static void startAlbumBackupTransferService(Context context) {
-        OneTimeWorkRequest request = new OneTimeWorkRequest.Builder(AlbumBackupTransferServiceStarter.class)
-                .setConstraints(new Constraints.Builder().build())
-                .setInitialDelay(0, TimeUnit.SECONDS)
-                .build();
+    // album backup
+    public void startAlbumBackupTransferService(Context context) {
+        OneTimeWorkRequest.Builder builder = oneTimeRequestBuilder(AlbumBackupTransferServiceStarter.class);
 
         WorkManager.getInstance(context).enqueueUniqueWork(
                 AlbumBackupTransferServiceStarter.class.getName(),
                 ExistingWorkPolicy.REPLACE,
-                request
+                builder.build()
         );
     }
 
+    /**
+     * Schedules a periodic AlbumBackupScanWorker.
+     */
     public void scheduleAlbumBackupPeriodicScan() {
         PeriodicWorkRequest scanPeriodicRequest = getAlbumBackupScanWorkerRequest();
 
@@ -100,14 +104,13 @@ public class BackgroundWorkManager {
                 .build();
 
         return periodicRequestBuilder(AlbumBackupScanStarter.class)
-                .setId(FolderBackupScanStarter.UID)
+                .setId(AlbumBackupScanStarter.UID)
                 .setConstraints(constraints)
                 .build();
     }
 
     /**
      * Schedules a periodic FolderBackupScanWorker.
-     * The FolderBackupScanWorker itself will enqueue a FolderBackupUploadWorker if needed.
      */
     public void scheduleFolderBackupPeriodicScan() {
         PeriodicWorkRequest scanPeriodicRequest = getFolderBackupScanWorkerRequest();

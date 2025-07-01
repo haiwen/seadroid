@@ -10,6 +10,7 @@ import com.blankj.utilcode.util.TimeUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.SaveTo;
 import com.seafile.seadroid2.enums.TransferResult;
@@ -89,7 +90,22 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
     private final int retryMaxCount = 1;
     private TransferModel currentTransferModel;
     private Call newCall;
-    private OkHttpClient okHttpClient;
+    private OkHttpClient primaryHttpClient;
+    private OkHttpClient fallbackHttpClient;
+
+    public OkHttpClient getPrimaryHttpClient(Account account) {
+        if (primaryHttpClient == null) {
+            primaryHttpClient = HttpIO.getInstanceByAccount(account).getSafeClient().getOkClient();
+        }
+        return primaryHttpClient;
+    }
+
+    public OkHttpClient getFallbackHttpClient(Account account) {
+        if (fallbackHttpClient == null) {
+            fallbackHttpClient = HttpIO.getInstanceByAccount(account).getSafeClient().getOkClient(true);
+        }
+        return fallbackHttpClient;
+    }
 
     public TransferModel getCurrentTransferringModel() {
         return currentTransferModel;
@@ -106,8 +122,12 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
         SafeLogs.d(TAG, "stop()", "stop download");
         isStop = true;
 
-        if (okHttpClient != null) {
-            okHttpClient.dispatcher().cancelAll();
+        if (primaryHttpClient != null) {
+            primaryHttpClient.dispatcher().cancelAll();
+        }
+
+        if (fallbackHttpClient != null) {
+            fallbackHttpClient.dispatcher().cancelAll();
         }
 
         if (newCall != null) {
@@ -252,6 +272,10 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
 
         Request request = new Request.Builder()
                 .url(dlink)
+                .addHeader("Connection", "keep-alive")
+                .addHeader("Accept", "*/*")
+                .addHeader("User-Agent", Constants.UA.SEAFILE_ANDROID_UA)
+                .addHeader("User-Agent", Constants.UA.SEAFILE_ANDROID_DOWNLOAD_UA)
                 .get()
                 .build();
 
@@ -261,78 +285,97 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
             newCall.cancel();
         }
 
-        if (okHttpClient == null) {
-            okHttpClient = HttpIO.getInstanceByAccount(account).getOkHttpClient().getOkClient();
-        }
-
-        newCall = okHttpClient.newCall(request);
+        newCall = getPrimaryHttpClient(account).newCall(request);
 
         try (Response response = newCall.execute()) {
-            if (!response.isSuccessful()) {
-                int code = response.code();
-                String b = response.body() != null ? response.body().string() : null;
-                SafeLogs.d(TAG, "download()", "download failed：" + code + ", resBody is : " + b);
-
-                //
-                newCall.cancel();
-
-                throw ExceptionUtils.parseHttpException(code, b);
-            }
-
-            try (ResponseBody responseBody = response.body()) {
-                if (responseBody == null) {
-                    int code = response.code();
-                    SafeLogs.d(TAG, "download()", "download failed：" + code + ", resBody is null ", currentTransferModel.target_path);
-
-                    throw SeafException.NETWORK_EXCEPTION;
-                }
-
-                File localFile = DataManager.getLocalFileCachePath(account, currentTransferModel.repo_id, currentTransferModel.repo_name, currentTransferModel.full_path);
-
-                long fileSize = responseBody.contentLength();
-                if (fileSize == -1) {
-                    SafeLogs.d(TAG, "download()", "download failed：contentLength is -1", localFile.getAbsolutePath());
-                    fileSize = currentTransferModel.file_size;
-                }
-
-                //todo 检查剩余空间
-
-                File tempFile = DataManager.createTempFile();
-                try (InputStream inputStream = responseBody.byteStream();
-                     FileOutputStream fileOutputStream = new FileOutputStream(tempFile)) {
-
-                    long totalBytesRead = 0;
-
-                    int bytesRead;
-                    byte[] buffer = new byte[SEGMENT_SIZE];
-                    while ((bytesRead = inputStream.read(buffer, 0, buffer.length)) != -1) {
-                        if (isStop) {
-                            SafeLogs.d(TAG, "download()", "download is stop, break");
-                            return;
-                        }
-
-                        fileOutputStream.write(buffer, 0, bytesRead);
-                        totalBytesRead += bytesRead;
-
-                        //notify Notification and update DB
-                        transferProgressListener.onProgressNotify(totalBytesRead, fileSize);
-                    }
-
-                    //notify complete
-                    transferProgressListener.onProgressNotify(fileSize, fileSize);
-                }
-
-                //important
-                Path path = java.nio.file.Files.move(tempFile.toPath(), localFile.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-                boolean isSuccess = path.toFile().exists();
-                if (isSuccess) {
-                    java.nio.file.Files.deleteIfExists(tempFile.toPath());
-                    updateToSuccess(fileId, localFile);
-                }
-            }
+            onRes(account, response, fileId);
         } catch (IOException e) {
             SafeLogs.e(TAG, e.getMessage());
+            SafeLogs.e(e);
+            onFallback(account, request, fileId);
+        }
+    }
+
+    private void onFallback(Account account, Request request, String fileId) throws SeafException {
+        if (newCall != null && newCall.isExecuted()) {
+            SafeLogs.d(TAG, "onFallbackUpload()", "newCall has executed(), cancel it");
+            newCall.cancel();
+        }
+
+        SafeLogs.d(TAG, "onFallbackUpload()", "use fallback client to download file");
+
+        newCall = getFallbackHttpClient(account).newCall(request);
+        try (Response response = newCall.execute()) {
+            onRes(account, response, fileId);
+        } catch (IOException e) {
+            SafeLogs.e(TAG, e.getMessage());
+            SafeLogs.e(e);
             throw SeafException.NETWORK_EXCEPTION;
+        }
+    }
+
+    private void onRes(Account account, Response response, String fileId) throws IOException, SeafException {
+        if (!response.isSuccessful()) {
+            int code = response.code();
+            String b = response.body() != null ? response.body().string() : null;
+            SafeLogs.d(TAG, "download()", "download failed：" + code + ", resBody is : " + b);
+
+            //
+            newCall.cancel();
+
+            throw ExceptionUtils.parseHttpException(code, b);
+        }
+
+        try (ResponseBody responseBody = response.body()) {
+            if (responseBody == null) {
+                int code = response.code();
+                SafeLogs.d(TAG, "download()", "download failed：" + code + ", resBody is null ", currentTransferModel.target_path);
+
+                throw SeafException.NETWORK_EXCEPTION;
+            }
+
+            File localFile = DataManager.getLocalFileCachePath(account, currentTransferModel.repo_id, currentTransferModel.repo_name, currentTransferModel.full_path);
+
+            long fileSize = responseBody.contentLength();
+            if (fileSize == -1) {
+                SafeLogs.d(TAG, "download()", "download failed：contentLength is -1", localFile.getAbsolutePath());
+                fileSize = currentTransferModel.file_size;
+            }
+
+            //todo 检查剩余空间
+
+            File tempFile = DataManager.createTempFile();
+            try (InputStream inputStream = responseBody.byteStream();
+                 FileOutputStream fileOutputStream = new FileOutputStream(tempFile)) {
+
+                long totalBytesRead = 0;
+
+                int bytesRead;
+                byte[] buffer = new byte[SEGMENT_SIZE];
+                while ((bytesRead = inputStream.read(buffer, 0, buffer.length)) != -1) {
+                    if (isStop) {
+                        SafeLogs.d(TAG, "download()", "download is stop, break");
+                        return;
+                    }
+
+                    fileOutputStream.write(buffer, 0, bytesRead);
+                    totalBytesRead += bytesRead;
+
+                    //notify Notification and update DB
+                    transferProgressListener.onProgressNotify(totalBytesRead, fileSize);
+                }
+
+                //notify complete
+                transferProgressListener.onProgressNotify(fileSize, fileSize);
+            }
+
+            //important
+            Path path = java.nio.file.Files.move(tempFile.toPath(), localFile.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+            boolean isSuccess = path.toFile().exists();
+            if (isSuccess) {
+                java.nio.file.Files.deleteIfExists(tempFile.toPath());
+                updateToSuccess(fileId, localFile);
+            }
         }
     }
 

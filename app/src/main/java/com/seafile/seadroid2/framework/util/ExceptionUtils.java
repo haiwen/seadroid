@@ -95,6 +95,11 @@ public class ExceptionUtils {
             return SeafException.IO_EXCEPTION;
         }
 
+        if (throwable instanceof IOException ioException) {
+            SLogs.e(ioException);
+            return SeafException.IO_EXCEPTION;
+        }
+
         return new SeafException(SeafException.CODE_FAILED, throwable.getLocalizedMessage());
     }
 
