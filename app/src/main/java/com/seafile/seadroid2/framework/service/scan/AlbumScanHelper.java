@@ -70,10 +70,7 @@ public class AlbumScanHelper {
         }
 
         CompletableFuture<Void> future = TransferService.getActiveTasks().getOrDefault(FeatureDataSource.ALBUM_BACKUP, null);
-        if (future != null && !future.isDone()) {
-            return false;
-        }
-        return true;
+        return future == null || future.isDone();
     }
 
     public static SeafException loadMedia(Context context, Account account, RepoConfig repoConfig) {
@@ -95,7 +92,7 @@ public class AlbumScanHelper {
             }
         }
 
-        long lastScanTime = 0L;// scan all files
+        long lastScanTime = 0L;// force scan all files
 
         //query images
         loadImages(context, lastScanTime, account, repoConfig, bucketIdList, false);
@@ -121,7 +118,7 @@ public class AlbumScanHelper {
         if (CollectionUtils.isEmpty(bucketIdList)) {
             List<GalleryBucketUtils.Bucket> allBuckets = GalleryBucketUtils.getMediaBuckets(SeadroidApplication.getAppContext());
             if (allBuckets == null) {
-                SafeLogs.d(TAG, "doWork()", "no media in local storage, may be has no permission");
+                SafeLogs.d(TAG, "readMediaResult()", "no media in local storage, may be has no permission");
                 return false;
             }
 
@@ -133,10 +130,16 @@ public class AlbumScanHelper {
             }
         }
 
-        boolean hasResult = false;
+        boolean hasResult;
         Stopwatch stopwatch = Stopwatch.createStarted();
         try {
             long lastScanTime = AlbumBackupSharePreferenceHelper.readLastScanTimeMills();
+            if (lastScanTime == 0) {
+                SafeLogs.d(TAG, "readMediaResult()", "no last scan time");
+            } else {
+                String lastScanTimeStr = TimeUtils.millis2String(lastScanTime * 1000, "yyyy-MM-dd HH:mm:ss.SSS");
+                SafeLogs.d(TAG, "readMediaResult()", "last scan time: " + lastScanTimeStr);
+            }
 
             //query images
             hasResult = loadImages(context, lastScanTime, account, repoConfig, bucketIdList, true);
@@ -151,10 +154,12 @@ public class AlbumScanHelper {
             stopwatch.stop();
 
             long diff = stopwatch.elapsed(TimeUnit.MILLISECONDS);
-            SafeLogs.d(TAG, "doWork()", "album backup scan time：" + stopwatch);
+            SafeLogs.d(TAG, "readMediaResult()", "album backup scan time：" + stopwatch);
             long now = System.currentTimeMillis();
             AlbumBackupSharePreferenceHelper.writeLastScanTime(now - diff);
         }
+
+        SafeLogs.d(TAG, "readMediaResult()", "hasResult: " + hasResult);
         return hasResult;
     }
 
@@ -165,7 +170,7 @@ public class AlbumScanHelper {
      */
     private static boolean loadImages(Context context, long lastScanTimeLong, Account account, RepoConfig repoConfig, List<String> bucketIdList, boolean readResult) {
         if (bucketIdList.isEmpty()) {
-            SafeLogs.d(TAG, "loadImages()", "no media in local storage");
+            SafeLogs.d(TAG, "loadImages()", "no media in local storage", "read result: " + readResult);
             return false;
         }
 
@@ -194,7 +199,7 @@ public class AlbumScanHelper {
                 return false;
             }
 
-            SafeLogs.d(TAG, "loadImages()", "images query count : " + cursor.getCount());
+            SafeLogs.d(TAG, "loadImages()", "images query count : " + cursor.getCount(), "read result: " + readResult);
             if (cursor.getCount() == 0) {
                 return false;
             }
@@ -335,13 +340,14 @@ public class AlbumScanHelper {
     }
 
     private static boolean iterateCursorResult(Cursor cursor, Account account, RepoConfig repoConfig) {
-
+        SafeLogs.d(TAG, "iterateCursorResult()", "start iterate");
         String localCacheAbsPath = StorageManager.getInstance().getMediaDir().getAbsolutePath();
 
         // load them one by one
         while (cursor.moveToNext()) {
 
-            if (canExc()) {
+            if (!canExc()) {
+                SafeLogs.d(TAG, "iterateCursorResult()", "can not exc");
                 return false;
             }
 

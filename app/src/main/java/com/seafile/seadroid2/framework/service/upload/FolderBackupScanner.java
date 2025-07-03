@@ -64,7 +64,6 @@ public class FolderBackupScanner extends ParentEventTransfer {
     }
 
     public SeafException scan(boolean isForce) {
-        Toasts.showShort("文件夹扫描器启动");
         SafeLogs.e(TAG, "文件夹扫描器启动");
 
         Account account = SupportAccountManager.getInstance().getCurrentAccount();

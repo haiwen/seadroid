@@ -161,6 +161,7 @@
     <string name="load_dir_fail">Failed to load contents of this folder</string>
     <string name="not_supported">Not supported at this time</string>
     <string name="not_supported_share">This type of share is not supported</string>
+    <string name="not_supported_feature">This feature is not supported, please upgrade the server version</string>
     <string name="edit">Edit</string>
     <string name="select">Select</string>
     <string name="create_draft">Create draft</string>

@@ -293,13 +293,41 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
 
         newCall = getPrimaryHttpClient(account).newCall(request);
 
+        boolean canFallback = false;
         try (Response response = newCall.execute()) {
+            Protocol protocol = response.protocol();
+            SafeLogs.d(TAG, "onRes()", "response code: " + response.code() + ", protocol: " + protocol);
+            canFallback = checkProtocol(protocol);
+
             onRes(response);
         } catch (IOException e) {
             SafeLogs.e(TAG, e.getMessage());
             SafeLogs.e(e);
-            onFallback(account, request);
+
+            if (canFallback) {
+                onFallback(account, request);
+            } else {
+                throw SeafException.NETWORK_EXCEPTION;
+            }
+
         }
+    }
+
+    private boolean checkProtocol(Protocol protocol) {
+        if (protocol == null) {
+            return false;
+        }
+
+        SafeLogs.d(TAG, "checkProtocol()", "protocol: " + protocol);
+
+        if (Protocol.HTTP_2 == protocol) {
+            return true;
+        } else if (Protocol.QUIC == protocol) {
+            return true;
+        } else if (Protocol.H2_PRIOR_KNOWLEDGE == protocol) {
+            return true;
+        }
+        return false;
     }
 
     private void onFallback(Account account, Request request) throws SeafException {
@@ -322,22 +350,8 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
         }
     }
 
-    private boolean onRes(Response response) throws SeafException, IOException {
+    private void onRes(Response response) throws SeafException, IOException {
         int code = response.code();
-        boolean isFallback = false;
-
-        Protocol protocol = response.protocol();
-        SafeLogs.d(TAG, "onRes()", "response code: " + code + ", protocol: " + protocol);
-        if (Protocol.HTTP_2 == protocol) {
-            isFallback = true;
-        } else if (Protocol.QUIC == protocol) {
-            isFallback = true;
-        } else if (Protocol.H2_PRIOR_KNOWLEDGE == protocol) {
-            isFallback = true;
-        } else if (Protocol.HTTP_1_1 == protocol) {
-            isFallback = false;
-        }
-
         try (ResponseBody body = response.body()) {
             if (body == null) {
                 SafeLogs.d(TAG, "transferFile()", "body is null");
@@ -350,7 +364,7 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
                     throw ExceptionUtils.parseHttpException(code, null);
                 }
 
-                return isFallback;
+                return;
             }
 
             String bodyStr = body.string();
@@ -369,7 +383,6 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
                 throw ExceptionUtils.parseHttpException(code, bodyStr);
             }
         }
-        return isFallback;
     }
 
 

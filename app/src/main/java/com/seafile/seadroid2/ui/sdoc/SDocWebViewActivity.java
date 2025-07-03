@@ -2,7 +2,10 @@ package com.seafile.seadroid2.ui.sdoc;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -10,6 +13,9 @@ import android.view.View;
 import android.webkit.ConsoleMessage;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
+import android.webkit.WebResourceError;
+import android.webkit.WebResourceRequest;
+import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 
 import androidx.activity.OnBackPressedCallback;
@@ -41,6 +47,7 @@ import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
 import com.seafile.seadroid2.ui.docs_comment.DocsCommentsActivity;
 import com.seafile.seadroid2.ui.file_profile.FileProfileDialog;
 import com.seafile.seadroid2.ui.sdoc.outline.SDocOutlineDialog;
+import com.seafile.seadroid2.view.webview.OnWebPageListener;
 import com.seafile.seadroid2.view.webview.PreloadWebView;
 import com.seafile.seadroid2.view.webview.SeaWebView;
 
@@ -178,6 +185,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
 
         //chrome client
         mWebView.setWebChromeClient(mWebChromeClient);
+        mWebView.setOnWebPageListener(onWebPageListener);
 
         NestedScrollView.LayoutParams ll = new NestedScrollView.LayoutParams(-1, -1);
         mWebView.setLayoutParams(ll);
@@ -227,7 +235,8 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
     }
 
     private MenuItem editMenuItem;
-    private boolean isEditMode = false;
+    //
+    private boolean nextEditMode = true;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -239,13 +248,14 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         getMenuInflater().inflate(R.menu.menu_sdoc_preview, menu);
         editMenuItem = menu.findItem(R.id.sdoc_edit);
         editMenuItem.setVisible(true);
+        editMenuItem.setEnabled(false);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.sdoc_edit) {
-            callJsSdocEditorEnitable(isEditMode);
+            callJsSdocEditorEnitable();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -289,32 +299,69 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         });
     }
 
+    private final Handler timeoutHandler = new Handler(Looper.getMainLooper());
 
-    private void callJsSdocEditorEnitable(boolean startEdit) {
-        String data = String.valueOf(startEdit);
+    //timeout callback or receive js callback
+    private boolean jsCallbackReceived = true;
+    private boolean isPageLoaded = false;
+    private boolean didPageFinishSuccessfully = false;
+    private final int timeoutDuration = 2000; // 2s
+    private final Runnable timeoutRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (!jsCallbackReceived) { // 检查回调是否已收到
+                SLogs.d(TAG, "callJsSdocEditorEnitable() - Timeout occurred!");
+                Toasts.showShort(R.string.not_supported_feature);
+                jsCallbackReceived = true; // 标记已收到回调
+
+                //
+                if (editMenuItem != null) {
+                    editMenuItem.setEnabled(false);
+                }
+            }
+        }
+    };
+
+    private void callJsSdocEditorEnitable() {
+        if (!jsCallbackReceived) {
+            return;
+        }
+
+        timeoutHandler.removeCallbacks(timeoutRunnable);
+        jsCallbackReceived = false;
+
+
+        String data = String.valueOf(nextEditMode);
+        // launch a timeout task
+        timeoutHandler.postDelayed(timeoutRunnable, timeoutDuration);
+
         mWebView.callJsFunction(WebViewActionConstant.CallJsFunction.SDOC_EDITOR_DATA_EDIT, data, new CallBackFunction() {
             @Override
             public void onCallBack(String data) {
                 SLogs.d(TAG, "callJsSdocEditorEnitable()", data);
                 if (TextUtils.isEmpty(data)) {
-                    Toasts.showShort(R.string.unknow_error);
-                    return;
-                }
-                if (!data.contains("success")) {
-                    Toasts.showShort(R.string.unknow_error);
                     return;
                 }
 
-                isEditMode = !isEditMode;
-                if (isEditMode) {
-                    editMenuItem.setTitle(R.string.edit);
-                } else {
-                    editMenuItem.setTitle(R.string.complete);
+                // mark callback received
+                jsCallbackReceived = true;
+                timeoutHandler.removeCallbacks(timeoutRunnable);
+
+                if (editMenuItem != null) {
+                    editMenuItem.setEnabled(true);
+                }
+
+                if (!data.contains("success")) {
+                    return;
+                }
+
+                nextEditMode = !nextEditMode;
+                if (editMenuItem != null) {
+                    editMenuItem.setTitle(nextEditMode ? R.string.edit : R.string.complete);
                 }
             }
         });
     }
-
 
     private void showCommentsActivity() {
         readSDocPageOptionsData(new Consumer<SDocPageOptionsModel>() {
@@ -384,7 +431,6 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
             }
         });
     }
-    // Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.5735.61 Mobile Safari/537.36
 
     @Deprecated
     private void readSeafileTokenData(Consumer<String> continuation) {
@@ -418,6 +464,67 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         });
     }
 
+    private final OnWebPageListener onWebPageListener = new OnWebPageListener() {
+        @Override
+        public void onPageStarted(WebView view, String url, Bitmap favicon) {
+            isPageLoaded = false;
+            didPageFinishSuccessfully = false;
+
+            if (editMenuItem != null) {
+                editMenuItem.setEnabled(false);
+            }
+        }
+
+        @Override
+        public void onPageFinished(WebView view, String url) {
+            isPageLoaded = true;
+
+            if (!didPageFinishSuccessfully) {
+                didPageFinishSuccessfully = true;
+            }
+
+            if (didPageFinishSuccessfully) {
+                SLogs.d(TAG, "Page finished loading successfully: " + url);
+                // 页面加载完成后，启用相关按钮
+                if (editMenuItem != null) {
+                    // 你可能还想在这里检查网页是否真的包含了预期的JS接口
+                    // 但首先确保页面加载完成是第一步
+                    editMenuItem.setEnabled(true);
+                }
+            } else {
+                SLogs.d(TAG, "Page finished loading with errors (or was marked as error): " + url);
+                // 页面加载失败，保持按钮禁用或提示用户
+                if (editMenuItem != null) {
+                    editMenuItem.setEnabled(false);
+                }
+                Toasts.showShort("网页加载失败，无法执行操作。");
+            }
+        }
+
+        @Override
+        public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
+            if (request.isForMainFrame()) {
+                isPageLoaded = true; // Page load ended (albeit wrong)
+                didPageFinishSuccessfully = false;
+                SLogs.e(TAG, "Error loading page: " + request.getUrl() + " Error: " + error.getDescription());
+                if (editMenuItem != null) {
+                    editMenuItem.setEnabled(false);
+                }
+            }
+        }
+
+        @Override
+        public void onReceivedHttpError(WebView view, WebResourceRequest request, WebResourceResponse errorResponse) {
+            if (request.isForMainFrame()) {
+                isPageLoaded = true; // Page load ended (albeit wrong)
+                didPageFinishSuccessfully = false;
+                SLogs.e(TAG, "HTTP error loading page: " + request.getUrl() + " Status: " + errorResponse.getStatusCode());
+                if (editMenuItem != null) {
+                    editMenuItem.setEnabled(false);
+                }
+            }
+        }
+    };
     private int curProgress = 0;
     private final WebChromeClient mWebChromeClient = new WebChromeClient() {
         @Override
@@ -430,7 +537,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         @Override
         public void onReceivedTitle(WebView view, String title) {
             super.onReceivedTitle(view, title);
-//            toolBinding.toolbarActionbar.setTitle(title);
+            binding.toolbarActionbar.setTitle(title);
         }
 
         @Override
@@ -504,6 +611,10 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
     @Override
     public void onDestroy() {
         super.onDestroy();
+
+        if (timeoutHandler != null) {
+            timeoutHandler.removeCallbacks(timeoutRunnable);
+        }
 
         destroyWebView();
     }

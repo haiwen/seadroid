@@ -9,6 +9,7 @@ import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.NetworkUtils;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.service.TransferService;
 import com.seafile.seadroid2.framework.util.SLogs;
@@ -26,9 +27,8 @@ import java.util.concurrent.Executors;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
-@Deprecated
 public class FolderBackupScanJobService extends JobService {
-    public static final String TAG = "JobSchedulerHelper-FolderBackupScanJobService";
+    public static final String TAG = "FolderBackupScanJobService";
 
     @Override
     public boolean onStartJob(JobParameters params) {
@@ -43,7 +43,6 @@ public class FolderBackupScanJobService extends JobService {
         future.whenComplete(new BiConsumer<Integer, Throwable>() {
             @Override
             public void accept(Integer c, Throwable throwable) {
-                Toasts.show("扫描到的文件夹数量：" + c);
                 SafeLogs.d(TAG, "start scan", "backup path file count: ", c + "");
                 if (c > 0) {
                     TransferService.restartFolderBackupService(getApplicationContext(), false);
@@ -56,65 +55,72 @@ public class FolderBackupScanJobService extends JobService {
         return true;
     }
 
-    public int doWork() {
-        int backupPathFileCount = 0;
-        Toasts.show("文件夹扫描");
+    private static boolean canExc() {
+        if (!TransferService.getServiceRunning()) {
+            return true;
+        }
 
-        SLogs.d(TAG, "doWork()", "started execution");
-        boolean isServiceRunning = TransferService.getServiceRunning();
-        if (isServiceRunning) {
-            SafeLogs.d(TAG, "The folder scan task was not started, because the transfer service is running");
-            return backupPathFileCount;
+        CompletableFuture<Void> future = TransferService.getActiveTasks().getOrDefault(FeatureDataSource.FOLDER_BACKUP, null);
+        return future == null || future.isDone();
+    }
+
+    public int doWork() {
+        SafeLogs.e(TAG, "文件夹扫描 Job 启动");
+        int backupFileCount = 0;
+
+        if (!canExc()) {
+            SLogs.d(TAG, "The folder scan task was not started, because the transfer service is not running");
+            return backupFileCount;
         }
 
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
         if (account == null) {
-            return backupPathFileCount;
+            return backupFileCount;
         }
 
         boolean isTurnOn = FolderBackupSharePreferenceHelper.readBackupSwitch();
         if (!isTurnOn) {
-            SafeLogs.d(TAG, "The folder scan task was not started, because the switch is off");
-            return backupPathFileCount;
+            SLogs.d(TAG, "The folder scan task was not started, because the switch is off");
+            return backupFileCount;
         }
 
         RepoConfig repoConfig = FolderBackupSharePreferenceHelper.readRepoConfig();
         if (repoConfig == null || StringUtils.isEmpty(repoConfig.getRepoId())) {
-            SafeLogs.d(TAG, "The folder scan task was not started, because the repo is not selected");
-            return backupPathFileCount;
+            SLogs.d(TAG, "The folder scan task was not started, because the repo is not selected");
+            return backupFileCount;
         }
 
         List<String> backupPaths = FolderBackupSharePreferenceHelper.readBackupPathsAsList();
         if (CollectionUtils.isEmpty(backupPaths)) {
-            SafeLogs.d(TAG, "The folder scan task was not started, because the folder path is not selected");
-            return backupPathFileCount;
+            SLogs.d(TAG, "The folder scan task was not started, because the folder path is not selected");
+            return backupFileCount;
         }
 
         if (!NetworkUtils.isConnected()) {
-            SafeLogs.d(TAG, "network is not connected");
-            return backupPathFileCount;
+            SLogs.d(TAG, "network is not connected");
+            return backupFileCount;
         }
 
         boolean isAllowDataPlan = FolderBackupSharePreferenceHelper.readDataPlanAllowed();
         if (!isAllowDataPlan) {
             if (NetworkUtils.isMobileData()) {
-                SafeLogs.d(TAG, "data plan is not allowed", "current network type: ", NetworkUtils.getNetworkType().name());
-                return backupPathFileCount;
+                SLogs.d(TAG, "data plan is not allowed", "current network type: ", NetworkUtils.getNetworkType().name());
+                return backupFileCount;
             }
 
-            SafeLogs.d(TAG, "data plan is not allowed", "current network type: ", NetworkUtils.getNetworkType().name());
+            SLogs.d(TAG, "data plan is not allowed", "current network type: ", NetworkUtils.getNetworkType().name());
         } else {
-            SafeLogs.d(TAG, "data plan is allowed", "current network type: ", NetworkUtils.getNetworkType().name());
+            SLogs.d(TAG, "data plan is allowed", "current network type: ", NetworkUtils.getNetworkType().name());
         }
 
-
         //scan
-        backupPathFileCount = FolderScanHelper.traverseBackupPathFileCount(backupPaths, account, repoConfig);
-        return backupPathFileCount;
+        backupFileCount = FolderScanHelper.traverseBackupPathFileCount(backupPaths, account, repoConfig);
+        return backupFileCount;
     }
 
     @Override
     public boolean onStopJob(JobParameters params) {
+
         return false;
     }
 }

@@ -49,8 +49,7 @@ public class FolderBackupScanStarter extends Worker {
     @NonNull
     @Override
     public Result doWork() {
-        SafeLogs.e(TAG, "文件夹扫描 Worker 启动");
-        Toasts.showShort("文件夹扫描 Worker 启动");
+        SLogs.d(TAG, "文件夹扫描 Worker 启动");
 
         if (!canExc()) {
             SLogs.d(TAG, "The folder scan task was not started, because the transfer service is not running");

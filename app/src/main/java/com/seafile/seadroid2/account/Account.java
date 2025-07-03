@@ -153,6 +153,10 @@ public class Account extends BaseModel implements Parcelable, Comparable<Account
      * @return DOMAIN/IP_ADDRESS(:PORT), <br/>like www.goo.gle, like 192.168.0.1:8000
      */
     public String getServerHost() {
+        if (TextUtils.isEmpty(server)) {
+            return "";
+        }
+
         String s = server.substring(server.indexOf("://") + 3);
         return s.substring(0, s.indexOf('/'));
     }
@@ -172,6 +176,10 @@ public class Account extends BaseModel implements Parcelable, Comparable<Account
      * @return https://dev.xxx.com/dev/ => https://dev.xxx.com
      */
     public String getProtocolHost() {
+        if (TextUtils.isEmpty(server)) {
+            return "";
+        }
+
         return URLs.getProtocolHost(server);
     }
 
@@ -179,6 +187,10 @@ public class Account extends BaseModel implements Parcelable, Comparable<Account
      * @return https://dev.xxx.com/dev/ => dev.xxx.com/dev
      */
     public String getServerNoProtocol() {
+        if (TextUtils.isEmpty(server)) {
+            return "";
+        }
+
         String result = server.substring(server.indexOf("://") + 3);
         if (result.endsWith("/"))
             result = result.substring(0, result.length() - 1);

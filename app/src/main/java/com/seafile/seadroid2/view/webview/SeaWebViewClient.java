@@ -3,8 +3,11 @@ package com.seafile.seadroid2.view.webview;
 import static com.blankj.utilcode.util.ActivityUtils.startActivity;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
+import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
+import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -31,10 +34,34 @@ public class SeaWebViewClient extends BridgeWebViewClient {
     }
 
     @Override
+    public void onPageStarted(WebView view, String url, Bitmap favicon) {
+        super.onPageStarted(view, url, favicon);
+        if (onWebPageListener != null) {
+            onWebPageListener.onPageStarted(view, url, favicon);
+        }
+    }
+
+    @Override
     public void onPageFinished(WebView view, String url) {
         super.onPageFinished(view, url);
         if (onWebPageListener != null) {
             onWebPageListener.onPageFinished(view, url);
+        }
+    }
+
+    @Override
+    public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
+        super.onReceivedError(view, request, error);
+        if (onWebPageListener != null) {
+            onWebPageListener.onReceivedError(view, request, error);
+        }
+    }
+
+    @Override
+    public void onReceivedHttpError(WebView view, WebResourceRequest request, WebResourceResponse errorResponse) {
+        super.onReceivedHttpError(view, request, errorResponse);
+        if (onWebPageListener != null) {
+            onWebPageListener.onReceivedHttpError(view, request, errorResponse);
         }
     }
 

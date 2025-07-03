@@ -410,9 +410,11 @@ public abstract class StorageManager implements MediaScannerConnection.OnScanCom
         // if there is one configured but unavailable, use fallback
         if (storageDirID >= 0 && storageLocation != null && !storageLocation.available) {
             Log.e(DEBUG_TAG, "Configured storage location " + storageDirID + " has become unavailable, falling back.");
+
             String storageName = getContext().getString(R.string.storage_manager_secondary_storage);
             String t = getContext().getString(R.string.storage_manager_storage_description_not_available, storageName);
-            Toasts.show(t);
+            SLogs.d(DEBUG_TAG, t);
+
 
             AppDataManager.writeStorageDirId(CLASSIC_LOCATION.id);
             return CLASSIC_LOCATION;
@@ -423,7 +425,7 @@ public abstract class StorageManager implements MediaScannerConnection.OnScanCom
 
             String storageName = getContext().getString(R.string.storage_manager_secondary_storage);
             String t = getContext().getString(R.string.storage_manager_storage_description_not_available, storageName);
-            Toasts.show(t);
+            SLogs.d(DEBUG_TAG, t);
 
             AppDataManager.writeStorageDirId(CLASSIC_LOCATION.id);
             return CLASSIC_LOCATION;

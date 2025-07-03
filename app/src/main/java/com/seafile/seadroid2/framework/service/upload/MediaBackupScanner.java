@@ -32,7 +32,6 @@ public class MediaBackupScanner extends ParentEventTransfer {
     }
 
     public SeafException scan(boolean isForce) {
-        Toasts.showShort("相册扫描器启动");
         SafeLogs.e(TAG, "相册扫描器启动");
 
         Account account = SupportAccountManager.getInstance().getCurrentAccount();

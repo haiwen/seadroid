@@ -50,7 +50,7 @@ import com.seafile.seadroid2.enums.ObjSelectType;
 import com.seafile.seadroid2.framework.datastore.StorageManager;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
-import com.seafile.seadroid2.framework.service.BackgroundWorkManager;
+import com.seafile.seadroid2.framework.service.BackgroundWorkScheduler;
 import com.seafile.seadroid2.framework.service.TransferService;
 import com.seafile.seadroid2.framework.util.PermissionUtil;
 import com.seafile.seadroid2.framework.util.SLogs;
@@ -930,11 +930,11 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
             CameraUploadManager.getInstance().performSync(isForce);
 
             // start periodic album backup scan worker
-            BackgroundWorkManager.getInstance().scheduleAlbumBackupPeriodicScan();
+            BackgroundWorkScheduler.getInstance().scheduleAlbumBackupPeriodicScan(requireContext().getApplicationContext());
         } else {
             //stop
             // stop periodic album backup scan worker
-            BackgroundWorkManager.getInstance().stopAlbumBackupPeriodicScan();
+            BackgroundWorkScheduler.getInstance().stopAlbumBackupPeriodicScan(requireContext().getApplicationContext());
 
             if (TransferService.getServiceRunning()) {
                 CompletableFuture<Void> future = TransferService.getActiveTasks().getOrDefault(FeatureDataSource.ALBUM_BACKUP, null);
@@ -1005,14 +1005,14 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
 
         if (FolderBackupSharePreferenceHelper.isFolderBackupEnable()) {
             //start periodic folder backup scan worker
-            BackgroundJobManagerImpl.getInstance().scheduleFolderBackupScan();
+            BackgroundWorkScheduler.getInstance().scheduleFolderBackupPeriodicScan(requireContext().getApplicationContext());
 
             //start folder backup service
             TransferService.restartFolderBackupService(requireContext(), isForce);
         } else {
 
             // stop periodic folder backup service
-            BackgroundJobManagerImpl.getInstance().stopFolderBackupPeriodicTransferService();
+            BackgroundWorkScheduler.getInstance().stopFolderBackupPeriodicScan(requireContext().getApplicationContext());
 
 
             if (TransferService.getServiceRunning()) {

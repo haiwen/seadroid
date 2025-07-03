@@ -148,3 +148,5 @@
 -keep class com.jeremyliao.liveeventbus.** { *; }
 -keep class androidx.lifecycle.** { *; }
 -keep class androidx.arch.core.** { *; }
+-keep class androidx.appcompat.widget.** { *; }
+-keep class com.google.android.material.** { *; }

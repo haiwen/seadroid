@@ -47,6 +47,7 @@ import java.util.Map;
 
 import okhttp3.Call;
 import okhttp3.OkHttpClient;
+import okhttp3.Protocol;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
@@ -287,13 +288,39 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
 
         newCall = getPrimaryHttpClient(account).newCall(request);
 
+        boolean canFallback = false;
         try (Response response = newCall.execute()) {
+            Protocol protocol = response.protocol();
+            SafeLogs.d(TAG, "onRes()", "response code: " + response.code() + ", protocol: " + protocol);
+            canFallback = checkProtocol(protocol);
+
             onRes(account, response, fileId);
         } catch (IOException e) {
             SafeLogs.e(TAG, e.getMessage());
             SafeLogs.e(e);
-            onFallback(account, request, fileId);
+            if (canFallback) {
+                onFallback(account, request, fileId);
+            } else {
+                throw SeafException.NETWORK_EXCEPTION;
+            }
         }
+    }
+
+    private boolean checkProtocol(Protocol protocol) {
+        if (protocol == null) {
+            return false;
+        }
+
+        SafeLogs.d(TAG, "checkProtocol()", "protocol: " + protocol);
+
+        if (Protocol.HTTP_2 == protocol) {
+            return true;
+        } else if (Protocol.QUIC == protocol) {
+            return true;
+        } else if (Protocol.H2_PRIOR_KNOWLEDGE == protocol) {
+            return true;
+        }
+        return false;
     }
 
     private void onFallback(Account account, Request request, String fileId) throws SeafException {

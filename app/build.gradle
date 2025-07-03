@@ -294,7 +294,7 @@ android {
         //live event bus
 //        implementation 'io.github.jeremyliao:live-event-bus-x:1.8.0'
 
-        implementation 'com.github.kevinsawicki:http-request:6.0'
+//        implementation 'com.github.kevinsawicki:http-request:6.0'
 //        implementation 'com.nostra13.universalimageloader:universal-image-loader:1.9.3'
 
 

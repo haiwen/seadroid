@@ -96,9 +96,12 @@ public class AllActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel>
 
         binding.swipeRefreshLayout.setOnRefreshListener(this::reload);
 
+        registerLauncher();
+
         initAdapter();
 
         initViewModel();
+
     }
 
     private void registerLauncher() {

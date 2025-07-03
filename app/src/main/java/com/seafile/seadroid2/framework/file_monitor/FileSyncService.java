@@ -22,12 +22,10 @@ import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePre
 import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
-import com.seafile.seadroid2.framework.service.BackgroundWorkManager;
+import com.seafile.seadroid2.framework.service.BackgroundWorkScheduler;
 import com.seafile.seadroid2.framework.service.TransferService;
-import com.seafile.seadroid2.framework.service.scan.JobSchedulerHelper;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Utils;
-import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
@@ -203,14 +201,14 @@ public class FileSyncService extends Service {
         if (AlbumBackupSharePreferenceHelper.isAlbumBackupEnable()) {
             CameraUploadManager.getInstance().performSync();
 
-            BackgroundWorkManager.getInstance().scheduleAlbumBackupPeriodicScan();
+            BackgroundWorkScheduler.getInstance().scheduleAlbumBackupPeriodicScan(getApplicationContext());
         }
 
         if (FolderBackupSharePreferenceHelper.isFolderBackupEnable()) {
             TransferService.restartFolderBackupService(getApplicationContext(), true);
 
             //start periodic folder backup scan worker
-            BackgroundWorkManager.getInstance().scheduleFolderBackupPeriodicScan();
+            BackgroundWorkScheduler.getInstance().scheduleFolderBackupPeriodicScan(getApplicationContext());
         }
     }
 

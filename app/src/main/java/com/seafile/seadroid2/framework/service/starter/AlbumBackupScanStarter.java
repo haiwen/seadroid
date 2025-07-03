@@ -44,7 +44,6 @@ public class AlbumBackupScanStarter extends Worker {
     @NonNull
     @Override
     public Result doWork() {
-        Toasts.showShort("相册扫描 Worker 启动");
         SafeLogs.e(TAG, "相册扫描 Worker 启动");
 
         if (!canExc()) {
@@ -98,9 +97,9 @@ public class AlbumBackupScanStarter extends Worker {
 
         if (result) {
             TransferService.restartPhotoBackupService(getApplicationContext());
-            SafeLogs.d(TAG, "doWork()", "scan success");
+            SafeLogs.e(TAG, "doWork()", "new album");
         } else {
-            SafeLogs.d(TAG, "doWork()", "scan failed");
+            SafeLogs.d(TAG, "doWork()", "no new album");
         }
         return Result.success();
     }

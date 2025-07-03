@@ -76,6 +76,7 @@
   <string name="download_failed">下载失败</string>
   <string name="download_waiting">等待下载</string>
   <string name="download_finished">下载完成</string>
+  <string name="download_completed">下载完成</string>
   <string name="download_cancelled">下载取消</string>
   <string name="task_cancel">取消</string>
   <string name="task_retry">重新上传</string>
@@ -145,6 +146,7 @@
   <string name="load_dir_fail">加载此文件夹的内容失败</string>
   <string name="not_supported">暂未支持</string>
   <string name="not_supported_share">不支持此类分享</string>
+  <string name="not_supported_feature">尚未支持此功能，请升级服务器版本。</string>
   <string name="edit">编辑</string>
   <string name="select">选择</string>
   <string name="create_draft">创建草稿</string>
@@ -222,6 +224,7 @@
   <string name="provide_password">请提供资料库\"%s\"的密码</string>
   <string name="upload_waiting">等待上传</string>
   <string name="upload_finished">上传完成</string>
+  <string name="upload_completed">上传完成</string>
   <string name="upload_cancelled">上传取消</string>
   <string name="upload_failed">上传失败</string>
   <string name="upload_file_exist">文件已存在</string>
@@ -685,5 +688,8 @@ Email: support@seafile.com<br>
   <string name="skip">跳过</string>
   <string name="previous">上一个</string>
   <string name="complete">完成</string>
+  <string name="backup_completed">备份完成</string>
+  <string name="backup_finished">备份结束</string>
   <string name="export_log_file_not_exists">没有可用于导出的日志文件</string>
+  <string name="file_transfer_stopped">已停止文件传输</string>
 </resources>
