@@ -12,6 +12,7 @@ import com.blankj.utilcode.util.CloneUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.SaveTo;
 import com.seafile.seadroid2.enums.TransferResult;
@@ -19,17 +20,19 @@ import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.FileBackupStatusEntity;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
-import com.seafile.seadroid2.framework.util.FileUtils;
-import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.notification.base.BaseTransferNotificationHelper;
 import com.seafile.seadroid2.framework.util.ExceptionUtils;
+import com.seafile.seadroid2.framework.util.FileUtils;
 import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.util.SafeLogs;
+import com.seafile.seadroid2.framework.util.Times;
 import com.seafile.seadroid2.framework.worker.ExistingFileStrategy;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
 import com.seafile.seadroid2.framework.worker.body.ProgressRequestBody;
 import com.seafile.seadroid2.framework.worker.body.ProgressUriRequestBody;
+import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 import com.seafile.seadroid2.listener.FileTransferProgressListener;
 import com.seafile.seadroid2.ui.file.FileService;
 
@@ -41,6 +44,7 @@ import java.io.IOException;
 import okhttp3.Call;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
+import okhttp3.Protocol;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
@@ -54,10 +58,10 @@ public abstract class BaseUploadWorker extends TransferWorker {
     public BaseUploadWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
 
-        fileTransferProgressListener.setProgressListener(progressListener);
+        _fileTransferProgressListener.setProgressListener(progressListener);
     }
 
-    private final FileTransferProgressListener fileTransferProgressListener = new FileTransferProgressListener();
+    private final FileTransferProgressListener _fileTransferProgressListener = new FileTransferProgressListener();
 
     /**
      * listener
@@ -72,18 +76,62 @@ public abstract class BaseUploadWorker extends TransferWorker {
 
             notifyProgress(transferModel.file_name, percent);
 
-            sendProgressEvent(transferModel);
+            sendProgressEvent(getFeatureDataSource(), transferModel);
         }
     };
 
+    public abstract FeatureDataSource getFeatureDataSource();
+
     private Call newCall;
-    private OkHttpClient okHttpClient;
+
+    private ProgressUriRequestBody uriRequestBody;
+    private ProgressRequestBody fileRequestBody;
+
+    private boolean isStop = false;
+    private OkHttpClient primaryHttpClient;
+    private OkHttpClient fallbackHttpClient;
+
+    public OkHttpClient getPrimaryHttpClient(Account account) {
+        if (primaryHttpClient == null) {
+            primaryHttpClient = HttpIO.getInstanceByAccount(account).getSafeClient().getOkClient();
+        }
+        return primaryHttpClient;
+    }
+
+    public OkHttpClient getFallbackHttpClient(Account account) {
+        if (fallbackHttpClient == null) {
+            fallbackHttpClient = HttpIO.getInstanceByAccount(account).getSafeClient().getOkClient(true);
+        }
+        return fallbackHttpClient;
+    }
+
+    public TransferModel getCurrentTransferringModel() {
+        return currentTransferModel;
+    }
+
 
     @Override
     public void onStopped() {
         super.onStopped();
 
         SLogs.d(TAG, "onStopped()");
+
+
+        if (uriRequestBody != null) {
+            uriRequestBody.setStop(true);
+        }
+
+        if (fileRequestBody != null) {
+            fileRequestBody.setStop(true);
+        }
+
+        if (primaryHttpClient != null) {
+            primaryHttpClient.dispatcher().cancelAll();
+        }
+
+        if (fallbackHttpClient != null) {
+            fallbackHttpClient.dispatcher().cancelAll();
+        }
 
         if (newCall != null) {
             newCall.cancel();
@@ -96,8 +144,8 @@ public abstract class BaseUploadWorker extends TransferWorker {
             GlobalTransferCacheList.updateTransferModel(currentTransferModel);
         }
 
-        if (fileTransferProgressListener != null) {
-            fileTransferProgressListener.setProgressListener(null);
+        if (_fileTransferProgressListener != null) {
+            _fileTransferProgressListener.setProgressListener(null);
         }
 
         currentTransferModel = null;
@@ -113,23 +161,19 @@ public abstract class BaseUploadWorker extends TransferWorker {
     public void transfer(Account account, TransferModel transferModel) throws SeafException, IOException {
         try {
             currentTransferModel = CloneUtils.deepClone(transferModel, TransferModel.class);
-            SLogs.d(TAG, "transfer start, model:");
-            SLogs.d(TAG, currentTransferModel.toString());
+            SafeLogs.d(TAG, "transfer start, model:");
+            SafeLogs.d(TAG, currentTransferModel.toString());
 
             transferFile(account);
 
-            sendProgressFinishEvent(currentTransferModel);
+            sendProgressCompleteEvent(getFeatureDataSource(), currentTransferModel);
 
-        } catch (IOException | SeafException e) {
-            SLogs.e(e);
-
-            SeafException seafException = ExceptionUtils.parseByThrowable(e);
-
+        } catch (SeafException seafException) {
             // update db
             updateToFailed(seafException.getMessage());
 
             //send an event, update transfer entity first.
-            sendProgressFinishEvent(currentTransferModel);
+            sendProgressCompleteEvent(getFeatureDataSource(), currentTransferModel);
             throw seafException;
         }
     }
@@ -170,10 +214,10 @@ public abstract class BaseUploadWorker extends TransferWorker {
         }
 
         //
-        fileTransferProgressListener.setCurrentTransferModel(currentTransferModel);
+        _fileTransferProgressListener.setCurrentTransferModel(currentTransferModel);
 
         //notify first
-        sendProgressEvent(currentTransferModel);
+        sendProgressEvent(getFeatureDataSource(), currentTransferModel);
 
         notifyProgress(currentTransferModel.file_name, 0);
         SLogs.d(TAG, "transferFile()", "start transfer, remote path: " + currentTransferModel.target_path);
@@ -183,7 +227,7 @@ public abstract class BaseUploadWorker extends TransferWorker {
         currentTransferModel.transfer_status = TransferStatus.IN_PROGRESS;
         GlobalTransferCacheList.updateTransferModel(currentTransferModel);
 
-//        long createdTime = -1;
+        long createdTime = -1;
         //uri: content://
         if (currentTransferModel.full_path.startsWith("content://")) {
             Uri uri = Uri.parse(currentTransferModel.full_path);
@@ -192,28 +236,27 @@ public abstract class BaseUploadWorker extends TransferWorker {
                 throw SeafException.PERMISSION_EXCEPTION;
             }
 
-            ProgressUriRequestBody progressRequestBody = new ProgressUriRequestBody(getApplicationContext(), Uri.parse(currentTransferModel.full_path), currentTransferModel.file_size, fileTransferProgressListener);
-            builder.addFormDataPart("file", currentTransferModel.file_name, progressRequestBody);
+            uriRequestBody = new ProgressUriRequestBody(getApplicationContext(), Uri.parse(currentTransferModel.full_path), currentTransferModel.file_size, _fileTransferProgressListener);
+            builder.addFormDataPart("file", currentTransferModel.file_name, uriRequestBody);
 
-//            createdTime = FileUtils.getCreatedTimeFromUri(getApplicationContext(), uri);
+            createdTime = FileUtils.getCreatedTimeFromUri(getApplicationContext(), uri);
         } else {
             File file = new File(currentTransferModel.full_path);
             if (!file.exists()) {
                 throw SeafException.NOT_FOUND_EXCEPTION;
             }
 
-            ProgressRequestBody progressRequestBody = new ProgressRequestBody(file, fileTransferProgressListener);
-            builder.addFormDataPart("file", currentTransferModel.file_name, progressRequestBody);
-//            createdTime = FileUtils.getCreatedTimeFromPath(getApplicationContext(), file);
+            fileRequestBody = new ProgressRequestBody(file, _fileTransferProgressListener);
+            builder.addFormDataPart("file", currentTransferModel.file_name, fileRequestBody);
+            createdTime = FileUtils.getCreatedTimeFromPath(getApplicationContext(), file);
         }
 
 
-//        if (createdTime != -1) {
-//            String cTime = Times.convertLong2Time(createdTime);
-//            SLogs.d(TAG, "file create timestamp : " + cTime);
-//            builder.addFormDataPart("last_modify", cTime);
-//        }
-
+        if (createdTime != -1) {
+            String cTime = Times.convertLong2Time(createdTime);
+            SafeLogs.d(TAG, "file create timestamp : " + cTime);
+            builder.addFormDataPart("last_modify", cTime);
+        }
 
         RequestBody requestBody = builder.build();
 
@@ -225,59 +268,111 @@ public abstract class BaseUploadWorker extends TransferWorker {
 
         //
         if (newCall != null && newCall.isExecuted()) {
-            SLogs.d(TAG, "transferFile()", "newCall has executed(), cancel it");
+            SafeLogs.d(TAG, "transferFile()", "newCall has executed(), cancel it");
             newCall.cancel();
         }
 
         Request request = new Request.Builder()
                 .url(uploadUrl)
                 .post(requestBody)
+                .addHeader("Connection", "keep-alive")
+                .addHeader("Accept", "*/*")
+                .addHeader("User-Agent", Constants.UA.SEAFILE_ANDROID_UA)
+                .addHeader("User-Agent", Constants.UA.SEAFILE_ANDROID_UPLOAD_UA)
                 .build();
 
-        if (okHttpClient == null) {
-            okHttpClient = HttpIO.getInstanceByAccount(account).getSafeClient().getOkClient();
-        }
-        newCall = okHttpClient.newCall(request);
-
+        newCall = getPrimaryHttpClient(account).newCall(request);
+        boolean canFallback = false;
         try (Response response = newCall.execute()) {
-            if (response.isSuccessful()) {
-                try (ResponseBody body = response.body()) {
-                    if (body != null) {
-                        String str = body.string();
-                        if (TextUtils.isEmpty(str)) {
-                            // if the returned data is abnormal due to some reason,
-                            // it is set to null and uploaded when the next scan arrives
-                            updateToSuccess(null);
-                        } else {
-                            String fileId = str.replace("\"", "");
+            Protocol protocol = response.protocol();
+            SafeLogs.d(TAG, "onRes()", "response code: " + response.code() + ", protocol: " + protocol);
+            canFallback = checkProtocol(protocol);
 
-                            SLogs.d(TAG, "transferFile()", "result，file ID：" + str);
-                            updateToSuccess(fileId);
-                        }
-                    } else {
-                        // if the returned data is abnormal due to some reason,
-                        // it is set to null and uploaded when the next scan arrives
-                        updateToSuccess(null);
-                    }
-                }
+            onRes(response);
+        } catch (IOException e) {
+            SafeLogs.e(TAG, e.getMessage());
+            SafeLogs.e(e);
 
+            if (canFallback) {
+                onFallback(account, request);
             } else {
-                int code = response.code();
-                ResponseBody body = response.body();
-                if (body != null) {
-                    String b = body.string();
-                    SLogs.d(TAG, "transferFile()", "upload failed：" + b);
-                    //
-                    if (!newCall.isCanceled()) {
-                        newCall.cancel();
-                    }
-                    body.close();
-                    throw ExceptionUtils.parseHttpException(code, b);
-                }
+                throw SeafException.NETWORK_EXCEPTION;
             }
         }
     }
 
+
+    private boolean checkProtocol(Protocol protocol) {
+        if (protocol == null) {
+            return false;
+        }
+
+        SafeLogs.d(TAG, "checkProtocol()", "protocol: " + protocol);
+
+        if (Protocol.HTTP_2 == protocol) {
+            return true;
+        } else if (Protocol.QUIC == protocol) {
+            return true;
+        } else if (Protocol.H2_PRIOR_KNOWLEDGE == protocol) {
+            return true;
+        }
+        return false;
+    }
+
+    private void onFallback(Account account, Request request) throws SeafException {
+        if (newCall != null && newCall.isExecuted()) {
+            SafeLogs.d(TAG, "onFallback()", "newCall has executed(), cancel it");
+            newCall.cancel();
+        }
+
+        SafeLogs.d(TAG, "onFallback()", "use fallback client to upload file");
+
+        newCall = getFallbackHttpClient(account).newCall(request);
+
+        try (Response response = newCall.execute()) {
+            onRes(response);
+        } catch (IOException e) {
+            SafeLogs.e(TAG, e.getMessage());
+            SafeLogs.e(e);
+
+            throw SeafException.NETWORK_EXCEPTION;
+        }
+    }
+
+    private void onRes(Response response) throws SeafException, IOException {
+        int code = response.code();
+        try (ResponseBody body = response.body()) {
+            if (body == null) {
+                SafeLogs.d(TAG, "transferFile()", "body is null");
+
+                if (response.isSuccessful()) {
+                    // if the returned data is abnormal due to some reason,
+                    // it is set to null and uploaded when the next scan arrives
+                    updateToSuccess(null);
+                } else {
+                    throw ExceptionUtils.parseHttpException(code, null);
+                }
+
+                return;
+            }
+
+            String bodyStr = body.string();
+            if (response.isSuccessful()) {
+                if (TextUtils.isEmpty(bodyStr)) {
+                    // if the returned data is abnormal due to some reason,
+                    // it is set to null and uploaded when the next scan arrives
+                    updateToSuccess(null);
+                } else {
+                    String fileId = bodyStr.replace("\"", "");
+
+                    SafeLogs.d(TAG, "transferFile()", "result，file ID：" + bodyStr);
+                    updateToSuccess(fileId);
+                }
+            } else {
+                throw ExceptionUtils.parseHttpException(code, bodyStr);
+            }
+        }
+    }
 
     private String getFileUploadUrl(Account account, String repoId, String target_dir, boolean isUpdate) throws IOException, SeafException {
         retrofit2.Response<String> res;

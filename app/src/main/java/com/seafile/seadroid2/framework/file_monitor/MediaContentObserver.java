@@ -36,6 +36,16 @@ public class MediaContentObserver extends ContentObserver {
         mContext = context;
     }
 
+    private OnMediaContentObserverListener onMediaContentObserverListener;
+
+    public void setOnMediaContentObserverListener(OnMediaContentObserverListener onMediaContentObserverListener) {
+        this.onMediaContentObserverListener = onMediaContentObserverListener;
+    }
+
+    public interface OnMediaContentObserverListener {
+        void onMediaContentObserver(boolean isForce);
+    }
+
     @Override
     public void onChange(boolean selfChange) {
         super.onChange(selfChange);
@@ -47,13 +57,19 @@ public class MediaContentObserver extends ContentObserver {
         SLogs.e("A new file is detected and the Media task begins");
 
         if (TextUtils.equals(newVersion, lastVersion)) {
-            CameraUploadManager.getInstance().performSync(false);
+            if (onMediaContentObserverListener != null) {
+                onMediaContentObserverListener.onMediaContentObserver(false);
+            }
         } else {
             //
             AlbumBackupSharePreferenceHelper.writeLastMediaVersion(newVersion);
             //
-            CameraUploadManager.getInstance().performSync(true);
+            if (onMediaContentObserverListener != null) {
+                onMediaContentObserverListener.onMediaContentObserver(true);
+            }
         }
+
+
     }
 
     public void register() {

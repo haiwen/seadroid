@@ -1,8 +1,6 @@
-package com.seafile.seadroid2.framework.service.starter;
+package com.seafile.seadroid2.framework.worker.periodic;
 
 import android.content.Context;
-import android.os.VibrationEffect;
-import android.os.Vibrator;
 
 import androidx.annotation.NonNull;
 import androidx.work.Worker;
@@ -17,8 +15,6 @@ import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePr
 import com.seafile.seadroid2.framework.service.TransferService;
 import com.seafile.seadroid2.framework.service.scan.FolderScanHelper;
 import com.seafile.seadroid2.framework.util.SLogs;
-import com.seafile.seadroid2.framework.util.SafeLogs;
-import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
 import com.seafile.seadroid2.ui.folder_backup.RepoConfig;
@@ -29,11 +25,11 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
-public class FolderBackupScanStarter extends Worker {
+public class FolderBackupPeriodicScanStarter extends Worker {
     public static final String TAG = "FolderBackupScanStarter";
-    public static final UUID UID = UUID.nameUUIDFromBytes(FolderBackupScanStarter.class.getSimpleName().getBytes());
+    public static final UUID UID = UUID.nameUUIDFromBytes(FolderBackupPeriodicScanStarter.class.getSimpleName().getBytes());
 
-    public FolderBackupScanStarter(@NonNull Context context, @NonNull WorkerParameters workerParams) {
+    public FolderBackupPeriodicScanStarter(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
     }
 

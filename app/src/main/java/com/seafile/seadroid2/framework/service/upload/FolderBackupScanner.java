@@ -112,13 +112,14 @@ public class FolderBackupScanner extends ParentEventTransfer {
 
         //send a scan event
         send(FeatureDataSource.FOLDER_BACKUP, TransferEvent.EVENT_SCANNING);
+
         //scan
-        SeafException seafException = FolderScanHelper.traverseBackupPath(backupPaths, account, repoConfig);
+        long lastScanTime = 0L;// scan all files if lastScanTime is 0
+        SeafException seafException = FolderScanHelper.traverseBackupPath(backupPaths, account, repoConfig, lastScanTime);
 
         if (seafException != SeafException.SUCCESS) {
             SafeLogs.e(TAG, "scan failed");
-            send(FeatureDataSource.FOLDER_BACKUP, TransferEvent.EVENT_SCAN_COMPLETE);
-            return seafException;
+            return returnSuccess();
         }
 
         int totalPendingCount = GlobalTransferCacheList.FOLDER_BACKUP_QUEUE.getPendingCount();

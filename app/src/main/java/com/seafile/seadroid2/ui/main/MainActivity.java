@@ -19,6 +19,7 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.widget.ViewPager2;
@@ -40,6 +41,7 @@ import com.seafile.seadroid2.framework.file_monitor.FileSyncService;
 import com.seafile.seadroid2.framework.model.ServerInfo;
 import com.seafile.seadroid2.framework.model.StorageInfo;
 import com.seafile.seadroid2.framework.service.TransferService;
+import com.seafile.seadroid2.framework.service.runner.BackupThreadExecutor;
 import com.seafile.seadroid2.framework.util.FileTools;
 import com.seafile.seadroid2.framework.util.PermissionUtil;
 import com.seafile.seadroid2.framework.util.SLogs;
@@ -49,8 +51,10 @@ import com.seafile.seadroid2.ui.account.AccountsActivity;
 import com.seafile.seadroid2.ui.activities.AllActivitiesFragment;
 import com.seafile.seadroid2.ui.adapter.ViewPager2Adapter;
 import com.seafile.seadroid2.ui.base.BaseActivity;
+import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
 import com.seafile.seadroid2.ui.repo.RepoQuickFragment;
 
+import java.io.File;
 import java.util.List;
 import java.util.Optional;
 
@@ -436,6 +440,7 @@ public class MainActivity extends BaseActivity {
         public void onServiceConnected(ComponentName name, IBinder service) {
             FileSyncService.FileSyncBinder binder = (FileSyncService.FileSyncBinder) service;
             syncService = binder.getService();
+            syncService.setFileChangeListener(onLocalFileChangeListener);
             SLogs.d(TAG, "bond FileSyncService");
         }
 
@@ -446,6 +451,37 @@ public class MainActivity extends BaseActivity {
             SLogs.d(TAG, "FileSyncService disconnected");
         }
     };
+
+    private final FileSyncService.FileChangeListener onLocalFileChangeListener = new FileSyncService.FileChangeListener() {
+        @Override
+        public void onLocalFileChanged(File fileToScan) {
+            if (isActivityInForeground()) {
+                SLogs.d(TAG, "onLocalFileChanged", fileToScan.getAbsolutePath());
+                TransferService.startLocalFileUpdateService(getApplicationContext());
+            } else {
+
+            }
+        }
+
+        @Override
+        public void onBackupFileChanged(File fileToScan) {
+            if (isActivityInForeground()) {
+                SLogs.d(TAG, "onBackupFileChanged", fileToScan.getAbsolutePath());
+                TransferService.restartFolderBackupService(getApplicationContext(), true);
+            } else {
+                BackupThreadExecutor.getInstance().runFolderBackupFuture(true);
+            }
+        }
+
+        @Override
+        public void onMediaContentObserver(boolean isForce) {
+            CameraUploadManager.getInstance().performSync(isForce);
+        }
+    };
+
+    private boolean isActivityInForeground() {
+        return getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.STARTED);
+    }
 
     // check server info
     private void requestServerInfo(boolean loadFromNet) {

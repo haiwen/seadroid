@@ -81,7 +81,10 @@ public class MediaBackupScanner extends ParentEventTransfer {
         SafeLogs.d(TAG, "doWork()", "start scan");
         send(FeatureDataSource.ALBUM_BACKUP, TransferEvent.EVENT_SCANNING);
 
-        SeafException seafException = AlbumScanHelper.loadMedia(getContext(), account, repoConfig);
+        // force scan all files
+        long lastScanTime = AlbumBackupSharePreferenceHelper.readLastScanTimeMills();
+
+        SeafException seafException = AlbumScanHelper.loadMedia(getContext(), account, repoConfig, lastScanTime);
         if (seafException != SeafException.SUCCESS) {
             SafeLogs.d(TAG, "doWork()", "loadMedia() failed：" + seafException.getMessage());
             send(FeatureDataSource.ALBUM_BACKUP, TransferEvent.EVENT_SCAN_COMPLETE);
@@ -100,7 +103,6 @@ public class MediaBackupScanner extends ParentEventTransfer {
 
         //
         sendCompleteEvent(FeatureDataSource.ALBUM_BACKUP, content, totalPendingCount);
-
         return SeafException.SUCCESS;
     }
 

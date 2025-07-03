@@ -13,6 +13,7 @@ import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
+import com.seafile.seadroid2.framework.helper.ITransferNotification;
 import com.seafile.seadroid2.framework.notification.TransferNotificationDispatcher;
 import com.seafile.seadroid2.framework.service.ParentEventUploader;
 import com.seafile.seadroid2.framework.util.SafeLogs;
@@ -28,8 +29,8 @@ import java.util.List;
 public class FolderBackupUploader extends ParentEventUploader {
     private final String TAG = "FolderBackupUploader";
 
-    public FolderBackupUploader(Context context, TransferNotificationDispatcher transferNotificationDispatcher) {
-        super(context, transferNotificationDispatcher);
+    public FolderBackupUploader(Context context, ITransferNotification iTransferNotificationDispatcher) {
+        super(context, iTransferNotificationDispatcher);
     }
 
     @Override

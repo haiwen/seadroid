@@ -12,6 +12,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.view.View;
@@ -52,6 +53,7 @@ import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePre
 import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.service.BackgroundWorkScheduler;
 import com.seafile.seadroid2.framework.service.TransferService;
+import com.seafile.seadroid2.framework.service.runner.BackupThreadExecutor;
 import com.seafile.seadroid2.framework.util.PermissionUtil;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Toasts;
@@ -97,6 +99,7 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
 
     public static final String FB_SELECT_TYPE = "folder_backup_select_type";
 
+    private Handler viewHandler;
     private final Account currentAccount = SupportAccountManager.getInstance().getCurrentAccount();
     private SettingsFragmentViewModel viewModel;
 //    private SwitchPreferenceCompat gestureSwitch;
@@ -144,6 +147,15 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
     }
 
     @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (viewHandler != null) {
+            viewHandler.removeCallbacksAndMessages(null);
+        }
+        viewHandler = null;
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
@@ -164,6 +176,8 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        viewHandler = new Handler(Looper.getMainLooper());
 
         BusHelper.getCommonObserver().observe(getViewLifecycleOwner(), busObserver);
         registerResultLauncher();
@@ -862,11 +876,22 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
 //        mAlbumBackupState.setVisible(isEnable);
 //        mAlbumBackupAdvanced.setVisible(isEnable);
 
-        runMainThreadDelay(() -> updateAlbumBackupPrefSummary());
+        runMainThreadDelay(new Runnable() {
+            @Override
+            public void run() {
+                if (isAdded()) {
+                    updateAlbumBackupPrefSummary();
+                }
+            }
+        });
 
     }
 
     private void updateAlbumBackupPrefSummary() {
+        if (!isAdded() || getView() == null) {
+            return;
+        }
+
         RepoConfig repoConfig = AlbumBackupSharePreferenceHelper.readRepoConfig();
         if (repoConfig != null) {
             mAlbumBackupRepo.setSummary(repoConfig.getRepoName());
@@ -930,11 +955,11 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
             CameraUploadManager.getInstance().performSync(isForce);
 
             // start periodic album backup scan worker
-            BackgroundWorkScheduler.getInstance().scheduleAlbumBackupPeriodicScan(requireContext().getApplicationContext());
+            BackgroundJobManagerImpl.getInstance().scheduleAlbumBackupPeriodicScan(requireContext().getApplicationContext());
         } else {
             //stop
             // stop periodic album backup scan worker
-            BackgroundWorkScheduler.getInstance().stopAlbumBackupPeriodicScan(requireContext().getApplicationContext());
+            BackgroundJobManagerImpl.getInstance().stopAlbumBackupPeriodicScan(requireContext().getApplicationContext());
 
             if (TransferService.getServiceRunning()) {
                 CompletableFuture<Void> future = TransferService.getActiveTasks().getOrDefault(FeatureDataSource.ALBUM_BACKUP, null);
@@ -966,11 +991,22 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
         mFolderBackupSyncHiddenFilesSwitch.setVisible(isEnable);
 //        mFolderBackupState.setVisible(isEnable);
 
-        runMainThreadDelay(() -> updateFolderBackupPrefSummary());
+        runMainThreadDelay(new Runnable() {
+            @Override
+            public void run() {
+                if (isAdded()) {
+                    updateFolderBackupPrefSummary();
+                }
+            }
+        });
 
     }
 
     private void updateFolderBackupPrefSummary() {
+        if (!isAdded() || getView() == null) {
+            return;
+        }
+
         boolean hiddenSwitch = Settings.FOLDER_BACKUP_SYNC_HIDDEN_FILES.queryValue();
         if (mFolderBackupSyncHiddenFilesSwitch != null) {
             mFolderBackupSyncHiddenFilesSwitch.setChecked(hiddenSwitch);
@@ -1004,28 +1040,32 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
         BusHelper.getCommonObserver().post(BusAction.RESTART_FILE_MONITOR);
 
         if (FolderBackupSharePreferenceHelper.isFolderBackupEnable()) {
-            //start periodic folder backup scan worker
-            BackgroundWorkScheduler.getInstance().scheduleFolderBackupPeriodicScan(requireContext().getApplicationContext());
 
-            //start folder backup service
-            TransferService.restartFolderBackupService(requireContext(), isForce);
+            //start periodic folder backup scan worker
+            BackgroundJobManagerImpl.getInstance().scheduleFolderBackupPeriodicScan(requireContext().getApplicationContext());
+            BackupThreadExecutor.getInstance().runFolderBackupFuture(isForce);
+
+//            //start folder backup service
+//            TransferService.restartFolderBackupService(requireContext(), isForce);
         } else {
 
             // stop periodic folder backup service
-            BackgroundWorkScheduler.getInstance().stopFolderBackupPeriodicScan(requireContext().getApplicationContext());
+            BackgroundJobManagerImpl.getInstance().stopFolderBackupPeriodicScan(requireContext().getApplicationContext());
+            BackupThreadExecutor.getInstance().stopFolderBackup();
 
-
-            if (TransferService.getServiceRunning()) {
-                CompletableFuture<Void> future = TransferService.getActiveTasks().getOrDefault(FeatureDataSource.FOLDER_BACKUP, null);
-                if (future != null && !future.isDone()) {
-                    TransferService.stopFolderBackupService(requireContext());
-                }
-            }
+//            if (TransferService.getServiceRunning()) {
+//                CompletableFuture<Void> future = TransferService.getActiveTasks().getOrDefault(FeatureDataSource.FOLDER_BACKUP, null);
+//                if (future != null && !future.isDone()) {
+//                    TransferService.stopFolderBackupService(requireContext());
+//                }
+//            }
         }
     }
 
     private void runMainThreadDelay(Runnable runnable) {
-        new Handler().postDelayed(runnable, 500);
+        if (viewHandler != null) {
+            viewHandler.postDelayed(runnable, 500);
+        }
     }
 
 

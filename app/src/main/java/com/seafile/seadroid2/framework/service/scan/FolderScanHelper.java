@@ -130,7 +130,7 @@ public class FolderScanHelper {
         return backupableCount;
     }
 
-    public static SeafException traverseBackupPath(List<String> backupPathsList, Account account, RepoConfig repoConfig) {
+    public static SeafException traverseBackupPath(List<String> backupPathsList, Account account, RepoConfig repoConfig, long lastTime) {
 
         List<RepoModel> repoModels = AppDatabase.getInstance().repoDao().getByIdSync(repoConfig.getRepoId());
 
@@ -147,7 +147,6 @@ public class FolderScanHelper {
 
         SeafException retException;
         try {
-            long lastTime = 0L; // scan all files in the folder
 
             for (String backupPath : backupPathsList) {
 

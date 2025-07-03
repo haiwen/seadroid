@@ -13,22 +13,21 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.SaveTo;
-import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.enums.TransferStatus;
+import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
-import com.seafile.seadroid2.framework.model.dirents.DirentRecursiveFileModel;
-import com.seafile.seadroid2.framework.util.SLogs;
-import com.seafile.seadroid2.framework.worker.queue.TransferModel;
-import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.http.HttpIO;
+import com.seafile.seadroid2.framework.model.dirents.DirentRecursiveFileModel;
 import com.seafile.seadroid2.framework.notification.DownloadNotificationHelper;
+import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.framework.worker.ExistingFileStrategy;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
+import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 import com.seafile.seadroid2.ui.file.FileService;
 
 import java.io.IOException;
@@ -43,6 +42,7 @@ import java.util.List;
  * @see BackgroundJobManagerImpl#TAG_ALL
  * @see BackgroundJobManagerImpl#TAG_TRANSFER
  */
+@Deprecated
 public class DownloadFileScannerWorker extends TransferWorker {
     private final String TAG = "DownloadFileScannerWorker";
     private final DownloadNotificationHelper notificationHelper;
@@ -73,7 +73,7 @@ public class DownloadFileScannerWorker extends TransferWorker {
         showForegroundAsync(foregroundInfo);
 
         //send a scan event
-        sendWorkerEvent(FeatureDataSource.DOWNLOAD, TransferEvent.EVENT_SCANNING);
+        send(FeatureDataSource.DOWNLOAD, TransferEvent.EVENT_SCANNING);
 
         SLogs.d(TAG, "doWork()", "start scan");
         String[] direntIds = direntIdStr.split(",");
@@ -103,7 +103,7 @@ public class DownloadFileScannerWorker extends TransferWorker {
     }
 
     protected Result returnSuccess() {
-        sendWorkerEvent(FeatureDataSource.DOWNLOAD, TransferEvent.EVENT_SCAN_COMPLETE);
+        send(FeatureDataSource.DOWNLOAD, TransferEvent.EVENT_SCAN_COMPLETE);
         return Result.success();
     }
 

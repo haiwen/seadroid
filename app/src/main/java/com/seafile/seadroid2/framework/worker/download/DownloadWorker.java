@@ -66,6 +66,7 @@ import okhttp3.ResponseBody;
  * @see BackgroundJobManagerImpl#TAG_ALL
  * @see BackgroundJobManagerImpl#TAG_TRANSFER
  */
+@Deprecated
 public class DownloadWorker extends BaseDownloadWorker {
     private final String TAG = "DownloadWorker";
 
@@ -92,7 +93,7 @@ public class DownloadWorker extends BaseDownloadWorker {
             showForegroundAsync(foregroundInfo);
 
             //
-            sendProgressEvent(transferModel);
+            sendProgressEvent(FeatureDataSource.DOWNLOAD, transferModel);
         });
     }
 
@@ -171,7 +172,7 @@ public class DownloadWorker extends BaseDownloadWorker {
         Bundle b = new Bundle();
         b.putString(TransferWorker.KEY_DATA_RESULT, interruptibleExceptionMsg);
         b.putInt(TransferWorker.KEY_TRANSFER_COUNT, totalPendingCount);
-        sendWorkerEvent(FeatureDataSource.DOWNLOAD, TransferEvent.EVENT_TRANSFER_TASK_COMPLETE, b);
+        send(FeatureDataSource.DOWNLOAD, TransferEvent.EVENT_TRANSFER_TASK_COMPLETE, b);
 
         return Result.success();
     }
@@ -182,7 +183,7 @@ public class DownloadWorker extends BaseDownloadWorker {
     }
 
     protected void sendFinishEvent() {
-        sendWorkerEvent(FeatureDataSource.DOWNLOAD, TransferEvent.EVENT_TRANSFER_TASK_COMPLETE);
+        send(FeatureDataSource.DOWNLOAD, TransferEvent.EVENT_TRANSFER_TASK_COMPLETE);
     }
 
     private final int retryMaxCount = 1;
@@ -195,7 +196,7 @@ public class DownloadWorker extends BaseDownloadWorker {
         try {
             downloadFile(account);
 
-            sendProgressFinishEvent(currentTransferModel);
+            sendProgressEvent(FeatureDataSource.DOWNLOAD, currentTransferModel);
 
             SLogs.d(TAG, "transferFile()", "download complete：" + currentTransferModel.full_path);
         } catch (Exception e) {

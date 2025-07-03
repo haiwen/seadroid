@@ -38,6 +38,7 @@ import java.util.UUID;
  * @see BackgroundJobManagerImpl#TAG_ALL
  * @see BackgroundJobManagerImpl#TAG_TRANSFER
  */
+@Deprecated
 public class FileUploadWorker extends BaseUploadWorker {
     private final String TAG = "FileUploadWorker";
     public static final UUID UID = UUID.nameUUIDFromBytes(FileUploadWorker.class.getSimpleName().getBytes());
@@ -148,13 +149,13 @@ public class FileUploadWorker extends BaseUploadWorker {
         Bundle b = new Bundle();
         b.putString(TransferWorker.KEY_DATA_RESULT, interruptibleExceptionMsg);
         b.putInt(TransferWorker.KEY_TRANSFER_COUNT, totalPendingCount);
-        sendWorkerEvent(FeatureDataSource.MANUAL_FILE_UPLOAD, TransferEvent.EVENT_TRANSFER_TASK_COMPLETE, b);
+//        send(FeatureDataSource.MANUAL_FILE_UPLOAD, TransferEvent.EVENT_TRANSFER_TASK_COMPLETE, b);
         return Result.success();
     }
 
 
     protected Result returnSuccess() {
-        sendWorkerEvent(FeatureDataSource.MANUAL_FILE_UPLOAD, TransferEvent.EVENT_TRANSFER_TASK_COMPLETE);
+        send(FeatureDataSource.MANUAL_FILE_UPLOAD, TransferEvent.EVENT_TRANSFER_TASK_COMPLETE);
         return Result.success();
     }
 }

@@ -116,36 +116,42 @@ public abstract class TransferWorker extends BaseWorker {
         Toasts.show(r);
     }
 
-    public void sendWorkerEvent(FeatureDataSource dataSource, String event) {
-        send(dataSource, event);
+    protected void sendCompleteEvent(FeatureDataSource dataSource, String errMsg, int totalPendingCount) {
+        Bundle b = new Bundle();
+        b.putString(TransferWorker.KEY_DATA_RESULT, errMsg);
+        b.putInt(TransferWorker.KEY_TRANSFER_COUNT, totalPendingCount);
+        send(dataSource, TransferEvent.EVENT_TRANSFER_TASK_COMPLETE, b);
     }
 
-    public void sendWorkerEvent(FeatureDataSource dataSource, String event, Bundle extra) {
-        send(dataSource, event, extra);
+    protected void sendScanCompleteEvent(FeatureDataSource dataSource, String content, int totalPendingCount) {
+        Bundle b = new Bundle();
+        b.putString(TransferWorker.KEY_DATA_RESULT, content);
+        b.putInt(TransferWorker.KEY_TRANSFER_COUNT, totalPendingCount);
+        send(dataSource, TransferEvent.EVENT_SCAN_COMPLETE, b);
     }
 
-    public void sendProgressFinishEvent(TransferModel transferModel) {
+    public void sendProgressEvent(FeatureDataSource dataSource, TransferModel transferModel) {
+        Bundle b = new Bundle();
+        b.putString(KEY_TRANSFER_ID, transferModel.getId());
+        send(dataSource, TransferEvent.EVENT_FILE_IN_TRANSFER, b);
+    }
+
+    public void sendProgressCompleteEvent(FeatureDataSource dataSource, TransferModel transferModel) {
         Bundle b = new Bundle();
         b.putString(KEY_TRANSFER_ID, transferModel.getId());
         if (transferModel.transfer_status == TransferStatus.SUCCEEDED) {
-            send(transferModel.data_source, TransferEvent.EVENT_FILE_TRANSFER_SUCCESS, b);
+            send(dataSource, TransferEvent.EVENT_FILE_TRANSFER_SUCCESS, b);
         } else {
-            send(transferModel.data_source, TransferEvent.EVENT_FILE_TRANSFER_FAILED, b);
+            send(dataSource, TransferEvent.EVENT_FILE_TRANSFER_FAILED, b);
         }
     }
 
 
-    public void sendProgressEvent(TransferModel transferModel) {
-        Bundle b = new Bundle();
-        b.putString(KEY_TRANSFER_ID, transferModel.getId());
-        send(transferModel.data_source, TransferEvent.EVENT_FILE_IN_TRANSFER, b);
-    }
-
-    private void send(FeatureDataSource dataSource, String event) {
+    public void send(FeatureDataSource dataSource, String event) {
         send(dataSource, event, null);
     }
 
-    private void send(FeatureDataSource dataSource, String event, Bundle extra) {
+    public void send(FeatureDataSource dataSource, String event, Bundle extra) {
         Bundle b = new Bundle();
         b.putString(TransferWorker.KEY_DATA_SOURCE, dataSource.name());
         b.putString(TransferWorker.KEY_DATA_STATUS, event);
@@ -155,7 +161,7 @@ public abstract class TransferWorker extends BaseWorker {
         send(b);
     }
 
-    private void send(Bundle eventData) {
+    public void send(Bundle eventData) {
         BusHelper.getTransferProgressObserver().post(eventData);
     }
 

@@ -18,6 +18,7 @@ import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.FileBackupStatusEntity;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
+import com.seafile.seadroid2.framework.helper.ITransferNotification;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.notification.TransferNotificationDispatcher;
 import com.seafile.seadroid2.framework.util.ExceptionUtils;
@@ -49,16 +50,12 @@ import okhttp3.ResponseBody;
 
 public abstract class ParentEventUploader extends ParentEventTransfer {
     private final String TAG = "ParentEventUploader";
-    private final TransferNotificationDispatcher transferNotificationDispatcher;
+    private final ITransferNotification notificationDispatcher;
 
-    public ParentEventUploader(Context context, TransferNotificationDispatcher transferNotificationDispatcher) {
+    public ParentEventUploader(Context context, ITransferNotification notificationDispatcher) {
         super(context);
-        this.transferNotificationDispatcher = transferNotificationDispatcher;
+        this.notificationDispatcher = notificationDispatcher;
         _fileTransferProgressListener.setProgressListener(progressListener);
-    }
-
-    public TransferNotificationDispatcher getTransferNotificationDispatcher() {
-        return transferNotificationDispatcher;
     }
 
     public abstract FeatureDataSource getFeatureDataSource();
@@ -87,11 +84,11 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
 
 
     private void notifyProgress(String fileName, int percent) {
-        if (transferNotificationDispatcher == null) {
+        if (notificationDispatcher == null) {
             return;
         }
 
-        transferNotificationDispatcher.showProgress(getFeatureDataSource(), fileName, percent);
+        notificationDispatcher.showProgress(getFeatureDataSource(), fileName, percent);
     }
 
     public void notifyError(SeafException seafException) {
@@ -159,6 +156,10 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
 
         if (primaryHttpClient != null) {
             primaryHttpClient.dispatcher().cancelAll();
+        }
+
+        if (fallbackHttpClient != null) {
+            fallbackHttpClient.dispatcher().cancelAll();
         }
 
         if (newCall != null) {

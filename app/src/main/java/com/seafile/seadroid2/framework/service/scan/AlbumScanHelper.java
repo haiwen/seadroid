@@ -73,7 +73,7 @@ public class AlbumScanHelper {
         return future == null || future.isDone();
     }
 
-    public static SeafException loadMedia(Context context, Account account, RepoConfig repoConfig) {
+    public static SeafException loadMedia(Context context, Account account, RepoConfig repoConfig,long lastScanTime) {
         // check
         List<String> bucketIdList = AlbumBackupSharePreferenceHelper.readBucketIds();
 
@@ -91,9 +91,7 @@ public class AlbumScanHelper {
                 }
             }
         }
-
-        long lastScanTime = 0L;// force scan all files
-
+        
         //query images
         loadImages(context, lastScanTime, account, repoConfig, bucketIdList, false);
 

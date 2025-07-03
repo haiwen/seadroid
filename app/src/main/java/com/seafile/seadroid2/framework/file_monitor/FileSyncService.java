@@ -22,10 +22,10 @@ import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePre
 import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
-import com.seafile.seadroid2.framework.service.BackgroundWorkScheduler;
 import com.seafile.seadroid2.framework.service.TransferService;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Utils;
+import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
@@ -67,6 +67,21 @@ public class FileSyncService extends Service {
     private final List<String> IGNORE_PATHS = new ArrayList<>();
 
     private final String TEMP_FILE_DIR = StorageManager.getInstance().getTempDir().getAbsolutePath();
+
+    private final Handler mainThreadHandler = new Handler(Looper.getMainLooper());
+    private FileChangeListener fileChangeListener;
+
+    public void setFileChangeListener(FileChangeListener fileChangeListener) {
+        this.fileChangeListener = fileChangeListener;
+    }
+
+    public interface FileChangeListener {
+        void onLocalFileChanged(File fileToScan); // 或者传递更具体的事件对象
+
+        void onBackupFileChanged(File fileToScan); // 或者传递更具体的事件对象
+
+        void onMediaContentObserver(boolean isForce);
+    }
 
     /**
      * TODO: Multiple cache directories
@@ -178,10 +193,11 @@ public class FileSyncService extends Service {
                 }
 
                 SLogs.d(TAG, "scanLocalCacheFile", "file md5 is different, path: " + entity.full_path);
-                //
+
                 onAppCacheFileChanged(file);
             }
 
+            //When the Sync service is first launched, we can start another foreground service directly because the app is being visible to the user
             TransferService.startLocalFileUpdateService(getApplicationContext());
         }).thenRunAsync(new Runnable() {
             @Override
@@ -193,7 +209,16 @@ public class FileSyncService extends Service {
     }
 
     private void registerMediaContentObserver() {
-        mediaContentObserver = new MediaContentObserver(getBaseContext(), new Handler());
+        mediaContentObserver = new MediaContentObserver(getBaseContext(), mainThreadHandler);
+        mediaContentObserver.setOnMediaContentObserverListener(new MediaContentObserver.OnMediaContentObserverListener() {
+            @Override
+            public void onMediaContentObserver(boolean isForce) {
+                SLogs.d(TAG, "onMediaContentObserver", "isForce: " + isForce);
+                if (fileChangeListener != null) {
+                    fileChangeListener.onMediaContentObserver(isForce);
+                }
+            }
+        });
         mediaContentObserver.register();
     }
 
@@ -201,14 +226,15 @@ public class FileSyncService extends Service {
         if (AlbumBackupSharePreferenceHelper.isAlbumBackupEnable()) {
             CameraUploadManager.getInstance().performSync();
 
-            BackgroundWorkScheduler.getInstance().scheduleAlbumBackupPeriodicScan(getApplicationContext());
+            // Of course, a periodic worker can also be started here
+            BackgroundJobManagerImpl.getInstance().scheduleAlbumBackupPeriodicScan(getApplicationContext());
         }
 
         if (FolderBackupSharePreferenceHelper.isFolderBackupEnable()) {
             TransferService.restartFolderBackupService(getApplicationContext(), true);
 
             //start periodic folder backup scan worker
-            BackgroundWorkScheduler.getInstance().scheduleFolderBackupPeriodicScan(getApplicationContext());
+            BackgroundJobManagerImpl.getInstance().scheduleFolderBackupPeriodicScan(getApplicationContext());
         }
     }
 
@@ -314,10 +340,25 @@ public class FileSyncService extends Service {
             if ("change".equals(action)) {
                 onAppCacheFileChanged(file);
 
-                TransferService.startLocalFileUpdateService(getApplicationContext());
+                // We don't know if an app is visible to users, so we can't start a foreground service directly
+                if (fileChangeListener != null) {
+                    mainThreadHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            fileChangeListener.onLocalFileChanged(file);
+                        }
+                    });
+                }
             }
         } else {
-            TransferService.restartFolderBackupService(getApplicationContext(), true);
+            if (fileChangeListener != null) {
+                mainThreadHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        fileChangeListener.onBackupFileChanged(file);
+                    }
+                });
+            }
         }
     }
 

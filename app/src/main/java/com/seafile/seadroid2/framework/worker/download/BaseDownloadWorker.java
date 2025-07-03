@@ -11,6 +11,7 @@ import com.seafile.seadroid2.framework.notification.base.BaseNotification;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
 
+@Deprecated
 public abstract class BaseDownloadWorker extends TransferWorker {
 
     public abstract BaseNotification getNotification();

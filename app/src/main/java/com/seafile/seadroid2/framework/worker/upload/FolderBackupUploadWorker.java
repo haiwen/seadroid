@@ -11,6 +11,7 @@ import androidx.work.WorkInfo;
 import androidx.work.WorkerParameters;
 
 import com.blankj.utilcode.util.CollectionUtils;
+import com.blankj.utilcode.util.NetworkUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
@@ -22,6 +23,7 @@ import com.seafile.seadroid2.framework.notification.FolderBackupNotificationHelp
 import com.seafile.seadroid2.framework.notification.base.BaseTransferNotificationHelper;
 import com.seafile.seadroid2.framework.util.ExceptionUtils;
 import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.util.SafeLogs;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
@@ -49,6 +51,11 @@ public class FolderBackupUploadWorker extends BaseUploadWorker {
         super(context, workerParams);
 
         notificationManager = new FolderBackupNotificationHelper(context);
+    }
+
+    @Override
+    public FeatureDataSource getFeatureDataSource() {
+        return FeatureDataSource.FOLDER_BACKUP;
     }
 
     @Override
@@ -97,12 +104,42 @@ public class FolderBackupUploadWorker extends BaseUploadWorker {
             return returnSuccess();
         }
 
-        boolean canContinue = can();
-        if (!canContinue) {
-            SLogs.d(TAG, "start()", "settings missing config or not turned on");
+
+        boolean isTurnOn = FolderBackupSharePreferenceHelper.readBackupSwitch();
+        if (!isTurnOn) {
+            SafeLogs.d(TAG, "backup switch is off");
             return returnSuccess();
         }
 
+        List<String> backupPaths = FolderBackupSharePreferenceHelper.readBackupPathsAsList();
+        if (CollectionUtils.isEmpty(backupPaths)) {
+            SafeLogs.d(TAG, "backup paths is empty");
+            return returnSuccess();
+        }
+
+        RepoConfig repoConfig = FolderBackupSharePreferenceHelper.readRepoConfig();
+        if (repoConfig == null) {
+            SafeLogs.d(TAG, "repo config is null");
+            return returnSuccess();
+        }
+
+
+        if (!NetworkUtils.isConnected()) {
+            SafeLogs.d(TAG, "network is not connected");
+            return returnSuccess();
+        }
+
+        boolean isAllowDataPlan = FolderBackupSharePreferenceHelper.readDataPlanAllowed();
+        if (!isAllowDataPlan) {
+            if (NetworkUtils.isMobileData()) {
+                SafeLogs.e(TAG, "data plan is not allowed", "current network type", NetworkUtils.getNetworkType().name());
+                return returnSuccess();
+            }
+
+            SafeLogs.e(TAG, "data plan is not allowed", "current network type", NetworkUtils.getNetworkType().name());
+        } else {
+            SafeLogs.e(TAG, "data plan is allowed", "current network type", NetworkUtils.getNetworkType().name());
+        }
 
         //
         int totalPendingCount = GlobalTransferCacheList.FOLDER_BACKUP_QUEUE.getPendingCount();
@@ -116,46 +153,31 @@ public class FolderBackupUploadWorker extends BaseUploadWorker {
         //send a upload event
 //        sendActionEvent(TransferDataSource.FOLDER_BACKUP, TransferEvent.EVENT_UPLOADING);
 
-        // This exception is a type of interruptible program, and a normal exception does not interrupt the transfer task
-        // see BaseUploadWorker#isInterrupt()
-        String interruptibleExceptionMsg = null;
+        SafeLogs.e(TAG, "pending count: " + totalPendingCount);
+        SeafException resultSeafException = SeafException.SUCCESS;
 
         while (true) {
-            if (isStopped()) {
+            TransferModel transferModel = GlobalTransferCacheList.FOLDER_BACKUP_QUEUE.pick();
+            if (transferModel == null) {
                 break;
             }
 
             try {
-                TransferModel transferModel = GlobalTransferCacheList.FOLDER_BACKUP_QUEUE.pick();
-                if (transferModel == null) {
+
+                transfer(account, transferModel);
+
+            } catch (SeafException seafException) {
+                // In some cases, the transmission needs to be interrupted
+                boolean isInterrupt = isInterrupt(seafException);
+                if (isInterrupt) {
+                    SafeLogs.e("An exception occurred and the transmission has been interrupted");
+                    notifyError(seafException);
+
+                    resultSeafException = seafException;
                     break;
+                } else {
+                    SafeLogs.e("An exception occurred and the next transfer will continue");
                 }
-
-                try {
-
-                    transfer(account, transferModel);
-
-                } catch (Exception e) {
-                    SeafException seafException = ExceptionUtils.parseByThrowable(e);
-                    //Is there an interruption in the transmission in some cases?
-                    boolean isInterrupt = isInterrupt(seafException);
-                    if (isInterrupt) {
-                        SLogs.e("An exception occurred and the transmission has been interrupted");
-                        notifyError(seafException);
-
-                        // notice this, see BaseUploadWorker#isInterrupt()
-                        throw e;
-                    } else {
-                        SLogs.e("An exception occurred and the next transfer will continue");
-                    }
-
-                }
-
-            } catch (Exception e) {
-                SLogs.e("upload file file failed: ", e);
-                interruptibleExceptionMsg = e.getMessage();
-
-                break;
             }
         }
 
@@ -183,24 +205,4 @@ public class FolderBackupUploadWorker extends BaseUploadWorker {
         sendWorkerEvent(FeatureDataSource.FOLDER_BACKUP, TransferEvent.EVENT_TRANSFER_TASK_COMPLETE);
         return Result.success();
     }
-
-    private boolean can() {
-        boolean isTurnOn = FolderBackupSharePreferenceHelper.readBackupSwitch();
-        if (!isTurnOn) {
-            return false;
-        }
-
-        List<String> backupPaths = FolderBackupSharePreferenceHelper.readBackupPathsAsList();
-        if (CollectionUtils.isEmpty(backupPaths)) {
-            return false;
-        }
-
-        repoConfig = FolderBackupSharePreferenceHelper.readRepoConfig();
-        if (repoConfig == null) {
-            return false;
-        }
-
-        return true;
-    }
-
 }

@@ -1,8 +1,6 @@
-package com.seafile.seadroid2.framework.service.starter;
+package com.seafile.seadroid2.framework.worker.periodic;
 
 import android.content.Context;
-import android.os.VibrationEffect;
-import android.os.Vibrator;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
@@ -17,18 +15,17 @@ import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePre
 import com.seafile.seadroid2.framework.service.TransferService;
 import com.seafile.seadroid2.framework.service.scan.AlbumScanHelper;
 import com.seafile.seadroid2.framework.util.SafeLogs;
-import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
 import com.seafile.seadroid2.ui.folder_backup.RepoConfig;
 
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
-public class AlbumBackupScanStarter extends Worker {
+public class AlbumBackupPeriodicScanStarter extends Worker {
     public static final String TAG = "AlbumBackupScanStarter";
-    public static final UUID UID = UUID.nameUUIDFromBytes(AlbumBackupScanStarter.class.getSimpleName().getBytes());
+    public static final UUID UID = UUID.nameUUIDFromBytes(AlbumBackupPeriodicScanStarter.class.getSimpleName().getBytes());
 
-    public AlbumBackupScanStarter(@NonNull Context context, @NonNull WorkerParameters workerParams) {
+    public AlbumBackupPeriodicScanStarter(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
     }
 
