@@ -10,19 +10,18 @@ import androidx.work.WorkerParameters;
 import com.blankj.utilcode.util.NetworkUtils;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
-import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
-import com.seafile.seadroid2.framework.service.TransferService;
+import com.seafile.seadroid2.framework.service.BackupThreadExecutor;
 import com.seafile.seadroid2.framework.service.scan.AlbumScanHelper;
 import com.seafile.seadroid2.framework.util.SafeLogs;
+import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
 import com.seafile.seadroid2.ui.folder_backup.RepoConfig;
 
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 
 public class AlbumBackupPeriodicScanStarter extends Worker {
-    public static final String TAG = "AlbumBackupScanStarter";
+    public static final String TAG = "AlbumBackupPeriodicScanStarter";
     public static final UUID UID = UUID.nameUUIDFromBytes(AlbumBackupPeriodicScanStarter.class.getSimpleName().getBytes());
 
     public AlbumBackupPeriodicScanStarter(@NonNull Context context, @NonNull WorkerParameters workerParams) {
@@ -30,12 +29,8 @@ public class AlbumBackupPeriodicScanStarter extends Worker {
     }
 
     private static boolean canExc() {
-        if (!TransferService.getServiceRunning()) {
-            return true;
-        }
-
-        CompletableFuture<Void> future = TransferService.getActiveTasks().getOrDefault(FeatureDataSource.ALBUM_BACKUP, null);
-        return future == null || future.isDone();
+        boolean isRunning = BackupThreadExecutor.getInstance().isAlbumBackupRunning();
+        return !isRunning;
     }
 
     @NonNull
@@ -44,7 +39,7 @@ public class AlbumBackupPeriodicScanStarter extends Worker {
         SafeLogs.e(TAG, "相册扫描 Worker 启动");
 
         if (!canExc()) {
-            SafeLogs.d(TAG, "doWork()", "The album scan task was not started, because the transfer service is not running");
+            SafeLogs.e(TAG, "doWork()", "The album scan task was not started, because the album backup thread is running");
             return Result.success();
         }
 
@@ -79,7 +74,7 @@ public class AlbumBackupPeriodicScanStarter extends Worker {
         boolean isAllowDataPlan = AlbumBackupSharePreferenceHelper.readAllowDataPlanSwitch();
         if (!isAllowDataPlan) {
             if (NetworkUtils.isMobileData()) {
-                SafeLogs.d(TAG, "data plan is not allowed", "current network type: ", NetworkUtils.getNetworkType().name());
+                SafeLogs.e(TAG, "data plan is not allowed", "current network type: ", NetworkUtils.getNetworkType().name());
                 return Result.success();
             }
 
@@ -93,7 +88,7 @@ public class AlbumBackupPeriodicScanStarter extends Worker {
         boolean result = AlbumScanHelper.readMediaResult(getApplicationContext(), account, repoConfig);
 
         if (result) {
-            TransferService.restartPhotoBackupService(getApplicationContext());
+            BackgroundJobManagerImpl.getInstance().startMediaBackupChain(true);
             SafeLogs.e(TAG, "doWork()", "new album");
         } else {
             SafeLogs.d(TAG, "doWork()", "no new album");

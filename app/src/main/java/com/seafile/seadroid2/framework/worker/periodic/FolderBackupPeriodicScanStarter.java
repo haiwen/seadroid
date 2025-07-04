@@ -10,11 +10,11 @@ import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.NetworkUtils;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
-import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
-import com.seafile.seadroid2.framework.service.TransferService;
+import com.seafile.seadroid2.framework.service.BackupThreadExecutor;
 import com.seafile.seadroid2.framework.service.scan.FolderScanHelper;
 import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
 import com.seafile.seadroid2.ui.folder_backup.RepoConfig;
@@ -23,7 +23,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 
 public class FolderBackupPeriodicScanStarter extends Worker {
     public static final String TAG = "FolderBackupScanStarter";
@@ -34,21 +33,17 @@ public class FolderBackupPeriodicScanStarter extends Worker {
     }
 
     private static boolean canExc() {
-        if (!TransferService.getServiceRunning()) {
-            return true;
-        }
-
-        CompletableFuture<Void> future = TransferService.getActiveTasks().getOrDefault(FeatureDataSource.FOLDER_BACKUP, null);
-        return future == null || future.isDone();
+        boolean isRunning = BackupThreadExecutor.getInstance().isFolderBackupRunning();
+        return !isRunning;
     }
 
     @NonNull
     @Override
     public Result doWork() {
-        SLogs.d(TAG, "文件夹扫描 Worker 启动");
+        SLogs.e(TAG, "文件夹扫描 Worker 启动");
 
         if (!canExc()) {
-            SLogs.d(TAG, "The folder scan task was not started, because the transfer service is not running");
+            SLogs.e(TAG, "The folder scan task was not started, because the folder backup task is running");
             return Result.success();
         }
 
@@ -83,7 +78,7 @@ public class FolderBackupPeriodicScanStarter extends Worker {
         boolean isAllowDataPlan = FolderBackupSharePreferenceHelper.readDataPlanAllowed();
         if (!isAllowDataPlan) {
             if (NetworkUtils.isMobileData()) {
-                SLogs.d(TAG, "data plan is not allowed", "current network type: ", NetworkUtils.getNetworkType().name());
+                SLogs.e(TAG, "data plan is not allowed", "current network type: ", NetworkUtils.getNetworkType().name());
                 return Result.success();
             }
 
@@ -106,7 +101,7 @@ public class FolderBackupPeriodicScanStarter extends Worker {
         }
 
         SLogs.d(TAG, "start scan", "backup path file count: ", GlobalTransferCacheList.FOLDER_BACKUP_QUEUE.getTotalCount() + "");
-        TransferService.restartFolderBackupService(getApplicationContext(), false);
+        BackgroundJobManagerImpl.getInstance().startFolderBackupChain(true);
 
         return Result.success();
     }

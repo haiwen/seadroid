@@ -19,7 +19,6 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.widget.ViewPager2;
@@ -39,13 +38,9 @@ import com.seafile.seadroid2.databinding.ActivityMainBinding;
 import com.seafile.seadroid2.enums.NightMode;
 import com.seafile.seadroid2.framework.file_monitor.FileSyncService;
 import com.seafile.seadroid2.framework.model.ServerInfo;
-import com.seafile.seadroid2.framework.model.StorageInfo;
-import com.seafile.seadroid2.framework.service.TransferService;
-import com.seafile.seadroid2.framework.service.runner.BackupThreadExecutor;
-import com.seafile.seadroid2.framework.util.FileTools;
+import com.seafile.seadroid2.framework.service.BackupThreadExecutor;
 import com.seafile.seadroid2.framework.util.PermissionUtil;
 import com.seafile.seadroid2.framework.util.SLogs;
-import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.ui.account.AccountsActivity;
 import com.seafile.seadroid2.ui.activities.AllActivitiesFragment;
@@ -59,7 +54,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class MainActivity extends BaseActivity {
-    private final String TAG = "MainActivity";
+    private static final String TAG = "MainActivity";
     public static final int INDEX_LIBRARY_TAB = 0;
 
     private ActivityMainBinding binding;
@@ -122,7 +117,7 @@ public class MainActivity extends BaseActivity {
 
         restoreNavContext();
 
-        registerNetworkChange();
+        registerComponent();
 
         requestServerInfo(true);
     }
@@ -134,7 +129,8 @@ public class MainActivity extends BaseActivity {
         refreshActionbar();
     }
 
-    private void registerNetworkChange() {
+    private void registerComponent() {
+        //register network status changed
         NetworkUtils.registerNetworkStatusChangedListener(onNetworkStatusChangedListener);
     }
 
@@ -455,33 +451,22 @@ public class MainActivity extends BaseActivity {
     private final FileSyncService.FileChangeListener onLocalFileChangeListener = new FileSyncService.FileChangeListener() {
         @Override
         public void onLocalFileChanged(File fileToScan) {
-            if (isActivityInForeground()) {
-                SLogs.d(TAG, "onLocalFileChanged", fileToScan.getAbsolutePath());
-                TransferService.startLocalFileUpdateService(getApplicationContext());
-            } else {
-
-            }
+            SLogs.d(TAG, "onLocalFileChanged", fileToScan.getAbsolutePath());
+            BackupThreadExecutor.getInstance().runLocalFileUpdateTask();
         }
 
         @Override
         public void onBackupFileChanged(File fileToScan) {
-            if (isActivityInForeground()) {
-                SLogs.d(TAG, "onBackupFileChanged", fileToScan.getAbsolutePath());
-                TransferService.restartFolderBackupService(getApplicationContext(), true);
-            } else {
-                BackupThreadExecutor.getInstance().runFolderBackupFuture(true);
-            }
+            SLogs.d(TAG, "onBackupFileChanged", fileToScan.getAbsolutePath());
+            BackupThreadExecutor.getInstance().runFolderBackupFuture(true);
         }
 
         @Override
-        public void onMediaContentObserver(boolean isForce) {
-            CameraUploadManager.getInstance().performSync(isForce);
+        public void onMediaContentObserver(boolean isFullScan) {
+            SLogs.d(TAG, "onMediaContentObserver", "isFullScan: " + isFullScan);
+            CameraUploadManager.getInstance().performSync(isFullScan);
         }
     };
-
-    private boolean isActivityInForeground() {
-        return getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.STARTED);
-    }
 
     // check server info
     private void requestServerInfo(boolean loadFromNet) {

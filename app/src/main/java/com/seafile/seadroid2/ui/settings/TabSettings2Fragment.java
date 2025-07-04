@@ -51,9 +51,8 @@ import com.seafile.seadroid2.enums.ObjSelectType;
 import com.seafile.seadroid2.framework.datastore.StorageManager;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
-import com.seafile.seadroid2.framework.service.BackgroundWorkScheduler;
+import com.seafile.seadroid2.framework.service.BackupThreadExecutor;
 import com.seafile.seadroid2.framework.service.TransferService;
-import com.seafile.seadroid2.framework.service.runner.BackupThreadExecutor;
 import com.seafile.seadroid2.framework.util.PermissionUtil;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Toasts;
@@ -92,7 +91,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 
 public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
     private final String TAG = "TabSettings2Fragment";
@@ -479,7 +477,7 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
 
     private void exportLogFile() {
 
-        String logPath = StorageManager.getInstance().getLogDir().getAbsolutePath();
+        String logPath = SLogs.getLogDirPath();
         if (!FileUtils.isDir(logPath)) {
             Toasts.show(R.string.export_log_file_not_exists);
             return;
@@ -739,7 +737,7 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
         String transferId = map.getString(TransferWorker.KEY_TRANSFER_ID);
         int transferCount = map.getInt(TransferWorker.KEY_TRANSFER_COUNT);
 
-        SLogs.d(TAG, "on event: " + statusEvent + ", dataSource: " + dataSource);
+        SLogs.d(TAG, "on event: " + statusEvent, "dataSource: " + dataSource, "total count:" + transferCount);
 
         if (TextUtils.equals(statusEvent, TransferEvent.EVENT_SCANNING)) {
             refreshPendingCount(dataSource, statusEvent, true, result);
@@ -961,13 +959,9 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
             // stop periodic album backup scan worker
             BackgroundJobManagerImpl.getInstance().stopAlbumBackupPeriodicScan(requireContext().getApplicationContext());
 
-            if (TransferService.getServiceRunning()) {
-                CompletableFuture<Void> future = TransferService.getActiveTasks().getOrDefault(FeatureDataSource.ALBUM_BACKUP, null);
-                if (future != null && !future.isDone()) {
-                    TransferService.stopPhotoBackupService(requireContext());
-                    CameraUploadManager.getInstance().disableCameraUpload();
-                }
-            }
+            BackupThreadExecutor.getInstance().stopAlbumBackup();
+
+            CameraUploadManager.getInstance().disableCameraUpload();
         }
     }
 
@@ -1028,9 +1022,9 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
         }
     }
 
-    private void launchFolderBackupWhenReady(boolean isForce) {
+    private void launchFolderBackupWhenReady(boolean isFullScan) {
 
-        if (isForce) {
+        if (isFullScan) {
             FolderBackupSharePreferenceHelper.resetLastScanTime();
         }
 
@@ -1043,22 +1037,15 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
 
             //start periodic folder backup scan worker
             BackgroundJobManagerImpl.getInstance().scheduleFolderBackupPeriodicScan(requireContext().getApplicationContext());
-            BackupThreadExecutor.getInstance().runFolderBackupFuture(isForce);
 
-//            //start folder backup service
-//            TransferService.restartFolderBackupService(requireContext(), isForce);
+            BackupThreadExecutor.getInstance().runFolderBackupFuture(isFullScan);
+
         } else {
 
             // stop periodic folder backup service
             BackgroundJobManagerImpl.getInstance().stopFolderBackupPeriodicScan(requireContext().getApplicationContext());
-            BackupThreadExecutor.getInstance().stopFolderBackup();
 
-//            if (TransferService.getServiceRunning()) {
-//                CompletableFuture<Void> future = TransferService.getActiveTasks().getOrDefault(FeatureDataSource.FOLDER_BACKUP, null);
-//                if (future != null && !future.isDone()) {
-//                    TransferService.stopFolderBackupService(requireContext());
-//                }
-//            }
+            BackupThreadExecutor.getInstance().stopFolderBackup();
         }
     }
 
@@ -1297,7 +1284,7 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
             dialogFragment.dismiss();
         }
 
-        //
+        // send to main activity
         BusHelper.getCommonObserver().post(BusAction.RESTART_FILE_MONITOR);
 
         //
@@ -1307,41 +1294,9 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
 
             StorageManager.getInstance().resetInstance();
 
-            boolean isNeedToStop = isNeedToStopTransferService();
-            if (isNeedToStop) {
-                TransferService.stopService(requireContext());
+            TransferService.stopService(requireContext());
 
-                Toasts.show(R.string.file_transfer_stopped);
-            }
+            Toasts.show(R.string.file_transfer_stopped);
         }
-    }
-
-    private boolean isNeedToStopTransferService() {
-        if (!TransferService.getServiceRunning()) {
-            return false;
-        }
-
-        CompletableFuture<Void> fileUploadFuture = TransferService.getActiveTasks().getOrDefault(FeatureDataSource.MANUAL_FILE_UPLOAD, null);
-        if (fileUploadFuture != null && !fileUploadFuture.isDone()) {
-            return true;
-        }
-
-        CompletableFuture<Void> downloadFuture = TransferService.getActiveTasks().getOrDefault(FeatureDataSource.DOWNLOAD, null);
-        if (downloadFuture != null && !downloadFuture.isDone()) {
-            return true;
-        }
-
-        CompletableFuture<Void> albumBackupFuture = TransferService.getActiveTasks().getOrDefault(FeatureDataSource.ALBUM_BACKUP, null);
-        if (albumBackupFuture != null && !albumBackupFuture.isDone()) {
-            return true;
-        }
-
-        CompletableFuture<Void> folderBackupFuture = TransferService.getActiveTasks().getOrDefault(FeatureDataSource.FOLDER_BACKUP, null);
-        if (folderBackupFuture != null && !folderBackupFuture.isDone()) {
-            return true;
-        }
-
-        return false;
-
     }
 }

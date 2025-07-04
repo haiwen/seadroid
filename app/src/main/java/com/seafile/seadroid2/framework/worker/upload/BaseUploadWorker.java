@@ -158,7 +158,7 @@ public abstract class BaseUploadWorker extends TransferWorker {
 
     private TransferModel currentTransferModel;
 
-    public void transfer(Account account, TransferModel transferModel) throws SeafException, IOException {
+    public void transfer(Account account, TransferModel transferModel) throws SeafException {
         try {
             currentTransferModel = CloneUtils.deepClone(transferModel, TransferModel.class);
             SafeLogs.d(TAG, "transfer start, model:");
@@ -178,7 +178,7 @@ public abstract class BaseUploadWorker extends TransferWorker {
         }
     }
 
-    private void transferFile(Account account) throws IOException, SeafException {
+    private void transferFile(Account account) throws SeafException {
         if (account == null) {
             SLogs.d(TAG, "transferFile()", "account is null, can not upload file");
             throw SeafException.NOT_FOUND_USER_EXCEPTION;
@@ -374,18 +374,23 @@ public abstract class BaseUploadWorker extends TransferWorker {
         }
     }
 
-    private String getFileUploadUrl(Account account, String repoId, String target_dir, boolean isUpdate) throws IOException, SeafException {
+    private String getFileUploadUrl(Account account, String repoId, String target_dir, boolean isUpdate) throws SeafException {
         retrofit2.Response<String> res;
-        if (isUpdate) {
-            res = HttpIO.getInstanceByAccount(account)
-                    .execute(FileService.class)
-                    .getFileUpdateLink(repoId)
-                    .execute();
-        } else {
-            res = HttpIO.getInstanceByAccount(account)
-                    .execute(FileService.class)
-                    .getFileUploadLink(repoId, "/")
-                    .execute();
+        try {
+            if (isUpdate) {
+                res = HttpIO.getInstanceByAccount(account)
+                        .execute(FileService.class)
+                        .getFileUpdateLink(repoId)
+                        .execute();
+            } else {
+                res = HttpIO.getInstanceByAccount(account)
+                        .execute(FileService.class)
+                        .getFileUploadLink(repoId, "/")
+                        .execute();
+            }
+        } catch (IOException e) {
+            SafeLogs.e(TAG, e.getMessage());
+            throw SeafException.NETWORK_EXCEPTION;
         }
 
         if (!res.isSuccessful()) {

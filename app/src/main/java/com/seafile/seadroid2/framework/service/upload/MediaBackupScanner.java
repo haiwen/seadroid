@@ -31,7 +31,7 @@ public class MediaBackupScanner extends ParentEventTransfer {
         return SeafException.SUCCESS;
     }
 
-    public SeafException scan(boolean isForce) {
+    public SeafException scan(boolean isFullScan) {
         SafeLogs.e(TAG, "相册扫描器启动");
 
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
@@ -65,7 +65,7 @@ public class MediaBackupScanner extends ParentEventTransfer {
         boolean isAllowDataPlan = AlbumBackupSharePreferenceHelper.readAllowDataPlanSwitch();
         if (!isAllowDataPlan) {
             if (NetworkUtils.isMobileData()) {
-                SafeLogs.d(TAG, "data plan is not allowed", "current network type: ", NetworkUtils.getNetworkType().name());
+                SafeLogs.e(TAG, "data plan is not allowed", "current network type: ", NetworkUtils.getNetworkType().name());
                 return returnSuccess();
             }
 
@@ -74,11 +74,12 @@ public class MediaBackupScanner extends ParentEventTransfer {
             SafeLogs.d(TAG, "data plan is allowed", "current network type: ", NetworkUtils.getNetworkType().name());
         }
 
-        if (isForce) {
+        if (isFullScan) {
             AlbumBackupSharePreferenceHelper.resetLastScanTime();
         }
 
         SafeLogs.d(TAG, "doWork()", "start scan");
+
         send(FeatureDataSource.ALBUM_BACKUP, TransferEvent.EVENT_SCANNING);
 
         // force scan all files

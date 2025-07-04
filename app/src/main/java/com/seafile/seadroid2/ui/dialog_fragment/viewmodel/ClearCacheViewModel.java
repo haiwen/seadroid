@@ -16,7 +16,7 @@ public class ClearCacheViewModel extends BaseViewModel {
         Single<Boolean> s = Single.create(new SingleOnSubscribe<Boolean>() {
             @Override
             public void subscribe(SingleEmitter<Boolean> emitter) throws Exception {
-                if (emitter.isDisposed()){
+                if (emitter.isDisposed()) {
                     return;
                 }
 
@@ -28,7 +28,6 @@ public class ClearCacheViewModel extends BaseViewModel {
 //                dbHelper.delCaches();
 
                 //clear Glide cache
-                GlideApp.get(SeadroidApplication.getAppContext()).clearMemory();
                 GlideApp.get(SeadroidApplication.getAppContext()).clearDiskCache();
 
                 emitter.onSuccess(true);

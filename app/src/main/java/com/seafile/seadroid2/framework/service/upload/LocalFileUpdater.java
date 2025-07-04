@@ -15,9 +15,9 @@ import com.seafile.seadroid2.enums.SaveTo;
 import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
+import com.seafile.seadroid2.framework.service.ITransferNotification;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.model.dirents.DirentFileModel;
-import com.seafile.seadroid2.framework.notification.TransferNotificationDispatcher;
 import com.seafile.seadroid2.framework.service.ParentEventUploader;
 import com.seafile.seadroid2.framework.util.SafeLogs;
 import com.seafile.seadroid2.framework.util.Toasts;
@@ -36,8 +36,8 @@ import retrofit2.Call;
 public class LocalFileUpdater extends ParentEventUploader {
     private final String TAG = "LocalFileUpdater";
 
-    public LocalFileUpdater(Context context, TransferNotificationDispatcher transferNotificationDispatcher) {
-        super(context, transferNotificationDispatcher);
+    public LocalFileUpdater(Context context, ITransferNotification n) {
+        super(context, n);
     }
 
     @Override
@@ -121,6 +121,9 @@ public class LocalFileUpdater extends ParentEventUploader {
                 }
             }
         }
+
+        // clear all notifications
+        getNotificationDispatcher().clearAll();
 
         if (resultSeafException == SeafException.SUCCESS) {
             Toasts.show(R.string.updated);

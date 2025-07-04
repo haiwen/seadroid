@@ -6,8 +6,8 @@ import android.os.Bundle;
 import com.seafile.seadroid2.BuildConfig;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.framework.service.BackupThreadExecutor;
 import com.seafile.seadroid2.framework.util.SLogs;
-import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 
 import java.util.List;
 
@@ -48,12 +48,12 @@ public class CameraUploadManager {
         ContentResolver.requestSync(cameraAccount.getAndroidAccount(), AUTHORITY, settingsBundle);
     }
 
-    public void performSync(boolean isForce) {
+    public void performSync(boolean isFullScan) {
 
         SLogs.d(TAG, "performSyncByStatus()");
 
         Bundle b = new Bundle();
-        b.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, isForce);
+        b.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, isFullScan);
         Account cameraAccount = getCameraAccount();
         if (cameraAccount != null) {
             ContentResolver.requestSync(cameraAccount.getAndroidAccount(), AUTHORITY, b);
@@ -115,7 +115,7 @@ public class CameraUploadManager {
             ContentResolver.setIsSyncable(account.getAndroidAccount(), AUTHORITY, 0);
         }
 
-        BackgroundJobManagerImpl.getInstance().cancelMediaBackupChain();
+        BackupThreadExecutor.getInstance().stopAlbumBackup();
     }
 
     /**

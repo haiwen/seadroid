@@ -22,7 +22,7 @@ import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePre
 import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
-import com.seafile.seadroid2.framework.service.TransferService;
+import com.seafile.seadroid2.framework.service.BackupThreadExecutor;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
@@ -48,6 +48,7 @@ public class FileSyncService extends Service {
     private final String TAG = "FileSyncService";
     private MediaContentObserver mediaContentObserver;
     private SupportFileAlterationMonitor fileMonitor;
+
     /**
      * <p>
      * Since the file download location of the app is located in the <b>/Android/</b> directory,
@@ -80,7 +81,7 @@ public class FileSyncService extends Service {
 
         void onBackupFileChanged(File fileToScan); // 或者传递更具体的事件对象
 
-        void onMediaContentObserver(boolean isForce);
+        void onMediaContentObserver(boolean isFullScan);
     }
 
     /**
@@ -198,7 +199,7 @@ public class FileSyncService extends Service {
             }
 
             //When the Sync service is first launched, we can start another foreground service directly because the app is being visible to the user
-            TransferService.startLocalFileUpdateService(getApplicationContext());
+            BackupThreadExecutor.getInstance().runLocalFileUpdateTask();
         }).thenRunAsync(new Runnable() {
             @Override
             public void run() {
@@ -212,10 +213,10 @@ public class FileSyncService extends Service {
         mediaContentObserver = new MediaContentObserver(getBaseContext(), mainThreadHandler);
         mediaContentObserver.setOnMediaContentObserverListener(new MediaContentObserver.OnMediaContentObserverListener() {
             @Override
-            public void onMediaContentObserver(boolean isForce) {
-                SLogs.d(TAG, "onMediaContentObserver", "isForce: " + isForce);
+            public void onMediaContentObserver(boolean isFullScan) {
+                SLogs.d(TAG, "onMediaContentObserver", "isFullScan: " + isFullScan);
                 if (fileChangeListener != null) {
-                    fileChangeListener.onMediaContentObserver(isForce);
+                    fileChangeListener.onMediaContentObserver(isFullScan);
                 }
             }
         });
@@ -231,7 +232,7 @@ public class FileSyncService extends Service {
         }
 
         if (FolderBackupSharePreferenceHelper.isFolderBackupEnable()) {
-            TransferService.restartFolderBackupService(getApplicationContext(), true);
+            BackupThreadExecutor.getInstance().runFolderBackupFuture(true);
 
             //start periodic folder backup scan worker
             BackgroundJobManagerImpl.getInstance().scheduleFolderBackupPeriodicScan(getApplicationContext());
@@ -441,7 +442,7 @@ public class FileSyncService extends Service {
     }
 
     private void destroy() {
-        SLogs.d(TAG, "onDestroy()", "file monitor service destroy");
+        SLogs.e(TAG, "onDestroy()", "file monitor service destroy");
         stopFolderMonitor();
 
         //

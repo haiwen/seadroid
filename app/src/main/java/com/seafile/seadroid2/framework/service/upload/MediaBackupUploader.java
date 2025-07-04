@@ -1,7 +1,6 @@
 package com.seafile.seadroid2.framework.service.upload;
 
 import android.content.Context;
-import android.os.Bundle;
 import android.text.TextUtils;
 
 import com.blankj.utilcode.util.NetworkUtils;
@@ -10,24 +9,21 @@ import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.enums.FeatureDataSource;
-import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
-import com.seafile.seadroid2.framework.notification.TransferNotificationDispatcher;
-import com.seafile.seadroid2.framework.notification.base.BaseTransferNotificationHelper;
+import com.seafile.seadroid2.framework.service.ITransferNotification;
 import com.seafile.seadroid2.framework.service.ParentEventUploader;
 import com.seafile.seadroid2.framework.util.SafeLogs;
 import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
-import com.seafile.seadroid2.framework.worker.TransferWorker;
 import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 import com.seafile.seadroid2.ui.folder_backup.RepoConfig;
 
 public class MediaBackupUploader extends ParentEventUploader {
     private final String TAG = "MediaBackupUploader";
 
-    public MediaBackupUploader(Context context, TransferNotificationDispatcher transferNotificationDispatcher) {
-        super(context, transferNotificationDispatcher);
+    public MediaBackupUploader(Context context, ITransferNotification n) {
+        super(context, n);
     }
 
     @Override
@@ -149,6 +145,9 @@ public class MediaBackupUploader extends ParentEventUploader {
             }
 
         }
+
+        // clear all notifications
+        getNotificationDispatcher().clearAll();
 
         //
         String errorMsg = null;

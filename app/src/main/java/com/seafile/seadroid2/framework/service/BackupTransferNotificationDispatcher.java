@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.framework.service.runner;
+package com.seafile.seadroid2.framework.service;
 
 import static android.app.PendingIntent.FLAG_IMMUTABLE;
 import static com.seafile.seadroid2.framework.notification.base.NotificationUtils.NOTIFICATION_MESSAGE_KEY;
@@ -18,7 +18,6 @@ import androidx.core.app.NotificationCompat;
 
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.enums.FeatureDataSource;
-import com.seafile.seadroid2.framework.helper.ITransferNotification;
 import com.seafile.seadroid2.framework.notification.base.NotificationUtils;
 import com.seafile.seadroid2.ui.transfer_list.TransferActivity;
 
@@ -39,8 +38,8 @@ public class BackupTransferNotificationDispatcher implements ITransferNotificati
     private static final Map<FeatureDataSource, Integer> NOTIFY_IDS = new HashMap<>() {{
         put(FeatureDataSource.ALBUM_BACKUP, NotificationUtils.NID_TRANSFER_UPLOAD_ALBUM_BACKUP);
         put(FeatureDataSource.FOLDER_BACKUP, NotificationUtils.NID_UPLOAD_FOLDER);
-//        put(FeatureDataSource.DOWNLOAD, NotificationUtils.NID_DOWNLOAD);
-//        put(FeatureDataSource.MANUAL_FILE_UPLOAD, NotificationUtils.NID_UPLOAD_FILE);
+        put(FeatureDataSource.DOWNLOAD, NotificationUtils.NID_DOWNLOAD);
+        put(FeatureDataSource.MANUAL_FILE_UPLOAD, NotificationUtils.NID_UPLOAD_FILE);
         put(FeatureDataSource.SHARE_FILE_TO_SEAFILE, NotificationUtils.NID_UPLOAD_FILE);
         put(FeatureDataSource.AUTO_UPDATE_LOCAL_FILE, NotificationUtils.NID_UPLOAD_FILE);
     }};

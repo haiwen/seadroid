@@ -24,13 +24,12 @@ import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.db.entities.FileBackupStatusEntity;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.model.repo.DirentWrapperModel;
-import com.seafile.seadroid2.framework.service.TransferService;
+import com.seafile.seadroid2.framework.service.BackupThreadExecutor;
 import com.seafile.seadroid2.framework.util.HttpUtils;
 import com.seafile.seadroid2.framework.util.SafeLogs;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.queue.TransferModel;
-import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
 import com.seafile.seadroid2.ui.camera_upload.GalleryBucketUtils;
 import com.seafile.seadroid2.ui.file.FileService;
 import com.seafile.seadroid2.ui.folder_backup.RepoConfig;
@@ -44,7 +43,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
@@ -65,15 +63,11 @@ public class AlbumScanHelper {
     }
 
     private static boolean canExc() {
-        if (!TransferService.getServiceRunning()) {
-            return true;
-        }
-
-        CompletableFuture<Void> future = TransferService.getActiveTasks().getOrDefault(FeatureDataSource.ALBUM_BACKUP, null);
-        return future == null || future.isDone();
+        boolean isRunning = BackupThreadExecutor.getInstance().isAlbumBackupRunning();
+        return !isRunning;
     }
 
-    public static SeafException loadMedia(Context context, Account account, RepoConfig repoConfig,long lastScanTime) {
+    public static SeafException loadMedia(Context context, Account account, RepoConfig repoConfig, long lastScanTime) {
         // check
         List<String> bucketIdList = AlbumBackupSharePreferenceHelper.readBucketIds();
 
@@ -91,7 +85,7 @@ public class AlbumScanHelper {
                 }
             }
         }
-        
+
         //query images
         loadImages(context, lastScanTime, account, repoConfig, bucketIdList, false);
 

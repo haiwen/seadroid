@@ -470,12 +470,6 @@ public abstract class StorageManager implements MediaScannerConnection.OnScanCom
         return getDirectoryCreateIfNeeded(tmpDir);
     }
 
-    public final File getLogDir() {
-        File base = getSelectedStorageLocation().cachePath;
-        File f = new File(base, "logs");
-        return getDirectoryCreateIfNeeded(f);
-    }
-
     public final File getGlideCacheDir() {
         File base = getSelectedStorageLocation().cachePath;
         File f = new File(base, "glide");

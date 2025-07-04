@@ -4,8 +4,6 @@ import android.content.Context;
 import android.net.Uri;
 import android.text.TextUtils;
 
-import androidx.annotation.NonNull;
-
 import com.blankj.utilcode.util.CloneUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
@@ -18,9 +16,7 @@ import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.FileBackupStatusEntity;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
-import com.seafile.seadroid2.framework.helper.ITransferNotification;
 import com.seafile.seadroid2.framework.http.HttpIO;
-import com.seafile.seadroid2.framework.notification.TransferNotificationDispatcher;
 import com.seafile.seadroid2.framework.util.ExceptionUtils;
 import com.seafile.seadroid2.framework.util.FileUtils;
 import com.seafile.seadroid2.framework.util.SafeLogs;
@@ -39,7 +35,6 @@ import java.io.File;
 import java.io.IOException;
 
 import okhttp3.Call;
-import okhttp3.Callback;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Protocol;
@@ -56,6 +51,10 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
         super(context);
         this.notificationDispatcher = notificationDispatcher;
         _fileTransferProgressListener.setProgressListener(progressListener);
+    }
+
+    public ITransferNotification getNotificationDispatcher() {
+        return notificationDispatcher;
     }
 
     public abstract FeatureDataSource getFeatureDataSource();
@@ -165,6 +164,8 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
         if (newCall != null) {
             newCall.cancel();
         }
+
+        notificationDispatcher.clearAll();
 
     }
 

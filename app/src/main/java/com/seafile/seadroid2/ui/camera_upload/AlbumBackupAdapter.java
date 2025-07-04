@@ -10,8 +10,7 @@ import android.os.Bundle;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
-import com.seafile.seadroid2.framework.service.BackgroundWorkScheduler;
-import com.seafile.seadroid2.framework.service.TransferService;
+import com.seafile.seadroid2.framework.service.BackupThreadExecutor;
 import com.seafile.seadroid2.framework.util.SLogs;
 
 /**
@@ -51,14 +50,14 @@ public class AlbumBackupAdapter extends AbstractThreadedSyncAdapter {
     public void onSyncCanceled(Thread thread) {
         super.onSyncCanceled(thread);
         SLogs.d(TAG, "onSyncCanceled()", thread.getName());
-        TransferService.stopPhotoBackupService(getContext());
+        BackupThreadExecutor.getInstance().stopAlbumBackup();
     }
 
     @Override
     public void onSyncCanceled() {
         super.onSyncCanceled();
         SLogs.d(TAG, "onSyncCanceled()");
-        TransferService.stopPhotoBackupService(getContext());
+        BackupThreadExecutor.getInstance().stopAlbumBackup();
     }
 
     @Override
@@ -67,8 +66,8 @@ public class AlbumBackupAdapter extends AbstractThreadedSyncAdapter {
                               ContentProviderClient provider,
                               SyncResult syncResult) {
 
-        boolean isForce = extras.getBoolean(ContentResolver.SYNC_EXTRAS_MANUAL);
-        SLogs.d(TAG, "onPerformSync()", " isForce = " + isForce);
+        boolean isFullScan = extras.getBoolean(ContentResolver.SYNC_EXTRAS_MANUAL);
+        SLogs.d(TAG, "onPerformSync()", " isFullScan = " + isFullScan);
 
         Account seafileAccount = SupportAccountManager.getInstance().getSeafileAccount(account);
 
@@ -88,7 +87,10 @@ public class AlbumBackupAdapter extends AbstractThreadedSyncAdapter {
             return;
         }
 
+        //start
+        AlbumBackupAdapterBridge.syncAlbumBackup(getContext(), isFullScan);
+
         // start
-        BackgroundWorkScheduler.getInstance().startAlbumBackupTransferService(getContext());
+//        BackgroundWorkScheduler.getInstance().startAlbumBackupTransferService(getContext());
     }
 }

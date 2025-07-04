@@ -3,27 +3,21 @@ package com.seafile.seadroid2.framework.service.scan;
 import android.app.job.JobParameters;
 import android.app.job.JobService;
 
-import androidx.work.ListenableWorker;
-
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.NetworkUtils;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
-import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
-import com.seafile.seadroid2.framework.service.TransferService;
+import com.seafile.seadroid2.framework.service.BackupThreadExecutor;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.SafeLogs;
-import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
-import com.seafile.seadroid2.framework.worker.TransferWorker;
 import com.seafile.seadroid2.ui.folder_backup.RepoConfig;
 
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executors;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
@@ -45,7 +39,7 @@ public class FolderBackupScanJobService extends JobService {
             public void accept(Integer c, Throwable throwable) {
                 SafeLogs.d(TAG, "start scan", "backup path file count: ", c + "");
                 if (c > 0) {
-                    TransferService.restartFolderBackupService(getApplicationContext(), false);
+                    BackgroundJobManagerImpl.getInstance().startFolderBackupChain(true);
                 }
 
                 // 标记任务完成
@@ -56,12 +50,8 @@ public class FolderBackupScanJobService extends JobService {
     }
 
     private static boolean canExc() {
-        if (!TransferService.getServiceRunning()) {
-            return true;
-        }
-
-        CompletableFuture<Void> future = TransferService.getActiveTasks().getOrDefault(FeatureDataSource.FOLDER_BACKUP, null);
-        return future == null || future.isDone();
+        boolean isRunning = BackupThreadExecutor.getInstance().isFolderBackupRunning();
+        return !isRunning;
     }
 
     public int doWork() {

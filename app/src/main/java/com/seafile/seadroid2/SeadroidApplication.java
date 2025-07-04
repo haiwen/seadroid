@@ -18,6 +18,7 @@ import com.seafile.seadroid2.framework.util.CrashHandler;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.provider.DocumentCache;
+import com.seafile.seadroid2.ui.camera_upload.AlbumBackupAdapterBridge;
 
 
 public class SeadroidApplication extends Application {
@@ -28,8 +29,6 @@ public class SeadroidApplication extends Application {
         super.onCreate();
 
         context = this;
-
-        Log.e("SeadroidApplication", "onCreate()");
 
         //init xlog in com.seafile.seadroid2.provider.SeafileProvider#onCreate()
 //        SLogs.init();
@@ -55,6 +54,9 @@ public class SeadroidApplication extends Application {
 
         CrashHandler crashHandler = CrashHandler.getInstance();
         crashHandler.init(this);
+
+        //register album backup sync receiver
+        AlbumBackupAdapterBridge.registerSyncReceiver(getAppContext());
 
         //This feature can be extended
         registerActivityLifecycleCallbacks(new ActivityMonitor());

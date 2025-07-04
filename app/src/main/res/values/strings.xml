@@ -731,6 +731,7 @@
     <string name="skip">Skip</string>
     <string name="previous">Previous</string>
     <string name="complete">Complete</string>
+    <string name="backing_up">Backing up</string>
     <string name="backup_completed">Backup completed</string>
     <string name="backup_finished">Backup finished</string>
     <string name="export_log_file_not_exists">No log file is available for export.</string>

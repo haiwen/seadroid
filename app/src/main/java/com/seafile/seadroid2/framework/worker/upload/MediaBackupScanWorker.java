@@ -149,7 +149,7 @@ public class MediaBackupScanWorker extends BaseScanWorker {
         boolean isAllowDataPlan = AlbumBackupSharePreferenceHelper.readAllowDataPlanSwitch();
         if (!isAllowDataPlan) {
             if (NetworkUtils.isMobileData()) {
-                SafeLogs.d(TAG, "data plan is not allowed", "current network type: ", NetworkUtils.getNetworkType().name());
+                SafeLogs.e(TAG, "data plan is not allowed", "current network type: ", NetworkUtils.getNetworkType().name());
                 return Result.success();
             }
 

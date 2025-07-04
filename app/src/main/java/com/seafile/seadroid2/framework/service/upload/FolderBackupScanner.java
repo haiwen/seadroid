@@ -97,7 +97,7 @@ public class FolderBackupScanner extends ParentEventTransfer {
         boolean isAllowDataPlan = FolderBackupSharePreferenceHelper.readDataPlanAllowed();
         if (!isAllowDataPlan) {
             if (NetworkUtils.isMobileData()) {
-                SafeLogs.d(TAG, "data plan is not allowed", "current network type: ", NetworkUtils.getNetworkType().name());
+                SafeLogs.e(TAG, "data plan is not allowed", "current network type: ", NetworkUtils.getNetworkType().name());
                 return returnSuccess();
             }
 

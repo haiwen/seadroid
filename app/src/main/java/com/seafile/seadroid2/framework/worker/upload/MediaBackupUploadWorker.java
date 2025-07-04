@@ -3,15 +3,14 @@ package com.seafile.seadroid2.framework.worker.upload;
 import android.app.ForegroundServiceStartNotAllowedException;
 import android.content.Context;
 import android.os.Build;
-import android.os.Bundle;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import androidx.work.ForegroundInfo;
 import androidx.work.ListenableWorker;
-import androidx.work.WorkInfo;
 import androidx.work.WorkerParameters;
 
+import com.blankj.utilcode.util.NetworkUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
@@ -20,12 +19,11 @@ import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.notification.AlbumBackupNotificationHelper;
 import com.seafile.seadroid2.framework.notification.base.BaseTransferNotificationHelper;
-import com.seafile.seadroid2.framework.util.ExceptionUtils;
 import com.seafile.seadroid2.framework.util.SLogs;
-import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
+import com.seafile.seadroid2.framework.util.SafeLogs;
+import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
-import com.seafile.seadroid2.framework.worker.TransferWorker;
 import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 import com.seafile.seadroid2.ui.folder_backup.RepoConfig;
 
@@ -33,13 +31,10 @@ import java.util.UUID;
 
 /**
  * Worker Tag:
- *
- * @see BackgroundJobManagerImpl#TAG_ALL
- * @see BackgroundJobManagerImpl#TAG_TRANSFER
  */
 public class MediaBackupUploadWorker extends BaseUploadWorker {
-    private final String TAG = "MediaBackupUploadWorker";
-    public static final UUID UID = UUID.nameUUIDFromBytes(MediaBackupUploadWorker.class.getSimpleName().getBytes());
+    private static final String TAG = "MediaBackupUploadWorker";
+    public static final UUID UID = UUID.nameUUIDFromBytes(TAG.getBytes());
 
     private final AlbumBackupNotificationHelper notificationManager;
 
@@ -47,6 +42,11 @@ public class MediaBackupUploadWorker extends BaseUploadWorker {
         super(context, workerParams);
 
         notificationManager = new AlbumBackupNotificationHelper(context);
+    }
+
+    @Override
+    public FeatureDataSource getFeatureDataSource() {
+        return FeatureDataSource.ALBUM_BACKUP;
     }
 
     @Override
@@ -75,115 +75,106 @@ public class MediaBackupUploadWorker extends BaseUploadWorker {
     @Override
     public ListenableWorker.Result doWork() {
         SLogs.d(TAG, "doWork()", "started execution");
+//send a start event
+        send(FeatureDataSource.ALBUM_BACKUP, TransferEvent.EVENT_TRANSFER_TASK_START);
 
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
         if (account == null) {
+            SafeLogs.d(TAG, "account is null");
+            return returnSuccess();
+        }
+        boolean isTurnOn = AlbumBackupSharePreferenceHelper.readBackupSwitch();
+        if (!isTurnOn) {
+            SafeLogs.d(TAG, "backup switch is off");
             return returnSuccess();
         }
 
-
-        boolean canContinue = can();
-        if (!canContinue) {
-            SLogs.d(TAG, "doWork()", "settings missing config or not turned on");
+        RepoConfig repoConfig = AlbumBackupSharePreferenceHelper.readRepoConfig();
+        if (repoConfig == null) {
+            SafeLogs.d(TAG, "repo config is null");
             return returnSuccess();
         }
+
+        if (TextUtils.isEmpty(repoConfig.getRepoId())) {
+            SafeLogs.d(TAG, "repo id is empty");
+            return returnSuccess();
+        }
+
+        if (!NetworkUtils.isConnected()) {
+            SafeLogs.d(TAG, "network is not connected");
+            return returnSuccess();
+        }
+
+        boolean isAllowDataPlan = AlbumBackupSharePreferenceHelper.readAllowDataPlanSwitch();
+        if (!isAllowDataPlan) {
+            if (NetworkUtils.isMobileData()) {
+                SafeLogs.e(TAG, "data plan is not allowed", "current network type", NetworkUtils.getNetworkType().name());
+                return returnSuccess();
+            }
+
+            SafeLogs.d(TAG, "data plan is not allowed", "current network type", NetworkUtils.getNetworkType().name());
+        } else {
+            SafeLogs.d(TAG, "data plan is allowed", "current network type", NetworkUtils.getNetworkType().name());
+        }
+
 
         //
         int totalPendingCount = GlobalTransferCacheList.ALBUM_BACKUP_QUEUE.getPendingCount();
         if (totalPendingCount <= 0) {
-            SLogs.d(TAG, "doWork()", "backup queue is empty");
+            SafeLogs.e(TAG, "backup queue is empty");
             return returnSuccess();
         }
+        SafeLogs.e(TAG, "pending count: " + totalPendingCount);
 
-        showNotification();
-        //send a upload event
-//        sendActionEvent(TransferDataSource.ALBUM_BACKUP, TransferEvent.EVENT_UPLOADING);
-
-        // This exception is a type of interruptible program, and a normal exception does not interrupt the transfer task
-        // see BaseUploadWorker#isInterrupt()
-        String interruptibleExceptionMsg = null;
+        SeafException resultSeafException = SeafException.SUCCESS;
 
         while (true) {
-            if (isStopped()) {
+            TransferModel transferModel = GlobalTransferCacheList.ALBUM_BACKUP_QUEUE.pick();
+            if (transferModel == null) {
                 break;
             }
+
+            transferModel.related_account = account.getSignature();
+            transferModel.repo_id = repoConfig.getRepoId();
+            transferModel.repo_name = repoConfig.getRepoName();
 
             try {
-                TransferModel transferModel = GlobalTransferCacheList.ALBUM_BACKUP_QUEUE.pick();
-                if (transferModel == null) {
+
+                transfer(account, transferModel);
+
+            } catch (SeafException seafException) {
+                // In some cases, the transmission needs to be interrupted
+                boolean isInterrupt = isInterrupt(seafException);
+                if (isInterrupt) {
+                    SafeLogs.e("An exception occurred and the transmission has been interrupted");
+                    notifyError(seafException);
+
+                    resultSeafException = seafException;
                     break;
+                } else {
+                    SafeLogs.e("An exception occurred and the next transfer will continue");
                 }
-
-                transferModel.related_account = account.getSignature();
-                transferModel.repo_id = repoConfig.getRepoId();
-                transferModel.repo_name = repoConfig.getRepoName();
-
-                try {
-
-                    transfer(account, transferModel);
-
-                } catch (Exception e) {
-                    SeafException seafException = ExceptionUtils.parseByThrowable(e);
-                    //Is there an interruption in the transmission in some cases?
-                    boolean isInterrupt = isInterrupt(seafException);
-                    if (isInterrupt) {
-                        SLogs.e("An exception occurred and the transmission has been interrupted");
-                        notifyError(seafException);
-
-                        // notice this, see BaseUploadWorker#isInterrupt()
-                        throw e;
-                    } else {
-                        SLogs.e("An exception occurred and the next transfer will continue");
-                    }
-
-                }
-            } catch (Exception e) {
-                SLogs.e("upload file file failed: ", e);
-                interruptibleExceptionMsg = e.getMessage();
-
-                break;
             }
+
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            if (getStopReason() >= WorkInfo.STOP_REASON_CANCELLED_BY_APP) {
-                interruptibleExceptionMsg = SeafException.USER_CANCELLED_EXCEPTION.getMessage();
-            }
-        }
+        //
+        String errorMsg = null;
+        if (resultSeafException != SeafException.SUCCESS) {
+            errorMsg = resultSeafException.getMessage();
 
-        showToast(R.string.upload_finished);
-        SLogs.d(TAG, "doWork()", "complete");
-        //
-        //
-        Bundle b = new Bundle();
-        b.putString(TransferWorker.KEY_DATA_RESULT, interruptibleExceptionMsg);
-        b.putInt(TransferWorker.KEY_TRANSFER_COUNT, totalPendingCount);
-        sendWorkerEvent(FeatureDataSource.ALBUM_BACKUP, TransferEvent.EVENT_TRANSFER_TASK_COMPLETE, b);
+            SafeLogs.d(TAG, "all completed", "error msg: " + errorMsg);
+            Toasts.show(R.string.backup_finished);
+        } else {
+            SafeLogs.d(TAG, "all completed");
+            Toasts.show(R.string.backup_completed);
+        }
+        sendCompleteEvent(FeatureDataSource.ALBUM_BACKUP, errorMsg, totalPendingCount);
         return Result.success();
     }
 
     protected Result returnSuccess() {
-        sendWorkerEvent(FeatureDataSource.ALBUM_BACKUP, TransferEvent.EVENT_TRANSFER_TASK_COMPLETE);
+        send(FeatureDataSource.ALBUM_BACKUP, TransferEvent.EVENT_TRANSFER_TASK_COMPLETE);
         return Result.success();
-    }
-
-    private RepoConfig repoConfig;
-
-    private boolean can() {
-        boolean isTurnOn = AlbumBackupSharePreferenceHelper.readBackupSwitch();
-        if (!isTurnOn) {
-            return false;
-        }
-
-        repoConfig = AlbumBackupSharePreferenceHelper.readRepoConfig();
-        if (repoConfig == null) {
-            return false;
-        }
-
-        if (TextUtils.isEmpty(repoConfig.getRepoId())) {
-            return false;
-        }
-
-        return true;
     }
 }

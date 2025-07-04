@@ -19,7 +19,7 @@ import androidx.core.app.NotificationCompat;
 
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.enums.FeatureDataSource;
-import com.seafile.seadroid2.framework.helper.ITransferNotification;
+import com.seafile.seadroid2.framework.service.ITransferNotification;
 import com.seafile.seadroid2.framework.notification.base.NotificationUtils;
 import com.seafile.seadroid2.ui.transfer_list.TransferActivity;
 
@@ -72,6 +72,20 @@ public class TransferNotificationDispatcher implements ITransferNotification {
         };
     }
 
+    private String getDefaultSubtitle(FeatureDataSource source) {
+        if (source == null) {
+            throw new IllegalArgumentException("FeatureDataSource cannot be null");
+        }
+
+        return switch (source) {
+            case ALBUM_BACKUP, FOLDER_BACKUP -> context.getString(R.string.backing_up);
+            case MANUAL_FILE_UPLOAD, SHARE_FILE_TO_SEAFILE, AUTO_UPDATE_LOCAL_FILE ->
+                    context.getString(R.string.notification_upload_started_title);
+            case DOWNLOAD -> context.getString(R.string.notification_download_started_title);
+        };
+    }
+
+
     private Intent getDefaultPendingIntent(FeatureDataSource source) {
         if (source == null) {
             throw new IllegalArgumentException("FeatureDataSource cannot be null");
@@ -104,8 +118,17 @@ public class TransferNotificationDispatcher implements ITransferNotification {
         return dIntent;
     }
 
+    public NotificationInfo getForegroundNotification(FeatureDataSource source) {
+        return getForegroundNotification(source, null);
+    }
+
     public NotificationInfo getForegroundNotification(FeatureDataSource source, String subTitle) {
         String title = getDefaultTitle(source);
+
+        if (TextUtils.isEmpty(subTitle)) {
+            subTitle = getDefaultSubtitle(source);
+        }
+
         Notification notification = new NotificationCompat.Builder(context, NotificationUtils.NOTIFICATION_CHANNEL_TRANSFER)
                 .setSmallIcon(R.drawable.icon)
                 .setContentTitle(title)

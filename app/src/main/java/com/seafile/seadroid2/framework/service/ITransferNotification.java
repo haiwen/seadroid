@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.framework.helper;
+package com.seafile.seadroid2.framework.service;
 
 import com.seafile.seadroid2.enums.FeatureDataSource;
 

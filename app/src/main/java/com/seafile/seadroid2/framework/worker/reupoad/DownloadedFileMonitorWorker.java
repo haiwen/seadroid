@@ -57,6 +57,11 @@ public class DownloadedFileMonitorWorker extends BaseUploadWorker {
     }
 
     @Override
+    public FeatureDataSource getFeatureDataSource() {
+        return FeatureDataSource.AUTO_UPDATE_LOCAL_FILE;
+    }
+
+    @Override
     public FolderBackupNotificationHelper getNotification() {
         return null;
     }

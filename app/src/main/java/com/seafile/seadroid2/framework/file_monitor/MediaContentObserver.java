@@ -11,7 +11,6 @@ import android.text.TextUtils;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.util.SLogs;
-import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
 
 /**
  * This service monitors the media provider content provider for new images/videos.
@@ -43,7 +42,7 @@ public class MediaContentObserver extends ContentObserver {
     }
 
     public interface OnMediaContentObserverListener {
-        void onMediaContentObserver(boolean isForce);
+        void onMediaContentObserver(boolean isFullScan);
     }
 
     @Override
@@ -53,12 +52,14 @@ public class MediaContentObserver extends ContentObserver {
         String newVersion = MediaStore.getVersion(SeadroidApplication.getAppContext());
         String lastVersion = AlbumBackupSharePreferenceHelper.readLastMediaVersion();
 
-        SLogs.e("media store：newVersion -> " + newVersion + ", lastVersion -> " + lastVersion);
-        SLogs.e("A new file is detected and the Media task begins");
+        SLogs.d("media store：newVersion -> " + newVersion + ", lastVersion -> " + lastVersion);
+        SLogs.d("A new file is detected and the Media task begins");
 
         if (TextUtils.equals(newVersion, lastVersion)) {
             if (onMediaContentObserverListener != null) {
                 onMediaContentObserverListener.onMediaContentObserver(false);
+            } else {
+                SLogs.d("onMediaContentObserverListener is null");
             }
         } else {
             //
@@ -66,6 +67,8 @@ public class MediaContentObserver extends ContentObserver {
             //
             if (onMediaContentObserverListener != null) {
                 onMediaContentObserverListener.onMediaContentObserver(true);
+            } else {
+                SLogs.d("onMediaContentObserverListener is null");
             }
         }
 
@@ -81,6 +84,10 @@ public class MediaContentObserver extends ContentObserver {
     }
 
     public void unregister() {
+        if (onMediaContentObserverListener != null) {
+            onMediaContentObserverListener = null;
+        }
+
         if (mContext != null) {
             mContext.getContentResolver().unregisterContentObserver(this);
         }
