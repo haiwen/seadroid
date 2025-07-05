@@ -4,6 +4,8 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.util.Pair;
 
+import androidx.annotation.NonNull;
+
 import com.blankj.utilcode.util.CloneUtils;
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.TimeUtils;
@@ -209,6 +211,7 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
         download(account, dlink, fileId);
     }
 
+    @NonNull
     private Pair<String, String> getDownloadLink(boolean isReUsed) throws SeafException {
         retrofit2.Response<String> res;
         try {
@@ -223,13 +226,22 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
         }
 
         if (!res.isSuccessful()) {
-            throw SeafException.REQUEST_URL_EXCEPTION;
+            SafeLogs.e(TAG, "getFileUploadUrl()", "response is not successful");
+            try (ResponseBody errBody = res.errorBody()) {
+                if (errBody != null) {
+                    String msg = errBody.string();
+                    throw ExceptionUtils.parseHttpException(res.code(), msg);
+                }
+            } catch (IOException e) {
+                throw ExceptionUtils.parseHttpException(res.code(), null);
+            }
         }
+
 
         String fileId = res.headers().get("oid");
         String dlink = res.body();
         if (TextUtils.isEmpty(dlink)) {
-            throw SeafException.REQUEST_URL_EXCEPTION;
+            throw SeafException.NETWORK_EXCEPTION;
         }
 
 
@@ -244,14 +256,14 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
             dlink = dlink.substring(0, i) + "/" + URLEncoder.encode(dlink.substring(i + 1), "UTF-8");
         } catch (UnsupportedEncodingException e) {
             SafeLogs.e(TAG, e.getMessage());
-            throw SeafException.REQUEST_URL_EXCEPTION;
+            throw SeafException.NETWORK_EXCEPTION;
         }
 
         // should return "\"http://gonggeng.org:8082/...\"" or "\"https://gonggeng.org:8082/...\"
         if (dlink.startsWith("http") && fileId != null) {
             return new Pair<>(dlink, fileId);
         } else {
-            throw SeafException.REQUEST_URL_EXCEPTION;
+            throw SeafException.NETWORK_EXCEPTION;
         }
     }
 
@@ -414,15 +426,13 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
     }
 
     public boolean isInterrupt(SeafException result) {
-        if (result.equals(SeafException.INVALID_PASSWORD) ||
+        return result.equals(SeafException.INVALID_PASSWORD) ||
                 result.equals(SeafException.SSL_EXCEPTION) ||
                 result.equals(SeafException.UNAUTHORIZED_EXCEPTION) ||
                 result.equals(SeafException.NOT_FOUND_USER_EXCEPTION) ||
                 result.equals(SeafException.NOT_FOUND_DIR_EXCEPTION) ||
-                result.equals(SeafException.USER_CANCELLED_EXCEPTION)) {
-            return true;
-        }
-        return false;
+                result.equals(SeafException.SERVER_INTERNAL_ERROR) ||
+                result.equals(SeafException.USER_CANCELLED_EXCEPTION);
     }
 
     private void updateToFailed(String transferResult) {

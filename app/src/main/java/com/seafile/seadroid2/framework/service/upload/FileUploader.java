@@ -94,11 +94,7 @@ public class FileUploader extends ParentEventUploader {
         if (resultSeafException != SeafException.SUCCESS) {
             errorMsg = resultSeafException.getMessage();
 
-            if (totalPendingCount == 1) {
-                Toasts.show(R.string.upload_failed);
-            } else {
-                Toasts.show(R.string.upload_finished);
-            }
+            Toasts.show(R.string.upload_failed);
 
             SafeLogs.d(TAG, "all completed, but error:", errorMsg);
         } else {

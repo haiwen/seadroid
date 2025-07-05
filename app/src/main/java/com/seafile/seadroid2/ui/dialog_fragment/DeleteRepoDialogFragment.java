@@ -8,6 +8,7 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.Observer;
 
 import com.blankj.utilcode.util.CollectionUtils;
+import com.blankj.utilcode.util.NetworkUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.framework.model.ResultModel;
@@ -55,6 +56,11 @@ public class DeleteRepoDialogFragment extends RequestCustomDialogFragmentWithVM<
 
     @Override
     protected void onPositiveClick() {
+        if (!NetworkUtils.isConnected()) {
+            Toasts.show(R.string.network_error);
+            return;
+        }
+
         getViewModel().deleteRepo(repoIds);
     }
 

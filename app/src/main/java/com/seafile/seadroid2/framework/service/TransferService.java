@@ -62,10 +62,6 @@ public class TransferService extends EventService {
         startService(context, ServiceActionEnum.START_MANUAL_UPLOAD.name());
     }
 
-    public static void startShareToSeafileUploadService(Context context) {
-        startService(context, ServiceActionEnum.START_SHARE_TO_SEAFILE_UPLOAD.name());
-    }
-
     public static void startDownloadService(Context context) {
         startService(context, ServiceActionEnum.START_FILE_DOWNLOAD.name());
     }
@@ -154,10 +150,6 @@ public class TransferService extends EventService {
 
             case START_MANUAL_UPLOAD:
                 manageTask(FeatureDataSource.MANUAL_FILE_UPLOAD, intent.getExtras());
-
-                break;
-            case START_SHARE_TO_SEAFILE_UPLOAD:
-                manageTask(FeatureDataSource.SHARE_FILE_TO_SEAFILE, intent.getExtras());
 
                 break;
             case START_FILE_DOWNLOAD:
@@ -280,8 +272,6 @@ public class TransferService extends EventService {
             runFileUploadTask();
         } else if (source == FeatureDataSource.DOWNLOAD) {
             runDownloadTask();
-        } else if (source == FeatureDataSource.SHARE_FILE_TO_SEAFILE) {
-            runShareToSeafileUploadTask();
         }
     }
 
@@ -330,32 +320,6 @@ public class TransferService extends EventService {
             }
         });
         getActiveTasks().put(FeatureDataSource.DOWNLOAD, completableFuture);
-    }
-
-    private void runShareToSeafileUploadTask() {
-        CompletableFuture<Void> completableFuture = runTask(new Runnable() {
-            @Override
-            public void run() {
-
-                shareToSeafileUploader = new ShareToSeafileUploader(getApplicationContext(), transferNotificationDispatcher);
-                SeafException seafException = shareToSeafileUploader.upload();
-
-                if (seafException != SeafException.SUCCESS) {
-                    SafeLogs.d(TAG, "ShareToSeafile", "upload error: " + seafException);
-                } else {
-                    SafeLogs.d(TAG, "ShareToSeafile", "upload success");
-                }
-            }
-        }, new Runnable() {
-            @Override
-            public void run() {
-                shareToSeafileUploader = null;
-                transferNotificationDispatcher.releaseAcquire(FeatureDataSource.SHARE_FILE_TO_SEAFILE);
-                getActiveTasks().remove(FeatureDataSource.SHARE_FILE_TO_SEAFILE);
-            }
-        });
-
-        getActiveTasks().put(FeatureDataSource.SHARE_FILE_TO_SEAFILE, completableFuture);
     }
 
     private CompletableFuture<Void> runTask(Runnable runnable, Runnable onComplete) {

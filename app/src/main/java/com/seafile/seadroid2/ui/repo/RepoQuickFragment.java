@@ -1559,7 +1559,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
     public void download(List<BaseModel> direntModels) {
         if (!NetworkUtils.isConnected()) {
-            Toasts.show(R.string.network_unavailable);
+            Toasts.show(R.string.network_error);
             return;
         }
 
@@ -1688,6 +1688,11 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     }
 
     private void shareFile(DirentModel dirent) {
+        if (!NetworkUtils.isConnected()) {
+            Toasts.show(R.string.network_error);
+            return;
+        }
+
         if (dirent.isDir()) {
             Objs.showCreateShareLinkDialog(requireContext(), getChildFragmentManager(), dirent, false);
         } else {
@@ -2193,6 +2198,11 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             public void accept(Boolean aBoolean) {
                 dismissLoadingDialog();
 
+                if (!NetworkUtils.isConnected()) {
+                    Toasts.show(R.string.network_error);
+                    return;
+                }
+
                 if (aBoolean) {
                     Toasts.show(R.string.added_to_upload_tasks);
 
@@ -2222,13 +2232,20 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         mainViewModel.checkRemoteDirent(repoModel.repo_id, destinationPath, new java.util.function.Consumer<DirentFileModel>() {
             @Override
             public void accept(DirentFileModel direntFileModel) {
+                dismissLoadingDialog();
+
+                if (!NetworkUtils.isConnected()) {
+                    Toasts.show(R.string.network_error);
+                    return;
+                }
+
                 if (direntFileModel != null) {
                     showFileExistDialog(uri, fileName);
                 } else {
                     addUploadTask(repoModel, GlobalNavContext.getCurrentNavContext().getNavPath(), uri, fileName, false);
                 }
 
-                dismissLoadingDialog();
+
             }
         });
     }

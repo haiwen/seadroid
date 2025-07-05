@@ -8,10 +8,12 @@ import android.widget.TextView;
 import androidx.lifecycle.Observer;
 
 import com.blankj.utilcode.util.CollectionUtils;
+import com.blankj.utilcode.util.NetworkUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.ui.base.fragment.RequestCustomDialogFragmentWithVM;
 import com.seafile.seadroid2.context.CopyMoveContext;
 import com.seafile.seadroid2.ui.dialog_fragment.viewmodel.CopyMoveViewModel;
@@ -100,6 +102,12 @@ public class CopyMoveDialogFragment extends RequestCustomDialogFragmentWithVM<Co
 
     @Override
     protected void onPositiveClick() {
+        if (!NetworkUtils.isConnected()) {
+            Toasts.show(R.string.network_error);
+            dismiss();
+            return;
+        }
+
         if (!checkData()) {
             return;
         }
@@ -114,7 +122,7 @@ public class CopyMoveDialogFragment extends RequestCustomDialogFragmentWithVM<Co
     @Override
     protected void initViewModel() {
         super.initViewModel();
-        
+
         getViewModel().getSeafExceptionLiveData().observe(this, new Observer<SeafException>() {
             @Override
             public void onChanged(SeafException e) {

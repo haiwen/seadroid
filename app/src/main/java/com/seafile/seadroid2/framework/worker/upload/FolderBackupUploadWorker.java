@@ -176,7 +176,7 @@ public class FolderBackupUploadWorker extends BaseUploadWorker {
         if (resultSeafException != SeafException.SUCCESS) {
             errorMsg = resultSeafException.getMessage();
             SafeLogs.d(TAG, "all completed", "error msg: " + errorMsg);
-            Toasts.show(R.string.backup_finished);
+            Toasts.show(R.string.backup_failed);
         } else {
             Toasts.show(R.string.backup_completed);
             SafeLogs.d(TAG, "all completed");

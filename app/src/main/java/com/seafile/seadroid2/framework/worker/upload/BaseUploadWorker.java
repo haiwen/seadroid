@@ -262,10 +262,6 @@ public abstract class BaseUploadWorker extends TransferWorker {
 
         //get upload link
         String uploadUrl = getFileUploadUrl(account, currentTransferModel.repo_id, currentTransferModel.getParentPath(), currentTransferModel.transfer_strategy == ExistingFileStrategy.REPLACE);
-        if (TextUtils.isEmpty(uploadUrl)) {
-            throw SeafException.REQUEST_URL_EXCEPTION;
-        }
-
         //
         if (newCall != null && newCall.isExecuted()) {
             SafeLogs.d(TAG, "transferFile()", "newCall has executed(), cancel it");
@@ -374,6 +370,7 @@ public abstract class BaseUploadWorker extends TransferWorker {
         }
     }
 
+    @NonNull
     private String getFileUploadUrl(Account account, String repoId, String target_dir, boolean isUpdate) throws SeafException {
         retrofit2.Response<String> res;
         try {
@@ -394,12 +391,23 @@ public abstract class BaseUploadWorker extends TransferWorker {
         }
 
         if (!res.isSuccessful()) {
-            throw SeafException.REQUEST_URL_EXCEPTION;
+            SafeLogs.e(TAG, "getFileUploadUrl()", "response is not successful");
+            try (ResponseBody errBody = res.errorBody()) {
+                if (errBody != null) {
+                    String msg = errBody.string();
+                    throw ExceptionUtils.parseHttpException(res.code(), msg);
+                }
+            } catch (IOException e) {
+                throw ExceptionUtils.parseHttpException(res.code(), null);
+            }
         }
 
         String urlStr = res.body();
         urlStr = StringUtils.replace(urlStr, "\"", "");
 
+        if (TextUtils.isEmpty(urlStr)) {
+            throw SeafException.NETWORK_EXCEPTION;
+        }
         return urlStr;
     }
 

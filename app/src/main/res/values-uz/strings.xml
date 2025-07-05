@@ -658,10 +658,14 @@
   <string name="_owner">Fayl egasi</string>
   <string name="mark_resolve">Hal qilingan deb belgilash</string>
   <string name="delete_confirm">Bu narsani o\'chirishga ishonchingiz komilmi?</string>
-  <string name="canceled">Bekor qilingan</string>
   <string name="image_capture_time">Olingan vaqt</string>
   <string name="image_dimensions">O\'lchamlar</string>
   <string name="image_color_space_uncalibrated">Kalibrlanmagan</string>
   <string name="image_color_space_undefined">Aniqlanmagan</string>
+  <string name="canceled">Bekor qilingan</string>
   <string name="offline">Offlayn</string>
+  <string name="finish">Tugatish</string>
+  <string name="skip">O\'tkazib yuborish</string>
+  <string name="previous">Avvalgi</string>
+  <string name="complete">Yakunlash</string>
 </resources>

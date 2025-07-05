@@ -13,6 +13,7 @@ import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.Log;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
@@ -29,6 +30,7 @@ import com.seafile.seadroid2.databinding.ActivityShareToSeafileBinding;
 import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.ObjSelectType;
 import com.seafile.seadroid2.enums.TransferDataSource;
+import com.seafile.seadroid2.framework.service.BackupThreadExecutor;
 import com.seafile.seadroid2.framework.service.TransferService;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Toasts;
@@ -65,11 +67,20 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
                 SLogs.d(TAG, "can start file upload worker? " + aBoolean);
                 binding.progressBar.setIndeterminate(false);
 
-                TransferService.startShareToSeafileUploadService(ShareToSeafileActivity.this);
+                BackupThreadExecutor.getInstance().runShareToSeafileUploadTask();
             }
         });
 
         initWorkerBusObserver();
+
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+//                BackupThreadExecutor.getInstance().stopShareToSeafileUpload();
+
+                finish();
+            }
+        });
 
         //launch obj selector activity
         Bundle bundle = new Bundle();
@@ -152,9 +163,7 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
             binding.progressText.setText(percent + "%");
             binding.progressBar.setProgress(percent);
         } else if (TextUtils.equals(statusEvent, TransferEvent.EVENT_FILE_TRANSFER_FAILED)) {
-            binding.progressText.setText("0%");
-            binding.progressBar.setProgress(0);
-            Toasts.show(R.string.upload_failed);
+
         } else if (TextUtils.equals(statusEvent, TransferEvent.EVENT_FILE_TRANSFER_SUCCESS)) {
             binding.progressText.setText("100%");
             binding.progressBar.setProgress(100);

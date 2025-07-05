@@ -164,7 +164,7 @@ public class MediaBackupUploadWorker extends BaseUploadWorker {
             errorMsg = resultSeafException.getMessage();
 
             SafeLogs.d(TAG, "all completed", "error msg: " + errorMsg);
-            Toasts.show(R.string.backup_finished);
+            Toasts.show(R.string.backup_failed);
         } else {
             SafeLogs.d(TAG, "all completed");
             Toasts.show(R.string.backup_completed);

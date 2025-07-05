@@ -9,6 +9,7 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.framework.notification.TransferNotificationDispatcher;
+import com.seafile.seadroid2.framework.service.ITransferNotification;
 import com.seafile.seadroid2.framework.service.ParentEventUploader;
 import com.seafile.seadroid2.framework.util.SafeLogs;
 import com.seafile.seadroid2.framework.util.Toasts;
@@ -19,8 +20,8 @@ import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 public class ShareToSeafileUploader extends ParentEventUploader {
     private final String TAG = "ShareToSeafileUploader";
 
-    public ShareToSeafileUploader(Context context, TransferNotificationDispatcher transferNotificationDispatcher) {
-        super(context, transferNotificationDispatcher);
+    public ShareToSeafileUploader(Context context, ITransferNotification n) {
+        super(context, n);
     }
 
     @Override
@@ -90,12 +91,15 @@ public class ShareToSeafileUploader extends ParentEventUploader {
             }
         }
 
+        // clear all notifications
+        getNotificationDispatcher().clearAll();
+
         String errorMsg = null;
         if (resultSeafException != SeafException.SUCCESS) {
             errorMsg = resultSeafException.getMessage();
 
-            SafeLogs.d(TAG, "all completed", "error: " + errorMsg);
-            Toasts.show(R.string.upload_finished);
+            SafeLogs.e(TAG, "all completed", "error: " + errorMsg);
+            Toasts.show(R.string.upload_failed);
         } else {
             SafeLogs.d(TAG, "all completed");
             Toasts.show(R.string.upload_completed);

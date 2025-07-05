@@ -4,6 +4,8 @@ import android.content.Context;
 
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SeafException;
+import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.executor.TaskExecutor;
@@ -12,6 +14,7 @@ import com.seafile.seadroid2.framework.service.upload.FolderBackupUploader;
 import com.seafile.seadroid2.framework.service.upload.LocalFileUpdater;
 import com.seafile.seadroid2.framework.service.upload.MediaBackupScanner;
 import com.seafile.seadroid2.framework.service.upload.MediaBackupUploader;
+import com.seafile.seadroid2.framework.service.upload.ShareToSeafileUploader;
 import com.seafile.seadroid2.framework.util.SafeLogs;
 
 import java.util.concurrent.CompletableFuture;
@@ -22,10 +25,8 @@ import java.util.function.BiConsumer;
 public class BackupThreadExecutor {
     private final String TAG = "BackupThreadExecutor";
 
-    private static final BackupThreadExecutor INSTANCE = new BackupThreadExecutor();
     private final AtomicInteger runningTaskCount = new AtomicInteger(0);
     private final ThreadPoolExecutor _executor;
-
 
     private final BackupTransferNotificationDispatcher notificationDispatcher = new BackupTransferNotificationDispatcher(SeadroidApplication.getAppContext());
 
@@ -33,8 +34,17 @@ public class BackupThreadExecutor {
         _executor = TaskExecutor.getInstance().getExecutor();
     }
 
+    private static volatile BackupThreadExecutor singleton = null;
+
     public static BackupThreadExecutor getInstance() {
-        return INSTANCE;
+        if (singleton == null) {
+            synchronized (BackupThreadExecutor.class) {
+                if (singleton == null) {
+                    singleton = new BackupThreadExecutor();
+                }
+            }
+        }
+        return singleton;
     }
 
     private Context context;
@@ -46,12 +56,25 @@ public class BackupThreadExecutor {
         return context;
     }
 
+    public void cancelAll() {
+        if (folderBackupFuture != null && !folderBackupFuture.isDone()) {
+            folderBackupFuture.cancel(true);
+        }
+        if (albumBackupFuture != null && !albumBackupFuture.isDone()) {
+            albumBackupFuture.cancel(true);
+        }
+        if (localFileUploadFuture != null && !localFileUploadFuture.isDone()) {
+            localFileUploadFuture.cancel(true);
+        }
+    }
+
     private CompletableFuture<Void> folderBackupFuture;
     private CompletableFuture<Void> albumBackupFuture;
     private CompletableFuture<Void> localFileUploadFuture;
+    private CompletableFuture<Void> shareFileUploadFuture;
 
     public boolean anyBackupRunning() {
-        return isFolderBackupRunning() || isAlbumBackupRunning() || isLocalFileUploadRunning();
+        return isFolderBackupRunning() || isAlbumBackupRunning() || isLocalFileUploadRunning() || isShareFileUploadRunning();
     }
 
     public boolean isFolderBackupRunning() {
@@ -64,6 +87,10 @@ public class BackupThreadExecutor {
 
     public boolean isLocalFileUploadRunning() {
         return localFileUploadFuture != null && !localFileUploadFuture.isDone();
+    }
+
+    public boolean isShareFileUploadRunning() {
+        return shareFileUploadFuture != null && !shareFileUploadFuture.isDone();
     }
 
     public void stopAlbumBackup() {
@@ -222,6 +249,34 @@ public class BackupThreadExecutor {
             @Override
             public void run() {
                 localFileUploadFuture = null;
+            }
+        });
+    }
+
+    public void stopShareToSeafileUpload() {
+        if (shareFileUploadFuture != null && !shareFileUploadFuture.isDone()) {
+            shareFileUploadFuture.cancel(true);
+        }
+    }
+
+    public void runShareToSeafileUploadTask() {
+        shareFileUploadFuture = runTask(new Runnable() {
+            @Override
+            public void run() {
+
+                ShareToSeafileUploader shareToSeafileUploader = new ShareToSeafileUploader(getApplicationContext(), notificationDispatcher);
+                SeafException seafException = shareToSeafileUploader.upload();
+
+                if (seafException != SeafException.SUCCESS) {
+                    SafeLogs.d(TAG, "ShareToSeafile", "upload error: " + seafException);
+                } else {
+                    SafeLogs.d(TAG, "ShareToSeafile", "upload success");
+                }
+            }
+        }, new Runnable() {
+            @Override
+            public void run() {
+                shareFileUploadFuture = null;
             }
         });
     }

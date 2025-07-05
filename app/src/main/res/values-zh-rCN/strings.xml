@@ -688,8 +688,9 @@ Email: support@seafile.com<br>
   <string name="skip">跳过</string>
   <string name="previous">上一个</string>
   <string name="complete">完成</string>
+  <string name="backing_up">正在备份</string>
   <string name="backup_completed">备份完成</string>
-  <string name="backup_finished">备份结束</string>
+  <string name="backup_failed">备份失败</string>
   <string name="export_log_file_not_exists">没有可用于导出的日志文件</string>
   <string name="file_transfer_stopped">已停止文件传输</string>
 </resources>

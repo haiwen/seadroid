@@ -4,6 +4,8 @@ import android.content.Context;
 import android.net.Uri;
 import android.text.TextUtils;
 
+import androidx.annotation.NonNull;
+
 import com.blankj.utilcode.util.CloneUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
@@ -273,10 +275,6 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
         RequestBody requestBody = builder.build();
         //get upload link
         String uploadUrl = getFileUploadUrl(account, currentTransferModel.repo_id, currentTransferModel.getParentPath(), currentTransferModel.transfer_strategy == ExistingFileStrategy.REPLACE);
-        if (TextUtils.isEmpty(uploadUrl)) {
-            throw SeafException.REQUEST_URL_EXCEPTION;
-        }
-
         //
         if (newCall != null && newCall.isExecuted()) {
             SafeLogs.d(TAG, "transferFile()", "newCall has executed(), cancel it");
@@ -388,6 +386,7 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
     }
 
 
+    @NonNull
     private String getFileUploadUrl(Account account, String repoId, String target_dir,
                                     boolean isUpdate) throws SeafException {
         retrofit2.Response<String> res;
@@ -409,11 +408,23 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
         }
 
         if (!res.isSuccessful()) {
-            throw SeafException.REQUEST_URL_EXCEPTION;
+            SafeLogs.e(TAG, "getFileUploadUrl()", "response is not successful");
+            try (ResponseBody errBody = res.errorBody()) {
+                if (errBody != null) {
+                    String msg = errBody.string();
+                    throw ExceptionUtils.parseHttpException(res.code(), msg);
+                }
+            } catch (IOException e) {
+                throw ExceptionUtils.parseHttpException(res.code(), null);
+            }
         }
 
         String urlStr = res.body();
         urlStr = StringUtils.replace(urlStr, "\"", "");
+
+        if (TextUtils.isEmpty(urlStr)) {
+            throw SeafException.NETWORK_EXCEPTION;
+        }
 
         return urlStr;
     }
@@ -446,15 +457,13 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
     }
 
     public boolean isInterrupt(SeafException result) {
-        if (result.equals(SeafException.OUT_OF_QUOTA) ||
+        return result.equals(SeafException.OUT_OF_QUOTA) ||
                 result.equals(SeafException.INVALID_PASSWORD) ||
                 result.equals(SeafException.SSL_EXCEPTION) ||
                 result.equals(SeafException.UNAUTHORIZED_EXCEPTION) ||
                 result.equals(SeafException.NOT_FOUND_USER_EXCEPTION) ||
-                result.equals(SeafException.USER_CANCELLED_EXCEPTION)) {
-            return true;
-        }
-        return false;
+                result.equals(SeafException.SERVER_INTERNAL_ERROR) ||
+                result.equals(SeafException.USER_CANCELLED_EXCEPTION);
     }
 
 }

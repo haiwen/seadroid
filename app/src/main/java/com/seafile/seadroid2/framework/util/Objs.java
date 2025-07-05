@@ -15,6 +15,7 @@ import androidx.fragment.app.FragmentManager;
 import com.blankj.utilcode.util.ClipboardUtils;
 import com.blankj.utilcode.util.CloneUtils;
 import com.blankj.utilcode.util.CollectionUtils;
+import com.blankj.utilcode.util.NetworkUtils;
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.BuildConfig;
 import com.seafile.seadroid2.R;
@@ -64,7 +65,7 @@ import io.reactivex.functions.Function;
 public class Objs {
 
 
-    //////////////////////////////////starred////////////////////////////
+    /// ///////////////////////////////starred////////////////////////////
 
     public static Single<List<StarredModel>> getStarredSingleFromServer(Account account) {
         Single<StarredWrapperModel> netSingle = HttpIO.getInstanceByAccount(account).execute(StarredService.class).getStarItems();
@@ -93,7 +94,7 @@ public class Objs {
     }
 
 
-    //////////////////////////////////repo////////////////////////////
+    /// ///////////////////////////////repo////////////////////////////
 
     public static Single<List<BaseModel>> getReposSingleFromServer(Account account) {
         Single<RepoWrapperModel> netSingle = HttpIO.getInstanceByAccount(account).execute(RepoService.class).getReposAsync();
@@ -310,7 +311,7 @@ public class Objs {
     }
 
 
-    //////////////////////////////////dirent////////////////////////////
+    /// ///////////////////////////////dirent////////////////////////////
     public static Single<List<DirentModel>> getDirentsSingleFromServer(Account account, String repoId, String repoName, String parentDir) {
 
         Single<DirentWrapperModel> netSingle = HttpIO.getInstanceByAccount(account).execute(RepoService.class).getDirentsAsync(repoId, parentDir);
@@ -609,6 +610,11 @@ public class Objs {
     }
 
     public static void showCreateShareLinkDialog(Context context, FragmentManager fragmentManager, DirentModel direntModel, boolean isAdvance) {
+        if (!NetworkUtils.isConnected()) {
+            Toasts.show(R.string.network_error);
+            return;
+        }
+
         GetShareLinkPasswordDialogFragment dialogFragment = new GetShareLinkPasswordDialogFragment();
         dialogFragment.init(direntModel.repo_id, direntModel.full_path, isAdvance);
         dialogFragment.setOnCreateDirentShareLinkListener(new OnCreateDirentShareLinkListener() {

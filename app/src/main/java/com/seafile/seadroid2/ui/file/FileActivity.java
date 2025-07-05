@@ -75,7 +75,7 @@ public class FileActivity extends BaseActivityWithVM<FileViewModel> implements T
         setContentView(binding.getRoot());
 
         if (!NetworkUtils.isConnected()) {
-            Toasts.show(R.string.network_unavailable);
+            Toasts.show(R.string.network_error);
             finishWithCancel();
             return;
         }
