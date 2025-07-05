@@ -43,7 +43,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 
 public class TransferService extends EventService {
-    private final String TAG = "TransferService";
+    private static final String TAG = "TransferService";
 
     private TransferNotificationDispatcher transferNotificationDispatcher;
 
@@ -82,6 +82,15 @@ public class TransferService extends EventService {
     }
 
     public static void stopService(Context context) {
+        if (context == null) {
+            throw new IllegalArgumentException("context is null");
+        }
+
+        if (!_isRunning.get()) {
+            SafeLogs.e(TAG, "stopService()", "service is not running");
+            return;
+        }
+
         startService(context, ServiceActionEnum.STOP_SERVICE.name());
     }
 
@@ -340,6 +349,9 @@ public class TransferService extends EventService {
     }
 
     private void stopAll() {
+        //any one data source
+        startForegroundNotification(FeatureDataSource.SHARE_FILE_TO_SEAFILE);
+
         getActiveTasks().forEach(new BiConsumer<FeatureDataSource, CompletableFuture<Void>>() {
             @Override
             public void accept(FeatureDataSource featureDataSource, CompletableFuture<Void> voidCompletableFuture) {
