@@ -2,7 +2,6 @@ package com.seafile.seadroid2.provider;
 
 import android.os.CancellationSignal;
 import android.text.TextUtils;
-import android.util.Log;
 import android.webkit.MimeTypeMap;
 
 import androidx.annotation.NonNull;
@@ -16,7 +15,6 @@ import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.model.dirents.DirentFileModel;
 import com.seafile.seadroid2.framework.util.SLogs;
-import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
 import com.seafile.seadroid2.ui.file.FileService;
@@ -157,7 +155,7 @@ public class OpenDocumentWriter {
                     .build();
 
             okhttp3.Call call = HttpIO.getInstanceByAccount(account)
-                    .getOkHttpClient()
+                    .getSafeClient()
                     .getOkClient()
                     .newCall(request);
 

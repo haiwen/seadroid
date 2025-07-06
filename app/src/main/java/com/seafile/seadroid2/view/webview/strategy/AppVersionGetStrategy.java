@@ -6,6 +6,8 @@ import com.seafile.seadroid2.view.webview.IWebViewActionStrategy;
 public class AppVersionGetStrategy implements IWebViewActionStrategy {
     @Override
     public String route(String paramsStr) {
-        return AppUtils.getAppVersionName();
+        String v = AppUtils.getAppVersionName();
+        int b = AppUtils.getAppVersionCode();
+        return v + "-" + b;
     }
 }

@@ -6,14 +6,19 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.blankj.utilcode.util.CollectionUtils;
 import com.google.android.material.checkbox.MaterialCheckBox;
+import com.seafile.seadroid2.enums.SortBy;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.util.FileTools;
+import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
+import com.seafile.seadroid2.ui.comparator.FileBeanNaturalOrderComparator;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
@@ -21,7 +26,10 @@ import io.reactivex.SingleOnSubscribe;
 import io.reactivex.functions.Consumer;
 
 public class FolderSelectorViewModel extends BaseViewModel {
-    private MutableLiveData<List<FileBean>> dataListLiveData = new MutableLiveData<>();
+    private final MutableLiveData<List<FileBean>> dataListLiveData = new MutableLiveData<>();
+    public MutableLiveData<List<FileBean>> getLocalFileListLiveData() {
+        return dataListLiveData;
+    }
 
     public void setSelectFilePathList(List<String> selectFilePath) {
         this.selectFilePath = selectFilePath;
@@ -41,19 +49,17 @@ public class FolderSelectorViewModel extends BaseViewModel {
         selectFilePath.add(filePath);
     }
 
-    public MutableLiveData<List<FileBean>> getDataListLiveData() {
-        return dataListLiveData;
-    }
+
 
     public void loadData(String path) {
 
         getRefreshLiveData().setValue(true);
-        boolean isJumpHiddenFile = FolderBackupSharePreferenceHelper.isFolderBackupSkipHiddenFiles();
+        boolean isSkipHiddenFile = FolderBackupSharePreferenceHelper.isFolderBackupSkipHiddenFiles();
 
         Single<List<FileBean>> single = Single.create(new SingleOnSubscribe<List<FileBean>>() {
             @Override
             public void subscribe(SingleEmitter<List<FileBean>> emitter) throws Exception {
-                if (emitter.isDisposed()){
+                if (emitter.isDisposed()) {
                     return;
                 }
 
@@ -72,17 +78,18 @@ public class FolderSelectorViewModel extends BaseViewModel {
                 List<FileBean> fileBeanList = new ArrayList<>();
 
                 for (File value : files) {
-                    FileBean fileBean = new FileBean(value.getAbsolutePath());
-                    if (isJumpHiddenFile && value.isHidden()) {
+                    FileBean fileBean = new FileBean(value);
+                    if (isSkipHiddenFile && value.isHidden()) {
                         continue;
                     }
 
-                    int checkState = checkIsInBackupPathList(fileBean.getFilePath());
+                    int checkState = checkIsInBackupPathList(value.getAbsolutePath());
                     fileBean.setCheckedState(checkState);
 
                     fileBeanList.add(fileBean);
                 }
 
+                //sort
                 sortFileBeanList(fileBeanList, Constants.SORT_NAME_ASC);
 
                 emitter.onSuccess(fileBeanList);
@@ -93,7 +100,7 @@ public class FolderSelectorViewModel extends BaseViewModel {
             @Override
             public void accept(List<FileBean> fileBeans) throws Exception {
                 getRefreshLiveData().setValue(false);
-                getDataListLiveData().setValue(fileBeans);
+                getLocalFileListLiveData().setValue(fileBeans);
             }
         });
     }
@@ -123,6 +130,7 @@ public class FolderSelectorViewModel extends BaseViewModel {
         return MaterialCheckBox.STATE_UNCHECKED;
 
     }
+
 
     private void sortFileBeanList(List<FileBean> fileBeanList, int sortType) {
         Collections.sort(fileBeanList, (file1, file2) -> {
@@ -174,46 +182,4 @@ public class FolderSelectorViewModel extends BaseViewModel {
             }
         });
     }
-
-//    private List<FileBean> sortRepos(List<FileBean> repos) {
-//        List<FileBean> list = new ArrayList<>();
-//
-//        int sortType = Sorts.getSortType();
-//        switch (sortType) {
-//            case 0: // sort by name, ascending
-//                list = repos.stream().sorted(new Comparator<FileBean>() {
-//                    @Override
-//                    public int compare(FileBean o1, FileBean o2) {
-//                        return o1.getFileName().compareTo(o2.getFileName());
-//                    }
-//                }).collect(Collectors.toList());
-//
-//                break;
-//            case 1: // sort by name, descending
-//                list = repos.stream().sorted(new Comparator<FileBean>() {
-//                    @Override
-//                    public int compare(FileBean o1, FileBean o2) {
-//                        return -o1.getFileName().compareTo(o2.getFileName());
-//                    }
-//                }).collect(Collectors.toList());
-//                break;
-//            case 2: // sort by last modified time, ascending
-//                list = repos.stream().sorted(new Comparator<FileBean>() {
-//                    @Override
-//                    public int compare(FileBean o1, FileBean o2) {
-//                        return o1.getModifyTime() < o2.getModifyTime() ? -1 : 1;
-//                    }
-//                }).collect(Collectors.toList());
-//                break;
-//            case 3: // sort by last modified time, descending
-//                list = repos.stream().sorted(new Comparator<FileBean>() {
-//                    @Override
-//                    public int compare(FileBean o1, FileBean o2) {
-//                        return o1.getModifyTime() > o2.getModifyTime() ? -1 : 1;
-//                    }
-//                }).collect(Collectors.toList());
-//                break;
-//        }
-//        return list;
-//    }
 }

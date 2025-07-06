@@ -5,8 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.text.TextUtils;
 
-import com.seafile.seadroid2.framework.util.Utils;
-
 /**
  * This receiver is called whenever the system has booted or
  * the Seadroid app has been upgraded to a new version.
@@ -29,7 +27,7 @@ public class BootAutostart extends BroadcastReceiver {
 
         if (TextUtils.equals(Intent.ACTION_BOOT_COMPLETED, intent.getAction())
                 || TextUtils.equals(Intent.ACTION_MY_PACKAGE_REPLACED, intent.getAction())) {
-            Utils.startCameraSyncJob(context);
+//            JobSchedulerHelper.scheduleFolderBackupJob(context.getApplicationContext());
         }
     }
 

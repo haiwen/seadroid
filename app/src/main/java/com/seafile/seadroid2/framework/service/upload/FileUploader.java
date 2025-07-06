@@ -1,7 +1,6 @@
 package com.seafile.seadroid2.framework.service.upload;
 
 import android.content.Context;
-import android.os.Bundle;
 import android.text.TextUtils;
 
 import com.seafile.seadroid2.R;
@@ -9,16 +8,12 @@ import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.enums.FeatureDataSource;
-import com.seafile.seadroid2.enums.TransferDataSource;
-import com.seafile.seadroid2.framework.notification.FileUploadNotificationHelper;
 import com.seafile.seadroid2.framework.notification.TransferNotificationDispatcher;
-import com.seafile.seadroid2.framework.notification.base.BaseTransferNotificationHelper;
 import com.seafile.seadroid2.framework.service.ParentEventUploader;
 import com.seafile.seadroid2.framework.util.SafeLogs;
 import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
-import com.seafile.seadroid2.framework.worker.TransferWorker;
 import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 
 public class FileUploader extends ParentEventUploader {
@@ -95,12 +90,16 @@ public class FileUploader extends ParentEventUploader {
             }
         }
 
-        Toasts.show(R.string.upload_finished);
-        SafeLogs.d(TAG, "all completed");
-
         String errorMsg = null;
         if (resultSeafException != SeafException.SUCCESS) {
             errorMsg = resultSeafException.getMessage();
+
+            Toasts.show(R.string.upload_failed);
+
+            SafeLogs.d(TAG, "all completed, but error:", errorMsg);
+        } else {
+            Toasts.show(R.string.upload_completed);
+            SafeLogs.d(TAG, "all completed");
         }
         sendCompleteEvent(FeatureDataSource.MANUAL_FILE_UPLOAD, errorMsg, totalPendingCount);
         return resultSeafException;

@@ -76,6 +76,7 @@
   <string name="download_failed">Скачивание не удалось</string>
   <string name="download_waiting">Скачивание ожидается</string>
   <string name="download_finished">Скачивание завершено</string>
+  <string name="download_completed">Скачивание завершено</string>
   <string name="download_cancelled">Скачивание отменено</string>
   <string name="task_cancel">Отмена</string>
   <string name="task_retry">Повторить</string>
@@ -148,6 +149,7 @@
   <string name="load_dir_fail">Не удалось загрузить содержимое этой папки</string>
   <string name="not_supported">В настоящее время не поддерживается</string>
   <string name="not_supported_share">Этот тип обмена не поддерживается</string>
+  <string name="not_supported_feature">Эта функция не поддерживается, обновите версию сервера</string>
   <string name="edit">Изменить</string>
   <string name="select">Выбрать</string>
   <string name="create_draft">Создать черновик</string>
@@ -225,6 +227,7 @@
   <string name="provide_password">Задать пароль для библиотеки \"%s\"</string>
   <string name="upload_waiting">Ожидание загрузки</string>
   <string name="upload_finished">Загрузка завершена</string>
+  <string name="upload_completed">Загрузка завершена</string>
   <string name="upload_cancelled">Загрузка отменена</string>
   <string name="upload_failed">Загрузка не удалась</string>
   <string name="upload_file_exist">Файл уже существует</string>
@@ -370,8 +373,12 @@
   <!--Camera Upload Configuration View-->
   <string name="settings_cuc_title">Помощник по настройке</string>
   <string name="settings_cuc_welcome_text">Спасибо за использование помощника по настройке загрузки фото. \nЧтобы освоиться с сервисом загрузки фото, вам нужно пройти всего лишь несколько шагов.</string>
+  <string name="settings_cuc_network_title">Как создать резервную копию</string>
   <string name="settings_cuc_network_wifi">Только Wi-Fi</string>
   <string name="settings_cuc_network_data_plan">Wi-Fi или мобильные данные</string>
+  <string name="settings_cuc_how_hint">Выберите способ создания резервной копии</string>
+  <string name="settings_cuc_what_hint">Выберите то, резервную копию чего вы хотите создать</string>
+  <string name="settings_cuc_type_title">Что нужно сделать для резервного копирования</string>
   <string name="settings_cuc_type_photo">Только фото</string>
   <string name="settings_cuc_type_video">Фото и видео</string>
   <string name="settings_cuc_local_dir_title">Выбрать альбомы</string>
@@ -381,6 +388,7 @@
     <item quantity="many">%1$d элементов</item>
     <item quantity="other">%1$d элементов</item>
   </plurals>
+  <string name="settings_cuc_remote_lib_title">Где сделать резервную копию</string>
   <string name="settings_cuc_remote_lib_account">Выберите аккаунт</string>
   <string name="settings_cuc_remote_lib_repo">%s выбранных элементов</string>
   <string name="settings_cuc_upload_to_parent_folder">К родительской папке</string>
@@ -568,9 +576,11 @@
   <!--Home list title-->
   <string name="shared_with_all">Общие со всеми</string>
   <string name="add_password_protection">Добавить защиту паролем</string>
+  <string name="select_an_expiration_dates">Выбрать дату истечения срока действия</string>
   <string name="expiration_dates">даты истечения срока действия</string>
   <string name="add_auto_expiration">Добавить автоистечение срока действия</string>
   <string name="input_auto_expiration">Введите даты истечения срока действия</string>
+  <string name="tip_select_an_expiration_dates">Выберите дату истечения срока действия</string>
   <!--editor-->
   <string name="editor_lines_error">Невозможно работать с несколькими строками</string>
   <string name="editor_file_save">Вы хотите сохранить и выйти?</string>
@@ -604,6 +614,9 @@
   <string name="settings_folder_backup_service_started">Служба резервного копирования запущена</string>
   <string name="settings_folder_backup_service_stopped">Служба резервного копирования остановлена</string>
   <string name="settings_select_backup_folder_title">Выбрать папку</string>
+  <string name="settings_sync_hidden_files_switch">Синхронизация скрытых файлов</string>
+  <string name="settings_sync_hidden_files_disabled">Скрытые файлы не синхронизируются</string>
+  <string name="settings_sync_hidden_files_enabled">Скрытые файлы синхронизируются</string>
   <string name="folder_file_item_size">Размер %s</string>
   <string name="folder_file_item_describe">файл \%s\ | папка \%s\</string>
   <string name="internal_storage">Внутреннее хранилище</string>
@@ -689,11 +702,19 @@
   <string name="_owner">Владелец файла</string>
   <string name="mark_resolve">Отметить как решенное</string>
   <string name="delete_confirm">Вы уверены, что хотите удалить этот элемент?</string>
-  <string name="canceled">Отменено</string>
   <string name="image_capture_time">Время захвата</string>
   <string name="image_dimensions">Размеры</string>
   <string name="image_color_space_uncalibrated">Некалиброванный</string>
   <string name="image_color_space_undefined">Неопределенный</string>
+  <string name="canceled">Отменено</string>
   <string name="offline">Не в сети</string>
+  <string name="start">Начать</string>
+  <string name="next">Далее</string>
+  <string name="finish">Завершить</string>
+  <string name="skip">Пропустить</string>
+  <string name="previous">Предыдущий</string>
+  <string name="complete">Завершено</string>
+  <string name="backup_completed">Резервное копирование завершено</string>
   <string name="export_log_file_not_exists">Файл журнала недоступен для экспорта.</string>
+  <string name="file_transfer_stopped">Передача файла была остановлена</string>
 </resources>

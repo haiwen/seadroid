@@ -67,6 +67,7 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
     private static final int REQ_SIGNUP = 1;
 
     private final String DEBUG_TAG = this.getClass().getSimpleName();
+    private ActivityResultLauncher<Intent> activityLauncher;
 
     /**
      * Called when the activity is first created.
@@ -77,6 +78,21 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.account_create_type_select);
 
+        activityLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+            @Override
+            public void onActivityResult(ActivityResult o) {
+                if (o == null) {
+                    finish();
+                    return;
+                }
+
+                if (o.getResultCode() == RESULT_OK) {
+                    finishLogin(o.getData());
+                } else {
+                    finish();
+                }
+            }
+        });
 
         String country = Locale.getDefault().getCountry();
         String language = Locale.getDefault().getLanguage();
@@ -173,7 +189,7 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
      * @param currentActivity         Activity in use when navigate Up action occurred.
      * @param syntheticParentActivity Parent activity to use when one is not already configured.
      */
-    public void navigateUpOrBack(ComponentActivity currentActivity, Class<? extends Activity> syntheticParentActivity) {
+    public void navigateUpOrBack(Activity currentActivity, Class<? extends Activity> syntheticParentActivity) {
         // Retrieve parent activity from AndroidManifest.
         Intent intent = NavUtils.getParentActivityIntent(currentActivity);
 
@@ -209,21 +225,6 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
         }
     }
 
-    private final ActivityResultLauncher<Intent> activityLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
-        @Override
-        public void onActivityResult(ActivityResult o) {
-            if (o == null) {
-                finish();
-                return;
-            }
-
-            if (o.getResultCode() == RESULT_OK) {
-                finishLogin(o.getData());
-            } else {
-                finish();
-            }
-        }
-    });
 
     private void finishLogin(Intent intent) {
         SLogs.d(DEBUG_TAG, "finishLogin");

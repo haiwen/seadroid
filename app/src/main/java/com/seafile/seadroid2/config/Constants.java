@@ -9,6 +9,16 @@ public class Constants {
     }
 
     public static final String URL_PRIVACY = "https://www.seafile.com/privacy/";
+    public static class UA {
+        private UA() {
+            throw new IllegalStateException("Don't instantiate this class");
+        }
+        public static final String SEAFILE_UA = "Seafile/3.0";
+        public static final String SEAFILE_ANDROID_UA = "Seafile Android/3.0";
+        public static final String SEAFILE_ANDROID_DOWNLOAD_UA = "Seafile Android Downloader/3.0";
+        public static final String SEAFILE_ANDROID_UPLOAD_UA = "Seafile Android Uploader/3.0";
+    }
+
 
     public static class Account {
         private Account() {

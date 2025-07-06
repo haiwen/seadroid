@@ -14,6 +14,9 @@ public class BaseBottomSheetDialogFragmentWithVM<VM extends BaseViewModel> exten
     private VM tvm;
 
     public VM getViewModel() {
+        if (null == tvm) {
+            initTvm();
+        }
         return tvm;
     }
 

@@ -30,4 +30,9 @@ public class TransferEvent {
      * The transfer worker is complete.
      */
     public static final String EVENT_TRANSFER_TASK_COMPLETE = "transfer_task_complete";
+
+    /**
+     * The transfer worker is cancelled.
+     */
+    public static final String EVENT_TRANSFER_TASK_CANCELLED = "transfer_task_cancelled";
 }

@@ -324,7 +324,7 @@ public class DocsCommentViewModel extends BaseViewModel {
         String sdocServerUrl = pageOptionsModel.seadocServerUrl;
         if (TextUtils.isEmpty(sdocServerUrl)) {
             getRefreshLiveData().setValue(false);
-            getSeafExceptionLiveData().setValue(SeafException.UNKNOWN_EXCEPTION);
+            getSeafExceptionLiveData().setValue(SeafException.REQUEST_URL_EXCEPTION);
             return;
         }
 

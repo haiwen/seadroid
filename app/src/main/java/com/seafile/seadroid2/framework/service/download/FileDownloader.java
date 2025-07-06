@@ -35,6 +35,19 @@ public class FileDownloader extends ParentEventDownloader {
         return FeatureDataSource.DOWNLOAD;
     }
 
+    public void stop() {
+        SafeLogs.d(TAG, "stop()");
+
+        //clear
+        GlobalTransferCacheList.DOWNLOAD_QUEUE.clear();
+
+        //stop
+        stopThis();
+
+        send(FeatureDataSource.DOWNLOAD, TransferEvent.EVENT_TRANSFER_TASK_CANCELLED);
+    }
+
+
     public void stopById(String modelId) {
         SafeLogs.d(TAG, "stopById()", "stop download by id: " + modelId);
 
@@ -94,17 +107,16 @@ public class FileDownloader extends ParentEventDownloader {
             }
         }
 
-        SafeLogs.d(TAG, "download()", "all completed");
-
-        //
-        if (resultSeafException != SeafException.SUCCESS) {
-            Toasts.show(R.string.download_finished);
-        }
-
         //
         String errorMsg = null;
         if (resultSeafException != SeafException.SUCCESS) {
             errorMsg = resultSeafException.getMessage();
+
+            SafeLogs.d(TAG, "download()", "all completed", "errorMsg: " + errorMsg);
+            Toasts.show(R.string.download_finished);
+        } else {
+            SafeLogs.d(TAG, "download()", "all completed");
+            Toasts.show(R.string.download_completed);
         }
 
         sendCompleteEvent(FeatureDataSource.DOWNLOAD, errorMsg, totalPendingCount);

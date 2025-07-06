@@ -12,7 +12,19 @@ public class BaseActivityWithVM<VM extends BaseViewModel> extends BaseActivity {
     private VM tvm;
 
     public VM getViewModel() {
+        if (null == tvm) {
+            initTvm();
+        }
         return tvm;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (tvm != null) {
+            tvm.disposeAll();
+            tvm = null;
+        }
     }
 
     @Override

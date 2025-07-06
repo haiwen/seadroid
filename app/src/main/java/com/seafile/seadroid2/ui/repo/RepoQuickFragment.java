@@ -59,6 +59,7 @@ import com.seafile.seadroid2.context.GlobalNavContext;
 import com.seafile.seadroid2.context.NavContext;
 import com.seafile.seadroid2.databinding.LayoutFastRvBinding;
 import com.seafile.seadroid2.enums.ActionModeCallbackType;
+import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.FileReturnActionEnum;
 import com.seafile.seadroid2.enums.FileViewType;
 import com.seafile.seadroid2.enums.ObjSelectType;
@@ -136,6 +137,17 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     private AppCompatActivity activity;
     private ActionMode actionMode;
 
+    //result launcher
+    private ActivityResultLauncher<String> cameraPermissionLauncher;
+    private ActivityResultLauncher<String[]> singleFileAndImageChooseLauncher;
+    private ActivityResultLauncher<String[]> multiFileAndImageChooserLauncher;
+    private ActivityResultLauncher<Uri> takePhotoLauncher;
+    private ActivityResultLauncher<Uri> takeVideoLauncher;
+    private ActivityResultLauncher<Intent> fileActivityLauncher;
+    private ActivityResultLauncher<Intent> imagePreviewActivityLauncher;
+    private ActivityResultLauncher<Intent> copyMoveLauncher;
+
+
     public static RepoQuickFragment newInstance() {
         Bundle args = new Bundle();
         RepoQuickFragment fragment = new RepoQuickFragment();
@@ -154,6 +166,8 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         super.onCreate(savedInstanceState);
 
         mainViewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
+
+        registerResultLauncher();
     }
 
     @Override
@@ -626,7 +640,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         String transferId = map.getString(TransferWorker.KEY_TRANSFER_ID);
         int transferCount = map.getInt(TransferWorker.KEY_TRANSFER_COUNT);
 
-        SLogs.d(TAG, "on event: " + statusEvent + ", dataSource: " + dataSource + ", transferCount: " + transferCount);
+        SLogs.d(TAG, "on event: " + statusEvent, "dataSource: " + dataSource, "total count:" + transferCount);
 
         if (TextUtils.equals(statusEvent, TransferEvent.EVENT_SCANNING)) {
 
@@ -642,6 +656,15 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             if (transferCount > 0) {
                 loadData(RefreshStatusEnum.ONLY_REMOTE, false);
             }
+        } else if (TextUtils.equals(statusEvent, TransferEvent.EVENT_TRANSFER_TASK_CANCELLED)) {
+
+            if (FeatureDataSource.ALBUM_BACKUP.name().equals(dataSource) || FeatureDataSource.FOLDER_BACKUP.name().equals(dataSource)) {
+                Toasts.show(R.string.upload_cancelled);
+            } else if (FeatureDataSource.DOWNLOAD.name().equals(dataSource)) {
+                Toasts.show(R.string.download_cancelled);
+            }
+
+            loadData(RefreshStatusEnum.ONLY_REMOTE, false);
         }
     }
 
@@ -1335,11 +1358,6 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         closeActionMode();
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-    }
-
     private void toggleAdapterItemSelectedState(int i) {
         BaseModel baseModel = adapter.getItems().get(i);
         if (baseModel instanceof RepoModel repoModel) {
@@ -1482,12 +1500,12 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         }
 
         if (fileName.endsWith(Constants.Format.DOT_SDOC)) {
-            SDocWebViewActivity.openSdoc(getContext(), repoModel.repo_name, repoModel.repo_id, dirent.parent_dir + dirent.name);
+            SDocWebViewActivity.openSdoc(getContext(), repoModel.repo_name, repoModel.repo_id, dirent.parent_dir + dirent.name, dirent.name);
             return;
         }
 
         if (fileName.endsWith(Constants.Format.DOT_DRAW) || fileName.endsWith(Constants.Format.DOT_EXDRAW)) {
-            SDocWebViewActivity.openDraw(getContext(), repoModel.repo_name, repoModel.repo_id, dirent.parent_dir + dirent.name);
+            SDocWebViewActivity.openDraw(getContext(), repoModel.repo_name, repoModel.repo_id, dirent.parent_dir + dirent.name, dirent.name);
             return;
         }
 
@@ -1541,7 +1559,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
     public void download(List<BaseModel> direntModels) {
         if (!NetworkUtils.isConnected()) {
-            Toasts.show(R.string.network_unavailable);
+            Toasts.show(R.string.network_error);
             return;
         }
 
@@ -1670,6 +1688,11 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     }
 
     private void shareFile(DirentModel dirent) {
+        if (!NetworkUtils.isConnected()) {
+            Toasts.show(R.string.network_error);
+            return;
+        }
+
         if (dirent.isDir()) {
             Objs.showCreateShareLinkDialog(requireContext(), getChildFragmentManager(), dirent, false);
         } else {
@@ -1742,22 +1765,168 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         copyMoveLauncher.launch(intent);
     }
 
-    private final ActivityResultLauncher<Intent> copyMoveLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
-        @Override
-        public void onActivityResult(ActivityResult o) {
-            if (o.getResultCode() != Activity.RESULT_OK || o.getData() == null) {
-                return;
+
+    private void registerResultLauncher() {
+        copyMoveLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+            @Override
+            public void onActivityResult(ActivityResult o) {
+                if (o.getResultCode() != Activity.RESULT_OK || o.getData() == null) {
+                    return;
+                }
+
+                String dstRepoId = o.getData().getStringExtra(ObjKey.REPO_ID);
+                String dstDir = o.getData().getStringExtra(ObjKey.DIR);
+                String disRepoName = o.getData().getStringExtra(ObjKey.REPO_NAME);
+
+                copyMoveContext.setDest(dstRepoId, dstDir, disRepoName);
+
+                doCopyMove();
             }
+        });
 
-            String dstRepoId = o.getData().getStringExtra(ObjKey.REPO_ID);
-            String dstDir = o.getData().getStringExtra(ObjKey.DIR);
-            String disRepoName = o.getData().getStringExtra(ObjKey.REPO_NAME);
+        imagePreviewActivityLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+            @Override
+            public void onActivityResult(ActivityResult o) {
+                if (o.getResultCode() != Activity.RESULT_OK) {
+                    return;
+                }
 
-            copyMoveContext.setDest(dstRepoId, dstDir, disRepoName);
+                loadData(RefreshStatusEnum.LOCAL_THEN_REMOTE, false);
+            }
+        });
 
-            doCopyMove();
-        }
-    });
+
+        fileActivityLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+            @Override
+            public void onActivityResult(ActivityResult o) {
+                if (o.getResultCode() != Activity.RESULT_OK) {
+                    loadData(RefreshStatusEnum.ONLY_REMOTE, false);
+                    return;
+                }
+
+                Intent data = o.getData();
+                if (o.getData() == null) {
+                    return;
+                }
+
+                String action = data.getStringExtra("action");
+                String repoId = data.getStringExtra("repo_id");
+                String targetFile = data.getStringExtra("target_file");
+                String localFullPath = data.getStringExtra("destination_path");
+                boolean isUpdateWhenFileExists = data.getBooleanExtra("is_update", false);
+
+                if (TextUtils.isEmpty(localFullPath)) {
+                    return;
+                }
+
+                if (isUpdateWhenFileExists) {
+                    Toasts.show(R.string.download_finished);
+                }
+
+                loadData(RefreshStatusEnum.ONLY_REMOTE, false);
+
+                File destinationFile = new File(localFullPath);
+                if (TextUtils.equals(FileReturnActionEnum.EXPORT.name(), action)) {
+
+                    Objs.exportFile(RepoQuickFragment.this, destinationFile);
+                } else if (TextUtils.equals(FileReturnActionEnum.SHARE.name(), action)) {
+
+                    Objs.shareFileToWeChat(RepoQuickFragment.this, destinationFile);
+                } else if (TextUtils.equals(FileReturnActionEnum.DOWNLOAD_VIDEO.name(), action)) {
+
+                } else if (TextUtils.equals(FileReturnActionEnum.OPEN_WITH.name(), action)) {
+
+                    WidgetUtils.openWith(requireContext(), destinationFile);
+
+                } else if (TextUtils.equals(FileReturnActionEnum.OPEN_TEXT_MIME.name(), action)) {
+
+                    MarkdownActivity.start(requireContext(), localFullPath, repoId, targetFile);
+                }
+            }
+        });
+
+        cameraPermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestPermission(), new ActivityResultCallback<Boolean>() {
+            @Override
+            public void onActivityResult(Boolean result) {
+                if (Boolean.FALSE.equals(result)) {
+                    Toasts.show(R.string.permission_camera);
+                    return;
+                }
+
+                if (permission_media_select_type == 0) {
+                    uriPair = TakeCameras.buildPhotoUri(requireContext());
+                    takePhotoLauncher.launch(uriPair.getFirst());
+                } else if (permission_media_select_type == 1) {
+                    uriPair = TakeCameras.buildVideoUri(requireContext());
+                    takePhotoLauncher.launch(uriPair.getFirst());
+                }
+            }
+        });
+
+        singleFileAndImageChooseLauncher = registerForActivityResult(new ActivityResultContracts.OpenDocument(), new ActivityResultCallback<Uri>() {
+            @Override
+            public void onActivityResult(Uri o) {
+                if (null == o) {
+                    return;
+                }
+
+                doSelectSingleFile(o);
+            }
+        });
+
+        multiFileAndImageChooserLauncher = registerForActivityResult(new ActivityResultContracts.OpenMultipleDocuments(), new ActivityResultCallback<List<Uri>>() {
+            @Override
+            public void onActivityResult(List<Uri> o) {
+                if (CollectionUtils.isEmpty(o)) {
+                    return;
+                }
+
+                for (Uri uri : o) {
+                    int takeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION;
+                    requireContext().getContentResolver().takePersistableUriPermission(uri, takeFlags);
+                }
+
+                if (o.size() == 1) {
+                    doSelectSingleFile(o.get(0));
+                } else {
+                    doSelectedMultiFile(o);
+                }
+            }
+        });
+
+        takePhotoLauncher = registerForActivityResult(new ActivityResultContracts.TakePicture(), new ActivityResultCallback<Boolean>() {
+            @Override
+            public void onActivityResult(Boolean result) {
+                if (Boolean.FALSE.equals(result)) {
+                    return;
+                }
+
+                SLogs.d("take photo");
+
+                if (uriPair == null) {
+                    return;
+                }
+
+                Uri uri = uriPair.getFirst();
+                File file = uriPair.getSecond();
+
+                RepoModel repoModel = GlobalNavContext.getCurrentNavContext().getRepoModel();
+
+                addUploadTask(repoModel, GlobalNavContext.getCurrentNavContext().getNavPath(), file.getAbsolutePath());
+            }
+        });
+
+        takeVideoLauncher = registerForActivityResult(new ActivityResultContracts.CaptureVideo(), new ActivityResultCallback<Boolean>() {
+            @Override
+            public void onActivityResult(Boolean o) {
+                if (!o) {
+                    return;
+                }
+
+                SLogs.d("take video");
+            }
+        });
+    }
 
     private void doCopyMove() {
         if (copyMoveContext == null) {
@@ -1785,68 +1954,6 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         });
         dialogFragment.show(getChildFragmentManager(), CopyMoveDialogFragment.class.getSimpleName());
     }
-
-
-    private final ActivityResultLauncher<Intent> imagePreviewActivityLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
-        @Override
-        public void onActivityResult(ActivityResult o) {
-            if (o.getResultCode() != Activity.RESULT_OK) {
-                return;
-            }
-
-            loadData(RefreshStatusEnum.LOCAL_THEN_REMOTE, false);
-        }
-    });
-
-    private final ActivityResultLauncher<Intent> fileActivityLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
-        @Override
-        public void onActivityResult(ActivityResult o) {
-            if (o.getResultCode() != Activity.RESULT_OK) {
-                loadData(RefreshStatusEnum.ONLY_REMOTE, false);
-                return;
-            }
-
-            Intent data = o.getData();
-            if (o.getData() == null) {
-                return;
-            }
-
-            String action = data.getStringExtra("action");
-            String repoId = data.getStringExtra("repo_id");
-            String targetFile = data.getStringExtra("target_file");
-            String localFullPath = data.getStringExtra("destination_path");
-            boolean isUpdateWhenFileExists = data.getBooleanExtra("is_update", false);
-
-            if (TextUtils.isEmpty(localFullPath)) {
-                return;
-            }
-
-            if (isUpdateWhenFileExists) {
-                Toasts.show(R.string.download_finished);
-            }
-
-            loadData(RefreshStatusEnum.ONLY_REMOTE, false);
-
-            File destinationFile = new File(localFullPath);
-            if (TextUtils.equals(FileReturnActionEnum.EXPORT.name(), action)) {
-
-                Objs.exportFile(RepoQuickFragment.this, destinationFile);
-            } else if (TextUtils.equals(FileReturnActionEnum.SHARE.name(), action)) {
-
-                Objs.shareFileToWeChat(RepoQuickFragment.this, destinationFile);
-            } else if (TextUtils.equals(FileReturnActionEnum.DOWNLOAD_VIDEO.name(), action)) {
-
-            } else if (TextUtils.equals(FileReturnActionEnum.OPEN_WITH.name(), action)) {
-
-                WidgetUtils.openWith(requireContext(), destinationFile);
-
-            } else if (TextUtils.equals(FileReturnActionEnum.OPEN_TEXT_MIME.name(), action)) {
-
-                MarkdownActivity.start(requireContext(), localFullPath, repoId, targetFile);
-            }
-        }
-    });
-
 
     /**
      * re-upload the local downloaded files
@@ -2079,89 +2186,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         }
     }
 
-    private final ActivityResultLauncher<String> cameraPermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestPermission(), new ActivityResultCallback<Boolean>() {
-        @Override
-        public void onActivityResult(Boolean result) {
-            if (Boolean.FALSE.equals(result)) {
-                Toasts.show(R.string.permission_camera);
-                return;
-            }
-
-            if (permission_media_select_type == 0) {
-                uriPair = TakeCameras.buildPhotoUri(requireContext());
-                takePhotoLauncher.launch(uriPair.getFirst());
-            } else if (permission_media_select_type == 1) {
-                uriPair = TakeCameras.buildVideoUri(requireContext());
-                takePhotoLauncher.launch(uriPair.getFirst());
-            }
-        }
-    });
-
-    private final ActivityResultLauncher<String[]> singleFileAndImageChooseLauncher = registerForActivityResult(new ActivityResultContracts.OpenDocument(), new ActivityResultCallback<Uri>() {
-        @Override
-        public void onActivityResult(Uri o) {
-            if (null == o) {
-                return;
-            }
-
-            doSelectSingleFile(o);
-        }
-    });
-
-    private final ActivityResultLauncher<String[]> multiFileAndImageChooserLauncher = registerForActivityResult(new ActivityResultContracts.OpenMultipleDocuments(), new ActivityResultCallback<List<Uri>>() {
-        @Override
-        public void onActivityResult(List<Uri> o) {
-            if (CollectionUtils.isEmpty(o)) {
-                return;
-            }
-
-            for (Uri uri : o) {
-                int takeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION;
-                requireContext().getContentResolver().takePersistableUriPermission(uri, takeFlags);
-            }
-
-            if (o.size() == 1) {
-                doSelectSingleFile(o.get(0));
-            } else {
-                doSelectedMultiFile(o);
-            }
-        }
-    });
-
-
     private kotlin.Pair<Uri, File> uriPair;
-    private final ActivityResultLauncher<Uri> takePhotoLauncher = registerForActivityResult(new ActivityResultContracts.TakePicture(), new ActivityResultCallback<Boolean>() {
-        @Override
-        public void onActivityResult(Boolean result) {
-            if (Boolean.FALSE.equals(result)) {
-                return;
-            }
-
-            SLogs.d("take photo");
-
-            if (uriPair == null) {
-                return;
-            }
-
-            Uri uri = uriPair.getFirst();
-            File file = uriPair.getSecond();
-
-            RepoModel repoModel = GlobalNavContext.getCurrentNavContext().getRepoModel();
-
-            addUploadTask(repoModel, GlobalNavContext.getCurrentNavContext().getNavPath(), file.getAbsolutePath());
-        }
-    });
-
-    private final ActivityResultLauncher<Uri> takeVideoLauncher = registerForActivityResult(new ActivityResultContracts.CaptureVideo(), new ActivityResultCallback<Boolean>() {
-        @Override
-        public void onActivityResult(Boolean o) {
-            if (!o) {
-                return;
-            }
-
-            SLogs.d("take video");
-        }
-    });
 
     private void doSelectedMultiFile(List<Uri> uriList) {
         showLoadingDialog();
@@ -2172,6 +2197,11 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             @Override
             public void accept(Boolean aBoolean) {
                 dismissLoadingDialog();
+
+                if (!NetworkUtils.isConnected()) {
+                    Toasts.show(R.string.network_error);
+                    return;
+                }
 
                 if (aBoolean) {
                     Toasts.show(R.string.added_to_upload_tasks);
@@ -2202,13 +2232,20 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         mainViewModel.checkRemoteDirent(repoModel.repo_id, destinationPath, new java.util.function.Consumer<DirentFileModel>() {
             @Override
             public void accept(DirentFileModel direntFileModel) {
+                dismissLoadingDialog();
+
+                if (!NetworkUtils.isConnected()) {
+                    Toasts.show(R.string.network_error);
+                    return;
+                }
+
                 if (direntFileModel != null) {
                     showFileExistDialog(uri, fileName);
                 } else {
                     addUploadTask(repoModel, GlobalNavContext.getCurrentNavContext().getNavPath(), uri, fileName, false);
                 }
 
-                dismissLoadingDialog();
+
             }
         });
     }

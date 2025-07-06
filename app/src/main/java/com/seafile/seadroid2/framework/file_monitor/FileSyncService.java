@@ -22,9 +22,10 @@ import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePre
 import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
-import com.seafile.seadroid2.framework.service.TransferService;
+import com.seafile.seadroid2.framework.service.BackupThreadExecutor;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Utils;
+import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
@@ -47,6 +48,7 @@ public class FileSyncService extends Service {
     private final String TAG = "FileSyncService";
     private MediaContentObserver mediaContentObserver;
     private SupportFileAlterationMonitor fileMonitor;
+
     /**
      * <p>
      * Since the file download location of the app is located in the <b>/Android/</b> directory,
@@ -66,6 +68,21 @@ public class FileSyncService extends Service {
     private final List<String> IGNORE_PATHS = new ArrayList<>();
 
     private final String TEMP_FILE_DIR = StorageManager.getInstance().getTempDir().getAbsolutePath();
+
+    private final Handler mainThreadHandler = new Handler(Looper.getMainLooper());
+    private FileChangeListener fileChangeListener;
+
+    public void setFileChangeListener(FileChangeListener fileChangeListener) {
+        this.fileChangeListener = fileChangeListener;
+    }
+
+    public interface FileChangeListener {
+        void onLocalFileChanged(File fileToScan); // 或者传递更具体的事件对象
+
+        void onBackupFileChanged(File fileToScan); // 或者传递更具体的事件对象
+
+        void onMediaContentObserver(boolean isFullScan);
+    }
 
     /**
      * TODO: Multiple cache directories
@@ -177,11 +194,12 @@ public class FileSyncService extends Service {
                 }
 
                 SLogs.d(TAG, "scanLocalCacheFile", "file md5 is different, path: " + entity.full_path);
-                //
+
                 onAppCacheFileChanged(file);
             }
 
-            TransferService.startLocalFileUpdateService(getApplicationContext());
+            //When the Sync service is first launched, we can start another foreground service directly because the app is being visible to the user
+            BackupThreadExecutor.getInstance().runLocalFileUpdateTask();
         }).thenRunAsync(new Runnable() {
             @Override
             public void run() {
@@ -192,17 +210,32 @@ public class FileSyncService extends Service {
     }
 
     private void registerMediaContentObserver() {
-        mediaContentObserver = new MediaContentObserver(getBaseContext(), new Handler());
+        mediaContentObserver = new MediaContentObserver(getBaseContext(), mainThreadHandler);
+        mediaContentObserver.setOnMediaContentObserverListener(new MediaContentObserver.OnMediaContentObserverListener() {
+            @Override
+            public void onMediaContentObserver(boolean isFullScan) {
+                SLogs.d(TAG, "onMediaContentObserver", "isFullScan: " + isFullScan);
+                if (fileChangeListener != null) {
+                    fileChangeListener.onMediaContentObserver(isFullScan);
+                }
+            }
+        });
         mediaContentObserver.register();
     }
 
     private void startWorkers() {
         if (AlbumBackupSharePreferenceHelper.isAlbumBackupEnable()) {
             CameraUploadManager.getInstance().performSync();
+
+            // Of course, a periodic worker can also be started here
+            BackgroundJobManagerImpl.getInstance().scheduleAlbumBackupPeriodicScan(getApplicationContext());
         }
 
         if (FolderBackupSharePreferenceHelper.isFolderBackupEnable()) {
-            TransferService.restartFolderBackupService(getApplicationContext(), true);
+            BackupThreadExecutor.getInstance().runFolderBackupFuture(true);
+
+            //start periodic folder backup scan worker
+            BackgroundJobManagerImpl.getInstance().scheduleFolderBackupPeriodicScan(getApplicationContext());
         }
     }
 
@@ -253,6 +286,12 @@ public class FileSyncService extends Service {
         try {
             List<FileAlterationObserver> observerList = new ArrayList<>();
             for (String str : pathList) {
+                boolean isExists = FileUtils.isFileExists(str);
+                if (!isExists) {
+                    SLogs.d(TAG, "startFolderMonitor()", "backup path not exists: " + str);
+                    continue;
+                }
+
                 SLogs.d(TAG, "startFolderMonitor()", "backup path: " + str);
                 FileAlterationObserver observer = new FileAlterationObserver(str, FILE_FILTER);
 
@@ -302,10 +341,25 @@ public class FileSyncService extends Service {
             if ("change".equals(action)) {
                 onAppCacheFileChanged(file);
 
-                TransferService.startLocalFileUpdateService(getApplicationContext());
+                // We don't know if an app is visible to users, so we can't start a foreground service directly
+                if (fileChangeListener != null) {
+                    mainThreadHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            fileChangeListener.onLocalFileChanged(file);
+                        }
+                    });
+                }
             }
         } else {
-            TransferService.restartFolderBackupService(getApplicationContext(), true);
+            if (fileChangeListener != null) {
+                mainThreadHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        fileChangeListener.onBackupFileChanged(file);
+                    }
+                });
+            }
         }
     }
 
@@ -388,7 +442,7 @@ public class FileSyncService extends Service {
     }
 
     private void destroy() {
-        SLogs.d(TAG, "onDestroy()", "file monitor service destroy");
+        SLogs.e(TAG, "onDestroy()", "file monitor service destroy");
         stopFolderMonitor();
 
         //

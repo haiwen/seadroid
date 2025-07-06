@@ -19,13 +19,14 @@ import androidx.core.app.NotificationCompat;
 
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.enums.FeatureDataSource;
+import com.seafile.seadroid2.framework.service.ITransferNotification;
 import com.seafile.seadroid2.framework.notification.base.NotificationUtils;
 import com.seafile.seadroid2.ui.transfer_list.TransferActivity;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class TransferNotificationDispatcher {
+public class TransferNotificationDispatcher implements ITransferNotification {
 
     private final int REQ_CODE = 1;
     private final Context context;
@@ -71,6 +72,20 @@ public class TransferNotificationDispatcher {
         };
     }
 
+    private String getDefaultSubtitle(FeatureDataSource source) {
+        if (source == null) {
+            throw new IllegalArgumentException("FeatureDataSource cannot be null");
+        }
+
+        return switch (source) {
+            case ALBUM_BACKUP, FOLDER_BACKUP -> context.getString(R.string.backing_up);
+            case MANUAL_FILE_UPLOAD, SHARE_FILE_TO_SEAFILE, AUTO_UPDATE_LOCAL_FILE ->
+                    context.getString(R.string.notification_upload_started_title);
+            case DOWNLOAD -> context.getString(R.string.notification_download_started_title);
+        };
+    }
+
+
     private Intent getDefaultPendingIntent(FeatureDataSource source) {
         if (source == null) {
             throw new IllegalArgumentException("FeatureDataSource cannot be null");
@@ -103,8 +118,17 @@ public class TransferNotificationDispatcher {
         return dIntent;
     }
 
+    public NotificationInfo getForegroundNotification(FeatureDataSource source) {
+        return getForegroundNotification(source, null);
+    }
+
     public NotificationInfo getForegroundNotification(FeatureDataSource source, String subTitle) {
         String title = getDefaultTitle(source);
+
+        if (TextUtils.isEmpty(subTitle)) {
+            subTitle = getDefaultSubtitle(source);
+        }
+
         Notification notification = new NotificationCompat.Builder(context, NotificationUtils.NOTIFICATION_CHANNEL_TRANSFER)
                 .setSmallIcon(R.drawable.icon)
                 .setContentTitle(title)
@@ -125,6 +149,7 @@ public class TransferNotificationDispatcher {
         foregroundNotificationManager.release(nid);
     }
 
+    @Override
     public void showNotification(FeatureDataSource source, String subTitle) {
         String title = getDefaultTitle(source);
 
@@ -146,6 +171,7 @@ public class TransferNotificationDispatcher {
 
     private final Map<String, Long> intervalMap = new HashMap<>();
 
+    @Override
     public void showProgress(FeatureDataSource source, String fileName, int percent) {
 
         if (TextUtils.isEmpty(fileName)) {
@@ -192,6 +218,7 @@ public class TransferNotificationDispatcher {
         manager.notify(newOrCurId, notification);
     }
 
+    @Override
     public void showCompleted(FeatureDataSource source) {
         String title = getDefaultTitle(source);
         Notification notification = new NotificationCompat.Builder(context, NotificationUtils.NOTIFICATION_CHANNEL_TRANSFER)
@@ -207,6 +234,7 @@ public class TransferNotificationDispatcher {
         manager.notify(newOrCurId, notification);
     }
 
+    @Override
     public void showError(FeatureDataSource source) {
         String title = getDefaultTitle(source);
         Notification notification = new NotificationCompat.Builder(context, NotificationUtils.NOTIFICATION_CHANNEL_TRANSFER)
@@ -221,16 +249,19 @@ public class TransferNotificationDispatcher {
         manager.notify(newOrCurId, notification);
     }
 
+    @Override
     public void clearAll() {
         clearAll(0);
     }
 
+    @Override
     public void clearLater(FeatureDataSource source) {
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
             manager.cancel(getNotifyId(source));
         }, 3000);
     }
 
+    @Override
     public void clearAll(long delayMillis) {
         if (delayMillis > 0) {
             new Handler(Looper.getMainLooper()).postDelayed(() -> {

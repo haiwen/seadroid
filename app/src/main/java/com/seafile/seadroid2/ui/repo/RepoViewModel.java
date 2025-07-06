@@ -246,7 +246,6 @@ public class RepoViewModel extends BaseViewModel {
     }
 
     private void loadReposFromLocal(Account account, boolean isLoadRemoteData, boolean isBlank) {
-
         //clear list
         if (isBlank) {
             getObjListLiveData().setValue(null);
@@ -273,6 +272,11 @@ public class RepoViewModel extends BaseViewModel {
                 } else {
                     getShowEmptyViewLiveData().setValue(CollectionUtils.isEmpty(list));
                 }
+            }
+        }, new Consumer<Throwable>() {
+            @Override
+            public void accept(Throwable throwable) throws Exception {
+                SLogs.e(throwable);
             }
         });
     }

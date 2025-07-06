@@ -16,6 +16,9 @@ public class BaseFragmentWithVM<VM extends BaseViewModel> extends BaseFragment {
     private VM tvm;
 
     public VM getViewModel() {
+        if (null == tvm) {
+            initTvm();
+        }
         return tvm;
     }
 
@@ -28,11 +31,13 @@ public class BaseFragmentWithVM<VM extends BaseViewModel> extends BaseFragment {
         return helper;
     }
 
-    public QuickAdapterHelper createMuiltAdapterHelper(BaseMultiAdapter<?> adapter) {
-        if (null == helper) {
-            helper = new QuickAdapterHelper.Builder(adapter).build();
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (tvm != null) {
+            tvm.disposeAll();
+            tvm = null;
         }
-        return helper;
     }
 
     @Override

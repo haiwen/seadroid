@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -117,6 +118,10 @@ public class MarkdownActivity extends BaseActivityWithVM<EditorViewModel> implem
         getViewModel().read(path, new Consumer<String>() {
             @Override
             public void accept(String s) {
+                if (TextUtils.isEmpty(s)) {
+                    return;
+                }
+
                 markdownView.loadMarkdown(s);
             }
         });
@@ -178,7 +183,7 @@ public class MarkdownActivity extends BaseActivityWithVM<EditorViewModel> implem
     }
 
     @Override
-    protected void onDestroy() {
+    public void onDestroy() {
         super.onDestroy();
 
         if (markdownView != null) {

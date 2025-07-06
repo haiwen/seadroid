@@ -3,10 +3,13 @@ package com.seafile.seadroid2.ui.selector;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
 import androidx.activity.OnBackPressedCallback;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.Observer;
@@ -54,6 +57,7 @@ public class ObjSelectorActivity extends BaseActivityWithVM<ObjSelectorViewModel
     private boolean isOnlyChooseAccount;
 
     private ActivitySelectorObjBinding binding;
+    private MenuItem createFolderMenuItem;
 
     private final NavContext mNavContext = new NavContext(false);
 
@@ -132,6 +136,7 @@ public class ObjSelectorActivity extends BaseActivityWithVM<ObjSelectorViewModel
                 stepBack();
             }
         });
+
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setTitle(R.string.app_name);
@@ -144,33 +149,57 @@ public class ObjSelectorActivity extends BaseActivityWithVM<ObjSelectorViewModel
         checkLoginState();
     }
 
-    private void initView() {
-        binding.swipeRefreshLayout.setOnRefreshListener(this::loadData);
-
-        if (isOnlyChooseRepo) {
-            binding.cancel.setVisibility(View.GONE);
-            binding.newFolder.setVisibility(View.GONE);
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        if (isOnlyChooseAccount || isOnlyChooseRepo) {
+            binding.ok.setVisibility(View.VISIBLE);
+            return true;
         }
 
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_share_to_seafile, menu);
+        createFolderMenuItem = menu.findItem(R.id.create_new_folder);
+        if (mCurrentStepType == ObjSelectType.ACCOUNT) {
+            setOperateViewVisible(false);
+        } else if (mCurrentStepType == ObjSelectType.REPO) {
+            setOperateViewVisible(false);
+        } else {
+            setOperateViewVisible(true);
+        }
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.create_new_folder) {
+            showNewDirDialog();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    public void setOperateViewVisible(boolean visible) {
+        if (isOnlyChooseAccount || isOnlyChooseRepo) {
+            return;
+        }
+
+        if (createFolderMenuItem != null) {
+            createFolderMenuItem.setVisible(visible);
+        }
+
+        if (visible) {
+            binding.ok.setVisibility(View.VISIBLE);
+        } else {
+            binding.ok.setVisibility(View.GONE);
+        }
+    }
+
+    private void initView() {
+        binding.swipeRefreshLayout.setOnRefreshListener(this::loadData);
         binding.ok.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 onOkClick();
-            }
-        });
-
-        binding.newFolder.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showNewDirDialog();
-            }
-        });
-
-        binding.cancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                setResult(RESULT_CANCELED);
-                finish();
             }
         });
     }
@@ -179,7 +208,6 @@ public class ObjSelectorActivity extends BaseActivityWithVM<ObjSelectorViewModel
         boolean isLogin = SupportAccountManager.getInstance().isLogin();
         if (!isLogin) {
             binding.ok.setEnabled(false);
-            binding.newFolder.setEnabled(false);
         }
 
         loadData();
@@ -432,10 +460,14 @@ public class ObjSelectorActivity extends BaseActivityWithVM<ObjSelectorViewModel
 
             bar.setTitle(R.string.choose_an_account);
 
+            setOperateViewVisible(false);
+
             getViewModel().loadAccount();
         } else if (mCurrentStepType == ObjSelectType.REPO) {
 
             bar.setTitle(R.string.choose_a_library);
+
+            setOperateViewVisible(false);
 
             boolean isFilterUnavailable = true;
             boolean isAddStarredGroup = false;
@@ -449,6 +481,8 @@ public class ObjSelectorActivity extends BaseActivityWithVM<ObjSelectorViewModel
 
             getViewModel().loadReposFromNet(mAccount, isFilterUnavailable, isAddStarredGroup);
         } else if (mCurrentStepType == ObjSelectType.DIR) {
+
+            setOperateViewVisible(true);
 
             bar.setTitle(R.string.choose_a_folder);
             getViewModel().loadDirentsFromNet(mAccount, mNavContext);

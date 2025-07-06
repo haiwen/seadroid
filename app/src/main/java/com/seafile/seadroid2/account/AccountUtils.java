@@ -4,8 +4,11 @@ import android.webkit.CookieManager;
 import android.webkit.ValueCallback;
 
 import com.blankj.utilcode.util.NotificationUtils;
+import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.framework.datastore.DataStoreManager;
 import com.seafile.seadroid2.framework.http.HttpIO;
+import com.seafile.seadroid2.framework.service.BackupThreadExecutor;
+import com.seafile.seadroid2.framework.service.TransferService;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.context.ContextStackPreferenceHelper;
@@ -27,6 +30,15 @@ public class AccountUtils {
 
         NotificationUtils.cancelAll();
 
+        TransferService.stopService(SeadroidApplication.getAppContext());
+
+        boolean backRunning = BackupThreadExecutor.getInstance().anyBackupRunning();
+        if (backRunning) {
+            BackupThreadExecutor.getInstance().cancelAll();
+        }
+
+        BackgroundJobManagerImpl.getInstance().cancelAllJobs();
+
         // sign out operations
         SupportAccountManager.getInstance().signOutAccount(account);
         SupportAccountManager.getInstance().saveCurrentAccount(null);
@@ -35,7 +47,7 @@ public class AccountUtils {
         CameraUploadManager.getInstance().disableSpecialAccountCameraUpload(account);
 
         //cancel all jobs
-        BackgroundJobManagerImpl.getInstance().cancelAllJobs();
+//        BackgroundJobManagerImpl.getInstance().cancelAllJobs();
 
         //reset IO instance for new account
         HttpIO.resetLoggedInInstance();
@@ -60,6 +72,15 @@ public class AccountUtils {
 
         NotificationUtils.cancelAll();
 
+        TransferService.stopService(SeadroidApplication.getAppContext());
+
+        boolean backRunning = BackupThreadExecutor.getInstance().anyBackupRunning();
+        if (backRunning) {
+            BackupThreadExecutor.getInstance().cancelAll();
+        }
+        
+        BackgroundJobManagerImpl.getInstance().cancelAllJobs();
+
         // clear
         ContextStackPreferenceHelper.clear();
 
@@ -68,9 +89,6 @@ public class AccountUtils {
 
         //switch camera upload
         CameraUploadManager.getInstance().setCameraAccount(account);
-
-        //cancel all jobs
-        BackgroundJobManagerImpl.getInstance().cancelAllJobs();
 
         //reset IO instance for new account
         HttpIO.resetLoggedInInstance();

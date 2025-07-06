@@ -66,6 +66,7 @@ import okhttp3.ResponseBody;
  * @see BackgroundJobManagerImpl#TAG_ALL
  * @see BackgroundJobManagerImpl#TAG_TRANSFER
  */
+@Deprecated
 public class DownloadWorker extends BaseDownloadWorker {
     private final String TAG = "DownloadWorker";
 
@@ -92,7 +93,7 @@ public class DownloadWorker extends BaseDownloadWorker {
             showForegroundAsync(foregroundInfo);
 
             //
-            sendProgressEvent(transferModel);
+            sendProgressEvent(FeatureDataSource.DOWNLOAD, transferModel);
         });
     }
 
@@ -171,7 +172,7 @@ public class DownloadWorker extends BaseDownloadWorker {
         Bundle b = new Bundle();
         b.putString(TransferWorker.KEY_DATA_RESULT, interruptibleExceptionMsg);
         b.putInt(TransferWorker.KEY_TRANSFER_COUNT, totalPendingCount);
-        sendWorkerEvent(FeatureDataSource.DOWNLOAD, TransferEvent.EVENT_TRANSFER_TASK_COMPLETE, b);
+        send(FeatureDataSource.DOWNLOAD, TransferEvent.EVENT_TRANSFER_TASK_COMPLETE, b);
 
         return Result.success();
     }
@@ -182,7 +183,7 @@ public class DownloadWorker extends BaseDownloadWorker {
     }
 
     protected void sendFinishEvent() {
-        sendWorkerEvent(FeatureDataSource.DOWNLOAD, TransferEvent.EVENT_TRANSFER_TASK_COMPLETE);
+        send(FeatureDataSource.DOWNLOAD, TransferEvent.EVENT_TRANSFER_TASK_COMPLETE);
     }
 
     private final int retryMaxCount = 1;
@@ -195,7 +196,7 @@ public class DownloadWorker extends BaseDownloadWorker {
         try {
             downloadFile(account);
 
-            sendProgressFinishEvent(currentTransferModel);
+            sendProgressEvent(FeatureDataSource.DOWNLOAD, currentTransferModel);
 
             SLogs.d(TAG, "transferFile()", "download complete：" + currentTransferModel.full_path);
         } catch (Exception e) {
@@ -262,13 +263,13 @@ public class DownloadWorker extends BaseDownloadWorker {
                 .execute();
 
         if (!res.isSuccessful()) {
-            throw SeafException.REQUEST_TRANSFER_URL_EXCEPTION;
+            throw SeafException.REQUEST_URL_EXCEPTION;
         }
 
         String fileId = res.headers().get("oid");
         String dlink = res.body();
         if (dlink == null) {
-            throw SeafException.REQUEST_TRANSFER_URL_EXCEPTION;
+            throw SeafException.REQUEST_URL_EXCEPTION;
         }
 
         dlink = StringUtils.replace(dlink, "\"", "");
@@ -302,7 +303,7 @@ public class DownloadWorker extends BaseDownloadWorker {
                 .build();
 
         if (okHttpClient == null) {
-            okHttpClient = HttpIO.getCurrentInstance().getOkHttpClient().getOkClient();
+            okHttpClient = HttpIO.getCurrentInstance().getSafeClient().getOkClient();
         }
 
         Call newCall = okHttpClient.newCall(request);
@@ -316,7 +317,7 @@ public class DownloadWorker extends BaseDownloadWorker {
                 //
                 newCall.cancel();
 
-                throw ExceptionUtils.parse(code, b);
+                throw ExceptionUtils.parseHttpException(code, b);
             }
 
             try (ResponseBody responseBody = response.body()) {
@@ -467,9 +468,9 @@ public class DownloadWorker extends BaseDownloadWorker {
             SLogs.d(TAG, "setPassword()", "set password failed: " + code);
             try (ResponseBody responseBody = res.errorBody()) {
                 if (responseBody != null) {
-                    throw ExceptionUtils.parse(code, responseBody.string());
+                    throw ExceptionUtils.parseHttpException(code, responseBody.string());
                 } else {
-                    throw ExceptionUtils.parse(code, null);
+                    throw ExceptionUtils.parseHttpException(code, null);
                 }
             }
         }

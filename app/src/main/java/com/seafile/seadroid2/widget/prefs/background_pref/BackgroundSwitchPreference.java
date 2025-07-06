@@ -15,6 +15,7 @@ import androidx.preference.SwitchPreferenceCompat;
 
 import com.google.android.material.divider.MaterialDivider;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.widget.prefs.DividerPositionEnum;
 import com.seafile.seadroid2.widget.prefs.RadiusPositionEnum;
 
@@ -59,7 +60,7 @@ public abstract class BackgroundSwitchPreference extends SwitchPreferenceCompat 
             radiusPosition = typedArray.getInt(R.styleable.PrefShape_radiusPosition, 0);
 
             backgroundColor = typedArray.getColor(R.styleable.PrefShape_backgroundColor, ContextCompat.getColor(getContext(), R.color.bar_background_color));
-            backgroundRadius = typedArray.getDimensionPixelSize(R.styleable.PrefShape_backgroundRadius, 8);
+            backgroundRadius = typedArray.getDimensionPixelSize(R.styleable.PrefShape_backgroundRadius, Constants.DP.DP_8);
 
             dividerPosition = typedArray.getInt(R.styleable.PrefShape_dividerPosition, 0);
 

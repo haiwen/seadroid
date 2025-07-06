@@ -39,8 +39,8 @@ allprojects {
 }
 
 ext {
-    compileSdkVersion = 34 // 14.0 "UpsideDownCake"
-    targetSdkVersion = 34 //14.0 "UpsideDownCake"
+    compileSdkVersion = 34 // Android 14
+    targetSdkVersion = 34 // Android 14
     supportLibVersion = '27.1.1'  // variable that can be referenced to keep support libs consistent
     minSdkVersion = 26 //8.0 "Oreo"
     buildToolsVersion = '27.0.3'

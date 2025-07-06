@@ -4,12 +4,15 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.util.Pair;
 
+import androidx.annotation.NonNull;
+
 import com.blankj.utilcode.util.CloneUtils;
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.TimeUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.SaveTo;
 import com.seafile.seadroid2.enums.TransferResult;
@@ -46,6 +49,7 @@ import java.util.Map;
 
 import okhttp3.Call;
 import okhttp3.OkHttpClient;
+import okhttp3.Protocol;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
@@ -89,7 +93,22 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
     private final int retryMaxCount = 1;
     private TransferModel currentTransferModel;
     private Call newCall;
-    private OkHttpClient okHttpClient;
+    private OkHttpClient primaryHttpClient;
+    private OkHttpClient fallbackHttpClient;
+
+    public OkHttpClient getPrimaryHttpClient(Account account) {
+        if (primaryHttpClient == null) {
+            primaryHttpClient = HttpIO.getInstanceByAccount(account).getSafeClient().getOkClient();
+        }
+        return primaryHttpClient;
+    }
+
+    public OkHttpClient getFallbackHttpClient(Account account) {
+        if (fallbackHttpClient == null) {
+            fallbackHttpClient = HttpIO.getInstanceByAccount(account).getSafeClient().getOkClient(true);
+        }
+        return fallbackHttpClient;
+    }
 
     public TransferModel getCurrentTransferringModel() {
         return currentTransferModel;
@@ -106,14 +125,17 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
         SafeLogs.d(TAG, "stop()", "stop download");
         isStop = true;
 
-        if (okHttpClient != null) {
-            okHttpClient.dispatcher().cancelAll();
+        if (primaryHttpClient != null) {
+            primaryHttpClient.dispatcher().cancelAll();
+        }
+
+        if (fallbackHttpClient != null) {
+            fallbackHttpClient.dispatcher().cancelAll();
         }
 
         if (newCall != null) {
             newCall.cancel();
         }
-
     }
 
     public void transfer(Account account, TransferModel transferModel) throws SeafException {
@@ -189,6 +211,7 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
         download(account, dlink, fileId);
     }
 
+    @NonNull
     private Pair<String, String> getDownloadLink(boolean isReUsed) throws SeafException {
         retrofit2.Response<String> res;
         try {
@@ -203,13 +226,22 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
         }
 
         if (!res.isSuccessful()) {
-            throw SeafException.REQUEST_TRANSFER_URL_EXCEPTION;
+            SafeLogs.e(TAG, "getFileUploadUrl()", "response is not successful");
+            try (ResponseBody errBody = res.errorBody()) {
+                if (errBody != null) {
+                    String msg = errBody.string();
+                    throw ExceptionUtils.parseHttpException(res.code(), msg);
+                }
+            } catch (IOException e) {
+                throw ExceptionUtils.parseHttpException(res.code(), null);
+            }
         }
+
 
         String fileId = res.headers().get("oid");
         String dlink = res.body();
         if (TextUtils.isEmpty(dlink)) {
-            throw SeafException.REQUEST_TRANSFER_URL_EXCEPTION;
+            throw SeafException.NETWORK_EXCEPTION;
         }
 
 
@@ -224,14 +256,14 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
             dlink = dlink.substring(0, i) + "/" + URLEncoder.encode(dlink.substring(i + 1), "UTF-8");
         } catch (UnsupportedEncodingException e) {
             SafeLogs.e(TAG, e.getMessage());
-            throw SeafException.REQUEST_TRANSFER_URL_EXCEPTION;
+            throw SeafException.NETWORK_EXCEPTION;
         }
 
         // should return "\"http://gonggeng.org:8082/...\"" or "\"https://gonggeng.org:8082/...\"
         if (dlink.startsWith("http") && fileId != null) {
             return new Pair<>(dlink, fileId);
         } else {
-            throw SeafException.REQUEST_TRANSFER_URL_EXCEPTION;
+            throw SeafException.NETWORK_EXCEPTION;
         }
     }
 
@@ -253,6 +285,10 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
 
         Request request = new Request.Builder()
                 .url(dlink)
+                .addHeader("Connection", "keep-alive")
+                .addHeader("Accept", "*/*")
+                .addHeader("User-Agent", Constants.UA.SEAFILE_ANDROID_UA)
+                .addHeader("User-Agent", Constants.UA.SEAFILE_ANDROID_DOWNLOAD_UA)
                 .get()
                 .build();
 
@@ -262,78 +298,123 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
             newCall.cancel();
         }
 
-        if (okHttpClient == null) {
-            okHttpClient = HttpIO.getInstanceByAccount(account).getOkHttpClient().getOkClient();
-        }
+        newCall = getPrimaryHttpClient(account).newCall(request);
 
-        newCall = okHttpClient.newCall(request);
-
+        boolean canFallback = false;
         try (Response response = newCall.execute()) {
-            if (!response.isSuccessful()) {
-                int code = response.code();
-                String b = response.body() != null ? response.body().string() : null;
-                SafeLogs.d(TAG, "download()", "download failed：" + code + ", resBody is : " + b);
+            Protocol protocol = response.protocol();
+            SafeLogs.d(TAG, "onRes()", "response code: " + response.code() + ", protocol: " + protocol);
+            canFallback = checkProtocol(protocol);
 
-                //
-                newCall.cancel();
-
-                throw ExceptionUtils.parse(code, b);
-            }
-
-            try (ResponseBody responseBody = response.body()) {
-                if (responseBody == null) {
-                    int code = response.code();
-                    SafeLogs.d(TAG, "download()", "download failed：" + code + ", resBody is null ", currentTransferModel.target_path);
-
-                    throw SeafException.NETWORK_EXCEPTION;
-                }
-
-                File localFile = DataManager.getLocalFileCachePath(account, currentTransferModel.repo_id, currentTransferModel.repo_name, currentTransferModel.full_path);
-
-                long fileSize = responseBody.contentLength();
-                if (fileSize == -1) {
-                    SafeLogs.d(TAG, "download()", "download failed：contentLength is -1", localFile.getAbsolutePath());
-                    fileSize = currentTransferModel.file_size;
-                }
-
-                //todo 检查剩余空间
-
-                File tempFile = DataManager.createTempFile();
-                try (InputStream inputStream = responseBody.byteStream();
-                     FileOutputStream fileOutputStream = new FileOutputStream(tempFile)) {
-
-                    long totalBytesRead = 0;
-
-                    int bytesRead;
-                    byte[] buffer = new byte[SEGMENT_SIZE];
-                    while ((bytesRead = inputStream.read(buffer, 0, buffer.length)) != -1) {
-                        if (isStop) {
-                            SafeLogs.d(TAG, "download()", "download is stop, break");
-                            return;
-                        }
-
-                        fileOutputStream.write(buffer, 0, bytesRead);
-                        totalBytesRead += bytesRead;
-
-                        //notify Notification and update DB
-                        transferProgressListener.onProgressNotify(totalBytesRead, fileSize);
-                    }
-
-                    //notify complete
-                    transferProgressListener.onProgressNotify(fileSize, fileSize);
-                }
-
-                //important
-                Path path = java.nio.file.Files.move(tempFile.toPath(), localFile.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-                boolean isSuccess = path.toFile().exists();
-                if (isSuccess) {
-                    java.nio.file.Files.deleteIfExists(tempFile.toPath());
-                    updateToSuccess(fileId, localFile);
-                }
-            }
+            onRes(account, response, fileId);
         } catch (IOException e) {
             SafeLogs.e(TAG, e.getMessage());
+            SafeLogs.e(e);
+            if (canFallback) {
+                onFallback(account, request, fileId);
+            } else {
+                throw SeafException.NETWORK_EXCEPTION;
+            }
+        }
+    }
+
+    private boolean checkProtocol(Protocol protocol) {
+        if (protocol == null) {
+            return false;
+        }
+
+        SafeLogs.d(TAG, "checkProtocol()", "protocol: " + protocol);
+
+        if (Protocol.HTTP_2 == protocol) {
+            return true;
+        } else if (Protocol.QUIC == protocol) {
+            return true;
+        } else if (Protocol.H2_PRIOR_KNOWLEDGE == protocol) {
+            return true;
+        }
+        return false;
+    }
+
+    private void onFallback(Account account, Request request, String fileId) throws SeafException {
+        if (newCall != null && newCall.isExecuted()) {
+            SafeLogs.d(TAG, "onFallbackUpload()", "newCall has executed(), cancel it");
+            newCall.cancel();
+        }
+
+        SafeLogs.d(TAG, "onFallbackUpload()", "use fallback client to download file");
+
+        newCall = getFallbackHttpClient(account).newCall(request);
+        try (Response response = newCall.execute()) {
+            onRes(account, response, fileId);
+        } catch (IOException e) {
+            SafeLogs.e(TAG, e.getMessage());
+            SafeLogs.e(e);
             throw SeafException.NETWORK_EXCEPTION;
+        }
+    }
+
+    private void onRes(Account account, Response response, String fileId) throws IOException, SeafException {
+        if (!response.isSuccessful()) {
+            int code = response.code();
+            String b = response.body() != null ? response.body().string() : null;
+            SafeLogs.d(TAG, "download()", "download failed：" + code + ", resBody is : " + b);
+
+            //
+            newCall.cancel();
+
+            throw ExceptionUtils.parseHttpException(code, b);
+        }
+
+        try (ResponseBody responseBody = response.body()) {
+            if (responseBody == null) {
+                int code = response.code();
+                SafeLogs.d(TAG, "download()", "download failed：" + code + ", resBody is null ", currentTransferModel.target_path);
+
+                throw SeafException.NETWORK_EXCEPTION;
+            }
+
+            File localFile = DataManager.getLocalFileCachePath(account, currentTransferModel.repo_id, currentTransferModel.repo_name, currentTransferModel.full_path);
+
+            long fileSize = responseBody.contentLength();
+            if (fileSize == -1) {
+                SafeLogs.d(TAG, "download()", "download failed：contentLength is -1", localFile.getAbsolutePath());
+                fileSize = currentTransferModel.file_size;
+            }
+
+            //todo 检查剩余空间
+
+            File tempFile = DataManager.createTempFile();
+            try (InputStream inputStream = responseBody.byteStream();
+                 FileOutputStream fileOutputStream = new FileOutputStream(tempFile)) {
+
+                long totalBytesRead = 0;
+
+                int bytesRead;
+                byte[] buffer = new byte[SEGMENT_SIZE];
+                while ((bytesRead = inputStream.read(buffer, 0, buffer.length)) != -1) {
+                    if (isStop) {
+                        SafeLogs.d(TAG, "download()", "download is stop, break");
+                        return;
+                    }
+
+                    fileOutputStream.write(buffer, 0, bytesRead);
+                    totalBytesRead += bytesRead;
+
+                    //notify Notification and update DB
+                    transferProgressListener.onProgressNotify(totalBytesRead, fileSize);
+                }
+
+                //notify complete
+                transferProgressListener.onProgressNotify(fileSize, fileSize);
+            }
+
+            //important
+            Path path = java.nio.file.Files.move(tempFile.toPath(), localFile.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+            boolean isSuccess = path.toFile().exists();
+            if (isSuccess) {
+                java.nio.file.Files.deleteIfExists(tempFile.toPath());
+                updateToSuccess(fileId, localFile);
+            }
         }
     }
 
@@ -345,15 +426,13 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
     }
 
     public boolean isInterrupt(SeafException result) {
-        if (result.equals(SeafException.INVALID_PASSWORD) ||
+        return result.equals(SeafException.INVALID_PASSWORD) ||
                 result.equals(SeafException.SSL_EXCEPTION) ||
                 result.equals(SeafException.UNAUTHORIZED_EXCEPTION) ||
                 result.equals(SeafException.NOT_FOUND_USER_EXCEPTION) ||
                 result.equals(SeafException.NOT_FOUND_DIR_EXCEPTION) ||
-                result.equals(SeafException.USER_CANCELLED_EXCEPTION)) {
-            return true;
-        }
-        return false;
+                result.equals(SeafException.SERVER_INTERNAL_ERROR) ||
+                result.equals(SeafException.USER_CANCELLED_EXCEPTION);
     }
 
     private void updateToFailed(String transferResult) {
@@ -430,9 +509,9 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
             SafeLogs.d(TAG, "setPassword()", "set password failed: " + code);
             try (ResponseBody responseBody = res.errorBody()) {
                 if (responseBody != null) {
-                    throw ExceptionUtils.parse(code, responseBody.string());
+                    throw ExceptionUtils.parseHttpException(code, responseBody.string());
                 } else {
-                    throw ExceptionUtils.parse(code, null);
+                    throw ExceptionUtils.parseHttpException(code, null);
                 }
             }
         }

@@ -34,6 +34,7 @@ import io.reactivex.disposables.Disposable;
 
 public class SplashActivity extends BaseActivity {
     private Disposable disposable;
+    private ActivityResultLauncher<Intent> dataMigrationLauncher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +46,13 @@ public class SplashActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
 //        setContentView(R.layout.activity_splash);
         splashScreen.setKeepOnScreenCondition(() -> true);
+
+        dataMigrationLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+            @Override
+            public void onActivityResult(ActivityResult o) {
+                navTo();
+            }
+        });
 
         long duration = 500;
         disposable = Observable.timer(duration, TimeUnit.MILLISECONDS)
@@ -103,13 +111,6 @@ public class SplashActivity extends BaseActivity {
             finish();
         }
     }
-
-    private final ActivityResultLauncher<Intent> dataMigrationLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
-        @Override
-        public void onActivityResult(ActivityResult o) {
-            navTo();
-        }
-    });
 
 
     @Override

@@ -1,27 +1,20 @@
 package com.seafile.seadroid2.ui.selector.folder_selector;
 
 
-import com.blankj.utilcode.util.FileUtils;
 import com.google.android.material.checkbox.MaterialCheckBox;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.framework.util.FileTools;
 import com.seafile.seadroid2.framework.util.Icons;
-import com.seafile.seadroid2.framework.util.Utils;
 
+import java.io.File;
 import java.io.Serializable;
 
 
 public class FileBean implements Serializable {
-    private String filePath;
-    private boolean isDir;
-
-    private String fileName;
-    private String fileExtension;
-    private int fileImgType;
+    private File file;
     private int childrenFileNumber;
     private int childrenDirNumber;
     private String size;
-
 
     @MaterialCheckBox.CheckedState
     private int checkedState;
@@ -29,33 +22,22 @@ public class FileBean implements Serializable {
     private long modifyTime;
     private long simpleSize;
 
-    public FileBean(String filePath) {
-        this.filePath = filePath;
-
-        isDir = FileUtils.isDir(filePath);
-
-        fileName = FileTools.getFileName(filePath);
-        fileExtension = FileTools.getFileExtension(filePath);
-
-        if (isDir) {
-            fileImgType = R.drawable.folders;
-        } else {
-            fileImgType = Icons.getFileIcon(fileName);
+    public FileBean(File file) {
+        if (file == null) {
+            throw new NullPointerException("file is null");
         }
+        this.file = file;
 
-        int[] n = FileTools.getChildrenNumber(filePath);
+        int[] n = FileTools.getChildrenNumber(file);
         childrenFileNumber = n[0];
         childrenDirNumber = n[1];
-        modifyTime = FileTools.getFileLastModified(filePath);
-        if (!isDir) {
-            size = FileTools.getSize(filePath);
-            simpleSize = FileTools.getSimpleSize(filePath);
+        modifyTime = FileTools.getFileLastModified(file);
+        if (!file.isDirectory()) {
+            size = FileTools.getSize(file);
+            simpleSize = FileTools.getSimpleSize(file);
         }
     }
 
-    public void setFilePath(String filePath) {
-        this.filePath = filePath;
-    }
 
     public void setCheckedState(int checkedState) {
         this.checkedState = checkedState;
@@ -66,23 +48,23 @@ public class FileBean implements Serializable {
     }
 
     public String getFilePath() {
-        return filePath;
+        return file.getAbsolutePath();
     }
 
     public boolean isDir() {
-        return isDir;
+        return file.isDirectory();
     }
 
     public String getFileName() {
-        return fileName;
-    }
-
-    public String getFileExtension() {
-        return fileExtension;
+        return file.getName();
     }
 
     public int getFileImgType() {
-        return fileImgType;
+        if (isDir()) {
+            return R.drawable.folders;
+        } else {
+            return Icons.getFileIcon(getFileName());
+        }
     }
 
     public String getChildrenFileNumber() {

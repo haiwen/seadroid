@@ -9,20 +9,21 @@
     android:orientation="horizontal">
 
     <ImageView
+        android:id="@+id/item_nav_path_icon"
         android:layout_width="16dp"
         android:layout_height="16dp"
         android:layout_marginStart="2dp"
         android:clickable="false"
         android:src="@drawable/baseline_arrow_forward_24"
-        app:tint="@color/white" />
+        app:tint="@color/item_title_color" />
 
     <TextView
-        android:id="@+id/btn_item_tabbar"
+        android:id="@+id/item_nav_path_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="2dp"
+        android:layout_marginEnd="8dp"
         android:text="@string/app_name"
         android:textColor="@color/item_title_color"
-        android:textSize="16sp" />
+        android:textSize="14sp" />
 
 </LinearLayout>

@@ -13,8 +13,7 @@
         android:layout_marginTop="8dp"
         android:color="@color/black"
         android:gravity="center_horizontal"
-        android:lines="1"
-        android:singleLine="true"
+        android:maxLines="3"
         android:textSize="16sp" />
 
     <TextView

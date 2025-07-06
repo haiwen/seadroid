@@ -113,7 +113,7 @@ public class SimpleMenuPreference extends BackgroundListPreference {
     }
 
     @Override
-    public void onBindViewHolder(PreferenceViewHolder view) {
+    public void onBindViewHolder(@NonNull PreferenceViewHolder view) {
         super.onBindViewHolder(view);
 
         mItemView = view.itemView;

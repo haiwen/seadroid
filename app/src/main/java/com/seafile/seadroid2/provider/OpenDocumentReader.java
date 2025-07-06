@@ -1,7 +1,6 @@
 package com.seafile.seadroid2.provider;
 
 import android.os.CancellationSignal;
-import android.os.ParcelFileDescriptor;
 import android.text.TextUtils;
 import android.webkit.MimeTypeMap;
 
@@ -9,7 +8,6 @@ import androidx.annotation.Nullable;
 
 import com.blankj.utilcode.util.FileUtils;
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
 import com.seafile.seadroid2.framework.http.HttpIO;
@@ -17,15 +15,11 @@ import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.ui.file.FileService;
 
-import org.apache.commons.io.output.TeeOutputStream;
-
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 import okhttp3.Call;
@@ -88,7 +82,7 @@ public class OpenDocumentReader {
         }
 
         Request request = new Request.Builder().url(url).get().build();
-        Call call = httpIo.getOkHttpClient().getOkClient().newCall(request);
+        Call call = httpIo.getSafeClient().getOkClient().newCall(request);
 
         if (signal != null) {
             signal.setOnCancelListener(new CancellationSignal.OnCancelListener() {

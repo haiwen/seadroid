@@ -17,6 +17,7 @@ import com.seafile.seadroid2.framework.model.server.ServerInfoModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.account.AccountUtils;
 import com.seafile.seadroid2.framework.util.DeviceIdManager;
+import com.seafile.seadroid2.framework.util.ExceptionUtils;
 import com.seafile.seadroid2.ssl.CertsManager;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
 import com.seafile.seadroid2.ui.main.MainService;
@@ -97,7 +98,7 @@ public class AccountViewModel extends BaseViewModel {
                 Response<TokenModel> response = call.execute();
                 if (!response.isSuccessful()) {
                     HttpException httpException = new HttpException(response);
-                    throw getExceptionByThrowableForLogin(httpException, !TextUtils.isEmpty(authToken));
+                    throw ExceptionUtils.parseByThrowable(httpException,!TextUtils.isEmpty(authToken));
                 }
 
                 String s2fa = response.headers().get("x-seafile-s2fa");

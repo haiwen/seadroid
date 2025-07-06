@@ -13,6 +13,7 @@ import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.Log;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
@@ -29,6 +30,7 @@ import com.seafile.seadroid2.databinding.ActivityShareToSeafileBinding;
 import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.ObjSelectType;
 import com.seafile.seadroid2.enums.TransferDataSource;
+import com.seafile.seadroid2.framework.service.BackupThreadExecutor;
 import com.seafile.seadroid2.framework.service.TransferService;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Toasts;
@@ -57,17 +59,28 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
         binding = ActivityShareToSeafileBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        registerResultLauncher();
+
         getViewModel().getActionLiveData().observe(this, new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean aBoolean) {
                 SLogs.d(TAG, "can start file upload worker? " + aBoolean);
                 binding.progressBar.setIndeterminate(false);
 
-                TransferService.startShareToSeafileUploadService(ShareToSeafileActivity.this);
+                BackupThreadExecutor.getInstance().runShareToSeafileUploadTask();
             }
         });
 
         initWorkerBusObserver();
+
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+//                BackupThreadExecutor.getInstance().stopShareToSeafileUpload();
+
+                finish();
+            }
+        });
 
         //launch obj selector activity
         Bundle bundle = new Bundle();
@@ -77,30 +90,36 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
         objSelectorLauncher.launch(intent);
     }
 
-    private final ActivityResultLauncher<Intent> objSelectorLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+    private ActivityResultLauncher<Intent> objSelectorLauncher;
 
-        @Override
-        public void onActivityResult(ActivityResult o) {
-            if (o.getResultCode() != Activity.RESULT_OK) {
-                finish();
-                return;
+    private void registerResultLauncher() {
+
+        objSelectorLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+
+            @Override
+            public void onActivityResult(ActivityResult o) {
+                if (o.getResultCode() != Activity.RESULT_OK) {
+                    finish();
+                    return;
+                }
+
+                Intent intent = o.getData();
+                if (intent == null) {
+                    finish();
+                    return;
+                }
+
+                account = intent.getParcelableExtra(ObjKey.ACCOUNT);
+                dstRepoId = intent.getStringExtra(ObjKey.REPO_ID);
+                dstRepoName = intent.getStringExtra(ObjKey.REPO_NAME);
+                dstDir = intent.getStringExtra(ObjKey.DIR);
+
+                SLogs.d(TAG, "account: " + account.getSignature(), "repoId: " + dstRepoId, "repoName: " + dstRepoName, "dir: " + dstDir);
+                notifyFileOverwriting();
             }
+        });
 
-            Intent intent = o.getData();
-            if (intent == null) {
-                finish();
-                return;
-            }
-
-            account = intent.getParcelableExtra(ObjKey.ACCOUNT);
-            dstRepoId = intent.getStringExtra(ObjKey.REPO_ID);
-            dstRepoName = intent.getStringExtra(ObjKey.REPO_NAME);
-            dstDir = intent.getStringExtra(ObjKey.DIR);
-
-            SLogs.d(TAG, "account: " + account.getSignature(), "repoId: " + dstRepoId, "repoName: " + dstRepoName, "dir: " + dstDir);
-            notifyFileOverwriting();
-        }
-    });
+    }
 
     private void initWorkerBusObserver() {
         BusHelper.getTransferProgressObserver().observe(this, new Observer<Bundle>() {
@@ -144,9 +163,7 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
             binding.progressText.setText(percent + "%");
             binding.progressBar.setProgress(percent);
         } else if (TextUtils.equals(statusEvent, TransferEvent.EVENT_FILE_TRANSFER_FAILED)) {
-            binding.progressText.setText("0%");
-            binding.progressBar.setProgress(0);
-            Toasts.show(R.string.upload_failed);
+
         } else if (TextUtils.equals(statusEvent, TransferEvent.EVENT_FILE_TRANSFER_SUCCESS)) {
             binding.progressText.setText("100%");
             binding.progressBar.setProgress(100);

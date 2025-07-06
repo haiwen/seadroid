@@ -70,7 +70,7 @@ public class PlayerViewModel extends BaseViewModel {
             @Override
             public void accept(String dlink) {
                 if (TextUtils.isEmpty(dlink) || "\"\"".equals(dlink)) {
-                    getSeafExceptionLiveData().setValue(SeafException.UNKNOWN_EXCEPTION);
+                    getSeafExceptionLiveData().setValue(SeafException.REQUEST_URL_EXCEPTION);
                     return;
                 }
 

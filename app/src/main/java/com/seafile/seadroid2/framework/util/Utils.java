@@ -19,6 +19,9 @@ import android.util.Log;
 import android.view.View;
 import android.webkit.MimeTypeMap;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.seafile.seadroid2.BuildConfig;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
@@ -59,7 +62,6 @@ public class Utils {
     private static final String DEBUG_TAG = "Utils";
     private static final String HIDDEN_PREFIX = ".";
     private static HashMap<String, Integer> suffixIconMap = null;
-    private static final int JOB_ID = 0;
 
     private Utils() {
     }
@@ -106,20 +108,20 @@ public class Utils {
             Log.w(DEBUG_TAG, "path is null");
             return null;
         }
-
-        if (!path.contains("/")) {
+        String s = File.separator;
+        if (!path.contains(s)) {
             return "/";
         }
 
-        if ("/".equals(path)) {
+        if (s.equals(path)) {
             return "/";
         }
 
-        if (path.endsWith("/")) {
-            path = path.substring(0, path.lastIndexOf("/"));
+        if (path.endsWith(s)) {
+            path = path.substring(0, path.lastIndexOf(s));
         }
 
-        String parent = path.substring(0, path.lastIndexOf("/"));
+        String parent = path.substring(0, path.lastIndexOf(s));
         if (parent.isEmpty()) {
             return "/";
         } else
@@ -139,9 +141,20 @@ public class Utils {
     public static final String[] _units = new String[]{"B", "KB", "MB", "GB", "TB"};
     public static final DecimalFormat _decimalFormat = new DecimalFormat("#,##0.#");
 
+
     public static String readableFileSize(long size) {
         if (size <= 0) return "0 KB";
+
         int digitGroups = (int) (Math.log10(size) / Math.log10(1000));
+        int maxUnitIndex = _units.length - 1;
+
+        if (digitGroups > maxUnitIndex) {
+            // When the unit range is exceeded, only the largest unit (such as TB) is displayed,
+            // but the value continues to grow
+            double adjustedSize = size / Math.pow(1000, maxUnitIndex);
+            return _decimalFormat.format(adjustedSize) + " " + _units[maxUnitIndex];
+        }
+
         return _decimalFormat.format(size / Math.pow(1000, digitGroups)) + " " + _units[digitGroups];
     }
 
@@ -195,7 +208,16 @@ public class Utils {
         return false;
     }
 
+    @NonNull
     public static String pathJoin(String first, String... rest) {
+        if (first == null) {
+            first = "";
+        }
+
+        if (rest == null || rest.length == 0) {
+            return first;
+        }
+
         StringBuilder result = new StringBuilder(first);
         for (String b : rest) {
             if (TextUtils.isEmpty(b)) {
@@ -550,18 +572,6 @@ public class Utils {
         }
     }
 
-
-    public static void startCameraSyncJob(Context context) {
-//        JobScheduler mJobScheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
-//        JobInfo.Builder builder = new JobInfo.Builder(JOB_ID, new ComponentName(context.getPackageName(), MediaSchedulerService.class.getName()));
-//        builder.setMinimumLatency(5 * 1000);// Set to execute after at least 15 minutes delay
-//        builder.setOverrideDeadline(60 * 60 * 1000);// The setting is delayed by 20 minutes,
-//        builder.setRequiresCharging(false);
-//        builder.setRequiresDeviceIdle(false);
-//        builder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY);
-//        builder.setPersisted(true);
-//        mJobScheduler.schedule(builder.build());
-    }
 
     public static String getSyncCompletedTime() {
         SimpleDateFormat formatter = new SimpleDateFormat("MM-dd HH:mm");

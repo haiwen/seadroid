@@ -19,6 +19,7 @@ import com.seafile.seadroid2.databinding.SettingsAlbumBackupActivityLayoutBindin
 import com.seafile.seadroid2.ui.base.BaseActivity;
 
 
+@Deprecated
 public class SettingsAlbumBackupAdvancedActivity extends BaseActivity implements PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
 
     private SettingsAlbumBackupActivityLayoutBinding binding;

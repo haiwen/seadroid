@@ -202,7 +202,7 @@ public class AccountsActivity extends BaseActivityWithVM<AccountViewModel> imple
     }
 
     @Override
-    protected void onDestroy() {
+    public void onDestroy() {
         Log.d(DEBUG_TAG, "onDestroy");
         super.onDestroy();
 

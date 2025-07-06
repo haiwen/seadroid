@@ -4,10 +4,13 @@ import android.content.Context;
 import android.net.Uri;
 import android.text.TextUtils;
 
+import androidx.annotation.NonNull;
+
 import com.blankj.utilcode.util.CloneUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.SaveTo;
 import com.seafile.seadroid2.enums.TransferResult;
@@ -16,7 +19,6 @@ import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.FileBackupStatusEntity;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
 import com.seafile.seadroid2.framework.http.HttpIO;
-import com.seafile.seadroid2.framework.notification.TransferNotificationDispatcher;
 import com.seafile.seadroid2.framework.util.ExceptionUtils;
 import com.seafile.seadroid2.framework.util.FileUtils;
 import com.seafile.seadroid2.framework.util.SafeLogs;
@@ -37,6 +39,7 @@ import java.io.IOException;
 import okhttp3.Call;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
+import okhttp3.Protocol;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
@@ -44,16 +47,16 @@ import okhttp3.ResponseBody;
 
 public abstract class ParentEventUploader extends ParentEventTransfer {
     private final String TAG = "ParentEventUploader";
-    private final TransferNotificationDispatcher transferNotificationDispatcher;
+    private final ITransferNotification notificationDispatcher;
 
-    public ParentEventUploader(Context context, TransferNotificationDispatcher transferNotificationDispatcher) {
+    public ParentEventUploader(Context context, ITransferNotification notificationDispatcher) {
         super(context);
-        this.transferNotificationDispatcher = transferNotificationDispatcher;
+        this.notificationDispatcher = notificationDispatcher;
         _fileTransferProgressListener.setProgressListener(progressListener);
     }
 
-    public TransferNotificationDispatcher getTransferNotificationDispatcher() {
-        return transferNotificationDispatcher;
+    public ITransferNotification getNotificationDispatcher() {
+        return notificationDispatcher;
     }
 
     public abstract FeatureDataSource getFeatureDataSource();
@@ -82,11 +85,11 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
 
 
     private void notifyProgress(String fileName, int percent) {
-        if (transferNotificationDispatcher == null) {
+        if (notificationDispatcher == null) {
             return;
         }
 
-        transferNotificationDispatcher.showProgress(getFeatureDataSource(), fileName, percent);
+        notificationDispatcher.showProgress(getFeatureDataSource(), fileName, percent);
     }
 
     public void notifyError(SeafException seafException) {
@@ -109,13 +112,31 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
 
     private TransferModel currentTransferModel;
     private Call newCall;
-    private OkHttpClient okHttpClient;
+
+    private ProgressUriRequestBody uriRequestBody;
+    private ProgressRequestBody fileRequestBody;
+
+    private boolean isStop = false;
+    private OkHttpClient primaryHttpClient;
+    private OkHttpClient fallbackHttpClient;
+
+    public OkHttpClient getPrimaryHttpClient(Account account) {
+        if (primaryHttpClient == null) {
+            primaryHttpClient = HttpIO.getInstanceByAccount(account).getSafeClient().getOkClient();
+        }
+        return primaryHttpClient;
+    }
+
+    public OkHttpClient getFallbackHttpClient(Account account) {
+        if (fallbackHttpClient == null) {
+            fallbackHttpClient = HttpIO.getInstanceByAccount(account).getSafeClient().getOkClient(true);
+        }
+        return fallbackHttpClient;
+    }
 
     public TransferModel getCurrentTransferringModel() {
         return currentTransferModel;
     }
-
-    private boolean isStop = false;
 
     /**
      * Stop downloading the model
@@ -123,7 +144,7 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
      * the model is in the downloading, it will be stopped.
      */
     public void stopThis() {
-        SafeLogs.d(TAG, "stop()", "stop download");
+        SafeLogs.d(TAG, "stopThis()", getFeatureDataSource().name());
         isStop = true;
 
         if (uriRequestBody != null) {
@@ -134,13 +155,19 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
             fileRequestBody.setStop(true);
         }
 
-        if (okHttpClient != null) {
-            okHttpClient.dispatcher().cancelAll();
+        if (primaryHttpClient != null) {
+            primaryHttpClient.dispatcher().cancelAll();
+        }
+
+        if (fallbackHttpClient != null) {
+            fallbackHttpClient.dispatcher().cancelAll();
         }
 
         if (newCall != null) {
             newCall.cancel();
         }
+
+        notificationDispatcher.clearAll();
 
     }
 
@@ -168,8 +195,6 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
         }
     }
 
-    private ProgressUriRequestBody uriRequestBody;
-    private ProgressRequestBody fileRequestBody;
 
     private void transferFile(Account account) throws SeafException {
         if (account == null) {
@@ -247,15 +272,9 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
             builder.addFormDataPart("last_modify", cTime);
         }
 
-
         RequestBody requestBody = builder.build();
-
         //get upload link
         String uploadUrl = getFileUploadUrl(account, currentTransferModel.repo_id, currentTransferModel.getParentPath(), currentTransferModel.transfer_strategy == ExistingFileStrategy.REPLACE);
-        if (TextUtils.isEmpty(uploadUrl)) {
-            throw SeafException.REQUEST_TRANSFER_URL_EXCEPTION;
-        }
-
         //
         if (newCall != null && newCall.isExecuted()) {
             SafeLogs.d(TAG, "transferFile()", "newCall has executed(), cancel it");
@@ -265,58 +284,111 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
         Request request = new Request.Builder()
                 .url(uploadUrl)
                 .post(requestBody)
+                .addHeader("Connection", "keep-alive")
+                .addHeader("Accept", "*/*")
+                .addHeader("User-Agent", Constants.UA.SEAFILE_ANDROID_UA)
+                .addHeader("User-Agent", Constants.UA.SEAFILE_ANDROID_UPLOAD_UA)
                 .build();
 
-        if (okHttpClient == null) {
-            okHttpClient = HttpIO.getInstanceByAccount(account).getOkHttpClient().getOkClient();
-        }
 
-        newCall = okHttpClient.newCall(request);
+        newCall = getPrimaryHttpClient(account).newCall(request);
 
+        boolean canFallback = false;
         try (Response response = newCall.execute()) {
-            if (response.isSuccessful()) {
-                try (ResponseBody body = response.body()) {
-                    if (body != null) {
-                        String str = body.string();
-                        if (TextUtils.isEmpty(str)) {
-                            // if the returned data is abnormal due to some reason,
-                            // it is set to null and uploaded when the next scan arrives
-                            updateToSuccess(null);
-                        } else {
-                            String fileId = str.replace("\"", "");
+            Protocol protocol = response.protocol();
+            SafeLogs.d(TAG, "onRes()", "response code: " + response.code() + ", protocol: " + protocol);
+            canFallback = checkProtocol(protocol);
 
-                            SafeLogs.d(TAG, "transferFile()", "result，file ID：" + str);
-                            updateToSuccess(fileId);
-                        }
-                    } else {
-                        // if the returned data is abnormal due to some reason,
-                        // it is set to null and uploaded when the next scan arrives
-                        updateToSuccess(null);
-                    }
-                }
-            } else {
-                int code = response.code();
-                ResponseBody body = response.body();
-                if (body != null) {
-                    String b = body.string();
-                    SafeLogs.d(TAG, "transferFile()", "upload failed：" + b);
-                    //
-                    if (!newCall.isCanceled()) {
-                        newCall.cancel();
-                    }
-
-                    body.close();
-                    throw ExceptionUtils.parse(code, b);
-                }
-            }
+            onRes(response);
         } catch (IOException e) {
             SafeLogs.e(TAG, e.getMessage());
+            SafeLogs.e(e);
+
+            if (canFallback) {
+                onFallback(account, request);
+            } else {
+                throw SeafException.NETWORK_EXCEPTION;
+            }
+
+        }
+    }
+
+    private boolean checkProtocol(Protocol protocol) {
+        if (protocol == null) {
+            return false;
+        }
+
+        SafeLogs.d(TAG, "checkProtocol()", "protocol: " + protocol);
+
+        if (Protocol.HTTP_2 == protocol) {
+            return true;
+        } else if (Protocol.QUIC == protocol) {
+            return true;
+        } else if (Protocol.H2_PRIOR_KNOWLEDGE == protocol) {
+            return true;
+        }
+        return false;
+    }
+
+    private void onFallback(Account account, Request request) throws SeafException {
+        if (newCall != null && newCall.isExecuted()) {
+            SafeLogs.d(TAG, "onFallback()", "newCall has executed(), cancel it");
+            newCall.cancel();
+        }
+
+        SafeLogs.d(TAG, "onFallback()", "use fallback client to upload file");
+
+        newCall = getFallbackHttpClient(account).newCall(request);
+
+        try (Response response = newCall.execute()) {
+            onRes(response);
+        } catch (IOException e) {
+            SafeLogs.e(TAG, e.getMessage());
+            SafeLogs.e(e);
+
             throw SeafException.NETWORK_EXCEPTION;
         }
     }
 
+    private void onRes(Response response) throws SeafException, IOException {
+        int code = response.code();
+        try (ResponseBody body = response.body()) {
+            if (body == null) {
+                SafeLogs.d(TAG, "transferFile()", "body is null");
 
-    private String getFileUploadUrl(Account account, String repoId, String target_dir, boolean isUpdate) throws SeafException {
+                if (response.isSuccessful()) {
+                    // if the returned data is abnormal due to some reason,
+                    // it is set to null and uploaded when the next scan arrives
+                    updateToSuccess(null);
+                } else {
+                    throw ExceptionUtils.parseHttpException(code, null);
+                }
+
+                return;
+            }
+
+            String bodyStr = body.string();
+            if (response.isSuccessful()) {
+                if (TextUtils.isEmpty(bodyStr)) {
+                    // if the returned data is abnormal due to some reason,
+                    // it is set to null and uploaded when the next scan arrives
+                    updateToSuccess(null);
+                } else {
+                    String fileId = bodyStr.replace("\"", "");
+
+                    SafeLogs.d(TAG, "transferFile()", "result，file ID：" + bodyStr);
+                    updateToSuccess(fileId);
+                }
+            } else {
+                throw ExceptionUtils.parseHttpException(code, bodyStr);
+            }
+        }
+    }
+
+
+    @NonNull
+    private String getFileUploadUrl(Account account, String repoId, String target_dir,
+                                    boolean isUpdate) throws SeafException {
         retrofit2.Response<String> res;
         try {
             if (isUpdate) {
@@ -336,11 +408,23 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
         }
 
         if (!res.isSuccessful()) {
-            throw SeafException.REQUEST_TRANSFER_URL_EXCEPTION;
+            SafeLogs.e(TAG, "getFileUploadUrl()", "response is not successful");
+            try (ResponseBody errBody = res.errorBody()) {
+                if (errBody != null) {
+                    String msg = errBody.string();
+                    throw ExceptionUtils.parseHttpException(res.code(), msg);
+                }
+            } catch (IOException e) {
+                throw ExceptionUtils.parseHttpException(res.code(), null);
+            }
         }
 
         String urlStr = res.body();
         urlStr = StringUtils.replace(urlStr, "\"", "");
+
+        if (TextUtils.isEmpty(urlStr)) {
+            throw SeafException.NETWORK_EXCEPTION;
+        }
 
         return urlStr;
     }
@@ -373,15 +457,13 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
     }
 
     public boolean isInterrupt(SeafException result) {
-        if (result.equals(SeafException.OUT_OF_QUOTA) ||
+        return result.equals(SeafException.OUT_OF_QUOTA) ||
                 result.equals(SeafException.INVALID_PASSWORD) ||
                 result.equals(SeafException.SSL_EXCEPTION) ||
                 result.equals(SeafException.UNAUTHORIZED_EXCEPTION) ||
                 result.equals(SeafException.NOT_FOUND_USER_EXCEPTION) ||
-                result.equals(SeafException.USER_CANCELLED_EXCEPTION)) {
-            return true;
-        }
-        return false;
+                result.equals(SeafException.SERVER_INTERNAL_ERROR) ||
+                result.equals(SeafException.USER_CANCELLED_EXCEPTION);
     }
 
 }

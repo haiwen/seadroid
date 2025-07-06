@@ -14,7 +14,6 @@
             android:summary="@string/settings_switch_account"
             android:title="@string/settings_account_info_load_data"
             app:backgroundColor="@color/pref_background_color"
-            app:backgroundRadius="8dp"
             app:dividerColor="@color/pref_divider_color"
             app:dividerPosition="bottom"
             app:iconSpaceReserved="false"
@@ -36,7 +35,6 @@
             android:summary="@string/settings_account_info_load_data"
             android:title="@string/settings_account_space_title"
             app:backgroundColor="@color/pref_background_color"
-            app:backgroundRadius="8dp"
             app:iconSpaceReserved="false"
             app:radiusPosition="bottom" />
 
@@ -67,7 +65,6 @@
             android:key="@string/pref_key_night_mode"
             android:title="@string/settings_night_mode_title"
             app:backgroundColor="@color/pref_background_color"
-            app:backgroundRadius="8dp"
             app:iconSpaceReserved="false"
             app:isPreferenceVisible="true"
             app:radiusPosition="all"
@@ -87,7 +84,6 @@
             android:summaryOn="@string/settings_camera_upload_service_started"
             android:title="@string/settings_camera_upload_turn_on"
             app:backgroundColor="@color/pref_background_color"
-            app:backgroundRadius="8dp"
             app:dividerColor="@color/pref_divider_color"
             app:dividerPosition="none"
             app:iconSpaceReserved="false"
@@ -111,7 +107,6 @@
             android:summaryOn="@string/settings_camera_upload_data_plan_allowed"
             android:title="@string/settings_camera_upload_allow_data_plan"
             app:backgroundColor="@color/pref_background_color"
-            app:backgroundRadius="8dp"
             app:dividerColor="@color/pref_divider_color"
             app:dividerPosition="bottom"
             app:iconSpaceReserved="false"
@@ -125,24 +120,22 @@
             android:summaryOn="@string/settings_camera_upload_videos_allowed"
             android:title="@string/settings_camera_upload_allow_videos"
             app:backgroundColor="@color/pref_background_color"
-            app:backgroundRadius="8dp"
             app:dividerColor="@color/pref_divider_color"
             app:dividerPosition="bottom"
             app:iconSpaceReserved="false"
             app:isPreferenceVisible="false"
             app:radiusPosition="none" />
 
-<!--        <com.seafile.seadroid2.widget.prefs.TextSwitchPreference-->
-<!--            android:key="@string/pref_key_album_backup_advanced_buckets_switch"-->
-<!--            android:summaryOff="@string/settings_camera_upload_advanced_custom_directories_off"-->
-<!--            android:summaryOn="@string/settings_camera_upload_advanced_custom_directories_on"-->
-<!--            android:title="@string/settings_camera_upload_advanced_custom_directories"-->
-<!--            app:backgroundColor="@color/pref_background_color"-->
-<!--            app:backgroundRadius="8dp"-->
-<!--            app:dividerPosition="bottom"-->
-<!--            app:iconSpaceReserved="false"-->
-<!--            app:isPreferenceVisible="false"-->
-<!--            app:radiusPosition="none" />-->
+        <!--        <com.seafile.seadroid2.widget.prefs.TextSwitchPreference-->
+        <!--            android:key="@string/pref_key_album_backup_advanced_buckets_switch"-->
+        <!--            android:summaryOff="@string/settings_camera_upload_advanced_custom_directories_off"-->
+        <!--            android:summaryOn="@string/settings_camera_upload_advanced_custom_directories_on"-->
+        <!--            android:title="@string/settings_camera_upload_advanced_custom_directories"-->
+        <!--            app:backgroundColor="@color/pref_background_color"-->
+        <!--            app:dividerPosition="bottom"-->
+        <!--            app:iconSpaceReserved="false"-->
+        <!--            app:isPreferenceVisible="false"-->
+        <!--            app:radiusPosition="none" />-->
 
         <com.seafile.seadroid2.widget.prefs.TextTitleSummaryPreference
             android:key="@string/pref_key_album_backup_advanced_buckets_select"
@@ -150,7 +143,6 @@
             android:title="@string/settings_camera_upload_choose_dir"
 
             app:backgroundColor="@color/pref_background_color"
-            app:backgroundRadius="8dp"
             app:dividerColor="@color/pref_divider_color"
             app:dividerPosition="none"
             app:iconSpaceReserved="false"
@@ -162,7 +154,6 @@
         <!--            android:summary="@string/settings_camera_upload_advanced_feature_subtitle"-->
         <!--            android:title="@string/settings_camera_upload_advanced_feature_title"-->
         <!--            app:backgroundColor="@color/pref_background_color"-->
-        <!--            app:backgroundRadius="8dp"-->
         <!--            app:iconSpaceReserved="false"-->
         <!--            app:isPreferenceVisible="false"-->
         <!--            app:radiusPosition="bottom" />-->
@@ -172,7 +163,6 @@
         <!--            android:summary="@string/folder_backup_waiting_state"-->
         <!--            android:title="@string/camera_upload_state"-->
         <!--            app:backgroundColor="@color/pref_background_color"-->
-        <!--            app:backgroundRadius="8dp"-->
         <!--            app:iconSpaceReserved="false"-->
         <!--            app:isPreferenceVisible="false"-->
         <!--            app:radiusPosition="bottom" />-->
@@ -191,7 +181,6 @@
             android:summaryOn="@string/settings_folder_backup_service_started"
             android:title="@string/settings_folder_backup_switch_title"
             app:backgroundColor="@color/pref_background_color"
-            app:backgroundRadius="8dp"
             app:dividerColor="@color/pref_divider_color"
             app:dividerPosition="none"
             app:iconSpaceReserved="false"
@@ -202,13 +191,12 @@
             android:key="@string/pref_key_folder_backup_sync_hidden_files"
             android:summaryOff="@string/settings_sync_hidden_files_disabled"
             android:summaryOn="@string/settings_sync_hidden_files_enabled"
-            android:title="@string/settings_sync_hidden_title"
+            android:title="@string/settings_sync_hidden_files_switch"
             app:backgroundColor="@color/pref_background_color"
-            app:backgroundRadius="8dp"
             app:dividerColor="@color/pref_divider_color"
             app:dividerPosition="bottom"
-            app:isPreferenceVisible="false"
             app:iconSpaceReserved="false"
+            app:isPreferenceVisible="false"
             app:radiusPosition="none" />
 
         <com.seafile.seadroid2.widget.prefs.SimpleMenuPreference
@@ -242,7 +230,6 @@
             android:summary="@string/settings_folder_backup_select_hint"
             android:title="@string/settings_folder_backup_select_title"
             app:backgroundColor="@color/pref_background_color"
-            app:backgroundRadius="8dp"
             app:iconSpaceReserved="false"
             app:isPreferenceVisible="false"
             app:radiusPosition="bottom" />
@@ -252,7 +239,6 @@
             android:summary="@string/folder_backup_waiting_state"
             android:title="@string/folder_backup_state"
             app:backgroundColor="@color/pref_background_color"
-            app:backgroundRadius="8dp"
             app:iconSpaceReserved="false"
             app:isPreferenceVisible="false"
             app:radiusPosition="bottom" />
@@ -269,7 +255,6 @@
             android:summary="@string/transfer_default_state"
             android:title="@string/downloading"
             app:backgroundColor="@color/pref_background_color"
-            app:backgroundRadius="8dp"
             app:dividerColor="@color/pref_divider_color"
             app:dividerPosition="bottom"
             app:iconSpaceReserved="false"
@@ -281,25 +266,26 @@
             android:summary="@string/transfer_default_state"
             android:title="@string/uploading"
             app:backgroundColor="@color/pref_background_color"
-            app:backgroundRadius="8dp"
             app:iconSpaceReserved="false"
             app:isPreferenceVisible="true"
             app:radiusPosition="bottom" />
     </com.seafile.seadroid2.widget.prefs.CardPreferenceCategory>
+
     <com.seafile.seadroid2.widget.prefs.CardPreferenceCategory
         android:title="@string/settings_storage_title"
         app:allowDividerAbove="false"
         app:allowDividerBelow="false"
         app:iconSpaceReserved="false">
+
         <com.seafile.seadroid2.widget.prefs.TextTitleSummaryPreference
             android:key="@string/pref_key_cache_info"
             android:title="@string/settings_cache_title"
             app:backgroundColor="@color/pref_background_color"
-            app:backgroundRadius="8dp"
             app:dividerColor="@color/pref_divider_color"
             app:dividerPosition="bottom"
             app:iconSpaceReserved="false"
             app:radiusPosition="top" />
+
         <com.seafile.seadroid2.widget.prefs.TextTitleSummaryPreference
             android:key="@string/pref_key_cache_location"
             android:title="@string/settings_cache_location_title"
@@ -308,11 +294,11 @@
             app:dividerPosition="bottom"
             app:iconSpaceReserved="false"
             app:radiusPosition="none" />
+
         <com.seafile.seadroid2.widget.prefs.TextTitleSummaryPreference
             android:key="@string/pref_key_cache_clear"
             android:title="@string/settings_clear_cache_title"
             app:backgroundColor="@color/pref_background_color"
-            app:backgroundRadius="8dp"
             app:iconSpaceReserved="false"
             app:radiusPosition="bottom" />
     </com.seafile.seadroid2.widget.prefs.CardPreferenceCategory>
@@ -328,7 +314,6 @@
             android:summary="@string/clear_password_hint"
             android:title="@string/clear_password_title"
             app:backgroundColor="@color/pref_background_color"
-            app:backgroundRadius="8dp"
             app:iconSpaceReserved="false"
             app:radiusPosition="all" />
 
@@ -353,7 +338,6 @@
             android:key="@string/pref_key_about_privacy"
             android:title="@string/settings_about_privacy_policy"
             app:backgroundColor="@color/pref_background_color"
-            app:backgroundRadius="8dp"
             app:dividerColor="@color/pref_divider_color"
             app:dividerPosition="bottom"
             app:iconSpaceReserved="false"
@@ -372,7 +356,6 @@
             android:key="@string/pref_key_about_author"
             android:title="@string/settings_about_author_title"
             app:backgroundColor="@color/pref_background_color"
-            app:backgroundRadius="8dp"
             app:dividerColor="@color/pref_divider_color"
             app:dividerPosition="bottom"
             app:iconSpaceReserved="false"
@@ -382,7 +365,6 @@
             android:key="@string/pref_key_export_log_files"
             android:title="@string/settings_export_run_logs"
             app:backgroundColor="@color/pref_background_color"
-            app:backgroundRadius="8dp"
             app:dividerPosition="none"
             app:iconSpaceReserved="false"
             app:radiusPosition="bottom" />
@@ -397,7 +379,6 @@
             android:summary="@string/settings_account_sign_out_hint"
             android:title="@string/settings_account_sign_out_title"
             app:backgroundColor="@color/pref_background_color"
-            app:backgroundRadius="8dp"
             app:iconSpaceReserved="false"
             app:radiusPosition="all"
             app:titleTextColor="@color/fancy_orange" />

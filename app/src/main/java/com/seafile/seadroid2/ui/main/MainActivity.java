@@ -1,12 +1,15 @@
 package com.seafile.seadroid2.ui.main;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.text.TextUtils;
@@ -27,6 +30,7 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.bus.BusAction;
 import com.seafile.seadroid2.bus.BusHelper;
 import com.seafile.seadroid2.context.GlobalNavContext;
 import com.seafile.seadroid2.context.NavContext;
@@ -34,21 +38,23 @@ import com.seafile.seadroid2.databinding.ActivityMainBinding;
 import com.seafile.seadroid2.enums.NightMode;
 import com.seafile.seadroid2.framework.file_monitor.FileSyncService;
 import com.seafile.seadroid2.framework.model.ServerInfo;
+import com.seafile.seadroid2.framework.service.BackupThreadExecutor;
 import com.seafile.seadroid2.framework.util.PermissionUtil;
 import com.seafile.seadroid2.framework.util.SLogs;
-import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.ui.account.AccountsActivity;
 import com.seafile.seadroid2.ui.activities.AllActivitiesFragment;
 import com.seafile.seadroid2.ui.adapter.ViewPager2Adapter;
 import com.seafile.seadroid2.ui.base.BaseActivity;
+import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
 import com.seafile.seadroid2.ui.repo.RepoQuickFragment;
 
+import java.io.File;
 import java.util.List;
 import java.util.Optional;
 
 public class MainActivity extends BaseActivity {
-    private final String TAG = "MainActivity";
+    private static final String TAG = "MainActivity";
     public static final int INDEX_LIBRARY_TAB = 0;
 
     private ActivityMainBinding binding;
@@ -111,7 +117,7 @@ public class MainActivity extends BaseActivity {
 
         restoreNavContext();
 
-        registerNetworkChange();
+        registerComponent();
 
         requestServerInfo(true);
     }
@@ -123,7 +129,8 @@ public class MainActivity extends BaseActivity {
         refreshActionbar();
     }
 
-    private void registerNetworkChange() {
+    private void registerComponent() {
+        //register network status changed
         NetworkUtils.registerNetworkStatusChangedListener(onNetworkStatusChangedListener);
     }
 
@@ -225,8 +232,17 @@ public class MainActivity extends BaseActivity {
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+
+        startWatching();
+    }
+
+    @Override
     protected void onDestroy() {
         NetworkUtils.unregisterNetworkStatusChangedListener(onNetworkStatusChangedListener);
+
+        stopWatching();
 
         //
         BusHelper.getCommonObserver().removeObserver(busObserver);
@@ -236,8 +252,6 @@ public class MainActivity extends BaseActivity {
             isBound = false;
             syncService = null;
         }
-
-        BackgroundJobManagerImpl.getInstance().cancelAllJobs();
 
         super.onDestroy();
     }
@@ -422,6 +436,7 @@ public class MainActivity extends BaseActivity {
         public void onServiceConnected(ComponentName name, IBinder service) {
             FileSyncService.FileSyncBinder binder = (FileSyncService.FileSyncBinder) service;
             syncService = binder.getService();
+            syncService.setFileChangeListener(onLocalFileChangeListener);
             SLogs.d(TAG, "bond FileSyncService");
         }
 
@@ -430,6 +445,26 @@ public class MainActivity extends BaseActivity {
             syncService = null;
             isBound = false;
             SLogs.d(TAG, "FileSyncService disconnected");
+        }
+    };
+
+    private final FileSyncService.FileChangeListener onLocalFileChangeListener = new FileSyncService.FileChangeListener() {
+        @Override
+        public void onLocalFileChanged(File fileToScan) {
+            SLogs.d(TAG, "onLocalFileChanged", fileToScan.getAbsolutePath());
+            BackupThreadExecutor.getInstance().runLocalFileUpdateTask();
+        }
+
+        @Override
+        public void onBackupFileChanged(File fileToScan) {
+            SLogs.d(TAG, "onBackupFileChanged", fileToScan.getAbsolutePath());
+            BackupThreadExecutor.getInstance().runFolderBackupFuture(true);
+        }
+
+        @Override
+        public void onMediaContentObserver(boolean isFullScan) {
+            SLogs.d(TAG, "onMediaContentObserver", "isFullScan: " + isFullScan);
+            CameraUploadManager.getInstance().performSync(isFullScan);
         }
     };
 
@@ -536,7 +571,6 @@ public class MainActivity extends BaseActivity {
         }
     }
 
-
     private int lastNightMode;
     private int lastOrientation;
 
@@ -614,12 +648,64 @@ public class MainActivity extends BaseActivity {
                 return;
             }
 
-            if (TextUtils.equals(action, "RESTART_FILE_MONITOR")) {
+            if (TextUtils.equals(action, BusAction.RESTART_FILE_MONITOR)) {
                 if (syncService != null) {
                     syncService.restartFolderMonitor();
                 }
             }
-
         }
     };
+
+
+    /**
+     * Start observing mount/unmount events
+     */
+    public void startWatching() {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Intent.ACTION_MEDIA_MOUNTED);
+        filter.addAction(Intent.ACTION_MEDIA_REMOVED);
+        filter.addAction(Intent.ACTION_MEDIA_UNMOUNTED);
+        filter.addDataScheme("file");
+        registerReceiver(storageReceiver, filter);
+    }
+
+    private final BroadcastReceiver storageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (action == null) {
+                return;
+            }
+
+            Uri data = intent.getData();
+            if (data == null) {
+                return;
+            }
+
+            String path = data.getPath();
+
+            if (Intent.ACTION_MEDIA_MOUNTED.equals(action)) {
+                SLogs.d("Storage", "mounted: " + path);//mounted: /storage/67DA-5855
+                notifyMountChanged(action, path);
+            } else if (Intent.ACTION_MEDIA_UNMOUNTED.equals(action)) {
+                SLogs.d("Storage", "unmounted: " + path);//unmounted: /storage/67DA-5855
+                notifyMountChanged(action, path);
+            } else if (Intent.ACTION_MEDIA_REMOVED.equals(action)) {
+                SLogs.d("Storage", "removed: " + path);//removed: /storage/67DA-5855
+                notifyMountChanged(action, path);
+            }
+        }
+    };
+
+    private void notifyMountChanged(String action, String path) {
+        BusHelper.getCommonObserver().post(action + "-" + path);
+    }
+
+    /**
+     * Stop observing
+     */
+    public void stopWatching() {
+        unregisterReceiver(storageReceiver);
+    }
+
 }

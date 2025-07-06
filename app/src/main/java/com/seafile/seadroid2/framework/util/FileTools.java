@@ -1,16 +1,22 @@
 package com.seafile.seadroid2.framework.util;
 
 import android.content.Context;
+import android.os.Build;
+import android.os.Environment;
 import android.os.storage.StorageManager;
+import android.os.storage.StorageVolume;
 import android.text.TextUtils;
 
+import androidx.core.os.EnvironmentCompat;
+
 import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
+import com.seafile.seadroid2.framework.model.StorageInfo;
 import com.seafile.seadroid2.ui.selector.folder_selector.StringTools;
 
 import java.io.File;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 
 public class FileTools {
@@ -35,10 +41,6 @@ public class FileTools {
             File newFile = new File(file.getParent() + File.separator + newName);
             return !newFile.exists() && file.renameTo(newFile);
         }
-    }
-
-    public static int[] getChildrenNumber(String path) {
-        return getChildrenNumber(getFileByPath(path));
     }
 
     public static int[] getChildrenNumber(File file) {
@@ -94,23 +96,6 @@ public class FileTools {
         }
     }
 
-    public static String getParentPath(File file) {
-        return file == null ? "" : getParentPath(file.getAbsolutePath());
-    }
-
-    public static String getParentPath(String filePath) {
-        if (TextUtils.isEmpty(filePath)) {
-            return "";
-        } else {
-            if (filePath.endsWith(File.separator)) {
-                filePath = StringUtils.trimEnd(filePath, File.separator);
-            }
-
-            int lastSep = filePath.lastIndexOf(File.separator);
-            return lastSep == -1 ? "" : filePath.substring(0, lastSep);
-        }
-    }
-
     public static String getFileName(String filePath) {
         if (TextUtils.isEmpty(filePath)) {
             return "";
@@ -144,25 +129,13 @@ public class FileTools {
         }
     }
 
-    public static long getFileLastModified(String filePath) {
-        return getFileLastModified(getFileByPath(filePath));
-    }
 
     public static long getFileLastModified(File file) {
         return file == null ? -1L : file.lastModified();
     }
 
-    public static Long getSimpleSize(String filePath) {
-        return getSimpleSize(getFileByPath(filePath));
-    }
-
     public static Long getSimpleSize(File file) {
-
         return StringTools.getOnlyNumber(getSize(file));
-    }
-
-    public static String getSize(String filePath) {
-        return getSize(getFileByPath(filePath));
     }
 
     public static String getSize(File file) {
@@ -224,23 +197,48 @@ public class FileTools {
         }
     }
 
-    public static List<String> getAllPaths(Context context) {
-        Method mMethodGetPaths = null;
-        String[] paths = null;
-        StorageManager mStorageManager = (StorageManager) context.getSystemService(context.STORAGE_SERVICE);//storage
-        try {
-            mMethodGetPaths = mStorageManager.getClass().getMethod("getVolumePaths");
-            paths = (String[]) mMethodGetPaths.invoke(mStorageManager);
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+    public static List<StorageInfo> getAllStorageInfos(Context context) {
+        List<StorageInfo> result = new ArrayList<>();
+        StorageManager sm = (StorageManager) context.getSystemService(Context.STORAGE_SERVICE);
+        HashSet<String> pathSet = new HashSet<>();
+
+        List<StorageVolume> volumes = sm.getStorageVolumes();
+        for (StorageVolume volume : volumes) {
+            try {
+                File dir;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    dir = volume.getDirectory();
+                } else {
+                    // Before API 30 way to get a volume path
+                    Method getPathMethod = StorageVolume.class.getDeclaredMethod("getPathFile");
+                    dir = (File) getPathMethod.invoke(volume);
+                }
+
+                String state = volume.getState();
+                boolean isAvailable = dir != null && dir.exists() &&
+                        (Environment.MEDIA_MOUNTED.equals(state) || Environment.MEDIA_MOUNTED_READ_ONLY.equals(state));
+
+                String path = dir == null ? null : dir.getAbsolutePath();
+                boolean isRemovable = volume.isRemovable();
+                boolean isPrimary = volume.isPrimary();
+                String label = volume.getDescription(context);
+
+                if (pathSet.add(path)) {
+                    StorageInfo storageInfo = new StorageInfo();
+                    storageInfo.setPath(path);
+                    storageInfo.setLabel(label);
+                    storageInfo.setRemovable(isRemovable);
+                    storageInfo.setPrimary(isPrimary);
+                    storageInfo.setAvailable(isAvailable);
+                    result.add(storageInfo);
+                }
+            } catch (Exception e) {
+                // Will fallback to volumePath
+            }
         }
 
-
-        if (paths != null) {
-            return Arrays.asList(paths);
-        }
-        return new ArrayList<String>();
+        return result;
     }
+
 
 }

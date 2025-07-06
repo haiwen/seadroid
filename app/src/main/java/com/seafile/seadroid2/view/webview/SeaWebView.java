@@ -15,6 +15,7 @@ import com.github.lzyzsd.jsbridge.BridgeHandler;
 import com.github.lzyzsd.jsbridge.CallBackFunction;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.config.WebViewActionConstant;
 import com.seafile.seadroid2.framework.model.WebRouteModel;
 import com.seafile.seadroid2.framework.util.SLogs;
@@ -30,7 +31,7 @@ import java.util.Locale;
 public class SeaWebView extends NestedWebView {
     public static final String PATH_ACCOUNT_LOGIN = "accounts/login/";
     public static String URL_LOGIN = null;
-
+    private final String JS_FUNCTION_NAME = "callJsFunction";
     private final SeaWebViewClient mWebViewClient = new SeaWebViewClient(this);
 
     public SeaWebView(@NonNull Context context) {
@@ -81,6 +82,16 @@ public class SeaWebView extends NestedWebView {
         webSettings.setDisplayZoomControls(false);
         webSettings.setMixedContentMode(WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE);
         webSettings.setDefaultTextEncodingName("UTF-8");
+
+        //ua
+        String ua = webSettings.getUserAgentString();
+        if (TextUtils.isEmpty(ua)) {
+            ua = Constants.UA.SEAFILE_ANDROID_UA;
+        } else {
+            ua += " " + Constants.UA.SEAFILE_ANDROID_UA;
+        }
+        webSettings.setUserAgentString(ua);
+        SLogs.d("seafile webview ua: " + ua);
 
         CookieManager cookieManager = CookieManager.getInstance();
         cookieManager.setAcceptThirdPartyCookies(this, true);
@@ -160,11 +171,11 @@ public class SeaWebView extends NestedWebView {
         model.data = data;
         model.v = 2;
         String g = GsonUtils.toJson(model);
-        SLogs.d("callJsFunction param => " + g);
-        callHandler("callJsFunction", g, new CallBackFunction() {
+        SLogs.d(JS_FUNCTION_NAME, " param => ", g);
+        callHandler(JS_FUNCTION_NAME, g, new CallBackFunction() {
             @Override
             public void onCallBack(String data) {
-                SLogs.d("callJsFunction callback data => " + data);
+                SLogs.d(JS_FUNCTION_NAME, " callback data => ", data);
                 if (callback != null) {
                     callback.onCallBack(data);
                 }

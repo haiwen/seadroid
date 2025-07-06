@@ -16,12 +16,10 @@ import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.enums.FeatureDataSource;
-import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.framework.notification.FileUploadNotificationHelper;
 import com.seafile.seadroid2.framework.notification.base.BaseTransferNotificationHelper;
 import com.seafile.seadroid2.framework.util.ExceptionUtils;
 import com.seafile.seadroid2.framework.util.SLogs;
-import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
@@ -32,15 +30,11 @@ import java.util.UUID;
 
 /**
  * Manually select file upload
- * <p>
- * Worker Tag:
- *
- * @see BackgroundJobManagerImpl#TAG_ALL
- * @see BackgroundJobManagerImpl#TAG_TRANSFER
  */
+@Deprecated
 public class FileUploadWorker extends BaseUploadWorker {
-    private final String TAG = "FileUploadWorker";
-    public static final UUID UID = UUID.nameUUIDFromBytes(FileUploadWorker.class.getSimpleName().getBytes());
+    private static final String TAG = "FileUploadWorker";
+    public static final UUID UID = UUID.nameUUIDFromBytes(TAG.getBytes());
 
     private final FileUploadNotificationHelper notificationManager;
 
@@ -48,6 +42,11 @@ public class FileUploadWorker extends BaseUploadWorker {
         super(context, workerParams);
 
         notificationManager = new FileUploadNotificationHelper(context);
+    }
+
+    @Override
+    public FeatureDataSource getFeatureDataSource() {
+        return FeatureDataSource.MANUAL_FILE_UPLOAD;
     }
 
     @Override
@@ -148,13 +147,13 @@ public class FileUploadWorker extends BaseUploadWorker {
         Bundle b = new Bundle();
         b.putString(TransferWorker.KEY_DATA_RESULT, interruptibleExceptionMsg);
         b.putInt(TransferWorker.KEY_TRANSFER_COUNT, totalPendingCount);
-        sendWorkerEvent(FeatureDataSource.MANUAL_FILE_UPLOAD, TransferEvent.EVENT_TRANSFER_TASK_COMPLETE, b);
+//        send(FeatureDataSource.MANUAL_FILE_UPLOAD, TransferEvent.EVENT_TRANSFER_TASK_COMPLETE, b);
         return Result.success();
     }
 
 
     protected Result returnSuccess() {
-        sendWorkerEvent(FeatureDataSource.MANUAL_FILE_UPLOAD, TransferEvent.EVENT_TRANSFER_TASK_COMPLETE);
+        send(FeatureDataSource.MANUAL_FILE_UPLOAD, TransferEvent.EVENT_TRANSFER_TASK_COMPLETE);
         return Result.success();
     }
 }

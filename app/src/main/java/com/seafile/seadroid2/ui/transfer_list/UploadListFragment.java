@@ -57,7 +57,7 @@ public class UploadListFragment extends TransferListFragment {
         String result = map.getString(TransferWorker.KEY_DATA_RESULT);
         String transferId = map.getString(TransferWorker.KEY_TRANSFER_ID);
         int transferCount = map.getInt(TransferWorker.KEY_TRANSFER_COUNT);
-        SLogs.d(TAG, "on event: " + statusEvent + ", dataSource: " + dataSource + ", count: " + transferCount);
+        SLogs.d(TAG, "on event: " + statusEvent + ", dataSource: " + dataSource);
 
         if (!TextUtils.equals(FeatureDataSource.ALBUM_BACKUP.name(), dataSource) &&
                 !TextUtils.equals(FeatureDataSource.FOLDER_BACKUP.name(), dataSource) &&
@@ -87,6 +87,8 @@ public class UploadListFragment extends TransferListFragment {
 
             notifyProgressById(transferModel, statusEvent);
         } else if (TextUtils.equals(statusEvent, TransferEvent.EVENT_TRANSFER_TASK_COMPLETE)) {
+            loadData();
+        } else if (TextUtils.equals(statusEvent, TransferEvent.EVENT_TRANSFER_TASK_CANCELLED)) {
             loadData();
         }
 

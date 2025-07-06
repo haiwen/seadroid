@@ -562,10 +562,6 @@ E-mail : support@seafile.com<br>
   <string name="settings_folder_backup_service_started">Le service de sauvegarde est démarré</string>
   <string name="settings_folder_backup_service_stopped">Le service de sauvegarde est arrêté</string>
   <string name="settings_select_backup_folder_title">Sélectionner un dossier</string>
-  <string name="settings_sync_hidden_files_switch">Sauvagarder les fichiers cachés</string>
-  <string name="settings_sync_hidden_files_disabled">Les fichiers cachés ne sont pas sauvegardés</string>
-  <string name="settings_sync_hidden_files_enabled">Les fichiers cachés sont sauvegardés</string>
-  <string name="settings_sync_hidden_title">Sauvegarde des fichiers cachés</string>
   <string name="folder_file_item_size">Taille %s</string>
   <string name="folder_file_item_describe">fichier\%s\ | dossier\%s\</string>
   <string name="internal_storage">Stockage interne</string>

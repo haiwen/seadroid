@@ -29,7 +29,7 @@ public class EditorViewModel extends BaseViewModel {
 
                 String content = FileIOUtils.readFile2String(path);
                 if (content == null) {
-                    emitter.onError(SeafException.UNKNOWN_EXCEPTION);
+                    emitter.onError(SeafException.READ_FILE_EXCEPTION);
                 } else {
                     emitter.onSuccess(content);
                 }

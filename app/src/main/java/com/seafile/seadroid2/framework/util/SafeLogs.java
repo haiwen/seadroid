@@ -14,6 +14,16 @@ public class SafeLogs {
         }
     }
 
+
+    public static void e(Exception e) {
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            safeE(e);
+        } else {
+            mainHandler.post(() -> safeE(e));
+        }
+    }
+
+
     public static void e(String... logs) {
         if (Looper.myLooper() == Looper.getMainLooper()) {
             safeE(logs);
@@ -40,6 +50,13 @@ public class SafeLogs {
     private static void safeE(String... logs) {
         try {
             SLogs.e(logs);
+        } catch (Throwable ignored) {
+        }
+    }
+
+    private static void safeE(Exception e) {
+        try {
+            SLogs.e(e);
         } catch (Throwable ignored) {
         }
     }

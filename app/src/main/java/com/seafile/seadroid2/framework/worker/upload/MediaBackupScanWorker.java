@@ -12,6 +12,7 @@ import androidx.work.ForegroundInfo;
 import androidx.work.WorkerParameters;
 
 import com.blankj.utilcode.util.CollectionUtils;
+import com.blankj.utilcode.util.NetworkUtils;
 import com.blankj.utilcode.util.TimeUtils;
 import com.google.common.base.Joiner;
 import com.google.common.base.Stopwatch;
@@ -32,8 +33,10 @@ import com.seafile.seadroid2.framework.db.entities.FileBackupStatusEntity;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.model.repo.DirentWrapperModel;
 import com.seafile.seadroid2.framework.notification.AlbumBackupScanNotificationHelper;
+import com.seafile.seadroid2.framework.service.scan.AlbumScanHelper;
 import com.seafile.seadroid2.framework.util.HttpUtils;
 import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.util.SafeLogs;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
@@ -68,27 +71,17 @@ import retrofit2.Call;
  * @see BackgroundJobManagerImpl#TAG_TRANSFER
  */
 public class MediaBackupScanWorker extends BaseScanWorker {
-    private final String TAG = "MediaBackupScanWorker";
-    public static final UUID UID = UUID.nameUUIDFromBytes(MediaBackupScanWorker.class.getSimpleName().getBytes());
+    public static final String TAG = "MediaBackupScanWorker";
+    public static final UUID UID = UUID.nameUUIDFromBytes(TAG.getBytes());
 
     private final AlbumBackupScanNotificationHelper notificationManager;
 
     public static final String BASE_DIR = "My Photos";
 
-    private RepoConfig repoConfig;
-    private Account account;
-
-    /**
-     * key: bucketName
-     */
-    private List<String> bucketIdList;
-
     public MediaBackupScanWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
 
         notificationManager = new AlbumBackupScanNotificationHelper(context);
-
-        account = SupportAccountManager.getInstance().getCurrentAccount();
     }
 
 
@@ -115,427 +108,85 @@ public class MediaBackupScanWorker extends BaseScanWorker {
         return FeatureDataSource.ALBUM_BACKUP;
     }
 
+    protected Result returnSuccess() {
+        send(FeatureDataSource.ALBUM_BACKUP, TransferEvent.EVENT_SCAN_COMPLETE);
+        return Result.success();
+    }
+
     @NonNull
     @Override
     public Result doWork() {
         SLogs.d(TAG, "doWork()", "started execution");
-        account = SupportAccountManager.getInstance().getCurrentAccount();
+
+        Account account = SupportAccountManager.getInstance().getCurrentAccount();
         if (account == null) {
-            return returnSuccess();
+            return Result.success();
         }
 
         boolean isEnable = AlbumBackupSharePreferenceHelper.readBackupSwitch();
         if (!isEnable) {
-            SLogs.d(TAG, "doWork()", "the album scan task was not started, because the switch is off");
-            return returnSuccess();
+            SafeLogs.d(TAG, "doWork()", "the album scan task was not started, because the switch is off");
+            return Result.success();
         }
 
         Account backupAccount = CameraUploadManager.getInstance().getCameraAccount();
         if (backupAccount == null) {
-            SLogs.d(TAG, "doWork()", "the album scan task was not started, because the backup account is null");
-            return returnSuccess();
+            SafeLogs.d(TAG, "doWork()", "the album scan task was not started, because the backup account is null");
+            return Result.success();
         }
 
-        repoConfig = AlbumBackupSharePreferenceHelper.readRepoConfig();
+        RepoConfig repoConfig = AlbumBackupSharePreferenceHelper.readRepoConfig();
         if (repoConfig == null || TextUtils.isEmpty(repoConfig.getRepoId())) {
-            SLogs.d(TAG, "doWork()", "the album scan task was not started, because the repoConfig is null");
-            return returnSuccess();
+            SafeLogs.d(TAG, "doWork()", "the album scan task was not started, because the repoConfig is null");
+            return Result.success();
         }
+
+        if (!NetworkUtils.isConnected()) {
+            SafeLogs.d(TAG, "network is not connected");
+            return Result.success();
+        }
+
+        boolean isAllowDataPlan = AlbumBackupSharePreferenceHelper.readAllowDataPlanSwitch();
+        if (!isAllowDataPlan) {
+            if (NetworkUtils.isMobileData()) {
+                SafeLogs.e(TAG, "data plan is not allowed", "current network type: ", NetworkUtils.getNetworkType().name());
+                return Result.success();
+            }
+
+            SafeLogs.d(TAG, "data plan is not allowed", "current network type: ", NetworkUtils.getNetworkType().name());
+        } else {
+            SafeLogs.d(TAG, "data plan is allowed", "current network type: ", NetworkUtils.getNetworkType().name());
+        }
+
+        showNotification();
 
         boolean isForce = getInputData().getBoolean(TransferWorker.DATA_FORCE_TRANSFER_KEY, false);
         if (isForce) {
             AlbumBackupSharePreferenceHelper.resetLastScanTime();
         }
 
-        // check
-        bucketIdList = AlbumBackupSharePreferenceHelper.readBucketIds();
+        // force scan all files
+        long lastScanTime = AlbumBackupSharePreferenceHelper.readLastScanTimeMills();
 
-        showNotification();
-
-        try {
-            SLogs.d(TAG, "doWork()", "start scan");
-            sendWorkerEvent(FeatureDataSource.ALBUM_BACKUP, TransferEvent.EVENT_SCANNING);
-
-            loadMedia();
-
-        } catch (SeafException | IOException e) {
-            SLogs.d("MediaBackupScannerWorker has occurred error", e);
-        } finally {
-            AlbumBackupSharePreferenceHelper.writeLastScanTime(System.currentTimeMillis());
+        SeafException seafException = AlbumScanHelper.loadMedia(getApplicationContext(), account, repoConfig, lastScanTime);
+        if (seafException != SeafException.SUCCESS) {
+            SafeLogs.d(TAG, "doWork()", "loadMedia() failed：" + seafException.getMessage());
+            send(FeatureDataSource.ALBUM_BACKUP, TransferEvent.EVENT_SCAN_COMPLETE);
+            return returnSuccess();
         }
 
         //
         int totalPendingCount = GlobalTransferCacheList.ALBUM_BACKUP_QUEUE.getPendingCount();
         String content = null;
         if (totalPendingCount > 0) {
-            boolean isAllowUpload = checkNetworkTypeIfAllowStartUploadWorker();
+            boolean isAllowUpload = AlbumScanHelper.checkNetworkTypeIfAllowStartUploadWorker();
             if (!isAllowUpload) {
                 content = TransferResult.WAITING.name();
             }
         }
 
         //
-        sendFinishScanEvent(content, totalPendingCount);
+        sendCompleteEvent(FeatureDataSource.ALBUM_BACKUP, content, totalPendingCount);
         return Result.success();
     }
-
-
-    private void loadMedia() throws SeafException, IOException {
-        if (CollectionUtils.isEmpty(bucketIdList)) {
-            List<GalleryBucketUtils.Bucket> allBuckets = GalleryBucketUtils.getMediaBuckets(SeadroidApplication.getAppContext());
-            if (allBuckets == null) {
-                SLogs.d(TAG, "doWork()", "no media in local storage, may be has no permission");
-                return;
-            }
-
-            for (GalleryBucketUtils.Bucket bucket : allBuckets) {
-                //if user choose to back up the default album, only the "Camera" folder on phone will be read
-                if (bucket.isCameraBucket) {
-                    bucketIdList.add(bucket.bucketId);
-                }
-            }
-        }
-
-        Stopwatch stopwatch = Stopwatch.createStarted();
-
-        long lastScanTime = AlbumBackupSharePreferenceHelper.readLastScanTimeMills();
-        loadImages(lastScanTime);
-
-        if (AlbumBackupSharePreferenceHelper.readAllowVideoSwitch()) {
-            loadVideos(lastScanTime);
-        }
-
-        stopwatch.stop();
-        long diff = stopwatch.elapsed(TimeUnit.MILLISECONDS);
-        SLogs.d(TAG, "doWork()", "album backup scan time：" + stopwatch);
-        long now = System.currentTimeMillis();
-        AlbumBackupSharePreferenceHelper.writeLastScanTime(now - diff);
-
-        // create directories for media buckets
-        createDirectories();
-    }
-
-    /**
-     * If lastScanTimeLong is not 0, the time range from the previous 5 minutes of lastScanTimeLong to the now( >= ?)
-     *
-     * @param lastScanTimeLong mills
-     */
-    private void loadImages(long lastScanTimeLong) {
-        if (isStopped())
-            return;
-
-        if (bucketIdList.isEmpty()) {
-            SLogs.d(TAG, "loadImages()", "no media in local storage");
-            return;
-        }
-
-        String[] selectionArgs = bucketIdList.toArray(new String[]{});
-        String selection = MediaStore.Images.ImageColumns.BUCKET_ID + " IN " + varArgs(bucketIdList.size());
-
-        //incremental queries
-        if (lastScanTimeLong > 0) {
-            //query
-            selection += " and " + MediaStore.Images.Media.DATE_ADDED + " >= ? "; // If it's >=, might get some duplicate data
-            selectionArgs = Arrays.copyOf(selectionArgs, selectionArgs.length + 1);
-            selectionArgs[selectionArgs.length - 1] = String.valueOf(lastScanTimeLong / 1000);
-        }
-
-        Cursor cursor = getApplicationContext().getContentResolver().query(
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                null,
-                selection,
-                selectionArgs,
-                MediaStore.Images.ImageColumns.DATE_ADDED + " DESC"
-        );
-
-        try {
-            if (cursor == null) {
-                return;
-            }
-
-            SLogs.d(TAG, "loadImages()", "images query count : " + cursor.getCount());
-            if (cursor.getCount() == 0) {
-                return;
-            }
-
-            //iterate
-            iterateCursor(cursor);
-        } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
-        }
-    }
-
-    private void loadVideos(long lastScanTimeLong) {
-        if (isStopped())
-            return;
-
-        if (bucketIdList.isEmpty()) {
-            SLogs.d(TAG, "loadVideos()", "no media in local storage");
-            return;
-        }
-
-        String[] selectionArgs = bucketIdList.toArray(new String[]{});
-        String selection = MediaStore.Video.VideoColumns.BUCKET_ID + " IN " + varArgs(bucketIdList.size());
-
-        if (lastScanTimeLong > 0) {
-            //query
-            selection += " and " + MediaStore.Images.Media.DATE_ADDED + " >= ? "; // If it's >=, might get some duplicate data
-            selectionArgs = Arrays.copyOf(selectionArgs, selectionArgs.length + 1);
-            selectionArgs[selectionArgs.length - 1] = String.valueOf(lastScanTimeLong / 1000);
-        }
-
-        Cursor cursor = getApplicationContext().getContentResolver().query(
-                MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
-                null,
-                selection,
-                selectionArgs,
-                MediaStore.Video.VideoColumns.DATE_ADDED + " DESC"
-        );
-
-        try {
-            if (cursor == null) {
-                return;
-            }
-            SLogs.d(TAG, "loadVideos()", "video query count : " + cursor.getCount());
-            if (cursor.getCount() == 0) {
-                return;
-            }
-
-            //
-            iterateCursor(cursor);
-        } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
-        }
-
-    }
-
-    private String varArgs(int count) {
-        String[] chars = new String[count];
-        Arrays.fill(chars, "?");
-        return "( " + Joiner.on(", ").join(chars) + " )";
-    }
-
-    /**
-     * Iterate through the content provider and upload all files
-     *
-     * @param cursor
-     */
-    private void iterateCursor(Cursor cursor) {
-        String localCacheAbsPath = StorageManager.getInstance().getMediaDir().getAbsolutePath();
-
-        // load them one by one
-        while (!isStopped() && cursor.moveToNext()) {
-
-            int bucketColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME);
-            String bucketName = cursor.getString(bucketColumn);
-
-            int dateAddIndex = cursor.getColumnIndex(MediaStore.Images.Media.DATE_ADDED);
-            long dateAdded = cursor.getLong(dateAddIndex);
-            String dateAddedString = TimeUtils.millis2String(dateAdded * 1000, "yyyy-MM-dd HH:mm:ss");
-
-            int dataIndex = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
-            String localPath = cursor.getString(dataIndex);
-            if (TextUtils.isEmpty(localPath)) {
-                SLogs.d(TAG, "iterateCursor()", "skip file -> [localPath is null] dataIndex: " + dataIndex + ", because it doesn't exist");
-                continue;
-            }
-
-//            String p = Utils.getRealPathFromURI(SeadroidApplication.getAppContext(), videoUri, media);
-
-            File file = new File(localPath);
-            if (!file.exists()) {
-                // local file does not exist. some inconsistency in the Media Provider? Ignore and continue
-                SLogs.d(TAG, "iterateCursor()", "skip file -> [not exists] " + localPath + ", because it doesn't exist");
-                continue;
-            }
-
-            // Ignore all media by Seafile. We don't want to upload our own cached files.
-            if (file.getAbsolutePath().startsWith(localCacheAbsPath)) {
-                SLogs.d(TAG, "iterateCursor()", "skip file -> [cache file] " + localPath + ", because it's part of the Seadroid cache");
-                continue;
-            }
-
-            List<FileBackupStatusEntity> transferEntityList = AppDatabase
-                    .getInstance()
-                    .fileTransferDAO()
-                    .getListByFullPathSync(repoConfig.getRepoId(), TransferDataSource.ALBUM_BACKUP, file.getAbsolutePath());
-
-            if (!CollectionUtils.isEmpty(transferEntityList)) {
-                SLogs.d(TAG, "iterateCursor()", "skip file -> [local exists] " + localPath + ", because we have uploaded it in the past.");
-                continue;
-            }
-
-            SLogs.d(TAG, "iterateCursor()", "new file -> [wait for check] " + localPath);
-
-            //cache
-            TransferModel transferModel = TransferModel.convert(file, bucketName, 0); // 0 is just a symbol, no means
-            transferModel.related_account = account.getSignature();
-            transferModel.repo_id = repoConfig.getRepoId();
-            transferModel.repo_name = repoConfig.getRepoName();
-
-            transferModel.data_source = FeatureDataSource.ALBUM_BACKUP;
-            transferModel.save_to = SaveTo.DB;
-            transferModel.setId(transferModel.genStableId());
-            GlobalTransferCacheList.ALBUM_BACKUP_QUEUE.put(bucketName, transferModel);
-        }
-    }
-
-    /**
-     * Create all the subdirectories on the server for the buckets that are about to be uploaded.
-     */
-    private void createDirectories() throws SeafException, IOException {
-
-        Set<String> keys = GlobalTransferCacheList.ALBUM_BACKUP_QUEUE.getCategoryKeys();
-
-        // create base directory
-        createBucketDirectoryIfNecessary("/", BASE_DIR);
-
-        for (String bucketName : keys) {
-            createBucketDirectoryIfNecessary("/" + BASE_DIR, bucketName);
-        }
-    }
-
-    /**
-     * Create a directory, rename a file away if necessary,
-     *
-     * @param bucketName directory to create
-     */
-    private void createBucketDirectoryIfNecessary(String remoteParentPath, String bucketName) throws IOException, SeafException {
-        remoteParentPath = Utils.pathJoin(remoteParentPath, "/");// / -> /
-
-        DirentWrapperModel direntWrapperModel = getDirentWrapper(repoConfig.getRepoId(), remoteParentPath);
-        if (direntWrapperModel == null) {
-            SLogs.d(TAG, "createBucketDirectoryIfNecessary()", "request dirents is null");
-            return;
-        }
-
-
-        String curPath = Utils.pathJoin(remoteParentPath, bucketName);
-        boolean found = false;
-
-        //check whether the file in the parent directory contains the bucket name
-        List<DirentModel> parentDirentList = direntWrapperModel.dirent_list;
-        for (DirentModel dirent : parentDirentList) {
-            if (!TextUtils.equals(dirent.name, bucketName)) {
-                continue;
-            }
-
-            //same folder name
-            if (dirent.isDir()) {
-                found = true;
-            } else {
-                //if a file same with the bucketName, rename it
-                renameRemoteFile(dirent.name, curPath);
-            }
-
-            break;
-        }
-
-        //if not, create bucketName dir.
-        if (!found) {
-            mkdirRemote(repoConfig.getRepoId(), curPath);
-        }
-
-        //
-        checkAndInsert(remoteParentPath, bucketName);
-    }
-
-    private void checkAndInsert(String remoteParentPath, String bucketName) throws IOException {
-        String path = Utils.pathJoin(remoteParentPath, bucketName);
-
-        List<TransferModel> pendingList = null;
-        if (!TextUtils.equals("/", remoteParentPath)) {
-            pendingList = GlobalTransferCacheList.ALBUM_BACKUP_QUEUE.getCategoryTransferList(bucketName);
-        }
-
-        if (CollectionUtils.isEmpty(pendingList)) {
-            return;
-        }
-
-        DirentWrapperModel direntWrapperModel = getDirentWrapper(repoConfig.getRepoId(), path);
-        if (direntWrapperModel == null) {
-            SLogs.d(TAG, "checkAndInsert()", "request dirents is null");
-            return;
-        }
-
-        List<DirentModel> remoteList = direntWrapperModel.dirent_list;
-        if (CollectionUtils.isEmpty(remoteList)) {
-            return;
-        }
-
-        for (TransferModel transferModel : pendingList) {
-            String filename = transferModel.getFileName();
-
-            String prefix, suffix;
-            if (filename.contains(".")) {
-                prefix = filename.substring(0, filename.lastIndexOf("."));
-                suffix = filename.substring(filename.lastIndexOf("."));
-            } else {
-                prefix = filename;
-                suffix = "";
-            }
-            Pattern pattern = Pattern.compile(Pattern.quote(prefix) + "( \\(\\d+\\))?" + Pattern.quote(suffix));
-            /*
-             * It would be cool if the API2 offered a way to query the hash of a remote file.
-             * Currently, comparing the file size is the best we can do.
-             */
-            Optional<DirentModel> firstOp = remoteList.stream()
-                    .filter(f -> pattern.matcher(f.name).matches())
-                    .findFirst();
-
-            if (firstOp.isPresent()) {
-                SLogs.d(TAG, "checkAndInsert()", "skip file -> [remote exists] " + filename + ", because we have uploaded it in the past.");
-
-                GlobalTransferCacheList.ALBUM_BACKUP_QUEUE.remove(bucketName, transferModel);
-            }
-        }
-    }
-
-    private DirentWrapperModel getDirentWrapper(String repoId, String parentPath) throws IOException {
-        //get parent dirent list from remote
-        Call<DirentWrapperModel> direntWrapperModelCall = HttpIO.getCurrentInstance().execute(RepoService.class).getDirentsSync(repoId, parentPath);
-        retrofit2.Response<DirentWrapperModel> res = direntWrapperModelCall.execute();
-        if (!res.isSuccessful()) {
-            SLogs.d(TAG, "getDirentWrapper()", "request dirents failed");
-            return null;
-        }
-
-        DirentWrapperModel tempWrapper = res.body();
-        if (tempWrapper == null) {
-            SLogs.d(TAG, "getDirentWrapper()", "request dirents is null");
-            return null;
-        }
-
-        if (!TextUtils.isEmpty(tempWrapper.error_msg)) {
-            SLogs.d(TAG, "getDirentWrapper()", tempWrapper.error_msg);
-            return null;
-        }
-        return tempWrapper;
-    }
-
-
-    private void renameRemoteFile(String name, String fullPath) throws IOException {
-        // there is already a file. move it away.
-        String newFilename = getApplicationContext().getString(R.string.camera_sync_rename_file, name);
-
-        Map<String, String> renameMap = new HashMap<>();
-        renameMap.put("operation", "rename");
-        renameMap.put("newname", newFilename);
-        Map<String, RequestBody> requestBodyMap = HttpUtils.generateRequestBody(renameMap);
-
-        retrofit2.Response<String> renameRes = HttpIO.getCurrentInstance()
-                .execute(FileService.class)
-                .renameFileCall(repoConfig.getRepoId(), fullPath, requestBodyMap)
-                .execute();
-        if (renameRes.isSuccessful()) {
-            SLogs.d(TAG, "renameRemoteFile()", "Folder rename success：" + fullPath);
-        } else {
-            SLogs.d(TAG, "renameRemoteFile()", "Folder rename failed：" + fullPath);
-        }
-    }
-
 }

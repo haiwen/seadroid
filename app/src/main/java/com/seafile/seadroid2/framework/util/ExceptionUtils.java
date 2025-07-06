@@ -2,7 +2,12 @@ package com.seafile.seadroid2.framework.util;
 
 import android.text.TextUtils;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import com.google.gson.Gson;
 import com.seafile.seadroid2.SeafException;
+import com.seafile.seadroid2.framework.model.ErrorModel;
 
 import org.json.JSONObject;
 
@@ -16,14 +21,19 @@ import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLPeerUnverifiedException;
 
+import okhttp3.Headers;
 import okhttp3.ResponseBody;
 import retrofit2.HttpException;
 import retrofit2.Response;
 
 public class ExceptionUtils {
     public static SeafException parseByThrowable(Throwable throwable) {
+        return parseByThrowable(throwable, false);
+    }
+
+    public static SeafException parseByThrowable(Throwable throwable, boolean withAuthToken) {
         if (throwable == null) {
-            return SeafException.UNKNOWN_EXCEPTION;
+            return new SeafException(SeafException.CODE_FAILED, "Exception is null");
         }
 
         if (throwable instanceof SeafException) {
@@ -33,24 +43,33 @@ public class ExceptionUtils {
         if (throwable instanceof HttpException httpException) {
 
             Response<?> resp = httpException.response();
+            if (resp == null) {
+                return new SeafException(SeafException.CODE_FAILED, "response is null");
+            }
 
-            if (resp != null) {
-                String wiped = resp.headers().get("X-Seafile-Wiped");
-                if (!TextUtils.isEmpty(wiped)) {
-                    return SeafException.REMOTE_WIPED_EXCEPTION;
+            Headers headers = resp.headers();
+            String wiped = headers.get("X-Seafile-Wiped");
+            if (!TextUtils.isEmpty(wiped)) {
+                return SeafException.REMOTE_WIPED_EXCEPTION;
+            }
+
+            String otp = headers.get("X-Seafile-OTP");
+            if ("required".equals(otp)) {
+                if (withAuthToken) {
+                    return SeafException.TWO_FACTOR_AUTH_TOKEN_INVALID_EXCEPTION;
+                } else {
+                    return SeafException.TWO_FACTOR_AUTH_TOKEN_MISSING_EXCEPTION;
                 }
             }
 
-            if (resp != null) {
-                try (ResponseBody body = resp.errorBody()) {
-                    if (body == null) {
-                        return parse(httpException.code(), null);
-                    }
-                    return parse(httpException.code(), body.string());
-                } catch (IOException e) {
-                    SLogs.e(e);
-                    return parse(httpException.code(), null);
+            try (ResponseBody body = resp.errorBody()) {
+                if (body == null) {
+                    return parseHttpException(httpException.code(), null);
                 }
+                return parseHttpException(httpException.code(), body.string());
+            } catch (IOException e) {
+                SLogs.e(e);
+                return parseHttpException(httpException.code(), null);
             }
         }
 
@@ -76,63 +95,43 @@ public class ExceptionUtils {
             return SeafException.IO_EXCEPTION;
         }
 
-        return new SeafException(SeafException.CODE_ERROR, throwable.getLocalizedMessage());
+        if (throwable instanceof IOException ioException) {
+            SLogs.e(ioException);
+            return SeafException.IO_EXCEPTION;
+        }
+
+        return new SeafException(SeafException.CODE_FAILED, throwable.getLocalizedMessage());
     }
 
-    public static SeafException parse(int errorCode, String bodyString) {
+    @NonNull
+    public static SeafException parseHttpException(int errorCode, String bodyString) {
 
         SLogs.d("parse errorCode: " + errorCode + ", bodyString: " + bodyString);
 
-        String lowerBody = null;
+        String errorContent = null;
         if (!TextUtils.isEmpty(bodyString)) {
-            lowerBody = bodyString.toLowerCase();
+            Gson gson = new Gson();
+            ErrorModel errorModel = gson.fromJson(bodyString, ErrorModel.class);
+            if (errorModel != null) {
+                errorContent = errorModel.getError();
+            }
         }
 
         //400
         if (HttpURLConnection.HTTP_BAD_REQUEST == errorCode) {
-            //"Repo is encrypted. Please provide password to view it."
-            if (!TextUtils.isEmpty(lowerBody) && lowerBody.contains("please provide password to view it")) {
-                return SeafException.INVALID_PASSWORD;
-            }
-
-            if (!TextUtils.isEmpty(lowerBody) && lowerBody.contains("wrong password")) {
-                return SeafException.INVALID_PASSWORD;
-            }
-
-            if (!TextUtils.isEmpty(lowerBody) && lowerBody.contains("operation not supported")) {
-                return SeafException.REQUEST_EXCEPTION;
-            }
-
-            //{
-            //  "non_field_errors" : [ "Not allowed to connect to android client." ]
-            //}
-            return SeafException.REQUEST_EXCEPTION;
+            return parse400Body(errorContent, bodyString);
         }
 
         //401
-        if (HttpURLConnection.HTTP_UNAUTHORIZED == errorCode) {
-            //Authentication credentials were not provided
-            //Incorrect authentication credentials.
-            //Invalid token
-            //User inactive or deleted
-            //Invalid token header. No credentials provided.
-            //Invalid token header. Token string should not contain spaces
-            //Token inactive or deleted
-            //Invalid username/password
+        if (SeafException.HTTP_401_UNAUTHORIZED == errorCode) {
             return SeafException.UNAUTHORIZED_EXCEPTION;
         }
 
-        //403 forbidden
-        if (HttpURLConnection.HTTP_FORBIDDEN == errorCode) {
-            if (!TextUtils.isEmpty(lowerBody) && lowerBody.contains("password is required") || lowerBody.contains("invalid password")) {
+        //403
+        if (SeafException.HTTP_403_FORBIDDEN == errorCode) {
+            if (!TextUtils.isEmpty(errorContent) && (errorContent.toLowerCase().contains("password is required") || errorContent.toLowerCase().contains("invalid password"))) {
                 return SeafException.UNAUTHORIZED_EXCEPTION;
             }
-
-//            for (String detail : HTTP_403_FORBIDDEN_DETAIL_LIST) {
-//                if (!TextUtils.isEmpty(lowerBody) && lowerBody.contains(detail)) {
-//                    return SeafException.PERMISSION_EXCEPTION;
-//                }
-//            }
 
             return SeafException.PERMISSION_EXCEPTION;
         }
@@ -142,97 +141,99 @@ public class ExceptionUtils {
             return SeafException.NOT_FOUND_EXCEPTION;
         }
 
-        //HTTP_423_LOCKED: File is locked
-        if (423 == errorCode) {
-            return SeafException.REQUEST_EXCEPTION;
-        }
-        //HTTP_441_REPO_PASSWD_MAGIC_REQUIRED = 441
-//        if (441 == errorCode) {
-//        }
-
-        //HTTP_409_CONFLICT
-//        if (409 == errorCode) {
-//        }
-
-        //HTTP_440_REPO_PASSWD_REQUIRED = 440
-        if (440 == errorCode) {
-            return SeafException.INVALID_PASSWORD;
+        //423
+        if (SeafException.HTTP_423_LOCKED == errorCode) {
+            return new SeafException(SeafException.HTTP_423_LOCKED, "File is locked");
         }
 
-        //HTTP_443_ABOVE_QUOTA = 443
-        if (443 == errorCode) {
+        //409
+        if (SeafException.HTTP_409_CONFLICT == errorCode) {
+            return new SeafException(SeafException.HTTP_409_CONFLICT, "Repo is not encrypted");
+        }
+
+        //440
+        if (SeafException.HTTP_440_REPO_PASSWD_REQUIRED == errorCode) {
+            return new SeafException(SeafException.HTTP_440_REPO_PASSWD_REQUIRED, "Library password is needed");
+        }
+
+        //441
+        if (SeafException.HTTP_441_REPO_PASSWD_MAGIC_REQUIRED == errorCode) {
+            return new SeafException(SeafException.HTTP_441_REPO_PASSWD_MAGIC_REQUIRED, "Library password magic is needed.");
+        }
+
+        //443
+        if (SeafException.HTTP_443_OUT_OF_QUOTA == errorCode) {
             return SeafException.OUT_OF_QUOTA;
         }
 
-        //HTTP_447_TOO_MANY_FILES_IN_LIBRARY = 447
-        if (447 == errorCode) {
-            return SeafException.REQUEST_EXCEPTION;
+        //447
+        if (SeafException.HTTP_447_TOO_MANY_FILES_IN_LIBRARY == errorCode) {
+            return new SeafException(SeafException.HTTP_447_TOO_MANY_FILES_IN_LIBRARY, "Too many files in library");
         }
 
-        // 500: HTTP_INTERNAL_ERROR
-        // HTTP_520_OPERATION_FAILED = 520
+        // >= 500: HTTP_INTERNAL_ERROR
         if (errorCode >= HttpURLConnection.HTTP_INTERNAL_ERROR) {
             return SeafException.SERVER_INTERNAL_ERROR;
         }
 
-        return parseBody(errorCode, bodyString);
+        if (!TextUtils.isEmpty(errorContent)) {
+            return new SeafException(errorCode, errorContent);
+        }
+
+        return new SeafException(errorCode, bodyString);
     }
 
-    public static SeafException parseBody(int code, String bodyString) {
-        if (TextUtils.isEmpty(bodyString)) {
-            return SeafException.UNKNOWN_EXCEPTION;
+    @NonNull
+    private static SeafException parse400Body(String errorContent, String originalBodyString) {
+
+        if (!TextUtils.isEmpty(errorContent)) {
+//            for (String s : HTTP_401_UNAUTHORIZED_DETAIL_LIST) {
+//                if (errorContent.toLowerCase().contains(s)) {
+//                    return SeafException.UNAUTHORIZED_EXCEPTION;
+//                }
+//            }
+
+            return new SeafException(SeafException.HTTP_400_BAD_REQUEST, errorContent);
         }
 
-        String lowerBody = bodyString.toLowerCase();
-        //{"error": "Out of quota.\n"}
-        if (lowerBody.contains("out of quota")) {
-            return SeafException.OUT_OF_QUOTA;
+        if (TextUtils.isEmpty(originalBodyString)) {
+            return SeafException.BAD_REQUEST_EXCEPTION;
         }
 
-        if (lowerBody.contains("wrong password")) {
-            return SeafException.INVALID_PASSWORD;
-        }
+        //custom error
 
         //"Repo is encrypted. Please provide password to view it."
-        if (lowerBody.contains("please provide password to view it")) {
+        if (!TextUtils.isEmpty(errorContent) && errorContent.toLowerCase().contains("please provide password to view it")) {
             return SeafException.INVALID_PASSWORD;
         }
 
-        //{"error": "Parent dir doesn't exist."}
-        if (lowerBody.contains("parent dir doesn't exist")) {
-            return SeafException.NOT_FOUND_DIR_EXCEPTION;
+
+        if (!TextUtils.isEmpty(errorContent) && errorContent.toLowerCase().contains("wrong password")) {
+            return SeafException.INVALID_PASSWORD;
         }
 
-        // {detail: "You do not have permission to perform this action."}
-        if (lowerBody.contains("you do not have permission to perform this action")) {
-            return SeafException.PERMISSION_EXCEPTION;
+        if (!TextUtils.isEmpty(errorContent) && errorContent.toLowerCase().contains("operation not supported")) {
+            return SeafException.BAD_REQUEST_EXCEPTION;
         }
 
-        // you do not have permission
-        if (lowerBody.contains("you do not have permission")) {
-            return SeafException.PERMISSION_EXCEPTION;
-        }
-
-        JSONObject json = Utils.parseJsonObject(bodyString);
-        if (json == null) {
-            return new SeafException(code, bodyString);
-        }
-
-        if (json.has("error_msg")) {
-            return new SeafException(code, json.optString("error_msg"));
-        }
-
-        if (json.has("error")) {
-            return new SeafException(code, json.optString("error"));
-        }
-
-        if (json.has("detail")) {
-            return new SeafException(code, json.optString("detail"));
-        }
-
-        //not parsed
-        return new SeafException(code, bodyString);
+        return new SeafException(400, originalBodyString);
     }
+
+    private static final List<String> HTTP_401_UNAUTHORIZED_DETAIL_LIST = Arrays.asList(
+            "authentication credentials were not provided",
+            "incorrect authentication credentials",
+            "unable to login with provided credentials",
+            "invalid token",
+            "user inactive or deleted",
+            "invalid token header. no credentials provided.",
+            "invalid token header. token string should not contain spaces",
+            "Invalid token header. token string should not contain invalid characters",
+            "token inactive or deleted",
+            "invalid username/password",
+            "Invalid basic header. credentials not correctly base64 encoded",
+            "Invalid basic header. credentials string should not contain spaces",
+            "Invalid basic header. no credentials provided"
+    );
 
     //no org、group、email、wiki
     private static final List<String> HTTP_403_FORBIDDEN_DETAIL_LIST = Arrays.asList(

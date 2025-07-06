@@ -46,6 +46,7 @@ import retrofit2.Call;
 /**
  * Check the change status of the downloaded file
  */
+@Deprecated
 public class DownloadedFileMonitorWorker extends BaseUploadWorker {
     private final String TAG = "DownloadedFileMonitorWorker";
     private final FileUploadNotificationHelper notificationManager;
@@ -53,6 +54,11 @@ public class DownloadedFileMonitorWorker extends BaseUploadWorker {
     public DownloadedFileMonitorWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
         notificationManager = new FileUploadNotificationHelper(context);
+    }
+
+    @Override
+    public FeatureDataSource getFeatureDataSource() {
+        return FeatureDataSource.AUTO_UPDATE_LOCAL_FILE;
     }
 
     @Override
@@ -172,7 +178,7 @@ public class DownloadedFileMonitorWorker extends BaseUploadWorker {
         Bundle b = new Bundle();
         b.putString(TransferWorker.KEY_DATA_RESULT, interruptibleExceptionMsg);
         b.putInt(TransferWorker.KEY_TRANSFER_COUNT, totalPendingCount);
-        sendWorkerEvent(FeatureDataSource.AUTO_UPDATE_LOCAL_FILE, TransferEvent.EVENT_TRANSFER_TASK_COMPLETE, b);
+        send(FeatureDataSource.AUTO_UPDATE_LOCAL_FILE, TransferEvent.EVENT_TRANSFER_TASK_COMPLETE, b);
 
         return Result.success();
     }

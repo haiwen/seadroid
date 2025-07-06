@@ -23,29 +23,29 @@ import io.reactivex.Single;
 import io.reactivex.functions.Consumer;
 
 public class GetShareLinkPasswordViewModel extends BaseViewModel {
-    private MutableLiveData<DirentShareLinkModel> linkLiveData = new MutableLiveData<>();
+    private final MutableLiveData<DirentShareLinkModel> linkLiveData = new MutableLiveData<>();
 
     public MutableLiveData<DirentShareLinkModel> getLinkLiveData() {
         return linkLiveData;
     }
 
-    public void getFirstShareLink(String repoId, String path, String password, String expire_days) {
+    public void getFirstShareLink(String repoId, String path) {
         getRefreshLiveData().setValue(true);
 
         Single<List<DirentShareLinkModel>> single = HttpIO.getCurrentInstance().execute(DialogService.class).listAllShareLink(repoId, path);
         addSingleDisposable(single, new Consumer<List<DirentShareLinkModel>>() {
             @Override
-            public void accept(List<DirentShareLinkModel> models) throws Exception {
+            public void accept(List<DirentShareLinkModel> models) {
                 if (CollectionUtils.isEmpty(models)) {
-                    createShareLink(repoId, path, password, expire_days, null);
+                    createShareLink(repoId, path, null, null, null);
                 } else {
                     Optional<DirentShareLinkModel> optional = models.stream().filter(f -> !f.is_expired).findFirst();
                     if (optional.isPresent()) {
                         getLinkLiveData().setValue(optional.get());
+                        getRefreshLiveData().setValue(false);
                     } else {
-                        getLinkLiveData().setValue(null);
+                        createShareLink(repoId, path, null, null, null);
                     }
-                    getRefreshLiveData().setValue(false);
                 }
             }
         }, new Consumer<Throwable>() {
@@ -58,7 +58,7 @@ public class GetShareLinkPasswordViewModel extends BaseViewModel {
         });
     }
 
-    public void createShareLink(String repoId, String path, String password, String expire_days, DirentPermissionModel permissions) {
+    public void createShareLink(String repoId, String path, String password, Long selectedExpirationDateLong, DirentPermissionModel permissions) {
         getRefreshLiveData().setValue(true);
 
         Map<String, Object> requestDataMap = new HashMap<>();
@@ -69,11 +69,8 @@ public class GetShareLinkPasswordViewModel extends BaseViewModel {
             requestDataMap.put("password", password);
         }
 
-        if (!TextUtils.isEmpty(expire_days)) {
-            int expirationDay = Integer.parseInt(expire_days);
-            long mDay = 24L * 60 * 60 * 1000 * expirationDay;
-            long expireDay = TimeUtils.getNowMills() + mDay;
-            String expireDayStr = TimeUtils.millis2String(expireDay, DateFormatType.DATE_XXX);
+        if (selectedExpirationDateLong != null) {
+            String expireDayStr = TimeUtils.millis2String(selectedExpirationDateLong, DateFormatType.DATE_XXX);
             requestDataMap.put("expiration_time", expireDayStr);
         }
 

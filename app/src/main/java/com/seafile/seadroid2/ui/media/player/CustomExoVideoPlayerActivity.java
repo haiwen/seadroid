@@ -347,7 +347,7 @@ public class CustomExoVideoPlayerActivity extends BaseActivityWithVM<PlayerViewM
     }
 
     @Override
-    protected void onDestroy() {
+    public void onDestroy() {
         releasePlayer();
         super.onDestroy();
     }

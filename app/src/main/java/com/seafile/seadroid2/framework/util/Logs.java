@@ -1,30 +1,16 @@
 package com.seafile.seadroid2.framework.util;
 
-import com.blankj.utilcode.util.FileUtils;
 import com.blankj.utilcode.util.PathUtils;
 import com.elvishew.xlog.LogConfiguration;
 import com.elvishew.xlog.LogLevel;
 import com.elvishew.xlog.XLog;
 import com.elvishew.xlog.flattener.ClassicFlattener;
 import com.elvishew.xlog.printer.AndroidPrinter;
-import com.elvishew.xlog.printer.ConsolePrinter;
 import com.elvishew.xlog.printer.Printer;
 import com.elvishew.xlog.printer.file.FilePrinter;
 import com.elvishew.xlog.printer.file.backup.FileSizeBackupStrategy2;
 import com.elvishew.xlog.printer.file.clean.FileLastModifiedCleanStrategy;
-import com.elvishew.xlog.printer.file.naming.DateFileNameGenerator;
-import com.elvishew.xlog.printer.file.naming.FileNameGenerator;
-import com.google.common.base.Strings;
 import com.seafile.seadroid2.BuildConfig;
-import com.seafile.seadroid2.framework.datastore.StorageManager;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.TimeZone;
-
-import kotlin.text.StringsKt;
 
 /**
  * <p>
@@ -39,7 +25,7 @@ import kotlin.text.StringsKt;
  */
 public class Logs {
 
-    private static final String LOG_TAG = "Seafile-SLog";
+    private static final String LOG_TAG = "SLog";
     /**
      * will delete log files that have not been modified for a period of time
      */
@@ -59,8 +45,8 @@ public class Logs {
                 .build();
         Printer androidPrinter = new AndroidPrinter(true);
 
-        // /storage/emulated/0/Android/data/package/cache/logs/
-        String p = StorageManager.getInstance().getLogDir().getAbsolutePath();
+        String p = getLogDirPath();
+
         Printer filePrinter = new FilePrinter
                 .Builder(p)
                 .fileNameGenerator(new LogFileNameGenerator())
@@ -69,7 +55,14 @@ public class Logs {
                 .cleanStrategy(new FileLastModifiedCleanStrategy(MAX_TIME))
                 .build();
 
+
         XLog.init(config, androidPrinter, filePrinter);
+    }
+
+    // /storage/emulated/0/Android/data/package/cache/logs/
+    public static String getLogDirPath() {
+        String externalAppCachePath = PathUtils.getExternalAppCachePath();
+        return Utils.pathJoin(externalAppCachePath, "logs");
     }
 
     public static void json(String json) {
@@ -118,7 +111,6 @@ public class Logs {
         }
         d(log);
     }
-
 
 
     public static void d(String msg) {

@@ -37,21 +37,4 @@ public abstract class BaseScanWorker extends TransferWorker {
     }
 
     public abstract FeatureDataSource getDataSource();
-
-    protected Result returnSuccess() {
-        sendFinishScanEvent();
-        return Result.success();
-    }
-
-    protected void sendFinishScanEvent() {
-        sendFinishScanEvent(null, 0);
-    }
-
-    protected void sendFinishScanEvent(String content, int totalPendingCount) {
-        Bundle b = new Bundle();
-        b.putString(TransferWorker.KEY_DATA_RESULT, content);
-        b.putInt(TransferWorker.KEY_TRANSFER_COUNT, totalPendingCount);
-        sendWorkerEvent(getDataSource(), TransferEvent.EVENT_SCAN_COMPLETE, b);
-    }
-
 }

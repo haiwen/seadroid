@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 
+@Deprecated
 public class SettingsAlbumBackupAdvanced2Fragment extends RenameSharePreferenceFragmentCompat {
     private final String TAG = "SettingsAlbumBackupAdvanced2Fragment";
     private final Account currentAccount = SupportAccountManager.getInstance().getCurrentAccount();

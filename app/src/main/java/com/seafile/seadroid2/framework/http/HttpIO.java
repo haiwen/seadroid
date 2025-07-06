@@ -5,26 +5,13 @@ import android.text.TextUtils;
 import com.blankj.utilcode.util.CloneUtils;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
-import com.seafile.seadroid2.framework.http.callback.ProgressCallback;
 import com.seafile.seadroid2.framework.http.converter.ConverterFactory;
-import com.seafile.seadroid2.framework.http.download.BinaryFileDownloader;
-import com.seafile.seadroid2.framework.http.download.BinaryFileWriter;
 import com.seafile.seadroid2.framework.util.TokenManager;
-import com.seafile.seadroid2.listener.ProgressListener;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.file.Files;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import io.reactivex.BackpressureStrategy;
-import io.reactivex.Flowable;
-import io.reactivex.FlowableEmitter;
-import io.reactivex.FlowableOnSubscribe;
-import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 
@@ -32,7 +19,7 @@ public class HttpIO {
     private static volatile HttpIO INSTANCE;
 
     private final Account account;
-    private BaseOkHttpClient okHttpClient;
+    private SafeOkHttpClient safeOkHttpClient;
 
     private static final ConcurrentMap<String, HttpIO> IO_MAP = new ConcurrentHashMap<>();
 
@@ -132,11 +119,11 @@ public class HttpIO {
     /**
      * get client
      */
-    public BaseOkHttpClient getOkHttpClient() {
-        if (okHttpClient == null) {
-            okHttpClient = new SafeOkHttpClient(account);
+    public SafeOkHttpClient getSafeClient() {
+        if (safeOkHttpClient == null) {
+            safeOkHttpClient = new SafeOkHttpClient(account);
         }
-        return okHttpClient;
+        return safeOkHttpClient;
     }
 
 
@@ -168,7 +155,7 @@ public class HttpIO {
         rBuilder.addConverterFactory(ConverterFactory.create());
         rBuilder.addCallAdapterFactory(RxJava2CallAdapterFactory.create());
 
-        rBuilder.client(getOkHttpClient().getOkClient());
+        rBuilder.client(getSafeClient().getOkClient());
 
         retrofit = rBuilder.build();
         return retrofit;

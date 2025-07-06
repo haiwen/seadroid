@@ -8,6 +8,8 @@ import android.util.Log;
 import androidx.annotation.BoolRes;
 import androidx.annotation.IntegerRes;
 import androidx.annotation.StringRes;
+import androidx.work.Configuration;
+import androidx.work.WorkManager;
 
 import com.jeremyliao.liveeventbus.LiveEventBus;
 import com.seafile.seadroid2.framework.monitor.ActivityMonitor;
@@ -16,6 +18,7 @@ import com.seafile.seadroid2.framework.util.CrashHandler;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.provider.DocumentCache;
+import com.seafile.seadroid2.ui.camera_upload.AlbumBackupAdapterBridge;
 
 
 public class SeadroidApplication extends Application {
@@ -27,10 +30,8 @@ public class SeadroidApplication extends Application {
 
         context = this;
 
-        Log.e("SeadroidApplication", "onCreate()");
-
-        //init slogs
-        SLogs.init();
+        //init xlog in com.seafile.seadroid2.provider.SeafileProvider#onCreate()
+//        SLogs.init();
 
         //print current app env info
         SLogs.printAppEnvInfo();
@@ -53,6 +54,9 @@ public class SeadroidApplication extends Application {
 
         CrashHandler crashHandler = CrashHandler.getInstance();
         crashHandler.init(this);
+
+        //register album backup sync receiver
+        AlbumBackupAdapterBridge.registerSyncReceiver(getAppContext());
 
         //This feature can be extended
         registerActivityLifecycleCallbacks(new ActivityMonitor());

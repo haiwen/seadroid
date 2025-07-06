@@ -14,6 +14,7 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.Observer;
 
 import com.blankj.utilcode.util.KeyboardUtils;
+import com.blankj.utilcode.util.NetworkUtils;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.seafile.seadroid2.R;
@@ -136,6 +137,11 @@ public class BottomSheetPasswordDialogFragment extends RequestBottomSheetDialogF
 
     @Override
     protected void onPositiveClick() {
+        if (!NetworkUtils.isConnected()) {
+            Toasts.show(R.string.network_error);
+            return;
+        }
+
         if (!checkData()) {
             return;
         }

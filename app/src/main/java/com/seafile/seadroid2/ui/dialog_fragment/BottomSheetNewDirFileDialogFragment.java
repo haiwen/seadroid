@@ -12,6 +12,7 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.Observer;
 
 import com.blankj.utilcode.util.KeyboardUtils;
+import com.blankj.utilcode.util.NetworkUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
@@ -95,6 +96,11 @@ public class BottomSheetNewDirFileDialogFragment extends RequestBottomSheetDialo
 
     @Override
     protected void onPositiveClick() {
+        if (!NetworkUtils.isConnected()) {
+            Toasts.show(R.string.network_error);
+            return;
+        }
+
         if (!checkData()) {
             return;
         }

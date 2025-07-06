@@ -21,51 +21,17 @@
             android:paddingBottom="32dp" />
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-    <!-- buttons -->
-    <LinearLayout
-        android:id="@+id/buttonsContainer"
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/ok"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
-        android:orientation="horizontal"
-        android:paddingHorizontal="8dp">
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/cancel"
-            style="@style/App.Widget.Button.OutlinedButton"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/long_btn_height"
-            android:layout_marginHorizontal="8dp"
-            android:layout_weight="1"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:text="@string/cancel"
-            android:textSize="@dimen/long_btn_txt_size" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/new_folder"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/long_btn_height"
-            android:layout_marginHorizontal="8dp"
-            android:layout_weight="1"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:text="@string/create_new_dir"
-            android:textSize="@dimen/long_btn_txt_size"
-            android:visibility="visible" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/ok"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/long_btn_height"
-            android:layout_marginHorizontal="8dp"
-            android:layout_weight="1"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:text="@string/ok"
-            android:textSize="@dimen/long_btn_txt_size" />
-
-    </LinearLayout>
+        android:layout_height="@dimen/long_btn_height"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginBottom="8dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:text="@string/ok"
+        android:textSize="@dimen/long_btn_txt_size"
+        android:visibility="gone" />
 
 </LinearLayout>
 
