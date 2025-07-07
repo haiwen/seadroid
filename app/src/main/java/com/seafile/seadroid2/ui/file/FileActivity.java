@@ -80,6 +80,8 @@ public class FileActivity extends BaseActivityWithVM<FileViewModel> implements T
             return;
         }
 
+        applyEdgeToEdge(binding.getRoot());
+
         Intent intent = getIntent();
 
         if (intent == null) {

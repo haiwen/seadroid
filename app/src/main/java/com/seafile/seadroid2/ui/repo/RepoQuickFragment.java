@@ -33,6 +33,8 @@ import androidx.appcompat.view.ActionMode;
 import androidx.appcompat.widget.SearchView;
 import androidx.core.view.MenuHost;
 import androidx.core.view.MenuProvider;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -797,9 +799,25 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         FrameLayout.LayoutParams p = new FrameLayout.LayoutParams(-1, -2);
         p.gravity = Gravity.BOTTOM;
 
+        floatingView.setLayoutParams(p);
+
+        applyEdgeToEdge(floatingView);
+
         View decorView = requireActivity().getWindow().getDecorView();
         FrameLayout content = decorView.findViewById(android.R.id.content);
-        content.addView(floatingView, p);
+        content.addView(floatingView);
+    }
+
+    private void applyEdgeToEdge(View view) {
+
+        ViewCompat.setOnApplyWindowInsetsListener(view, (v, insets) -> {
+            int bottomInset = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom;
+            FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) view.getLayoutParams();
+            lp.bottomMargin = bottomInset;
+            v.setLayoutParams(lp);
+
+            return insets;
+        });
     }
 
     private void onBottomSheetItemClick(MenuItem item) {

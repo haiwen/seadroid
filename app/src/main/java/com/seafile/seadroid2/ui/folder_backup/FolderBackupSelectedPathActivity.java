@@ -50,6 +50,7 @@ public class FolderBackupSelectedPathActivity extends BaseActivity {
 
         setContentView(R.layout.folder_backup_selected_path_activity);
 
+        applyEdgeToEdge(findViewById(R.id.root_layout));
         registerFolderBackupConfigLauncher();
         initOnBackPressedDispatcher();
 

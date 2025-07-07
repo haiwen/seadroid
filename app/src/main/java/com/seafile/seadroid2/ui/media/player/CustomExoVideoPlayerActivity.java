@@ -380,6 +380,6 @@ public class CustomExoVideoPlayerActivity extends BaseActivityWithVM<PlayerViewM
     private String getMinSecFormat(long millisecond) {
         long minutes = millisecond / 60 / 1000;
         long seconds = millisecond / 1000 % 60;
-        return String.format(Locale.ROOT, "%02d:%02d", minutes, seconds);
+        return String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds);
     }
 }

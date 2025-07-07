@@ -9,15 +9,26 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.text.TextUtils;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.appcompat.widget.Toolbar;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -25,6 +36,7 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.NetworkUtils;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.seafile.seadroid2.R;
@@ -97,6 +109,8 @@ public class MainActivity extends BaseActivity {
             return;
         }
 
+        applyEdgeToEdgeInsets();
+
         //register bus
         BusHelper.getCommonObserver().observe(this, busObserver);
 
@@ -120,6 +134,18 @@ public class MainActivity extends BaseActivity {
         registerComponent();
 
         requestServerInfo(true);
+    }
+
+    private void applyEdgeToEdgeInsets() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, 0, systemBars.right, 0);
+
+            ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) binding.statusBarGuideline.getLayoutParams();
+            params.height = systemBars.top;
+            binding.statusBarGuideline.setLayoutParams(params);
+            return insets;
+        });
     }
 
     private void restoreNavContext() {

@@ -6,6 +6,12 @@
     android:orientation="vertical"
     android:padding="16dp">
 
+<!--    <View-->
+<!--        android:id="@+id/status_bar_guideline"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="0dp"-->
+<!--        android:background="@color/bar_background_color" />-->
+
     <TextView
         android:id="@+id/file_name"
         android:layout_width="fill_parent"

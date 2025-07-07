@@ -10,6 +10,7 @@ import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.webkit.ConsoleMessage;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
@@ -17,11 +18,16 @@ import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
+import android.widget.LinearLayout;
+import android.widget.Space;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.graphics.Insets;
 import androidx.core.util.Consumer;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.core.widget.NestedScrollView;
 import androidx.lifecycle.Observer;
 import androidx.webkit.WebSettingsCompat;
@@ -31,6 +37,7 @@ import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.GsonUtils;
 import com.blankj.utilcode.util.NetworkUtils;
 import com.github.lzyzsd.jsbridge.CallBackFunction;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
@@ -112,6 +119,8 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
             return;
         }
 
+        applyEdgeToEdge();
+
         initData();
 
         initUI();
@@ -129,6 +138,24 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
             //let's go
             mWebView.load(targetUrl);
         }
+    }
+
+    public void applyEdgeToEdge() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(
+                    systemBars.left,
+                    0,
+                    systemBars.right,
+                    systemBars.bottom
+            );
+
+            Insets statusBars = insets.getInsets(WindowInsetsCompat.Type.statusBars());
+            LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) binding.statusBarGuideline.getLayoutParams();
+            lp.height = statusBars.top;
+            binding.statusBarGuideline.setLayoutParams(lp);
+            return insets;
+        });
     }
 
     private void initData() {

@@ -72,6 +72,9 @@ public class DocsCommentsActivity extends BaseMediaSelectorActivity<DocsCommentV
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         setContentView(binding.getRoot());
 
+        //TODO 输入法覆盖
+        applyEdgeToEdge(binding.getRoot());
+
         initView();
 
         initViewModel();

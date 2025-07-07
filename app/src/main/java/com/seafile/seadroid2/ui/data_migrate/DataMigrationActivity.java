@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.webkit.MimeTypeMap;
+import android.widget.Space;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
@@ -45,6 +46,7 @@ import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.ssl.CertsDBHelper;
 import com.seafile.seadroid2.ui.account.AccountService;
+import com.seafile.seadroid2.ui.base.BaseActivity;
 import com.seafile.seadroid2.ui.camera_upload.CameraUploadDBHelper;
 import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
 import com.seafile.seadroid2.ui.folder_backup.FolderBackupDBHelper;
@@ -72,7 +74,7 @@ import retrofit2.Response;
 /**
  * Migrating data from sqlite database to Room
  */
-public class DataMigrationActivity extends AppCompatActivity {
+public class DataMigrationActivity extends BaseActivity {
     private final String TAG = "DataMigrationActivity";
 
     private ActivityDataMigrationBinding binding;
@@ -86,6 +88,8 @@ public class DataMigrationActivity extends AppCompatActivity {
 
         binding = ActivityDataMigrationBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        applyEdgeToEdge(binding.getRoot());
 
         List<Account> accounts = SupportAccountManager.getInstance().getAccountList();
         if (CollectionUtils.isEmpty(accounts)) {

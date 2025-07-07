@@ -348,6 +348,13 @@ public class TransferService extends EventService {
                 });
     }
 
+    @Override
+    public void onTimeout(int startId, int fgsType) {
+        super.onTimeout(startId, fgsType);
+        SafeLogs.e(TAG, "onTimeout()", "startId: " + startId + ", fgsType: " + fgsType);
+        stopThisService();
+    }
+
     private void stopAll() {
         //any one data source
         startForegroundNotification(FeatureDataSource.SHARE_FILE_TO_SEAFILE);

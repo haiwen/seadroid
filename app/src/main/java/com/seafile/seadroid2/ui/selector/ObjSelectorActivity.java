@@ -97,6 +97,8 @@ public class ObjSelectorActivity extends BaseActivityWithVM<ObjSelectorViewModel
         binding = ActivitySelectorObjBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        applyEdgeToEdge(binding.getRoot());
+
         Intent intent = getIntent();
         if (intent == null) {
             throw new IllegalArgumentException("Intent is null");

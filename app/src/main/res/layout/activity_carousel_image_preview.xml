@@ -4,8 +4,16 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/bar_background_color"
-    android:clipChildren="false"
-    android:fitsSystemWindows="false">
+    android:clipChildren="false">
+
+    <View
+        android:id="@+id/status_bar_guideline"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@color/bar_background_color"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/pager"

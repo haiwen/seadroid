@@ -2,7 +2,7 @@
 <resources>
 
     <style name="App.Theme" parent="BaseTheme.App.Toolbar">
-        <item name="android:statusBarColor">@color/bar_background_color</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
 
         <item name="android:windowLightStatusBar">?isLightTheme</item> <!-- android 6.0+ -->
     </style>

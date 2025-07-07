@@ -53,6 +53,8 @@ public class AccountDetailActivity extends BaseActivityWithVM<AccountViewModel> 
 
         setContentView(binding.getRoot());
 
+        applyEdgeToEdge(binding.getRoot());
+
         initView();
 
         initViewModel();

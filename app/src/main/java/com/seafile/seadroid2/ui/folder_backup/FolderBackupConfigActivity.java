@@ -39,6 +39,8 @@ public class FolderBackupConfigActivity extends BaseActivity {
 
         setContentView(binding.getRoot());
 
+        applyEdgeToEdge(binding.getRoot());
+
         if (getSupportActionBar() != null) {
             getSupportActionBar().hide();
         }

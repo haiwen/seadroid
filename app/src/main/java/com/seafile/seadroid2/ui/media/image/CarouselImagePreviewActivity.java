@@ -154,6 +154,7 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
         binding = ActivityCarouselImagePreviewBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        applyEdgeToEdge(binding.getRoot());
         registerCopyMoveLauncher();
 
         initParams(savedInstanceState);

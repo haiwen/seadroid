@@ -67,6 +67,8 @@ public class EditorActivity extends BaseActivityWithVM<EditorViewModel> implemen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_editor);
 
+        applyEdgeToEdge(findViewById(R.id.root_layout));
+
         initView();
         initViewModel();
         initMarkdown();
