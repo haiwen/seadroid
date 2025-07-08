@@ -10,7 +10,6 @@ import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.webkit.ConsoleMessage;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
@@ -19,7 +18,6 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.widget.LinearLayout;
-import android.widget.Space;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
@@ -37,12 +35,12 @@ import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.GsonUtils;
 import com.blankj.utilcode.util.NetworkUtils;
 import com.github.lzyzsd.jsbridge.CallBackFunction;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.config.WebViewActionConstant;
 import com.seafile.seadroid2.databinding.ActivitySeaWebviewProBinding;
+import com.seafile.seadroid2.databinding.ToolbarActionbarProgressBarBinding;
 import com.seafile.seadroid2.framework.model.sdoc.FileProfileConfigModel;
 import com.seafile.seadroid2.framework.model.sdoc.OutlineItemModel;
 import com.seafile.seadroid2.framework.model.sdoc.SDocPageOptionsModel;
@@ -62,7 +60,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
     private final String TAG = "SDocWebViewActivity";
 
     private ActivitySeaWebviewProBinding binding;
-
+    private ToolbarActionbarProgressBarBinding toolBinding;
     private SeaWebView mWebView;
     private String repoId, repoName;
     private String path;
@@ -112,6 +110,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
 
         binding = ActivitySeaWebviewProBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        toolBinding = ToolbarActionbarProgressBarBinding.bind(binding.toolProgressBar.getRoot());
 
         if (!NetworkUtils.isConnected()) {
             Toasts.show(R.string.network_unavailable);
@@ -151,9 +150,9 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
             );
 
             Insets statusBars = insets.getInsets(WindowInsetsCompat.Type.statusBars());
-            LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) binding.statusBarGuideline.getLayoutParams();
+            LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) toolBinding.statusBarGuideline.getLayoutParams();
             lp.height = statusBars.top;
-            binding.statusBarGuideline.setLayoutParams(lp);
+            toolBinding.statusBarGuideline.setLayoutParams(lp);
             return insets;
         });
     }
@@ -224,6 +223,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
                 @Override
                 public void onClick(View v) {
                     showOutlineDialog();
+//                    callJsGetOutline();
                 }
             });
             binding.sdocProfile.setOnClickListener(new View.OnClickListener() {
@@ -306,12 +306,20 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
     }
 
 
-    private void callJsGetOutline(OutlineItemModel outlineItemModel) {
-        String param = GsonUtils.toJson(outlineItemModel);
-        mWebView.callJsFunction(WebViewActionConstant.CallJsFunction.SDOC_OUTLINES_DATA_GET, param, new CallBackFunction() {
+    private void callJsGetOutline() {
+        mWebView.callJsFunction(WebViewActionConstant.CallJsFunction.SDOC_OUTLINES_DATA_GET, null, new CallBackFunction() {
             @Override
             public void onCallBack(String data) {
                 SLogs.d(TAG, "callJsGetOutline()", data);
+                SDocOutlineDialog dialog = SDocOutlineDialog.newInstance(data);
+                dialog.setOnItemClickListener(new OnItemClickListener<OutlineItemModel>() {
+                    @Override
+                    public void onItemClick(OutlineItemModel outlineItemModel, int position) {
+
+                        callJsSelectOutline(outlineItemModel);
+                    }
+                });
+                dialog.show(getSupportFragmentManager(), SDocOutlineDialog.class.getSimpleName());
             }
         });
     }
@@ -564,7 +572,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         @Override
         public void onReceivedTitle(WebView view, String title) {
             super.onReceivedTitle(view, title);
-            binding.toolbarActionbar.setTitle(title);
+            toolBinding.toolbarActionbar.setTitle(title);
         }
 
         @Override
@@ -593,11 +601,11 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
     };
 
     private void setBarProgress(int p) {
-        binding.toolProgressBar.setProgress(p, true);
+        toolBinding.toolProgressBar.setProgress(p, true);
 
         if (p != 100) {
-            if (binding.toolProgressBar.getVisibility() != View.VISIBLE) {
-                binding.toolProgressBar.setVisibility(View.VISIBLE);
+            if (toolBinding.toolProgressBar.getVisibility() != View.VISIBLE) {
+                toolBinding.toolProgressBar.setVisibility(View.VISIBLE);
             }
         }
 
@@ -606,7 +614,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
 
     private void hideProgressBar() {
         if (curProgress == 100) {
-            binding.toolProgressBar.setVisibility(View.GONE);
+            toolBinding.toolProgressBar.setVisibility(View.GONE);
         }
     }
 
