@@ -140,6 +140,10 @@
     <string name="dir_name_empty">Please enter the name of the folder</string>
     <string name="file_name_empty">Please enter the name of the file</string>
     <string name="password_empty">Please enter the password</string>
+    <string name="name_contains_slash">Name cannot contain slash</string>
+    <string name="name_contains_backtick">Name cannot contain backtick</string>
+    <string name="name_contains_backslash">Name cannot contain backslash</string>
+    <string name="name_cannot_be_double_dots">Name cannot be double dots</string>
     <string name="wrong_password">wrong password</string>
     <string name="library_read_only">This library is read-only</string>
     <string name="error_when_load_dirents">Error when loading the folder.\n Tap to refresh</string>

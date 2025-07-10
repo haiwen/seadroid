@@ -75,6 +75,7 @@ import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.model.BaseModel;
 import com.seafile.seadroid2.framework.model.GroupItemModel;
 import com.seafile.seadroid2.framework.model.ResultModel;
+import com.seafile.seadroid2.framework.model.ServerInfo;
 import com.seafile.seadroid2.framework.model.dirents.DirentFileModel;
 import com.seafile.seadroid2.framework.model.search.SearchModel;
 import com.seafile.seadroid2.framework.service.PreDownloadHelper;
@@ -115,6 +116,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import io.reactivex.functions.Consumer;
@@ -262,71 +264,77 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {
                 menuInflater.inflate(R.menu.fragment_browser_menu, menu);
 
-                //search view
-                final SearchView searchView = new SearchView(requireContext());
-                searchView.setSubmitButtonEnabled(false);
-                if (GlobalNavContext.getCurrentNavContext().inRepo()) {
-                    searchView.setQueryHint(getString(R.string.search_in_this_library));
-                } else {
-                    searchView.setQueryHint(getString(R.string.search_menu_item));
-                }
-
-                searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-                    @Override
-                    public boolean onQueryTextSubmit(String query) {
-                        return false;
-                    }
-
-                    @Override
-                    public boolean onQueryTextChange(String newText) {
-                        searchView.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                search(newText);
-                            }
-                        }, 500);
-                        return false;
-                    }
-                });
-
                 //search item
                 MenuItem searchMenuItem = menu.findItem(R.id.menu_action_search);
-                searchMenuItem.collapseActionView();
-                searchMenuItem.setActionView(searchView);
-                searchMenuItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
-                    @Override
-                    public boolean onMenuItemActionExpand(@NonNull MenuItem item) {
-
-                        // Save the state of Menu
-                        menuIdState.put("search", menu.findItem(R.id.menu_action_search).isVisible());
-                        menuIdState.put("sortGroup", menu.findItem(R.id.menu_action_sort).isVisible());
-                        menuIdState.put("createRepo", menu.findItem(R.id.create_repo).isVisible());
-                        menuIdState.put("add", menu.findItem(R.id.add).isVisible());
-                        menuIdState.put("select", menu.findItem(R.id.select).isVisible());
-
-                        // hide other menu items
-                        menu.findItem(R.id.menu_action_search).setVisible(false);
-                        menu.findItem(R.id.menu_action_sort).setVisible(false);
-                        menu.findItem(R.id.create_repo).setVisible(false);
-                        menu.findItem(R.id.add).setVisible(false);
-                        menu.findItem(R.id.select).setVisible(false);
-
-                        return true; // Return true to collapse the action view.
+                Optional<ServerInfo> serverInfoOp = checkServerInfo();
+                if (serverInfoOp.isPresent() && serverInfoOp.get().isProEdition() && serverInfoOp.get().isSearchEnabled()) {
+                    //search view
+                    final SearchView searchView = new SearchView(requireContext());
+                    searchView.setSubmitButtonEnabled(false);
+                    if (GlobalNavContext.getCurrentNavContext().inRepo()) {
+                        searchView.setQueryHint(getString(R.string.search_in_this_library));
+                    } else {
+                        searchView.setQueryHint(getString(R.string.search_menu_item));
                     }
 
-                    @Override
-                    public boolean onMenuItemActionCollapse(@NonNull MenuItem item) {
+                    searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                        @Override
+                        public boolean onQueryTextSubmit(String query) {
+                            return false;
+                        }
 
-                        menu.findItem(R.id.menu_action_search).setVisible(Boolean.TRUE.equals(menuIdState.get("search")));
-                        menu.findItem(R.id.menu_action_sort).setVisible(Boolean.TRUE.equals(menuIdState.get("sortGroup")));
-                        menu.findItem(R.id.create_repo).setVisible(Boolean.TRUE.equals(menuIdState.get("createRepo")));
-                        menu.findItem(R.id.add).setVisible(Boolean.TRUE.equals(menuIdState.get("add")));
-                        menu.findItem(R.id.select).setVisible(Boolean.TRUE.equals(menuIdState.get("select")));
+                        @Override
+                        public boolean onQueryTextChange(String newText) {
+                            searchView.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    search(newText);
+                                }
+                            }, 500);
+                            return false;
+                        }
+                    });
 
-                        menuHost.invalidateMenu();
-                        return true; // Return true to expand the action view.
-                    }
-                });
+                    searchMenuItem.collapseActionView();
+                    searchMenuItem.setActionView(searchView);
+                    searchMenuItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
+                        @Override
+                        public boolean onMenuItemActionExpand(@NonNull MenuItem item) {
+
+                            // Save the state of Menu
+                            menuIdState.put("search", menu.findItem(R.id.menu_action_search).isVisible());
+                            menuIdState.put("sortGroup", menu.findItem(R.id.menu_action_sort).isVisible());
+                            menuIdState.put("createRepo", menu.findItem(R.id.create_repo).isVisible());
+                            menuIdState.put("add", menu.findItem(R.id.add).isVisible());
+                            menuIdState.put("select", menu.findItem(R.id.select).isVisible());
+
+                            // hide other menu items
+                            menu.findItem(R.id.menu_action_search).setVisible(false);
+                            menu.findItem(R.id.menu_action_sort).setVisible(false);
+                            menu.findItem(R.id.create_repo).setVisible(false);
+                            menu.findItem(R.id.add).setVisible(false);
+                            menu.findItem(R.id.select).setVisible(false);
+
+                            return true; // Return true to collapse the action view.
+                        }
+
+                        @Override
+                        public boolean onMenuItemActionCollapse(@NonNull MenuItem item) {
+
+                            menu.findItem(R.id.menu_action_search).setVisible(Boolean.TRUE.equals(menuIdState.get("search")));
+                            menu.findItem(R.id.menu_action_sort).setVisible(Boolean.TRUE.equals(menuIdState.get("sortGroup")));
+                            menu.findItem(R.id.create_repo).setVisible(Boolean.TRUE.equals(menuIdState.get("createRepo")));
+                            menu.findItem(R.id.add).setVisible(Boolean.TRUE.equals(menuIdState.get("add")));
+                            menu.findItem(R.id.select).setVisible(Boolean.TRUE.equals(menuIdState.get("select")));
+
+                            menuHost.invalidateMenu();
+                            return true; // Return true to expand the action view.
+                        }
+                    });
+                } else {
+                    searchMenuItem.setVisible(false);
+                }
+
 
                 //sort pop view
                 MenuItem sortMenuItem = menu.findItem(R.id.menu_action_sort);
@@ -374,6 +382,14 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 return true;
             }
         }, getViewLifecycleOwner(), Lifecycle.State.RESUMED);
+    }
+
+    /**
+     * @return 0: is pro edition, 1: is search enable
+     */
+    private Optional<ServerInfo> checkServerInfo() {
+        ServerInfo serverInfo = SupportAccountManager.getInstance().getCurrentServerInfo();
+        return Optional.of(serverInfo);
     }
 
     private void showCustomMenuView(View anchorView) {

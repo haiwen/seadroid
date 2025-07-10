@@ -146,7 +146,6 @@ public class BottomSheetNewRepoDialogFragment extends RequestBottomSheetDialogFr
         EditText name = getDialogView().findViewById(R.id.edit_name);
 
 
-
         MaterialSwitch materialSwitch = getDialogView().findViewById(R.id.widget_switch);
         if (materialSwitch.isChecked()) {
 
@@ -167,10 +166,31 @@ public class BottomSheetNewRepoDialogFragment extends RequestBottomSheetDialogFr
 
         EditText name = getDialogView().findViewById(R.id.edit_name);
         Editable editable = name.getText();
+
         if (editable == null || editable.length() == 0 || TextUtils.isEmpty(editable.toString().trim())) {
             Toasts.show(R.string.repo_name_empty);
             return false;
         }
+
+        String t = editable.toString().trim();
+        if (t.contains("/")) {
+            Toasts.show(R.string.name_contains_slash);
+            return false;
+        }
+        if (t.contains("`")) {
+            Toasts.show(R.string.name_contains_backtick);
+            return false;
+        }
+
+        if (t.contains("\\\\")) {
+            Toasts.show(R.string.name_contains_backslash);
+            return false;
+        }
+        if (t.equals("..")) {
+            Toasts.show(R.string.name_cannot_be_double_dots);
+            return false;
+        }
+
 
         MaterialSwitch materialSwitch = getDialogView().findViewById(R.id.widget_switch);
         if (!materialSwitch.isChecked()) {
@@ -183,10 +203,10 @@ public class BottomSheetNewRepoDialogFragment extends RequestBottomSheetDialogFr
 
         Editable editable1 = inputEditText1.getText();
         Editable editable2 = inputEditText2.getText();
-        boolean editableBool1 = editable1 == null || editable1.length() == 0 || TextUtils.isEmpty(editable1.toString().trim());
-        boolean editableBool2 = editable2 == null || editable2.length() == 0 || TextUtils.isEmpty(editable2.toString().trim());
+        boolean editable1IsNull = editable1 == null || editable1.length() == 0 || TextUtils.isEmpty(editable1.toString().trim());
+        boolean editable2IsNull = editable2 == null || editable2.length() == 0 || TextUtils.isEmpty(editable2.toString().trim());
 
-        if (editableBool1 || editableBool2) {
+        if (editable1IsNull || editable2IsNull) {
             Toasts.show(R.string.err_passwd_empty);
             return false;
         }

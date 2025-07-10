@@ -178,7 +178,7 @@ public class AccountDetailActivity extends BaseActivityWithVM<AccountViewModel> 
     }
 
     private void onLoginException(Account account, SeafException err) {
-        if (err == SeafException.SSL_EXCEPTION) {
+        if (err == SeafException.NETWORK_SSL_EXCEPTION) {
             binding.authTokenHint.setVisibility(View.GONE);
             binding.rememberDevice.setVisibility(View.GONE);
 

@@ -28,7 +28,6 @@ public class FileUploader extends ParentEventUploader {
         return FeatureDataSource.MANUAL_FILE_UPLOAD;
     }
 
-
     public void stopById(String modelId) {
         SafeLogs.d(TAG, "stopById()", "stop download by id: " + modelId);
 
@@ -75,6 +74,8 @@ public class FileUploader extends ParentEventUploader {
                 transfer(specialAccount, transferModel);
 
             } catch (SeafException seafException) {
+
+                SafeLogs.e(TAG, seafException.getMessage());
 
                 // In some cases, the transmission needs to be interrupted
                 boolean isInterrupt = isInterrupt(seafException);
