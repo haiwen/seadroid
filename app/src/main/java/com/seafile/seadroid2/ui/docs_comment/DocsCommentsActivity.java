@@ -5,16 +5,23 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsAnimationCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
@@ -72,10 +79,10 @@ public class DocsCommentsActivity extends BaseMediaSelectorActivity<DocsCommentV
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         setContentView(binding.getRoot());
 
-        //TODO 输入法覆盖
         applyEdgeToEdge(binding.getRoot());
 
         initView();
+        adaptInputMethod();
 
         initViewModel();
 
@@ -90,7 +97,7 @@ public class DocsCommentsActivity extends BaseMediaSelectorActivity<DocsCommentV
             bindingOfToolbar.toolbarActionbar.setTitle(pageOptionsModel.docName);
 
             Parcelable listParcelable = savedInstanceState.getParcelable("listParcelable");
-            if (listParcelable!= null) {
+            if (listParcelable != null) {
                 linearLayoutManager.onRestoreInstanceState(listParcelable);
             }
         } else {
@@ -152,6 +159,61 @@ public class DocsCommentsActivity extends BaseMediaSelectorActivity<DocsCommentV
 //        });
     }
 
+    private void adaptInputMethod() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            ViewCompat.setWindowInsetsAnimationCallback(binding.bottomSheetContainer, new WindowInsetsAnimationCompat.Callback(WindowInsetsAnimationCompat.Callback.DISPATCH_MODE_STOP) {
+
+                        //                        private boolean lastImeVisible = false;
+                        private int startHeight = 0;
+                        private int lastDiffH = 0;
+
+                        @Override
+                        public void onPrepare(@NonNull WindowInsetsAnimationCompat animation) {
+                            if (startHeight == 0) {
+                                startHeight = binding.bottomSheetContainer.getHeight();
+                            }
+                        }
+
+                        @NonNull
+                        @Override
+                        public WindowInsetsCompat onProgress(@NonNull WindowInsetsCompat insets,
+                                                             @NonNull List<WindowInsetsAnimationCompat> runningAnimations) {
+                            Insets imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime());
+                            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+
+                            Insets diff = Insets.subtract(imeInsets, systemBars);
+                            Insets maxDiff = Insets.max(diff, Insets.NONE);
+
+                            int diffH = Math.abs(maxDiff.top - maxDiff.bottom);
+
+                            ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) binding.bottomSheetContainer.getLayoutParams();
+                            layoutParams.bottomMargin = diffH;
+                            binding.bottomSheetContainer.setLayoutParams(layoutParams);
+
+                            lastDiffH = diffH;
+                            return insets;
+                        }
+                    }
+            );
+        } else {
+            // <= Android R
+            binding.bottomSheetContainer.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                int lastBottom = 0;
+
+                @Override
+                public void onGlobalLayout() {
+                    WindowInsetsCompat insets = ViewCompat.getRootWindowInsets(binding.bottomSheetContainer);
+                    if (insets != null) {
+                        int bottom = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom;
+                        if (lastBottom != 0 && bottom == 0) {
+                            binding.bottomSheetContainer.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                        }
+                        lastBottom = bottom;
+                    }
+                }
+            });
+        }
+    }
 
     protected void initViewModel() {
         getViewModel().getRefreshLiveData().observe(this, new Observer<Boolean>() {

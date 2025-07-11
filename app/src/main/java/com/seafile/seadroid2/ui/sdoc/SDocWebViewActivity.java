@@ -3,6 +3,7 @@ package com.seafile.seadroid2.ui.sdoc;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -10,6 +11,8 @@ import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.webkit.ConsoleMessage;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
@@ -25,6 +28,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.graphics.Insets;
 import androidx.core.util.Consumer;
 import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsAnimationCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.widget.NestedScrollView;
 import androidx.lifecycle.Observer;
@@ -33,6 +37,7 @@ import androidx.webkit.WebViewFeature;
 
 import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.GsonUtils;
+import com.blankj.utilcode.util.KeyboardUtils;
 import com.blankj.utilcode.util.NetworkUtils;
 import com.github.lzyzsd.jsbridge.CallBackFunction;
 import com.seafile.seadroid2.R;
@@ -55,6 +60,8 @@ import com.seafile.seadroid2.ui.sdoc.outline.SDocOutlineDialog;
 import com.seafile.seadroid2.view.webview.OnWebPageListener;
 import com.seafile.seadroid2.view.webview.PreloadWebView;
 import com.seafile.seadroid2.view.webview.SeaWebView;
+
+import java.util.List;
 
 public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
     private final String TAG = "SDocWebViewActivity";
@@ -123,6 +130,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         initData();
 
         initUI();
+        adaptInputMethod();
 
         initViewModel();
 
@@ -222,6 +230,14 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
             binding.sdocOutline.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    if (!nextEditMode) {
+                        callJsSdocEditorEnitable();
+                    }
+
+                    if (KeyboardUtils.isSoftInputVisible(SDocWebViewActivity.this)) {
+                        KeyboardUtils.hideSoftInput(SDocWebViewActivity.this);
+                    }
+
                     showOutlineDialog();
 //                    callJsGetOutline();
                 }
@@ -229,12 +245,28 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
             binding.sdocProfile.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    if (!nextEditMode) {
+                        callJsSdocEditorEnitable();
+                    }
+
+                    if (KeyboardUtils.isSoftInputVisible(SDocWebViewActivity.this)) {
+                        KeyboardUtils.hideSoftInput(SDocWebViewActivity.this);
+                    }
+
                     getViewModel().loadFileDetail(repoId, path);
                 }
             });
             binding.sdocComment.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    if (!nextEditMode) {
+                        callJsSdocEditorEnitable();
+                    }
+
+                    if (KeyboardUtils.isSoftInputVisible(SDocWebViewActivity.this)) {
+                        KeyboardUtils.hideSoftInput(SDocWebViewActivity.this);
+                    }
+
                     showCommentsActivity();
                 }
             });
@@ -242,6 +274,62 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
             binding.llBottomBar.setVisibility(View.GONE);
         }
 
+    }
+
+    private void adaptInputMethod() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            ViewCompat.setWindowInsetsAnimationCallback(binding.llBottomBar, new WindowInsetsAnimationCompat.Callback(WindowInsetsAnimationCompat.Callback.DISPATCH_MODE_STOP) {
+
+                        //                        private boolean lastImeVisible = false;
+                        private int startHeight = 0;
+                        private int lastDiffH = 0;
+
+                        @Override
+                        public void onPrepare(@NonNull WindowInsetsAnimationCompat animation) {
+                            if (startHeight == 0) {
+                                startHeight = binding.llBottomBar.getHeight();
+                            }
+                        }
+
+                        @NonNull
+                        @Override
+                        public WindowInsetsCompat onProgress(@NonNull WindowInsetsCompat insets,
+                                                             @NonNull List<WindowInsetsAnimationCompat> runningAnimations) {
+                            Insets imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime());
+                            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+
+                            Insets diff = Insets.subtract(imeInsets, systemBars);
+                            Insets maxDiff = Insets.max(diff, Insets.NONE);
+
+                            int diffH = Math.abs(maxDiff.top - maxDiff.bottom);
+
+                            ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) binding.llBottomBar.getLayoutParams();
+                            layoutParams.bottomMargin = diffH;
+                            binding.llBottomBar.setLayoutParams(layoutParams);
+
+                            lastDiffH = diffH;
+                            return insets;
+                        }
+                    }
+            );
+        } else {
+            // <= Android R
+            binding.llBottomBar.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                int lastBottom = 0;
+
+                @Override
+                public void onGlobalLayout() {
+                    WindowInsetsCompat insets = ViewCompat.getRootWindowInsets(binding.llBottomBar);
+                    if (insets != null) {
+                        int bottom = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom;
+                        if (lastBottom != 0 && bottom == 0) {
+                            binding.llBottomBar.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                        }
+                        lastBottom = bottom;
+                    }
+                }
+            });
+        }
     }
 
     private void initViewModel() {
