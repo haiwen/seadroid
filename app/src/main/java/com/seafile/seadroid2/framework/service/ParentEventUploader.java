@@ -268,7 +268,7 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
 
         if (createdTime != -1) {
             String cTime = Times.convertLong2Time(createdTime);
-            SafeLogs.d(TAG, "file create timestamp : " + cTime);
+            SafeLogs.d(TAG, "file create time: " + cTime);
             builder.addFormDataPart("last_modify", cTime);
         }
 
@@ -386,6 +386,8 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
     @NonNull
     private String getFileUploadUrl(Account account, String repoId, String target_dir,
                                     boolean isUpdate) throws SeafException {
+        SafeLogs.d(TAG, "getFileUploadUrl()", "target_dir: " + target_dir, "isUpdate: " + isUpdate);
+
         retrofit2.Response<String> res;
         try {
             if (isUpdate) {
@@ -420,6 +422,7 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
         urlStr = StringUtils.replace(urlStr, "\"", "");
 
         if (TextUtils.isEmpty(urlStr)) {
+            SafeLogs.e(TAG, "getFileUploadUrl()", "urlStr is empty");
             throw SeafException.REQUEST_URL_EXCEPTION;
         }
 

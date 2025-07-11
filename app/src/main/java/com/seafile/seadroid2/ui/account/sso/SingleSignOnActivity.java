@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
+import android.view.MenuItem;
 import android.view.View;
 
 import androidx.activity.OnBackPressedCallback;
@@ -12,6 +13,8 @@ import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.NavUtils;
+import androidx.core.app.TaskStackBuilder;
 import androidx.lifecycle.Observer;
 
 import com.blankj.utilcode.util.CollectionUtils;
@@ -24,6 +27,7 @@ import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.StringUtils;
 import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.ui.WidgetUtils;
+import com.seafile.seadroid2.ui.account.AccountsActivity;
 import com.seafile.seadroid2.ui.account.SeafileAuthenticatorActivity;
 import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
 
@@ -35,7 +39,7 @@ import java.util.TimerTask;
  * Single Sign-On welcome page
  * <p/>
  */
-public class SingleSignOnActivity extends BaseActivityWithVM<SingleSignOnViewModel> {
+public class SingleSignOnActivity extends BaseActivityWithVM<SingleSignOnViewModel> implements Toolbar.OnMenuItemClickListener {
     public static final String DEBUG_TAG = "SingleSignOnActivity";
 
     public static final String SINGLE_SIGN_ON_HTTPS_PREFIX = "https://";
@@ -99,15 +103,29 @@ public class SingleSignOnActivity extends BaseActivityWithVM<SingleSignOnViewMod
             }
         });
 
+        applyEdgeToEdge(binding.getRoot());
         Toolbar toolbar = getActionBarToolbar();
-        toolbar.setNavigationOnClickListener(v -> {
-            finish();
-        });
+        toolbar.setOnMenuItemClickListener(this);
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setTitle(R.string.shib_login_title);
         }
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        return false;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void initViewModel() {

@@ -275,7 +275,9 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         getMenuInflater().inflate(R.menu.menu_sdoc_preview, menu);
         editMenuItem = menu.findItem(R.id.sdoc_edit);
         editMenuItem.setVisible(true);
-        editMenuItem.setEnabled(false);
+        if (!isPageLoaded) {
+            editMenuItem.setEnabled(false);
+        }
         return true;
     }
 
@@ -305,7 +307,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         });
     }
 
-
+    @Deprecated
     private void callJsGetOutline() {
         mWebView.callJsFunction(WebViewActionConstant.CallJsFunction.SDOC_OUTLINES_DATA_GET, null, new CallBackFunction() {
             @Override
@@ -365,15 +367,15 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         timeoutHandler.removeCallbacks(timeoutRunnable);
         jsCallbackReceived = false;
 
+        String data = "{\"edit\": " + nextEditMode + "}";
 
-        String data = String.valueOf(nextEditMode);
         // launch a timeout task
         timeoutHandler.postDelayed(timeoutRunnable, timeoutDuration);
 
         mWebView.callJsFunction(WebViewActionConstant.CallJsFunction.SDOC_EDITOR_DATA_EDIT, data, new CallBackFunction() {
             @Override
             public void onCallBack(String data) {
-                SLogs.d(TAG, "callJsSdocEditorEnitable()", data);
+                SLogs.d(TAG, "callJsSdocEditorEnitable(), receive data: ", data);
                 if (TextUtils.isEmpty(data)) {
                     return;
                 }
@@ -390,7 +392,12 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
                     return;
                 }
 
+                if (!data.contains("true")) {
+                    return;
+                }
+
                 nextEditMode = !nextEditMode;
+
                 if (editMenuItem != null) {
                     editMenuItem.setTitle(nextEditMode ? R.string.edit : R.string.complete);
                 }
@@ -590,6 +597,9 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
                         break;
                     case TIP:
                         SLogs.i("web i log: line: " + consoleMessage.lineNumber() + ", message: " + consoleMessage.message());
+                        break;
+                    case LOG:
+                        SLogs.e("web l log: line: " + consoleMessage.lineNumber() + ", message: " + consoleMessage.message());
                         break;
                     default:
                         SLogs.e("web default log: line: " + consoleMessage.lineNumber() + ", message: " + consoleMessage.message());

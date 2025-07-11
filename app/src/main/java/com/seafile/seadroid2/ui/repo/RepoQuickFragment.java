@@ -267,7 +267,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 //search item
                 MenuItem searchMenuItem = menu.findItem(R.id.menu_action_search);
                 Optional<ServerInfo> serverInfoOp = checkServerInfo();
-                if (serverInfoOp.isPresent() && serverInfoOp.get().isProEdition() && serverInfoOp.get().isSearchEnabled()) {
+                if (serverInfoOp.isPresent() && (serverInfoOp.get().isProEdition() || serverInfoOp.get().isSearchEnabled())) {
                     //search view
                     final SearchView searchView = new SearchView(requireContext());
                     searchView.setSubmitButtonEnabled(false);
