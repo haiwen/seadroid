@@ -14,7 +14,7 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         compileSdk rootProject.ext.compileSdkVersion
 
-        versionCode 195
+        versionCode 196
         versionName "3.0.16"
         multiDexEnabled true
 
