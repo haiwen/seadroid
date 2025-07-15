@@ -37,6 +37,7 @@ import java.io.File;
 import java.io.IOException;
 
 import okhttp3.Call;
+import okhttp3.Headers;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Protocol;
@@ -289,6 +290,10 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
                 .addHeader("User-Agent", Constants.UA.SEAFILE_ANDROID_UA)
                 .build();
 
+        Headers headers = request.headers();
+        for (int i = 0; i < headers.size(); i++) {
+            SafeLogs.d(TAG, "header: " + headers.name(i) + " -> " + headers.value(i));
+        }
 
         newCall = getPrimaryHttpClient(account).newCall(request);
 

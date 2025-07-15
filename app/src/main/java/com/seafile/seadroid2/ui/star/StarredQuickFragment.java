@@ -307,16 +307,24 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
             SDocWebViewActivity.openDraw(getContext(), model.repo_name, model.repo_id, model.path, model.obj_name);
 
         } else if (Utils.isVideoFile(model.obj_name)) {
-
-            MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext());
-            builder.setItems(R.array.video_download_array, (dialog, which) -> {
-                if (which == 0) {
-                    CustomExoVideoPlayerActivity.startThis(getContext(), model.obj_name, model.repo_id, model.path, null);
-                } else if (which == 1) {
-                    Intent intent = FileActivity.startFromStarred(requireContext(), model, FileReturnActionEnum.DOWNLOAD_VIDEO);
-                    fileActivityLauncher.launch(intent);
+            checkRemoteAndFileCache(model, new Consumer<File>() {
+                @Override
+                public void accept(File localFile) throws Exception {
+                    if (localFile != null) {
+                        CustomExoVideoPlayerActivity.startThis(getContext(), model.obj_name, model.repo_id, model.path);
+                    } else {
+                        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext());
+                        builder.setItems(R.array.video_download_array, (dialog, which) -> {
+                            if (which == 0) {
+                                CustomExoVideoPlayerActivity.startThis(getContext(), model.obj_name, model.repo_id, model.path);
+                            } else if (which == 1) {
+                                Intent intent = FileActivity.startFromStarred(requireContext(), model, FileReturnActionEnum.DOWNLOAD_VIDEO);
+                                fileActivityLauncher.launch(intent);
+                            }
+                        }).show();
+                    }
                 }
-            }).show();
+            });
         } else if (Utils.isTextMimeType(model.obj_name)) {
             openWith(model, FileReturnActionEnum.OPEN_TEXT_MIME);
         } else {
@@ -325,17 +333,37 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
         }
     }
 
-    private void openWith(StarredModel model, FileReturnActionEnum actionEnum) {
+    private void checkRemoteAndFileCache(StarredModel model, Consumer<File> consumer) {
         getViewModel().checkRemoteAndOpen(model.repo_id, model.path, new Consumer<String>() {
             @Override
             public void accept(String fileId) {
                 File local = getLocalDestinationFile(model.repo_id, model.repo_name, model.path);
-                if (!TextUtils.isEmpty(fileId) && local.exists()) {
+                if (consumer != null) {
+                    try {
+                        boolean r = !TextUtils.isEmpty(fileId) && local.exists();
+                        if (r) {
+                            consumer.accept(local);
+                        } else {
+                            consumer.accept(null);
+                        }
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+        });
+    }
+
+    private void openWith(StarredModel model, FileReturnActionEnum actionEnum) {
+        checkRemoteAndFileCache(model, new Consumer<File>() {
+            @Override
+            public void accept(File localFile) throws Exception {
+                if (localFile != null) {
                     if (TextUtils.equals(FileReturnActionEnum.OPEN_WITH.name(), actionEnum.name())) {
-                        WidgetUtils.openWith(requireContext(), local);
+                        WidgetUtils.openWith(requireContext(), localFile);
 
                     } else if (TextUtils.equals(FileReturnActionEnum.OPEN_TEXT_MIME.name(), actionEnum.name())) {
-                        MarkdownActivity.start(requireContext(), local.getAbsolutePath(), model.repo_id, model.path);
+                        MarkdownActivity.start(requireContext(), localFile.getAbsolutePath(), model.repo_id, model.path);
 
                     }
                 } else {
@@ -344,6 +372,7 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
                 }
             }
         });
+
     }
 
     private File getLocalDestinationFile(String repoId, String repoName, String fullPathInRepo) {

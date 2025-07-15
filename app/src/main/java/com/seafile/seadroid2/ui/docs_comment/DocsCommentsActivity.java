@@ -397,7 +397,7 @@ public class DocsCommentsActivity extends BaseMediaSelectorActivity<DocsCommentV
             if (f.type == 0) {
                 sb.append(f.content).append("\n\n");
             } else if (f.type == 1) {
-                sb.append("![](").append(f.content).append(")");
+                sb.append("![](").append(f.content).append(")").append("\n\n");
             }
         });
 

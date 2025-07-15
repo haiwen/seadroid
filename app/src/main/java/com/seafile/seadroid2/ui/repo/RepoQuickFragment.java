@@ -1544,10 +1544,17 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         }
 
         if (Utils.isVideoFile(fileName)) {
+            File local = getLocalDestinationFile(dirent.repo_id, dirent.repo_name, dirent.full_path);
+            if (local.exists()) {
+                CustomExoVideoPlayerActivity.startThis(getContext(), fileName, repoModel.repo_id, filePath);
+                return;
+            }
+
+
             MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext());
             builder.setItems(R.array.video_download_array, (dialog, which) -> {
                 if (which == 0) {
-                    CustomExoVideoPlayerActivity.startThis(getContext(), fileName, repoModel.repo_id, filePath, dirent.id);
+                    CustomExoVideoPlayerActivity.startThis(getContext(), fileName, repoModel.repo_id, filePath);
                 } else if (which == 1) {
                     Intent intent = FileActivity.start(requireContext(), dirent, FileReturnActionEnum.DOWNLOAD_VIDEO);
                     fileActivityLauncher.launch(intent);

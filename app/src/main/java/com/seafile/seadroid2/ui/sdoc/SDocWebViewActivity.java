@@ -430,7 +430,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
     private boolean jsCallbackReceived = true;
     private boolean isPageLoaded = false;
     private boolean didPageFinishSuccessfully = false;
-    private final int timeoutDuration = 2000; // 2s
+    private final int timeoutDuration = 5000; // 5s
     private final Runnable timeoutRunnable = new Runnable() {
         @Override
         public void run() {

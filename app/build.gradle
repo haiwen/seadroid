@@ -9,6 +9,7 @@ android {
     namespace 'com.seafile.seadroid2'
 
     defaultConfig {
+
         applicationId namespace
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
