@@ -30,6 +30,7 @@ import com.seafile.seadroid2.framework.util.SafeLogs;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.queue.TransferModel;
+import com.seafile.seadroid2.framework.worker.queue.TransferQueue;
 import com.seafile.seadroid2.ui.camera_upload.GalleryBucketUtils;
 import com.seafile.seadroid2.ui.file.FileService;
 import com.seafile.seadroid2.ui.folder_backup.RepoConfig;
@@ -459,7 +460,6 @@ public class AlbumScanHelper {
         }
 
         DirentWrapperModel direntWrapperModel = getDirentWrapper(repoId, path);
-
         List<DirentModel> remoteList = direntWrapperModel.dirent_list;
         if (CollectionUtils.isEmpty(remoteList)) {
             return;
@@ -489,6 +489,9 @@ public class AlbumScanHelper {
                 SafeLogs.d(TAG, "checkAndInsert()", "skip file -> [remote exists] " + filename + ", because we have uploaded it in the past.");
 
                 GlobalTransferCacheList.ALBUM_BACKUP_QUEUE.remove(bucketName, transferModel);
+            } else {
+                transferModel.setChecked(true);
+                GlobalTransferCacheList.ALBUM_BACKUP_QUEUE.update(transferModel);
             }
         }
     }

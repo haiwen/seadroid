@@ -1534,12 +1534,14 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         }
 
         if (fileName.endsWith(Constants.Format.DOT_SDOC)) {
-            SDocWebViewActivity.openSdoc(getContext(), repoModel.repo_name, repoModel.repo_id, dirent.parent_dir + dirent.name, dirent.name);
+            String p = Utils.pathJoin(dirent.parent_dir, dirent.name);
+            SDocWebViewActivity.openSdoc(getContext(), repoModel.repo_name, repoModel.repo_id, p, dirent.name);
             return;
         }
 
         if (fileName.endsWith(Constants.Format.DOT_DRAW) || fileName.endsWith(Constants.Format.DOT_EXDRAW)) {
-            SDocWebViewActivity.openDraw(getContext(), repoModel.repo_name, repoModel.repo_id, dirent.parent_dir + dirent.name, dirent.name);
+            String p = Utils.pathJoin(dirent.parent_dir, dirent.name);
+            SDocWebViewActivity.openDraw(getContext(), repoModel.repo_name, repoModel.repo_id, p, dirent.name);
             return;
         }
 
@@ -1588,6 +1590,10 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         closeActionMode();
 
         DirentModel dirent = (DirentModel) direntModels.get(0);
+        if (dirent.isDir()) {
+            Toasts.show(R.string.not_supported_share);
+            return;
+        }
 
         File local = getLocalDestinationFile(dirent.repo_id, dirent.repo_name, dirent.full_path);
         if (TextUtils.equals(dirent.id, dirent.local_file_id) && local.exists()) {
@@ -1757,6 +1763,10 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         }
 
         DirentModel dirent = (DirentModel) dirents.get(0);
+        if (dirent.isDir()) {
+            Toasts.show(R.string.not_supported_share);
+            return;
+        }
 
         File destinationFile = getLocalDestinationFile(dirent.repo_id, dirent.repo_name, dirent.full_path);
         if (TextUtils.equals(dirent.id, dirent.local_file_id) && destinationFile.exists()) {
