@@ -6,6 +6,12 @@
     android:background="@color/child_activity_background_color"
     android:orientation="vertical">
 
+    <View
+        android:id="@+id/status_bar_guideline"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@color/bar_background_color" />
+
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/pager"
         android:layout_width="match_parent"

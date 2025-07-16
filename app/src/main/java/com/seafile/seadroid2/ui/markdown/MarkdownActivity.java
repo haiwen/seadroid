@@ -60,6 +60,7 @@ public class MarkdownActivity extends BaseActivityWithVM<EditorViewModel> implem
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_markdown);
 
         if (savedInstanceState != null) {
@@ -78,6 +79,8 @@ public class MarkdownActivity extends BaseActivityWithVM<EditorViewModel> implem
         markdownView = findViewById(R.id.markdownView);
 //        markdownView.setWebViewClient(new ImageLoadWebViewClient());
         initMarkdown();
+
+        applyEdgeToEdge(findViewById(R.id.root_layout));
 
         Toolbar toolbar = getActionBarToolbar();
         toolbar.setOnMenuItemClickListener(this);

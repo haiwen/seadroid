@@ -26,7 +26,7 @@ public class BugHandlerActivity extends BaseActivity {
 
         binding = ActivityBugHandlerBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
+        applyEdgeToEdge(binding.getRoot());
         Toolbar toolbar = getActionBarToolbar();
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {

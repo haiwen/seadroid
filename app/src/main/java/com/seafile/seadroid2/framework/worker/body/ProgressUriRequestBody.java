@@ -14,7 +14,10 @@ import java.io.InputStream;
 
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
+import okio.Buffer;
 import okio.BufferedSink;
+import okio.Okio;
+import okio.Source;
 
 public class ProgressUriRequestBody extends RequestBody {
 
@@ -22,7 +25,7 @@ public class ProgressUriRequestBody extends RequestBody {
     private final MediaType mediaType;
     private final FileTransferProgressListener fileTransferProgressListener;
     private final Context context;
-    private final long estimationSize;
+    private final long estimationFileLength;
     private boolean isStop = false;
 
     public ProgressUriRequestBody(Context context, Uri uri, long size, FileTransferProgressListener fileTransferProgressListener) {
@@ -30,7 +33,7 @@ public class ProgressUriRequestBody extends RequestBody {
         this.uri = uri;
         this.mediaType = MediaType.parse("application/octet-stream");
         this.fileTransferProgressListener = fileTransferProgressListener;
-        this.estimationSize = size;
+        this.estimationFileLength = size;
     }
 
     public void setStop(boolean stop) {
@@ -52,18 +55,20 @@ public class ProgressUriRequestBody extends RequestBody {
         return super.contentLength();
     }
 
-    public long temp = System.currentTimeMillis();
+    public long UPDATE_INTERVAL_MS = System.currentTimeMillis();
 
     @Override
     public void writeTo(@NonNull BufferedSink sink) throws IOException {
         try (InputStream inputStream = context.getContentResolver().openInputStream(uri)) {
-            long current = 0;
+            if (inputStream == null) {
+                throw new IOException("Failed to open input stream for URI: " + uri);
+            }
 
-            if (inputStream != null) {
-                byte[] buffer = new byte[TransferWorker.SEGMENT_SIZE];
-                int readCount;
-                while ((readCount = inputStream.read(buffer)) != -1) {
+            try (Source source = Okio.source(inputStream); Buffer buffer = new Buffer()) {
+                long lastUpdateTime = System.currentTimeMillis();
+                long bytesWrittenSinceUpdate = 0;
 
+                while (true) {
                     if (Thread.currentThread().isInterrupted()) {
                         SLogs.e(new InterruptedException("Upload canceled"));
                         return;
@@ -73,29 +78,35 @@ public class ProgressUriRequestBody extends RequestBody {
                         return;
                     }
 
+                    long readCount = source.read(buffer, TransferWorker.SEGMENT_SIZE);
+                    if (readCount == -1) break; // End of file
 
-                    sink.write(buffer, 0, readCount);
+                    sink.write(buffer, readCount);
 
-                    current += readCount;
-
-                    long nowt = System.currentTimeMillis();
-                    // 1s refresh progress
-                    if (nowt - temp >= 1000) {
-                        temp = nowt;
-                        if (fileTransferProgressListener != null) {
-                            fileTransferProgressListener.onProgressNotify(current, estimationSize);
-                        }
+                    bytesWrittenSinceUpdate += readCount;
+                    // Throttle progress updates
+                    long now = System.currentTimeMillis();
+                    if (now - lastUpdateTime >= UPDATE_INTERVAL_MS) {
+                        updateProgress(bytesWrittenSinceUpdate, estimationFileLength);
+                        lastUpdateTime = now;
                     }
                 }
 
-                //notify complete
-                if (fileTransferProgressListener != null) {
-                    fileTransferProgressListener.onProgressNotify(estimationSize, estimationSize);
-                }
+                // Final update for completion to ensure 100% is reported
+                // if the loop finishes before an interval update.
+                updateProgress(estimationFileLength, estimationFileLength);
             }
+
+
         } catch (IOException e) {
             SLogs.e(e);
             throw e;
+        }
+    }
+
+    private void updateProgress(long current, long total) {
+        if (fileTransferProgressListener != null) {
+            fileTransferProgressListener.onProgressNotify(current, total);
         }
     }
 }

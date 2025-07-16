@@ -171,6 +171,14 @@ public class Utils {
             // don't support psd preview
             return false;
 
+        if (suffix.equals("tif"))
+            // don't support tiff preview
+            return false;
+
+        if (suffix.equals("tiff"))
+            // don't support tiff preview
+            return false;
+
         String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(suffix);
         if (mime == null)
             return false;

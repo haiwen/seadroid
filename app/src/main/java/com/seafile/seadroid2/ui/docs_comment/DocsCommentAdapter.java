@@ -26,6 +26,8 @@ import com.seafile.seadroid2.config.GlideLoadConfig;
 import com.seafile.seadroid2.databinding.ItemFileCommentBinding;
 import com.seafile.seadroid2.databinding.LayoutImageBinding;
 import com.seafile.seadroid2.framework.model.docs_comment.DocsCommentModel;
+import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.util.SafeLogs;
 import com.seafile.seadroid2.ui.base.adapter.BaseAdapter;
 import com.seafile.seadroid2.ui.media.image.OnlyImagePreviewActivity;
 import com.seafile.seadroid2.view.rich_edittext.RichEditText;
@@ -129,7 +131,7 @@ public class DocsCommentAdapter extends BaseAdapter<DocsCommentModel, DocsCommen
         FlexboxLayout.LayoutParams f = new FlexboxLayout.LayoutParams(IMAGE_WIDTH, IMAGE_WIDTH);
         f.setMargins(DP_4, DP_4, DP_4, DP_4);
 
-        parent.addView(fileBinding.getRoot(),f);
+        parent.addView(fileBinding.getRoot(), f);
     }
 
 
@@ -137,7 +139,14 @@ public class DocsCommentAdapter extends BaseAdapter<DocsCommentModel, DocsCommen
 
         MarkdownTextView textView = new MarkdownTextView(getContext());
         textView.setPadding(DP_4, DP_8, DP_4, DP_8);
-        textView.setText(getProcessor().parse(text));
+        CharSequence cs;
+        try {
+            cs = getProcessor().parse(text);
+        } catch (Exception e) {
+            cs = text;
+            SLogs.e(e);
+        }
+        textView.setText(cs);
 //        textView.setText(text);
         textView.setMovementMethod(LinkMovementMethod.getInstance());
         textView.setId(android.R.id.text1);

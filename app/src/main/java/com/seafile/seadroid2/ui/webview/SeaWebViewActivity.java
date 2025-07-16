@@ -11,6 +11,9 @@ import android.webkit.WebView;
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.core.widget.NestedScrollView;
 import androidx.webkit.WebSettingsCompat;
 import androidx.webkit.WebViewFeature;
@@ -48,6 +51,7 @@ public class SeaWebViewActivity extends BaseActivity {
 
         binding = ActivitySeaWebviewBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        applyEdgeToEdge(binding.getRoot());
 
         toolBinding = ToolbarActionbarProgressBarBinding.bind(binding.toolProgressBar.getRoot());
 
@@ -62,6 +66,7 @@ public class SeaWebViewActivity extends BaseActivity {
         }
 
         initUI();
+
 
         //let's go
         mWebView.loadDirectly(targetUrl);
@@ -98,6 +103,21 @@ public class SeaWebViewActivity extends BaseActivity {
                     finish();
                 }
             }
+        });
+    }
+
+
+    private void applyEdgeToEdge() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(
+                    systemBars.left,
+                    systemBars.top,
+                    systemBars.right,
+                    0
+            );
+
+            return insets;
         });
     }
 

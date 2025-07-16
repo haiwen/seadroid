@@ -37,6 +37,7 @@ import java.io.File;
 import java.io.IOException;
 
 import okhttp3.Call;
+import okhttp3.Headers;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Protocol;
@@ -268,7 +269,7 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
 
         if (createdTime != -1) {
             String cTime = Times.convertLong2Time(createdTime);
-            SafeLogs.d(TAG, "file create timestamp : " + cTime);
+            SafeLogs.d(TAG, "file create time: " + cTime);
             builder.addFormDataPart("last_modify", cTime);
         }
 
@@ -287,12 +288,16 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
                 .addHeader("Connection", "keep-alive")
                 .addHeader("Accept", "*/*")
                 .addHeader("User-Agent", Constants.UA.SEAFILE_ANDROID_UA)
-                .addHeader("User-Agent", Constants.UA.SEAFILE_ANDROID_UPLOAD_UA)
                 .build();
 
+        Headers headers = request.headers();
+        for (int i = 0; i < headers.size(); i++) {
+            SafeLogs.d(TAG, "header: " + headers.name(i) + " -> " + headers.value(i));
+        }
 
         newCall = getPrimaryHttpClient(account).newCall(request);
 
+        SafeLogs.d(TAG, "start transfer, url: " + uploadUrl);
         boolean canFallback = false;
         try (Response response = newCall.execute()) {
             Protocol protocol = response.protocol();
@@ -300,16 +305,14 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
             canFallback = checkProtocol(protocol);
 
             onRes(response);
-        } catch (IOException e) {
+        } catch (Exception e) {
             SafeLogs.e(TAG, e.getMessage());
-            SafeLogs.e(e);
 
             if (canFallback) {
                 onFallback(account, request);
             } else {
-                throw SeafException.NETWORK_EXCEPTION;
+                throw ExceptionUtils.parseByThrowable(e);
             }
-
         }
     }
 
@@ -336,17 +339,16 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
             newCall.cancel();
         }
 
-        SafeLogs.d(TAG, "onFallback()", "use fallback client to upload file");
+        SafeLogs.d(TAG, "onFallback()", "use fallback client continue upload");
 
         newCall = getFallbackHttpClient(account).newCall(request);
 
         try (Response response = newCall.execute()) {
             onRes(response);
-        } catch (IOException e) {
+        } catch (Exception e) {
             SafeLogs.e(TAG, e.getMessage());
-            SafeLogs.e(e);
 
-            throw SeafException.NETWORK_EXCEPTION;
+            throw ExceptionUtils.parseByThrowable(e);
         }
     }
 
@@ -389,6 +391,8 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
     @NonNull
     private String getFileUploadUrl(Account account, String repoId, String target_dir,
                                     boolean isUpdate) throws SeafException {
+        SafeLogs.d(TAG, "getFileUploadUrl()", "target_dir: " + target_dir, "isUpdate: " + isUpdate);
+
         retrofit2.Response<String> res;
         try {
             if (isUpdate) {
@@ -402,9 +406,9 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
                         .getFileUploadLink(repoId, "/")
                         .execute();
             }
-        } catch (IOException e) {
-            SafeLogs.e(TAG, e.getMessage());
-            throw SeafException.NETWORK_EXCEPTION;
+        } catch (Exception e) {
+            SafeLogs.e(TAG, "getFileUploadUrl", e.getMessage());
+            throw ExceptionUtils.parseByThrowable(e);
         }
 
         if (!res.isSuccessful()) {
@@ -423,7 +427,8 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
         urlStr = StringUtils.replace(urlStr, "\"", "");
 
         if (TextUtils.isEmpty(urlStr)) {
-            throw SeafException.NETWORK_EXCEPTION;
+            SafeLogs.e(TAG, "getFileUploadUrl()", "urlStr is empty");
+            throw SeafException.REQUEST_URL_EXCEPTION;
         }
 
         return urlStr;
@@ -459,7 +464,7 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
     public boolean isInterrupt(SeafException result) {
         return result.equals(SeafException.OUT_OF_QUOTA) ||
                 result.equals(SeafException.INVALID_PASSWORD) ||
-                result.equals(SeafException.SSL_EXCEPTION) ||
+                result.equals(SeafException.NETWORK_SSL_EXCEPTION) ||
                 result.equals(SeafException.UNAUTHORIZED_EXCEPTION) ||
                 result.equals(SeafException.NOT_FOUND_USER_EXCEPTION) ||
                 result.equals(SeafException.SERVER_INTERNAL_ERROR) ||

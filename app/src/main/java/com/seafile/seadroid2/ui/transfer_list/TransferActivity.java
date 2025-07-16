@@ -62,7 +62,7 @@ public class TransferActivity extends BaseActivity {
 
         findViewById(R.id.view_toolbar_bottom_line).setVisibility(View.GONE);
 
-
+        applyEdgeToEdge(binding.getRoot());
         initTabLayout();
         initViewPager();
 

@@ -427,7 +427,7 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
 
     public boolean isInterrupt(SeafException result) {
         return result.equals(SeafException.INVALID_PASSWORD) ||
-                result.equals(SeafException.SSL_EXCEPTION) ||
+                result.equals(SeafException.NETWORK_SSL_EXCEPTION) ||
                 result.equals(SeafException.UNAUTHORIZED_EXCEPTION) ||
                 result.equals(SeafException.NOT_FOUND_USER_EXCEPTION) ||
                 result.equals(SeafException.NOT_FOUND_DIR_EXCEPTION) ||

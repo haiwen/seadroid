@@ -26,7 +26,8 @@ public class HideBottomBehavior extends CoordinatorLayout.Behavior<LinearLayout>
 
     @Override
     public boolean layoutDependsOn(@NonNull CoordinatorLayout parent, @NonNull LinearLayout child, View dependency) {
-        return dependency.getId() == R.id.appbar;
+//        return dependency.getId() == R.id.appbar;
+        return false;
     }
 
     private boolean isInit = true;

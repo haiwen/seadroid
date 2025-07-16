@@ -64,12 +64,6 @@ import java.util.regex.Pattern;
 import okhttp3.RequestBody;
 import retrofit2.Call;
 
-/**
- * Worker Tag:
- *
- * @see BackgroundJobManagerImpl#TAG_ALL
- * @see BackgroundJobManagerImpl#TAG_TRANSFER
- */
 public class MediaBackupScanWorker extends BaseScanWorker {
     public static final String TAG = "MediaBackupScanWorker";
     public static final UUID UID = UUID.nameUUIDFromBytes(TAG.getBytes());

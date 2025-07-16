@@ -191,7 +191,7 @@ public class BaseViewModel extends ViewModel {
     private void checkException(Throwable throwable) {
         if (throwable instanceof HttpException httpException) {
             if (httpException.getCause() instanceof SSLHandshakeException) {
-                getExceptionLiveData().setValue(new kotlin.Pair<>(httpException.code(), SeafException.SSL_EXCEPTION));
+                getExceptionLiveData().setValue(new kotlin.Pair<>(httpException.code(), SeafException.NETWORK_SSL_EXCEPTION));
             } else {
                 getExceptionLiveData().setValue(new kotlin.Pair<>(httpException.code(), SeafException.NETWORK_EXCEPTION));
             }

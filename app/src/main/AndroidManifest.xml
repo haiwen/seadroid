@@ -161,7 +161,9 @@
         <activity android:name=".ui.settings.SettingsAlbumBackupAdvancedActivity" />
         <activity android:name=".ui.data_migrate.DataMigrationV303Activity" />
         <activity android:name=".ui.sdoc.SDocWebViewActivity" />
-        <activity android:name=".ui.docs_comment.DocsCommentsActivity" />
+        <activity
+            android:name=".ui.docs_comment.DocsCommentsActivity"
+            android:windowSoftInputMode="adjustResize" />
         <activity android:name=".ui.media.image.CarouselImagePreviewActivity" />
         <activity android:name=".ui.media.image.OnlyImagePreviewActivity" />
 

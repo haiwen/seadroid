@@ -384,7 +384,7 @@ public class DownloadWorker extends BaseDownloadWorker {
 
     public boolean isInterrupt(SeafException result) {
         if (result.equals(SeafException.INVALID_PASSWORD) ||
-                result.equals(SeafException.SSL_EXCEPTION) ||
+                result.equals(SeafException.NETWORK_SSL_EXCEPTION) ||
                 result.equals(SeafException.UNAUTHORIZED_EXCEPTION) ||
                 result.equals(SeafException.NOT_FOUND_USER_EXCEPTION) ||
                 result.equals(SeafException.NOT_FOUND_DIR_EXCEPTION) ||

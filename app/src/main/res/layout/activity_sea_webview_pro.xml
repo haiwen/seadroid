@@ -1,42 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <LinearLayout
-        android:id="@+id/toolbar_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbar_actionbar"
-            style="@style/App.Widget.ToolBarStyle"
-            android:layout_width="match_parent"
-            android:layout_height="?actionBarSize"
-            app:contentInsetStartWithNavigation="0dp" />
-
-        <ProgressBar
-            android:id="@+id/tool_progress_bar"
-            style="@android:style/Widget.ProgressBar.Horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:indeterminate="false"
-            android:max="100"
-            android:maxHeight="1dp"
-            android:minHeight="1dp"
-            android:progress="10"
-            android:progressDrawable="@drawable/seekbar_for_webview_style" />
-
-        <com.google.android.material.divider.MaterialDivider
-            android:id="@+id/view_toolbar_bottom_line"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:dividerColor="@color/toolbar_divider_color" />
-    </LinearLayout>
+    <include
+        android:id="@+id/tool_progress_bar"
+        layout="@layout/toolbar_actionbar_progress_bar" />
 
     <LinearLayout
         android:id="@+id/nsv"

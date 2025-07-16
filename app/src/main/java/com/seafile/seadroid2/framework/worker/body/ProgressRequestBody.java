@@ -21,10 +21,12 @@ public class ProgressRequestBody extends RequestBody {
     private final File file;
     private final MediaType mediaType;
     private final FileTransferProgressListener fileTransferProgressListener;
-    private boolean isStop = false;
+    private boolean isStop = false;// Flag to stop the upload
 
     public ProgressRequestBody(File file, FileTransferProgressListener fileTransferProgressListener) {
         this.file = file;
+
+        //Hardcoded MediaType to "application/octet-stream"
         this.mediaType = MediaType.parse("application/octet-stream");
         this.fileTransferProgressListener = fileTransferProgressListener;
     }
@@ -63,7 +65,7 @@ public class ProgressRequestBody extends RequestBody {
                 }
 
                 long readCount = source.read(buffer, TransferWorker.SEGMENT_SIZE);
-                if (readCount == -1) break;
+                if (readCount == -1) break; // End of file
 
                 sink.write(buffer, readCount);
 
@@ -76,7 +78,8 @@ public class ProgressRequestBody extends RequestBody {
                 }
             }
 
-            // Final update for completion
+            // Final update for completion to ensure 100% is reported
+            // if the loop finishes before an interval update.
             updateProgress(fileLength, fileLength);
         }
     }

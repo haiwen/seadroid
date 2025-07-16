@@ -42,6 +42,7 @@ import java.io.File;
 import java.io.IOException;
 
 import okhttp3.Call;
+import okhttp3.Headers;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Protocol;
@@ -277,6 +278,11 @@ public abstract class BaseUploadWorker extends TransferWorker {
                 .addHeader("User-Agent", Constants.UA.SEAFILE_ANDROID_UPLOAD_UA)
                 .build();
 
+        Headers headers = request.headers();
+        for (int i = 0; i < headers.size(); i++) {
+            SafeLogs.d(TAG, "header: " + headers.name(i) + " -> " + headers.value(i));
+        }
+
         newCall = getPrimaryHttpClient(account).newCall(request);
         boolean canFallback = false;
         try (Response response = newCall.execute()) {
@@ -442,7 +448,7 @@ public abstract class BaseUploadWorker extends TransferWorker {
     public boolean isInterrupt(SeafException result) {
         if (result.equals(SeafException.OUT_OF_QUOTA) ||
                 result.equals(SeafException.INVALID_PASSWORD) ||
-                result.equals(SeafException.SSL_EXCEPTION) ||
+                result.equals(SeafException.NETWORK_SSL_EXCEPTION) ||
                 result.equals(SeafException.UNAUTHORIZED_EXCEPTION) ||
                 result.equals(SeafException.NOT_FOUND_USER_EXCEPTION) ||
                 result.equals(SeafException.USER_CANCELLED_EXCEPTION)) {

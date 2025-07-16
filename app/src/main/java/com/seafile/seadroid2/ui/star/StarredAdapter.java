@@ -52,7 +52,7 @@ public class StarredAdapter extends BaseAdapter<StarredModel, StarredViewHolder>
         }
 
         //set item_icon
-        if (model.deleted || TextUtils.isEmpty(model.encoded_thumbnail_src) || model.repo_encrypted || model.is_dir) {
+        if (model.deleted || TextUtils.isEmpty(model.encoded_thumbnail_src) || !Utils.isViewableImage(model.obj_name) || model.repo_encrypted || model.is_dir) {
             holder.binding.itemIcon.setImageResource(model.getIcon());
         } else {
 //            String url = Utils.pathJoin(SERVER, model.encoded_thumbnail_src);

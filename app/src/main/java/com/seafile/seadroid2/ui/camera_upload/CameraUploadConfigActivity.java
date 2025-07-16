@@ -61,6 +61,8 @@ public class CameraUploadConfigActivity extends BaseActivity {
         binding = CucActivityLayoutBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        applyEdgeToEdge(binding.getRoot());
+
         if (getSupportActionBar() != null)
             getSupportActionBar().hide();
 

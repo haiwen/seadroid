@@ -3,6 +3,7 @@ package com.seafile.seadroid2.ui.sdoc;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -10,6 +11,8 @@ import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.webkit.ConsoleMessage;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
@@ -17,11 +20,16 @@ import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
+import android.widget.LinearLayout;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.graphics.Insets;
 import androidx.core.util.Consumer;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsAnimationCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.core.widget.NestedScrollView;
 import androidx.lifecycle.Observer;
 import androidx.webkit.WebSettingsCompat;
@@ -29,6 +37,7 @@ import androidx.webkit.WebViewFeature;
 
 import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.GsonUtils;
+import com.blankj.utilcode.util.KeyboardUtils;
 import com.blankj.utilcode.util.NetworkUtils;
 import com.github.lzyzsd.jsbridge.CallBackFunction;
 import com.seafile.seadroid2.R;
@@ -36,6 +45,7 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.config.WebViewActionConstant;
 import com.seafile.seadroid2.databinding.ActivitySeaWebviewProBinding;
+import com.seafile.seadroid2.databinding.ToolbarActionbarProgressBarBinding;
 import com.seafile.seadroid2.framework.model.sdoc.FileProfileConfigModel;
 import com.seafile.seadroid2.framework.model.sdoc.OutlineItemModel;
 import com.seafile.seadroid2.framework.model.sdoc.SDocPageOptionsModel;
@@ -51,11 +61,13 @@ import com.seafile.seadroid2.view.webview.OnWebPageListener;
 import com.seafile.seadroid2.view.webview.PreloadWebView;
 import com.seafile.seadroid2.view.webview.SeaWebView;
 
+import java.util.List;
+
 public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
     private final String TAG = "SDocWebViewActivity";
 
     private ActivitySeaWebviewProBinding binding;
-
+    private ToolbarActionbarProgressBarBinding toolBinding;
     private SeaWebView mWebView;
     private String repoId, repoName;
     private String path;
@@ -105,6 +117,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
 
         binding = ActivitySeaWebviewProBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        toolBinding = ToolbarActionbarProgressBarBinding.bind(binding.toolProgressBar.getRoot());
 
         if (!NetworkUtils.isConnected()) {
             Toasts.show(R.string.network_unavailable);
@@ -112,9 +125,12 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
             return;
         }
 
+        applyEdgeToEdge();
+
         initData();
 
         initUI();
+        adaptInputMethod();
 
         initViewModel();
 
@@ -129,6 +145,24 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
             //let's go
             mWebView.load(targetUrl);
         }
+    }
+
+    public void applyEdgeToEdge() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(
+                    systemBars.left,
+                    0,
+                    systemBars.right,
+                    systemBars.bottom
+            );
+
+            Insets statusBars = insets.getInsets(WindowInsetsCompat.Type.statusBars());
+            LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) toolBinding.statusBarGuideline.getLayoutParams();
+            lp.height = statusBars.top;
+            toolBinding.statusBarGuideline.setLayoutParams(lp);
+            return insets;
+        });
     }
 
     private void initData() {
@@ -196,18 +230,43 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
             binding.sdocOutline.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    if (!nextEditMode) {
+                        callJsSdocEditorEnitable();
+                    }
+
+                    if (KeyboardUtils.isSoftInputVisible(SDocWebViewActivity.this)) {
+                        KeyboardUtils.hideSoftInput(SDocWebViewActivity.this);
+                    }
+
                     showOutlineDialog();
+//                    callJsGetOutline();
                 }
             });
             binding.sdocProfile.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    if (!nextEditMode) {
+                        callJsSdocEditorEnitable();
+                    }
+
+                    if (KeyboardUtils.isSoftInputVisible(SDocWebViewActivity.this)) {
+                        KeyboardUtils.hideSoftInput(SDocWebViewActivity.this);
+                    }
+
                     getViewModel().loadFileDetail(repoId, path);
                 }
             });
             binding.sdocComment.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    if (!nextEditMode) {
+                        callJsSdocEditorEnitable();
+                    }
+
+                    if (KeyboardUtils.isSoftInputVisible(SDocWebViewActivity.this)) {
+                        KeyboardUtils.hideSoftInput(SDocWebViewActivity.this);
+                    }
+
                     showCommentsActivity();
                 }
             });
@@ -215,6 +274,62 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
             binding.llBottomBar.setVisibility(View.GONE);
         }
 
+    }
+
+    private void adaptInputMethod() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            ViewCompat.setWindowInsetsAnimationCallback(binding.llBottomBar, new WindowInsetsAnimationCompat.Callback(WindowInsetsAnimationCompat.Callback.DISPATCH_MODE_STOP) {
+
+                        //                        private boolean lastImeVisible = false;
+                        private int startHeight = 0;
+                        private int lastDiffH = 0;
+
+                        @Override
+                        public void onPrepare(@NonNull WindowInsetsAnimationCompat animation) {
+                            if (startHeight == 0) {
+                                startHeight = binding.llBottomBar.getHeight();
+                            }
+                        }
+
+                        @NonNull
+                        @Override
+                        public WindowInsetsCompat onProgress(@NonNull WindowInsetsCompat insets,
+                                                             @NonNull List<WindowInsetsAnimationCompat> runningAnimations) {
+                            Insets imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime());
+                            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+
+                            Insets diff = Insets.subtract(imeInsets, systemBars);
+                            Insets maxDiff = Insets.max(diff, Insets.NONE);
+
+                            int diffH = Math.abs(maxDiff.top - maxDiff.bottom);
+
+                            ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) binding.llBottomBar.getLayoutParams();
+                            layoutParams.bottomMargin = diffH;
+                            binding.llBottomBar.setLayoutParams(layoutParams);
+
+                            lastDiffH = diffH;
+                            return insets;
+                        }
+                    }
+            );
+        } else {
+            // <= Android R
+            binding.llBottomBar.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                int lastBottom = 0;
+
+                @Override
+                public void onGlobalLayout() {
+                    WindowInsetsCompat insets = ViewCompat.getRootWindowInsets(binding.llBottomBar);
+                    if (insets != null) {
+                        int bottom = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom;
+                        if (lastBottom != 0 && bottom == 0) {
+                            binding.llBottomBar.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                        }
+                        lastBottom = bottom;
+                    }
+                }
+            });
+        }
     }
 
     private void initViewModel() {
@@ -248,7 +363,9 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         getMenuInflater().inflate(R.menu.menu_sdoc_preview, menu);
         editMenuItem = menu.findItem(R.id.sdoc_edit);
         editMenuItem.setVisible(true);
-        editMenuItem.setEnabled(false);
+        if (!isPageLoaded) {
+            editMenuItem.setEnabled(false);
+        }
         return true;
     }
 
@@ -278,13 +395,21 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         });
     }
 
-
-    private void callJsGetOutline(OutlineItemModel outlineItemModel) {
-        String param = GsonUtils.toJson(outlineItemModel);
-        mWebView.callJsFunction(WebViewActionConstant.CallJsFunction.SDOC_OUTLINES_DATA_GET, param, new CallBackFunction() {
+    @Deprecated
+    private void callJsGetOutline() {
+        mWebView.callJsFunction(WebViewActionConstant.CallJsFunction.SDOC_OUTLINES_DATA_GET, null, new CallBackFunction() {
             @Override
             public void onCallBack(String data) {
                 SLogs.d(TAG, "callJsGetOutline()", data);
+                SDocOutlineDialog dialog = SDocOutlineDialog.newInstance(data);
+                dialog.setOnItemClickListener(new OnItemClickListener<OutlineItemModel>() {
+                    @Override
+                    public void onItemClick(OutlineItemModel outlineItemModel, int position) {
+
+                        callJsSelectOutline(outlineItemModel);
+                    }
+                });
+                dialog.show(getSupportFragmentManager(), SDocOutlineDialog.class.getSimpleName());
             }
         });
     }
@@ -305,7 +430,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
     private boolean jsCallbackReceived = true;
     private boolean isPageLoaded = false;
     private boolean didPageFinishSuccessfully = false;
-    private final int timeoutDuration = 2000; // 2s
+    private final int timeoutDuration = 5000; // 5s
     private final Runnable timeoutRunnable = new Runnable() {
         @Override
         public void run() {
@@ -330,15 +455,15 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         timeoutHandler.removeCallbacks(timeoutRunnable);
         jsCallbackReceived = false;
 
+        String data = "{\"edit\": " + nextEditMode + "}";
 
-        String data = String.valueOf(nextEditMode);
         // launch a timeout task
         timeoutHandler.postDelayed(timeoutRunnable, timeoutDuration);
 
         mWebView.callJsFunction(WebViewActionConstant.CallJsFunction.SDOC_EDITOR_DATA_EDIT, data, new CallBackFunction() {
             @Override
             public void onCallBack(String data) {
-                SLogs.d(TAG, "callJsSdocEditorEnitable()", data);
+                SLogs.d(TAG, "callJsSdocEditorEnitable(), receive data: ", data);
                 if (TextUtils.isEmpty(data)) {
                     return;
                 }
@@ -355,7 +480,12 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
                     return;
                 }
 
+                if (!data.contains("true")) {
+                    return;
+                }
+
                 nextEditMode = !nextEditMode;
+
                 if (editMenuItem != null) {
                     editMenuItem.setTitle(nextEditMode ? R.string.edit : R.string.complete);
                 }
@@ -537,7 +667,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         @Override
         public void onReceivedTitle(WebView view, String title) {
             super.onReceivedTitle(view, title);
-            binding.toolbarActionbar.setTitle(title);
+            toolBinding.toolbarActionbar.setTitle(title);
         }
 
         @Override
@@ -556,6 +686,9 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
                     case TIP:
                         SLogs.i("web i log: line: " + consoleMessage.lineNumber() + ", message: " + consoleMessage.message());
                         break;
+                    case LOG:
+                        SLogs.e("web l log: line: " + consoleMessage.lineNumber() + ", message: " + consoleMessage.message());
+                        break;
                     default:
                         SLogs.e("web default log: line: " + consoleMessage.lineNumber() + ", message: " + consoleMessage.message());
                         break;
@@ -566,11 +699,11 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
     };
 
     private void setBarProgress(int p) {
-        binding.toolProgressBar.setProgress(p, true);
+        toolBinding.toolProgressBar.setProgress(p, true);
 
         if (p != 100) {
-            if (binding.toolProgressBar.getVisibility() != View.VISIBLE) {
-                binding.toolProgressBar.setVisibility(View.VISIBLE);
+            if (toolBinding.toolProgressBar.getVisibility() != View.VISIBLE) {
+                toolBinding.toolProgressBar.setVisibility(View.VISIBLE);
             }
         }
 
@@ -579,7 +712,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
 
     private void hideProgressBar() {
         if (curProgress == 100) {
-            binding.toolProgressBar.setVisibility(View.GONE);
+            toolBinding.toolProgressBar.setVisibility(View.GONE);
         }
     }
 

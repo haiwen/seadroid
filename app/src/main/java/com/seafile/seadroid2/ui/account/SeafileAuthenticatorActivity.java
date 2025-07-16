@@ -22,6 +22,9 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ComponentActivity;
 import androidx.core.app.NavUtils;
 import androidx.core.app.TaskStackBuilder;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Authenticator;
@@ -76,7 +79,10 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
     public void onCreate(Bundle savedInstanceState) {
         Log.d(DEBUG_TAG, "onCreate");
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.account_create_type_select);
+
+        applyEdgeToEdge(findViewById(R.id.root_layout));
 
         activityLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
             @Override

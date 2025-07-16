@@ -30,6 +30,7 @@ import com.seafile.seadroid2.framework.util.SafeLogs;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.queue.TransferModel;
+import com.seafile.seadroid2.framework.worker.queue.TransferQueue;
 import com.seafile.seadroid2.ui.camera_upload.GalleryBucketUtils;
 import com.seafile.seadroid2.ui.file.FileService;
 import com.seafile.seadroid2.ui.folder_backup.RepoConfig;
@@ -280,9 +281,9 @@ public class AlbumScanHelper {
             int bucketColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME);
             String bucketName = cursor.getString(bucketColumn);
 
-            int dateAddIndex = cursor.getColumnIndex(MediaStore.Images.Media.DATE_ADDED);
-            long dateAdded = cursor.getLong(dateAddIndex);
-            String dateAddedString = TimeUtils.millis2String(dateAdded * 1000, "yyyy-MM-dd HH:mm:ss");
+//            int dateAddIndex = cursor.getColumnIndex(MediaStore.Images.Media.DATE_ADDED);
+//            long dateAdded = cursor.getLong(dateAddIndex);
+//            String dateAddedString = TimeUtils.millis2String(dateAdded * 1000, "yyyy-MM-dd HH:mm:ss");
 
             int dataIndex = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
             String localPath = cursor.getString(dataIndex);
@@ -459,7 +460,6 @@ public class AlbumScanHelper {
         }
 
         DirentWrapperModel direntWrapperModel = getDirentWrapper(repoId, path);
-
         List<DirentModel> remoteList = direntWrapperModel.dirent_list;
         if (CollectionUtils.isEmpty(remoteList)) {
             return;
@@ -476,10 +476,11 @@ public class AlbumScanHelper {
                 prefix = filename;
                 suffix = "";
             }
+
             Pattern pattern = Pattern.compile(Pattern.quote(prefix) + "( \\(\\d+\\))?" + Pattern.quote(suffix));
             /*
              * It would be cool if the API2 offered a way to query the hash of a remote file.
-             * Currently, comparing the file size is the best we can do.
+             * Currently, comparing the file name is the best we can do.
              */
             Optional<DirentModel> firstOp = remoteList.stream()
                     .filter(f -> pattern.matcher(f.name).matches())
@@ -489,6 +490,9 @@ public class AlbumScanHelper {
                 SafeLogs.d(TAG, "checkAndInsert()", "skip file -> [remote exists] " + filename + ", because we have uploaded it in the past.");
 
                 GlobalTransferCacheList.ALBUM_BACKUP_QUEUE.remove(bucketName, transferModel);
+            } else {
+                transferModel.setChecked(true);
+                GlobalTransferCacheList.ALBUM_BACKUP_QUEUE.update(transferModel);
             }
         }
     }

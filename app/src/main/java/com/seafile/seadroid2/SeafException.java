@@ -93,27 +93,39 @@ public class SeafException extends Exception {
     public static final SeafException SERVER_INTERNAL_ERROR = new SeafException(HTTP_500_INTERNAL_SERVER_ERROR, SeadroidApplication.getAppString(R.string.internal_server_error));
 
     //Feature error
-    public static final SeafException NETWORK_EXCEPTION = new SeafException(2000, SeadroidApplication.getAppString(R.string.network_error));
-    public static final SeafException NETWORK_UNAVAILABLE = new SeafException(2001, SeadroidApplication.getAppString(R.string.network_unavailable));
+    public static final SeafException FILE_IO_EXCEPTION = new SeafException(2016, "File io exception");
 
-    public static final SeafException ENCODING_EXCEPTION = new SeafException(2002, "encoding error");
+    public static final SeafException ENCODING_EXCEPTION = new SeafException(2002, "Encoding error");
     public static final SeafException ILL_FORMAT_EXCEPTION = new SeafException(2003, "Ill-formatted Response");
-    public static final SeafException SSL_EXCEPTION = new SeafException(2004, "not trusted SSL server");
 
-    public static final SeafException UNSUPPORTED_ENC_VERSION = new SeafException(2005, "unsupported encryption version");
-    public static final SeafException ENCRYPT_EXCEPTION = new SeafException(2006, "encryption key or iv is null");
-    public static final SeafException DECRYPT_EXCEPTION = new SeafException(2007, "decryption key or iv is null");
-    public static final SeafException REMOTE_WIPED_EXCEPTION = new SeafException(2008, "remote Wiped Error");
+    public static final SeafException UNSUPPORTED_ENC_VERSION = new SeafException(2005, "Unsupported encryption version");
+    public static final SeafException ENCRYPT_EXCEPTION = new SeafException(2006, "Encryption key or iv is null");
+    public static final SeafException DECRYPT_EXCEPTION = new SeafException(2007, "Decryption key or iv is null");
+    public static final SeafException REMOTE_WIPED_EXCEPTION = new SeafException(2008, "Remote Wiped Error");
     public static final SeafException TWO_FACTOR_AUTH_TOKEN_MISSING_EXCEPTION = new SeafException(2009, SeadroidApplication.getAppString(R.string.two_factor_auth_token_empty));
     public static final SeafException TWO_FACTOR_AUTH_TOKEN_INVALID_EXCEPTION = new SeafException(2010, SeadroidApplication.getAppString(R.string.two_factor_auth_invalid));
 
     public static final SeafException INVALID_PASSWORD = new SeafException(2011, SeadroidApplication.getAppString(R.string.wrong_password));
     public static final SeafException NOT_FOUND_USER_EXCEPTION = new SeafException(2012, SeadroidApplication.getAppString(R.string.saf_account_not_found_exception));
-    public static final SeafException NOT_FOUND_DIR_EXCEPTION = new SeafException(2013, "parent dir doesn't exist");
-    public static final SeafException TRANSFER_FILE_EXCEPTION = new SeafException(2014, "the file transfer is abnormal");
-    public static final SeafException REQUEST_URL_EXCEPTION = new SeafException(2015, "request url failed");
-    public static final SeafException IO_EXCEPTION = new SeafException(2016, "io exception");
-    public static final SeafException USER_CANCELLED_EXCEPTION = new SeafException(2017, "operation cancelled by user");
+    public static final SeafException NOT_FOUND_DIR_EXCEPTION = new SeafException(2013, "Parent dir doesn't exist");
+    public static final SeafException TRANSFER_FILE_EXCEPTION = new SeafException(2014, "The file transfer is abnormal");
+    public static final SeafException REQUEST_URL_EXCEPTION = new SeafException(2015, "Request url failed");
+    public static final SeafException USER_CANCELLED_EXCEPTION = new SeafException(2017, "The operation was canceled by the user");
     public static final SeafException READ_FILE_EXCEPTION = new SeafException(2018, "Read file failed");
+
+
+    //network
+    public static final SeafException NETWORK_RESET_EXCEPTION = new SeafException(2101, "The connection was reset");
+    public static final SeafException NETWORK_SSL_EXCEPTION = new SeafException(2102, "Not trusted SSL server");
+
+    public static final SeafException NETWORK_EXCEPTION = new SeafException(2103, SeadroidApplication.getAppString(R.string.network_error));
+    public static final SeafException NETWORK_UNAVAILABLE = new SeafException(2104, SeadroidApplication.getAppString(R.string.network_unavailable));
+    public static final SeafException NETWORK_TIMEOUT_EXCEPTION = new SeafException(2105, "Network timeout");
+    public static final SeafException NETWORK_INTERRUPTED_EXCEPTION = new SeafException(2106, "Network is interrupted");
+    public static final SeafException NETWORK_CONNECT_REFUSE_EXCEPTION = new SeafException(2107, "Connection is refused");
+    public static final SeafException NETWORK_EOF_EXCEPTION = new SeafException(2108, "Connection EOF");
+    public static final SeafException NETWORK_SHUTDOWN_EXCEPTION = new SeafException(2109, "The connection is shut down");
+    public static final SeafException NETWORK_UNKNOWN_HOST_EXCEPTION = new SeafException(2110, "Unknown host");
+    public static final SeafException NETWORK_IO_EXCEPTION = new SeafException(2111, "Network io exception");
 
 }

@@ -212,6 +212,25 @@ public class BottomSheetNewDirFileDialogFragment extends RequestBottomSheetDialo
             }
             return false;
         }
+
+        if (t.contains("/")) {
+            Toasts.show(R.string.name_contains_slash);
+            return false;
+        }
+        if (t.contains("`")) {
+            Toasts.show(R.string.name_contains_backtick);
+            return false;
+        }
+
+        if (t.contains("\\\\")) {
+            Toasts.show(R.string.name_contains_backslash);
+            return false;
+        }
+        if (t.equals("..")) {
+            Toasts.show(R.string.name_cannot_be_double_dots);
+            return false;
+        }
+
         return true;
     }
 }

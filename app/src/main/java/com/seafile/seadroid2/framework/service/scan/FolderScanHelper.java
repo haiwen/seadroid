@@ -350,6 +350,7 @@ public class FolderScanHelper {
             transferModel.data_source = FeatureDataSource.FOLDER_BACKUP;
             transferModel.save_to = SaveTo.DB;
             transferModel.setId(transferModel.genStableId());
+            transferModel.setChecked(true);
             GlobalTransferCacheList.FOLDER_BACKUP_QUEUE.put(transferModel);
         }
     }

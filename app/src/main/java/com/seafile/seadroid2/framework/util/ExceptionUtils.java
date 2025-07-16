@@ -3,17 +3,17 @@ package com.seafile.seadroid2.framework.util;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import com.google.gson.Gson;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.framework.model.ErrorModel;
 
-import org.json.JSONObject;
-
+import java.io.EOFException;
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -23,6 +23,8 @@ import javax.net.ssl.SSLPeerUnverifiedException;
 
 import okhttp3.Headers;
 import okhttp3.ResponseBody;
+import okhttp3.internal.http2.ConnectionShutdownException;
+import okhttp3.internal.http2.StreamResetException;
 import retrofit2.HttpException;
 import retrofit2.Response;
 
@@ -36,10 +38,12 @@ public class ExceptionUtils {
             return new SeafException(SeafException.CODE_FAILED, "Exception is null");
         }
 
+        //seaf
         if (throwable instanceof SeafException) {
             return (SeafException) throwable;
         }
 
+        //http
         if (throwable instanceof HttpException httpException) {
 
             Response<?> resp = httpException.response();
@@ -73,31 +77,62 @@ public class ExceptionUtils {
             }
         }
 
+        //ssl
         if (throwable instanceof SSLHandshakeException sslHandshakeException) {
             SLogs.e(sslHandshakeException.getMessage());
-            return SeafException.SSL_EXCEPTION;
-        }
-
-        if (throwable instanceof SocketTimeoutException socketTimeoutException) {
-            SLogs.e(socketTimeoutException.getMessage());
-            return SeafException.NETWORK_EXCEPTION;
+            return SeafException.NETWORK_SSL_EXCEPTION;
         }
 
         if (throwable instanceof SSLPeerUnverifiedException) {
-            return SeafException.SSL_EXCEPTION;
+            return SeafException.NETWORK_SSL_EXCEPTION;
         }
 
         if (throwable instanceof SSLException) {
-            return SeafException.SSL_EXCEPTION;
+            return SeafException.NETWORK_SSL_EXCEPTION;
         }
 
         if (throwable instanceof SecurityException) {
-            return SeafException.IO_EXCEPTION;
+            return new SeafException(SeafException.PERMISSION_EXCEPTION.getCode(), "May be missing permission");
+        }
+
+        // This issue is common if the server is built on Cloudflare/Nginx/gRPC
+        if (throwable instanceof StreamResetException streamResetException) {
+            SLogs.e(streamResetException);
+            return new SeafException(SeafException.NETWORK_RESET_EXCEPTION.getCode(), streamResetException.getMessage());
+        }
+
+        // When the connection has been closed, but you still try to manipulate it, such as reusing an HTTP/2 stream.
+        if (throwable instanceof ConnectionShutdownException shutdownException) {
+            SLogs.e(shutdownException);
+            return SeafException.NETWORK_SHUTDOWN_EXCEPTION;
+        }
+
+        //connect
+        if (throwable instanceof SocketTimeoutException socketTimeoutException) {
+            SLogs.e(socketTimeoutException.getMessage());
+            return SeafException.NETWORK_TIMEOUT_EXCEPTION;
+        }
+
+        //interrupted(socket timeout parent)
+        if (throwable instanceof InterruptedException) {
+            return SeafException.NETWORK_INTERRUPTED_EXCEPTION;
+        }
+
+        if (throwable instanceof ConnectException) {
+            return SeafException.NETWORK_CONNECT_REFUSE_EXCEPTION;
+        }
+
+        if (throwable instanceof UnknownHostException) {
+            return SeafException.NETWORK_UNKNOWN_HOST_EXCEPTION;
+        }
+
+        if (throwable instanceof EOFException) {
+            return SeafException.NETWORK_EOF_EXCEPTION;
         }
 
         if (throwable instanceof IOException ioException) {
             SLogs.e(ioException);
-            return SeafException.IO_EXCEPTION;
+            return SeafException.NETWORK_IO_EXCEPTION;
         }
 
         return new SeafException(SeafException.CODE_FAILED, throwable.getLocalizedMessage());

@@ -16,11 +16,15 @@ import android.widget.ListView;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.Observer;
 
 import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.AppUtils;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.databinding.StartBinding;
 import com.seafile.seadroid2.framework.model.ServerInfo;
 import com.seafile.seadroid2.framework.datastore.sp.AppDataManager;
 import com.seafile.seadroid2.account.AccountUtils;
@@ -41,14 +45,11 @@ import java.util.Locale;
 public class AccountsActivity extends BaseActivityWithVM<AccountViewModel> implements Toolbar.OnMenuItemClickListener {
     private static final String DEBUG_TAG = "AccountsActivity";
     public static final int DETAIL_ACTIVITY_REQUEST = 1;
-    public static final String FROM_THIS = AccountsActivity.class.getName();
-
-    private ListView accountsView;
-
     private android.accounts.AccountManager mAccountManager;
     private AccountAdapter adapter;
     private List<Account> accounts;
     private Account currentDefaultAccount;
+    private StartBinding binding;
 
     private final OnAccountsUpdateListener accountsUpdateListener = new OnAccountsUpdateListener() {
         @Override
@@ -84,40 +85,20 @@ public class AccountsActivity extends BaseActivityWithVM<AccountViewModel> imple
     public void onCreate(Bundle savedInstanceState) {
         Log.d(DEBUG_TAG, "AccountsActivity.onCreate is called");
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.start);
+
+        binding = StartBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+
+        initUI();
+        applyEdgeToEdge(binding.getRoot());
 
         mAccountManager = android.accounts.AccountManager.get(this);
+        mAccountManager.addOnAccountsUpdatedListener(accountsUpdateListener, null, false);
 
         accounts = SupportAccountManager.getInstance().getAccountList();
         currentDefaultAccount = SupportAccountManager.getInstance().getCurrentAccount();
 
-        View footerView = getLayoutInflater().inflate(R.layout.account_list_footer, null, false);
-
-        Button addAccount = (Button) footerView.findViewById(R.id.account_footer_btn);
-        addAccount.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View btn) {
-                mAccountManager.addAccount(Constants.Account.ACCOUNT_TYPE,
-                        Authenticator.AUTHTOKEN_TYPE, null, null,
-                        AccountsActivity.this, accountCallback, null);
-            }
-        });
-
-        accountsView = (ListView) findViewById(R.id.account_list_view);
-        accountsView.addFooterView(footerView, null, true);
-        accountsView.setFooterDividersEnabled(false);
-
-        adapter = new AccountAdapter(this);
-        accountsView.setAdapter(adapter);
-        accountsView.setOnItemClickListener((parent, view, position, id) -> onListItemClick(position));
-
-        mAccountManager.addOnAccountsUpdatedListener(accountsUpdateListener, null, false);
-
-        registerForContextMenu(accountsView);
-
-        Toolbar toolbar = getActionBarToolbar();
-        toolbar.setOnMenuItemClickListener(this);
-        setSupportActionBar(toolbar);
+        registerForContextMenu(binding.accountListView);
 
         // updates toolbar back button
         if (currentDefaultAccount == null || !currentDefaultAccount.hasValidToken()) {
@@ -139,6 +120,35 @@ public class AccountsActivity extends BaseActivityWithVM<AccountViewModel> imple
         if (country.equals("CN") && language.equals("zh") && (privacyPolicyConfirmed == 0)) {
             showDialog();
         }
+    }
+
+    private void initUI(){
+
+        View footerView = getLayoutInflater().inflate(R.layout.account_list_footer, null, false);
+
+        Button addAccount = (Button) footerView.findViewById(R.id.account_footer_btn);
+        addAccount.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View btn) {
+                mAccountManager.addAccount(Constants.Account.ACCOUNT_TYPE,
+                        Authenticator.AUTHTOKEN_TYPE, null, null,
+                        AccountsActivity.this, accountCallback, null);
+            }
+        });
+
+
+        binding.accountListView.addFooterView(footerView, null, true);
+        binding.accountListView.setFooterDividersEnabled(false);
+
+        adapter = new AccountAdapter(this);
+        binding.accountListView.setAdapter(adapter);
+        binding.accountListView.setOnItemClickListener((parent, view, position, id) -> onListItemClick(position));
+
+        Toolbar toolbar = getActionBarToolbar();
+        toolbar.setOnMenuItemClickListener(this);
+        setSupportActionBar(toolbar);
+
+
     }
 
     private void initOnBackPressedDispatcher() {

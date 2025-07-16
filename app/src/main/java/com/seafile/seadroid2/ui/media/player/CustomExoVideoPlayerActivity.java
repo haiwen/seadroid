@@ -48,7 +48,6 @@ public class CustomExoVideoPlayerActivity extends BaseActivityWithVM<PlayerViewM
     private ExoPlayerView exoPlayerView;
 
     private String fileName;
-    private String fileId;
     private String repoId;
     private String filePath;
 
@@ -57,12 +56,11 @@ public class CustomExoVideoPlayerActivity extends BaseActivityWithVM<PlayerViewM
     private int startItemIndex;
     private long startPosition;
 
-    public static void startThis(Context context, String fileName, String repoID, String filePath, String fileId) {
+    public static void startThis(Context context, String fileName, String repoID, String filePath) {
         Intent intent = new Intent(context, CustomExoVideoPlayerActivity.class);
         intent.putExtra("fileName", fileName);
         intent.putExtra("repoId", repoID);
         intent.putExtra("filePath", filePath);
-        intent.putExtra("fileId", fileId);
         context.startActivity(intent);
     }
 
@@ -91,7 +89,6 @@ public class CustomExoVideoPlayerActivity extends BaseActivityWithVM<PlayerViewM
             fileName = savedInstanceState.getString("fileName");
             repoId = savedInstanceState.getString("repoId");
             filePath = savedInstanceState.getString("filePath");
-            fileId = savedInstanceState.getString("fileId");
 
             startAutoPlay = savedInstanceState.getBoolean(KEY_AUTO_PLAY);
             hasFullScreen = savedInstanceState.getBoolean(KEY_FULL_SCREEN);
@@ -102,7 +99,6 @@ public class CustomExoVideoPlayerActivity extends BaseActivityWithVM<PlayerViewM
             fileName = intent.getStringExtra("fileName");
             repoId = intent.getStringExtra("repoId");
             filePath = intent.getStringExtra("filePath");
-            fileId = intent.getStringExtra("fileId");
 
 
             clearStartPosition();
@@ -117,7 +113,7 @@ public class CustomExoVideoPlayerActivity extends BaseActivityWithVM<PlayerViewM
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
 
-        getViewModel().checkLocalAndOpen(repoId, filePath, fileId, true);
+        getViewModel().checkLocalAndOpen(repoId, filePath, true);
     }
 
     @OptIn(markerClass = UnstableApi.class)
@@ -226,7 +222,6 @@ public class CustomExoVideoPlayerActivity extends BaseActivityWithVM<PlayerViewM
         outState.putString("fileName", fileName);
         outState.putString("repoId", repoId);
         outState.putString("filePath", filePath);
-        outState.putString("fileId", fileId);
     }
 
     private void setPlayIcon(boolean isPlay) {
@@ -380,6 +375,6 @@ public class CustomExoVideoPlayerActivity extends BaseActivityWithVM<PlayerViewM
     private String getMinSecFormat(long millisecond) {
         long minutes = millisecond / 60 / 1000;
         long seconds = millisecond / 1000 % 60;
-        return String.format(Locale.ROOT, "%02d:%02d", minutes, seconds);
+        return String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds);
     }
 }

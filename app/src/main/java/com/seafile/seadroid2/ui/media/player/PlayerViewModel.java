@@ -27,27 +27,29 @@ public class PlayerViewModel extends BaseViewModel {
         return _urlLiveData;
     }
 
-    public void checkLocalAndOpen(String repo_id, String path, String newFileId, boolean isReused) {
+    public void checkLocalAndOpen(String repoId, String path, boolean isReused) {
         getSecondRefreshLiveData().setValue(true);
 
-        Single<List<FileCacheStatusEntity>> dbSingle = AppDatabase.getInstance().fileCacheStatusDAO().getByFullPath(repo_id, path);
+        Single<List<FileCacheStatusEntity>> dbSingle = AppDatabase.getInstance().fileCacheStatusDAO().getByFullPath(repoId, path);
         addSingleDisposable(dbSingle, new Consumer<List<FileCacheStatusEntity>>() {
             @Override
             public void accept(List<FileCacheStatusEntity> fileCacheStatusEntities) throws Exception {
                 if (CollectionUtils.isEmpty(fileCacheStatusEntities)) {
-                    getFileLink(repo_id, path, isReused);
+                    getFileLink(repoId, path, isReused);
+                    return;
+                }
+
+                FileCacheStatusEntity fileCacheStatusEntity = fileCacheStatusEntities.get(0);
+                if (fileCacheStatusEntity == null || TextUtils.isEmpty(fileCacheStatusEntity.target_path)) {
+                    getFileLink(repoId, path, isReused);
+                    return;
+                }
+
+                File file = new File(fileCacheStatusEntity.target_path);
+                if (file.exists()) {
+                    getUrlLiveData().setValue(fileCacheStatusEntity.target_path);
                 } else {
-                    FileCacheStatusEntity fileCacheStatusEntity = fileCacheStatusEntities.get(0);
-                    if (TextUtils.equals(newFileId, fileCacheStatusEntity.file_id)) {
-                        File file = new File(fileCacheStatusEntity.target_path);
-                        if (file.exists()) {
-                            getUrlLiveData().setValue(fileCacheStatusEntity.target_path);
-                        } else {
-                            getFileLink(repo_id, path, isReused);
-                        }
-                    } else {
-                        getFileLink(repo_id, path, isReused);
-                    }
+                    getFileLink(repoId, path, isReused);
                 }
             }
         }, new Consumer<Throwable>() {

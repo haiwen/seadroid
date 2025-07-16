@@ -120,6 +120,9 @@ public class BaseMediaSelectorActivity<T extends BaseViewModel> extends BaseActi
     }
 
     public void onMediaPicked(Uri uri) {
+        if (uri == null) {
+            return;
+        }
         SLogs.d("BaseMediaSelectorActivity", uri.toString());
     }
 
