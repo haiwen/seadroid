@@ -290,11 +290,6 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
                 .addHeader("User-Agent", Constants.UA.SEAFILE_ANDROID_UA)
                 .build();
 
-        Headers headers = request.headers();
-        for (int i = 0; i < headers.size(); i++) {
-            SafeLogs.d(TAG, "header: " + headers.name(i) + " -> " + headers.value(i));
-        }
-
         newCall = getPrimaryHttpClient(account).newCall(request);
 
         SafeLogs.d(TAG, "start transfer, url: " + uploadUrl);
@@ -354,6 +349,19 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
 
     private void onRes(Response response) throws SeafException, IOException {
         int code = response.code();
+
+        //req headers log
+        Headers reqHeaders = response.request().headers();
+        for (int i = 0; i < reqHeaders.size(); i++) {
+            SafeLogs.d(TAG, "req header: " + reqHeaders.name(i) + " -> " + reqHeaders.value(i));
+        }
+
+        //res headers log
+        Headers resHeaders = response.headers();
+        for (int i = 0; i < resHeaders.size(); i++) {
+            SafeLogs.d(TAG, "res header: " + resHeaders.name(i) + " -> " + resHeaders.value(i));
+        }
+
         try (ResponseBody body = response.body()) {
             if (body == null) {
                 SafeLogs.d(TAG, "transferFile()", "body is null");
