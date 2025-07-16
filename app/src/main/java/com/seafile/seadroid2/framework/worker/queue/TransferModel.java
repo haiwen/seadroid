@@ -7,7 +7,6 @@ import androidx.annotation.NonNull;
 import com.blankj.utilcode.util.EncryptUtils;
 import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.SaveTo;
-import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.ExistingFileStrategy;
@@ -74,7 +73,6 @@ public class TransferModel implements Comparable<TransferModel> {
      * Enabled for backups only：Album backup, Folder backup
      */
     public boolean is_checked = false;
-
 
     @NonNull
     @Override
