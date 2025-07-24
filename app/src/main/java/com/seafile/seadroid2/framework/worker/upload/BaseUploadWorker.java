@@ -22,6 +22,7 @@ import com.seafile.seadroid2.framework.db.entities.FileBackupStatusEntity;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.notification.base.BaseTransferNotificationHelper;
+import com.seafile.seadroid2.framework.service.FileUploadUtils;
 import com.seafile.seadroid2.framework.util.ExceptionUtils;
 import com.seafile.seadroid2.framework.util.FileUtils;
 import com.seafile.seadroid2.framework.util.SLogs;
@@ -237,6 +238,8 @@ public abstract class BaseUploadWorker extends TransferWorker {
                 throw SeafException.PERMISSION_EXCEPTION;
             }
 
+            currentTransferModel.file_size = FileUploadUtils.resolveSize(getApplicationContext(), Uri.parse(currentTransferModel.full_path));
+
             uriRequestBody = new ProgressUriRequestBody(getApplicationContext(), Uri.parse(currentTransferModel.full_path), currentTransferModel.file_size, _fileTransferProgressListener);
             builder.addFormDataPart("file", currentTransferModel.file_name, uriRequestBody);
 
@@ -283,55 +286,11 @@ public abstract class BaseUploadWorker extends TransferWorker {
             SafeLogs.d(TAG, "header: " + headers.name(i) + " -> " + headers.value(i));
         }
 
-        newCall = getPrimaryHttpClient(account).newCall(request);
-        boolean canFallback = false;
+        newCall = getFallbackHttpClient(account).newCall(request);
         try (Response response = newCall.execute()) {
             Protocol protocol = response.protocol();
             SafeLogs.d(TAG, "onRes()", "response code: " + response.code() + ", protocol: " + protocol);
-            canFallback = checkProtocol(protocol);
 
-            onRes(response);
-        } catch (IOException e) {
-            SafeLogs.e(TAG, e.getMessage());
-            SafeLogs.e(e);
-
-            if (canFallback) {
-                onFallback(account, request);
-            } else {
-                throw SeafException.NETWORK_EXCEPTION;
-            }
-        }
-    }
-
-
-    private boolean checkProtocol(Protocol protocol) {
-        if (protocol == null) {
-            return false;
-        }
-
-        SafeLogs.d(TAG, "checkProtocol()", "protocol: " + protocol);
-
-        if (Protocol.HTTP_2 == protocol) {
-            return true;
-        } else if (Protocol.QUIC == protocol) {
-            return true;
-        } else if (Protocol.H2_PRIOR_KNOWLEDGE == protocol) {
-            return true;
-        }
-        return false;
-    }
-
-    private void onFallback(Account account, Request request) throws SeafException {
-        if (newCall != null && newCall.isExecuted()) {
-            SafeLogs.d(TAG, "onFallback()", "newCall has executed(), cancel it");
-            newCall.cancel();
-        }
-
-        SafeLogs.d(TAG, "onFallback()", "use fallback client to upload file");
-
-        newCall = getFallbackHttpClient(account).newCall(request);
-
-        try (Response response = newCall.execute()) {
             onRes(response);
         } catch (IOException e) {
             SafeLogs.e(TAG, e.getMessage());

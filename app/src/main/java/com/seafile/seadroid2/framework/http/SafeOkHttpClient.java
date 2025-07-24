@@ -85,7 +85,17 @@ public class SafeOkHttpClient extends BaseOkHttpClient {
     public OkHttpClient getOkClient(boolean isForceUseHttp_1_1) {
         OkHttpClient.Builder builder = getOkClientBuilder();
         if (isForceUseHttp_1_1) {
-            builder.protocols(Collections.singletonList(Protocol.HTTP_1_1));
+            ArrayList<Protocol> protocols = new ArrayList<>();
+            protocols.add(Protocol.HTTP_1_1);
+            builder.protocols(protocols);
+        }
+        return builder.build();
+    }
+
+    public OkHttpClient getOkClient(List<Protocol> protocols) {
+        OkHttpClient.Builder builder = getOkClientBuilder();
+        if (!CollectionUtils.isEmpty(protocols)) {
+            builder.protocols(protocols);
         }
         return builder.build();
     }

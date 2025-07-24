@@ -72,7 +72,9 @@ public class LocalFileUpdater extends ParentEventUploader {
             return returnSuccess();
         }
 
-        SeafException resultSeafException = SeafException.SUCCESS;
+        SeafException resultException = SeafException.SUCCESS;
+        SeafException interruptException = SeafException.SUCCESS;
+        SeafException lastException = SeafException.SUCCESS;
 
         while (true) {
             TransferModel missFieldDataTransferModel = GlobalTransferCacheList.LOCAL_FILE_MONITOR_QUEUE.pick(true);
@@ -114,9 +116,10 @@ public class LocalFileUpdater extends ParentEventUploader {
                     SafeLogs.e("An exception occurred and the transmission has been interrupted");
                     notifyError(seafException);
 
-                    resultSeafException = seafException;
+                    interruptException = seafException;
                     break;
                 } else {
+                    lastException = seafException;
                     SafeLogs.e("An exception occurred and the next transfer will continue");
                 }
             }
@@ -125,21 +128,29 @@ public class LocalFileUpdater extends ParentEventUploader {
         // clear all notifications
         getNotificationDispatcher().clearAll();
 
-        if (resultSeafException == SeafException.SUCCESS) {
-            Toasts.show(R.string.updated);
+        if (interruptException != SeafException.SUCCESS) {
+            resultException = interruptException;
+            SafeLogs.d(TAG, "all completed", "error msg:[interruptException]: " + resultException.getMessage());
+
+        } else if (totalPendingCount == 1 && lastException != SeafException.SUCCESS) {
+            resultException = lastException;
+            SafeLogs.d(TAG, "all completed", "error msg:[lastException]: " + resultException.getMessage());
+
         } else {
-            Toasts.show(R.string.upload_failed + ": " + resultSeafException.getMessage());
+            SafeLogs.d(TAG, "all completed");
         }
 
-        SafeLogs.d(TAG, "downloaded file monitor: complete, upload successful?" + resultSeafException.getMessage());
-        //
         String errorMsg = null;
-        if (resultSeafException != SeafException.SUCCESS) {
-            errorMsg = resultSeafException.getMessage();
+        if (resultException != SeafException.SUCCESS) {
+            errorMsg = resultException.getMessage();
+            Toasts.show(R.string.upload_failed + ": " + errorMsg);
+        }else{
+            Toasts.show(R.string.updated);
         }
+
         sendCompleteEvent(FeatureDataSource.AUTO_UPDATE_LOCAL_FILE, errorMsg, totalPendingCount);
 
-        return SeafException.SUCCESS;
+        return resultException;
     }
 
 

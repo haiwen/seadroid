@@ -57,7 +57,10 @@ public class FileUploader extends ParentEventUploader {
 
         SafeLogs.d(TAG, "startUpload()", "pending count: " + totalPendingCount);
 
-        SeafException resultSeafException = SeafException.SUCCESS;
+        SeafException resultException = SeafException.SUCCESS;
+        SeafException interruptException = SeafException.SUCCESS;
+        SeafException lastException = SeafException.SUCCESS;
+
         while (true) {
             TransferModel transferModel = GlobalTransferCacheList.FILE_UPLOAD_QUEUE.pick();
             if (transferModel == null) {
@@ -83,27 +86,37 @@ public class FileUploader extends ParentEventUploader {
                     SafeLogs.e("An exception occurred and the transmission has been interrupted");
                     notifyError(seafException);
 
-                    resultSeafException = seafException;
+                    interruptException = seafException;
                     break;
                 } else {
+                    lastException = seafException;
+
                     SafeLogs.e("An exception occurred and the next transfer will continue");
                 }
             }
         }
 
-        String errorMsg = null;
-        if (resultSeafException != SeafException.SUCCESS) {
-            errorMsg = resultSeafException.getMessage();
+        if (interruptException != SeafException.SUCCESS) {
+            resultException = interruptException;
+            SafeLogs.d(TAG, "all completed", "error msg:[interruptException]: " + resultException.getMessage());
 
-            Toasts.show(R.string.upload_failed);
-
-            SafeLogs.d(TAG, "all completed, but error:", errorMsg);
+        } else if (totalPendingCount == 1 && lastException != SeafException.SUCCESS) {
+            resultException = lastException;
+            SafeLogs.d(TAG, "all completed", "error msg:[lastException]: " + resultException.getMessage());
         } else {
-            Toasts.show(R.string.upload_completed);
             SafeLogs.d(TAG, "all completed");
         }
+
+        String errorMsg = null;
+        if (resultException != SeafException.SUCCESS) {
+            errorMsg = resultException.getMessage();
+            Toasts.show(R.string.upload_failed);
+        } else {
+            Toasts.show(R.string.upload_completed);
+        }
+
         sendCompleteEvent(FeatureDataSource.MANUAL_FILE_UPLOAD, errorMsg, totalPendingCount);
-        return resultSeafException;
+        return resultException;
     }
 
     protected SeafException returnSuccess() {

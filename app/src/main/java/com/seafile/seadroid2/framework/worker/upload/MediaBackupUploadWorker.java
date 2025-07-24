@@ -124,9 +124,12 @@ public class MediaBackupUploadWorker extends BaseUploadWorker {
             SafeLogs.e(TAG, "backup queue is empty");
             return returnSuccess();
         }
+
         SafeLogs.e(TAG, "pending count: " + totalPendingCount);
 
-        SeafException resultSeafException = SeafException.SUCCESS;
+        SeafException resultException = SeafException.SUCCESS;
+        SeafException interruptException = SeafException.SUCCESS;
+        SeafException lastException = SeafException.SUCCESS;
 
         while (true) {
             TransferModel transferModel = GlobalTransferCacheList.ALBUM_BACKUP_QUEUE.pick();
@@ -149,26 +152,34 @@ public class MediaBackupUploadWorker extends BaseUploadWorker {
                     SafeLogs.e("An exception occurred and the transmission has been interrupted");
                     notifyError(seafException);
 
-                    resultSeafException = seafException;
+                    interruptException = seafException;
                     break;
                 } else {
+                    lastException = seafException;
                     SafeLogs.e("An exception occurred and the next transfer will continue");
                 }
             }
 
         }
 
-        //
-        String errorMsg = null;
-        if (resultSeafException != SeafException.SUCCESS) {
-            errorMsg = resultSeafException.getMessage();
-
-            SafeLogs.d(TAG, "all completed", "error msg: " + errorMsg);
-            Toasts.show(R.string.backup_failed);
+        if (interruptException != SeafException.SUCCESS) {
+            resultException = interruptException;
+            SafeLogs.d(TAG, "all completed", "error msg:[interruptException]: " + resultException.getMessage());
+        } else if (totalPendingCount == 1 && lastException != SeafException.SUCCESS) {
+            resultException = lastException;
+            SafeLogs.d(TAG, "all completed", "error msg:[lastException]: " + resultException.getMessage());
         } else {
             SafeLogs.d(TAG, "all completed");
+        }
+
+        String errorMsg = null;
+        if (resultException != SeafException.SUCCESS) {
+            errorMsg = resultException.getMessage();
+            Toasts.show(R.string.backup_failed);
+        }else{
             Toasts.show(R.string.backup_completed);
         }
+
         sendCompleteEvent(FeatureDataSource.ALBUM_BACKUP, errorMsg, totalPendingCount);
         return Result.success();
     }

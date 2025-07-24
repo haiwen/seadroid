@@ -1,8 +1,11 @@
 package com.seafile.seadroid2.framework.service;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.net.Uri;
+import android.provider.OpenableColumns;
 import android.text.TextUtils;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -35,6 +38,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.Collections;
 
 import okhttp3.Call;
 import okhttp3.Headers;
@@ -119,20 +124,11 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
 
     private boolean isStop = false;
     private OkHttpClient primaryHttpClient;
-    private OkHttpClient fallbackHttpClient;
-
     public OkHttpClient getPrimaryHttpClient(Account account) {
         if (primaryHttpClient == null) {
             primaryHttpClient = HttpIO.getInstanceByAccount(account).getSafeClient().getOkClient();
         }
         return primaryHttpClient;
-    }
-
-    public OkHttpClient getFallbackHttpClient(Account account) {
-        if (fallbackHttpClient == null) {
-            fallbackHttpClient = HttpIO.getInstanceByAccount(account).getSafeClient().getOkClient(true);
-        }
-        return fallbackHttpClient;
     }
 
     public TransferModel getCurrentTransferringModel() {
@@ -158,10 +154,6 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
 
         if (primaryHttpClient != null) {
             primaryHttpClient.dispatcher().cancelAll();
-        }
-
-        if (fallbackHttpClient != null) {
-            fallbackHttpClient.dispatcher().cancelAll();
         }
 
         if (newCall != null) {
@@ -251,6 +243,8 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
                 throw SeafException.PERMISSION_EXCEPTION;
             }
 
+            currentTransferModel.file_size = FileUploadUtils.resolveSize(getContext(), Uri.parse(currentTransferModel.full_path));
+
             uriRequestBody = new ProgressUriRequestBody(getContext(), Uri.parse(currentTransferModel.full_path), currentTransferModel.file_size, _fileTransferProgressListener);
             builder.addFormDataPart("file", currentTransferModel.file_name, uriRequestBody);
 
@@ -292,52 +286,10 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
         newCall = getPrimaryHttpClient(account).newCall(request);
 
         SafeLogs.d(TAG, "start transfer, url: " + uploadUrl);
-        boolean canFallback = false;
         try (Response response = newCall.execute()) {
             Protocol protocol = response.protocol();
             SafeLogs.d(TAG, "onRes()", "response code: " + response.code() + ", protocol: " + protocol);
-            canFallback = checkProtocol(protocol);
 
-            onRes(response);
-        } catch (Exception e) {
-            SafeLogs.e(TAG, e.getMessage());
-
-            if (canFallback) {
-                onFallback(account, request);
-            } else {
-                throw ExceptionUtils.parseByThrowable(e);
-            }
-        }
-    }
-
-    private boolean checkProtocol(Protocol protocol) {
-        if (protocol == null) {
-            return false;
-        }
-
-        SafeLogs.d(TAG, "checkProtocol()", "protocol: " + protocol);
-
-        if (Protocol.HTTP_2 == protocol) {
-            return true;
-        } else if (Protocol.QUIC == protocol) {
-            return true;
-        } else if (Protocol.H2_PRIOR_KNOWLEDGE == protocol) {
-            return true;
-        }
-        return false;
-    }
-
-    private void onFallback(Account account, Request request) throws SeafException {
-        if (newCall != null && newCall.isExecuted()) {
-            SafeLogs.d(TAG, "onFallback()", "newCall has executed(), cancel it");
-            newCall.cancel();
-        }
-
-        SafeLogs.d(TAG, "onFallback()", "use fallback client continue upload");
-
-        newCall = getFallbackHttpClient(account).newCall(request);
-
-        try (Response response = newCall.execute()) {
             onRes(response);
         } catch (Exception e) {
             SafeLogs.e(TAG, e.getMessage());
@@ -393,7 +345,6 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
             }
         }
     }
-
 
     @NonNull
     private String getFileUploadUrl(Account account, String repoId, String target_dir,

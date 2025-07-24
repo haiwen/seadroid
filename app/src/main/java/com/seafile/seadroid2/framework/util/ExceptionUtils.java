@@ -132,7 +132,7 @@ public class ExceptionUtils {
 
         if (throwable instanceof IOException ioException) {
             SLogs.e(ioException);
-            return SeafException.NETWORK_IO_EXCEPTION;
+            return new SeafException(SeafException.NETWORK_IO_EXCEPTION.getCode(),ioException.getMessage());
         }
 
         return new SeafException(SeafException.CODE_FAILED, throwable.getLocalizedMessage());

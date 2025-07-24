@@ -33,6 +33,10 @@ public class SafeLogs {
     }
 
     public static void d(String... logs) {
+        if (logs == null || logs.length == 0) {
+            return;
+        }
+
         if (Looper.myLooper() == Looper.getMainLooper()) {
             safeD(logs);
         } else {

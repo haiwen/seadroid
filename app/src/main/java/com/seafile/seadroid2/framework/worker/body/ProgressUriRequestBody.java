@@ -46,14 +46,12 @@ public class ProgressUriRequestBody extends RequestBody {
     }
 
     /**
-     * -1: chunked.
-     * We can't calculate the data length of a stream.
-     * Here, we use the chunk mode, and the data length is unknown.
+     * maybe -1 (chunked)
+     * @see com.seafile.seadroid2.framework.service.FileUploadUtils#resolveSize(Context, Uri)
      */
     @Override
-    public long contentLength() throws IOException {
-        return super.contentLength();
-//        return estimationFileLength;
+    public long contentLength() {
+        return estimationFileLength;
     }
 
     public long UPDATE_INTERVAL_MS = System.currentTimeMillis();
