@@ -69,11 +69,6 @@ public class TransferModel implements Comparable<TransferModel> {
      */
     public SaveTo save_to = SaveTo.NO_SAVE;
 
-    /**
-     * Enabled for backups only：Album backup, Folder backup
-     */
-    public boolean is_checked = false;
-
     @NonNull
     @Override
     public String toString() {
@@ -84,7 +79,6 @@ public class TransferModel implements Comparable<TransferModel> {
                 ", data_source=" + data_source +
                 ", save_to=" + save_to +
                 ", full_path='" + full_path + '\'' +
-                ", is_checked='" + is_checked + '\'' +
                 '}';
     }
 
@@ -156,9 +150,5 @@ public class TransferModel implements Comparable<TransferModel> {
 
         // 状态相同则按创建时间倒序排序
         return Long.compare(o.created_at, this.created_at);
-    }
-
-    public void setChecked(boolean is_checked) {
-        this.is_checked = is_checked;
     }
 }

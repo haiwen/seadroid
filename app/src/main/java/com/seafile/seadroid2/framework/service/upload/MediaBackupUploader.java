@@ -122,11 +122,6 @@ public class MediaBackupUploader extends ParentEventUploader {
                 break;
             }
 
-            if (!transferModel.is_checked){
-                SafeLogs.e(TAG, "file is not been checked, skip: " + transferModel.target_path);
-                continue;
-            }
-
             transferModel.related_account = account.getSignature();
             transferModel.repo_id = repoConfig.getRepoId();
             transferModel.repo_name = repoConfig.getRepoName();

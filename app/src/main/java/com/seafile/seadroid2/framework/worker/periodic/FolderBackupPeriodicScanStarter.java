@@ -94,7 +94,7 @@ public class FolderBackupPeriodicScanStarter extends Worker {
         }
 
         //scan
-        int count = FolderScanHelper.traverseBackupPathFileCount(backupPaths, account, repoConfig);
+        int count = FolderScanHelper.onlyTraverseBackupPathFileCount(backupPaths, account, repoConfig);
         if (count == 0) {
             SLogs.d(TAG, "The folder scan task was not started, because no new files were found");
             return Result.success();

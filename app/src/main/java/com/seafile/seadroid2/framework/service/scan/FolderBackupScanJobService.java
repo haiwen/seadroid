@@ -104,7 +104,7 @@ public class FolderBackupScanJobService extends JobService {
         }
 
         //scan
-        backupFileCount = FolderScanHelper.traverseBackupPathFileCount(backupPaths, account, repoConfig);
+        backupFileCount = FolderScanHelper.onlyTraverseBackupPathFileCount(backupPaths, account, repoConfig);
         return backupFileCount;
     }
 

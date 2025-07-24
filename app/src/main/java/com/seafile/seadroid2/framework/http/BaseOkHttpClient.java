@@ -55,7 +55,7 @@ public abstract class BaseOkHttpClient {
 
         //print log
         HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
-        loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.HEADERS);
+        loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         interceptors.add(loggingInterceptor);
 
 //        interceptors.add(new AddCookiesInterceptor());

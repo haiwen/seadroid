@@ -100,6 +100,10 @@ public class AlbumScanHelper {
             createDirectories(context, repoConfig.getRepoId());
             return SeafException.SUCCESS;
         } catch (SeafException seafException) {
+
+            // scan failed, clear queue
+            GlobalTransferCacheList.ALBUM_BACKUP_QUEUE.clear();
+
             return seafException;
         }
     }
@@ -490,9 +494,6 @@ public class AlbumScanHelper {
                 SafeLogs.d(TAG, "checkAndInsert()", "skip file -> [remote exists] " + filename + ", because we have uploaded it in the past.");
 
                 GlobalTransferCacheList.ALBUM_BACKUP_QUEUE.remove(bucketName, transferModel);
-            } else {
-                transferModel.setChecked(true);
-                GlobalTransferCacheList.ALBUM_BACKUP_QUEUE.update(transferModel);
             }
         }
     }

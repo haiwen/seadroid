@@ -53,6 +53,7 @@ public class ProgressUriRequestBody extends RequestBody {
     @Override
     public long contentLength() throws IOException {
         return super.contentLength();
+//        return estimationFileLength;
     }
 
     public long UPDATE_INTERVAL_MS = System.currentTimeMillis();

@@ -128,11 +128,6 @@ public class FolderBackupUploader extends ParentEventUploader {
                 break;
             }
 
-            if (!transferModel.is_checked) {
-                SafeLogs.e(TAG, "file is not been checked, skip: " + transferModel.target_path);
-                continue;
-            }
-
             try {
 
                 transfer(account, transferModel);

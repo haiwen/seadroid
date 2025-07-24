@@ -286,7 +286,6 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
                 .url(uploadUrl)
                 .post(requestBody)
                 .addHeader("Connection", "keep-alive")
-                .addHeader("Accept", "*/*")
                 .addHeader("User-Agent", Constants.UA.SEAFILE_ANDROID_UA)
                 .build();
 
@@ -353,13 +352,13 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
         //req headers log
         Headers reqHeaders = response.request().headers();
         for (int i = 0; i < reqHeaders.size(); i++) {
-            SafeLogs.d(TAG, "req header: " + reqHeaders.name(i) + " -> " + reqHeaders.value(i));
+            SafeLogs.d(TAG, "req-header: " + reqHeaders.name(i) + ": " + reqHeaders.value(i));
         }
 
         //res headers log
         Headers resHeaders = response.headers();
         for (int i = 0; i < resHeaders.size(); i++) {
-            SafeLogs.d(TAG, "res header: " + resHeaders.name(i) + " -> " + resHeaders.value(i));
+            SafeLogs.d(TAG, "res-header: " + resHeaders.name(i) + ": " + resHeaders.value(i));
         }
 
         try (ResponseBody body = response.body()) {

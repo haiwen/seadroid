@@ -17,7 +17,6 @@ import com.seafile.seadroid2.framework.db.entities.FileBackupStatusEntity;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.model.dirents.DirentRecursiveFileModel;
-import com.seafile.seadroid2.framework.service.TransferService;
 import com.seafile.seadroid2.framework.util.SafeLogs;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
@@ -38,7 +37,6 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.regex.Pattern;
@@ -88,7 +86,7 @@ public class FolderScanHelper {
         return tempWrapperList;
     }
 
-    public static int traverseBackupPathFileCount(List<String> backupPathsList, Account account, RepoConfig repoConfig) {
+    public static int onlyTraverseBackupPathFileCount(List<String> backupPathsList, Account account, RepoConfig repoConfig) {
         int backupableCount = 0;
         List<RepoModel> repoModels = AppDatabase.getInstance().repoDao().getByIdSync(repoConfig.getRepoId());
 
@@ -160,6 +158,9 @@ public class FolderScanHelper {
 
             retException = SeafException.SUCCESS;
         } catch (SeafException seafException) {
+            //clear queue
+            GlobalTransferCacheList.FOLDER_BACKUP_QUEUE.clear();
+
             SafeLogs.e(TAG, "traverseBackupPath(): " + seafException);
             retException = seafException;
         }
@@ -350,7 +351,6 @@ public class FolderScanHelper {
             transferModel.data_source = FeatureDataSource.FOLDER_BACKUP;
             transferModel.save_to = SaveTo.DB;
             transferModel.setId(transferModel.genStableId());
-            transferModel.setChecked(true);
             GlobalTransferCacheList.FOLDER_BACKUP_QUEUE.put(transferModel);
         }
     }

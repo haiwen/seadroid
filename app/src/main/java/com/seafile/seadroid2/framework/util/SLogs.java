@@ -1,6 +1,7 @@
 package com.seafile.seadroid2.framework.util;
 
 import com.blankj.utilcode.util.AppUtils;
+import com.seafile.seadroid2.BuildConfig;
 
 public class SLogs extends Logs {
 
@@ -15,7 +16,8 @@ public class SLogs extends Logs {
         d("Brand: " + brand);
         d("Model: " + model);
         d("Release: " + release);
-        d("App Version: " + AppUtils.getAppVersionName());
+        d("Build Version: " + BuildConfig.VERSION_NAME);
+        d("Build Code:"+ BuildConfig.VERSION_CODE);
     }
 
     public static String getDeviceBrand() {
