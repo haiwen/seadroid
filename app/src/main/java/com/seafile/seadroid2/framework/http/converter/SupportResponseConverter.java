@@ -4,6 +4,8 @@ import androidx.annotation.NonNull;
 
 import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
+import com.seafile.seadroid2.SeafException;
+import com.seafile.seadroid2.framework.util.SLogs;
 
 import java.io.IOException;
 
@@ -21,13 +23,13 @@ public class SupportResponseConverter<T> implements Converter<ResponseBody, T> {
 
     @Override
     public T convert(@NonNull ResponseBody value) throws IOException {
-
+        String body = value.string();
         try {
-            String body = value.string();
             return adapter.fromJson(body);
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException(e.getMessage());
+            SLogs.e("Response is not valid JSON");
+            SLogs.e(body);
+            throw new IOException("Response is not valid JSON");
         } finally {
             value.close();
         }

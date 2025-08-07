@@ -5,6 +5,7 @@ import android.text.TextUtils;
 import androidx.annotation.NonNull;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.framework.model.ErrorModel;
 
@@ -145,11 +146,19 @@ public class ExceptionUtils {
 
         String errorContent = null;
         if (!TextUtils.isEmpty(bodyString)) {
-            Gson gson = new Gson();
-            ErrorModel errorModel = gson.fromJson(bodyString, ErrorModel.class);
-            if (errorModel != null) {
-                errorContent = errorModel.getError();
+            try {
+                Gson gson = new Gson();
+                ErrorModel errorModel = gson.fromJson(bodyString, ErrorModel.class);
+                if (errorModel != null && !TextUtils.isEmpty(errorModel.getError())) {
+                    errorContent = errorModel.getError();
+                }else if (errorModel != null) {
+                    errorContent = bodyString;
+                    SLogs.w("ExceptionUtils", "ErrorModel parsed but error field is empty. Body: " + bodyString);
+                }
+            } catch (JsonSyntaxException | IllegalStateException e) {
+                SLogs.e("ExceptionUtils", "Failed to parse error body as ErrorModel JSON object. Body: " + bodyString, e);
             }
+
         }
 
         //400
@@ -208,6 +217,9 @@ public class ExceptionUtils {
 
         // >= 500: HTTP_INTERNAL_ERROR
         if (errorCode >= HttpURLConnection.HTTP_INTERNAL_ERROR) {
+            if (!TextUtils.isEmpty(errorContent)) {
+                return new SeafException(errorCode, errorContent);
+            }
             return SeafException.SERVER_INTERNAL_ERROR;
         }
 

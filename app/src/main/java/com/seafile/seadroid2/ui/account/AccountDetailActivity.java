@@ -32,6 +32,9 @@ import com.seafile.seadroid2.ui.dialog.SslConfirmDialog;
 
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 
 public class AccountDetailActivity extends BaseActivityWithVM<AccountViewModel> implements Toolbar.OnMenuItemClickListener {
     private static final String DEBUG_TAG = "AccountDetailActivity";
@@ -373,6 +376,18 @@ public class AccountDetailActivity extends BaseActivityWithVM<AccountViewModel> 
             binding.serverHint.setErrorEnabled(false);
         }
 
+        try {
+            // Check if the URL is valid
+            new URI(serverURL);
+
+            serverURL = Utils.cleanServerURL(serverURL);
+        } catch (MalformedURLException | URISyntaxException e) {
+            binding.statusView.setText(R.string.invalid_server_address);
+            Log.d(DEBUG_TAG, "Invalid URL " + serverURL);
+            return;
+        }
+
+
         if (email.isEmpty()) {
             binding.emailHint.setErrorEnabled(true);
             binding.emailHint.setError(getResources().getString(R.string.err_email_empty));
@@ -403,14 +418,6 @@ public class AccountDetailActivity extends BaseActivityWithVM<AccountViewModel> 
         boolean rememberDevice = false;
         if (binding.rememberDevice.getVisibility() == View.VISIBLE) {
             rememberDevice = binding.rememberDevice.isChecked();
-        }
-
-        try {
-            serverURL = Utils.cleanServerURL(serverURL);
-        } catch (MalformedURLException e) {
-            binding.statusView.setText(R.string.invalid_server_address);
-            Log.d(DEBUG_TAG, "Invalid URL " + serverURL);
-            return;
         }
 
         // force the keyboard to be hidden in all situations

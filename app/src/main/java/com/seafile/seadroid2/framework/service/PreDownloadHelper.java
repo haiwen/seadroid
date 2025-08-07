@@ -75,7 +75,11 @@ public class PreDownloadHelper {
                 //start download service
 //                Intent intent = new Intent(context, DownloadService.class);
 //                ContextCompat.startForegroundService(context, intent);
-                TransferService.startDownloadService(context);
+
+
+//                TransferService.startDownloadService(context);
+
+                BackupThreadExecutor.getInstance().runDownloadTask();
             }
         });
     }
@@ -84,7 +88,7 @@ public class PreDownloadHelper {
     /**
      *
      */
-    private static void insertIntoDbWhenDirentIsFile(Account account, DirentModel pendingModel) throws IOException {
+    public static void insertIntoDbWhenDirentIsFile(Account account, DirentModel pendingModel) throws IOException {
 
         TransferModel transferModel = new TransferModel();
         transferModel.save_to = SaveTo.DB;
@@ -114,7 +118,7 @@ public class PreDownloadHelper {
     /**
      * insert into db
      */
-    private static void insertIntoDbWhenDirentIsDir(Account account, DirentModel parentDirent, List<DirentRecursiveFileModel> list) {
+    public static void insertIntoDbWhenDirentIsDir(Account account, DirentModel parentDirent, List<DirentRecursiveFileModel> list) {
 
         if (CollectionUtils.isEmpty(list)) {
             return;
@@ -151,7 +155,7 @@ public class PreDownloadHelper {
     /**
      * get recursive files from server
      */
-    private static List<DirentRecursiveFileModel> fetchRecursiveFiles(DirentModel direntModel) throws IOException {
+    public static List<DirentRecursiveFileModel> fetchRecursiveFiles(DirentModel direntModel) throws IOException {
         retrofit2.Response<List<DirentRecursiveFileModel>> res = HttpIO.getCurrentInstance().execute(FileService.class).getDirRecursiveFileCall(direntModel.repo_id, direntModel.full_path).execute();
         if (!res.isSuccessful()) {
             return Collections.emptyList();

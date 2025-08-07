@@ -92,6 +92,9 @@ public class BaseActivity extends AppCompatActivity {
     }
 
     private Dialog loadingDialog;
+    private long dialogShowTimestamp = 0L;
+    private static final long MIN_DIALOG_SHOW_TIME = 500; // minimum display duration in ms
+    private Runnable pendingDismissRunnable;
 
     public boolean isDialogShowing() {
         if (loadingDialog == null) {
@@ -114,17 +117,53 @@ public class BaseActivity extends AppCompatActivity {
             MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
             builder.setCancelable(false);
             builder.setView(R.layout.layout_dialog_progress_bar);
+            builder.setCancelable(false);
             loadingDialog = builder.create();
+            loadingDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                @Override
+                public void onDismiss(DialogInterface iDialog) {
+                    // delay dismiss
+                    if (pendingDismissRunnable != null && loadingDialog != null && loadingDialog.getWindow() != null) {
+                        loadingDialog.getWindow().getDecorView().removeCallbacks(pendingDismissRunnable);
+                    }
+                }
+            });
         }
 
         if (!loadingDialog.isShowing()) {
             loadingDialog.show();
+            dialogShowTimestamp = System.currentTimeMillis();
         }
     }
 
     public void dismissLoadingDialog() {
-        if (loadingDialog != null && loadingDialog.isShowing()) {
+        if (loadingDialog == null || !loadingDialog.isShowing()) {
+            return;
+        }
+        long elapsed = System.currentTimeMillis() - dialogShowTimestamp;
+        if (elapsed >= MIN_DIALOG_SHOW_TIME) {
             loadingDialog.dismiss();
+        } else {
+            // delay dismiss
+            if (pendingDismissRunnable != null && loadingDialog.getWindow() != null) {
+                loadingDialog.getWindow().getDecorView().removeCallbacks(pendingDismissRunnable);
+            }
+
+            pendingDismissRunnable = new Runnable() {
+                @Override
+                public void run() {
+                    if (loadingDialog != null && loadingDialog.isShowing()) {
+                        loadingDialog.dismiss();
+                    }
+
+                    pendingDismissRunnable = null;
+                }
+            };
+
+            if (loadingDialog != null && loadingDialog.getWindow() != null) {
+                long delay = MIN_DIALOG_SHOW_TIME - elapsed;
+                loadingDialog.getWindow().getDecorView().postDelayed(pendingDismissRunnable, delay);
+            }
         }
     }
 }

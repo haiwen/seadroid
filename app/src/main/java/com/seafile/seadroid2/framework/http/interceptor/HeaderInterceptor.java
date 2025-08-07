@@ -2,6 +2,8 @@ package com.seafile.seadroid2.framework.http.interceptor;
 
 import android.text.TextUtils;
 
+import androidx.annotation.NonNull;
+
 import java.io.IOException;
 
 import okhttp3.Interceptor;
@@ -15,6 +17,7 @@ public class HeaderInterceptor implements Interceptor {
         this.authToken = authToken;
     }
 
+    @NonNull
     @Override
     public Response intercept(Chain chain) throws IOException {
         return chain.proceed(initBuilder(chain.request().newBuilder()).build());

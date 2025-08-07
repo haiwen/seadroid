@@ -134,6 +134,7 @@
         android:layout_marginStart="@dimen/app_padding_horizontal"
         android:layout_marginTop="@dimen/app_widget_top_margin_middle"
         android:layout_marginEnd="@dimen/app_padding_horizontal"
+        android:visibility="gone"
         android:text="@string/seahub_url_hint"
         android:textSize="@dimen/tv_txt_size" />
 

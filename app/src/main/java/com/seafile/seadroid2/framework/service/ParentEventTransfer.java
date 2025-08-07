@@ -31,10 +31,15 @@ public class ParentEventTransfer {
 
     private final Context context;
     private final GeneralNotificationHelper generalNotificationHelper;
+    private final ITransferNotification notificationDispatcher;
 
-    public ParentEventTransfer(Context context) {
+    public ITransferNotification getTransferNotificationDispatcher() {
+        return notificationDispatcher;
+    }
+    public ParentEventTransfer(Context context, ITransferNotification n) {
         this.context = context;
         this.generalNotificationHelper = new GeneralNotificationHelper(context);
+        this.notificationDispatcher = n;
     }
 
     public Context getContext() {

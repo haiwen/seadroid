@@ -53,16 +53,10 @@ import okhttp3.ResponseBody;
 
 public abstract class ParentEventUploader extends ParentEventTransfer {
     private final String TAG = "ParentEventUploader";
-    private final ITransferNotification notificationDispatcher;
 
-    public ParentEventUploader(Context context, ITransferNotification notificationDispatcher) {
-        super(context);
-        this.notificationDispatcher = notificationDispatcher;
+    public ParentEventUploader(Context context, ITransferNotification n) {
+        super(context, n);
         _fileTransferProgressListener.setProgressListener(progressListener);
-    }
-
-    public ITransferNotification getNotificationDispatcher() {
-        return notificationDispatcher;
     }
 
     public abstract FeatureDataSource getFeatureDataSource();
@@ -91,11 +85,11 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
 
 
     private void notifyProgress(String fileName, int percent) {
-        if (notificationDispatcher == null) {
+        if (getTransferNotificationDispatcher() == null) {
             return;
         }
 
-        notificationDispatcher.showProgress(getFeatureDataSource(), fileName, percent);
+        getTransferNotificationDispatcher().showProgress(getFeatureDataSource(), fileName, percent);
     }
 
     public void notifyError(SeafException seafException) {
@@ -124,6 +118,7 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
 
     private boolean isStop = false;
     private OkHttpClient primaryHttpClient;
+
     public OkHttpClient getPrimaryHttpClient(Account account) {
         if (primaryHttpClient == null) {
             primaryHttpClient = HttpIO.getInstanceByAccount(account).getSafeClient().getOkClient();
@@ -160,7 +155,7 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
             newCall.cancel();
         }
 
-        notificationDispatcher.clearAll();
+        getTransferNotificationDispatcher().clearAll();
 
     }
 

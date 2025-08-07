@@ -20,6 +20,7 @@ import com.seafile.seadroid2.framework.db.entities.FileBackupStatusEntity;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.model.dirents.DirentRecursiveFileModel;
+import com.seafile.seadroid2.framework.service.ITransferNotification;
 import com.seafile.seadroid2.framework.service.ParentEventTransfer;
 import com.seafile.seadroid2.framework.service.scan.FolderScanHelper;
 import com.seafile.seadroid2.framework.util.SafeLogs;
@@ -54,9 +55,10 @@ import retrofit2.Call;
 public class FolderBackupScanner extends ParentEventTransfer {
     private final String TAG = "FolderBackupScanner";
 
-    public FolderBackupScanner(Context context) {
-        super(context);
+    public FolderBackupScanner(Context context, ITransferNotification iTransferNotificationDispatcher) {
+        super(context, iTransferNotificationDispatcher);
     }
+
 
     protected SeafException returnSuccess() {
         send(FeatureDataSource.FOLDER_BACKUP, TransferEvent.EVENT_SCAN_COMPLETE);

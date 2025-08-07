@@ -57,15 +57,8 @@ import okhttp3.ResponseBody;
 public abstract class ParentEventDownloader extends ParentEventTransfer {
     private final String TAG = "ParentEventDownloader";
 
-    private final TransferNotificationDispatcher transferNotificationDispatcher;
-
-    public ParentEventDownloader(Context context, TransferNotificationDispatcher transferNotificationDispatcher) {
-        super(context);
-        this.transferNotificationDispatcher = transferNotificationDispatcher;
-    }
-
-    public TransferNotificationDispatcher getTransferNotificationDispatcher() {
-        return transferNotificationDispatcher;
+    public ParentEventDownloader(Context context, ITransferNotification n) {
+        super(context, n);
     }
 
     public abstract FeatureDataSource getFeatureDataSource();

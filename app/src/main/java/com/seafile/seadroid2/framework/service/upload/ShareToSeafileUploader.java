@@ -96,7 +96,7 @@ public class ShareToSeafileUploader extends ParentEventUploader {
         }
 
         // clear all notifications
-        getNotificationDispatcher().clearAll();
+        getTransferNotificationDispatcher().clearAll();
 
         if (interruptException != SeafException.SUCCESS) {
             resultException = interruptException;

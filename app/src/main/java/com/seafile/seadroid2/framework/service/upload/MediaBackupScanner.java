@@ -10,6 +10,7 @@ import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.TransferResult;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
+import com.seafile.seadroid2.framework.service.ITransferNotification;
 import com.seafile.seadroid2.framework.service.ParentEventTransfer;
 import com.seafile.seadroid2.framework.service.scan.AlbumScanHelper;
 import com.seafile.seadroid2.framework.util.SafeLogs;
@@ -22,8 +23,8 @@ import com.seafile.seadroid2.ui.folder_backup.RepoConfig;
 public class MediaBackupScanner extends ParentEventTransfer {
     private final String TAG = "MediaBackupScanner";
 
-    public MediaBackupScanner(Context context) {
-        super(context);
+    public MediaBackupScanner(Context context, ITransferNotification i) {
+        super(context, i);
     }
 
     protected SeafException returnSuccess() {

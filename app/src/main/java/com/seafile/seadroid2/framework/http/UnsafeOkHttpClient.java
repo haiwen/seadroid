@@ -74,8 +74,8 @@ public class UnsafeOkHttpClient extends BaseOkHttpClient {
             }
         });
         //cache control
-        builder.interceptors().add(REWRITE_CACHE_CONTROL_INTERCEPTOR);
-        builder.networkInterceptors().add(REWRITE_CACHE_CONTROL_INTERCEPTOR);
+//        builder.interceptors().add(REWRITE_CACHE_CONTROL_INTERCEPTOR);
+//        builder.networkInterceptors().add(REWRITE_CACHE_CONTROL_INTERCEPTOR);
 
         //add interceptors
         List<Interceptor> interceptors = getInterceptors();

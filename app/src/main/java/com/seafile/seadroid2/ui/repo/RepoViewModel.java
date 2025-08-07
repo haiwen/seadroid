@@ -32,12 +32,16 @@ import com.seafile.seadroid2.framework.model.BaseModel;
 import com.seafile.seadroid2.framework.model.ResultModel;
 import com.seafile.seadroid2.framework.model.TResultModel;
 import com.seafile.seadroid2.framework.model.dirents.CachedDirentModel;
+import com.seafile.seadroid2.framework.model.dirents.DirentRecursiveFileModel;
 import com.seafile.seadroid2.framework.model.permission.PermissionWrapperModel;
 import com.seafile.seadroid2.framework.model.repo.Dirent2Model;
 import com.seafile.seadroid2.framework.model.search.SearchModel;
 import com.seafile.seadroid2.framework.model.search.SearchWrapperModel;
+import com.seafile.seadroid2.framework.service.BackupThreadExecutor;
+import com.seafile.seadroid2.framework.service.PreDownloadHelper;
 import com.seafile.seadroid2.framework.util.Objs;
 import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.util.SafeLogs;
 import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.preferences.Settings;
@@ -47,6 +51,7 @@ import com.seafile.seadroid2.ui.dialog_fragment.DialogService;
 import com.seafile.seadroid2.ui.search.SearchService;
 import com.seafile.seadroid2.ui.star.StarredService;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -56,6 +61,8 @@ import java.util.stream.Collectors;
 
 import io.reactivex.Flowable;
 import io.reactivex.Single;
+import io.reactivex.SingleEmitter;
+import io.reactivex.SingleOnSubscribe;
 import io.reactivex.SingleSource;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
@@ -129,60 +136,156 @@ public class RepoViewModel extends BaseViewModel {
         return _objListLiveData;
     }
 
-    public void decryptRepo(String repoId, Consumer<String> consumer) {
-        if (consumer == null) {
-            throw new IllegalArgumentException("consumer is null");
+
+    ///
+    private final MutableLiveData<RepoViewModel.DecryptResult> _decryptRepoLiveData = new MutableLiveData<>();
+
+    public MutableLiveData<RepoViewModel.DecryptResult> getDecryptRepoLiveData() {
+        return _decryptRepoLiveData;
+    }
+
+    private final MutableLiveData<ResultModel> _remoteVerifyRepoPwdLiveData = new MutableLiveData<>();
+
+    public MutableLiveData<ResultModel> getRemoteVerifyRepoPwdLiveData() {
+        return _remoteVerifyRepoPwdLiveData;
+    }
+
+    /**
+     * decrypt result enum
+     */
+    public enum DecryptResult {
+        NEED_PASSWORD,
+        PASSWORD_EXPIRED,
+        SUCCESS,
+        FAILED
+    }
+
+
+    public void decryptRepo(RepoModel repoModel) {
+        if (repoModel == null || !repoModel.encrypted) {
+            // The non-encrypted database will be returned to success
+            getDecryptRepoLiveData().setValue(DecryptResult.SUCCESS);
+            return;
         }
 
-        Single<List<EncKeyCacheEntity>> encSingle = AppDatabase.getInstance().encKeyCacheDAO().getListByRepoIdAsync(repoId);
-        Single<String> s = encSingle.flatMap(new Function<List<EncKeyCacheEntity>, SingleSource<String>>() {
+        // query the local database to get the password cache
+        Single<List<EncKeyCacheEntity>> encSingle = AppDatabase.getInstance().encKeyCacheDAO().getListByRepoIdAsync(repoModel.repo_id);
+
+        Single<DecryptResult> decryptSingle = encSingle.flatMap(new Function<List<EncKeyCacheEntity>, SingleSource<DecryptResult>>() {
             @Override
-            public SingleSource<String> apply(List<EncKeyCacheEntity> encKeyCacheEntities) throws Exception {
+            public SingleSource<DecryptResult> apply(List<EncKeyCacheEntity> encKeyCacheEntities) throws Exception {
                 if (CollectionUtils.isEmpty(encKeyCacheEntities)) {
-                    return Single.just("need-to-re-enter-password");//need password and save into database
+                    return Single.just(DecryptResult.NEED_PASSWORD);
                 }
 
-                long now = TimeUtils.getNowMills();
                 EncKeyCacheEntity encKeyCacheEntity = encKeyCacheEntities.get(0);
+                long now = TimeUtils.getNowMills();
                 boolean isExpired = encKeyCacheEntity.expire_time_long == 0 || now > encKeyCacheEntity.expire_time_long;
-                if (isExpired) {
-                    if (TextUtils.isEmpty(encKeyCacheEntity.enc_key) || TextUtils.isEmpty(encKeyCacheEntity.enc_iv)) {
-                        return Single.just("need-to-re-enter-password");//expired, need password
-                    } else {
-                        String decryptPassword = SecurePasswordManager.decryptPassword(encKeyCacheEntity.enc_key, encKeyCacheEntity.enc_iv);
-                        return Single.just(decryptPassword);//expired, but no password
-                    }
-                }
 
-                return Single.just("done");
+                if (isExpired) {
+                    // the password has expired
+                    if (TextUtils.isEmpty(encKeyCacheEntity.enc_key) || TextUtils.isEmpty(encKeyCacheEntity.enc_iv)) {
+                        // There is no valid encryption key and you need to re-enter your password
+                        return Single.just(DecryptResult.NEED_PASSWORD);
+                    } else {
+                        // There is an encryption key, which is attempted to decrypt and verify remotely
+                        return Single.just(DecryptResult.PASSWORD_EXPIRED);
+                    }
+                } else {
+                    // The password has not expired, and it will be returned to success
+                    return Single.just(DecryptResult.SUCCESS);
+                }
             }
         });
 
-
-        addSingleDisposable(s, new Consumer<String>() {
+        Single<DecryptResult> resultSingle = decryptSingle.flatMap(new Function<DecryptResult, SingleSource<DecryptResult>>() {
             @Override
-            public void accept(String i) throws Exception {
-                consumer.accept(i);
+            public SingleSource<DecryptResult> apply(DecryptResult result) throws Exception {
+                if (result == DecryptResult.PASSWORD_EXPIRED) {
+                    // password expired try remote verification
+                    return tryRemoteVerifyWithCachedPassword(repoModel.repo_id);
+                }
+                return Single.just(result);
+            }
+        });
+
+        addSingleDisposable(resultSingle, new Consumer<DecryptResult>() {
+            @Override
+            public void accept(DecryptResult result) throws Exception {
+                getDecryptRepoLiveData().setValue(result);
+            }
+        }, new Consumer<Throwable>() {
+            @Override
+            public void accept(Throwable throwable) throws Exception {
+                // an exception occurs and the return fails
+                getDecryptRepoLiveData().setValue(DecryptResult.FAILED);
             }
         });
     }
 
-    public void remoteVerify(String repoId, String password, Consumer<ResultModel> consumer) {
-        if (consumer == null) {
-            throw new IllegalArgumentException("consumer is null");
-        }
-        getRefreshLiveData().setValue(true);
+    /**
+     * remote authentication with cached passwords
+     */
+    private Single<DecryptResult> tryRemoteVerifyWithCachedPassword(String repoId) {
+        return AppDatabase.getInstance().encKeyCacheDAO().getListByRepoIdAsync(repoId)
+                .flatMap(new Function<List<EncKeyCacheEntity>, SingleSource<DecryptResult>>() {
+                    @Override
+                    public SingleSource<DecryptResult> apply(List<EncKeyCacheEntity> entities) throws Exception {
+                        if (CollectionUtils.isEmpty(entities)) {
+                            return Single.just(DecryptResult.NEED_PASSWORD);
+                        }
 
+                        EncKeyCacheEntity entity = entities.get(0);
+                        if (TextUtils.isEmpty(entity.enc_key) || TextUtils.isEmpty(entity.enc_iv)) {
+                            return Single.just(DecryptResult.NEED_PASSWORD);
+                        }
+
+                        String cachedPassword = SecurePasswordManager.decryptPassword(entity.enc_key, entity.enc_iv);
+                        if (TextUtils.isEmpty(cachedPassword)) {
+                            return Single.just(DecryptResult.NEED_PASSWORD);
+                        }
+
+                        return getRemoteVerifySingle(repoId, cachedPassword)
+                                .map(new Function<ResultModel, DecryptResult>() {
+                                    @Override
+                                    public DecryptResult apply(ResultModel resultModel) throws Exception {
+                                        return resultModel.success ? DecryptResult.SUCCESS : DecryptResult.NEED_PASSWORD;
+                                    }
+                                });
+                    }
+                });
+    }
+
+    /**
+     * do remote authentication and update the local password cache
+     */
+    public Single<ResultModel> getRemoteVerifySingle(String repoId, String password) {
         Map<String, String> requestDataMap = new HashMap<>();
         requestDataMap.put("password", password);
         Map<String, RequestBody> bodyMap = genRequestBody(requestDataMap);
 
         Single<ResultModel> netSingle = HttpIO.getCurrentInstance().execute(DialogService.class).setPassword(repoId, bodyMap);
-        Single<ResultModel> single = netSingle.flatMap(new Function<ResultModel, SingleSource<ResultModel>>() {
+
+        return netSingle.flatMap(new Function<ResultModel, SingleSource<ResultModel>>() {
             @Override
             public SingleSource<ResultModel> apply(ResultModel resultModel) throws Exception {
+                if (resultModel.success) {
+                    return updateLocalPasswordCache(repoId, password)
+                            .map(new Function<Void, ResultModel>() {
+                                @Override
+                                public ResultModel apply(Void aVoid) throws Exception {
+                                    return resultModel;
+                                }
+                            });
+                }
+                return Single.just(resultModel);
+            }
+        });
+    }
 
-                //update local password and expire
+    private Single<Void> updateLocalPasswordCache(String repoId, String password) {
+        return Single.create(emitter -> {
+            try {
                 EncKeyCacheEntity encEntity = new EncKeyCacheEntity();
                 encEntity.v = 2;
                 encEntity.repo_id = repoId;
@@ -195,23 +298,14 @@ public class RepoViewModel extends BaseViewModel {
                     long expire = TimeUtils.getNowMills();
                     expire += SettingsManager.DECRYPTION_EXPIRATION_TIME;
                     encEntity.expire_time_long = expire;
+
                     AppDatabase.getInstance().encKeyCacheDAO().insert(encEntity);
                 }
 
-
-                return Single.just(resultModel);
+                emitter.onSuccess(null);
+            } catch (Exception e) {
+                emitter.onError(e);
             }
-        });
-
-        addSingleDisposable(single, tResultModel -> {
-            getRefreshLiveData().setValue(false);
-            consumer.accept(tResultModel);
-        }, throwable -> {
-            getRefreshLiveData().setValue(false);
-
-            TResultModel<RepoModel> tResultModel = new TResultModel<>();
-            tResultModel.error_msg = getErrorMsgByThrowable(throwable);
-            consumer.accept(tResultModel);
         });
     }
 
@@ -973,7 +1067,7 @@ public class RepoViewModel extends BaseViewModel {
     }
 
 
-    ////////////////////////// search ////////////////////////////
+    /// /////////////////////// search ////////////////////////////
 
     private final MutableLiveData<List<SearchModel>> mListLiveData = new MutableLiveData<>();
 
@@ -1030,5 +1124,51 @@ public class RepoViewModel extends BaseViewModel {
         });
     }
 
+
+    /// download
+    public void preDownload(Context context, Account account, List<String> ids) {
+        getSecondRefreshLiveData().setValue(true);
+        Single<SeafException> single = Single.create(new SingleOnSubscribe<SeafException>() {
+            @Override
+            public void subscribe(SingleEmitter<SeafException> emitter) throws Exception {
+                if (CollectionUtils.isEmpty(ids)) {
+                    emitter.onSuccess(SeafException.SUCCESS);
+                    return;
+                }
+
+                List<DirentModel> direntModels = AppDatabase.getInstance().direntDao().getListByIdsSync(ids);
+                if (CollectionUtils.isEmpty(direntModels)) {
+                    emitter.onSuccess(SeafException.SUCCESS);
+                    return;
+                }
+
+                for (DirentModel direntModel : direntModels) {
+                    try {
+                        if (direntModel.isDir()) {
+                            List<DirentRecursiveFileModel> list = PreDownloadHelper.fetchRecursiveFiles(direntModel);
+                            PreDownloadHelper.insertIntoDbWhenDirentIsDir(account, direntModel, list);
+                        } else {
+                            PreDownloadHelper.insertIntoDbWhenDirentIsFile(account, direntModel);
+                        }
+                    } catch (IOException e) {
+                        SLogs.e(e.getMessage());
+                    }
+                }
+
+                emitter.onSuccess(SeafException.SUCCESS);
+            }
+        });
+
+        addSingleDisposable(single, new Consumer<SeafException>() {
+            @Override
+            public void accept(SeafException e) throws Exception {
+                getSecondRefreshLiveData().setValue(false);
+
+                //
+                BackupThreadExecutor.getInstance().runDownloadTask();
+            }
+        });
+
+    }
 
 }
