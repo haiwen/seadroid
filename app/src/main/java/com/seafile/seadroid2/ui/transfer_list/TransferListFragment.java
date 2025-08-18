@@ -25,7 +25,7 @@ import com.seafile.seadroid2.databinding.LayoutFrameSwipeRvBinding;
 import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.TransferAction;
 import com.seafile.seadroid2.enums.TransferStatus;
-import com.seafile.seadroid2.framework.service.TransferService;
+import com.seafile.seadroid2.framework.service.BackupThreadExecutor;
 import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
@@ -236,39 +236,13 @@ public abstract class TransferListFragment extends BaseFragment {
     }
 
     private void doDelete(TransferModel transferModel, boolean isDeleteLocalFile) throws ExecutionException, InterruptedException {
-        TransferService.stopTransfer(requireContext(), transferModel);
+        // stop transfer
+        BackupThreadExecutor.getInstance().stopById(transferModel.getId(), transferModel.data_source);
 
         if (FeatureDataSource.DOWNLOAD == transferModel.data_source) {
-//            if (transferModel.transfer_status == TransferStatus.IN_PROGRESS) {
-//                BackgroundJobManagerImpl.getInstance().cancelDownloadWorker();
-//            }
-//            GlobalTransferCacheList.DOWNLOAD_QUEUE.remove(transferModel.getId());
-
             if (isDeleteLocalFile) {
                 FileUtils.delete(transferModel.target_path);
             }
-
-//            BackgroundJobManagerImpl.getInstance().startDownloadWorker();
-
-        } else if (FeatureDataSource.MANUAL_FILE_UPLOAD == transferModel.data_source) {
-
-//            GlobalTransferCacheList.FILE_UPLOAD_QUEUE.remove(transferModel.getId());
-//            if (transferModel.transfer_status == TransferStatus.IN_PROGRESS) {
-//                BackgroundJobManagerImpl.getInstance().cancelFolderBackupWorker();
-//            }
-
-        } else if (FeatureDataSource.FOLDER_BACKUP == transferModel.data_source) {
-//            GlobalTransferCacheList.FOLDER_BACKUP_QUEUE.remove(transferModel.getId());
-///
-//            if (transferModel.transfer_status == TransferStatus.IN_PROGRESS) {
-//                BackgroundJobManagerImpl.getInstance().startFolderBackupChain(true);
-//            }
-        } else if (FeatureDataSource.ALBUM_BACKUP == transferModel.data_source) {
-//            GlobalTransferCacheList.ALBUM_BACKUP_QUEUE.remove(transferModel.getId());
-//
-//            if (transferModel.transfer_status == TransferStatus.IN_PROGRESS) {
-//                BackgroundJobManagerImpl.getInstance().startMediaBackupChain(true);
-//            }
         }
     }
 

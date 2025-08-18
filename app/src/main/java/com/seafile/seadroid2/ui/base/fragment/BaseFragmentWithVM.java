@@ -35,7 +35,7 @@ public class BaseFragmentWithVM<VM extends BaseViewModel> extends BaseFragment {
     public void onDestroy() {
         super.onDestroy();
         if (tvm != null) {
-            tvm.disposeAll();
+            tvm.clearAll();
             tvm = null;
         }
     }

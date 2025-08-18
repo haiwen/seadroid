@@ -52,7 +52,6 @@ import com.seafile.seadroid2.framework.datastore.StorageManager;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.service.BackupThreadExecutor;
-import com.seafile.seadroid2.framework.service.TransferService;
 import com.seafile.seadroid2.framework.util.PermissionUtil;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Toasts;
@@ -1294,7 +1293,7 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
 
             StorageManager.getInstance().resetInstance();
 
-            TransferService.stopService(requireContext());
+            BackupThreadExecutor.getInstance().stopAll();
 
             Toasts.show(R.string.file_transfer_stopped);
         }

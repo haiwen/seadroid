@@ -19,22 +19,17 @@ import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.ComponentActivity;
 import androidx.core.app.NavUtils;
 import androidx.core.app.TaskStackBuilder;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Authenticator;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.config.Constants;
+import com.seafile.seadroid2.context.ContextStackPreferenceHelper;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.util.SLogs;
-import com.seafile.seadroid2.context.ContextStackPreferenceHelper;
 import com.seafile.seadroid2.ui.account.sso.SingleSignOnActivity;
-import com.seafile.seadroid2.ui.account.sso.SingleSignOnAuthorizeActivity;
 import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
 
 import java.util.Locale;

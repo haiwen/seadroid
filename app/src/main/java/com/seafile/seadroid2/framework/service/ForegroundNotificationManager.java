@@ -1,7 +1,8 @@
-package com.seafile.seadroid2.framework.notification;
+package com.seafile.seadroid2.framework.service;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
+@Deprecated
 public class ForegroundNotificationManager {
     private final int foregroundNotificationId;
     private final AtomicBoolean inUse = new AtomicBoolean(false);

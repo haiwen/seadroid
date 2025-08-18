@@ -22,6 +22,7 @@ import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.FileBackupStatusEntity;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
 import com.seafile.seadroid2.framework.http.HttpIO;
+import com.seafile.seadroid2.framework.notification.GeneralNotificationHelper;
 import com.seafile.seadroid2.framework.util.ExceptionUtils;
 import com.seafile.seadroid2.framework.util.FileUtils;
 import com.seafile.seadroid2.framework.util.SafeLogs;
@@ -53,16 +54,10 @@ import okhttp3.ResponseBody;
 
 public abstract class ParentEventUploader extends ParentEventTransfer {
     private final String TAG = "ParentEventUploader";
-    private final ITransferNotification notificationDispatcher;
 
-    public ParentEventUploader(Context context, ITransferNotification notificationDispatcher) {
-        super(context);
-        this.notificationDispatcher = notificationDispatcher;
+    public ParentEventUploader(Context context, ITransferNotification n) {
+        super(context, n);
         _fileTransferProgressListener.setProgressListener(progressListener);
-    }
-
-    public ITransferNotification getNotificationDispatcher() {
-        return notificationDispatcher;
     }
 
     public abstract FeatureDataSource getFeatureDataSource();
@@ -89,20 +84,13 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
         }
     };
 
-
     private void notifyProgress(String fileName, int percent) {
-        if (notificationDispatcher == null) {
-            return;
+        if (getTransferNotificationDispatcher() != null) {
+            getTransferNotificationDispatcher().showProgress(getFeatureDataSource(), fileName, percent);
         }
-
-        notificationDispatcher.showProgress(getFeatureDataSource(), fileName, percent);
     }
 
     public void notifyError(SeafException seafException) {
-        if (getGeneralNotificationHelper() == null) {
-            return;
-        }
-
         if (seafException == SeafException.OUT_OF_QUOTA) {
             getGeneralNotificationHelper().showErrorNotification(R.string.above_quota);
         } else if (seafException == SeafException.NETWORK_EXCEPTION) {
@@ -116,6 +104,15 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
         }
     }
 
+    private GeneralNotificationHelper generalNotificationHelper;
+
+    public GeneralNotificationHelper getGeneralNotificationHelper() {
+        if (generalNotificationHelper == null) {
+            this.generalNotificationHelper = new GeneralNotificationHelper(getContext());
+        }
+        return generalNotificationHelper;
+    }
+
     private TransferModel currentTransferModel;
     private Call newCall;
 
@@ -124,6 +121,7 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
 
     private boolean isStop = false;
     private OkHttpClient primaryHttpClient;
+
     public OkHttpClient getPrimaryHttpClient(Account account) {
         if (primaryHttpClient == null) {
             primaryHttpClient = HttpIO.getInstanceByAccount(account).getSafeClient().getOkClient();
@@ -160,8 +158,9 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
             newCall.cancel();
         }
 
-        notificationDispatcher.clearAll();
-
+        if (getTransferNotificationDispatcher() != null) {
+            getTransferNotificationDispatcher().clearDelay();
+        }
     }
 
     public void transfer(Account account, TransferModel transferModel) throws SeafException {

@@ -23,7 +23,7 @@ public class BaseDialogFragmentWithVM<VM extends BaseViewModel> extends BaseDial
     public void onDestroy() {
         super.onDestroy();
         if (tvm != null) {
-            tvm.disposeAll();
+            tvm.clearAll();
             tvm = null;
         }
     }

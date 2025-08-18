@@ -126,7 +126,7 @@ public class LocalFileUpdater extends ParentEventUploader {
         }
 
         // clear all notifications
-        getNotificationDispatcher().clearAll();
+        getTransferNotificationDispatcher().clearDelay();
 
         if (interruptException != SeafException.SUCCESS) {
             resultException = interruptException;

@@ -6,13 +6,12 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
-import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.datastore.StorageManager;
 import com.seafile.seadroid2.framework.datastore.sp.AppDataManager;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
-import com.seafile.seadroid2.framework.service.TransferService;
+import com.seafile.seadroid2.framework.service.BackupThreadExecutor;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
@@ -22,7 +21,6 @@ import org.apache.commons.io.FileUtils;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
@@ -53,10 +51,7 @@ public class SwitchStorageViewModel extends BaseViewModel {
         getRefreshLiveData().setValue(true);
 
         //stop download
-        CompletableFuture<Void> future = TransferService.getActiveTasks().getOrDefault(FeatureDataSource.DOWNLOAD, null);
-        if (future != null && !future.isDone()) {
-            TransferService.stopDownloadService(context);
-        }
+        BackupThreadExecutor.getInstance().stopDownload();
 
         Single<Boolean> s = Single.create(new SingleOnSubscribe<Boolean>() {
             @Override

@@ -11,6 +11,7 @@ import com.seafile.seadroid2.framework.notification.base.BaseTransferNotificatio
 import com.seafile.seadroid2.framework.notification.base.NotificationUtils;
 import com.seafile.seadroid2.ui.transfer_list.TransferActivity;
 
+@Deprecated
 public class FileUploadNotificationHelper extends BaseTransferNotificationHelper {
     public FileUploadNotificationHelper(Context context) {
         super(context);
@@ -40,11 +41,11 @@ public class FileUploadNotificationHelper extends BaseTransferNotificationHelper
 
     @Override
     public String getChannelId() {
-        return NotificationUtils.NOTIFICATION_CHANNEL_TRANSFER;
+        return NotificationUtils.FILE_TRANSFER_CHANNEL;
     }
 
     @Override
     public int getNotificationId() {
-        return NotificationUtils.NID_UPLOAD_FILE;
+        return NotificationUtils.NID_FILE_UPLOAD;
     }
 }

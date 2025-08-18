@@ -12,6 +12,7 @@ import android.text.TextUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -246,5 +247,79 @@ public class FileUtils {
         }
 
         return -1;
+    }
+
+    /**
+     * 获取 Uri 文件的实际大小（字节数）。
+     * 优先使用 OpenableColumns.SIZE，如果不可用则通过流读取计算。
+     * 
+     * @param context 上下文
+     * @param uri 文件 Uri
+     * @return 文件大小，如果获取失败返回 -1
+     */
+    public static long getFileSize(Context context, Uri uri) {
+        if (context == null || uri == null) {
+            return -1;
+        }
+
+        long size = getSizeFromOpenableColumns(context, uri);
+        if (size > 0) {
+            return size;
+        }
+        // fallback: 通过流读取计算
+        return getSizeFromStream(context, uri);
+    }
+
+    /**
+     * 优先通过 OpenableColumns.SIZE 获取文件大小
+     */
+    private static long getSizeFromOpenableColumns(Context context, Uri uri) {
+        Cursor cursor = null;
+        try {
+            cursor = context.getContentResolver().query(uri, null, null, null, null);
+            if (cursor != null) {
+                int sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE);
+                if (sizeIndex != -1 && cursor.moveToFirst()) {
+                    long size = cursor.getLong(sizeIndex);
+                    if (size > 0) {
+                        return size;
+                    }
+                }
+            }
+        } catch (Exception ignore) {
+            // 忽略异常，继续使用流式计算
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * 通过流读取计算文件大小
+     */
+    private static long getSizeFromStream(Context context, Uri uri) {
+        long totalBytes = 0;
+        InputStream inputStream = null;
+        try {
+            inputStream = context.getContentResolver().openInputStream(uri);
+            if (inputStream == null) return -1;
+            
+            byte[] buffer = new byte[8192]; // 8KB buffer
+            int bytesRead;
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                totalBytes += bytesRead;
+            }
+        } catch (IOException ignore) {
+            // 忽略异常，返回 -1
+        } finally {
+            if (inputStream != null) {
+                try { 
+                    inputStream.close(); 
+                } catch (IOException ignore) {}
+            }
+        }
+        return totalBytes;
     }
 }

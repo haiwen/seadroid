@@ -25,7 +25,7 @@ import com.seafile.seadroid2.framework.db.entities.EncKeyCacheEntity;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.model.ResultModel;
-import com.seafile.seadroid2.framework.notification.TransferNotificationDispatcher;
+import com.seafile.seadroid2.framework.notification.GeneralNotificationHelper;
 import com.seafile.seadroid2.framework.util.ExceptionUtils;
 import com.seafile.seadroid2.framework.util.SafeLogs;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
@@ -57,15 +57,8 @@ import okhttp3.ResponseBody;
 public abstract class ParentEventDownloader extends ParentEventTransfer {
     private final String TAG = "ParentEventDownloader";
 
-    private final TransferNotificationDispatcher transferNotificationDispatcher;
-
-    public ParentEventDownloader(Context context, TransferNotificationDispatcher transferNotificationDispatcher) {
-        super(context);
-        this.transferNotificationDispatcher = transferNotificationDispatcher;
-    }
-
-    public TransferNotificationDispatcher getTransferNotificationDispatcher() {
-        return transferNotificationDispatcher;
+    public ParentEventDownloader(Context context, ITransferNotification n) {
+        super(context, n);
     }
 
     public abstract FeatureDataSource getFeatureDataSource();
@@ -82,11 +75,9 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
     });
 
     private void notifyProgress(String fileName, int percent) {
-        if (getTransferNotificationDispatcher() == null) {
-            return;
+        if (getTransferNotificationDispatcher() != null) {
+            getTransferNotificationDispatcher().showProgress(getFeatureDataSource(), fileName, percent);
         }
-
-        getTransferNotificationDispatcher().showProgress(getFeatureDataSource(), fileName, percent);
     }
 
 
@@ -454,6 +445,7 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
         }
     }
 
+
     public void notifyError(SeafException seafException) {
         if (seafException == SeafException.NETWORK_EXCEPTION) {
             getGeneralNotificationHelper().showErrorNotification(R.string.network_error, R.string.download);
@@ -466,6 +458,14 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
         }
     }
 
+    private GeneralNotificationHelper generalNotificationHelper;
+
+    public GeneralNotificationHelper getGeneralNotificationHelper() {
+        if (generalNotificationHelper == null) {
+            this.generalNotificationHelper = new GeneralNotificationHelper(getContext());
+        }
+        return generalNotificationHelper;
+    }
 
     public boolean decryptRepo(String repoId) {
         List<EncKeyCacheEntity> encList = AppDatabase.getInstance().encKeyCacheDAO().getListByRepoIdSync(repoId);

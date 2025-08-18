@@ -6,7 +6,6 @@ import android.os.Bundle;
 import com.seafile.seadroid2.bus.BusHelper;
 import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.TransferStatus;
-import com.seafile.seadroid2.framework.notification.GeneralNotificationHelper;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
 import com.seafile.seadroid2.framework.worker.queue.TransferModel;
@@ -16,25 +15,18 @@ public class ParentEventTransfer {
 
     public static final int SEGMENT_SIZE = 8192;
 
-    public static final String KEY_DATA_SOURCE = "key_data_source";
-    public static final String KEY_DATA_STATUS = "key_data_event";
     public static final String KEY_DATA_RESULT = "key_data_result";
 
     public static final String KEY_TRANSFER_ID = "key_transfer_id";
-    public static final String KEY_TRANSFER_TRANSFERRED_SIZE = "key_transfer_transferred_size";
-    public static final String KEY_TRANSFER_TOTAL_SIZE = "key_transfer_total_size";
 
     public static final String KEY_TRANSFER_COUNT = "key_transfer_count";
 
-    public static final String DATA_DIRENT_LIST_KEY = "data_dirent_list_key";
-    public static final String DATA_FORCE_TRANSFER_KEY = "data_transfer_force_key";
-
     private final Context context;
-    private final GeneralNotificationHelper generalNotificationHelper;
+    private final ITransferNotification notificationDispatcher;
 
-    public ParentEventTransfer(Context context) {
+    public ParentEventTransfer(Context context, ITransferNotification n) {
         this.context = context;
-        this.generalNotificationHelper = new GeneralNotificationHelper(context);
+        this.notificationDispatcher = n;
     }
 
     public Context getContext() {
@@ -44,8 +36,8 @@ public class ParentEventTransfer {
         return context;
     }
 
-    public GeneralNotificationHelper getGeneralNotificationHelper() {
-        return generalNotificationHelper;
+    public ITransferNotification getTransferNotificationDispatcher() {
+        return notificationDispatcher;
     }
 
     protected void sendCompleteEvent(FeatureDataSource dataSource, String errMsg, int totalPendingCount) {

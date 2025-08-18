@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
@@ -19,6 +20,7 @@ import com.blankj.utilcode.util.FileUtils;
 import com.blankj.utilcode.util.NetworkUtils;
 import com.seafile.seadroid2.BuildConfig;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.databinding.ActivityMarkdownBinding;
 import com.seafile.seadroid2.framework.util.FileMimeUtils;
 import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
@@ -27,7 +29,6 @@ import com.seafile.seadroid2.ui.editor.EditorViewModel;
 
 import java.io.File;
 
-import br.tiagohm.markdownview.MarkdownView;
 import br.tiagohm.markdownview.css.InternalStyleSheet;
 import br.tiagohm.markdownview.css.styles.Github;
 import io.reactivex.functions.Consumer;
@@ -37,9 +38,9 @@ import io.reactivex.functions.Consumer;
  */
 public class MarkdownActivity extends BaseActivityWithVM<EditorViewModel> implements Toolbar.OnMenuItemClickListener {
 
-    private MarkdownView markdownView;
-
+    private ActivityMarkdownBinding binding;
     private String path, repoId, fullPathInRemote;
+    private boolean isMarkdown;
 
     public static void start(Context context, String localPath, String repoId, String target_file) {
         Intent starter = new Intent(context, MarkdownActivity.class);
@@ -60,8 +61,10 @@ public class MarkdownActivity extends BaseActivityWithVM<EditorViewModel> implem
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        binding = ActivityMarkdownBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
-        setContentView(R.layout.activity_markdown);
+        applyEdgeToEdge(binding.getRoot());
 
         if (savedInstanceState != null) {
             path = savedInstanceState.getString("local_path");
@@ -76,11 +79,15 @@ public class MarkdownActivity extends BaseActivityWithVM<EditorViewModel> implem
 
         if (path == null) return;
 
-        markdownView = findViewById(R.id.markdownView);
-//        markdownView.setWebViewClient(new ImageLoadWebViewClient());
-        initMarkdown();
-
-        applyEdgeToEdge(findViewById(R.id.root_layout));
+        isMarkdown = path.toLowerCase().endsWith(".md") || path.toLowerCase().endsWith(".markdown");
+        if (isMarkdown) {
+            initMarkdown();
+            binding.scrollTextView.setVisibility(View.GONE);
+            binding.scrollMarkdownView.setVisibility(View.VISIBLE);
+        } else {
+            binding.scrollTextView.setVisibility(View.VISIBLE);
+            binding.scrollMarkdownView.setVisibility(View.GONE);
+        }
 
         Toolbar toolbar = getActionBarToolbar();
         toolbar.setOnMenuItemClickListener(this);
@@ -105,8 +112,8 @@ public class MarkdownActivity extends BaseActivityWithVM<EditorViewModel> implem
         } else {
             css.addRule("body", new String[]{"line-height: 1.6", "padding: 0px"});
         }
-
-        markdownView.addStyleSheet(css);
+        binding.markdownView.setEscapeHtml(false);
+        binding.markdownView.addStyleSheet(css);
     }
 
     @Override
@@ -125,7 +132,11 @@ public class MarkdownActivity extends BaseActivityWithVM<EditorViewModel> implem
                     return;
                 }
 
-                markdownView.loadMarkdown(s);
+                if (isMarkdown) {
+                    binding.markdownView.loadMarkdown(s);
+                } else {
+                    binding.textView.setText(s);
+                }
             }
         });
     }
@@ -189,10 +200,10 @@ public class MarkdownActivity extends BaseActivityWithVM<EditorViewModel> implem
     public void onDestroy() {
         super.onDestroy();
 
-        if (markdownView != null) {
-            markdownView.loadUrl("about:blank");
-            markdownView.stopLoading();
-            markdownView.destroy();
+        if (isMarkdown) {
+            binding.markdownView.loadUrl("about:blank");
+            binding.markdownView.stopLoading();
+            binding.markdownView.destroy();
         }
     }
 }

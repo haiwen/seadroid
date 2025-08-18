@@ -1,7 +1,6 @@
 package com.seafile.seadroid2.framework.service.download;
 
 import android.content.Context;
-import android.os.Bundle;
 import android.text.TextUtils;
 
 import com.seafile.seadroid2.R;
@@ -9,25 +8,19 @@ import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.enums.FeatureDataSource;
-import com.seafile.seadroid2.enums.TransferDataSource;
-import com.seafile.seadroid2.framework.notification.DownloadNotificationHelper;
-import com.seafile.seadroid2.framework.notification.TransferNotificationDispatcher;
-import com.seafile.seadroid2.framework.notification.base.BaseTransferNotificationHelper;
+import com.seafile.seadroid2.framework.service.ITransferNotification;
 import com.seafile.seadroid2.framework.service.ParentEventDownloader;
 import com.seafile.seadroid2.framework.util.SafeLogs;
 import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
-import com.seafile.seadroid2.framework.worker.TransferWorker;
 import com.seafile.seadroid2.framework.worker.queue.TransferModel;
-
-import java.util.concurrent.locks.ReentrantLock;
 
 public class FileDownloader extends ParentEventDownloader {
     private final String TAG = "FileDownloader";
 
-    public FileDownloader(Context context, TransferNotificationDispatcher transferNotificationDispatcher) {
-        super(context, transferNotificationDispatcher);
+    public FileDownloader(Context context, ITransferNotification n) {
+        super(context, n);
     }
 
     @Override
@@ -118,6 +111,10 @@ public class FileDownloader extends ParentEventDownloader {
             SafeLogs.d(TAG, "download()", "all completed");
             Toasts.show(R.string.download_completed);
         }
+
+        // clear all notifications
+        getTransferNotificationDispatcher().clearDelay();
+
 
         sendCompleteEvent(FeatureDataSource.DOWNLOAD, errorMsg, totalPendingCount);
         return SeafException.SUCCESS;

@@ -35,13 +35,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-
-/**
- * Worker Tag:
- *
- * @see BackgroundJobManagerImpl#TAG_ALL
- * @see BackgroundJobManagerImpl#TAG_TRANSFER
- */
 @Deprecated
 public class DownloadFileScannerWorker extends TransferWorker {
     private final String TAG = "DownloadFileScannerWorker";

@@ -34,11 +34,11 @@ public class AlbumBackupScanNotificationHelper extends BaseTransferNotificationH
 
     @Override
     public String getChannelId() {
-        return NotificationUtils.NOTIFICATION_CHANNEL_TRANSFER;
+        return NotificationUtils.FILE_TRANSFER_CHANNEL;
     }
 
     @Override
     public int getNotificationId() {
-        return NotificationUtils.NID_UPLOAD_ALBUM_BACKUP_SCAN;
+        return NotificationUtils.NID_ALBUM_BACKUP_SCAN;
     }
 }

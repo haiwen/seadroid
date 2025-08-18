@@ -74,12 +74,10 @@ import com.seafile.seadroid2.framework.db.entities.PermissionEntity;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.model.BaseModel;
 import com.seafile.seadroid2.framework.model.GroupItemModel;
-import com.seafile.seadroid2.framework.model.ResultModel;
 import com.seafile.seadroid2.framework.model.ServerInfo;
 import com.seafile.seadroid2.framework.model.dirents.DirentFileModel;
 import com.seafile.seadroid2.framework.model.search.SearchModel;
-import com.seafile.seadroid2.framework.service.PreDownloadHelper;
-import com.seafile.seadroid2.framework.service.TransferService;
+import com.seafile.seadroid2.framework.service.BackupThreadExecutor;
 import com.seafile.seadroid2.framework.util.Objs;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.TakeCameras;
@@ -160,6 +158,11 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     }
 
     @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         activity = (AppCompatActivity) context;
@@ -199,12 +202,6 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         initViewModel();
 
         resetRvPadding();
-    }
-
-
-    @Override
-    public void onFirstResume() {
-        super.onFirstResume();
 
         loadData(RefreshStatusEnum.LOCAL_THEN_REMOTE, true);
     }
@@ -381,7 +378,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 }
                 return true;
             }
-        }, getViewLifecycleOwner(), Lifecycle.State.RESUMED);
+        }, getViewLifecycleOwner());
     }
 
     /**
@@ -529,6 +526,13 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             }
         });
 
+        getViewModel().getSecondRefreshLiveData().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+                showLoadingDialog(aBoolean);
+            }
+        });
+
         getViewModel().getShowLoadingDialogLiveData().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean aBoolean) {
@@ -591,6 +595,13 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             }
         });
 
+        getViewModel().getDecryptRepoLiveData().observe(getViewLifecycleOwner(), new Observer<RepoViewModel.DecryptResult>() {
+            @Override
+            public void onChanged(RepoViewModel.DecryptResult result) {
+                onDecryptResult(result);
+            }
+        });
+
         Settings.FILE_LIST_VIEW_TYPE.observe(getViewLifecycleOwner(), new Observer<FileViewType>() {
             @Override
             public void onChanged(FileViewType fileViewType) {
@@ -633,6 +644,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             }
         });
     }
+
 
     private void resetRvPadding() {
         if (GlobalNavContext.getCurrentNavContext().inRepo()) {
@@ -684,13 +696,6 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
             loadData(RefreshStatusEnum.ONLY_REMOTE, false);
         }
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-
-        //close search view
     }
 
     private View floatingView;
@@ -866,7 +871,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 deleteDirents(selectedList);
             }
         } else if (item.getItemId() == R.id.upload) {
-            addUploadTask(selectedList, true);
+            reUploadFile(selectedList, true);
         } else if (item.getItemId() == R.id.download) {
             download(selectedList);
         } else if (item.getItemId() == R.id.share) {
@@ -990,11 +995,12 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             if (repoModel == null) {
                 getViewModel().loadData(navContext, refreshStatus, isBlank);
             } else if (repoModel.encrypted) {
-                decryptRepo(repoModel, aBoolean -> {
-                    if (aBoolean) {
-                        getViewModel().loadData(navContext, refreshStatus, isBlank);
-                    }
-                });
+                nextDecryptCallback = new DecryptRepoNextCallback();
+                nextDecryptCallback.functionName = "loadData";
+                nextDecryptCallback.repoModel = repoModel;
+                nextDecryptCallback.refreshStatus = refreshStatus;
+                nextDecryptCallback.isBlank = isBlank;
+                getViewModel().decryptRepo(repoModel);
             } else {
                 getViewModel().loadData(navContext, refreshStatus, isBlank);
             }
@@ -1009,6 +1015,60 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         } else {
             adapter.notifyDataChanged(checkListByGroup(models));
         }
+    }
+
+
+    static class DecryptRepoNextCallback {
+        String functionName;
+        RepoModel repoModel;
+        String fullPath;
+        boolean isDir;
+        RefreshStatusEnum refreshStatus;
+        boolean isBlank;
+    }
+
+    private DecryptRepoNextCallback nextDecryptCallback;
+
+    private void onDecryptResult(RepoViewModel.DecryptResult result) {
+        if (nextDecryptCallback == null) {
+            return;
+        }
+
+        if (result == RepoViewModel.DecryptResult.NEED_PASSWORD) {
+            showPasswordDialogCallback(nextDecryptCallback.repoModel.repo_id, nextDecryptCallback.repoModel.repo_name, new OnResultListener<RepoModel>() {
+                @Override
+                public void onResultData(RepoModel repoModel) {
+                    if (repoModel != null) {
+                        nextDecryptCallback.repoModel = repoModel;
+                        continueNextDecryptCallback();
+                    }
+                }
+            });
+        } else if (result == RepoViewModel.DecryptResult.SUCCESS) {
+            continueNextDecryptCallback();
+        } else if (result == RepoViewModel.DecryptResult.FAILED) {
+            Toasts.show(R.string.failed);
+            nextDecryptCallback = null;
+        }
+    }
+
+    private void continueNextDecryptCallback() {
+        if (nextDecryptCallback == null) {
+            return;
+        }
+        if (TextUtils.equals("loadData", nextDecryptCallback.functionName)) {
+            NavContext navContext = GlobalNavContext.getCurrentNavContext();
+            getViewModel().loadData(navContext, nextDecryptCallback.refreshStatus, nextDecryptCallback.isBlank);
+        } else if (TextUtils.equals("navTo", nextDecryptCallback.functionName)) {
+            binding.stickyContainer.setVisibility(View.GONE);
+            GlobalNavContext.push(nextDecryptCallback.repoModel);
+            NavContext navContext = GlobalNavContext.getCurrentNavContext();
+            getViewModel().loadData(navContext, nextDecryptCallback.refreshStatus, nextDecryptCallback.isBlank);
+        } else if (TextUtils.equals("switchToPath", nextDecryptCallback.functionName)) {
+            switchToPath(nextDecryptCallback.repoModel, nextDecryptCallback.fullPath, nextDecryptCallback.isDir);
+        }
+
+        nextDecryptCallback = null;
     }
 
     private List<BaseModel> checkListByGroup(List<BaseModel> models) {
@@ -1129,16 +1189,12 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         //save
         if (model instanceof RepoModel repoModel) {
             if (repoModel.encrypted) {
-                decryptRepo(repoModel, new java.util.function.Consumer<Boolean>() {
-                    @Override
-                    public void accept(Boolean aBoolean) {
-                        if (aBoolean) {
-                            binding.stickyContainer.setVisibility(View.GONE);
-                            GlobalNavContext.push(repoModel);
-                            loadData(getRefreshStatus(), true);
-                        }
-                    }
-                });
+                nextDecryptCallback = new DecryptRepoNextCallback();
+                nextDecryptCallback.functionName = "navTo";
+                nextDecryptCallback.repoModel = repoModel;
+                nextDecryptCallback.refreshStatus = getRefreshStatus();
+                nextDecryptCallback.isBlank = true;
+                getViewModel().decryptRepo(repoModel);
             } else {
                 binding.stickyContainer.setVisibility(View.GONE);
                 GlobalNavContext.push(repoModel);
@@ -1205,14 +1261,21 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 }
 
                 if (repoModel.encrypted) {
-                    decryptRepo(repoModel, new java.util.function.Consumer<Boolean>() {
-                        @Override
-                        public void accept(Boolean aBoolean) {
-                            if (aBoolean) {
-                                switchToPath(repoModel, fullPath, isDir);
-                            }
-                        }
-                    });
+                    nextDecryptCallback = new DecryptRepoNextCallback();
+                    nextDecryptCallback.functionName = "switchToPath";
+                    nextDecryptCallback.repoModel = repoModel;
+                    nextDecryptCallback.fullPath = fullPath;
+                    nextDecryptCallback.isDir = isDir;
+                    getViewModel().decryptRepo(repoModel);
+
+//                    decryptRepo(repoModel, new java.util.function.Consumer<Boolean>() {
+//                        @Override
+//                        public void accept(Boolean aBoolean) {
+//                            if (aBoolean) {
+//                                switchToPath(repoModel, fullPath, isDir);
+//                            }
+//                        }
+//                    });
                 } else {
                     switchToPath(repoModel, fullPath, isDir);
                 }
@@ -1250,7 +1313,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             } else {
                 binding.swipeRefreshLayout.setRefreshing(false);
 
-                getViewModel().disposeAll();
+                getViewModel().clearAll();
 
                 removeScrolledPosition();
 
@@ -1264,55 +1327,6 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         return false;
     }
 
-    private void decryptRepo(RepoModel repoModel, final java.util.function.Consumer<Boolean> checkBack) {
-        if (checkBack == null) {
-            throw new IllegalArgumentException("checkBack is null");
-        }
-
-        if (!repoModel.encrypted) {
-            checkBack.accept(true);
-            return;
-        }
-
-        getViewModel().decryptRepo(repoModel.repo_id, new Consumer<String>() {
-            @Override
-            public void accept(String i) throws Exception {
-                if (TextUtils.equals(i, "need-to-re-enter-password")) {
-                    showPasswordDialogCallback(repoModel.repo_id, repoModel.repo_name, new OnResultListener<RepoModel>() {
-                        @Override
-                        public void onResultData(RepoModel repoModel) {
-                            if (repoModel != null) {
-                                checkBack.accept(true);
-                            }
-                        }
-                    });
-                } else if (TextUtils.equals(i, "done")) {
-                    checkBack.accept(true);
-                } else {
-                    getViewModel().remoteVerify(repoModel.repo_id, i, new Consumer<ResultModel>() {
-                        @Override
-                        public void accept(ResultModel r) {
-                            if (r.success) {
-                                checkBack.accept(true);
-                                return;
-                            }
-
-                            Toasts.show(r.error_msg);
-
-                            showPasswordDialogCallback(repoModel.repo_id, repoModel.repo_name, new OnResultListener<RepoModel>() {
-                                @Override
-                                public void onResultData(RepoModel repoModel) {
-                                    if (repoModel != null) {
-                                        checkBack.accept(true);
-                                    }
-                                }
-                            });
-                        }
-                    });
-                }
-            }
-        });
-    }
 
     private void showPasswordDialogCallback(String repo_id, String repo_name, OnResultListener<RepoModel> resultListener) {
         BottomSheetPasswordDialogFragment passwordDialogFragment = BottomSheetPasswordDialogFragment.newInstance(repo_id, repo_name);
@@ -1506,7 +1520,6 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
 
     /************ Files ************/
-
     private File getLocalDestinationFile(String repoId, String repoName, String fullPathInRepo) {
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
         return DataManager.getLocalFileCachePath(account, repoId, repoName, fullPathInRepo);
@@ -1619,7 +1632,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         List<DirentModel> direntModels1 = direntModels.stream().map(m -> (DirentModel) m).collect(Collectors.toList());
         List<String> uids = direntModels1.stream().map(m -> m.uid).collect(Collectors.toList());
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
-        PreDownloadHelper.preDownload(requireContext(), account, uids);
+        getViewModel().preDownload(requireContext(), account, uids);
     }
 
     public void rename(List<BaseModel> models) {
@@ -2009,7 +2022,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     /**
      * re-upload the local downloaded files
      */
-    private void addUploadTask(List<BaseModel> dirents, boolean isReplace) {
+    private void reUploadFile(List<BaseModel> dirents, boolean isReplace) {
         if (CollectionUtils.isEmpty(dirents)) {
             return;
         }
@@ -2038,11 +2051,9 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             }
 
             Toasts.show(R.string.added_to_upload_tasks);
-            // 启动上传
-            TransferService.startManualUploadService(requireContext());
-//            Intent uploadIntent = new Intent(requireContext(), FileUploadService.class);
-//            ContextCompat.startForegroundService(requireContext(), uploadIntent);
-//            BackgroundJobManagerImpl.getInstance().startFileUploadWorker();
+
+            //
+            BackupThreadExecutor.getInstance().runManualFileUploadTask();
         }
 
         closeActionMode();
@@ -2064,7 +2075,6 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             }
         });
         bottomSheetNewRepoDialogFragment.show(getChildFragmentManager(), BottomSheetNewRepoDialogFragment.class.getSimpleName());
-
     }
 
     /**
@@ -2254,10 +2264,15 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                     return;
                 }
 
+                if (aBoolean == null) {
+                    Toasts.show(R.string.network_error);
+                    return;
+                }
+
                 if (aBoolean) {
                     Toasts.show(R.string.added_to_upload_tasks);
 
-                    TransferService.startManualUploadService(requireContext());
+                    BackupThreadExecutor.getInstance().runManualFileUploadTask();
                 }
             }
         });
@@ -2339,7 +2354,8 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         mainViewModel.addUploadTask(requireContext(), account, repoModel, localFile, targetDir, false);
 
         Toasts.show(R.string.added_to_upload_tasks);
-        TransferService.startManualUploadService(requireContext());
+//        TransferService.startManualUploadService(requireContext());
+        BackupThreadExecutor.getInstance().runManualFileUploadTask();
     }
 
     private void addUploadTask(RepoModel repoModel, String targetDir, Uri sourceUri, String fileName, boolean isReplace) {
@@ -2348,6 +2364,8 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         mainViewModel.addUploadTask(requireContext(), account, repoModel, sourceUri, targetDir, fileName, isReplace);
 
         Toasts.show(R.string.added_to_upload_tasks);
-        TransferService.startManualUploadService(requireContext());
+//        TransferService.startManualUploadService(requireContext());
+        BackupThreadExecutor.getInstance().runManualFileUploadTask();
+
     }
 }

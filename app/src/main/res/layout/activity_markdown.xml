@@ -14,9 +14,9 @@
     </com.google.android.material.appbar.AppBarLayout>
 
     <ScrollView
+        android:id="@+id/scroll_markdown_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        android:layout_height="match_parent">
 
         <br.tiagohm.markdownview.MarkdownView
             android:id="@+id/markdownView"
@@ -24,8 +24,23 @@
             android:layout_height="wrap_content"
             android:gravity="start|top"
             android:lineSpacingExtra="3dp"
-            android:textColor="#333333"
-            app:escapeHtml="false" />
+            android:textColor="#333333" />
+
+    </ScrollView>
+
+    <ScrollView
+        android:id="@+id/scroll_text_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:lineSpacingExtra="4dp"
+            android:padding="16dp"
+            android:textSize="16sp" />
+
     </ScrollView>
 
 </LinearLayout>

@@ -21,7 +21,7 @@ import okhttp3.Response;
 import okhttp3.logging.HttpLoggingInterceptor;
 
 public abstract class BaseOkHttpClient {
-    protected final int DEFAULT_TIME_OUT = 120000;
+    protected final int DEFAULT_TIME_OUT = 60000;
     protected final int MAX_AGE = 600;
     protected final int MAX_STALE = 60 * 60 * 8;
     protected final long MAX_CACHE_SIZE = 20 * 1024 * 1024L;
@@ -50,22 +50,18 @@ public abstract class BaseOkHttpClient {
     }
 
     protected List<Interceptor> getInterceptorsWithoutToken() {
-
         List<Interceptor> interceptors = new ArrayList<>();
 
         //print log
         HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
         loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BASIC);
         interceptors.add(loggingInterceptor);
-
-//        interceptors.add(new AddCookiesInterceptor());
-//        interceptors.add(new ReceivedCookiesInterceptor());
-
         return interceptors;
     }
 
 
-    //cache interceptor
+    //No longer used. The caching policy is determined by the server-side response header
+    @Deprecated
     protected final Interceptor REWRITE_CACHE_CONTROL_INTERCEPTOR = chain -> {
         Request request = chain.request();
 
@@ -91,5 +87,6 @@ public abstract class BaseOkHttpClient {
                     .header("Cache-Control", "public, only-if-cached, max-stale=" + MAX_STALE)
                     .build();
         }
+
     };
 }

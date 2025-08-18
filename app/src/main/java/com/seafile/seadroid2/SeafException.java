@@ -125,7 +125,7 @@ public class SeafException extends Exception {
     public static final SeafException NETWORK_CONNECT_REFUSE_EXCEPTION = new SeafException(2107, "Connection is refused");
     public static final SeafException NETWORK_EOF_EXCEPTION = new SeafException(2108, "Connection EOF");
     public static final SeafException NETWORK_SHUTDOWN_EXCEPTION = new SeafException(2109, "The connection is shut down");
-    public static final SeafException NETWORK_UNKNOWN_HOST_EXCEPTION = new SeafException(2110, "Unknown host");
+    public static final SeafException NETWORK_UNKNOWN_HOST_EXCEPTION = new SeafException(2110, SeadroidApplication.getAppString(R.string.invalid_server_address));
     public static final SeafException NETWORK_IO_EXCEPTION = new SeafException(2111, "Network io exception");
 
 }

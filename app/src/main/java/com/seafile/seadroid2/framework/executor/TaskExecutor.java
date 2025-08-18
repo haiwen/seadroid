@@ -22,20 +22,27 @@ public class TaskExecutor {
                 MAX_POOL_SIZE,
                 KEEP_ALIVE_TIME,
                 TimeUnit.SECONDS,
-                new LinkedBlockingQueue<>(20), // 限制队列长度
+                new LinkedBlockingQueue<>(100), // limit queue length
                 new ThreadFactory() {
                     private final AtomicInteger count = new AtomicInteger(1);
 
                     @Override
                     public Thread newThread(Runnable r) {
                         Thread thread = new Thread(r, "TransferService-Task-" + count.getAndIncrement());
-                        // 设置线程优先级避免影响UI
+                        //set thread priorities to avoid affecting the ui
                         thread.setPriority(Thread.MIN_PRIORITY + (Thread.NORM_PRIORITY - Thread.MIN_PRIORITY) / 2);
                         return thread;
                     }
                 }
         );
         _executor.allowCoreThreadTimeOut(true);
+        _executor.setRejectedExecutionHandler((r, executor) -> {
+            try {
+                executor.getQueue().put(r); // blocking until there is an empty space
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        });
     }
 
     public static TaskExecutor getInstance() {

@@ -25,8 +25,8 @@ import java.util.List;
 public class FolderBackupUploader extends ParentEventUploader {
     private final String TAG = "FolderBackupUploader";
 
-    public FolderBackupUploader(Context context, ITransferNotification iTransferNotificationDispatcher) {
-        super(context, iTransferNotificationDispatcher);
+    public FolderBackupUploader(Context context, ITransferNotification i) {
+        super(context, i);
     }
 
     @Override
@@ -153,7 +153,7 @@ public class FolderBackupUploader extends ParentEventUploader {
         }
 
         // clear all notifications
-        getNotificationDispatcher().clearAll();
+        getTransferNotificationDispatcher().clearDelay();
 
         if (interruptException != SeafException.SUCCESS) {
             resultException = interruptException;

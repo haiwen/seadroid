@@ -8,7 +8,6 @@ import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.enums.FeatureDataSource;
-import com.seafile.seadroid2.framework.notification.TransferNotificationDispatcher;
 import com.seafile.seadroid2.framework.service.ITransferNotification;
 import com.seafile.seadroid2.framework.service.ParentEventUploader;
 import com.seafile.seadroid2.framework.util.SafeLogs;
@@ -96,7 +95,7 @@ public class ShareToSeafileUploader extends ParentEventUploader {
         }
 
         // clear all notifications
-        getNotificationDispatcher().clearAll();
+        getTransferNotificationDispatcher().clearDelay();
 
         if (interruptException != SeafException.SUCCESS) {
             resultException = interruptException;

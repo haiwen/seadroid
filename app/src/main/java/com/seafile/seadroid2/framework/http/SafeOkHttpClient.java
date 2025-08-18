@@ -22,6 +22,7 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
+import okhttp3.Cache;
 import okhttp3.ConnectionSpec;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
@@ -151,10 +152,10 @@ public class SafeOkHttpClient extends BaseOkHttpClient {
                 ConnectionSpec.MODERN_TLS,
                 ConnectionSpec.COMPATIBLE_TLS,
                 ConnectionSpec.CLEARTEXT));
-        builder.cache(cache);
-        //cache control
-        builder.interceptors().add(REWRITE_CACHE_CONTROL_INTERCEPTOR);
-        builder.networkInterceptors().add(REWRITE_CACHE_CONTROL_INTERCEPTOR);
+//        builder.cache(cache);
+//        //cache control
+//        builder.interceptors().add(REWRITE_CACHE_CONTROL_INTERCEPTOR);
+//        builder.networkInterceptors().add(REWRITE_CACHE_CONTROL_INTERCEPTOR);
 
         //add interceptors
         if (!CollectionUtils.isEmpty(_interceptors)) {

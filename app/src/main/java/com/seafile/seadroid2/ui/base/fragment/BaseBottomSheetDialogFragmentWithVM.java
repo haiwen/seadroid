@@ -43,7 +43,7 @@ public class BaseBottomSheetDialogFragmentWithVM<VM extends BaseViewModel> exten
         super.onDestroyView();
 
         if (tvm != null) {
-            tvm.disposeAll();
+            tvm.clearAll();
             tvm = null;
         }
     }

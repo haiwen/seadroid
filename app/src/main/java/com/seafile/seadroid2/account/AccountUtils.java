@@ -4,14 +4,12 @@ import android.webkit.CookieManager;
 import android.webkit.ValueCallback;
 
 import com.blankj.utilcode.util.NotificationUtils;
-import com.seafile.seadroid2.SeadroidApplication;
+import com.seafile.seadroid2.context.ContextStackPreferenceHelper;
 import com.seafile.seadroid2.framework.datastore.DataStoreManager;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.service.BackupThreadExecutor;
-import com.seafile.seadroid2.framework.service.TransferService;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
-import com.seafile.seadroid2.context.ContextStackPreferenceHelper;
 import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.ssl.CertsManager;
 import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
@@ -30,13 +28,10 @@ public class AccountUtils {
 
         NotificationUtils.cancelAll();
 
-        TransferService.stopService(SeadroidApplication.getAppContext());
+        // stop all transfer service
+        BackupThreadExecutor.getInstance().stopAll();
 
-        boolean backRunning = BackupThreadExecutor.getInstance().anyBackupRunning();
-        if (backRunning) {
-            BackupThreadExecutor.getInstance().cancelAll();
-        }
-
+        // cancel all jobs
         BackgroundJobManagerImpl.getInstance().cancelAllJobs();
 
         // sign out operations
@@ -72,13 +67,10 @@ public class AccountUtils {
 
         NotificationUtils.cancelAll();
 
-        TransferService.stopService(SeadroidApplication.getAppContext());
+        // stop all transfer service
+        BackupThreadExecutor.getInstance().stopAll();
 
-        boolean backRunning = BackupThreadExecutor.getInstance().anyBackupRunning();
-        if (backRunning) {
-            BackupThreadExecutor.getInstance().cancelAll();
-        }
-        
+        // cancel all jobs
         BackgroundJobManagerImpl.getInstance().cancelAllJobs();
 
         // clear
