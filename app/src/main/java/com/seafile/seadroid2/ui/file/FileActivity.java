@@ -188,7 +188,7 @@ public class FileActivity extends BaseActivityWithVM<FileViewModel> implements T
     }
 
     private void cancelDownload() {
-        getViewModel().disposeAll();
+        getViewModel().clearAll();
         Toasts.show(R.string.download_cancelled);
         finishWithCancel();
     }

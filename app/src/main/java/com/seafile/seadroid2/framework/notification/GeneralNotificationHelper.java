@@ -11,7 +11,7 @@ import com.seafile.seadroid2.framework.notification.base.NotificationUtils;
 public class GeneralNotificationHelper extends BaseNotification {
     @Override
     public String getChannelId() {
-        return NotificationUtils.NOTIFICATION_CHANNEL_GENERAL;
+        return NotificationUtils.GENERAL_CHANNEL;
     }
 
     @Override

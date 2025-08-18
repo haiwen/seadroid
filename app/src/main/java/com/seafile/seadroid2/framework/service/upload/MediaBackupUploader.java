@@ -150,7 +150,7 @@ public class MediaBackupUploader extends ParentEventUploader {
         }
 
         // clear all notifications
-        getTransferNotificationDispatcher().clearAll();
+        getTransferNotificationDispatcher().clearDelay();
 
 
         if (interruptException != SeafException.SUCCESS) {

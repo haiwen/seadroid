@@ -158,6 +158,11 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     }
 
     @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         activity = (AppCompatActivity) context;
@@ -197,12 +202,6 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         initViewModel();
 
         resetRvPadding();
-    }
-
-
-    @Override
-    public void onFirstResume() {
-        super.onFirstResume();
 
         loadData(RefreshStatusEnum.LOCAL_THEN_REMOTE, true);
     }
@@ -379,7 +378,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 }
                 return true;
             }
-        }, getViewLifecycleOwner(), Lifecycle.State.RESUMED);
+        }, getViewLifecycleOwner());
     }
 
     /**
@@ -699,13 +698,6 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         }
     }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-
-        //close search view
-    }
-
     private View floatingView;
     private BottomSheetMenuAdapter bottomSheetMenuAdapter;
 
@@ -1009,12 +1001,6 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 nextDecryptCallback.refreshStatus = refreshStatus;
                 nextDecryptCallback.isBlank = isBlank;
                 getViewModel().decryptRepo(repoModel);
-
-//                decryptRepo(repoModel, aBoolean -> {
-//                    if (aBoolean) {
-//                        getViewModel().loadData(navContext, refreshStatus, isBlank);
-//                    }
-//                });
             } else {
                 getViewModel().loadData(navContext, refreshStatus, isBlank);
             }
@@ -1032,7 +1018,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     }
 
 
-    class DecryptRepoNextCallback {
+    static class DecryptRepoNextCallback {
         String functionName;
         RepoModel repoModel;
         String fullPath;
@@ -1062,8 +1048,8 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             continueNextDecryptCallback();
         } else if (result == RepoViewModel.DecryptResult.FAILED) {
             Toasts.show(R.string.failed);
+            nextDecryptCallback = null;
         }
-        nextDecryptCallback = null;
     }
 
     private void continueNextDecryptCallback() {
@@ -1081,6 +1067,8 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         } else if (TextUtils.equals("switchToPath", nextDecryptCallback.functionName)) {
             switchToPath(nextDecryptCallback.repoModel, nextDecryptCallback.fullPath, nextDecryptCallback.isDir);
         }
+
+        nextDecryptCallback = null;
     }
 
     private List<BaseModel> checkListByGroup(List<BaseModel> models) {
@@ -1207,17 +1195,6 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 nextDecryptCallback.refreshStatus = getRefreshStatus();
                 nextDecryptCallback.isBlank = true;
                 getViewModel().decryptRepo(repoModel);
-
-//                decryptRepo(repoModel, new java.util.function.Consumer<Boolean>() {
-//                    @Override
-//                    public void accept(Boolean aBoolean) {
-//                        if (aBoolean) {
-//                            binding.stickyContainer.setVisibility(View.GONE);
-//                            GlobalNavContext.push(repoModel);
-//                            loadData(getRefreshStatus(), true);
-//                        }
-//                    }
-//                });
             } else {
                 binding.stickyContainer.setVisibility(View.GONE);
                 GlobalNavContext.push(repoModel);
@@ -1336,7 +1313,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             } else {
                 binding.swipeRefreshLayout.setRefreshing(false);
 
-                getViewModel().disposeAll();
+                getViewModel().clearAll();
 
                 removeScrolledPosition();
 
@@ -2287,7 +2264,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                     return;
                 }
 
-                if (aBoolean == null){
+                if (aBoolean == null) {
                     Toasts.show(R.string.network_error);
                     return;
                 }

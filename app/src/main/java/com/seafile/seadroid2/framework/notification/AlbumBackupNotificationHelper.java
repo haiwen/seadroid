@@ -35,7 +35,7 @@ public class AlbumBackupNotificationHelper extends BaseTransferNotificationHelpe
 
     @Override
     public String getChannelId() {
-        return NotificationUtils.NOTIFICATION_CHANNEL_TRANSFER;
+        return NotificationUtils.FILE_TRANSFER_CHANNEL;
     }
 
     @Override
@@ -45,6 +45,6 @@ public class AlbumBackupNotificationHelper extends BaseTransferNotificationHelpe
 
     @Override
     public int getNotificationId() {
-        return NotificationUtils.NID_TRANSFER_UPLOAD_ALBUM_BACKUP;
+        return NotificationUtils.NID_ALBUM_BACKUP;
     }
 }

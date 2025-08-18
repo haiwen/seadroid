@@ -22,6 +22,7 @@ import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.FileBackupStatusEntity;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
 import com.seafile.seadroid2.framework.http.HttpIO;
+import com.seafile.seadroid2.framework.notification.GeneralNotificationHelper;
 import com.seafile.seadroid2.framework.util.ExceptionUtils;
 import com.seafile.seadroid2.framework.util.FileUtils;
 import com.seafile.seadroid2.framework.util.SafeLogs;
@@ -83,20 +84,13 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
         }
     };
 
-
     private void notifyProgress(String fileName, int percent) {
-        if (getTransferNotificationDispatcher() == null) {
-            return;
+        if (getTransferNotificationDispatcher() != null) {
+            getTransferNotificationDispatcher().showProgress(getFeatureDataSource(), fileName, percent);
         }
-
-        getTransferNotificationDispatcher().showProgress(getFeatureDataSource(), fileName, percent);
     }
 
     public void notifyError(SeafException seafException) {
-        if (getGeneralNotificationHelper() == null) {
-            return;
-        }
-
         if (seafException == SeafException.OUT_OF_QUOTA) {
             getGeneralNotificationHelper().showErrorNotification(R.string.above_quota);
         } else if (seafException == SeafException.NETWORK_EXCEPTION) {
@@ -108,6 +102,15 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
         } else {
             getGeneralNotificationHelper().showErrorNotification(seafException.getMessage());
         }
+    }
+
+    private GeneralNotificationHelper generalNotificationHelper;
+
+    public GeneralNotificationHelper getGeneralNotificationHelper() {
+        if (generalNotificationHelper == null) {
+            this.generalNotificationHelper = new GeneralNotificationHelper(getContext());
+        }
+        return generalNotificationHelper;
     }
 
     private TransferModel currentTransferModel;
@@ -155,8 +158,9 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
             newCall.cancel();
         }
 
-        getTransferNotificationDispatcher().clearAll();
-
+        if (getTransferNotificationDispatcher() != null) {
+            getTransferNotificationDispatcher().clearDelay();
+        }
     }
 
     public void transfer(Account account, TransferModel transferModel) throws SeafException {

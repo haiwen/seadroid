@@ -11,6 +11,7 @@ import com.seafile.seadroid2.framework.worker.TransferEvent;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
 import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 
+@Deprecated
 public abstract class EventService extends Service {
     private final String TAG = "EventService";
     public static final int SEGMENT_SIZE = 8192;

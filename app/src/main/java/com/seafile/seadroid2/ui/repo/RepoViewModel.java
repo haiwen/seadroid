@@ -271,9 +271,9 @@ public class RepoViewModel extends BaseViewModel {
             public SingleSource<ResultModel> apply(ResultModel resultModel) throws Exception {
                 if (resultModel.success) {
                     return updateLocalPasswordCache(repoId, password)
-                            .map(new Function<Void, ResultModel>() {
+                            .map(new Function<SeafException, ResultModel>() {
                                 @Override
-                                public ResultModel apply(Void aVoid) throws Exception {
+                                public ResultModel apply(SeafException aVoid) throws Exception {
                                     return resultModel;
                                 }
                             });
@@ -283,7 +283,7 @@ public class RepoViewModel extends BaseViewModel {
         });
     }
 
-    private Single<Void> updateLocalPasswordCache(String repoId, String password) {
+    private Single<SeafException> updateLocalPasswordCache(String repoId, String password) {
         return Single.create(emitter -> {
             try {
                 EncKeyCacheEntity encEntity = new EncKeyCacheEntity();
@@ -302,9 +302,9 @@ public class RepoViewModel extends BaseViewModel {
                     AppDatabase.getInstance().encKeyCacheDAO().insert(encEntity);
                 }
 
-                emitter.onSuccess(null);
+                emitter.onSuccess(SeafException.SUCCESS);
             } catch (Exception e) {
-                emitter.onError(e);
+                emitter.onError(SeafException.UNSUPPORTED_ENC_VERSION);
             }
         });
     }
@@ -347,7 +347,9 @@ public class RepoViewModel extends BaseViewModel {
 
         removeAllPermission();
 
-        Single<List<BaseModel>> singleDB = AppDatabase.getInstance().repoDao().getListByAccount(account.getSignature())
+        Single<List<BaseModel>> singleDB = AppDatabase.getInstance()
+                .repoDao()
+                .getListByAccount(account.getSignature())
                 .flatMap(new Function<List<RepoModel>, SingleSource<List<BaseModel>>>() {
                     @Override
                     public SingleSource<List<BaseModel>> apply(List<RepoModel> repoModels) throws Exception {

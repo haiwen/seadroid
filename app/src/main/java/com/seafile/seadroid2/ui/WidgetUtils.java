@@ -114,11 +114,11 @@ public class WidgetUtils {
 
     private static void showFileForAndroid(final BaseActivity activity, File file) {
         NotificationManager manager = (NotificationManager) activity.getSystemService(NOTIFICATION_SERVICE);
-        NotificationChannel channel = new NotificationChannel(NotificationUtils.NOTIFICATION_CHANNEL_OPEN_APK, NotificationUtils.NOTIFICATION_CHANNEL_OPEN_APK, NotificationManager.IMPORTANCE_HIGH);
+        NotificationChannel channel = new NotificationChannel(NotificationUtils.OPEN_APK_CHANNEL, NotificationUtils.OPEN_APK_CHANNEL, NotificationManager.IMPORTANCE_HIGH);
         manager.createNotificationChannel(channel);
 
         //wait
-        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(activity, NotificationUtils.NOTIFICATION_CHANNEL_OPEN_APK)
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(activity, NotificationUtils.OPEN_APK_CHANNEL)
                 .setContentTitle(activity.getString(R.string.waiting))
                 .setSmallIcon(R.drawable.icon)
                 .setAutoCancel(true);

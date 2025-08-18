@@ -22,7 +22,7 @@ public class BaseActivityWithVM<VM extends BaseViewModel> extends BaseActivity {
     public void onDestroy() {
         super.onDestroy();
         if (tvm != null) {
-            tvm.disposeAll();
+            tvm.clearAll();
             tvm = null;
         }
     }

@@ -28,6 +28,7 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.databinding.SingleSignOnAuthorizeLayoutBinding;
 import com.seafile.seadroid2.framework.util.DeviceIdManager;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Toasts;
@@ -50,25 +51,28 @@ public class SingleSignOnAuthorizeActivity extends BaseActivityWithVM<AccountVie
     public final String TAG = "SingleSignOnAuthorizeActivity";
 
     public static final String SEAHUB_SHIB_COOKIE_NAME = "seahub_auth";
-    private WebView mWebview;
-    private LinearLayout mloadingAnimation;
+
     public String serverUrl;
+    private SingleSignOnAuthorizeLayoutBinding binding;
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.single_sign_on_authorize_layout);
-        mWebview = (WebView) findViewById(R.id.single_sign_on_authorize_wv);
-        mloadingAnimation = (LinearLayout) findViewById(R.id.single_sign_on_loading_ll);
+        binding = SingleSignOnAuthorizeLayoutBinding.inflate(getLayoutInflater());
 
-        mWebview.getSettings().setLoadsImagesAutomatically(true);
-        mWebview.getSettings().setJavaScriptEnabled(true);
-        mWebview.getSettings().setUserAgentString(System.getProperty("http.agent"));
-        mWebview.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
+        setContentView(binding.getRoot());
+
+        applyEdgeToEdge(binding.getRoot());
+
+
+        binding.webview.getSettings().setLoadsImagesAutomatically(true);
+        binding.webview.getSettings().setJavaScriptEnabled(true);
+        binding.webview.getSettings().setUserAgentString(System.getProperty("http.agent"));
+        binding.webview.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
 
         CustomWebviewClient client = new CustomWebviewClient();
-        mWebview.setWebViewClient(client);
+        binding.webview.setWebViewClient(client);
 
         Toolbar toolbar = getActionBarToolbar();
         setSupportActionBar(toolbar);
@@ -127,7 +131,7 @@ public class SingleSignOnAuthorizeActivity extends BaseActivityWithVM<AccountVie
 
         SLogs.d(TAG, "url " + url);
 
-        mWebview.loadUrl(url);
+        binding.webview.loadUrl(url);
 
         showPageLoading(true);
     }
@@ -183,20 +187,20 @@ public class SingleSignOnAuthorizeActivity extends BaseActivityWithVM<AccountVie
     private void showPageLoading(boolean pageLoading) {
 
         if (!pageLoading) {
-            mloadingAnimation.startAnimation(AnimationUtils.loadAnimation(
+            binding.singleSignOnLoadingLl.startAnimation(AnimationUtils.loadAnimation(
                     this, android.R.anim.fade_out));
-            mWebview.startAnimation(AnimationUtils.loadAnimation(
+            binding.webview.startAnimation(AnimationUtils.loadAnimation(
                     this, android.R.anim.fade_in));
-            mloadingAnimation.setVisibility(View.GONE);
-            mWebview.setVisibility(View.VISIBLE);
+            binding.singleSignOnLoadingLl.setVisibility(View.GONE);
+            binding.webview.setVisibility(View.VISIBLE);
         } else {
-            mloadingAnimation.startAnimation(AnimationUtils.loadAnimation(
+            binding.singleSignOnLoadingLl.startAnimation(AnimationUtils.loadAnimation(
                     this, android.R.anim.fade_in));
-            mWebview.startAnimation(AnimationUtils.loadAnimation(
+            binding.webview.startAnimation(AnimationUtils.loadAnimation(
                     this, android.R.anim.fade_out));
 
-            mloadingAnimation.setVisibility(View.VISIBLE);
-            mWebview.setVisibility(View.INVISIBLE);
+            binding.singleSignOnLoadingLl.setVisibility(View.VISIBLE);
+            binding.webview.setVisibility(View.INVISIBLE);
         }
     }
 

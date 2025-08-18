@@ -62,7 +62,7 @@ public class FileUploadUtils {
     }
 
     /**
-     * 是否为受信任的 URI（如 file://、MediaStore、FileProvider）。
+     * Whether it is a trusted URI (such as file://, MediaStore, FileProvider).
      */
     private static boolean isTrustedUri(Uri uri) {
         String scheme = uri.getScheme();
@@ -70,16 +70,16 @@ public class FileUploadUtils {
         if ("content".equalsIgnoreCase(scheme)) {
             String auth = uri.getAuthority();
             return auth != null && (
-                    auth.startsWith("media") ||             // MediaStore
-                            auth.endsWith(".fileprovider") ||       // 自家 FileProvider
-                            auth.contains("documents")              // 通用 SAF 类型
+                    auth.startsWith("media") ||
+                            auth.endsWith(".fileprovider") ||
+                            auth.contains("documents")
             );
         }
         return false;
     }
 
     /**
-     * fallback：通过 InputStream 计算大小。
+     * fallback：size is calculated via input stream
      */
     private static long getSizeByStream(ContentResolver resolver, Uri uri) {
         try (InputStream in = resolver.openInputStream(uri)) {
@@ -89,7 +89,7 @@ public class FileUploadUtils {
             int read;
             while ((read = in.read(buffer)) != -1) {
                 total += read;
-                if (total > FALLBACK_SIZE_THRESHOLD) break; // 防止过大文件阻塞
+                if (total > FALLBACK_SIZE_THRESHOLD) break; // prevent oversized files from blocking
             }
             return total;
         } catch (Exception e) {

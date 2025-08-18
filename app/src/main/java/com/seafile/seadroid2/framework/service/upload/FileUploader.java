@@ -8,7 +8,6 @@ import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.enums.FeatureDataSource;
-import com.seafile.seadroid2.framework.notification.TransferNotificationDispatcher;
 import com.seafile.seadroid2.framework.service.ITransferNotification;
 import com.seafile.seadroid2.framework.service.ParentEventUploader;
 import com.seafile.seadroid2.framework.util.SafeLogs;
@@ -117,7 +116,7 @@ public class FileUploader extends ParentEventUploader {
         }
 
         // clear all notifications
-        getTransferNotificationDispatcher().clearAll();
+        getTransferNotificationDispatcher().clearDelay();
 
         sendCompleteEvent(FeatureDataSource.MANUAL_FILE_UPLOAD, errorMsg, totalPendingCount);
         return resultException;

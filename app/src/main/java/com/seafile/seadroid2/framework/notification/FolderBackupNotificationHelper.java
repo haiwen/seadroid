@@ -40,11 +40,11 @@ public class FolderBackupNotificationHelper extends BaseTransferNotificationHelp
 
     @Override
     public String getChannelId() {
-        return NotificationUtils.NOTIFICATION_CHANNEL_TRANSFER;
+        return NotificationUtils.FILE_TRANSFER_CHANNEL;
     }
 
     @Override
     public int getNotificationId() {
-        return NotificationUtils.NID_UPLOAD_FOLDER;
+        return NotificationUtils.NID_FOLDER_BACKUP;
     }
 }

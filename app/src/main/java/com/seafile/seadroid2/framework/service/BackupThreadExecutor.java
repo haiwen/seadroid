@@ -18,7 +18,6 @@ import com.seafile.seadroid2.framework.service.upload.MediaBackupScanner;
 import com.seafile.seadroid2.framework.service.upload.MediaBackupUploader;
 import com.seafile.seadroid2.framework.service.upload.ShareToSeafileUploader;
 import com.seafile.seadroid2.framework.util.SafeLogs;
-import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -36,7 +35,7 @@ public class BackupThreadExecutor {
     private final AtomicInteger runningTaskCount = new AtomicInteger(0);
     private final ThreadPoolExecutor _executor;
 
-    private final BackupTransferNotificationDispatcher notificationDispatcher = new BackupTransferNotificationDispatcher(SeadroidApplication.getAppContext());
+    private final BackupThreadNotificationDispatcher notificationDispatcher = new BackupThreadNotificationDispatcher(SeadroidApplication.getAppContext());
 
     private BackupThreadExecutor() {
         _executor = TaskExecutor.getInstance().getExecutor();
@@ -109,6 +108,9 @@ public class BackupThreadExecutor {
         stopLocalFileUpdate();
         stopShareToSeafileUpload();
         stopDownload();
+
+        // clear all notification
+        notificationDispatcher.clearDelay();
     }
 
     public void stopById(String modelId, FeatureDataSource dataSource) {

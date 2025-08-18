@@ -133,7 +133,7 @@ public class ExceptionUtils {
 
         if (throwable instanceof IOException ioException) {
             SLogs.e(ioException);
-            return new SeafException(SeafException.NETWORK_IO_EXCEPTION.getCode(),ioException.getMessage());
+            return new SeafException(SeafException.NETWORK_IO_EXCEPTION.getCode(), ioException.getMessage());
         }
 
         return new SeafException(SeafException.CODE_FAILED, throwable.getLocalizedMessage());
@@ -151,12 +151,14 @@ public class ExceptionUtils {
                 ErrorModel errorModel = gson.fromJson(bodyString, ErrorModel.class);
                 if (errorModel != null && !TextUtils.isEmpty(errorModel.getError())) {
                     errorContent = errorModel.getError();
-                }else if (errorModel != null) {
+                } else if (errorModel != null) {
                     errorContent = bodyString;
                     SLogs.w("ExceptionUtils", "ErrorModel parsed but error field is empty. Body: " + bodyString);
                 }
             } catch (JsonSyntaxException | IllegalStateException e) {
-                SLogs.e("ExceptionUtils", "Failed to parse error body as ErrorModel JSON object. Body: " + bodyString, e);
+                SLogs.e("ExceptionUtils", "Failed to parse error body as ErrorModel JSON object.");
+                SLogs.e("ExceptionUtils", "Body: " + bodyString);
+                SLogs.e(e);
             }
 
         }
@@ -240,26 +242,28 @@ public class ExceptionUtils {
 //                }
 //            }
 
+
+            //custom error
+
+            //"Repo is encrypted. Please provide password to view it."
+            if (!TextUtils.isEmpty(errorContent) && errorContent.toLowerCase().contains("please provide password to view it")) {
+                return SeafException.INVALID_PASSWORD;
+            }
+
+
+            if (!TextUtils.isEmpty(errorContent) && errorContent.toLowerCase().contains("wrong password")) {
+                return SeafException.INVALID_PASSWORD;
+            }
+
+            if (!TextUtils.isEmpty(errorContent) && errorContent.toLowerCase().contains("operation not supported")) {
+                return SeafException.BAD_REQUEST_EXCEPTION;
+            }
+
+
             return new SeafException(SeafException.HTTP_400_BAD_REQUEST, errorContent);
         }
 
         if (TextUtils.isEmpty(originalBodyString)) {
-            return SeafException.BAD_REQUEST_EXCEPTION;
-        }
-
-        //custom error
-
-        //"Repo is encrypted. Please provide password to view it."
-        if (!TextUtils.isEmpty(errorContent) && errorContent.toLowerCase().contains("please provide password to view it")) {
-            return SeafException.INVALID_PASSWORD;
-        }
-
-
-        if (!TextUtils.isEmpty(errorContent) && errorContent.toLowerCase().contains("wrong password")) {
-            return SeafException.INVALID_PASSWORD;
-        }
-
-        if (!TextUtils.isEmpty(errorContent) && errorContent.toLowerCase().contains("operation not supported")) {
             return SeafException.BAD_REQUEST_EXCEPTION;
         }
 

@@ -1,7 +1,6 @@
-package com.seafile.seadroid2.framework.notification;
+package com.seafile.seadroid2.framework.service;
 
 import static android.app.PendingIntent.FLAG_IMMUTABLE;
-
 import static com.seafile.seadroid2.framework.notification.base.NotificationUtils.NOTIFICATION_MESSAGE_KEY;
 import static com.seafile.seadroid2.framework.notification.base.NotificationUtils.NOTIFICATION_OPEN_DOWNLOAD_TAB;
 import static com.seafile.seadroid2.framework.notification.base.NotificationUtils.NOTIFICATION_OPEN_UPLOAD_TAB;
@@ -19,35 +18,30 @@ import androidx.core.app.NotificationCompat;
 
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.enums.FeatureDataSource;
-import com.seafile.seadroid2.framework.service.ITransferNotification;
 import com.seafile.seadroid2.framework.notification.base.NotificationUtils;
 import com.seafile.seadroid2.ui.transfer_list.TransferActivity;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class TransferNotificationDispatcher implements ITransferNotification {
+public class BackupThreadNotificationDispatcher implements ITransferNotification {
 
     private final int REQ_CODE = 1;
     private final Context context;
     private final NotificationManager manager;
 
-    private final ForegroundNotificationManager foregroundNotificationManager;
-
-    public TransferNotificationDispatcher(Context context) {
+    public BackupThreadNotificationDispatcher(Context context) {
         this.context = context;
         this.manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-
-        foregroundNotificationManager = new ForegroundNotificationManager(NotificationUtils.NID_TRANSFER);
     }
 
     private static final Map<FeatureDataSource, Integer> NOTIFY_IDS = new HashMap<>() {{
-        put(FeatureDataSource.ALBUM_BACKUP, NotificationUtils.NID_TRANSFER_UPLOAD_ALBUM_BACKUP);
-        put(FeatureDataSource.FOLDER_BACKUP, NotificationUtils.NID_UPLOAD_FOLDER);
-        put(FeatureDataSource.DOWNLOAD, NotificationUtils.NID_DOWNLOAD);
-        put(FeatureDataSource.MANUAL_FILE_UPLOAD, NotificationUtils.NID_UPLOAD_FILE);
-        put(FeatureDataSource.SHARE_FILE_TO_SEAFILE, NotificationUtils.NID_UPLOAD_FILE);
-        put(FeatureDataSource.AUTO_UPDATE_LOCAL_FILE, NotificationUtils.NID_UPLOAD_FILE);
+        put(FeatureDataSource.ALBUM_BACKUP, NotificationUtils.NID_ALBUM_BACKUP);
+        put(FeatureDataSource.FOLDER_BACKUP, NotificationUtils.NID_FOLDER_BACKUP);
+        put(FeatureDataSource.MANUAL_FILE_UPLOAD, NotificationUtils.NID_FILE_UPLOAD);
+        put(FeatureDataSource.SHARE_FILE_TO_SEAFILE, NotificationUtils.NID_FILE_UPLOAD);
+        put(FeatureDataSource.AUTO_UPDATE_LOCAL_FILE, NotificationUtils.NID_FILE_UPLOAD);
+        put(FeatureDataSource.DOWNLOAD, NotificationUtils.NID_FILE_DOWNLOAD);
     }};
 
     public Integer getNotifyId(FeatureDataSource source) {
@@ -71,20 +65,6 @@ public class TransferNotificationDispatcher implements ITransferNotification {
             case DOWNLOAD -> context.getString(R.string.download);
         };
     }
-
-    private String getDefaultSubtitle(FeatureDataSource source) {
-        if (source == null) {
-            throw new IllegalArgumentException("FeatureDataSource cannot be null");
-        }
-
-        return switch (source) {
-            case ALBUM_BACKUP, FOLDER_BACKUP -> context.getString(R.string.backing_up);
-            case MANUAL_FILE_UPLOAD, SHARE_FILE_TO_SEAFILE, AUTO_UPDATE_LOCAL_FILE ->
-                    context.getString(R.string.notification_upload_started_title);
-            case DOWNLOAD -> context.getString(R.string.notification_download_started_title);
-        };
-    }
-
 
     private Intent getDefaultPendingIntent(FeatureDataSource source) {
         if (source == null) {
@@ -118,42 +98,11 @@ public class TransferNotificationDispatcher implements ITransferNotification {
         return dIntent;
     }
 
-    public NotificationInfo getForegroundNotification(FeatureDataSource source) {
-        return getForegroundNotification(source, null);
-    }
-
-    public NotificationInfo getForegroundNotification(FeatureDataSource source, String subTitle) {
-        String title = getDefaultTitle(source);
-
-        if (TextUtils.isEmpty(subTitle)) {
-            subTitle = getDefaultSubtitle(source);
-        }
-
-        Notification notification = new NotificationCompat.Builder(context, NotificationUtils.NOTIFICATION_CHANNEL_TRANSFER)
-                .setSmallIcon(R.drawable.icon)
-                .setContentTitle(title)
-                .setContentText(subTitle)
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setOngoing(true)
-                .setOnlyAlertOnce(true)
-                .build();
-
-        return new NotificationInfo(foregroundNotificationManager.getForegroundNotificationId(), notification);
-    }
-
-    /**
-     * Release the notification id.
-     */
-    public void releaseAcquire(FeatureDataSource source) {
-        int nid = getNotifyId(source);
-        foregroundNotificationManager.release(nid);
-    }
-
     @Override
-    public void showNotification(FeatureDataSource source, String subTitle) {
+    public void showTransferNotification(FeatureDataSource source, String subTitle) {
         String title = getDefaultTitle(source);
 
-        Notification notification = new NotificationCompat.Builder(context, NotificationUtils.NOTIFICATION_CHANNEL_TRANSFER)
+        Notification notification = new NotificationCompat.Builder(context, NotificationUtils.FILE_TRANSFER_CHANNEL)
                 .setSmallIcon(R.drawable.icon)
                 .setContentTitle(title)
                 .setContentText(subTitle)
@@ -164,9 +113,7 @@ public class TransferNotificationDispatcher implements ITransferNotification {
                 .build();
 
         int nid = getNotifyId(source);
-        // If the foreground id is no one is using, use it. or use the current id.
-        int newOrCurId = foregroundNotificationManager.acquireOrFallback(nid);
-        manager.notify(newOrCurId, notification);
+        manager.notify(nid, notification);
     }
 
     private final Map<String, Long> intervalMap = new HashMap<>();
@@ -200,7 +147,7 @@ public class TransferNotificationDispatcher implements ITransferNotification {
         }
 
 
-        Notification notification = new NotificationCompat.Builder(context, NotificationUtils.NOTIFICATION_CHANNEL_TRANSFER)
+        Notification notification = new NotificationCompat.Builder(context, NotificationUtils.FILE_TRANSFER_CHANNEL)
                 .setSmallIcon(R.drawable.icon)
                 .setContentTitle(fileName)
                 .setContentText(content)
@@ -213,65 +160,16 @@ public class TransferNotificationDispatcher implements ITransferNotification {
                 .build();
 
         int nid = getNotifyId(source);
-        // If the foreground id is no one is using, use it. or use the current id.
-        int newOrCurId = foregroundNotificationManager.acquireOrFallback(nid);
-        manager.notify(newOrCurId, notification);
+        manager.notify(nid, notification);
     }
 
     @Override
-    public void showCompleted(FeatureDataSource source) {
-        String title = getDefaultTitle(source);
-        Notification notification = new NotificationCompat.Builder(context, NotificationUtils.NOTIFICATION_CHANNEL_TRANSFER)
-                .setSmallIcon(R.drawable.icon)
-                .setContentTitle(title)
-                .setAutoCancel(true)
-                .setTimeoutAfter(3000)
-                .build();
-
-        int nid = getNotifyId(source);
-        // If the foreground id is no one is using, use it. or use the current id.
-        int newOrCurId = foregroundNotificationManager.acquireOrFallback(nid);
-        manager.notify(newOrCurId, notification);
-    }
-
-    @Override
-    public void showError(FeatureDataSource source) {
-        String title = getDefaultTitle(source);
-        Notification notification = new NotificationCompat.Builder(context, NotificationUtils.NOTIFICATION_CHANNEL_TRANSFER)
-                .setSmallIcon(R.drawable.icon)
-                .setContentTitle(title)
-                .setAutoCancel(true)
-                .build();
-
-        int nid = getNotifyId(source);
-        // If the foreground id is no one is using, use it. or use the current id.
-        int newOrCurId = foregroundNotificationManager.acquireOrFallback(nid);
-        manager.notify(newOrCurId, notification);
-    }
-
-    @Override
-    public void clearAll() {
-        clearAll(0);
-    }
-
-    @Override
-    public void clearLater(FeatureDataSource source) {
-        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            manager.cancel(getNotifyId(source));
-        }, 3000);
-    }
-
-    @Override
-    public void clearAll(long delayMillis) {
-        if (delayMillis > 0) {
-            new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                for (Integer id : NOTIFY_IDS.values()) {
-                    manager.cancel(id);
-                }
-            }, delayMillis);
+    public void clearDelay(FeatureDataSource... source) {
+        if (source == null || source.length == 0) {
+            new Handler(Looper.getMainLooper()).postDelayed(manager::cancelAll, 1000);
         } else {
-            for (Integer id : NOTIFY_IDS.values()) {
-                manager.cancel(id);
+            for (FeatureDataSource s : source) {
+                manager.cancel(getNotifyId(s));
             }
         }
     }

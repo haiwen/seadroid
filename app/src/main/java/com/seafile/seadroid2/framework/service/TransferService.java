@@ -13,13 +13,11 @@ import androidx.annotation.Nullable;
 import androidx.core.app.ServiceCompat;
 import androidx.core.content.ContextCompat;
 
-import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.ServiceActionEnum;
 import com.seafile.seadroid2.framework.executor.TaskExecutor;
 import com.seafile.seadroid2.framework.notification.NotificationInfo;
-import com.seafile.seadroid2.framework.notification.TransferNotificationDispatcher;
 import com.seafile.seadroid2.framework.service.download.FileDownloader;
 import com.seafile.seadroid2.framework.service.upload.FileUploader;
 import com.seafile.seadroid2.framework.service.upload.FolderBackupUploader;
@@ -31,21 +29,18 @@ import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 
 import java.lang.ref.WeakReference;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 
+@Deprecated
 public class TransferService extends EventService {
     private static final String TAG = "TransferService";
 
-    private TransferNotificationDispatcher transferNotificationDispatcher;
+    private ForegroundServiceNotificationDispatcher transferNotificationDispatcher;
 
     private static final ConcurrentHashMap<FeatureDataSource, CompletableFuture<Void>> _activeTasks = new ConcurrentHashMap<>();
     private static final AtomicBoolean _isRunning = new AtomicBoolean(false);
@@ -112,7 +107,7 @@ public class TransferService extends EventService {
     public void onCreate() {
         super.onCreate();
 
-        transferNotificationDispatcher = new TransferNotificationDispatcher(getApplicationContext());
+        transferNotificationDispatcher = new ForegroundServiceNotificationDispatcher(getApplicationContext());
 
         _executor = TaskExecutor.getInstance().getExecutor();
     }
@@ -393,7 +388,7 @@ public class TransferService extends EventService {
 
     private void dismissAllNotification() {
         SafeLogs.e(TAG, "dismissAllNotification()");
-        transferNotificationDispatcher.clearAll(3000);
+        transferNotificationDispatcher.clearDelay();
     }
 
     private void cancel(CompletableFuture<?> future) {
