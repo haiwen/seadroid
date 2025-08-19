@@ -27,6 +27,9 @@ public interface PermissionDAO {
     @Query("select * from permissions where repo_id = :repoId and id = :pid limit 1")
     Single<List<PermissionEntity>> getByRepoAndIdAsync(String repoId, int pid);
 
+    @Query("select * from permissions where repo_id = :repoId and id = :pid limit 1")
+    List<PermissionEntity> getByRepoAndIdSync(String repoId, int pid);
+
 
     @Query("DELETE FROM permissions")
     void deleteAll();

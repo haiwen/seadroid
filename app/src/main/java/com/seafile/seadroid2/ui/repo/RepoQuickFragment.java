@@ -103,6 +103,8 @@ import com.seafile.seadroid2.ui.main.MainViewModel;
 import com.seafile.seadroid2.ui.markdown.MarkdownActivity;
 import com.seafile.seadroid2.ui.media.image.CarouselImagePreviewActivity;
 import com.seafile.seadroid2.ui.media.player.CustomExoVideoPlayerActivity;
+import com.seafile.seadroid2.ui.repo.sheetaction.BottomSheetActionView;
+import com.seafile.seadroid2.ui.repo.sheetaction.BottomSheetMenuManager;
 import com.seafile.seadroid2.ui.sdoc.SDocWebViewActivity;
 import com.seafile.seadroid2.ui.selector.ObjSelectorActivity;
 import com.seafile.seadroid2.ui.star.StarredQuickFragment;
@@ -148,6 +150,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     private ActivityResultLauncher<Intent> fileActivityLauncher;
     private ActivityResultLauncher<Intent> imagePreviewActivityLauncher;
     private ActivityResultLauncher<Intent> copyMoveLauncher;
+    private BottomSheetMenuManager bottomSheetMenuManager;
 
 
     public static RepoQuickFragment newInstance() {
@@ -174,6 +177,12 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
         mainViewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
 
+        bottomSheetMenuManager = new BottomSheetMenuManager(requireActivity(), new BottomSheetActionView.OnBottomSheetItemClickListener() {
+            @Override
+            public void onItemClick(MenuItem item) {
+                onBottomSheetItemClick(item);
+            }
+        });
         registerResultLauncher();
     }
 
@@ -378,7 +387,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 }
                 return true;
             }
-        }, getViewLifecycleOwner());
+        }, getViewLifecycleOwner(), Lifecycle.State.RESUMED);
     }
 
     /**
@@ -459,16 +468,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 //update bar title
                 startOrUpdateContextualActionBar();
 
-                List<BaseModel> selectedList = adapter.getSelectedList();
-
-                if (baseModel instanceof RepoModel) {
-                    List<RepoModel> selectedModels = selectedList.stream().map(b -> (RepoModel) b).collect(Collectors.toList());
-                    getViewModel().inflateRepoMenuWithSelected(requireContext(), selectedModels, getDisableMenuIds(), getWillBeRemovedMenuIds());
-                } else if (baseModel instanceof DirentModel) {
-                    List<DirentModel> selectedModels = selectedList.stream().map(b -> (DirentModel) b).collect(Collectors.toList());
-                    getViewModel().inflateDirentMenuWithSelected(requireContext(), selectedModels, getDisableMenuIds(), getWillBeRemovedMenuIds());
-                }
-
+                showBottomSheetWindow();
                 return;
             }
 
@@ -574,13 +574,6 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 notifyDataChanged(models);
 
                 restoreScrollPosition();
-            }
-        });
-
-        getViewModel().getMenuItemListLiveData().observe(getViewLifecycleOwner(), new Observer<List<MenuItem>>() {
-            @Override
-            public void onChanged(List<MenuItem> menuItems) {
-                showBottomSheetWindow(menuItems);
             }
         });
 
@@ -698,147 +691,13 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         }
     }
 
-    private View floatingView;
-    private BottomSheetMenuAdapter bottomSheetMenuAdapter;
-
-    private List<Integer> getDisableMenuIds() {
-        List<BaseModel> selectedList = adapter.getSelectedList();
-        if (selectedList == null || selectedList.isEmpty()) {
-            return null;
-        }
-
-        if (selectedList.size() == 1) {
-            BaseModel baseModel = selectedList.get(0);
-            if (baseModel instanceof RepoModel m) {
-
-            } else if (baseModel instanceof DirentModel m) {
-                if (m.isDir()) {
-                    return CollectionUtils.newArrayList(R.id.upload);
-                }
-            }
-
-            return null;
-        }
-
-        long selectedRepoModelCount = selectedList.stream().filter(f -> f instanceof RepoModel).count();
-        long selectedFolderCount = selectedList.stream()
-                .filter(f -> f instanceof DirentModel)
-                .map(m -> (DirentModel) m)
-                .filter(p -> p.isDir())
-                .count();
-
-        if (selectedRepoModelCount > 0) {
-            return CollectionUtils.newArrayList(R.id.share, R.id.export, R.id.open, R.id.rename, R.id.upload, R.id.delete);
-        } else if (selectedFolderCount > 0) {
-            return CollectionUtils.newArrayList(R.id.share, R.id.export, R.id.open, R.id.rename, R.id.upload);
-        } else {
-            return CollectionUtils.newArrayList(R.id.share, R.id.export, R.id.open, R.id.rename);
-        }
+    private void showBottomSheetWindow() {
+        List<BaseModel> selected = adapter.getSelectedList();
+        bottomSheetMenuManager.showMenu(selected);
     }
 
-    private List<Integer> getWillBeRemovedMenuIds() {
-        List<BaseModel> selectedList = adapter.getSelectedList();
-
-        if (CollectionUtils.isEmpty(selectedList)) {
-            return CollectionUtils.newArrayList(R.id.unstar);
-        }
-
-        if (selectedList.size() == 1) {
-
-            BaseModel baseModel = selectedList.get(0);
-            if (baseModel instanceof RepoModel m) {
-                return CollectionUtils.newArrayList(m.starred ? R.id.star : R.id.unstar);
-            } else if (baseModel instanceof DirentModel m) {
-                return CollectionUtils.newArrayList(m.starred ? R.id.star : R.id.unstar);
-            }
-
-            //remove all starred menu
-            return CollectionUtils.newArrayList(R.id.star, R.id.unstar);
-        }
-
-        boolean isAllStarred = true;
-        for (BaseModel baseModel : selectedList) {
-            if (baseModel instanceof RepoModel m) {
-                if (m.starred) {
-                    continue;
-                }
-                isAllStarred = false;
-                break;
-            } else if (baseModel instanceof DirentModel m) {
-                if (m.starred) {
-                    continue;
-                }
-                isAllStarred = false;
-                break;
-            }
-        }
-
-        if (isAllStarred) {
-            return CollectionUtils.newArrayList(R.id.star);
-        } else {
-            return CollectionUtils.newArrayList(R.id.unstar);
-        }
-    }
-
-    private void showBottomSheetWindow(List<MenuItem> localMenuItems) {
-        if (CollectionUtils.isEmpty(localMenuItems)) {
-            removeFloatingView();
-            return;
-        }
-
-        if (floatingView != null && floatingView.isAttachedToWindow()) {
-            bottomSheetMenuAdapter.submitList(localMenuItems);
-            return;
-        }
-
-
-        floatingView = getLayoutInflater().inflate(R.layout.layout_bottom_sheet_menu_view, null, false);
-
-        int columnCount = 5;
-        RecyclerView rv = floatingView.findViewById(R.id.rv);
-        rv.setLayoutManager(new GridLayoutManager(requireContext(), columnCount));
-
-        bottomSheetMenuAdapter = new BottomSheetMenuAdapter(columnCount);
-        bottomSheetMenuAdapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener<MenuItem>() {
-            @Override
-            public void onClick(@NonNull BaseQuickAdapter<MenuItem, ?> baseQuickAdapter, @NonNull View view, int i) {
-                MenuItem item = bottomSheetMenuAdapter.getItem(i);
-                if (item == null) {
-                    return;
-                }
-                if (!item.isEnabled()) {
-                    return;
-                }
-
-                onBottomSheetItemClick(item);
-            }
-        });
-
-        bottomSheetMenuAdapter.submitList(localMenuItems);
-        rv.setAdapter(bottomSheetMenuAdapter);
-
-        FrameLayout.LayoutParams p = new FrameLayout.LayoutParams(-1, -2);
-        p.gravity = Gravity.BOTTOM;
-
-        floatingView.setLayoutParams(p);
-
-        applyEdgeToEdge(floatingView);
-
-        View decorView = requireActivity().getWindow().getDecorView();
-        FrameLayout content = decorView.findViewById(android.R.id.content);
-        content.addView(floatingView);
-    }
-
-    private void applyEdgeToEdge(View view) {
-
-        ViewCompat.setOnApplyWindowInsetsListener(view, (v, insets) -> {
-            int bottomInset = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom;
-            FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) view.getLayoutParams();
-            lp.bottomMargin = bottomInset;
-            v.setLayoutParams(lp);
-
-            return insets;
-        });
+    private void removeFloatingView() {
+        bottomSheetMenuManager.dismiss();
     }
 
     private void onBottomSheetItemClick(MenuItem item) {
@@ -900,25 +759,10 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 adapter.setOnActionMode(true);
             }
 
-            //
-            List<BaseModel> selectedList = adapter.getSelectedList();
-
-            if (!GlobalNavContext.getCurrentNavContext().inRepo()) {
-                List<RepoModel> selectedModels = selectedList.stream().map(b -> (RepoModel) b).collect(Collectors.toList());
-                getViewModel().inflateRepoMenuWithSelected(requireContext(), selectedModels, getDisableMenuIds(), getWillBeRemovedMenuIds());
-            } else {
-                List<DirentModel> direntModels = selectedList.stream().map(baseModel -> (DirentModel) baseModel).collect(Collectors.toList());
-                getViewModel().inflateDirentMenuWithSelected(requireContext(), direntModels, getDisableMenuIds(), getWillBeRemovedMenuIds());
-            }
-
+            showBottomSheetWindow();
         } else if (actionModeType == ActionModeCallbackType.SELECT_NONE) {
-
             //
-            if (!GlobalNavContext.getCurrentNavContext().inRepo()) {
-                getViewModel().inflateRepoMenu(requireContext());
-            } else {
-                getViewModel().inflateDirentMenu(requireContext());
-            }
+            showBottomSheetWindow();
         } else if (actionModeType == ActionModeCallbackType.DESTROY) {
             removeFloatingView();
             closeActionMode();
@@ -928,23 +772,6 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         }
     }
 
-    private void removeFloatingView() {
-        if (floatingView == null) {
-            return;
-        }
-
-        if (!floatingView.isAttachedToWindow()) {
-            floatingView = null;
-            return;
-        }
-
-        View decorView = requireActivity().getWindow().getDecorView();
-        FrameLayout content = decorView.findViewById(android.R.id.content);
-        content.removeView(floatingView);
-
-        floatingView = null;
-        bottomSheetMenuAdapter = null;
-    }
 
     private FileViewType lastViewType;
 

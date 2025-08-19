@@ -26,6 +26,7 @@ import com.seafile.seadroid2.enums.ItemPositionEnum;
 import com.seafile.seadroid2.enums.SortBy;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
+import com.seafile.seadroid2.framework.db.entities.PermissionEntity;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.db.entities.StarredModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
@@ -33,6 +34,7 @@ import com.seafile.seadroid2.framework.model.BaseModel;
 import com.seafile.seadroid2.framework.model.GroupItemModel;
 import com.seafile.seadroid2.framework.model.dirents.CachedDirentModel;
 import com.seafile.seadroid2.framework.model.objs.DirentShareLinkModel;
+import com.seafile.seadroid2.framework.model.permission.PermissionWrapperModel;
 import com.seafile.seadroid2.framework.model.repo.DirentWrapperModel;
 import com.seafile.seadroid2.framework.model.repo.RepoWrapperModel;
 import com.seafile.seadroid2.framework.model.star.StarredWrapperModel;
@@ -146,6 +148,28 @@ public class Objs {
                     }
                 });
             }
+        }).flatMap(new Function<List<RepoModel>, SingleSource<List<RepoModel>>>() {
+            @Override
+            public SingleSource<List<RepoModel>> apply(List<RepoModel> list) throws Exception {
+                //insert into db
+
+                List<RepoModel> cl = list.stream().filter(RepoModel::isCustomPermission).collect(Collectors.toList());
+                if (CollectionUtils.isEmpty(cl)) {
+                    return Single.just(list);
+                }
+
+                List<Single<PermissionEntity>> listSingle = new ArrayList<>();
+                for (RepoModel repoModel : cl) {
+                    Single<PermissionEntity> s = getSingleForLoadRepoPermissionFromRemote(repoModel.repo_id, repoModel.getCustomPermissionNum());
+                    listSingle.add(s);
+                }
+                return Single.zip(listSingle, new Function<Object[], List<RepoModel>>() {
+                    @Override
+                    public List<RepoModel> apply(Object[] objs) throws Exception {
+                        return list;
+                    }
+                });
+            }
         }).flatMap(new Function<List<RepoModel>, SingleSource<List<BaseModel>>>() {
             @Override
             public SingleSource<List<BaseModel>> apply(List<RepoModel> savedIntoLocalList) throws Exception {
@@ -153,6 +177,27 @@ public class Objs {
 
                 List<BaseModel> models = Objs.convertToAdapterList(savedIntoLocalList);
                 return Single.just(models);
+            }
+        });
+    }
+
+    private static Single<PermissionEntity> getSingleForLoadRepoPermissionFromRemote(String repoId, int pNum) {
+        Single<PermissionWrapperModel> single = HttpIO.getCurrentInstance().execute(RepoService.class).getCustomSharePermissionById(repoId, pNum);
+        return single.flatMap(new Function<PermissionWrapperModel, SingleSource<PermissionEntity>>() {
+            @Override
+            public SingleSource<PermissionEntity> apply(PermissionWrapperModel wrapperModel) throws Exception {
+                if (wrapperModel == null || wrapperModel.permission == null) {
+                    return Single.just(new PermissionEntity());
+                }
+
+                return Single.create(new SingleOnSubscribe<PermissionEntity>() {
+                    @Override
+                    public void subscribe(SingleEmitter<PermissionEntity> emitter) throws Exception {
+                        PermissionEntity permission = new PermissionEntity(repoId, wrapperModel.permission);
+                        AppDatabase.getInstance().permissionDAO().insert(permission);
+                        emitter.onSuccess(permission);
+                    }
+                });
             }
         });
     }
