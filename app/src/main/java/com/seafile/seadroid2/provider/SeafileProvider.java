@@ -37,6 +37,7 @@ import android.provider.DocumentsProvider;
 import android.text.TextUtils;
 
 import androidx.annotation.StringRes;
+import androidx.media3.common.util.Log;
 
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.NetworkUtils;
@@ -60,6 +61,7 @@ import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.model.BaseModel;
 import com.seafile.seadroid2.framework.util.Objs;
 import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.ui.dialog_fragment.DialogService;
 
@@ -667,7 +669,6 @@ public class SeafileProvider extends DocumentsProvider {
         final int accessMode = ParcelFileDescriptor.parseMode(mode);
         return ParcelFileDescriptor.open(file, accessMode);
     }
-
 
     @Override
     public AssetFileDescriptor openDocumentThumbnail(String documentId, Point sizeHint, CancellationSignal signal) throws FileNotFoundException {

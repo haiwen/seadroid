@@ -51,12 +51,12 @@
         android:title="@string/file_action_download" />
 
     <item
-        android:id="@id/open"
+        android:id="@id/open_with"
         android:icon="@drawable/action_open"
         android:title="@string/file_action_open" />
 
     <item
         android:id="@id/save_as"
-        android:icon="@drawable/action_open"
+        android:icon="@drawable/baseline_save_as_24"
         android:title="@string/file_action_save_as" />
 </menu>

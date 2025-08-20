@@ -2,12 +2,11 @@
 <resources>
     <item name="webview" type="id" />
 
-    <item name="more" type="id"/>
     <item name="star" type="id"/>
     <item name="unstar" type="id"/>
     <item name="share" type="id"/>
     <item name="export" type="id"/>
-    <item name="open" type="id"/>
+    <item name="open_with" type="id"/>
     <item name="save_as" type="id"/>
     <item name="rename" type="id"/>
     <item name="delete" type="id"/>

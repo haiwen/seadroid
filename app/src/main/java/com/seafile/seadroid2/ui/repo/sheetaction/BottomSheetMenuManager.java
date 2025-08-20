@@ -34,8 +34,7 @@ public class BottomSheetMenuManager {
     public BottomSheetMenuManager(Activity context, BottomSheetActionView.OnBottomSheetItemClickListener listener) {
         this.context = context;
         bottomSheetView = new BottomSheetActionViewPager(context);
-//        bottomSheetView = new BottomSheetActionView(context);
-//        bottomSheetView.setOnItemClickListener(listener);
+        bottomSheetView.setOnItemClickListener(listener);
     }
 
     public void showMenu(List<BaseModel> selectedItems) {
@@ -262,14 +261,12 @@ public class BottomSheetMenuManager {
             } else if (item.getItemId() == R.id.export) {
                 long l = permissionList.stream().filter(f -> !f.download).count();
                 item.setEnabled(!(l > 0));
-            } else if (item.getItemId() == R.id.open) {
+            } else if (item.getItemId() == R.id.open_with) {
                 long l = permissionList.stream().filter(f -> !f.download).count();
                 item.setEnabled(!(l > 0));
             } else if (item.getItemId() == R.id.save_as) {
                 long l = permissionList.stream().filter(f -> !f.download).count();
                 item.setEnabled(!(l > 0));
-            } else if (item.getItemId() == R.id.more) {
-                item.setEnabled(true);
             }
 
             if (!CollectionUtils.isEmpty(disableMenuIds)) {
@@ -312,29 +309,37 @@ public class BottomSheetMenuManager {
 
             } else if (baseModel instanceof DirentModel m) {
                 if (m.isDir()) {
-                    return CollectionUtils.newArrayList(R.id.upload);
+                    return CollectionUtils.newArrayList(R.id.export, R.id.open_with, R.id.upload, R.id.save_as);
                 }
             }
 
             return null;
-        }
-
-        long selectedRepoModelCount = selectedList.stream()
-                .filter(f -> f instanceof RepoModel)
-                .count();
-
-        long selectedFolderCount = selectedList.stream()
-                .filter(f -> f instanceof DirentModel)
-                .map(m -> (DirentModel) m)
-                .filter(p -> p.isDir())
-                .count();
-
-        if (selectedRepoModelCount > 0) {
-            return CollectionUtils.newArrayList(R.id.share, R.id.export, R.id.open, R.id.rename, R.id.upload, R.id.delete);
-        } else if (selectedFolderCount > 0) {
-            return CollectionUtils.newArrayList(R.id.share, R.id.export, R.id.open, R.id.rename, R.id.upload);
         } else {
-            return CollectionUtils.newArrayList(R.id.share, R.id.export, R.id.open, R.id.rename);
+            long selectedRepoModelCount = selectedList.stream()
+                    .filter(f -> f instanceof RepoModel)
+                    .count();
+            if (selectedRepoModelCount > 0) {
+                return CollectionUtils.newArrayList(R.id.delete);
+            }
+
+            long selectedFolderCount = selectedList.stream()
+                    .filter(f -> f instanceof DirentModel)
+                    .map(m -> (DirentModel) m)
+                    .filter(DirentModel::isDir)
+                    .count();
+
+            if (selectedFolderCount > 0) {
+                return CollectionUtils.newArrayList(R.id.share, R.id.export, R.id.open_with, R.id.rename, R.id.upload, R.id.save_as);
+            }
+
+            long selectedDirentModelCount = selectedList.stream()
+                    .filter(f -> f instanceof DirentModel)
+                    .count();
+            if (selectedDirentModelCount > 0) {
+                return CollectionUtils.newArrayList(R.id.share, R.id.export, R.id.open_with, R.id.rename, R.id.save_as);
+            }
+
+            return CollectionUtils.newArrayList(R.id.share, R.id.export, R.id.open_with, R.id.rename);
         }
     }
 

@@ -2,21 +2,21 @@ package com.seafile.seadroid2.ui.repo;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.DocumentsContract;
 import android.text.TextUtils;
 import android.util.Pair;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -33,18 +33,17 @@ import androidx.appcompat.view.ActionMode;
 import androidx.appcompat.widget.SearchView;
 import androidx.core.view.MenuHost;
 import androidx.core.view.MenuProvider;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.media3.common.util.Log;
 import androidx.media3.common.util.UnstableApi;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.blankj.utilcode.util.CollectionUtils;
+import com.blankj.utilcode.util.FileIOUtils;
 import com.blankj.utilcode.util.NetworkUtils;
-import com.chad.library.adapter4.BaseQuickAdapter;
 import com.github.panpf.recycler.sticky.StickyItemDecoration;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.common.collect.Maps;
@@ -78,6 +77,7 @@ import com.seafile.seadroid2.framework.model.ServerInfo;
 import com.seafile.seadroid2.framework.model.dirents.DirentFileModel;
 import com.seafile.seadroid2.framework.model.search.SearchModel;
 import com.seafile.seadroid2.framework.service.BackupThreadExecutor;
+import com.seafile.seadroid2.framework.util.FileUtils;
 import com.seafile.seadroid2.framework.util.Objs;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.TakeCameras;
@@ -88,7 +88,6 @@ import com.seafile.seadroid2.framework.worker.TransferWorker;
 import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.base.fragment.BaseFragmentWithVM;
-import com.seafile.seadroid2.ui.bottomsheetmenu.BottomSheetMenuAdapter;
 import com.seafile.seadroid2.ui.dialog_fragment.BottomSheetNewDirFileDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.BottomSheetNewRepoDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.BottomSheetPasswordDialogFragment;
@@ -112,6 +111,11 @@ import com.seafile.seadroid2.view.TipsViews;
 import com.seafile.seadroid2.view.ViewSortPopupWindow;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -148,6 +152,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     private ActivityResultLauncher<Uri> takePhotoLauncher;
     private ActivityResultLauncher<Uri> takeVideoLauncher;
     private ActivityResultLauncher<Intent> fileActivityLauncher;
+    private ActivityResultLauncher<Intent> saveAsLauncher;
     private ActivityResultLauncher<Intent> imagePreviewActivityLauncher;
     private ActivityResultLauncher<Intent> copyMoveLauncher;
     private BottomSheetMenuManager bottomSheetMenuManager;
@@ -737,8 +742,10 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             showShareDialog(selectedList);
         } else if (item.getItemId() == R.id.export) {
             exportFile(selectedList);
-        } else if (item.getItemId() == R.id.open) {
+        } else if (item.getItemId() == R.id.open_with) {
             openWith(selectedList);
+        } else if (item.getItemId() == R.id.save_as) {
+            onSaveAs(selectedList);
         }
     }
 
@@ -1352,6 +1359,79 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         return DataManager.getLocalFileCachePath(account, repoId, repoName, fullPathInRepo);
     }
 
+    private void onSaveAs(List<BaseModel> direntModels) {
+        if (CollectionUtils.isEmpty(direntModels)) {
+            return;
+        }
+
+        closeActionMode();
+
+        DirentModel dirent = (DirentModel) direntModels.get(0);
+        if (dirent.isDir()) {
+            Toasts.show(R.string.not_supported);
+            return;
+        }
+
+        File local = getLocalDestinationFile(dirent.repo_id, dirent.repo_name, dirent.full_path);
+        if (TextUtils.equals(dirent.id, dirent.local_file_id) && local.exists()) {
+            saveAsFor(local);
+        } else {
+            Intent intent = FileActivity.start(requireActivity(), dirent, FileReturnActionEnum.SAVE_AS);
+            fileActivityLauncher.launch(intent);
+        }
+    }
+
+    private void saveAsFor(File destinationFile) {
+        String mime = Utils.getFileMimeType(destinationFile);
+
+        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType(mime);
+        intent.putExtra(Intent.EXTRA_TITLE, destinationFile.getName());
+        intent.putExtra(DocumentsContract.EXTRA_EXCLUDE_SELF, true);
+
+        //temp
+        saveAsLauncherSourcePath = destinationFile;
+        //launch
+        saveAsLauncher.launch(intent);
+    }
+
+    private File saveAsLauncherSourcePath;
+
+    private void saveAsTo(Uri destinationUri) {
+        if (saveAsLauncherSourcePath == null || !saveAsLauncherSourcePath.exists()) {
+            return;
+        }
+
+        showLoadingDialog();
+        SLogs.e(TAG, "saveAsTo", "start copy");
+
+        ContentResolver resolver = requireContext().getContentResolver();
+        try (InputStream inputStream = new FileInputStream(saveAsLauncherSourcePath);
+             OutputStream outputStream = resolver.openOutputStream(destinationUri)) {
+
+            if (outputStream == null) {
+                Toasts.show(R.string.failed);
+                return;
+            }
+
+            byte[] buffer = new byte[8192]; // 8KB buffer
+            int length;
+            while ((length = inputStream.read(buffer)) > 0) {
+                outputStream.write(buffer, 0, length);
+            }
+            outputStream.flush(); // Ensure all data is written
+            Toasts.show(R.string.complete);
+        } catch (FileNotFoundException e) {
+            SLogs.e(TAG, "saveAsTo", "FileNotFoundException:" + e.getLocalizedMessage());
+        } catch (IOException e) {
+            SLogs.e(TAG, "saveAsTo", "IOException:" + e.getLocalizedMessage());
+        } finally {
+            SLogs.e(TAG, "saveAsTo", "end copy");
+            dismissLoadingDialog();
+        }
+    }
+
     private void open(RepoModel repoModel, DirentModel dirent) {
         open(repoModel, dirent, null);
     }
@@ -1686,7 +1766,22 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             }
         });
 
+        saveAsLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+            @Override
+            public void onActivityResult(ActivityResult result) {
 
+
+                if (result.getResultCode() != Activity.RESULT_OK || result.getData() == null) {
+                    return;
+                }
+                Uri uri = result.getData().getData();
+                if (uri == null) {
+                    return;
+                }
+
+                saveAsTo(uri);
+            }
+        });
         fileActivityLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
             @Override
             public void onActivityResult(ActivityResult o) {
@@ -1732,6 +1827,9 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 } else if (TextUtils.equals(FileReturnActionEnum.OPEN_TEXT_MIME.name(), action)) {
 
                     MarkdownActivity.start(requireContext(), localFullPath, repoId, targetFile);
+                } else if (TextUtils.equals(FileReturnActionEnum.SAVE_AS.name(), action)) {
+
+                    saveAsFor(destinationFile);
                 }
             }
         });
