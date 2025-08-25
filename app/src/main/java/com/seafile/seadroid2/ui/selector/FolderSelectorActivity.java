@@ -1,16 +1,16 @@
-package com.seafile.seadroid2.ui.selector.folder_selector;
+package com.seafile.seadroid2.ui.selector;
 
-import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
@@ -19,15 +19,22 @@ import com.google.android.material.tabs.TabLayout;
 import com.google.common.collect.Maps;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.bus.BusHelper;
-import com.seafile.seadroid2.databinding.FragmentFolderSelectorBinding;
+import com.seafile.seadroid2.databinding.ActivityFolderSelectorBinding;
 import com.seafile.seadroid2.enums.ItemPositionEnum;
-import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.model.StorageInfo;
 import com.seafile.seadroid2.framework.util.FileTools;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Toasts;
-import com.seafile.seadroid2.ui.base.fragment.BaseFragmentWithVM;
+import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
+import com.seafile.seadroid2.ui.dialog_fragment.BottomSheetNewLocalFolderDialogFragment;
+import com.seafile.seadroid2.ui.dialog_fragment.listener.OnRefreshDataListener;
 import com.seafile.seadroid2.ui.repo.ScrollState;
+import com.seafile.seadroid2.ui.selector.folder_selector.Constants;
+import com.seafile.seadroid2.ui.selector.folder_selector.FileBean;
+import com.seafile.seadroid2.ui.selector.folder_selector.FileListAdapter;
+import com.seafile.seadroid2.ui.selector.folder_selector.FolderSelectorViewModel;
+import com.seafile.seadroid2.ui.selector.folder_selector.NavPathListAdapter;
+import com.seafile.seadroid2.ui.selector.folder_selector.TabVolumeBean;
 import com.seafile.seadroid2.view.TipsViews;
 
 import java.util.ArrayList;
@@ -36,13 +43,22 @@ import java.util.Map;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
-public class FolderSelectorFragment extends BaseFragmentWithVM<FolderSelectorViewModel> {
+public class FolderSelectorActivity extends BaseActivityWithVM<FolderSelectorViewModel> {
+    public static final String FOLDER_SELECTED_PATHS = "folder_selected_paths";
+    public static final String PARAM_SELECTOR_MAX_COUNT = "param_max_select_count";
+    public static final String PARAM_FILTER_PATHS = "param_filter_paths";
 
-    private final String TAG = "FolderSelectorFragment";
-
-    private BroadcastReceiver mountReceiver;
-
-    private FragmentFolderSelectorBinding binding;
+    private final String TAG = "FolderSelectorActivity";
+    /**
+     * if maxSelectCount is 1, means single select.
+     * if maxSelectCount is 0, means no limit.
+     * if maxSelectCount is greater than 1, means multi select.
+     * <p>
+     * default 0, no limit.;
+     */
+    private int maxSelectCount = 0;
+    private List<String> filterPaths;
+    private ActivityFolderSelectorBinding binding;
     private LinearLayoutManager rvManager;
     private LinearLayoutManager rvTabbarManager;
 
@@ -62,88 +78,126 @@ public class FolderSelectorFragment extends BaseFragmentWithVM<FolderSelectorVie
     @Override
     public void onDestroy() {
         super.onDestroy();
-
         BusHelper.getCommonObserver().removeObserver(busObserver);
     }
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        binding = FragmentFolderSelectorBinding.inflate(inflater, container, false);
-        return binding.getRoot();
-    }
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
+        binding = ActivityFolderSelectorBinding.inflate(getLayoutInflater());
 
-        BusHelper.getCommonObserver().observe(getViewLifecycleOwner(), busObserver);
+        setContentView(binding.getRoot());
+
+        applyEdgeToEdge(binding.getRoot());
+
+        initView();
+
+
+        getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (!onBackTo()) {
+                    finishPage();
+                } else {
+
+                }
+            }
+        });
+
+        BusHelper.getCommonObserver().observe(this, busObserver);
+
+        if (getIntent().hasExtra(PARAM_SELECTOR_MAX_COUNT)) {
+            maxSelectCount = getIntent().getIntExtra(PARAM_SELECTOR_MAX_COUNT, 0);
+        }
+
+        if (getIntent().hasExtra(PARAM_FILTER_PATHS)) {
+            filterPaths = getIntent().getStringArrayListExtra(PARAM_FILTER_PATHS);
+        }
 
         initViewModel();
-        initView();
 
         reload();
     }
 
-    private final Observer<String> busObserver = new Observer<String>() {
-        @Override
-        public void onChanged(String actionStr) {
-            if (TextUtils.isEmpty(actionStr)) {
-                return;
-            }
-
-            String action;
-            String path;
-            if (actionStr.contains("-")) {
-                String[] s = actionStr.split("-");
-                action = s[0];
-                path = s[1];
-            } else {
-                action = actionStr;
-                path = "";
-            }
-
-            if (Intent.ACTION_MEDIA_MOUNTED.equals(action)) {
-                SLogs.d(TAG, "Storage", "设备挂载");
-                reload();
-            } else if (Intent.ACTION_MEDIA_UNMOUNTED.equals(action)) {
-                SLogs.d(TAG, "Storage", "设备卸载");
-                reload();
-            } else if (Intent.ACTION_MEDIA_REMOVED.equals(action)) {
-                SLogs.d(TAG, "Storage", "设备移除");
-                reload();
-            }
-        }
-    };
-
-    private void reload() {
-        initRootPath();
-        initData();
-
-        initNavListAdapter();
-        initFileListAdapter();
-        initTabLayout();
-
-        loadData();
-    }
 
     private void initView() {
-        binding.swipeRefreshLayout.setOnRefreshListener(this::loadData);
+        Toolbar toolbar = getActionBarToolbar();
+        if (toolbar != null) {
+            toolbar.setNavigationOnClickListener(v -> {
+                finish();
+            });
+        }
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setTitle(R.string.settings_select_backup_folder_title);
+        }
+
+        binding.confirmButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finishPage();
+            }
+        });
+
+        binding.swipeRefreshLayout.setOnRefreshListener(this::loadLocalFileData);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_share_to_seafile, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.create_new_folder) {
+            showNewDirDialog();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void showNewDirDialog() {
+        BottomSheetNewLocalFolderDialogFragment sheetDialog = BottomSheetNewLocalFolderDialogFragment.newInstance(mCurrentPath);
+        sheetDialog.setRefreshListener(new OnRefreshDataListener() {
+            @Override
+            public void onActionStatus(boolean isDone) {
+                if (isDone) {
+                    loadLocalFileData();
+                }
+            }
+        });
+        sheetDialog.show(getSupportFragmentManager(), "BottomSheetNewLocalFolderDialogFragment");
     }
 
     private void initViewModel() {
-        getViewModel().getRefreshLiveData().observe(getViewLifecycleOwner(), aBoolean -> {
+        getViewModel().getRefreshLiveData().observe(this, aBoolean -> {
             binding.swipeRefreshLayout.setRefreshing(aBoolean);
         });
 
-        getViewModel().getLocalFileListLiveData().observe(getViewLifecycleOwner(), fileBeans -> {
+        getViewModel().getLocalFileListLiveData().observe(this, fileBeans -> {
             notifyFileListDataChanged(fileBeans);
 
             restoreScrollPosition();
         });
     }
 
+
+    private void reload() {
+        initRootPath();
+
+        initNavListAdapter();
+        initFileListAdapter();
+        initTabLayout();
+
+        loadLocalFileData();
+    }
+
+
     private void initRootPath() {
-        volumeList = FileTools.getAllStorageInfos(requireContext());
+        volumeList = FileTools.getAllStorageInfos(this);
         for (StorageInfo info : volumeList) {
             SLogs.d("Storage", "路径: " + info.path + "，类型: " + info.label +
                     "，可移除: " + info.isRemovable + "，是否主存储: " + info.isPrimary);
@@ -165,18 +219,11 @@ public class FolderSelectorFragment extends BaseFragmentWithVM<FolderSelectorVie
         }
     }
 
-    private void initData() {
-        List<String> selectPaths = FolderBackupSharePreferenceHelper.readBackupPathsAsList();
-        if (!CollectionUtils.isEmpty(selectPaths)) {
-            getViewModel().setSelectFilePathList(selectPaths);
-        }
-    }
-
     private void initNavListAdapter() {
-        rvTabbarManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
+        rvTabbarManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         binding.rvOfPath.setLayoutManager(rvTabbarManager);
 
-        mNavPathAdapter = new NavPathListAdapter(getActivity());
+        mNavPathAdapter = new NavPathListAdapter(this);
         mNavPathAdapter.setOnItemClickListener((item, position) -> {
             if (mCurrentPath.equals(item.getFilePath())) {
                 return;
@@ -188,17 +235,18 @@ public class FolderSelectorFragment extends BaseFragmentWithVM<FolderSelectorVie
                 navSpecialPath(item);
             }
 
-            loadData();
+            loadLocalFileData();
         });
         binding.rvOfPath.setAdapter(mNavPathAdapter);
         mNavPathAdapter.updateListData(getNavPathList());
     }
 
     private void initFileListAdapter() {
-        rvManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
+        rvManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         binding.rvOfList.setLayoutManager(rvManager);
 
         mFileListAdapter = new FileListAdapter();
+        mFileListAdapter.setMaxSelectCount(maxSelectCount);
         mFileListAdapter.setOnFileItemChangeListener((fileBean, position, isChecked) -> {
             if (!isChecked) {
                 getViewModel().removeSpecialPath(fileBean.getFilePath());
@@ -220,7 +268,7 @@ public class FolderSelectorFragment extends BaseFragmentWithVM<FolderSelectorVie
 
             addNavPathListData(new TabVolumeBean(item.getFilePath(), item.getFileName()));
 
-            loadData();
+            loadLocalFileData();
         });
 
         binding.rvOfList.setAdapter(mFileListAdapter);
@@ -277,7 +325,7 @@ public class FolderSelectorFragment extends BaseFragmentWithVM<FolderSelectorVie
                     notifyNavPathListDataChanged();
 
                     mCurrentPath = tag;
-                    loadData();
+                    loadLocalFileData();
                 }
             }
 
@@ -294,7 +342,7 @@ public class FolderSelectorFragment extends BaseFragmentWithVM<FolderSelectorVie
     private void notifyFileListDataChanged(List<FileBean> list) {
         if (CollectionUtils.isEmpty(list)) {
             mFileListAdapter.submitList(null);
-            TextView tipView = TipsViews.getTipTextView(requireContext());
+            TextView tipView = TipsViews.getTipTextView(this);
             tipView.setText(R.string.dir_empty);
             mFileListAdapter.setStateView(tipView);
             mFileListAdapter.setStateViewEnable(true);
@@ -303,15 +351,14 @@ public class FolderSelectorFragment extends BaseFragmentWithVM<FolderSelectorVie
         }
     }
 
-    private void loadData() {
-        getViewModel().loadLocalFileData(mCurrentPath);
+    private void loadLocalFileData() {
+        getViewModel().loadLocalFileData(mCurrentPath, filterPaths);
     }
 
-    public boolean onBackPressed() {
+    private boolean onBackTo() {
         if (getNavPathList().size() == 1) {
             return false;
         } else {
-
             getNavPathList().remove(getNavPathList().size() - 1);
             resetNavPathListItemPosition();
 
@@ -319,7 +366,7 @@ public class FolderSelectorFragment extends BaseFragmentWithVM<FolderSelectorVie
             mCurrentPath = bean.getFilePath();
             notifyNavPathListDataChanged();
 
-            loadData();
+            loadLocalFileData();
             return true;
         }
     }
@@ -397,5 +444,50 @@ public class FolderSelectorFragment extends BaseFragmentWithVM<FolderSelectorVie
         }
     }
 
-}
 
+    public void finishPage() {
+        Intent intent = new Intent();
+        List<String> selectedFolderPaths = getViewModel().getSelectFilePathList();
+        if (CollectionUtils.isEmpty(selectedFolderPaths)) {
+            intent.putStringArrayListExtra(FOLDER_SELECTED_PATHS, null);
+            setResult(RESULT_CANCELED, intent);
+        } else {
+            intent.putStringArrayListExtra(FOLDER_SELECTED_PATHS, (ArrayList<String>) selectedFolderPaths);
+            setResult(RESULT_OK, intent);
+        }
+
+        finish();
+    }
+
+
+    private final Observer<String> busObserver = new Observer<String>() {
+        @Override
+        public void onChanged(String actionStr) {
+            if (TextUtils.isEmpty(actionStr)) {
+                return;
+            }
+
+            String action;
+            String path;
+            if (actionStr.contains("-")) {
+                String[] s = actionStr.split("-");
+                action = s[0];
+                path = s[1];
+            } else {
+                action = actionStr;
+                path = "";
+            }
+
+            if (Intent.ACTION_MEDIA_MOUNTED.equals(action)) {
+                SLogs.d(TAG, "Storage", "设备挂载");
+                reload();
+            } else if (Intent.ACTION_MEDIA_UNMOUNTED.equals(action)) {
+                SLogs.d(TAG, "Storage", "设备卸载");
+                reload();
+            } else if (Intent.ACTION_MEDIA_REMOVED.equals(action)) {
+                SLogs.d(TAG, "Storage", "设备移除");
+                reload();
+            }
+        }
+    };
+}

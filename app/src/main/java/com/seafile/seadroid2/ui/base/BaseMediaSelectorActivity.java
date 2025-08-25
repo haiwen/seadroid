@@ -14,7 +14,7 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.TakeCameras;
 import com.seafile.seadroid2.framework.util.Toasts;
-import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
+import com.seafile.seadroid2.baseviewmodel.BaseViewModel;
 import com.seafile.seadroid2.ui.bottomsheetmenu.BottomSheetHelper;
 import com.seafile.seadroid2.ui.bottomsheetmenu.OnMenuClickListener;
 

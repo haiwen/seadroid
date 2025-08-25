@@ -68,6 +68,7 @@ import com.seafile.seadroid2.enums.OpType;
 import com.seafile.seadroid2.enums.RefreshStatusEnum;
 import com.seafile.seadroid2.enums.SortBy;
 import com.seafile.seadroid2.framework.datastore.DataManager;
+import com.seafile.seadroid2.framework.datastore.StorageManager;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.db.entities.PermissionEntity;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
@@ -720,11 +721,22 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             rename(selectedList);
         } else if (item.getItemId() == R.id.move) {
             RepoModel repoModel = GlobalNavContext.getCurrentNavContext().getRepoModel();
+            if (repoModel == null) {
+                Toasts.show(R.string.op_unable_to_with_exception);
+                closeActionMode();
+                return;
+            }
             String parent_dir = GlobalNavContext.getCurrentNavContext().getNavPath();
 
             move(repoModel.repo_id, repoModel.repo_name, parent_dir, selectedList);
         } else if (item.getItemId() == R.id.copy) {
             RepoModel repoModel = GlobalNavContext.getCurrentNavContext().getRepoModel();
+            if (repoModel == null) {
+                Toasts.show(R.string.op_unable_to_with_exception);
+                closeActionMode();
+                return;
+            }
+
             String parent_dir = GlobalNavContext.getCurrentNavContext().getNavPath();
 
             copy(repoModel.repo_id, repoModel.repo_name, parent_dir, selectedList);
@@ -932,7 +944,13 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             binding.stickyContainer.setVisibility(View.GONE);
 
             if (GlobalNavContext.getCurrentNavContext().inRepo()) {
-                String repo_id = GlobalNavContext.getCurrentNavContext().getRepoModel().repo_id;
+                RepoModel repoModel = GlobalNavContext.getCurrentNavContext().getRepoModel();
+                if (repoModel == null) {
+                    Toasts.show(R.string.op_unable_to_with_exception);
+                    return;
+                }
+
+                String repo_id = repoModel.repo_id;
                 getViewModel().searchNext(repo_id, keyword, 1, 20);
             } else {
                 getViewModel().searchNext(null, keyword, 1, 20);
@@ -1438,10 +1456,15 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
     @OptIn(markerClass = UnstableApi.class)
     private void open(RepoModel repoModel, DirentModel dirent, Bundle extras) {
+        if (repoModel == null) {
+            Toasts.show(R.string.op_unable_to_with_exception);
+            return;
+        }
+
         String fileName = dirent.name;
         String filePath = dirent.full_path;
 
-        if (Utils.isViewableImage(fileName) && repoModel != null) {
+        if (Utils.isViewableImage(fileName)) {
             boolean load_other_images_in_same_directory = true;
             if (extras != null) {
                 load_other_images_in_same_directory = extras.getBoolean("load_other_images_in_same_directory");
@@ -2178,6 +2201,12 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         showLoadingDialog();
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
         RepoModel repoModel = GlobalNavContext.getCurrentNavContext().getRepoModel();
+
+        if (repoModel == null) {
+            Toasts.show(R.string.op_unable_to_with_exception);
+            return;
+        }
+
         String parent_dir = GlobalNavContext.getCurrentNavContext().getNavPath();
         mainViewModel.multipleCheckRemoteDirent(requireContext(), account, repoModel.repo_id, repoModel.repo_name, parent_dir, uriList, new java.util.function.Consumer<Boolean>() {
             @Override
@@ -2220,6 +2249,12 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         String destinationPath = Utils.pathJoin(parent_dir, fileName);
 
         RepoModel repoModel = GlobalNavContext.getCurrentNavContext().getRepoModel();
+
+        if (repoModel == null) {
+            Toasts.show(R.string.op_unable_to_with_exception);
+            return;
+        }
+
         mainViewModel.checkRemoteDirent(repoModel.repo_id, destinationPath, new java.util.function.Consumer<DirentFileModel>() {
             @Override
             public void accept(DirentFileModel direntFileModel) {
@@ -2275,6 +2310,12 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
     // task
     private void addUploadTask(RepoModel repoModel, String targetDir, String localFile) {
+
+        if (repoModel == null) {
+            Toasts.show(R.string.op_unable_to_with_exception);
+            return;
+        }
+
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
         mainViewModel.addUploadTask(requireContext(), account, repoModel, localFile, targetDir, false);
 

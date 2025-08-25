@@ -50,6 +50,14 @@ public class AppDataManager {
         DataStoreManager.getCommonSharePreference().writeBoolean(SettingsManager.CLIENT_ENC_SWITCH_KEY, isChecked);
     }
 
+    public static String getCustomStorageDir() {
+        return DataStoreManager.getCommonSharePreference().readString(SettingsManager.SHARED_PREF_CUSTOM_STORAGE_DIR);
+    }
+
+    public static void writeCustomStorageDir(String path) {
+        DataStoreManager.getCommonSharePreference().writeString(SettingsManager.SHARED_PREF_CUSTOM_STORAGE_DIR, path);
+    }
+
     public static int readStorageDirId() {
         return DataStoreManager.getCommonSharePreference().readInteger(SettingsManager.SHARED_PREF_STORAGE_DIR, Integer.MIN_VALUE);
     }

@@ -6,19 +6,14 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.blankj.utilcode.util.CollectionUtils;
 import com.google.android.material.checkbox.MaterialCheckBox;
-import com.seafile.seadroid2.enums.SortBy;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.util.FileTools;
-import com.seafile.seadroid2.preferences.Settings;
-import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
-import com.seafile.seadroid2.ui.comparator.FileBeanNaturalOrderComparator;
+import com.seafile.seadroid2.baseviewmodel.BaseViewModel;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
@@ -27,6 +22,7 @@ import io.reactivex.functions.Consumer;
 
 public class FolderSelectorViewModel extends BaseViewModel {
     private final MutableLiveData<List<FileBean>> dataListLiveData = new MutableLiveData<>();
+
     public MutableLiveData<List<FileBean>> getLocalFileListLiveData() {
         return dataListLiveData;
     }
@@ -49,9 +45,11 @@ public class FolderSelectorViewModel extends BaseViewModel {
         selectFilePath.add(filePath);
     }
 
+    public void loadLocalFileData(String path) {
+        loadLocalFileData(path, Collections.emptyList());
+    }
 
-
-    public void loadData(String path) {
+    public void loadLocalFileData(String path, List<String> filterPaths) {
 
         getRefreshLiveData().setValue(true);
         boolean isSkipHiddenFile = FolderBackupSharePreferenceHelper.isFolderBackupSkipHiddenFiles();
@@ -78,6 +76,19 @@ public class FolderSelectorViewModel extends BaseViewModel {
                 List<FileBean> fileBeanList = new ArrayList<>();
 
                 for (File value : files) {
+                    if (!CollectionUtils.isEmpty(filterPaths)) {
+                        boolean isFilter = false;
+                        for (String filterPath : filterPaths) {
+                            if (value.getAbsolutePath().startsWith(filterPath)) {
+                                isFilter = true;
+                                break;
+                            }
+                        }
+                        if (isFilter) {
+                            continue;
+                        }
+                    }
+
                     FileBean fileBean = new FileBean(value);
                     if (isSkipHiddenFile && value.isHidden()) {
                         continue;

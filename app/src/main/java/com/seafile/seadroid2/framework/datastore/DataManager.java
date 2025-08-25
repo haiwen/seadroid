@@ -61,7 +61,7 @@ public class DataManager {
         return Utils.pathJoin(path, p);
     }
 
-    public static String getAccountDir(Account account) {
+    private static String getAccountDir(Account account) {
         if (account == null) {
             return null;
         }

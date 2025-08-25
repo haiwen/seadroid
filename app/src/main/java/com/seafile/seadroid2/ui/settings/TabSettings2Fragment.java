@@ -7,6 +7,8 @@ import static com.seafile.seadroid2.framework.notification.base.NotificationUtil
 import static com.seafile.seadroid2.framework.notification.base.NotificationUtils.NOTIFICATION_OPEN_UPLOAD_TAB;
 
 import android.Manifest;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
@@ -41,6 +43,9 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.annotation.NotSupport;
+import com.seafile.seadroid2.annotation.Todo;
+import com.seafile.seadroid2.annotation.Unstable;
 import com.seafile.seadroid2.bus.BusAction;
 import com.seafile.seadroid2.bus.BusHelper;
 import com.seafile.seadroid2.config.Constants;
@@ -55,6 +60,7 @@ import com.seafile.seadroid2.framework.service.BackupThreadExecutor;
 import com.seafile.seadroid2.framework.util.PermissionUtil;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Toasts;
+import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
@@ -75,6 +81,7 @@ import com.seafile.seadroid2.ui.dialog_fragment.listener.OnRefreshDataListener;
 import com.seafile.seadroid2.ui.folder_backup.FolderBackupConfigActivity;
 import com.seafile.seadroid2.ui.folder_backup.FolderBackupSelectedPathActivity;
 import com.seafile.seadroid2.ui.folder_backup.RepoConfig;
+import com.seafile.seadroid2.ui.selector.FolderSelectorActivity;
 import com.seafile.seadroid2.ui.selector.ObjSelectorActivity;
 import com.seafile.seadroid2.ui.transfer_list.TransferActivity;
 import com.seafile.seadroid2.ui.webview.SeaWebViewActivity;
@@ -99,16 +106,14 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
     private Handler viewHandler;
     private final Account currentAccount = SupportAccountManager.getInstance().getCurrentAccount();
     private SettingsFragmentViewModel viewModel;
-//    private SwitchPreferenceCompat gestureSwitch;
+
 
     // album backup
     private TextSwitchPreference mAlbumBackupSwitch;
     private Preference mAlbumBackupRepo;
     private TextSwitchPreference mAlbumBackupAdvancedDataPlanSwitch;
     private TextSwitchPreference mAlbumBackupAdvancedVideoSwitch;
-    //    private TextSwitchPreference mAlbumBackupAdvancedCustomBucketSwitch;
     private TextTitleSummaryPreference mAlbumBackupAdvancedSelectedBucket;
-//    private Preference mAlbumBackupState;
 
     //folder backup
     private TextSwitchPreference mFolderBackupSwitch;
@@ -117,12 +122,9 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
     private Preference mFolderBackupSelectRepo;
     private Preference mFolderBackupSelectFolder;
 
-    private Preference mExportLogFiles;
-//    private Preference mFolderBackupState;
-
     private Preference mTransferDownloadState;
     private Preference mTransferUploadState;
-
+    private Preference cacheLocationPref;
 
     public static TabSettings2Fragment newInstance() {
         return new TabSettings2Fragment();
@@ -176,11 +178,29 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
 
         viewHandler = new Handler(Looper.getMainLooper());
 
+        initViewModel();
+
         BusHelper.getCommonObserver().observe(getViewLifecycleOwner(), busObserver);
         registerResultLauncher();
 
         getListView().setPadding(0, 0, 0, Constants.DP.DP_32);
         getListView().setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.window_background_color));
+    }
+
+    private void initViewModel() {
+        viewModel.getSecondRefreshLiveData().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+                showSwitchStorageLoadingDialog(aBoolean);
+            }
+        });
+
+        viewModel.getModifyStorageLocationLiveData().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+                loadCacheLocationPrefInfo();
+            }
+        });
     }
 
     private boolean isFirstLoadData = true;
@@ -394,12 +414,12 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
             });
         }
 
-        Preference locPref = findPreference(getString(R.string.pref_key_cache_location));
-        if (locPref != null) {
+        cacheLocationPref = findPreference(getString(R.string.pref_key_cache_location));
+        if (cacheLocationPref != null) {
             // Storage selection only works on KitKat or later
             if (StorageManager.getInstance().supportsMultipleStorageLocations()) {
-                updateStorageLocationSummary();
-                locPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                loadCacheLocationPrefInfo();
+                cacheLocationPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(@NonNull Preference preference) {
                         if (dialogFragment != null && dialogFragment.isVisible()) {
@@ -412,10 +432,11 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
                     }
                 });
             } else {
-                locPref.setVisible(false);
+                cacheLocationPref.setVisible(false);
             }
         }
     }
+
 
     private void initAboutPref() {
         String country = Locale.getDefault().getCountry();
@@ -553,27 +574,6 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
                 findPreference(getString(R.string.pref_key_user_space)).setSummary(s);
             }
         });
-
-//        Settings.USER_GESTURE_LOCK_SWITCH.observe(getViewLifecycleOwner(), new Observer<Boolean>() {
-//            @Override
-//            public void onChanged(Boolean aBoolean) {
-//
-//                if (aBoolean) {
-//                    // inverse checked status
-//                    Intent newIntent = new Intent(getActivity(), CreateGesturePasswordActivity.class);
-//                    newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-//                    gestureLauncher.launch(newIntent);
-//
-//                } else {
-//                    LockPatternUtils mLockPatternUtils = new LockPatternUtils(getActivity());
-//                    mLockPatternUtils.clearLock();
-//
-//                    Settings.SETTINGS_GESTURE_LOCK_TIMESTAMP.putValue(0L);
-//                }
-//
-//                Settings.SETTINGS_GESTURE.putValue(aBoolean);
-//            }
-//        });
 
         //////////////////
         /// album backup
@@ -793,7 +793,7 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
         calculateCacheSize();
     }
 
-    //0 : no one, 1 : camera, 2 : folder
+    //0 : no one, 1 : camera, 2 : folder, 3 : modify storage location
     private int whoIsRequestingPermission = 0;
 
     private void requestCameraStoragePermission() {
@@ -814,6 +814,30 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
             launchFolderBackupWhenReady(true);
         } else {
             whoIsRequestingPermission = 2;
+            showRequestStoragePermissionDialog();
+        }
+    }
+
+    private void requestModifyStoragePermission() {
+        if (PermissionUtil.hasStoragePermission(requireContext())) {
+            ArrayList<String> filterPaths = new ArrayList<>();
+            ///storage/emulated/0/Android/
+            File[] files = requireContext().getExternalMediaDirs();
+            if (files != null) {
+                for (File file : files) {
+                    String p = Utils.getParentPath(file.getAbsolutePath());
+                    p = Utils.getParentPath(p);
+                    filterPaths.add(p);
+                }
+            }
+
+            Intent intent = new Intent(requireContext(), FolderSelectorActivity.class);
+            intent.putExtra(FolderSelectorActivity.PARAM_SELECTOR_MAX_COUNT, 1);
+            intent.putStringArrayListExtra(FolderSelectorActivity.PARAM_FILTER_PATHS, filterPaths);
+            folderSelectorLauncher.launch(intent);
+
+        } else {
+            whoIsRequestingPermission = 3;
             showRequestStoragePermissionDialog();
         }
     }
@@ -1070,11 +1094,6 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
         dialogFragment.show(getChildFragmentManager(), ClearPasswordDialogFragment.class.getSimpleName());
     }
 
-    private void updateStorageLocationSummary() {
-        String summary = StorageManager.getInstance().getSelectedStorageLocation().description;
-        findPreference(getString(R.string.pref_key_cache_location)).setSummary(summary);
-    }
-
     private void clearCache() {
         ClearCacheDialogFragment dialogFragment = ClearCacheDialogFragment.newInstance();
         dialogFragment.setRefreshListener(new OnRefreshDataListener() {
@@ -1095,6 +1114,8 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
         viewModel.calculateCacheSize();
     }
 
+    @Todo
+    private ActivityResultLauncher<Intent> folderSelectorLauncher;
     private ActivityResultLauncher<Intent> albumBackupSelectCustomAlbumLauncher;
     private ActivityResultLauncher<Intent> albumBackupSelectRepoLauncher;
     private ActivityResultLauncher<Intent> albumBackupConfigLauncher;
@@ -1103,6 +1124,24 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
     private ActivityResultLauncher<Intent> manageAllFilesPermissionLauncher;
 
     private void registerResultLauncher() {
+        folderSelectorLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+            @Override
+            public void onActivityResult(ActivityResult o) {
+                if (o == null) {
+                    return;
+                }
+                if (o.getResultCode() != RESULT_OK) {
+                    return;
+                }
+
+                if (o.getData() == null) {
+                    return;
+                }
+
+//                List<String> paths = o.getData().getStringArrayListExtra(FolderSelectorActivity.FOLDER_SELECTED_PATHS);
+//                changeStorageLocation(paths);
+            }
+        });
 
         /**
          * custom album backup activity result launcher
@@ -1233,6 +1272,8 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
                         albumBackupConfigLauncher.launch(intent);
                     } else if (whoIsRequestingPermission == 2) {
                         //on livedata change
+                    } else if (whoIsRequestingPermission == 3) {
+                        requestModifyStoragePermission();
                     }
                 } else {
                     Toasts.show(R.string.get_storage_permission_failed);
@@ -1240,11 +1281,33 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
                         switchAlbumBackupState(false);
                     } else if (whoIsRequestingPermission == 2) {
                         switchFolderBackupState(false);
+                    } else if (whoIsRequestingPermission == 3) {
+
                     }
                 }
             }
         });
+    }
 
+    private void loadCacheLocationPrefInfo() {
+        StorageManager.Location location = StorageManager.getInstance().getSelectedStorageLocation();
+        if (location == null) {
+            return;
+        }
+
+        if (cacheLocationPref != null) {
+            cacheLocationPref.setSummary(location.label);
+        }
+    }
+
+    @NotSupport
+    @Unstable
+    private void changeStorageLocation(List<String> paths) {
+        if (paths == null || paths.isEmpty()) {
+            return;
+        }
+
+        viewModel.modifyStorageLocation(requireContext(), paths.get(0));
     }
 
     private final Observer<String> busObserver = new Observer<String>() {
@@ -1291,11 +1354,79 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
             launchFolderBackupWhenReady(true);
         } else {
 
-            StorageManager.getInstance().resetInstance();
+            StorageManager.resetInstance();
 
             BackupThreadExecutor.getInstance().stopAll();
 
             Toasts.show(R.string.file_transfer_stopped);
+        }
+    }
+
+
+    private Dialog dialog;
+    private long dialogShowTimestamp = 0L;
+    private static final long MIN_DIALOG_SHOW_TIME = 500; // minimum display duration in ms
+    private Runnable pendingDismissRunnable;
+
+    public void showSwitchStorageLoadingDialog(boolean isShow) {
+        if (isShow) {
+            showSwitchStorageLoadingDialog();
+        } else {
+            dismissSwitchStorageLoadingDialog();
+        }
+    }
+
+    public void showSwitchStorageLoadingDialog() {
+        if (dialog == null) {
+            MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext());
+            builder.setView(R.layout.layout_dialog_switch_storage);
+            builder.setCancelable(false);
+            dialog = builder.create();
+            dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                @Override
+                public void onDismiss(DialogInterface iDialog) {
+                    // delay dismiss
+                    if (pendingDismissRunnable != null && dialog != null && dialog.getWindow() != null) {
+                        dialog.getWindow().getDecorView().removeCallbacks(pendingDismissRunnable);
+                    }
+                }
+            });
+        }
+        if (!dialog.isShowing()) {
+            dialog.show();
+            dialogShowTimestamp = System.currentTimeMillis();
+        }
+    }
+
+    public void dismissSwitchStorageLoadingDialog() {
+        if (dialog == null || !dialog.isShowing()) {
+            return;
+        }
+
+        long elapsed = System.currentTimeMillis() - dialogShowTimestamp;
+        if (elapsed >= MIN_DIALOG_SHOW_TIME) {
+            dialog.dismiss();
+        } else {
+            // delay dismiss
+            if (pendingDismissRunnable != null && dialog.getWindow() != null) {
+                dialog.getWindow().getDecorView().removeCallbacks(pendingDismissRunnable);
+            }
+
+            pendingDismissRunnable = new Runnable() {
+                @Override
+                public void run() {
+                    if (dialog != null && dialog.isShowing()) {
+                        dialog.dismiss();
+                    }
+
+                    pendingDismissRunnable = null;
+                }
+            };
+
+            if (dialog != null && dialog.getWindow() != null) {
+                long delay = MIN_DIALOG_SHOW_TIME - elapsed;
+                dialog.getWindow().getDecorView().postDelayed(pendingDismissRunnable, delay);
+            }
         }
     }
 }

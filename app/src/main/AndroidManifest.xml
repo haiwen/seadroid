@@ -166,6 +166,7 @@
             android:windowSoftInputMode="adjustResize" />
         <activity android:name=".ui.media.image.CarouselImagePreviewActivity" />
         <activity android:name=".ui.media.image.OnlyImagePreviewActivity" />
+        <activity android:name=".ui.selector.FolderSelectorActivity" />
 
         <provider
             android:name=".provider.SeafileProvider"

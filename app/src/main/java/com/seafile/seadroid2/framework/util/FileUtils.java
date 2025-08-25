@@ -18,9 +18,38 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
+import java.nio.file.attribute.PosixFilePermission;
 import java.util.Date;
+import java.util.Set;
 
 public class FileUtils {
+
+    public static boolean isAvailable(File f) {
+        if (f == null) {
+            return false;
+        }
+
+        if (!f.exists()) {
+            return false;
+        }
+
+        if (!f.canWrite()) {
+            return false;
+        }
+
+        Path p = f.toPath();
+        if (!Files.isWritable(p)) {
+            return false;
+        }
+
+        try {
+            Set<PosixFilePermission> permissions = Files.getPosixFilePermissions(f.toPath());
+            return permissions.contains(PosixFilePermission.OWNER_WRITE);
+        } catch (IOException e) {
+            SLogs.e(e);
+            return false;
+        }
+    }
 
     /**
      * build valid file path and name.
@@ -252,9 +281,9 @@ public class FileUtils {
     /**
      * 获取 Uri 文件的实际大小（字节数）。
      * 优先使用 OpenableColumns.SIZE，如果不可用则通过流读取计算。
-     * 
+     *
      * @param context 上下文
-     * @param uri 文件 Uri
+     * @param uri     文件 Uri
      * @return 文件大小，如果获取失败返回 -1
      */
     public static long getFileSize(Context context, Uri uri) {
@@ -305,7 +334,7 @@ public class FileUtils {
         try {
             inputStream = context.getContentResolver().openInputStream(uri);
             if (inputStream == null) return -1;
-            
+
             byte[] buffer = new byte[8192]; // 8KB buffer
             int bytesRead;
             while ((bytesRead = inputStream.read(buffer)) != -1) {
@@ -315,9 +344,10 @@ public class FileUtils {
             // 忽略异常，返回 -1
         } finally {
             if (inputStream != null) {
-                try { 
-                    inputStream.close(); 
-                } catch (IOException ignore) {}
+                try {
+                    inputStream.close();
+                } catch (IOException ignore) {
+                }
             }
         }
         return totalBytes;

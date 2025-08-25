@@ -9,15 +9,21 @@ import android.text.TextUtils;
 
 import androidx.core.os.EnvironmentCompat;
 
+import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.model.StorageInfo;
 import com.seafile.seadroid2.ui.selector.folder_selector.StringTools;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Method;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermission;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class FileTools {
     public static File getFileByPath(String path) {

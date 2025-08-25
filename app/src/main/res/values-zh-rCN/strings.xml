@@ -94,6 +94,7 @@
   <string name="file_action_share_encrypt">分享高级链接</string>
   <string name="file_action_export">导出</string>
   <string name="file_action_open">打开方式</string>
+  <string name="file_action_save_as">另存为</string>
   <string name="file_action_delete">删除</string>
   <string name="file_action_rename">重命名</string>
   <string name="file_action_copy">复制</string>
@@ -551,6 +552,7 @@ Email: support@seafile.com<br>
   <string name="op_exception_folder_deleted">此文件夹\"%s\"已被删除</string>
   <string name="op_exception_suitable_app_not_found">找不到合适的应用打开该%s类型</string>
   <string name="op_exception_failed_to_download_file">下载文件%s失败</string>
+  <string name="op_unable_to_with_exception">发生异常，无法操作</string>
   <!--Home list title-->
   <string name="shared_with_all">公共资料库</string>
   <string name="add_password_protection">添加保护密码</string>
@@ -596,7 +598,7 @@ Email: support@seafile.com<br>
   <string name="settings_sync_hidden_files_disabled">不同步隐藏文件</string>
   <string name="settings_sync_hidden_files_enabled">同步隐藏文件</string>
   <string name="folder_file_item_size">%s</string>
-  <string name="folder_file_item_describe">文件 \%s | 文件夹 \%s\</string>
+  <string name="folder_file_item_describe">文件 %s | 文件夹 %s</string>
   <string name="internal_storage">内部存储</string>
   <string name="selection_file_type">请选择文件夹</string>
   <string name="select_backup_folder">选择备份文件夹</string>

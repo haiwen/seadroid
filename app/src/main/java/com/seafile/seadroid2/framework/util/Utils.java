@@ -102,6 +102,27 @@ public class Utils {
             return parent;
     }
 
+    public static String getParentPathName(String p) {
+        String path = getParentPath(p);
+
+        if (path == null) {
+            // the caller should not give null
+            Log.w(DEBUG_TAG, "path is null");
+            return null;
+        }
+
+        if (!path.contains("/")) {
+            return path;
+        }
+
+        if (path.endsWith("/")) {
+            path = path.substring(0, path.lastIndexOf("/"));
+        }
+
+        path = path.substring(path.lastIndexOf("/") + 1);
+        return path;
+    }
+
     public static String getParentPath(String path) {
         if (path == null) {
             // the caller should not give null

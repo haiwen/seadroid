@@ -14,7 +14,7 @@ import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
 import com.seafile.seadroid2.framework.service.BackupThreadExecutor;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Utils;
-import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
+import com.seafile.seadroid2.baseviewmodel.BaseViewModel;
 
 import org.apache.commons.io.FileUtils;
 
@@ -85,7 +85,7 @@ public class SwitchStorageViewModel extends BaseViewModel {
                     }
 
                     //
-                    StorageManager.getInstance().clearCache();
+                    StorageManager.getInstance().clearAllCache();
 
                     String oldPrefix = currentLocation.volume;
                     String newPrefix = newLocation.volume;
@@ -134,7 +134,7 @@ public class SwitchStorageViewModel extends BaseViewModel {
             }
 
             if (!toUpdate.isEmpty()) {
-                AppDatabase.getInstance().fileCacheStatusDAO().updateAll(toUpdate); // 批量更新
+                AppDatabase.getInstance().fileCacheStatusDAO().updateAll(toUpdate); // batch update
             }
 
             offset += pageSize;

@@ -563,7 +563,6 @@ E-mail : support@seafile.com<br>
   <string name="settings_folder_backup_service_stopped">Le service de sauvegarde est arrêté</string>
   <string name="settings_select_backup_folder_title">Sélectionner un dossier</string>
   <string name="folder_file_item_size">Taille %s</string>
-  <string name="folder_file_item_describe">fichier\%s\ | dossier\%s\</string>
   <string name="internal_storage">Stockage interne</string>
   <string name="selection_file_type">Veuillez sélectionner un dossier de sauvegarde</string>
   <string name="select_backup_folder">Sélectionner un dossier de sauvegarde</string>

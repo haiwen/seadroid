@@ -2,7 +2,7 @@ package com.seafile.seadroid2.ui.dialog_fragment.viewmodel;
 
 import com.seafile.seadroid2.framework.glide.GlideApp;
 import com.seafile.seadroid2.SeadroidApplication;
-import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
+import com.seafile.seadroid2.baseviewmodel.BaseViewModel;
 import com.seafile.seadroid2.framework.datastore.StorageManager;
 
 import io.reactivex.Single;
@@ -21,7 +21,7 @@ public class ClearCacheViewModel extends BaseViewModel {
                 }
 
                 StorageManager storageManager = StorageManager.getInstance();
-                storageManager.clearCache();
+                storageManager.clearAllCache();
 
 //                // clear cached data from database
 //                DatabaseHelper dbHelper = DatabaseHelper.getDatabaseHelper();

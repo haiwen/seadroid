@@ -138,7 +138,7 @@ public class FileActivity extends BaseActivityWithVM<FileViewModel> implements T
         getViewModel().getOutFileLiveData().observe(this, new Observer<File>() {
             @Override
             public void onChanged(File outFile) {
-                getViewModel().saveToDb(account, direntModel, destinationFile, new Consumer<Boolean>() {
+                getViewModel().saveIntoDb(account, direntModel, destinationFile, new Consumer<Boolean>() {
                     @Override
                     public void accept(Boolean aBoolean) throws Exception {
                         onFileDownloaded(outFile, true);
@@ -286,7 +286,7 @@ public class FileActivity extends BaseActivityWithVM<FileViewModel> implements T
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            finish();
+            cancelDownload();
             return true;
         }
         return super.onOptionsItemSelected(item);

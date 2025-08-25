@@ -2,14 +2,18 @@ package com.seafile.seadroid2.context;
 
 import android.text.TextUtils;
 
+import androidx.annotation.Nullable;
+
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.model.BaseModel;
+import com.seafile.seadroid2.framework.util.SafeLogs;
 import com.seafile.seadroid2.framework.util.Utils;
 
 import java.util.Stack;
 
 public class NavContext {
+    private final Stack<BaseModel> navStack = new Stack<>();
     private final boolean isSaveIntoSp;
 
     public NavContext() {
@@ -20,7 +24,6 @@ public class NavContext {
         this.isSaveIntoSp = isSaveIntoSp;
     }
 
-    private final Stack<BaseModel> navStack = new Stack<>();
 
     public Stack<BaseModel> getNavStack() {
         return navStack;
@@ -37,7 +40,16 @@ public class NavContext {
      * @return true: it's in a repo, false: not
      */
     public boolean inRepo() {
-        return !navStack.isEmpty();
+        if (navStack.isEmpty()) {
+            return false;
+        }
+
+        BaseModel baseModel = navStack.get(0);
+        if (baseModel == null) {
+            return false;
+        }
+
+        return baseModel instanceof RepoModel;
     }
 
     public void clear() {
@@ -161,8 +173,19 @@ public class NavContext {
         return (DirentModel) navStack.peek();
     }
 
+    @Nullable
     public RepoModel getRepoModel() {
         if (navStack.empty()) {
+            return null;
+        }
+
+        BaseModel baseModel = navStack.get(0);
+        if (baseModel == null) {
+            return null;
+        }
+
+        if (!(baseModel instanceof RepoModel)) {
+            SafeLogs.e("It is a exception: baseModel is not RepoModel");
             return null;
         }
 
