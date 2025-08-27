@@ -132,8 +132,6 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     private static final String TAG = "RepoQuickFragment";
 
     private static final String KEY_REPO_SCROLL_POSITION = "repo_scroll_position";
-    private final int PADDING_16 = Constants.DP.DP_16;
-    private final int PADDING_32 = Constants.DP.DP_32;
     private final int PADDING_128 = Constants.DP.DP_128;
 
     private LayoutFastRvBinding binding;
@@ -393,7 +391,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 }
                 return true;
             }
-        }, getViewLifecycleOwner(), Lifecycle.State.RESUMED);
+        }, getViewLifecycleOwner(), Lifecycle.State.STARTED);
     }
 
     /**
@@ -656,7 +654,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         } else {
             int p = binding.rv.getPaddingTop();
             if (p != 0) {
-                binding.rv.setPadding(0, 0, 0, PADDING_32);
+                binding.rv.setPadding(0, 0, 0, Constants.DP.DP_32);
                 binding.rv.setClipToPadding(false);
             }
         }
@@ -984,7 +982,11 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
     private void showErrorView(SeafException seafException) {
         int strInt = !GlobalNavContext.getCurrentNavContext().inRepo() ? R.string.error_when_load_repos : R.string.error_when_load_dirents;
-        showErrorView(strInt);
+
+        String msg = getString(strInt);
+        msg += "\n";
+        msg += seafException.getMessage();
+        showErrorView(msg);
     }
 
     private void showErrorView(int textRes) {

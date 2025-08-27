@@ -21,6 +21,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.media3.common.util.UnstableApi;
 
+import com.blankj.utilcode.util.CollectionUtils;
 import com.chad.library.adapter4.BaseQuickAdapter;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.seafile.seadroid2.R;
@@ -54,6 +55,7 @@ import com.seafile.seadroid2.ui.sdoc.SDocWebViewActivity;
 import com.seafile.seadroid2.view.TipsViews;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.List;
 
 import io.reactivex.functions.Consumer;
@@ -76,6 +78,7 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
         super.onCreate(savedInstanceState);
 
         mainViewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
+        registerResultLauncher();
     }
 
     @Nullable
@@ -90,16 +93,11 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        registerResultLauncher();
 
         initAdapter();
 
         initViewModel();
-    }
 
-    @Override
-    public void onFirstResume() {
-        super.onFirstResume();
         reload();
     }
 
@@ -143,7 +141,7 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
     private void showErrorTip(SeafException seafException) {
         adapter.submitList(null);
         TextView tipView = TipsViews.getTipTextView(requireContext());
-        tipView.setText(R.string.error_when_load_starred);
+        tipView.setText(getString(R.string.error_when_load_starred) + "\n" + seafException.getMessage());
         tipView.setOnClickListener(v -> reload());
         adapter.setStateView(tipView);
         adapter.setStateViewEnable(true);
@@ -175,7 +173,10 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
         getViewModel().getListLiveData().observe(getViewLifecycleOwner(), new Observer<List<StarredModel>>() {
             @Override
             public void onChanged(List<StarredModel> starredModels) {
-                adapter.setStateViewEnable(true);
+                if (CollectionUtils.isEmpty(starredModels)) {
+                    Toasts.show("No starred file");
+                    adapter.setStateViewEnable(true);
+                }
 
                 adapter.notifyDataChanged(starredModels);
             }

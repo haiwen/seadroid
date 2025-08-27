@@ -60,7 +60,6 @@ public class SwitchStorageViewModel extends BaseViewModel {
                     return;
                 }
 
-                // /storage/67DA-5855/Android/media/com.seafile.seadroid2.debug
                 File newMediaDir = newLocation.mediaPath;
 
                 try {
@@ -68,7 +67,6 @@ public class SwitchStorageViewModel extends BaseViewModel {
                     List<Account> list = SupportAccountManager.getInstance().getAccountList();
                     for (Account account : list) {
 
-                        // /storage/emulated/0/Android/media/com.seafile.seadroid2.debug/Seafile/f4f550ea33e14f82aab7da71be0d13fa@auth.local (cloud.seafile.com)
                         String specialAccountCurrentMediaDir = DataManager.getAccountMediaDir(account);
                         File oldAccountDir = new File(specialAccountCurrentMediaDir);
                         if (!oldAccountDir.exists()) {

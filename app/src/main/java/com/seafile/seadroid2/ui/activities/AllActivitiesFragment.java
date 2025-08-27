@@ -81,12 +81,15 @@ public class AllActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel>
         if (savedInstanceState != null) {
             page = savedInstanceState.getInt("page");
         }
+        registerLauncher();
+
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = LayoutFrameSwipeRvBinding.inflate(inflater, container, false);
+        binding.swipeRefreshLayout.setOnRefreshListener(this::reload);
         return binding.getRoot();
     }
 
@@ -95,14 +98,11 @@ public class AllActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel>
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        binding.swipeRefreshLayout.setOnRefreshListener(this::reload);
-
-        registerLauncher();
-
         initAdapter();
 
         initViewModel();
 
+        loadNext();
     }
 
     private void registerLauncher() {
@@ -162,13 +162,6 @@ public class AllActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel>
                 }
             }
         });
-    }
-
-
-    @Override
-    public void onFirstResume() {
-        super.onFirstResume();
-        loadNext();
     }
 
 

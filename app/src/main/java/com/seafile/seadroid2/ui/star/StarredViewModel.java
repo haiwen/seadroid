@@ -17,14 +17,17 @@ import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.model.TResultModel;
 import com.seafile.seadroid2.framework.model.dirents.DirentFileModel;
 import com.seafile.seadroid2.framework.datastore.sp.SettingsManager;
+import com.seafile.seadroid2.framework.model.star.StarredWrapperModel;
 import com.seafile.seadroid2.framework.util.Objs;
 import com.seafile.seadroid2.baseviewmodel.BaseViewModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.model.ResultModel;
 import com.seafile.seadroid2.framework.db.entities.StarredModel;
+import com.seafile.seadroid2.framework.util.Times;
 import com.seafile.seadroid2.ui.dialog_fragment.DialogService;
 import com.seafile.seadroid2.ui.file.FileService;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -201,7 +204,6 @@ public class StarredViewModel extends BaseViewModel {
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
 
         Single<List<StarredModel>> listSingle = Objs.getStarredSingleFromServer(account);
-
         addSingleDisposable(listSingle, new Consumer<List<StarredModel>>() {
             @Override
             public void accept(List<StarredModel> starredModels) throws Exception {
