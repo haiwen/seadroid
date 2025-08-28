@@ -92,11 +92,15 @@ public class BottomSheetActionView {
         p.gravity = Gravity.BOTTOM;
         floatingView.setLayoutParams(p);
 
-        applyEdgeToEdge(floatingView);
 
         View decorView = context.getWindow().getDecorView();
         FrameLayout content = decorView.findViewById(android.R.id.content);
         content.addView(floatingView);
+
+        ViewCompat.requestApplyInsets(floatingView);
+
+        applyEdgeToEdge(floatingView);
+
     }
 
 

@@ -29,6 +29,7 @@ import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.context.ContextStackPreferenceHelper;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.ui.account.sso.SingleSignOnActivity;
 import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
 
@@ -233,6 +234,10 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
         String newAccountName = intent.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
         String accountType = intent.getStringExtra(AccountManager.KEY_ACCOUNT_TYPE);
         String authToken = intent.getStringExtra(AccountManager.KEY_AUTHTOKEN);
+        if (TextUtils.isEmpty(newAccountName) || TextUtils.isEmpty(accountType) || TextUtils.isEmpty(authToken)) {
+            finish();
+            return;
+        }
 
         String avatarUrl = intent.getStringExtra(ARG_AVATAR_URL);
         String email = intent.getStringExtra(ARG_EMAIL);
@@ -242,42 +247,6 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
         boolean shib = intent.getBooleanExtra(ARG_SHIB, false);
         long totalSpace = intent.getLongExtra(SeafileAuthenticatorActivity.ARG_SPACE_TOTAL, 0L);
         long usageSpace = intent.getLongExtra(SeafileAuthenticatorActivity.ARG_SPACE_USAGE, 0L);
-
-        //new android account
-        final Account newAccount = new Account(newAccountName, accountType);
-
-        int cameraIsSyncable = 0;
-        boolean cameraSyncAutomatically = true;
-
-        if (intent.getBooleanExtra(ARG_IS_EDITING, false)) {
-
-            String oldAccountName = intent.getStringExtra(ARG_EDIT_OLD_ACCOUNT_NAME);
-            final Account oldAccount = new Account(oldAccountName, intent.getStringExtra(AccountManager.KEY_ACCOUNT_TYPE));
-
-            // serverUri and mail stay the same. so just update the token and exit
-            if (oldAccount.equals(newAccount)) {
-
-                SupportAccountManager.getInstance().setAuthToken(newAccount, Authenticator.AUTHTOKEN_TYPE, authToken);
-                SupportAccountManager.getInstance().setUserData(newAccount, Authenticator.SESSION_KEY, sessionKey);
-
-                Bundle result = new Bundle();
-                result.putBoolean(AccountManager.KEY_BOOLEAN_RESULT, true);
-                result.putString(AccountManager.KEY_ACCOUNT_NAME, newAccountName);
-                setAccountAuthenticatorResult(result);
-                setResult(RESULT_OK, intent);
-                finish();
-                return;
-            }
-
-            Log.d(DEBUG_TAG, "removing old account " + oldAccountName);
-
-            cameraIsSyncable = ContentResolver.getIsSyncable(oldAccount, CameraUploadManager.AUTHORITY);
-            cameraSyncAutomatically = ContentResolver.getSyncAutomatically(oldAccount, CameraUploadManager.AUTHORITY);
-
-            SupportAccountManager.getInstance().removeAccount(oldAccount, null, null);
-        }
-
-        Log.d(DEBUG_TAG, "adding new account " + newAccountName);
 
         Bundle bundle = new Bundle();
         bundle.putBoolean(Authenticator.KEY_SHIB, shib);
@@ -290,25 +259,24 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
         bundle.putString(Authenticator.SPACE_TOTAL, String.valueOf(totalSpace));
         bundle.putString(Authenticator.SPACE_USAGE, String.valueOf(usageSpace));
 
+
+        //new android account
+        final Account newAccount = new Account(newAccountName, accountType);
         //add account
         SupportAccountManager.getInstance().addAccountExplicitly(newAccount, null, bundle);
         SupportAccountManager.getInstance().setAuthToken(newAccount, Authenticator.AUTHTOKEN_TYPE, authToken);
-
-
         if (shib) {
             SupportAccountManager.getInstance().setUserData(newAccount, Authenticator.KEY_SHIB, "shib");
         }
 
-        //
+        // clear context stack
         ContextStackPreferenceHelper.clear();
-        //save current account
+        // save current account
         SupportAccountManager.getInstance().saveCurrentAccount(newAccountName);
-        //reset httpio instance
+        // reset http instance
         HttpIO.resetLoggedInInstance();
-
-        // set sync settings
-        ContentResolver.setIsSyncable(newAccount, CameraUploadManager.AUTHORITY, cameraIsSyncable);
-        ContentResolver.setSyncAutomatically(newAccount, CameraUploadManager.AUTHORITY, cameraSyncAutomatically);
+        // reset settings
+        Settings.initUserSettings();
 
         Bundle result = new Bundle();
         result.putBoolean(AccountManager.KEY_BOOLEAN_RESULT, true);

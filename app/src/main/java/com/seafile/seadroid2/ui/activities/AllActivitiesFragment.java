@@ -24,6 +24,7 @@ import com.chad.library.adapter4.loadState.LoadState;
 import com.chad.library.adapter4.loadState.trailing.TrailingLoadStateAdapter;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.config.Constants;
@@ -210,10 +211,12 @@ public class AllActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel>
         return loadMoreAdapter;
     }
 
-    private void showErrorTip() {
+    private void showErrorTip(SeafException seafException) {
         adapter.submitList(null);
         TextView tipView = TipsViews.getTipTextView(requireContext());
-        tipView.setText(R.string.error_when_load_activities);
+        String msg = getString(R.string.error_when_load_activities);
+        msg += "\n\n" + seafException.getMessage();
+        tipView.setText(msg);
         tipView.setOnClickListener(v -> reload());
         adapter.setStateView(tipView);
         adapter.setStateViewEnable(true);
@@ -233,7 +236,12 @@ public class AllActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel>
             }
         });
 
-        getViewModel().getSeafExceptionLiveData().observe(getViewLifecycleOwner(), exceptionPair -> showErrorTip());
+        getViewModel().getSeafExceptionLiveData().observe(getViewLifecycleOwner(), new Observer<SeafException>() {
+            @Override
+            public void onChanged(SeafException seafException) {
+                showErrorTip(seafException);
+            }
+        });
 
         getViewModel().getListLiveData().observe(getViewLifecycleOwner(), activityModels -> {
             adapter.setStateViewEnable(true);

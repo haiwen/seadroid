@@ -37,7 +37,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 
 public class AccountDetailActivity extends BaseActivityWithVM<AccountViewModel> implements Toolbar.OnMenuItemClickListener {
-    private static final String DEBUG_TAG = "AccountDetailActivity";
+    private final String DEBUG_TAG = "AccountDetailActivity";
 
     private final String TWO_FACTOR_AUTH = "two_factor_auth";
 

@@ -141,8 +141,9 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
     private void showErrorTip(SeafException seafException) {
         adapter.submitList(null);
         TextView tipView = TipsViews.getTipTextView(requireContext());
-        tipView.setText(getString(R.string.error_when_load_starred) + "\n" + seafException.getMessage());
-        tipView.setOnClickListener(v -> reload());
+        String msg = getString(R.string.error_when_load_starred);
+        msg += "\n\n" + seafException.getMessage();
+        tipView.setText(msg);
         adapter.setStateView(tipView);
         adapter.setStateViewEnable(true);
     }
@@ -174,7 +175,6 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
             @Override
             public void onChanged(List<StarredModel> starredModels) {
                 if (CollectionUtils.isEmpty(starredModels)) {
-                    Toasts.show("No starred file");
                     adapter.setStateViewEnable(true);
                 }
 

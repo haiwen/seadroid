@@ -16,7 +16,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
@@ -96,19 +98,22 @@ public class BottomSheetActionViewPager {
 
         pager.setCurrentItem(currentPage);
 
-        applyEdgeToEdge(floatingView);
 
         View decorView = context.getWindow().getDecorView();
         FrameLayout content = decorView.findViewById(android.R.id.content);
 
-
         FrameLayout.LayoutParams p = new FrameLayout.LayoutParams(-1, (int) (itemWidth * 2.5));
         p.gravity = Gravity.BOTTOM;
+
         content.addView(floatingView, p);
+        ViewCompat.requestApplyInsets(floatingView);
 
         if (pageCount > 1) {
             updatePageIndicator(currentPage, pageCount);
         }
+
+
+        applyEdgeToEdge(floatingView);
     }
 
     private List<View> getViews(List<MenuItem> menuItems, int pageCount) {
