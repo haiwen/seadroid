@@ -571,7 +571,7 @@
   <string name="settings_folder_backup_service_stopped">백업 서비스를 멈추었습니다</string>
   <string name="settings_select_backup_folder_title">폴더 선택</string>
   <string name="folder_file_item_size">크기 %s</string>
-  <string name="folder_file_item_describe">파일 \%s\ | 폴더 \%s\</string>
+  <string name="folder_file_item_describe">파일 %s | 폴더 %s</string>
   <string name="internal_storage">내부 저장소</string>
   <string name="selection_file_type">백업 폴더를 선택해주세요</string>
   <string name="select_backup_folder">백업 폴더 선택</string>
@@ -652,9 +652,9 @@
   <string name="_location">위치</string>
   <string name="mark_resolve">해결 항목으로 표시</string>
   <string name="delete_confirm">이 항목을 정말로 삭제할까요?</string>
-  <string name="canceled">취소함</string>
   <string name="image_capture_time">캡쳐 시각</string>
   <string name="image_dimensions">차원</string>
   <string name="image_color_space_uncalibrated">보정 안함</string>
   <string name="image_color_space_undefined">정의 안함</string>
+  <string name="canceled">취소함</string>
 </resources>

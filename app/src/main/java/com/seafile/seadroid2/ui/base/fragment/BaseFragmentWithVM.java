@@ -7,8 +7,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.chad.library.adapter4.QuickAdapterHelper;
 import com.seafile.seadroid2.ui.base.adapter.BaseAdapter;
-import com.seafile.seadroid2.ui.base.adapter.BaseMultiAdapter;
-import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
+import com.seafile.seadroid2.baseviewmodel.BaseViewModel;
 
 import java.lang.reflect.ParameterizedType;
 

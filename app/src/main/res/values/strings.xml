@@ -99,6 +99,7 @@
     <string name="file_action_share_encrypt">Share link with password</string>
     <string name="file_action_export">Export</string>
     <string name="file_action_open">Open with</string>
+    <string name="file_action_save_as">Save as</string>">
     <string name="file_action_delete">Delete</string>
     <string name="file_action_rename">Rename</string>
     <string name="file_action_copy">Copy</string>
@@ -309,6 +310,7 @@
     <string name="settings_account_sign_out_hint">Click to sign out</string>
     <string name="settings_account_sign_out_confirm">Do you want to sign out?</string>
     <string name="settings_night_mode_title">Night mode</string>
+    <string name="settings_switch_storage_hint">File migration may take some time, please wait a while</string>
     <string name="security">Security</string>
     <string name="gesture_lock">Gesture Lock</string>
     <string name="gesture_lock_on">Gesture lock on</string>
@@ -580,6 +582,7 @@
     <string name="op_exception_folder_deleted">The folder \"%s\" was deleted</string>
     <string name="op_exception_suitable_app_not_found">Could not find suitable app for mime type %s</string>
     <string name="op_exception_failed_to_download_file">Failed to download file %s</string>
+    <string name="op_unable_to_with_exception">Unable to operate with exception</string>
     <!--Home list title-->
     <string name="shared_with_all">Shared with all</string>
     <string name="add_password_protection">Add password protection</string>
@@ -629,7 +632,7 @@
     <string name="settings_sync_hidden_files_disabled">Hidden files are not synced</string>
     <string name="settings_sync_hidden_files_enabled">Hidden files are synced</string>
     <string name="folder_file_item_size">Size %s</string>
-    <string name="folder_file_item_describe">file \%s\ | folder \%s\</string>
+    <string name="folder_file_item_describe">file %s | folder %s</string>
     <string name="internal_storage">Internal storage</string>
     <string name="selection_file_type">Please select a backup folder</string>
     <string name="select_backup_folder">Select a backup folder</string>

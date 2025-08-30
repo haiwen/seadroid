@@ -14,7 +14,7 @@ import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
 import com.seafile.seadroid2.framework.service.BackupThreadExecutor;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Utils;
-import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
+import com.seafile.seadroid2.baseviewmodel.BaseViewModel;
 
 import org.apache.commons.io.FileUtils;
 
@@ -60,7 +60,6 @@ public class SwitchStorageViewModel extends BaseViewModel {
                     return;
                 }
 
-                // /storage/67DA-5855/Android/media/com.seafile.seadroid2.debug
                 File newMediaDir = newLocation.mediaPath;
 
                 try {
@@ -68,7 +67,6 @@ public class SwitchStorageViewModel extends BaseViewModel {
                     List<Account> list = SupportAccountManager.getInstance().getAccountList();
                     for (Account account : list) {
 
-                        // /storage/emulated/0/Android/media/com.seafile.seadroid2.debug/Seafile/f4f550ea33e14f82aab7da71be0d13fa@auth.local (cloud.seafile.com)
                         String specialAccountCurrentMediaDir = DataManager.getAccountMediaDir(account);
                         File oldAccountDir = new File(specialAccountCurrentMediaDir);
                         if (!oldAccountDir.exists()) {
@@ -85,7 +83,7 @@ public class SwitchStorageViewModel extends BaseViewModel {
                     }
 
                     //
-                    StorageManager.getInstance().clearCache();
+                    StorageManager.getInstance().clearAllCache();
 
                     String oldPrefix = currentLocation.volume;
                     String newPrefix = newLocation.volume;
@@ -134,7 +132,7 @@ public class SwitchStorageViewModel extends BaseViewModel {
             }
 
             if (!toUpdate.isEmpty()) {
-                AppDatabase.getInstance().fileCacheStatusDAO().updateAll(toUpdate); // 批量更新
+                AppDatabase.getInstance().fileCacheStatusDAO().updateAll(toUpdate); // batch update
             }
 
             offset += pageSize;

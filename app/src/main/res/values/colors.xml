@@ -69,7 +69,7 @@
     <color name="bottom_bar_icon_tint_color">@color/material_grey_599</color>
 
     <!-- bottom sheet popup view -->
-    <color name="bottom_sheet_pop_enable_color">@color/material_grey_599</color>
+    <color name="bottom_sheet_pop_enable_color">@color/material_grey_666</color>
     <color name="bottom_sheet_pop_disable_color">@color/material_grey_300</color>
 
     <!-- toolbar bar color -->

@@ -476,6 +476,7 @@
   <string name="redo">還原</string>
   <string name="link">鏈接</string>
   <!--Folder backup Preference-->
+  <string name="folder_file_item_describe">文件 %s | 文件夹 %s</string>
   <!--action-->
   <!--share link-->
   <!--menu-->

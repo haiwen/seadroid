@@ -304,7 +304,7 @@ public class FolderSelectorFragment extends BaseFragmentWithVM<FolderSelectorVie
     }
 
     private void loadData() {
-        getViewModel().loadData(mCurrentPath);
+        getViewModel().loadLocalFileData(mCurrentPath);
     }
 
     public boolean onBackPressed() {

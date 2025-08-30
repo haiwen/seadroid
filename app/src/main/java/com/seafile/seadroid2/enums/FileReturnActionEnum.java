@@ -6,5 +6,6 @@ public enum FileReturnActionEnum {
     EXPORT,
     SHARE,
     DOWNLOAD_VIDEO,
-    OPEN_TEXT_MIME;
+    OPEN_TEXT_MIME,
+    SAVE_AS;
 }

@@ -574,7 +574,7 @@
   <string name="settings_folder_backup_service_stopped">Zaxiralash servisi to\'xtatilgan</string>
   <string name="settings_select_backup_folder_title">Papkani tanlang</string>
   <string name="folder_file_item_size">Hajm %s</string>
-  <string name="folder_file_item_describe">fayl \%s\ | papka \%s\</string>
+  <string name="folder_file_item_describe">fayl %s | papka %s</string>
   <string name="internal_storage">Ichki ombor</string>
   <string name="selection_file_type">Iltimos zaxira papkasini tanlang</string>
   <string name="select_backup_folder">Zaxira papkasini tanlash</string>

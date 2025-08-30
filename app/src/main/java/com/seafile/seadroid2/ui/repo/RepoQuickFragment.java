@@ -2,21 +2,21 @@ package com.seafile.seadroid2.ui.repo;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.DocumentsContract;
 import android.text.TextUtils;
 import android.util.Pair;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -33,18 +33,17 @@ import androidx.appcompat.view.ActionMode;
 import androidx.appcompat.widget.SearchView;
 import androidx.core.view.MenuHost;
 import androidx.core.view.MenuProvider;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.media3.common.util.Log;
 import androidx.media3.common.util.UnstableApi;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.blankj.utilcode.util.CollectionUtils;
+import com.blankj.utilcode.util.FileIOUtils;
 import com.blankj.utilcode.util.NetworkUtils;
-import com.chad.library.adapter4.BaseQuickAdapter;
 import com.github.panpf.recycler.sticky.StickyItemDecoration;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.common.collect.Maps;
@@ -69,6 +68,7 @@ import com.seafile.seadroid2.enums.OpType;
 import com.seafile.seadroid2.enums.RefreshStatusEnum;
 import com.seafile.seadroid2.enums.SortBy;
 import com.seafile.seadroid2.framework.datastore.DataManager;
+import com.seafile.seadroid2.framework.datastore.StorageManager;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.db.entities.PermissionEntity;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
@@ -78,6 +78,7 @@ import com.seafile.seadroid2.framework.model.ServerInfo;
 import com.seafile.seadroid2.framework.model.dirents.DirentFileModel;
 import com.seafile.seadroid2.framework.model.search.SearchModel;
 import com.seafile.seadroid2.framework.service.BackupThreadExecutor;
+import com.seafile.seadroid2.framework.util.FileUtils;
 import com.seafile.seadroid2.framework.util.Objs;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.TakeCameras;
@@ -88,7 +89,6 @@ import com.seafile.seadroid2.framework.worker.TransferWorker;
 import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.base.fragment.BaseFragmentWithVM;
-import com.seafile.seadroid2.ui.bottomsheetmenu.BottomSheetMenuAdapter;
 import com.seafile.seadroid2.ui.dialog_fragment.BottomSheetNewDirFileDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.BottomSheetNewRepoDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.BottomSheetPasswordDialogFragment;
@@ -103,6 +103,8 @@ import com.seafile.seadroid2.ui.main.MainViewModel;
 import com.seafile.seadroid2.ui.markdown.MarkdownActivity;
 import com.seafile.seadroid2.ui.media.image.CarouselImagePreviewActivity;
 import com.seafile.seadroid2.ui.media.player.CustomExoVideoPlayerActivity;
+import com.seafile.seadroid2.ui.repo.sheetaction.BottomSheetActionView;
+import com.seafile.seadroid2.ui.repo.sheetaction.BottomSheetMenuManager;
 import com.seafile.seadroid2.ui.sdoc.SDocWebViewActivity;
 import com.seafile.seadroid2.ui.selector.ObjSelectorActivity;
 import com.seafile.seadroid2.ui.star.StarredQuickFragment;
@@ -110,6 +112,11 @@ import com.seafile.seadroid2.view.TipsViews;
 import com.seafile.seadroid2.view.ViewSortPopupWindow;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -125,8 +132,6 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     private static final String TAG = "RepoQuickFragment";
 
     private static final String KEY_REPO_SCROLL_POSITION = "repo_scroll_position";
-    private final int PADDING_16 = Constants.DP.DP_16;
-    private final int PADDING_32 = Constants.DP.DP_32;
     private final int PADDING_128 = Constants.DP.DP_128;
 
     private LayoutFastRvBinding binding;
@@ -146,8 +151,10 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     private ActivityResultLauncher<Uri> takePhotoLauncher;
     private ActivityResultLauncher<Uri> takeVideoLauncher;
     private ActivityResultLauncher<Intent> fileActivityLauncher;
+    private ActivityResultLauncher<Intent> saveAsLauncher;
     private ActivityResultLauncher<Intent> imagePreviewActivityLauncher;
     private ActivityResultLauncher<Intent> copyMoveLauncher;
+    private BottomSheetMenuManager bottomSheetMenuManager;
 
 
     public static RepoQuickFragment newInstance() {
@@ -174,6 +181,12 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
         mainViewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
 
+        bottomSheetMenuManager = new BottomSheetMenuManager(requireActivity(), new BottomSheetActionView.OnBottomSheetItemClickListener() {
+            @Override
+            public void onItemClick(MenuItem item) {
+                onBottomSheetItemClick(item);
+            }
+        });
         registerResultLauncher();
     }
 
@@ -256,130 +269,140 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
     public void onCreateMenuHost() {
         MenuHost menuHost = requireActivity();
-        menuHost.addMenuProvider(new MenuProvider() {
-            @Override
-            public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {
-                menuInflater.inflate(R.menu.fragment_browser_menu, menu);
+        menuHost.addMenuProvider(mp, getViewLifecycleOwner(), Lifecycle.State.RESUMED);
+    }
 
-                //search item
-                MenuItem searchMenuItem = menu.findItem(R.id.menu_action_search);
-                Optional<ServerInfo> serverInfoOp = checkServerInfo();
-                if (serverInfoOp.isPresent() && (serverInfoOp.get().isProEdition() || serverInfoOp.get().isSearchEnabled())) {
-                    //search view
-                    final SearchView searchView = new SearchView(requireContext());
-                    searchView.setSubmitButtonEnabled(false);
-                    if (GlobalNavContext.getCurrentNavContext().inRepo()) {
-                        searchView.setQueryHint(getString(R.string.search_in_this_library));
-                    } else {
-                        searchView.setQueryHint(getString(R.string.search_menu_item));
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        MenuHost menuHost = requireActivity();
+        menuHost.removeMenuProvider(mp);
+    }
+
+    private final MenuProvider mp = new MenuProvider() {
+        @Override
+        public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {
+            menuInflater.inflate(R.menu.fragment_browser_menu, menu);
+
+            //search item
+            MenuItem searchMenuItem = menu.findItem(R.id.menu_action_search);
+            Optional<ServerInfo> serverInfoOp = checkServerInfo();
+            if (serverInfoOp.isPresent() && (serverInfoOp.get().isProEdition() || serverInfoOp.get().isSearchEnabled())) {
+                //search view
+                final SearchView searchView = new SearchView(requireContext());
+                searchView.setSubmitButtonEnabled(false);
+                if (GlobalNavContext.getCurrentNavContext().inRepo()) {
+                    searchView.setQueryHint(getString(R.string.search_in_this_library));
+                } else {
+                    searchView.setQueryHint(getString(R.string.search_menu_item));
+                }
+
+                searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                    @Override
+                    public boolean onQueryTextSubmit(String query) {
+                        return false;
                     }
 
-                    searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-                        @Override
-                        public boolean onQueryTextSubmit(String query) {
-                            return false;
-                        }
-
-                        @Override
-                        public boolean onQueryTextChange(String newText) {
-                            searchView.postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    search(newText);
-                                }
-                            }, 500);
-                            return false;
-                        }
-                    });
-
-                    searchMenuItem.collapseActionView();
-                    searchMenuItem.setActionView(searchView);
-                    searchMenuItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
-                        @Override
-                        public boolean onMenuItemActionExpand(@NonNull MenuItem item) {
-
-                            // Save the state of Menu
-                            menuIdState.put("search", menu.findItem(R.id.menu_action_search).isVisible());
-                            menuIdState.put("sortGroup", menu.findItem(R.id.menu_action_sort).isVisible());
-                            menuIdState.put("createRepo", menu.findItem(R.id.create_repo).isVisible());
-                            menuIdState.put("add", menu.findItem(R.id.add).isVisible());
-                            menuIdState.put("select", menu.findItem(R.id.select).isVisible());
-
-                            // hide other menu items
-                            menu.findItem(R.id.menu_action_search).setVisible(false);
-                            menu.findItem(R.id.menu_action_sort).setVisible(false);
-                            menu.findItem(R.id.create_repo).setVisible(false);
-                            menu.findItem(R.id.add).setVisible(false);
-                            menu.findItem(R.id.select).setVisible(false);
-
-                            return true; // Return true to collapse the action view.
-                        }
-
-                        @Override
-                        public boolean onMenuItemActionCollapse(@NonNull MenuItem item) {
-
-                            menu.findItem(R.id.menu_action_search).setVisible(Boolean.TRUE.equals(menuIdState.get("search")));
-                            menu.findItem(R.id.menu_action_sort).setVisible(Boolean.TRUE.equals(menuIdState.get("sortGroup")));
-                            menu.findItem(R.id.create_repo).setVisible(Boolean.TRUE.equals(menuIdState.get("createRepo")));
-                            menu.findItem(R.id.add).setVisible(Boolean.TRUE.equals(menuIdState.get("add")));
-                            menu.findItem(R.id.select).setVisible(Boolean.TRUE.equals(menuIdState.get("select")));
-
-                            menuHost.invalidateMenu();
-                            return true; // Return true to expand the action view.
-                        }
-                    });
-                } else {
-                    searchMenuItem.setVisible(false);
-                }
-
-
-                //sort pop view
-                MenuItem sortMenuItem = menu.findItem(R.id.menu_action_sort);
-                sortMenuItem.setActionView(R.layout.menu_view_sort);
-                sortMenuItem.getActionView().setOnClickListener(v -> {
-                    showCustomMenuView(v);
+                    @Override
+                    public boolean onQueryTextChange(String newText) {
+                        searchView.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                search(newText);
+                            }
+                        }, 500);
+                        return false;
+                    }
                 });
+
+                searchMenuItem.collapseActionView();
+                searchMenuItem.setActionView(searchView);
+                searchMenuItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
+                    @Override
+                    public boolean onMenuItemActionExpand(@NonNull MenuItem item) {
+
+                        // Save the state of Menu
+                        menuIdState.put("search", menu.findItem(R.id.menu_action_search).isVisible());
+                        menuIdState.put("sortGroup", menu.findItem(R.id.menu_action_sort).isVisible());
+                        menuIdState.put("createRepo", menu.findItem(R.id.create_repo).isVisible());
+                        menuIdState.put("add", menu.findItem(R.id.add).isVisible());
+                        menuIdState.put("select", menu.findItem(R.id.select).isVisible());
+
+                        // hide other menu items
+                        menu.findItem(R.id.menu_action_search).setVisible(false);
+                        menu.findItem(R.id.menu_action_sort).setVisible(false);
+                        menu.findItem(R.id.create_repo).setVisible(false);
+                        menu.findItem(R.id.add).setVisible(false);
+                        menu.findItem(R.id.select).setVisible(false);
+
+                        return true; // Return true to collapse the action view.
+                    }
+
+                    @Override
+                    public boolean onMenuItemActionCollapse(@NonNull MenuItem item) {
+
+                        menu.findItem(R.id.menu_action_search).setVisible(Boolean.TRUE.equals(menuIdState.get("search")));
+                        menu.findItem(R.id.menu_action_sort).setVisible(Boolean.TRUE.equals(menuIdState.get("sortGroup")));
+                        menu.findItem(R.id.create_repo).setVisible(Boolean.TRUE.equals(menuIdState.get("createRepo")));
+                        menu.findItem(R.id.add).setVisible(Boolean.TRUE.equals(menuIdState.get("add")));
+                        menu.findItem(R.id.select).setVisible(Boolean.TRUE.equals(menuIdState.get("select")));
+
+//                        requireActivity().invalidateMenu();
+//                        menuHost.invalidateMenu();
+                        return true; // Return true to expand the action view.
+                    }
+                });
+            } else {
+                searchMenuItem.setVisible(false);
             }
 
-            @Override
-            public void onPrepareMenu(@NonNull Menu menu) {
-                MenuProvider.super.onPrepareMenu(menu);
 
-                if (GlobalNavContext.getCurrentNavContext().inRepo()) {
-                    menu.findItem(R.id.create_repo).setVisible(false);
+            //sort pop view
+            MenuItem sortMenuItem = menu.findItem(R.id.menu_action_sort);
+            sortMenuItem.setActionView(R.layout.menu_view_sort);
+            sortMenuItem.getActionView().setOnClickListener(v -> {
+                showCustomMenuView(v);
+            });
+        }
 
-                    checkCurrentPathHasWritePermission(new java.util.function.Consumer<Boolean>() {
-                        @Override
-                        public void accept(Boolean aBoolean) {
-                            menu.findItem(R.id.add).setEnabled(aBoolean);
-                        }
-                    });
-                } else {
-                    menu.findItem(R.id.create_repo).setVisible(true);
-                    menu.findItem(R.id.add).setVisible(false);
-                }
+        @Override
+        public void onPrepareMenu(@NonNull Menu menu) {
+            MenuProvider.super.onPrepareMenu(menu);
+
+            if (GlobalNavContext.getCurrentNavContext().inRepo()) {
+                menu.findItem(R.id.create_repo).setVisible(false);
+
+                checkCurrentPathHasWritePermission(new java.util.function.Consumer<Boolean>() {
+                    @Override
+                    public void accept(Boolean aBoolean) {
+                        menu.findItem(R.id.add).setEnabled(aBoolean);
+                    }
+                });
+            } else {
+                menu.findItem(R.id.create_repo).setVisible(true);
+                menu.findItem(R.id.add).setVisible(false);
             }
+        }
 
-            @Override
-            public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
+        @Override
+        public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
 
-                if (menuItem.getItemId() == R.id.menu_action_search) {
+            if (menuItem.getItemId() == R.id.menu_action_search) {
 
-                } else if (menuItem.getItemId() == R.id.menu_action_sort) {
+            } else if (menuItem.getItemId() == R.id.menu_action_sort) {
 
-                } else if (menuItem.getItemId() == R.id.create_repo) {
-                    showNewRepoDialog();
-                } else if (menuItem.getItemId() == R.id.add) {
-                    showAddFileDialog();
-                } else if (menuItem.getItemId() == R.id.select) {
-                    startOrUpdateContextualActionBar();
-                } else if (menuItem.getItemId() == android.R.id.home) {
-                    backTo();
-                }
-                return true;
+            } else if (menuItem.getItemId() == R.id.create_repo) {
+                showNewRepoDialog();
+            } else if (menuItem.getItemId() == R.id.add) {
+                showAddFileDialog();
+            } else if (menuItem.getItemId() == R.id.select) {
+                startOrUpdateContextualActionBar();
+            } else if (menuItem.getItemId() == android.R.id.home) {
+                backTo();
             }
-        }, getViewLifecycleOwner());
-    }
+            return true;
+        }
+    };
 
     /**
      * @return 0: is pro edition, 1: is search enable
@@ -459,16 +482,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 //update bar title
                 startOrUpdateContextualActionBar();
 
-                List<BaseModel> selectedList = adapter.getSelectedList();
-
-                if (baseModel instanceof RepoModel) {
-                    List<RepoModel> selectedModels = selectedList.stream().map(b -> (RepoModel) b).collect(Collectors.toList());
-                    getViewModel().inflateRepoMenuWithSelected(requireContext(), selectedModels, getDisableMenuIds(), getWillBeRemovedMenuIds());
-                } else if (baseModel instanceof DirentModel) {
-                    List<DirentModel> selectedModels = selectedList.stream().map(b -> (DirentModel) b).collect(Collectors.toList());
-                    getViewModel().inflateDirentMenuWithSelected(requireContext(), selectedModels, getDisableMenuIds(), getWillBeRemovedMenuIds());
-                }
-
+                showBottomSheetWindow();
                 return;
             }
 
@@ -577,13 +591,6 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             }
         });
 
-        getViewModel().getMenuItemListLiveData().observe(getViewLifecycleOwner(), new Observer<List<MenuItem>>() {
-            @Override
-            public void onChanged(List<MenuItem> menuItems) {
-                showBottomSheetWindow(menuItems);
-            }
-        });
-
         mainViewModel.getOnForceRefreshRepoListLiveData().observe(getViewLifecycleOwner(), aBoolean -> {
             loadData(RefreshStatusEnum.ONLY_REMOTE, false);
         });
@@ -657,7 +664,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         } else {
             int p = binding.rv.getPaddingTop();
             if (p != 0) {
-                binding.rv.setPadding(0, 0, 0, PADDING_32);
+                binding.rv.setPadding(0, 0, 0, Constants.DP.DP_32);
                 binding.rv.setClipToPadding(false);
             }
         }
@@ -698,147 +705,13 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         }
     }
 
-    private View floatingView;
-    private BottomSheetMenuAdapter bottomSheetMenuAdapter;
-
-    private List<Integer> getDisableMenuIds() {
-        List<BaseModel> selectedList = adapter.getSelectedList();
-        if (selectedList == null || selectedList.isEmpty()) {
-            return null;
-        }
-
-        if (selectedList.size() == 1) {
-            BaseModel baseModel = selectedList.get(0);
-            if (baseModel instanceof RepoModel m) {
-
-            } else if (baseModel instanceof DirentModel m) {
-                if (m.isDir()) {
-                    return CollectionUtils.newArrayList(R.id.upload);
-                }
-            }
-
-            return null;
-        }
-
-        long selectedRepoModelCount = selectedList.stream().filter(f -> f instanceof RepoModel).count();
-        long selectedFolderCount = selectedList.stream()
-                .filter(f -> f instanceof DirentModel)
-                .map(m -> (DirentModel) m)
-                .filter(p -> p.isDir())
-                .count();
-
-        if (selectedRepoModelCount > 0) {
-            return CollectionUtils.newArrayList(R.id.share, R.id.export, R.id.open, R.id.rename, R.id.upload, R.id.delete);
-        } else if (selectedFolderCount > 0) {
-            return CollectionUtils.newArrayList(R.id.share, R.id.export, R.id.open, R.id.rename, R.id.upload);
-        } else {
-            return CollectionUtils.newArrayList(R.id.share, R.id.export, R.id.open, R.id.rename);
-        }
+    private void showBottomSheetWindow() {
+        List<BaseModel> selected = adapter.getSelectedList();
+        bottomSheetMenuManager.showMenu(selected);
     }
 
-    private List<Integer> getWillBeRemovedMenuIds() {
-        List<BaseModel> selectedList = adapter.getSelectedList();
-
-        if (CollectionUtils.isEmpty(selectedList)) {
-            return CollectionUtils.newArrayList(R.id.unstar);
-        }
-
-        if (selectedList.size() == 1) {
-
-            BaseModel baseModel = selectedList.get(0);
-            if (baseModel instanceof RepoModel m) {
-                return CollectionUtils.newArrayList(m.starred ? R.id.star : R.id.unstar);
-            } else if (baseModel instanceof DirentModel m) {
-                return CollectionUtils.newArrayList(m.starred ? R.id.star : R.id.unstar);
-            }
-
-            //remove all starred menu
-            return CollectionUtils.newArrayList(R.id.star, R.id.unstar);
-        }
-
-        boolean isAllStarred = true;
-        for (BaseModel baseModel : selectedList) {
-            if (baseModel instanceof RepoModel m) {
-                if (m.starred) {
-                    continue;
-                }
-                isAllStarred = false;
-                break;
-            } else if (baseModel instanceof DirentModel m) {
-                if (m.starred) {
-                    continue;
-                }
-                isAllStarred = false;
-                break;
-            }
-        }
-
-        if (isAllStarred) {
-            return CollectionUtils.newArrayList(R.id.star);
-        } else {
-            return CollectionUtils.newArrayList(R.id.unstar);
-        }
-    }
-
-    private void showBottomSheetWindow(List<MenuItem> localMenuItems) {
-        if (CollectionUtils.isEmpty(localMenuItems)) {
-            removeFloatingView();
-            return;
-        }
-
-        if (floatingView != null && floatingView.isAttachedToWindow()) {
-            bottomSheetMenuAdapter.submitList(localMenuItems);
-            return;
-        }
-
-
-        floatingView = getLayoutInflater().inflate(R.layout.layout_bottom_sheet_menu_view, null, false);
-
-        int columnCount = 5;
-        RecyclerView rv = floatingView.findViewById(R.id.rv);
-        rv.setLayoutManager(new GridLayoutManager(requireContext(), columnCount));
-
-        bottomSheetMenuAdapter = new BottomSheetMenuAdapter(columnCount);
-        bottomSheetMenuAdapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener<MenuItem>() {
-            @Override
-            public void onClick(@NonNull BaseQuickAdapter<MenuItem, ?> baseQuickAdapter, @NonNull View view, int i) {
-                MenuItem item = bottomSheetMenuAdapter.getItem(i);
-                if (item == null) {
-                    return;
-                }
-                if (!item.isEnabled()) {
-                    return;
-                }
-
-                onBottomSheetItemClick(item);
-            }
-        });
-
-        bottomSheetMenuAdapter.submitList(localMenuItems);
-        rv.setAdapter(bottomSheetMenuAdapter);
-
-        FrameLayout.LayoutParams p = new FrameLayout.LayoutParams(-1, -2);
-        p.gravity = Gravity.BOTTOM;
-
-        floatingView.setLayoutParams(p);
-
-        applyEdgeToEdge(floatingView);
-
-        View decorView = requireActivity().getWindow().getDecorView();
-        FrameLayout content = decorView.findViewById(android.R.id.content);
-        content.addView(floatingView);
-    }
-
-    private void applyEdgeToEdge(View view) {
-
-        ViewCompat.setOnApplyWindowInsetsListener(view, (v, insets) -> {
-            int bottomInset = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom;
-            FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) view.getLayoutParams();
-            lp.bottomMargin = bottomInset;
-            v.setLayoutParams(lp);
-
-            return insets;
-        });
+    private void removeFloatingView() {
+        bottomSheetMenuManager.dismiss();
     }
 
     private void onBottomSheetItemClick(MenuItem item) {
@@ -856,11 +729,22 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             rename(selectedList);
         } else if (item.getItemId() == R.id.move) {
             RepoModel repoModel = GlobalNavContext.getCurrentNavContext().getRepoModel();
+            if (repoModel == null) {
+                Toasts.show(R.string.op_unable_to_with_exception);
+                closeActionMode();
+                return;
+            }
             String parent_dir = GlobalNavContext.getCurrentNavContext().getNavPath();
 
             move(repoModel.repo_id, repoModel.repo_name, parent_dir, selectedList);
         } else if (item.getItemId() == R.id.copy) {
             RepoModel repoModel = GlobalNavContext.getCurrentNavContext().getRepoModel();
+            if (repoModel == null) {
+                Toasts.show(R.string.op_unable_to_with_exception);
+                closeActionMode();
+                return;
+            }
+
             String parent_dir = GlobalNavContext.getCurrentNavContext().getNavPath();
 
             copy(repoModel.repo_id, repoModel.repo_name, parent_dir, selectedList);
@@ -878,8 +762,10 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             showShareDialog(selectedList);
         } else if (item.getItemId() == R.id.export) {
             exportFile(selectedList);
-        } else if (item.getItemId() == R.id.open) {
+        } else if (item.getItemId() == R.id.open_with) {
             openWith(selectedList);
+        } else if (item.getItemId() == R.id.save_as) {
+            onSaveAs(selectedList);
         }
     }
 
@@ -900,25 +786,10 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 adapter.setOnActionMode(true);
             }
 
-            //
-            List<BaseModel> selectedList = adapter.getSelectedList();
-
-            if (!GlobalNavContext.getCurrentNavContext().inRepo()) {
-                List<RepoModel> selectedModels = selectedList.stream().map(b -> (RepoModel) b).collect(Collectors.toList());
-                getViewModel().inflateRepoMenuWithSelected(requireContext(), selectedModels, getDisableMenuIds(), getWillBeRemovedMenuIds());
-            } else {
-                List<DirentModel> direntModels = selectedList.stream().map(baseModel -> (DirentModel) baseModel).collect(Collectors.toList());
-                getViewModel().inflateDirentMenuWithSelected(requireContext(), direntModels, getDisableMenuIds(), getWillBeRemovedMenuIds());
-            }
-
+            showBottomSheetWindow();
         } else if (actionModeType == ActionModeCallbackType.SELECT_NONE) {
-
             //
-            if (!GlobalNavContext.getCurrentNavContext().inRepo()) {
-                getViewModel().inflateRepoMenu(requireContext());
-            } else {
-                getViewModel().inflateDirentMenu(requireContext());
-            }
+            showBottomSheetWindow();
         } else if (actionModeType == ActionModeCallbackType.DESTROY) {
             removeFloatingView();
             closeActionMode();
@@ -928,23 +799,6 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         }
     }
 
-    private void removeFloatingView() {
-        if (floatingView == null) {
-            return;
-        }
-
-        if (!floatingView.isAttachedToWindow()) {
-            floatingView = null;
-            return;
-        }
-
-        View decorView = requireActivity().getWindow().getDecorView();
-        FrameLayout content = decorView.findViewById(android.R.id.content);
-        content.removeView(floatingView);
-
-        floatingView = null;
-        bottomSheetMenuAdapter = null;
-    }
 
     private FileViewType lastViewType;
 
@@ -1098,7 +952,13 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             binding.stickyContainer.setVisibility(View.GONE);
 
             if (GlobalNavContext.getCurrentNavContext().inRepo()) {
-                String repo_id = GlobalNavContext.getCurrentNavContext().getRepoModel().repo_id;
+                RepoModel repoModel = GlobalNavContext.getCurrentNavContext().getRepoModel();
+                if (repoModel == null) {
+                    Toasts.show(R.string.op_unable_to_with_exception);
+                    return;
+                }
+
+                String repo_id = repoModel.repo_id;
                 getViewModel().searchNext(repo_id, keyword, 1, 20);
             } else {
                 getViewModel().searchNext(null, keyword, 1, 20);
@@ -1132,7 +992,11 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
     private void showErrorView(SeafException seafException) {
         int strInt = !GlobalNavContext.getCurrentNavContext().inRepo() ? R.string.error_when_load_repos : R.string.error_when_load_dirents;
-        showErrorView(strInt);
+
+        String msg = getString(strInt);
+        msg += "\n";
+        msg += seafException.getMessage();
+        showErrorView(msg);
     }
 
     private void showErrorView(int textRes) {
@@ -1525,16 +1389,94 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         return DataManager.getLocalFileCachePath(account, repoId, repoName, fullPathInRepo);
     }
 
+    private void onSaveAs(List<BaseModel> direntModels) {
+        if (CollectionUtils.isEmpty(direntModels)) {
+            return;
+        }
+
+        closeActionMode();
+
+        DirentModel dirent = (DirentModel) direntModels.get(0);
+        if (dirent.isDir()) {
+            Toasts.show(R.string.not_supported);
+            return;
+        }
+
+        File local = getLocalDestinationFile(dirent.repo_id, dirent.repo_name, dirent.full_path);
+        if (TextUtils.equals(dirent.id, dirent.local_file_id) && local.exists()) {
+            saveAsFor(local);
+        } else {
+            Intent intent = FileActivity.start(requireActivity(), dirent, FileReturnActionEnum.SAVE_AS);
+            fileActivityLauncher.launch(intent);
+        }
+    }
+
+    private void saveAsFor(File destinationFile) {
+        String mime = Utils.getFileMimeType(destinationFile);
+
+        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType(mime);
+        intent.putExtra(Intent.EXTRA_TITLE, destinationFile.getName());
+        intent.putExtra(DocumentsContract.EXTRA_EXCLUDE_SELF, true);
+
+        //temp
+        saveAsLauncherSourcePath = destinationFile;
+        //launch
+        saveAsLauncher.launch(intent);
+    }
+
+    private File saveAsLauncherSourcePath;
+
+    private void saveAsTo(Uri destinationUri) {
+        if (saveAsLauncherSourcePath == null || !saveAsLauncherSourcePath.exists()) {
+            return;
+        }
+
+        showLoadingDialog();
+        SLogs.e(TAG, "saveAsTo", "start copy");
+
+        ContentResolver resolver = requireContext().getContentResolver();
+        try (InputStream inputStream = new FileInputStream(saveAsLauncherSourcePath);
+             OutputStream outputStream = resolver.openOutputStream(destinationUri)) {
+
+            if (outputStream == null) {
+                Toasts.show(R.string.failed);
+                return;
+            }
+
+            byte[] buffer = new byte[8192]; // 8KB buffer
+            int length;
+            while ((length = inputStream.read(buffer)) > 0) {
+                outputStream.write(buffer, 0, length);
+            }
+            outputStream.flush(); // Ensure all data is written
+            Toasts.show(R.string.complete);
+        } catch (FileNotFoundException e) {
+            SLogs.e(TAG, "saveAsTo", "FileNotFoundException:" + e.getLocalizedMessage());
+        } catch (IOException e) {
+            SLogs.e(TAG, "saveAsTo", "IOException:" + e.getLocalizedMessage());
+        } finally {
+            SLogs.e(TAG, "saveAsTo", "end copy");
+            dismissLoadingDialog();
+        }
+    }
+
     private void open(RepoModel repoModel, DirentModel dirent) {
         open(repoModel, dirent, null);
     }
 
     @OptIn(markerClass = UnstableApi.class)
     private void open(RepoModel repoModel, DirentModel dirent, Bundle extras) {
+        if (repoModel == null) {
+            Toasts.show(R.string.op_unable_to_with_exception);
+            return;
+        }
+
         String fileName = dirent.name;
         String filePath = dirent.full_path;
 
-        if (Utils.isViewableImage(fileName) && repoModel != null) {
+        if (Utils.isViewableImage(fileName)) {
             boolean load_other_images_in_same_directory = true;
             if (extras != null) {
                 load_other_images_in_same_directory = extras.getBoolean("load_other_images_in_same_directory");
@@ -1859,7 +1801,22 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             }
         });
 
+        saveAsLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+            @Override
+            public void onActivityResult(ActivityResult result) {
 
+
+                if (result.getResultCode() != Activity.RESULT_OK || result.getData() == null) {
+                    return;
+                }
+                Uri uri = result.getData().getData();
+                if (uri == null) {
+                    return;
+                }
+
+                saveAsTo(uri);
+            }
+        });
         fileActivityLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
             @Override
             public void onActivityResult(ActivityResult o) {
@@ -1905,6 +1862,9 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 } else if (TextUtils.equals(FileReturnActionEnum.OPEN_TEXT_MIME.name(), action)) {
 
                     MarkdownActivity.start(requireContext(), localFullPath, repoId, targetFile);
+                } else if (TextUtils.equals(FileReturnActionEnum.SAVE_AS.name(), action)) {
+
+                    saveAsFor(destinationFile);
                 }
             }
         });
@@ -2253,6 +2213,12 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         showLoadingDialog();
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
         RepoModel repoModel = GlobalNavContext.getCurrentNavContext().getRepoModel();
+
+        if (repoModel == null) {
+            Toasts.show(R.string.op_unable_to_with_exception);
+            return;
+        }
+
         String parent_dir = GlobalNavContext.getCurrentNavContext().getNavPath();
         mainViewModel.multipleCheckRemoteDirent(requireContext(), account, repoModel.repo_id, repoModel.repo_name, parent_dir, uriList, new java.util.function.Consumer<Boolean>() {
             @Override
@@ -2295,6 +2261,12 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         String destinationPath = Utils.pathJoin(parent_dir, fileName);
 
         RepoModel repoModel = GlobalNavContext.getCurrentNavContext().getRepoModel();
+
+        if (repoModel == null) {
+            Toasts.show(R.string.op_unable_to_with_exception);
+            return;
+        }
+
         mainViewModel.checkRemoteDirent(repoModel.repo_id, destinationPath, new java.util.function.Consumer<DirentFileModel>() {
             @Override
             public void accept(DirentFileModel direntFileModel) {
@@ -2350,6 +2322,12 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
     // task
     private void addUploadTask(RepoModel repoModel, String targetDir, String localFile) {
+
+        if (repoModel == null) {
+            Toasts.show(R.string.op_unable_to_with_exception);
+            return;
+        }
+
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
         mainViewModel.addUploadTask(requireContext(), account, repoModel, localFile, targetDir, false);
 

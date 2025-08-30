@@ -96,6 +96,10 @@ public class ExceptionUtils {
             return new SeafException(SeafException.PERMISSION_EXCEPTION.getCode(), "May be missing permission");
         }
 
+//        if (throwable instanceof java.security.cert.CertificateException){
+//            return new SeafException(SeafException.NETWORK_SSL_EXCEPTION.getCode(), "It's a certificate exception");
+//        }
+
         // This issue is common if the server is built on Cloudflare/Nginx/gRPC
         if (throwable instanceof StreamResetException streamResetException) {
             SLogs.e(streamResetException);

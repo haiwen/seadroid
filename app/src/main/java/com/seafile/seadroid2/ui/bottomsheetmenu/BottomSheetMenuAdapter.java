@@ -13,16 +13,26 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
+import com.blankj.utilcode.util.ScreenUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.ui.base.adapter.BaseAdapter;
 import com.seafile.seadroid2.ui.base.viewholder.BaseViewHolder;
 
 public class BottomSheetMenuAdapter extends BaseAdapter<MenuItem, BottomSheetMenuAdapter.BottomSheetViewHolder> {
     private final int columnCount;
+    private final int screenWidth = ScreenUtils.getAppScreenWidth();
+    private boolean isHorizontal = false;
+
+    public BottomSheetMenuAdapter(int columnCount, boolean isHorizontal) {
+        this.columnCount = columnCount;
+        this.isHorizontal = isHorizontal;
+    }
 
     public BottomSheetMenuAdapter(int columnCount) {
         this.columnCount = columnCount;
+        this.isHorizontal = false;
     }
+
 
     @Override
     protected void onBindViewHolder(@NonNull BottomSheetMenuAdapter.BottomSheetViewHolder holder, int i, @Nullable MenuItem menuItem) {
@@ -43,6 +53,7 @@ public class BottomSheetMenuAdapter extends BaseAdapter<MenuItem, BottomSheetMen
             color = ContextCompat.getColor(getContext(), R.color.bottom_sheet_pop_disable_color);
         }
         holder.icon.setImageTintList(ColorStateList.valueOf(color));
+        holder.name.setTextColor(color);
 
     }
 
@@ -51,6 +62,9 @@ public class BottomSheetMenuAdapter extends BaseAdapter<MenuItem, BottomSheetMen
     protected BottomSheetMenuAdapter.BottomSheetViewHolder onCreateViewHolder(@NonNull Context context, @NonNull ViewGroup viewGroup, int i) {
         int layoutId = columnCount == 1 ? R.layout.bottom_sheet_item_list : R.layout.bottom_sheet_item_grid;
         View view = LayoutInflater.from(getContext()).inflate(layoutId, viewGroup, false);
+        if (isHorizontal && columnCount > 1) {
+            view.getLayoutParams().width = screenWidth / columnCount;
+        }
         return new BottomSheetMenuAdapter.BottomSheetViewHolder(view);
     }
 

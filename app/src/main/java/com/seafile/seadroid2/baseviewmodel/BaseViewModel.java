@@ -1,8 +1,11 @@
-package com.seafile.seadroid2.ui.base.viewmodel;
+package com.seafile.seadroid2.baseviewmodel;
 
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleEventObserver;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
@@ -23,6 +26,7 @@ import javax.net.ssl.SSLHandshakeException;
 
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
+import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
@@ -36,6 +40,7 @@ import okhttp3.RequestBody;
 import retrofit2.HttpException;
 
 public class BaseViewModel extends ViewModel {
+    private final CompositeDisposable compositeDisposable = new CompositeDisposable();
     private final MutableLiveData<Boolean> _refreshLiveData = new MutableLiveData<>(false);
     private final MutableLiveData<Boolean> _secondRefreshLiveData = new MutableLiveData<>(false);
 
@@ -70,8 +75,6 @@ public class BaseViewModel extends ViewModel {
     public void closeRefresh() {
         getRefreshLiveData().setValue(false);
     }
-
-    private final CompositeDisposable compositeDisposable = new CompositeDisposable();
 
     public void completeRemoteWipe() {
         Single<Object> single = HttpIO.getCurrentInstance().execute(AccountService.class).deviceWiped();
@@ -176,18 +179,11 @@ public class BaseViewModel extends ViewModel {
     }
 
     /// /////////////// completable ///////////////////
-    public <T> void addCompletableDisposable(Completable completable, Action action) {
+    public void addCompletableDisposable(Completable completable, Action action) {
         compositeDisposable.add(completable
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(action, defaultThrowable));
-    }
-
-    public <T> void addCompletableDisposable(Completable completable, Action action, Consumer<Throwable> throwable1) {
-        compositeDisposable.add(completable
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(action, throwable1));
     }
 
     private void checkException(Throwable throwable) {

@@ -16,9 +16,14 @@ import com.seafile.seadroid2.framework.monitor.ActivityMonitor;
 import com.seafile.seadroid2.framework.notification.base.NotificationUtils;
 import com.seafile.seadroid2.framework.util.CrashHandler;
 import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.util.SafeLogs;
 import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.provider.DocumentCache;
 import com.seafile.seadroid2.ui.camera_upload.AlbumBackupAdapterBridge;
+
+import io.reactivex.exceptions.UndeliverableException;
+import io.reactivex.functions.Consumer;
+import io.reactivex.plugins.RxJavaPlugins;
 
 
 public class SeadroidApplication extends Application {
@@ -60,6 +65,15 @@ public class SeadroidApplication extends Application {
 
         //This feature can be extended
         registerActivityLifecycleCallbacks(new ActivityMonitor());
+
+        RxJavaPlugins.setErrorHandler(new Consumer<Throwable>() {
+            @Override
+            public void accept(Throwable throwable) throws Exception {
+                if (throwable instanceof UndeliverableException e) {
+                    SafeLogs.e(e);
+                }
+            }
+        });
     }
 
     @Override

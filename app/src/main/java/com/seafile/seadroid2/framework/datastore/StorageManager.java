@@ -88,7 +88,7 @@ public abstract class StorageManager implements MediaScannerConnection.OnScanCom
         return instance;
     }
 
-    public void resetInstance() {
+    public static void resetInstance() {
         instance = new StorageManagerLollipop();
     }
 
@@ -326,7 +326,7 @@ public abstract class StorageManager implements MediaScannerConnection.OnScanCom
             }
 
             // remove everything in the old cache directories (thumbnails, etc).
-            clearCache();
+            clearAllCache();
         }
 
         SLogs.d(DEBUG_TAG, "Setting storage directory to " + newMediaDir);
@@ -528,7 +528,19 @@ public abstract class StorageManager implements MediaScannerConnection.OnScanCom
      * Deletes full cache
      * remember to clear cache from database after called this method
      */
-    public final void clearCache() {
+    public final void clearMedia() {
+        Collection<File> fileList = FileUtils.listFiles(getMediaDir(), null, true);
+
+        FileUtils.deleteQuietly(getMediaDir());
+
+        notifyAndroidGalleryDirectoryChange(fileList);
+    }
+
+    /**
+     * Deletes full cache
+     * remember to clear cache from database after called this method
+     */
+    public final void clearAllCache() {
         Collection<File> fileList = FileUtils.listFiles(getMediaDir(), null, true);
 
         FileUtils.deleteQuietly(getMediaDir());

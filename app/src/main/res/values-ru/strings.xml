@@ -94,6 +94,7 @@
   <string name="file_action_share_encrypt">Общедоступная ссылка с паролем</string>
   <string name="file_action_export">Экспорт</string>
   <string name="file_action_open">Открыть с помощью</string>
+  <string name="file_action_save_as">Сохранить как</string>
   <string name="file_action_delete">Удалить</string>
   <string name="file_action_rename">Переименовать</string>
   <string name="file_action_copy">Копировать</string>
@@ -128,6 +129,10 @@
   <string name="dir_name_empty">Пожалуйста, введите имя папки</string>
   <string name="file_name_empty">Пожалуйста, введите имя файла</string>
   <string name="password_empty">Пожалуйста, введите пароль</string>
+  <string name="name_contains_slash">Имя не может содержать косую черту</string>
+  <string name="name_contains_backtick">Имя не может содержать обратную кавычку</string>
+  <string name="name_contains_backslash">Имя не может содержать обратную косую черту</string>
+  <string name="name_cannot_be_double_dots">Имя не может быть двойными точками</string>
   <string name="wrong_password">неправильный пароль</string>
   <string name="library_read_only">Эта библиотека только для чтения</string>
   <string name="error_when_load_dirents">Ошибка загрузки папки.\n Нажмите, чтобы обновить</string>
@@ -618,7 +623,7 @@
   <string name="settings_sync_hidden_files_disabled">Скрытые файлы не синхронизируются</string>
   <string name="settings_sync_hidden_files_enabled">Скрытые файлы синхронизируются</string>
   <string name="folder_file_item_size">Размер %s</string>
-  <string name="folder_file_item_describe">файл \%s\ | папка \%s\</string>
+  <string name="folder_file_item_describe">файл %s | папка %s</string>
   <string name="internal_storage">Внутреннее хранилище</string>
   <string name="selection_file_type">Выберите папку для резервного копирования</string>
   <string name="select_backup_folder">Выбрать папку для резервного копирования</string>
@@ -714,7 +719,9 @@
   <string name="skip">Пропустить</string>
   <string name="previous">Предыдущий</string>
   <string name="complete">Завершено</string>
+  <string name="backing_up">Резервное копирование</string>
   <string name="backup_completed">Резервное копирование завершено</string>
+  <string name="backup_failed">Резервное копирование не удалось</string>
   <string name="export_log_file_not_exists">Файл журнала недоступен для экспорта.</string>
   <string name="file_transfer_stopped">Передача файла была остановлена</string>
 </resources>

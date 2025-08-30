@@ -13,7 +13,6 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.graphics.Insets;
@@ -25,27 +24,15 @@ import com.blankj.utilcode.util.KeyboardUtils;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.button.MaterialButton;
-import com.google.android.material.textfield.TextInputLayout;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.framework.util.SLogs;
-import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
+import com.seafile.seadroid2.baseviewmodel.BaseViewModel;
 import com.seafile.seadroid2.ui.dialog_fragment.listener.OnRefreshDataListener;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-import io.reactivex.Observable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Function;
 
 public abstract class RequestBottomSheetDialogFragmentWithVM<VM extends BaseViewModel> extends BaseBottomSheetDialogFragmentWithVM<VM> {
     // Use this instance of the interface to deliver action events
     private OnRefreshDataListener mListener;
-
-    public OnRefreshDataListener getRefreshListener() {
-        return mListener;
-    }
 
     public void setRefreshListener(OnRefreshDataListener mListener) {
         this.mListener = mListener;

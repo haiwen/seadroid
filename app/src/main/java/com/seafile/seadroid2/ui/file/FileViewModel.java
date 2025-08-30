@@ -18,7 +18,7 @@ import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Utils;
-import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
+import com.seafile.seadroid2.baseviewmodel.BaseViewModel;
 
 import org.reactivestreams.Publisher;
 
@@ -117,6 +117,10 @@ public class FileViewModel extends BaseViewModel {
         return Flowable.create(new FlowableOnSubscribe<Long[]>() {
             @Override
             public void subscribe(FlowableEmitter<Long[]> emitter) throws Exception {
+                if (emitter == null || emitter.isCancelled()){
+                    return;
+                }
+
                 OkHttpClient client = HttpIO.getCurrentInstance().getSafeClient().getOkClient();
 
                 try (OutputStream outputStream = Files.newOutputStream(destinationFile.toPath())) {
@@ -146,7 +150,7 @@ public class FileViewModel extends BaseViewModel {
         }, BackpressureStrategy.BUFFER);
     }
 
-    public void saveToDb(Account account, DirentModel direntModel, File destinationFile, Consumer<Boolean> consumer) {
+    public void saveIntoDb(Account account, DirentModel direntModel, File destinationFile, Consumer<Boolean> consumer) {
         Single<Boolean> single = Single.create(new SingleOnSubscribe<Boolean>() {
             @Override
             public void subscribe(SingleEmitter<Boolean> emitter) throws Exception {

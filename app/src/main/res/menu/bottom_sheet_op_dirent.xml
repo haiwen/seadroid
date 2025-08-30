@@ -21,11 +21,6 @@
         android:title="@string/file_action_export" />
 
     <item
-        android:id="@id/open"
-        android:icon="@drawable/action_open"
-        android:title="@string/file_action_open" />
-
-    <item
         android:id="@id/rename"
         android:icon="@drawable/action_rename"
         android:title="@string/file_action_rename" />
@@ -54,4 +49,14 @@
         android:id="@id/download"
         android:icon="@drawable/ic_download"
         android:title="@string/file_action_download" />
+
+    <item
+        android:id="@id/open_with"
+        android:icon="@drawable/action_open"
+        android:title="@string/file_action_open" />
+
+    <item
+        android:id="@id/save_as"
+        android:icon="@drawable/baseline_save_as_24"
+        android:title="@string/file_action_save_as" />
 </menu>

@@ -5,7 +5,7 @@ import androidx.lifecycle.MutableLiveData;
 import com.blankj.utilcode.util.FileIOUtils;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.framework.file_monitor.FileSyncService;
-import com.seafile.seadroid2.ui.base.viewmodel.BaseViewModel;
+import com.seafile.seadroid2.baseviewmodel.BaseViewModel;
 
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
