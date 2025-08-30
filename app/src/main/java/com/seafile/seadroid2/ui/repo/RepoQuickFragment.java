@@ -269,130 +269,140 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
     public void onCreateMenuHost() {
         MenuHost menuHost = requireActivity();
-        menuHost.addMenuProvider(new MenuProvider() {
-            @Override
-            public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {
-                menuInflater.inflate(R.menu.fragment_browser_menu, menu);
+        menuHost.addMenuProvider(mp, getViewLifecycleOwner(), Lifecycle.State.RESUMED);
+    }
 
-                //search item
-                MenuItem searchMenuItem = menu.findItem(R.id.menu_action_search);
-                Optional<ServerInfo> serverInfoOp = checkServerInfo();
-                if (serverInfoOp.isPresent() && (serverInfoOp.get().isProEdition() || serverInfoOp.get().isSearchEnabled())) {
-                    //search view
-                    final SearchView searchView = new SearchView(requireContext());
-                    searchView.setSubmitButtonEnabled(false);
-                    if (GlobalNavContext.getCurrentNavContext().inRepo()) {
-                        searchView.setQueryHint(getString(R.string.search_in_this_library));
-                    } else {
-                        searchView.setQueryHint(getString(R.string.search_menu_item));
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        MenuHost menuHost = requireActivity();
+        menuHost.removeMenuProvider(mp);
+    }
+
+    private final MenuProvider mp = new MenuProvider() {
+        @Override
+        public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {
+            menuInflater.inflate(R.menu.fragment_browser_menu, menu);
+
+            //search item
+            MenuItem searchMenuItem = menu.findItem(R.id.menu_action_search);
+            Optional<ServerInfo> serverInfoOp = checkServerInfo();
+            if (serverInfoOp.isPresent() && (serverInfoOp.get().isProEdition() || serverInfoOp.get().isSearchEnabled())) {
+                //search view
+                final SearchView searchView = new SearchView(requireContext());
+                searchView.setSubmitButtonEnabled(false);
+                if (GlobalNavContext.getCurrentNavContext().inRepo()) {
+                    searchView.setQueryHint(getString(R.string.search_in_this_library));
+                } else {
+                    searchView.setQueryHint(getString(R.string.search_menu_item));
+                }
+
+                searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                    @Override
+                    public boolean onQueryTextSubmit(String query) {
+                        return false;
                     }
 
-                    searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-                        @Override
-                        public boolean onQueryTextSubmit(String query) {
-                            return false;
-                        }
-
-                        @Override
-                        public boolean onQueryTextChange(String newText) {
-                            searchView.postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    search(newText);
-                                }
-                            }, 500);
-                            return false;
-                        }
-                    });
-
-                    searchMenuItem.collapseActionView();
-                    searchMenuItem.setActionView(searchView);
-                    searchMenuItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
-                        @Override
-                        public boolean onMenuItemActionExpand(@NonNull MenuItem item) {
-
-                            // Save the state of Menu
-                            menuIdState.put("search", menu.findItem(R.id.menu_action_search).isVisible());
-                            menuIdState.put("sortGroup", menu.findItem(R.id.menu_action_sort).isVisible());
-                            menuIdState.put("createRepo", menu.findItem(R.id.create_repo).isVisible());
-                            menuIdState.put("add", menu.findItem(R.id.add).isVisible());
-                            menuIdState.put("select", menu.findItem(R.id.select).isVisible());
-
-                            // hide other menu items
-                            menu.findItem(R.id.menu_action_search).setVisible(false);
-                            menu.findItem(R.id.menu_action_sort).setVisible(false);
-                            menu.findItem(R.id.create_repo).setVisible(false);
-                            menu.findItem(R.id.add).setVisible(false);
-                            menu.findItem(R.id.select).setVisible(false);
-
-                            return true; // Return true to collapse the action view.
-                        }
-
-                        @Override
-                        public boolean onMenuItemActionCollapse(@NonNull MenuItem item) {
-
-                            menu.findItem(R.id.menu_action_search).setVisible(Boolean.TRUE.equals(menuIdState.get("search")));
-                            menu.findItem(R.id.menu_action_sort).setVisible(Boolean.TRUE.equals(menuIdState.get("sortGroup")));
-                            menu.findItem(R.id.create_repo).setVisible(Boolean.TRUE.equals(menuIdState.get("createRepo")));
-                            menu.findItem(R.id.add).setVisible(Boolean.TRUE.equals(menuIdState.get("add")));
-                            menu.findItem(R.id.select).setVisible(Boolean.TRUE.equals(menuIdState.get("select")));
-
-                            menuHost.invalidateMenu();
-                            return true; // Return true to expand the action view.
-                        }
-                    });
-                } else {
-                    searchMenuItem.setVisible(false);
-                }
-
-
-                //sort pop view
-                MenuItem sortMenuItem = menu.findItem(R.id.menu_action_sort);
-                sortMenuItem.setActionView(R.layout.menu_view_sort);
-                sortMenuItem.getActionView().setOnClickListener(v -> {
-                    showCustomMenuView(v);
+                    @Override
+                    public boolean onQueryTextChange(String newText) {
+                        searchView.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                search(newText);
+                            }
+                        }, 500);
+                        return false;
+                    }
                 });
+
+                searchMenuItem.collapseActionView();
+                searchMenuItem.setActionView(searchView);
+                searchMenuItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
+                    @Override
+                    public boolean onMenuItemActionExpand(@NonNull MenuItem item) {
+
+                        // Save the state of Menu
+                        menuIdState.put("search", menu.findItem(R.id.menu_action_search).isVisible());
+                        menuIdState.put("sortGroup", menu.findItem(R.id.menu_action_sort).isVisible());
+                        menuIdState.put("createRepo", menu.findItem(R.id.create_repo).isVisible());
+                        menuIdState.put("add", menu.findItem(R.id.add).isVisible());
+                        menuIdState.put("select", menu.findItem(R.id.select).isVisible());
+
+                        // hide other menu items
+                        menu.findItem(R.id.menu_action_search).setVisible(false);
+                        menu.findItem(R.id.menu_action_sort).setVisible(false);
+                        menu.findItem(R.id.create_repo).setVisible(false);
+                        menu.findItem(R.id.add).setVisible(false);
+                        menu.findItem(R.id.select).setVisible(false);
+
+                        return true; // Return true to collapse the action view.
+                    }
+
+                    @Override
+                    public boolean onMenuItemActionCollapse(@NonNull MenuItem item) {
+
+                        menu.findItem(R.id.menu_action_search).setVisible(Boolean.TRUE.equals(menuIdState.get("search")));
+                        menu.findItem(R.id.menu_action_sort).setVisible(Boolean.TRUE.equals(menuIdState.get("sortGroup")));
+                        menu.findItem(R.id.create_repo).setVisible(Boolean.TRUE.equals(menuIdState.get("createRepo")));
+                        menu.findItem(R.id.add).setVisible(Boolean.TRUE.equals(menuIdState.get("add")));
+                        menu.findItem(R.id.select).setVisible(Boolean.TRUE.equals(menuIdState.get("select")));
+
+//                        requireActivity().invalidateMenu();
+//                        menuHost.invalidateMenu();
+                        return true; // Return true to expand the action view.
+                    }
+                });
+            } else {
+                searchMenuItem.setVisible(false);
             }
 
-            @Override
-            public void onPrepareMenu(@NonNull Menu menu) {
-                MenuProvider.super.onPrepareMenu(menu);
 
-                if (GlobalNavContext.getCurrentNavContext().inRepo()) {
-                    menu.findItem(R.id.create_repo).setVisible(false);
+            //sort pop view
+            MenuItem sortMenuItem = menu.findItem(R.id.menu_action_sort);
+            sortMenuItem.setActionView(R.layout.menu_view_sort);
+            sortMenuItem.getActionView().setOnClickListener(v -> {
+                showCustomMenuView(v);
+            });
+        }
 
-                    checkCurrentPathHasWritePermission(new java.util.function.Consumer<Boolean>() {
-                        @Override
-                        public void accept(Boolean aBoolean) {
-                            menu.findItem(R.id.add).setEnabled(aBoolean);
-                        }
-                    });
-                } else {
-                    menu.findItem(R.id.create_repo).setVisible(true);
-                    menu.findItem(R.id.add).setVisible(false);
-                }
+        @Override
+        public void onPrepareMenu(@NonNull Menu menu) {
+            MenuProvider.super.onPrepareMenu(menu);
+
+            if (GlobalNavContext.getCurrentNavContext().inRepo()) {
+                menu.findItem(R.id.create_repo).setVisible(false);
+
+                checkCurrentPathHasWritePermission(new java.util.function.Consumer<Boolean>() {
+                    @Override
+                    public void accept(Boolean aBoolean) {
+                        menu.findItem(R.id.add).setEnabled(aBoolean);
+                    }
+                });
+            } else {
+                menu.findItem(R.id.create_repo).setVisible(true);
+                menu.findItem(R.id.add).setVisible(false);
             }
+        }
 
-            @Override
-            public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
+        @Override
+        public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
 
-                if (menuItem.getItemId() == R.id.menu_action_search) {
+            if (menuItem.getItemId() == R.id.menu_action_search) {
 
-                } else if (menuItem.getItemId() == R.id.menu_action_sort) {
+            } else if (menuItem.getItemId() == R.id.menu_action_sort) {
 
-                } else if (menuItem.getItemId() == R.id.create_repo) {
-                    showNewRepoDialog();
-                } else if (menuItem.getItemId() == R.id.add) {
-                    showAddFileDialog();
-                } else if (menuItem.getItemId() == R.id.select) {
-                    startOrUpdateContextualActionBar();
-                } else if (menuItem.getItemId() == android.R.id.home) {
-                    backTo();
-                }
-                return true;
+            } else if (menuItem.getItemId() == R.id.create_repo) {
+                showNewRepoDialog();
+            } else if (menuItem.getItemId() == R.id.add) {
+                showAddFileDialog();
+            } else if (menuItem.getItemId() == R.id.select) {
+                startOrUpdateContextualActionBar();
+            } else if (menuItem.getItemId() == android.R.id.home) {
+                backTo();
             }
-        }, getViewLifecycleOwner(), Lifecycle.State.STARTED);
-    }
+            return true;
+        }
+    };
 
     /**
      * @return 0: is pro edition, 1: is search enable
