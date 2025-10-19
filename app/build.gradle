@@ -3,10 +3,14 @@ plugins {
     id 'com.google.gms.google-services'
     id 'com.google.firebase.crashlytics'
     id 'org.jetbrains.kotlin.android'
+    id 'org.jetbrains.kotlin.kapt'
 }
 
 android {
     namespace 'com.seafile.seadroid2'
+
+    def releaseKeyPropsFile = project.file("key.properties")
+    def hasReleaseKeystore = releaseKeyPropsFile.exists()
 
     defaultConfig {
 
@@ -57,18 +61,16 @@ android {
 //            keyPassword props.keyAliasPassword
         }
         release {
-//            Signing code for manual signing
-//            storeFile file(System.console().readLine("\n\$ Enter keystore path: "))
-//            storePassword System.console().readPassword("\n\$ Enter keystore password: ").toString()
-//            keyAlias System.console().readLine("\n\$ Enter key alias: ")
-//            keyPassword System.console().readPassword("\n\$ Enter key password: ").toString()
-
-            def props = new Properties()
-            props.load(new FileInputStream(project.file("key.properties")))
-            storeFile project.file(props.keyStore)
-            storePassword props.keyStorePassword
-            keyAlias props.keyAlias
-            keyPassword props.keyAliasPassword
+            if (hasReleaseKeystore) {
+                def props = new Properties()
+                releaseKeyPropsFile.withInputStream { props.load(it) }
+                storeFile project.file(props.getProperty("keyStore"))
+                storePassword props.getProperty("keyStorePassword")
+                keyAlias props.getProperty("keyAlias")
+                keyPassword props.getProperty("keyAliasPassword")
+            } else {
+                logger.warn("Release signing skipped: app/key.properties not found.")
+            }
         }
     }
 
@@ -98,7 +100,7 @@ android {
         }
 
         release {
-            signingConfig signingConfigs.release
+            signingConfig hasReleaseKeystore ? signingConfigs.release : signingConfigs.debug
             minifyEnabled true
 
             resValue "string", "authorities", defaultConfig.applicationId + '.cameraupload.provider'
@@ -237,7 +239,7 @@ android {
         def room_version = "2.6.1"
         implementation "androidx.room:room-runtime:$room_version"
         implementation "androidx.room:room-rxjava2:$room_version"
-        annotationProcessor "androidx.room:room-compiler:$room_version"
+        kapt "androidx.room:room-compiler:$room_version"
 
         //https://github.com/KunMinX/UnPeek-LiveData
         implementation 'com.kunminx.arch:unpeek-livedata:7.8.0'
@@ -329,7 +331,7 @@ android {
         def glide_version = "4.16.0"
         implementation "com.github.bumptech.glide:glide:$glide_version"
         implementation "com.github.bumptech.glide:okhttp3-integration:$glide_version"
-        annotationProcessor "com.github.bumptech.glide:compiler:$glide_version"
+        kapt "com.github.bumptech.glide:compiler:$glide_version"
 
 
         testImplementation 'junit:junit:4.13.2'
