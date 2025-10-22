@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.ui.selector;
+package com.seafile.seadroid2.ui.selector.folder_selector;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -29,12 +29,6 @@ import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
 import com.seafile.seadroid2.ui.dialog_fragment.BottomSheetNewLocalFolderDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.listener.OnRefreshDataListener;
 import com.seafile.seadroid2.ui.repo.ScrollState;
-import com.seafile.seadroid2.ui.selector.folder_selector.Constants;
-import com.seafile.seadroid2.ui.selector.folder_selector.FileBean;
-import com.seafile.seadroid2.ui.selector.folder_selector.FileListAdapter;
-import com.seafile.seadroid2.ui.selector.folder_selector.FolderSelectorViewModel;
-import com.seafile.seadroid2.ui.selector.folder_selector.NavPathListAdapter;
-import com.seafile.seadroid2.ui.selector.folder_selector.TabVolumeBean;
 import com.seafile.seadroid2.view.TipsViews;
 
 import java.util.ArrayList;

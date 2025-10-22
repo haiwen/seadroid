@@ -245,6 +245,7 @@ public class ActivityViewModel extends BaseViewModel {
                         case "delete":
                             event.opType = OpType.DELETE;
                             break;
+                        case "recover":
                         case "restore":
                             event.opType = OpType.RESTORE;
                             break;

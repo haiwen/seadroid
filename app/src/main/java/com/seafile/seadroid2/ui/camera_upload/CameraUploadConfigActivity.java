@@ -24,7 +24,7 @@ import com.seafile.seadroid2.ui.camera_upload.config_fragment.BucketsFragment;
 import com.seafile.seadroid2.ui.camera_upload.config_fragment.HowToUploadFragment;
 import com.seafile.seadroid2.ui.camera_upload.config_fragment.WhatToUploadFragment;
 import com.seafile.seadroid2.ui.folder_backup.RepoConfig;
-import com.seafile.seadroid2.ui.selector.RepoSelectorFragment;
+import com.seafile.seadroid2.ui.selector.obj.RepoSelectorFragment;
 
 import java.util.ArrayList;
 import java.util.List;

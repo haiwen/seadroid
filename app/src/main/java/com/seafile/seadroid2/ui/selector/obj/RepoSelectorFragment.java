@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.ui.selector;
+package com.seafile.seadroid2.ui.selector.obj;
 
 import android.os.Bundle;
 import android.util.Pair;

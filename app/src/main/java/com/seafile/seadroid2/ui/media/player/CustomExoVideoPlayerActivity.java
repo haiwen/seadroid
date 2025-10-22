@@ -19,6 +19,7 @@ import androidx.media3.datasource.DataSource;
 import androidx.media3.datasource.DefaultDataSource;
 import androidx.media3.datasource.DefaultHttpDataSource;
 import androidx.media3.datasource.HttpDataSource;
+import androidx.media3.datasource.okhttp.OkHttpDataSource;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.exoplayer.source.ProgressiveMediaSource;
@@ -28,12 +29,24 @@ import com.blankj.utilcode.util.AppUtils;
 import com.blankj.utilcode.util.BarUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
+import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.databinding.ActivityExoPlayerBinding;
+import com.seafile.seadroid2.framework.http.HttpIO;
+import com.seafile.seadroid2.framework.http.UnsafeOkHttpClient;
 import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
 import com.seafile.seadroid2.view.ExoPlayerView;
 
+import java.security.SecureRandom;
 import java.util.Locale;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+
+import okhttp3.OkHttpClient;
 
 @UnstableApi
 public class CustomExoVideoPlayerActivity extends BaseActivityWithVM<PlayerViewModel> {
@@ -358,14 +371,17 @@ public class CustomExoVideoPlayerActivity extends BaseActivityWithVM<PlayerViewM
     @OptIn(markerClass = UnstableApi.class)
     private MediaSource getMediaSource(String url) {
         String userAgent = Util.getUserAgent(this, AppUtils.getAppName());
-        HttpDataSource.Factory httpDataSourceFactory = new DefaultHttpDataSource.Factory()
-                .setUserAgent(userAgent)
-                .setConnectTimeoutMs(DefaultHttpDataSource.DEFAULT_CONNECT_TIMEOUT_MILLIS)
-                .setReadTimeoutMs(DefaultHttpDataSource.DEFAULT_READ_TIMEOUT_MILLIS)
-                .setAllowCrossProtocolRedirects(true);
+
+        //new: use OkHttp
+        Account account = SupportAccountManager.getInstance().getCurrentAccount();
+        OkHttpClient okHttpClient = new UnsafeOkHttpClient(account).getOkClient();
+
+        OkHttpDataSource.Factory okHttpFactory = new OkHttpDataSource.Factory(okHttpClient)
+                .setUserAgent(userAgent);
+
         DataSource.Factory dataSourceFactory = new DefaultDataSource.Factory(
                 this,
-                httpDataSourceFactory
+                okHttpFactory
         );
 
         return new ProgressiveMediaSource.Factory(dataSourceFactory)

@@ -464,12 +464,11 @@ public class AllActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel>
 
                     }
                 } else {
-                    Intent intent = FileActivity.startFromActivity(requireContext(), model, FileReturnActionEnum.OPEN_WITH);
+                    Intent intent = FileActivity.startFromActivity(requireContext(), model, actionEnum);
                     fileActivityLauncher.launch(intent);
                 }
             }
         });
-
     }
 
     private File getLocalDestinationFile(String repoId, String repoName, String fullPathInRepo) {

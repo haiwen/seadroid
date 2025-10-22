@@ -130,7 +130,7 @@ public class AccountViewModel extends BaseViewModel {
 
                 // Update the account info
                 tempAccount.setName(accountInfo.getName());
-                tempAccount.setEmail(accountInfo.getEmail());
+//                tempAccount.setEmail(accountInfo.getEmail());
                 tempAccount.setAvatarUrl(accountInfo.getAvatarUrl());
                 tempAccount.setTotalSpace(accountInfo.getTotal());
                 tempAccount.setUsageSpace(accountInfo.getUsage());

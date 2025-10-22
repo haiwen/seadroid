@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.ui.selector;
+package com.seafile.seadroid2.ui.selector.obj;
 
 import androidx.lifecycle.MutableLiveData;
 
@@ -74,6 +74,11 @@ public class ObjSelectorViewModel extends BaseViewModel {
      * @param isFilterUnavailable Filter out encrypted and read-only repo
      */
     public void loadReposFromNet(Account account, boolean isFilterUnavailable, boolean isAddStarredGroup) {
+        loadReposFromNet(account, isFilterUnavailable, isAddStarredGroup, null);
+    }
+
+    public void loadReposFromNet(Account account, boolean isFilterUnavailable, boolean isAddStarredGroup, List<String> filterIds) {
+
         getRefreshLiveData().setValue(true);
 
         Single<RepoWrapperModel> single = HttpIO.getInstanceByAccount(account).execute(RepoService.class).getReposAsync();
@@ -96,7 +101,7 @@ public class ObjSelectorViewModel extends BaseViewModel {
                     repoModel.last_modified_long = Times.convertMtime2Long(repoModel.last_modified);
                 }
 
-                List<BaseModel> list2 = Objs.convertToAdapterList(list1, isFilterUnavailable, isAddStarredGroup);
+                List<BaseModel> list2 = Objs.convertToAdapterList(list1, isFilterUnavailable, isAddStarredGroup, filterIds);
                 getObjsListLiveData().setValue(list2);
                 getRefreshLiveData().setValue(false);
             }
@@ -110,6 +115,9 @@ public class ObjSelectorViewModel extends BaseViewModel {
 
     public void loadDirentsFromNet(Account account, NavContext context) {
         getRefreshLiveData().setValue(true);
+        if (context.getRepoModel() == null) {
+            return;
+        }
 
         String repoId = context.getRepoModel().repo_id;
         String parentDir = context.getNavPath();

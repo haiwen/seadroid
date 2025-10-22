@@ -203,20 +203,28 @@ public class Objs {
     }
 
     public static List<BaseModel> convertToAdapterList(List<RepoModel> list) {
-        return convertToAdapterList(list, false, false);
+        return convertToAdapterList(list, false, false, null);
     }
 
     public static List<BaseModel> convertToAdapterList(List<RepoModel> list, boolean isFilterUnavailable) {
-        return convertToAdapterList(list, isFilterUnavailable, false);
+        return convertToAdapterList(list, isFilterUnavailable, false, null);
     }
 
-    public static List<BaseModel> convertToAdapterList(List<RepoModel> list, boolean isFilterUnavailable, boolean isAddStarredGroup) {
+    public static List<BaseModel> convertToAdapterList(List<RepoModel> list, boolean isFilterUnavailable, boolean isAddStarredGroup, List<String> filterIds) {
         if (CollectionUtils.isEmpty(list)) {
             return Collections.emptyList();
         }
 
         if (isFilterUnavailable) {
-            list = list.stream().filter(f -> !f.encrypted && f.hasWritePermission()).collect(Collectors.toList());
+            list = list.stream()
+                    .filter(f -> !f.encrypted && f.hasWritePermission())
+                    .collect(Collectors.toList());
+        }
+
+        if (!CollectionUtils.isEmpty(filterIds)) {
+            list = list.stream()
+                    .filter(f -> filterIds.contains(f.repo_id))
+                    .collect(Collectors.toList());
         }
 
         List<BaseModel> newRvList = CollectionUtils.newArrayList();

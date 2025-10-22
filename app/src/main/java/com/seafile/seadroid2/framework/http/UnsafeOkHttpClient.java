@@ -6,6 +6,7 @@ import com.seafile.seadroid2.account.Account;
 
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -22,12 +23,16 @@ import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 
 public class UnsafeOkHttpClient extends BaseOkHttpClient {
+    private final List<Interceptor> _interceptors = new ArrayList<>();
     public UnsafeOkHttpClient() {
         super(null);
-    }
 
+        _interceptors.addAll(getInterceptors());
+    }
     public UnsafeOkHttpClient(Account account) {
         super(account);
+
+        _interceptors.addAll(getInterceptors());
     }
 
     private final TrustManager[] trustAllCerts = new TrustManager[]{new X509TrustManager() {
@@ -78,9 +83,8 @@ public class UnsafeOkHttpClient extends BaseOkHttpClient {
 //        builder.networkInterceptors().add(REWRITE_CACHE_CONTROL_INTERCEPTOR);
 
         //add interceptors
-        List<Interceptor> interceptors = getInterceptors();
-        if (!CollectionUtils.isEmpty(interceptors)) {
-            for (Interceptor i : interceptors) {
+        if (!CollectionUtils.isEmpty(_interceptors)) {
+            for (Interceptor i : _interceptors) {
                 builder.interceptors().add(i);
             }
         }

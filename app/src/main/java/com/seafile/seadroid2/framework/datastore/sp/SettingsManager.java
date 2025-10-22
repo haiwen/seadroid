@@ -96,6 +96,7 @@ public final class SettingsManager {
     public static final String FOLDER_BACKUP_SKIP_HIDDEN_FILES = "folder_backup_filtering_hidden_files";
 
 
+    public static final String SELECTOR_RECENTLY_USED = "selector_recently_used";
     //
     public static final String PRIVACY_POLICY_CONFIRMED = "privacy_policy_confirmed";
 
