@@ -104,7 +104,7 @@ public class VersatileRepoSelectorFragment extends BaseFragmentWithVM<ObjSelecto
         initLoad();
     }
 
-    private void initLoad() {
+    public void initLoad() {
 
         if (!TextUtils.isEmpty(startRepoId)) {
             CompletableFuture.supplyAsync(new Supplier<List<RepoModel>>() {

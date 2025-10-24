@@ -76,6 +76,7 @@
   <string name="download_failed">Yuklab olish muvaffaqiyatsiz</string>
   <string name="download_waiting">Yuklab olish kutilmoqda</string>
   <string name="download_finished">Yuklab olish tugatildi</string>
+  <string name="download_completed">Yuklab olish tugadi</string>
   <string name="download_cancelled">Yuklab olish bekor qilindi</string>
   <string name="task_cancel">Bekor qilish</string>
   <string name="task_retry">Qayta urunish</string>
@@ -93,6 +94,7 @@
   <string name="file_action_share_encrypt">Parolli linkni ulashish</string>
   <string name="file_action_export">Eksport qilish</string>
   <string name="file_action_open">Bilan ochish</string>
+  <string name="file_action_save_as">Boshqa nom bilan saqlash</string>
   <string name="file_action_delete">O\'chirish</string>
   <string name="file_action_rename">Qayta nomlash</string>
   <string name="file_action_copy">Ko\'chirib olish</string>
@@ -124,7 +126,11 @@
   <string name="dir_name_empty">Iltimos papka nomini kiriting</string>
   <string name="file_name_empty">Iltimos fayl nomini kiriting</string>
   <string name="password_empty">Iltimos parolni kiriting</string>
-  <string name="wrong_password">noto\'g\'ri parol</string>
+  <string name="name_contains_slash">Nomi \'/\'-dan o\'zini tashlash mumkin emas</string>
+  <string name="name_contains_backtick">Nomi \'`\'-dan o\'zini tashlash mumkin emas</string>
+  <string name="name_contains_backslash">Nomi \'\\\'-dan o\'zini tashlash mumkin emas</string>
+  <string name="name_cannot_be_double_dots">Nomi \'..\' bo\'lishi mumkin emas</string>
+  <string name="wrong_password">Noto\'g\'ri parol</string>
   <string name="library_read_only">Bu kutubxona faqat-o\'qish</string>
   <string name="error_when_load_dirents">Papkani yuklashda xatolik.\n Yangilash uchun bosing</string>
   <string name="error_when_load_repos">Kutubxonalarni yuklashda xatolik.\n Yangilash uchun bosing</string>
@@ -145,6 +151,7 @@
   <string name="load_dir_fail">Bu papkadagi narsalarni yuklab bo\'lmadi</string>
   <string name="not_supported">Hozirgi paytda qo\'llab bo\'lmaydi</string>
   <string name="not_supported_share">Bu turdagi ulashishni qo\'llab bo\'lmaydi</string>
+  <string name="not_supported_feature">Hozirgi paytda qo\'llab bo\'lmaydi</string>
   <string name="edit">Tahrirlash</string>
   <string name="select">Tanlash</string>
   <string name="create_draft">Qoralama yaratish</string>
@@ -216,9 +223,13 @@
   <string name="tabs_library">Kutubxonalar</string>
   <string name="tabs_activity">Amallar</string>
   <string name="tabs_starred">Yulduzlangan</string>
+  <string name="starred_repos">Yulduzlangan kutubxonalar</string>
+  <string name="starred_files">Yulduzlangan fayllar</string>
+  <string name="starred_folder">Yulduzlangan papkalar</string>
   <string name="provide_password">\"%s\" kutubxona uchun parolni taqdim eting</string>
   <string name="upload_waiting">Yuklash kutilmoqda</string>
   <string name="upload_finished">Yuklash yakunlandi</string>
+  <string name="upload_completed">Yuklash yakunlandi</string>
   <string name="upload_cancelled">Yuklash bekor qilindi</string>
   <string name="upload_failed">Yuklashda xatolik</string>
   <string name="upload_file_exist">Fayl allaqachon bor</string>
@@ -282,6 +293,7 @@
   <string name="settings_account_sign_out_hint">Tizimdan chiqish uchun bosing</string>
   <string name="settings_account_sign_out_confirm">Tizimdan chiqishni hohlaysizmi?</string>
   <string name="settings_night_mode_title">Tungi rejim</string>
+  <string name="settings_switch_storage_hint">Omborni o\'zgartirish uchun bosing</string>
   <string name="security">Xavfsizlik</string>
   <string name="gesture_lock">Imo-ishora qulfi</string>
   <string name="gesture_lock_on">Imo-ishora qulfini yoqish</string>
@@ -355,14 +367,19 @@
   <!--Camera Upload Configuration View-->
   <string name="settings_cuc_title">Konfiguratsiya yordamchisi</string>
   <string name="settings_cuc_welcome_text">Kamera yuklash konfiguratsiya yordamchisidan foydalanganingiz uchun rahmat. \nSizni kamera bilan yuklash servisi bilan foydalanishni boshlash uchun siz bir necha dastlabki qadamlardan o\'tasiz.</string>
+  <string name="settings_cuc_network_title">Yuklash turlari</string>
   <string name="settings_cuc_network_wifi">faqat Wi-Fi</string>
   <string name="settings_cuc_network_data_plan">Wi-Fi yoki mobil trafik</string>
+  <string name="settings_cuc_how_hint">Kamera yuklashni ishlatish uchun bosing</string>
+  <string name="settings_cuc_what_hint">Kamera yuklashni ishlatish uchun bosing</string>
+  <string name="settings_cuc_type_title">Yuklash turini tanlang</string>
   <string name="settings_cuc_type_photo">Faqat rasmlar</string>
   <string name="settings_cuc_type_video">Rasmlar va Videolar</string>
   <string name="settings_cuc_local_dir_title">Albumlarni tanlash</string>
   <plurals name="settings_cuc_local_dir_items">
     <item quantity="other">%1$d ta narsalar</item>
   </plurals>
+  <string name="settings_cuc_remote_lib_title">Kamera yuklash kutubxonasi</string>
   <string name="settings_cuc_remote_lib_account">Akkaunt tanlang</string>
   <string name="settings_cuc_remote_lib_repo">%s tanlandi</string>
   <string name="settings_cuc_upload_to_parent_folder">Yuqori papkagacha</string>
@@ -384,6 +401,7 @@
   <string name="settings_about_privacy_policy">Maxfiylik siyosati</string>
   <string name="settings_about_version_title">Ilova Versiyasi</string>
   <string name="settings_about_author_title">Avtor haqida</string>
+  <string name="settings_export_run_logs">Joriy ilova loglarini yuklab olish</string>
   <string name="settings_about_author_info">
         <![CDATA[
         <h5>Seafile Android Klient</h5>
@@ -534,12 +552,15 @@
   <string name="op_exception_folder_deleted">Papka \"%s\" o\'chirildi</string>
   <string name="op_exception_suitable_app_not_found">Mime turi %s uchun mos ilova topilmadi</string>
   <string name="op_exception_failed_to_download_file">%s faylni yuklab olib bo\'lmadi</string>
+  <string name="op_unable_to_with_exception">%s uchun amal qilishni amalga oshirishda xatolik</string>
   <!--Home list title-->
   <string name="shared_with_all">Hamma bilan ulashish</string>
   <string name="add_password_protection">Parol himoyasini qo\'shish</string>
+  <string name="select_an_expiration_dates">Amal qilish muddatlarini tanlang</string>
   <string name="expiration_dates">Amal qilish muddatlari</string>
   <string name="add_auto_expiration">Avtomatik amal qilish muddatini qo\'shing</string>
   <string name="input_auto_expiration">Iltimos amal qilsh muddatlarini kiriting</string>
+  <string name="tip_select_an_expiration_dates">Amal qilish muddatlarini tanlang</string>
   <!--editor-->
   <string name="editor_lines_error">Bir nechta liniyalarni ishlatib bo\'lmaydi</string>
   <string name="editor_file_save">Saqlab chiqishni hohlaysizmi?</string>
@@ -573,6 +594,9 @@
   <string name="settings_folder_backup_service_started">Zaxiralash servisi boshlangan</string>
   <string name="settings_folder_backup_service_stopped">Zaxiralash servisi to\'xtatilgan</string>
   <string name="settings_select_backup_folder_title">Papkani tanlang</string>
+  <string name="settings_sync_hidden_files_switch">Qizil papkalarni zaxirala</string>
+  <string name="settings_sync_hidden_files_disabled">Qizil papkalarni zaxirala</string>
+  <string name="settings_sync_hidden_files_enabled">Qizil papkalarni zaxirala</string>
   <string name="folder_file_item_size">Hajm %s</string>
   <string name="folder_file_item_describe">fayl %s | papka %s</string>
   <string name="internal_storage">Ichki ombor</string>
@@ -664,8 +688,15 @@
   <string name="image_color_space_undefined">Aniqlanmagan</string>
   <string name="canceled">Bekor qilingan</string>
   <string name="offline">Offlayn</string>
+  <string name="start">Boshlash</string>
+  <string name="next">Keyingi</string>
   <string name="finish">Tugatish</string>
   <string name="skip">O\'tkazib yuborish</string>
   <string name="previous">Avvalgi</string>
   <string name="complete">Yakunlash</string>
+  <string name="backing_up">Zahiralash</string>
+  <string name="backup_completed">Zahiralash tugadi</string>
+  <string name="backup_failed">Zahiralash muvaffaqiyatsiz</string>
+  <string name="export_log_file_not_exists">Log fayli mavjud emas</string>
+  <string name="file_transfer_stopped">Fayl yuklash to\'xtatildi</string>
 </resources>

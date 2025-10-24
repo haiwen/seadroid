@@ -372,7 +372,10 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 checkCurrentPathHasWritePermission(new java.util.function.Consumer<Boolean>() {
                     @Override
                     public void accept(Boolean aBoolean) {
-                        menu.findItem(R.id.add).setEnabled(aBoolean);
+                        MenuItem addMenu = menu.findItem(R.id.add);
+                        if (addMenu != null) {
+                            addMenu.setEnabled(aBoolean);
+                        }
                     }
                 });
             } else {
@@ -1766,11 +1769,13 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         //launch obj selector activity
 //        Intent intent = ObjSelectorActivity.getCurrentAccountIntent(requireContext(), ObjSelectType.REPO, ObjSelectType.DIR);
 //        copyMoveLauncher.launch(intent);
+        String fileName = null;
+        if (direntModels.size() == 1) {
+            fileName = direntModels.get(0).name;
+        }
 
-
-        Intent intent = VersatileSelectorActivity.getCurrentAccountIntent(requireContext(), repoID, dirPath);
+        Intent intent = VersatileSelectorActivity.getCurrentAccountIntent(requireContext(), repoID, dirPath, fileName, op == OpType.COPY);
         copyMoveLauncher.launch(intent);
-//        startActivity(intent);
     }
 
 
@@ -2196,17 +2201,24 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 cameraPermissionLauncher.launch(Manifest.permission.CAMERA);
             }
         });
-
     }
-
 
     private void takeFile(boolean isSingleSelect) {
         String[] mimeTypes = new String[]{"*/*"};
-        if (isSingleSelect) {
-            singleFileAndImageChooseLauncher.launch(mimeTypes);
+
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("*/*");
+        if (WidgetUtils.isIntentAvailable(requireContext(), intent)) {
+            if (isSingleSelect) {
+                singleFileAndImageChooseLauncher.launch(mimeTypes);
+            } else {
+                multiFileAndImageChooserLauncher.launch(mimeTypes);
+            }
         } else {
-            multiFileAndImageChooserLauncher.launch(mimeTypes);
+            Toasts.show(R.string.activity_not_found);
         }
+
     }
 
     private kotlin.Pair<Uri, File> uriPair;

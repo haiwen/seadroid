@@ -27,7 +27,7 @@
             android:id="@+id/return_to_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/back_button_label"
+            android:text="@string/navigate_up"
             android:textColor="@color/item_title_color"
             android:textSize="@dimen/tv_subtitle_txt_size" />
 

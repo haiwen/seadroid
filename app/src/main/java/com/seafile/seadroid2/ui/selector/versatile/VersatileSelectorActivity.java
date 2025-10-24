@@ -4,7 +4,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Pair;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
@@ -33,6 +35,8 @@ import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.ui.adapter.ViewPager2Adapter;
 import com.seafile.seadroid2.ui.base.BaseActivity;
+import com.seafile.seadroid2.ui.dialog_fragment.BottomSheetNewDirFileDialogFragment;
+import com.seafile.seadroid2.ui.dialog_fragment.listener.OnRefreshDataListener;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -44,30 +48,35 @@ public class VersatileSelectorActivity extends BaseActivity {
 
     private String startRepoId;
     private String startPath;
-    private MenuItem createFolderMenuItem;
+    private String fileName;
+    private boolean isCopy;
     private Account mAccount;
 
-    public static Intent getCurrentAccountIntent(Context context) {
-        return getIntent(context, null);
-    }
-
-    public static Intent getCurrentAccountIntent(Context context, String startRepoId, String startPath) {
-        Intent intent = getIntent(context, null);
+    public static Intent getCurrentAccountIntent(Context context, String startRepoId, String startPath, String fileName, boolean isCopy) {
+        Intent intent = new Intent(context, VersatileSelectorActivity.class);
         intent.putExtra("startRepoId", startRepoId);
         intent.putExtra("startPath", startPath);
+        intent.putExtra("isCopy", isCopy);
+        intent.putExtra("fileName", fileName);
         return intent;
     }
 
-    public static Intent getIntent(Context context) {
-        return getIntent(context, null);
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_share_to_seafile, menu);
+
+        return true;
     }
 
-    public static Intent getIntent(Context context, Bundle extras) {
-        Intent intent = new Intent(context, VersatileSelectorActivity.class);
-        if (extras != null) {
-            intent.putExtras(extras);
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.create_new_folder) {
+            showNewDirDialog();
+            return true;
         }
-        return intent;
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -94,6 +103,8 @@ public class VersatileSelectorActivity extends BaseActivity {
 
         startRepoId = intent.getStringExtra("startRepoId");
         startPath = intent.getStringExtra("startPath");
+        fileName = intent.getStringExtra("fileName");
+        isCopy = intent.getBooleanExtra("isCopy", false);
 
         mAccount = SupportAccountManager.getInstance().getCurrentAccount();
 
@@ -101,6 +112,38 @@ public class VersatileSelectorActivity extends BaseActivity {
 
     private void finishSelf() {
         finish();
+    }
+
+    private void showNewDirDialog() {
+        if (mAccount == null) {
+            Toasts.show(R.string.choose_an_account);
+            return;
+        }
+
+        int index = binding.pager.getCurrentItem();
+        if (index == 2) {
+            return;
+        }
+
+        VersatileRepoSelectorFragment vrsf = (VersatileRepoSelectorFragment) fragments.get(index);
+        RecentlyUsedModel r = vrsf.genRecentUsedModel();
+        if (r == null) {
+            Toasts.show(R.string.choose_a_library);
+            return;
+        }
+
+        String rid = r.repoId;
+        String parentPath = r.path;
+        BottomSheetNewDirFileDialogFragment dialogFragment = BottomSheetNewDirFileDialogFragment.newInstance(mAccount, rid, parentPath, true);
+        dialogFragment.setRefreshListener(new OnRefreshDataListener() {
+            @Override
+            public void onActionStatus(boolean isDone) {
+                if (isDone) {
+                    vrsf.initLoad();
+                }
+            }
+        });
+        dialogFragment.show(getSupportFragmentManager(), BottomSheetNewDirFileDialogFragment.class.getSimpleName());
     }
 
     private void initView() {
@@ -121,7 +164,13 @@ public class VersatileSelectorActivity extends BaseActivity {
 
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle(R.string.app_name);
+
+            String action = isCopy ?
+                    getResources().getString(R.string.file_action_copy) :
+                    getResources().getString(R.string.file_action_move);
+
+            String title = TextUtils.isEmpty(fileName) ? action : action + " " + fileName;
+            getSupportActionBar().setTitle(title);
         }
 
         binding.ok.setOnClickListener(new View.OnClickListener() {
@@ -277,6 +326,9 @@ public class VersatileSelectorActivity extends BaseActivity {
         } else if (index == 2) {
             RecentlyUsedFragment ruf = (RecentlyUsedFragment) fragments.get(2);
             RecentlyUsedModel model = ruf.getBackupInfo();
+            if (model == null) {
+                return;
+            }
 
             String repoName = model.repoName;
             String repoID = model.repoId;

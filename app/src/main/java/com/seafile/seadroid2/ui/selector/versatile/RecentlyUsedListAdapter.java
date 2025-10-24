@@ -18,12 +18,15 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.databinding.ItemSelectorRecentlyUsedBinding;
 import com.seafile.seadroid2.databinding.ItemStarredBinding;
 import com.seafile.seadroid2.framework.model.versatile.RecentlyUsedModel;
+import com.seafile.seadroid2.framework.util.FileUtils;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.listener.OnFileItemChangeListener;
 import com.seafile.seadroid2.ui.base.adapter.BaseAdapter;
 import com.seafile.seadroid2.ui.base.viewholder.BaseViewHolder;
 import com.seafile.seadroid2.ui.selector.folder_selector.FileBean;
 import com.seafile.seadroid2.ui.selector.folder_selector.FileListViewHolder;
+
+import org.apache.commons.io.FilenameUtils;
 
 public class RecentlyUsedListAdapter extends BaseAdapter<RecentlyUsedModel, RecentlyUsedListAdapter.RecentlyUsedListViewHolder> {
 
@@ -38,11 +41,24 @@ public class RecentlyUsedListAdapter extends BaseAdapter<RecentlyUsedModel, Rece
 
     @Override
     protected void onBindViewHolder(@NonNull RecentlyUsedListViewHolder holder, int i, @Nullable RecentlyUsedModel model) {
-        if (TextUtils.equals("/", model.path)) {
+        if (model == null) {
+            holder.binding.itemTitle.setText(null);
+            holder.binding.itemSubtitle.setText(null);
+            holder.binding.itemSubtitle.setVisibility(View.GONE);
+        } else if (TextUtils.equals("/", model.path)) {
             holder.binding.itemTitle.setText(model.repoName);
+
+            holder.binding.itemSubtitle.setText(null);
+            holder.binding.itemSubtitle.setVisibility(View.GONE);
         } else {
-            String name = Utils.getParentPathName(model.path);
+            if (!TextUtils.equals("/", model.path) && model.path.endsWith("/")) {
+                model.path = model.path.substring(0, model.path.length() - 1);
+            }
+            String name = FilenameUtils.getName(model.path);
             holder.binding.itemTitle.setText(name);
+
+            holder.binding.itemSubtitle.setVisibility(View.VISIBLE);
+            holder.binding.itemSubtitle.setText(model.repoName);
         }
 
         holder.binding.itemSelectView.setVisibility(model.isSelected ? View.VISIBLE : View.INVISIBLE);

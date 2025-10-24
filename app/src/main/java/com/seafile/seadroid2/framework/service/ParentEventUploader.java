@@ -249,6 +249,7 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
 
             createdTime = FileUtils.getCreatedTimeFromUri(getContext(), uri);
         } else {
+            //file
             File file = new File(currentTransferModel.full_path);
             if (!file.exists()) {
                 throw SeafException.NOT_FOUND_EXCEPTION;
@@ -284,7 +285,8 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
 
         newCall = getPrimaryHttpClient(account).newCall(request);
 
-        SafeLogs.d(TAG, "start transfer, url: " + uploadUrl);
+        SafeLogs.d(TAG, "start upload, url: " + uploadUrl);
+        SafeLogs.d(TAG, "req Content-Type: " + requestBody.contentType());
         try (Response response = newCall.execute()) {
             Protocol protocol = response.protocol();
             SafeLogs.d(TAG, "onRes()", "response code: " + response.code() + ", protocol: " + protocol);

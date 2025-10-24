@@ -320,7 +320,10 @@ public class MainActivity extends BaseActivity {
         binding.pager.postDelayed(new Runnable() {
             @Override
             public void run() {
-                getReposFragment().switchPath(repoId, path, isDir);
+                RepoQuickFragment quickFragment = getReposFragment();
+                if (quickFragment != null && quickFragment.isAdded() && !quickFragment.isDetached()) {
+                    quickFragment.switchPath(repoId, path, isDir);
+                }
 
                 refreshActionbar();
             }

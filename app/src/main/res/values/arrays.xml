@@ -28,8 +28,8 @@
 
 
     <string-array name="versatile_selector_fragment_titles">
-        <item>@string/tabs_library</item>
-        <item>@string/tabs_library</item>
-        <item>@string/tabs_library</item>
+        <item>@string/current_library</item>
+        <item>@string/other_libraries</item>
+        <item>@string/recently_used</item>
     </string-array>
 </resources>

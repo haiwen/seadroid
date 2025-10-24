@@ -11,7 +11,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.blankj.utilcode.util.CollectionUtils;
 import com.chad.library.adapter4.BaseQuickAdapter;
-import com.seafile.seadroid2.context.NavContext;
+import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.compat.ContextCompatKt;
 import com.seafile.seadroid2.databinding.LayoutFrameSwipeRvBinding;
 import com.seafile.seadroid2.framework.model.versatile.RecentlyUsedModel;
 import com.seafile.seadroid2.ui.base.fragment.BaseFragment;
@@ -36,13 +37,14 @@ public class RecentlyUsedFragment extends BaseFragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = LayoutFrameSwipeRvBinding.inflate(inflater, container, false);
+        binding.getRoot().setBackgroundColor(ContextCompatKt.getColorCompat(requireContext(),R.color.bar_background_color));
         return binding.getRoot();
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
+        binding.swipeRefreshLayout.setEnabled(false);
         init();
     }
 
