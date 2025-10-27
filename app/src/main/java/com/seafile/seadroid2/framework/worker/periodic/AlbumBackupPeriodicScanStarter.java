@@ -10,6 +10,8 @@ import androidx.work.WorkerParameters;
 import com.blankj.utilcode.util.NetworkUtils;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.bus.BusAction;
+import com.seafile.seadroid2.bus.BusHelper;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.service.BackupThreadExecutor;
 import com.seafile.seadroid2.framework.service.scan.AlbumScanHelper;
@@ -36,7 +38,7 @@ public class AlbumBackupPeriodicScanStarter extends Worker {
     @NonNull
     @Override
     public Result doWork() {
-        SafeLogs.e(TAG, "相册扫描 Worker 启动");
+        SafeLogs.d(TAG, "周期性相册扫描 Worker 启动");
 
         if (!canExc()) {
             SafeLogs.e(TAG, "doWork()", "The album scan task was not started, because the album backup thread is running");

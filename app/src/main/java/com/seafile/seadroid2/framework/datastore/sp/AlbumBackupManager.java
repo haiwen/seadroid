@@ -41,15 +41,20 @@ public class AlbumBackupManager {
         AlbumBackupManager.currentAccount = null;
     }
 
+    @Nullable
     public static String getCurrentAccount() {
-        return getInstanceAccount().getSignature();
+        Account a = getInstanceAccount();
+        if (a == null) {
+            return null;
+        }
+        return a.getSignature();
     }
 
     public static Account getInstanceAccount() {
         if (currentAccount == null) {
             Account account = SupportAccountManager.getInstance().getCurrentAccount();
             if (account == null) {
-                throw new IllegalArgumentException("account is null.");
+                return null;
             }
 
             currentAccount = account;
@@ -63,34 +68,65 @@ public class AlbumBackupManager {
     }
 
     public static void writeBackupSwitch(boolean isChecked) {
-        DataStoreManager.getInstanceByUser(getCurrentAccount()).writeBoolean(SettingsManager.CAMERA_UPLOAD_SWITCH_KEY, isChecked);
+        String st = getCurrentAccount();
+        if (st == null) {
+            return;
+        }
+
+        DataStoreManager.getInstanceByUser(st).writeBoolean(SettingsManager.CAMERA_UPLOAD_SWITCH_KEY, isChecked);
     }
 
     public static boolean readBackupSwitch() {
-        return DataStoreManager.getInstanceByUser(getCurrentAccount()).readBoolean(SettingsManager.CAMERA_UPLOAD_SWITCH_KEY);
+        String st = getCurrentAccount();
+        if (st == null) {
+            return false;
+        }
+        return DataStoreManager.getInstanceByUser(st).readBoolean(SettingsManager.CAMERA_UPLOAD_SWITCH_KEY);
     }
 
     public static long readLastScanTime() {
-        return DataStoreManager.getInstanceByUser(getCurrentAccount()).readLong(SettingsManager.CAMERA_BACKUP_LAST_TIME);
+        String st = getCurrentAccount();
+        if (st == null) {
+            return 0;
+        }
+        return DataStoreManager.getInstanceByUser(st).readLong(SettingsManager.CAMERA_BACKUP_LAST_TIME);
     }
 
     public static void writeLastScanTime(long time) {
-        DataStoreManager.getInstanceByUser(getCurrentAccount()).writeLong(SettingsManager.CAMERA_BACKUP_LAST_TIME, time);
+        String st = getCurrentAccount();
+        if (st == null) {
+            return;
+        }
+        DataStoreManager.getInstanceByUser(st).writeLong(SettingsManager.CAMERA_BACKUP_LAST_TIME, time);
     }
 
     public static void writeRepoConfig(RepoConfig repoConfig) {
+        String st = getCurrentAccount();
+        if (st == null) {
+            return;
+        }
+
         String confStr = GsonUtils.toJson(repoConfig);
 
-        DataStoreManager.getInstanceByUser(getCurrentAccount()).writeString(SettingsManager.CAMERA_UPLOAD_REPO_KEY, confStr);
+        DataStoreManager.getInstanceByUser(st).writeString(SettingsManager.CAMERA_UPLOAD_REPO_KEY, confStr);
     }
 
     public static void clearRepoConfig() {
-        DataStoreManager.getInstanceByUser(getCurrentAccount()).removeByKey(SettingsManager.CAMERA_UPLOAD_REPO_KEY);
+        String st = getCurrentAccount();
+        if (st == null) {
+            return;
+        }
+        DataStoreManager.getInstanceByUser(st).removeByKey(SettingsManager.CAMERA_UPLOAD_REPO_KEY);
     }
 
     @Nullable
     public static RepoConfig readRepoConfig() {
-        String confStr = DataStoreManager.getInstanceByUser(getCurrentAccount()).readString(SettingsManager.CAMERA_UPLOAD_REPO_KEY);
+        String st = getCurrentAccount();
+        if (st == null) {
+            return null;
+        }
+
+        String confStr = DataStoreManager.getInstanceByUser(st).readString(SettingsManager.CAMERA_UPLOAD_REPO_KEY);
         if (TextUtils.isEmpty(confStr)) {
             return null;
         }
@@ -100,34 +136,69 @@ public class AlbumBackupManager {
 
     //data plan
     public static void writeAllowDataPlanSwitch(boolean isChecked) {
-        DataStoreManager.getInstanceByUser(getCurrentAccount()).writeBoolean(SettingsManager.CAMERA_UPLOAD_ALLOW_DATA_PLAN_SWITCH_KEY, isChecked);
+        String st = getCurrentAccount();
+        if (st == null) {
+            return;
+        }
+
+        DataStoreManager.getInstanceByUser(st).writeBoolean(SettingsManager.CAMERA_UPLOAD_ALLOW_DATA_PLAN_SWITCH_KEY, isChecked);
     }
 
     public static boolean readAllowDataPlanSwitch() {
-        return DataStoreManager.getInstanceByUser(getCurrentAccount()).readBoolean(SettingsManager.CAMERA_UPLOAD_ALLOW_DATA_PLAN_SWITCH_KEY);
+        String st = getCurrentAccount();
+        if (st == null) {
+            return false;
+        }
+
+        return DataStoreManager.getInstanceByUser(st).readBoolean(SettingsManager.CAMERA_UPLOAD_ALLOW_DATA_PLAN_SWITCH_KEY);
     }
 
 
     //video
     public static void writeAllowVideoSwitch(boolean isChecked) {
-        DataStoreManager.getInstanceByUser(getCurrentAccount()).writeBoolean(SettingsManager.CAMERA_UPLOAD_ALLOW_VIDEOS_SWITCH_KEY, isChecked);
+        String st = getCurrentAccount();
+        if (st == null) {
+            return;
+        }
+
+        DataStoreManager.getInstanceByUser(st).writeBoolean(SettingsManager.CAMERA_UPLOAD_ALLOW_VIDEOS_SWITCH_KEY, isChecked);
     }
 
     public static boolean readAllowVideoSwitch() {
-        return DataStoreManager.getInstanceByUser(getCurrentAccount()).readBoolean(SettingsManager.CAMERA_UPLOAD_ALLOW_VIDEOS_SWITCH_KEY);
+        String st = getCurrentAccount();
+        if (st == null) {
+            return false;
+        }
+
+        return DataStoreManager.getInstanceByUser(st).readBoolean(SettingsManager.CAMERA_UPLOAD_ALLOW_VIDEOS_SWITCH_KEY);
     }
 
     //custom album
     public static void writeCustomAlbumSwitch(boolean isChecked) {
-        DataStoreManager.getInstanceByUser(getCurrentAccount()).writeBoolean(SettingsManager.CAMERA_UPLOAD_CUSTOM_BUCKETS_KEY, isChecked);
+        String st = getCurrentAccount();
+        if (st == null){
+            return;
+        }
+
+        DataStoreManager.getInstanceByUser(st).writeBoolean(SettingsManager.CAMERA_UPLOAD_CUSTOM_BUCKETS_KEY, isChecked);
     }
 
     public static boolean readCustomAlbumSwitch() {
-        return DataStoreManager.getInstanceByUser(getCurrentAccount()).readBoolean(SettingsManager.CAMERA_UPLOAD_CUSTOM_BUCKETS_KEY);
+        String st = getCurrentAccount();
+        if (st == null){
+            return false;
+        }
+
+        return DataStoreManager.getInstanceByUser(st).readBoolean(SettingsManager.CAMERA_UPLOAD_CUSTOM_BUCKETS_KEY);
     }
 
 
     public static void writeBucketIds(List<String> paths) {
+        String st = getCurrentAccount();
+        if (st == null){
+            return;
+        }
+
         String confStr;
         if (CollectionUtils.isEmpty(paths)) {
             confStr = "";
@@ -135,14 +206,20 @@ public class AlbumBackupManager {
             confStr = TextUtils.join(",", paths);
         }
 
-        DataStoreManager.getInstanceByUser(getCurrentAccount()).writeString(SettingsManager.CAMERA_UPLOAD_BUCKETS_KEY, confStr);
+        DataStoreManager.getInstanceByUser(st).writeString(SettingsManager.CAMERA_UPLOAD_BUCKETS_KEY, confStr);
     }
 
     /**
      * @return list of bucket IDs that have been selected for upload. Empty list means "all buckets"
      */
+    @Nullable
     public static List<String> readBucketIds() {
-        String confStr = DataStoreManager.getInstanceByUser(getCurrentAccount()).readString(SettingsManager.CAMERA_UPLOAD_BUCKETS_KEY);
+        String st = getCurrentAccount();
+        if (st == null){
+            return null;
+        }
+
+        String confStr = DataStoreManager.getInstanceByUser(st).readString(SettingsManager.CAMERA_UPLOAD_BUCKETS_KEY);
         if (TextUtils.isEmpty(confStr)) {
             return CollectionUtils.newArrayList();
         }

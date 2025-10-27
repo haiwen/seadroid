@@ -976,11 +976,11 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
             CameraUploadManager.getInstance().performSync(isForce);
 
             // start periodic album backup scan worker
-            BackgroundJobManagerImpl.getInstance().scheduleAlbumBackupPeriodicScan(requireContext().getApplicationContext());
+            BackgroundJobManagerImpl.getInstance().scheduleAlbumBackupPeriodicScan(SeadroidApplication.getAppContext());
         } else {
             //stop
             // stop periodic album backup scan worker
-            BackgroundJobManagerImpl.getInstance().stopAlbumBackupPeriodicScan(requireContext().getApplicationContext());
+            BackgroundJobManagerImpl.getInstance().stopAlbumBackupPeriodicScan(SeadroidApplication.getAppContext());
 
             BackupThreadExecutor.getInstance().stopAlbumBackup();
 

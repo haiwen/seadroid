@@ -2,6 +2,7 @@ package com.seafile.seadroid2.framework.model.sdoc;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.TextUtils;
 
 import androidx.room.Ignore;
 
@@ -16,6 +17,48 @@ public class OptionsTagModel implements Parcelable {
 
     @Ignore
     public boolean isSelected;
+
+
+    public String getColor() {
+        //grey
+        if (TextUtils.equals("_outdated", id) && TextUtils.equals("_outdated", name)) {
+            return "#C2C2C2";
+        }
+        //red
+        if (TextUtils.equals("_in_progress", id) && TextUtils.equals("_in_progress", name)) {
+            return "#EED5FF";
+        }
+        //yellow
+        if (TextUtils.equals("_in_review", id) && TextUtils.equals("_in_review", name)) {
+            return "#FFFDCD";
+        }
+        //green
+        if (TextUtils.equals("_done", id) && TextUtils.equals("_done", name)) {
+            return "#59CB74";
+        }
+        return color;
+    }
+
+    //Reverse color
+    public String getTextColor() {
+        //grey
+        if (TextUtils.equals("_outdated", id) && TextUtils.equals("_outdated", name)) {
+            return textColor;
+        }
+        //red
+        if (TextUtils.equals("_in_progress", id) && TextUtils.equals("_in_progress", name)) {
+            return "#FFFFFF";
+        }
+        //yellow
+        if (TextUtils.equals("_in_review", id) && TextUtils.equals("_in_review", name)) {
+            return textColor;
+        }
+        //green
+        if (TextUtils.equals("_done", id) && TextUtils.equals("_done", name)) {
+            return "#FFFFFF";
+        }
+        return textColor;
+    }
 
     @Override
     public String toString() {

@@ -15,6 +15,7 @@ import androidx.work.ListenableWorker;
 import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 
 import com.seafile.seadroid2.SeadroidApplication;
@@ -30,6 +31,7 @@ import com.seafile.seadroid2.framework.worker.upload.FolderBackupUploadWorker;
 import com.seafile.seadroid2.framework.worker.upload.MediaBackupScanWorker;
 import com.seafile.seadroid2.framework.worker.upload.MediaBackupUploadWorker;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class BackgroundJobManagerImpl {
@@ -114,6 +116,7 @@ public class BackgroundJobManagerImpl {
 
         return periodicRequestBuilder(AlbumBackupPeriodicScanStarter.class)
                 .setId(AlbumBackupPeriodicScanStarter.UID)
+                .setInitialDelay(2, TimeUnit.MINUTES)
                 .setConstraints(constraints)
                 .build();
     }
@@ -161,6 +164,7 @@ public class BackgroundJobManagerImpl {
 
         return periodicRequestBuilder(FolderBackupPeriodicScanStarter.class)
                 .setId(FolderBackupPeriodicScanStarter.UID)
+                .setInitialDelay(15, TimeUnit.MINUTES)
                 .setConstraints(constraints)
                 .build();
     }

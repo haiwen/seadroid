@@ -27,6 +27,7 @@ public class ColumnType {
     //Advanced
     public static final String GEOLOCATION = "geolocation";
     public static final String LINK = "link";
+    public static final String TAG = "tag";
     public static final String DIGITAL_SIGN = "digital-sign";
     public static final String FORMULA = "formula";
     public static final String LINK_FORMULA = "link-formula";

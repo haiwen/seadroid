@@ -75,7 +75,7 @@ public class MediaBackupUploadWorker extends BaseUploadWorker {
     @Override
     public ListenableWorker.Result doWork() {
         SLogs.d(TAG, "doWork()", "started execution");
-//send a start event
+        //send a start event
         send(FeatureDataSource.ALBUM_BACKUP, TransferEvent.EVENT_TRANSFER_TASK_START);
 
         Account account = SupportAccountManager.getInstance().getCurrentAccount();

@@ -32,6 +32,7 @@ import com.blankj.utilcode.util.NetworkUtils;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.bus.BusAction;
@@ -45,6 +46,7 @@ import com.seafile.seadroid2.framework.model.ServerInfo;
 import com.seafile.seadroid2.framework.service.BackupThreadExecutor;
 import com.seafile.seadroid2.framework.util.PermissionUtil;
 import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.ui.account.AccountsActivity;
 import com.seafile.seadroid2.ui.activities.AllActivitiesFragment;
@@ -104,7 +106,7 @@ public class MainActivity extends BaseActivity {
         applyEdgeToEdgeInsets();
 
         //register bus
-        BusHelper.getCommonObserver().observe(this, busObserver);
+        BusHelper.getCommonObserver().observe(this, commonBusObserver);
 
         initSettings();
 
@@ -263,7 +265,10 @@ public class MainActivity extends BaseActivity {
         stopWatching();
 
         //
-        BusHelper.getCommonObserver().removeObserver(busObserver);
+        BusHelper.getCommonObserver().removeObserver(commonBusObserver);
+
+        BackgroundJobManagerImpl.getInstance().stopAlbumBackupPeriodicScan(SeadroidApplication.getAppContext());
+        BackgroundJobManagerImpl.getInstance().stopFolderBackupPeriodicScan(SeadroidApplication.getAppContext());
 
         if (isBound) {
             unbindService(syncConnection);
@@ -662,7 +667,7 @@ public class MainActivity extends BaseActivity {
     }
 
 
-    private final Observer<String> busObserver = new Observer<String>() {
+    private final Observer<String> commonBusObserver = new Observer<String>() {
         @Override
         public void onChanged(String action) {
             if (TextUtils.isEmpty(action)) {
@@ -673,6 +678,10 @@ public class MainActivity extends BaseActivity {
                 if (syncService != null) {
                     syncService.restartFolderMonitor();
                 }
+            } else if (TextUtils.equals(action, BusAction.PERIODIC_ALBUM_SCAN_LAUNCH)) {
+                BackupThreadExecutor.getInstance().runAlbumBackupTask(false);
+            } else if (TextUtils.equals(action, BusAction.PERIODIC_ALBUM_SCAN_LAUNCH)) {
+                BackupThreadExecutor.getInstance().runFolderBackupFuture(false);
             }
         }
     };
