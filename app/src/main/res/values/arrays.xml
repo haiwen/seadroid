@@ -25,4 +25,11 @@
         <item>@string/transfer_tabs_downloads</item>
         <item>@string/transfer_tabs_uploads</item>
     </string-array>
+
+
+    <string-array name="versatile_selector_fragment_titles">
+        <item>@string/current_library</item>
+        <item>@string/other_libraries</item>
+        <item>@string/recently_used</item>
+    </string-array>
 </resources>

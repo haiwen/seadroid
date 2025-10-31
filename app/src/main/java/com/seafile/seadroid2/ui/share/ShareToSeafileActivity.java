@@ -36,7 +36,7 @@ import com.seafile.seadroid2.framework.worker.TransferEvent;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
 import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
-import com.seafile.seadroid2.ui.selector.ObjSelectorActivity;
+import com.seafile.seadroid2.ui.selector.obj.ObjSelectorActivity;
 
 import java.util.ArrayList;
 import java.util.List;

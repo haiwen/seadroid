@@ -96,6 +96,12 @@ public class BaseActivity extends AppCompatActivity {
     private static final long MIN_DIALOG_SHOW_TIME = 500; // minimum display duration in ms
     private Runnable pendingDismissRunnable;
 
+    @Override
+    protected void onDestroy() {
+        dismissLoadingDialog();
+        super.onDestroy();
+    }
+
     public boolean isDialogShowing() {
         if (loadingDialog == null) {
             return false;

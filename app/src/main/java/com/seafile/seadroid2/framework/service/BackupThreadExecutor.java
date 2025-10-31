@@ -18,6 +18,7 @@ import com.seafile.seadroid2.framework.service.upload.MediaBackupScanner;
 import com.seafile.seadroid2.framework.service.upload.MediaBackupUploader;
 import com.seafile.seadroid2.framework.service.upload.ShareToSeafileUploader;
 import com.seafile.seadroid2.framework.util.SafeLogs;
+import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -224,13 +225,17 @@ public class BackupThreadExecutor {
     }
 
     public void runAlbumBackupTask(boolean isFullScan) {
+        SafeLogs.d(TAG, "runAlbumBackupTask()", "isFullScan: " + isFullScan);
 
         if (albumBackupFuture != null && !albumBackupFuture.isDone()) {
             SafeLogs.e(TAG, "album backup task is running, please wait");
             return;
         }
 
-        SafeLogs.d(TAG, "runAlbumBackupTask()", "isFullScan: " + isFullScan);
+        if (BackgroundJobManagerImpl.getInstance().getAlbumModuleRunning()) {
+            SafeLogs.e(TAG, "album backup worker is running, please wait");
+            return;
+        }
 
         albumBackupFuture = runTask(new Runnable() {
             @Override
@@ -294,12 +299,17 @@ public class BackupThreadExecutor {
     }
 
     public void runFolderBackupFuture(boolean isFullScan) {
+        SafeLogs.d(TAG, "runFolderBackupFuture()", "isFullScan: " + isFullScan);
+
         if (folderBackupFuture != null && !folderBackupFuture.isDone()) {
             SafeLogs.e(TAG, "folder backup task is running, please wait");
             return;
         }
 
-        SafeLogs.d(TAG, "runFolderBackupFuture()", "isFullScan: " + isFullScan);
+        if (BackgroundJobManagerImpl.getInstance().getFolderModuleRunning()) {
+            SafeLogs.e(TAG, "folder backup worker is running, please wait");
+            return;
+        }
 
         folderBackupFuture = runTask(new Runnable() {
             @Override

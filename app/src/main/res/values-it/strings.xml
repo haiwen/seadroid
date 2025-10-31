@@ -3,27 +3,45 @@
   <string name="welcome_to_seafile">Benvenuto in Seafile</string>
   <string name="select_account">Scegli un account per iniziare</string>
   <string name="edit_account">Modifica</string>
+  <string name="ignore">Ignora</string>
   <string name="delete_account">Cancella</string>
   <string name="delete">Cancella</string>
+  <string name="deleted">Cancellato</string>
+  <string name="delete_repo">Cancella libreria</string>
+  <string name="delete_file">Cancella file</string>
+  <string name="delete_records">Cancella record</string>
+  <string name="delete_records_and_file">Cancella record e file</string>
+  <string name="delete_successful">Cancellazione avvenuta con successo</string>
   <string name="delete_repo_title">Elimina libreria</string>
   <string name="delete_file_f">Cancella file</string>
+  <string name="delete_local_file_sametime">Cancella file locale contemporaneamente</string>
+  <string name="recover_library">Recupera libreria</string>
+  <string name="recover_file">Recupera file</string>
+  <string name="move_file">Sposta file</string>
   <string name="update_file">Aggiorna file</string>
+  <string name="recover_folder">Recupera cartella</string>
   <string name="move_folder">Sposta cartella</string>
   <string name="delete_dir">Cancella cartella</string>
   <string name="name_hint">Nome</string>
+  <string name="server">Server Seafile</string>
   <string name="server_hint">Indirizzo server</string>
+  <string name="email_hint">Indirizzo email</string>
   <string name="passwd_hint">Password</string>
+  <string name="passwd_min_len_limit_hint">Password minima 6 caratteri</string>
+  <string name="passwd_confirmation_hint">Conferma password</string>
   <string name="login">Accedi</string>
   <string name="open_file">Apri</string>
   <string name="download_file">Scarica</string>
   <string name="redownload_file">Scarica nuovamente</string>
   <string name="cancel_download">Annulla</string>
   <string name="unknown_file_type">Formato file sconosciuto</string>
+  <string name="activity_not_found">Attività non trovata</string>
   <string name="refresh">Aggiorna</string>
   <string name="add_account">Aggiungi Account</string>
   <string name="personal">Personale</string>
   <string name="shared">Condiviso</string>
   <string name="libraries">Librerie</string>
+  <string name="my_libraries">Le mie librerie</string>
   <string name="cached">Cachata</string>
   <string name="activities">Attività</string>
   <string name="pick_upload_type">Carica</string>
@@ -36,29 +54,60 @@
     <item>Altro</item>
   </string-array>
   <string name="choose_server">Scegli un Server Seafile</string>
+  <string-array name="choose_server_array">
+    <item>Single Sign-On</item>
+    <item>Other Seafile Server</item>
+  </string-array>
   <string name="network_down">Nessun connessione disponibile</string>
   <string name="unknow_error">Error sconosciuto</string>
   <string name="invalid_server_address">Indirizzo server non valido</string>
+  <string name="err_server_andress_empty">Indirizzo server non inserito</string>
+  <string name="err_email_empty">Email non inserita</string>
+  <string name="err_passwd_empty">Password non inserita</string>
+  <string name="err_passwd_too_short">Password troppo corta</string>
+  <string name="err_passwd_mismatch">Password non corrispondenti</string>
   <string name="err_login_failed">Login fallito</string>
   <string name="err_wrong_user_or_passwd">Email o password errati</string>
+  <string name="err_token_expired">Token scaduto</string>
   <string name="upload">Carica</string>
   <string name="uploaded">Caricati</string>
+  <string name="re_upload">Riprova caricare</string>
   <string name="updated">Aggiornati</string>
   <string name="download_failed">Download fallito</string>
+  <string name="download_waiting">Download in attesa</string>
+  <string name="download_finished">Download completato</string>
+  <string name="download_completed">Download completato</string>
+  <string name="download_cancelled">Download annullato</string>
   <string name="task_cancel">Annulla</string>
   <string name="task_retry">Riprova</string>
   <string name="task_remove">Rimuovi</string>
+  <string name="task_remove_all_cancelled">Tutti i download sono stati annullati</string>
+  <string name="task_remove_all_finished">Tutti i download sono stati completati</string>
   <string name="repo_action_delete">Elimina</string>
   <string name="repo_action_rename">Rinomina</string>
+  <string name="file_action_star">Aggiungi ai preferiti</string>
   <string name="file_action_download">Scarica</string>
-  <string name="file_action_update">Carica</string>
+  <string name="file_action_update">Aggiorna</string>
   <string name="file_share">Condividi</string>
+  <string name="file_action_share_wechat">Condividi su Wechat</string>
+  <string name="file_action_share_link">Condividi link</string>
+  <string name="file_action_share_encrypt">Condividi crittografato</string>
   <string name="file_action_export">Esporta</string>
+  <string name="file_action_open">Apri</string>
+  <string name="file_action_save_as">Salva come</string>
   <string name="file_action_delete">Cancella</string>
   <string name="file_action_rename">Rinomina</string>
   <string name="file_action_copy">Copia</string>
   <string name="file_action_move">Muovi</string>
   <string name="file_action_open_as">Apri come</string>
+  <string name="file_action_more">Altre azioni</string>
+  <string name="file_action_more_title">Altre azioni</string>
+  <string-array name="file_action_more_array">
+    <item>Export</item>
+    <item>Copy</item>
+    <item>Move</item>
+    <item>Star</item>
+  </string-array>
   <string-array name="file_type_array">
     <item>Testo</item>
     <item>Audio</item>
@@ -67,23 +116,76 @@
     <item>Altro</item>
   </string-array>
   <string name="wait">Attendi</string>
+  <string name="image_gallery_NoImageView_text">Nessuna foto/video trovata</string>
   <string name="pick_photo_video_title">Scegli foto/video da caricare</string>
+  <string name="select_upload_items">Seleziona i file da caricare</string>
+  <plurals name="n_upload_items_selected">
+    <item quantity="one">%d file selezionato</item>
+    <item quantity="many">%d file selezionati</item>
+    <item quantity="other">%d file selezionati</item>
+  </plurals>
+  <string name="repo_name_empty">Inserisci il nome della libreria</string>
   <string name="dir_name_empty">Inserisci il nome della cartella</string>
   <string name="file_name_empty">Inserisci il nome del file</string>
   <string name="password_empty">Inserisci la password</string>
-  <string name="wrong_password">password errata</string>
+  <string name="name_contains_slash">Il nome non può contenere il carattere /</string>
+  <string name="name_contains_backtick">Il nome non può contenere il carattere `</string>
+  <string name="name_contains_backslash">Il nome non può contenere il carattere \</string>
+  <string name="name_cannot_be_double_dots">Il nome non può contenere il carattere ..</string>
+  <string name="wrong_password">Password errata</string>
   <string name="library_read_only">Questa libreria è sola-lettura</string>
+  <string name="error_when_load_dirents">Impossibile caricare il contenuto di questa cartella</string>
+  <string name="error_when_load_repos">Impossibile caricare le librerie</string>
+  <string name="error_when_load_activities">Impossibile caricare le attività</string>
+  <string name="error_when_load_starred">Impossibile caricare i preferiti</string>
   <string name="dir_empty">Questa cartella è vuota</string>
   <string name="no_repo">Non hai ancora librerie</string>
+  <string name="no_album_type_data">Nessun album trovato</string>
   <string name="no_app_available">Nessun app trovata</string>
   <string name="add_to_seafile">Aggiungi a Seafile</string>
   <string name="ok">OK</string>
+  <string name="no_account">Non hai ancora account</string>
   <string name="choose_an_account">Scegli un account</string>
   <string name="choose_a_library">Scegli una libreria</string>
+  <string name="choose_a_folder">Scegli una cartella</string>
+  <string name="load_accounts_fail">Impossibile caricare gli account</string>
   <string name="load_libraries_fail">Impossibile caricare le librerie</string>
   <string name="load_dir_fail">Impossibile caricare il contenuto di questa cartella</string>
+  <string name="not_supported">Questa funzionalità non è supportata</string>
   <string name="not_supported_share">Questo tipo di condivisione non è supportato</string>
+  <string name="not_supported_feature">Questa funzionalità non è supportata</string>
+  <string name="edit">Modifica</string>
+  <string name="select">Seleziona</string>
+  <string name="create_draft">Crea bozza</string>
+  <string name="rename_draft">Rinomina bozza</string>
+  <string name="del_draft">Elimina bozza</string>
+  <string name="update_draft">Aggiorna bozza</string>
+  <string name="release_draft">Rilascia bozza</string>
+  <string name="encrypt">Crittografa</string>
+  <string name="download_folder">Scarica cartella</string>
+  <string name="download_folder_title">Scarica cartella</string>
+  <string-array name="download_folder_options_array">
+    <item>Download folder</item>
+    <item>Download folder and subfolders</item>
+  </string-array>
+  <string name="add_repo">Aggiungi libreria</string>
+  <string name="add_file">Aggiungi file</string>
+  <string-array name="add_file_options_array">
+    <item>Create file</item>
+    <item>Create folder</item>
+    <item>Upload file</item>
+    <item>Take a photo</item>
+  </string-array>
+  <string-array name="video_download_array">
+    <item>play</item>
+    <item>download</item>
+  </string-array>
+  <string name="create_new_repo">Crea nuova libreria</string>
+  <string name="create_new_repo_success">Libreria creata con successo</string>
+  <string name="create_new_folder_success">Cartella creata con successo</string>
+  <string name="create_new_file_success">File creato con successo</string>
   <string name="create_new_file">Crea un nuovo file</string>
+  <string name="create_files">Crea file</string>
   <string name="create_new_dir">Crea una nuova cartella</string>
   <string name="camera">Crea una foto qui</string>
   <string name="download">Scarica</string>
@@ -91,14 +193,21 @@
   <string name="last_modified">ultima modifica</string>
   <string name="file_modified">modificato</string>
   <string name="file_size">dimensione file</string>
+  <string name="library_not_found">Libreria non trovata</string>
+  <string name="file_not_found">File non trovato</string>
   <string name="export_file">Esporta questo file</string>
   <string name="no_upload_tasks">No ci sono ancora caricamenti attivi</string>
+  <string name="no_download_tasks">No ci sono ancora scaricamenti attivi</string>
   <string name="seahub_url_hint">Nota: l\'indirizzo del Server dovrebbe contenere la porta. Per esempio, www.example.com:8000</string>
   <string name="copy_link">Copia link</string>
+  <string name="share_link_no_permission">Non hai i permessi per condividere questo link</string>
   <string name="share_file_link">Condividi il link al file</string>
   <string name="share_dir_link">Condividi il link a questa cartella</string>
+  <string name="share_input_password">Inserisci la password per condividere</string>
   <string name="generating_link">Generazione del link...</string>
+  <string name="generating_link_title">Generazione del link</string>
   <string name="link_ready_to_be_pasted">Il link è pronto per essere incollato.</string>
+  <string name="rename_repo">Rinomina libreria</string>
   <string name="rename_file">Rinomina file</string>
   <string name="rename_dir">Rinomina cartella</string>
   <string name="rename_successful">Cambio nome avvenuto correttamente.</string>
@@ -108,67 +217,491 @@
     <item>Account</item>
     <item>Backup Foto</item>
   </string-array>
+  <string name="navigate_to_directory">Naviga fino a questa cartella</string>
   <string name="no_starred_file">Non ci sono ancora file preferiti</string>
+  <string name="added_to_upload_tasks">Aggiunto al caricamento</string>
+  <string name="added_photo_to_upload_tasks">Foto aggiunta al caricamento</string>
+  <string name="take_photo_successfully">Foto presa con successo</string>
   <string name="tabs_library">Librerie</string>
   <string name="tabs_activity">Attività</string>
   <string name="tabs_starred">Preferiti</string>
+  <string name="starred_repos">Librerie preferite</string>
+  <string name="starred_files">File preferiti</string>
+  <string name="starred_folder">Cartella preferita</string>
   <string name="provide_password">Inserisci la password per la libreria \"%s\"</string>
+  <string name="upload_waiting">Caricamento in attesa</string>
+  <string name="upload_finished">Caricamento completato</string>
+  <string name="upload_completed">Caricamento completato</string>
+  <string name="upload_cancelled">Caricamento annullato</string>
+  <string name="upload_failed">Caricamento fallito</string>
+  <string name="upload_file_exist">Il file esiste già</string>
+  <string name="upload_duplicate_found">File duplicato trovato</string>
+  <string name="upload_replace_all">Sostituisci tutti i file duplicati</string>
+  <string name="upload_keep_both">Mantieni entrambi i file</string>
+  <string name="upload_replace">Sostituisci</string>
+  <string name="days_ago">%d giorni fa</string>
+  <string name="hours_ago">%d ore fa</string>
+  <string name="minutes_ago">%d minuti fa</string>
+  <string name="seconds_ago">%d secondi fa</string>
   <string name="just_now">Appena adesso</string>
   <string name="open_as">Apri come</string>
+  <string name="select_upload_files">Seleziona file da caricare</string>
   <string name="storage_removed">La memoria è stata rimossa</string>
+  <string name="storage_space_insufficient">Spazio di archiviazione insufficiente</string>
   <string name="error_selecting_file">Errore nella selezione del file</string>
+  <plurals name="n_upload_files_selected">
+    <item quantity="one">%d file selezionato</item>
+    <item quantity="many">%d file selezionati</item>
+    <item quantity="other">%d file selezionati</item>
+  </plurals>
   <string name="empty_folder">Cartella vuota</string>
   <string name="choose_file">Scegli un file</string>
+  <string name="ssl_error">Errore di connessione sicura</string>
+  <string name="ssl_not_trusted">Connessione non fidata</string>
   <string name="ssl_confirm">Il certificato di sicurezza di %s non è fidato. Vuoi continuare?</string>
+  <string name="ssl_confirm_cert_changed">Il certificato di sicurezza di %s è stato cambiato. Vuoi continuare?</string>
   <string name="ssl_confirm_title">Connessione Insicura</string>
+  <string name="issued_to">Emesso a</string>
+  <string name="finger_prints">Print dei Finger</string>
+  <string name="period_of_validity">Periodo di validità</string>
+  <string name="sha1">SHA1</string>
+  <string name="md5">MD5</string>
+  <string name="not_available">Non disponibile</string>
+  <string name="serial_number">Numero di Seriale</string>
+  <string name="not_before">Valido a partire da</string>
+  <string name="not_after">Valido fino a</string>
   <string name="yes">Sì</string>
   <string name="no">No</string>
   <string name="remember_my_choice">Ricorda la mia scelta</string>
+  <string name="copied_successfully">Copia avvenuta con successo</string>
+  <string name="moved_successfully">Spostamento avvenuto con successo</string>
   <string name="internal_server_error">Errore Interno del Server</string>
   <string name="copy_file_ing">Copia file in corso</string>
   <string name="move_file_ing">Spostamento file in corso</string>
+  <string name="copy_file_from">Copia file da %s</string>
+  <string name="move_file_from">Spostamento file da %s</string>
   <string name="copy_folder_ing">Copia cartella in corso</string>
   <string name="move_folder_ing">Spostamento cartella in corso</string>
+  <string name="upload_started">Caricamento iniziato</string>
   <string name="cannot_copy_folder_to_subfolder">Non puoi copiare una cartella in una sua sottocartella</string>
   <string name="cannot_move_folder_to_subfolder">Non puoi spostare una cartella in una sua sottocartella</string>
   <string name="cancel">Annulla</string>
   <string name="confirm">Conferma</string>
+  <string name="repo_not_found">Libreria non trovata</string>
+  <string name="settings_account">Account</string>
+  <string name="settings_switch_account">Cambia account</string>
+  <string name="settings_account_info_title">Info Account</string>
+  <string name="settings_account_info_load_data">Carica dati account</string>
+  <string name="settings_account_space_title">Spazio Account</string>
+  <string name="settings_account_sign_out_title">Disconnetti Account</string>
+  <string name="settings_account_sign_out_hint">Disconnetti l\'account corrente</string>
+  <string name="settings_account_sign_out_confirm">Sei sicuro di voler disconnettere l\'account corrente?</string>
+  <string name="settings_night_mode_title">Modalità Notte</string>
+  <string name="settings_switch_storage_hint">Cambia memoria</string>
   <string name="security">Sicurezza</string>
   <string name="gesture_lock">Movimento per Blocco</string>
   <string name="gesture_lock_on">Movimento blocco attivo</string>
   <string name="gesture_lock_off">Movimento blocco disattivo</string>
+  <string name="lockscreen_access_pattern_hint">Imposta un pattern per bloccare lo schermo</string>
+  <string name="lockscreen_access_pattern_start">Imposta pattern di accesso</string>
   <string name="lockscreen_access_pattern_cleared">Pattern pulito</string>
+  <string name="lockscreen_access_pattern_cell_added">Cella aggiunta</string>
+  <string name="lockscreen_access_pattern_detected">Pattern rilevato</string>
+  <string name="lockscreen_access_pattern_passwd_forget">Password dimenticata</string>
+  <string name="lockscreen_access_pattern_failure">Fallimento di accesso</string>
+  <plurals name="lockscreen_access_pattern_failure_left_try_seconds">
+    <item quantity="one">%d secondo rimasto</item>
+    <item quantity="many">%d secondi rimasti</item>
+    <item quantity="other">%d secondi rimasti</item>
+  </plurals>
+  <plurals name="lockscreen_access_pattern_failure_left_try_times">
+    <item quantity="one">%d tentativo rimasto</item>
+    <item quantity="many">%d tentativi rimasti</item>
+    <item quantity="other">%d tentativi rimasti</item>
+  </plurals>
+  <string name="lockscreen_access_pattern_failure_not_long_enough">Il pattern deve essere lungo almeno %d celle</string>
+  <string name="lockpattern_retry_button_text">Riprova</string>
+  <string name="lockpattern_continue_button_text">Continua</string>
+  <string name="lockpattern_confirm_button_text">Conferma</string>
+  <string name="lockpattern_recording_intro_header">Imposta il pattern di accesso</string>
+  <string name="lockpattern_settings_help_how_to_record">Segui le istruzioni per impostare il pattern di accesso</string>
+  <string name="lockpattern_recording_incorrect_too_short">Pattern troppo corto</string>
+  <string name="lockpattern_pattern_entered_header">Pattern inserito</string>
+  <string name="lockpattern_need_to_draw">Dovresti disegnare un pattern</string>
+  <string name="lockpattern_need_to_confirm">Dovresti confermare il pattern</string>
+  <string name="lockpattern_need_to_unlock_wrong">Pattern sbagliato. Riprova</string>
+  <string name="lockpattern_pattern_confirmed_header">Pattern confermato</string>
+  <string name="lockpattern_recording_inprogress">Disegna il pattern</string>
+  <string name="lockpattern_pattern_toast_saved">Pattern salvato</string>
   <!--Strings for possible PreferenceActivity Back/Next buttons-->
+  <string name="back_button_label">Indietro</string>
+  <string name="next_button_label">Avanti</string>
   <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
+  <string name="skip_button_label">Salta</string>
   <!--Display mode-->
+  <string name="settings_display_mode">Modalità Visualizzazione</string>
   <!--contacts  upload-->
+  <string name="settings_contacts_upload_info_title">Caricamento Contatti</string>
+  <string name="settings_contacts_upload_turn_on">Abilita Caricamento Contatti</string>
+  <string name="settings_contacts_upload_service_started">Servizio Caricamento Contatti Avviato</string>
+  <string name="settings_contacts_upload_service_stopped">Servizio Caricamento Contatti Arrestato</string>
+  <string name="settings_contacts_upload_repo_hint">Scegli una libreria per caricare i contatti</string>
+  <string name="settings_contacts_upload_change_repo_title">Cambia Libreria</string>
+  <string name="settings_contacts_upload_repo_time">Ultimo caricamento: %s</string>
+  <string name="settings_contacts_upload_repo_history">Storico Caricamenti Contatti</string>
+  <string name="settings_contacts_upload_start_backup">Avvia Caricamento Contatti</string>
+  <string name="settings_contacts_upload_start_backup_hint">Avviare il caricamento dei contatti</string>
   <!--Camera Upload Preference-->
   <string name="settings_camera_upload_info_title">Caricamento Foto di Fotocamera</string>
+  <string name="settings_camera_upload_service_started">Servizio Caricamento Foto di Fotocamera Avviato</string>
+  <string name="settings_camera_upload_service_stopped">Servizio Caricamento Foto di Fotocamera Arrestato</string>
+  <string name="settings_camera_upload_allow_data_plan">Consenti caricamento su connessione dati</string>
+  <string name="settings_camera_upload_allow_videos">Consenti caricamento video</string>
+  <string name="settings_camera_upload_default_wifi">Carica su connessione WiFi predefinita</string>
+  <string name="settings_camera_upload_data_plan_allowed">Consenti caricamento su connessione dati</string>
+  <string name="settings_camera_upload_default_photos">Carica foto di default</string>
+  <string name="settings_camera_upload_videos_allowed">Consenti caricamento video</string>
+  <string name="settings_camera_upload_change_repo_title">Cambia Libreria</string>
+  <string name="settings_camera_upload_repo_hint">Scegli una libreria per caricare le foto</string>
+  <string name="settings_camera_upload_turn_on">Abilita Caricamento Foto di Fotocamera</string>
+  <string name="settings_camera_upload_choose_dir">Scegli directory</string>
+  <string name="settings_camera_upload_dir_auto_scan">Scansiona directory automaticamente</string>
+  <string name="settings_camera_upload_lib_not_found">Libreria non trovata</string>
+  <string name="settings_camera_upload_advanced_feature_title">Funzioni Avanzate</string>
+  <string name="settings_camera_upload_advanced_feature_subtitle">Abilita le funzioni avanzate</string>
+  <string name="settings_camera_upload_advanced_custom_directories">Directory personalizzate</string>
+  <string name="settings_camera_upload_advanced_custom_directories_on">Abilita directory personalizzate</string>
+  <string name="settings_camera_upload_advanced_custom_directories_off">Disabilita directory personalizzate</string>
   <!--Camera Upload Configuration View-->
+  <string name="settings_cuc_title">Configurazione Caricamento Foto di Fotocamera</string>
+  <string name="settings_cuc_welcome_text">Benvenuto nel configuratore del caricamento delle foto di fotocamera. Segui le istruzioni per configurare il caricamento automatico delle foto.</string>
+  <string name="settings_cuc_network_title">Connessione</string>
+  <string name="settings_cuc_network_wifi">Connessione WiFi</string>
+  <string name="settings_cuc_network_data_plan">Connessione Dati</string>
+  <string name="settings_cuc_how_hint">Come funziona</string>
+  <string name="settings_cuc_what_hint">Cosa carica</string>
+  <string name="settings_cuc_type_title">Tipo di Caricamento</string>
+  <string name="settings_cuc_type_photo">Foto</string>
+  <string name="settings_cuc_type_video">Video</string>
+  <string name="settings_cuc_local_dir_title">Directory Locale</string>
+  <plurals name="settings_cuc_local_dir_items">
+    <item quantity="one">Directory locale</item>
+    <item quantity="many">Directory locali</item>
+    <item quantity="other">Directory locali</item>
+  </plurals>
+  <string name="settings_cuc_remote_lib_title">Libreria Remota</string>
+  <string name="settings_cuc_remote_lib_account">Account</string>
+  <string name="settings_cuc_remote_lib_repo">Libreria</string>
+  <string name="settings_cuc_upload_to_parent_folder">Carica in cartella padre</string>
+  <string name="settings_cuc_auto_scan">Scansiona automaticamente</string>
+  <string name="settings_cuc_pick_albums">Scegli album</string>
+  <string name="settings_cuc_remote_lib_hint">Scegli una libreria remota per caricare le foto</string>
+  <string name="settings_cuc_finish_title">Fine</string>
+  <string name="settings_cuc_ready">Pronto per caricare</string>
+  <string name="settings_cuc_swipe_left">Swipe a sinistra per annullare</string>
+  <string name="settings_cuc_click_btn">Clicca il pulsante per avviare il caricamento</string>
+  <string name="settings_cuc_loading">Caricamento in corso...</string>
   <!--Camera Sync-->
+  <string name="sync_provider_camera_upload">Sincronizzazione Caricamento Foto di Fotocamera</string>
+  <string name="camera_sync_notification_title_failed">Sincronizzazione Caricamento Foto di Fotocamera Fallita</string>
+  <string name="camera_sync_notification_repo_missing_failed">Libreria remota non trovata</string>
+  <string name="camera_sync_notification_auth_error_failed">Errore di autenticazione</string>
+  <string name="camera_sync_rename_file">Rinomina file</string>
+  <string name="settings_about_title">Informazioni</string>
+  <string name="settings_about_privacy_policy">Privacy Policy</string>
+  <string name="settings_about_version_title">Versione</string>
+  <string name="settings_about_author_title">Autore</string>
+  <string name="settings_export_run_logs">Esporta Log di Esecuzione</string>
+  <string name="settings_about_author_info">Autore: Seafile</string>
+  <string name="settings_advance_feature_title">Funzioni Avanzate</string>
+  <string name="settings_transfer_title">Trasferimento</string>
+  <string name="settings_storage_title">Memoria</string>
+  <string name="settings_cache_title">Cache</string>
+  <string name="settings_clear_cache_title">Pulisci Cache</string>
+  <string name="settings_clear_cache_hint">Sei sicuro di voler pulire la cache?</string>
+  <string name="settings_clear_cache_success">Cache pulita con successo</string>
+  <string name="settings_clear_cache_failed">Impossibile pulire la cache</string>
+  <string name="settings_cache_empty">La cache è vuota</string>
+  <string name="settings_cache_location_title">Posizione Cache</string>
+  <string name="dialog_switch_storage_info_text">Vuoi switchare alla memoria secondaria?</string>
+  <string name="storage_manager_primary_storage">Memoria Primaria</string>
+  <string name="storage_manager_secondary_storage">Memoria Secondaria</string>
+  <string name="storage_manager_storage_description">Descrizione Memoria</string>
+  <string name="storage_manager_storage_description_not_available">Descrizione Memoria Non Disponibile</string>
   <!--pull to refresh-->
+  <string name="pull_to_refresh_pull_label">Swipe verso il basso per aggiornare</string>
+  <string name="pull_to_refresh_release_label">Soltanto per aggiornare</string>
+  <string name="pull_to_refresh_refreshing_label">Aggiornamento in corso...</string>
+  <string name="pull_to_refresh_last_update">Ultimo aggiornamento: %s</string>
+  <string name="pull_to_refresh_last_update_seconds_ago">%d secondi fa</string>
+  <string name="pull_to_refresh_last_update_minutes_ago">%d minuti fa</string>
+  <string name="pull_to_refresh_last_update_hours_ago">%d ore fa</string>
   <!--storage access framework-->
+  <string name="saf_open_file_exception">Impossibile aprire il file</string>
+  <string name="saf_open_directory_exception">Impossibile aprire la directory</string>
+  <string name="saf_file_not_cached_exception">File non caches</string>
+  <string name="saf_thumbnail_not_found_exception">Immagine miniatura non trovata</string>
+  <string name="saf_file_not_downloaded_exception">File non scaricato</string>
+  <string name="saf_write_diretory_exception">Impossibile scrivere nella directory</string>
+  <string name="saf_account_not_found_exception">Account non trovato</string>
+  <string name="saf_upload_path_not_available">Percorso di caricamento non disponibile</string>
+  <string name="saf_failed_to_create_directory">Impossibile creare la directory</string>
+  <string name="saf_file_exist">Il file esiste già</string>
+  <string name="saf_bad_mime_type">Tipo MIME non valido</string>
   <!--Single Sign-On  SSO-->
+  <string name="shib_server_url_empty">URL del Server SSO non specificato</string>
+  <string name="shib_server_incorrect_prefix">Prefisso URL del Server SSO non corretto</string>
+  <string name="shib_load_page_error">Errore nel caricamento della pagina</string>
+  <string name="shib_login_title">Login SSO</string>
+  <string name="shib_loading">Caricamento in corso...</string>
   <!--Transfer List-->
+  <string name="transfer_list_network_error">Errore di rete</string>
+  <string name="transfer_list_cancel_all">Annulla tutti</string>
+  <string name="transfer_list_cancel_all_desc">Annulla tutti i trasferimenti attivi</string>
+  <string name="transfer_list_restart_all">Riavvia tutti</string>
+  <string name="transfer_list_retry_failed_tasks">Riprova i trasferimenti falliti</string>
+  <string name="transfer_list_restart_cancelled_tasks">Riavvia i trasferimenti annullati</string>
+  <string name="transfer_list_clear_failed_tasks">Pulisci i trasferimenti falliti</string>
+  <string name="transfer_list_clear_all_tasks">Pulisci tutti i trasferimenti</string>
+  <string name="transfer_list_clear_all_tasks_desc">Sei sicuro di voler pulire tutti i trasferimenti attivi?</string>
+  <string name="transfer_list_clear_finished_tasks">Pulisci i trasferimenti completati</string>
+  <string name="transfer_tabs_downloads">Scaricamenti</string>
+  <string name="transfer_tabs_uploads">Caricamenti</string>
+  <string name="transfer_download_no_task">Nessun trasferimento attivo</string>
+  <plurals name="transfer_download_started">
+    <item quantity="one">%d trasferimento attivo</item>
+    <item quantity="many">%d trasferimenti attivi</item>
+    <item quantity="other">%d trasferimenti attivi</item>
+  </plurals>
+  <string name="transfer_list_select_all">Seleziona tutti</string>
+  <string name="transfer_list_deselect_all">Deseleziona tutti</string>
+  <plurals name="transfer_list_items_selected">
+    <item quantity="one">%d elemento selezionato</item>
+    <item quantity="many">%d elementi selezionati</item>
+    <item quantity="other">%d elementi selezionati</item>
+  </plurals>
   <!--Sort-->
+  <string name="sort_menu_item">Ordina per</string>
+  <string name="sort_files">Ordina per nome</string>
+  <string-array name="sort_files_options_array">
+    <item>Name</item>
+    <item>Name (Desc)</item>
+    <item>Last Modified Time</item>
+    <item>Last Modified Time (Desc)</item>
+  </string-array>
   <!--Search-->
+  <string name="search_menu_item">Cerca</string>
+  <string name="search_bar_hint">Cerca...</string>
+  <string name="search_txt_empty">Nessun risultato trovato</string>
+  <string name="search_content_empty">Nessun risultato trovato</string>
+  <string name="search_server_not_support">Server non supporta la ricerca</string>
+  <string name="search_library_not_found">Libreria non trovata</string>
+  <string name="search_in_this_library">Cerca in questa libreria</string>
   <!--star a file-->
+  <string name="star_file_succeed">File messo a stella</string>
+  <string name="star_file_failed">Impossibile mettere a stella il file</string>
   <!--unstar a file-->
+  <string name="unstar_file_failed">Impossibile rimuovere la stella dal file</string>
+  <string name="unstar">Rimuovi stella</string>
   <!--notification bar-->
+  <string name="notification_upload_started_title">Caricamento in corso</string>
+  <string name="notification_download_started_title">Scaricamento in corso</string>
+  <string name="notification_upload_completed">Caricamento completato</string>
+  <plurals name="notification_upload_info">
+    <item quantity="one">%d file caricato</item>
+    <item quantity="many">%d file caricati</item>
+    <item quantity="other">%d file caricati</item>
+  </plurals>
+  <plurals name="notification_download_info">
+    <item quantity="one">%d file scaricato</item>
+    <item quantity="many">%d file scaricati</item>
+    <item quantity="other">%d file scaricati</item>
+  </plurals>
+  <string name="notification_download_completed">Scaricamento completato</string>
   <!--Gallery-->
+  <string name="gallery_load_photos_error">Errore nel caricamento delle foto</string>
+  <string name="gallery_encrypted_repo_not_supported">Libreria crittografata non supportata</string>
   <!--Overwrite existing files-->
+  <string name="overwrite_existing_file_title">Sovrascrivi file esistenti</string>
+  <string name="overwrite_existing_file_msg">Sicuro di voler sovrascrivere i file esistenti?</string>
+  <string name="overwrite_existing_file_exist">I file esistenti saranno sovrascritti</string>
   <!--Action Mode-->
+  <string name="action_mode_no_items_selected">Nessun elemento selezionato</string>
   <!--Accessibility description for navigation drawer-->
   <!--permission-->
+  <string name="permission_manage_external_storage_rationale">È necessario concedere l\'autorizzazione per gestire lo storage esterno</string>
+  <string name="permission_read_external_storage_rationale">È necessario concedere l\'autorizzazione per leggere lo storage esterno</string>
+  <string name="permission_read_contacts_storage_rationale">È necessario concedere l\'autorizzazione per leggere lo storage dei contatti</string>
+  <string name="permission_camera">È necessario concedere l\'autorizzazione per utilizzare la fotocamera</string>
+  <string name="permission_not_granted">Autorizzazione non concessa</string>
+  <string name="history_change_title">Cambia storia</string>
+  <string name="no_more_activities">Nessuna attività successiva</string>
   <!--client side encryption and decryption-->
+  <string name="enc_on">Crittografia attivata</string>
+  <string name="enc_off">Crittografia disattivata</string>
+  <string name="enc_title">Crittografia client side</string>
   <!--clear password-->
+  <string name="clear_password_title">Cancella password</string>
+  <string name="clear_password_hint">Inserisci la password per cancellarla</string>
+  <string name="clear_password_successful">Password cancellata con successo</string>
+  <string name="clear_password_failed">Impossibile cancellare la password</string>
+  <string name="clear_password_warning">Attenzione: la password verrà cancellata e non sarà più possibile accedere al repository</string>
+  <string name="clear_password_auto">Cancella password automaticamente</string>
   <!--Two factor auth-->
+  <string name="two_factor_auth_error">Errore di autenticazione a due fattori</string>
+  <string name="two_factor_auth_invalid">Token di autenticazione a due fattori non valido</string>
+  <string name="two_factor_auth_token">Token di autenticazione a due fattori</string>
+  <string name="two_factor_auth_token_empty">Il token di autenticazione a due fattori è vuoto</string>
+  <string name="two_factor_auth_remember_phone">Ricordami il telefono</string>
   <!--Operation Exceptions-->
+  <string name="op_exception_folder_deleted">Cartella eliminata</string>
+  <string name="op_exception_suitable_app_not_found">Nessuna app appropriata trovata</string>
+  <string name="op_exception_failed_to_download_file">Impossibile scaricare il file</string>
+  <string name="op_unable_to_with_exception">Impossibile eseguire l\'operazione con l\'eccezione: %s</string>
   <!--Home list title-->
+  <string name="shared_with_all">Condiviso con tutti</string>
+  <string name="add_password_protection">Aggiungi protezione con password</string>
+  <string name="select_an_expiration_dates">Seleziona una data di scadenza</string>
+  <string name="expiration_dates">Date di scadenza</string>
+  <string name="add_auto_expiration">Aggiungi scadenza automatica</string>
+  <string name="input_auto_expiration">Inserisci scadenza automatica</string>
+  <string name="tip_select_an_expiration_dates">Seleziona una data di scadenza per il file</string>
   <!--editor-->
+  <string name="editor_lines_error">Numero di linee non valido</string>
+  <string name="editor_file_save">Salva file</string>
+  <string name="editor_file_save_success">File salvato con successo</string>
+  <string name="editor_file_save_failed">Impossibile salvare il file</string>
+  <string name="editor_file_save_title">Salva file</string>
+  <string name="description">Descrizione</string>
+  <string name="undo">Annulla</string>
+  <string name="redo">Ripristina</string>
+  <string name="link">Collegamento</string>
+  <string name="channel_name_error">Nome canale non valido</string>
+  <string name="channel_name_upload">Canale caricamento</string>
+  <string name="channel_name_download">Canale scaricamento</string>
+  <string name="channel_name_album_backup">Canale backup album</string>
+  <string name="channel_name_transfer">Canale trasferimento</string>
+  <string name="above_quota">Sono stati superati i limiti di spazio</string>
+  <string name="camera_upload_state">Caricamento in corso</string>
+  <string name="waiting_state">In attesa</string>
+  <string name="Upload_completed">Caricamento completato</string>
+  <string name="is_scanning">Scansione in corso</string>
+  <string name="is_uploading">Caricamento in corso</string>
+  <string name="network_unavailable">Connessione internet non disponibile</string>
+  <string name="network_error">Errore di connessione internet</string>
+  <string name="error_image_load">Errore nel caricamento dell\'immagine</string>
+  <string name="retry_with_click">Riprova con un click</string>
+  <string name="required_password">Password richiesta</string>
+  <string name="weak_password">Password debole</string>
   <!--Folder backup Preference-->
+  <string name="settings_folder_backup_info_title">Backup cartelle</string>
+  <string name="settings_folder_backup_switch_title">Abilita backup cartelle</string>
+  <string name="settings_folder_backup_service_started">Servizio backup cartelle avviato</string>
+  <string name="settings_folder_backup_service_stopped">Servizio backup cartelle fermato</string>
+  <string name="settings_select_backup_folder_title">Seleziona cartella di backup</string>
+  <string name="settings_sync_hidden_files_switch">Sincronizza file nascosti</string>
+  <string name="settings_sync_hidden_files_disabled">Sincronizzazione file nascosti disabilitata</string>
+  <string name="settings_sync_hidden_files_enabled">Sincronizzazione file nascosti abilitata</string>
+  <string name="folder_file_item_size">Dimensione</string>
+  <string name="folder_file_item_describe">Descrizione</string>
+  <string name="internal_storage">Memoria interna</string>
+  <string name="selection_file_type">Tipo di file selezionato</string>
+  <string name="select_backup_folder">Seleziona cartella di backup</string>
+  <string name="select_backup_libraries">Seleziona librerie da backup</string>
+  <string name="folder_backup_completed">Backup cartelle completato</string>
+  <string name="get_permission_failed">Impossibile ottenere i permessi</string>
+  <string name="get_storage_permission_failed">Impossibile ottenere i permessi di memoria</string>
+  <string name="authorization_storage_permission">Autorizzazione memoria</string>
+  <string name="settings_folder_backup_select_hint">Seleziona cartella di backup</string>
+  <string name="settings_folder_backup_select_title">Cartella di backup</string>
+  <string name="settings_folder_backup_traffic">Uso traffico</string>
+  <string name="settings_folder_backup_traffic_hint">Uso traffico per backup cartelle</string>
+  <string name="settings_folder_backup_library">Libreria</string>
+  <string name="folder_backup_add">Aggiungi backup cartella</string>
+  <string name="folder_backup_cancel">Annulla backup cartella</string>
+  <string name="folder_backup_waiting_state">Stato attesa backup cartella</string>
+  <string name="folder_backup_state">Stato backup cartella</string>
+  <string name="folder_backup_mode">Modalità backup cartella</string>
+  <string name="folder_backup_mode_title">Modalità backup cartella</string>
+  <string name="folder_backup_select_repo_hint">Seleziona libreria da backup</string>
+  <string name="folder_backup_select_repo_update">Aggiorna libreria</string>
+  <string name="UncaughtExceptionHandler_err">Si è verificato un errore imprevisto</string>
+  <string name="settings_file_backup_info_title">Backup file</string>
   <!--action-->
+  <string name="pause">Pausa</string>
+  <string name="paused">Pausato</string>
+  <string name="waiting">In attesa</string>
+  <string name="add">Aggiungi</string>
+  <string name="modify">Modifica</string>
+  <string name="update">Aggiorna</string>
+  <string name="clear">Pulisci</string>
+  <string name="close">Chiudi</string>
+  <string name="clear_all">Pulisci tutto</string>
+  <string name="done">Completato</string>
+  <string name="success">Successo</string>
+  <string name="failed">Fallito</string>
+  <string name="uploading">Caricamento in corso</string>
+  <string name="downloading">Scaricamento in corso</string>
+  <string name="select_all">Seleziona tutto</string>
+  <string name="replace_all">Sostituisci tutto</string>
+  <string name="replace">Sostituisci</string>
+  <string name="replace_local_file">Sostituisci file locale</string>
+  <string name="replace_remote_file">Sostituisci file remoto</string>
+  <string name="do_not_replace">Non sostituire</string>
+  <string name="keep_both">Mantieni entrambi</string>
+  <string name="off">Spento</string>
+  <string name="on">Acceso</string>
+  <string name="follow_system">Follow system</string>
+  <string name="empty">Vuoto</string>
+  <string name="empty_data">Nessun dato disponibile</string>
   <!--share link-->
+  <string name="link_permission_set_permission">Imposta permessi</string>
+  <string name="link_permission_preview_and_download">Previsualizza e scarica</string>
+  <string name="link_permission_preview_only">Previsualizza solo</string>
+  <string name="link_permission_download_and_upload">Scarica e carica</string>
   <!--menu-->
+  <string name="menu_action_view_and_sort">Visualizza e ordina</string>
+  <string name="menu_action_view_list">Visualizza come elenco</string>
+  <string name="menu_action_view_grid">Visualizza come griglia</string>
+  <string name="menu_action_view_gallery">Visualizza come galleria</string>
+  <string name="menu_action_sort_by_name">Ordina per nome</string>
+  <string name="menu_action_sort_by_type">Ordina per tipo</string>
+  <string name="menu_action_sort_by_size">Ordina per dimensione</string>
+  <string name="menu_action_sort_by_last_modified">Ordina per ultimo modifica</string>
+  <string name="menu_action_sort_order_ascending">Ordine ascendente</string>
+  <string name="menu_action_sort_directories_first">Cartelle prima</string>
+  <string name="menu_detail">Dettagli</string>
   <!--sdoc-->
+  <string name="_size">Dimensione</string>
+  <string name="_last_modifier">Ultimo modificatore</string>
+  <string name="_last_modified_time">Ultima modifica</string>
+  <string name="_reviewer">Revisore</string>
+  <string name="_file_collaborators">Collaboratori file</string>
+  <string name="_file_status">Stato file</string>
+  <string name="_in_progress">In corso</string>
+  <string name="_in_review">In revisione</string>
+  <string name="_done">Completato</string>
+  <string name="_outdated">Outdated</string>
+  <string name="_tags">Tag</string>
+  <string name="_location">Posizione</string>
+  <string name="_owner">Proprietario</string>
+  <string name="mark_resolve">Segna come risolto</string>
+  <string name="delete_confirm">Conferma cancellazione</string>
+  <string name="image_capture_time">Data acquisizione</string>
+  <string name="image_dimensions">Dimensioni immagine</string>
+  <string name="image_color_space_uncalibrated">Spazio colore non calibrato</string>
+  <string name="image_color_space_undefined">Spazio colore non definito</string>
+  <string name="canceled">Cancellato</string>
+  <string name="offline">Offline</string>
+  <string name="start">Inizia</string>
+  <string name="next">Prossimo</string>
+  <string name="finish">Fine</string>
+  <string name="skip">Salta</string>
+  <string name="previous">Precedente</string>
+  <string name="complete">Completa</string>
+  <string name="backing_up">Backup in corso</string>
+  <string name="backup_completed">Backup completato</string>
+  <string name="backup_failed">Backup fallito</string>
+  <string name="export_log_file_not_exists">File log non esistente</string>
+  <string name="file_transfer_stopped">Transferimento file interrotto</string>
 </resources>

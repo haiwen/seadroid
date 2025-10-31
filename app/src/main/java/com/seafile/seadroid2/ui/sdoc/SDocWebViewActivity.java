@@ -231,7 +231,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
                 @Override
                 public void onClick(View v) {
                     if (!nextEditMode) {
-                        callJsSdocEditorEnitable();
+                        callJsSdocEditorEditable();
                     }
 
                     if (KeyboardUtils.isSoftInputVisible(SDocWebViewActivity.this)) {
@@ -246,7 +246,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
                 @Override
                 public void onClick(View v) {
                     if (!nextEditMode) {
-                        callJsSdocEditorEnitable();
+                        callJsSdocEditorEditable();
                     }
 
                     if (KeyboardUtils.isSoftInputVisible(SDocWebViewActivity.this)) {
@@ -260,7 +260,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
                 @Override
                 public void onClick(View v) {
                     if (!nextEditMode) {
-                        callJsSdocEditorEnitable();
+                        callJsSdocEditorEditable();
                     }
 
                     if (KeyboardUtils.isSoftInputVisible(SDocWebViewActivity.this)) {
@@ -372,7 +372,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.sdoc_edit) {
-            callJsSdocEditorEnitable();
+            callJsSdocEditorEditable();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -447,7 +447,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         }
     };
 
-    private void callJsSdocEditorEnitable() {
+    private void callJsSdocEditorEditable() {
         if (!jsCallbackReceived) {
             return;
         }

@@ -19,6 +19,7 @@ import com.seafile.seadroid2.enums.TransferResult;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.model.dirents.DirentRecursiveFileModel;
 import com.seafile.seadroid2.framework.notification.FolderBackupScanNotificationHelper;
+import com.seafile.seadroid2.framework.service.BackupThreadExecutor;
 import com.seafile.seadroid2.framework.service.scan.FolderScanHelper;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.SafeLogs;
@@ -41,6 +42,16 @@ public class FolderBackupScanWorker extends BaseScanWorker {
     private final FolderBackupScanNotificationHelper notificationManager;
     private RepoConfig repoConfig;
     private Account account;
+    // @FIXME fix this
+    private static volatile boolean isWorkerRunning = false;
+
+    private static void setIsRunning(boolean running) {
+        isWorkerRunning = running;
+    }
+
+    public static boolean isIsWorkerRunning() {
+        return isWorkerRunning;
+    }
 
     public FolderBackupScanWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
@@ -72,10 +83,22 @@ public class FolderBackupScanWorker extends BaseScanWorker {
         }
     }
 
+    private static boolean canExc() {
+        boolean isRunning = BackupThreadExecutor.getInstance().isFolderBackupRunning();
+        return !isRunning;
+    }
+
     @NonNull
     @Override
     public Result doWork() {
         SLogs.d(TAG, "doWork()", "started execution");
+
+        if (!canExc()) {
+            SLogs.e(TAG, "The folder scan task was not started, because the folder backup task is running");
+            return Result.success();
+        }
+
+        setIsRunning(true);
 
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
         if (account == null) {
@@ -144,11 +167,13 @@ public class FolderBackupScanWorker extends BaseScanWorker {
             }
         }
 
+        setIsRunning(false);
         sendCompleteEvent(FeatureDataSource.FOLDER_BACKUP, content, totalPendingCount);
         return Result.success();
     }
 
     protected Result returnSuccess() {
+        setIsRunning(false);
         send(FeatureDataSource.FOLDER_BACKUP, TransferEvent.EVENT_SCAN_COMPLETE);
         return Result.success();
     }

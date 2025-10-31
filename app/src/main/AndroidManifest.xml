@@ -155,7 +155,7 @@
 
         <activity android:name=".ui.webview.SeaWebViewActivity" />
         <activity android:name=".ui.data_migrate.DataMigrationActivity" />
-        <activity android:name=".ui.selector.ObjSelectorActivity" />
+        <activity android:name=".ui.selector.obj.ObjSelectorActivity" />
         <activity android:name=".ui.transfer_list.TransferActivity" />
         <activity android:name=".ui.BugHandlerActivity" />
         <activity android:name=".ui.settings.SettingsAlbumBackupAdvancedActivity" />
@@ -166,7 +166,8 @@
             android:windowSoftInputMode="adjustResize" />
         <activity android:name=".ui.media.image.CarouselImagePreviewActivity" />
         <activity android:name=".ui.media.image.OnlyImagePreviewActivity" />
-        <activity android:name=".ui.selector.FolderSelectorActivity" />
+        <activity android:name=".ui.selector.folder_selector.FolderSelectorActivity" />
+        <activity android:name=".ui.selector.versatile.VersatileSelectorActivity" />
 
         <provider
             android:name=".provider.SeafileProvider"

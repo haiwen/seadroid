@@ -19,6 +19,7 @@ import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.notification.AlbumBackupNotificationHelper;
 import com.seafile.seadroid2.framework.notification.base.BaseTransferNotificationHelper;
+import com.seafile.seadroid2.framework.service.BackupThreadExecutor;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.SafeLogs;
 import com.seafile.seadroid2.framework.util.Toasts;
@@ -35,6 +36,16 @@ import java.util.UUID;
 public class MediaBackupUploadWorker extends BaseUploadWorker {
     private static final String TAG = "MediaBackupUploadWorker";
     public static final UUID UID = UUID.nameUUIDFromBytes(TAG.getBytes());
+
+    // @FIXME fix this
+    private static volatile boolean isWorkerRunning = false;
+
+    private static void setIsRunning(boolean running) {
+        isWorkerRunning = running;
+    }
+    public static boolean isIsWorkerRunning(){
+        return isWorkerRunning;
+    }
 
     private final AlbumBackupNotificationHelper notificationManager;
 
@@ -71,11 +82,23 @@ public class MediaBackupUploadWorker extends BaseUploadWorker {
         }
     }
 
+    private static boolean canExc() {
+        boolean isRunning = BackupThreadExecutor.getInstance().isAlbumBackupRunning();
+        return !isRunning;
+    }
+
     @NonNull
     @Override
     public ListenableWorker.Result doWork() {
+        if (!canExc()) {
+            SafeLogs.e(TAG, "doWork()", "The album scan task was not started, because the album backup thread is running");
+            return Result.success();
+        }
+
+        setIsRunning(true);
+
         SLogs.d(TAG, "doWork()", "started execution");
-//send a start event
+        //send a start event
         send(FeatureDataSource.ALBUM_BACKUP, TransferEvent.EVENT_TRANSFER_TASK_START);
 
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
@@ -176,15 +199,18 @@ public class MediaBackupUploadWorker extends BaseUploadWorker {
         if (resultException != SeafException.SUCCESS) {
             errorMsg = resultException.getMessage();
             Toasts.show(R.string.backup_failed);
-        }else{
+        } else {
             Toasts.show(R.string.backup_completed);
         }
 
+        setIsRunning(false);
         sendCompleteEvent(FeatureDataSource.ALBUM_BACKUP, errorMsg, totalPendingCount);
         return Result.success();
     }
 
     protected Result returnSuccess() {
+
+        setIsRunning(false);
         send(FeatureDataSource.ALBUM_BACKUP, TransferEvent.EVENT_TRANSFER_TASK_COMPLETE);
         return Result.success();
     }

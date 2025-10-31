@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.ui.selector;
+package com.seafile.seadroid2.ui.selector.obj;
 
 import android.content.Context;
 import android.content.Intent;

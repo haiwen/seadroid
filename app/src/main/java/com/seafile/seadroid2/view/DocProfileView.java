@@ -122,7 +122,7 @@ public class DocProfileView extends LinearLayout {
         parseViewByType(metadata);
     }
 
-    private final List<String> _supportedField = List.of("_size", "_file_modifier", "_file_mtime", "_description", "_collaborators", "_owner", "_reviewer", "_status", "_tags", "_location");
+    private final List<String> _supportedField = List.of("_size", "_file_modifier", "_file_mtime", "_description", "_collaborators", "_owner", "_reviewer", "_status", "_tags", "_location", "_rate");
 
     private Object getValueByKey(String key) {
         if (configModel.getRecordResultList().isEmpty()) {
@@ -163,6 +163,8 @@ public class DocProfileView extends LinearLayout {
                 return R.string._tags;
             case "_owner":
                 return R.string._owner;
+            case "_rate":
+                return R.string._rate;
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -272,7 +274,6 @@ public class DocProfileView extends LinearLayout {
 
             default -> R.drawable.ic_single_line_text;
         };
-
     }
 
     private void parseText(LinearLayout view, MetadataModel model) {
@@ -442,7 +443,6 @@ public class DocProfileView extends LinearLayout {
         }
 
         if (model.value instanceof String value && !TextUtils.isEmpty(model.value.toString())) {
-
             Optional<OptionsTagModel> option = configDataModel.options.stream().filter(f -> f.name.equals(value)).findFirst();
 
             View ltr = LayoutInflater.from(view.getContext()).inflate(R.layout.layout_detail_text_round, null);
@@ -451,9 +451,14 @@ public class DocProfileView extends LinearLayout {
 
             if (option.isPresent()) {
                 OptionsTagModel t = option.get();
-                textView.setText(t.name);
-                textView.setTextColor(Color.parseColor(t.textColor));
-                cardView.setCardBackgroundColor(Color.parseColor(t.color));
+                int r = getResNameByKey(t.name);
+                if (r == Resources.ID_NULL) {
+                    textView.setText(t.name);
+                }else{
+                    textView.setText(r);
+                }
+                textView.setTextColor(Color.parseColor(t.getTextColor()));
+                cardView.setCardBackgroundColor(Color.parseColor(t.getColor()));
             } else {
                 textView.setText(value);
             }

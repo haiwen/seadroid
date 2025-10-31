@@ -34,38 +34,12 @@ public class TransferQueue {
      * enable category, like this:
      * <pre>
      * [
-     *   {bucketName1, [id11,id12]},
-     *   {bucketName2, [id21,id22]}
+     *   {bucketName1, [transfer_model_id_1,transfer_model_id_2]},
+     *   {bucketName2, [transfer_model_id_3,transfer_model_id_4]}
      * ]
      * </pre>
      */
     private final ConcurrentHashMap<String, Set<String>> _category_map = new ConcurrentHashMap<>();
-
-    /**
-     * cache UploadModel obj, like this:
-     * <pre>
-     * [
-     *  {id11, UploadModel11},
-     *  {id12, UploadModel12},
-     *  {id21, UploadModel21}
-     *  {id22, UploadModel22}
-     * ]
-     * </pre>
-     */
-    private final ConcurrentHashMap<String, TransferModel> _transfer_map = new ConcurrentHashMap<>();
-
-    /**
-     * UploadModel's id queue, like this:
-     * <pre>
-     * [
-     *   id11,
-     *   id12,
-     *   id21,
-     *   id22
-     * ]
-     * </pre>
-     */
-    private final ConcurrentLinkedDeque<String> _transfer_queue = new ConcurrentLinkedDeque<>();
 
     private ConcurrentHashMap<String, Set<String>> getCategoryMap() {
         return _category_map;
@@ -95,6 +69,20 @@ public class TransferQueue {
                 .collect(Collectors.toList());
     }
 
+
+    /**
+     * cache UploadModel obj, like this:
+     * <pre>
+     * [
+     *  {transfer_model_id_1, transfer_model1},
+     *  {transfer_model_id_2, transfer_model2},
+     *  {transfer_model_id_3, transfer_model3}
+     *  {transfer_model_id_4, transfer_model4}
+     * ]
+     * </pre>
+     */
+    private final ConcurrentHashMap<String, TransferModel> _transfer_map = new ConcurrentHashMap<>();
+
     public ConcurrentHashMap<String, TransferModel> getTransferMap() {
         return _transfer_map;
     }
@@ -111,11 +99,6 @@ public class TransferQueue {
                 .collect(Collectors.toList());
     }
 
-    private ConcurrentLinkedDeque<String> getTransferQueue() {
-        return _transfer_queue;
-    }
-
-
     public List<TransferModel> getSortedTransferQueueList() {
         if (getTransferQueue().isEmpty()) {
             return new ArrayList<>();
@@ -131,6 +114,23 @@ public class TransferQueue {
                 .collect(Collectors.toList());
     }
 
+
+    /**
+     * transferModel's id queue, like this:
+     * <pre>
+     * [
+     *   transfer_model_id_1,
+     *   transfer_model_id_2,
+     *   transfer_model_id_3,
+     *   transfer_model_id_4
+     * ]
+     * </pre>
+     */
+    private final ConcurrentLinkedDeque<String> _transfer_queue = new ConcurrentLinkedDeque<>();
+
+    private ConcurrentLinkedDeque<String> getTransferQueue() {
+        return _transfer_queue;
+    }
     public int getTotalCount() {
         return getTransferMap().size();
     }
@@ -139,7 +139,7 @@ public class TransferQueue {
         return getTransferQueue().size();
     }
 
-    public void update(TransferModel model) {
+    public synchronized void update(TransferModel model) {
         if (model == null) {
             return;
         }
@@ -159,7 +159,7 @@ public class TransferQueue {
         return pick(false);
     }
 
-    public TransferModel pick(boolean isRemoveFromMap) {
+    public synchronized TransferModel pick(boolean isRemoveFromMap) {
         String uploadId = getTransferQueue().pollFirst();
         if (TextUtils.isEmpty(uploadId)) {
             return null;

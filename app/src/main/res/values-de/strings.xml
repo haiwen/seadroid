@@ -3,6 +3,7 @@
   <string name="welcome_to_seafile">Willkommen bei Seafile</string>
   <string name="select_account">Bitte wählen Sie ein Konto aus</string>
   <string name="edit_account">Bearbeiten</string>
+  <string name="ignore">Ignorieren</string>
   <string name="delete_account">Löschen</string>
   <string name="delete">Löschen</string>
   <string name="delete_repo">Möchten Sie die Bibliothek wirklich löschen?</string>
@@ -18,6 +19,7 @@
   <string name="move_folder">Ordner verschieben</string>
   <string name="delete_dir">Ordner löschen</string>
   <string name="name_hint">Name</string>
+  <string name="server">Server</string>
   <string name="server_hint">Server, z.B. cloud.seafile.com</string>
   <string name="email_hint">E-Mail oder Benutzername</string>
   <string name="passwd_hint">Passwort</string>
@@ -35,6 +37,7 @@
   <string name="personal">Meine Bibliotheken</string>
   <string name="shared">Freigegeben</string>
   <string name="libraries">Bibliotheken</string>
+  <string name="my_libraries">Meine Bibliotheken</string>
   <string name="cached">Zwischengespeichert</string>
   <string name="activities">Aktivitäten</string>
   <string name="pick_upload_type">Hochladen</string>
@@ -68,6 +71,7 @@
   <string name="download_failed">Herunterladen fehlgeschlagen</string>
   <string name="download_waiting">Warte auf Herunterladen</string>
   <string name="download_finished">Herunterladen abgeschlossen</string>
+  <string name="download_completed">Download abgeschlossen</string>
   <string name="download_cancelled">Herunterladen abgebrochen</string>
   <string name="task_cancel">Abbrechen</string>
   <string name="task_retry">Wiederholen</string>
@@ -117,6 +121,7 @@
   <string name="dir_name_empty">Bitte den Namen des Ordners eingeben</string>
   <string name="file_name_empty">Bitte den Namen der Datei eingeben</string>
   <string name="password_empty">Bitte das Passwort eingeben</string>
+  <string name="name_contains_slash">Der Name darf keinen Schrägstrich enthalten</string>
   <string name="wrong_password">Falsches Passwort</string>
   <string name="library_read_only">Diese Bibliothek ist schreibgeschützt</string>
   <string name="error_when_load_dirents">Fehler beim Laden des Verzeichnisses.
@@ -139,6 +144,7 @@ Zum Aktualisieren einmal antippen</string>
   <string name="load_dir_fail">Inhalt des Ordners konnte nicht geladen werden</string>
   <string name="not_supported_share">Diese Art der Freigabe wird nicht unterstützt</string>
   <string name="edit">Bearbeiten</string>
+  <string name="select">Auswählen</string>
   <string name="create_draft">Entwurf erstellen</string>
   <string name="rename_draft">Entwurf umbenennen</string>
   <string name="del_draft">Entwurf löschen</string>
@@ -187,6 +193,7 @@ Zum Aktualisieren einmal antippen</string>
   <string name="share_dir_link">Link zu diesem Ordner freigeben</string>
   <string name="share_input_password">Freigabe-Passwort eingeben</string>
   <string name="generating_link">Link wird erzeugt …</string>
+  <string name="generating_link_title">Freigabelink erzeugen</string>
   <string name="link_ready_to_be_pasted">Der Link wurde in die Zwischenablage kopiert.</string>
   <string name="rename_repo">Bibliothek umbenennen</string>
   <string name="rename_file">Datei umbenennen</string>
@@ -198,6 +205,7 @@ Zum Aktualisieren einmal antippen</string>
     <item>Konten</item>
     <item>Fotos sichern</item>
   </string-array>
+  <string name="navigate_to_directory">Zu Ordner gehen</string>
   <string name="no_starred_file">Keine Favoriten markiert</string>
   <string name="added_to_upload_tasks">Hochladen gestartet</string>
   <string name="added_photo_to_upload_tasks">Foto-Upload gestartet</string>
@@ -208,6 +216,7 @@ Zum Aktualisieren einmal antippen</string>
   <string name="provide_password">Das Passwort für die Bibliothek „%s“ eingeben</string>
   <string name="upload_waiting">Warte auf Hochladen</string>
   <string name="upload_finished">Hochladen abgeschlossen</string>
+  <string name="upload_completed">Upload abgeschlossen</string>
   <string name="upload_cancelled">Hochladen abgebrochen</string>
   <string name="upload_failed">Hochladen fehlgeschlagen</string>
   <string name="upload_file_exist">Die Datei ist schon vorhanden</string>
@@ -263,12 +272,14 @@ Zum Aktualisieren einmal antippen</string>
   <string name="confirm">Bestätigen</string>
   <string name="repo_not_found">Die Bibliothek konnte nicht gefunden werden. Vielleicht wurde sie gelöscht oder sie ist verschlüsselt</string>
   <string name="settings_account">Konto</string>
+  <string name="settings_switch_account">Konto wechseln</string>
   <string name="settings_account_info_title">Benutzerinformation</string>
   <string name="settings_account_info_load_data">Ladevorgang …</string>
   <string name="settings_account_space_title">Benutzter Speicherplatz</string>
   <string name="settings_account_sign_out_title">Abmelden</string>
   <string name="settings_account_sign_out_hint">Zum Abmelden klicken</string>
   <string name="settings_account_sign_out_confirm">Möchten Sie sich wirklich abmelden?</string>
+  <string name="settings_night_mode_title">Dunkelmodus</string>
   <string name="security">Sicherheit</string>
   <string name="gesture_lock">Bewegungssperre</string>
   <string name="gesture_lock_on">Bewegungssperre an</string>
@@ -308,6 +319,7 @@ Zum Aktualisieren einmal antippen</string>
   <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
   <string name="skip_button_label">Überspringen</string>
   <!--Display mode-->
+  <string name="settings_display_mode">Anzeigemodus</string>
   <!--contacts  upload-->
   <string name="settings_contacts_upload_info_title">Kontakte sichern</string>
   <string name="settings_contacts_upload_turn_on">Kontakte sichern aktivieren</string>
@@ -343,8 +355,12 @@ Zum Aktualisieren einmal antippen</string>
   <!--Camera Upload Configuration View-->
   <string name="settings_cuc_title">Einrichtungsassistent</string>
   <string name="settings_cuc_welcome_text">Danke für die Benutzung des Einrichtungsassistenten. \nUm Ihnen den Start zu erleichtern, führen wir Sie in wenigen Schritten zum erfolgreichen Kamera-Upload.</string>
+  <string name="settings_cuc_network_title">Sicherungsmodus</string>
   <string name="settings_cuc_network_wifi">Nur über WLAN</string>
   <string name="settings_cuc_network_data_plan">WLAN oder Mobilfunknetz</string>
+  <string name="settings_cuc_how_hint">Bitte wählen Sie aus, unter welchen Bedingungen die Sicherung ausgeführt werden soll.</string>
+  <string name="settings_cuc_what_hint">Bitte wählen Sie aus, welche Dateitypen Sie sichern wollen.</string>
+  <string name="settings_cuc_type_title">Was soll gesichert werden?</string>
   <string name="settings_cuc_type_photo">Nur Bilder</string>
   <string name="settings_cuc_type_video">Bilder und Videos</string>
   <string name="settings_cuc_local_dir_title">Alben auswählen</string>
@@ -352,6 +368,7 @@ Zum Aktualisieren einmal antippen</string>
     <item quantity="one">%1$d Objekt</item>
     <item quantity="other">%1$d Objekte</item>
   </plurals>
+  <string name="settings_cuc_remote_lib_title">Backup-Ziel festlegen</string>
   <string name="settings_cuc_remote_lib_account">Benutzerkonto auswählen</string>
   <string name="settings_cuc_remote_lib_repo">%s wurde ausgewählt</string>
   <string name="settings_cuc_upload_to_parent_folder">Zum übergeordneten Ordner</string>
@@ -372,7 +389,23 @@ Zum Aktualisieren einmal antippen</string>
   <string name="settings_about_title">ÜBER</string>
   <string name="settings_about_version_title">App-Version</string>
   <string name="settings_about_author_title">Autor/innen</string>
+  <string name="settings_export_run_logs">Protokolldateien exportieren</string>
+  <string name="settings_about_author_info">
+        <![CDATA[
+        <h5>Seafile Android Client</h5>
+        <p>Version: %s</p>
+        <h5>Kontakt</h5>
+        <p>
+            Twitter: Seafile<br>
+            E-Mail: support@seafile.com<br>
+        </p>
+        <h5>Mitwirkende</h5>
+        <p>https://github.com/haiwen/seadroid.git</P>
+        <h5>Copyright ©2013-2023 Seafile Ltd.</h5>
+        ]]>
+    </string>
   <string name="settings_advance_feature_title">ERWEITERTE FUNKTIONEN</string>
+  <string name="settings_transfer_title">UPLOAD &amp; DOWNLOAD</string>
   <string name="settings_storage_title">ZWISCHENSPEICHER</string>
   <string name="settings_cache_title">Größe des Zwischenspeichers</string>
   <string name="settings_clear_cache_title">Zwischenspeicher löschen</string>
@@ -534,8 +567,44 @@ Zum Aktualisieren einmal antippen</string>
   <string name="required_password">Passwort erforderlich.</string>
   <string name="weak_password">Passwort ist zu schwach.</string>
   <!--Folder backup Preference-->
+  <string name="settings_folder_backup_info_title">Ordner-Backup</string>
+  <string name="settings_folder_backup_switch_title">Ordner-Backup aktivieren</string>
+  <string name="settings_select_backup_folder_title">Ordner auswählen</string>
+  <string name="settings_sync_hidden_files_switch">Versteckte Dateien synchronisieren</string>
+  <string name="internal_storage">Interner Speicher</string>
+  <string name="settings_folder_backup_select_title">Zu sichernde Ordner</string>
+  <string name="settings_folder_backup_traffic">Modus</string>
+  <string name="settings_folder_backup_traffic_hint">Nur WLAN</string>
+  <string name="settings_folder_backup_library">Ziel-Bibliothek</string>
+  <string name="folder_backup_mode">WLAN und mobile Daten</string>
+  <string name="folder_backup_select_repo_hint">Bibliothek auswählen</string>
   <!--action-->
+  <string name="select_all">Alle auswählen</string>
+  <string name="off">Aus</string>
+  <string name="on">An</string>
   <!--share link-->
   <!--menu-->
+  <string name="menu_action_view_list">Liste</string>
+  <string name="menu_action_view_gallery">Galerie</string>
+  <string name="menu_action_sort_by_name">Name</string>
+  <string name="menu_action_sort_by_type">Typ</string>
+  <string name="menu_action_sort_by_size">Größe</string>
+  <string name="menu_action_sort_by_last_modified">Zuletzt geändert</string>
+  <string name="menu_action_sort_order_ascending">Aufsteigend</string>
+  <string name="menu_action_sort_directories_first">Ordner zuerst anzeigen</string>
   <!--sdoc-->
+  <string name="_size">Größe</string>
+  <string name="_last_modifier">Letzter Bearbeiter</string>
+  <string name="_last_modified_time">Zuletzt bearbeitet</string>
+  <string name="_file_collaborators">Mitarbeiter</string>
+  <string name="_file_status">Status</string>
+  <string name="_tags">Tags</string>
+  <string name="_location">Standort</string>
+  <string name="_owner">Besitzer</string>
+  <string name="mark_resolve">Als gelöst markieren</string>
+  <string name="image_capture_time">Aufnahmezeit</string>
+  <string name="image_dimensions">Abmessungen</string>
+  <string name="next">Weiter</string>
+  <string name="backup_completed">Backup abgeschlossen</string>
+  <string name="backup_failed">Backup fehlgeschlagen</string>
 </resources>

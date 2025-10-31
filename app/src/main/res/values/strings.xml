@@ -231,6 +231,7 @@
         <item>Backup Photos</item>
     </string-array>
     <string name="navigate_to_directory">Navigate to directory</string>
+    <string name="navigate_up">Navigate up</string>
     <string name="no_starred_file">No starred file yet</string>
     <string name="added_to_upload_tasks">Uploading started</string>
     <string name="added_photo_to_upload_tasks">Photo uploading started</string>
@@ -289,6 +290,9 @@
     <string name="copied_successfully">Copied successfully</string>
     <string name="moved_successfully">Moved successfully</string>
     <string name="internal_server_error">Internal Server Error</string>
+    <string name="current_library">Current Library</string>
+    <string name="other_libraries">Other Libraries</string>
+    <string name="recently_used">Recently used</string>
     <string name="copy_file_ing">Copying file</string>
     <string name="move_file_ing">Moving file</string>
     <string name="copy_file_from">Copying from %1$s \n To %2$s</string>
@@ -717,6 +721,7 @@
     <string name="_tags">Tags</string>
     <string name="_location">Location</string>
     <string name="_owner">File owner</string>
+    <string name="_rate">Rate</string>
 
     <string name="mark_resolve">Mark as resolved</string>
     <string name="delete_confirm">Are you sure you want to delete this item?</string>

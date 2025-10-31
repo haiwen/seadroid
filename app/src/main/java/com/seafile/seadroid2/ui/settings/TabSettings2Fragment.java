@@ -81,8 +81,8 @@ import com.seafile.seadroid2.ui.dialog_fragment.listener.OnRefreshDataListener;
 import com.seafile.seadroid2.ui.folder_backup.FolderBackupConfigActivity;
 import com.seafile.seadroid2.ui.folder_backup.FolderBackupSelectedPathActivity;
 import com.seafile.seadroid2.ui.folder_backup.RepoConfig;
-import com.seafile.seadroid2.ui.selector.FolderSelectorActivity;
-import com.seafile.seadroid2.ui.selector.ObjSelectorActivity;
+import com.seafile.seadroid2.ui.selector.folder_selector.FolderSelectorActivity;
+import com.seafile.seadroid2.ui.selector.obj.ObjSelectorActivity;
 import com.seafile.seadroid2.ui.transfer_list.TransferActivity;
 import com.seafile.seadroid2.ui.webview.SeaWebViewActivity;
 import com.seafile.seadroid2.widget.prefs.DividerPositionEnum;
@@ -976,11 +976,11 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
             CameraUploadManager.getInstance().performSync(isForce);
 
             // start periodic album backup scan worker
-            BackgroundJobManagerImpl.getInstance().scheduleAlbumBackupPeriodicScan(requireContext().getApplicationContext());
+            BackgroundJobManagerImpl.getInstance().scheduleAlbumBackupPeriodicScan(SeadroidApplication.getAppContext());
         } else {
             //stop
             // stop periodic album backup scan worker
-            BackgroundJobManagerImpl.getInstance().stopAlbumBackupPeriodicScan(requireContext().getApplicationContext());
+            BackgroundJobManagerImpl.getInstance().stopAlbumBackupPeriodicScan(SeadroidApplication.getAppContext());
 
             BackupThreadExecutor.getInstance().stopAlbumBackup();
 

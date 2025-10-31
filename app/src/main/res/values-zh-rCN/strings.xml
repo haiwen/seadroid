@@ -216,6 +216,7 @@
     <item>相册备份</item>
   </string-array>
   <string name="navigate_to_directory">定位到目录</string>
+  <string name="navigate_up">返回到上一级</string>
   <string name="no_starred_file">无星标文件</string>
   <string name="added_to_upload_tasks">开始上传</string>
   <string name="added_photo_to_upload_tasks">图片开始上传</string>
@@ -272,6 +273,9 @@
   <string name="copied_successfully">复制成功</string>
   <string name="moved_successfully">移动成功</string>
   <string name="internal_server_error">服务器出错了</string>
+  <string name="current_library">当前资料库</string>
+  <string name="other_libraries">其它资料库</string>
+  <string name="recently_used">最近使用</string>
   <string name="copy_file_ing">正在复制文件</string>
   <string name="move_file_ing">正在移动文件</string>
   <string name="copy_file_from">正在从 %1$s \n 复制到 %2$s</string>
@@ -293,6 +297,7 @@
   <string name="settings_account_sign_out_hint">点击退出</string>
   <string name="settings_account_sign_out_confirm">你想退出登录吗？</string>
   <string name="settings_night_mode_title">夜间模式</string>
+  <string name="settings_switch_storage_hint">文件迁移可能需要一些时间，请稍候</string>
   <string name="security">安全性</string>
   <string name="gesture_lock">手势密码锁</string>
   <string name="gesture_lock_on">手势锁开启</string>

@@ -53,7 +53,8 @@ import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
 import com.seafile.seadroid2.ui.dialog_fragment.CopyMoveDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.DeleteFileDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.listener.OnRefreshDataListener;
-import com.seafile.seadroid2.ui.selector.ObjSelectorActivity;
+import com.seafile.seadroid2.ui.selector.obj.ObjSelectorActivity;
+import com.seafile.seadroid2.ui.selector.versatile.VersatileSelectorActivity;
 import com.seafile.seadroid2.view.photoview.ScrollDirection;
 import com.seafile.seadroid2.view.photoview.ScrollStatus;
 
@@ -836,7 +837,13 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
     private void chooseCopyMoveDest(DirentModel direntModel, OpType op) {
         copyMoveContext = new CopyMoveContext(repoId, repoName, parentDir, CollectionUtils.newArrayList(direntModel), op);
 
-        Intent intent = ObjSelectorActivity.getCurrentAccountIntent(this, ObjSelectType.REPO, ObjSelectType.DIR);
+//        Intent intent = ObjSelectorActivity.getCurrentAccountIntent(this, ObjSelectType.REPO, ObjSelectType.DIR);
+//        copyMoveLauncher.launch(intent);
+
+
+        String fileName = direntModel.name;
+
+        Intent intent = VersatileSelectorActivity.getCurrentAccountIntent(this, direntModel.repo_id, direntModel.parent_dir, fileName, op == OpType.COPY);
         copyMoveLauncher.launch(intent);
     }
 

@@ -36,13 +36,11 @@ import androidx.core.view.MenuProvider;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.media3.common.util.Log;
 import androidx.media3.common.util.UnstableApi;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.blankj.utilcode.util.CollectionUtils;
-import com.blankj.utilcode.util.FileIOUtils;
 import com.blankj.utilcode.util.NetworkUtils;
 import com.github.panpf.recycler.sticky.StickyItemDecoration;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -68,7 +66,6 @@ import com.seafile.seadroid2.enums.OpType;
 import com.seafile.seadroid2.enums.RefreshStatusEnum;
 import com.seafile.seadroid2.enums.SortBy;
 import com.seafile.seadroid2.framework.datastore.DataManager;
-import com.seafile.seadroid2.framework.datastore.StorageManager;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.db.entities.PermissionEntity;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
@@ -78,7 +75,6 @@ import com.seafile.seadroid2.framework.model.ServerInfo;
 import com.seafile.seadroid2.framework.model.dirents.DirentFileModel;
 import com.seafile.seadroid2.framework.model.search.SearchModel;
 import com.seafile.seadroid2.framework.service.BackupThreadExecutor;
-import com.seafile.seadroid2.framework.util.FileUtils;
 import com.seafile.seadroid2.framework.util.Objs;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.TakeCameras;
@@ -106,7 +102,8 @@ import com.seafile.seadroid2.ui.media.player.CustomExoVideoPlayerActivity;
 import com.seafile.seadroid2.ui.repo.sheetaction.BottomSheetActionView;
 import com.seafile.seadroid2.ui.repo.sheetaction.BottomSheetMenuManager;
 import com.seafile.seadroid2.ui.sdoc.SDocWebViewActivity;
-import com.seafile.seadroid2.ui.selector.ObjSelectorActivity;
+import com.seafile.seadroid2.ui.selector.obj.ObjSelectorActivity;
+import com.seafile.seadroid2.ui.selector.versatile.VersatileSelectorActivity;
 import com.seafile.seadroid2.ui.star.StarredQuickFragment;
 import com.seafile.seadroid2.view.TipsViews;
 import com.seafile.seadroid2.view.ViewSortPopupWindow;
@@ -375,7 +372,10 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 checkCurrentPathHasWritePermission(new java.util.function.Consumer<Boolean>() {
                     @Override
                     public void accept(Boolean aBoolean) {
-                        menu.findItem(R.id.add).setEnabled(aBoolean);
+                        MenuItem addMenu = menu.findItem(R.id.add);
+                        if (addMenu != null) {
+                            addMenu.setEnabled(aBoolean);
+                        }
                     }
                 });
             } else {
@@ -1767,7 +1767,14 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         copyMoveContext = new CopyMoveContext(repoID, repoName, dirPath, direntModels, op);
 
         //launch obj selector activity
-        Intent intent = ObjSelectorActivity.getCurrentAccountIntent(requireContext(), ObjSelectType.REPO, ObjSelectType.DIR);
+//        Intent intent = ObjSelectorActivity.getCurrentAccountIntent(requireContext(), ObjSelectType.REPO, ObjSelectType.DIR);
+//        copyMoveLauncher.launch(intent);
+        String fileName = null;
+        if (direntModels.size() == 1) {
+            fileName = direntModels.get(0).name;
+        }
+
+        Intent intent = VersatileSelectorActivity.getCurrentAccountIntent(requireContext(), repoID, dirPath, fileName, op == OpType.COPY);
         copyMoveLauncher.launch(intent);
     }
 
@@ -2194,17 +2201,24 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 cameraPermissionLauncher.launch(Manifest.permission.CAMERA);
             }
         });
-
     }
-
 
     private void takeFile(boolean isSingleSelect) {
         String[] mimeTypes = new String[]{"*/*"};
-        if (isSingleSelect) {
-            singleFileAndImageChooseLauncher.launch(mimeTypes);
+
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("*/*");
+        if (WidgetUtils.isIntentAvailable(requireContext(), intent)) {
+            if (isSingleSelect) {
+                singleFileAndImageChooseLauncher.launch(mimeTypes);
+            } else {
+                multiFileAndImageChooserLauncher.launch(mimeTypes);
+            }
         } else {
-            multiFileAndImageChooserLauncher.launch(mimeTypes);
+            Toasts.show(R.string.activity_not_found);
         }
+
     }
 
     private kotlin.Pair<Uri, File> uriPair;

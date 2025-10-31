@@ -155,6 +155,7 @@ public class HttpIO {
         rBuilder.addConverterFactory(ConverterFactory.create());
         rBuilder.addCallAdapterFactory(RxJava2CallAdapterFactory.create());
 
+//        rBuilder.client(new UnsafeOkHttpClient(account).getOkClient());
         rBuilder.client(getSafeClient().getOkClient());
 
         retrofit = rBuilder.build();

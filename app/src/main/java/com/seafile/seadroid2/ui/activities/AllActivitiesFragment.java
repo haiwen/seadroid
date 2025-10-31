@@ -2,6 +2,7 @@ package com.seafile.seadroid2.ui.activities;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.icu.text.CaseMap;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -319,6 +320,8 @@ public class AllActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel>
             switch (model.op_type) {
                 case "create":
                 case "update":
+                case "rename":
+                case "restore":
                 case "edit":
                     MainActivity.navToThis(requireContext(), model.repo_id, model.repo_name, model.path, true);
                     break;
@@ -330,7 +333,9 @@ public class AllActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel>
             switch (model.op_type) {
                 case "create":
                 case "update":
+                case "rename":
                 case "edit":
+                case "move":
                     decryptRepo(repoModel, model);
                     break;
                 default:
@@ -464,12 +469,11 @@ public class AllActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel>
 
                     }
                 } else {
-                    Intent intent = FileActivity.startFromActivity(requireContext(), model, FileReturnActionEnum.OPEN_WITH);
+                    Intent intent = FileActivity.startFromActivity(requireContext(), model, actionEnum);
                     fileActivityLauncher.launch(intent);
                 }
             }
         });
-
     }
 
     private File getLocalDestinationFile(String repoId, String repoName, String fullPathInRepo) {

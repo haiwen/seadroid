@@ -39,22 +39,18 @@ import com.seafile.seadroid2.config.ColumnType;
 import com.seafile.seadroid2.config.DateFormatType;
 import com.seafile.seadroid2.config.GlideLoadConfig;
 import com.seafile.seadroid2.databinding.DialogFileProfileBinding;
-import com.seafile.seadroid2.framework.model.sdoc.FileDetailModel;
 import com.seafile.seadroid2.framework.model.sdoc.FileProfileConfigModel;
-import com.seafile.seadroid2.framework.model.sdoc.FileRecordWrapperModel;
 import com.seafile.seadroid2.framework.model.sdoc.MetadataConfigDataModel;
 import com.seafile.seadroid2.framework.model.sdoc.MetadataModel;
 import com.seafile.seadroid2.framework.model.sdoc.OptionsTagModel;
+import com.seafile.seadroid2.framework.model.sdoc.SDocTagModel;
 import com.seafile.seadroid2.framework.model.user.UserModel;
 import com.seafile.seadroid2.framework.util.Utils;
-
-import org.apache.commons.lang3.time.DateUtils;
 
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -125,7 +121,7 @@ public class FileProfileDialog extends BottomSheetDialogFragment {
 
         for (MetadataModel metadata : configModel.getRecordMetaDataList()) {
             if (metadata.key.startsWith("_")) {
-                if (_fixedField.contains(metadata.key)) {
+                if (_supportedField.contains(metadata.key)) {
                     addMetadataView(parent, metadata);
                 }
             } else {
@@ -139,7 +135,7 @@ public class FileProfileDialog extends BottomSheetDialogFragment {
     }
 
     //not support: _tags
-    private final List<String> _fixedField = List.of("_size", "_file_modifier", "_file_mtime", "_owner", "_description", "_collaborators", "_reviewer", "_status");
+    private final List<String> _supportedField = List.of("_size", "_file_modifier", "_file_mtime", "_owner", "_description", "_collaborators", "_reviewer", "_status", "_location", "_tags", "_rate");
 
     private Object getValueByKey(String key) {
         Map<String, Object> model = configModel.getRecordResultList().get(0);
@@ -177,10 +173,14 @@ public class FileProfileDialog extends BottomSheetDialogFragment {
                 return R.string._done;
             case "_outdated":
                 return R.string._outdated;
+            case "_location":
+                return R.string._location;
             case "_tags":
                 return R.string._tags;
             case "_owner":
                 return R.string._owner;
+            case "_rate":
+                return R.string._rate;
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -200,7 +200,7 @@ public class FileProfileDialog extends BottomSheetDialogFragment {
             kvView.<TextView>findViewById(R.id.text_title).setText(metadata.name);
         }
 
-        kvView.<ImageView>findViewById(R.id.text_icon).setImageResource(getIconByColumnType(metadata.type));
+        kvView.<ImageView>findViewById(R.id.text_icon).setImageResource(getIconByColumnType(metadata.type, metadata.key));
 
         LinearLayout.LayoutParams ll = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         ll.topMargin = SizeUtils.dp2px(8);
@@ -242,58 +242,48 @@ public class FileProfileDialog extends BottomSheetDialogFragment {
             parseGeoLocation(kvView, metadata);
         } else if (TextUtils.equals(ColumnType.CHECKBOX, type)) {
             parseCheckbox(kvView, metadata);
+        } else if (TextUtils.equals(ColumnType.LINK, type)) {
+
+            //tag
+            if (TextUtils.equals("_tags", metadata.key)) {
+                parseTag(kvView, metadata);
+            } else {
+            }
         }
 //        else if (TextUtils.equals(ColumnType.IMAGE, type)) {
 //            parseImage(kvView, model);
 //        } else if (TextUtils.equals(ColumnType.FILE, type)) {
 //            parseFile(kvView, model);
-//        } else if (TextUtils.equals(ColumnType.LINK, type)) {
-//            parseLink(kvView, model);
-//        } else if (TextUtils.equals(ColumnType.DIGITAL_SIGN, type)) {
+//        }  else if (TextUtils.equals(ColumnType.DIGITAL_SIGN, type)) {
 //            parseDigitalSign(kvView, workFlowModel, model);
 //        }
 
         parent.addView(kvView);
     }
 
-    private int getIconByColumnType(String type) {
-        switch (type) {
-            case ColumnType.TEXT:
-                return R.drawable.ic_single_line_text;
-            case ColumnType.COLLABORATOR:
-                return R.drawable.ic_user_collaborator;
-            case ColumnType.IMAGE:
-                return R.drawable.ic_picture;
-            case ColumnType.FILE:
-                return R.drawable.ic_file_alt_solid;
-            case ColumnType.DATE:
-                return R.drawable.ic_calendar_alt_solid;
-            case ColumnType.SINGLE_SELECT:
-                return R.drawable.ic_single_election;
-            case ColumnType.DURATION:
-                return R.drawable.ic_duration;
-            case ColumnType.MULTIPLE_SELECT:
-                return R.drawable.ic_multiple_selection;
-            case ColumnType.CHECKBOX:
-                return R.drawable.ic_check_square_solid;
-            case ColumnType.GEOLOCATION:
-                return R.drawable.ic_location;
-            case ColumnType.EMAIL:
-                return R.drawable.ic_email;
-            case ColumnType.LONG_TEXT:
-                return R.drawable.ic_long_text;
-            case ColumnType.NUMBER:
-                return R.drawable.ic_number;
-            case ColumnType.RATE:
-                return R.drawable.ic_star_32;
-            case ColumnType.URL:
-                return R.drawable.ic_url;
-            case ColumnType.LINK:
-                return R.drawable.ic_links;
-        }
+    private int getIconByColumnType(String type, String key) {
+        return switch (type) {
+            case ColumnType.TEXT -> R.drawable.ic_single_line_text;
+            case ColumnType.COLLABORATOR -> R.drawable.ic_user_collaborator;
+            case ColumnType.IMAGE -> R.drawable.ic_picture;
+            case ColumnType.FILE -> R.drawable.ic_file_alt_solid;
+            case ColumnType.DATE -> R.drawable.ic_calendar_alt_solid;
+            case ColumnType.SINGLE_SELECT -> R.drawable.ic_single_election;
+            case ColumnType.DURATION -> R.drawable.ic_duration;
+            case ColumnType.MULTIPLE_SELECT -> R.drawable.ic_multiple_selection;
+            case ColumnType.CHECKBOX -> R.drawable.ic_check_square_solid;
+            case ColumnType.GEOLOCATION -> R.drawable.ic_location;
+            case ColumnType.EMAIL -> R.drawable.ic_email;
+            case ColumnType.LONG_TEXT -> R.drawable.ic_long_text;
+            case ColumnType.NUMBER -> R.drawable.ic_number;
+            case ColumnType.RATE -> R.drawable.ic_star_32;
+            case ColumnType.URL -> R.drawable.ic_url;
+            case ColumnType.LINK -> "_tags".equals(key) ? R.drawable.ic_tag : R.drawable.ic_links;
 
-        return R.drawable.ic_single_line_text;
+            default -> R.drawable.ic_single_line_text;
+        };
     }
+
 
     private void parseText(LinearLayout view, MetadataModel model) {
         if (model.value instanceof String) {
@@ -360,42 +350,6 @@ public class FileProfileDialog extends BottomSheetDialogFragment {
         }
     }
 
-//    private void parseGeoLocation(LinearLayout view, MetadataModel model) {
-//        if (model.value instanceof LinkedTreeMap) {
-//            LinkedTreeMap<String, Object> treeMap = (LinkedTreeMap<String, Object>) model.value;
-//            ColumnDataModel columnDataModel = model.column_data;
-//
-//            String geo_format = columnDataModel.geo_format;
-//
-//            String content = null;
-//            if (TextUtils.equals("lng_lat", geo_format)) {
-//                String lat = treeMap.get("lat").toString();
-//                String lng = treeMap.get("lng").toString();
-//                content = lat + "," + lng;
-//            } else if (TextUtils.equals("geolocation", geo_format)) {
-//                String province = treeMap.get("province").toString();
-//                String city = treeMap.get("city").toString();
-//                String dis = treeMap.get("district").toString();
-//                String detail = treeMap.get("detail").toString();
-//                content = province + city + dis + detail;
-//            } else if (TextUtils.equals("country_region", geo_format)) {
-//                content = treeMap.get("country_region").toString();
-//            } else if (TextUtils.equals("province", geo_format)) {
-//                content = treeMap.get("province").toString();
-//            } else if (TextUtils.equals("province_city", geo_format)) {
-//                String province = treeMap.get("province").toString();
-//                String city = treeMap.get("city").toString();
-//                content = province + city;
-//            } else if (TextUtils.equals("province_city_district", geo_format)) {
-//                String province = treeMap.get("province").toString();
-//                String city = treeMap.get("city").toString();
-//                String dis = treeMap.get("district").toString();
-//                content = province + city + dis;
-//            }
-//
-//            view.<TextView>findViewById(R.id.text_view).setText(content);
-//        }
-//    }
 
     //container
     private void parseCollaborator(LinearLayout view, MetadataModel model) {
@@ -437,8 +391,6 @@ public class FileProfileDialog extends BottomSheetDialogFragment {
         }
 
         if (model.value instanceof String value && !TextUtils.isEmpty(model.value.toString())) {
-
-
             View ltr = LayoutInflater.from(view.getContext()).inflate(R.layout.layout_detail_text_round, null);
             TextView textView = ltr.findViewById(R.id.text);
             MaterialCardView cardView = ltr.findViewById(R.id.card_view);
@@ -446,9 +398,14 @@ public class FileProfileDialog extends BottomSheetDialogFragment {
             Optional<OptionsTagModel> option = configDataModel.options.stream().filter(f -> f.name.equals(value)).findFirst();
             if (option.isPresent()) {
                 OptionsTagModel t = option.get();
-                textView.setText(t.name);
-                textView.setTextColor(Color.parseColor(t.textColor));
-                cardView.setCardBackgroundColor(Color.parseColor(t.color));
+                int r = getResNameByKey(t.name);
+                if (r == Resources.ID_NULL) {
+                    textView.setText(t.name);
+                }else{
+                    textView.setText(r);
+                }
+                textView.setTextColor(Color.parseColor(t.getTextColor()));
+                cardView.setCardBackgroundColor(Color.parseColor(t.getColor()));
             } else {
                 textView.setText(value);
             }
@@ -543,6 +500,45 @@ public class FileProfileDialog extends BottomSheetDialogFragment {
         }
     }
 
+    //tag
+    private void parseTag(LinearLayout view, MetadataModel model) {
+        if (model.value instanceof ArrayList) {
+            if (configModel.getTagMap().isEmpty()) {
+                return;
+            }
+
+            FlexboxLayout flexboxLayout = view.findViewById(R.id.flex_box);
+            FlexboxLayout.LayoutParams flexLayoutParams = new FlexboxLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            flexLayoutParams.bottomMargin = DP_4;
+            flexLayoutParams.rightMargin = DP_4;
+
+            ArrayList<LinkedTreeMap<String, String>> arrayList = (ArrayList<LinkedTreeMap<String, String>>) model.value;
+            if (!CollectionUtils.isEmpty(arrayList)) {
+                for (LinkedTreeMap<String, String> map : arrayList) {
+                    String rowId = map.get("row_id");
+                    SDocTagModel tagModel = configModel.getTagMap().get(rowId);
+                    if (tagModel == null) {
+                        continue;
+                    }
+
+                    View ltr = LayoutInflater.from(view.getContext()).inflate(R.layout.layout_detail_tag, null);
+
+                    MaterialCardView cardView = ltr.findViewById(R.id.indicator);
+
+                    if (!TextUtils.isEmpty(tagModel.color)) {
+                        cardView.setCardBackgroundColor(Color.parseColor(tagModel.color));
+                    }
+
+                    TextView textView = ltr.findViewById(R.id.text);
+                    textView.setMaxLines(1);
+                    textView.setEllipsize(TextUtils.TruncateAt.END);
+                    textView.setText(tagModel.name);
+                    flexboxLayout.addView(ltr, flexLayoutParams);
+                }
+
+            }
+        }
+    }
 //    private void parseImage(LinearLayout view, MetadataModel model) {
 //        if (model.value instanceof ArrayList) {
 //            FlexboxLayout flexboxLayout = view.findViewById(R.id.flex_box);

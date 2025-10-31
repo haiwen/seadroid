@@ -2,8 +2,6 @@ package com.seafile.seadroid2.ui.folder_backup;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.TextUtils;
-import android.util.Pair;
 import android.view.View;
 
 import androidx.activity.OnBackPressedCallback;
@@ -11,13 +9,9 @@ import androidx.activity.OnBackPressedCallback;
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.FragmentUtils;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.databinding.FolderBackupActivityLayoutBinding;
-import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
 import com.seafile.seadroid2.ui.base.BaseActivity;
-import com.seafile.seadroid2.config.ObjKey;
-import com.seafile.seadroid2.ui.selector.RepoSelectorFragment;
 import com.seafile.seadroid2.ui.selector.folder_selector.FolderSelectorFragment;
 import com.seafile.seadroid2.ui.settings.TabSettings2Fragment;
 

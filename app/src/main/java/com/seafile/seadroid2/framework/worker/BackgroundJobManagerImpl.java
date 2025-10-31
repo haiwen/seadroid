@@ -15,6 +15,7 @@ import androidx.work.ListenableWorker;
 import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 
 import com.seafile.seadroid2.SeadroidApplication;
@@ -30,6 +31,7 @@ import com.seafile.seadroid2.framework.worker.upload.FolderBackupUploadWorker;
 import com.seafile.seadroid2.framework.worker.upload.MediaBackupScanWorker;
 import com.seafile.seadroid2.framework.worker.upload.MediaBackupUploadWorker;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class BackgroundJobManagerImpl {
@@ -71,6 +73,45 @@ public class BackgroundJobManagerImpl {
         return WorkManager.getInstance(SeadroidApplication.getAppContext());
     }
 
+    // get is running
+    public boolean getAlbumModuleRunning() {
+        boolean ab = AlbumBackupPeriodicScanStarter.isIsWorkerRunning();
+        if (ab) {
+            return true;
+        }
+
+        boolean sb = MediaBackupScanWorker.isIsWorkerRunning();
+        if (sb) {
+            return true;
+        }
+
+        boolean ub = MediaBackupUploadWorker.isIsWorkerRunning();
+        if (ub) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public boolean getFolderModuleRunning() {
+        boolean ab = FolderBackupPeriodicScanStarter.isIsWorkerRunning();
+        if (ab) {
+            return true;
+        }
+
+        boolean sb = FolderBackupScanWorker.isIsWorkerRunning();
+        if (sb) {
+            return true;
+        }
+
+        boolean ub = FolderBackupUploadWorker.isIsWorkerRunning();
+        if (ub) {
+            return true;
+        }
+
+        return false;
+    }
+
     /**
      * Schedules a periodic AlbumBackupScanWorker.
      */
@@ -100,7 +141,9 @@ public class BackgroundJobManagerImpl {
 
     public void stopAlbumBackupPeriodicScan(Context context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            getWorkManager().cancelUniqueWork(AlbumBackupPeriodicScanStarter.TAG);
+            WorkManager wm = getWorkManager();
+            wm.cancelUniqueWork(AlbumBackupPeriodicScanStarter.TAG);
+            wm.pruneWork();
         } else {
             JobScheduler scheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
             scheduler.cancel(JOB_ID_ALBUM_BACKUP);
@@ -114,6 +157,7 @@ public class BackgroundJobManagerImpl {
 
         return periodicRequestBuilder(AlbumBackupPeriodicScanStarter.class)
                 .setId(AlbumBackupPeriodicScanStarter.UID)
+                .setInitialDelay(10, TimeUnit.MINUTES)
                 .setConstraints(constraints)
                 .build();
     }
@@ -146,7 +190,9 @@ public class BackgroundJobManagerImpl {
         assert context != null;
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            getWorkManager().cancelUniqueWork(FolderBackupPeriodicScanStarter.TAG);
+            WorkManager wm = getWorkManager();
+            wm.cancelUniqueWork(FolderBackupPeriodicScanStarter.TAG);
+            wm.pruneWork();
         } else {
             JobScheduler scheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
             scheduler.cancel(JOB_ID_FOLDER_BACKUP);
@@ -161,6 +207,7 @@ public class BackgroundJobManagerImpl {
 
         return periodicRequestBuilder(FolderBackupPeriodicScanStarter.class)
                 .setId(FolderBackupPeriodicScanStarter.UID)
+                .setInitialDelay(10, TimeUnit.MINUTES)
                 .setConstraints(constraints)
                 .build();
     }

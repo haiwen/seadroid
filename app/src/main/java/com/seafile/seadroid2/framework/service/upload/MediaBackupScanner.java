@@ -21,7 +21,7 @@ import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
 import com.seafile.seadroid2.ui.folder_backup.RepoConfig;
 
 public class MediaBackupScanner extends ParentEventTransfer {
-    private final String TAG = "MediaBackupScanner";
+    private final String TAG = "Media-Backup-Thread-Scanner";
 
     public MediaBackupScanner(Context context, ITransferNotification i) {
         super(context, i);

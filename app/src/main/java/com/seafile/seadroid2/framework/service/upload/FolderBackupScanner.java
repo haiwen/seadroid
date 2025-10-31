@@ -53,7 +53,7 @@ import java.util.stream.Collectors;
 import retrofit2.Call;
 
 public class FolderBackupScanner extends ParentEventTransfer {
-    private final String TAG = "FolderBackupScanner";
+    private final String TAG = "Folder-Backup-Thread-Scanner";
 
     public FolderBackupScanner(Context context, ITransferNotification iTransferNotificationDispatcher) {
         super(context, iTransferNotificationDispatcher);

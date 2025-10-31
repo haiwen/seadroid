@@ -17,7 +17,7 @@ import com.seafile.seadroid2.framework.worker.TransferEvent;
 import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 
 public class FileUploader extends ParentEventUploader {
-    private final String TAG = "FileUploader";
+    private final String TAG = "File-Thread-Uploader";
 
     public FileUploader(Context context, ITransferNotification notificationDispatcher) {
         super(context, notificationDispatcher);

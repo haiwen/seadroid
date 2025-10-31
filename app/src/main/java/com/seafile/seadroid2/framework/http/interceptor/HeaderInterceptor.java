@@ -24,7 +24,7 @@ public class HeaderInterceptor implements Interceptor {
     }
 
     private Request.Builder initBuilder(Request.Builder builder) {
-        builder.addHeader("Content-Type", "application/json");
+//        builder.addHeader("Content-Type", "application/json");
         builder.addHeader("Accept", "application/json");
         builder.addHeader("charset", "utf-8");
         builder.addHeader("timestamp", String.valueOf(System.currentTimeMillis()));
