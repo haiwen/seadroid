@@ -23,7 +23,7 @@ import com.seafile.seadroid2.ui.folder_backup.RepoConfig;
 import java.util.List;
 
 public class FolderBackupUploader extends ParentEventUploader {
-    private final String TAG = "FolderBackupUploader";
+    private final String TAG = "Folder-Backup-Thread-Uploader";
 
     public FolderBackupUploader(Context context, ITransferNotification i) {
         super(context, i);

@@ -9,7 +9,4 @@ package com.seafile.seadroid2.bus;
  */
 public class BusAction {
     public static final String RESTART_FILE_MONITOR = "RESTART_FILE_MONITOR";
-    public static final String PERIODIC_ALBUM_SCAN_LAUNCH = "PERIODIC_ALBUM_SCAN_LAUNCH";
-    public static final String PERIODIC_FOLDER_SCAN_LAUNCH = "PERIODIC_FOLDER_SCAN_LAUNCH";
-
 }

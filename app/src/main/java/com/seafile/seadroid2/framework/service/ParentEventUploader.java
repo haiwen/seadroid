@@ -53,7 +53,7 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 
 public abstract class ParentEventUploader extends ParentEventTransfer {
-    private final String TAG = "ParentEventUploader";
+    private final String TAG = "Front-Thread-Uploader";//ParentEventUploader
 
     public ParentEventUploader(Context context, ITransferNotification n) {
         super(context, n);
@@ -270,11 +270,6 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
         RequestBody requestBody = builder.build();
         //get upload link
         String uploadUrl = getFileUploadUrl(account, currentTransferModel.repo_id, currentTransferModel.getParentPath(), currentTransferModel.transfer_strategy == ExistingFileStrategy.REPLACE);
-        //
-        if (newCall != null && newCall.isExecuted()) {
-            SafeLogs.d(TAG, "transferFile()", "newCall has executed(), cancel it");
-            newCall.cancel();
-        }
 
         Request request = new Request.Builder()
                 .url(uploadUrl)
@@ -283,25 +278,33 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
                 .addHeader("User-Agent", Constants.UA.SEAFILE_ANDROID_UA)
                 .build();
 
+        // log Content-Type
+        SafeLogs.d(TAG, "upload content-Type: " + requestBody.contentType());
+        SafeLogs.d(TAG, "start upload, url: " + uploadUrl);
+
         newCall = getPrimaryHttpClient(account).newCall(request);
 
-        SafeLogs.d(TAG, "start upload, url: " + uploadUrl);
-        SafeLogs.d(TAG, "req Content-Type: " + requestBody.contentType());
         try (Response response = newCall.execute()) {
             Protocol protocol = response.protocol();
             SafeLogs.d(TAG, "onRes()", "response code: " + response.code() + ", protocol: " + protocol);
 
             onRes(response);
         } catch (Exception e) {
-            SafeLogs.e(TAG, e.getMessage());
+            SafeLogs.e(TAG, "upload file failed.");
+            SafeLogs.e(e);
 
             throw ExceptionUtils.parseByThrowable(e);
+        } finally {
+            //
+            if (newCall != null) {
+                SafeLogs.d(TAG, "transferFile()", "reset newCall object");
+                newCall.cancel();
+                newCall = null;
+            }
         }
     }
 
     private void onRes(Response response) throws SeafException, IOException {
-        int code = response.code();
-
         //req headers log
         Headers reqHeaders = response.request().headers();
         for (int i = 0; i < reqHeaders.size(); i++) {
@@ -314,6 +317,7 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
             SafeLogs.d(TAG, "res-header: " + resHeaders.name(i) + ": " + resHeaders.value(i));
         }
 
+        int code = response.code();
         try (ResponseBody body = response.body()) {
             if (body == null) {
                 SafeLogs.d(TAG, "transferFile()", "body is null");

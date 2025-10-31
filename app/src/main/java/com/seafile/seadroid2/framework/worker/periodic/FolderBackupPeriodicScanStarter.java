@@ -27,7 +27,16 @@ import java.util.UUID;
 public class FolderBackupPeriodicScanStarter extends Worker {
     public static final String TAG = "FolderBackupScanStarter";
     public static final UUID UID = UUID.nameUUIDFromBytes(FolderBackupPeriodicScanStarter.class.getSimpleName().getBytes());
+    // @FIXME fix this
+    private static volatile boolean isWorkerRunning = false;
 
+    private static void setIsRunning(boolean running) {
+        isWorkerRunning = running;
+    }
+
+    public static boolean isIsWorkerRunning() {
+        return isWorkerRunning;
+    }
     public FolderBackupPeriodicScanStarter(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
     }
@@ -44,42 +53,42 @@ public class FolderBackupPeriodicScanStarter extends Worker {
 
         if (!canExc()) {
             SLogs.e(TAG, "The folder scan task was not started, because the folder backup task is running");
-            return Result.success();
+            return returnSuccess();
         }
 
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
         if (account == null) {
-            return Result.success();
+            return returnSuccess();
         }
 
         boolean isTurnOn = FolderBackupSharePreferenceHelper.readBackupSwitch();
         if (!isTurnOn) {
             SLogs.d(TAG, "The folder scan task was not started, because the switch is off");
-            return Result.success();
+            return returnSuccess();
         }
 
         RepoConfig repoConfig = FolderBackupSharePreferenceHelper.readRepoConfig();
         if (repoConfig == null || StringUtils.isEmpty(repoConfig.getRepoId())) {
             SLogs.d(TAG, "The folder scan task was not started, because the repo is not selected");
-            return Result.success();
+            return returnSuccess();
         }
 
         List<String> backupPaths = FolderBackupSharePreferenceHelper.readBackupPathsAsList();
         if (CollectionUtils.isEmpty(backupPaths)) {
             SLogs.d(TAG, "The folder scan task was not started, because the folder path is not selected");
-            return Result.success();
+            return returnSuccess();
         }
 
         if (!NetworkUtils.isConnected()) {
             SLogs.d(TAG, "network is not connected");
-            return Result.success();
+            return returnSuccess();
         }
 
         boolean isAllowDataPlan = FolderBackupSharePreferenceHelper.readDataPlanAllowed();
         if (!isAllowDataPlan) {
             if (NetworkUtils.isMobileData()) {
                 SLogs.e(TAG, "data plan is not allowed", "current network type: ", NetworkUtils.getNetworkType().name());
-                return Result.success();
+                return returnSuccess();
             }
 
             SLogs.d(TAG, "data plan is not allowed", "current network type: ", NetworkUtils.getNetworkType().name());
@@ -97,12 +106,17 @@ public class FolderBackupPeriodicScanStarter extends Worker {
         int count = FolderScanHelper.onlyTraverseBackupPathFileCount(backupPaths, account, repoConfig);
         if (count == 0) {
             SLogs.d(TAG, "The folder scan task was not started, because no new files were found");
-            return Result.success();
+            return returnSuccess();
         }
 
         SLogs.d(TAG, "start scan", "backup path file count: ", GlobalTransferCacheList.FOLDER_BACKUP_QUEUE.getTotalCount() + "");
         BackgroundJobManagerImpl.getInstance().startFolderBackupChain(true);
 
+        return returnSuccess();
+    }
+
+    protected Result returnSuccess() {
+        setIsRunning(false);
         return Result.success();
     }
 }

@@ -34,7 +34,7 @@ import java.util.List;
 import retrofit2.Call;
 
 public class LocalFileUpdater extends ParentEventUploader {
-    private final String TAG = "LocalFileUpdater";
+    private final String TAG = "Local-File-Thread-Updater";
 
     public LocalFileUpdater(Context context, ITransferNotification n) {
         super(context, n);

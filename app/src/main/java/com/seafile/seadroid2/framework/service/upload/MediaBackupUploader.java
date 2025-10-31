@@ -20,7 +20,7 @@ import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 import com.seafile.seadroid2.ui.folder_backup.RepoConfig;
 
 public class MediaBackupUploader extends ParentEventUploader {
-    private final String TAG = "MediaBackupUploader";
+    private final String TAG = "Media-Backup-Thread-Uploader";
 
     public MediaBackupUploader(Context context, ITransferNotification n) {
         super(context, n);

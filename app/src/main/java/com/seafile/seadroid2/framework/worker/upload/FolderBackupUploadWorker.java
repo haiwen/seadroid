@@ -18,6 +18,7 @@ import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.notification.FolderBackupNotificationHelper;
 import com.seafile.seadroid2.framework.notification.base.BaseTransferNotificationHelper;
+import com.seafile.seadroid2.framework.service.BackupThreadExecutor;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.SafeLogs;
 import com.seafile.seadroid2.framework.util.Toasts;
@@ -34,6 +35,16 @@ public class FolderBackupUploadWorker extends BaseUploadWorker {
     public static final UUID UID = UUID.nameUUIDFromBytes(TAG.getBytes());
 
     private final FolderBackupNotificationHelper notificationManager;
+    // @FIXME fix this
+    private static volatile boolean isWorkerRunning = false;
+
+    private static void setIsRunning(boolean running) {
+        isWorkerRunning = running;
+    }
+
+    public static boolean isIsWorkerRunning() {
+        return isWorkerRunning;
+    }
 
     public FolderBackupUploadWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
@@ -83,9 +94,21 @@ public class FolderBackupUploadWorker extends BaseUploadWorker {
         }
     }
 
+    private static boolean canExc() {
+        boolean isRunning = BackupThreadExecutor.getInstance().isFolderBackupRunning();
+        return !isRunning;
+    }
 
     private Result start() {
         SLogs.d(TAG, "start()", "started execution");
+
+
+        if (!canExc()) {
+            SLogs.e(TAG, "The folder scan task was not started, because the folder backup task is running");
+            return Result.success();
+        }
+
+        setIsRunning(true);
 
         //send a start event
         send(FeatureDataSource.FOLDER_BACKUP, TransferEvent.EVENT_TRANSFER_TASK_START);
@@ -191,16 +214,18 @@ public class FolderBackupUploadWorker extends BaseUploadWorker {
         if (resultException != SeafException.SUCCESS) {
             errorMsg = resultException.getMessage();
             Toasts.show(R.string.backup_failed);
-        }else{
+        } else {
             Toasts.show(R.string.backup_completed);
         }
 
         //
+        setIsRunning(false);
         sendCompleteEvent(FeatureDataSource.FOLDER_BACKUP, errorMsg, totalPendingCount);
         return Result.success();
     }
 
     protected Result returnSuccess() {
+        setIsRunning(false);
         send(FeatureDataSource.FOLDER_BACKUP, TransferEvent.EVENT_TRANSFER_TASK_COMPLETE);
         return Result.success();
     }

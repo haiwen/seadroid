@@ -105,9 +105,6 @@ public class MainActivity extends BaseActivity {
 
         applyEdgeToEdgeInsets();
 
-        //register bus
-        BusHelper.getCommonObserver().observe(this, commonBusObserver);
-
         initSettings();
 
         initFireBase();
@@ -266,9 +263,13 @@ public class MainActivity extends BaseActivity {
 
         //
         BusHelper.getCommonObserver().removeObserver(commonBusObserver);
+        BusHelper.getNavContextObserver().removeObserver(navContextObserver);
 
         BackgroundJobManagerImpl.getInstance().stopAlbumBackupPeriodicScan(SeadroidApplication.getAppContext());
         BackgroundJobManagerImpl.getInstance().stopFolderBackupPeriodicScan(SeadroidApplication.getAppContext());
+        //
+//        BackgroundJobManagerImpl.getInstance().cancelAllJobs();
+
 
         if (isBound) {
             unbindService(syncConnection);
@@ -423,17 +424,15 @@ public class MainActivity extends BaseActivity {
     }
 
     private void initViewModel() {
+        //register bus
+        BusHelper.getNavContextObserver().observe(this, navContextObserver);
+        BusHelper.getCommonObserver().observe(this, commonBusObserver);
+
+
         mainViewModel.getServerInfoLiveData().observe(this, new Observer<ServerInfo>() {
             @Override
             public void onChanged(ServerInfo serverInfo) {
                 requestServerInfo(false);
-            }
-        });
-
-        BusHelper.getNavContextObserver().observe(this, new Observer<NavContext>() {
-            @Override
-            public void onChanged(NavContext context) {
-                refreshActionbar();
             }
         });
 
@@ -666,6 +665,12 @@ public class MainActivity extends BaseActivity {
         overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     }
 
+    private final Observer<NavContext> navContextObserver = new Observer<NavContext>() {
+        @Override
+        public void onChanged(NavContext navContext) {
+            refreshActionbar();
+        }
+    };
 
     private final Observer<String> commonBusObserver = new Observer<String>() {
         @Override
@@ -678,10 +683,6 @@ public class MainActivity extends BaseActivity {
                 if (syncService != null) {
                     syncService.restartFolderMonitor();
                 }
-            } else if (TextUtils.equals(action, BusAction.PERIODIC_ALBUM_SCAN_LAUNCH)) {
-                BackupThreadExecutor.getInstance().runAlbumBackupTask(false);
-            } else if (TextUtils.equals(action, BusAction.PERIODIC_ALBUM_SCAN_LAUNCH)) {
-                BackupThreadExecutor.getInstance().runFolderBackupFuture(false);
             }
         }
     };

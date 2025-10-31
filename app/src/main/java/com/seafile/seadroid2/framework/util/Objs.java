@@ -668,6 +668,10 @@ public class Objs {
             return;
         }
 
+        if (direntModel == null){
+            return;
+        }
+
         GetShareLinkPasswordDialogFragment dialogFragment = new GetShareLinkPasswordDialogFragment();
         dialogFragment.init(direntModel.repo_id, direntModel.full_path, isAdvance);
         dialogFragment.setOnCreateDirentShareLinkListener(new OnCreateDirentShareLinkListener() {

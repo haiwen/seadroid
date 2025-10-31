@@ -53,7 +53,7 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 
 public abstract class BaseUploadWorker extends TransferWorker {
-    private final String TAG = "BaseUploadWorker";
+    private final String TAG = "Background-Thread-Uploader";//BaseUploadWorker
 
     public abstract BaseTransferNotificationHelper getNotification();
 
@@ -263,45 +263,59 @@ public abstract class BaseUploadWorker extends TransferWorker {
         }
 
         RequestBody requestBody = builder.build();
-
         //get upload link
         String uploadUrl = getFileUploadUrl(account, currentTransferModel.repo_id, currentTransferModel.getParentPath(), currentTransferModel.transfer_strategy == ExistingFileStrategy.REPLACE);
-        //
-        if (newCall != null && newCall.isExecuted()) {
-            SafeLogs.d(TAG, "transferFile()", "newCall has executed(), cancel it");
-            newCall.cancel();
-        }
+
 
         Request request = new Request.Builder()
                 .url(uploadUrl)
                 .post(requestBody)
                 .addHeader("Connection", "keep-alive")
-                .addHeader("Accept", "*/*")
                 .addHeader("User-Agent", Constants.UA.SEAFILE_ANDROID_UA)
-                .addHeader("User-Agent", Constants.UA.SEAFILE_ANDROID_UPLOAD_UA)
                 .build();
 
-        Headers headers = request.headers();
-        for (int i = 0; i < headers.size(); i++) {
-            SafeLogs.d(TAG, "header: " + headers.name(i) + " -> " + headers.value(i));
-        }
+        // log Content-Type
+        SafeLogs.d(TAG, "upload content-Type: " + requestBody.contentType());
+        SafeLogs.d(TAG, "start upload, url: " + uploadUrl);
 
-        newCall = getFallbackHttpClient(account).newCall(request);
+        newCall = getPrimaryHttpClient(account).newCall(request);
+
         try (Response response = newCall.execute()) {
             Protocol protocol = response.protocol();
             SafeLogs.d(TAG, "onRes()", "response code: " + response.code() + ", protocol: " + protocol);
 
             onRes(response);
         } catch (IOException e) {
-            SafeLogs.e(TAG, e.getMessage());
+            SafeLogs.e(TAG, "upload file failed.");
             SafeLogs.e(e);
 
             throw SeafException.NETWORK_EXCEPTION;
+        } finally {
+            //
+            if (newCall != null) {
+                SafeLogs.d(TAG, "transferFile()", "reset newCall object");
+                newCall.cancel();
+                newCall = null;
+            }
         }
     }
 
     private void onRes(Response response) throws SeafException, IOException {
+        //req headers log
+        Headers reqHeaders = response.request().headers();
+        for (int i = 0; i < reqHeaders.size(); i++) {
+            SafeLogs.d(TAG, "req-header: " + reqHeaders.name(i) + ": " + reqHeaders.value(i));
+        }
+
+        //res headers log
+        Headers resHeaders = response.headers();
+        for (int i = 0; i < resHeaders.size(); i++) {
+            SafeLogs.d(TAG, "res-header: " + resHeaders.name(i) + ": " + resHeaders.value(i));
+        }
+
         int code = response.code();
+        SafeLogs.d(TAG, "onRes() response code: " + code);
+
         try (ResponseBody body = response.body()) {
             if (body == null) {
                 SafeLogs.d(TAG, "transferFile()", "body is null");
