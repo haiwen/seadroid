@@ -9,4 +9,8 @@ package com.seafile.seadroid2.bus;
  */
 public class BusAction {
     public static final String RESTART_FILE_MONITOR = "RESTART_FILE_MONITOR";
+    public static final String START_FOREGROUND_FILE_MONITOR = "START_FOREGROUND_FILE_MONITOR";
+    public static final String STOP_FOREGROUND_FILE_MONITOR = "STOP_FOREGROUND_FILE_MONITOR";
+
+
 }

@@ -33,7 +33,6 @@ import com.seafile.seadroid2.framework.notification.base.BaseNotification;
 import com.seafile.seadroid2.framework.util.ExceptionUtils;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Toasts;
-import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
@@ -60,12 +59,6 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
-/**
- * Worker Tag:
- *
- * @see BackgroundJobManagerImpl#TAG_ALL
- * @see BackgroundJobManagerImpl#TAG_TRANSFER
- */
 @Deprecated
 public class DownloadWorker extends BaseDownloadWorker {
     private final String TAG = "DownloadWorker";

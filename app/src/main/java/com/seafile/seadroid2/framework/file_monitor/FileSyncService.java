@@ -1,6 +1,13 @@
 package com.seafile.seadroid2.framework.file_monitor;
 
+import static android.app.PendingIntent.FLAG_IMMUTABLE;
+
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.Handler;
@@ -9,12 +16,16 @@ import android.os.Looper;
 import android.text.TextUtils;
 
 import androidx.annotation.Nullable;
+import androidx.core.app.NotificationCompat;
+import androidx.lifecycle.Observer;
 
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.EncryptUtils;
 import com.blankj.utilcode.util.FileUtils;
+import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.bus.BusHelper;
 import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.datastore.StorageManager;
@@ -22,13 +33,16 @@ import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePre
 import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
+import com.seafile.seadroid2.framework.notification.base.NotificationUtils;
 import com.seafile.seadroid2.framework.service.BackupThreadExecutor;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.queue.TransferModel;
+import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
+import com.seafile.seadroid2.ui.main.MainActivity;
 
 import org.apache.commons.io.monitor.FileAlterationListener;
 import org.apache.commons.io.monitor.FileAlterationObserver;
@@ -40,6 +54,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * daemon service
@@ -70,19 +86,6 @@ public class FileSyncService extends Service {
     private final String TEMP_FILE_DIR = StorageManager.getInstance().getTempDir().getAbsolutePath();
 
     private final Handler mainThreadHandler = new Handler(Looper.getMainLooper());
-    private FileChangeListener fileChangeListener;
-
-    public void setFileChangeListener(FileChangeListener fileChangeListener) {
-        this.fileChangeListener = fileChangeListener;
-    }
-
-    public interface FileChangeListener {
-        void onLocalFileChanged(File fileToScan); // 或者传递更具体的事件对象
-
-        void onBackupFileChanged(File fileToScan); // 或者传递更具体的事件对象
-
-        void onMediaContentObserver(boolean isFullScan);
-    }
 
     /**
      * TODO: Multiple cache directories
@@ -111,17 +114,50 @@ public class FileSyncService extends Service {
     }
 
     @Override
+    public void onCreate() {
+        super.onCreate();
+
+        initIgnorePath();
+
+        registerMediaContentObserver();
+
+        startWorkers();
+
+        compareFirstAndStartMonitor();
+    }
+
+    @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+
+        boolean isTurnOn = Settings.BACKGROUND_BACKUP_SWITCH.queryValue();
+        if (isTurnOn) {
+            SLogs.d(TAG, "Background backup enabled, running in background by foreground service.");
+            startForeground(NotificationUtils.NID_FILE_MONITOR_PERSISTENTLY, buildNotification());
+        } else {
+            SLogs.d(TAG, "Background backup disabled, running in bound mode.");
+        }
+
+        //
+        startPeriodicScanTask();
+
         return START_STICKY;
     }
 
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
+        boolean isTurnOn = Settings.BACKGROUND_BACKUP_SWITCH.queryValue();
+        if (isTurnOn) {
+            return null;
+        }
+
+        if (mBinder == null) {
+            mBinder = new FileSyncService.FileSyncBinder(this);
+        }
         return mBinder;
     }
 
-    private final IBinder mBinder = new FileSyncService.FileSyncBinder(this);
+    private IBinder mBinder = null;
 
     public static class FileSyncBinder extends Binder {
         private final WeakReference<FileSyncService> serviceRef;
@@ -135,17 +171,67 @@ public class FileSyncService extends Service {
         }
     }
 
-    @Override
-    public void onCreate() {
-        super.onCreate();
 
-        initIgnorePath();
+    private Notification buildNotification() {
 
-        registerMediaContentObserver();
+        Intent intent = new Intent(this, MainActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 1, intent, FLAG_IMMUTABLE);
 
-        startWorkers();
+        return new NotificationCompat.Builder(this, NotificationUtils.FILE_MONITOR_CHANNEL)
+                .setSmallIcon(R.drawable.icon)
+                .setContentTitle(getString(R.string.notification_background_file_monitor_title))
+                .setContentText(getString(R.string.notification_background_file_monitor_content))
+                .setOngoing(true)
+                .setAutoCancel(false)
+                .setPriority(NotificationCompat.PRIORITY_MAX)
+                .setCategory(Notification.CATEGORY_SERVICE)
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                .setContentIntent(pendingIntent)
+                .build();
+    }
 
-        compareFirstAndStartMonitor();
+    public void updateForegroundState(boolean isTurnOn) {
+        if (isTurnOn) {
+            startForeground(NotificationUtils.NID_FILE_MONITOR_PERSISTENTLY, buildNotification());
+            SLogs.d(TAG, "Entered foreground mode");
+        } else {
+            stopForeground(true);
+            SLogs.d(TAG, "Exited foreground mode");
+        }
+    }
+
+    // 使用 Handler + Runnable 实现定时任务
+    private final Handler periodicHandler = new Handler(Looper.getMainLooper());
+    private boolean isPeriodicRunning = false;
+    private final long periodicTime = 30 * 60 * 1000L;
+
+    private final Runnable periodicTask = new Runnable() {
+        @Override
+        public void run() {
+            if (isPeriodicRunning) {
+                SLogs.d(TAG, "Periodic scan skipped (previous still running)");
+                periodicHandler.postDelayed(this, periodicTime);
+                return;
+            }
+            isPeriodicRunning = true;
+
+            try {
+                SLogs.d(TAG, "Periodic local file scan...");
+                startWorkers();
+            } catch (Exception e) {
+                SLogs.e(TAG, "Periodic scan failed", e);
+            } finally {
+                // 每 30 分钟再次执行
+                isPeriodicRunning = false;
+                periodicHandler.postDelayed(this, periodicTime);
+            }
+        }
+    };
+
+    private void startPeriodicScanTask() {
+        periodicHandler.removeCallbacks(periodicTask);
+
+        periodicHandler.postDelayed(periodicTask, periodicTime);
     }
 
     /**
@@ -173,6 +259,7 @@ public class FileSyncService extends Service {
             if (CollectionUtils.isEmpty(cacheList)) {
                 return;
             }
+
             SLogs.d(TAG, "scanLocalCacheFile: cacheList size is " + cacheList.size());
 
             for (FileCacheStatusEntity entity : cacheList) {
@@ -215,9 +302,7 @@ public class FileSyncService extends Service {
             @Override
             public void onMediaContentObserver(boolean isFullScan) {
                 SLogs.d(TAG, "onMediaContentObserver", "isFullScan: " + isFullScan);
-                if (fileChangeListener != null) {
-                    fileChangeListener.onMediaContentObserver(isFullScan);
-                }
+                CameraUploadManager.getInstance().performSync(isFullScan);
             }
         });
         mediaContentObserver.register();
@@ -226,16 +311,10 @@ public class FileSyncService extends Service {
     private void startWorkers() {
         if (AlbumBackupSharePreferenceHelper.isAlbumBackupEnable()) {
             CameraUploadManager.getInstance().performSync();
-
-            // Of course, a periodic worker can also be started here
-            BackgroundJobManagerImpl.getInstance().scheduleAlbumBackupPeriodicScan(getApplicationContext());
         }
 
         if (FolderBackupSharePreferenceHelper.isFolderBackupEnable()) {
             BackupThreadExecutor.getInstance().runFolderBackupFuture(true);
-
-            //start periodic folder backup scan worker
-            BackgroundJobManagerImpl.getInstance().scheduleFolderBackupPeriodicScan(getApplicationContext());
         }
     }
 
@@ -341,25 +420,25 @@ public class FileSyncService extends Service {
             if ("change".equals(action)) {
                 onAppCacheFileChanged(file);
 
-                // We don't know if an app is visible to users, so we can't start a foreground service directly
-                if (fileChangeListener != null) {
-                    mainThreadHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            fileChangeListener.onLocalFileChanged(file);
-                        }
-                    });
-                }
-            }
-        } else {
-            if (fileChangeListener != null) {
                 mainThreadHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                        fileChangeListener.onBackupFileChanged(file);
+                        SLogs.d(TAG, "onLocalFileChanged", file.getAbsolutePath());
+                        BackupThreadExecutor.getInstance().runLocalFileUpdateTask();
                     }
                 });
+
             }
+        } else {
+
+            mainThreadHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    SLogs.d(TAG, "onBackupFileChanged", file.getAbsolutePath());
+                    BackupThreadExecutor.getInstance().runFolderBackupFuture(true);
+                }
+            });
+
         }
     }
 
@@ -445,11 +524,15 @@ public class FileSyncService extends Service {
         SLogs.e(TAG, "onDestroy()", "file monitor service destroy");
         stopFolderMonitor();
 
+        // 移除定时任务回调
+        periodicHandler.removeCallbacks(periodicTask);
+
+        stopForeground(true);
+
         //
         if (mediaContentObserver != null) {
             mediaContentObserver.unregister();
             mediaContentObserver = null;
         }
     }
-
 }

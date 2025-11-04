@@ -68,16 +68,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:theme="@style/App.Theme">
 
-        <service
-            android:name="androidx.work.impl.foreground.SystemForegroundService"
-            android:foregroundServiceType="dataSync"
-            tools:node="merge" />
-
-        <service
-            android:name=".framework.service.TransferService"
-            android:exported="false"
-            android:foregroundServiceType="dataSync" />
-
         <activity
             android:name=".ui.SplashActivity"
             android:exported="true"
@@ -98,7 +88,7 @@
 
         <activity
             android:name=".ui.main.MainActivity"
-            android:configChanges="uiMode|orientation|screenSize"
+            android:configChanges="uiMode|orientation|screenSize|screenLayout|smallestScreenSize"
             android:exported="false"
             android:launchMode="singleTop"
             android:windowSoftInputMode="adjustPan" />
@@ -199,6 +189,20 @@
         </provider>
 
         <service
+            android:name="androidx.work.impl.foreground.SystemForegroundService"
+            android:foregroundServiceType="dataSync"
+            tools:node="merge" />
+        <service
+            android:name=".framework.file_monitor.FileSyncService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
+
+        <service
+            android:name=".framework.service.TransferService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
+
+        <service
             android:name=".account.AuthenticatorService"
             android:exported="true">
             <intent-filter>
@@ -225,9 +229,6 @@
         <!--        <service-->
         <!--            android:name=".ui.camera_upload.MediaSchedulerService"-->
         <!--            android:permission="android.permission.BIND_JOB_SERVICE" />-->
-        <service
-            android:name=".framework.file_monitor.FileSyncService"
-            android:exported="false" />
 
         <service
             android:name=".framework.service.scan.FolderBackupScanJobService"

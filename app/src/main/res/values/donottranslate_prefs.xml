@@ -45,6 +45,9 @@
     <string name="pref_key_security_clear_password">key_clear_password</string>
     <string name="pref_key_security_client_encrypt">key_client_encrypt</string>
 
+    <!-- background backup config-->
+    <string name="pref_key_backup_settings_turn_on_background_switch">key_backup_settings_turn_on_background_switch</string>
+
     <!-- album backup -->
     <string name="pref_key_album_backup_switch">key_album_backup_switch</string>
     <string name="pref_key_album_backup_repo_select">key_album_backup_repo</string>

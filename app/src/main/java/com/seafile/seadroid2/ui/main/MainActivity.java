@@ -14,11 +14,13 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.text.TextUtils;
 import android.view.MenuItem;
+import android.widget.LinearLayout;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -37,6 +39,7 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.bus.BusAction;
 import com.seafile.seadroid2.bus.BusHelper;
+import com.seafile.seadroid2.compat.ContextCompatKt;
 import com.seafile.seadroid2.context.GlobalNavContext;
 import com.seafile.seadroid2.context.NavContext;
 import com.seafile.seadroid2.databinding.ActivityMainBinding;
@@ -132,7 +135,7 @@ public class MainActivity extends BaseActivity {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, 0, systemBars.right, 0);
 
-            ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) binding.statusBarGuideline.getLayoutParams();
+            LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) binding.statusBarGuideline.getLayoutParams();
             params.height = systemBars.top;
             binding.statusBarGuideline.setLayoutParams(params);
             return insets;
@@ -204,7 +207,7 @@ public class MainActivity extends BaseActivity {
     }
 
     private void requestNotificationPermission() {
-        if (PermissionUtil.hasNotificationPermission(this)) {
+        if (!PermissionUtil.hasNotificationPermission(this)) {
             PermissionUtil.requestNotificationPermission(this);
         }
     }
@@ -265,18 +268,13 @@ public class MainActivity extends BaseActivity {
         BusHelper.getCommonObserver().removeObserver(commonBusObserver);
         BusHelper.getNavContextObserver().removeObserver(navContextObserver);
 
-        BackgroundJobManagerImpl.getInstance().stopAlbumBackupPeriodicScan(SeadroidApplication.getAppContext());
-        BackgroundJobManagerImpl.getInstance().stopFolderBackupPeriodicScan(SeadroidApplication.getAppContext());
-        //
+//        BackgroundJobManagerImpl.getInstance().stopAlbumBackupPeriodicScan(SeadroidApplication.getAppContext());
+//        BackgroundJobManagerImpl.getInstance().stopFolderBackupPeriodicScan(SeadroidApplication.getAppContext());
 //        BackgroundJobManagerImpl.getInstance().cancelAllJobs();
 
 
-        if (isBound) {
-            unbindService(syncConnection);
-            isBound = false;
-            syncService = null;
-        }
-
+        unbindService();
+        //
         super.onDestroy();
     }
 
@@ -448,10 +446,29 @@ public class MainActivity extends BaseActivity {
 
     // service
     private void bindService() {
+        Intent syncIntent = new Intent(this, FileSyncService.class);
         if (!isBound) {
-            Intent syncIntent = new Intent(this, FileSyncService.class);
             bindService(syncIntent, syncConnection, Context.BIND_AUTO_CREATE);
             isBound = true;
+        }
+
+        boolean isTurnOn = Settings.BACKGROUND_BACKUP_SWITCH.queryValue();
+        if (isTurnOn) {
+            ContextCompat.startForegroundService(this, syncIntent);
+        }
+    }
+
+    private void unbindService() {
+        if (isBound) {
+            unbindService(syncConnection);
+            isBound = false;
+            syncService = null;
+        }
+
+        boolean isTurnOn = Settings.BACKGROUND_BACKUP_SWITCH.queryValue();
+        if (!isTurnOn) {
+            Intent intent = new Intent(MainActivity.this, FileSyncService.class);
+            stopService(intent);
         }
     }
 
@@ -461,7 +478,6 @@ public class MainActivity extends BaseActivity {
         public void onServiceConnected(ComponentName name, IBinder service) {
             FileSyncService.FileSyncBinder binder = (FileSyncService.FileSyncBinder) service;
             syncService = binder.getService();
-            syncService.setFileChangeListener(onLocalFileChangeListener);
             SLogs.d(TAG, "bond FileSyncService");
         }
 
@@ -470,26 +486,6 @@ public class MainActivity extends BaseActivity {
             syncService = null;
             isBound = false;
             SLogs.d(TAG, "FileSyncService disconnected");
-        }
-    };
-
-    private final FileSyncService.FileChangeListener onLocalFileChangeListener = new FileSyncService.FileChangeListener() {
-        @Override
-        public void onLocalFileChanged(File fileToScan) {
-            SLogs.d(TAG, "onLocalFileChanged", fileToScan.getAbsolutePath());
-            BackupThreadExecutor.getInstance().runLocalFileUpdateTask();
-        }
-
-        @Override
-        public void onBackupFileChanged(File fileToScan) {
-            SLogs.d(TAG, "onBackupFileChanged", fileToScan.getAbsolutePath());
-            BackupThreadExecutor.getInstance().runFolderBackupFuture(true);
-        }
-
-        @Override
-        public void onMediaContentObserver(boolean isFullScan) {
-            SLogs.d(TAG, "onMediaContentObserver", "isFullScan: " + isFullScan);
-            CameraUploadManager.getInstance().performSync(isFullScan);
         }
     };
 
@@ -682,6 +678,15 @@ public class MainActivity extends BaseActivity {
             if (TextUtils.equals(action, BusAction.RESTART_FILE_MONITOR)) {
                 if (syncService != null) {
                     syncService.restartFolderMonitor();
+                }
+            } else if (TextUtils.equals(action, BusAction.START_FOREGROUND_FILE_MONITOR)) {
+
+                Intent intent = new Intent(MainActivity.this, FileSyncService.class);
+                ContextCompat.startForegroundService(MainActivity.this, intent);
+
+            } else if (TextUtils.equals(action, BusAction.STOP_FOREGROUND_FILE_MONITOR)) {
+                if (syncService != null) {
+                    syncService.updateForegroundState(false);
                 }
             }
         }

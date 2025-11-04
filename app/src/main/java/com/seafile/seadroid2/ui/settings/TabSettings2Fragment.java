@@ -10,6 +10,7 @@ import android.Manifest;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -25,6 +26,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.core.text.HtmlCompat;
@@ -106,6 +108,10 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
     private Handler viewHandler;
     private final Account currentAccount = SupportAccountManager.getInstance().getCurrentAccount();
     private SettingsFragmentViewModel viewModel;
+
+
+    //backup settings
+    private TextSwitchPreference mBackgroundBackupSwitch;
 
 
     // album backup
@@ -229,6 +235,9 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
 
         // delay updates to avoid flickering
         runMainThreadDelay(() -> {
+            boolean isTurnOn = Settings.BACKGROUND_BACKUP_SWITCH.queryValue();
+            mBackgroundBackupSwitch.setChecked(isTurnOn);
+
             switchAlbumBackupState(mAlbumBackupSwitch.isChecked());
             switchFolderBackupState(mFolderBackupSwitch.isChecked());
         });
@@ -255,6 +264,8 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
         initAccountPref();
 
         initSignOutPref();
+
+        initBackupSettings();
 
         initAlbumBackupPref();
 
@@ -293,6 +304,10 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
             clearPassword();
             return true;
         });
+    }
+
+    private void initBackupSettings() {
+        mBackgroundBackupSwitch = findPreference(getString(R.string.pref_key_backup_settings_turn_on_background_switch));
     }
 
     private void initAlbumBackupPref() {
@@ -576,6 +591,26 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
         });
 
         //////////////////
+        /// backup settings
+        //////////////////
+        Settings.BACKGROUND_BACKUP_SWITCH.observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+                mBackgroundBackupSwitch.setChecked(aBoolean);
+                if (!PermissionUtil.hasNotificationPermission(requireContext())) {
+                    PermissionUtil.requestNotificationPermission(requireActivity());
+                } else {
+                    if (aBoolean) {
+                        BusHelper.getCommonObserver().post(BusAction.START_FOREGROUND_FILE_MONITOR);
+                    } else {
+                        BusHelper.getCommonObserver().post(BusAction.STOP_FOREGROUND_FILE_MONITOR);
+                    }
+                }
+
+            }
+        });
+
+        //////////////////
         /// album backup
         //////////////////
         Settings.ALBUM_BACKUP_SWITCH.observe(getViewLifecycleOwner(), new Observer<Boolean>() {
@@ -796,6 +831,7 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
     //0 : no one, 1 : camera, 2 : folder, 3 : modify storage location
     private int whoIsRequestingPermission = 0;
 
+
     private void requestCameraStoragePermission() {
         if (PermissionUtil.hasStoragePermission(requireContext())) {
             Intent intent = new Intent(requireActivity(), CameraUploadConfigActivity.class);
@@ -976,11 +1012,11 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
             CameraUploadManager.getInstance().performSync(isForce);
 
             // start periodic album backup scan worker
-            BackgroundJobManagerImpl.getInstance().scheduleAlbumBackupPeriodicScan(SeadroidApplication.getAppContext());
+//            BackgroundJobManagerImpl.getInstance().scheduleAlbumBackupPeriodicScan(SeadroidApplication.getAppContext());
         } else {
             //stop
             // stop periodic album backup scan worker
-            BackgroundJobManagerImpl.getInstance().stopAlbumBackupPeriodicScan(SeadroidApplication.getAppContext());
+//            BackgroundJobManagerImpl.getInstance().stopAlbumBackupPeriodicScan(SeadroidApplication.getAppContext());
 
             BackupThreadExecutor.getInstance().stopAlbumBackup();
 
@@ -1059,14 +1095,14 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
         if (FolderBackupSharePreferenceHelper.isFolderBackupEnable()) {
 
             //start periodic folder backup scan worker
-            BackgroundJobManagerImpl.getInstance().scheduleFolderBackupPeriodicScan(requireContext().getApplicationContext());
+//            BackgroundJobManagerImpl.getInstance().scheduleFolderBackupPeriodicScan(requireContext().getApplicationContext());
 
             BackupThreadExecutor.getInstance().runFolderBackupFuture(isFullScan);
 
         } else {
 
             // stop periodic folder backup service
-            BackgroundJobManagerImpl.getInstance().stopFolderBackupPeriodicScan(requireContext().getApplicationContext());
+//            BackgroundJobManagerImpl.getInstance().stopFolderBackupPeriodicScan(requireContext().getApplicationContext());
 
             BackupThreadExecutor.getInstance().stopFolderBackup();
         }

@@ -544,6 +544,10 @@
         <item quantity="other">Downloading %1$d files (%2$d%%)</item>
     </plurals>
     <string name="notification_download_completed">Download completed</string>
+    <string name="notification_background_file_monitor_channel">Seafile background file monitoring service</string>
+    <string name="notification_background_file_monitor_desc">Used for Seafile background file monitoring persistent notifications</string>
+    <string name="notification_background_file_monitor_title">Seafile is running in the background</string>
+    <string name="notification_background_file_monitor_content">Seafile is monitoring file changes and uploading automatically</string>
     <!--Gallery-->
     <string name="gallery_load_photos_error">Load photos error</string>
     <string name="gallery_encrypted_repo_not_supported">Encrypted library was not supported</string>
@@ -660,6 +664,9 @@
     <string name="folder_backup_select_repo_update">Update backup library</string>
     <string name="UncaughtExceptionHandler_err">The application stopped running</string>
     <string name="settings_file_backup_info_title">Backup file</string>
+    <!--backup config-->
+    <string name="backup_settings_title">Backup settings</string>
+    <string name="backup_settings_background_backup_title">Turn on background backup</string>
 
     <!--action-->
     <string name="pause">Pause</string>
@@ -688,6 +695,9 @@
     <string name="follow_system">Follow system</string>
     <string name="empty">Empty</string>
     <string name="empty_data">Empty data</string>
+    <string name="turn_on">Turn on</string>
+    <string name="turn_off">Turn off</string>
+
     <!-- share link -->
     <string name="link_permission_set_permission">Set permission</string>
     <string name="link_permission_preview_and_download">Preview and download</string>
