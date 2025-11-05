@@ -279,15 +279,20 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
     private void adaptInputMethod() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             ViewCompat.setWindowInsetsAnimationCallback(binding.llBottomBar, new WindowInsetsAnimationCompat.Callback(WindowInsetsAnimationCompat.Callback.DISPATCH_MODE_STOP) {
-
-                        //                        private boolean lastImeVisible = false;
                         private int startHeight = 0;
                         private int lastDiffH = 0;
+                        private boolean imeVisible = false;
+
+
+                        @Override
+                        public WindowInsetsAnimationCompat.@org.jspecify.annotations.NonNull BoundsCompat onStart(@org.jspecify.annotations.NonNull WindowInsetsAnimationCompat animation, WindowInsetsAnimationCompat.@org.jspecify.annotations.NonNull BoundsCompat bounds) {
+                            return super.onStart(animation, bounds);
+                        }
 
                         @Override
                         public void onPrepare(@NonNull WindowInsetsAnimationCompat animation) {
                             if (startHeight == 0) {
-                                startHeight = binding.llBottomBar.getHeight();
+                                startHeight = binding.llPlaceholder.getHeight();
                             }
                         }
 
@@ -295,38 +300,56 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
                         @Override
                         public WindowInsetsCompat onProgress(@NonNull WindowInsetsCompat insets,
                                                              @NonNull List<WindowInsetsAnimationCompat> runningAnimations) {
+
                             Insets imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime());
-                            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+                            Insets navInsets = insets.getInsets(WindowInsetsCompat.Type.navigationBars());
 
-                            Insets diff = Insets.subtract(imeInsets, systemBars);
-                            Insets maxDiff = Insets.max(diff, Insets.NONE);
+                            boolean isNowVisible = imeInsets.bottom > 0;
+                            if (isNowVisible != imeVisible) {
+                                imeVisible = isNowVisible;
 
-                            int diffH = Math.abs(maxDiff.top - maxDiff.bottom);
+                                if (imeVisible) {
+                                    // 键盘显示 → 隐藏底栏
+                                    if (binding.llBottomBar.getVisibility() == View.VISIBLE) {
+                                        binding.llBottomBar.setVisibility(View.GONE);
+                                    }
+                                } else {
+                                    // 键盘隐藏 → 显示底栏
+                                    if (binding.llBottomBar.getVisibility() != View.VISIBLE) {
+                                        binding.llBottomBar.setVisibility(View.VISIBLE);
+                                    }
+                                }
+                            }
 
-                            ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) binding.llBottomBar.getLayoutParams();
+                            int diffH = Math.max(imeInsets.bottom, navInsets.bottom);
+
+                            ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) binding.llPlaceholder.getLayoutParams();
                             layoutParams.bottomMargin = diffH;
-                            binding.llBottomBar.setLayoutParams(layoutParams);
+                            binding.llPlaceholder.setLayoutParams(layoutParams);
 
                             lastDiffH = diffH;
                             return insets;
                         }
+
                     }
             );
         } else {
             // <= Android R
-            binding.llBottomBar.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            binding.llPlaceholder.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
                 int lastBottom = 0;
 
                 @Override
                 public void onGlobalLayout() {
                     WindowInsetsCompat insets = ViewCompat.getRootWindowInsets(binding.llBottomBar);
-                    if (insets != null) {
-                        int bottom = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom;
-                        if (lastBottom != 0 && bottom == 0) {
-                            binding.llBottomBar.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                        }
-                        lastBottom = bottom;
+                    if (insets == null) {
+                        return;
                     }
+
+                    int bottom = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom;
+                    if (lastBottom != 0 && bottom == 0) {
+                        binding.llBottomBar.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                    }
+                    lastBottom = bottom;
                 }
             });
         }

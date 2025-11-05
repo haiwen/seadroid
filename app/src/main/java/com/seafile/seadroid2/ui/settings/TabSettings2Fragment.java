@@ -10,7 +10,6 @@ import android.Manifest;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -26,7 +25,6 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.core.text.HtmlCompat;
@@ -63,7 +61,6 @@ import com.seafile.seadroid2.framework.util.PermissionUtil;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.framework.util.Utils;
-import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
@@ -233,13 +230,16 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
 
         initWorkerBusObserver();
 
+
         // delay updates to avoid flickering
         runMainThreadDelay(() -> {
-            boolean isTurnOn = Settings.BACKGROUND_BACKUP_SWITCH.queryValue();
-            mBackgroundBackupSwitch.setChecked(isTurnOn);
-
             switchAlbumBackupState(mAlbumBackupSwitch.isChecked());
             switchFolderBackupState(mFolderBackupSwitch.isChecked());
+
+            //
+            boolean isTurnOn = Settings.BACKUP_SETTINGS_BACKGROUND_SWITCH.queryValue();
+            mBackgroundBackupSwitch.setChecked(isTurnOn);
+
         });
 
     }
@@ -593,11 +593,11 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
         //////////////////
         /// backup settings
         //////////////////
-        Settings.BACKGROUND_BACKUP_SWITCH.observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+        Settings.BACKUP_SETTINGS_BACKGROUND_SWITCH.observe(getViewLifecycleOwner(), new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean aBoolean) {
                 mBackgroundBackupSwitch.setChecked(aBoolean);
-                if (!PermissionUtil.hasNotificationPermission(requireContext())) {
+                if (PermissionUtil.hasNotGrantNotificationPermission(requireContext())) {
                     PermissionUtil.requestNotificationPermission(requireActivity());
                 } else {
                     if (aBoolean) {

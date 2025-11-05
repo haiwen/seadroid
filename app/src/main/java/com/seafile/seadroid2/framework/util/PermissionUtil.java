@@ -40,7 +40,7 @@ public class PermissionUtil {
         return false;
     }
 
-    public static boolean hasNotificationPermission(Context context) {
+    public static boolean hasNotGrantNotificationPermission(Context context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             return ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED;
         } else {
@@ -50,7 +50,7 @@ public class PermissionUtil {
 
     public static void requestNotificationPermission(Activity activity) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (hasNotificationPermission(activity)) {
+            if (hasNotGrantNotificationPermission(activity)) {
                 ActivityCompat.requestPermissions(activity,
                         new String[]{Manifest.permission.POST_NOTIFICATIONS},
                         PERMISSIONS_POST_NOTIFICATIONS);

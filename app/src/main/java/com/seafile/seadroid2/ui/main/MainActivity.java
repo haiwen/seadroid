@@ -19,7 +19,6 @@ import android.widget.LinearLayout;
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDelegate;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -34,31 +33,26 @@ import com.blankj.utilcode.util.NetworkUtils;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.bus.BusAction;
 import com.seafile.seadroid2.bus.BusHelper;
-import com.seafile.seadroid2.compat.ContextCompatKt;
 import com.seafile.seadroid2.context.GlobalNavContext;
 import com.seafile.seadroid2.context.NavContext;
 import com.seafile.seadroid2.databinding.ActivityMainBinding;
 import com.seafile.seadroid2.enums.NightMode;
+import com.seafile.seadroid2.framework.file_monitor.FileDaemonService;
 import com.seafile.seadroid2.framework.file_monitor.FileSyncService;
 import com.seafile.seadroid2.framework.model.ServerInfo;
-import com.seafile.seadroid2.framework.service.BackupThreadExecutor;
 import com.seafile.seadroid2.framework.util.PermissionUtil;
 import com.seafile.seadroid2.framework.util.SLogs;
-import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.ui.account.AccountsActivity;
 import com.seafile.seadroid2.ui.activities.AllActivitiesFragment;
 import com.seafile.seadroid2.ui.adapter.ViewPager2Adapter;
 import com.seafile.seadroid2.ui.base.BaseActivity;
-import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
 import com.seafile.seadroid2.ui.repo.RepoQuickFragment;
 
-import java.io.File;
 import java.util.List;
 import java.util.Optional;
 
@@ -207,7 +201,7 @@ public class MainActivity extends BaseActivity {
     }
 
     private void requestNotificationPermission() {
-        if (!PermissionUtil.hasNotificationPermission(this)) {
+        if (PermissionUtil.hasNotGrantNotificationPermission(this)) {
             PermissionUtil.requestNotificationPermission(this);
         }
     }
@@ -452,9 +446,10 @@ public class MainActivity extends BaseActivity {
             isBound = true;
         }
 
-        boolean isTurnOn = Settings.BACKGROUND_BACKUP_SWITCH.queryValue();
+        boolean isTurnOn = Settings.BACKUP_SETTINGS_BACKGROUND_SWITCH.queryValue();
         if (isTurnOn) {
-            ContextCompat.startForegroundService(this, syncIntent);
+            Intent daemonIntent = new Intent(this, FileDaemonService.class);
+            ContextCompat.startForegroundService(this, daemonIntent);
         }
     }
 
@@ -463,12 +458,6 @@ public class MainActivity extends BaseActivity {
             unbindService(syncConnection);
             isBound = false;
             syncService = null;
-        }
-
-        boolean isTurnOn = Settings.BACKGROUND_BACKUP_SWITCH.queryValue();
-        if (!isTurnOn) {
-            Intent intent = new Intent(MainActivity.this, FileSyncService.class);
-            stopService(intent);
         }
     }
 
@@ -681,13 +670,12 @@ public class MainActivity extends BaseActivity {
                 }
             } else if (TextUtils.equals(action, BusAction.START_FOREGROUND_FILE_MONITOR)) {
 
-                Intent intent = new Intent(MainActivity.this, FileSyncService.class);
+                Intent intent = new Intent(MainActivity.this, FileDaemonService.class);
                 ContextCompat.startForegroundService(MainActivity.this, intent);
 
             } else if (TextUtils.equals(action, BusAction.STOP_FOREGROUND_FILE_MONITOR)) {
-                if (syncService != null) {
-                    syncService.updateForegroundState(false);
-                }
+                Intent intent = new Intent(MainActivity.this, FileDaemonService.class);
+                stopService(intent);
             }
         }
     };

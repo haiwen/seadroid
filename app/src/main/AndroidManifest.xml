@@ -192,8 +192,13 @@
             android:name="androidx.work.impl.foreground.SystemForegroundService"
             android:foregroundServiceType="dataSync"
             tools:node="merge" />
+
         <service
             android:name=".framework.file_monitor.FileSyncService"
+            android:exported="false" />
+
+        <service
+            android:name=".framework.file_monitor.FileDaemonService"
             android:exported="false"
             android:foregroundServiceType="dataSync" />
 

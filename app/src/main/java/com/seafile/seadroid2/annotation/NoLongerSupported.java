@@ -1,6 +1,5 @@
 package com.seafile.seadroid2.annotation;
 
-
 import static java.lang.annotation.ElementType.CONSTRUCTOR;
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.METHOD;
@@ -9,10 +8,9 @@ import static java.lang.annotation.ElementType.TYPE;
 import java.lang.annotation.Target;
 
 /**
- * In this project, this feature is not yet complete,
- * and will continue to be maintained in the future
+ * This feature is no longer supported and maintained.
+ * After a certain period of time, it will be modified to @Deprecated
  */
 @Target({TYPE, METHOD, CONSTRUCTOR, FIELD})
-public @interface Todo {
-    String value() default "";
+public @interface NoLongerSupported {
 }

@@ -1,13 +1,6 @@
 package com.seafile.seadroid2.framework.file_monitor;
 
-import static android.app.PendingIntent.FLAG_IMMUTABLE;
-
-import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.Handler;
@@ -16,16 +9,12 @@ import android.os.Looper;
 import android.text.TextUtils;
 
 import androidx.annotation.Nullable;
-import androidx.core.app.NotificationCompat;
-import androidx.lifecycle.Observer;
 
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.EncryptUtils;
 import com.blankj.utilcode.util.FileUtils;
-import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
-import com.seafile.seadroid2.bus.BusHelper;
 import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.datastore.StorageManager;
@@ -33,16 +22,12 @@ import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePre
 import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
-import com.seafile.seadroid2.framework.notification.base.NotificationUtils;
 import com.seafile.seadroid2.framework.service.BackupThreadExecutor;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Utils;
-import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.queue.TransferModel;
-import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
-import com.seafile.seadroid2.ui.main.MainActivity;
 
 import org.apache.commons.io.monitor.FileAlterationListener;
 import org.apache.commons.io.monitor.FileAlterationObserver;
@@ -54,8 +39,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * daemon service
@@ -128,36 +111,16 @@ public class FileSyncService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-
-        boolean isTurnOn = Settings.BACKGROUND_BACKUP_SWITCH.queryValue();
-        if (isTurnOn) {
-            SLogs.d(TAG, "Background backup enabled, running in background by foreground service.");
-            startForeground(NotificationUtils.NID_FILE_MONITOR_PERSISTENTLY, buildNotification());
-        } else {
-            SLogs.d(TAG, "Background backup disabled, running in bound mode.");
-        }
-
-        //
-        startPeriodicScanTask();
-
         return START_STICKY;
     }
 
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        boolean isTurnOn = Settings.BACKGROUND_BACKUP_SWITCH.queryValue();
-        if (isTurnOn) {
-            return null;
-        }
-
-        if (mBinder == null) {
-            mBinder = new FileSyncService.FileSyncBinder(this);
-        }
         return mBinder;
     }
 
-    private IBinder mBinder = null;
+    private final IBinder mBinder = new FileSyncService.FileSyncBinder(this);;
 
     public static class FileSyncBinder extends Binder {
         private final WeakReference<FileSyncService> serviceRef;
@@ -172,67 +135,6 @@ public class FileSyncService extends Service {
     }
 
 
-    private Notification buildNotification() {
-
-        Intent intent = new Intent(this, MainActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 1, intent, FLAG_IMMUTABLE);
-
-        return new NotificationCompat.Builder(this, NotificationUtils.FILE_MONITOR_CHANNEL)
-                .setSmallIcon(R.drawable.icon)
-                .setContentTitle(getString(R.string.notification_background_file_monitor_title))
-                .setContentText(getString(R.string.notification_background_file_monitor_content))
-                .setOngoing(true)
-                .setAutoCancel(false)
-                .setPriority(NotificationCompat.PRIORITY_MAX)
-                .setCategory(Notification.CATEGORY_SERVICE)
-                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                .setContentIntent(pendingIntent)
-                .build();
-    }
-
-    public void updateForegroundState(boolean isTurnOn) {
-        if (isTurnOn) {
-            startForeground(NotificationUtils.NID_FILE_MONITOR_PERSISTENTLY, buildNotification());
-            SLogs.d(TAG, "Entered foreground mode");
-        } else {
-            stopForeground(true);
-            SLogs.d(TAG, "Exited foreground mode");
-        }
-    }
-
-    // 使用 Handler + Runnable 实现定时任务
-    private final Handler periodicHandler = new Handler(Looper.getMainLooper());
-    private boolean isPeriodicRunning = false;
-    private final long periodicTime = 30 * 60 * 1000L;
-
-    private final Runnable periodicTask = new Runnable() {
-        @Override
-        public void run() {
-            if (isPeriodicRunning) {
-                SLogs.d(TAG, "Periodic scan skipped (previous still running)");
-                periodicHandler.postDelayed(this, periodicTime);
-                return;
-            }
-            isPeriodicRunning = true;
-
-            try {
-                SLogs.d(TAG, "Periodic local file scan...");
-                startWorkers();
-            } catch (Exception e) {
-                SLogs.e(TAG, "Periodic scan failed", e);
-            } finally {
-                // 每 30 分钟再次执行
-                isPeriodicRunning = false;
-                periodicHandler.postDelayed(this, periodicTime);
-            }
-        }
-    };
-
-    private void startPeriodicScanTask() {
-        periodicHandler.removeCallbacks(periodicTask);
-
-        periodicHandler.postDelayed(periodicTask, periodicTime);
-    }
 
     /**
      * main thread executor
@@ -348,7 +250,8 @@ public class FileSyncService extends Service {
             try {
                 fileMonitor.stop();
             } catch (Exception e) {
-                SLogs.w("FileSyncService", e);
+                SLogs.d(TAG, e.getMessage());
+                SLogs.e(e);
             } finally {
                 fileMonitor = null;
             }
@@ -523,11 +426,6 @@ public class FileSyncService extends Service {
     private void destroy() {
         SLogs.e(TAG, "onDestroy()", "file monitor service destroy");
         stopFolderMonitor();
-
-        // 移除定时任务回调
-        periodicHandler.removeCallbacks(periodicTask);
-
-        stopForeground(true);
 
         //
         if (mediaContentObserver != null) {

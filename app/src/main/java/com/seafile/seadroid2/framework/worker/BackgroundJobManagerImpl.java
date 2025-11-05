@@ -19,6 +19,8 @@ import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 
 import com.seafile.seadroid2.SeadroidApplication;
+import com.seafile.seadroid2.annotation.NoLongerSupported;
+import com.seafile.seadroid2.annotation.NotSupport;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.service.scan.AlbumBackupScanJobService;
@@ -34,6 +36,7 @@ import com.seafile.seadroid2.framework.worker.upload.MediaBackupUploadWorker;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+@NoLongerSupported
 public class BackgroundJobManagerImpl {
     private static final String TAG = "BackgroundJobManagerImpl";
     public static final String TAG_ALL = "*";

@@ -546,8 +546,8 @@
     <string name="notification_download_completed">Download completed</string>
     <string name="notification_background_file_monitor_channel">Seafile background file monitoring service</string>
     <string name="notification_background_file_monitor_desc">Used for Seafile background file monitoring persistent notifications</string>
-    <string name="notification_background_file_monitor_title">Seafile is running in the background</string>
-    <string name="notification_background_file_monitor_content">Seafile is monitoring file changes and uploading automatically</string>
+    <string name="notification_background_file_monitor_title">Seafile file monitoring service</string>
+    <string name="notification_background_file_monitor_content">Seafile is monitoring file changes in the background and uploading automatically.</string>
     <!--Gallery-->
     <string name="gallery_load_photos_error">Load photos error</string>
     <string name="gallery_encrypted_repo_not_supported">Encrypted library was not supported</string>
