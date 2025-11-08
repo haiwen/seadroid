@@ -61,7 +61,6 @@ import com.seafile.seadroid2.enums.ActionModeCallbackType;
 import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.FileReturnActionEnum;
 import com.seafile.seadroid2.enums.FileViewType;
-import com.seafile.seadroid2.enums.ObjSelectType;
 import com.seafile.seadroid2.enums.OpType;
 import com.seafile.seadroid2.enums.RefreshStatusEnum;
 import com.seafile.seadroid2.enums.SortBy;
@@ -99,10 +98,10 @@ import com.seafile.seadroid2.ui.main.MainViewModel;
 import com.seafile.seadroid2.ui.markdown.MarkdownActivity;
 import com.seafile.seadroid2.ui.media.image.CarouselImagePreviewActivity;
 import com.seafile.seadroid2.ui.media.player.CustomExoVideoPlayerActivity;
+import com.seafile.seadroid2.ui.office_doc.OfficeDocumentWebActivity;
 import com.seafile.seadroid2.ui.repo.sheetaction.BottomSheetActionView;
 import com.seafile.seadroid2.ui.repo.sheetaction.BottomSheetMenuManager;
 import com.seafile.seadroid2.ui.sdoc.SDocWebViewActivity;
-import com.seafile.seadroid2.ui.selector.obj.ObjSelectorActivity;
 import com.seafile.seadroid2.ui.selector.versatile.VersatileSelectorActivity;
 import com.seafile.seadroid2.ui.star.StarredQuickFragment;
 import com.seafile.seadroid2.view.TipsViews;
@@ -1488,15 +1487,15 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             return;
         }
 
-        if (fileName.endsWith(Constants.Format.DOT_SDOC)) {
+        if (fileName.endsWith(Constants.FileExtensions.DOT_SDOC)) {
             String p = Utils.pathJoin(dirent.parent_dir, dirent.name);
             SDocWebViewActivity.openSdoc(getContext(), repoModel.repo_name, repoModel.repo_id, p, dirent.name);
             return;
         }
 
-        if (fileName.endsWith(Constants.Format.DOT_DRAW) || fileName.endsWith(Constants.Format.DOT_EXDRAW)) {
+        if (Utils.isOnlyOfficeFile(fileName)) {
             String p = Utils.pathJoin(dirent.parent_dir, dirent.name);
-            SDocWebViewActivity.openDraw(getContext(), repoModel.repo_name, repoModel.repo_id, p, dirent.name);
+            OfficeDocumentWebActivity.openDocument(getContext(), repoModel.repo_name, repoModel.repo_id, p, dirent.name);
             return;
         }
 

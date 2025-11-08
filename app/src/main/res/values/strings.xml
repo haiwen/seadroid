@@ -760,4 +760,14 @@
 
     <string name="file_transfer_stopped">The file transfer was stopped</string>
 
+    <!-- font-style -->
+    <string name="font_style_paragraph">Paragraph</string>
+    <string name="font_style_title">Title</string>
+    <string name="font_style_subtitle">Subtitle</string>
+    <string name="font_style_heading1">Heading 1</string>
+    <string name="font_style_heading2">Heading 2</string>
+    <string name="font_style_heading3">Heading 3</string>
+    <string name="font_style_heading4">Heading 4</string>
+    <string name="font_style_heading5">Heading 5</string>
+    <string name="font_style_heading6">Heading 6</string>
 </resources>

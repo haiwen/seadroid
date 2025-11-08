@@ -46,12 +46,16 @@ import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.config.WebViewActionConstant;
 import com.seafile.seadroid2.databinding.ActivitySeaWebviewProBinding;
 import com.seafile.seadroid2.databinding.ToolbarActionbarProgressBarBinding;
+import com.seafile.seadroid2.enums.TextStateEnum;
+import com.seafile.seadroid2.enums.TextTypeEnum;
 import com.seafile.seadroid2.framework.model.sdoc.FileProfileConfigModel;
 import com.seafile.seadroid2.framework.model.sdoc.OutlineItemModel;
 import com.seafile.seadroid2.framework.model.sdoc.SDocPageOptionsModel;
+import com.seafile.seadroid2.framework.model.sdoc.TextTypeModel;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.StringUtils;
 import com.seafile.seadroid2.framework.util.Toasts;
+import com.seafile.seadroid2.listener.Callback;
 import com.seafile.seadroid2.listener.OnItemClickListener;
 import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
 import com.seafile.seadroid2.ui.docs_comment.DocsCommentsActivity;
@@ -62,6 +66,7 @@ import com.seafile.seadroid2.view.webview.PreloadWebView;
 import com.seafile.seadroid2.view.webview.SeaWebView;
 
 import java.util.List;
+import java.util.Stack;
 
 public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
     private final String TAG = "SDocWebViewActivity";
@@ -69,11 +74,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
     private ActivitySeaWebviewProBinding binding;
     private ToolbarActionbarProgressBarBinding toolBinding;
     private SeaWebView mWebView;
-    private String repoId, repoName;
-    private String path;
-    private String fileName;
-    private String targetUrl;
-    private boolean isSdoc;
+    private String repoId, repoName, path, fileName, targetUrl;
 
     private SDocPageOptionsModel pageOptionsData;
 
@@ -83,17 +84,6 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         intent.putExtra("repoID", repoID);
         intent.putExtra("filePath", path);
         intent.putExtra("fileName", name);
-        intent.putExtra("isSdoc", true);
-        ActivityUtils.startActivity(intent);
-    }
-
-    public static void openDraw(Context context, String repoName, String repoID, String path, String name) {
-        Intent intent = new Intent(context, SDocWebViewActivity.class);
-        intent.putExtra("repoName", repoName);
-        intent.putExtra("repoID", repoID);
-        intent.putExtra("filePath", path);
-        intent.putExtra("fileName", name);
-        intent.putExtra("isSdoc", false);
         ActivityUtils.startActivity(intent);
     }
 
@@ -107,6 +97,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         outState.putString("repoId", repoId);
         outState.putString("repoName", repoName);
         outState.putString("path", path);
+        outState.putString("fileName", fileName);
         outState.putString("targetUrl", targetUrl);
     }
 
@@ -129,7 +120,9 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
 
         initData();
 
-        initUI();
+        initView();
+        initDropdownView();
+
         adaptInputMethod();
 
         initViewModel();
@@ -175,7 +168,6 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         repoName = intent.getStringExtra("repoName");
         path = intent.getStringExtra("filePath");
         fileName = intent.getStringExtra("fileName");
-        isSdoc = intent.getBooleanExtra("isSdoc", false);
 
         if (TextUtils.isEmpty(repoId) || TextUtils.isEmpty(path)) {
             throw new IllegalArgumentException("repoId or path is null");
@@ -189,7 +181,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         }
     }
 
-    private void initUI() {
+    private void initView() {
         Toolbar toolbar = getActionBarToolbar();
         toolbar.setNavigationOnClickListener(v -> {
             finish();
@@ -225,64 +217,188 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         mWebView.setLayoutParams(ll);
         binding.nsv.addView(mWebView);
 
-        if (isSdoc) {
-            binding.llBottomBar.setVisibility(View.VISIBLE);
-            binding.sdocOutline.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (!nextEditMode) {
-                        callJsSdocEditorEditable();
-                    }
+        binding.llEditorBar.setVisibility(View.GONE);
+        binding.llBottomBar.setVisibility(View.VISIBLE);
 
-                    if (KeyboardUtils.isSoftInputVisible(SDocWebViewActivity.this)) {
-                        KeyboardUtils.hideSoftInput(SDocWebViewActivity.this);
-                    }
+        binding.sdocOutline.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!nextEditMode) {
+                    callJsSdocEditorEditable();
+                }
 
-                    showOutlineDialog();
+                if (KeyboardUtils.isSoftInputVisible(SDocWebViewActivity.this)) {
+                    KeyboardUtils.hideSoftInput(SDocWebViewActivity.this);
+                }
+
+                showOutlineDialog();
 //                    callJsGetOutline();
+            }
+        });
+
+        binding.sdocProfile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!nextEditMode) {
+                    callJsSdocEditorEditable();
                 }
-            });
-            binding.sdocProfile.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (!nextEditMode) {
-                        callJsSdocEditorEditable();
-                    }
 
-                    if (KeyboardUtils.isSoftInputVisible(SDocWebViewActivity.this)) {
-                        KeyboardUtils.hideSoftInput(SDocWebViewActivity.this);
-                    }
-
-                    getViewModel().loadFileDetail(repoId, path);
+                if (KeyboardUtils.isSoftInputVisible(SDocWebViewActivity.this)) {
+                    KeyboardUtils.hideSoftInput(SDocWebViewActivity.this);
                 }
-            });
-            binding.sdocComment.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (!nextEditMode) {
-                        callJsSdocEditorEditable();
-                    }
 
-                    if (KeyboardUtils.isSoftInputVisible(SDocWebViewActivity.this)) {
-                        KeyboardUtils.hideSoftInput(SDocWebViewActivity.this);
-                    }
-
-                    showCommentsActivity();
+                getViewModel().loadFileDetail(repoId, path);
+            }
+        });
+        binding.sdocComment.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!nextEditMode) {
+                    callJsSdocEditorEditable();
                 }
-            });
-        } else {
-            binding.llBottomBar.setVisibility(View.GONE);
+
+                if (KeyboardUtils.isSoftInputVisible(SDocWebViewActivity.this)) {
+                    KeyboardUtils.hideSoftInput(SDocWebViewActivity.this);
+                }
+
+                showCommentsActivity();
+            }
+        });
+    }
+
+    //The type of text where the cursor is located
+    private TextTypeModel selectedTextTypeModel;
+    private final Stack<TextTypeModel> _actionStack = new Stack<>();
+
+    private void receiveJsCall(TextTypeModel model) {
+        if (model == null) {
+            return;
         }
 
+        _actionStack.push(model);
+        selectedTextTypeModel = model;
+
+        updateEditorBarViewState();
+    }
+
+    private void updateEditorBarViewState() {
+        if (TextUtils.equals(TextTypeEnum.text_style.name(), selectedTextTypeModel.type)) {
+            binding.editorTextStyleContainer.setChecked(true);
+
+        } else if (TextUtils.equals(TextTypeEnum.unordered_list.name(), selectedTextTypeModel.type)) {
+            binding.editorUnorderedListContainer.setChecked(true);
+
+        } else if (TextUtils.equals(TextTypeEnum.ordered_list.name(), selectedTextTypeModel.type)) {
+            binding.editorOrderedListContainer.setChecked(true);
+
+        } else if (TextUtils.equals(TextTypeEnum.checkbox.name(), selectedTextTypeModel.type)) {
+            if (TextUtils.equals("false", selectedTextTypeModel.state)) {
+                binding.editorCheckboxContainer.setChecked(false);
+
+                binding.editorTextStyle.setAlpha(1f);
+                binding.editorTextStyle.setEnabled(true);
+                binding.editorUnorderedList.setAlpha(1f);
+                binding.editorUnorderedList.setEnabled(true);
+                binding.editorOrderedList.setAlpha(1f);
+                binding.editorOrderedList.setEnabled(true);
+            }else{
+                binding.editorCheckboxContainer.setChecked(true);
+
+                binding.editorTextStyle.setAlpha(0.3f);
+                binding.editorTextStyle.setEnabled(false);
+                binding.editorUnorderedList.setAlpha(0.3f);
+                binding.editorUnorderedList.setEnabled(false);
+                binding.editorOrderedList.setAlpha(0.3f);
+                binding.editorOrderedList.setEnabled(false);
+            }
+        }
+    }
+
+    private void initDropdownView() {
+        binding.editorUndo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+        binding.editorUndo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+        binding.editorUnorderedList.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+        binding.editorOrderedList.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+        binding.editorCheckbox.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                TextTypeModel m = new TextTypeModel();
+                m.state = "false";
+                m.type = TextTypeEnum.checkbox.name();
+                m.line = 10;
+                receiveJsCall(m);
+            }
+        });
+        binding.editorTextStyle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                boolean isVisible = KeyboardUtils.isSoftInputVisible(SDocWebViewActivity.this);
+                if (isVisible) {
+                    KeyboardUtils.hideSoftInput(v);
+                    v.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            showCustomMenuView(binding.editorTextStyle);
+                        }
+                    }, 400);
+                } else {
+                    showCustomMenuView(binding.editorTextStyle);
+                }
+            }
+        });
+    }
+
+    private void showCustomMenuView(View anchorView) {
+        TextTypeModel m = new TextTypeModel();
+        m.state = TextStateEnum.h1.name();
+        m.type = TextTypeEnum.text_style.name();
+        m.line = 10;
+        SdocDropdownPopView popupWindow = new SdocDropdownPopView(this);
+        popupWindow.setSelectedTextStyleModel(m);
+        popupWindow.setCallback(new Callback<TextTypeModel>() {
+            @Override
+            public void callback(TextTypeModel textTypeModel) {
+                Toasts.show(textTypeModel.state);
+            }
+        });
+
+        View contentView = popupWindow.getContentView();
+        contentView.measure(
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+        );
+
+        int popupHeight = contentView.getMeasuredHeight();
+        int anchorHeight = anchorView.getHeight();
+        int yOffset = -(popupHeight + anchorHeight);
+        int xOffset = 0;
+        popupWindow.showAsDropDown(anchorView, xOffset, yOffset);
     }
 
     private void adaptInputMethod() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             ViewCompat.setWindowInsetsAnimationCallback(binding.llBottomBar, new WindowInsetsAnimationCompat.Callback(WindowInsetsAnimationCompat.Callback.DISPATCH_MODE_STOP) {
                         private int startHeight = 0;
-                        private int lastDiffH = 0;
-                        private boolean imeVisible = false;
-
 
                         @Override
                         public WindowInsetsAnimationCompat.@org.jspecify.annotations.NonNull BoundsCompat onStart(@org.jspecify.annotations.NonNull WindowInsetsAnimationCompat animation, WindowInsetsAnimationCompat.@org.jspecify.annotations.NonNull BoundsCompat bounds) {
@@ -302,32 +418,16 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
                                                              @NonNull List<WindowInsetsAnimationCompat> runningAnimations) {
 
                             Insets imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime());
-                            Insets navInsets = insets.getInsets(WindowInsetsCompat.Type.navigationBars());
+                            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
 
-                            boolean isNowVisible = imeInsets.bottom > 0;
-                            if (isNowVisible != imeVisible) {
-                                imeVisible = isNowVisible;
-
-                                if (imeVisible) {
-                                    // 键盘显示 → 隐藏底栏
-                                    if (binding.llBottomBar.getVisibility() == View.VISIBLE) {
-                                        binding.llBottomBar.setVisibility(View.GONE);
-                                    }
-                                } else {
-                                    // 键盘隐藏 → 显示底栏
-                                    if (binding.llBottomBar.getVisibility() != View.VISIBLE) {
-                                        binding.llBottomBar.setVisibility(View.VISIBLE);
-                                    }
-                                }
-                            }
-
-                            int diffH = Math.max(imeInsets.bottom, navInsets.bottom);
+                            Insets diff = Insets.subtract(imeInsets, systemBars);
+                            Insets maxDiff = Insets.max(diff, Insets.NONE);
+                            int diffH = Math.abs(maxDiff.top - maxDiff.bottom);
 
                             ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) binding.llPlaceholder.getLayoutParams();
                             layoutParams.bottomMargin = diffH;
                             binding.llPlaceholder.setLayoutParams(layoutParams);
 
-                            lastDiffH = diffH;
                             return insets;
                         }
 
@@ -378,10 +478,6 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        if (!isSdoc) {
-            return super.onCreateOptionsMenu(menu);
-        }
-
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_sdoc_preview, menu);
         editMenuItem = menu.findItem(R.id.sdoc_edit);
@@ -511,6 +607,14 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
 
                 if (editMenuItem != null) {
                     editMenuItem.setTitle(nextEditMode ? R.string.edit : R.string.complete);
+                }
+
+                if (nextEditMode) {
+                    binding.llEditorBar.setVisibility(View.GONE);
+                    binding.llBottomBar.setVisibility(View.VISIBLE);
+                } else {
+                    binding.llEditorBar.setVisibility(View.VISIBLE);
+                    binding.llBottomBar.setVisibility(View.GONE);
                 }
             }
         });
@@ -678,6 +782,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
             }
         }
     };
+
     private int curProgress = 0;
     private final WebChromeClient mWebChromeClient = new WebChromeClient() {
         @Override

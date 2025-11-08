@@ -2,7 +2,6 @@ package com.seafile.seadroid2.ui.activities;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.icu.text.CaseMap;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -33,7 +32,6 @@ import com.seafile.seadroid2.databinding.LayoutFrameSwipeRvBinding;
 import com.seafile.seadroid2.enums.FileReturnActionEnum;
 import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
-import com.seafile.seadroid2.framework.db.entities.StarredModel;
 import com.seafile.seadroid2.framework.model.ResultModel;
 import com.seafile.seadroid2.framework.model.activities.ActivityModel;
 import com.seafile.seadroid2.framework.util.Toasts;
@@ -48,6 +46,7 @@ import com.seafile.seadroid2.ui.main.MainActivity;
 import com.seafile.seadroid2.ui.markdown.MarkdownActivity;
 import com.seafile.seadroid2.ui.media.image.CarouselImagePreviewActivity;
 import com.seafile.seadroid2.ui.media.player.CustomExoVideoPlayerActivity;
+import com.seafile.seadroid2.ui.office_doc.OfficeDocumentWebActivity;
 import com.seafile.seadroid2.ui.sdoc.SDocWebViewActivity;
 import com.seafile.seadroid2.view.TipsViews;
 
@@ -401,11 +400,11 @@ public class AllActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel>
             Intent getIntent = CarouselImagePreviewActivity.startThisFromActivities(requireContext(), activityModel);
             imagePreviewActivityLauncher.launch(getIntent);
 
-        } else if (activityModel.name.endsWith(Constants.Format.DOT_SDOC)) {
+        } else if (activityModel.name.endsWith(Constants.FileExtensions.DOT_SDOC)) {
             SDocWebViewActivity.openSdoc(getContext(), activityModel.repo_name, activityModel.repo_id, activityModel.path, activityModel.name);
 
-        } else if (activityModel.name.endsWith(Constants.Format.DOT_DRAW) || activityModel.name.endsWith(Constants.Format.DOT_EXDRAW)) {
-            SDocWebViewActivity.openDraw(getContext(), activityModel.repo_name, activityModel.repo_id, activityModel.path, activityModel.name);
+        } else if (Utils.isOnlyOfficeFile(activityModel.name)) {
+            OfficeDocumentWebActivity.openDocument(getContext(), activityModel.repo_name, activityModel.repo_id, activityModel.path, activityModel.name);
 
         } else if (Utils.isVideoFile(activityModel.name)) {
             checkRemoteAndFileCache(activityModel, new Consumer<File>() {

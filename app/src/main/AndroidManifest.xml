@@ -158,6 +158,7 @@
         <activity android:name=".ui.media.image.OnlyImagePreviewActivity" />
         <activity android:name=".ui.selector.folder_selector.FolderSelectorActivity" />
         <activity android:name=".ui.selector.versatile.VersatileSelectorActivity" />
+        <activity android:name=".ui.office_doc.OfficeDocumentWebActivity" />
 
         <provider
             android:name=".provider.SeafileProvider"
@@ -199,11 +200,6 @@
 
         <service
             android:name=".framework.file_monitor.FileDaemonService"
-            android:exported="false"
-            android:foregroundServiceType="dataSync" />
-
-        <service
-            android:name=".framework.service.TransferService"
             android:exported="false"
             android:foregroundServiceType="dataSync" />
 
