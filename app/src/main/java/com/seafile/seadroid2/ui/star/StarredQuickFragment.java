@@ -36,6 +36,7 @@ import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.db.entities.StarredModel;
 import com.seafile.seadroid2.framework.model.ResultModel;
+import com.seafile.seadroid2.framework.model.ServerInfo;
 import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.ui.WidgetUtils;
@@ -294,6 +295,12 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
 
     @OptIn(markerClass = UnstableApi.class)
     private void open(StarredModel model) {
+        Account account = SupportAccountManager.getInstance().getCurrentAccount();
+        if (account == null){
+            return;
+        }
+        ServerInfo serverInfo = SupportAccountManager.getInstance().getServerInfo(account);
+
         if (model.is_dir) {
             MainActivity.navToThis(requireContext(), model.repo_id, model.repo_name, model.path, model.is_dir);
 
@@ -304,7 +311,7 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
         } else if (model.obj_name.endsWith(Constants.FileExtensions.DOT_SDOC)) {
             SDocWebViewActivity.openSdoc(getContext(), model.repo_name, model.repo_id, model.path, model.obj_name);
 
-        } else if (Utils.isOnlyOfficeFile(model.obj_name)) {
+        } else if (Utils.isOnlyOfficeFile(model.obj_name) && serverInfo.isEnableOnlyOffice()) {
             OfficeDocumentWebActivity.openDocument(getContext(), model.repo_name, model.repo_id, model.path, model.obj_name);
 
         } else if (Utils.isVideoFile(model.obj_name)) {

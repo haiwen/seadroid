@@ -675,7 +675,7 @@ public class RepoViewModel extends BaseViewModel {
         return mListLiveData;
     }
 
-    public void searchNext(String repoId, String q, int pageNo, int pageSize) {
+    public void searchNext(String repoId, String q, boolean isPro, int pageNo, int pageSize) {
         if (TextUtils.isEmpty(q)) {
             return;
         }
@@ -683,8 +683,14 @@ public class RepoViewModel extends BaseViewModel {
         getRefreshLiveData().setValue(true);
 
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
-        String repo = TextUtils.isEmpty(repoId) ? "all" : repoId;
-        Single<SearchWrapperModel> single = HttpIO.getCurrentInstance().execute(SearchService.class).search(repo, q, "all", pageNo, pageSize);
+        String typeOrRepoId = TextUtils.isEmpty(repoId) ? "all" : repoId;
+        Single<SearchWrapperModel> single;
+        if (isPro) {
+            single = HttpIO.getCurrentInstance().execute(SearchService.class).search(typeOrRepoId, q, "all", pageNo, pageSize);
+        } else {
+            single = HttpIO.getCurrentInstance().execute(SearchService.class).searchFile(typeOrRepoId, q, "all", pageNo, pageSize);
+        }
+
         addSingleDisposable(single, new Consumer<SearchWrapperModel>() {
             @Override
             public void accept(SearchWrapperModel searchWrapperModel) throws Exception {

@@ -8,7 +8,9 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,11 +39,14 @@ import com.seafile.seadroid2.databinding.ToolbarActionbarBinding;
 import com.seafile.seadroid2.framework.model.docs_comment.DocsCommentModel;
 import com.seafile.seadroid2.framework.model.docs_comment.DocsCommentsWrapperModel;
 import com.seafile.seadroid2.framework.model.sdoc.SDocPageOptionsModel;
+import com.seafile.seadroid2.framework.model.user.UserModel;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.ui.base.BaseMediaSelectorActivity;
+import com.seafile.seadroid2.ui.dialog_fragment.related_users.RelatedUserBottomSheetDialogFragment;
 import com.seafile.seadroid2.view.rich_edittext.RichEditText;
 
+import java.util.HashMap;
 import java.util.List;
 
 import io.reactivex.functions.Consumer;
@@ -150,6 +155,34 @@ public class DocsCommentsActivity extends BaseMediaSelectorActivity<DocsCommentV
                 submitData();
             }
         });
+
+        binding.richEditText.setTextWatcher(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                // 我们只关心新增字符的情况，即 count > before
+                // 并且我们只关心单个字符的输入，所以 count == 1
+                if (count == 1 && before == 0) {
+                    // 获取新输入的字符
+                    char insertedChar = s.charAt(start);
+                    // 判断新输入的字符是否是 '@'
+                    if (insertedChar == '@') {
+                        // 是“@”字符，执行弹出弹窗的逻辑
+                        SLogs.d("DocsCommentsActivity", "@ character detected. Showing user selector...");
+                        showRelateUserDialog(); // 假设这个方法用于弹出用户选择框
+                    }
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
 //
 //        binding.richEditText.setOnRichAtListener(new OnRichAtListener() {
 //            @Override
@@ -230,6 +263,13 @@ public class DocsCommentsActivity extends BaseMediaSelectorActivity<DocsCommentV
                 binding.richEditText.removeAllViews();
 
                 refreshData();
+            }
+        });
+
+        getViewModel().getRelatedUsersLiveData().observe(this, new Observer<List<UserModel>>() {
+            @Override
+            public void onChanged(List<UserModel> userModels) {
+
             }
         });
 
@@ -347,8 +387,24 @@ public class DocsCommentsActivity extends BaseMediaSelectorActivity<DocsCommentV
         builder.show();
     }
 
+    private final HashMap<String,UserModel> toNotifyUserMap = new HashMap<>();
+    private void showRelateUserDialog() {
+        RelatedUserBottomSheetDialogFragment fragment = new RelatedUserBottomSheetDialogFragment();
+        fragment.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener<UserModel>() {
+            @Override
+            public void onClick(@NonNull BaseQuickAdapter<UserModel, ?> baseQuickAdapter, @NonNull View view, int i) {
+                UserModel userModel = baseQuickAdapter.getItems().get(i);
+                binding.richEditText.addText(userModel.getName() + " ");
+
+                toNotifyUserMap.put(userModel.getEmail(),userModel);
+            }
+        });
+        fragment.show(getSupportFragmentManager(), RelatedUserBottomSheetDialogFragment.class.getName());
+    }
+
     private void refreshData() {
         getViewModel().loadDocComments(pageOptionsModel);
+        getViewModel().getRelatedUsers(pageOptionsModel.repoID);
     }
 
     public void onMediaPicked(Uri uri) {
@@ -406,6 +462,6 @@ public class DocsCommentsActivity extends BaseMediaSelectorActivity<DocsCommentV
         }
 
         // 0 is root comment
-        getViewModel().postComment(pageOptionsModel, sb.toString(), "0");
+        getViewModel().postComment(pageOptionsModel, sb.toString());
     }
 }

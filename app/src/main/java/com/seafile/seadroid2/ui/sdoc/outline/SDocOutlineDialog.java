@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.blankj.utilcode.util.CollectionUtils;
@@ -24,6 +25,7 @@ import com.seafile.seadroid2.databinding.DialogSdocDirectoryBinding;
 import com.seafile.seadroid2.framework.model.sdoc.OutlineItemModel;
 import com.seafile.seadroid2.framework.util.StringUtils;
 import com.seafile.seadroid2.listener.OnItemClickListener;
+import com.seafile.seadroid2.ui.sdoc.SDocViewModel;
 
 import java.lang.reflect.Type;
 import java.util.List;
@@ -38,13 +40,16 @@ public class SDocOutlineDialog extends BottomSheetDialogFragment {
     private List<OutlineItemModel> outlineItemList;
     private OnItemClickListener<OutlineItemModel> onItemClickListener;
 
+
+    private SDocViewModel sDocViewModel;
+
     public void setOnItemClickListener(OnItemClickListener<OutlineItemModel> onItemClickListener) {
         this.onItemClickListener = onItemClickListener;
     }
 
     public static SDocOutlineDialog newInstance(String outlineStr) {
         Bundle args = new Bundle();
-        args.putString("outline_value", outlineStr);
+//        args.putString("outline_value", outlineStr);
         SDocOutlineDialog fragment = new SDocOutlineDialog();
         fragment.setArguments(args);
         return fragment;
@@ -53,16 +58,19 @@ public class SDocOutlineDialog extends BottomSheetDialogFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() == null || !getArguments().containsKey("outline_value")) {
-            throw new IllegalArgumentException("outline_value is null");
-        }
 
-        String value = getArguments().getString("outline_value");
+//        if (getArguments() == null || !getArguments().containsKey("outline_value")) {
+//            throw new IllegalArgumentException("outline_value is null");
+//        }
 
-        Type listType = new TypeToken<List<OutlineItemModel>>() {
-        }.getType();
+        sDocViewModel = new ViewModelProvider(requireActivity()).get(SDocViewModel.class);
 
-        outlineItemList = GsonUtils.fromJson(value, listType);
+//        String value = getArguments().getString("outline_value");
+//
+//        Type listType = new TypeToken<List<OutlineItemModel>>() {
+//        }.getType();
+//
+//        outlineItemList = GsonUtils.fromJson(value, listType);
     }
 
 
@@ -83,6 +91,14 @@ public class SDocOutlineDialog extends BottomSheetDialogFragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        String value = sDocViewModel.getOutlineValueLiveData().getValue();
+
+        Type listType = new TypeToken<List<OutlineItemModel>>() {
+        }.getType();
+        outlineItemList = GsonUtils.fromJson(value, listType);
+
+
         binding.rv.setLayoutManager(new LinearLayoutManager(requireContext()));
 
         adapter = new SDocOutlineAdapter();

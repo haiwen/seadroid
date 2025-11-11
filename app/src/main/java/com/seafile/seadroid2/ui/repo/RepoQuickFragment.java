@@ -81,6 +81,7 @@ import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
+import com.seafile.seadroid2.listener.MenuItemOnActionExpandListener;
 import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.base.fragment.BaseFragmentWithVM;
@@ -283,7 +284,11 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             //search item
             MenuItem searchMenuItem = menu.findItem(R.id.menu_action_search);
             Optional<ServerInfo> serverInfoOp = checkServerInfo();
-            if (serverInfoOp.isPresent() && (serverInfoOp.get().isProEdition() || serverInfoOp.get().isSearchEnabled())) {
+            if (serverInfoOp.isEmpty()) {
+                searchMenuItem.setVisible(false);
+            } else if (serverInfoOp.get().isProEdition() && !serverInfoOp.get().isSearchEnabled()) {
+                searchMenuItem.setVisible(false);
+            } else if (serverInfoOp.get().isProEdition() && serverInfoOp.get().isSearchEnabled()) {
                 //search view
                 final SearchView searchView = new SearchView(requireContext());
                 searchView.setSubmitButtonEnabled(false);
@@ -304,7 +309,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                         searchView.postDelayed(new Runnable() {
                             @Override
                             public void run() {
-                                search(newText);
+                                search(newText, true);
                             }
                         }, 500);
                         return false;
@@ -313,41 +318,38 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
                 searchMenuItem.collapseActionView();
                 searchMenuItem.setActionView(searchView);
-                searchMenuItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
-                    @Override
-                    public boolean onMenuItemActionExpand(@NonNull MenuItem item) {
+                searchMenuItem.setOnActionExpandListener(new MenuItemOnActionExpandListener(menu));
+            } else if (!serverInfoOp.get().isProEdition()) {
+                if (GlobalNavContext.getCurrentNavContext().inRepo()) {
+                    final SearchView searchView = new SearchView(requireContext());
+                    searchView.setSubmitButtonEnabled(false);
+                    searchView.setQueryHint(getString(R.string.search_in_this_library));
+                    searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                        @Override
+                        public boolean onQueryTextSubmit(String query) {
+                            return false;
+                        }
 
-                        // Save the state of Menu
-                        menuIdState.put("search", menu.findItem(R.id.menu_action_search).isVisible());
-                        menuIdState.put("sortGroup", menu.findItem(R.id.menu_action_sort).isVisible());
-                        menuIdState.put("createRepo", menu.findItem(R.id.create_repo).isVisible());
-                        menuIdState.put("add", menu.findItem(R.id.add).isVisible());
-                        menuIdState.put("select", menu.findItem(R.id.select).isVisible());
+                        @Override
+                        public boolean onQueryTextChange(String newText) {
+                            searchView.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    search(newText, false);
+                                }
+                            }, 500);
+                            return false;
+                        }
+                    });
 
-                        // hide other menu items
-                        menu.findItem(R.id.menu_action_search).setVisible(false);
-                        menu.findItem(R.id.menu_action_sort).setVisible(false);
-                        menu.findItem(R.id.create_repo).setVisible(false);
-                        menu.findItem(R.id.add).setVisible(false);
-                        menu.findItem(R.id.select).setVisible(false);
-
-                        return true; // Return true to collapse the action view.
-                    }
-
-                    @Override
-                    public boolean onMenuItemActionCollapse(@NonNull MenuItem item) {
-
-                        menu.findItem(R.id.menu_action_search).setVisible(Boolean.TRUE.equals(menuIdState.get("search")));
-                        menu.findItem(R.id.menu_action_sort).setVisible(Boolean.TRUE.equals(menuIdState.get("sortGroup")));
-                        menu.findItem(R.id.create_repo).setVisible(Boolean.TRUE.equals(menuIdState.get("createRepo")));
-                        menu.findItem(R.id.add).setVisible(Boolean.TRUE.equals(menuIdState.get("add")));
-                        menu.findItem(R.id.select).setVisible(Boolean.TRUE.equals(menuIdState.get("select")));
-
-//                        requireActivity().invalidateMenu();
-//                        menuHost.invalidateMenu();
-                        return true; // Return true to expand the action view.
-                    }
-                });
+                    searchMenuItem.setVisible(true);
+                    searchMenuItem.collapseActionView();
+                    searchMenuItem.setActionView(searchView);
+                    searchMenuItem.setOnActionExpandListener(new MenuItemOnActionExpandListener(menu));
+                } else {
+                    searchMenuItem.setVisible(false);
+                    searchMenuItem.collapseActionView();
+                }
             } else {
                 searchMenuItem.setVisible(false);
             }
@@ -945,7 +947,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         return newList;
     }
 
-    private void search(String keyword) {
+    private void search(String keyword, boolean isPro) {
         if (!TextUtils.isEmpty(keyword)) {
             //hide sticky view
             binding.stickyContainer.setVisibility(View.GONE);
@@ -958,9 +960,9 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 }
 
                 String repo_id = repoModel.repo_id;
-                getViewModel().searchNext(repo_id, keyword, 1, 20);
+                getViewModel().searchNext(repo_id, keyword, isPro, 1, 20);
             } else {
-                getViewModel().searchNext(null, keyword, 1, 20);
+                getViewModel().searchNext(null, keyword, isPro, 1, 20);
             }
         } else {
             //show sticky view
@@ -1381,10 +1383,14 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
     }
 
+    private Account getCurrentAccount() {
+        Account account = SupportAccountManager.getInstance().getCurrentAccount();
+        return account;
+    }
 
     /************ Files ************/
     private File getLocalDestinationFile(String repoId, String repoName, String fullPathInRepo) {
-        Account account = SupportAccountManager.getInstance().getCurrentAccount();
+        Account account = getCurrentAccount();
         return DataManager.getLocalFileCachePath(account, repoId, repoName, fullPathInRepo);
     }
 
@@ -1467,6 +1473,12 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
     @OptIn(markerClass = UnstableApi.class)
     private void open(RepoModel repoModel, DirentModel dirent, Bundle extras) {
+
+        Account account = getCurrentAccount();
+        if (account == null) {
+            return;
+        }
+
         if (repoModel == null) {
             Toasts.show(R.string.op_unable_to_with_exception);
             return;
@@ -1493,7 +1505,8 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             return;
         }
 
-        if (Utils.isOnlyOfficeFile(fileName)) {
+        ServerInfo serverInfo = SupportAccountManager.getInstance().getServerInfo(account);
+        if (Utils.isOnlyOfficeFile(fileName) && serverInfo.isEnableOnlyOffice()) {
             String p = Utils.pathJoin(dirent.parent_dir, dirent.name);
             OfficeDocumentWebActivity.openDocument(getContext(), repoModel.repo_name, repoModel.repo_id, p, dirent.name);
             return;
@@ -1572,7 +1585,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
         List<DirentModel> direntModels1 = direntModels.stream().map(m -> (DirentModel) m).collect(Collectors.toList());
         List<String> uids = direntModels1.stream().map(m -> m.uid).collect(Collectors.toList());
-        Account account = SupportAccountManager.getInstance().getCurrentAccount();
+        Account account = getCurrentAccount();
         getViewModel().preDownload(requireContext(), account, uids);
     }
 
@@ -1995,7 +2008,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
         List<DirentModel> direntModels = dirents.stream().map(m -> (DirentModel) m).collect(Collectors.toList());
 
-        Account account = SupportAccountManager.getInstance().getCurrentAccount();
+        Account account = getCurrentAccount();
         RepoModel targetRepoModel = GlobalNavContext.getCurrentNavContext().getRepoModel();
         String targetDir = GlobalNavContext.getCurrentNavContext().getNavPath();
 
@@ -2224,7 +2237,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
     private void doSelectedMultiFile(List<Uri> uriList) {
         showLoadingDialog();
-        Account account = SupportAccountManager.getInstance().getCurrentAccount();
+        Account account = getCurrentAccount();
         RepoModel repoModel = GlobalNavContext.getCurrentNavContext().getRepoModel();
 
         if (repoModel == null) {
@@ -2341,7 +2354,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             return;
         }
 
-        Account account = SupportAccountManager.getInstance().getCurrentAccount();
+        Account account = getCurrentAccount();
         mainViewModel.addUploadTask(requireContext(), account, repoModel, localFile, targetDir, false);
 
         Toasts.show(R.string.added_to_upload_tasks);
@@ -2351,7 +2364,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
     private void addUploadTask(RepoModel repoModel, String targetDir, Uri sourceUri, String fileName, boolean isReplace) {
         //
-        Account account = SupportAccountManager.getInstance().getCurrentAccount();
+        Account account = getCurrentAccount();
         mainViewModel.addUploadTask(requireContext(), account, repoModel, sourceUri, targetDir, fileName, isReplace);
 
         Toasts.show(R.string.added_to_upload_tasks);

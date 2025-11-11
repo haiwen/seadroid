@@ -12,9 +12,18 @@ import retrofit2.http.Query;
 
 public interface SearchService {
 
-    //search_ftypes
+    //search
     @GET("api2/search/")
     Single<SearchWrapperModel> search(@Query("search_repo") String repoId,
+                                      @Query("q") String q,
+                                      @Query("search_type") String searchType,
+                                      @Query("page") int pageNo,
+                                      @Query("per_page") int pageSize
+    );
+
+    //search-file
+    @GET("api/v2.1/search-file")
+    Single<SearchWrapperModel> searchFile(@Query("search_repo") String repoId,
                                       @Query("q") String q,
                                       @Query("search_type") String searchType,
                                       @Query("page") int pageNo,

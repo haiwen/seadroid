@@ -41,6 +41,15 @@ public class SDocViewModel extends BaseViewModel {
 
     private final MutableLiveData<FileProfileConfigModel> _fileProfileConfigLiveData = new MutableLiveData<>();
     private final MutableLiveData<List<OutlineItemModel>> _sdocElementListLiveData = new MutableLiveData<>();
+    private final MutableLiveData<String> _outlineValueLiveData = new MutableLiveData<>();
+
+    public void setOutlineValue(String data) {
+        _outlineValueLiveData.setValue(data);
+    }
+
+    public MutableLiveData<String> getOutlineValueLiveData() {
+        return _outlineValueLiveData;
+    }
 
     public MutableLiveData<FileProfileConfigModel> getFileDetailLiveData() {
         return _fileProfileConfigLiveData;

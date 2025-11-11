@@ -15,6 +15,7 @@ import androidx.core.content.ContextCompat;
 
 import com.blankj.utilcode.util.SizeUtils;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.enums.TextTypeEnum;
 import com.seafile.seadroid2.framework.model.sdoc.TextTypeModel;
 import com.seafile.seadroid2.listener.Callback;
 
@@ -56,6 +57,11 @@ public class SdocDropdownPopView extends PopupWindow {
 
     public void setSelectedTextStyleModel(TextTypeModel selectedTextTypeModel) {
         this.selectedTextTypeModel = selectedTextTypeModel;
+
+        // default
+        if (this.selectedTextTypeModel == null) {
+            this.selectedTextTypeModel = new TextTypeModel(TextTypeEnum.paragraph.name());
+        }
 
         initViewData();
     }
@@ -179,34 +185,34 @@ public class SdocDropdownPopView extends PopupWindow {
     }
 
     private void onContainerClick(long clickedId) {
-        TextTypeModel m = new TextTypeModel();
+        TextTypeModel m = null;
         if (clickedId == paragraphLayout.getId()) {
             paragraphIcon.setVisibility(VISIBLE);
-            m.state = "paragraph";
+            m = new TextTypeModel(TextTypeEnum.paragraph.name());
         } else if (clickedId == titleLayout.getId()) {
             titleIcon.setVisibility(VISIBLE);
-            m.state = "title";
+            m = new TextTypeModel(TextTypeEnum.title.name());
         } else if (clickedId == subtitleLayout.getId()) {
             subtitleIcon.setVisibility(VISIBLE);
-            m.state = "subtitle";
+            m = new TextTypeModel(TextTypeEnum.subtitle.name());
         } else if (clickedId == h1Layout.getId()) {
             h1Icon.setVisibility(VISIBLE);
-            m.state = "h1";
+            m = new TextTypeModel(TextTypeEnum.header1.name());
         } else if (clickedId == h2Layout.getId()) {
             h2Icon.setVisibility(VISIBLE);
-            m.state = "h2";
+            m = new TextTypeModel(TextTypeEnum.header2.name());
         } else if (clickedId == h3Layout.getId()) {
             h3Icon.setVisibility(VISIBLE);
-            m.state = "h3";
+            m = new TextTypeModel(TextTypeEnum.header3.name());
         } else if (clickedId == h4Layout.getId()) {
             h4Icon.setVisibility(VISIBLE);
-            m.state = "h4";
+            m = new TextTypeModel(TextTypeEnum.header4.name());
         } else if (clickedId == h5Layout.getId()) {
             h5Icon.setVisibility(VISIBLE);
-            m.state = "h5";
+            m = new TextTypeModel(TextTypeEnum.header5.name());
         } else if (clickedId == h6Layout.getId()) {
             h6Icon.setVisibility(VISIBLE);
-            m.state = "h6";
+            m = new TextTypeModel(TextTypeEnum.header6.name());
         }
 
         if (callback != null) {
@@ -223,23 +229,23 @@ public class SdocDropdownPopView extends PopupWindow {
             throw new MissingFormatArgumentException("selectedTextStyleModel is null");
         }
 
-        if (TextUtils.equals("paragraph", selectedTextTypeModel.state)) {
+        if (TextUtils.equals("paragraph", selectedTextTypeModel.type)) {
             paragraphIcon.setVisibility(VISIBLE);
-        } else if (TextUtils.equals("title", selectedTextTypeModel.state)) {
+        } else if (TextUtils.equals("title", selectedTextTypeModel.type)) {
             titleIcon.setVisibility(VISIBLE);
-        } else if (TextUtils.equals("subtitle", selectedTextTypeModel.state)) {
+        } else if (TextUtils.equals("subtitle", selectedTextTypeModel.type)) {
             subtitleIcon.setVisibility(VISIBLE);
-        } else if (TextUtils.equals("h1", selectedTextTypeModel.state)) {
+        } else if (TextUtils.equals("h1", selectedTextTypeModel.type)) {
             h1Icon.setVisibility(VISIBLE);
-        } else if (TextUtils.equals("h2", selectedTextTypeModel.state)) {
+        } else if (TextUtils.equals("h2", selectedTextTypeModel.type)) {
             h2Icon.setVisibility(VISIBLE);
-        } else if (TextUtils.equals("h3", selectedTextTypeModel.state)) {
+        } else if (TextUtils.equals("h3", selectedTextTypeModel.type)) {
             h3Icon.setVisibility(VISIBLE);
-        } else if (TextUtils.equals("h4", selectedTextTypeModel.state)) {
+        } else if (TextUtils.equals("h4", selectedTextTypeModel.type)) {
             h4Icon.setVisibility(VISIBLE);
-        } else if (TextUtils.equals("h5", selectedTextTypeModel.state)) {
+        } else if (TextUtils.equals("h5", selectedTextTypeModel.type)) {
             h5Icon.setVisibility(VISIBLE);
-        } else if (TextUtils.equals("h6", selectedTextTypeModel.state)) {
+        } else if (TextUtils.equals("h6", selectedTextTypeModel.type)) {
             h6Icon.setVisibility(VISIBLE);
         }
 

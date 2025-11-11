@@ -192,8 +192,8 @@ public class AccountViewModel extends BaseViewModel {
     public void getServerInfo() {
         getRefreshLiveData().setValue(true);
 
-        Single<ServerInfoModel> serverSingle = HttpIO.getCurrentInstance().execute(MainService.class).getServerInfo();
-        addSingleDisposable(serverSingle, new Consumer<ServerInfoModel>() {
+        Single<ServerInfoModel> serverInfoSingle = HttpIO.getCurrentInstance().execute(MainService.class).getServerInfo();
+        addSingleDisposable(serverInfoSingle, new Consumer<ServerInfoModel>() {
             @Override
             public void accept(ServerInfoModel serverInfoModel) {
 

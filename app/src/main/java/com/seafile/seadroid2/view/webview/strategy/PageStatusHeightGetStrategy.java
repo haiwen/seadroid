@@ -2,6 +2,7 @@ package com.seafile.seadroid2.view.webview.strategy;
 
 import com.blankj.utilcode.util.BarUtils;
 import com.seafile.seadroid2.view.webview.IWebViewActionStrategy;
+import com.seafile.seadroid2.view.webview.OnWebDataCallback;
 
 public class PageStatusHeightGetStrategy implements IWebViewActionStrategy {
     @Override

@@ -36,6 +36,7 @@ import androidx.webkit.WebSettingsCompat;
 import androidx.webkit.WebViewFeature;
 
 import com.blankj.utilcode.util.ActivityUtils;
+import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.GsonUtils;
 import com.blankj.utilcode.util.KeyboardUtils;
 import com.blankj.utilcode.util.NetworkUtils;
@@ -46,12 +47,13 @@ import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.config.WebViewActionConstant;
 import com.seafile.seadroid2.databinding.ActivitySeaWebviewProBinding;
 import com.seafile.seadroid2.databinding.ToolbarActionbarProgressBarBinding;
-import com.seafile.seadroid2.enums.TextStateEnum;
 import com.seafile.seadroid2.enums.TextTypeEnum;
+import com.seafile.seadroid2.framework.model.WebRouteModel;
 import com.seafile.seadroid2.framework.model.sdoc.FileProfileConfigModel;
 import com.seafile.seadroid2.framework.model.sdoc.OutlineItemModel;
 import com.seafile.seadroid2.framework.model.sdoc.SDocPageOptionsModel;
 import com.seafile.seadroid2.framework.model.sdoc.TextTypeModel;
+import com.seafile.seadroid2.framework.model.sdoc.UndoRedoModel;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.StringUtils;
 import com.seafile.seadroid2.framework.util.Toasts;
@@ -61,12 +63,12 @@ import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
 import com.seafile.seadroid2.ui.docs_comment.DocsCommentsActivity;
 import com.seafile.seadroid2.ui.file_profile.FileProfileDialog;
 import com.seafile.seadroid2.ui.sdoc.outline.SDocOutlineDialog;
+import com.seafile.seadroid2.view.webview.OnWebDataCallback;
 import com.seafile.seadroid2.view.webview.OnWebPageListener;
 import com.seafile.seadroid2.view.webview.PreloadWebView;
 import com.seafile.seadroid2.view.webview.SeaWebView;
 
 import java.util.List;
-import java.util.Stack;
 
 public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
     private final String TAG = "SDocWebViewActivity";
@@ -212,7 +214,12 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         //chrome client
         mWebView.setWebChromeClient(mWebChromeClient);
         mWebView.setOnWebPageListener(onWebPageListener);
-
+        mWebView.setOnWebDataCallback(new OnWebDataCallback() {
+            @Override
+            public void onCallback(WebRouteModel t) {
+                updateEditorBarState(t);
+            }
+        });
         NestedScrollView.LayoutParams ll = new NestedScrollView.LayoutParams(-1, -1);
         mWebView.setLayoutParams(ll);
         binding.nsv.addView(mWebView);
@@ -266,87 +273,35 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         });
     }
 
-    //The type of text where the cursor is located
-    private TextTypeModel selectedTextTypeModel;
-    private final Stack<TextTypeModel> _actionStack = new Stack<>();
-
-    private void receiveJsCall(TextTypeModel model) {
-        if (model == null) {
-            return;
-        }
-
-        _actionStack.push(model);
-        selectedTextTypeModel = model;
-
-        updateEditorBarViewState();
-    }
-
-    private void updateEditorBarViewState() {
-        if (TextUtils.equals(TextTypeEnum.text_style.name(), selectedTextTypeModel.type)) {
-            binding.editorTextStyleContainer.setChecked(true);
-
-        } else if (TextUtils.equals(TextTypeEnum.unordered_list.name(), selectedTextTypeModel.type)) {
-            binding.editorUnorderedListContainer.setChecked(true);
-
-        } else if (TextUtils.equals(TextTypeEnum.ordered_list.name(), selectedTextTypeModel.type)) {
-            binding.editorOrderedListContainer.setChecked(true);
-
-        } else if (TextUtils.equals(TextTypeEnum.checkbox.name(), selectedTextTypeModel.type)) {
-            if (TextUtils.equals("false", selectedTextTypeModel.state)) {
-                binding.editorCheckboxContainer.setChecked(false);
-
-                binding.editorTextStyle.setAlpha(1f);
-                binding.editorTextStyle.setEnabled(true);
-                binding.editorUnorderedList.setAlpha(1f);
-                binding.editorUnorderedList.setEnabled(true);
-                binding.editorOrderedList.setAlpha(1f);
-                binding.editorOrderedList.setEnabled(true);
-            }else{
-                binding.editorCheckboxContainer.setChecked(true);
-
-                binding.editorTextStyle.setAlpha(0.3f);
-                binding.editorTextStyle.setEnabled(false);
-                binding.editorUnorderedList.setAlpha(0.3f);
-                binding.editorUnorderedList.setEnabled(false);
-                binding.editorOrderedList.setAlpha(0.3f);
-                binding.editorOrderedList.setEnabled(false);
-            }
-        }
-    }
-
     private void initDropdownView() {
         binding.editorUndo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                triggerJsSdocEditorMenu(TextTypeEnum.undo);
             }
         });
-        binding.editorUndo.setOnClickListener(new View.OnClickListener() {
+        binding.editorRedo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                triggerJsSdocEditorMenu(TextTypeEnum.redo);
             }
         });
         binding.editorUnorderedList.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                triggerJsSdocEditorMenu(TextTypeEnum.unordered_list);
             }
         });
         binding.editorOrderedList.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                triggerJsSdocEditorMenu(TextTypeEnum.ordered_list);
             }
         });
         binding.editorCheckbox.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                TextTypeModel m = new TextTypeModel();
-                m.state = "false";
-                m.type = TextTypeEnum.checkbox.name();
-                m.line = 10;
-                receiveJsCall(m);
+                triggerJsSdocEditorMenu(TextTypeEnum.check_list_item);
             }
         });
         binding.editorTextStyle.setOnClickListener(new View.OnClickListener() {
@@ -369,16 +324,14 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
     }
 
     private void showCustomMenuView(View anchorView) {
-        TextTypeModel m = new TextTypeModel();
-        m.state = TextStateEnum.h1.name();
-        m.type = TextTypeEnum.text_style.name();
-        m.line = 10;
         SdocDropdownPopView popupWindow = new SdocDropdownPopView(this);
-        popupWindow.setSelectedTextStyleModel(m);
+        popupWindow.setSelectedTextStyleModel(selectedTextTypeModel);
         popupWindow.setCallback(new Callback<TextTypeModel>() {
             @Override
             public void callback(TextTypeModel textTypeModel) {
-                Toasts.show(textTypeModel.state);
+                triggerJsSdocEditorMenu(textTypeModel);
+
+                updateEditorBarState(textTypeModel);
             }
         });
 
@@ -393,6 +346,198 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         int yOffset = -(popupHeight + anchorHeight);
         int xOffset = 0;
         popupWindow.showAsDropDown(anchorView, xOffset, yOffset);
+    }
+
+    //The type of text where the cursor is located
+    private TextTypeModel selectedTextTypeModel;
+
+    private void updateEditorBarState(WebRouteModel model) {
+        if (model == null) {
+            return;
+        }
+
+        if (TextUtils.equals(model.action, WebViewActionConstant.SDOC_EDITOR_CONTENT_SELECT)) {
+            TextTypeModel typeModel = GsonUtils.fromJson(model.data, TextTypeModel.class);
+            updateEditorBarState(typeModel);
+        } else if (TextUtils.equals(model.action, WebViewActionConstant.SDOC_EDITOR_OPERATION_EXECUTE)) {
+            updateUndoRepoEditorView();
+        }
+    }
+
+    private void updateEditorBarState(TextTypeModel typeModel) {
+        if (typeModel == null) {
+            return;
+        }
+
+        selectedTextTypeModel = typeModel;
+
+        updateEditorBarState();
+
+    }
+
+    private void updateEditorBarState() {
+
+        // update first
+        resetEditorBarState();
+
+        if (TextTypeEnum.isTextType(selectedTextTypeModel)) {
+            if (TextUtils.equals(TextTypeEnum.paragraph.name(), selectedTextTypeModel.type)) {
+                binding.editorTextStyle.setText(getString(R.string.font_style_paragraph));
+            } else if (TextUtils.equals(TextTypeEnum.title.name(), selectedTextTypeModel.type)) {
+                binding.editorTextStyle.setText(getString(R.string.font_style_title));
+            } else if (TextUtils.equals(TextTypeEnum.subtitle.name(), selectedTextTypeModel.type)) {
+                binding.editorTextStyle.setText(getString(R.string.font_style_subtitle));
+            } else if (TextUtils.equals(TextTypeEnum.header1.name(), selectedTextTypeModel.type)) {
+                binding.editorTextStyle.setText(getString(R.string.font_style_heading1));
+            } else if (TextUtils.equals(TextTypeEnum.header2.name(), selectedTextTypeModel.type)) {
+                binding.editorTextStyle.setText(getString(R.string.font_style_heading2));
+            } else if (TextUtils.equals(TextTypeEnum.header3.name(), selectedTextTypeModel.type)) {
+                binding.editorTextStyle.setText(getString(R.string.font_style_heading3));
+            } else if (TextUtils.equals(TextTypeEnum.header4.name(), selectedTextTypeModel.type)) {
+                binding.editorTextStyle.setText(getString(R.string.font_style_heading4));
+            } else if (TextUtils.equals(TextTypeEnum.header5.name(), selectedTextTypeModel.type)) {
+                binding.editorTextStyle.setText(getString(R.string.font_style_heading5));
+            } else if (TextUtils.equals(TextTypeEnum.header6.name(), selectedTextTypeModel.type)) {
+                binding.editorTextStyle.setText(getString(R.string.font_style_heading6));
+            }
+
+            binding.editorTextStyleContainer.setChecked(true);
+
+        } else if (TextUtils.equals(TextTypeEnum.unordered_list.name(), selectedTextTypeModel.type)) {
+            binding.editorUnorderedListContainer.setChecked(true);
+
+        } else if (TextUtils.equals(TextTypeEnum.ordered_list.name(), selectedTextTypeModel.type)) {
+            binding.editorOrderedListContainer.setChecked(true);
+
+        } else if (TextUtils.equals(TextTypeEnum.check_list_item.name(), selectedTextTypeModel.type)) {
+
+            binding.editorCheckboxContainer.setChecked(true);
+
+            setTextTypeOrderListEnable(false);
+        } else if (TextUtils.equals("op-execute", selectedTextTypeModel.type)) {
+            SLogs.e(TAG, "updateEditorBarState()", "op-execute");
+        }
+    }
+
+    private void resetEditorBarState() {
+
+        binding.editorTextStyle.setText(getString(R.string.font_style_paragraph));
+        binding.editorCheckboxContainer.setChecked(false);
+        binding.editorOrderedListContainer.setChecked(false);
+        binding.editorUnorderedListContainer.setChecked(false);
+        binding.editorTextStyleContainer.setChecked(false);
+
+        setTextTypeOrderListEnable(true);
+    }
+
+    private void setTextTypeOrderListEnable(boolean enable) {
+        if (enable) {
+            binding.editorTextStyle.setAlpha(1f);
+            binding.editorTextStyle.setEnabled(true);
+            binding.editorUnorderedList.setAlpha(1f);
+            binding.editorUnorderedList.setEnabled(true);
+            binding.editorOrderedList.setAlpha(1f);
+            binding.editorOrderedList.setEnabled(true);
+        } else {
+            binding.editorTextStyle.setAlpha(0.3f);
+            binding.editorTextStyle.setEnabled(false);
+            binding.editorUnorderedList.setAlpha(0.3f);
+            binding.editorUnorderedList.setEnabled(false);
+            binding.editorOrderedList.setAlpha(0.3f);
+            binding.editorOrderedList.setEnabled(false);
+        }
+    }
+
+    private void setUndoRedoEnable(boolean undoEnable, boolean redoEnable) {
+        if (undoEnable) {
+            binding.editorUndo.setAlpha(1f);
+            binding.editorUndo.setEnabled(true);
+        } else {
+            binding.editorUndo.setAlpha(0.3f);
+            binding.editorUndo.setEnabled(false);
+        }
+
+        if (redoEnable) {
+            binding.editorRedo.setAlpha(1f);
+            binding.editorRedo.setEnabled(true);
+        } else {
+            binding.editorRedo.setAlpha(0.3f);
+            binding.editorRedo.setEnabled(false);
+        }
+    }
+
+    private void triggerJsSdocEditorMenu(TextTypeEnum typeEnum) {
+        TextTypeModel tm = new TextTypeModel(typeEnum.name());
+        triggerJsSdocEditorMenu(tm);
+    }
+
+    private void triggerJsSdocEditorMenu(TextTypeModel typeModel) {
+        String param = GsonUtils.toJson(typeModel);
+
+        mWebView.callJsFunction(WebViewActionConstant.CallJsFunction.SDOC_TOOLBAR_MENU_TRIGGER, param, new CallBackFunction() {
+            @Override
+            public void onCallBack(String data) {
+                SLogs.d(TAG, "triggerJsSdocEditorMenu()", data);
+
+                updateUndoRepoEditorView();
+            }
+        });
+    }
+
+
+    private void updateUndoRepoEditorView() {
+        execUndoRedoListJs(new Consumer<UndoRedoModel>() {
+            @Override
+            public void accept(UndoRedoModel undoRedoModel) {
+                if (undoRedoModel == null) {
+                    return;
+                }
+
+                if (CollectionUtils.isEmpty(undoRedoModel.undos) && CollectionUtils.isEmpty(undoRedoModel.redos)) {
+                    setUndoRedoEnable(false, false);
+                } else if (CollectionUtils.isEmpty(undoRedoModel.undos) && !CollectionUtils.isEmpty(undoRedoModel.redos)) {
+                    setUndoRedoEnable(false, true);
+                } else if (!CollectionUtils.isEmpty(undoRedoModel.undos) && CollectionUtils.isEmpty(undoRedoModel.redos)) {
+                    setUndoRedoEnable(true, false);
+                } else if (!CollectionUtils.isEmpty(undoRedoModel.undos) && !CollectionUtils.isEmpty(undoRedoModel.redos)) {
+                    setUndoRedoEnable(true, true);
+                }
+
+            }
+        });
+    }
+
+    private void execUndoRedoListJs(Consumer<UndoRedoModel> continuation) {
+        String js =
+                "(function() {" +
+                        "   if (window.seadroid && window.seadroid.history) {" +
+                        "       return JSON.stringify(window.seadroid.history);" +
+                        "   } else {" +
+                        "       return null;" +
+                        "   }" +
+                        "})();";
+        mWebView.evaluateJavascript(js, new ValueCallback<String>() {
+            @Override
+            public void onReceiveValue(String value) {
+                if (TextUtils.isEmpty(value)) {
+                    SLogs.d(TAG, "execUndoRedoListJs()", value);
+                    Toasts.showShort(R.string.empty_data);
+                    continuation.accept(null);
+                    return;
+                }
+
+                value = StringUtils.deStringReturnNonNull(value).replace("\\", "");
+
+                if (continuation != null) {
+                    try {
+                        UndoRedoModel undoRedoModel = GsonUtils.fromJson(value, UndoRedoModel.class);
+                        continuation.accept(undoRedoModel);
+                    } catch (Exception e) {
+                        SLogs.e(e);
+                    }
+                }
+            }
+        });
     }
 
     private void adaptInputMethod() {
@@ -498,9 +643,11 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
     }
 
     private void showOutlineDialog() {
-        readSDocOutlineList(new Consumer<String>() {
+        execSDocOutlineListJs(new Consumer<String>() {
             @Override
             public void accept(String s) {
+                getViewModel().setOutlineValue(s);
+
                 SDocOutlineDialog dialog = SDocOutlineDialog.newInstance(s);
                 dialog.setOnItemClickListener(new OnItemClickListener<OutlineItemModel>() {
                     @Override
@@ -565,6 +712,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
             }
         }
     };
+
 
     private void callJsSdocEditorEditable() {
         if (!jsCallbackReceived) {
@@ -662,7 +810,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         });
     }
 
-    private void readSDocOutlineList(Consumer<String> continuation) {
+    private void execSDocOutlineListJs(Consumer<String> continuation) {
         String js =
                 "(function() {" +
                         "   if (window.seadroid && window.seadroid.outlines) {" +
@@ -740,21 +888,9 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
                 didPageFinishSuccessfully = true;
             }
 
-            if (didPageFinishSuccessfully) {
-                SLogs.d(TAG, "Page finished loading successfully: " + url);
-                // 页面加载完成后，启用相关按钮
-                if (editMenuItem != null) {
-                    // 你可能还想在这里检查网页是否真的包含了预期的JS接口
-                    // 但首先确保页面加载完成是第一步
-                    editMenuItem.setEnabled(true);
-                }
-            } else {
-                SLogs.d(TAG, "Page finished loading with errors (or was marked as error): " + url);
-                // 页面加载失败，保持按钮禁用或提示用户
-                if (editMenuItem != null) {
-                    editMenuItem.setEnabled(false);
-                }
-                Toasts.showShort("网页加载失败，无法执行操作。");
+            SLogs.d(TAG, "Page finished loading successfully: " + url);
+            if (editMenuItem != null) {
+                editMenuItem.setEnabled(true);
             }
         }
 

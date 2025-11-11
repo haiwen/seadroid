@@ -22,9 +22,9 @@ import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.view.NestedWebView;
 import com.seafile.seadroid2.view.webview.strategy.AppShowToastStrategy;
 import com.seafile.seadroid2.view.webview.strategy.AppVersionGetStrategy;
+import com.seafile.seadroid2.view.webview.strategy.EmptyStrategy;
 import com.seafile.seadroid2.view.webview.strategy.PageFinishStrategy;
 import com.seafile.seadroid2.view.webview.strategy.PageStatusHeightGetStrategy;
-import com.seafile.seadroid2.view.webview.strategy.UnsupportedStrategy;
 
 import java.util.Locale;
 
@@ -32,6 +32,8 @@ public class SeaWebView extends NestedWebView {
     public static final String PATH_ACCOUNT_LOGIN = "accounts/login/";
     public static String URL_LOGIN = null;
     private final String JS_FUNCTION_NAME = "callJsFunction";
+    private final String ANDROID_FUNCTION_NAME = "callAndroidFunction";
+
     private final SeaWebViewClient mWebViewClient = new SeaWebViewClient(this);
 
     public SeaWebView(@NonNull Context context) {
@@ -115,16 +117,21 @@ public class SeaWebView extends NestedWebView {
         mWebViewClient.loadWithoutToken(targetUrl, this);
     }
 
-    private final String jsCallMethodName = "callAndroidFunction";
 
     private void registerCommonHandler() {
         //
-        this.registerHandler(jsCallMethodName, new BridgeHandler() {
+        this.registerHandler(ANDROID_FUNCTION_NAME, new BridgeHandler() {
             @Override
             public void handler(String data, CallBackFunction function) {
                 callAndroidFunction(data, function);
             }
         });
+    }
+
+    public OnWebDataCallback onWebDataCallback;
+
+    public void setOnWebDataCallback(OnWebDataCallback onWebDataCallback) {
+        this.onWebDataCallback = onWebDataCallback;
     }
 
     private void callAndroidFunction(String data, CallBackFunction function) {
@@ -136,7 +143,17 @@ public class SeaWebView extends NestedWebView {
 
         try {
             WebRouteModel model = GsonUtils.fromJson(data, WebRouteModel.class);
-            String result = getString(model);
+            if (TextUtils.equals(model.action, WebViewActionConstant.SDOC_EDITOR_CONTENT_SELECT)) {
+                this.onWebDataCallback.onCallback(model);
+                return;
+            }
+
+            if (TextUtils.equals(model.action, WebViewActionConstant.SDOC_EDITOR_OPERATION_EXECUTE)) {
+                this.onWebDataCallback.onCallback(model);
+                return;
+            }
+
+            String result = getResult(model);
             if (!TextUtils.isEmpty(result)) {
                 function.onCallBack(result);
             }
@@ -146,18 +163,29 @@ public class SeaWebView extends NestedWebView {
         }
     }
 
-    private String getString(WebRouteModel model) {
-        IWebViewActionStrategy strategy = switch (model.action) {
-            case WebViewActionConstant.PAGE_FINISH -> new PageFinishStrategy(getContext());
-            case WebViewActionConstant.APP_VERSION_GET -> new AppVersionGetStrategy();
-            case WebViewActionConstant.APP_TOAST_SHOW -> new AppShowToastStrategy();
-            case WebViewActionConstant.PAGE_STATUS_HEIGHT_GET -> new PageStatusHeightGetStrategy();
-//                case WebViewActionConstant.PAGE_STATUS_COLOR_SET:
-//                    strategy = new PageStatusColorSetStrategy(getContext());
-//                    break;
-            default -> new UnsupportedStrategy();
-        };
-
+    private String getResult(WebRouteModel model) {
+        IWebViewActionStrategy strategy;
+        switch (model.action) {
+            case WebViewActionConstant.PAGE_FINISH: {
+                strategy = new PageFinishStrategy(getContext());
+            }
+            break;
+            case WebViewActionConstant.APP_VERSION_GET: {
+                strategy = new AppVersionGetStrategy();
+            }
+            break;
+            case WebViewActionConstant.APP_TOAST_SHOW: {
+                strategy = new AppShowToastStrategy();
+            }
+            break;
+            case WebViewActionConstant.PAGE_STATUS_HEIGHT_GET: {
+                strategy = new PageStatusHeightGetStrategy();
+            }
+            break;
+            default:
+                strategy = new EmptyStrategy();
+                break;
+        }
         return strategy.route(model.data);
     }
 

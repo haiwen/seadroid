@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="16dp"
+    android:foreground="?android:selectableItemBackground"
+    android:gravity="center"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="8dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/list_item_account_icon"
+            android:layout_width="@dimen/lv_act_icon_size"
+            android:layout_height="@dimen/lv_act_icon_size"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="@dimen/lv_act_icon_margin_right"
+            android:src="@drawable/default_avatar"
+            app:shapeAppearance="@style/ShapeCircleStyle" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/list_item_account_title"
+                style="@style/ListItemTitleStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="@string/app_name" />
+
+            <TextView
+                android:id="@+id/list_item_account_subtitle"
+                style="@style/ListItemSubTitleStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:visibility="gone"
+                tools:text="@string/app_name" />
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/item_select_view"
+            android:layout_width="@dimen/lv_multi_select_width"
+            android:layout_height="@dimen/lv_multi_select_height"
+            android:layout_gravity="center"
+            android:padding="6dp"
+            android:src="@drawable/ic_checkbox_checked"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <com.google.android.material.divider.MaterialDivider
+        android:id="@+id/divider"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:dividerColor="@color/divider_color"
+        app:dividerInsetStart="16dp" />
+</LinearLayout>

@@ -33,6 +33,7 @@ import com.seafile.seadroid2.enums.FileReturnActionEnum;
 import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.model.ResultModel;
+import com.seafile.seadroid2.framework.model.ServerInfo;
 import com.seafile.seadroid2.framework.model.activities.ActivityModel;
 import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.framework.util.Utils;
@@ -395,6 +396,12 @@ public class AllActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel>
 
     @OptIn(markerClass = UnstableApi.class)
     private void open(ActivityModel activityModel) {
+        Account account = SupportAccountManager.getInstance().getCurrentAccount();
+        if (account == null){
+            return;
+        }
+        ServerInfo serverInfo = SupportAccountManager.getInstance().getServerInfo(account);
+
         if (Utils.isViewableImage(activityModel.name)) {
 
             Intent getIntent = CarouselImagePreviewActivity.startThisFromActivities(requireContext(), activityModel);
@@ -403,7 +410,7 @@ public class AllActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel>
         } else if (activityModel.name.endsWith(Constants.FileExtensions.DOT_SDOC)) {
             SDocWebViewActivity.openSdoc(getContext(), activityModel.repo_name, activityModel.repo_id, activityModel.path, activityModel.name);
 
-        } else if (Utils.isOnlyOfficeFile(activityModel.name)) {
+        } else if (Utils.isOnlyOfficeFile(activityModel.name) && serverInfo.isEnableOnlyOffice()) {
             OfficeDocumentWebActivity.openDocument(getContext(), activityModel.repo_name, activityModel.repo_id, activityModel.path, activityModel.name);
 
         } else if (Utils.isVideoFile(activityModel.name)) {

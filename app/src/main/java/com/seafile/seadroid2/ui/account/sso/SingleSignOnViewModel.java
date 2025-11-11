@@ -49,8 +49,8 @@ public class SingleSignOnViewModel extends BaseViewModel {
         tempAccount.server = host;
         tempAccount.email = EncryptUtils.encryptMD5ToString(host);
 
-        Single<ServerInfoModel> serverSingle = HttpIO.getInstanceByAccount(tempAccount).execute(MainService.class).getServerInfo();
-        addSingleDisposable(serverSingle, new Consumer<ServerInfoModel>() {
+        Single<ServerInfoModel> serverInfoSingle = HttpIO.getInstanceByAccount(tempAccount).execute(MainService.class).getServerInfo();
+        addSingleDisposable(serverInfoSingle, new Consumer<ServerInfoModel>() {
             @Override
             public void accept(ServerInfoModel serverInfoModel) throws Exception {
                 getServerInfoLiveData().setValue(serverInfoModel);
