@@ -361,6 +361,9 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
             updateEditorBarState(typeModel);
         } else if (TextUtils.equals(model.action, WebViewActionConstant.SDOC_EDITOR_OPERATION_EXECUTE)) {
             updateUndoRepoEditorView();
+        } else if (TextUtils.equals(model.action, WebViewActionConstant.SDOC_EDITOR_SYSTEM_EVENT)) {
+            TextTypeModel typeModel = GsonUtils.fromJson(model.data, TextTypeModel.class);
+            Toasts.show(typeModel.type);
         }
     }
 
@@ -448,23 +451,6 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         }
     }
 
-    private void setUndoRedoEnable(boolean undoEnable, boolean redoEnable) {
-        if (undoEnable) {
-            binding.editorUndo.setAlpha(1f);
-            binding.editorUndo.setEnabled(true);
-        } else {
-            binding.editorUndo.setAlpha(0.3f);
-            binding.editorUndo.setEnabled(false);
-        }
-
-        if (redoEnable) {
-            binding.editorRedo.setAlpha(1f);
-            binding.editorRedo.setEnabled(true);
-        } else {
-            binding.editorRedo.setAlpha(0.3f);
-            binding.editorRedo.setEnabled(false);
-        }
-    }
 
     private void triggerJsSdocEditorMenu(TextTypeEnum typeEnum) {
         TextTypeModel tm = new TextTypeModel(typeEnum.name());
@@ -505,6 +491,24 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
 
             }
         });
+    }
+
+    private void setUndoRedoEnable(boolean undoEnable, boolean redoEnable) {
+        if (undoEnable) {
+            binding.editorUndo.setAlpha(1f);
+            binding.editorUndo.setEnabled(true);
+        } else {
+            binding.editorUndo.setAlpha(0.3f);
+            binding.editorUndo.setEnabled(false);
+        }
+
+        if (redoEnable) {
+            binding.editorRedo.setAlpha(1f);
+            binding.editorRedo.setEnabled(true);
+        } else {
+            binding.editorRedo.setAlpha(0.3f);
+            binding.editorRedo.setEnabled(false);
+        }
     }
 
     private void execUndoRedoListJs(Consumer<UndoRedoModel> continuation) {
@@ -931,7 +935,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         @Override
         public void onReceivedTitle(WebView view, String title) {
             super.onReceivedTitle(view, title);
-            toolBinding.toolbarActionbar.setTitle(title);
+//            toolBinding.toolbarActionbar.setTitle(title);
         }
 
         @Override

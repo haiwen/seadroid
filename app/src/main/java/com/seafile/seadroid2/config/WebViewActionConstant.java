@@ -12,6 +12,7 @@ public class WebViewActionConstant {
     public final static String SDOC_EDITOR_CONTENT_SELECT = "sdoc.editor.content.select";
     //This action is run when the cursor position changes
     public final static String SDOC_EDITOR_OPERATION_EXECUTE = "sdoc.editor.operation.execute";
+    public final static String SDOC_EDITOR_SYSTEM_EVENT = "sdoc.editor.system.event";
 
 
     public static class CallJsFunction {

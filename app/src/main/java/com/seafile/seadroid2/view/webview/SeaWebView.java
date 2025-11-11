@@ -153,6 +153,11 @@ public class SeaWebView extends NestedWebView {
                 return;
             }
 
+            if (TextUtils.equals(model.action,WebViewActionConstant.SDOC_EDITOR_SYSTEM_EVENT)){
+                this.onWebDataCallback.onCallback(model);
+                return;
+            }
+
             String result = getResult(model);
             if (!TextUtils.isEmpty(result)) {
                 function.onCallBack(result);
