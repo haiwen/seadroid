@@ -1,17 +1,16 @@
 package com.seafile.seadroid2.framework.livephoto;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.RandomAccessFile;
-
 import com.adobe.internal.xmp.XMPException;
 import com.adobe.internal.xmp.XMPMeta;
 import com.drew.imaging.ImageMetadataReader;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.xmp.XmpDirectory;
-import com.seafile.seadroid2.annotation.NotSupport;
 import com.seafile.seadroid2.annotation.Todo;
 import com.seafile.seadroid2.annotation.Unstable;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 
 @Todo
 @Unstable
@@ -42,7 +41,7 @@ public final class MotionPhotoParser {
         }
     }
 
-    // ===== 入口方法 =====
+
     public Result parse(File jpeg) {
         Result result = new Result();
 
@@ -101,13 +100,6 @@ public final class MotionPhotoParser {
             "MicroVideo"
     };
 
-    /**
-     * 尝试从 XMP 中解析 MicroVideoOffset
-     */
-    /**
-     * 从 XMP 中解析 Motion Photo 的视频 offset。
-     * 返回 null 表示没有解析出 offset（可能不是 Motion Photo，或 Motion Photo 但无 offset 字段）。
-     */
     private Long parseXmpOffset(File file) {
         try {
             Metadata metadata = ImageMetadataReader.readMetadata(file);
@@ -116,7 +108,7 @@ public final class MotionPhotoParser {
             XMPMeta meta = xmpDir.getXMPMeta();
             if (meta == null) return null;
 
-            // --- 1) 先判断这个 JPEG 是否声明为 Motion Photo ---
+            // 先判断这个 JPEG 是否声明为 Motion Photo ---
             boolean declaredMotionPhoto = false;
             for (String key : XMP_MOTION_FLAG_KEYS) {
                 if (meta.doesPropertyExist(null, key)) {
@@ -158,7 +150,7 @@ public final class MotionPhotoParser {
                 return null;
             }
 
-            // --- 2) 确认为 Motion Photo：尝试读取 offset 字段（优先 XMP_OFFSET_KEYS） ---
+            // 确认为 Motion Photo：尝试读取 offset 字段（优先 XMP_OFFSET_KEYS） ---
             for (String key : XMP_OFFSET_KEYS) {
                 try {
                     if (meta.doesPropertyExist(null, key)) {
@@ -184,7 +176,7 @@ public final class MotionPhotoParser {
                 }
             }
 
-            // --- 3) 若没有直接的 offset 字段，检查 GCamera:MotionPhotoVideo 或其他视频标记字段 ---
+            // 若没有直接的 offset 字段，检查 GCamera:MotionPhotoVideo 或其他视频标记字段 ---
             for (String key : XMP_MOTION_VIDEO_KEYS) {
                 if (meta.doesPropertyExist(null, key)) {
                     // 有些实现把一个结构体或字符串放在这里，尝试解析内含的 offset 字段名

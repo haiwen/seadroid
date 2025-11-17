@@ -1418,22 +1418,18 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     }
 
     private void saveAsFor(File destinationFile) {
-        MotionPhotoParser parser = new MotionPhotoParser();
-        MotionPhotoParser.Result r = parser.parse(destinationFile);
-        SLogs.e(r.toString());
+        String mime = Utils.getFileMimeType(destinationFile);
 
-//        String mime = Utils.getFileMimeType(destinationFile);
+        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType(mime);
+        intent.putExtra(Intent.EXTRA_TITLE, destinationFile.getName());
+        intent.putExtra(DocumentsContract.EXTRA_EXCLUDE_SELF, true);
 
-//        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
-//        intent.addCategory(Intent.CATEGORY_OPENABLE);
-//        intent.setType(mime);
-//        intent.putExtra(Intent.EXTRA_TITLE, destinationFile.getName());
-//        intent.putExtra(DocumentsContract.EXTRA_EXCLUDE_SELF, true);
-//
-//        //temp
-//        saveAsLauncherSourcePath = destinationFile;
-//        //launch
-//        saveAsLauncher.launch(intent);
+        //temp
+        saveAsLauncherSourcePath = destinationFile;
+        //launch
+        saveAsLauncher.launch(intent);
     }
 
     private File saveAsLauncherSourcePath;
