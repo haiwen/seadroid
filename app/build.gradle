@@ -15,8 +15,8 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         compileSdk rootProject.ext.compileSdkVersion
 
-        versionCode 210
-        versionName "3.0.19"
+        versionCode 215 // +=5
+        versionName "3.0.20"
         multiDexEnabled true
 
         resValue "string", "authorities", defaultConfig.applicationId + '.debug.cameraupload.provider'
@@ -253,6 +253,9 @@ android {
 //        https://github.com/rubensousa/GravitySnapHelper
 //        implementation 'com.github.rubensousa:gravitysnaphelper:2.2.2'
 
+        // https://github.com/drewnoakes/metadata-extractor
+        implementation "com.drewnoakes:metadata-extractor:2.19.0"
+        implementation 'com.adobe.xmp:xmpcore:6.1.11'
 
         //
         implementation 'com.blankj:utilcode:1.30.7'

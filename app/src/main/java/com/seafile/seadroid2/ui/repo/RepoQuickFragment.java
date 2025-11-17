@@ -68,6 +68,7 @@ import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.db.entities.PermissionEntity;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
+import com.seafile.seadroid2.framework.livephoto.MotionPhotoParser;
 import com.seafile.seadroid2.framework.model.BaseModel;
 import com.seafile.seadroid2.framework.model.GroupItemModel;
 import com.seafile.seadroid2.framework.model.ServerInfo;
@@ -1417,18 +1418,22 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     }
 
     private void saveAsFor(File destinationFile) {
-        String mime = Utils.getFileMimeType(destinationFile);
+        MotionPhotoParser parser = new MotionPhotoParser();
+        MotionPhotoParser.Result r = parser.parse(destinationFile);
+        SLogs.e(r.toString());
 
-        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        intent.setType(mime);
-        intent.putExtra(Intent.EXTRA_TITLE, destinationFile.getName());
-        intent.putExtra(DocumentsContract.EXTRA_EXCLUDE_SELF, true);
+//        String mime = Utils.getFileMimeType(destinationFile);
 
-        //temp
-        saveAsLauncherSourcePath = destinationFile;
-        //launch
-        saveAsLauncher.launch(intent);
+//        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+//        intent.addCategory(Intent.CATEGORY_OPENABLE);
+//        intent.setType(mime);
+//        intent.putExtra(Intent.EXTRA_TITLE, destinationFile.getName());
+//        intent.putExtra(DocumentsContract.EXTRA_EXCLUDE_SELF, true);
+//
+//        //temp
+//        saveAsLauncherSourcePath = destinationFile;
+//        //launch
+//        saveAsLauncher.launch(intent);
     }
 
     private File saveAsLauncherSourcePath;

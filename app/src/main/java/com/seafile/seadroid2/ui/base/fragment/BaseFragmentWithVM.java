@@ -31,15 +31,6 @@ public class BaseFragmentWithVM<VM extends BaseViewModel> extends BaseFragment {
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if (tvm != null) {
-            tvm.clearAll();
-            tvm = null;
-        }
-    }
-
-    @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 

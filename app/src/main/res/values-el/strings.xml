@@ -3,21 +3,45 @@
   <string name="welcome_to_seafile">Καλωσήρθατε στο Seafile</string>
   <string name="select_account">Επιλέξτε ένα λογαριασμό για να ξεκινήσετε</string>
   <string name="edit_account">Επεξεργασία</string>
+  <string name="ignore">Απορρίψιμο</string>
   <string name="delete_account">Διαγραφή</string>
   <string name="delete">Διαγραφή</string>
+  <string name="deleted">Διαγραφημένο</string>
+  <string name="delete_repo">Διαγραφή βιβλιοθήκης</string>
+  <string name="delete_file">Διαγραφή αρχείου</string>
+  <string name="delete_records">Διαγραφή καταγραφών</string>
+  <string name="delete_records_and_file">Διαγραφή καταγραφών και αρχείου</string>
+  <string name="delete_successful">Διαγραφή επιτυχής</string>
+  <string name="delete_repo_title">Διαγραφή βιβλιοθήκης</string>
   <string name="delete_file_f">Διαγραφή αρχείου</string>
+  <string name="delete_local_file_sametime">Διαγραφή τοπικού αρχείου κατά την μεταφόρτωση</string>
+  <string name="recover_library">Επαναφορά βιβλιοθήκης</string>
+  <string name="recover_file">Επαναφορά αρχείου</string>
+  <string name="move_file">Μετακίνηση αρχείου</string>
+  <string name="update_file">Ανανέωση αρχείου</string>
+  <string name="recover_folder">Επαναφορά φακέλου</string>
+  <string name="move_folder">Μετακίνηση φακέλου</string>
   <string name="delete_dir">Διαγραφή φακέλου</string>
+  <string name="name_hint">Όνομα</string>
+  <string name="server">Διακομιστής</string>
   <string name="server_hint">Διακομιστής, όπως cloud.seafile.com</string>
+  <string name="email_hint">Διεύθυνση ηλε.ταχυδρομείου</string>
   <string name="passwd_hint">Κωδικός</string>
+  <string name="passwd_min_len_limit_hint">Ο κωδικός πρέπει να έχει τουλάχιστον 6 χαρακτήρες</string>
+  <string name="passwd_confirmation_hint">Επιβεβαίωση κωδικού</string>
+  <string name="login">Σύνδεση</string>
   <string name="open_file">Άνοιγμα</string>
   <string name="download_file">Λήψη</string>
   <string name="redownload_file">Λήψη ξανά</string>
   <string name="cancel_download">Ακύρωση</string>
+  <string name="unknown_file_type">Άγνωστος τύπος αρχείου</string>
   <string name="activity_not_found">Δεν μπορεί να βρεθεί εφαρμογή για να ανοίξει αυτό το αρχείο</string>
   <string name="refresh">Ανανέωση</string>
   <string name="add_account">Προσθήκη λογαριασμού</string>
   <string name="personal">Προσωπικό</string>
+  <string name="shared">Διαμοιρασμένο</string>
   <string name="libraries">Βιβλιοθήκες</string>
+  <string name="my_libraries">Οι мои βιβλιοθήκες</string>
   <string name="cached">Προσωρινά αποθηκευμένο</string>
   <string name="activities">Δραστηριότητες</string>
   <string name="pick_upload_type">Μεταφόρτωση</string>
@@ -30,36 +54,60 @@
     <item>Άλλο</item>
   </string-array>
   <string name="choose_server">Επιλέξτε διακομιστή Seafile</string>
+  <string-array name="choose_server_array">
+    <item>Single Sign-On</item>
+    <item>Other Seafile Server</item>
+  </string-array>
   <string name="network_down">Δεν υπάρχει σύνδεση στο διαδίκτυο</string>
   <string name="unknow_error">Άγνωστο σφάλμα</string>
   <string name="invalid_server_address">Εσφαλμένη διεύθυνση διακομιστή</string>
   <string name="err_server_andress_empty">Η διεύθυνση διακομιστή δεν μπορεί να είναι κενή</string>
   <string name="err_email_empty">Η διεύθυνση email δεν μπορεί να είναι κενή</string>
   <string name="err_passwd_empty">Ο κωδικός δεν μπορεί να είναι κενός</string>
+  <string name="err_passwd_too_short">Ο κωδικός πρέπει να έχει τουλάχιστον 6 χαρακτήρες</string>
+  <string name="err_passwd_mismatch">Οι κωδικοί δεν 일치ουν</string>
   <string name="err_login_failed">Η σύνδεση απέτυχε</string>
   <string name="err_wrong_user_or_passwd">Πρόβλημα με το email ή με τον κωδικό</string>
   <string name="err_token_expired">Η περιόδος σύνδεσης έχει λήξει, παρακαλώ συνδεθείτε ξανά</string>
   <string name="upload">Μεταφόρτωση</string>
   <string name="uploaded">Μεταφορτώθηκε</string>
+  <string name="re_upload">Μεταφόρτωση ξανά</string>
   <string name="updated">Ανανεώθηκε</string>
   <string name="download_failed">Αποτυχία λήψης</string>
   <string name="download_waiting">Λήψη σε αναμονή</string>
   <string name="download_finished">Λήψη ολοκληρώθηκε</string>
+  <string name="download_completed">Λήψη ολοκληρώθηκε</string>
   <string name="download_cancelled">Λήψη ακυρώθηκε</string>
   <string name="task_cancel">Ακύρωση</string>
   <string name="task_retry">Επανάληψη</string>
   <string name="task_remove">Αφαίρεση</string>
   <string name="task_remove_all_cancelled">Αφαίρεση όλων των ακυρωμένων εργασιών</string>
   <string name="task_remove_all_finished">Αφαίρεση όλων των ολοκληρωμένων εργασιών</string>
+  <string name="repo_action_delete">Διαγραφή</string>
+  <string name="repo_action_rename">Μετονομασία</string>
   <string name="file_action_star">Star</string>
   <string name="file_action_download">Λήψη</string>
   <string name="file_action_update">Μεταφόρτωση</string>
+  <string name="file_share">Διαμοιρασμός</string>
+  <string name="file_action_share_wechat">Διαμοιρασμός μέσω WeChat</string>
+  <string name="file_action_share_link">Διαμοιρασμός μέσω συνδέσμου</string>
+  <string name="file_action_share_encrypt">Διαμοιρασμός μέσω κρυπτογράφησης</string>
   <string name="file_action_export">Εξαγωγή</string>
+  <string name="file_action_open">Άνοιγμα</string>
+  <string name="file_action_save_as">Αποθήκευση ως</string>
   <string name="file_action_delete">Διαγραφή</string>
   <string name="file_action_rename">Μετονομασία</string>
   <string name="file_action_copy">Αντιγραφή</string>
   <string name="file_action_move">Μετακίνηση</string>
   <string name="file_action_open_as">Άνοιγμα ως</string>
+  <string name="file_action_more">Περισσότερες ενέργειες</string>
+  <string name="file_action_more_title">Περισσότερες ενέργειες</string>
+  <string-array name="file_action_more_array">
+    <item>Export</item>
+    <item>Copy</item>
+    <item>Move</item>
+    <item>Star</item>
+  </string-array>
   <string-array name="file_type_array">
     <item>Κείμενο</item>
     <item>Ήχος</item>
@@ -71,30 +119,72 @@
   <string name="image_gallery_NoImageView_text">Δεν βρέθηκε εικόνα</string>
   <string name="pick_photo_video_title">Επιλέξτε εικόνες/βίντεο για μεταφόρτωση</string>
   <string name="select_upload_items">Επιλέξτε αντικείμενα για μεταφόρτωση</string>
+  <plurals name="n_upload_items_selected">
+    <item quantity="one">Επιλέχθηκε ένα αντικείμενο</item>
+    <item quantity="other">Επιλέχθηκαν %d αντικείμενα</item>
+  </plurals>
+  <string name="repo_name_empty">Παρακαλώ εισάγετε το όνομα της βιβλιοθήκης</string>
   <string name="dir_name_empty">Παρακαλώ εισάγετε το όνομα του φακέλου</string>
   <string name="file_name_empty">Παρακαλώ εισάγετε το όνομα του αρχείου</string>
   <string name="password_empty">Παρακαλώ εισάγετε τον κωδικό</string>
-  <string name="wrong_password">λάθος κωδικός</string>
+  <string name="name_contains_slash">Το όνομα δεν μπορεί να περιέχει το σύμβολο /</string>
+  <string name="name_contains_backtick">Το όνομα δεν μπορεί να περιέχει το σύμβολο `</string>
+  <string name="name_contains_backslash">Το όνομα δεν μπορεί να περιέχει το σύμβολο \</string>
+  <string name="name_cannot_be_double_dots">Το όνομα δεν μπορεί να είναι το ..</string>
+  <string name="wrong_password">Λάθος κωδικός</string>
   <string name="library_read_only">Αυτή η βιβλιοθήκη είναι μόνο για ανάγνωση</string>
+  <string name="error_when_load_dirents">Αποτυχία φόρτωσης των περιεχομένων αυτού του φακέλου</string>
+  <string name="error_when_load_repos">Αποτυχία φόρτωσης βιβλιοθηκών</string>
+  <string name="error_when_load_activities">Αποτυχία φόρτωσης δραστηριοτήτων</string>
+  <string name="error_when_load_starred">Αποτυχία φόρτωσης των αγαπημένων αρχείων</string>
   <string name="dir_empty">Αυτός ο φάκελος είναι κενός</string>
   <string name="no_repo">Δεν έχετε ακόμα βιβλιοθήκες</string>
+  <string name="no_album_type_data">Δεν βρέθηκαν δεδομένα τύπου άλμπου</string>
   <string name="no_app_available">Δεν μπορεί να βρέθει καμιά εφαρμογή</string>
   <string name="add_to_seafile">Προσθήκη στο Seafile</string>
   <string name="ok">OK</string>
   <string name="no_account">Παρακαλώ δημιουργήστε έναν λογαριασμό στο Seafile πρώτα</string>
   <string name="choose_an_account">Επιλέξτε ένα λογαριασμό</string>
   <string name="choose_a_library">Επιλέξτε μία βιβλιοθήκη</string>
+  <string name="choose_a_folder">Επιλέξτε έναν φάκελο</string>
   <string name="load_accounts_fail">Αποτυχία φόρτωσης λογαριασμών Seafile</string>
   <string name="load_libraries_fail">Αποτυχία φόρτωσης βιβλιοθηκών</string>
   <string name="load_dir_fail">Αποτυχία φόρτωσης των περιεχομένων αυτού του φακέλου</string>
+  <string name="not_supported">Αυτός ο τύπος κοινόχρηστου στοιχείου δεν είναι διαθέσιμος</string>
   <string name="not_supported_share">Αυτός ο τύπος κοινόχρηστου στοιχείου δεν είναι διαθέσιμος</string>
+  <string name="not_supported_feature">Αυτή η λειτουργία δεν είναι διαθέσιμη</string>
+  <string name="edit">Επεξεργασία</string>
+  <string name="select">Επιλογή</string>
+  <string name="create_draft">Δημιουργία черновιού</string>
+  <string name="rename_draft">Μετονομασία черновιού</string>
+  <string name="del_draft">Διαγραφή черновιού</string>
+  <string name="update_draft">Ενημέρωση черновιού</string>
+  <string name="release_draft">Απορρίπτεται το черновιό</string>
+  <string name="encrypt">Κρυπτογράφηση</string>
   <string name="download_folder">Φάκελος λήψεων</string>
   <string name="download_folder_title">Επιλέξτε την επιθυμητή επιλογή</string>
   <string-array name="download_folder_options_array">
     <item>Λήψη φακέλου</item>
     <item>Λήψη φακέλου και υποφακέλων</item>
   </string-array>
+  <string name="add_repo">Προσθήκη βιβλιοθήκης</string>
+  <string name="add_file">Προσθήκη αρχείου</string>
+  <string-array name="add_file_options_array">
+    <item>Create file</item>
+    <item>Create folder</item>
+    <item>Upload file</item>
+    <item>Take a photo</item>
+  </string-array>
+  <string-array name="video_download_array">
+    <item>play</item>
+    <item>download</item>
+  </string-array>
+  <string name="create_new_repo">Δημιουργία νέας βιβλιοθήκης</string>
+  <string name="create_new_repo_success">Η βιβλιοθήκη δημιουργήθηκε επιτυχώς</string>
+  <string name="create_new_folder_success">Ο φάκελος δημιουργήθηκε επιτυχώς</string>
+  <string name="create_new_file_success">Το αρχείο δημιουργήθηκε επιτυχώς</string>
   <string name="create_new_file">Δημιουργήστε ένα νέο αρχείο</string>
+  <string name="create_files">Δημιουργία αρχείων</string>
   <string name="create_new_dir">Δημιουργήστε έναν νέο φάκελο</string>
   <string name="camera">Βγάλτε μια φωτογραφία εδώ</string>
   <string name="download">Λήψη</string>
@@ -103,15 +193,20 @@
   <string name="file_modified">τροποποιήθηκε</string>
   <string name="file_size">μέγεθος αρχείου</string>
   <string name="library_not_found">Η βιβλιοθήκη έχει διαγραφεί.</string>
+  <string name="file_not_found">Το αρχείο έχει διαγραφεί.</string>
   <string name="export_file">Εξάγετε αυτό το αρχείο</string>
   <string name="no_upload_tasks">Δεν υπάρχουν εργασίες μεταφόρτωσης ακόμα</string>
   <string name="no_download_tasks">Δεν υπάρχουν εργασίες λήψεων ακόμα</string>
   <string name="seahub_url_hint">Σημείωση: Η διεύθυνση διακομιστή πρέπει να περιλαμβάνει και τη θύρα.  Για παράδειγμα, www.example.com:8000</string>
   <string name="copy_link">Αντιγραφή συνδέσμου</string>
+  <string name="share_link_no_permission">Δεν έχετε δικαιώματα για να κοινοποιήσετε αυτό το αρχείο</string>
   <string name="share_file_link">Κοινή χρήση συνδέσμου για αυτό το αρχείο</string>
   <string name="share_dir_link">Κοινή χρήση συνδέσμου για αυτό το φάκελο</string>
+  <string name="share_input_password">Εισάγετε τον κωδικό πρόσβασης για την κοινή χρήση</string>
   <string name="generating_link">Δημιουργία συνδέσμου...</string>
+  <string name="generating_link_title">Κοινή χρήση συνδέσμου</string>
   <string name="link_ready_to_be_pasted">Ο σύνδεσμος είναι έτοιμος να επικοληθεί</string>
+  <string name="rename_repo">Μετονομασία βιβλιοθήκης</string>
   <string name="rename_file">Μετονομασία αρχείου</string>
   <string name="rename_dir">Μετονομασία φακέλου</string>
   <string name="rename_successful">Μετονομάστηκε επιτυχώς.</string>
@@ -121,64 +216,487 @@
     <item>Λογαριασμοί</item>
     <item>Backup Φωτογραφιών</item>
   </string-array>
+  <string name="navigate_to_directory">Μεταβείτε στο κατάλογο</string>
+  <string name="navigate_up">Μεταβείτε στο πάνω φάκελο</string>
   <string name="no_starred_file">Δεν υπάρχουν αρχεία με αστεράκι ακόμη</string>
   <string name="added_to_upload_tasks">Η μεταφόρτωση άρχισε</string>
   <string name="added_photo_to_upload_tasks">Άρχισε η μεταφόρτωση φωτογραφιών</string>
+  <string name="take_photo_successfully">Η φωτογραφία αποθηκεύτηκε επιτυχώς</string>
   <string name="tabs_library">Βιβλιοθήκες</string>
+  <string name="tabs_activity">Δραστηριότητα</string>
+  <string name="tabs_starred">Αστεράκια</string>
+  <string name="starred_repos">Αστεράκια βιβλιοθήκης</string>
+  <string name="starred_files">Αστεράκια αρχείων</string>
+  <string name="starred_folder">Αστεράκια φακέλου</string>
   <string name="provide_password">Εισάγετε τον κωδικό για την βιβλιοθήκη \"%s\"</string>
   <string name="upload_waiting">Μεταφόρτωση σε αναμονή</string>
   <string name="upload_finished">Η μεταφόρτωση ολοκληρώθηκε</string>
+  <string name="upload_completed">Η μεταφόρτωση ολοκληρώθηκε</string>
   <string name="upload_cancelled">Η μεταφόρτωση ακυρώθηκε</string>
   <string name="upload_failed">Η μεταφόρτωση απέτυχε</string>
+  <string name="upload_file_exist">Το αρχείο υπάρχει ήδη</string>
+  <string name="upload_duplicate_found">Βρέθηκε διπλότυπο αρχείο</string>
+  <string name="upload_replace_all">Αποκατάσταση όλων των διπλότυπων</string>
+  <string name="upload_keep_both">Κρατήστε τα δύο αρχεία</string>
+  <string name="upload_replace">Αποκατάσταση του διπλούτυπου</string>
+  <string name="days_ago">πριν από %d ημέρες</string>
+  <string name="hours_ago">πριν από %d ώρες</string>
+  <string name="minutes_ago">πριν από %d λεπτά</string>
+  <string name="seconds_ago">πριν από %d δευτερόλεπτα</string>
+  <string name="just_now">πριν από ένα στιγμιότυπο</string>
+  <string name="open_as">Άνοιγμα ως</string>
   <string name="select_upload_files">Επιλέξτε αρχεία για μεταφόρτωση</string>
+  <string name="storage_removed">Το χώρο αποθήκευσης έχει διαγραφεί</string>
+  <string name="storage_space_insufficient">Δεν υπάρχει αρκετός χώρος αποθήκευσης</string>
+  <string name="error_selecting_file">Σφάλμα επιλογής αρχείου</string>
+  <plurals name="n_upload_files_selected">
+    <item quantity="one">Ένα αρχείο έχει επιλεγεί για μεταφόρτωση</item>
+    <item quantity="other">%d αρχεία έχουν επιλεγεί για μεταφόρτωση</item>
+  </plurals>
+  <string name="empty_folder">Αυτό το φάκελος είναι άδειος</string>
+  <string name="choose_file">Επιλέξτε ένα αρχείο</string>
+  <string name="ssl_error">Σφάλμα SSL</string>
+  <string name="ssl_not_trusted">Το πιστοποιητικό SSL δεν είναι 신뢰würdig</string>
+  <string name="ssl_confirm">Είστε σίγουροι ότι θέλετε να συνεχίσετε;</string>
+  <string name="ssl_confirm_cert_changed">Το πιστοποιητικό SSL έχει αλλάξει. Είστε σίγουροι ότι θέλετε να συνεχίσετε;</string>
+  <string name="ssl_confirm_title">Χρήση μη πιστοποιημένου πιστοποιητικού SSL</string>
+  <string name="issued_to">Διανέμθηκε σε</string>
+  <string name="finger_prints">Τα καταγραφικά ψηφία</string>
+  <string name="period_of_validity">Ο період 유효τητας</string>
+  <string name="sha1">SHA1</string>
+  <string name="md5">MD5</string>
+  <string name="not_available">Δεν είναι διαθέσιμο</string>
+  <string name="serial_number">Αριθμός σειράς</string>
+  <string name="not_before">Δεν είναι πριν από</string>
+  <string name="not_after">Δεν είναι μετά από</string>
+  <string name="yes">Ναι</string>
+  <string name="no">Όχι</string>
+  <string name="remember_my_choice">Να με θυμάσαι την επιλογή μου</string>
+  <string name="copied_successfully">Το αρχείο скопиήθηκε επιτυχώς</string>
+  <string name="moved_successfully">Το αρχείο μετακινήθηκε επιτυχώς</string>
+  <string name="internal_server_error">Σφάλμα διακομιστή</string>
+  <string name="current_library">Τρέχουσα βιβλιοθήκη</string>
+  <string name="other_libraries">Άλλες βιβλιοθήκες</string>
+  <string name="recently_used">Σε πρόσφατο χρησιμοποιημένο</string>
+  <string name="copy_file_ing">Αντιγραφή αρχείου</string>
+  <string name="move_file_ing">Μετακίνηση αρχείου</string>
+  <string name="copy_file_from">Αντιγραφή από</string>
+  <string name="move_file_from">Μετακίνηση από</string>
+  <string name="copy_folder_ing">Αντιγραφή φακέλου</string>
+  <string name="move_folder_ing">Μετακίνηση φακέλου</string>
   <string name="upload_started">Η μεταφόρτωση άρχισε</string>
+  <string name="cannot_copy_folder_to_subfolder">Δεν μπορείτε να αντιγράψετε ένα φάκελο σε ένα υποφάκελο</string>
+  <string name="cannot_move_folder_to_subfolder">Δεν μπορείτε να μετακινήσετε ένα φάκελο σε ένα υποφάκελο</string>
+  <string name="cancel">Ακύρωση</string>
+  <string name="confirm">Επιβεβαίωση</string>
+  <string name="repo_not_found">Η βιβλιοθήκη δεν βρέθηκε</string>
+  <string name="settings_account">Ο λογαριασμός</string>
+  <string name="settings_switch_account">Εναλλαγή λογαριασμού</string>
+  <string name="settings_account_info_title">Πληροφορίες λογαριασμού</string>
+  <string name="settings_account_info_load_data">Φόρτωση δεδομένων</string>
+  <string name="settings_account_space_title">Χώρος αποθήκευσης</string>
+  <string name="settings_account_sign_out_title">Αποσύνδεση</string>
+  <string name="settings_account_sign_out_hint">Αποσύνδεση από τον τρέχοντα λογαριασμό</string>
+  <string name="settings_account_sign_out_confirm">Είστε σίγουροι ότι θέλετε να αποσυνδεθείτε από τον τρέχοντα λογαριασμό;</string>
+  <string name="settings_night_mode_title">Ναίτο λειτουργία</string>
+  <string name="settings_switch_storage_hint">Εναλλαγή χώρου αποθήκευσης</string>
+  <string name="security">Ασφάλεια</string>
+  <string name="gesture_lock">Κλειδί geste</string>
+  <string name="gesture_lock_on">Ενεργοποίηση κλειδιού geste</string>
+  <string name="gesture_lock_off">Απενεργοποίηση κλειδιού geste</string>
+  <string name="lockscreen_access_pattern_hint">Σχεδιάστε ένα μοτίβο για την πρόσβαση στο κλειδί geste</string>
+  <string name="lockscreen_access_pattern_start">Χρησιμοποιήστε το μοτίβο για να αποκτήσετε πρόσβαση στο κλειδί geste</string>
+  <string name="lockscreen_access_pattern_cleared">Το μοτίβο κλειδιού geste έχει διαγραφεί</string>
+  <string name="lockscreen_access_pattern_cell_added">Προσθέθηκε μια κελί στο μοτίβο κλειδιού geste</string>
+  <string name="lockscreen_access_pattern_detected">Το μοτίβο κλειδιού geste έχει αναγνωριστεί</string>
+  <string name="lockscreen_access_pattern_passwd_forget">Ξέχασες τον κωδικό πρόσβασης για το κλειδί geste?</string>
+  <string name="lockscreen_access_pattern_failure">Λάθος κλειδί geste</string>
+  <plurals name="lockscreen_access_pattern_failure_left_try_seconds">
+    <item quantity="one">Διαθέτεις %d δευτερόλεπτο για να προσπαθήσεις ξανά</item>
+    <item quantity="other">Διαθέτεις %d δευτερόλεπτα για να προσπαθήσεις ξανά</item>
+  </plurals>
+  <plurals name="lockscreen_access_pattern_failure_left_try_times">
+    <item quantity="one">Διαθέτεις %d προσπάθεια ξανά</item>
+    <item quantity="other">Διαθέτεις %d προσπάθειες ξανά</item>
+  </plurals>
+  <string name="lockscreen_access_pattern_failure_not_long_enough">Το μοτίβο κλειδιού geste πρέπει να είναι τουλάχιστον 4 κελιά</string>
+  <string name="lockpattern_retry_button_text">Προσπάθεια ξανά</string>
+  <string name="lockpattern_continue_button_text">Συνέχεια</string>
+  <string name="lockpattern_confirm_button_text">Επιβεβαίωση</string>
+  <string name="lockpattern_recording_intro_header">Σχεδιάστε ένα μοτίβο για το κλειδί geste</string>
+  <string name="lockpattern_settings_help_how_to_record">Για να σχεδιάσετε ένα μοτίβο, κινήστε το δείκτη του ποντικιού πάνω από τα κελιά του κλειδιού geste. Το μοτίβο πρέπει να είναι τουλάχιστον 4 κελιά.</string>
+  <string name="lockpattern_recording_incorrect_too_short">Το μοτίβο κλειδιού geste πρέπει να είναι τουλάχιστον 4 κελιά</string>
+  <string name="lockpattern_pattern_entered_header">Το μοτίβο κλειδιού geste που εισήγατε</string>
+  <string name="lockpattern_need_to_draw">Παρακαλώ σχεδιάστε ένα μοτίβο</string>
+  <string name="lockpattern_need_to_confirm">Παρακαλώ επιβεβαιώστε το μοτίβο</string>
+  <string name="lockpattern_need_to_unlock_wrong">Το μοτίβο κλειδιού geste δεν είναι σωστό</string>
+  <string name="lockpattern_pattern_confirmed_header">Το μοτίβο κλειδιού geste που επιβεβαιώσατε</string>
+  <string name="lockpattern_recording_inprogress">Σχεδιάζετε το μοτίβο κλειδιού geste</string>
+  <string name="lockpattern_pattern_toast_saved">Το μοτίβο κλειδιού geste έχει αποθηκευτεί</string>
   <!--Strings for possible PreferenceActivity Back/Next buttons-->
+  <string name="back_button_label">Προηγούμενο</string>
+  <string name="next_button_label">Επόμενο</string>
   <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
+  <string name="skip_button_label">Πропустити</string>
   <!--Display mode-->
+  <string name="settings_display_mode">Επιλογή εμφάνισης</string>
   <!--contacts  upload-->
+  <string name="settings_contacts_upload_info_title">Μεταφόρτωση επαφών</string>
+  <string name="settings_contacts_upload_turn_on">Ενεργοποίηση μεταφόρτωσης επαφών</string>
+  <string name="settings_contacts_upload_service_started">Η υπηρεσία μεταφόρτωσης επαφών ξεκίνησε</string>
+  <string name="settings_contacts_upload_service_stopped">Η υπηρεσία μεταφόρτωσης επαφών σταμάτησε</string>
+  <string name="settings_contacts_upload_repo_hint">Παρακαλώ επιλέξτε πρώτα μια βιβλιοθήκη</string>
+  <string name="settings_contacts_upload_change_repo_title">Αλλαγή βιβλιοθήκης μεταφόρτωσης</string>
+  <string name="settings_contacts_upload_repo_time">Χρονική διαφορά για την αποστολή επαφών</string>
+  <string name="settings_contacts_upload_repo_history">Ιστορικό μεταφόρτωσης επαφών</string>
+  <string name="settings_contacts_upload_start_backup">Έναρξη μεταφόρτωσης επαφών</string>
+  <string name="settings_contacts_upload_start_backup_hint">Παρακαλώ ενεργοποιήστε πρώτα την μεταφόρτωση επαφών</string>
   <!--Camera Upload Preference-->
   <string name="settings_camera_upload_info_title">Μεταφόρτωση φωτογραφιών</string>
   <string name="settings_camera_upload_service_started">Η υπηρεσία μεταφόρτωσης ξεκίνησε</string>
   <string name="settings_camera_upload_service_stopped">Η διαδικασία μεταφόρτωσης σταμάτησε</string>
+  <string name="settings_camera_upload_allow_data_plan">Επιτρέπει τη μεταφόρτωση από το δεδομένο πλάνο δεδομένων</string>
+  <string name="settings_camera_upload_allow_videos">Επιτρέπει τη μεταφόρτωση βίντεο</string>
+  <string name="settings_camera_upload_default_wifi">Μεταφόρτωση από το Wi-Fi</string>
+  <string name="settings_camera_upload_data_plan_allowed">Μεταφόρτωση από το δεδομένο πλάνο δεδομένων</string>
   <string name="settings_camera_upload_default_photos">Μεταφόρτωση φωτογραφιών μόνο από προεπιλογή</string>
+  <string name="settings_camera_upload_videos_allowed">Μεταφόρτωση βίντεο από το Wi-Fi</string>
   <string name="settings_camera_upload_change_repo_title">Αλλαγή βιβλιοθήκης μεταφόρτωσης</string>
   <string name="settings_camera_upload_repo_hint">Παρακαλώ επιλέξτε πρώτα μια βιβλιοθήκη</string>
   <string name="settings_camera_upload_turn_on">Ενεργοποίηση μεταφόρτωσης φωτ. μηχανής</string>
+  <string name="settings_camera_upload_choose_dir">Επιλογή φάκελου αποθήκευσης</string>
+  <string name="settings_camera_upload_dir_auto_scan">Αυτόματη αναζήτηση φακέλων</string>
   <string name="settings_camera_upload_lib_not_found">Η επιλεγμένη βιβλιοθήκη δεν υπάρχει</string>
+  <string name="settings_camera_upload_advanced_feature_title">Ρυθμίσεις μεταφόρτωσης</string>
   <string name="settings_camera_upload_advanced_feature_subtitle">Μη τυπικές ρυθμίσεις μεταφόρτωσης</string>
+  <string name="settings_camera_upload_advanced_custom_directories">Χρησιμοποιήστε προσαρμοσμένο φάκελο αποθήκευσης</string>
+  <string name="settings_camera_upload_advanced_custom_directories_on">Ενεργοποίηση προσαρμοσμένου φάκελου αποθήκευσης</string>
+  <string name="settings_camera_upload_advanced_custom_directories_off">Απενεργοποίηση προσαρμοσμένου φάκελου αποθήκευσης</string>
   <!--Camera Upload Configuration View-->
+  <string name="settings_cuc_title">Ρυθμίσεις μεταφόρτωσης φωτογραφιών</string>
+  <string name="settings_cuc_welcome_text">Καλώς ήρθατε στο Seafile. Για να ξεκινήσετε τη μεταφόρτωση φωτογραφιών, παρακαλώ ακολουθήστε τα βήματα παρακάτω.</string>
+  <string name="settings_cuc_network_title">Επιλογή δικτύου</string>
+  <string name="settings_cuc_network_wifi">Μεταφόρτωση από το Wi-Fi</string>
+  <string name="settings_cuc_network_data_plan">Μεταφόρτωση από το δεδομένο πλάνο δεδομένων</string>
+  <string name="settings_cuc_how_hint">Για να επιλέξετε το δικτύο, παρακαλώ κλικ στο κουμπί παρακάτω.</string>
+  <string name="settings_cuc_what_hint">Για να επιλέξετε τον τύπο μεταφόρτωσης, παρακαλώ κλικ στο κουμπί παρακάτω.</string>
+  <string name="settings_cuc_type_title">Επιλογή τύπου μεταφόρτωσης</string>
+  <string name="settings_cuc_type_photo">Μεταφόρτωση φωτογραφιών</string>
+  <string name="settings_cuc_type_video">Μεταφόρτωση βίντεο</string>
+  <string name="settings_cuc_local_dir_title">Επιλογή φακέλου αποθήκευσης</string>
+  <plurals name="settings_cuc_local_dir_items">
+    <item quantity="one">Ένα φακέλος αποθήκευσης</item>
+    <item quantity="other">Διαφορετικά φακέλοι αποθήκευσης</item>
+  </plurals>
+  <string name="settings_cuc_remote_lib_title">Επιλογή βιβλιοθήκης αποθήκευσης</string>
+  <string name="settings_cuc_remote_lib_account">Διαπιστώστε τον λογαριασμό Seafile</string>
+  <string name="settings_cuc_remote_lib_repo">Διαπιστώστε τη βιβλιοθήκη αποθήκευσης</string>
+  <string name="settings_cuc_upload_to_parent_folder">Μεταφόρτωση σε πατέρα φάκελο</string>
+  <string name="settings_cuc_auto_scan">Αυτόματη αναζήτηση φακέλων</string>
+  <string name="settings_cuc_pick_albums">Επιλογή φακέλων από το κινητό τηλέφωνο</string>
+  <string name="settings_cuc_remote_lib_hint">Παρακαλώ επιλέξτε πρώτα μια βιβλιοθήκη</string>
+  <string name="settings_cuc_finish_title">Ολοκλήρωση</string>
+  <string name="settings_cuc_ready">Ετοιμότητα για τη μεταφόρτωση</string>
+  <string name="settings_cuc_swipe_left">Κάντε κλικ στο κείμενο για να ανοίξετε το μενού</string>
+  <string name="settings_cuc_click_btn">Κάντε κλικ στο κουμπί για να ξεκινήσετε τη μεταφόρτωση</string>
+  <string name="settings_cuc_loading">Μεταφόρτωση...</string>
   <!--Camera Sync-->
+  <string name="sync_provider_camera_upload">Μεταφόρτωση φωτογραφιών από το κινητό τηλέφωνο</string>
+  <string name="camera_sync_notification_title_failed">Μεταφόρτωση απέτυχε</string>
+  <string name="camera_sync_notification_repo_missing_failed">Η επιλεγμένη βιβλιοθήκη δεν υπάρχει</string>
+  <string name="camera_sync_notification_auth_error_failed">Αδυναμία αυθεντικοποίησης</string>
+  <string name="camera_sync_rename_file">Μετατονομασία αρχείου</string>
+  <string name="settings_about_title">Σχετικά με το Seafile</string>
+  <string name="settings_about_privacy_policy">Πολιτική απορρήτου</string>
+  <string name="settings_about_version_title">Έκδοση</string>
+  <string name="settings_about_author_title">Συγγραφέας</string>
+  <string name="settings_export_run_logs">Εξαγωγή журналů εκτέλεσης</string>
+  <string name="settings_about_author_info">Συγγραφέας: %s</string>
+  <string name="settings_advance_feature_title">Επιπλέον λειτουργίες</string>
+  <string name="settings_transfer_title">Μεταφορά</string>
+  <string name="settings_storage_title">Αποθήκευση</string>
+  <string name="settings_cache_title">Κρυφή μνήμη</string>
+  <string name="settings_clear_cache_title">Καθαρισμός κρυφής μνήμης</string>
+  <string name="settings_clear_cache_hint">Αυτό θα διαγράψει όλα τα προσωρινά αρχεία από την κρυφή μνήμη.</string>
+  <string name="settings_clear_cache_success">Η κρυφή μνήμη έχει καθαριστεί με επιτυχία</string>
+  <string name="settings_clear_cache_failed">Αδυναμία καθαρισμού κρυφής μνήμης</string>
+  <string name="settings_cache_empty">Η κρυφή μνήμη είναι άδεια</string>
+  <string name="settings_cache_location_title">Τοποθεσία κρυφής μνήμης</string>
+  <string name="dialog_switch_storage_info_text">Επιλέξτε την αποθήκευση που θέλετε να χρησιμοποιηθεί για την κρυφή μνήμη.</string>
+  <string name="storage_manager_primary_storage">Κύρια αποθήκευση</string>
+  <string name="storage_manager_secondary_storage">Δευτερεύουσα αποθήκευση</string>
+  <string name="storage_manager_storage_description">Αποθήκευση %s</string>
+  <string name="storage_manager_storage_description_not_available">Δεν είναι διαθέσιμη η αποθήκευση %s</string>
   <!--pull to refresh-->
+  <string name="pull_to_refresh_pull_label">Κάντε κλικ για να ανανεώσετε</string>
+  <string name="pull_to_refresh_release_label">Διαβάστε για να ανανεώσετε</string>
+  <string name="pull_to_refresh_refreshing_label">Ανανεώστε...</string>
+  <string name="pull_to_refresh_last_update">Τελευταία ανανέωση: %s</string>
+  <string name="pull_to_refresh_last_update_seconds_ago">πριν από %d δευτερόλεπτα</string>
+  <string name="pull_to_refresh_last_update_minutes_ago">πριν από %d λεπτά</string>
+  <string name="pull_to_refresh_last_update_hours_ago">πριν από %d ώρες</string>
   <!--storage access framework-->
+  <string name="saf_open_file_exception">Αδυναμία ανοίγματος αρχείου</string>
+  <string name="saf_open_directory_exception">Αδυναμία ανοίγματος φακέλου</string>
+  <string name="saf_file_not_cached_exception">Το αρχείο δεν είναι αποθηκευμένο στην κρυφή μνήμη</string>
+  <string name="saf_thumbnail_not_found_exception">Δεν βρέθηκε εικόνα μικρογραφίας για το αρχείο</string>
   <string name="saf_file_not_downloaded_exception">Δεν ήταν δυνατή η λήψη του αρχείου %s από το διακομιστή.</string>
+  <string name="saf_write_diretory_exception">Αδυναμία εγγραφής στον φάκελο</string>
+  <string name="saf_account_not_found_exception">Δεν βρέθηκε λογαριασμός</string>
   <string name="saf_upload_path_not_available">Αποτυχία μεταφόρτωσης, δεν υπάρχει η διαδρομή</string>
+  <string name="saf_failed_to_create_directory">Αποτυχία δημιουργίας φακέλου</string>
+  <string name="saf_file_exist">Το αρχείο υπάρχει ήδη στον φάκελο</string>
+  <string name="saf_bad_mime_type">Μη έγκυρο MIME type</string>
   <!--Single Sign-On  SSO-->
+  <string name="shib_server_url_empty">Δεν έχει εισαχθεί η διεύθυνση διακομιστή SSO</string>
+  <string name="shib_server_incorrect_prefix">Η διεύθυνση διακομιστή SSO πρέπει να ξεκινάει με http:// ή https://</string>
+  <string name="shib_load_page_error">Αδυναμία φόρτωσης σελίδας</string>
+  <string name="shib_login_title">Σύνδεση με SSO</string>
+  <string name="shib_loading">Φόρτωση...</string>
   <!--Transfer List-->
+  <string name="transfer_list_network_error">Σφάλμα δικτύου</string>
+  <string name="transfer_list_cancel_all">Ακύρωση όλων</string>
+  <string name="transfer_list_cancel_all_desc">Αυτό θα ακυρώσει όλες τις μεταφορτώσεις και τις λήψεις.</string>
+  <string name="transfer_list_restart_all">Επανεκκίνηση όλων</string>
+  <string name="transfer_list_retry_failed_tasks">Επανάληψη αποτυχημένων εργασιών</string>
+  <string name="transfer_list_restart_cancelled_tasks">Επανεκκίνηση ακυρωμένων εργασιών</string>
+  <string name="transfer_list_clear_failed_tasks">Καθαρισμός αποτυχημένων εργασιών</string>
+  <string name="transfer_list_clear_all_tasks">Καθαρισμός όλων των εργασιών</string>
+  <string name="transfer_list_clear_all_tasks_desc">Αυτό θα διαγράψει όλες τις εργασίες, ανεξαρτήτως της κατάστασης.</string>
+  <string name="transfer_list_clear_finished_tasks">Καθαρισμός ολοκληρωμένων εργασιών</string>
   <string name="transfer_tabs_downloads">Λίστα λήψεων</string>
   <string name="transfer_tabs_uploads">Λίστα μεταφορτώσεων</string>
+  <string name="transfer_download_no_task">Δεν υπάρχουν εργασίες λήψης</string>
+  <plurals name="transfer_download_started">
+    <item quantity="one">Ένα αρχείο έχει ξεκινήσει να ληφθεί</item>
+    <item quantity="other">%d αρχεία έχουν ξεκινήσει να ληφθούν</item>
+  </plurals>
+  <string name="transfer_list_select_all">Επιλογή όλων</string>
+  <string name="transfer_list_deselect_all">Αποεπιλογή όλων</string>
+  <plurals name="transfer_list_items_selected">
+    <item quantity="one">Επιλέχθηκε ένα αρχείο</item>
+    <item quantity="other">Επιλέχθηκαν %d αρχεία</item>
+  </plurals>
   <!--Sort-->
+  <string name="sort_menu_item">Ταξινόμηση</string>
+  <string name="sort_files">Ταξινόμηση αρχείων</string>
+  <string-array name="sort_files_options_array">
+    <item>Name</item>
+    <item>Name (Desc)</item>
+    <item>Last Modified Time</item>
+    <item>Last Modified Time (Desc)</item>
+  </string-array>
   <!--Search-->
+  <string name="search_menu_item">Αναζήτηση</string>
+  <string name="search_bar_hint">Αναζήτηση...</string>
+  <string name="search_txt_empty">Δεν έχει εισαχθεί κείμενο για αναζήτηση</string>
+  <string name="search_content_empty">Δεν βρέθηκαν αποτελέσματα για την αναζήτηση</string>
+  <string name="search_server_not_support">Ο διακομιστής δεν υποστηρίζει αναζήτηση</string>
+  <string name="search_library_not_found">Δεν βρέθηκε βιβλιοθήκη για την αναζήτηση</string>
+  <string name="search_in_this_library">Αναζήτηση σε αυτήν τη βιβλιοθήκη</string>
   <!--star a file-->
+  <string name="star_file_succeed">Το αρχείο έχει επιλεγεί</string>
+  <string name="star_file_failed">Αποτυχία επιλογής αρχείου</string>
   <!--unstar a file-->
+  <string name="unstar_file_failed">Αποτυχία ακύρωσης επιλογής αρχείου</string>
+  <string name="unstar">Ακύρωση επιλογής αρχείου</string>
   <!--notification bar-->
   <string name="notification_upload_started_title">Μεταφόρτωση αρχείων...</string>
   <string name="notification_download_started_title">Λήψη αρχείων...</string>
   <string name="notification_upload_completed">Η μεταφόρτωση ολοκληρώθηκε</string>
+  <plurals name="notification_upload_info">
+    <item quantity="one">Μεταφορτώθηκε ένα αρχείο</item>
+    <item quantity="other">Μεταφορτώθηκαν %d αρχεία</item>
+  </plurals>
+  <plurals name="notification_download_info">
+    <item quantity="one">Λήφθηκε ένα αρχείο</item>
+    <item quantity="other">Λήφθηκαν %d αρχεία</item>
+  </plurals>
   <string name="notification_download_completed">Η λήψη ολοκληρώθηκε</string>
   <!--Gallery-->
+  <string name="gallery_load_photos_error">Σφάλμα φόρτωσης φωτογραφιών</string>
+  <string name="gallery_encrypted_repo_not_supported">Δεν υποστηρίζεται η προβολή κρυπτογραφημένων βιβλιοθηκών</string>
   <!--Overwrite existing files-->
+  <string name="overwrite_existing_file_title">Επαναφορά αρχείου</string>
+  <string name="overwrite_existing_file_msg">Είστε σίγουροι ότι θέλετε να επαναφέρετε το αρχείο %s?</string>
+  <string name="overwrite_existing_file_exist">Το αρχείο υπάρχει ήδη</string>
   <!--Action Mode-->
+  <string name="action_mode_no_items_selected">Δεν έχει επιλεγεί κανένα αρχείο</string>
   <!--Accessibility description for navigation drawer-->
   <!--permission-->
+  <string name="permission_manage_external_storage_rationale">Αυτό το άρθρωμα απαιτεί την πρόσβαση στην διαχείριση της εξωτερικής μνήμης για την αποθήκευση των εικόνων.</string>
+  <string name="permission_read_external_storage_rationale">Αυτό το άρθρωμα απαιτεί την πρόσβαση στην ανάγνωση της εξωτερικής μνήμης για την προβολή των εικόνων.</string>
+  <string name="permission_read_contacts_storage_rationale">Αυτό το άρθρωμα απαιτεί την πρόσβαση στην ανάγνωση των επαφών για την προβολή των εικόνων.</string>
+  <string name="permission_camera">Αυτό το άρθρωμα απαιτεί την πρόσβαση στην κάμερα για την촬εία εικόνων.</string>
+  <string name="permission_not_granted">Δεν έχει been given permission</string>
+  <string name="history_change_title">Αλλαγή ιστορικού</string>
+  <string name="no_more_activities">Δεν υπάρχουν περισσότερες δραστηριότητες</string>
   <!--client side encryption and decryption-->
+  <string name="enc_on">Ενεργοποίηση κρυπτογράφησης</string>
+  <string name="enc_off">Απενεργοποίηση κρυπτογράφησης</string>
+  <string name="enc_title">Κρυπτογράφηση</string>
   <!--clear password-->
+  <string name="clear_password_title">Καθαρισμός κωδικού πρόσβασης</string>
+  <string name="clear_password_hint">Εισαγωγή κωδικού πρόσβασης</string>
+  <string name="clear_password_successful">Ο κωδικός πρόσβασης έχει καθαριστεί με επιτυχία</string>
+  <string name="clear_password_failed">Αποτυχία καθαρισμού κωδικού πρόσβασης</string>
+  <string name="clear_password_warning">Είστε σίγουροι ότι θέλετε να καθαρίσετε τον κωδικό πρόσβασης?</string>
+  <string name="clear_password_auto">Αυτό θα καθαρίσει αυτόματα τον κωδικό πρόσβασης για όλες τις συνδέσεις.</string>
   <!--Two factor auth-->
+  <string name="two_factor_auth_error">Σφάλμα δύο факторной αυθεντικοποίησης</string>
+  <string name="two_factor_auth_invalid">Μη έγκυρος κωδικός δύο факторной αυθεντικοποίησης</string>
+  <string name="two_factor_auth_token">Κωδικός δύο факторной αυθεντικοποίησης</string>
+  <string name="two_factor_auth_token_empty">Δεν έχει εισαχθεί κωδικός δύο факторной αυθεντικοποίησης</string>
+  <string name="two_factor_auth_remember_phone">Να με θυμάσαι το τηλέφωνο μου</string>
   <!--Operation Exceptions-->
+  <string name="op_exception_folder_deleted">Η φάκελος διαγραφεί</string>
+  <string name="op_exception_suitable_app_not_found">Δεν βρέθηκε κατάλληλο εφαρμογή για την αλληλοχρονία του αρχείου</string>
+  <string name="op_exception_failed_to_download_file">Αποτυχία λήψης αρχείου</string>
+  <string name="op_unable_to_with_exception">Δεν είναι δυνατή η εκτέλεση της λειτουργίας λόγω σφάλματος</string>
   <!--Home list title-->
+  <string name="shared_with_all">Κάθε χρήστης</string>
+  <string name="add_password_protection">Προσθήκη προστασίας με κωδικό πρόσβασης</string>
+  <string name="select_an_expiration_dates">Επιλογή ημερομηνίας λήξης</string>
+  <string name="expiration_dates">Ημερομηνίες λήξης</string>
+  <string name="add_auto_expiration">Προσθήκη αυτόματης λήξης</string>
+  <string name="input_auto_expiration">Εισαγωγή αυτόματης λήξης</string>
+  <string name="tip_select_an_expiration_dates">Επιλέξτε μια ημερομηνία λήξης για το αρχείο</string>
   <!--editor-->
+  <string name="editor_lines_error">Σφάλμα γραμμών</string>
+  <string name="editor_file_save">Αποθήκευση αρχείου</string>
+  <string name="editor_file_save_success">Αποθήκευση αρχείου με επιτυχία</string>
+  <string name="editor_file_save_failed">Αποτυχία αποθήκευσης αρχείου</string>
+  <string name="editor_file_save_title">Αποθήκευση αρχείου</string>
+  <string name="description">Περιγραφή</string>
+  <string name="undo">Άνακτηση</string>
+  <string name="redo">Επανάληψη</string>
+  <string name="link">Σύνδεσμος</string>
+  <string name="channel_name_error">Σφάλμα ονόματος κανάλιού</string>
+  <string name="channel_name_upload">Κανάλι μεταφόρτωσης</string>
+  <string name="channel_name_download">Κανάλι λήψης</string>
+  <string name="channel_name_album_backup">Κανάλι резервного αντιγράφου альбому</string>
+  <string name="channel_name_transfer">Κανάλι μεταφοράς</string>
+  <string name="above_quota">Υπερβαίνει το όριο αποθήκευσης</string>
+  <string name="camera_upload_state">Κατάσταση μεταφόρτωσης από κάμερα</string>
+  <string name="waiting_state">Αναμονή</string>
+  <string name="Upload_completed">Μεταφόρτωση ολοκληρώθηκε</string>
+  <string name="is_scanning">Είστε σε αναζήτηση</string>
+  <string name="is_uploading">Μεταφόρτωση</string>
+  <string name="network_unavailable">Δεν είναι διαθέσιμο το δικτύω</string>
+  <string name="network_error">Σφάλμα δικτύου</string>
+  <string name="error_image_load">Σφάλμα φόρτωσης εικόνας</string>
+  <string name="retry_with_click">Προσπάθεια ξανά με κλικ</string>
+  <string name="required_password">Απαιτείται κωδικός πρόσβασης</string>
+  <string name="weak_password">Χαμηλός κωδικός πρόσβασης</string>
   <!--Folder backup Preference-->
+  <string name="settings_folder_backup_info_title">Πληροφορίες резервного αντιγράφου φακέλου</string>
+  <string name="settings_folder_backup_switch_title">Ενεργοποίηση резервного αντιγράφου φακέλου</string>
+  <string name="settings_folder_backup_service_started">Η υπηρεσία резервного αντιγράφου φακέλου έχει ξεκινήσει</string>
+  <string name="settings_folder_backup_service_stopped">Η υπηρεσία резервного αντιγράφου φακέλου έχει σταμάτη</string>
+  <string name="settings_select_backup_folder_title">Επιλογή φακέλου резервного αντιγράφου</string>
+  <string name="settings_sync_hidden_files_switch">Ενεργοποίηση συγχρονισμού κρυπτογραφημένων αρχείων</string>
+  <string name="settings_sync_hidden_files_disabled">Η συγχρονισμός κρυπτογραφημένων αρχείων είναι απενεργοποιημένος</string>
+  <string name="settings_sync_hidden_files_enabled">Η συγχρονισμός κρυπτογραφημένων αρχείων είναι ενεργοποιημένος</string>
+  <string name="folder_file_item_size">Μέγεθος αρχείου</string>
+  <string name="folder_file_item_describe">Περιγραφή αρχείου</string>
+  <string name="internal_storage">Εσωτερική αποθήκευση</string>
+  <string name="selection_file_type">Επιλογή τύπου αρχείου</string>
+  <string name="select_backup_folder">Επιλογή φακέλου резервного αντιγράφου</string>
+  <string name="select_backup_libraries">Επιλογή βιβλιοθηκών για резервное αντιγράφου</string>
+  <string name="folder_backup_completed">Ο резервμός αντιγράφου φακέλου έχει ολοκληρωθεί</string>
+  <string name="get_permission_failed">Αποτυχία получения дозвола</string>
+  <string name="get_storage_permission_failed">Αποτυχία получения дозвола για αποθήκευση</string>
+  <string name="authorization_storage_permission">Διαβάστε και αποδεικνύετε ότι θέλετε να δώσετε πρόσβαση στην αποθήκευση</string>
+  <string name="settings_folder_backup_select_hint">Επιλέξτε φακέλου για резервное αντιγράφου</string>
+  <string name="settings_folder_backup_select_title">Επιλογή φακέλου резервного αντιγράφου</string>
+  <string name="settings_folder_backup_traffic">Χρονολογική συγχρονισμός</string>
+  <string name="settings_folder_backup_traffic_hint">Επιλέξτε την χρονική περίοδο για την συγχρονισμός των αρχείων</string>
+  <string name="settings_folder_backup_library">Επιλογή βιβλιοθήκης για резервное αντιγράφου</string>
+  <string name="folder_backup_add">Προσθήκη φακέλου резервного αντιγράφου</string>
+  <string name="folder_backup_cancel">Άκυρο</string>
+  <string name="folder_backup_waiting_state">Αναμονή</string>
+  <string name="folder_backup_state">Κατάσταση резервного αντιγράφου φακέλου</string>
+  <string name="folder_backup_mode">Τύπος резервного αντιγράφου φακέλου</string>
+  <string name="folder_backup_mode_title">Επιλογή τύπου резервного αντιγράφου φακέλου</string>
+  <string name="folder_backup_select_repo_hint">Επιλέξτε βιβλιοθήκη για резервное αντιγράφου</string>
+  <string name="folder_backup_select_repo_update">Ενημέρωση επιλογής βιβλιοθήκης για резервное αντιγράφου</string>
+  <string name="UncaughtExceptionHandler_err">Σφάλμα μη διαχειρισμένου εξοπλισμού</string>
+  <string name="settings_file_backup_info_title">Πληροφορίες резервного αντιγράφου αρχείου</string>
   <!--action-->
+  <string name="pause">Παύση</string>
+  <string name="paused">Παύση</string>
+  <string name="waiting">Αναμονή</string>
+  <string name="add">Προσθήκη</string>
+  <string name="modify">Τροποποίηση</string>
+  <string name="update">Ενημέρωση</string>
+  <string name="clear">Καθαρισμός</string>
+  <string name="close">Κλείσιμο</string>
+  <string name="clear_all">Καθαρισμός όλων</string>
+  <string name="done">Ολοκληρώθηκε</string>
+  <string name="success">Επιτυχία</string>
+  <string name="failed">Αποτυχία</string>
+  <string name="uploading">Μεταφόρτωση</string>
+  <string name="downloading">Λήψη</string>
+  <string name="select_all">Επιλογή όλων</string>
+  <string name="replace_all">Αντικατάσταση όλων</string>
+  <string name="replace">Αντικατάσταση</string>
+  <string name="replace_local_file">Αντικατάσταση τοπικού αρχείου</string>
+  <string name="replace_remote_file">Αντικατάσταση απομακρυσμένου αρχείου</string>
+  <string name="do_not_replace">Δεν αντικαθίσταται</string>
+  <string name="keep_both">Κρατήστε τα δύο</string>
+  <string name="off">Απενεργοποίηση</string>
+  <string name="on">Ενεργοποίηση</string>
+  <string name="follow_system"> 따 το σύστημα</string>
+  <string name="empty">Κενό</string>
+  <string name="empty_data">Δεδομένα κενά</string>
   <!--share link-->
+  <string name="link_permission_set_permission">Ορισμός дозволου</string>
+  <string name="link_permission_preview_and_download">Προεπισκόπηση και λήψη</string>
+  <string name="link_permission_preview_only">Προεπισκόπηση μόνο</string>
+  <string name="link_permission_download_and_upload">Λήψη και μεταφόρτωση</string>
   <!--menu-->
+  <string name="menu_action_view_and_sort">Εμφάνιση και ταξινόμηση</string>
+  <string name="menu_action_view_list">Εμφάνιση σε λίστα</string>
+  <string name="menu_action_view_grid">Εμφάνιση σε πλέγμα</string>
+  <string name="menu_action_view_gallery">Εμφάνιση σε галереία</string>
+  <string name="menu_action_sort_by_name">Ταξινόμηση κατά όνομα</string>
+  <string name="menu_action_sort_by_type">Ταξινόμηση κατά τύπο</string>
+  <string name="menu_action_sort_by_size">Ταξινόμηση κατά μέγεθος</string>
+  <string name="menu_action_sort_by_last_modified">Ταξινόμηση κατά τελευταία τροποποίηση</string>
+  <string name="menu_action_sort_order_ascending">Ταξινόμηση αύξουσα</string>
+  <string name="menu_action_sort_directories_first">Ταξινόμηση φακέλων πρώτα</string>
+  <string name="menu_detail">Λεπτομέρειες</string>
   <!--sdoc-->
+  <string name="_size">Μέγεθος</string>
+  <string name="_last_modifier">Τελευταία τροποποιητής</string>
+  <string name="_last_modified_time">Τελευταία τροποποίηση</string>
+  <string name="_reviewer">Αναθεώρητής</string>
+  <string name="_file_collaborators">Χρηστες αρχείου</string>
+  <string name="_file_status">Κατάσταση αρχείου</string>
+  <string name="_in_progress">Σε εξέλιξη</string>
+  <string name="_in_review">Σε αναθεώρηση</string>
+  <string name="_done">Ολοκληρώθηκε</string>
+  <string name="_outdated">Αποτυχημένο</string>
+  <string name="_tags">Ετικέτες</string>
+  <string name="_location">Τοποθεσία</string>
+  <string name="_owner">Χρήστης-εigentümer</string>
+  <string name="mark_resolve">Επαναφορά</string>
+  <string name="delete_confirm">Είστε σίγουροι ότι θέλετε να διαγράψετε το αρχείο %s?</string>
+  <string name="image_capture_time">Χρόνος καταγραφής φωτογραφίας</string>
+  <string name="image_dimensions">Διαστάσεις φωτογραφίας</string>
+  <string name="image_color_space_uncalibrated">Χώρος χρωμάτων (μη καλεσμένο)</string>
+  <string name="image_color_space_undefined">Χώρος χρωμάτων (επίσημο)</string>
+  <string name="canceled">Άκυρο</string>
+  <string name="offline">Αποσύνδεση</string>
+  <string name="start">Έναρξη</string>
+  <string name="next">Επόμενο</string>
+  <string name="finish">Ολοκλήρωση</string>
+  <string name="skip">Παράβλεψη</string>
+  <string name="previous">Προηγούμενο</string>
+  <string name="complete">Ολοκληρώθηκε</string>
+  <string name="backing_up">Αντίγραφο ασφαλείας</string>
+  <string name="backup_completed">Αντίγραφο ασφαλείας ολοκληρώθηκε</string>
+  <string name="backup_failed">Αντίγραφο ασφαλείας απέτυχε</string>
+  <string name="export_log_file_not_exists">Το αρχείο καταγραφής δεν υπάρχει</string>
+  <string name="file_transfer_stopped">Μεταφορά αρχείου διακοπεί</string>
 </resources>

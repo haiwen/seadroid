@@ -219,6 +219,7 @@
     <item>Резервное копирование фото</item>
   </string-array>
   <string name="navigate_to_directory">Перейти в каталог</string>
+  <string name="navigate_up">Перемещение вверх</string>
   <string name="no_starred_file">Пока нет помеченных файлов</string>
   <string name="added_to_upload_tasks">Загрузка началась</string>
   <string name="added_photo_to_upload_tasks">Загрузка фото началась</string>
@@ -278,6 +279,9 @@
   <string name="copied_successfully">Успешно скопировано</string>
   <string name="moved_successfully">Успешно перемещено</string>
   <string name="internal_server_error">Внутренняя ошибка сервера</string>
+  <string name="current_library">Текущая библиотека</string>
+  <string name="other_libraries">Другие Библиотеки</string>
+  <string name="recently_used">Недавно использовано</string>
   <string name="copy_file_ing">Копирование файла</string>
   <string name="move_file_ing">Перемещение файла</string>
   <string name="copy_file_from">Копирование из %1$s \n В %2$s</string>
@@ -299,6 +303,7 @@
   <string name="settings_account_sign_out_hint">Нажмите, чтобы выйти</string>
   <string name="settings_account_sign_out_confirm">Вы хотите выйти?</string>
   <string name="settings_night_mode_title">Темный режим</string>
+  <string name="settings_switch_storage_hint">Миграция файлов может занять некоторое время, подождите</string>
   <string name="security">Безопасность</string>
   <string name="gesture_lock">Защита жестом</string>
   <string name="gesture_lock_on">Защита жестом включена</string>
@@ -578,6 +583,7 @@
   <string name="op_exception_folder_deleted">Папка «%s» была удалена</string>
   <string name="op_exception_suitable_app_not_found">Не удаётся найти подходящее приложение для MIME-типа %s</string>
   <string name="op_exception_failed_to_download_file">Не удалось скачать файл %s</string>
+  <string name="op_unable_to_with_exception">Невозможно работать с исключениями</string>
   <!--Home list title-->
   <string name="shared_with_all">Общие со всеми</string>
   <string name="add_password_protection">Добавить защиту паролем</string>

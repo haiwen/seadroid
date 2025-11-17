@@ -7,7 +7,7 @@
     <color name="light_grey">#BDBDBD</color>
     <color name="light_gray">#e9e9e9</color>
     <color name="dark_gray">#1E2129</color>
-    <color name="light_black">#333333</color>
+    <color name="light_black">#444444</color>
     <color name="transparent">#00000000</color>
     <color name="half_transparent">#80FFFFFF</color>
     <color name="half_transparent_black">#80000000</color>
@@ -25,9 +25,9 @@
     <color name="fancy_dark_gray">#e1e2e3</color>
 
     <color name="fancy_orange_light">#FFC783</color> <!-- theme color -->
-    <color name="fancy_orange">#ea8201</color> <!-- theme color -->
+    <color name="fancy_orange">#EB8205</color> <!-- theme color -->
     <color name="fancy_orange_dark">#CF7300</color> <!-- theme color -->
-    <color name="fancy_orange_translucent">#44ea8201</color> <!-- theme color -->
+    <color name="fancy_orange_translucent">#44EB8205</color> <!-- theme color -->
 
     <!-- Material Theme -->
 
@@ -81,6 +81,7 @@
 
     <!-- divider color -->
     <color name="divider_color">#F1F1F1</color>
+    <color name="vertical_divider_color">#BBC0C6</color>
     <color name="image_preview_divider_color">@color/material_grey_300</color>
 
     <!-- view color -->
@@ -108,4 +109,7 @@
     <!-- preference -->
     <color name="pref_background_color">@color/white</color>
     <color name="pref_divider_color">@color/material_grey_200</color>
+
+    <!-- sdoc -->
+    <color name="sdoc_editor_bar_background_color">#f2f2f2</color>
 </resources>

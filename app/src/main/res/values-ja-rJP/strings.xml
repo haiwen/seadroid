@@ -216,6 +216,7 @@
     <item>写真のバックアップ</item>
   </string-array>
   <string name="navigate_to_directory">ディレクトリーを移動</string>
+  <string name="navigate_up">アップナビゲーション</string>
   <string name="no_starred_file">スターを付けたファイルはありません</string>
   <string name="added_to_upload_tasks">アップロードが開始しました</string>
   <string name="added_photo_to_upload_tasks">写真のアップロードが開始しました</string>
@@ -272,6 +273,9 @@
   <string name="copied_successfully">正常にコピーしました</string>
   <string name="moved_successfully">正常に移動しました</string>
   <string name="internal_server_error">内部サーバーエラー</string>
+  <string name="current_library">現在の図書館</string>
+  <string name="other_libraries">その他の図書館</string>
+  <string name="recently_used">最近使用</string>
   <string name="copy_file_ing">ファイルをコピーしています</string>
   <string name="move_file_ing">ファイルを移動しています</string>
   <string name="copy_file_from">%1$s から\n%2$s にコピーしています</string>

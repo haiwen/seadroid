@@ -218,6 +218,7 @@
     <item>Backup Foto</item>
   </string-array>
   <string name="navigate_to_directory">Naviga fino a questa cartella</string>
+  <string name="navigate_up">Navigare su</string>
   <string name="no_starred_file">Non ci sono ancora file preferiti</string>
   <string name="added_to_upload_tasks">Aggiunto al caricamento</string>
   <string name="added_photo_to_upload_tasks">Foto aggiunta al caricamento</string>
@@ -276,6 +277,9 @@
   <string name="copied_successfully">Copia avvenuta con successo</string>
   <string name="moved_successfully">Spostamento avvenuto con successo</string>
   <string name="internal_server_error">Errore Interno del Server</string>
+  <string name="current_library">Biblioteca attuale</string>
+  <string name="other_libraries">Altre biblioteche</string>
+  <string name="recently_used">Usato recentemente</string>
   <string name="copy_file_ing">Copia file in corso</string>
   <string name="move_file_ing">Spostamento file in corso</string>
   <string name="copy_file_from">Copia file da %s</string>

@@ -778,9 +778,9 @@
     <string name="sdoc_system_event_token_expired_please_refresh_the_page">Token expired. Please refresh the page.</string>
     <string name="sdoc_system_event_pending_operations_exceed_limit">There are multiple operations not synced to the server. Please check your network.</string>
     <string name="sdoc_system_event_server_is_not_connected_operation_will_be_sent_to_server_later">Server is not connected. Operation will be sent to server later.</string>
-    <string name="sdoc_system_event_server_is_disconnected_reconnecting">Reconnecting…</string>
-    <string name="sdoc_system_event_server_is_reconnected">Reconnected</string>
-    <string name="sdoc_system_event_document_is_saving">Saving</string>
-    <string name="sdoc_system_event_document_is_saved">Saved</string>
+    <string name="reconnecting">Reconnecting…</string>
+    <string name="reconnected">Reconnected</string>
+    <string name="saving">Saving</string>
+    <string name="saved">Saved</string>
 
 </resources>
