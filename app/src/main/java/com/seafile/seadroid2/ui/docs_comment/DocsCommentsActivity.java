@@ -59,16 +59,19 @@ public class DocsCommentsActivity extends BaseMediaSelectorActivity<DocsCommentV
     private DocsCommentUserAdapter userAdapter;
 
     private SDocPageOptionsModel pageOptionsModel;
+    private boolean hasModifyPermission = false;
 
-    public static void start(Context context, SDocPageOptionsModel pageModel) {
+    public static void start(Context context, SDocPageOptionsModel pageModel, boolean hasModifyPermission) {
         Intent starter = new Intent(context, DocsCommentsActivity.class);
         starter.putExtra("pageOption", pageModel);
+        starter.putExtra("hasModifyPermission", hasModifyPermission);
         context.startActivity(starter);
     }
 
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
+        outState.putBoolean("hasModifyPermission", hasModifyPermission);
         outState.putParcelable("pageOption", pageOptionsModel);
         Parcelable listParcelable = linearLayoutManager.onSaveInstanceState();
         outState.putParcelable("listParcelable", listParcelable);
@@ -86,13 +89,7 @@ public class DocsCommentsActivity extends BaseMediaSelectorActivity<DocsCommentV
 
         applyEdgeToEdge(binding.getRoot());
 
-        initView();
         adaptInputMethod();
-
-        initViewModel();
-
-        initAdapter();
-
 
         if (savedInstanceState != null) {
             pageOptionsModel = savedInstanceState.getParcelable("pageOption");
@@ -105,6 +102,8 @@ public class DocsCommentsActivity extends BaseMediaSelectorActivity<DocsCommentV
             if (listParcelable != null) {
                 linearLayoutManager.onRestoreInstanceState(listParcelable);
             }
+
+            hasModifyPermission = savedInstanceState.getBoolean("hasModifyPermission", false);
         } else {
             if (getIntent() == null || !getIntent().hasExtra("pageOption")) {
                 throw new IllegalArgumentException("pageOption is null");
@@ -115,7 +114,15 @@ public class DocsCommentsActivity extends BaseMediaSelectorActivity<DocsCommentV
                 throw new IllegalArgumentException("pageOption is null");
             }
             bindingOfToolbar.toolbarActionbar.setTitle(pageOptionsModel.docName);
+
+            hasModifyPermission = getIntent().getBooleanExtra("hasModifyPermission", false);
         }
+
+        initViewModel();
+
+        initAdapter();
+
+        initView();
 
         refreshData();
     }
@@ -138,51 +145,51 @@ public class DocsCommentsActivity extends BaseMediaSelectorActivity<DocsCommentV
 
         binding.rv.setLayoutManager(linearLayoutManager);
 
-        binding.photoView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showPickPhotoSheetDialog(false);
-            }
-        });
+        if (hasModifyPermission) {
+            binding.photoView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    showPickPhotoSheetDialog(false);
+                }
+            });
 
 //        //
 //        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
 //        binding.rvUserList.setLayoutManager(linearLayoutManager);
 
-        binding.submit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                submitData();
-            }
-        });
+            binding.submit.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    submitData();
+                }
+            });
 
-        binding.richEditText.setTextWatcher(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            binding.richEditText.setTextWatcher(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
-            }
+                }
 
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                // 我们只关心新增字符的情况，即 count > before
-                // 并且我们只关心单个字符的输入，所以 count == 1
-                if (count == 1 && before == 0) {
-                    // 获取新输入的字符
-                    char insertedChar = s.charAt(start);
-                    // 判断新输入的字符是否是 '@'
-                    if (insertedChar == '@') {
-                        // 是“@”字符，执行弹出弹窗的逻辑
-                        SLogs.d("DocsCommentsActivity", "@ character detected. Showing user selector...");
-                        showRelateUserDialog(); // 假设这个方法用于弹出用户选择框
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    if (count == 1 && before == 0) {
+                        char insertedChar = s.charAt(start);
+                        if (insertedChar == '@') {
+                            SLogs.d("DocsCommentsActivity", "@ character detected. Showing user selector...");
+                            showRelateUserDialog();
+                        }
                     }
                 }
-            }
 
-            @Override
-            public void afterTextChanged(Editable s) {
+                @Override
+                public void afterTextChanged(Editable s) {
 
-            }
-        });
+                }
+            });
+        } else {
+            binding.bottomSheetContainer.setVisibility(View.GONE);
+        }
+
 //
 //        binding.richEditText.setOnRichAtListener(new OnRichAtListener() {
 //            @Override
@@ -387,7 +394,8 @@ public class DocsCommentsActivity extends BaseMediaSelectorActivity<DocsCommentV
         builder.show();
     }
 
-    private final HashMap<String,UserModel> toNotifyUserMap = new HashMap<>();
+    private final HashMap<String, UserModel> toNotifyUserMap = new HashMap<>();
+
     private void showRelateUserDialog() {
         RelatedUserBottomSheetDialogFragment fragment = new RelatedUserBottomSheetDialogFragment();
         fragment.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener<UserModel>() {
@@ -396,7 +404,7 @@ public class DocsCommentsActivity extends BaseMediaSelectorActivity<DocsCommentV
                 UserModel userModel = baseQuickAdapter.getItems().get(i);
                 binding.richEditText.addText(userModel.getName() + " ");
 
-                toNotifyUserMap.put(userModel.getEmail(),userModel);
+                toNotifyUserMap.put(userModel.getEmail(), userModel);
             }
         });
         fragment.show(getSupportFragmentManager(), RelatedUserBottomSheetDialogFragment.class.getName());

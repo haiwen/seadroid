@@ -1,6 +1,7 @@
 package com.seafile.seadroid2.ui.sdoc;
 
 import android.text.TextUtils;
+import android.util.Pair;
 
 import androidx.lifecycle.MutableLiveData;
 
@@ -9,6 +10,9 @@ import com.blankj.utilcode.util.CollectionUtils;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.framework.db.AppDatabase;
+import com.seafile.seadroid2.framework.db.entities.PermissionEntity;
+import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.model.sdoc.FileDetailModel;
 import com.seafile.seadroid2.framework.model.sdoc.FileProfileConfigModel;
@@ -59,6 +63,51 @@ public class SDocViewModel extends BaseViewModel {
     public MutableLiveData<List<OutlineItemModel>> getSdocElementLiveData() {
         return _sdocElementListLiveData;
     }
+
+
+    public void getRepoModelAndPermissionEntity(String repoId, Consumer<Pair<RepoModel, PermissionEntity>> consumer) {
+        Single<Pair<RepoModel, PermissionEntity>> r = getSingleForLoadRepoModelAndAllPermission(repoId);
+        addSingleDisposable(r, new Consumer<Pair<RepoModel, PermissionEntity>>() {
+            @Override
+            public void accept(Pair<RepoModel, PermissionEntity> pair) throws Exception {
+                if (consumer != null) {
+                    consumer.accept(pair);
+                }
+            }
+        });
+    }
+
+    /**
+     * get the repoModel and repoMode‘s PermissionEntity from local, if not exist, get from remote.
+     */
+    private Single<Pair<RepoModel, PermissionEntity>> getSingleForLoadRepoModelAndAllPermission(String repoId) {
+        Single<List<RepoModel>> repoSingle = AppDatabase.getInstance().repoDao().getRepoById(repoId);
+        return repoSingle.flatMap(new io.reactivex.functions.Function<List<RepoModel>, SingleSource<Pair<RepoModel, PermissionEntity>>>() {
+            @Override
+            public SingleSource<Pair<RepoModel, PermissionEntity>> apply(List<RepoModel> repoModels) throws Exception {
+                if (CollectionUtils.isEmpty(repoModels)) {
+                    return Single.just(new Pair<>(null, null));
+                }
+
+                RepoModel repoModel = repoModels.get(0);
+                if (!repoModel.isCustomPermission()) {
+                    return Single.just(new Pair<>(repoModel, new PermissionEntity(repoId, repoModel.permission)));
+                }
+
+                Single<List<PermissionEntity>> pSingle = AppDatabase.getInstance().permissionDAO().getByRepoAndIdAsync(repoId, repoModel.getCustomPermissionNum());
+                return pSingle.flatMap((io.reactivex.functions.Function<List<PermissionEntity>, SingleSource<Pair<RepoModel, PermissionEntity>>>) pList -> {
+                    //no data in local db
+                    if (CollectionUtils.isEmpty(pList)) {
+                        return Single.just(new Pair<>(repoModel, new PermissionEntity(repoModel.repo_id, "r")));
+                    }
+
+                    //get first permission
+                    return Single.just(new Pair<>(repoModel, pList.get(0)));
+                });
+            }
+        });
+    }
+
 
     public void loadFileDetail(String repoId, String path) {
         getSecondRefreshLiveData().setValue(true);

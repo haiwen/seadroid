@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
+import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -52,6 +53,8 @@ import com.seafile.seadroid2.databinding.LayoutSdocBottomBarBinding;
 import com.seafile.seadroid2.databinding.LayoutSdocEditorBarBinding;
 import com.seafile.seadroid2.databinding.ToolbarActionbarProgressBarBinding;
 import com.seafile.seadroid2.enums.TextTypeEnum;
+import com.seafile.seadroid2.framework.db.entities.PermissionEntity;
+import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.model.WebRouteModel;
 import com.seafile.seadroid2.framework.model.sdoc.FileProfileConfigModel;
 import com.seafile.seadroid2.framework.model.sdoc.OutlineItemModel;
@@ -59,6 +62,7 @@ import com.seafile.seadroid2.framework.model.sdoc.SDocPageOptionsModel;
 import com.seafile.seadroid2.framework.model.sdoc.TextTypeModel;
 import com.seafile.seadroid2.framework.model.sdoc.UndoRedoModel;
 import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.util.SafeLogs;
 import com.seafile.seadroid2.framework.util.StringUtils;
 import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.listener.Callback;
@@ -83,6 +87,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
     private LayoutSdocEditorBarBinding editorBarBinding;
     private SeaWebView mWebView;
     private String repoId, repoName, path, fileName, targetUrl;
+    private PermissionEntity repoPermission;
 
     private SDocPageOptionsModel pageOptionsData;
 
@@ -150,6 +155,27 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
             //let's go
             mWebView.load(targetUrl);
         }
+
+        checkRepoAndPermission();
+    }
+
+    private void checkRepoAndPermission() {
+        getViewModel().getRepoModelAndPermissionEntity(repoId, new io.reactivex.functions.Consumer<Pair<RepoModel, PermissionEntity>>() {
+            @Override
+            public void accept(Pair<RepoModel, PermissionEntity> pair) throws Exception {
+                if (pair == null || pair.first == null) {
+                    SafeLogs.e(TAG, "RepoModel is null");
+                    return;
+                }
+
+                SLogs.d(TAG, "checkRepoAndPermission()", pair.first.repo_name, pair.second.name);
+
+                repoPermission = pair.second;
+
+                //refresh toolbar menu
+                invalidateOptionsMenu();
+            }
+        });
     }
 
     public void applyEdgeToEdge() {
@@ -468,7 +494,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
                 editorBarBinding.editorTextStyle.setText(getString(R.string.font_style_heading6));
             }
 
-            editorBarBinding.editorTextStyleContainer.setChecked(true);
+//            editorBarBinding.editorTextStyleContainer.setChecked(true);
 
         } else if (TextUtils.equals(TextTypeEnum.unordered_list.name(), selectedTextTypeModel.type)) {
             editorBarBinding.editorUnorderedListContainer.setChecked(true);
@@ -504,7 +530,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         editorBarBinding.editorCheckboxContainer.setChecked(false);
         editorBarBinding.editorOrderedListContainer.setChecked(false);
         editorBarBinding.editorUnorderedListContainer.setChecked(false);
-        editorBarBinding.editorTextStyleContainer.setChecked(false);
+//        editorBarBinding.editorTextStyleContainer.setChecked(false);
 
         int t = ContextCompat.getColor(this, R.color.light_black);
         ColorStateList stateList = ColorStateList.valueOf(t);
@@ -716,21 +742,28 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_sdoc_preview, menu);
-        editMenuItem = menu.findItem(R.id.sdoc_edit);
-        editMenuItem.setVisible(true);
-        if (!isPageLoaded) {
-            editMenuItem.setEnabled(false);
+        if (repoPermission != null && repoPermission.modify) {
+
+            // Inflate the menu; this adds items to the action bar if it is present.
+            getMenuInflater().inflate(R.menu.menu_sdoc_preview, menu);
+            editMenuItem = menu.findItem(R.id.sdoc_edit);
+            editMenuItem.setVisible(true);
+            if (!isPageLoaded) {
+                editMenuItem.setEnabled(false);
+            }
         }
+
+
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.sdoc_edit) {
-            callJsSdocEditorEditable();
-            return true;
+        if (repoPermission != null && repoPermission.modify) {
+            if (item.getItemId() == R.id.sdoc_edit) {
+                callJsSdocEditorEditable();
+                return true;
+            }
         }
         return super.onOptionsItemSelected(item);
     }
@@ -865,7 +898,9 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         readSDocPageOptionsData(new Consumer<SDocPageOptionsModel>() {
             @Override
             public void accept(SDocPageOptionsModel model) {
-                DocsCommentsActivity.start(SDocWebViewActivity.this, model);
+                if (repoPermission != null) {
+                    DocsCommentsActivity.start(SDocWebViewActivity.this, model, repoPermission.modify);
+                }
             }
         });
     }

@@ -131,10 +131,11 @@ public class NavContext {
         navStack.push(repoModel);
 
         Stack<DirentModel> stack = new Stack<>();
-        String[] slash = full_path.split("/");
-//        boolean isDir = full_path.endsWith("/");
+        if (TextUtils.equals("/",full_path)){
 
-        if (slash.length > 1) {
+        }else{
+            String[] slash = full_path.split("/");
+
             StringBuilder stringBuilder = new StringBuilder();
             for (String s : slash) {
                 if (TextUtils.isEmpty(s)) {
@@ -142,6 +143,7 @@ public class NavContext {
                 }
 
                 stringBuilder.append("/").append(s);
+
                 DirentModel dm = new DirentModel();
                 dm.name = s;
                 dm.repo_id = repoModel.repo_id;
@@ -152,6 +154,7 @@ public class NavContext {
                 stack.push(dm);
             }
         }
+
 
         for (DirentModel model : stack) {
             navStack.push(model);

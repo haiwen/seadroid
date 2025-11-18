@@ -8,6 +8,7 @@ import com.drew.metadata.xmp.XmpDirectory;
 import com.seafile.seadroid2.annotation.Todo;
 import com.seafile.seadroid2.annotation.Unstable;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -16,284 +17,146 @@ import java.io.RandomAccessFile;
 @Unstable
 public final class MotionPhotoParser {
 
-    /**
-     * 解析结果
-     */
-    public static class Result {
-        public boolean isMotionPhoto;       // 是否包含视频（成功定位）
-        public long videoStartOffset = -1;  // 视频起点（>=0 时有效）
-        public Type type = Type.PURE_IMAGE; // 类型
+    public static final class Result {
+        public final boolean isMotionPhoto;
+        public final long presentationTimestampUs;
+        public final long videoStartOffset;
+        public final long videoLength;
 
-        public enum Type {
-            STANDARD_XMP,       // XMP 标准格式
-            NON_STANDARD_FTYP,  // 通过 ftyp 定位
-            NO_VIDEO_FOUND,     // 存在 MotionPhoto 字段但无法定位 offset
-            PURE_IMAGE          // 普通图片
-        }
-
-        @Override
-        public String toString() {
-            return "Result{" +
-                    "isMotionPhoto=" + isMotionPhoto +
-                    ", videoStartOffset=" + videoStartOffset +
-                    ", type=" + type +
-                    '}';
+        public Result(boolean isMotionPhoto, long pts, long start, long length) {
+            this.isMotionPhoto = isMotionPhoto;
+            this.presentationTimestampUs = pts;
+            this.videoStartOffset = start;
+            this.videoLength = length;
         }
     }
 
+    // ============================
+    // Public API
+    // ============================
 
-    public Result parse(File jpeg) {
-        Result result = new Result();
-
-        // 1. XMP
-        Long offset = parseXmpOffset(jpeg);
-        if (offset != null && offset > 0 && offset < jpeg.length()) {
-            result.isMotionPhoto = true;
-            result.videoStartOffset = jpeg.length() - offset;
-            result.type = Result.Type.STANDARD_XMP;
-            return result;
+    public static Result parse(File jpegFile) throws IOException {
+        try (RandomAccessFile raf = new RandomAccessFile(jpegFile, "r")) {
+            byte[] bytes = new byte[(int) raf.length()];
+            raf.readFully(bytes);
+            return parse(bytes);
         }
-
-        // 2. ftyp fallback
-        long ftypPos = searchFtypOffset(jpeg);
-        if (ftypPos > 0 && ftypPos < jpeg.length()) {
-            result.isMotionPhoto = true;
-            result.videoStartOffset = ftypPos;
-            result.type = Result.Type.NON_STANDARD_FTYP;
-            return result;
-        }
-
-        // 3. 判断是否存在 MotionPhoto 字段但 offset 缺失
-        if (hasMotionPhotoTag(jpeg)) {
-            result.isMotionPhoto = false;
-            result.videoStartOffset = -1;
-            result.type = Result.Type.NO_VIDEO_FOUND;
-            return result;
-        }
-
-        // 4. 完全普通 JPEG
-        result.isMotionPhoto = false;
-        result.videoStartOffset = -1;
-        result.type = Result.Type.PURE_IMAGE;
-        return result;
     }
 
-    // ===== XMP 解析部分 =====
+    public static Result parse(byte[] jpegBytes) {
+        XMPMeta xmp = extractXmp(jpegBytes);
+        boolean isMotion = isMotionPhoto(xmp);
+        if (!isMotion) {
+            return new Result(false, 0, -1, -1);
+        }
 
-    private static final String[] XMP_OFFSET_KEYS = new String[]{
-            "GCamera:MicroVideoOffset",
-            "Camera:MicroVideoOffset",
-            "MicroVideoOffset",
-            "Container:MicroVideoOffset"
-    };
+        long pts = readLongSafe(xmp, "http://ns.google.com/photos/1.0/camera/", "MotionPhotoPresentationTimestampUs");
 
-    private static final String[] XMP_MOTION_FLAG_KEYS = new String[]{
-            "GCamera:MotionPhotoVersion", // 优先
-            "GCamera:MotionPhoto",
-            "Camera:MotionPhoto",
-            "MotionPhoto"
-    };
+        // Step A: 从 Container 结构中获取视频长度
+        Long containerVideoLength = parseContainerVideoLength(xmp);
 
-    private static final String[] XMP_MOTION_VIDEO_KEYS = new String[]{
-            "GCamera:MotionPhotoVideo", // 有些实现把视频信息放这里
-            "GCamera:MicroVideo",       // 也有厂商使用此字段作为标记
-            "MicroVideo"
-    };
+        if (containerVideoLength != null) {
+            long videoLength = containerVideoLength;
+            long videoStart = jpegBytes.length - videoLength;
+            if (videoStart < 0) {
+                videoStart = fallbackLocateVideo(jpegBytes);
+                videoLength = jpegBytes.length - videoStart;
+            }
+            return new Result(true, pts, videoStart, videoLength);
+        }
 
-    private Long parseXmpOffset(File file) {
+        // Step B: fallback → 直接扫描 ftyp box
+        long start = fallbackLocateVideo(jpegBytes);
+        long length = jpegBytes.length - start;
+        return new Result(true, pts, start, length);
+    }
+
+    // ============================
+    // XMP 相关
+    // ============================
+
+    private static XMPMeta extractXmp(byte[] jpegBytes) {
         try {
-            Metadata metadata = ImageMetadataReader.readMetadata(file);
-            XmpDirectory xmpDir = metadata.getFirstDirectoryOfType(XmpDirectory.class);
-            if (xmpDir == null) return null;
-            XMPMeta meta = xmpDir.getXMPMeta();
-            if (meta == null) return null;
-
-            // 先判断这个 JPEG 是否声明为 Motion Photo ---
-            boolean declaredMotionPhoto = false;
-            for (String key : XMP_MOTION_FLAG_KEYS) {
-                if (meta.doesPropertyExist(null, key)) {
-                    // 可能是整数、布尔或字符串 "1"/"true"
-                    try {
-                        // 尝试读整数
-                        Integer v = meta.getPropertyInteger(null, key);
-                        if (v != null && v.intValue() == 1) {
-                            declaredMotionPhoto = true;
-                            break;
-                        }
-                    } catch (Exception ignored) { /* not integer */ }
-
-                    try {
-                        // 尝试读 boolean
-                        Boolean b = meta.getPropertyBoolean(null, key);
-                        if (b != null && b) {
-                            declaredMotionPhoto = true;
-                            break;
-                        }
-                    } catch (Exception ignored) { /* not boolean */ }
-
-                    try {
-                        // 最后尝试字符串形式
-                        String s = meta.getPropertyString(null, key);
-                        if (s != null) {
-                            s = s.trim();
-                            if ("1".equals(s) || "true".equalsIgnoreCase(s)) {
-                                declaredMotionPhoto = true;
-                                break;
-                            }
-                        }
-                    } catch (Exception ignored) { /* not string */ }
-                }
+            Metadata metadata = ImageMetadataReader.readMetadata(new ByteArrayInputStream(jpegBytes));
+            XmpDirectory dir = metadata.getFirstDirectoryOfType(XmpDirectory.class);
+            if (dir != null) {
+                return dir.getXMPMeta();
             }
-
-            if (!declaredMotionPhoto) {
-                // 如果没有声明为 Motion Photo，直接返回 null（不是 MotionPhoto）
-                return null;
-            }
-
-            // 确认为 Motion Photo：尝试读取 offset 字段（优先 XMP_OFFSET_KEYS） ---
-            for (String key : XMP_OFFSET_KEYS) {
-                try {
-                    if (meta.doesPropertyExist(null, key)) {
-                        // offset 常见为整数
-                        Integer iv = meta.getPropertyInteger(null, key);
-                        if (iv != null) {
-                            long offset = iv.longValue();
-                            if (offset > 0) return offset;
-                        } else {
-                            // 有时候是字符串的数字
-                            String s = meta.getPropertyString(null, key);
-                            if (s != null) {
-                                s = s.trim();
-                                try {
-                                    long parsed = Long.parseLong(s);
-                                    if (parsed > 0) return parsed;
-                                } catch (NumberFormatException ignored) {
-                                }
-                            }
-                        }
-                    }
-                } catch (XMPException ignore) {
-                }
-            }
-
-            // 若没有直接的 offset 字段，检查 GCamera:MotionPhotoVideo 或其他视频标记字段 ---
-            for (String key : XMP_MOTION_VIDEO_KEYS) {
-                if (meta.doesPropertyExist(null, key)) {
-                    // 有些实现把一个结构体或字符串放在这里，尝试解析内含的 offset 字段名
-                    // 先尝试直接读可能存在的数字属性（兼容性尝试）
-                    try {
-                        Integer iv = meta.getPropertyInteger(null, key);
-                        if (iv != null && iv.longValue() > 0) return iv.longValue();
-                    } catch (Exception ignored) {
-                    }
-
-                    try {
-                        String s = meta.getPropertyString(null, key);
-                        if (s != null) {
-                            // 常见可能是 JSON-like 或 "offset=12345" 等，尝试提取数字
-                            s = s.trim();
-                            // 快速正则提取第一组连续数字
-                            java.util.regex.Matcher m = java.util.regex.Pattern.compile("(\\d{3,})").matcher(s);
-                            if (m.find()) {
-                                String num = m.group(1);
-                                try {
-                                    long parsed = Long.parseLong(num);
-                                    if (parsed > 0) return parsed;
-                                } catch (NumberFormatException ignored) {
-                                }
-                            }
-                        }
-                    } catch (Exception ignored) {
-                    }
-                }
-            }
-
         } catch (Exception ignore) {
-            // 保持鲁棒性：任何异常视为未解析到 offset
         }
         return null;
     }
 
-    /**
-     * 判断是否存在 MotionPhoto 标记（用于区分 "NO_VIDEO_FOUND" 与 "PURE_IMAGE"）。
-     * 逻辑：如果存在 MotionPhoto 标记（version 或 flag），返回 true。
-     */
-    private boolean hasMotionPhotoTag(File file) {
+    private static boolean isMotionPhoto(XMPMeta xmp) {
+        if (xmp == null) return false;
         try {
-            Metadata metadata = ImageMetadataReader.readMetadata(file);
-            XmpDirectory xmpDir = metadata.getFirstDirectoryOfType(XmpDirectory.class);
-            if (xmpDir == null) return false;
-            XMPMeta meta = xmpDir.getXMPMeta();
-            if (meta == null) return false;
-
-            for (String key : XMP_MOTION_FLAG_KEYS) {
-                if (meta.doesPropertyExist(null, key)) {
-                    // 只要有字段存在且值为 1/true/非空字符串，即视为存在 MotionPhoto 标记
-                    try {
-                        Integer v = meta.getPropertyInteger(null, key);
-                        if (v != null && v.intValue() == 1) return true;
-                    } catch (Exception ignored) {
-                    }
-
-                    try {
-                        Boolean b = meta.getPropertyBoolean(null, key);
-                        if (b != null && b) return true;
-                    } catch (Exception ignored) {
-                    }
-
-                    try {
-                        String s = meta.getPropertyString(null, key);
-                        if (s != null) {
-                            s = s.trim();
-                            if (!s.isEmpty() && ("1".equals(s) || "true".equalsIgnoreCase(s) || s.matches("\\d+"))) {
-                                return true;
-                            }
-                        }
-                    } catch (Exception ignored) {
-                    }
-
-                    // 如果字段存在但不是明确的 true/1，也认为存在标记（部分厂商只写字段名）
-                    return true;
-                }
-            }
-        } catch (Exception ignore) {
+            String v = xmp.getPropertyString("http://ns.google.com/photos/1.0/camera/", "MotionPhoto");
+            return "1".equals(v);
+        } catch (XMPException e) {
+            return false;
         }
-        return false;
     }
 
-    // ===== ftyp fallback 搜索 =====
-
     /**
-     * 在文件尾部扫描 ftyp box，定位 MP4 的起始位置。
-     * 典型情况下视频尾部拼接，不需要扫描整个文件。
+     * 解析：
+     * <Container:Directory><rdf:Seq><rdf:li><Container:Item Item:Mime="video/mp4" Item:Semantic="MotionPhoto" Item:Length="XYZ" />
      */
-    private long searchFtypOffset(File file) {
-        final int SEARCH_MB = 4; // 扫描尾部 4MB
-        final int SEARCH_SIZE = SEARCH_MB * 1024 * 1024;
+    private static Long parseContainerVideoLength(XMPMeta xmp) {
+        if (xmp == null) return null;
 
-        long fileLen = file.length();
-        long scanStart = Math.max(0, fileLen - SEARCH_SIZE);
+        try {
+            final String nsContainer = "http://ns.google.com/photos/1.0/container/";
+            final String nsItem = "http://ns.google.com/photos/1.0/container/item/";
 
-        byte[] target = new byte[]{'f', 't', 'y', 'p'};
+            int seqSize = xmp.countArrayItems(nsContainer, "Directory");
+            if (seqSize <= 0) return null;
 
-        try (RandomAccessFile raf = new RandomAccessFile(file, "r")) {
-            long total = fileLen - scanStart;
-            if (total <= 0 || total > Integer.MAX_VALUE) return -1;
+            for (int i = 1; i <= seqSize; i++) {
+                String basePath = String.format("Directory[%d]", i);
 
-            byte[] buffer = new byte[(int) total];
-            raf.seek(scanStart);
-            raf.readFully(buffer);
+                String semantic = xmp.getPropertyString(nsItem,  "Semantic");
+                String mime = xmp.getPropertyString(nsItem,  "Item:Mime");
 
-            for (int i = 0; i < buffer.length - 4; i++) {
-                if (buffer[i] == target[0] &&
-                        buffer[i + 1] == target[1] &&
-                        buffer[i + 2] == target[2] &&
-                        buffer[i + 3] == target[3]) {
-                    return scanStart + i;
+                if ("MotionPhoto".equals(semantic) && "video/mp4".equals(mime)) {
+                    String lenStr = xmp.getPropertyString(nsItem, basePath + "/Item:Length");
+                    if (lenStr != null) {
+                        try {
+                            return Long.parseLong(lenStr);
+                        } catch (NumberFormatException ignore) {
+                        }
+                    }
                 }
             }
-        } catch (IOException ignore) {
+        } catch (XMPException ignore) {
         }
-        return -1;
+
+        return null;
+    }
+
+    private static long readLongSafe(XMPMeta meta, String ns, String name) {
+        if (meta == null) return 0;
+        try {
+            String v = meta.getPropertyString(ns, name);
+            return v != null ? Long.parseLong(v) : 0;
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
+    // ============================
+    // Fallback：ftyp 扫描
+    // ============================
+
+    private static long fallbackLocateVideo(byte[] jpegBytes) {
+        byte[] target = new byte[]{'f', 't', 'y', 'p'};
+        for (int i = jpegBytes.length - 4; i >= 0; i--) {
+            if (jpegBytes[i] == target[0] &&
+                    jpegBytes[i + 1] == target[1] &&
+                    jpegBytes[i + 2] == target[2] &&
+                    jpegBytes[i + 3] == target[3]) {
+                return i - 4; // MP4 box header size field
+            }
+        }
+        throw new IllegalStateException("Cannot locate ftyp box, unsupported MotionPhoto structure");
     }
 }

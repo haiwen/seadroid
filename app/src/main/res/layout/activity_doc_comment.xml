@@ -39,18 +39,8 @@
             android:layout_height="1dp"
             app:dividerColor="@color/divider_color" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_user_list"
-            android:layout_width="match_parent"
-            android:layout_height="42dp"
-            android:clipToPadding="false"
-            android:paddingVertical="8dp"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:visibility="gone"
-            tools:listitem="@layout/item_user_avatar" />
-
         <LinearLayout
+            android:id="@+id/submit_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/bar_background_color"

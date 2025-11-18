@@ -236,10 +236,7 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
             switchAlbumBackupState(mAlbumBackupSwitch.isChecked());
             switchFolderBackupState(mFolderBackupSwitch.isChecked());
 
-            //
-            boolean isTurnOn = Settings.BACKUP_SETTINGS_BACKGROUND_SWITCH.queryValue();
-            mBackgroundBackupSwitch.setChecked(isTurnOn);
-
+            updateBackgroundBackupSwitch();
         });
 
     }
@@ -600,11 +597,7 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
                 if (PermissionUtil.hasNotGrantNotificationPermission(requireContext())) {
                     PermissionUtil.requestNotificationPermission(requireActivity());
                 } else {
-                    if (aBoolean) {
-                        BusHelper.getCommonObserver().post(BusAction.START_FOREGROUND_FILE_MONITOR);
-                    } else {
-                        BusHelper.getCommonObserver().post(BusAction.STOP_FOREGROUND_FILE_MONITOR);
-                    }
+                    updateBackgroundBackupService(aBoolean);
                 }
 
             }
@@ -994,6 +987,10 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
                 mAlbumBackupAdvancedSelectedBucket.setSummaryTextColor(color);
             }
         }
+
+
+        //
+        updateBackgroundBackupSwitch();
     }
 
     private void launchAlbumBackupWhenReady(boolean isForce) {
@@ -1022,6 +1019,9 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
 
             CameraUploadManager.getInstance().disableCameraUpload();
         }
+
+        //
+        updateBackgroundBackupSwitch();
     }
 
     private void switchFolderBackupState(boolean isEnable) {
@@ -1079,6 +1079,9 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
         } else {
             mFolderBackupSelectFolder.setSummary(String.valueOf(pathList.size()));
         }
+
+
+        updateBackgroundBackupSwitch();
     }
 
     private void launchFolderBackupWhenReady(boolean isFullScan) {
@@ -1106,8 +1109,43 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
 
             BackupThreadExecutor.getInstance().stopFolderBackup();
         }
+
+        //
+        updateBackgroundBackupSwitch();
     }
 
+    private void updateBackgroundBackupSwitch() {
+        boolean isFolderTurnOn = FolderBackupSharePreferenceHelper.readBackupSwitch();
+        boolean isAlbumTurnOn = AlbumBackupSharePreferenceHelper.readBackupSwitch();
+        if (!isFolderTurnOn && !isAlbumTurnOn) {
+            Settings.BACKUP_SETTINGS_BACKGROUND_SWITCH.putValue(false);
+            updateBackgroundBackupService(false);
+            mBackgroundBackupSwitch.setChecked(false);
+            mBackgroundBackupSwitch.setEnabled(false);
+            return;
+        }
+
+        boolean folderEnable = FolderBackupSharePreferenceHelper.isFolderBackupEnable();
+        boolean albumEnable = AlbumBackupSharePreferenceHelper.isAlbumBackupEnable();
+        if (folderEnable || albumEnable) {
+            mBackgroundBackupSwitch.setEnabled(true);
+
+            //
+            boolean isTurnOn = Settings.BACKUP_SETTINGS_BACKGROUND_SWITCH.queryValue();
+            mBackgroundBackupSwitch.setChecked(isTurnOn);
+            updateBackgroundBackupService(isTurnOn);
+        } else {
+            mBackgroundBackupSwitch.setEnabled(false);
+        }
+    }
+
+    private void updateBackgroundBackupService(boolean isTurnOnOrTurnOff){
+        if (isTurnOnOrTurnOff) {
+            BusHelper.getCommonObserver().post(BusAction.START_FOREGROUND_FILE_MONITOR);
+        } else {
+            BusHelper.getCommonObserver().post(BusAction.STOP_FOREGROUND_FILE_MONITOR);
+        }
+    }
     private void runMainThreadDelay(Runnable runnable) {
         if (viewHandler != null) {
             viewHandler.postDelayed(runnable, 500);

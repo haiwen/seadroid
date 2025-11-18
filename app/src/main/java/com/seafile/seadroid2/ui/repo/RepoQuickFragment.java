@@ -298,7 +298,6 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 } else {
                     searchView.setQueryHint(getString(R.string.search_menu_item));
                 }
-
                 searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                     @Override
                     public boolean onQueryTextSubmit(String query) {
@@ -319,7 +318,19 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
                 searchMenuItem.collapseActionView();
                 searchMenuItem.setActionView(searchView);
-                searchMenuItem.setOnActionExpandListener(new MenuItemOnActionExpandListener(menu));
+                searchMenuItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
+                    @Override
+                    public boolean onMenuItemActionExpand(@NonNull MenuItem item) {
+                        onMenuItemExpand(menu, item);
+                        return true;
+                    }
+
+                    @Override
+                    public boolean onMenuItemActionCollapse(@NonNull MenuItem item) {
+                        onMenuItemCollapse(menu, item);
+                        return true;
+                    }
+                });
             } else if (!serverInfoOp.get().isProEdition()) {
                 if (GlobalNavContext.getCurrentNavContext().inRepo()) {
                     final SearchView searchView = new SearchView(requireContext());
@@ -346,7 +357,19 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                     searchMenuItem.setVisible(true);
                     searchMenuItem.collapseActionView();
                     searchMenuItem.setActionView(searchView);
-                    searchMenuItem.setOnActionExpandListener(new MenuItemOnActionExpandListener(menu));
+                    searchMenuItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
+                        @Override
+                        public boolean onMenuItemActionExpand(@NonNull MenuItem item) {
+                            onMenuItemExpand(menu, item);
+                            return true;
+                        }
+
+                        @Override
+                        public boolean onMenuItemActionCollapse(@NonNull MenuItem item) {
+                            onMenuItemCollapse(menu, item);
+                            return true;
+                        }
+                    });
                 } else {
                     searchMenuItem.setVisible(false);
                     searchMenuItem.collapseActionView();
@@ -405,6 +428,38 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             return true;
         }
     };
+
+    public void onMenuItemExpand(Menu menu, MenuItem item) {
+        binding.stickyContainer.setVisibility(View.GONE);
+
+        // Save the state of Menu
+        menuIdState.put("search", menu.findItem(R.id.menu_action_search).isVisible());
+        menuIdState.put("sortGroup", menu.findItem(R.id.menu_action_sort).isVisible());
+        menuIdState.put("createRepo", menu.findItem(R.id.create_repo).isVisible());
+        menuIdState.put("add", menu.findItem(R.id.add).isVisible());
+        menuIdState.put("select", menu.findItem(R.id.select).isVisible());
+
+        // hide other menu items
+        menu.findItem(R.id.menu_action_search).setVisible(false);
+        menu.findItem(R.id.menu_action_sort).setVisible(false);
+        menu.findItem(R.id.create_repo).setVisible(false);
+        menu.findItem(R.id.add).setVisible(false);
+        menu.findItem(R.id.select).setVisible(false);
+
+        adapter.notifySearchDataChanged(true, null);
+    }
+
+    public void onMenuItemCollapse(Menu menu, MenuItem item) {
+        binding.stickyContainer.setVisibility(View.VISIBLE);
+
+        menu.findItem(R.id.menu_action_search).setVisible(Boolean.TRUE.equals(menuIdState.get("search")));
+        menu.findItem(R.id.menu_action_sort).setVisible(Boolean.TRUE.equals(menuIdState.get("sortGroup")));
+        menu.findItem(R.id.create_repo).setVisible(Boolean.TRUE.equals(menuIdState.get("createRepo")));
+        menu.findItem(R.id.add).setVisible(Boolean.TRUE.equals(menuIdState.get("add")));
+        menu.findItem(R.id.select).setVisible(Boolean.TRUE.equals(menuIdState.get("select")));
+
+        adapter.notifySearchDataChanged(false, null);
+    }
 
     /**
      * @return 0: is pro edition, 1: is search enable
@@ -949,33 +1004,30 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     }
 
     private void search(String keyword, boolean isPro) {
-        if (!TextUtils.isEmpty(keyword)) {
-            //hide sticky view
-            binding.stickyContainer.setVisibility(View.GONE);
+        if (TextUtils.isEmpty(keyword)) {
+            return;
+        }
 
-            if (GlobalNavContext.getCurrentNavContext().inRepo()) {
-                RepoModel repoModel = GlobalNavContext.getCurrentNavContext().getRepoModel();
-                if (repoModel == null) {
-                    Toasts.show(R.string.op_unable_to_with_exception);
-                    return;
-                }
+        //hide sticky view
+        binding.stickyContainer.setVisibility(View.GONE);
 
-                String repoId = repoModel.repo_id;
-                String repoName = repoModel.repo_name;
-                getViewModel().searchNext(repoId, repoName, keyword, isPro, 1, 20);
-            } else {
-                getViewModel().searchNext(null, null, keyword, isPro, 1, 20);
+        if (GlobalNavContext.getCurrentNavContext().inRepo()) {
+            RepoModel repoModel = GlobalNavContext.getCurrentNavContext().getRepoModel();
+            if (repoModel == null) {
+                Toasts.show(R.string.op_unable_to_with_exception);
+                return;
             }
-        } else {
-            //show sticky view
-            binding.stickyContainer.setVisibility(View.VISIBLE);
 
-            adapter.notifySearchDataChanged(null, false);
+            String repoId = repoModel.repo_id;
+            String repoName = repoModel.repo_name;
+            getViewModel().searchNext(repoId, repoName, keyword, isPro, 1, 20);
+        } else {
+            getViewModel().searchNext(null, null, keyword, isPro, 1, 20);
         }
     }
 
-    private void notifySearchData(List<SearchModel> searchModels) {
-        adapter.notifySearchDataChanged(searchModels, true);
+    private void notifySearchData(List<SearchModel> results) {
+        adapter.notifySearchDataChanged(true, results);
     }
 
     private void showEmptyView() {

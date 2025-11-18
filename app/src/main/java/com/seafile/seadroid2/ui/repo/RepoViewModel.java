@@ -402,7 +402,7 @@ public class RepoViewModel extends BaseViewModel {
                 getObjListLiveData().setValue(results);
 
                 if (isLoadRemoteData && NetworkUtils.isConnected()) {
-                    loadDirentsFromRemote(account, navContext);
+//                    loadDirentsFromRemote(account, navContext);
                 } else {
                     getShowEmptyViewLiveData().setValue(CollectionUtils.isEmpty(results));
                 }
@@ -550,7 +550,7 @@ public class RepoViewModel extends BaseViewModel {
      */
     private Single<Pair<RepoModel, PermissionEntity>> getSingleForLoadRepoModelAndAllPermission(String repoId) {
         Single<List<RepoModel>> repoSingle = AppDatabase.getInstance().repoDao().getRepoById(repoId);
-        return repoSingle.flatMap(new Function<List<RepoModel>, SingleSource<Pair<RepoModel, PermissionEntity>>>() {
+        return repoSingle.flatMap(new io.reactivex.functions.Function<List<RepoModel>, SingleSource<Pair<RepoModel, PermissionEntity>>>() {
             @Override
             public SingleSource<Pair<RepoModel, PermissionEntity>> apply(List<RepoModel> repoModels) throws Exception {
                 if (CollectionUtils.isEmpty(repoModels)) {
@@ -558,35 +558,19 @@ public class RepoViewModel extends BaseViewModel {
                 }
 
                 RepoModel repoModel = repoModels.get(0);
-                if (repoModel.isCustomPermission()) {
-                    return Single.just(new Pair<>(repoModel, new PermissionEntity()));
+                if (!repoModel.isCustomPermission()) {
+                    return Single.just(new Pair<>(repoModel, new PermissionEntity(repoId, repoModel.permission)));
                 }
 
-                return Single.just(new Pair<>(repoModel, new PermissionEntity(repoId, repoModel.permission)));
-
-            }
-        }).flatMap(new Function<Pair<RepoModel, PermissionEntity>, SingleSource<Pair<RepoModel, PermissionEntity>>>() {
-            @Override
-            public SingleSource<Pair<RepoModel, PermissionEntity>> apply(Pair<RepoModel, PermissionEntity> pair) throws Exception {
-
-                if (pair.first == null) {
-                    return Single.error(SeafException.NOT_FOUND_EXCEPTION);
-                }
-
-                if (pair.second.isValid()) {
-                    return Single.just(pair);
-                }
-
-                RepoModel repoModel = pair.first;
                 Single<List<PermissionEntity>> pSingle = AppDatabase.getInstance().permissionDAO().getByRepoAndIdAsync(repoId, repoModel.getCustomPermissionNum());
-                return pSingle.flatMap((Function<List<PermissionEntity>, SingleSource<Pair<RepoModel, PermissionEntity>>>) pList -> {
+                return pSingle.flatMap((io.reactivex.functions.Function<List<PermissionEntity>, SingleSource<Pair<RepoModel, PermissionEntity>>>) pList -> {
                     //no data in local db
                     if (CollectionUtils.isEmpty(pList)) {
-                        return Single.just(new Pair<>(pair.first, new PermissionEntity()));
+                        return Single.just(new Pair<>(repoModel, new PermissionEntity(repoModel.repo_id, "r")));
                     }
 
                     //get first permission
-                    return Single.just(new Pair<>(pair.first, pList.get(0)));
+                    return Single.just(new Pair<>(repoModel, pList.get(0)));
                 });
             }
         });

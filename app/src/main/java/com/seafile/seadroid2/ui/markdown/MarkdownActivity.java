@@ -7,12 +7,15 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.text.TextUtils;
+import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.FileProvider;
 
@@ -21,7 +24,10 @@ import com.blankj.utilcode.util.NetworkUtils;
 import com.seafile.seadroid2.BuildConfig;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.databinding.ActivityMarkdownBinding;
+import com.seafile.seadroid2.framework.db.entities.PermissionEntity;
+import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.util.FileMimeUtils;
+import com.seafile.seadroid2.framework.util.SafeLogs;
 import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
 import com.seafile.seadroid2.ui.editor.EditorActivity;
@@ -37,10 +43,12 @@ import io.reactivex.functions.Consumer;
  * For showing markdown files
  */
 public class MarkdownActivity extends BaseActivityWithVM<EditorViewModel> implements Toolbar.OnMenuItemClickListener {
-
+    private final String TAG = "MarkdownActivity";
     private ActivityMarkdownBinding binding;
     private String path, repoId, fullPathInRemote;
     private boolean isMarkdown;
+    private PermissionEntity repoPermission;
+
 
     public static void start(Context context, String localPath, String repoId, String target_file) {
         Intent starter = new Intent(context, MarkdownActivity.class);
@@ -98,6 +106,8 @@ public class MarkdownActivity extends BaseActivityWithVM<EditorViewModel> implem
         if (!NetworkUtils.isConnected()) {
             Toasts.show(R.string.network_unavailable);
         }
+
+        load();
     }
 
     private void initMarkdown() {
@@ -116,9 +126,23 @@ public class MarkdownActivity extends BaseActivityWithVM<EditorViewModel> implem
         binding.markdownView.addStyleSheet(css);
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
+
+    private void load() {
+        getViewModel().getRepoModelAndPermissionEntity(repoId, new Consumer<Pair<RepoModel, PermissionEntity>>() {
+            @Override
+            public void accept(Pair<RepoModel, PermissionEntity> pair) throws Exception {
+                if (pair == null || pair.first == null) {
+                    SafeLogs.e(TAG, "RepoModel is null");
+                    return;
+                }
+
+                repoPermission = pair.second;
+
+                //refresh toolbar menu
+                invalidateOptionsMenu();
+            }
+        });
+
 
         loadMarkContent();
     }
@@ -144,8 +168,11 @@ public class MarkdownActivity extends BaseActivityWithVM<EditorViewModel> implem
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getActionBarToolbar().inflateMenu(R.menu.markdown_view_menu);
-        return true;
+        if (repoPermission != null && repoPermission.modify) {
+            getActionBarToolbar().inflateMenu(R.menu.markdown_view_menu);
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -167,6 +194,11 @@ public class MarkdownActivity extends BaseActivityWithVM<EditorViewModel> implem
     }
 
     private void edit() {
+        if (repoPermission == null || !repoPermission.modify) {
+            Toasts.show(R.string.share_link_no_permission);
+            return;
+        }
+
         PackageManager pm = getPackageManager();
 
         // First try to find an activity who can handle markdown edit
