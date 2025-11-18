@@ -1,5 +1,6 @@
 package com.seafile.seadroid2.ui.search;
 
+import com.seafile.seadroid2.framework.model.search.SearchFileWrapperModel;
 import com.seafile.seadroid2.framework.model.search.SearchWrapperModel;
 
 import java.util.Map;
@@ -23,12 +24,8 @@ public interface SearchService {
 
     //search-file
     @GET("api/v2.1/search-file")
-    Single<SearchWrapperModel> searchFile(@Query("search_repo") String repoId,
-                                      @Query("q") String q,
-                                      @Query("search_type") String searchType,
-                                      @Query("page") int pageNo,
-                                      @Query("per_page") int pageSize
-    );
+    Single<SearchFileWrapperModel> searchFile(@Query("repo_id") String repoId,
+                                              @Query("q") String q);
 
     @POST("api/v2.1/ai/search/")
     Single<SearchWrapperModel> search(@Body Map<String, String> m);

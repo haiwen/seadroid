@@ -29,6 +29,8 @@ import com.seafile.seadroid2.framework.model.ResultModel;
 import com.seafile.seadroid2.framework.model.dirents.CachedDirentModel;
 import com.seafile.seadroid2.framework.model.dirents.DirentRecursiveFileModel;
 import com.seafile.seadroid2.framework.model.repo.Dirent2Model;
+import com.seafile.seadroid2.framework.model.search.SearchFileModel;
+import com.seafile.seadroid2.framework.model.search.SearchFileWrapperModel;
 import com.seafile.seadroid2.framework.model.search.SearchModel;
 import com.seafile.seadroid2.framework.model.search.SearchWrapperModel;
 import com.seafile.seadroid2.framework.service.BackupThreadExecutor;
@@ -675,7 +677,15 @@ public class RepoViewModel extends BaseViewModel {
         return mListLiveData;
     }
 
-    public void searchNext(String repoId, String q, boolean isPro, int pageNo, int pageSize) {
+    public void searchNext(String repoId, String repoName, String q, boolean isPro, int pageNo, int pageSize) {
+        if (isPro) {
+            searchPro(repoId, q, pageNo, pageSize);
+        } else {
+            searchCE(repoId, repoName, q);
+        }
+    }
+
+    public void searchPro(String repoId, String q, int pageNo, int pageSize) {
         if (TextUtils.isEmpty(q)) {
             return;
         }
@@ -684,12 +694,7 @@ public class RepoViewModel extends BaseViewModel {
 
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
         String typeOrRepoId = TextUtils.isEmpty(repoId) ? "all" : repoId;
-        Single<SearchWrapperModel> single;
-        if (isPro) {
-            single = HttpIO.getCurrentInstance().execute(SearchService.class).search(typeOrRepoId, q, "all", pageNo, pageSize);
-        } else {
-            single = HttpIO.getCurrentInstance().execute(SearchService.class).searchFile(typeOrRepoId, q, "all", pageNo, pageSize);
-        }
+        Single<SearchWrapperModel> single = HttpIO.getCurrentInstance().execute(SearchService.class).search(typeOrRepoId, q, "all", pageNo, pageSize);
 
         addSingleDisposable(single, new Consumer<SearchWrapperModel>() {
             @Override
@@ -730,6 +735,63 @@ public class RepoViewModel extends BaseViewModel {
         });
     }
 
+    public void searchCE(String repoId, String repoName, String q) {
+        if (TextUtils.isEmpty(q)) {
+            return;
+        }
+
+        getRefreshLiveData().setValue(true);
+
+        Account account = SupportAccountManager.getInstance().getCurrentAccount();
+        Single<SearchFileWrapperModel> single = HttpIO.getCurrentInstance().execute(SearchService.class).searchFile(repoId, q);
+
+        addSingleDisposable(single, new Consumer<SearchFileWrapperModel>() {
+            @Override
+            public void accept(SearchFileWrapperModel wrapperModel) throws Exception {
+
+                if (wrapperModel == null || wrapperModel.data == null) {
+                    getSearchListLiveData().setValue(CollectionUtils.newArrayList());
+                    getRefreshLiveData().setValue(false);
+                    return;
+                }
+
+                List<SearchFileModel> results = wrapperModel.data;
+
+                List<SearchModel> ret = new ArrayList<>();
+                for (SearchFileModel result : results) {
+                    SearchModel searchModel = new SearchModel();
+                    searchModel.related_account = account.getSignature();
+                    searchModel.fullpath = result.path;
+                    searchModel.size = result.size;
+                    searchModel.is_dir = TextUtils.equals(result.type, "folder");
+                    searchModel.name = Utils.getFileNameFromPath(result.path);
+                    searchModel.repo_id = repoId;
+                    searchModel.repo_name = repoName;
+                    ret.add(searchModel);
+                }
+
+                //calculate item_position
+                if (CollectionUtils.isEmpty(results)) {
+
+                } else if (results.size() == 1) {
+                    results.get(0).item_position = ItemPositionEnum.ALL;
+                } else {
+                    results.get(0).item_position = ItemPositionEnum.START;
+                    results.get(results.size() - 1).item_position = ItemPositionEnum.END;
+                }
+
+                getSearchListLiveData().setValue(ret);
+                getRefreshLiveData().setValue(false);
+            }
+        }, new Consumer<Throwable>() {
+            @Override
+            public void accept(Throwable throwable) throws Exception {
+                getSeafExceptionLiveData().setValue(getSeafExceptionByThrowable(throwable));
+
+                getRefreshLiveData().setValue(false);
+            }
+        });
+    }
 
     /// download
     public void preDownload(Context context, Account account, List<String> ids) {

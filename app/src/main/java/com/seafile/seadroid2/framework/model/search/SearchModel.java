@@ -35,7 +35,7 @@ public class SearchModel extends BaseModel implements Parcelable {
     public long size;    // size of file, 0 if type is dir
 
 
-    private SearchModel() {
+    public SearchModel() {
         super();
         checkable = false;
     }
@@ -60,6 +60,10 @@ public class SearchModel extends BaseModel implements Parcelable {
 //    }
 
     public String getSubtitle() {
+        if (TextUtils.isEmpty(repo_name)) {
+            return fullpath;
+        }
+
         String p = Utils.getPathFromFullPath(fullpath);
         return repo_name + p;
     }
@@ -97,6 +101,7 @@ public class SearchModel extends BaseModel implements Parcelable {
         d.full_path = model.fullpath;
         d.type = model.is_dir ? "dir" : "file";
 
+        d.related_account = model.related_account;
         d.name = Utils.getFileNameFromPath(model.fullpath);
         d.repo_id = model.repo_id;
         d.repo_name = model.repo_name;

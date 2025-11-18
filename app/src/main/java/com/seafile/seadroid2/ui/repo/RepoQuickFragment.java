@@ -960,10 +960,11 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                     return;
                 }
 
-                String repo_id = repoModel.repo_id;
-                getViewModel().searchNext(repo_id, keyword, isPro, 1, 20);
+                String repoId = repoModel.repo_id;
+                String repoName = repoModel.repo_name;
+                getViewModel().searchNext(repoId, repoName, keyword, isPro, 1, 20);
             } else {
-                getViewModel().searchNext(null, keyword, isPro, 1, 20);
+                getViewModel().searchNext(null, null, keyword, isPro, 1, 20);
             }
         } else {
             //show sticky view
