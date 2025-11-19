@@ -45,10 +45,10 @@ public class SettingsFragmentViewModel extends BaseViewModel {
     public void getAccountInfo() {
         getRefreshLiveData().setValue(true);
 
-        Single<ServerInfoModel> single1 = HttpIO.getCurrentInstance().execute(MainService.class).getServerInfo();
-        Single<AccountInfo> single2 = HttpIO.getCurrentInstance().execute(AccountService.class).getAccountInfo();
+        Single<ServerInfoModel> serverInfoSingle = HttpIO.getCurrentInstance().execute(MainService.class).getServerInfo();
+        Single<AccountInfo> accountInfoSingle = HttpIO.getCurrentInstance().execute(AccountService.class).getAccountInfo();
 
-        Single<AccountInfo> single = Single.zip(single1, single2, new BiFunction<ServerInfoModel, AccountInfo, AccountInfo>() {
+        Single<AccountInfo> single = Single.zip(serverInfoSingle, accountInfoSingle, new BiFunction<ServerInfoModel, AccountInfo, AccountInfo>() {
             @Override
             public AccountInfo apply(ServerInfoModel serverInfoModel, AccountInfo accountInfo) throws Exception {
 

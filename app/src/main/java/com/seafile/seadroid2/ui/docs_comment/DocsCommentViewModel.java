@@ -19,14 +19,18 @@ import com.seafile.seadroid2.framework.model.docs_comment.DocsCommentModel;
 import com.seafile.seadroid2.framework.model.docs_comment.DocsCommentsWrapperModel;
 import com.seafile.seadroid2.framework.model.sdoc.SDocPageOptionsModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
+import com.seafile.seadroid2.framework.model.user.UserModel;
+import com.seafile.seadroid2.framework.model.user.UserWrapperModel;
 import com.seafile.seadroid2.framework.util.ContentResolvers;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.StringUtils;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.baseviewmodel.BaseViewModel;
 import com.seafile.seadroid2.ui.sdoc.DocsCommentService;
+import com.seafile.seadroid2.ui.sdoc.SDocService;
 import com.seafile.seadroid2.view.rich_edittext.RichEditText;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -47,6 +51,15 @@ public class DocsCommentViewModel extends BaseViewModel {
 
     private final MutableLiveData<DocsCommentsWrapperModel> _fileCommentLiveData = new MutableLiveData<>();
     private final MutableLiveData<Boolean> _postCommentLiveData = new MutableLiveData<>();
+    private final MutableLiveData<List<UserModel>> _relatedUsersLiveData = new MutableLiveData<>();
+
+    public void setRelatedUsers(List<UserModel> users) {
+        _relatedUsersLiveData.setValue(users);
+    }
+
+    public MutableLiveData<List<UserModel>> getRelatedUsersLiveData() {
+        return _relatedUsersLiveData;
+    }
 
     public MutableLiveData<Boolean> getPostCommentLiveData() {
         return _postCommentLiveData;
@@ -54,6 +67,16 @@ public class DocsCommentViewModel extends BaseViewModel {
 
     public MutableLiveData<DocsCommentsWrapperModel> getSdocCommentLiveData() {
         return _fileCommentLiveData;
+    }
+
+    public void getRelatedUsers(String repoId) {
+        Single<UserWrapperModel> userSingle = HttpIO.getCurrentInstance().execute(SDocService.class).getRelatedUsers(repoId);
+        addSingleDisposable(userSingle, new Consumer<UserWrapperModel>() {
+            @Override
+            public void accept(UserWrapperModel userWrapperModel) throws Exception {
+                setRelatedUsers(userWrapperModel.user_list);
+            }
+        });
     }
 
     public void loadDocComments(SDocPageOptionsModel pageOptionsModel) {
@@ -319,8 +342,9 @@ public class DocsCommentViewModel extends BaseViewModel {
     }
 
 
-    public void postComment(SDocPageOptionsModel pageOptionsModel, String comment, String elementId) {
+    public void postComment(SDocPageOptionsModel pageOptionsModel, String comment) {
         getRefreshLiveData().setValue(true);
+
         String sdocServerUrl = pageOptionsModel.seadocServerUrl;
         if (TextUtils.isEmpty(sdocServerUrl)) {
             getRefreshLiveData().setValue(false);

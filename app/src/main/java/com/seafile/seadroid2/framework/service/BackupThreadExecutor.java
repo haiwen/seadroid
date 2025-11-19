@@ -232,10 +232,10 @@ public class BackupThreadExecutor {
             return;
         }
 
-        if (BackgroundJobManagerImpl.getInstance().getAlbumModuleRunning()) {
-            SafeLogs.e(TAG, "album backup worker is running, please wait");
-            return;
-        }
+//        if (BackgroundJobManagerImpl.getInstance().getAlbumModuleRunning()) {
+//            SafeLogs.e(TAG, "album backup worker is running, please wait");
+//            return;
+//        }
 
         albumBackupFuture = runTask(new Runnable() {
             @Override
@@ -306,10 +306,10 @@ public class BackupThreadExecutor {
             return;
         }
 
-        if (BackgroundJobManagerImpl.getInstance().getFolderModuleRunning()) {
-            SafeLogs.e(TAG, "folder backup worker is running, please wait");
-            return;
-        }
+//        if (BackgroundJobManagerImpl.getInstance().getFolderModuleRunning()) {
+//            SafeLogs.e(TAG, "folder backup worker is running, please wait");
+//            return;
+//        }
 
         folderBackupFuture = runTask(new Runnable() {
             @Override

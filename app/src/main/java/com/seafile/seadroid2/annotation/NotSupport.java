@@ -8,7 +8,7 @@ import static java.lang.annotation.ElementType.TYPE;
 import java.lang.annotation.Target;
 
 /**
- * There are no plans to develop this feature.
+ * There are no plans to develop this feature at the moment.
  */
 @Target({TYPE, METHOD, CONSTRUCTOR, FIELD})
 public @interface NotSupport {

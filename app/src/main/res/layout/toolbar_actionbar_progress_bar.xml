@@ -16,7 +16,16 @@
         style="@style/App.Widget.ToolBarStyle"
         android:layout_width="match_parent"
         android:layout_height="?actionBarSize"
-        app:contentInsetStartWithNavigation="0dp" />
+        app:contentInsetStartWithNavigation="0dp">
+
+        <TextView
+            android:id="@+id/sdoc_status_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="4dp"
+            android:textColor="@color/light_grey"
+            android:textSize="12sp" />
+    </com.google.android.material.appbar.MaterialToolbar>
 
     <ProgressBar
         android:id="@+id/tool_progress_bar"

@@ -245,6 +245,25 @@
     </com.seafile.seadroid2.widget.prefs.CardPreferenceCategory>
 
     <com.seafile.seadroid2.widget.prefs.CardPreferenceCategory
+        android:title="@string/backup_settings_title"
+        app:allowDividerAbove="false"
+        app:allowDividerBelow="false"
+        app:iconSpaceReserved="false">
+
+        <com.seafile.seadroid2.widget.prefs.TextSwitchPreference
+            android:defaultValue="false"
+            android:key="@string/pref_key_backup_settings_turn_on_background_switch"
+            android:summaryOff="@string/turn_off"
+            android:summaryOn="@string/turn_on"
+            android:title="@string/backup_settings_background_backup_title"
+            app:backgroundColor="@color/pref_background_color"
+            app:dividerColor="@color/pref_divider_color"
+            app:dividerPosition="none"
+            app:iconSpaceReserved="false"
+            app:radiusPosition="all" />
+
+    </com.seafile.seadroid2.widget.prefs.CardPreferenceCategory>
+    <com.seafile.seadroid2.widget.prefs.CardPreferenceCategory
         android:title="@string/settings_transfer_title"
         app:allowDividerAbove="false"
         app:allowDividerBelow="false"

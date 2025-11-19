@@ -29,6 +29,8 @@ import com.seafile.seadroid2.framework.model.ResultModel;
 import com.seafile.seadroid2.framework.model.dirents.CachedDirentModel;
 import com.seafile.seadroid2.framework.model.dirents.DirentRecursiveFileModel;
 import com.seafile.seadroid2.framework.model.repo.Dirent2Model;
+import com.seafile.seadroid2.framework.model.search.SearchFileModel;
+import com.seafile.seadroid2.framework.model.search.SearchFileWrapperModel;
 import com.seafile.seadroid2.framework.model.search.SearchModel;
 import com.seafile.seadroid2.framework.model.search.SearchWrapperModel;
 import com.seafile.seadroid2.framework.service.BackupThreadExecutor;
@@ -400,7 +402,7 @@ public class RepoViewModel extends BaseViewModel {
                 getObjListLiveData().setValue(results);
 
                 if (isLoadRemoteData && NetworkUtils.isConnected()) {
-                    loadDirentsFromRemote(account, navContext);
+//                    loadDirentsFromRemote(account, navContext);
                 } else {
                     getShowEmptyViewLiveData().setValue(CollectionUtils.isEmpty(results));
                 }
@@ -548,7 +550,7 @@ public class RepoViewModel extends BaseViewModel {
      */
     private Single<Pair<RepoModel, PermissionEntity>> getSingleForLoadRepoModelAndAllPermission(String repoId) {
         Single<List<RepoModel>> repoSingle = AppDatabase.getInstance().repoDao().getRepoById(repoId);
-        return repoSingle.flatMap(new Function<List<RepoModel>, SingleSource<Pair<RepoModel, PermissionEntity>>>() {
+        return repoSingle.flatMap(new io.reactivex.functions.Function<List<RepoModel>, SingleSource<Pair<RepoModel, PermissionEntity>>>() {
             @Override
             public SingleSource<Pair<RepoModel, PermissionEntity>> apply(List<RepoModel> repoModels) throws Exception {
                 if (CollectionUtils.isEmpty(repoModels)) {
@@ -556,35 +558,19 @@ public class RepoViewModel extends BaseViewModel {
                 }
 
                 RepoModel repoModel = repoModels.get(0);
-                if (repoModel.isCustomPermission()) {
-                    return Single.just(new Pair<>(repoModel, new PermissionEntity()));
+                if (!repoModel.isCustomPermission()) {
+                    return Single.just(new Pair<>(repoModel, new PermissionEntity(repoId, repoModel.permission)));
                 }
 
-                return Single.just(new Pair<>(repoModel, new PermissionEntity(repoId, repoModel.permission)));
-
-            }
-        }).flatMap(new Function<Pair<RepoModel, PermissionEntity>, SingleSource<Pair<RepoModel, PermissionEntity>>>() {
-            @Override
-            public SingleSource<Pair<RepoModel, PermissionEntity>> apply(Pair<RepoModel, PermissionEntity> pair) throws Exception {
-
-                if (pair.first == null) {
-                    return Single.error(SeafException.NOT_FOUND_EXCEPTION);
-                }
-
-                if (pair.second.isValid()) {
-                    return Single.just(pair);
-                }
-
-                RepoModel repoModel = pair.first;
                 Single<List<PermissionEntity>> pSingle = AppDatabase.getInstance().permissionDAO().getByRepoAndIdAsync(repoId, repoModel.getCustomPermissionNum());
-                return pSingle.flatMap((Function<List<PermissionEntity>, SingleSource<Pair<RepoModel, PermissionEntity>>>) pList -> {
+                return pSingle.flatMap((io.reactivex.functions.Function<List<PermissionEntity>, SingleSource<Pair<RepoModel, PermissionEntity>>>) pList -> {
                     //no data in local db
                     if (CollectionUtils.isEmpty(pList)) {
-                        return Single.just(new Pair<>(pair.first, new PermissionEntity()));
+                        return Single.just(new Pair<>(repoModel, new PermissionEntity(repoModel.repo_id, "r")));
                     }
 
                     //get first permission
-                    return Single.just(new Pair<>(pair.first, pList.get(0)));
+                    return Single.just(new Pair<>(repoModel, pList.get(0)));
                 });
             }
         });
@@ -675,7 +661,15 @@ public class RepoViewModel extends BaseViewModel {
         return mListLiveData;
     }
 
-    public void searchNext(String repoId, String q, int pageNo, int pageSize) {
+    public void searchNext(String repoId, String repoName, String q, boolean isPro, int pageNo, int pageSize) {
+        if (isPro) {
+            searchPro(repoId, q, pageNo, pageSize);
+        } else {
+            searchCE(repoId, repoName, q);
+        }
+    }
+
+    public void searchPro(String repoId, String q, int pageNo, int pageSize) {
         if (TextUtils.isEmpty(q)) {
             return;
         }
@@ -683,8 +677,9 @@ public class RepoViewModel extends BaseViewModel {
         getRefreshLiveData().setValue(true);
 
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
-        String repo = TextUtils.isEmpty(repoId) ? "all" : repoId;
-        Single<SearchWrapperModel> single = HttpIO.getCurrentInstance().execute(SearchService.class).search(repo, q, "all", pageNo, pageSize);
+        String typeOrRepoId = TextUtils.isEmpty(repoId) ? "all" : repoId;
+        Single<SearchWrapperModel> single = HttpIO.getCurrentInstance().execute(SearchService.class).search(typeOrRepoId, q, "all", pageNo, pageSize);
+
         addSingleDisposable(single, new Consumer<SearchWrapperModel>() {
             @Override
             public void accept(SearchWrapperModel searchWrapperModel) throws Exception {
@@ -724,6 +719,63 @@ public class RepoViewModel extends BaseViewModel {
         });
     }
 
+    public void searchCE(String repoId, String repoName, String q) {
+        if (TextUtils.isEmpty(q)) {
+            return;
+        }
+
+        getRefreshLiveData().setValue(true);
+
+        Account account = SupportAccountManager.getInstance().getCurrentAccount();
+        Single<SearchFileWrapperModel> single = HttpIO.getCurrentInstance().execute(SearchService.class).searchFile(repoId, q);
+
+        addSingleDisposable(single, new Consumer<SearchFileWrapperModel>() {
+            @Override
+            public void accept(SearchFileWrapperModel wrapperModel) throws Exception {
+
+                if (wrapperModel == null || wrapperModel.data == null) {
+                    getSearchListLiveData().setValue(CollectionUtils.newArrayList());
+                    getRefreshLiveData().setValue(false);
+                    return;
+                }
+
+                List<SearchFileModel> results = wrapperModel.data;
+
+                List<SearchModel> ret = new ArrayList<>();
+                for (SearchFileModel result : results) {
+                    SearchModel searchModel = new SearchModel();
+                    searchModel.related_account = account.getSignature();
+                    searchModel.fullpath = result.path;
+                    searchModel.size = result.size;
+                    searchModel.is_dir = TextUtils.equals(result.type, "folder");
+                    searchModel.name = Utils.getFileNameFromPath(result.path);
+                    searchModel.repo_id = repoId;
+                    searchModel.repo_name = repoName;
+                    ret.add(searchModel);
+                }
+
+                //calculate item_position
+                if (CollectionUtils.isEmpty(results)) {
+
+                } else if (results.size() == 1) {
+                    results.get(0).item_position = ItemPositionEnum.ALL;
+                } else {
+                    results.get(0).item_position = ItemPositionEnum.START;
+                    results.get(results.size() - 1).item_position = ItemPositionEnum.END;
+                }
+
+                getSearchListLiveData().setValue(ret);
+                getRefreshLiveData().setValue(false);
+            }
+        }, new Consumer<Throwable>() {
+            @Override
+            public void accept(Throwable throwable) throws Exception {
+                getSeafExceptionLiveData().setValue(getSeafExceptionByThrowable(throwable));
+
+                getRefreshLiveData().setValue(false);
+            }
+        });
+    }
 
     /// download
     public void preDownload(Context context, Account account, List<String> ids) {

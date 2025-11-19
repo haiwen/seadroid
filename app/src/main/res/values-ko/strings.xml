@@ -216,6 +216,7 @@
     <item>사진 백업</item>
   </string-array>
   <string name="navigate_to_directory">디렉터리 탐색</string>
+  <string name="navigate_up">위로 탐색</string>
   <string name="no_starred_file">별표 표시한 파일이 없습니다</string>
   <string name="added_to_upload_tasks">업로드를 시작했습니다</string>
   <string name="added_photo_to_upload_tasks">사진 업로드를 시작했습니다</string>
@@ -272,6 +273,9 @@
   <string name="copied_successfully">복사에 성공했습니다</string>
   <string name="moved_successfully">이동을 성공했습니다</string>
   <string name="internal_server_error">내부 서버 오류</string>
+  <string name="current_library">현재 도서관</string>
+  <string name="other_libraries">다른 도서관</string>
+  <string name="recently_used">최근 사용</string>
   <string name="copy_file_ing">파일 복사 중</string>
   <string name="move_file_ing">파일 이동 중</string>
   <string name="copy_file_from">%1$s에서 \n %2$s(으)로 복사중</string>

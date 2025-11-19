@@ -10,7 +10,6 @@ import android.net.http.SslCertificate;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.LocaleList;
-import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.text.TextUtils;
@@ -20,7 +19,6 @@ import android.view.View;
 import android.webkit.MimeTypeMap;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import com.seafile.seadroid2.BuildConfig;
 import com.seafile.seadroid2.R;
@@ -28,7 +26,6 @@ import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.annotation.NotSupport;
 import com.seafile.seadroid2.config.Constants;
 
-import org.apache.commons.io.FileUtils;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
@@ -222,18 +219,70 @@ public class Utils {
     }
 
     public static boolean isTextFile(File file) {
-        if (file != null) {
-            String fileName = file.getName();
-            if (!TextUtils.isEmpty(fileName)) {
-                String suffix = fileName.substring(fileName.lastIndexOf('.') + 1).toLowerCase();
-                if (!TextUtils.isEmpty(suffix)) {
-                    String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(suffix);
-                    if (!TextUtils.isEmpty(mime)) {
-                        return mime.contains("text/") || FileMimeUtils.isOfficeOrTextFile(mime);
-                    }
-                }
-            }
+        if (file == null) {
+            return false;
         }
+
+        String fileName = file.getName();
+        if (TextUtils.isEmpty(fileName)) {
+            return false;
+        }
+
+        String suffix = fileName.substring(fileName.lastIndexOf('.') + 1).toLowerCase();
+        if (TextUtils.isEmpty(suffix)) {
+            return false;
+        }
+
+        String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(suffix);
+        if (TextUtils.isEmpty(mime)) {
+            return false;
+        }
+
+        if (mime.contains("text/")) {
+            return true;
+        }
+
+        if (FileMimeUtils.isOfficeOrTextFile(mime)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public static boolean isOnlyOfficeFile(String name) {
+        if (TextUtils.isEmpty(name)) {
+            return false;
+        }
+
+        name = name.toLowerCase();
+        if (name.endsWith(Constants.FileExtensions.DOT_DRAW)) {
+            return true;
+        }
+        if (name.endsWith(Constants.FileExtensions.DOT_EXDRAW)) {
+            return true;
+        }
+        if (name.endsWith(Constants.FileExtensions.DOT_DOC)) {
+            return true;
+        }
+        if (name.endsWith(Constants.FileExtensions.DOT_DOCX)) {
+            return true;
+        }
+        if (name.endsWith(Constants.FileExtensions.DOT_XLS)) {
+            return true;
+        }
+        if (name.endsWith(Constants.FileExtensions.DOT_XLSX)) {
+            return true;
+        }
+        if (name.endsWith(Constants.FileExtensions.DOT_PPT)) {
+            return true;
+        }
+        if (name.endsWith(Constants.FileExtensions.DOT_PPTX)) {
+            return true;
+        }
+        if (name.endsWith(Constants.FileExtensions.DOT_PPSX)) {
+            return true;
+        }
+
         return false;
     }
 

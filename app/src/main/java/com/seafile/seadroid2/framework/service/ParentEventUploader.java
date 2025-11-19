@@ -53,7 +53,7 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 
 public abstract class ParentEventUploader extends ParentEventTransfer {
-    private final String TAG = "Front-Thread-Uploader";//ParentEventUploader
+    private final String TAG = "Foreground-Thread-Uploader";//ParentEventUploader
 
     public ParentEventUploader(Context context, ITransferNotification n) {
         super(context, n);
@@ -280,7 +280,8 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
 
         // log Content-Type
         SafeLogs.d(TAG, "upload content-Type: " + requestBody.contentType());
-        SafeLogs.d(TAG, "start upload, url: " + uploadUrl);
+        SafeLogs.d(TAG, "upload url: " + uploadUrl);
+        SafeLogs.d(TAG, "upload headers: " + request.headers());
 
         newCall = getPrimaryHttpClient(account).newCall(request);
 

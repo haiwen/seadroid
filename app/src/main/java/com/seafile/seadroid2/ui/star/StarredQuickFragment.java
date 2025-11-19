@@ -36,6 +36,7 @@ import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.db.entities.StarredModel;
 import com.seafile.seadroid2.framework.model.ResultModel;
+import com.seafile.seadroid2.framework.model.ServerInfo;
 import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.ui.WidgetUtils;
@@ -51,11 +52,11 @@ import com.seafile.seadroid2.ui.main.MainViewModel;
 import com.seafile.seadroid2.ui.markdown.MarkdownActivity;
 import com.seafile.seadroid2.ui.media.image.CarouselImagePreviewActivity;
 import com.seafile.seadroid2.ui.media.player.CustomExoVideoPlayerActivity;
+import com.seafile.seadroid2.ui.office_doc.OfficeDocumentWebActivity;
 import com.seafile.seadroid2.ui.sdoc.SDocWebViewActivity;
 import com.seafile.seadroid2.view.TipsViews;
 
 import java.io.File;
-import java.util.Collections;
 import java.util.List;
 
 import io.reactivex.functions.Consumer;
@@ -294,6 +295,12 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
 
     @OptIn(markerClass = UnstableApi.class)
     private void open(StarredModel model) {
+        Account account = SupportAccountManager.getInstance().getCurrentAccount();
+        if (account == null){
+            return;
+        }
+        ServerInfo serverInfo = SupportAccountManager.getInstance().getServerInfo(account);
+
         if (model.is_dir) {
             MainActivity.navToThis(requireContext(), model.repo_id, model.repo_name, model.path, model.is_dir);
 
@@ -301,11 +308,11 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
             Intent getIntent = CarouselImagePreviewActivity.startThisFromStarred(requireContext(), model);
             imagePreviewActivityLauncher.launch(getIntent);
 
-        } else if (model.obj_name.endsWith(Constants.Format.DOT_SDOC)) {
+        } else if (model.obj_name.endsWith(Constants.FileExtensions.DOT_SDOC)) {
             SDocWebViewActivity.openSdoc(getContext(), model.repo_name, model.repo_id, model.path, model.obj_name);
 
-        } else if (model.obj_name.endsWith(Constants.Format.DOT_DRAW) || model.obj_name.endsWith(Constants.Format.DOT_EXDRAW)) {
-            SDocWebViewActivity.openDraw(getContext(), model.repo_name, model.repo_id, model.path, model.obj_name);
+        } else if (Utils.isOnlyOfficeFile(model.obj_name) && serverInfo.isEnableOnlyOffice()) {
+            OfficeDocumentWebActivity.openDocument(getContext(), model.repo_name, model.repo_id, model.path, model.obj_name);
 
         } else if (Utils.isVideoFile(model.obj_name)) {
             checkRemoteAndFileCache(model, new Consumer<File>() {

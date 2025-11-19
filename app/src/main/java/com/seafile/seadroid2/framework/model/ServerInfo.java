@@ -71,6 +71,10 @@ public class ServerInfo implements Parcelable {
         return features != null && features.contains("seafile-pro");
     }
 
+    public boolean isEnableOnlyOffice() {
+        return features != null && features.contains("onlyoffice");
+    }
+
     public boolean isSearchEnabled() {
         return features != null && features.contains("file-search");
     }

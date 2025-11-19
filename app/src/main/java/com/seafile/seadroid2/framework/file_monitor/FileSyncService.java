@@ -25,7 +25,6 @@ import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
 import com.seafile.seadroid2.framework.service.BackupThreadExecutor;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Utils;
-import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
@@ -70,19 +69,6 @@ public class FileSyncService extends Service {
     private final String TEMP_FILE_DIR = StorageManager.getInstance().getTempDir().getAbsolutePath();
 
     private final Handler mainThreadHandler = new Handler(Looper.getMainLooper());
-    private FileChangeListener fileChangeListener;
-
-    public void setFileChangeListener(FileChangeListener fileChangeListener) {
-        this.fileChangeListener = fileChangeListener;
-    }
-
-    public interface FileChangeListener {
-        void onLocalFileChanged(File fileToScan); // 或者传递更具体的事件对象
-
-        void onBackupFileChanged(File fileToScan); // 或者传递更具体的事件对象
-
-        void onMediaContentObserver(boolean isFullScan);
-    }
 
     /**
      * TODO: Multiple cache directories
@@ -111,6 +97,19 @@ public class FileSyncService extends Service {
     }
 
     @Override
+    public void onCreate() {
+        super.onCreate();
+
+        initIgnorePath();
+
+        registerMediaContentObserver();
+
+        startWorkers();
+
+        compareFirstAndStartMonitor();
+    }
+
+    @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         return START_STICKY;
     }
@@ -121,7 +120,7 @@ public class FileSyncService extends Service {
         return mBinder;
     }
 
-    private final IBinder mBinder = new FileSyncService.FileSyncBinder(this);
+    private final IBinder mBinder = new FileSyncService.FileSyncBinder(this);;
 
     public static class FileSyncBinder extends Binder {
         private final WeakReference<FileSyncService> serviceRef;
@@ -135,18 +134,7 @@ public class FileSyncService extends Service {
         }
     }
 
-    @Override
-    public void onCreate() {
-        super.onCreate();
 
-        initIgnorePath();
-
-        registerMediaContentObserver();
-
-        startWorkers();
-
-        compareFirstAndStartMonitor();
-    }
 
     /**
      * main thread executor
@@ -173,6 +161,7 @@ public class FileSyncService extends Service {
             if (CollectionUtils.isEmpty(cacheList)) {
                 return;
             }
+
             SLogs.d(TAG, "scanLocalCacheFile: cacheList size is " + cacheList.size());
 
             for (FileCacheStatusEntity entity : cacheList) {
@@ -215,9 +204,7 @@ public class FileSyncService extends Service {
             @Override
             public void onMediaContentObserver(boolean isFullScan) {
                 SLogs.d(TAG, "onMediaContentObserver", "isFullScan: " + isFullScan);
-                if (fileChangeListener != null) {
-                    fileChangeListener.onMediaContentObserver(isFullScan);
-                }
+                CameraUploadManager.getInstance().performSync(isFullScan);
             }
         });
         mediaContentObserver.register();
@@ -226,16 +213,10 @@ public class FileSyncService extends Service {
     private void startWorkers() {
         if (AlbumBackupSharePreferenceHelper.isAlbumBackupEnable()) {
             CameraUploadManager.getInstance().performSync();
-
-            // Of course, a periodic worker can also be started here
-            BackgroundJobManagerImpl.getInstance().scheduleAlbumBackupPeriodicScan(getApplicationContext());
         }
 
         if (FolderBackupSharePreferenceHelper.isFolderBackupEnable()) {
             BackupThreadExecutor.getInstance().runFolderBackupFuture(true);
-
-            //start periodic folder backup scan worker
-            BackgroundJobManagerImpl.getInstance().scheduleFolderBackupPeriodicScan(getApplicationContext());
         }
     }
 
@@ -269,7 +250,8 @@ public class FileSyncService extends Service {
             try {
                 fileMonitor.stop();
             } catch (Exception e) {
-                SLogs.w("FileSyncService", e);
+                SLogs.d(TAG, e.getMessage());
+                SLogs.e(e);
             } finally {
                 fileMonitor = null;
             }
@@ -341,25 +323,25 @@ public class FileSyncService extends Service {
             if ("change".equals(action)) {
                 onAppCacheFileChanged(file);
 
-                // We don't know if an app is visible to users, so we can't start a foreground service directly
-                if (fileChangeListener != null) {
-                    mainThreadHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            fileChangeListener.onLocalFileChanged(file);
-                        }
-                    });
-                }
-            }
-        } else {
-            if (fileChangeListener != null) {
                 mainThreadHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                        fileChangeListener.onBackupFileChanged(file);
+                        SLogs.d(TAG, "onLocalFileChanged", file.getAbsolutePath());
+                        BackupThreadExecutor.getInstance().runLocalFileUpdateTask();
                     }
                 });
+
             }
+        } else {
+
+            mainThreadHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    SLogs.d(TAG, "onBackupFileChanged", file.getAbsolutePath());
+                    BackupThreadExecutor.getInstance().runFolderBackupFuture(true);
+                }
+            });
+
         }
     }
 
@@ -451,5 +433,4 @@ public class FileSyncService extends Service {
             mediaContentObserver = null;
         }
     }
-
 }

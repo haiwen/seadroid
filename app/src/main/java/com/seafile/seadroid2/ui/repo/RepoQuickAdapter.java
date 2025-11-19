@@ -773,20 +773,22 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
     private final List<BaseModel> cacheLastList = new ArrayList<>();
     private boolean isCachedLastList = false;
 
-    public void notifySearchDataChanged(List<SearchModel> searchlist, boolean isSearching) {
-        if (!isCachedLastList && isSearching) {
-            isCachedLastList = true;
-            cacheLastList.clear();
-            cacheLastList.addAll(getItems());
-        }
+    public void notifySearchDataChanged(boolean isDisplaySearchResults, List<SearchModel> searchlist) {
 
-        if (isSearching) {
+        if (isDisplaySearchResults) {
+            if (!isCachedLastList) {
+                isCachedLastList = true;
+                cacheLastList.clear();
+                cacheLastList.addAll(getItems());
+            }
+
             submitList(null);
             submitList(searchlist);
         } else {
             if (!isCachedLastList) {
                 return;
             }
+
             isCachedLastList = false;
             submitList(new ArrayList<>(cacheLastList));
             cacheLastList.clear();

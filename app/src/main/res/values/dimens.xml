@@ -45,7 +45,10 @@
     <dimen name="pop_icon_margin_horizontal">4dp</dimen>
     <dimen name="pop_title_text_size">14sp</dimen>
     <dimen name="pop_item_padding_vertical">12dp</dimen>
-
+    <!-- SDoc -->
+    <dimen name="editor_bar_height">40dp</dimen>
+    <dimen name="editor_icon_size">24dp</dimen>
+    <dimen name="editor_icon_padding">0dp</dimen>
     <!-- Content -->
     <dimen name="lv_margin_top">10dp</dimen> <!-- ListView -->
     <dimen name="lv_item_height">60dp</dimen>

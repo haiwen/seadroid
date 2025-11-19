@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bar_background_color"
+    android:orientation="vertical"
+    android:paddingBottom="8dp">
+
+    <LinearLayout
+        android:id="@+id/dropdown_paragraph_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:foreground="?attr/selectableItemBackground"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/dropdown_paragraph_icon"
+            android:layout_width="@dimen/pop_icon_width"
+            android:layout_height="@dimen/pop_icon_height"
+            android:layout_marginHorizontal="@dimen/pop_icon_margin_horizontal"
+            android:clickable="false"
+            android:padding="@dimen/pop_icon_padding"
+            android:src="@drawable/popup_window_icon"
+            app:tint="@color/material_grey_500" />
+
+        <TextView
+            android:id="@+id/dropdown_paragraph"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="@integer/popup_window_title_max_lines"
+            android:paddingVertical="8dp"
+            android:text="@string/font_style_paragraph"
+            android:textColor="@color/item_title_color" />
+
+    </LinearLayout>
+
+    <com.google.android.material.divider.MaterialDivider
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        app:dividerColor="@color/divider_color" />
+
+    <LinearLayout
+        android:id="@+id/dropdown_title_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:foreground="?attr/selectableItemBackground"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/dropdown_title_icon"
+            android:layout_width="@dimen/pop_icon_width"
+            android:layout_height="@dimen/pop_icon_height"
+            android:layout_marginHorizontal="@dimen/pop_icon_margin_horizontal"
+            android:clickable="false"
+            android:padding="@dimen/pop_icon_padding"
+            android:src="@drawable/popup_window_icon"
+            app:tint="@color/material_grey_500" />
+
+        <TextView
+            android:id="@+id/dropdown_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="@integer/popup_window_title_max_lines"
+            android:paddingVertical="8dp"
+            android:text="@string/font_style_title"
+            android:textColor="@color/item_title_color"
+            android:textSize="30sp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/dropdown_subtitle_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:foreground="?attr/selectableItemBackground"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/dropdown_subtitle_icon"
+            android:layout_width="@dimen/pop_icon_width"
+            android:layout_height="@dimen/pop_icon_height"
+            android:layout_marginHorizontal="@dimen/pop_icon_margin_horizontal"
+            android:clickable="false"
+            android:padding="@dimen/pop_icon_padding"
+            android:src="@drawable/popup_window_icon"
+            app:tint="@color/material_grey_500" />
+
+        <TextView
+            android:id="@+id/dropdown_subtitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="@integer/popup_window_title_max_lines"
+            android:paddingVertical="8dp"
+            android:text="@string/font_style_subtitle"
+            android:textColor="@color/item_title_color"
+            android:textSize="18sp" />
+    </LinearLayout>
+
+
+    <com.google.android.material.divider.MaterialDivider
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        app:dividerColor="@color/divider_color" />
+
+    <LinearLayout
+        android:id="@+id/dropdown_heading_1_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:foreground="?attr/selectableItemBackground"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/dropdown_heading_1_icon"
+            android:layout_width="@dimen/pop_icon_width"
+            android:layout_height="@dimen/pop_icon_height"
+            android:layout_marginHorizontal="@dimen/pop_icon_margin_horizontal"
+            android:clickable="false"
+            android:padding="@dimen/pop_icon_padding"
+            android:src="@drawable/popup_window_icon"
+            app:tint="@color/material_grey_500" />
+
+        <TextView
+            android:id="@+id/dropdown_heading_1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="@integer/popup_window_title_max_lines"
+            android:paddingVertical="8dp"
+            android:text="@string/font_style_heading1"
+            android:textColor="@color/item_title_color"
+            android:textSize="24sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/dropdown_heading_2_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:foreground="?attr/selectableItemBackground"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/dropdown_heading_2_icon"
+            android:layout_width="@dimen/pop_icon_width"
+            android:layout_height="@dimen/pop_icon_height"
+            android:layout_marginHorizontal="@dimen/pop_icon_margin_horizontal"
+            android:clickable="false"
+            android:padding="@dimen/pop_icon_padding"
+            android:src="@drawable/popup_window_icon"
+            app:tint="@color/material_grey_500" />
+
+        <TextView
+            android:id="@+id/dropdown_heading_2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="@integer/popup_window_title_max_lines"
+            android:paddingVertical="8dp"
+            android:text="@string/font_style_heading2"
+            android:textColor="@color/item_title_color"
+            android:textSize="22sp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/dropdown_heading_3_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:foreground="?attr/selectableItemBackground"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/dropdown_heading_3_icon"
+            android:layout_width="@dimen/pop_icon_width"
+            android:layout_height="@dimen/pop_icon_height"
+            android:layout_marginHorizontal="@dimen/pop_icon_margin_horizontal"
+            android:clickable="false"
+            android:padding="@dimen/pop_icon_padding"
+            android:src="@drawable/popup_window_icon"
+            app:tint="@color/material_grey_500" />
+
+        <TextView
+            android:id="@+id/dropdown_heading_3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="@integer/popup_window_title_max_lines"
+            android:paddingVertical="8dp"
+            android:text="@string/font_style_heading3"
+            android:textColor="@color/item_title_color"
+            android:textSize="20sp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/dropdown_heading_4_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:foreground="?attr/selectableItemBackground"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/dropdown_heading_4_icon"
+            android:layout_width="@dimen/pop_icon_width"
+            android:layout_height="@dimen/pop_icon_height"
+            android:layout_marginHorizontal="@dimen/pop_icon_margin_horizontal"
+            android:clickable="false"
+            android:padding="@dimen/pop_icon_padding"
+            android:src="@drawable/popup_window_icon"
+            app:tint="@color/material_grey_500" />
+
+        <TextView
+            android:id="@+id/dropdown_heading_4"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="@integer/popup_window_title_max_lines"
+            android:paddingVertical="8dp"
+            android:text="@string/font_style_heading4"
+            android:textColor="@color/item_title_color"
+            android:textSize="18sp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/dropdown_heading_5_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:foreground="?attr/selectableItemBackground"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/dropdown_heading_5_icon"
+            android:layout_width="@dimen/pop_icon_width"
+            android:layout_height="@dimen/pop_icon_height"
+            android:layout_marginHorizontal="@dimen/pop_icon_margin_horizontal"
+            android:clickable="false"
+            android:padding="@dimen/pop_icon_padding"
+            android:src="@drawable/popup_window_icon"
+            app:tint="@color/material_grey_500" />
+
+
+        <TextView
+            android:id="@+id/dropdown_heading_5"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="@integer/popup_window_title_max_lines"
+            android:paddingVertical="8dp"
+            android:text="@string/font_style_heading5"
+            android:textColor="@color/item_title_color"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/dropdown_heading_6_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:foreground="?attr/selectableItemBackground"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/dropdown_heading_6_icon"
+            android:layout_width="@dimen/pop_icon_width"
+            android:layout_height="@dimen/pop_icon_height"
+            android:layout_marginHorizontal="@dimen/pop_icon_margin_horizontal"
+            android:clickable="false"
+            android:padding="@dimen/pop_icon_padding"
+            android:src="@drawable/popup_window_icon"
+            app:tint="@color/material_grey_500" />
+
+        <TextView
+            android:id="@+id/dropdown_heading_6"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="@integer/popup_window_title_max_lines"
+            android:paddingVertical="8dp"
+            android:text="@string/font_style_heading6"
+            android:textColor="@color/item_title_color"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+</LinearLayout>

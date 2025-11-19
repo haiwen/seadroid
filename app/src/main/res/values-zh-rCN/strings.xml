@@ -518,6 +518,10 @@ Email: support@seafile.com<br>
     <item quantity="other">正在下载%1$d个文件(%2$d%%)</item>
   </plurals>
   <string name="notification_download_completed">下载完成</string>
+  <string name="notification_background_file_monitor_channel">Seafile 后台文件监控服务</string>
+  <string name="notification_background_file_monitor_desc">用于 Seafile 后台文件监控持久通知</string>
+  <string name="notification_background_file_monitor_title">Seafile 文件监控服务</string>
+  <string name="notification_background_file_monitor_content">Seafile 正在后台监控文件变化和自动上传文件</string>
   <!--Gallery-->
   <string name="gallery_load_photos_error">加载图片错误</string>
   <string name="gallery_encrypted_repo_not_supported">不支持加密资料库</string>
@@ -627,6 +631,9 @@ Email: support@seafile.com<br>
   <string name="folder_backup_select_repo_update">已更新备份资料库</string>
   <string name="UncaughtExceptionHandler_err">应用已停止运行</string>
   <string name="settings_file_backup_info_title">文件备份</string>
+  <!--backup config-->
+  <string name="backup_settings_title">备份设置</string>
+  <string name="backup_settings_background_backup_title">开启后台备份</string>
   <!--action-->
   <string name="pause">暂停</string>
   <string name="paused">已暂停</string>
@@ -654,6 +661,8 @@ Email: support@seafile.com<br>
   <string name="follow_system">跟随系统</string>
   <string name="empty">暂无</string>
   <string name="empty_data">暂无数据</string>
+  <string name="turn_on">开启</string>
+  <string name="turn_off">关闭</string>
   <!--share link-->
   <string name="link_permission_set_permission">设置权限</string>
   <string name="link_permission_preview_and_download">预览和下载</string>
@@ -685,6 +694,7 @@ Email: support@seafile.com<br>
   <string name="_tags">标签</string>
   <string name="_location">位置</string>
   <string name="_owner">文件所有者</string>
+  <string name="_rate">评分</string>
   <string name="mark_resolve">标记为已解决</string>
   <string name="delete_confirm">你确定想要删除此条内容？</string>
   <string name="image_capture_time">拍摄时间</string>
@@ -704,4 +714,25 @@ Email: support@seafile.com<br>
   <string name="backup_failed">备份失败</string>
   <string name="export_log_file_not_exists">没有可用于导出的日志文件</string>
   <string name="file_transfer_stopped">已停止文件传输</string>
+  <!--font-style-->
+  <string name="font_style_paragraph">段落</string>
+  <string name="font_style_title">标题</string>
+  <string name="font_style_subtitle">子标题</string>
+  <string name="font_style_heading1">一级标题</string>
+  <string name="font_style_heading2">二级标题</string>
+  <string name="font_style_heading3">三级标题</string>
+  <string name="font_style_heading4">四级标题</string>
+  <string name="font_style_heading5">五级标题</string>
+  <string name="font_style_heading6">六级标题</string>
+  <!--sdoc system event-->
+  <string name="sdoc_system_event_failed_to_execute_operation_on_server">在服务器上执行操作失败，当前操作已被撤回</string>
+  <string name="sdoc_system_event_failed_to_sync_with_server_operations">与服务器同步失败，请刷新页面</string>
+  <string name="sdoc_system_event_internal_server_exec_operations_error">服务器发生异常，请刷新页面重试</string>
+  <string name="sdoc_system_event_token_expired_please_refresh_the_page">会话过期。请刷新页面。</string>
+  <string name="sdoc_system_event_pending_operations_exceed_limit">有多个操作未同步到服务器。请检查您的网络。</string>
+  <string name="sdoc_system_event_server_is_not_connected_operation_will_be_sent_to_server_later">服务器未连接。操作稍后将发送到服务器。</string>
+  <string name="reconnecting">正在连接</string>
+  <string name="reconnected">已连接</string>
+  <string name="saving">正在保存</string>
+  <string name="saved">已保存</string>
 </resources>

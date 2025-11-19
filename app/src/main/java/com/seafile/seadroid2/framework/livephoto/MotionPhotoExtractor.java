@@ -2,11 +2,16 @@ package com.seafile.seadroid2.framework.livephoto;
 
 import android.util.Log;
 
+import com.seafile.seadroid2.annotation.Todo;
+import com.seafile.seadroid2.annotation.Unstable;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
+@Todo
+@Unstable
 public class MotionPhotoExtractor {
 
     private static final String TAG = "MotionPhotoExtractor";

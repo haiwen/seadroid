@@ -4,6 +4,8 @@ import android.webkit.CookieManager;
 import android.webkit.ValueCallback;
 
 import com.blankj.utilcode.util.NotificationUtils;
+import com.seafile.seadroid2.bus.BusAction;
+import com.seafile.seadroid2.bus.BusHelper;
 import com.seafile.seadroid2.context.ContextStackPreferenceHelper;
 import com.seafile.seadroid2.framework.datastore.DataStoreManager;
 import com.seafile.seadroid2.framework.http.HttpIO;
@@ -19,6 +21,9 @@ public class AccountUtils {
     public static void logout(Account account) {
 
         Settings.initUserSettings();
+
+        //
+        BusHelper.getCommonObserver().post(BusAction.STOP_FOREGROUND_FILE_MONITOR);
 
         // clear
         ContextStackPreferenceHelper.clear();
@@ -66,6 +71,9 @@ public class AccountUtils {
         }
 
         NotificationUtils.cancelAll();
+
+        //
+        BusHelper.getCommonObserver().post(BusAction.STOP_FOREGROUND_FILE_MONITOR);
 
         // stop all transfer service
         BackupThreadExecutor.getInstance().stopAll();

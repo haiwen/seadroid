@@ -213,6 +213,7 @@
     <item>النسخ الإحتياطي للصور</item>
   </string-array>
   <string name="navigate_to_directory">انتقل إلى المجلد</string>
+  <string name="navigate_up">التنقل لأعلى</string>
   <string name="no_starred_file">لا يوجد ملفات مفضلة حتى الآن</string>
   <string name="added_to_upload_tasks">بدأت عملية التحميل</string>
   <string name="added_photo_to_upload_tasks">بدأ رفع الصور</string>
@@ -274,6 +275,9 @@
   <string name="copied_successfully">نُسخ بنجاح</string>
   <string name="moved_successfully">نُقل بنجاح</string>
   <string name="internal_server_error">خطأ داخلي في الخادم</string>
+  <string name="current_library">المكتبة الحالية</string>
+  <string name="other_libraries">مكتبات أخرى</string>
+  <string name="recently_used">تم استخدامه مؤخرا</string>
   <string name="copy_file_ing">نسخ الملف</string>
   <string name="move_file_ing">نقل الملف</string>
   <string name="copy_file_from">نسخ من %1$s \n إلى %2$s</string>
@@ -295,6 +299,7 @@
   <string name="settings_account_sign_out_hint">إضغط لتسجيل الدخول</string>
   <string name="settings_account_sign_out_confirm">هل تريد تسجيل الدخول؟</string>
   <string name="settings_night_mode_title">الوضع الليلي</string>
+  <string name="settings_switch_storage_hint">قد يستغرق نقل الملف بعض الوقت، يرجى الانتظار قليلاً</string>
   <string name="security">الأمان</string>
   <string name="gesture_lock">قفل الإيماءة</string>
   <string name="gesture_lock_on">قفل الإيماءة مفعل</string>
@@ -582,6 +587,7 @@
   <string name="op_exception_folder_deleted">تم حذف المجلد \"%s\"</string>
   <string name="op_exception_suitable_app_not_found">لم يتم العثور على التطبيق المناسب لنوع الوسائط-MIME-: %s </string>
   <string name="op_exception_failed_to_download_file">فشل في تنزيل الملف %s</string>
+  <string name="op_unable_to_with_exception">غير قادر على العمل مع الاستثناء</string>
   <!--Home list title-->
   <string name="shared_with_all">العامه</string>
   <string name="add_password_protection">إضافة كلمة سر للحماية</string>

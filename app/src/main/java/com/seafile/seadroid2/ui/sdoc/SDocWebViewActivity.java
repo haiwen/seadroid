@@ -2,12 +2,14 @@ package com.seafile.seadroid2.ui.sdoc;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
+import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -25,6 +27,7 @@ import android.widget.LinearLayout;
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.util.Consumer;
 import androidx.core.view.ViewCompat;
@@ -36,6 +39,7 @@ import androidx.webkit.WebSettingsCompat;
 import androidx.webkit.WebViewFeature;
 
 import com.blankj.utilcode.util.ActivityUtils;
+import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.GsonUtils;
 import com.blankj.utilcode.util.KeyboardUtils;
 import com.blankj.utilcode.util.NetworkUtils;
@@ -45,18 +49,29 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.config.WebViewActionConstant;
 import com.seafile.seadroid2.databinding.ActivitySeaWebviewProBinding;
+import com.seafile.seadroid2.databinding.LayoutSdocBottomBarBinding;
+import com.seafile.seadroid2.databinding.LayoutSdocEditorBarBinding;
 import com.seafile.seadroid2.databinding.ToolbarActionbarProgressBarBinding;
+import com.seafile.seadroid2.enums.TextTypeEnum;
+import com.seafile.seadroid2.framework.db.entities.PermissionEntity;
+import com.seafile.seadroid2.framework.db.entities.RepoModel;
+import com.seafile.seadroid2.framework.model.WebRouteModel;
 import com.seafile.seadroid2.framework.model.sdoc.FileProfileConfigModel;
 import com.seafile.seadroid2.framework.model.sdoc.OutlineItemModel;
 import com.seafile.seadroid2.framework.model.sdoc.SDocPageOptionsModel;
+import com.seafile.seadroid2.framework.model.sdoc.TextTypeModel;
+import com.seafile.seadroid2.framework.model.sdoc.UndoRedoModel;
 import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.util.SafeLogs;
 import com.seafile.seadroid2.framework.util.StringUtils;
 import com.seafile.seadroid2.framework.util.Toasts;
+import com.seafile.seadroid2.listener.Callback;
 import com.seafile.seadroid2.listener.OnItemClickListener;
 import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
 import com.seafile.seadroid2.ui.docs_comment.DocsCommentsActivity;
 import com.seafile.seadroid2.ui.file_profile.FileProfileDialog;
 import com.seafile.seadroid2.ui.sdoc.outline.SDocOutlineDialog;
+import com.seafile.seadroid2.view.webview.OnWebDataCallback;
 import com.seafile.seadroid2.view.webview.OnWebPageListener;
 import com.seafile.seadroid2.view.webview.PreloadWebView;
 import com.seafile.seadroid2.view.webview.SeaWebView;
@@ -68,12 +83,11 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
 
     private ActivitySeaWebviewProBinding binding;
     private ToolbarActionbarProgressBarBinding toolBinding;
+    private LayoutSdocBottomBarBinding bottomBarBinding;
+    private LayoutSdocEditorBarBinding editorBarBinding;
     private SeaWebView mWebView;
-    private String repoId, repoName;
-    private String path;
-    private String fileName;
-    private String targetUrl;
-    private boolean isSdoc;
+    private String repoId, repoName, path, fileName, targetUrl;
+    private PermissionEntity repoPermission;
 
     private SDocPageOptionsModel pageOptionsData;
 
@@ -83,17 +97,6 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         intent.putExtra("repoID", repoID);
         intent.putExtra("filePath", path);
         intent.putExtra("fileName", name);
-        intent.putExtra("isSdoc", true);
-        ActivityUtils.startActivity(intent);
-    }
-
-    public static void openDraw(Context context, String repoName, String repoID, String path, String name) {
-        Intent intent = new Intent(context, SDocWebViewActivity.class);
-        intent.putExtra("repoName", repoName);
-        intent.putExtra("repoID", repoID);
-        intent.putExtra("filePath", path);
-        intent.putExtra("fileName", name);
-        intent.putExtra("isSdoc", false);
         ActivityUtils.startActivity(intent);
     }
 
@@ -107,6 +110,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         outState.putString("repoId", repoId);
         outState.putString("repoName", repoName);
         outState.putString("path", path);
+        outState.putString("fileName", fileName);
         outState.putString("targetUrl", targetUrl);
     }
 
@@ -116,8 +120,12 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         super.onCreate(savedInstanceState);
 
         binding = ActivitySeaWebviewProBinding.inflate(getLayoutInflater());
+
         setContentView(binding.getRoot());
+
         toolBinding = ToolbarActionbarProgressBarBinding.bind(binding.toolProgressBar.getRoot());
+        bottomBarBinding = LayoutSdocBottomBarBinding.bind(binding.toolBottomBar.getRoot());
+        editorBarBinding = LayoutSdocEditorBarBinding.bind(binding.toolEditorBar.getRoot());
 
         if (!NetworkUtils.isConnected()) {
             Toasts.show(R.string.network_unavailable);
@@ -129,7 +137,9 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
 
         initData();
 
-        initUI();
+        initView();
+        initDropdownView();
+
         adaptInputMethod();
 
         initViewModel();
@@ -145,6 +155,27 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
             //let's go
             mWebView.load(targetUrl);
         }
+
+        checkRepoAndPermission();
+    }
+
+    private void checkRepoAndPermission() {
+        getViewModel().getRepoModelAndPermissionEntity(repoId, new io.reactivex.functions.Consumer<Pair<RepoModel, PermissionEntity>>() {
+            @Override
+            public void accept(Pair<RepoModel, PermissionEntity> pair) throws Exception {
+                if (pair == null || pair.first == null) {
+                    SafeLogs.e(TAG, "RepoModel is null");
+                    return;
+                }
+
+                SLogs.d(TAG, "checkRepoAndPermission()", pair.first.repo_name, pair.second.name);
+
+                repoPermission = pair.second;
+
+                //refresh toolbar menu
+                invalidateOptionsMenu();
+            }
+        });
     }
 
     public void applyEdgeToEdge() {
@@ -175,7 +206,6 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         repoName = intent.getStringExtra("repoName");
         path = intent.getStringExtra("filePath");
         fileName = intent.getStringExtra("fileName");
-        isSdoc = intent.getBooleanExtra("isSdoc", false);
 
         if (TextUtils.isEmpty(repoId) || TextUtils.isEmpty(path)) {
             throw new IllegalArgumentException("repoId or path is null");
@@ -189,7 +219,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         }
     }
 
-    private void initUI() {
+    private void initView() {
         Toolbar toolbar = getActionBarToolbar();
         toolbar.setNavigationOnClickListener(v -> {
             finish();
@@ -220,74 +250,429 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         //chrome client
         mWebView.setWebChromeClient(mWebChromeClient);
         mWebView.setOnWebPageListener(onWebPageListener);
-
+        mWebView.setOnWebDataCallback(new OnWebDataCallback() {
+            @Override
+            public void onCallback(WebRouteModel t) {
+                updateEditorBarState(t);
+            }
+        });
         NestedScrollView.LayoutParams ll = new NestedScrollView.LayoutParams(-1, -1);
         mWebView.setLayoutParams(ll);
         binding.nsv.addView(mWebView);
 
-        if (isSdoc) {
-            binding.llBottomBar.setVisibility(View.VISIBLE);
-            binding.sdocOutline.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (!nextEditMode) {
-                        callJsSdocEditorEditable();
-                    }
+        editorBarBinding.getRoot().setVisibility(View.GONE);
+        bottomBarBinding.getRoot().setVisibility(View.VISIBLE);
 
-                    if (KeyboardUtils.isSoftInputVisible(SDocWebViewActivity.this)) {
-                        KeyboardUtils.hideSoftInput(SDocWebViewActivity.this);
-                    }
+        bottomBarBinding.sdocOutline.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!nextEditMode) {
+                    callJsSdocEditorEditable();
+                }
 
-                    showOutlineDialog();
+                if (KeyboardUtils.isSoftInputVisible(SDocWebViewActivity.this)) {
+                    KeyboardUtils.hideSoftInput(SDocWebViewActivity.this);
+                }
+
+                showOutlineDialog();
 //                    callJsGetOutline();
+            }
+        });
+
+        bottomBarBinding.sdocProfile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!nextEditMode) {
+                    callJsSdocEditorEditable();
                 }
-            });
-            binding.sdocProfile.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (!nextEditMode) {
-                        callJsSdocEditorEditable();
-                    }
 
-                    if (KeyboardUtils.isSoftInputVisible(SDocWebViewActivity.this)) {
-                        KeyboardUtils.hideSoftInput(SDocWebViewActivity.this);
-                    }
-
-                    getViewModel().loadFileDetail(repoId, path);
+                if (KeyboardUtils.isSoftInputVisible(SDocWebViewActivity.this)) {
+                    KeyboardUtils.hideSoftInput(SDocWebViewActivity.this);
                 }
-            });
-            binding.sdocComment.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (!nextEditMode) {
-                        callJsSdocEditorEditable();
-                    }
 
-                    if (KeyboardUtils.isSoftInputVisible(SDocWebViewActivity.this)) {
-                        KeyboardUtils.hideSoftInput(SDocWebViewActivity.this);
-                    }
-
-                    showCommentsActivity();
+                getViewModel().loadFileDetail(repoId, path);
+            }
+        });
+        bottomBarBinding.sdocComment.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!nextEditMode) {
+                    callJsSdocEditorEditable();
                 }
-            });
-        } else {
-            binding.llBottomBar.setVisibility(View.GONE);
+
+                if (KeyboardUtils.isSoftInputVisible(SDocWebViewActivity.this)) {
+                    KeyboardUtils.hideSoftInput(SDocWebViewActivity.this);
+                }
+
+                showCommentsActivity();
+            }
+        });
+    }
+
+    private void initDropdownView() {
+        editorBarBinding.editorUndoContainer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                triggerJsSdocEditorMenu(TextTypeEnum.undo);
+            }
+        });
+        editorBarBinding.editorRedoContainer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                triggerJsSdocEditorMenu(TextTypeEnum.redo);
+            }
+        });
+        editorBarBinding.editorUnorderedListIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                triggerJsSdocEditorMenu(TextTypeEnum.unordered_list);
+            }
+        });
+        editorBarBinding.editorOrderedListIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                triggerJsSdocEditorMenu(TextTypeEnum.ordered_list);
+            }
+        });
+        editorBarBinding.editorCheckboxIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                triggerJsSdocEditorMenu(TextTypeEnum.check_list_item);
+            }
+        });
+        editorBarBinding.editorTextStyleContainer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                boolean isVisible = KeyboardUtils.isSoftInputVisible(SDocWebViewActivity.this);
+                if (isVisible) {
+                    KeyboardUtils.hideSoftInput(v);
+                    v.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            showCustomMenuView(editorBarBinding.editorTextStyle);
+                        }
+                    }, 400);
+                } else {
+                    showCustomMenuView(editorBarBinding.editorTextStyle);
+                }
+            }
+        });
+
+        editorBarBinding.editorKeyboardContainer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                KeyboardUtils.hideSoftInput(SDocWebViewActivity.this);
+            }
+        });
+    }
+
+    private void showCustomMenuView(View anchorView) {
+        SdocDropdownPopView popupWindow = new SdocDropdownPopView(this);
+        popupWindow.setSelectedTextStyleModel(selectedTextTypeModel);
+        popupWindow.setCallback(new Callback<TextTypeModel>() {
+            @Override
+            public void callback(TextTypeModel textTypeModel) {
+                triggerJsSdocEditorMenu(textTypeModel);
+
+                updateEditorBarState(textTypeModel);
+            }
+        });
+
+        View contentView = popupWindow.getContentView();
+        contentView.measure(
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+        );
+
+        int popupHeight = contentView.getMeasuredHeight();
+        int anchorHeight = anchorView.getHeight();
+        int yOffset = -(popupHeight + anchorHeight);
+        int xOffset = 0;
+        popupWindow.showAsDropDown(anchorView, xOffset, yOffset);
+    }
+
+    private final Runnable autoResetToolbarStatusTextRunnable = new Runnable() {
+        @Override
+        public void run() {
+            toolBinding.sdocStatusText.setText("");
+        }
+    };
+
+    //The type of text where the cursor is located
+    private TextTypeModel selectedTextTypeModel;
+
+    private void updateEditorBarState(WebRouteModel model) {
+        if (model == null) {
+            return;
         }
 
+        if (TextUtils.equals(model.action, WebViewActionConstant.SDOC_EDITOR_CONTENT_SELECT)) {
+            TextTypeModel typeModel = GsonUtils.fromJson(model.data, TextTypeModel.class);
+            updateEditorBarState(typeModel);
+        } else if (TextUtils.equals(model.action, WebViewActionConstant.SDOC_EDITOR_OPERATION_EXECUTE)) {
+            updateUndoRepoEditorView();
+        } else if (TextUtils.equals(model.action, WebViewActionConstant.SDOC_EDITOR_SYSTEM_EVENT)) {
+            TextTypeModel typeModel = GsonUtils.fromJson(model.data, TextTypeModel.class);
+            updateSdocToolbarStatusTextByEvent(typeModel.type);
+        }
+    }
+
+    private void updateSdocToolbarStatusTextByEvent(String event) {
+        if (TextUtils.equals("document_is_saved", event)) {
+            updateSdocToolbarStatusText(getString(R.string.saved), true);
+        } else if (TextUtils.equals("document_is_saving", event)) {
+            updateSdocToolbarStatusText(getString(R.string.saving), false);
+        } else if (TextUtils.equals("server_is_reconnected", event)) {
+            updateSdocToolbarStatusText(getString(R.string.reconnected), true);
+        } else if (TextUtils.equals("server_is_disconnected_reconnecting", event)) {
+            updateSdocToolbarStatusText(getString(R.string.reconnecting), false);
+        } else if (TextUtils.equals("server_is_not_connected_operation_will_be_sent_to_server_later", event)) {
+            updateSdocToolbarStatusText("", false);
+            Toasts.show(R.string.sdoc_system_event_server_is_not_connected_operation_will_be_sent_to_server_later);
+        } else if (TextUtils.equals("pending_operations_exceed_limit", event)) {
+            updateSdocToolbarStatusText("", false);
+            Toasts.show(R.string.sdoc_system_event_pending_operations_exceed_limit);
+        } else if (TextUtils.equals("token_expired_Please_refresh_the_page", event)) {
+            updateSdocToolbarStatusText("", false);
+            Toasts.show(R.string.sdoc_system_event_token_expired_please_refresh_the_page);
+        } else if (TextUtils.equals("internal_server_exec_operations_error", event)) {
+            updateSdocToolbarStatusText("", false);
+            Toasts.show(R.string.sdoc_system_event_internal_server_exec_operations_error);
+        } else if (TextUtils.equals("failed_to_sync_with_server_operations", event)) {
+            updateSdocToolbarStatusText("", false);
+            Toasts.show(R.string.sdoc_system_event_failed_to_sync_with_server_operations);
+        } else if (TextUtils.equals("failed_to_execute_operation_on_server", event)) {
+            updateSdocToolbarStatusText("", false);
+            Toasts.show(R.string.sdoc_system_event_failed_to_execute_operation_on_server);
+        }
+    }
+
+    private void updateSdocToolbarStatusText(String status, boolean autoDismiss) {
+        toolBinding.sdocStatusText.setText(status);
+
+        if (autoDismiss) {
+            mainLooperHandler.removeCallbacks(autoResetToolbarStatusTextRunnable);
+            mainLooperHandler.postDelayed(autoResetToolbarStatusTextRunnable, 2000);
+        }
+    }
+
+
+    private void updateEditorBarState(TextTypeModel typeModel) {
+        if (typeModel == null) {
+            return;
+        }
+
+        selectedTextTypeModel = typeModel;
+
+        updateEditorBarState();
+
+    }
+
+    private void updateEditorBarState() {
+
+        // update first
+        resetEditorBarState();
+
+        if (TextTypeEnum.isTextType(selectedTextTypeModel)) {
+            if (TextUtils.equals(TextTypeEnum.paragraph.name(), selectedTextTypeModel.type)) {
+                editorBarBinding.editorTextStyle.setText(getString(R.string.font_style_paragraph));
+            } else if (TextUtils.equals(TextTypeEnum.title.name(), selectedTextTypeModel.type)) {
+                editorBarBinding.editorTextStyle.setText(getString(R.string.font_style_title));
+            } else if (TextUtils.equals(TextTypeEnum.subtitle.name(), selectedTextTypeModel.type)) {
+                editorBarBinding.editorTextStyle.setText(getString(R.string.font_style_subtitle));
+            } else if (TextUtils.equals(TextTypeEnum.header1.name(), selectedTextTypeModel.type)) {
+                editorBarBinding.editorTextStyle.setText(getString(R.string.font_style_heading1));
+            } else if (TextUtils.equals(TextTypeEnum.header2.name(), selectedTextTypeModel.type)) {
+                editorBarBinding.editorTextStyle.setText(getString(R.string.font_style_heading2));
+            } else if (TextUtils.equals(TextTypeEnum.header3.name(), selectedTextTypeModel.type)) {
+                editorBarBinding.editorTextStyle.setText(getString(R.string.font_style_heading3));
+            } else if (TextUtils.equals(TextTypeEnum.header4.name(), selectedTextTypeModel.type)) {
+                editorBarBinding.editorTextStyle.setText(getString(R.string.font_style_heading4));
+            } else if (TextUtils.equals(TextTypeEnum.header5.name(), selectedTextTypeModel.type)) {
+                editorBarBinding.editorTextStyle.setText(getString(R.string.font_style_heading5));
+            } else if (TextUtils.equals(TextTypeEnum.header6.name(), selectedTextTypeModel.type)) {
+                editorBarBinding.editorTextStyle.setText(getString(R.string.font_style_heading6));
+            }
+
+//            editorBarBinding.editorTextStyleContainer.setChecked(true);
+
+        } else if (TextUtils.equals(TextTypeEnum.unordered_list.name(), selectedTextTypeModel.type)) {
+            editorBarBinding.editorUnorderedListContainer.setChecked(true);
+
+            int t = ContextCompat.getColor(this, R.color.fancy_orange);
+            ColorStateList stateList = ColorStateList.valueOf(t);
+            editorBarBinding.editorUnorderedListIcon.setImageTintList(stateList);
+
+        } else if (TextUtils.equals(TextTypeEnum.ordered_list.name(), selectedTextTypeModel.type)) {
+            editorBarBinding.editorOrderedListContainer.setChecked(true);
+
+            int t = ContextCompat.getColor(this, R.color.fancy_orange);
+            ColorStateList stateList = ColorStateList.valueOf(t);
+            editorBarBinding.editorOrderedListIcon.setImageTintList(stateList);
+
+        } else if (TextUtils.equals(TextTypeEnum.check_list_item.name(), selectedTextTypeModel.type)) {
+
+            editorBarBinding.editorCheckboxContainer.setChecked(true);
+
+            int t = ContextCompat.getColor(this, R.color.fancy_orange);
+            ColorStateList stateList = ColorStateList.valueOf(t);
+            editorBarBinding.editorCheckboxIcon.setImageTintList(stateList);
+
+            setTextTypeOrderListEnable(false);
+        } else if (TextUtils.equals("op-execute", selectedTextTypeModel.type)) {
+            SLogs.e(TAG, "updateEditorBarState()", "op-execute");
+        }
+    }
+
+    private void resetEditorBarState() {
+
+        editorBarBinding.editorTextStyle.setText(getString(R.string.font_style_paragraph));
+        editorBarBinding.editorCheckboxContainer.setChecked(false);
+        editorBarBinding.editorOrderedListContainer.setChecked(false);
+        editorBarBinding.editorUnorderedListContainer.setChecked(false);
+//        editorBarBinding.editorTextStyleContainer.setChecked(false);
+
+        int t = ContextCompat.getColor(this, R.color.light_black);
+        ColorStateList stateList = ColorStateList.valueOf(t);
+        editorBarBinding.editorOrderedListIcon.setImageTintList(stateList);
+        editorBarBinding.editorUnorderedListIcon.setImageTintList(stateList);
+        editorBarBinding.editorCheckboxIcon.setImageTintList(stateList);
+
+        setTextTypeOrderListEnable(true);
+    }
+
+    private void setTextTypeOrderListEnable(boolean isEnable) {
+        int color;
+        if (isEnable) {
+            color = ContextCompat.getColor(this, R.color.light_black);
+        } else {
+            color = ContextCompat.getColor(this, R.color.light_grey);
+        }
+
+        editorBarBinding.editorTextStyle.setTextColor(color);
+
+        editorBarBinding.editorTextStyle.setEnabled(isEnable);
+        editorBarBinding.editorUnorderedListIcon.setEnabled(isEnable);
+        editorBarBinding.editorOrderedListIcon.setEnabled(isEnable);
+
+        ColorStateList stateList = ColorStateList.valueOf(color);
+        editorBarBinding.editorUnorderedListIcon.setImageTintList(stateList);
+        editorBarBinding.editorOrderedListIcon.setImageTintList(stateList);
+        editorBarBinding.editorTextArrowDown.setImageTintList(stateList);
+    }
+
+
+    private void triggerJsSdocEditorMenu(TextTypeEnum typeEnum) {
+        TextTypeModel tm = new TextTypeModel(typeEnum.name());
+        triggerJsSdocEditorMenu(tm);
+    }
+
+    private void triggerJsSdocEditorMenu(TextTypeModel typeModel) {
+        String param = GsonUtils.toJson(typeModel);
+
+        mWebView.callJsFunction(WebViewActionConstant.CallJsFunction.SDOC_TOOLBAR_MENU_TRIGGER, param, new CallBackFunction() {
+            @Override
+            public void onCallBack(String data) {
+                SLogs.d(TAG, "triggerJsSdocEditorMenu()", data);
+
+                updateUndoRepoEditorView();
+            }
+        });
+    }
+
+
+    private void updateUndoRepoEditorView() {
+        execUndoRedoListJs(new Consumer<UndoRedoModel>() {
+            @Override
+            public void accept(UndoRedoModel undoRedoModel) {
+                if (undoRedoModel == null) {
+                    return;
+                }
+
+                if (CollectionUtils.isEmpty(undoRedoModel.undos) && CollectionUtils.isEmpty(undoRedoModel.redos)) {
+                    setUndoRedoEnable(false, false);
+                } else if (CollectionUtils.isEmpty(undoRedoModel.undos) && !CollectionUtils.isEmpty(undoRedoModel.redos)) {
+                    setUndoRedoEnable(false, true);
+                } else if (!CollectionUtils.isEmpty(undoRedoModel.undos) && CollectionUtils.isEmpty(undoRedoModel.redos)) {
+                    setUndoRedoEnable(true, false);
+                } else if (!CollectionUtils.isEmpty(undoRedoModel.undos) && !CollectionUtils.isEmpty(undoRedoModel.redos)) {
+                    setUndoRedoEnable(true, true);
+                }
+
+            }
+        });
+    }
+
+    private void setUndoRedoEnable(boolean undoEnable, boolean redoEnable) {
+        int enableColor = ContextCompat.getColor(this, R.color.light_black);
+        int disableColor = ContextCompat.getColor(this, R.color.light_grey);
+        ColorStateList enableStateList = ColorStateList.valueOf(enableColor);
+        ColorStateList disableStateList = ColorStateList.valueOf(disableColor);
+
+        if (undoEnable) {
+            editorBarBinding.editorUndo.setImageTintList(enableStateList);
+            editorBarBinding.editorUndo.setEnabled(true);
+        } else {
+            editorBarBinding.editorUndo.setImageTintList(disableStateList);
+            editorBarBinding.editorUndo.setEnabled(false);
+        }
+
+        if (redoEnable) {
+            editorBarBinding.editorRedo.setImageTintList(enableStateList);
+            editorBarBinding.editorRedo.setEnabled(true);
+        } else {
+            editorBarBinding.editorRedo.setImageTintList(disableStateList);
+            editorBarBinding.editorRedo.setEnabled(false);
+        }
+    }
+
+    private void execUndoRedoListJs(Consumer<UndoRedoModel> continuation) {
+        String js =
+                "(function() {" +
+                        "   if (window.seadroid && window.seadroid.history) {" +
+                        "       return JSON.stringify(window.seadroid.history);" +
+                        "   } else {" +
+                        "       return null;" +
+                        "   }" +
+                        "})();";
+        mWebView.evaluateJavascript(js, new ValueCallback<String>() {
+            @Override
+            public void onReceiveValue(String value) {
+                if (TextUtils.isEmpty(value)) {
+                    SLogs.d(TAG, "execUndoRedoListJs()", value);
+                    Toasts.showShort(R.string.empty_data);
+                    continuation.accept(null);
+                    return;
+                }
+
+                value = StringUtils.deStringReturnNonNull(value).replace("\\", "");
+
+                if (continuation != null) {
+                    try {
+                        UndoRedoModel undoRedoModel = GsonUtils.fromJson(value, UndoRedoModel.class);
+                        continuation.accept(undoRedoModel);
+                    } catch (Exception e) {
+                        SLogs.e(e);
+                    }
+                }
+            }
+        });
     }
 
     private void adaptInputMethod() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            ViewCompat.setWindowInsetsAnimationCallback(binding.llBottomBar, new WindowInsetsAnimationCompat.Callback(WindowInsetsAnimationCompat.Callback.DISPATCH_MODE_STOP) {
-
-                        //                        private boolean lastImeVisible = false;
+            ViewCompat.setWindowInsetsAnimationCallback(getWindow().getDecorView(), new WindowInsetsAnimationCompat.Callback(WindowInsetsAnimationCompat.Callback.DISPATCH_MODE_STOP) {
                         private int startHeight = 0;
-                        private int lastDiffH = 0;
+
+                        @Override
+                        public WindowInsetsAnimationCompat.@org.jspecify.annotations.NonNull BoundsCompat onStart(@org.jspecify.annotations.NonNull WindowInsetsAnimationCompat animation, WindowInsetsAnimationCompat.@org.jspecify.annotations.NonNull BoundsCompat bounds) {
+                            return super.onStart(animation, bounds);
+                        }
 
                         @Override
                         public void onPrepare(@NonNull WindowInsetsAnimationCompat animation) {
                             if (startHeight == 0) {
-                                startHeight = binding.llBottomBar.getHeight();
+                                startHeight = binding.llPlaceholder.getHeight();
                             }
                         }
 
@@ -295,38 +680,40 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
                         @Override
                         public WindowInsetsCompat onProgress(@NonNull WindowInsetsCompat insets,
                                                              @NonNull List<WindowInsetsAnimationCompat> runningAnimations) {
+
                             Insets imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime());
                             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
 
                             Insets diff = Insets.subtract(imeInsets, systemBars);
                             Insets maxDiff = Insets.max(diff, Insets.NONE);
-
                             int diffH = Math.abs(maxDiff.top - maxDiff.bottom);
 
-                            ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) binding.llBottomBar.getLayoutParams();
+                            ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) binding.llPlaceholder.getLayoutParams();
                             layoutParams.bottomMargin = diffH;
-                            binding.llBottomBar.setLayoutParams(layoutParams);
+                            binding.llPlaceholder.setLayoutParams(layoutParams);
 
-                            lastDiffH = diffH;
                             return insets;
                         }
+
                     }
             );
         } else {
             // <= Android R
-            binding.llBottomBar.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            binding.llPlaceholder.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
                 int lastBottom = 0;
 
                 @Override
                 public void onGlobalLayout() {
-                    WindowInsetsCompat insets = ViewCompat.getRootWindowInsets(binding.llBottomBar);
-                    if (insets != null) {
-                        int bottom = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom;
-                        if (lastBottom != 0 && bottom == 0) {
-                            binding.llBottomBar.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                        }
-                        lastBottom = bottom;
+                    WindowInsetsCompat insets = ViewCompat.getRootWindowInsets(bottomBarBinding.getRoot());
+                    if (insets == null) {
+                        return;
                     }
+
+                    int bottom = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom;
+                    if (lastBottom != 0 && bottom == 0) {
+                        bottomBarBinding.getRoot().getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                    }
+                    lastBottom = bottom;
                 }
             });
         }
@@ -355,33 +742,38 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        if (!isSdoc) {
-            return super.onCreateOptionsMenu(menu);
+        if (repoPermission != null && repoPermission.modify) {
+
+            // Inflate the menu; this adds items to the action bar if it is present.
+            getMenuInflater().inflate(R.menu.menu_sdoc_preview, menu);
+            editMenuItem = menu.findItem(R.id.sdoc_edit);
+            editMenuItem.setVisible(true);
+            if (!isPageLoaded) {
+                editMenuItem.setEnabled(false);
+            }
         }
 
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_sdoc_preview, menu);
-        editMenuItem = menu.findItem(R.id.sdoc_edit);
-        editMenuItem.setVisible(true);
-        if (!isPageLoaded) {
-            editMenuItem.setEnabled(false);
-        }
+
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.sdoc_edit) {
-            callJsSdocEditorEditable();
-            return true;
+        if (repoPermission != null && repoPermission.modify) {
+            if (item.getItemId() == R.id.sdoc_edit) {
+                callJsSdocEditorEditable();
+                return true;
+            }
         }
         return super.onOptionsItemSelected(item);
     }
 
     private void showOutlineDialog() {
-        readSDocOutlineList(new Consumer<String>() {
+        execSDocOutlineListJs(new Consumer<String>() {
             @Override
             public void accept(String s) {
+                getViewModel().setOutlineValue(s);
+
                 SDocOutlineDialog dialog = SDocOutlineDialog.newInstance(s);
                 dialog.setOnItemClickListener(new OnItemClickListener<OutlineItemModel>() {
                     @Override
@@ -424,7 +816,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         });
     }
 
-    private final Handler timeoutHandler = new Handler(Looper.getMainLooper());
+    private final Handler mainLooperHandler = new Handler(Looper.getMainLooper());
 
     //timeout callback or receive js callback
     private boolean jsCallbackReceived = true;
@@ -447,18 +839,19 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         }
     };
 
+
     private void callJsSdocEditorEditable() {
         if (!jsCallbackReceived) {
             return;
         }
 
-        timeoutHandler.removeCallbacks(timeoutRunnable);
+        mainLooperHandler.removeCallbacks(timeoutRunnable);
         jsCallbackReceived = false;
 
         String data = "{\"edit\": " + nextEditMode + "}";
 
         // launch a timeout task
-        timeoutHandler.postDelayed(timeoutRunnable, timeoutDuration);
+        mainLooperHandler.postDelayed(timeoutRunnable, timeoutDuration);
 
         mWebView.callJsFunction(WebViewActionConstant.CallJsFunction.SDOC_EDITOR_DATA_EDIT, data, new CallBackFunction() {
             @Override
@@ -470,7 +863,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
 
                 // mark callback received
                 jsCallbackReceived = true;
-                timeoutHandler.removeCallbacks(timeoutRunnable);
+                mainLooperHandler.removeCallbacks(timeoutRunnable);
 
                 if (editMenuItem != null) {
                     editMenuItem.setEnabled(true);
@@ -489,6 +882,14 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
                 if (editMenuItem != null) {
                     editMenuItem.setTitle(nextEditMode ? R.string.edit : R.string.complete);
                 }
+
+                if (nextEditMode) {
+                    editorBarBinding.getRoot().setVisibility(View.GONE);
+                    bottomBarBinding.getRoot().setVisibility(View.VISIBLE);
+                } else {
+                    editorBarBinding.getRoot().setVisibility(View.VISIBLE);
+                    bottomBarBinding.getRoot().setVisibility(View.GONE);
+                }
             }
         });
     }
@@ -497,7 +898,9 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         readSDocPageOptionsData(new Consumer<SDocPageOptionsModel>() {
             @Override
             public void accept(SDocPageOptionsModel model) {
-                DocsCommentsActivity.start(SDocWebViewActivity.this, model);
+                if (repoPermission != null) {
+                    DocsCommentsActivity.start(SDocWebViewActivity.this, model, repoPermission.modify);
+                }
             }
         });
     }
@@ -535,7 +938,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         });
     }
 
-    private void readSDocOutlineList(Consumer<String> continuation) {
+    private void execSDocOutlineListJs(Consumer<String> continuation) {
         String js =
                 "(function() {" +
                         "   if (window.seadroid && window.seadroid.outlines) {" +
@@ -613,21 +1016,9 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
                 didPageFinishSuccessfully = true;
             }
 
-            if (didPageFinishSuccessfully) {
-                SLogs.d(TAG, "Page finished loading successfully: " + url);
-                // 页面加载完成后，启用相关按钮
-                if (editMenuItem != null) {
-                    // 你可能还想在这里检查网页是否真的包含了预期的JS接口
-                    // 但首先确保页面加载完成是第一步
-                    editMenuItem.setEnabled(true);
-                }
-            } else {
-                SLogs.d(TAG, "Page finished loading with errors (or was marked as error): " + url);
-                // 页面加载失败，保持按钮禁用或提示用户
-                if (editMenuItem != null) {
-                    editMenuItem.setEnabled(false);
-                }
-                Toasts.showShort("网页加载失败，无法执行操作。");
+            SLogs.d(TAG, "Page finished loading successfully: " + url);
+            if (editMenuItem != null) {
+                editMenuItem.setEnabled(true);
             }
         }
 
@@ -655,6 +1046,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
             }
         }
     };
+
     private int curProgress = 0;
     private final WebChromeClient mWebChromeClient = new WebChromeClient() {
         @Override
@@ -667,7 +1059,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         @Override
         public void onReceivedTitle(WebView view, String title) {
             super.onReceivedTitle(view, title);
-            toolBinding.toolbarActionbar.setTitle(title);
+//            toolBinding.toolbarActionbar.setTitle(title);
         }
 
         @Override
@@ -745,8 +1137,8 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
     public void onDestroy() {
         super.onDestroy();
 
-        if (timeoutHandler != null) {
-            timeoutHandler.removeCallbacks(timeoutRunnable);
+        if (mainLooperHandler != null) {
+            mainLooperHandler.removeCallbacks(timeoutRunnable);
         }
 
         destroyWebView();

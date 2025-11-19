@@ -58,6 +58,9 @@ public class Settings {
     @Deprecated
     public static SettingsLiveData<Boolean> CLIENT_ENCRYPT_SWITCH;
 
+    public static SettingsLiveData<Boolean> BACKUP_SETTINGS_BACKGROUND_SWITCH;
+
+
     //album backup
     public static SettingsLiveData<Boolean> ALBUM_BACKUP_SWITCH;
     public static SettingsLiveData<String> ALBUM_BACKUP_SELECTED_REPO;
@@ -147,7 +150,7 @@ public class Settings {
 //        USER_GESTURE_LOCK_SWITCH = new BooleanSettingLiveData(_account.getEncryptSignature(), R.string.pref_key_gesture_lock);
 //        USER_GESTURE_LOCK_TIMESTAMP = new LongSettingLiveData(_account.getEncryptSignature(), R.string.pref_key_gesture_lock_timestamp, R.string.pref_default_value_key_gesture_lock_timestamp);
 
-
+        BACKUP_SETTINGS_BACKGROUND_SWITCH = new BooleanSettingLiveData(_account.getEncryptSignature(),R.string.pref_key_backup_settings_turn_on_background_switch);
         //album backup advance
         ALBUM_BACKUP_SWITCH = new BooleanSettingLiveData(_account.getEncryptSignature(), R.string.pref_key_album_backup_switch);
         ALBUM_BACKUP_SELECTED_REPO = new StringSettingLiveData(_account.getEncryptSignature(), R.string.pref_key_album_backup_repo_select, Resources.ID_NULL);

@@ -1,5 +1,7 @@
 package com.seafile.seadroid2.framework.util;
 
+import android.os.Environment;
+
 import com.blankj.utilcode.util.EncryptUtils;
 import com.blankj.utilcode.util.FileUtils;
 import com.blankj.utilcode.util.TimeUtils;
@@ -13,10 +15,16 @@ import java.util.Locale;
 public class DeviceIdManager {
     private static volatile DeviceIdManager mSingleton = null;
     public static final String PREFIX = ".sd-";
-    public final File LOCAL_FOLDER = SeadroidApplication.getAppContext().getExternalCacheDir();
+    public File LOCAL_FOLDER;
 
     private DeviceIdManager() {
+        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+            LOCAL_FOLDER = SeadroidApplication.getAppContext().getExternalCacheDir();
+        }
 
+        if (LOCAL_FOLDER == null) {
+            LOCAL_FOLDER = SeadroidApplication.getAppContext().getCacheDir();
+        }
     }
 
     public static DeviceIdManager getInstance() {
@@ -44,8 +52,10 @@ public class DeviceIdManager {
             salt = TimeUtils.getNowString();
         }
         String uid = EncryptUtils.encryptMD5ToString(("" + TimeUtils.getNowMills()), salt);
-        File file = new File(LOCAL_FOLDER.getAbsolutePath() + "/" + PREFIX + uid.toLowerCase(Locale.getDefault()));
-        FileUtils.createOrExistsFile(file);
+        if (LOCAL_FOLDER != null) {
+            File file = new File(LOCAL_FOLDER.getAbsolutePath() + "/" + PREFIX + uid.toLowerCase(Locale.getDefault()));
+            FileUtils.createOrExistsFile(file);
+        }
         return uid.toLowerCase(Locale.getDefault()).substring(0, 16);
 
 //        String uid = UUID.randomUUID().toString().replace("-", "");

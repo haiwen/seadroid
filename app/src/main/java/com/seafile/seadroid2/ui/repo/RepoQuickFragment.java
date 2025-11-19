@@ -61,7 +61,6 @@ import com.seafile.seadroid2.enums.ActionModeCallbackType;
 import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.FileReturnActionEnum;
 import com.seafile.seadroid2.enums.FileViewType;
-import com.seafile.seadroid2.enums.ObjSelectType;
 import com.seafile.seadroid2.enums.OpType;
 import com.seafile.seadroid2.enums.RefreshStatusEnum;
 import com.seafile.seadroid2.enums.SortBy;
@@ -69,6 +68,7 @@ import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.db.entities.PermissionEntity;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
+import com.seafile.seadroid2.framework.livephoto.MotionPhotoParser;
 import com.seafile.seadroid2.framework.model.BaseModel;
 import com.seafile.seadroid2.framework.model.GroupItemModel;
 import com.seafile.seadroid2.framework.model.ServerInfo;
@@ -82,6 +82,7 @@ import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
+import com.seafile.seadroid2.listener.MenuItemOnActionExpandListener;
 import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.base.fragment.BaseFragmentWithVM;
@@ -99,10 +100,10 @@ import com.seafile.seadroid2.ui.main.MainViewModel;
 import com.seafile.seadroid2.ui.markdown.MarkdownActivity;
 import com.seafile.seadroid2.ui.media.image.CarouselImagePreviewActivity;
 import com.seafile.seadroid2.ui.media.player.CustomExoVideoPlayerActivity;
+import com.seafile.seadroid2.ui.office_doc.OfficeDocumentWebActivity;
 import com.seafile.seadroid2.ui.repo.sheetaction.BottomSheetActionView;
 import com.seafile.seadroid2.ui.repo.sheetaction.BottomSheetMenuManager;
 import com.seafile.seadroid2.ui.sdoc.SDocWebViewActivity;
-import com.seafile.seadroid2.ui.selector.obj.ObjSelectorActivity;
 import com.seafile.seadroid2.ui.selector.versatile.VersatileSelectorActivity;
 import com.seafile.seadroid2.ui.star.StarredQuickFragment;
 import com.seafile.seadroid2.view.TipsViews;
@@ -284,7 +285,11 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             //search item
             MenuItem searchMenuItem = menu.findItem(R.id.menu_action_search);
             Optional<ServerInfo> serverInfoOp = checkServerInfo();
-            if (serverInfoOp.isPresent() && (serverInfoOp.get().isProEdition() || serverInfoOp.get().isSearchEnabled())) {
+            if (serverInfoOp.isEmpty()) {
+                searchMenuItem.setVisible(false);
+            } else if (serverInfoOp.get().isProEdition() && !serverInfoOp.get().isSearchEnabled()) {
+                searchMenuItem.setVisible(false);
+            } else if (serverInfoOp.get().isProEdition() && serverInfoOp.get().isSearchEnabled()) {
                 //search view
                 final SearchView searchView = new SearchView(requireContext());
                 searchView.setSubmitButtonEnabled(false);
@@ -293,7 +298,6 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 } else {
                     searchView.setQueryHint(getString(R.string.search_menu_item));
                 }
-
                 searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                     @Override
                     public boolean onQueryTextSubmit(String query) {
@@ -305,7 +309,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                         searchView.postDelayed(new Runnable() {
                             @Override
                             public void run() {
-                                search(newText);
+                                search(newText, true);
                             }
                         }, 500);
                         return false;
@@ -317,38 +321,59 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 searchMenuItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
                     @Override
                     public boolean onMenuItemActionExpand(@NonNull MenuItem item) {
-
-                        // Save the state of Menu
-                        menuIdState.put("search", menu.findItem(R.id.menu_action_search).isVisible());
-                        menuIdState.put("sortGroup", menu.findItem(R.id.menu_action_sort).isVisible());
-                        menuIdState.put("createRepo", menu.findItem(R.id.create_repo).isVisible());
-                        menuIdState.put("add", menu.findItem(R.id.add).isVisible());
-                        menuIdState.put("select", menu.findItem(R.id.select).isVisible());
-
-                        // hide other menu items
-                        menu.findItem(R.id.menu_action_search).setVisible(false);
-                        menu.findItem(R.id.menu_action_sort).setVisible(false);
-                        menu.findItem(R.id.create_repo).setVisible(false);
-                        menu.findItem(R.id.add).setVisible(false);
-                        menu.findItem(R.id.select).setVisible(false);
-
-                        return true; // Return true to collapse the action view.
+                        onMenuItemExpand(menu, item);
+                        return true;
                     }
 
                     @Override
                     public boolean onMenuItemActionCollapse(@NonNull MenuItem item) {
-
-                        menu.findItem(R.id.menu_action_search).setVisible(Boolean.TRUE.equals(menuIdState.get("search")));
-                        menu.findItem(R.id.menu_action_sort).setVisible(Boolean.TRUE.equals(menuIdState.get("sortGroup")));
-                        menu.findItem(R.id.create_repo).setVisible(Boolean.TRUE.equals(menuIdState.get("createRepo")));
-                        menu.findItem(R.id.add).setVisible(Boolean.TRUE.equals(menuIdState.get("add")));
-                        menu.findItem(R.id.select).setVisible(Boolean.TRUE.equals(menuIdState.get("select")));
-
-//                        requireActivity().invalidateMenu();
-//                        menuHost.invalidateMenu();
-                        return true; // Return true to expand the action view.
+                        onMenuItemCollapse(menu, item);
+                        return true;
                     }
                 });
+            } else if (!serverInfoOp.get().isProEdition()) {
+                if (GlobalNavContext.getCurrentNavContext().inRepo()) {
+                    final SearchView searchView = new SearchView(requireContext());
+                    searchView.setSubmitButtonEnabled(false);
+                    searchView.setQueryHint(getString(R.string.search_in_this_library));
+                    searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                        @Override
+                        public boolean onQueryTextSubmit(String query) {
+                            return false;
+                        }
+
+                        @Override
+                        public boolean onQueryTextChange(String newText) {
+                            searchView.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    search(newText, false);
+                                }
+                            }, 500);
+                            return false;
+                        }
+                    });
+
+                    searchMenuItem.setVisible(true);
+                    searchMenuItem.collapseActionView();
+                    searchMenuItem.setActionView(searchView);
+                    searchMenuItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
+                        @Override
+                        public boolean onMenuItemActionExpand(@NonNull MenuItem item) {
+                            onMenuItemExpand(menu, item);
+                            return true;
+                        }
+
+                        @Override
+                        public boolean onMenuItemActionCollapse(@NonNull MenuItem item) {
+                            onMenuItemCollapse(menu, item);
+                            return true;
+                        }
+                    });
+                } else {
+                    searchMenuItem.setVisible(false);
+                    searchMenuItem.collapseActionView();
+                }
             } else {
                 searchMenuItem.setVisible(false);
             }
@@ -403,6 +428,38 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             return true;
         }
     };
+
+    public void onMenuItemExpand(Menu menu, MenuItem item) {
+        binding.stickyContainer.setVisibility(View.GONE);
+
+        // Save the state of Menu
+        menuIdState.put("search", menu.findItem(R.id.menu_action_search).isVisible());
+        menuIdState.put("sortGroup", menu.findItem(R.id.menu_action_sort).isVisible());
+        menuIdState.put("createRepo", menu.findItem(R.id.create_repo).isVisible());
+        menuIdState.put("add", menu.findItem(R.id.add).isVisible());
+        menuIdState.put("select", menu.findItem(R.id.select).isVisible());
+
+        // hide other menu items
+        menu.findItem(R.id.menu_action_search).setVisible(false);
+        menu.findItem(R.id.menu_action_sort).setVisible(false);
+        menu.findItem(R.id.create_repo).setVisible(false);
+        menu.findItem(R.id.add).setVisible(false);
+        menu.findItem(R.id.select).setVisible(false);
+
+        adapter.notifySearchDataChanged(true, null);
+    }
+
+    public void onMenuItemCollapse(Menu menu, MenuItem item) {
+        binding.stickyContainer.setVisibility(View.VISIBLE);
+
+        menu.findItem(R.id.menu_action_search).setVisible(Boolean.TRUE.equals(menuIdState.get("search")));
+        menu.findItem(R.id.menu_action_sort).setVisible(Boolean.TRUE.equals(menuIdState.get("sortGroup")));
+        menu.findItem(R.id.create_repo).setVisible(Boolean.TRUE.equals(menuIdState.get("createRepo")));
+        menu.findItem(R.id.add).setVisible(Boolean.TRUE.equals(menuIdState.get("add")));
+        menu.findItem(R.id.select).setVisible(Boolean.TRUE.equals(menuIdState.get("select")));
+
+        adapter.notifySearchDataChanged(false, null);
+    }
 
     /**
      * @return 0: is pro edition, 1: is search enable
@@ -946,33 +1003,31 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         return newList;
     }
 
-    private void search(String keyword) {
-        if (!TextUtils.isEmpty(keyword)) {
-            //hide sticky view
-            binding.stickyContainer.setVisibility(View.GONE);
+    private void search(String keyword, boolean isPro) {
+        if (TextUtils.isEmpty(keyword)) {
+            return;
+        }
 
-            if (GlobalNavContext.getCurrentNavContext().inRepo()) {
-                RepoModel repoModel = GlobalNavContext.getCurrentNavContext().getRepoModel();
-                if (repoModel == null) {
-                    Toasts.show(R.string.op_unable_to_with_exception);
-                    return;
-                }
+        //hide sticky view
+        binding.stickyContainer.setVisibility(View.GONE);
 
-                String repo_id = repoModel.repo_id;
-                getViewModel().searchNext(repo_id, keyword, 1, 20);
-            } else {
-                getViewModel().searchNext(null, keyword, 1, 20);
+        if (GlobalNavContext.getCurrentNavContext().inRepo()) {
+            RepoModel repoModel = GlobalNavContext.getCurrentNavContext().getRepoModel();
+            if (repoModel == null) {
+                Toasts.show(R.string.op_unable_to_with_exception);
+                return;
             }
-        } else {
-            //show sticky view
-            binding.stickyContainer.setVisibility(View.VISIBLE);
 
-            adapter.notifySearchDataChanged(null, false);
+            String repoId = repoModel.repo_id;
+            String repoName = repoModel.repo_name;
+            getViewModel().searchNext(repoId, repoName, keyword, isPro, 1, 20);
+        } else {
+            getViewModel().searchNext(null, null, keyword, isPro, 1, 20);
         }
     }
 
-    private void notifySearchData(List<SearchModel> searchModels) {
-        adapter.notifySearchDataChanged(searchModels, true);
+    private void notifySearchData(List<SearchModel> results) {
+        adapter.notifySearchDataChanged(true, results);
     }
 
     private void showEmptyView() {
@@ -1382,10 +1437,14 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
     }
 
+    private Account getCurrentAccount() {
+        Account account = SupportAccountManager.getInstance().getCurrentAccount();
+        return account;
+    }
 
     /************ Files ************/
     private File getLocalDestinationFile(String repoId, String repoName, String fullPathInRepo) {
-        Account account = SupportAccountManager.getInstance().getCurrentAccount();
+        Account account = getCurrentAccount();
         return DataManager.getLocalFileCachePath(account, repoId, repoName, fullPathInRepo);
     }
 
@@ -1468,6 +1527,12 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
     @OptIn(markerClass = UnstableApi.class)
     private void open(RepoModel repoModel, DirentModel dirent, Bundle extras) {
+
+        Account account = getCurrentAccount();
+        if (account == null) {
+            return;
+        }
+
         if (repoModel == null) {
             Toasts.show(R.string.op_unable_to_with_exception);
             return;
@@ -1488,15 +1553,16 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             return;
         }
 
-        if (fileName.endsWith(Constants.Format.DOT_SDOC)) {
+        if (fileName.endsWith(Constants.FileExtensions.DOT_SDOC)) {
             String p = Utils.pathJoin(dirent.parent_dir, dirent.name);
             SDocWebViewActivity.openSdoc(getContext(), repoModel.repo_name, repoModel.repo_id, p, dirent.name);
             return;
         }
 
-        if (fileName.endsWith(Constants.Format.DOT_DRAW) || fileName.endsWith(Constants.Format.DOT_EXDRAW)) {
+        ServerInfo serverInfo = SupportAccountManager.getInstance().getServerInfo(account);
+        if (Utils.isOnlyOfficeFile(fileName) && serverInfo.isEnableOnlyOffice()) {
             String p = Utils.pathJoin(dirent.parent_dir, dirent.name);
-            SDocWebViewActivity.openDraw(getContext(), repoModel.repo_name, repoModel.repo_id, p, dirent.name);
+            OfficeDocumentWebActivity.openDocument(getContext(), repoModel.repo_name, repoModel.repo_id, p, dirent.name);
             return;
         }
 
@@ -1573,7 +1639,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
         List<DirentModel> direntModels1 = direntModels.stream().map(m -> (DirentModel) m).collect(Collectors.toList());
         List<String> uids = direntModels1.stream().map(m -> m.uid).collect(Collectors.toList());
-        Account account = SupportAccountManager.getInstance().getCurrentAccount();
+        Account account = getCurrentAccount();
         getViewModel().preDownload(requireContext(), account, uids);
     }
 
@@ -1996,7 +2062,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
         List<DirentModel> direntModels = dirents.stream().map(m -> (DirentModel) m).collect(Collectors.toList());
 
-        Account account = SupportAccountManager.getInstance().getCurrentAccount();
+        Account account = getCurrentAccount();
         RepoModel targetRepoModel = GlobalNavContext.getCurrentNavContext().getRepoModel();
         String targetDir = GlobalNavContext.getCurrentNavContext().getNavPath();
 
@@ -2225,7 +2291,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
     private void doSelectedMultiFile(List<Uri> uriList) {
         showLoadingDialog();
-        Account account = SupportAccountManager.getInstance().getCurrentAccount();
+        Account account = getCurrentAccount();
         RepoModel repoModel = GlobalNavContext.getCurrentNavContext().getRepoModel();
 
         if (repoModel == null) {
@@ -2342,7 +2408,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             return;
         }
 
-        Account account = SupportAccountManager.getInstance().getCurrentAccount();
+        Account account = getCurrentAccount();
         mainViewModel.addUploadTask(requireContext(), account, repoModel, localFile, targetDir, false);
 
         Toasts.show(R.string.added_to_upload_tasks);
@@ -2352,7 +2418,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
     private void addUploadTask(RepoModel repoModel, String targetDir, Uri sourceUri, String fileName, boolean isReplace) {
         //
-        Account account = SupportAccountManager.getInstance().getCurrentAccount();
+        Account account = getCurrentAccount();
         mainViewModel.addUploadTask(requireContext(), account, repoModel, sourceUri, targetDir, fileName, isReplace);
 
         Toasts.show(R.string.added_to_upload_tasks);

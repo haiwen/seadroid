@@ -61,7 +61,6 @@ import com.seafile.seadroid2.framework.util.PermissionUtil;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.framework.util.Utils;
-import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
@@ -106,6 +105,10 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
     private Handler viewHandler;
     private final Account currentAccount = SupportAccountManager.getInstance().getCurrentAccount();
     private SettingsFragmentViewModel viewModel;
+
+
+    //backup settings
+    private TextSwitchPreference mBackgroundBackupSwitch;
 
 
     // album backup
@@ -227,10 +230,13 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
 
         initWorkerBusObserver();
 
+
         // delay updates to avoid flickering
         runMainThreadDelay(() -> {
             switchAlbumBackupState(mAlbumBackupSwitch.isChecked());
             switchFolderBackupState(mFolderBackupSwitch.isChecked());
+
+            updateBackgroundBackupSwitch();
         });
 
     }
@@ -255,6 +261,8 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
         initAccountPref();
 
         initSignOutPref();
+
+        initBackupSettings();
 
         initAlbumBackupPref();
 
@@ -293,6 +301,10 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
             clearPassword();
             return true;
         });
+    }
+
+    private void initBackupSettings() {
+        mBackgroundBackupSwitch = findPreference(getString(R.string.pref_key_backup_settings_turn_on_background_switch));
     }
 
     private void initAlbumBackupPref() {
@@ -576,6 +588,22 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
         });
 
         //////////////////
+        /// backup settings
+        //////////////////
+        Settings.BACKUP_SETTINGS_BACKGROUND_SWITCH.observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+                mBackgroundBackupSwitch.setChecked(aBoolean);
+                if (PermissionUtil.hasNotGrantNotificationPermission(requireContext())) {
+                    PermissionUtil.requestNotificationPermission(requireActivity());
+                } else {
+                    updateBackgroundBackupService(aBoolean);
+                }
+
+            }
+        });
+
+        //////////////////
         /// album backup
         //////////////////
         Settings.ALBUM_BACKUP_SWITCH.observe(getViewLifecycleOwner(), new Observer<Boolean>() {
@@ -796,6 +824,7 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
     //0 : no one, 1 : camera, 2 : folder, 3 : modify storage location
     private int whoIsRequestingPermission = 0;
 
+
     private void requestCameraStoragePermission() {
         if (PermissionUtil.hasStoragePermission(requireContext())) {
             Intent intent = new Intent(requireActivity(), CameraUploadConfigActivity.class);
@@ -958,6 +987,10 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
                 mAlbumBackupAdvancedSelectedBucket.setSummaryTextColor(color);
             }
         }
+
+
+        //
+        updateBackgroundBackupSwitch();
     }
 
     private void launchAlbumBackupWhenReady(boolean isForce) {
@@ -976,16 +1009,19 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
             CameraUploadManager.getInstance().performSync(isForce);
 
             // start periodic album backup scan worker
-            BackgroundJobManagerImpl.getInstance().scheduleAlbumBackupPeriodicScan(SeadroidApplication.getAppContext());
+//            BackgroundJobManagerImpl.getInstance().scheduleAlbumBackupPeriodicScan(SeadroidApplication.getAppContext());
         } else {
             //stop
             // stop periodic album backup scan worker
-            BackgroundJobManagerImpl.getInstance().stopAlbumBackupPeriodicScan(SeadroidApplication.getAppContext());
+//            BackgroundJobManagerImpl.getInstance().stopAlbumBackupPeriodicScan(SeadroidApplication.getAppContext());
 
             BackupThreadExecutor.getInstance().stopAlbumBackup();
 
             CameraUploadManager.getInstance().disableCameraUpload();
         }
+
+        //
+        updateBackgroundBackupSwitch();
     }
 
     private void switchFolderBackupState(boolean isEnable) {
@@ -1043,6 +1079,9 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
         } else {
             mFolderBackupSelectFolder.setSummary(String.valueOf(pathList.size()));
         }
+
+
+        updateBackgroundBackupSwitch();
     }
 
     private void launchFolderBackupWhenReady(boolean isFullScan) {
@@ -1059,19 +1098,54 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
         if (FolderBackupSharePreferenceHelper.isFolderBackupEnable()) {
 
             //start periodic folder backup scan worker
-            BackgroundJobManagerImpl.getInstance().scheduleFolderBackupPeriodicScan(requireContext().getApplicationContext());
+//            BackgroundJobManagerImpl.getInstance().scheduleFolderBackupPeriodicScan(requireContext().getApplicationContext());
 
             BackupThreadExecutor.getInstance().runFolderBackupFuture(isFullScan);
 
         } else {
 
             // stop periodic folder backup service
-            BackgroundJobManagerImpl.getInstance().stopFolderBackupPeriodicScan(requireContext().getApplicationContext());
+//            BackgroundJobManagerImpl.getInstance().stopFolderBackupPeriodicScan(requireContext().getApplicationContext());
 
             BackupThreadExecutor.getInstance().stopFolderBackup();
         }
+
+        //
+        updateBackgroundBackupSwitch();
     }
 
+    private void updateBackgroundBackupSwitch() {
+        boolean isFolderTurnOn = FolderBackupSharePreferenceHelper.readBackupSwitch();
+        boolean isAlbumTurnOn = AlbumBackupSharePreferenceHelper.readBackupSwitch();
+        if (!isFolderTurnOn && !isAlbumTurnOn) {
+            Settings.BACKUP_SETTINGS_BACKGROUND_SWITCH.putValue(false);
+            updateBackgroundBackupService(false);
+            mBackgroundBackupSwitch.setChecked(false);
+            mBackgroundBackupSwitch.setEnabled(false);
+            return;
+        }
+
+        boolean folderEnable = FolderBackupSharePreferenceHelper.isFolderBackupEnable();
+        boolean albumEnable = AlbumBackupSharePreferenceHelper.isAlbumBackupEnable();
+        if (folderEnable || albumEnable) {
+            mBackgroundBackupSwitch.setEnabled(true);
+
+            //
+            boolean isTurnOn = Settings.BACKUP_SETTINGS_BACKGROUND_SWITCH.queryValue();
+            mBackgroundBackupSwitch.setChecked(isTurnOn);
+            updateBackgroundBackupService(isTurnOn);
+        } else {
+            mBackgroundBackupSwitch.setEnabled(false);
+        }
+    }
+
+    private void updateBackgroundBackupService(boolean isTurnOnOrTurnOff){
+        if (isTurnOnOrTurnOff) {
+            BusHelper.getCommonObserver().post(BusAction.START_FOREGROUND_FILE_MONITOR);
+        } else {
+            BusHelper.getCommonObserver().post(BusAction.STOP_FOREGROUND_FILE_MONITOR);
+        }
+    }
     private void runMainThreadDelay(Runnable runnable) {
         if (viewHandler != null) {
             viewHandler.postDelayed(runnable, 500);

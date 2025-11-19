@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.text.InputFilter;
 import android.text.Spanned;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -49,6 +50,8 @@ public class RichEditText extends MaxHeightScrollView {
     private OnRichImageClickListener onRichImageStatusChangeListener;
 
     private EditText lastFocusEdit;
+    private EditText currentFocusEdit;
+    private TextWatcher textWatcher;
 
     private int removingImageIndex = 0;
 
@@ -116,10 +119,27 @@ public class RichEditText extends MaxHeightScrollView {
         focusListener = (v, hasFocus) -> {
             if (hasFocus) {
                 lastFocusEdit = (EditText) v;
+                lastFocusEdit.removeTextChangedListener(textWatcher);
+                lastFocusEdit.addTextChangedListener(textWatcher);
             }
         };
     }
 
+    public void addText(String c) {
+        if (lastFocusEdit != null) {
+            lastFocusEdit.append(c);
+        }
+    }
+
+    public void setText(String c) {
+        if (lastFocusEdit != null) {
+            lastFocusEdit.setText(c);
+        }
+    }
+
+    public void setTextWatcher(TextWatcher textWatcher) {
+        this.textWatcher = textWatcher;
+    }
 
     private void onBackspacePress(EditText editText) {
         if (editText == null) {
@@ -353,7 +373,7 @@ public class RichEditText extends MaxHeightScrollView {
         }
     }
 
-    public static class RichContentModel{
+    public static class RichContentModel {
         public RichContentModel() {
         }
 

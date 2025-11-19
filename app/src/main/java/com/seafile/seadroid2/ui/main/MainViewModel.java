@@ -71,8 +71,8 @@ public class MainViewModel extends BaseViewModel {
 
 
     public void getServerInfo() {
-        Single<ServerInfoModel> single = HttpIO.getCurrentInstance().execute(MainService.class).getServerInfo();
-        addSingleDisposable(single, new Consumer<ServerInfoModel>() {
+        Single<ServerInfoModel> serverInfoSingle = HttpIO.getCurrentInstance().execute(MainService.class).getServerInfo();
+        addSingleDisposable(serverInfoSingle, new Consumer<ServerInfoModel>() {
             @Override
             public void accept(ServerInfoModel serverInfo) throws Exception {
                 Account account = SupportAccountManager.getInstance().getCurrentAccount();
