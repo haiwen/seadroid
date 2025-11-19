@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.framework.livephoto;
+package com.seafile.seadroid2.framework.motion_photo;
 
 import android.util.Log;
 

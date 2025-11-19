@@ -5,6 +5,7 @@ import static android.view.View.VISIBLE;
 import android.content.res.Configuration;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -18,9 +19,16 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.exifinterface.media.ExifInterface;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.media3.common.MediaItem;
+import androidx.media3.common.Player;
+import androidx.media3.common.util.UnstableApi;
+import androidx.media3.exoplayer.ExoPlayer;
+import androidx.media3.exoplayer.source.MediaSource;
+import androidx.media3.exoplayer.source.ProgressiveMediaSource;
 
 import com.blankj.utilcode.util.FileUtils;
 import com.blankj.utilcode.util.ScreenUtils;
@@ -38,6 +46,7 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.annotation.Unstable;
 import com.seafile.seadroid2.compat.ContextCompatKt;
 import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.databinding.FragmentPhotoViewBinding;
@@ -46,6 +55,7 @@ import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.glide.GlideApp;
 import com.seafile.seadroid2.framework.model.sdoc.FileProfileConfigModel;
+import com.seafile.seadroid2.framework.motion_photo.MotionPhotoParser;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.ThumbnailUtils;
 import com.seafile.seadroid2.ui.base.fragment.BaseFragment;
@@ -61,6 +71,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Locale;
 
+@OptIn(markerClass = UnstableApi.class)
 public class PhotoFragment extends BaseFragment {
     public static final String TAG = "PhotoFragment";
     private FragmentPhotoViewBinding binding;
@@ -72,6 +83,7 @@ public class PhotoFragment extends BaseFragment {
 
     private OnPhotoTapListener onPhotoTapListener;
     private String serverUrl;
+    private File destinationFile;
 
     public void setOnPhotoTapListener(OnPhotoTapListener onPhotoTapListener) {
         this.onPhotoTapListener = onPhotoTapListener;
@@ -212,12 +224,12 @@ public class PhotoFragment extends BaseFragment {
                 if (TextUtils.isEmpty(direntModel.local_file_id)) {
                     getViewModel().download(direntModel);
                 } else {
-                    File file = getLocalDestinationFile(direntModel.repo_id, direntModel.repo_name, direntModel.full_path);
-                    if (FileUtils.isFileExists(file)) {
+                    destinationFile = getLocalDestinationFile(direntModel.repo_id, direntModel.repo_name, direntModel.full_path);
+                    if (FileUtils.isFileExists(destinationFile)) {
                         if (isGif(fullPath)) {
-                            loadOriGifUrl(file.getAbsolutePath());
+                            loadOriGifUrl(destinationFile.getAbsolutePath());
                         } else {
-                            loadOriUrl(file.getAbsolutePath());
+                            loadOriUrl(destinationFile.getAbsolutePath());
                         }
                     } else {
                         getViewModel().download(direntModel);
@@ -236,10 +248,11 @@ public class PhotoFragment extends BaseFragment {
         getViewModel().getDownloadedPathLiveData().observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(String rawPath) {
+                destinationFile = new File(rawPath);
                 if (isGif(fullPath)) {
-                    loadOriGifUrl(rawPath);
+                    loadOriGifUrl(destinationFile.getAbsolutePath());
                 } else {
-                    loadOriUrl(rawPath);
+                    loadOriUrl(destinationFile.getAbsolutePath());
                 }
             }
         });
@@ -260,6 +273,13 @@ public class PhotoFragment extends BaseFragment {
     }
 
     private void initView() {
+        binding.btnLivePhoto.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                playLivePhotoVideo();
+            }
+        });
+
         TextView descTextView = binding.errorView.findViewById(R.id.desc);
         SpanUtils.with(descTextView)
                 .append(getString(R.string.error_image_load))
@@ -500,6 +520,7 @@ public class PhotoFragment extends BaseFragment {
         getViewModel().getFileDetail(repoId, fullPath);
     }
 
+    //remote url
     private void loadUrl(String url) {
         GlideApp.with(this)
                 .load(url)
@@ -526,6 +547,7 @@ public class PhotoFragment extends BaseFragment {
         getViewModel().checkLocal(repoId, fullPath);
     }
 
+    // local image file
     private void loadOriUrl(String oriUrl) {
 //        String thumbnailUrl = convertThumbnailUrl(fullPath);
 //        String thumbKey = EncryptUtils.encryptMD5ToString(thumbnailUrl);
@@ -576,6 +598,58 @@ public class PhotoFragment extends BaseFragment {
                 .into(binding.photoView);
     }
 
+    @OptIn(markerClass = Unstable.class)
+    private void playLivePhotoVideo() {
+        try {
+
+
+            MotionPhotoParser.Result result = MotionPhotoParser.parse(destinationFile);
+            if (!result.isMotionPhoto) {
+                return;
+            }
+
+            MediaSource source = buildMotionPhotoMediaSource(destinationFile, result.videoStartOffset, result.videoLength);
+            ExoPlayer exoPlayer = new ExoPlayer.Builder(requireContext()).build();
+
+            binding.playerView.setPlayer(exoPlayer);
+            exoPlayer.addListener(new Player.Listener() {
+                @Override
+                public void onPlaybackStateChanged(int playbackState) {
+                    switch (playbackState) {
+                        case Player.STATE_BUFFERING: //loading
+
+                            break;
+                        case Player.STATE_READY:
+                            binding.photoView.setVisibility(View.GONE);
+                            binding.playerView.setVisibility(View.VISIBLE);
+                            break;
+                        case Player.STATE_ENDED:
+                            binding.photoView.setVisibility(View.VISIBLE);
+                            binding.playerView.setVisibility(View.GONE);
+                            break;
+                    }
+                }
+            });
+            exoPlayer.setMediaSource(source);
+            exoPlayer.prepare();
+            exoPlayer.play();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private MediaSource buildMotionPhotoMediaSource(File jpegFile, long videoOffset, long videoLength) {
+        androidx.media3.datasource.DataSource.Factory factory = new FileRangeDataSourceFactory(jpegFile, videoOffset, videoLength);
+
+        MediaItem mediaItem = new MediaItem.Builder()
+                .setUri(Uri.fromFile(jpegFile))  // 形式上的 URI，占位即可
+                .build();
+
+        return new ProgressiveMediaSource.Factory(factory)
+                .createMediaSource(mediaItem);
+    }
+
+    // local gif file
     private void loadOriGifUrl(String rawUrl) {
         GlideApp.with(this)
                 .asGif()
