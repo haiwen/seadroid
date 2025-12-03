@@ -22,7 +22,11 @@ public class DataManager {
      * @throws IOException if the file could not be created.
      */
     public static File createTempFile() throws IOException {
-        return File.createTempFile("file-", ".tmp", StorageManager.getInstance().getTempDir());
+        return createTempFile(".tmp");
+    }
+
+    public static File createTempFile(String suffix) throws IOException {
+        return File.createTempFile("file-", suffix, StorageManager.getInstance().getTempDir());
     }
 
     /**

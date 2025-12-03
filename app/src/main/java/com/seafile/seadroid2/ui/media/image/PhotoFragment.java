@@ -30,6 +30,7 @@ import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.exoplayer.source.ProgressiveMediaSource;
 
+import com.adobe.internal.xmp.XMPException;
 import com.blankj.utilcode.util.FileUtils;
 import com.blankj.utilcode.util.ScreenUtils;
 import com.blankj.utilcode.util.SizeUtils;
@@ -55,10 +56,13 @@ import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.glide.GlideApp;
 import com.seafile.seadroid2.framework.model.sdoc.FileProfileConfigModel;
+import com.seafile.seadroid2.framework.motion_photo.GoogleMotionPhotoWithHEICExtractor;
+import com.seafile.seadroid2.framework.motion_photo.GoogleMotionPhotoWithJPEGExtractor;
 import com.seafile.seadroid2.framework.motion_photo.MotionPhotoParser;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.ThumbnailUtils;
 import com.seafile.seadroid2.ui.base.fragment.BaseFragment;
+import com.seafile.seadroid2.ui.media.data_source.MotionPhotoDataSourceFactory;
 import com.seafile.seadroid2.view.DocProfileView;
 import com.seafile.seadroid2.view.photoview.OnPhotoTapListener;
 import com.seafile.seadroid2.view.photoview.OnViewActionEndListener;
@@ -602,13 +606,21 @@ public class PhotoFragment extends BaseFragment {
     private void playLivePhotoVideo() {
         try {
 
-
-            MotionPhotoParser.Result result = MotionPhotoParser.parse(destinationFile);
-            if (!result.isMotionPhoto) {
+//            if (destinationFile.getAbsolutePath().endsWith(".heic")) {
+//                MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+//                retriever.setDataSource(destinationFile.getAbsolutePath());
+//                String hasVideo = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_HAS_VIDEO);
+//                if (TextUtils.equals("yes",hasVideo)){
+//                    retriever.getFrameAtTime(0,MediaMetadataRetriever.OPTION_CLOSEST_SYNC);
+//                }
+//            }
+            MotionPhotoParser.MotionPhotoType motionPhotoType = MotionPhotoParser.checkMotionPhotoType(destinationFile.getAbsolutePath());
+            if (!motionPhotoType.isMotionPhoto()) {
                 return;
             }
 
-            MediaSource source = buildMotionPhotoMediaSource(destinationFile, result.videoStartOffset, result.videoLength);
+
+            MediaSource source = buildMotionPhotoMediaSource(motionPhotoType, destinationFile);
             ExoPlayer exoPlayer = new ExoPlayer.Builder(requireContext()).build();
 
             binding.playerView.setPlayer(exoPlayer);
@@ -633,21 +645,34 @@ public class PhotoFragment extends BaseFragment {
             exoPlayer.setMediaSource(source);
             exoPlayer.prepare();
             exoPlayer.play();
-        } catch (IOException e) {
+        } catch (IOException | XMPException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private MediaSource buildMotionPhotoMediaSource(File jpegFile, long videoOffset, long videoLength) {
-        androidx.media3.datasource.DataSource.Factory factory = new FileRangeDataSourceFactory(jpegFile, videoOffset, videoLength);
+    private MediaSource buildMotionPhotoMediaSource(MotionPhotoParser.MotionPhotoType motionPhotoType, File imageFile) throws IOException, XMPException {
+        byte[] videoBytes = null;
+        if (motionPhotoType == MotionPhotoParser.MotionPhotoType.HEIC_MOTION_PHOTO) {
+            videoBytes = GoogleMotionPhotoWithHEICExtractor.extractVideo(imageFile);
+
+        } else if (motionPhotoType == MotionPhotoParser.MotionPhotoType.JPEG_MOTION_PHOTO) {
+            byte[] bytes = org.apache.commons.io.FileUtils.readFileToByteArray(imageFile);
+            videoBytes = GoogleMotionPhotoWithJPEGExtractor.extractVideoData(bytes);
+        }
+        if (videoBytes == null || videoBytes.length == 0) {
+            return null;
+        }
+
+        androidx.media3.datasource.DataSource.Factory factory = new MotionPhotoDataSourceFactory(videoBytes);
 
         MediaItem mediaItem = new MediaItem.Builder()
-                .setUri(Uri.fromFile(jpegFile))  // 形式上的 URI，占位即可
+                .setUri(Uri.fromFile(imageFile))
                 .build();
 
         return new ProgressiveMediaSource.Factory(factory)
                 .createMediaSource(mediaItem);
     }
+
 
     // local gif file
     private void loadOriGifUrl(String rawUrl) {

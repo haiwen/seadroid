@@ -1,5 +1,8 @@
 package com.seafile.seadroid2.framework.motion_photo;
 
+import android.content.ContentResolver;
+import android.content.Context;
+import android.net.Uri;
 import android.text.TextUtils;
 
 import androidx.annotation.Nullable;
@@ -8,18 +11,19 @@ import com.adobe.internal.xmp.XMPException;
 import com.adobe.internal.xmp.XMPIterator;
 import com.adobe.internal.xmp.XMPMeta;
 import com.adobe.internal.xmp.properties.XMPPropertyInfo;
-import com.drew.imaging.ImageMetadataReader;
-import com.drew.metadata.Metadata;
-import com.drew.metadata.xmp.XmpDirectory;
 import com.google.common.primitives.Longs;
+import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.annotation.Todo;
 import com.seafile.seadroid2.annotation.Unstable;
 import com.seafile.seadroid2.framework.util.SLogs;
 
-import java.io.ByteArrayInputStream;
+import org.apache.commons.io.FileUtils;
+
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.RandomAccessFile;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 @Todo
 @Unstable
@@ -70,318 +74,159 @@ public final class MotionPhotoParser {
                     ", videoLength=" + videoLength +
                     '}';
         }
+
     }
 
     public enum MotionPhotoType {
-        MICRO_VIDEO,
-        MOTION_PHOTO,
-        FTYP,
-        JPEG
-    }
-    // ============================
-    // Public API
-    // ============================
+        MICRO_VIDEO,// v1, motion photo based on JPEG format (image+xmp+video)
+        JPEG_MOTION_PHOTO,// v2,motion photo based on JPEG format (image+xmp+video)
+        HEIC_MOTION_PHOTO,// other,motion photo based on HEIC format (ISO BMFF:image+video)
+        FTYP, // huawei motion photo based on JPEG format (image+video)
+        NO;
 
-    public static Result parse(File jpegFile) throws IOException {
-        try (RandomAccessFile raf = new RandomAccessFile(jpegFile, "r")) {
-            byte[] bytes = new byte[(int) raf.length()];
-            raf.readFully(bytes);
-            return parse(bytes);
+        public boolean isMotionPhoto() {
+            return this == JPEG_MOTION_PHOTO || this == HEIC_MOTION_PHOTO;
         }
     }
 
-    public static Result parse(byte[] jpegBytes) {
-        XMPMeta xmp = extractXmp(jpegBytes);
-        MotionPhotoType motionPhotoType = checkMotionPhoto(xmp, jpegBytes);
-
-        if (motionPhotoType == MotionPhotoType.JPEG) {
-            SLogs.d(TAG, "MotionPhotoType=JPEG");
-            return new Result(false, 0L, -1, -1);
-        }
-
-        Long pts = readPtsSafe(xmp);
-        long ptsValue = pts == null ? 0L : pts;
-        SLogs.d(TAG, "MotionPhotoType=" + motionPhotoType + " PTS=" + ptsValue);
-
-        if (motionPhotoType == MotionPhotoType.FTYP) {
-            FtypScanResult ftypResult = fallbackLocateVideoWithLength(jpegBytes);
-            return new Result(true, ptsValue, ftypResult.videoStartOffset, ftypResult.videoLength);
-        }
-
-        Long containerVideoLength = parseContainerVideoLength(xmp);
-
-        long videoStart, videoLength;
-        if (containerVideoLength == null) {
-            FtypScanResult ftypResult = fallbackLocateVideoWithLength(jpegBytes);
-            videoStart = ftypResult.videoStartOffset;
-            videoLength = ftypResult.videoLength;
+    public static MotionPhotoType checkMotionPhotoType(String path) throws IOException {
+        byte[] bytes;
+        if (path.startsWith("content://")) {
+            bytes = readBytesFromContentUri(path);
         } else {
-            videoLength = containerVideoLength;
-            videoStart = jpegBytes.length - videoLength;
+            File imageFile = new File(path);
+            bytes = FileUtils.readFileToByteArray(imageFile);
         }
-
-        return new Result(true, ptsValue, videoStart, videoLength);
+        return checkMotionPhotoType(bytes);
     }
 
-    // ============================
-    // extract xmp
-    // ============================
-    private static XMPMeta extractXmp(byte[] jpegBytes) {
-        try {
-            Metadata metadata = ImageMetadataReader.readMetadata(new ByteArrayInputStream(jpegBytes));
-            XmpDirectory dir = metadata.getFirstDirectoryOfType(XmpDirectory.class);
-            if (dir != null) {
-                return dir.getXMPMeta();
-            }
-        } catch (Exception ignore) {
+    /**
+     * Check if the image file is a motion photo and its type
+     *
+     * @return MotionPhotoType 动态照片类型
+     */
+    public static MotionPhotoType checkMotionPhotoType(byte[] bytes) throws IOException {
+        if (bytes == null) {
+            return MotionPhotoType.NO;
         }
-        return null;
+
+        if (bytes.length == 0) {
+            return MotionPhotoType.NO;
+        }
+
+        if (bytes.length < 12) {
+            return MotionPhotoType.NO;
+        }
+
+        // 判断文件格式
+        String format = detectImageFormat(bytes);
+
+        if ("JPEG".equals(format)) {
+            // 尝试提取XMP
+            XMPMeta xmpMeta = HeifUtils.extractXmpFromBytes(bytes);
+            if (xmpMeta != null) {
+                // 检查是否为MICRO_VIDEO
+                try {
+                    String microVideo = xmpMeta.getPropertyString("http://ns.google.com/photos/1.0/camera/", "MicroVideo");
+                    if ("1".equals(microVideo)) {
+                        return MotionPhotoType.MICRO_VIDEO;
+                    }
+                } catch (XMPException e) {
+                    // 忽略异常，继续检查其他类型
+                }
+
+                // 检查是否为JPEG_MOTION_PHOTO
+                try {
+                    String motionPhoto = xmpMeta.getPropertyString("http://ns.google.com/photos/1.0/camera/", "MotionPhoto");
+                    if ("1".equals(motionPhoto)) {
+                        return MotionPhotoType.JPEG_MOTION_PHOTO;
+                    }
+                } catch (XMPException e) {
+                    // 忽略异常，继续检查其他类型
+                }
+            }
+
+            // 如果提取不到XMP或XMP中没有相关属性，检查是否包含ftyp关键字
+            return checkMotionPhotoByFtyp(bytes);
+        } else if ("HEIC".equals(format)) {
+            // 对于HEIC格式，使用GoogleMotionPhotoWithHeicExtractor判断
+            try {
+                if (GoogleMotionPhotoWithHEICExtractor.hasMotionVideo(bytes)) {
+                    return MotionPhotoType.HEIC_MOTION_PHOTO;
+                }
+            } catch (XMPException e) {
+                // 如果出现XMP异常，认为不是动态照片
+                return MotionPhotoType.NO;
+            }
+        }
+
+        return MotionPhotoType.NO;
     }
 
-    private static MotionPhotoType checkMotionPhoto(XMPMeta xmp, byte[] jpegBytes) {
+    /**
+     * 从 content:// URI 读取文件字节数据
+     *
+     * @param contentUri content:// URI 字符串
+     * @return 文件字节数据
+     */
+    public static byte[] readBytesFromContentUri(String contentUri) throws IOException {
+        Context context = SeadroidApplication.getAppContext(); // 获取应用程序上下文
+        ContentResolver contentResolver = context.getContentResolver();
+        Uri uri = Uri.parse(contentUri);
 
-        try {
-            if (xmp == null) {
-                return checkMotionPhotoByFtyp(jpegBytes);
+        try (InputStream inputStream = contentResolver.openInputStream(uri);
+             ByteArrayOutputStream buffer = new ByteArrayOutputStream()) {
+
+            if (inputStream == null) {
+                throw new IOException("Unable to open input stream for URI: " + contentUri);
             }
 
-            // 2. Xiaomi legacy MicroVideo
-            String microVideoV = xmp.getPropertyString(NS_G_CAMERA, "MicroVideo");
-            if (TextUtils.equals("1", microVideoV)) {
-                SLogs.d(TAG, "Detected MotionPhotoType=MICRO_VIDEO");
-                return MotionPhotoType.MICRO_VIDEO;
+            byte[] data = new byte[16384]; // 16KB 缓冲区
+            int nRead;
+            while ((nRead = inputStream.read(data, 0, data.length)) != -1) {
+                buffer.write(data, 0, nRead);
             }
 
-            String motionPhotoV = xmp.getPropertyString(NS_G_CAMERA, "MotionPhoto");
-            if (TextUtils.equals("1", motionPhotoV)) {
-                SLogs.d(TAG, "Detected MotionPhotoType=MOTION_PHOTO");
-                return MotionPhotoType.MOTION_PHOTO;
-            }
-
-            MotionPhotoType type = checkMotionPhotoByFtyp(jpegBytes);
-            SLogs.d(TAG, "Detected MotionPhotoType by FTYP fallback: " + type);
-            return type;
-        } catch (Exception ignore) {
-            return MotionPhotoType.JPEG;
+            buffer.flush();
+            return buffer.toByteArray();
+        } catch (Exception e) {
+            throw new IOException("Error reading from content URI: " + contentUri, e);
         }
+    }
+
+    /**
+     * 检测图片格式
+     *
+     * @param header 文件头部字节
+     * @return "JPEG" 或 "HEIC" 或 "UNKNOWN"
+     */
+    private static String detectImageFormat(byte[] header) {
+        // JPEG格式检测 (SOI标记: 0xFFD8)
+        if ((header[0] & 0xFF) == 0xFF && (header[1] & 0xFF) == 0xD8) {
+            return "JPEG";
+        }
+
+        // HEIC格式检测 (ftyp box)
+        // HEIC文件通常以长度(4字节) + ftyp(4字节) + brand(4字节) 开始
+        // 其中brand可能是heic, heix, mif1等
+        if (header[4] == 'f' && header[5] == 't' && header[6] == 'y' && header[7] == 'p') {
+            // 检查brand是否为HEIC相关
+            String brand = new String(header, 8, 4, StandardCharsets.US_ASCII);
+            if ("heic".equals(brand) || "heix".equals(brand) || "mif1".equals(brand)) {
+                return "HEIC";
+            }
+        }
+
+        return "UNKNOWN";
     }
 
     private static MotionPhotoType checkMotionPhotoByFtyp(byte[] jpegBytes) {
-        if (jpegBytes == null) {
-            return MotionPhotoType.JPEG;
-        }
-
-        if (jpegBytes.length == 0) {
-            return MotionPhotoType.JPEG;
-        }
-
         byte[] target = new byte[]{'f', 't', 'y', 'p'};
         for (int i = jpegBytes.length - 4; i >= 0; i--) {
             if (jpegBytes[i] == target[0] && jpegBytes[i + 1] == target[1] && jpegBytes[i + 2] == target[2] && jpegBytes[i + 3] == target[3]) {
                 return MotionPhotoType.FTYP;
             }
         }
-        return MotionPhotoType.JPEG;
-    }
-
-    @Nullable
-    private static Long parseContainerVideoLength(XMPMeta xmp) {
-        Long containerVideoLength = parseContainerVideoLengthWithMicroVideo(xmp);
-        if (containerVideoLength == null) {
-            containerVideoLength = parseContainerVideoLengthWithMotionPhoto(xmp);
-        }
-
-        return containerVideoLength;
-    }
-
-    /**
-     * V1 data structures. xiaomi used it.
-     *
-     */
-    @Nullable
-    private static Long parseContainerVideoLengthWithMicroVideo(XMPMeta xmp) {
-        try {
-            String offsetStr = xmp.getPropertyString(NS_G_CAMERA, "MicroVideoOffset");
-            if (TextUtils.isEmpty(offsetStr)) {
-                return null;
-            }
-            return Longs.tryParse(offsetStr);
-        } catch (XMPException e) {
-            SLogs.e(e);
-            return null;
-        }
-    }
-
-    /**
-     * V2 data structures. Android standard data structures.
-     */
-    @Nullable
-    private static Long parseContainerVideoLengthWithMotionPhoto(XMPMeta xmp) {
-        if (xmp == null) return null;
-
-        // 临时记录：上一个路径的父节点（用于匹配 Length）
-        String currentItemPath = null;
-        boolean isVideoItem = false;
-
-        long accumulatedOffset = 0;
-
-        try {
-            XMPIterator it = xmp.iterator();
-
-            String currentSemantic = null;
-            String currentMime = null;
-            Long currentLength = null;
-            Long currentPadding = null;
-
-            while (it.hasNext()) {
-                XMPPropertyInfo prop = (XMPPropertyInfo) it.next();
-
-                String ns = prop.getNamespace();
-                String path = prop.getPath();
-                String value = prop.getValue();
-
-                // 只处理 Item 命名空间
-                if (!TextUtils.equals(NS_G_CONTAINER_ITEM, ns)) {
-                    continue;
-                }
-
-                if (path.endsWith("Item:Semantic")) {
-                    currentSemantic = value;
-                }
-
-                if (path.endsWith("Item:Mime")) {
-                    currentMime = value;
-                    if ("video/mp4".equals(value)) {
-                        // 记录当前 Item 节点路径（不含属性名）
-                        currentItemPath = path.replace("/Item:Mime", "");
-                        isVideoItem = true;
-                    } else {
-                        isVideoItem = false;
-                    }
-                }
-
-                if (path.endsWith("Item:Length")) {
-                    try {
-                        currentLength = Long.parseLong(value);
-                    } catch (Exception ignore) {
-                        currentLength = null;
-                    }
-                }
-
-                if (path.endsWith("Item:Padding")) {
-                    try {
-                        currentPadding = Long.parseLong(value);
-                    } catch (Exception ignore) {
-                        currentPadding = 0L;
-                    }
-                }
-
-                // Check if we have gathered Mime, Length, Padding for the current item
-                // We assume these properties appear grouped per item, so when we see Length or Padding, we can process accumulated info
-                // Or when path is last property of the item, but we have no clear indicator, so we process when Length or Padding is found.
-
-                // Only process when length is not null (Length is mandatory for offset calculation)
-                boolean hasLength = currentLength != null;
-                if (hasLength) {
-                    long paddingVal = currentPadding == null ? 0L : currentPadding.longValue();
-                    // Log the current item info
-                    SLogs.d(TAG, "Item: Semantic=" + currentSemantic + " Mime=" + currentMime + " Length=" + currentLength + " Padding=" + paddingVal + " accumulatedOffset=" + accumulatedOffset);
-
-                    if (isVideoItem) {
-                        // For video item, return the length, and the start offset is accumulatedOffset
-                        // Note: The caller uses length and calculates start offset as jpegBytes.length - length,
-                        // so here we just return length, but the accumulatedOffset can be used for debugging or future use.
-                        return currentLength;
-                    }
-
-                    // Accumulate offset for next item
-                    accumulatedOffset += currentLength + paddingVal;
-
-                    // Reset current item info for next item
-                    currentSemantic = null;
-                    currentMime = null;
-                    currentLength = null;
-                    currentPadding = null;
-                    isVideoItem = false;
-                    currentItemPath = null;
-                }
-            }
-        } catch (XMPException e) {
-            throw new RuntimeException(e);
-        }
-        return null;
-    }
-
-    @Nullable
-    private static Long readPtsSafe(XMPMeta meta) {
-        if (meta == null) return 0L;
-        try {
-            String v1Pts = meta.getPropertyString(NS_G_CAMERA, "MicroVideoPresentationTimestampUs");
-            String v2Pts = meta.getPropertyString(NS_G_CAMERA, "MotionPhotoPresentationTimestampUs");
-            if (!TextUtils.isEmpty(v1Pts)) {
-                Long pts = Longs.tryParse(v1Pts);
-                SLogs.d(TAG, "Read PTS v1: " + pts);
-                return pts;
-            } else if (!TextUtils.isEmpty(v2Pts)) {
-                Long pts = Longs.tryParse(v2Pts);
-                SLogs.d(TAG, "Read PTS v2: " + pts);
-                return pts;
-            }
-            return null;
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    private static class FtypScanResult {
-        final long videoStartOffset;
-        final long videoLength;
-
-        FtypScanResult(long start, long length) {
-            this.videoStartOffset = start;
-            this.videoLength = length;
-        }
-    }
-
-    /**
-     * Scans JPEG bytes for ftyp box to locate embedded video.
-     * Performs stricter JPEG structure check (SOI + APP1 segments before SOS) and estimates video length if XMP is missing.
-     */
-    private static FtypScanResult fallbackLocateVideoWithLength(byte[] jpegBytes) {
-        if (jpegBytes == null || jpegBytes.length < 8) {
-            throw new IllegalArgumentException("Invalid JPEG data");
-        }
-
-        // 1. Check JPEG SOI
-        if ((jpegBytes[0] & 0xFF) != 0xFF || (jpegBytes[1] & 0xFF) != 0xD8) {
-            throw new IllegalStateException("Not a valid JPEG file (SOI missing)");
-        }
-
-        // 2. Optional: skip APP0 / APP1 / XMP segments
-        int pos = 2;
-        while (pos + 3 < jpegBytes.length) {
-            if ((jpegBytes[pos] & 0xFF) != 0xFF) break;
-            int marker = jpegBytes[pos + 1] & 0xFF;
-            int length = ((jpegBytes[pos + 2] & 0xFF) << 8) | (jpegBytes[pos + 3] & 0xFF);
-            if (length < 2) break;
-            pos += 2 + length;
-            if (marker == 0xDA) break; // SOS start of scan
-        }
-
-        // 3. Scan from pos to end for 'ftyp'
-        byte[] ftyp = new byte[]{'f', 't', 'y', 'p'};
-        for (int i = pos; i <= jpegBytes.length - 4; i++) {
-            if (jpegBytes[i] == ftyp[0] &&
-                    jpegBytes[i + 1] == ftyp[1] &&
-                    jpegBytes[i + 2] == ftyp[2] &&
-                    jpegBytes[i + 3] == ftyp[3]) {
-                long videoStart = i - 4;
-                long videoLength = jpegBytes.length - videoStart;
-                SLogs.d(TAG, "FTYP located at offset=" + videoStart + " length=" + videoLength);
-                return new FtypScanResult(videoStart, videoLength);
-            }
-        }
-
-        throw new IllegalStateException("Cannot locate ftyp box, unsupported MotionPhoto structure");
+        return MotionPhotoType.NO;
     }
 }

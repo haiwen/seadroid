@@ -8,6 +8,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.core.util.Pair;
 
 import com.blankj.utilcode.util.CloneUtils;
 import com.seafile.seadroid2.R;
@@ -18,10 +19,14 @@ import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.SaveTo;
 import com.seafile.seadroid2.enums.TransferResult;
 import com.seafile.seadroid2.enums.TransferStatus;
+import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.FileBackupStatusEntity;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
 import com.seafile.seadroid2.framework.http.HttpIO;
+import com.seafile.seadroid2.framework.motion_photo.GoogleMotionPhotoWithJPEGExtractor;
+import com.seafile.seadroid2.framework.motion_photo.MotionPhotoParser;
+import com.seafile.seadroid2.framework.motion_photo.MpvdPacker;
 import com.seafile.seadroid2.framework.notification.GeneralNotificationHelper;
 import com.seafile.seadroid2.framework.util.ExceptionUtils;
 import com.seafile.seadroid2.framework.util.FileUtils;
@@ -199,6 +204,26 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
             throw SeafException.UNAUTHORIZED_EXCEPTION;
         }
 
+
+        try {
+            byte[] bytes = MotionPhotoParser.readBytesFromContentUri(currentTransferModel.full_path);
+            MotionPhotoParser.MotionPhotoType motionPhotoType = MotionPhotoParser.checkMotionPhotoType(bytes);
+            if (motionPhotoType.isMotionPhoto()) {
+                if (motionPhotoType == MotionPhotoParser.MotionPhotoType.JPEG_MOTION_PHOTO) {
+                    Pair<byte[], byte[]> pair = GoogleMotionPhotoWithJPEGExtractor.extractData(bytes);
+                    byte[] imageBytes = pair.first;
+                    byte[] videoBytes = pair.second;
+                    File out = DataManager.createTempFile(".heic");
+                    MpvdPacker.pack(imageBytes, videoBytes,null, out);
+                    currentTransferModel.full_path = out.getAbsolutePath();
+                }
+            }
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+
         SafeLogs.d(TAG, "transferFile()", "start transfer, local file path: " + currentTransferModel.full_path);
 
         //net
@@ -283,14 +308,20 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
         SafeLogs.d(TAG, "upload url: " + uploadUrl);
         SafeLogs.d(TAG, "upload headers: " + request.headers());
 
-        newCall = getPrimaryHttpClient(account).newCall(request);
+        newCall =
 
-        try (Response response = newCall.execute()) {
+                getPrimaryHttpClient(account).
+
+                        newCall(request);
+
+        try (
+                Response response = newCall.execute()) {
             Protocol protocol = response.protocol();
             SafeLogs.d(TAG, "onRes()", "response code: " + response.code() + ", protocol: " + protocol);
 
             onRes(response);
-        } catch (Exception e) {
+        } catch (
+                Exception e) {
             SafeLogs.e(TAG, "upload file failed.");
             SafeLogs.e(e);
 
