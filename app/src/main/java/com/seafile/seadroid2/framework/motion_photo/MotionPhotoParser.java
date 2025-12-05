@@ -25,8 +25,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
-@Todo
-@Unstable
 public final class MotionPhotoParser {
     private static final String TAG = "MotionPhotoParser";
     private final int JPEG_SOI = 0xFFD8;

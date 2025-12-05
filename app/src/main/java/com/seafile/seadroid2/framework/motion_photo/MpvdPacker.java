@@ -8,6 +8,7 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
@@ -21,16 +22,7 @@ import java.nio.charset.StandardCharsets;
 public final class MpvdPacker {
 
     private static final String TAG = "MpvdPacker";
-
-//    public static void pack(File originalJpegFile, File mp4File, File outFile) throws IOException {
-//        byte[] jpegBytes = FileUtils.readFileToByteArray(originalJpegFile);
-////        XMPMeta xmpMeta = MotionPhotoParser.extractXmp(jpegBytes);
-//
-//        byte[] heic = HeifUtils.jpegToHeif(jpegBytes);
-//        byte[] mp4 = FileUtils.readFileToByteArray(mp4File);
-//
-//        pack(heic, mp4, outFile);
-//    }
+    private static final byte[] TYPE_MPVD = {'m', 'p', 'v', 'd'};
 
     /**
      * Pack heicFile + mp4File into outFile, adding a top-level mpvd box.
@@ -38,59 +30,51 @@ public final class MpvdPacker {
      * - verify input heic does not already contain 'mpvd' top-level box (best-effort)
      * - find XMP packet and update/insert MotionPhotoPadding with headerSize (8 or 16)
      */
-//    public static void pack(byte[] heic, byte[] mp4, File outFile) throws IOException {
-//        pack(heic, mp4, outFile);
-//    }
-
-    /**
-     * Pack heicFile + mp4File into outFile, adding a top-level mpvd box.
-     * This method will:
-     * - verify input heic does not already contain 'mpvd' top-level box (best-effort)
-     * - find XMP packet and update/insert MotionPhotoPadding with headerSize (8 or 16)
-     */
-    public static void pack(byte[] heic, byte[] mp4, XMPMeta xmpMeta, File outFile) throws IOException {
+    public static void pack(byte[] heic, byte[] mp4, File outFile) throws IOException {
 
         // quick check: if heic already contains 'mpvd' at top-level tail, abort
         if (containsTopLevelMpvd(heic)) {
             throw new IOException("Input HEIC already contains top-level mpvd box");
         }
 
+        long boxSize = mp4.length;
+        // HEIC 必须支持大于 4GB？
+        if (boxSize > 0xFFFFFFFFL) {
+            throw new IOException("mpvd box too large");
+        }
 
-        // determine mpvd header size: normal 32-bit size -> header 8 bytes (4 size + 4 type)
-        // Note: For typical mobile use cases, mp4 files are unlikely to exceed 4GB,
-        // so useLargeSize will almost always be false, resulting in mpvdHeaderSize = 8
-        long totalPayload = mp4.length;
-        boolean useLargeSize = (totalPayload + 8L) > 0xFFFFFFFFL;
-        int mpvdHeaderSize = useLargeSize ? 16 : 8; // header size bytes to be recorded as padding in XMP
+
+        int mpvdHeaderSize = 8; // header size bytes to be recorded as padding in XMP
 
         // modify XMP: set MotionPhotoPadding to header size
         byte[] newHeic = updateXmpMotionPhotoPadding(heic, mpvdHeaderSize);
 
-        // write new file: newHeic + mpvd box header + mp4 bytes
-        try (FileOutputStream fos = new FileOutputStream(outFile);
-             BufferedOutputStream bos = new BufferedOutputStream(fos)) {
+//        try (RandomAccessFile raf = new RandomAccessFile(heicFile, "rw")) {
+//
+//            // 移动到文件末尾
+//            raf.seek(raf.length());
+//
+//            // 写入 box size（4 字节大端）
+//            raf.write(intToBigEndian((int) boxSize), 0, 4);
+//
+//            // 写入 box type "mpvd"
+//            raf.write(TYPE_MPVD);
+//
+//            // 写入 video bytes
+//            raf.write(mp4);
+//        }
+    }
 
-            // write heic prolog (modified)
-            bos.write(newHeic);
-
-            // construct mpvd box header
-            long fullBoxSize = mpvdHeaderSize + totalPayload; // header + payload
-            if (!useLargeSize) {
-                // 32-bit size fits
-                bos.write(intToBytes((int) fullBoxSize)); // 4 bytes size
-                bos.write("mpvd".getBytes(StandardCharsets.US_ASCII)); // 4 bytes type
-            } else {
-                // write size=1 then type then 8-byte largesize
-                bos.write(intToBytes(1)); // size field = 1 indicates largesize used
-                bos.write("mpvd".getBytes(StandardCharsets.US_ASCII));
-                bos.write(longToBytes(fullBoxSize)); // 8-byte largesize
-            }
-
-            // write payload (the entire mp4 file bytes)
-            bos.write(mp4);
-
-            bos.flush();
-        }
+    /**
+     * 将 int 转为 4 字节大端
+     */
+    private static byte[] intToBigEndian(int value) {
+        return new byte[]{
+                (byte) ((value >> 24) & 0xFF),
+                (byte) ((value >> 16) & 0xFF),
+                (byte) ((value >> 8) & 0xFF),
+                (byte) (value & 0xFF)
+        };
     }
 
     // Check naive presence of top-level mpvd at the tail: look for 4-byte size followed by 'mpvd' near the end

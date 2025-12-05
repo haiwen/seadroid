@@ -54,9 +54,6 @@ public class TransferModel implements Comparable<TransferModel> {
     public long created_at;
     public int retry_times = 0;
 
-    public String getFileName() {
-        return file_name;
-    }
 
     public long file_size; //文件大小
     public long transferred_size; //已传输大小
@@ -68,6 +65,24 @@ public class TransferModel implements Comparable<TransferModel> {
      * save to where, 0:no save, 1: db,
      */
     public SaveTo save_to = SaveTo.NO_SAVE;
+
+
+    public String getFileName() {
+        return file_name;
+    }
+
+    public String getFileNameWithoutExtendFormat() {
+        if (TextUtils.isEmpty(file_name)) {
+            return file_name;
+        }
+
+        if (!file_name.contains(".")) {
+            return file_name;
+        }
+
+        return file_name.substring(0, file_name.lastIndexOf("."));
+    }
+
 
     @NonNull
     @Override

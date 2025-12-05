@@ -12,6 +12,8 @@ import com.adobe.internal.xmp.XMPException;
 import com.adobe.internal.xmp.XMPIterator;
 import com.adobe.internal.xmp.XMPMeta;
 import com.adobe.internal.xmp.properties.XMPPropertyInfo;
+import com.drew.imaging.ImageMetadataReader;
+import com.drew.imaging.jpeg.JpegMetadataReader;
 import com.google.common.primitives.Longs;
 import com.seafile.seadroid2.framework.util.SLogs;
 
@@ -24,6 +26,10 @@ public class GoogleMotionPhotoWithJPEGExtractor {
     private static final String TAG = "GoogleMotionPhotoWithJPEGExtractor";
 
     public static Pair<byte[], byte[]> extractData(File jegFile) throws IOException {
+        if (jegFile == null || !jegFile.exists() || !jegFile.isFile()) {
+            return null;
+        }
+
         byte[] bytes = FileUtils.readFileToByteArray(jegFile);
         return extractData(bytes);
     }
@@ -387,7 +393,7 @@ public class GoogleMotionPhotoWithJPEGExtractor {
         }
 
         // 3. Scan from pos to end for 'ftyp'
-        byte[] ftyp = new byte[] { 'f', 't', 'y', 'p' };
+        byte[] ftyp = new byte[]{'f', 't', 'y', 'p'};
         for (int i = pos; i <= jpegBytes.length - 4; i++) {
             if (jpegBytes[i] == ftyp[0] &&
                     jpegBytes[i + 1] == ftyp[1] &&

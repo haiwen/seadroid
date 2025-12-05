@@ -29,6 +29,10 @@ public class DataManager {
         return File.createTempFile("file-", suffix, StorageManager.getInstance().getTempDir());
     }
 
+    public static File createTempFile(String prefix, String suffix) throws IOException {
+        return File.createTempFile(prefix, suffix, StorageManager.getInstance().getTempDir());
+    }
+
     /**
      * The account directory structure of Seafile is like this:
      * <p>

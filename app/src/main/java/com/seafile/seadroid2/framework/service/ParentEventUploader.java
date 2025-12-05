@@ -25,6 +25,7 @@ import com.seafile.seadroid2.framework.db.entities.FileBackupStatusEntity;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.motion_photo.GoogleMotionPhotoWithJPEGExtractor;
+import com.seafile.seadroid2.framework.motion_photo.MotionHeicWriter;
 import com.seafile.seadroid2.framework.motion_photo.MotionPhotoParser;
 import com.seafile.seadroid2.framework.motion_photo.MpvdPacker;
 import com.seafile.seadroid2.framework.notification.GeneralNotificationHelper;
@@ -204,23 +205,15 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
             throw SeafException.UNAUTHORIZED_EXCEPTION;
         }
 
-
+        File outHeic = null;
         try {
-            byte[] bytes = MotionPhotoParser.readBytesFromContentUri(currentTransferModel.full_path);
-            MotionPhotoParser.MotionPhotoType motionPhotoType = MotionPhotoParser.checkMotionPhotoType(bytes);
-            if (motionPhotoType.isMotionPhoto()) {
-                if (motionPhotoType == MotionPhotoParser.MotionPhotoType.JPEG_MOTION_PHOTO) {
-                    Pair<byte[], byte[]> pair = GoogleMotionPhotoWithJPEGExtractor.extractData(bytes);
-                    byte[] imageBytes = pair.first;
-                    byte[] videoBytes = pair.second;
-                    File out = DataManager.createTempFile(".heic");
-                    MpvdPacker.pack(imageBytes, videoBytes,null, out);
-                    currentTransferModel.full_path = out.getAbsolutePath();
-                }
-            }
 
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+            outHeic = MotionHeicWriter.writeMotionHeic(currentTransferModel.full_path, currentTransferModel.getFileName());
+            currentTransferModel.full_path = outHeic.getAbsolutePath();
+
+        } catch (Exception e) {
+            SafeLogs.e(e);
+//            throw new RuntimeException(e);
         }
 
 
@@ -259,8 +252,14 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
         GlobalTransferCacheList.updateTransferModel(currentTransferModel);
 
         long createdTime = -1;
-        //uri: content://
-        if (currentTransferModel.full_path.startsWith("content://")) {
+
+        if (outHeic != null && outHeic.exists()) {
+            //convert jpeg to heic file
+            fileRequestBody = new ProgressRequestBody(outHeic, _fileTransferProgressListener);
+            builder.addFormDataPart("file", outHeic.getName(), fileRequestBody);
+            createdTime = FileUtils.getCreatedTimeFromPath(getContext(), outHeic);
+        } else if (currentTransferModel.full_path.startsWith("content://")) {
+            //uri: content://
             Uri uri = Uri.parse(currentTransferModel.full_path);
             boolean isHasPermission = FileUtils.isUriHasPermission(getContext(), uri);
             if (!isHasPermission) {

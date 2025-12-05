@@ -1,25 +1,22 @@
 package com.seafile.seadroid2.framework.motion_photo;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.util.Log;
 
+import androidx.annotation.OptIn;
 import androidx.exifinterface.media.ExifInterface;
-import androidx.heifwriter.HeifWriter;
 import androidx.media3.common.util.Size;
+import androidx.media3.common.util.UnstableApi;
 
 import com.adobe.internal.xmp.XMPException;
 import com.adobe.internal.xmp.XMPMeta;
 import com.drew.imaging.ImageMetadataReader;
+import com.drew.metadata.Directory;
 import com.drew.metadata.Metadata;
+import com.drew.metadata.Tag;
 import com.drew.metadata.xmp.XmpDirectory;
-import com.seafile.seadroid2.framework.datastore.DataManager;
-
-import org.apache.commons.io.FileUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
@@ -29,65 +26,53 @@ import java.io.RandomAccessFile;
 public class HeifUtils {
     private static final String TAG = "HeifUtils";
 
-    /**
-     * Convert a bitmap to HEIF format
-     */
-    public static byte[] jpegToHeif(File inputFile) {
+//    public static byte[] jpeg2HeicWithMotionPhoto(File jpegMotionPhoto) {
+//
+//        try {
+//
+//            Metadata metadata = ImageMetadataReader.readMetadata(jpegMotionPhoto);
+//            XMPMeta xmpMeta = XMPMetaFactory.parseFromBuffer(jpegBytes);
+//
+//            ExifInterface exif = new ExifInterface("");
+//            copyExifDirectory(metadata, ExifIFD0Directory.class, exif);
+//            copyExifDirectory(metadata, ExifSubIFDDirectory.class, exif);
+//            copyExifDirectory(metadata, GpsDirectory.class, exif);
+//            copyExifDirectory(metadata, ExifThumbnailDirectory.class, exif);
+//            copyExifDirectory(metadata, ExifInteropDirectory.class, exif);
+//
+//            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//            exif.saveAttributes();
+//            try (FileInputStream fis = new FileInputStream(temp)) {
+//                byte[] buf = new byte[4096];
+//                int len;
+//                while ((len = fis.read(buf)) != -1) {
+//                    baos.write(buf, 0, len);
+//                }
+//            }
+//            byte[] datas = FileUtils.readFileToByteArray(jpegMotionPhoto);
+//            return jpeg2HeicWithMotionPhoto(datas);
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
 
-        try {
-            byte[] datas = FileUtils.readFileToByteArray(inputFile);
-            return jpegToHeif(datas);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
+    private static <T extends Directory> void copyExifDirectory(
+            Metadata metadata,
+            Class<T> dirClass,
+            ExifInterface exif) {
 
-    /**
-     * @param inputFileBytes Original JPEG bytes
-     * @return heic bytes
-     *
-     */
-    public static byte[] jpegToHeif(byte[] inputFileBytes) {
-        HeifWriter heifWriter = null;
-        Bitmap bitmap = null;
+        T dir = metadata.getFirstDirectoryOfType(dirClass);
+        if (dir == null) return;
 
-        try {
-            Size size = getImageSize(inputFileBytes);
-            if (size.getHeight() == 0 || size.getWidth() == 0) {
-                return null;
+        for (Tag tag : dir.getTags()) {
+            try {
+                String tagName = tag.getTagName();
+                String value = tag.getDescription();
+                if (value != null) {
+                    exif.setAttribute(tagName, value);
+                }
+            } catch (Exception ignored) {
             }
-
-            // 将JPEG字节数据解码为Bitmap
-            bitmap = BitmapFactory.decodeByteArray(inputFileBytes, 0, inputFileBytes.length);
-            if (bitmap == null) {
-                throw new IOException("Failed to decode JPEG bytes to bitmap");
-            }
-
-            File tempOutputFile = DataManager.createTempFile();
-            heifWriter = new HeifWriter.Builder(tempOutputFile.getAbsolutePath(),
-                    size.getWidth(),
-                    size.getHeight(),
-                    HeifWriter.INPUT_MODE_BITMAP)
-                    .setMaxImages(1)
-                    .setQuality(100)
-                    .build();
-            heifWriter.start();
-            heifWriter.addBitmap(bitmap);
-            heifWriter.stop(0);
-            heifWriter.close();
-
-
-            // 回收Bitmap以释放内存
-            if (!bitmap.isRecycled()) {
-                bitmap.recycle();
-            }
-
-            return FileUtils.readFileToByteArray(tempOutputFile);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        } finally {
-            if (heifWriter != null) heifWriter.close();
-            if (!bitmap.isRecycled()) bitmap.recycle();
         }
     }
 
@@ -124,6 +109,7 @@ public class HeifUtils {
     /**
      * 获取JPEG图像尺寸
      */
+    @OptIn(markerClass = UnstableApi.class)
     private static Size getImageSize(byte[] jpegData) {
         try {
             int i = 0;
