@@ -21,11 +21,20 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class GoogleMotionPhotoWithJPEGExtractor {
     private static final String TAG = "GoogleMotionPhotoWithJPEGExtractor";
 
-    public static Pair<byte[], byte[]> extractData(File jegFile) throws IOException {
+    @Nullable
+    public static ExtractResult extractData(File jegFile) throws IOException {
         if (jegFile == null || !jegFile.exists() || !jegFile.isFile()) {
             return null;
         }
@@ -40,11 +49,14 @@ public class GoogleMotionPhotoWithJPEGExtractor {
      * @param jpegBytes JPEG动态照片字节数组
      * @return Pair对象，第一个元素是图像数据字节数组，第二个元素是视频数据字节数组
      */
-    public static Pair<byte[], byte[]> extractData(byte[] jpegBytes) throws IOException {
+    @Nullable
+    public static ExtractResult extractData(byte[] jpegBytes) throws IOException {
         MotionPhotoParser.MotionPhotoType motionPhotoType = MotionPhotoParser.checkMotionPhotoType(jpegBytes);
         if (motionPhotoType == MotionPhotoParser.MotionPhotoType.NO) {
             // 如果不是动态照片，返回整个JPEG数据作为图像数据，视频数据为null
-            return new Pair<>(jpegBytes, null);
+            ExtractResult r = new ExtractResult();
+            r.primaryBytes = jpegBytes;
+            return r;
         }
 
         XMPMeta xmp = HeifUtils.extractXmpFromBytes(jpegBytes);
@@ -55,200 +67,132 @@ public class GoogleMotionPhotoWithJPEGExtractor {
         if (motionPhotoType == MotionPhotoParser.MotionPhotoType.FTYP) {
             FtypScanResult ftypResult = fallbackLocateVideoWithLength(jpegBytes);
             // 对于FTYP类型，图像数据是从开始到视频数据之前的部分
-            byte[] imageData = extractImageData(jpegBytes, 0, ftypResult.videoStartOffset);
+            byte[] imageData = extractBytes(jpegBytes, 0, ftypResult.videoStartOffset);
             // 视频数据是从视频起始位置到文件末尾的部分
-            byte[] videoData = extractVideoData(jpegBytes, ftypResult.videoStartOffset, ftypResult.videoLength);
-            return new Pair<>(imageData, videoData);
-        }
-
-        Long containerVideoLength = parseContainerVideoLength(xmp);
-
-        long videoStart, videoLength;
-        if (containerVideoLength == null) {
-            FtypScanResult ftypResult = fallbackLocateVideoWithLength(jpegBytes);
-            videoStart = ftypResult.videoStartOffset;
-            videoLength = ftypResult.videoLength;
+            byte[] videoData = extractBytes(jpegBytes, ftypResult.videoStartOffset, ftypResult.videoLength);
+            ExtractResult extractResult = new ExtractResult();
+            extractResult.primaryBytes = imageData;
+            extractResult.videoBytes = videoData;
+            return extractResult;
         } else {
-            videoLength = containerVideoLength;
-            videoStart = jpegBytes.length - videoLength;
+            return extractMotionItems(jpegBytes, xmp);
         }
-
-        // 图像数据是从开始到视频数据之前的部分
-        byte[] imageData = extractImageData(jpegBytes, 0, videoStart);
-        // 视频数据是从视频起始位置到文件末尾的部分
-        byte[] videoData = extractVideoData(jpegBytes, videoStart, videoLength);
-
-        return new Pair<>(imageData, videoData);
     }
 
-    public static byte[] extractImageData(byte[] jpegBytes) throws IOException {
-        MotionPhotoParser.MotionPhotoType motionPhotoType = MotionPhotoParser.checkMotionPhotoType(jpegBytes);
-        if (motionPhotoType == MotionPhotoParser.MotionPhotoType.NO) {
-            // 如果不是动态照片，返回整个JPEG数据
-            return jpegBytes;
-        }
-
-        XMPMeta xmp = HeifUtils.extractXmpFromBytes(jpegBytes);
-        Long pts = readPtsSafe(xmp);
-        long ptsValue = pts == null ? 0L : pts;
-        SLogs.d(TAG, "MotionPhotoType=" + motionPhotoType + " PTS=" + ptsValue);
-
-        if (motionPhotoType == MotionPhotoParser.MotionPhotoType.FTYP) {
-            FtypScanResult ftypResult = fallbackLocateVideoWithLength(jpegBytes);
-            // 对于FTYP类型，图像数据是从开始到视频数据之前的部分
-            return extractImageData(jpegBytes, 0, ftypResult.videoStartOffset);
-        }
-
-        Long containerVideoLength = parseContainerVideoLength(xmp);
-
-        long videoStart, videoLength;
-        if (containerVideoLength == null) {
-            FtypScanResult ftypResult = fallbackLocateVideoWithLength(jpegBytes);
-            videoStart = ftypResult.videoStartOffset;
-            videoLength = ftypResult.videoLength;
-        } else {
-            videoLength = containerVideoLength;
-            videoStart = jpegBytes.length - videoLength;
-        }
-
-        // 图像数据是从开始到视频数据之前的部分
-        return extractImageData(jpegBytes, 0, videoStart);
-    }
-
-    public static byte[] extractVideoData(byte[] jpegBytes) throws IOException {
-        MotionPhotoParser.MotionPhotoType motionPhotoType = MotionPhotoParser.checkMotionPhotoType(jpegBytes);
-        if (motionPhotoType == MotionPhotoParser.MotionPhotoType.NO) {
-            SLogs.d(TAG, "MotionPhotoType=JPEG");
+    private static byte[] extractBytes(byte[] jpegBytes, long start, long end) {
+        if (jpegBytes == null || jpegBytes.length == 0) {
             return null;
         }
 
-        XMPMeta xmp = HeifUtils.extractXmpFromBytes(jpegBytes);
-        Long pts = readPtsSafe(xmp);
-        long ptsValue = pts == null ? 0L : pts;
-        SLogs.d(TAG, "MotionPhotoType=" + motionPhotoType + " PTS=" + ptsValue);
-
-        if (motionPhotoType == MotionPhotoParser.MotionPhotoType.FTYP) {
-            FtypScanResult ftypResult = fallbackLocateVideoWithLength(jpegBytes);
-            return extractVideoData(jpegBytes, ftypResult.videoStartOffset, ftypResult.videoLength);
+        if (start < 0 || end <= start || end > jpegBytes.length || start > jpegBytes.length) {
+            SLogs.e(TAG, "Invalid start or end offset");
+            return null;
         }
 
-        Long containerVideoLength = parseContainerVideoLength(xmp);
+        int imageLength = (int) (end - start);
+        byte[] d = new byte[imageLength];
+        System.arraycopy(jpegBytes, (int) start, d, 0, imageLength);
+        return d;
+    }
 
-        long videoStart, videoLength;
-        if (containerVideoLength == null) {
-            FtypScanResult ftypResult = fallbackLocateVideoWithLength(jpegBytes);
-            videoStart = ftypResult.videoStartOffset;
-            videoLength = ftypResult.videoLength;
-        } else {
-            videoLength = containerVideoLength;
-            videoStart = jpegBytes.length - videoLength;
+    private static class ContainerInfo {
+        String semantic;
+        String mime;
+        long offset;
+        long length;
+        long padding;
+
+        ContainerInfo() {
+
         }
 
-        return extractVideoData(jpegBytes, videoStart, videoLength);
+        ContainerInfo(String semantic, String mime, long offset, long length, long padding) {
+            this.semantic = semantic;
+            this.mime = mime;
+            this.offset = offset;
+            this.length = length;
+            this.padding = padding;
+        }
+    }
+
+    public static class ExtractResult {
+        public byte[] primaryBytes;
+        public byte[] videoBytes;
+        public byte[] gainmapBytes;  // 如存在
     }
 
     /**
-     * 从字节数组中提取图像数据
-     *
-     * @param jpegBytes  原始字节数组
-     * @param imageStart 图像数据起始位置
-     * @param imageEnd   图像数据结束位置
-     * @return 图像数据字节数组
+     * 从 JPEG MotionPhoto 中提取所有已知 Item（Primary / MotionPhoto / GainMap）。
+     * 自动处理所有机型并兼容 padding。
      */
-    private static byte[] extractImageData(byte[] jpegBytes, long imageStart, long imageEnd) {
-        if (imageStart < 0 || imageEnd <= imageStart || imageEnd > jpegBytes.length) {
-            SLogs.e(TAG, "Invalid image start or end offset");
-            return null;
+    public static ExtractResult extractMotionItems(byte[] jpegBytes, XMPMeta xmp) {
+        List<ContainerInfo> items = parseAllContainers(xmp);
+        if (items.isEmpty()) {
+            // 非 Motion Photo → 全图像，无视频
+            ExtractResult r = new ExtractResult();
+            r.primaryBytes = jpegBytes;
+            return r;
         }
 
-        try {
-            int imageLength = (int) (imageEnd - imageStart);
-            byte[] imageData = new byte[imageLength];
-            System.arraycopy(jpegBytes, (int) imageStart, imageData, 0, imageLength);
-            return imageData;
-        } catch (Exception e) {
-            SLogs.e(TAG, "Error extracting image data", e);
-            return null;
-        }
-    }
+        // 按 XMP 指定顺序累积偏移
+        long jpegLen = jpegBytes.length;
 
-    /**
-     * Extract video data from byte arrays based on start position and length
-     *
-     * @param jpegBytes   原始字节数组
-     * @param videoStart  视频数据起始位置
-     * @param videoLength 视频数据长度
-     * @return 视频数据字节数组
-     */
-    private static byte[] extractVideoData(byte[] jpegBytes, long videoStart, long videoLength) {
-        if (videoStart < 0 || videoLength <= 0 || videoStart + videoLength > jpegBytes.length) {
-            SLogs.e(TAG, "Invalid video start offset or length");
-            return null;
-        }
+        // 最后一个 item 是文件尾部
+        long cursor = jpegLen;
 
-        try {
-            byte[] videoData = new byte[(int) videoLength];
-            System.arraycopy(jpegBytes, (int) videoStart, videoData, 0, (int) videoLength);
-            return videoData;
-        } catch (Exception e) {
-            SLogs.e(TAG, "Error extracting video data", e);
-            return null;
-        }
-    }
+        ExtractResult result = new ExtractResult();
 
-    @Nullable
-    private static Long parseContainerVideoLength(XMPMeta xmp) {
-        Long containerVideoLength = parseContainerVideoLengthWithMicroVideo(xmp);
-        if (containerVideoLength == null) {
-            containerVideoLength = parseContainerVideoLengthWithMotionPhoto(xmp);
-        }
+        // 按反序解析（因为最后一个 item 在文件最末尾）
+        for (int i = items.size() - 1; i >= 0; i--) {
+            ContainerInfo item = items.get(i);
 
-        return containerVideoLength;
-    }
+            long total = item.length + item.padding;
+            long start = cursor - total;
 
-    /**
-     * V1 data structures. xiaomi used it.
-     *
-     */
-    @Nullable
-    private static Long parseContainerVideoLengthWithMicroVideo(XMPMeta xmp) {
-        try {
-            String offsetStr = xmp.getPropertyString(NS_G_CAMERA, "MicroVideoOffset");
-            if (TextUtils.isEmpty(offsetStr)) {
-                return null;
+            if (start < 0 || start >= jpegLen || item.length < 0) {
+                continue; // 不非法 crash，继续容错
             }
-            return Longs.tryParse(offsetStr);
-        } catch (XMPException e) {
-            SLogs.e(e);
-            return null;
+            byte[] raw;
+            if (i == 0 && TextUtils.equals(item.semantic, "Primary")) {
+                raw = new byte[(int) cursor];
+                start = 0l;
+                item.length = cursor;
+            } else {
+                raw = new byte[(int) item.length];
+            }
+
+            System.arraycopy(jpegBytes, (int) start, raw, 0, (int) item.length);
+
+            // 根据 Semantic 分配
+            switch (item.semantic) {
+                case "Primary":
+                    result.primaryBytes = raw;
+                    break;
+                case "MotionPhoto":
+                    result.videoBytes = raw;
+                    break;
+                case "GainMap":
+                    result.gainmapBytes = raw;
+                    break;
+            }
+
+            // 更新 cursor 指向下一个 Item 前
+            cursor = start;
         }
+
+        return result;
     }
 
-    /**
-     * V2 data structures. Android standard data structures.
-     */
-    @Nullable
-    private static Long parseContainerVideoLengthWithMotionPhoto(XMPMeta xmp) {
-        if (xmp == null)
-            return null;
-
-        // 临时记录：上一个路径的父节点（用于匹配 Length）
-        String currentItemPath = null;
-        boolean isVideoItem = false;
-
-        long accumulatedOffset = 0;
+    private static List<ContainerInfo> parseAllContainers(XMPMeta xmp) {
+        List<ContainerInfo> containers = new ArrayList<>();
+        if (xmp == null) return containers;
 
         try {
             XMPIterator it = xmp.iterator();
-
-            String currentSemantic = null;
-            String currentMime = null;
-            Long currentLength = null;
-            Long currentPadding = null;
+            Map<String, Map<String, String>> items = new HashMap<>();
 
             while (it.hasNext()) {
                 XMPPropertyInfo prop = (XMPPropertyInfo) it.next();
-
                 String ns = prop.getNamespace();
                 String path = prop.getPath();
                 String value = prop.getValue();
@@ -258,77 +202,61 @@ public class GoogleMotionPhotoWithJPEGExtractor {
                     continue;
                 }
 
-                if (path.endsWith("Item:Semantic")) {
-                    currentSemantic = value;
+                // 提取Item路径和属性名
+                int lastSlash = path.lastIndexOf('/');
+                if (lastSlash == -1) continue;
+
+                String itemPath = path.substring(0, lastSlash);
+                String propName = path.substring(lastSlash + 1);
+
+                // 收集Item属性
+                items.computeIfAbsent(itemPath, k -> new HashMap<>()).put(propName, value);
+            }
+
+            // 处理收集到的Items
+            long accumulatedOffset = 0;
+            for (Map.Entry<String, Map<String, String>> entry : items.entrySet()) {
+                Map<String, String> props = entry.getValue();
+                String semantic = props.get("Item:Semantic");
+                String mime = props.get("Item:Mime");
+                String lengthStr = props.get("Item:Length");
+                String paddingStr = props.get("Item:Padding");
+
+                long length = 0;
+                long padding = 0;
+
+                try {
+                    if (lengthStr != null) length = Long.parseLong(lengthStr);
+                    if (paddingStr != null) padding = Long.parseLong(paddingStr);
+                } catch (NumberFormatException e) {
+                    SLogs.e(TAG, "Error parsing container length or padding", e);
+                    continue;
                 }
 
-                if (path.endsWith("Item:Mime")) {
-                    currentMime = value;
-                    if ("video/mp4".equals(value)) {
-                        // 记录当前 Item 节点路径（不含属性名）
-                        currentItemPath = path.replace("/Item:Mime", "");
-                        isVideoItem = true;
-                    } else {
-                        isVideoItem = false;
-                    }
-                }
-
-                if (path.endsWith("Item:Length")) {
-                    try {
-                        currentLength = Long.parseLong(value);
-                    } catch (Exception ignore) {
-                        currentLength = null;
-                    }
-                }
-
-                if (path.endsWith("Item:Padding")) {
-                    try {
-                        currentPadding = Long.parseLong(value);
-                    } catch (Exception ignore) {
-                        currentPadding = 0L;
-                    }
-                }
-
-                // Check if we have gathered Mime, Length, Padding for the current item
-                // We assume these properties appear grouped per item, so when we see Length or
-                // Padding, we can process accumulated info
-                // Or when path is last property of the item, but we have no clear indicator, so
-                // we process when Length or Padding is found.
-
-                // Only process when length is not null (Length is mandatory for offset
-                // calculation)
-                boolean hasLength = currentLength != null;
-                if (hasLength) {
-                    long paddingVal = currentPadding == null ? 0L : currentPadding.longValue();
-                    // Log the current item info
-                    SLogs.d(TAG, "Item: Semantic=" + currentSemantic + " Mime=" + currentMime + " Length="
-                            + currentLength + " Padding=" + paddingVal + " accumulatedOffset=" + accumulatedOffset);
-
-                    if (isVideoItem) {
-                        // For video item, return the length, and the start offset is accumulatedOffset
-                        // Note: The caller uses length and calculates start offset as jpegBytes.length
-                        // - length,
-                        // so here we just return length, but the accumulatedOffset can be used for
-                        // debugging or future use.
-                        return currentLength;
-                    }
-
-                    // Accumulate offset for next item
-                    accumulatedOffset += currentLength + paddingVal;
-
-                    // Reset current item info for next item
-                    currentSemantic = null;
-                    currentMime = null;
-                    currentLength = null;
-                    currentPadding = null;
-                    isVideoItem = false;
-                    currentItemPath = null;
-                }
+                containers.add(new ContainerInfo(semantic, mime, accumulatedOffset, length, padding));
+                accumulatedOffset += length + padding;
             }
         } catch (XMPException e) {
-            throw new RuntimeException(e);
+            SLogs.e(TAG, "Error parsing containers", e);
         }
-        return null;
+
+        return containers.stream().sorted(new Comparator<ContainerInfo>() {
+            @Override
+            public int compare(ContainerInfo o1, ContainerInfo o2) {
+                if (TextUtils.equals(o1.semantic, "Primary")) {
+                    return -1;
+                }
+
+                if (o1.offset < o2.offset) {
+                    return -1;
+                }
+
+                if (o1.offset > o2.offset) {
+                    return 1;
+                }
+                return 0;
+            }
+        }).collect(Collectors.toList());
     }
 
     @Nullable

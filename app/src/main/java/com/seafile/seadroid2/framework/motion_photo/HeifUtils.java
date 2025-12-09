@@ -17,6 +17,7 @@ import com.drew.metadata.xmp.XmpDirectory;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
@@ -25,6 +26,7 @@ import java.io.RandomAccessFile;
  */
 public class HeifUtils {
     private static final String TAG = "HeifUtils";
+
 
 //    public static byte[] jpeg2HeicWithMotionPhoto(File jpegMotionPhoto) {
 //

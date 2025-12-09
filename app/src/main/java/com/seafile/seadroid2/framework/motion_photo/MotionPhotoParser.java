@@ -3,19 +3,10 @@ package com.seafile.seadroid2.framework.motion_photo;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.net.Uri;
-import android.text.TextUtils;
-
-import androidx.annotation.Nullable;
 
 import com.adobe.internal.xmp.XMPException;
-import com.adobe.internal.xmp.XMPIterator;
 import com.adobe.internal.xmp.XMPMeta;
-import com.adobe.internal.xmp.properties.XMPPropertyInfo;
-import com.google.common.primitives.Longs;
 import com.seafile.seadroid2.SeadroidApplication;
-import com.seafile.seadroid2.annotation.Todo;
-import com.seafile.seadroid2.annotation.Unstable;
-import com.seafile.seadroid2.framework.util.SLogs;
 
 import org.apache.commons.io.FileUtils;
 
@@ -149,7 +140,7 @@ public final class MotionPhotoParser {
         } else if ("HEIC".equals(format)) {
             // 对于HEIC格式，使用GoogleMotionPhotoWithHeicExtractor判断
             try {
-                if (GoogleMotionPhotoWithHEICExtractor.hasMotionVideo(bytes)) {
+                if (com.seafile.seadroid2.framework.motion_photo.GoogleMotionPhotoWithHEICExtractor2.hasMotionVideo(bytes)) {
                     return MotionPhotoType.HEIC_MOTION_PHOTO;
                 }
             } catch (XMPException e) {

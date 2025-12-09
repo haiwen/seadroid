@@ -205,16 +205,16 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
             throw SeafException.UNAUTHORIZED_EXCEPTION;
         }
 
-        File outHeic = null;
-        try {
-
-            outHeic = MotionHeicWriter.writeMotionHeic(currentTransferModel.full_path, currentTransferModel.getFileName());
-            currentTransferModel.full_path = outHeic.getAbsolutePath();
-
-        } catch (Exception e) {
-            SafeLogs.e(e);
-//            throw new RuntimeException(e);
-        }
+//        File outHeic = null;
+//        try {
+//
+//            outHeic = MotionHeicWriter.writeMotionHeic(currentTransferModel.full_path, currentTransferModel.getFileName());
+//            currentTransferModel.full_path = outHeic.getAbsolutePath();
+//
+//        } catch (Exception e) {
+//            SafeLogs.e(e);
+////            throw new RuntimeException(e);
+//        }
 
 
         SafeLogs.d(TAG, "transferFile()", "start transfer, local file path: " + currentTransferModel.full_path);
@@ -253,12 +253,13 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
 
         long createdTime = -1;
 
-        if (outHeic != null && outHeic.exists()) {
-            //convert jpeg to heic file
-            fileRequestBody = new ProgressRequestBody(outHeic, _fileTransferProgressListener);
-            builder.addFormDataPart("file", outHeic.getName(), fileRequestBody);
-            createdTime = FileUtils.getCreatedTimeFromPath(getContext(), outHeic);
-        } else if (currentTransferModel.full_path.startsWith("content://")) {
+//        if (outHeic != null && outHeic.exists()) {
+//            //convert jpeg to heic file
+//            fileRequestBody = new ProgressRequestBody(outHeic, _fileTransferProgressListener);
+//            builder.addFormDataPart("file", outHeic.getName(), fileRequestBody);
+//            createdTime = FileUtils.getCreatedTimeFromPath(getContext(), outHeic);
+//        } else
+        if (currentTransferModel.full_path.startsWith("content://")) {
             //uri: content://
             Uri uri = Uri.parse(currentTransferModel.full_path);
             boolean isHasPermission = FileUtils.isUriHasPermission(getContext(), uri);

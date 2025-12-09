@@ -56,7 +56,7 @@ import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.glide.GlideApp;
 import com.seafile.seadroid2.framework.model.sdoc.FileProfileConfigModel;
-import com.seafile.seadroid2.framework.motion_photo.GoogleMotionPhotoWithHEICExtractor;
+import com.seafile.seadroid2.framework.motion_photo.GoogleMotionPhotoWithHEICExtractor2;
 import com.seafile.seadroid2.framework.motion_photo.GoogleMotionPhotoWithJPEGExtractor;
 import com.seafile.seadroid2.framework.motion_photo.MotionPhotoParser;
 import com.seafile.seadroid2.framework.util.SLogs;
@@ -653,11 +653,14 @@ public class PhotoFragment extends BaseFragment {
     private MediaSource buildMotionPhotoMediaSource(MotionPhotoParser.MotionPhotoType motionPhotoType, File imageFile) throws IOException, XMPException {
         byte[] videoBytes = null;
         if (motionPhotoType == MotionPhotoParser.MotionPhotoType.HEIC_MOTION_PHOTO) {
-            videoBytes = GoogleMotionPhotoWithHEICExtractor.extractVideo(imageFile);
+            videoBytes = GoogleMotionPhotoWithHEICExtractor2.extractVideo(imageFile);
 
         } else if (motionPhotoType == MotionPhotoParser.MotionPhotoType.JPEG_MOTION_PHOTO) {
             byte[] bytes = org.apache.commons.io.FileUtils.readFileToByteArray(imageFile);
-            videoBytes = GoogleMotionPhotoWithJPEGExtractor.extractVideoData(bytes);
+            GoogleMotionPhotoWithJPEGExtractor.ExtractResult extractResult = GoogleMotionPhotoWithJPEGExtractor.extractData(bytes);
+            if (extractResult != null) {
+                videoBytes = extractResult.videoBytes;
+            }
         }
         if (videoBytes == null || videoBytes.length == 0) {
             return null;
