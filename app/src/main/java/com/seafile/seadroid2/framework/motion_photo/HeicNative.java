@@ -2,16 +2,20 @@ package com.seafile.seadroid2.framework.motion_photo;
 
 public class HeicNative {
 
-
     private static final String TAG = "HeicNative";
 
+    /**
+     * Motion Photo 类型枚举值
+     */
+    public static final int MOTION_PHOTO_TYPE_JPEG = 0;  // JPEG 格式的动态照片
+    public static final int MOTION_PHOTO_TYPE_HEIC = 1;  // HEIC 格式的动态照片
+    public static final int MOTION_PHOTO_TYPE_NONE = 2;  // 非动态照片
 
     static {
         System.loadLibrary("heicgen");
     }
 
-    public HeicNative() {
-
+    private HeicNative() {
     }
 
     private static HeicNative heicNative;
@@ -23,11 +27,21 @@ public class HeicNative {
         return heicNative;
     }
 
+    // ==================== Native methods ====================
 
-    // Native methods
+    /**
+     * 获取 libheif 版本号
+     */
     public native String nativeGetLibVersion();
 
-    public native boolean genStillHeicSeq(byte[] primaryImage, String outputPath);
+    /**
+     * 生成静态 HEIC 图片
+     *
+     * @param primaryImage 主图 JPEG 数据
+     * @param outputPath   输出文件路径
+     * @return 是否成功
+     */
+    public native boolean nativeGenStillHeicSeq(byte[] primaryImage, String outputPath);
 
     /**
      * 生成 Google Motion Photo 格式的 HEIC 动态照片
@@ -37,7 +51,7 @@ public class HeicNative {
      * @param outputPath   输出文件路径
      * @return 结果字符串 (success:... 或 error:...)
      */
-    public native String nativeGenGoogleHeicMotionPhoto(byte[] primaryImage, byte[] mp4Video, String outputPath);
+    public native String nativeGenGoogleMotionPhotoWithHeic(byte[] primaryImage, byte[] mp4Video, String outputPath);
 
     /**
      * 从 HEIC Motion Photo 文件中提取 MP4 视频数据
@@ -59,5 +73,48 @@ public class HeicNative {
      */
     public native byte[] nativeExtractGoogleJpegMotionPhotoVideo(String inputFilePath);
 
+    /**
+     * 检查图片是否为 Motion Photo，并返回类型
+     * <p>
+     * 检测逻辑：
+     * 1. 通过文件头判断是 JPEG 还是 HEIC 格式
+     * 2. 检查 XMP 元数据中的 GCamera:MotionPhoto 标识
+     * 3. 搜索嵌入的 MP4 视频数据 (ftyp/mpvd)
+     *
+     * @param inputFilePath 图片文件路径
+     * @return Motion Photo 类型:
+     * - {@link #MOTION_PHOTO_TYPE_JPEG} (0): JPEG 格式的动态照片
+     * - {@link #MOTION_PHOTO_TYPE_HEIC} (1): HEIC 格式的动态照片
+     * - {@link #MOTION_PHOTO_TYPE_NONE} (2): 非动态照片
+     */
+    public native int nativeCheckMotionPhotoType(String inputFilePath);
 
+    /**
+     * 检查图片是否为 Motion Photo
+     *
+     * @param inputFilePath 图片文件路径
+     * @return 是否为动态照片
+     */
+    public boolean isMotionPhoto(String inputFilePath) {
+        int type = nativeCheckMotionPhotoType(inputFilePath);
+        return type == MOTION_PHOTO_TYPE_JPEG || type == MOTION_PHOTO_TYPE_HEIC;
+    }
+
+    /**
+     * 根据文件路径自动提取 Motion Photo 中的视频数据
+     *
+     * @param inputFilePath 图片文件路径
+     * @return MP4 视频数据的字节数组，失败或非动态照片返回 null
+     */
+    public byte[] extractMotionPhotoVideo(String inputFilePath) {
+        int type = nativeCheckMotionPhotoType(inputFilePath);
+        switch (type) {
+            case MOTION_PHOTO_TYPE_JPEG:
+                return nativeExtractGoogleJpegMotionPhotoVideo(inputFilePath);
+            case MOTION_PHOTO_TYPE_HEIC:
+                return nativeExtractGoogleHeicMotionPhotoVideo(inputFilePath);
+            default:
+                return null;
+        }
+    }
 }

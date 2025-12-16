@@ -602,76 +602,65 @@ public class PhotoFragment extends BaseFragment {
 
     @OptIn(markerClass = Unstable.class)
     private void playLivePhotoVideo() {
-//        try {
-//            if (destinationFile.getAbsolutePath().endsWith(".heic")) {
-//                MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-//                retriever.setDataSource(destinationFile.getAbsolutePath());
-//                String hasVideo = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_HAS_VIDEO);
-//                if (TextUtils.equals("yes",hasVideo)){
-//                    retriever.getFrameAtTime(0,MediaMetadataRetriever.OPTION_CLOSEST_SYNC);
-//                }
-//            }
 
-//
-//            MotionPhotoParser.MotionPhotoType motionPhotoType = MotionPhotoParser.checkMotionPhotoType(destinationFile.getAbsolutePath());
-//            if (!motionPhotoType.isMotionPhoto()) {
-//                return;
-//            }
-//            MediaSource source = buildMotionPhotoMediaSource(motionPhotoType, destinationFile);
-//            ExoPlayer exoPlayer = new ExoPlayer.Builder(requireContext()).build();
-//
-//            binding.playerView.setPlayer(exoPlayer);
-//            exoPlayer.addListener(new Player.Listener() {
-//                @Override
-//                public void onPlaybackStateChanged(int playbackState) {
-//                    switch (playbackState) {
-//                        case Player.STATE_BUFFERING: //loading
-//
-//                            break;
-//                        case Player.STATE_READY:
-//                            binding.photoView.setVisibility(View.GONE);
-//                            binding.playerView.setVisibility(View.VISIBLE);
-//                            break;
-//                        case Player.STATE_ENDED:
-//                            binding.photoView.setVisibility(View.VISIBLE);
-//                            binding.playerView.setVisibility(View.GONE);
-//                            break;
-//                    }
-//                }
-//            });
-//            exoPlayer.setMediaSource(source);
-//            exoPlayer.prepare();
-//            exoPlayer.play();
-//        } catch (IOException | XMPException e) {
-//            throw new RuntimeException(e);
-//        }
+        try {
+            MediaSource source = buildMotionPhotoMediaSource(destinationFile);
+            if (source == null) {
+                return;
+            }
+
+            ExoPlayer exoPlayer = new ExoPlayer.Builder(requireContext()).build();
+
+            binding.playerView.setPlayer(exoPlayer);
+            exoPlayer.addListener(new Player.Listener() {
+                @Override
+                public void onPlaybackStateChanged(int playbackState) {
+                    switch (playbackState) {
+                        case Player.STATE_BUFFERING: //loading
+
+                            break;
+                        case Player.STATE_READY:
+                            binding.photoView.setVisibility(View.GONE);
+                            binding.playerView.setVisibility(View.VISIBLE);
+                            break;
+                        case Player.STATE_ENDED:
+                            binding.photoView.setVisibility(View.VISIBLE);
+                            binding.playerView.setVisibility(View.GONE);
+                            break;
+                    }
+                }
+            });
+            exoPlayer.setMediaSource(source);
+            exoPlayer.prepare();
+            exoPlayer.play();
+        } catch (IOException | XMPException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-//    private MediaSource buildMotionPhotoMediaSource(MotionPhotoParser.MotionPhotoType motionPhotoType, File imageFile) throws IOException, XMPException {
-//        byte[] videoBytes = null;
-//        if (motionPhotoType == MotionPhotoParser.MotionPhotoType.HEIC_MOTION_PHOTO) {
-//            videoBytes = GoogleMotionPhotoWithHEICExtractor2.extractVideo(imageFile);
-//
-//        } else if (motionPhotoType == MotionPhotoParser.MotionPhotoType.JPEG_MOTION_PHOTO) {
-//            byte[] bytes = org.apache.commons.io.FileUtils.readFileToByteArray(imageFile);
-//            GoogleMotionPhotoWithJPEGExtractor.ExtractResult extractResult = GoogleMotionPhotoWithJPEGExtractor.extractData(bytes);
-//            if (extractResult != null) {
-//                videoBytes = extractResult.videoBytes;
-//            }
-//        }
-//        if (videoBytes == null || videoBytes.length == 0) {
-//            return null;
-//        }
-//
-//        androidx.media3.datasource.DataSource.Factory factory = new MotionPhotoDataSourceFactory(videoBytes);
-//
-//        MediaItem mediaItem = new MediaItem.Builder()
-//                .setUri(Uri.fromFile(imageFile))
-//                .build();
-//
-//        return new ProgressiveMediaSource.Factory(factory)
-//                .createMediaSource(mediaItem);
-//    }
+    private MediaSource buildMotionPhotoMediaSource(File imageFile) throws IOException, XMPException {
+        int motionPhotoType = HeicNative.getInstance().nativeCheckMotionPhotoType(imageFile.getAbsolutePath());
+
+        byte[] videoBytes = null;
+        if (motionPhotoType == HeicNative.MOTION_PHOTO_TYPE_HEIC) {
+            videoBytes = HeicNative.getInstance().nativeExtractGoogleHeicMotionPhotoVideo(imageFile.getAbsolutePath());
+        } else if (motionPhotoType == HeicNative.MOTION_PHOTO_TYPE_JPEG) {
+            videoBytes = HeicNative.getInstance().nativeExtractGoogleJpegMotionPhotoVideo(imageFile.getAbsolutePath());
+        }
+
+        if (videoBytes == null || videoBytes.length == 0) {
+            return null;
+        }
+
+        androidx.media3.datasource.DataSource.Factory factory = new MotionPhotoDataSourceFactory(videoBytes);
+
+        MediaItem mediaItem = new MediaItem.Builder()
+                .setUri(Uri.fromFile(imageFile))
+                .build();
+
+        return new ProgressiveMediaSource.Factory(factory)
+                .createMediaSource(mediaItem);
+    }
 
 
     // local gif file
