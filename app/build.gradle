@@ -15,8 +15,8 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         compileSdk rootProject.ext.compileSdkVersion
 
-        versionCode 215 // +=5
-        versionName "3.0.20"
+        versionCode 220 // +=5
+        versionName "3.0.21"
         multiDexEnabled true
 
         resValue "string", "authorities", defaultConfig.applicationId + '.debug.cameraupload.provider'
@@ -29,6 +29,17 @@ android {
             annotationProcessorOptions {
                 arguments["room.incremental"] = "true"
 //                arguments["workmanager.inline"] = "false"
+            }
+        }
+
+        ndk {
+            abiFilters 'arm64-v8a', 'armeabi-v7a', 'x86', 'x86_64'
+        }
+
+        externalNativeBuild {
+            cmake {
+                cppFlags '-std=c++17'
+                arguments '-DANDROID_STL=c++_shared', '-DANDROID_PLATFORM=android-28'
             }
         }
     }
@@ -47,16 +58,13 @@ android {
         }
     }
 
-//    externalNativeBuild {
-//        cmake {
-//            path file('src/main/cpp/CMakeLists.txt')
-//            version '3.18.1'
-//        }
-//    }
-//
-//    ndk {
-//        abiFilters 'arm64-v8a', 'armeabi-v7a', 'x86', 'x86_64'
-//    }
+    externalNativeBuild {
+        cmake {
+            path file('src/main/cpp/CMakeLists.txt')
+            version '3.22.1'
+        }
+    }
+
 
     signingConfigs {
         debug {

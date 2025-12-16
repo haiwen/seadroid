@@ -19,6 +19,7 @@ import com.seafile.seadroid2.framework.model.docs_comment.DocsCommentModel;
 import com.seafile.seadroid2.framework.model.docs_comment.DocsCommentsWrapperModel;
 import com.seafile.seadroid2.framework.model.sdoc.SDocPageOptionsModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
+import com.seafile.seadroid2.framework.model.user.ParticipantsWrapperModel;
 import com.seafile.seadroid2.framework.model.user.UserModel;
 import com.seafile.seadroid2.framework.model.user.UserWrapperModel;
 import com.seafile.seadroid2.framework.util.ContentResolvers;
@@ -31,6 +32,7 @@ import com.seafile.seadroid2.ui.sdoc.SDocService;
 import com.seafile.seadroid2.view.rich_edittext.RichEditText;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -41,6 +43,8 @@ import java.util.stream.Collectors;
 
 import io.reactivex.Flowable;
 import io.reactivex.Single;
+import io.reactivex.SingleSource;
+import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Consumer;
 import kotlin.Pair;
 import okhttp3.MediaType;
@@ -69,12 +73,51 @@ public class DocsCommentViewModel extends BaseViewModel {
         return _fileCommentLiveData;
     }
 
-    public void getRelatedUsers(String repoId) {
+    public void getRelatedUsers(String repoId, String docUuid, String filterUserMail, String sortUserMail) {
         Single<UserWrapperModel> userSingle = HttpIO.getCurrentInstance().execute(SDocService.class).getRelatedUsers(repoId);
-        addSingleDisposable(userSingle, new Consumer<UserWrapperModel>() {
+        Single<ParticipantsWrapperModel> participantsSingle = HttpIO.getCurrentInstance().execute(SDocService.class).getParticipants(docUuid);
+
+        Single<List<UserModel>> userListSingle = Single.zip(userSingle, participantsSingle, new BiFunction<UserWrapperModel, ParticipantsWrapperModel, List<UserModel>>() {
             @Override
-            public void accept(UserWrapperModel userWrapperModel) throws Exception {
-                setRelatedUsers(userWrapperModel.user_list);
+            public List<UserModel> apply(UserWrapperModel userWrapperModel, ParticipantsWrapperModel participantsWrapperModel) throws Exception {
+                List<UserModel> users = new ArrayList<>();
+                if (userWrapperModel != null && !CollectionUtils.isEmpty(userWrapperModel.user_list)) {
+                    users.addAll(userWrapperModel.user_list);
+                }
+                if (participantsWrapperModel != null && !CollectionUtils.isEmpty(participantsWrapperModel.participant_list)) {
+                    users.addAll(participantsWrapperModel.participant_list);
+                }
+
+                return users;
+            }
+        }).flatMap(new io.reactivex.functions.Function<List<UserModel>, SingleSource<List<UserModel>>>() {
+            @Override
+            public SingleSource<List<UserModel>> apply(List<UserModel> userModels) throws Exception {
+                List<UserModel> us = userModels.stream()
+                        .filter(f -> !TextUtils.equals(f.getEmail(), filterUserMail))
+                        .distinct()
+                        .sorted(new Comparator<UserModel>() {
+                            @Override
+                            public int compare(UserModel o1, UserModel o2) {
+                                if (TextUtils.equals(o1.getEmail(), sortUserMail)) {
+                                    return 1;
+                                }
+
+                                if (TextUtils.equals(o2.getEmail(), sortUserMail)) {
+                                    return -1;
+                                }
+                                return 0;
+                            }
+                        })
+                        .collect(Collectors.toList());
+                return Single.just(us);
+            }
+        });
+
+        addSingleDisposable(userListSingle, new Consumer<List<UserModel>>() {
+            @Override
+            public void accept(List<UserModel> users) throws Exception {
+                setRelatedUsers(users);
             }
         });
     }

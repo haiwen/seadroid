@@ -135,6 +135,7 @@
 
         <activity
             android:name=".ui.editor.EditorActivity"
+            android:windowSoftInputMode="adjustResize"
             android:theme="@style/AppTheme.Editor" />
 
         <activity android:name=".ui.folder_backup.FolderBackupSelectedPathActivity" />

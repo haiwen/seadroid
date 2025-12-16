@@ -213,7 +213,6 @@
     <item>النسخ الإحتياطي للصور</item>
   </string-array>
   <string name="navigate_to_directory">انتقل إلى المجلد</string>
-  <string name="navigate_up">التنقل لأعلى</string>
   <string name="no_starred_file">لا يوجد ملفات مفضلة حتى الآن</string>
   <string name="added_to_upload_tasks">بدأت عملية التحميل</string>
   <string name="added_photo_to_upload_tasks">بدأ رفع الصور</string>
@@ -548,6 +547,10 @@
     <item quantity="other">تنزيل %1$d ملف (%2$d%%)</item>
   </plurals>
   <string name="notification_download_completed">تم التنزيل</string>
+  <string name="notification_background_file_monitor_channel">خدمة مراقبة الملفات في الخلفية لسيفايل</string>
+  <string name="notification_background_file_monitor_desc">يستخدم لمراقبة الإشعارات المستمرة للملف في الخلفية لسيفايل</string>
+  <string name="notification_background_file_monitor_title">خدمة مراقبة الملفات لسيفايل</string>
+  <string name="notification_background_file_monitor_content">يقوم سيفايل بمراقبة التغييرات للملفات في الخلفية ويقوم بتحميلها تلقائيًا.</string>
   <!--Gallery-->
   <string name="gallery_load_photos_error">خطأ في تحميل الصور</string>
   <string name="gallery_encrypted_repo_not_supported">لم يتم دعم المكتبة المشفرة</string>
@@ -657,6 +660,9 @@
   <string name="folder_backup_select_repo_update">تغيير مكتبة النسخ الاحتياطي</string>
   <string name="UncaughtExceptionHandler_err">توقف التطبيق عن التشغيل</string>
   <string name="settings_file_backup_info_title">ملف النسخ الاحتياطي</string>
+  <!--backup config-->
+  <string name="backup_settings_title">إعدادات النسخ الاحتياطي</string>
+  <string name="backup_settings_background_backup_title">تشغيل النسخ الاحتياطي في الخلفية</string>
   <!--action-->
   <string name="pause">توقف مؤقت</string>
   <string name="paused">متوقف مؤقتا</string>
@@ -684,6 +690,8 @@
   <string name="follow_system">اتبع النظام</string>
   <string name="empty">فارغ</string>
   <string name="empty_data">بيانات فارغة</string>
+  <string name="turn_on">تشغيل</string>
+  <string name="turn_off">إيقاف التشغيل</string>
   <!--share link-->
   <string name="link_permission_set_permission">تعيين الصلاحيات</string>
   <string name="link_permission_preview_and_download">المعاينة والتنزيل</string>
@@ -715,6 +723,7 @@
   <string name="_tags">الوسوم</string>
   <string name="_location">الموقع</string>
   <string name="_owner">مالك الملف</string>
+  <string name="_rate">قيّم</string>
   <string name="mark_resolve">وضع علامة تم الحل</string>
   <string name="delete_confirm">هل أنت متأكد أنك تريد حذف هذا العنصر؟</string>
   <string name="image_capture_time">وقت الالتقاط</string>
@@ -734,4 +743,25 @@
   <string name="backup_failed">فشل النسخ الاحتياطي</string>
   <string name="export_log_file_not_exists">لا يتوفر ملف سجل للتصدير.</string>
   <string name="file_transfer_stopped">تم إيقاف نقل الملف</string>
+  <!--font-style-->
+  <string name="font_style_paragraph">فقرة</string>
+  <string name="font_style_title">عنوان</string>
+  <string name="font_style_subtitle">عنوان فرعي</string>
+  <string name="font_style_heading1">عنوان أول 1</string>
+  <string name="font_style_heading2">عنوان ثاني 2</string>
+  <string name="font_style_heading3">عنوان ثالث 3</string>
+  <string name="font_style_heading4">عنوان رابع 4</string>
+  <string name="font_style_heading5">عنوان خامس 5</string>
+  <string name="font_style_heading6">عنوان سادس 6</string>
+  <!--sdoc system event-->
+  <string name="sdoc_system_event_failed_to_execute_operation_on_server">فشل تنفيذ العملية على الخادم، تم سحب العملية الحالية</string>
+  <string name="sdoc_system_event_failed_to_sync_with_server_operations">فشلت عملية المزامنة مع الخادم، يرجى تحديث الصفحة</string>
+  <string name="sdoc_system_event_internal_server_exec_operations_error">حدث استثناء على الخادم، يرجى تحديث الصفحة والمحاولة مرة أخرى</string>
+  <string name="sdoc_system_event_token_expired_please_refresh_the_page">انتهت صلاحية الرمز. يُرجى تحديث الصفحة.</string>
+  <string name="sdoc_system_event_pending_operations_exceed_limit">هناك عمليات متعددة غير متزامنة مع الخادم. يُرجى التحقق من شبكتك.</string>
+  <string name="sdoc_system_event_server_is_not_connected_operation_will_be_sent_to_server_later">الخادم غير متصل. سيتم إرسال العملية إلى الخادم لاحقًا.</string>
+  <string name="reconnecting">إعادة الاتصال…</string>
+  <string name="reconnected">أعيد الاتصال</string>
+  <string name="saving">حفظ</string>
+  <string name="saved">تم الحفظ</string>
 </resources>

@@ -218,7 +218,6 @@
     <item>Backup Foto</item>
   </string-array>
   <string name="navigate_to_directory">Naviga fino a questa cartella</string>
-  <string name="navigate_up">Navigare su</string>
   <string name="no_starred_file">Non ci sono ancora file preferiti</string>
   <string name="added_to_upload_tasks">Aggiunto al caricamento</string>
   <string name="added_photo_to_upload_tasks">Foto aggiunta al caricamento</string>
@@ -631,6 +630,7 @@
   <string name="folder_backup_select_repo_update">Aggiorna libreria</string>
   <string name="UncaughtExceptionHandler_err">Si è verificato un errore imprevisto</string>
   <string name="settings_file_backup_info_title">Backup file</string>
+  <!--backup config-->
   <!--action-->
   <string name="pause">Pausa</string>
   <string name="paused">Pausato</string>
@@ -708,4 +708,6 @@
   <string name="backup_failed">Backup fallito</string>
   <string name="export_log_file_not_exists">File log non esistente</string>
   <string name="file_transfer_stopped">Transferimento file interrotto</string>
+  <!--font-style-->
+  <!--sdoc system event-->
 </resources>

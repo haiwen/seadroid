@@ -1,14 +1,10 @@
 package com.seafile.seadroid2.framework.service;
 
 import android.content.Context;
-import android.database.Cursor;
 import android.net.Uri;
-import android.provider.OpenableColumns;
 import android.text.TextUtils;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.core.util.Pair;
 
 import com.blankj.utilcode.util.CloneUtils;
 import com.seafile.seadroid2.R;
@@ -19,15 +15,10 @@ import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.SaveTo;
 import com.seafile.seadroid2.enums.TransferResult;
 import com.seafile.seadroid2.enums.TransferStatus;
-import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.FileBackupStatusEntity;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
 import com.seafile.seadroid2.framework.http.HttpIO;
-import com.seafile.seadroid2.framework.motion_photo.GoogleMotionPhotoWithJPEGExtractor;
-import com.seafile.seadroid2.framework.motion_photo.MotionHeicWriter;
-import com.seafile.seadroid2.framework.motion_photo.MotionPhotoParser;
-import com.seafile.seadroid2.framework.motion_photo.MpvdPacker;
 import com.seafile.seadroid2.framework.notification.GeneralNotificationHelper;
 import com.seafile.seadroid2.framework.util.ExceptionUtils;
 import com.seafile.seadroid2.framework.util.FileUtils;
@@ -45,8 +36,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.Collections;
 
 import okhttp3.Call;
 import okhttp3.Headers;

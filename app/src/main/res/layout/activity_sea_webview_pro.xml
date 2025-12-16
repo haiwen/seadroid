@@ -25,7 +25,7 @@
 
     <include
         android:id="@+id/tool_editor_bar"
-        layout="@layout/layout_sdoc_editor_bar" />
+        layout="@layout/layout_sdoc_editor_bar_2" />
 
     <include
         android:id="@+id/tool_bottom_bar"

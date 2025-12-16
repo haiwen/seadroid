@@ -34,6 +34,8 @@ import com.chad.library.adapter4.QuickAdapterHelper;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
+import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.databinding.ActivityDocCommentBinding;
 import com.seafile.seadroid2.databinding.ToolbarActionbarBinding;
 import com.seafile.seadroid2.framework.model.docs_comment.DocsCommentModel;
@@ -412,7 +414,14 @@ public class DocsCommentsActivity extends BaseMediaSelectorActivity<DocsCommentV
 
     private void refreshData() {
         getViewModel().loadDocComments(pageOptionsModel);
-        getViewModel().getRelatedUsers(pageOptionsModel.repoID);
+        //String repoId, String docUuid, String filterUserMail, String sortUserMail
+        Account account = SupportAccountManager.getInstance().getCurrentAccount();
+
+        String filterId = null;
+        if (account != null) {
+            filterId = account.getEmail();
+        }
+        getViewModel().getRelatedUsers(pageOptionsModel.repoID, pageOptionsModel.docUuid, filterId, pageOptionsModel.latestContributor);
     }
 
     public void onMediaPicked(Uri uri) {

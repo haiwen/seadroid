@@ -49,7 +49,8 @@
     <color name="blue_200">#FF90CAF9</color>
     <color name="blue_500">#FF2196F3</color>
     <color name="blue_700">#FF1976D2</color>
-    <color name="blue_bg">#FF303030</color>A235
+    <color name="blue_900">#FF007AFF</color>
+    <color name="blue_bg">#FF303030</color>
     <color name="pale_yellow">#DFA788</color>
 
     <color name="file_bottom_line">#ECECEC</color>
@@ -65,8 +66,7 @@
     <color name="swipe_refresh_background_color">@color/material_grey_100</color>
     <color name="child_activity_background_color">@color/white</color>
 
-    <!-- bottom navigation bar icon tint color -->
-    <color name="bottom_bar_icon_tint_color">@color/material_grey_599</color>
+    <color name="primary_icon_tint_color">@color/grey</color>
 
     <!-- bottom sheet popup view -->
     <color name="bottom_sheet_pop_enable_color">@color/material_grey_666</color>

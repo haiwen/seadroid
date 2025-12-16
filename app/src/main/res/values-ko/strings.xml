@@ -216,7 +216,6 @@
     <item>사진 백업</item>
   </string-array>
   <string name="navigate_to_directory">디렉터리 탐색</string>
-  <string name="navigate_up">위로 탐색</string>
   <string name="no_starred_file">별표 표시한 파일이 없습니다</string>
   <string name="added_to_upload_tasks">업로드를 시작했습니다</string>
   <string name="added_photo_to_upload_tasks">사진 업로드를 시작했습니다</string>
@@ -626,6 +625,7 @@
   <string name="folder_backup_select_repo_update">백업 라이브러리 업데이트</string>
   <string name="UncaughtExceptionHandler_err">프로그램 실행을 멈추었습니다</string>
   <string name="settings_file_backup_info_title">백업 파일</string>
+  <!--backup config-->
   <!--action-->
   <string name="pause">일시 정지</string>
   <string name="paused">일시 정지함</string>
@@ -703,4 +703,6 @@
   <string name="backup_failed">백업이 실패했습니다</string>
   <string name="export_log_file_not_exists">로그 파일이 존재하지 않습니다</string>
   <string name="file_transfer_stopped">파일 전송이 중지되었습니다</string>
+  <!--font-style-->
+  <!--sdoc system event-->
 </resources>
