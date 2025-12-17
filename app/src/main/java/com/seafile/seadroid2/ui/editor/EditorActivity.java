@@ -23,6 +23,7 @@ import androidx.lifecycle.Observer;
 
 import com.blankj.utilcode.util.EncryptUtils;
 import com.blankj.utilcode.util.NetworkUtils;
+import com.blankj.utilcode.util.SizeUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.databinding.ActivityEditorBinding;
@@ -295,7 +296,6 @@ public class EditorActivity extends BaseActivityWithVM<EditorViewModel> implemen
         return true;
     }
 
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
@@ -304,8 +304,6 @@ public class EditorActivity extends BaseActivityWithVM<EditorViewModel> implemen
             } else {
                 saveFile();
             }
-        } else if (item.getItemId() == R.id.edit_undo) {
-            getOnBackPressedDispatcher().onBackPressed();
         } else if (item.getItemId() == R.id.edit_undo) {
             mPerformEdit.undo();
         } else if (item.getItemId() == R.id.edit_redo) {

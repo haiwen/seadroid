@@ -16,11 +16,9 @@
     <color name="fancy_white">#f4f5f6</color> <!-- theme color -->
     <color name="fancy_light_white">#fcfcfc</color>
     <color name="fancy_black">#888888</color>
-    <color name="fancy_light_black">#a9a9a9
-    </color> <!-- color for slide expandable list item background -->
+    <color name="fancy_light_black">#a9a9a9</color> <!-- color for slide expandable list item background -->
     <color name="fancy_dark_black">#282828</color>
-    <color name="fancy_deep_black">#989898
-    </color> <!-- color for dividers inside of slide expandable list item -->
+    <color name="fancy_deep_black">#989898</color> <!-- color for dividers inside of slide expandable list item -->
     <color name="fancy_gray">#969696</color>
     <color name="fancy_dark_gray">#e1e2e3</color>
 
@@ -67,6 +65,7 @@
     <color name="child_activity_background_color">@color/white</color>
 
     <color name="primary_icon_tint_color">@color/grey</color>
+    <color name="tip_icon_tint_color">#999999</color>
 
     <!-- bottom sheet popup view -->
     <color name="bottom_sheet_pop_enable_color">@color/material_grey_666</color>

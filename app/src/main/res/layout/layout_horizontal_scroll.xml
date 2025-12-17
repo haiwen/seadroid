@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<HorizontalScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<HorizontalScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/blue_500"
@@ -14,105 +14,77 @@
 
         <ImageView
             android:id="@+id/img_header1"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="?android:selectableItemBackground"
-            android:scaleType="centerInside"
-            android:src="@drawable/ic_format_header"/>
+            style="@style/Editor.IconStyle"
+            android:src="@drawable/icon_editor_h1"
+            app:tint="@color/white" />
 
         <ImageView
             android:id="@+id/img_bold"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="?android:selectableItemBackground"
-            android:scaleType="centerInside"
-            android:src="@drawable/ic_format_bold"/>
+            style="@style/Editor.IconStyle"
+            app:tint="@color/white"
+            android:src="@drawable/icon_editor_bold" />
 
         <ImageView
             android:id="@+id/img_italic"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="?android:selectableItemBackground"
-            android:scaleType="centerInside"
-            android:src="@drawable/ic_format_italic"/>
+            style="@style/Editor.IconStyle"
+            app:tint="@color/white"
+            android:src="@drawable/icon_editor_italic" />
 
 
         <ImageView
             android:id="@+id/img_horizontal_rules"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="?android:selectableItemBackground"
-            android:padding="13dp"
-            android:scaleType="centerInside"
-            android:src="@drawable/ic_more_horiz_black"/>
+            style="@style/Editor.IconStyle"
+            app:tint="@color/white"
+            android:src="@drawable/icon_editor_hori_line" />
 
         <ImageView
             android:id="@+id/img_todo"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="?android:selectableItemBackground"
-            android:scaleType="centerInside"
-            android:src="@drawable/ic_format_black"/>
+            style="@style/Editor.IconStyle"
+            app:tint="@color/white"
+            android:src="@drawable/icon_editor_check_box_outline" />
 
         <ImageView
             android:id="@+id/img_todo_done"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="?android:selectableItemBackground"
-            android:scaleType="centerInside"
-            android:src="@drawable/ic_format_focus"/>
+            style="@style/Editor.IconStyle"
+            app:tint="@color/white"
+            android:src="@drawable/icon_editor_check_square" />
 
         <ImageView
             android:id="@+id/img_strike_through"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="?android:selectableItemBackground"
-            android:scaleType="centerInside"
-            android:src="@drawable/ic_format_strikethrough"/>
+            style="@style/Editor.IconStyle"
+            app:tint="@color/white"
+            android:src="@drawable/icon_editor_strikethrough" />
 
 
         <ImageView
             android:id="@+id/img_code"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="?android:selectableItemBackground"
-            android:padding="10dp"
-            android:scaleType="centerInside"
-            android:src="@drawable/ic_format_quote"/>
+            style="@style/Editor.IconStyle"
+            app:tint="@color/white"
+            android:src="@drawable/icon_editor_quote_left" />
 
         <ImageView
             android:id="@+id/img_block_quote"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="?android:selectableItemBackground"
-            android:padding="15dp"
-            android:scaleType="centerInside"
-            android:src="@drawable/ic_format_right"/>
+            style="@style/Editor.IconStyle"
+            app:tint="@color/white"
+            android:src="@drawable/icon_editor_next_page" />
 
         <ImageView
             android:id="@+id/img_unorder_list"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="?android:selectableItemBackground"
-            android:scaleType="centerInside"
-            android:src="@drawable/ic_format_bullet"/>
+            style="@style/Editor.IconStyle"
+            app:tint="@color/white"
+            android:src="@drawable/icon_editor_unordered_list" />
 
         <ImageView
             android:id="@+id/img_order_list"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="?android:selectableItemBackground"
-            android:padding="15dp"
-            android:scaleType="centerInside"
-            android:src="@drawable/ic_format_list"/>
+            style="@style/Editor.IconStyle"
+            app:tint="@color/white"
+            android:src="@drawable/icon_editor_ordered_list" />
 
         <ImageView
             android:id="@+id/img_link"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="?android:selectableItemBackground"
-            android:scaleType="centerInside"
-            android:src="@drawable/ic_format_link"/>
+            style="@style/Editor.IconStyle"
+            app:tint="@color/white"
+            android:src="@drawable/icon_editor_link" />
     </LinearLayout>
 
 </HorizontalScrollView>

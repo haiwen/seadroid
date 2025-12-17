@@ -287,4 +287,12 @@
         <item name="colorAccent">@color/blue_500</item>
         <item name="colorSurface">@color/white</item>
     </style>
+
+    <style name="Editor.IconStyle" parent="">
+        <item name="android:scaleType">centerInside</item>
+        <item name="background">?android:selectableItemBackground</item>
+        <item name="android:padding">14dp</item>
+        <item name="android:layout_height">48dp</item>
+        <item name="android:layout_width">48dp</item>
+    </style>
 </resources>

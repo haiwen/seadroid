@@ -40,12 +40,12 @@ import com.seafile.seadroid2.framework.model.sdoc.OptionsTagModel;
 import com.seafile.seadroid2.framework.model.sdoc.SDocTagModel;
 import com.seafile.seadroid2.framework.model.user.UserModel;
 import com.seafile.seadroid2.framework.util.Utils;
+import com.seafile.seadroid2.ui.file_profile.ColumnTypeUtils;
 
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -133,58 +133,19 @@ public class DocProfileView extends LinearLayout {
         return model.get(key);
     }
 
-    private int getResNameByKey(String key) {
-        switch (key) {
-            case "_description":
-                return R.string.description;
-            case "_file_modifier":
-                return R.string._last_modifier;
-            case "_file_mtime":
-                return R.string._last_modified_time;
-            case "_status":
-                return R.string._file_status;
-            case "_collaborators":
-                return R.string._file_collaborators;
-            case "_size":
-                return R.string._size;
-            case "_reviewer":
-                return R.string._reviewer;
-            case "_in_progress":
-                return R.string._in_progress;
-            case "_in_review":
-                return R.string._in_review;
-            case "_done":
-                return R.string._done;
-            case "_outdated":
-                return R.string._outdated;
-            case "_location":
-                return R.string._location;
-            case "_tags":
-                return R.string._tags;
-            case "_owner":
-                return R.string._owner;
-            case "_rate":
-                return R.string._rate;
-        }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            return Resources.ID_NULL;
-        }
-        return 0;
-    }
 
     public void parseViewByType(MetadataModel metadata) {
         final String type = metadata.type;
         LinearLayout view = (LinearLayout) LayoutInflater.from(getContext()).inflate(R.layout.layout_details_keyview_valuecontainer, null);
 
-        int resStrId = getResNameByKey(metadata.key);
+        int resStrId = ColumnTypeUtils.getResNameByKey(metadata.key);
         if (resStrId != 0) {
             view.<TextView>findViewById(R.id.text_title).setText(resStrId);
         } else {
             view.<TextView>findViewById(R.id.text_title).setText(metadata.name);
         }
 
-        view.<ImageView>findViewById(R.id.text_icon).setImageResource(getIconByColumnType(metadata.type, metadata.key));
+        view.<ImageView>findViewById(R.id.text_icon).setImageResource(ColumnTypeUtils.getIconByColumnType(metadata.type, metadata.key));
 
         if (metadata.value == null) {
             View ltr = LayoutInflater.from(view.getContext()).inflate(R.layout.layout_textview, null);
@@ -251,29 +212,6 @@ public class DocProfileView extends LinearLayout {
         LinearLayout.LayoutParams ll = new LinearLayout.LayoutParams(-1, -2);
         ll.topMargin = DP_8;
         this.addView(view, ll);
-    }
-
-    private int getIconByColumnType(String type, String key) {
-        return switch (type) {
-            case ColumnType.TEXT -> R.drawable.ic_single_line_text;
-            case ColumnType.COLLABORATOR -> R.drawable.ic_user_collaborator;
-            case ColumnType.IMAGE -> R.drawable.ic_picture;
-            case ColumnType.FILE -> R.drawable.ic_file_alt_solid;
-            case ColumnType.DATE -> R.drawable.ic_calendar_alt_solid;
-            case ColumnType.SINGLE_SELECT -> R.drawable.ic_single_election;
-            case ColumnType.DURATION -> R.drawable.ic_duration;
-            case ColumnType.MULTIPLE_SELECT -> R.drawable.ic_multiple_selection;
-            case ColumnType.CHECKBOX -> R.drawable.ic_check_square_solid;
-            case ColumnType.GEOLOCATION -> R.drawable.ic_location;
-            case ColumnType.EMAIL -> R.drawable.ic_email;
-            case ColumnType.LONG_TEXT -> R.drawable.ic_long_text;
-            case ColumnType.NUMBER -> R.drawable.ic_number;
-            case ColumnType.RATE -> R.drawable.ic_star_32;
-            case ColumnType.URL -> R.drawable.ic_url;
-            case ColumnType.LINK -> "_tags".equals(key) ? R.drawable.ic_tag : R.drawable.ic_links;
-
-            default -> R.drawable.ic_single_line_text;
-        };
     }
 
     private void parseText(LinearLayout view, MetadataModel model) {
@@ -451,10 +389,10 @@ public class DocProfileView extends LinearLayout {
 
             if (option.isPresent()) {
                 OptionsTagModel t = option.get();
-                int r = getResNameByKey(t.name);
+                int r = ColumnTypeUtils.getResNameByKey(t.name);
                 if (r == Resources.ID_NULL) {
                     textView.setText(t.name);
-                }else{
+                } else {
                     textView.setText(r);
                 }
                 textView.setTextColor(Color.parseColor(t.getTextColor()));

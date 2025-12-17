@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.framework.motion_photo;
+package com.seafile.seadroid2.jni;
 
 public class HeicNative {
 

@@ -207,7 +207,7 @@ static bool EncodePrimaryImageFromJpeg(const std::vector<uint8_t> &jpegBytes,
 extern "C" JNIEXPORT jboolean
 
 JNICALL
-Java_com_seafile_seadroid2_framework_motion_1photo_HeicNative_nativeGenStillHeicSeq(
+Java_com_seafile_seadroid2_jni_HeicNative_nativeGenStillHeicSeq(
         JNIEnv *env, jobject, jbyteArray jpegBytes, jstring outputPath) {
     const char *outPath = env->GetStringUTFChars(outputPath, nullptr);
     if (!outPath) {
@@ -256,7 +256,7 @@ Java_com_seafile_seadroid2_framework_motion_1photo_HeicNative_nativeGenStillHeic
 extern "C" JNIEXPORT jstring
 
 JNICALL
-Java_com_seafile_seadroid2_framework_motion_1photo_HeicNative_nativeGetLibVersion(JNIEnv *env,
+Java_com_seafile_seadroid2_jni_HeicNative_nativeGetLibVersion(JNIEnv *env,
                                                                                   jobject) {
     const char *version = heif_get_version();
     return env->NewStringUTF(version);
@@ -302,6 +302,10 @@ static std::string GenerateMotionPhotoXMP(size_t mp4VideoLength) {
         xmlns:GCamera="http://ns.google.com/photos/1.0/camera/"
         xmlns:Container="http://ns.google.com/photos/1.0/container/"
         xmlns:Item="http://ns.google.com/photos/1.0/container/item/"
+        GCamera:MicroVideo="1"
+        GCamera:MicroVideoVersion="1"
+        GCamera:MicroVideoOffset=")" + std::to_string(mp4VideoLength) + R"("
+        GCamera:MicroVideoPresentationTimestampUs="0"
         GCamera:MotionPhoto="1"
         GCamera:MotionPhotoVersion="1"
         GCamera:MotionPhotoPresentationTimestampUs="0">
@@ -316,8 +320,7 @@ static std::string GenerateMotionPhotoXMP(size_t mp4VideoLength) {
           <rdf:li rdf:parseType="Resource">
             <Item:Mime>video/mp4</Item:Mime>
             <Item:Semantic>MotionPhoto</Item:Semantic>
-            <Item:Length>)" +
-                      std::to_string(mp4VideoLength) + R"(</Item:Length>
+            <Item:Length>)" + std::to_string(mp4VideoLength) + R"(</Item:Length>
           </rdf:li>
         </rdf:Seq>
       </Container:Directory>
@@ -582,7 +585,7 @@ EncodePrimaryImageForMotionPhoto(const std::vector<uint8_t> &jpegBytes,
 extern "C" JNIEXPORT jstring
 
 JNICALL
-Java_com_seafile_seadroid2_framework_motion_1photo_HeicNative_nativeGenGoogleMotionPhotoWithHeic(
+Java_com_seafile_seadroid2_jni_HeicNative_nativeGenGoogleMotionPhotoWithHeic(
         JNIEnv *env, jobject, jbyteArray primaryImageBytes,
         jbyteArray mp4VideoBytes, jstring outputPath) {
     LOGI_MP("============================================================");
@@ -818,8 +821,7 @@ struct MotionPhotoXmpInfo {
  * 1. 属性格式: GCamera:MotionPhoto="1"
  * 2. 标签格式: <Item:Length>12345</Item:Length>
  */
-static std::string ExtractXmpValue(const std::string &xmp,
-                                   const std::string &tagName) {
+static std::string ExtractXmpValue(const std::string &xmp, const std::string &tagName) {
     // 尝试属性格式: tagName="value"
     std::string attrPattern = tagName + "=\"";
     size_t pos = xmp.find(attrPattern);
@@ -852,8 +854,7 @@ static std::string ExtractXmpValue(const std::string &xmp,
  * @param filePath HEIC 文件路径
  * @return Motion Photo XMP 信息
  */
-static MotionPhotoXmpInfo
-ParseHeicMotionPhotoXmpWithLibheif(const char *filePath) {
+static MotionPhotoXmpInfo ParseHeicMotionPhotoXmpWithLibheif(const char *filePath) {
     MotionPhotoXmpInfo info;
 
     LOGD_MP("[ParseHeicXMP] Parsing XMP from HEIC using libheif: %s", filePath);
@@ -1029,7 +1030,7 @@ ParseHeicMotionPhotoXmpWithLibheif(const char *filePath) {
 extern "C" JNIEXPORT jbyteArray
 
 JNICALL
-Java_com_seafile_seadroid2_framework_motion_1photo_HeicNative_nativeExtractGoogleHeicMotionPhotoVideo(
+Java_com_seafile_seadroid2_jni_HeicNative_nativeExtractGoogleHeicMotionPhotoVideo(
         JNIEnv *env, jobject, jstring inputFilePath) {
     LOGI_MP("============================================================");
     LOGI_MP("nativeExtractGoogleHeicMotionPhotoVideo: START");
@@ -1294,8 +1295,7 @@ Java_com_seafile_seadroid2_framework_motion_1photo_HeicNative_nativeExtractGoogl
  * - Item:Semantic="MotionPhoto" 的 Item:Length - 视频数据的长度
  * - Item:Padding - 可能存在的填充字节
  */
-static MotionPhotoXmpInfo
-ParseMotionPhotoXmp(const std::vector<uint8_t> &fileData) {
+static MotionPhotoXmpInfo ParseMotionPhotoXmp(const std::vector<uint8_t> &fileData) {
     MotionPhotoXmpInfo info;
 
     // XMP 标识符
@@ -1489,7 +1489,7 @@ ParseMotionPhotoXmp(const std::vector<uint8_t> &fileData) {
 extern "C" JNIEXPORT jbyteArray
 
 JNICALL
-Java_com_seafile_seadroid2_framework_motion_1photo_HeicNative_nativeExtractGoogleJpegMotionPhotoVideo(
+Java_com_seafile_seadroid2_jni_HeicNative_nativeExtractGoogleJpegMotionPhotoVideo(
         JNIEnv *env, jobject, jstring inputFilePath) {
     LOGI_MP("============================================================");
     LOGI_MP("nativeExtractGoogleJpegMotionPhotoVideo: START");
@@ -1751,7 +1751,7 @@ Java_com_seafile_seadroid2_framework_motion_1photo_HeicNative_nativeExtractGoogl
 extern "C" JNIEXPORT jint
 
 JNICALL
-Java_com_seafile_seadroid2_framework_motion_1photo_HeicNative_nativeCheckMotionPhotoType(JNIEnv *env, jobject, jstring inputFilePath) {
+Java_com_seafile_seadroid2_jni_HeicNative_nativeCheckMotionPhotoType(JNIEnv *env, jobject, jstring inputFilePath) {
     const char *filePath = env->GetStringUTFChars(inputFilePath, nullptr);
     if (!filePath) {
         LOGE_MP("[CheckType] Failed to get input file path");

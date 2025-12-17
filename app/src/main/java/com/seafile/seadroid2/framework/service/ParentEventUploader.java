@@ -8,6 +8,7 @@ import androidx.annotation.NonNull;
 
 import com.blankj.utilcode.util.CloneUtils;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.config.Constants;
@@ -29,6 +30,7 @@ import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.body.ProgressRequestBody;
 import com.seafile.seadroid2.framework.worker.body.ProgressUriRequestBody;
 import com.seafile.seadroid2.framework.worker.queue.TransferModel;
+import com.seafile.seadroid2.jni.HeicNative;
 import com.seafile.seadroid2.listener.FileTransferProgressListener;
 import com.seafile.seadroid2.ui.file.FileService;
 
@@ -194,16 +196,34 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
             throw SeafException.UNAUTHORIZED_EXCEPTION;
         }
 
-//        File outHeic = null;
-//        try {
-//
-//            outHeic = MotionHeicWriter.writeMotionHeic(currentTransferModel.full_path, currentTransferModel.getFileName());
-//            currentTransferModel.full_path = outHeic.getAbsolutePath();
-//
-//        } catch (Exception e) {
-//            SafeLogs.e(e);
-////            throw new RuntimeException(e);
-//        }
+        File outHeic = null;
+        try {
+//            int type = HeicNative.getInstance().nativeCheckMotionPhotoType(currentTransferModel.full_path);
+            int type = 0;
+            if (type == HeicNative.MOTION_PHOTO_TYPE_HEIC) {
+
+            } else if (type == HeicNative.MOTION_PHOTO_TYPE_JPEG) {
+                File inputJpeg = new File(SeadroidApplication.getAppContext().getFilesDir() + "/wx.jpg");
+                File inputVideo = new File(SeadroidApplication.getAppContext().getFilesDir() + "/san265.mp4");
+
+                byte[] jpegBytes = org.apache.commons.io.FileUtils.readFileToByteArray(inputJpeg);
+                byte[] videoBytes = org.apache.commons.io.FileUtils.readFileToByteArray(inputVideo);
+
+                File outFile = new File(SeadroidApplication.getAppContext().getFilesDir() + "/" + currentTransferModel.file_name + ".heic");
+
+                String outPath = HeicNative.getInstance().nativeGenGoogleMotionPhotoWithHeic(jpegBytes, videoBytes, outFile.getAbsolutePath());
+                if (!TextUtils.isEmpty(outPath)) {
+                    currentTransferModel.full_path = outPath;
+                    outHeic = outFile;
+                }
+            } else {
+
+            }
+
+        } catch (Exception e) {
+            SafeLogs.e(e);
+//            throw new RuntimeException(e);
+        }
 
 
         SafeLogs.d(TAG, "transferFile()", "start transfer, local file path: " + currentTransferModel.full_path);
@@ -242,13 +262,12 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
 
         long createdTime = -1;
 
-//        if (outHeic != null && outHeic.exists()) {
-//            //convert jpeg to heic file
-//            fileRequestBody = new ProgressRequestBody(outHeic, _fileTransferProgressListener);
-//            builder.addFormDataPart("file", outHeic.getName(), fileRequestBody);
-//            createdTime = FileUtils.getCreatedTimeFromPath(getContext(), outHeic);
-//        } else
-        if (currentTransferModel.full_path.startsWith("content://")) {
+        if (outHeic != null && outHeic.exists()) {
+            //convert jpeg to heic file
+            fileRequestBody = new ProgressRequestBody(outHeic, _fileTransferProgressListener);
+            builder.addFormDataPart("file", outHeic.getName(), fileRequestBody);
+            createdTime = FileUtils.getCreatedTimeFromPath(getContext(), outHeic);
+        } else if (currentTransferModel.full_path.startsWith("content://")) {
             //uri: content://
             Uri uri = Uri.parse(currentTransferModel.full_path);
             boolean isHasPermission = FileUtils.isUriHasPermission(getContext(), uri);

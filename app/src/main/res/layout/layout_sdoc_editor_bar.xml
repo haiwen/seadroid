@@ -34,7 +34,7 @@
                     android:layout_width="@dimen/editor_icon_size"
                     android:layout_height="@dimen/editor_icon_size"
                     android:padding="@dimen/editor_icon_padding"
-                    android:src="@drawable/icon_editorbar_undo"
+                    android:src="@drawable/icon_editor_undo"
                     app:tint="@color/primary_icon_tint_color" />
             </com.seafile.seadroid2.widget.CheckableForegroundLinearLayout>
 
@@ -60,7 +60,7 @@
                     android:layout_width="@dimen/editor_icon_size"
                     android:layout_height="@dimen/editor_icon_size"
                     android:padding="@dimen/editor_icon_padding"
-                    android:src="@drawable/icon_editorbar_redo"
+                    android:src="@drawable/icon_editor_redo"
                     app:tint="@color/primary_icon_tint_color" />
             </com.seafile.seadroid2.widget.CheckableForegroundLinearLayout>
 
@@ -105,7 +105,7 @@
                 android:layout_width="@dimen/editor_icon_size"
                 android:layout_height="@dimen/editor_icon_size"
                 android:padding="4dp"
-                android:src="@drawable/icon_editorbar_drop_down"
+                android:src="@drawable/icon_editor_drop_down"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
@@ -146,7 +146,7 @@
                     android:layout_height="@dimen/editor_icon_size"
                     android:foreground="?android:selectableItemBackground"
                     android:padding="@dimen/editor_icon_padding"
-                    android:src="@drawable/icon_editorbar_unordered_list"
+                    android:src="@drawable/icon_editor_unordered_list"
                     app:tint="@color/primary_icon_tint_color" />
 
             </com.seafile.seadroid2.widget.CheckableForegroundLinearLayout>
@@ -173,7 +173,7 @@
                     android:layout_height="@dimen/editor_icon_size"
                     android:foreground="?android:selectableItemBackground"
                     android:padding="@dimen/editor_icon_padding"
-                    android:src="@drawable/icon_editorbar_ordered_list"
+                    android:src="@drawable/icon_editor_ordered_list"
                     app:tint="@color/primary_icon_tint_color" />
 
             </com.seafile.seadroid2.widget.CheckableForegroundLinearLayout>
@@ -199,7 +199,7 @@
                     android:layout_height="@dimen/editor_icon_size"
                     android:foreground="?android:selectableItemBackground"
                     android:padding="@dimen/editor_icon_padding"
-                    android:src="@drawable/icon_editorbar_check_square"
+                    android:src="@drawable/icon_editor_check_square"
                     app:tint="@color/primary_icon_tint_color" />
             </com.seafile.seadroid2.widget.CheckableForegroundLinearLayout>
 
