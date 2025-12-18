@@ -2360,8 +2360,6 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 } else {
                     addUploadTask(repoModel, GlobalNavContext.getCurrentNavContext().getNavPath(), uri, fileName, false);
                 }
-
-
             }
         });
     }
