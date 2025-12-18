@@ -539,8 +539,7 @@ build_libheif() {
         mkdir -p $BUILD_DIR
         cd $BUILD_DIR
 
-        # [已注释] 设置 PKG_CONFIG_PATH - 当前不依赖 x265 和 libde265
-        # export PKG_CONFIG_PATH="$PREFIX_DIR/x265/$ABI/lib/pkgconfig:$PREFIX_DIR/libde265/$ABI/lib/pkgconfig"
+         export PKG_CONFIG_PATH="$PREFIX_DIR/x265/$ABI/lib/pkgconfig:$PREFIX_DIR/libde265/$ABI/lib/pkgconfig"
 
         cmake .. \
             -G Ninja \
@@ -552,8 +551,8 @@ build_libheif() {
             -DBUILD_SHARED_LIBS=ON \
             -DWITH_EXAMPLES=OFF \
             -DBUILD_TESTING=OFF \
-            -DWITH_LIBDE265=OFF \
-            -DWITH_X265=OFF \
+            -DWITH_LIBDE265=ON \
+            -DWITH_X265=ON \
             -DWITH_AOM_DECODER=OFF \
             -DWITH_AOM_ENCODER=OFF \
             -DWITH_DAV1D=OFF \
@@ -561,8 +560,8 @@ build_libheif() {
             -DWITH_SvtEnc=OFF \
             -DWITH_KVAZAAR=OFF \
             -DWITH_FFMPEG_DECODER=OFF \
-            -DWITH_JPEG_DECODER=OFF \
-            -DWITH_JPEG_ENCODER=OFF \
+            -DWITH_JPEG_DECODER=ON \
+            -DWITH_JPEG_ENCODER=ON \
             -DWITH_OpenJPEG_DECODER=OFF \
             -DWITH_OpenJPEG_ENCODER=OFF \
             -DWITH_OPENJPH_ENCODER=OFF \
@@ -574,11 +573,10 @@ build_libheif() {
             -DWITH_HEADER_COMPRESSION=OFF \
             -DENABLE_MULTITHREADING_SUPPORT=ON \
             -DENABLE_PARALLEL_TILE_DECODING=ON
-            # [已注释] libde265 和 x265 库路径 - 当前不依赖这些库
-            # -DLIBDE265_LIBRARY=$PREFIX_DIR/libde265/$ABI/lib/libde265.so \
-            # -DLIBDE265_INCLUDE_DIR=$PREFIX_DIR/libde265/$ABI/include \
-            # -DX265_LIBRARY=$PREFIX_DIR/x265/$ABI/lib/libx265.so \
-            # -DX265_INCLUDE_DIR=$PREFIX_DIR/x265/$ABI/include
+             -DLIBDE265_LIBRARY=$PREFIX_DIR/libde265/$ABI/lib/libde265.so \
+             -DLIBDE265_INCLUDE_DIR=$PREFIX_DIR/libde265/$ABI/include \
+             -DX265_LIBRARY=$PREFIX_DIR/x265/$ABI/lib/libx265.so \
+             -DX265_INCLUDE_DIR=$PREFIX_DIR/x265/$ABI/include
 
         ninja -j$NPROC
         ninja install
@@ -636,13 +634,12 @@ copy_to_project() {
             cp $PREFIX_DIR/libheif/$ABI/lib/libheif.so $TARGET_DIR/lib/$ABI/
         fi
 
-        # [已注释] 复制依赖 - 当前只编译 libheif 和 libjpeg
-        # if [ "$NEED_X265" = "true" ]; then
-        #     cp $PREFIX_DIR/x265/$ABI/lib/libx265.so $TARGET_DIR/lib/$ABI/
-        # fi
-        # if [ "$NEED_LIBDE265" = "true" ]; then
-        #     cp $PREFIX_DIR/libde265/$ABI/lib/libde265.so $TARGET_DIR/lib/$ABI/
-        # fi
+         if [ "$NEED_X265" = "true" ]; then
+             cp $PREFIX_DIR/x265/$ABI/lib/libx265.so $TARGET_DIR/lib/$ABI/
+         fi
+         if [ "$NEED_LIBDE265" = "true" ]; then
+             cp $PREFIX_DIR/libde265/$ABI/lib/libde265.so $TARGET_DIR/lib/$ABI/
+         fi
         # [已注释] 复制 Bento4 - 当前只编译 libheif 和 libjpeg
         # if [ "$NEED_BENTO4" = "true" ]; then
         #     cp $PREFIX_DIR/bento4/$ABI/lib/libap4.so $TARGET_DIR/lib/$ABI/
@@ -791,8 +788,8 @@ check_needs() {
 
     # 检查各库状态
     # [已注释] 当前只编译 libheif 和 libjpeg，不检查其他库
-    # if check_lib_exists "libx265.so"; then APP_HAS_X265=true; else APP_HAS_X265=false; fi
-    # if check_lib_exists "libde265.so"; then APP_HAS_DE265=true; else APP_HAS_DE265=false; fi
+     if check_lib_exists "libx265.so"; then APP_HAS_X265=true; else APP_HAS_X265=false; fi
+     if check_lib_exists "libde265.so"; then APP_HAS_DE265=true; else APP_HAS_DE265=false; fi
     # if check_lib_exists "libap4.so"; then APP_HAS_BENTO4=true; else APP_HAS_BENTO4=false; fi
     # if check_lib_exists "libavcodec.so"; then APP_HAS_FFMPEG=true; else APP_HAS_FFMPEG=false; fi
     if check_lib_exists "libheif.so"; then APP_HAS_HEIF=true; else APP_HAS_HEIF=false; fi
@@ -810,56 +807,55 @@ check_needs() {
         log_info "libheif 已存在，跳过编译"
     fi
 
-    # [已注释] 原 LibHeif 依赖检查逻辑
-    # if [ "$APP_HAS_HEIF" = "true" ]; then
-    #     NEED_LIBHEIF=false
-    #     log_info "libheif 已存在，跳过编译"
-    #
-    #     # 如果 libheif 不需要编译，那么依赖项只需要检查是否在 App 中存在
-    #     if [ "$APP_HAS_X265" = "true" ]; then
-    #         NEED_X265=false
-    #         log_info "x265 已存在，跳过编译"
-    #     fi
-    #     if [ "$APP_HAS_DE265" = "true" ]; then
-    #         NEED_LIBDE265=false
-    #         log_info "libde265 已存在，跳过编译"
-    #     fi
-    # else
-    #     # LibHeif 需要编译，必须确保依赖项在 PREFIX_DIR 中可用
-    #     log_info "libheif 需要编译，检查依赖项..."
-    #
-    #     # 检查 PREFIX 中的 x265
-    #     local prefix_has_x265=true
-    #     for ABI in "${ABIS[@]}"; do
-    #         if [ ! -f "$PREFIX_DIR/x265/$ABI/lib/libx265.so" ]; then prefix_has_x265=false; break; fi
-    #     done
-    #
-    #     if [ "$APP_HAS_X265" = "true" ] && [ "$prefix_has_x265" = "true" ]; then
-    #         NEED_X265=false
-    #         log_info "x265 已存在且构建文件完整，跳过编译"
-    #     elif [ "$APP_HAS_X265" = "true" ] && [ "$prefix_has_x265" = "false" ]; then
-    #         NEED_X265=true
-    #         log_warn "x265 在 App 中存在，但在构建目录缺失（编译 libheif 需要），将重新编译"
-    #     elif [ "$APP_HAS_X265" = "false" ]; then
-    #         NEED_X265=true
-    #     fi
-    #
-    #     # 检查 PREFIX 中的 libde265
-    #     local prefix_has_de265=true
-    #     for ABI in "${ABIS[@]}"; do
-    #         if [ ! -f "$PREFIX_DIR/libde265/$ABI/lib/libde265.so" ]; then prefix_has_de265=false; break; fi
-    #     done
-    #
-    #     if [ "$APP_HAS_DE265" = "true" ] && [ "$prefix_has_de265" = "true" ]; then
-    #         NEED_LIBDE265=false
-    #         log_info "libde265 已存在且构建文件完整，跳过编译"
-    #     elif [ "$APP_HAS_DE265" = "true" ] && [ "$prefix_has_de265" = "false" ]; then
-    #         NEED_LIBDE265=true
-    #         log_warn "libde265 在 App 中存在，但在构建目录缺失（编译 libheif 需要），将重新编译"
-    #     elif [ "$APP_HAS_DE265" = "false" ]; then
-    #         NEED_LIBDE265=true
-    #     fi
-    # fi
+     if [ "$APP_HAS_HEIF" = "true" ]; then
+         NEED_LIBHEIF=false
+         log_info "libheif 已存在，跳过编译"
+
+         # 如果 libheif 不需要编译，那么依赖项只需要检查是否在 App 中存在
+         if [ "$APP_HAS_X265" = "true" ]; then
+             NEED_X265=false
+             log_info "x265 已存在，跳过编译"
+         fi
+         if [ "$APP_HAS_DE265" = "true" ]; then
+             NEED_LIBDE265=false
+             log_info "libde265 已存在，跳过编译"
+         fi
+     else
+         # LibHeif 需要编译，必须确保依赖项在 PREFIX_DIR 中可用
+         log_info "libheif 需要编译，检查依赖项..."
+
+         # 检查 PREFIX 中的 x265
+         local prefix_has_x265=true
+         for ABI in "${ABIS[@]}"; do
+             if [ ! -f "$PREFIX_DIR/x265/$ABI/lib/libx265.so" ]; then prefix_has_x265=false; break; fi
+         done
+
+         if [ "$APP_HAS_X265" = "true" ] && [ "$prefix_has_x265" = "true" ]; then
+             NEED_X265=false
+             log_info "x265 已存在且构建文件完整，跳过编译"
+         elif [ "$APP_HAS_X265" = "true" ] && [ "$prefix_has_x265" = "false" ]; then
+             NEED_X265=true
+             log_warn "x265 在 App 中存在，但在构建目录缺失（编译 libheif 需要），将重新编译"
+         elif [ "$APP_HAS_X265" = "false" ]; then
+             NEED_X265=true
+         fi
+
+         # 检查 PREFIX 中的 libde265
+         local prefix_has_de265=true
+         for ABI in "${ABIS[@]}"; do
+             if [ ! -f "$PREFIX_DIR/libde265/$ABI/lib/libde265.so" ]; then prefix_has_de265=false; break; fi
+         done
+
+         if [ "$APP_HAS_DE265" = "true" ] && [ "$prefix_has_de265" = "true" ]; then
+             NEED_LIBDE265=false
+             log_info "libde265 已存在且构建文件完整，跳过编译"
+         elif [ "$APP_HAS_DE265" = "true" ] && [ "$prefix_has_de265" = "false" ]; then
+             NEED_LIBDE265=true
+             log_warn "libde265 在 App 中存在，但在构建目录缺失（编译 libheif 需要），将重新编译"
+         elif [ "$APP_HAS_DE265" = "false" ]; then
+             NEED_LIBDE265=true
+         fi
+     fi
 
     if [ "$APP_HAS_JPEG" = "true" ]; then
         NEED_LIBJPEG=false
@@ -905,17 +901,15 @@ main() {
     echo ""
 
     # 编译依赖
-    # [已注释] x265 编译 - 当前只编译 libheif 和 libjpeg
-    # if [ "$NEED_X265" = "true" ]; then
-    #     build_x265
-    #     echo ""
-    # fi
+     if [ "$NEED_X265" = "true" ]; then
+         build_x265
+         echo ""
+     fi
 
-    # [已注释] libde265 编译 - 当前只编译 libheif 和 libjpeg
-    # if [ "$NEED_LIBDE265" = "true" ]; then
-    #     build_libde265
-    #     echo ""
-    # fi
+     if [ "$NEED_LIBDE265" = "true" ]; then
+         build_libde265
+         echo ""
+     fi
 
     if [ "$NEED_LIBJPEG" = "true" ]; then
         build_libjpeg

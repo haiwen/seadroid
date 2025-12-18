@@ -518,7 +518,6 @@ EncodePrimaryImageForMotionPhoto(const std::vector<uint8_t> &jpegBytes,
                                    nullptr,     // name_filter (不过滤名称)
                                    descriptors, // out_encoders
                                    10);         // count (最多获取10个)
-
   if (num_descriptors > 0 && descriptors[0]) {
     LOGD_MP("[EncodePrimary] Found %d HEVC encoder(s), using first one",
             num_descriptors);
