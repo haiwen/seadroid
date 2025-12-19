@@ -16,6 +16,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.text.TextUtils;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.LinearLayout;
 
 import androidx.activity.OnBackPressedCallback;
@@ -257,6 +258,18 @@ public class MainActivity extends BaseActivity {
         intent.putExtra("is_dir", is_dir);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         context.startActivity(intent);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        // This part of the view sometimes gets focused, causing
+        // the UI to look really bad.
+        View child = binding.pager.getChildAt(0);
+        if (child != null) {
+            child.setDefaultFocusHighlightEnabled(false);
+        }
     }
 
     @Override

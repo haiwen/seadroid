@@ -42,6 +42,8 @@ public class Settings {
     public static final SettingsLiveData<Boolean> SETTINGS_GESTURE = new BooleanSettingLiveData(R.string.pref_key_settings_gesture_lock, R.bool.pref_default_true);
     public static final SettingsLiveData<Long> SETTINGS_GESTURE_LOCK_TIMESTAMP = new LongSettingLiveData(R.string.pref_key_settings_gesture_lock_timestamp, R.string.pref_default_value_key_gesture_lock_timestamp);
 
+    public static final SettingsLiveData<Boolean> BIOMETRIC_LOCK_SWITCH = new BooleanSettingLiveData(R.string.pref_key_settings_biometric_lock, R.bool.pref_default_false);
+
     //////////////////
     /// user settings
     //////////////////

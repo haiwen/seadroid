@@ -32,6 +32,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
+import androidx.preference.SwitchPreferenceCompat;
 
 import com.blankj.utilcode.util.AppUtils;
 import com.blankj.utilcode.util.CollectionUtils;
@@ -128,6 +129,8 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
     private Preference mTransferDownloadState;
     private Preference mTransferUploadState;
     private Preference cacheLocationPref;
+
+    private TextSwitchPreference mBiometricLockSwitch;
 
     public static TabSettings2Fragment newInstance() {
         return new TabSettings2Fragment();
@@ -272,6 +275,8 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
 
         initCachePref();
 
+        initSecurityPref();
+
         initAboutPref();
     }
 
@@ -294,6 +299,23 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
             onPreferenceSignOutClicked();
             return true;
         });
+    }
+
+    private void initSecurityPref() {
+        mBiometricLockSwitch = findPreference(getString(R.string.pref_key_settings_biometric_lock));
+        mBiometricLockSwitch.setOnPreferenceChangeListener((preference, newValue) -> {
+            Settings.BIOMETRIC_LOCK_SWITCH.putValue((Boolean) newValue);
+            return true;
+        });
+
+        // This is right below biometric lock, and needs to be specially
+        // styled depending on its visibility.
+        TextTitleSummaryPreference clearPassword = findPreference(getString(R.string.pref_key_security_clear_password));
+
+        // Hide when unsupported by the user's device.
+        boolean canLock = SeadroidApplication.canLock();
+        mBiometricLockSwitch.setVisible(canLock);
+        clearPassword.setRadiusPosition(canLock ? RadiusPositionEnum.BOTTOM : RadiusPositionEnum.ALL);
 
         //clear pwd
         findPreference(getString(R.string.pref_key_security_clear_password)).setOnPreferenceClickListener(preference -> {
@@ -743,6 +765,16 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
             public void onChanged(String s) {
                 SLogs.d(TAG, "cache size：" + s);
                 findPreference(getString(R.string.pref_key_cache_info)).setSummary(s);
+            }
+        });
+
+        //////////////////
+        /// security
+        //////////////////
+        Settings.BIOMETRIC_LOCK_SWITCH.observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+                mBiometricLockSwitch.setChecked(aBoolean);
             }
         });
     }

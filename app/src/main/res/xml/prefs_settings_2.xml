@@ -328,6 +328,18 @@
         app:allowDividerBelow="false"
         app:iconSpaceReserved="false">
 
+        <com.seafile.seadroid2.widget.prefs.TextSwitchPreference
+            android:defaultValue="false"
+            android:key="@string/pref_key_settings_biometric_lock"
+            android:summaryOff="@string/biometric_lock_off"
+            android:summaryOn="@string/biometric_lock_on"
+            android:title="@string/biometric_lock"
+            app:backgroundColor="@color/pref_background_color"
+            app:dividerColor="@color/pref_divider_color"
+            app:dividerPosition="bottom"
+            app:iconSpaceReserved="false"
+            app:radiusPosition="top" />
+
         <com.seafile.seadroid2.widget.prefs.TextTitleSummaryPreference
             android:key="@string/pref_key_security_clear_password"
             android:summary="@string/clear_password_hint"
