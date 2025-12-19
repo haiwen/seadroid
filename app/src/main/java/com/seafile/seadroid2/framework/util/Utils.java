@@ -194,13 +194,32 @@ public class Utils {
         if (TextUtils.isEmpty(suffix)) {
             return false;
         }
-
+        suffix = suffix.toLowerCase(Locale.ROOT);
         if (TextUtils.equals("jpg", suffix) || TextUtils.equals("jpeg", suffix)) {
             return true;
         }
-        
+
         String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(suffix);
         return TextUtils.equals(mime, "image/jpeg");
+    }
+
+    public static boolean isGif(String fileName) {
+        if (TextUtils.isEmpty(fileName)) {
+            return false;
+        }
+
+        String suffix = getFileSuffix(fileName);
+        if (TextUtils.isEmpty(suffix)) {
+            return false;
+        }
+
+        suffix = suffix.toLowerCase(Locale.ROOT);
+        if (TextUtils.equals("gif", suffix)) {
+            return true;
+        }
+
+        String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(suffix);
+        return TextUtils.equals(mime, "image/gif");
     }
 
     public static boolean isViewableImage(String name) {

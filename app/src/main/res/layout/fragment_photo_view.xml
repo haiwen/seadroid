@@ -23,13 +23,14 @@
 
         <ImageView
             android:id="@+id/btn_live_photo"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_gravity="end"
-            android:layout_marginTop="64dp"
-            android:layout_marginEnd="16dp"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_gravity="start"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="112dp"
             android:foreground="?selectableItemBackground"
-            android:padding="8dp"
+            android:padding="4dp"
+            android:visibility="gone"
             android:src="@drawable/icon_live_photo_play"
             app:tint="@color/white" />
 

@@ -15,24 +15,12 @@ public class HeicNative {
         System.loadLibrary("heicgen");
     }
 
-    private HeicNative() {
-    }
-
-    private static HeicNative heicNative;
-
-    public static HeicNative getInstance() {
-        if (heicNative == null) {
-            heicNative = new HeicNative();
-        }
-        return heicNative;
-    }
-
     // ==================== Native methods ====================
 
     /**
      * 获取 libheif 版本号
      */
-    public native String nativeGetLibVersion();
+    public static native String nativeGetLibVersion();
 
     /**
      * 生成静态 HEIC 图片
@@ -41,9 +29,9 @@ public class HeicNative {
      * @param outputPath   输出文件路径
      * @return 是否成功
      */
-    public native boolean nativeGenStillHeicSeq(byte[] primaryImage, String outputPath);
+    public static native boolean nativeGenStillHeicSeq(byte[] primaryImage, String outputPath);
 
-    public native String nativeConvertJpegMotionPhotoToHeic(String jpegFilePath, long[] hdrAndVideoSize, String outputPath);
+    public static native String nativeConvertJpegMotionPhotoToHeic(String jpegFilePath, long[] hdrAndVideoSize, String outputPath);
 
     /**
      * 生成 Google Motion Photo 格式的 HEIC 动态照片
@@ -53,7 +41,7 @@ public class HeicNative {
      * @param outputPath   输出文件路径
      * @return 结果字符串 (success:... 或 error:...)
      */
-    public native String nativeGenGoogleMotionPhotoWithHeic(byte[] primaryImage, byte[] mp4Video, String outputPath);
+    public static native String nativeGenGoogleMotionPhotoWithHeic(byte[] primaryImage, byte[] mp4Video, String outputPath);
 
     /**
      * 从 HEIC Motion Photo 文件中提取 MP4 视频数据
@@ -62,7 +50,7 @@ public class HeicNative {
      * @param inputFilePath HEIC Motion Photo 文件路径
      * @return MP4 视频数据的字节数组，失败返回 null
      */
-    public native byte[] nativeExtractGoogleHeicMotionPhotoVideo(String inputFilePath);
+    public static native byte[] nativeExtractGoogleHeicMotionPhotoVideo(String inputFilePath);
 
     /**
      * 从 JPEG Motion Photo 文件中提取 MP4 视频数据
@@ -73,7 +61,7 @@ public class HeicNative {
      * @param inputFilePath JPEG Motion Photo 文件路径
      * @return MP4 视频数据的字节数组，失败返回 null
      */
-    public native byte[] nativeExtractGoogleJpegMotionPhotoVideo(String inputFilePath);
+    public static native byte[] nativeExtractGoogleJpegMotionPhotoVideo(String inputFilePath);
 
     /**
      * 检查图片是否为 Motion Photo，并返回类型
@@ -89,7 +77,7 @@ public class HeicNative {
      * - {@link #MOTION_PHOTO_TYPE_HEIC} (1): HEIC 格式的动态照片
      * - {@link #MOTION_PHOTO_TYPE_NONE} (2): 非动态照片
      */
-    public native int nativeCheckMotionPhotoType(String inputFilePath);
+    public static native int nativeCheckMotionPhotoType(String inputFilePath);
 
     /**
      * 检查图片是否为 Motion Photo
@@ -97,7 +85,7 @@ public class HeicNative {
      * @param inputFilePath 图片文件路径
      * @return 是否为动态照片
      */
-    public boolean isMotionPhoto(String inputFilePath) {
+    public static boolean isMotionPhoto(String inputFilePath) {
         int type = nativeCheckMotionPhotoType(inputFilePath);
         return type == MOTION_PHOTO_TYPE_JPEG || type == MOTION_PHOTO_TYPE_HEIC;
     }
@@ -108,7 +96,7 @@ public class HeicNative {
      * @param inputFilePath 图片文件路径
      * @return MP4 视频数据的字节数组，失败或非动态照片返回 null
      */
-    public byte[] extractMotionPhotoVideo(String inputFilePath) {
+    public static byte[] extractMotionPhotoVideo(String inputFilePath) {
         int type = nativeCheckMotionPhotoType(inputFilePath);
         switch (type) {
             case MOTION_PHOTO_TYPE_JPEG:

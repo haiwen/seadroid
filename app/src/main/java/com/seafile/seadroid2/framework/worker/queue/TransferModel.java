@@ -54,6 +54,11 @@ public class TransferModel implements Comparable<TransferModel> {
     public String file_name;
     public long created_at;
     public int retry_times = 0;
+
+    /**
+     *  Only motion photos in JPEG format will be converted to HEIC motion photos.
+     *  HEIC Motion Photo Temporary Cache Path.
+     * */
     public String motion_photo_path;
 
 

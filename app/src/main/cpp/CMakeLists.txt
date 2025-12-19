@@ -5,60 +5,58 @@
 # Sets the minimum CMake version required for this project.
 cmake_minimum_required(VERSION 3.22.1)
 
-# Declares the project name. The project name can be accessed via ${ PROJECT_NAME},
-# Since this is the top level CMakeLists.txt, the project name is also accessible
-# with ${CMAKE_PROJECT_NAME} (both CMake variables are in-sync within the top level
-# build script scope).
+# Declares the project name.
 project("heicgen")
 
+# Specify C++ standard
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Creates and names a library, sets it as either STATIC
-# or SHARED, and provides the relative paths to its source code.
-# You can define multiple libraries, and CMake builds them for you.
-# Gradle automatically packages shared libraries with your APK.
-#
-# In this top level CMakeLists.txt, ${CMAKE_PROJECT_NAME} is used to define
-# the target library name; in the sub-module's CMakeLists.txt, ${PROJECT_NAME}
-# is preferred for the same purpose.
-#
-# In order to load a library into your app from Java/Kotlin, you must call
-# System.loadLibrary() and pass the name of the library defined here;
-# for GameActivity/NativeActivity derived applications, the same library name must be
-# used in the AndroidManifest.xml file.
+# Set visibility to hidden to avoid exporting unnecessary symbols
+set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+set(CMAKE_VISIBILITY_INLINES_HIDDEN ON)
+
+# Define library path for convenience
+set(LIB_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libheif/lib/${ANDROID_ABI}")
+set(INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libheif/include")
 
 # Add libheif (prebuilt)
 add_library(heif SHARED IMPORTED)
-set_target_properties(heif PROPERTIES IMPORTED_LOCATION
-        ${CMAKE_CURRENT_SOURCE_DIR}/libheif/lib/${ANDROID_ABI}/libheif.so)
+set_target_properties(heif PROPERTIES IMPORTED_LOCATION "${LIB_DIR}/libheif.so")
+
+add_library(de265 SHARED IMPORTED)
+set_target_properties(de265 PROPERTIES IMPORTED_LOCATION "${LIB_DIR}/libde265.so")
+
+add_library(x265 SHARED IMPORTED)
+set_target_properties(x265 PROPERTIES IMPORTED_LOCATION "${LIB_DIR}/libx265.so")
 
 # Add libjpeg-turbo (prebuilt)
 add_library(jpeg SHARED IMPORTED)
-set_target_properties(jpeg PROPERTIES IMPORTED_LOCATION
-        ${CMAKE_CURRENT_SOURCE_DIR}/libheif/lib/${ANDROID_ABI}/libjpeg.so)
+set_target_properties(jpeg PROPERTIES IMPORTED_LOCATION "${LIB_DIR}/libjpeg.so")
 
 add_library(${CMAKE_PROJECT_NAME} SHARED
-# List C/C++ source files with relative paths to this CMakeLists.txt.
-heicgen.cpp)
+        # List C/C++ source files with relative paths to this CMakeLists.txt.
+        heicgen.cpp)
 
-
-# Specifies libraries CMake should link to your target library. You
-# can link libraries from various origins, such as libraries defined in this
-# build script, prebuilt third-party libraries, or Android system libraries.
-# 链接顺序很重要：先链接依赖库，最后链接主库
+# Specifies libraries CMake should link to your target library.
 target_link_libraries(${CMAKE_PROJECT_NAME}
-        # Android 系统库
+        # Android System Libraries
         android
         log
         jnigraphics
-        # 第三方依赖库（按依赖顺序）
+        
+        # Third-party Libraries (Order matters: dependents first)
         jpeg
-        # libheif 主库（应该最后链接，因为它依赖上面的库）
+        
+        # libheif (depends on de265, x265)
+        de265
+        x265
         heif
-        # 标准库
+        
+        # Standard Libraries
         atomic
         m
 )
 
-target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/libheif/include
-)
+target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE "${INCLUDE_DIR}")
+

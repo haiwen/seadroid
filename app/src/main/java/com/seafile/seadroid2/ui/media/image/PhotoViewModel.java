@@ -54,7 +54,6 @@ import okhttp3.ResponseBody;
 public class PhotoViewModel extends BaseViewModel {
 
     private final MutableLiveData<String> _downloadedUrlLiveData = new MutableLiveData<>();
-    private final MutableLiveData<String> _originalUrlLiveData = new MutableLiveData<>();
     private final MutableLiveData<SeafException> _fileDetailExceptionLiveData = new MutableLiveData<>();
     private final MutableLiveData<DirentModel> _checkLocalLiveData = new MutableLiveData<>();
 
@@ -64,10 +63,6 @@ public class PhotoViewModel extends BaseViewModel {
 
     public MutableLiveData<SeafException> getFileDetailExceptionLiveData() {
         return _fileDetailExceptionLiveData;
-    }
-
-    public MutableLiveData<String> getOriginalUrlLiveData() {
-        return _originalUrlLiveData;
     }
 
     public MutableLiveData<DirentModel> getCheckLocalLiveData() {
@@ -241,28 +236,6 @@ public class PhotoViewModel extends BaseViewModel {
 
     private final int SEGMENT_SIZE = 8192;
     private final FileTransferProgressListener fileTransferProgressListener = new FileTransferProgressListener();
-
-    public void requestOriginalUrl(DirentModel direntModel) {
-        Single<String> downloadUrlSingle = HttpIO.getCurrentInstance()
-                .execute(FileService.class)
-                .getFileDownloadLinkAsync(direntModel.repo_id, direntModel.full_path, 1);
-
-        addSingleDisposable(downloadUrlSingle, new Consumer<String>() {
-            @Override
-            public void accept(String dlink) throws Exception {
-                //
-                dlink = StringUtils.replace(dlink, "\"", "");
-                int i = dlink.lastIndexOf('/');
-                if (i == -1) {
-                    return;
-                }
-
-                dlink = dlink.substring(0, i) + "/" + URLEncoder.encode(dlink.substring(i + 1), "UTF-8");
-
-                getOriginalUrlLiveData().setValue(dlink);
-            }
-        });
-    }
 
     public void download(DirentModel direntModel) {
         Single<String> downloadUrlSingle = HttpIO.getCurrentInstance()

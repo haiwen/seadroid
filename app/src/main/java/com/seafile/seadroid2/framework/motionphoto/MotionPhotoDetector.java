@@ -34,6 +34,84 @@ public final class MotionPhotoDetector {
     public static final String CONTAINER_NS = "http://ns.google.com/photos/1.0/container/";
     public static final String ITEM_NS = "http://ns.google.com/photos/1.0/container/item/";
 
+    /**
+     * 从 InputStream 中提取 XMP 数据
+     * <p>
+     * 优化：不需要读取整个文件，只需顺序扫描头部标记。
+     */
+    public static String extractXmpFromStream(InputStream is) throws IOException {
+        int b1 = is.read();
+        int b2 = is.read();
+        // 必须以 SOI (FF D8) 开始
+        if (b1 != 0xFF || b2 != 0xD8) {
+            return null;
+        }
+
+        while (true) {
+            int b = is.read();
+            if (b == -1) break;
+            if (b != 0xFF) {
+                break;
+            }
+
+            int marker = is.read();
+            // 跳过填充的 0xFF
+            while (marker == 0xFF) {
+                marker = is.read();
+            }
+            if (marker == -1) break;
+
+            // SOS (Start of Scan) 后面是图像数据，不再有 APP 段
+            if (marker == 0xDA) {
+                break;
+            }
+
+            // 读取长度 (2 bytes)
+            int lenHi = is.read();
+            int lenLo = is.read();
+            if (lenHi == -1 || lenLo == -1) break;
+            int length = (lenHi << 8) | lenLo;
+
+            // 长度包含长度字节本身，所以数据长度需减 2
+            int dataLength = length - 2;
+            if (dataLength < 0) break;
+
+            if (marker == 0xE1) { // APP1
+                byte[] data = new byte[dataLength];
+                int totalRead = 0;
+                while (totalRead < dataLength) {
+                    int count = is.read(data, totalRead, dataLength - totalRead);
+                    if (count == -1) break;
+                    totalRead += count;
+                }
+
+                if (totalRead < dataLength) break;
+
+                if (startsWith(data, 0, XMP_HEADER_XMP)) {
+                    int headerLen = XMP_HEADER_XMP.length;
+                    return new String(data, headerLen, dataLength - headerLen, StandardCharsets.UTF_8);
+                } else if (startsWith(data, 0, XMP_HEADER_XAP)) {
+                    int headerLen = XMP_HEADER_XAP.length;
+                    return new String(data, headerLen, dataLength - headerLen, StandardCharsets.UTF_8);
+                }
+            } else {
+                // 跳过其他 marker 的数据
+                long skipped = 0;
+                while (skipped < dataLength) {
+                    long s = is.skip(dataLength - skipped);
+                    if (s > 0) {
+                        skipped += s;
+                    } else {
+                        // skip 失败尝试读取
+                        if (is.read() == -1) break;
+                        skipped++;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
     public static String extractXmpFromJpeg(byte[] jpeg) {
 
         int offset = 0;
@@ -100,42 +178,50 @@ public final class MotionPhotoDetector {
         return true;
     }
 
-    // =========================
-    // IO
-    // =========================
-    private static byte[] readAllBytes(InputStream is) throws IOException {
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        byte[] buf = new byte[16 * 1024];
-        int n;
-        while ((n = is.read(buf)) > 0) {
-            bos.write(buf, 0, n);
-        }
-        return bos.toByteArray();
-    }
-
-    public static MotionPhotoDescriptor parseMotionPhotoXmpWithUri(Context context, Uri uri) {
+    public static MotionPhotoDescriptor parseMotionPhotoXmpWithUri(Context context, Uri uri, boolean copyToLocal) {
         MotionPhotoDescriptor defaultDesc = new MotionPhotoDescriptor();
 
+        // 1. 第一遍：流式解析 XMP，避免将整个文件读入内存
+        String xmp = null;
         try (InputStream is = context.getContentResolver().openInputStream(uri)) {
             if (is == null) {
                 return defaultDesc;
             }
-
-            byte[] fileBytes = readAllBytes(is);
-            String xmp = extractXmpFromJpeg(fileBytes);
-            if (TextUtils.isEmpty(xmp)) {
-                return defaultDesc;
-            }
-
-            File tempFile = DataManager.createTempFile("jpeg-", ".jpeg");
-            org.apache.commons.io.FileUtils.writeByteArrayToFile(tempFile, fileBytes);
-
-            MotionPhotoDescriptor d = parse(xmp);
-            d.tempJpegPath = tempFile.getAbsolutePath();
-            return d;
+            xmp = extractXmpFromStream(is);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
+            return defaultDesc;
         }
+
+        if (TextUtils.isEmpty(xmp)) {
+            return defaultDesc;
+        }
+
+        // 2. 解析 Descriptor
+        MotionPhotoDescriptor d;
+        try {
+            d = parse(xmp);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return defaultDesc;
+        }
+
+        if (copyToLocal) {
+            // 3. 只有当确实是 Motion Photo 且解析成功时，才将文件保存到临时文件
+            // 重新打开流以进行复制
+            try (InputStream is = context.getContentResolver().openInputStream(uri)) {
+                if (is != null) {
+                    File tempFile = DataManager.createTempFile("jpeg-", ".jpeg");
+                    FileUtils.copyInputStreamToFile(is, tempFile);
+                    d.tempJpegPath = tempFile.getAbsolutePath();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+
+        return d;
     }
 
 

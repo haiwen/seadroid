@@ -214,6 +214,17 @@ build_x265() {
         log_info "x265 源码已存在,跳过下载"
     fi
 
+    # Patch x265 CMakeLists.txt
+    log_info "Patching x265 CMakeLists.txt..."
+    if [ -f "x265/source/CMakeLists.txt" ]; then
+         # Fix unknown processor armv7-a
+         sed -i '' 's/set(ARM_ALIASES armv6l armv7l)/set(ARM_ALIASES armv6l armv7l armv7-a)/g' x265/source/CMakeLists.txt
+         # Fix pthread linking on Android
+          sed -i '' 's/list(APPEND PLATFORM_LIBS pthread)/#list(APPEND PLATFORM_LIBS pthread)/g' x265/source/CMakeLists.txt
+          # Fix unsupported flags for Android ARM build
+          sed -i '' 's/-mcpu=native -mfloat-abi=hard//g' x265/source/CMakeLists.txt
+     fi
+
     cd x265/build
 
     # 为每个架构编译
@@ -240,9 +251,8 @@ build_x265() {
             -DHIGH_BIT_DEPTH=OFF \
             -DENABLE_PTHREADS=OFF \
             -DTHREADS=OFF \
+            -DENABLE_PIC=ON \
             -DENABLE_LIBNUMA=OFF \
-            -DCMAKE_EXE_LINKER_FLAGS="-Wl,--no-undefined" \
-            -DCMAKE_SHARED_LINKER_FLAGS="-Wl,--no-undefined -Wl,--as-needed" \
             -DCMAKE_CXX_FLAGS="-DANDROID -fPIC" \
             -DCMAKE_C_FLAGS="-DANDROID -fPIC"
 
@@ -572,11 +582,13 @@ build_libheif() {
             -DWITH_UNCOMPRESSED_CODEC=OFF \
             -DWITH_HEADER_COMPRESSION=OFF \
             -DENABLE_MULTITHREADING_SUPPORT=ON \
-            -DENABLE_PARALLEL_TILE_DECODING=ON
+            -DENABLE_PARALLEL_TILE_DECODING=ON \
              -DLIBDE265_LIBRARY=$PREFIX_DIR/libde265/$ABI/lib/libde265.so \
              -DLIBDE265_INCLUDE_DIR=$PREFIX_DIR/libde265/$ABI/include \
              -DX265_LIBRARY=$PREFIX_DIR/x265/$ABI/lib/libx265.so \
-             -DX265_INCLUDE_DIR=$PREFIX_DIR/x265/$ABI/include
+             -DX265_INCLUDE_DIR=$PREFIX_DIR/x265/$ABI/include \
+             -DJPEG_LIBRARY=$PREFIX_DIR/libjpeg/$ABI/lib/libjpeg.so \
+             -DJPEG_INCLUDE_DIR=$PREFIX_DIR/libjpeg/$ABI/include
 
         ninja -j$NPROC
         ninja install

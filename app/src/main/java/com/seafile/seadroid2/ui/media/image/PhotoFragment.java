@@ -1,5 +1,6 @@
 package com.seafile.seadroid2.ui.media.image;
 
+import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
 import android.content.res.Configuration;
@@ -56,6 +57,7 @@ import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.glide.GlideApp;
 import com.seafile.seadroid2.framework.model.sdoc.FileProfileConfigModel;
+import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.jni.HeicNative;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.ThumbnailUtils;
@@ -199,7 +201,7 @@ public class PhotoFragment extends BaseFragment {
         getViewModel().getSeafExceptionLiveData().observe(getViewLifecycleOwner(), new Observer<SeafException>() {
             @Override
             public void onChanged(SeafException e) {
-                binding.progressBar.setVisibility(View.GONE);
+                binding.progressBar.setVisibility(GONE);
                 binding.errorView.setVisibility(VISIBLE);
             }
         });
@@ -207,7 +209,7 @@ public class PhotoFragment extends BaseFragment {
         getViewModel().getFileDetailExceptionLiveData().observe(getViewLifecycleOwner(), new Observer<SeafException>() {
             @Override
             public void onChanged(SeafException e) {
-                binding.bottomProgressBar.setVisibility(View.GONE);
+                binding.bottomProgressBar.setVisibility(GONE);
                 binding.bottomErrorView.setVisibility(VISIBLE);
                 binding.bottomErrorDesc.setText(e.getMessage());
 
@@ -219,7 +221,7 @@ public class PhotoFragment extends BaseFragment {
             public void onChanged(DirentModel direntModel) {
                 if (direntModel == null) {
                     binding.photoView.setImageResource(R.drawable.icon_image_error_filled);
-                    binding.progressBar.setVisibility(View.GONE);
+                    binding.progressBar.setVisibility(GONE);
                     return;
                 }
 
@@ -228,10 +230,10 @@ public class PhotoFragment extends BaseFragment {
                 } else {
                     destinationFile = getLocalDestinationFile(direntModel.repo_id, direntModel.repo_name, direntModel.full_path);
                     if (FileUtils.isFileExists(destinationFile)) {
-                        if (isGif(fullPath)) {
-                            loadOriGifUrl(destinationFile.getAbsolutePath());
+                        if (Utils.isGif(fullPath)) {
+                            loadLocalGifFile(destinationFile.getAbsolutePath());
                         } else {
-                            loadOriUrl(destinationFile.getAbsolutePath());
+                            loadLocalImageFile(destinationFile.getAbsolutePath());
                         }
                     } else {
                         getViewModel().download(direntModel);
@@ -240,21 +242,15 @@ public class PhotoFragment extends BaseFragment {
             }
         });
 
-        getViewModel().getOriginalUrlLiveData().observe(getViewLifecycleOwner(), new Observer<String>() {
-            @Override
-            public void onChanged(String oriUrl) {
-                loadOriUrl(oriUrl);
-            }
-        });
 
         getViewModel().getDownloadedPathLiveData().observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(String rawPath) {
                 destinationFile = new File(rawPath);
-                if (isGif(fullPath)) {
-                    loadOriGifUrl(destinationFile.getAbsolutePath());
+                if (Utils.isGif(fullPath)) {
+                    loadLocalGifFile(destinationFile.getAbsolutePath());
                 } else {
-                    loadOriUrl(destinationFile.getAbsolutePath());
+                    loadLocalImageFile(destinationFile.getAbsolutePath());
                 }
             }
         });
@@ -262,7 +258,7 @@ public class PhotoFragment extends BaseFragment {
         getViewModel().getFileDetailLiveData().observe(getViewLifecycleOwner(), new Observer<FileProfileConfigModel>() {
             @Override
             public void onChanged(FileProfileConfigModel configModel) {
-                binding.bottomProgressBar.setVisibility(View.GONE);
+                binding.bottomProgressBar.setVisibility(GONE);
 
                 DocProfileView detailView = new DocProfileView(requireContext());
                 detailView.parseData(configModel);
@@ -330,6 +326,14 @@ public class PhotoFragment extends BaseFragment {
             @Override
             public void onDrag(ScrollDirection direction, float dx, float dy) {
                 onPhotoViewDrag(direction, dy);
+            }
+        });
+
+        binding.photoView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                playLivePhotoVideo();
+                return false;
             }
         });
     }
@@ -505,12 +509,12 @@ public class PhotoFragment extends BaseFragment {
 
 
     private void load() {
-        if (binding.progressBar.getVisibility() == View.GONE) {
+        if (binding.progressBar.getVisibility() == GONE) {
             binding.progressBar.setVisibility(VISIBLE);
         }
 
         if (binding.errorView.getVisibility() == VISIBLE) {
-            binding.errorView.setVisibility(View.GONE);
+            binding.errorView.setVisibility(GONE);
         }
 
         if (!TextUtils.isEmpty(imageUrl)) {
@@ -531,14 +535,14 @@ public class PhotoFragment extends BaseFragment {
                 .listener(new RequestListener<Drawable>() {
                     @Override
                     public boolean onLoadFailed(@Nullable GlideException e, @Nullable Object model, @NonNull Target<Drawable> target, boolean isFirstResource) {
-                        binding.progressBar.setVisibility(View.GONE);
+                        binding.progressBar.setVisibility(GONE);
                         binding.errorView.setVisibility(VISIBLE);
                         return false;
                     }
 
                     @Override
                     public boolean onResourceReady(@NonNull Drawable resource, @NonNull Object model, Target<Drawable> target, @NonNull DataSource dataSource, boolean isFirstResource) {
-                        binding.progressBar.setVisibility(View.GONE);
+                        binding.progressBar.setVisibility(GONE);
                         return false;
                     }
                 })
@@ -550,7 +554,7 @@ public class PhotoFragment extends BaseFragment {
     }
 
     // local image file
-    private void loadOriUrl(String oriUrl) {
+    private void loadLocalImageFile(String oriUrl) {
 //        String thumbnailUrl = convertThumbnailUrl(fullPath);
 //        String thumbKey = EncryptUtils.encryptMD5ToString(thumbnailUrl);
 //        // load thumbnail first
@@ -580,15 +584,19 @@ public class PhotoFragment extends BaseFragment {
                 .listener(new RequestListener<Drawable>() {
                     @Override
                     public boolean onLoadFailed(@Nullable GlideException e, @Nullable Object model, @NonNull Target<Drawable> target, boolean isFirstResource) {
-                        binding.progressBar.setVisibility(View.GONE);
+                        binding.progressBar.setVisibility(GONE);
                         binding.errorView.setVisibility(VISIBLE);
                         return false;
                     }
 
                     @Override
                     public boolean onResourceReady(@NonNull Drawable resource, @NonNull Object model, Target<Drawable> target, @NonNull DataSource dataSource, boolean isFirstResource) {
-                        binding.progressBar.setVisibility(View.GONE);
+                        binding.progressBar.setVisibility(GONE);
                         try {
+                            //
+                            checkMotionPhoto(oriUrl);
+
+                            //
                             HashMap<String, String> hashMap = loadExifMeta(oriUrl);
                             addTextView(hashMap);
                         } catch (Exception e) {
@@ -599,6 +607,23 @@ public class PhotoFragment extends BaseFragment {
                 })
                 .into(binding.photoView);
     }
+
+    private void checkMotionPhoto(String localPath) {
+        if (motionPhotoType == -1) {
+            motionPhotoType = HeicNative.nativeCheckMotionPhotoType(localPath);
+        }
+
+        if (motionPhotoType == HeicNative.MOTION_PHOTO_TYPE_HEIC) {
+            binding.btnLivePhoto.setVisibility(VISIBLE);
+        } else if (motionPhotoType == HeicNative.MOTION_PHOTO_TYPE_JPEG) {
+            binding.btnLivePhoto.setVisibility(VISIBLE);
+        } else {
+            binding.btnLivePhoto.setVisibility(GONE);
+        }
+    }
+
+    // no load yet.
+    private int motionPhotoType = -1;
 
     @OptIn(markerClass = Unstable.class)
     private void playLivePhotoVideo() {
@@ -620,12 +645,12 @@ public class PhotoFragment extends BaseFragment {
 
                             break;
                         case Player.STATE_READY:
-                            binding.photoView.setVisibility(View.GONE);
+                            binding.photoView.setVisibility(View.INVISIBLE);
                             binding.playerView.setVisibility(View.VISIBLE);
                             break;
                         case Player.STATE_ENDED:
                             binding.photoView.setVisibility(View.VISIBLE);
-                            binding.playerView.setVisibility(View.GONE);
+                            binding.playerView.setVisibility(View.INVISIBLE);
                             break;
                     }
                 }
@@ -639,13 +664,15 @@ public class PhotoFragment extends BaseFragment {
     }
 
     private MediaSource buildMotionPhotoMediaSource(File imageFile) throws IOException, XMPException {
-        int motionPhotoType = HeicNative.getInstance().nativeCheckMotionPhotoType(imageFile.getAbsolutePath());
+        if (motionPhotoType == -1) {
+            motionPhotoType = HeicNative.nativeCheckMotionPhotoType(imageFile.getAbsolutePath());
+        }
 
         byte[] videoBytes = null;
         if (motionPhotoType == HeicNative.MOTION_PHOTO_TYPE_HEIC) {
-            videoBytes = HeicNative.getInstance().nativeExtractGoogleHeicMotionPhotoVideo(imageFile.getAbsolutePath());
+            videoBytes = HeicNative.nativeExtractGoogleHeicMotionPhotoVideo(imageFile.getAbsolutePath());
         } else if (motionPhotoType == HeicNative.MOTION_PHOTO_TYPE_JPEG) {
-            videoBytes = HeicNative.getInstance().nativeExtractGoogleJpegMotionPhotoVideo(imageFile.getAbsolutePath());
+            videoBytes = HeicNative.nativeExtractGoogleJpegMotionPhotoVideo(imageFile.getAbsolutePath());
         }
 
         if (videoBytes == null || videoBytes.length == 0) {
@@ -664,7 +691,7 @@ public class PhotoFragment extends BaseFragment {
 
 
     // local gif file
-    private void loadOriGifUrl(String rawUrl) {
+    private void loadLocalGifFile(String rawUrl) {
         GlideApp.with(this)
                 .asGif()
                 .load(rawUrl)
@@ -673,30 +700,20 @@ public class PhotoFragment extends BaseFragment {
                 .listener(new RequestListener<GifDrawable>() {
                     @Override
                     public boolean onLoadFailed(@Nullable GlideException e, @Nullable Object model, @NonNull Target<GifDrawable> target, boolean isFirstResource) {
-                        binding.progressBar.setVisibility(View.GONE);
+                        binding.progressBar.setVisibility(GONE);
                         binding.errorView.setVisibility(VISIBLE);
                         return false;
                     }
 
                     @Override
                     public boolean onResourceReady(@NonNull GifDrawable resource, @NonNull Object model, Target<GifDrawable> target, @NonNull DataSource dataSource, boolean isFirstResource) {
-                        binding.progressBar.setVisibility(View.GONE);
+                        binding.progressBar.setVisibility(GONE);
                         // 图片加载成功
                         SLogs.d(TAG, "loadOriGifUrl()", dataSource.name() + ": " + isFirstResource + ": " + rawUrl);
                         return false;
                     }
                 })
                 .into(binding.photoView);
-    }
-
-    private boolean isGif(String fileName) {
-        if (TextUtils.isEmpty(fileName)) {
-            return false;
-        }
-
-        String f = MimeTypeMap.getFileExtensionFromUrl(fileName);
-        String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(f);
-        return mime != null && mime.equalsIgnoreCase("image/gif");
     }
 
     private String convertThumbnailUrl(String fullPath) {
