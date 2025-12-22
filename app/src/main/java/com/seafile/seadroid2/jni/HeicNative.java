@@ -31,7 +31,7 @@ public class HeicNative {
      */
     public static native boolean nativeGenStillHeicSeq(byte[] primaryImage, String outputPath);
 
-    public static native String nativeConvertJpegMotionPhotoToHeic(String jpegFilePath, long[] hdrAndVideoSize, String outputPath);
+    public static native String nativeConvertJpegMotionPhotoToHeic(String jpegFilePath, long[] hdrAndVideoSize, byte[] exifDatas, String outputPath);
 
     /**
      * 生成 Google Motion Photo 格式的 HEIC 动态照片
@@ -41,7 +41,7 @@ public class HeicNative {
      * @param outputPath   输出文件路径
      * @return 结果字符串 (success:... 或 error:...)
      */
-    public static native String nativeGenGoogleMotionPhotoWithHeic(byte[] primaryImage, byte[] mp4Video, String outputPath);
+    public static native String nativeGenGoogleMotionPhotoWithHeic(byte[] primaryImage, byte[] hdrDatas, byte[] exifDatas, byte[] mp4Video, String outputPath);
 
     /**
      * 从 HEIC Motion Photo 文件中提取 MP4 视频数据

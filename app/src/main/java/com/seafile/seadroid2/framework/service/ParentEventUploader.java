@@ -205,13 +205,13 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
 
             MotionPhotoDescriptor descriptor = null;
             if (currentTransferModel.full_path.startsWith("content://")) {
-                descriptor = MotionPhotoDetector.parseMotionPhotoXmpWithUri(SeadroidApplication.getAppContext(), Uri.parse(currentTransferModel.full_path), true);
+                descriptor = MotionPhotoDetector.parseMotionPhotoXmpWithJpegUri(SeadroidApplication.getAppContext(), Uri.parse(currentTransferModel.full_path), true);
 
                 if (descriptor.isMotionPhoto) {
                     currentTransferModel.motion_photo_path = descriptor.tempJpegPath;
                 }
             } else {
-                descriptor = MotionPhotoDetector.parseMotionPhotoXmpWithFilePath(currentTransferModel.full_path);
+                descriptor = MotionPhotoDetector.parseMotionPhotoXmpWithJpegFile(currentTransferModel.full_path);
                 if (descriptor.isMotionPhoto) {
                     currentTransferModel.motion_photo_path = currentTransferModel.full_path;
                 }
@@ -324,7 +324,6 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
             createdTime = FileUtils.getCreatedTimeFromPath(getContext(), originalFile);
         }
 
-
         if (createdTime != -1) {
             String cTime = Times.convertLong2Time(createdTime);
             SafeLogs.d(TAG, "file create time: " + cTime);
@@ -365,6 +364,11 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
                 SafeLogs.d(TAG, "transferFile()", "reset newCall object");
                 newCall.cancel();
                 newCall = null;
+            }
+
+            //
+            if (currentTransferModel.hasExtraMotionPhoto()) {
+                com.blankj.utilcode.util.FileUtils.delete(currentTransferModel.motion_photo_path);
             }
         }
     }

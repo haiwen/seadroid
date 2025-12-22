@@ -46,6 +46,7 @@ import com.github.panpf.recycler.sticky.StickyItemDecoration;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.common.collect.Maps;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
@@ -71,8 +72,9 @@ import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.model.BaseModel;
 import com.seafile.seadroid2.framework.model.GroupItemModel;
 import com.seafile.seadroid2.framework.model.ServerInfo;
-import com.seafile.seadroid2.framework.model.dirents.DirentFileModel;
 import com.seafile.seadroid2.framework.model.search.SearchModel;
+import com.seafile.seadroid2.framework.motionphoto.MotionPhotoDescriptor;
+import com.seafile.seadroid2.framework.motionphoto.MotionPhotoDetector;
 import com.seafile.seadroid2.framework.service.BackupThreadExecutor;
 import com.seafile.seadroid2.framework.util.Objs;
 import com.seafile.seadroid2.framework.util.SLogs;
@@ -2344,24 +2346,25 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             Toasts.show(R.string.op_unable_to_with_exception);
             return;
         }
-
-        mainViewModel.checkRemoteDirent(repoModel.repo_id, destinationPath, new java.util.function.Consumer<DirentFileModel>() {
-            @Override
-            public void accept(DirentFileModel direntFileModel) {
-                dismissLoadingDialog();
-
-                if (!NetworkUtils.isConnected()) {
-                    Toasts.show(R.string.network_error);
-                    return;
-                }
-
-                if (direntFileModel != null) {
-                    showFileExistDialog(uri, fileName);
-                } else {
-                    addUploadTask(repoModel, GlobalNavContext.getCurrentNavContext().getNavPath(), uri, fileName, false);
-                }
-            }
-        });
+        MotionPhotoDescriptor descriptor = MotionPhotoDetector.parseMotionPhotoXmpWithJpegUri(SeadroidApplication.getAppContext(), uri, false);
+        SLogs.e(descriptor.toString());
+//        mainViewModel.checkRemoteDirent(repoModel.repo_id, destinationPath, new java.util.function.Consumer<DirentFileModel>() {
+//            @Override
+//            public void accept(DirentFileModel direntFileModel) {
+//                dismissLoadingDialog();
+//
+//                if (!NetworkUtils.isConnected()) {
+//                    Toasts.show(R.string.network_error);
+//                    return;
+//                }
+//
+//                if (direntFileModel != null) {
+//                    showFileExistDialog(uri, fileName);
+//                } else {
+//                    addUploadTask(repoModel, GlobalNavContext.getCurrentNavContext().getNavPath(), uri, fileName, false);
+//                }
+//            }
+//        });
     }
 
     private void showFileExistDialog(final Uri uri, String fileName) {
@@ -2408,7 +2411,6 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         mainViewModel.addUploadTask(requireContext(), account, repoModel, localFile, targetDir, false);
 
         Toasts.show(R.string.added_to_upload_tasks);
-//        TransferService.startManualUploadService(requireContext());
         BackupThreadExecutor.getInstance().runManualFileUploadTask();
     }
 
@@ -2418,7 +2420,6 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         mainViewModel.addUploadTask(requireContext(), account, repoModel, sourceUri, targetDir, fileName, isReplace);
 
         Toasts.show(R.string.added_to_upload_tasks);
-//        TransferService.startManualUploadService(requireContext());
         BackupThreadExecutor.getInstance().runManualFileUploadTask();
 
     }

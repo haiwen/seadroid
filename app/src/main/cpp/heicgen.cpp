@@ -5,6 +5,7 @@
 #include "memory"
 #include "string"
 #include "vector"
+#include <setjmp.h>
 
 // libjpeg for JPEG decoding
 extern "C" {
@@ -50,12 +51,12 @@ static heif_image *CreateHeifImageFromRGBA(const uint8_t *rgba, int width,
     }
 
     int plane_stride = 0;
-    uint8_t *plane =
+    uint8_t * plane =
             heif_image_get_plane(image, heif_channel_interleaved, &plane_stride);
 
     for (int y = 0; y < height; ++y) {
         const uint8_t *src_row = rgba + y * stride;
-        uint8_t *dst_row = plane + y * plane_stride;
+        uint8_t * dst_row = plane + y * plane_stride;
         for (int x = 0; x < width; ++x) {
             dst_row[x * 4 + 0] = src_row[x * 4 + 0]; // R
             dst_row[x * 4 + 1] = src_row[x * 4 + 1]; // G
@@ -82,7 +83,7 @@ static heif_image *CreateHeifImageFromRGBA(const uint8_t *rgba, int width,
 /**
  * 从 JPEG 数据解码并编码为 HEIC Primary Image
  */
-static bool EncodePrimaryImageFromJpeg(const std::vector<uint8_t> &jpegBytes,
+static bool EncodePrimaryImageFromJpeg(const std::vector <uint8_t> &jpegBytes,
                                        heif_context *ctx) {
     if (jpegBytes.empty() || !ctx) {
         LOGE("Invalid input for primary image encoding");
@@ -118,15 +119,15 @@ static bool EncodePrimaryImageFromJpeg(const std::vector<uint8_t> &jpegBytes,
 
     // 解码到 RGBA 格式
     size_t src_row_stride = static_cast<size_t>(width * comps);
-    std::vector<uint8_t> row(src_row_stride);
+    std::vector <uint8_t> row(src_row_stride);
     size_t rgba_stride = static_cast<size_t>(width) * 4;
-    std::vector<uint8_t> rgba(static_cast<size_t>(height) * rgba_stride);
+    std::vector <uint8_t> rgba(static_cast<size_t>(height) * rgba_stride);
 
     while (cinfo.output_scanline < cinfo.output_height) {
         JSAMPROW rowptr = row.data();
         jpeg_read_scanlines(&cinfo, &rowptr, 1);
         size_t y = static_cast<size_t>(cinfo.output_scanline - 1);
-        uint8_t *dst = rgba.data() + y * rgba_stride;
+        uint8_t * dst = rgba.data() + y * rgba_stride;
 
         if (comps == 3) {
             for (int x = 0; x < width; ++x) {
@@ -160,7 +161,7 @@ static bool EncodePrimaryImageFromJpeg(const std::vector<uint8_t> &jpegBytes,
         return false;
     }
 
-    heif_encoder *encoder = nullptr;
+    heif_encoder * encoder = nullptr;
     heif_error err =
             heif_context_get_encoder_for_format(ctx, heif_compression_HEVC, &encoder);
     if (err.code != heif_error_Ok || !encoder) {
@@ -220,7 +221,7 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeGenStillHeicSeq(
         return JNI_FALSE;
     }
 
-    std::vector<uint8_t> jpegData(imgLen);
+    std::vector <uint8_t> jpegData(imgLen);
     jbyte *imgData = env->GetByteArrayElements(jpegBytes, nullptr);
     if (!imgData) {
         env->ReleaseStringUTFChars(outputPath, outPath);
@@ -229,7 +230,7 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeGenStillHeicSeq(
     memcpy(jpegData.data(), imgData, imgLen);
     env->ReleaseByteArrayElements(jpegBytes, imgData, JNI_ABORT);
 
-    heif_context *ctx = heif_context_alloc();
+    heif_context * ctx = heif_context_alloc();
     if (!ctx) {
         env->ReleaseStringUTFChars(outputPath, outPath);
         return JNI_FALSE;
@@ -266,19 +267,30 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeGetLibVersion(JNIEnv *env,
  * 自定义 heif_writer 用于写入内存缓冲区
  */
 struct MemoryWriter {
-    std::vector<uint8_t> data;
+    std::vector <uint8_t> data;
 };
 
-static heif_error memory_writer_write(heif_context *ctx, const void *data,
-                                      size_t size, void *userdata) {
-    MemoryWriter *writer = static_cast<MemoryWriter *>(userdata);
-    const uint8_t *bytes = static_cast<const uint8_t *>(data);
-    size_t oldSize = writer->data.size();
-    writer->data.insert(writer->data.end(), bytes, bytes + size);
-    LOGD_MP("[MemoryWriter] write: %zu bytes (buffer: %zu -> %zu)", size, oldSize,
-            writer->data.size());
-    heif_error err = {heif_error_Ok, heif_suberror_Unspecified, nullptr};
-    return err;
+static heif_error memory_writer_write(heif_context * ctx,
+const void *data,
+        size_t
+size,
+void *userdata
+) {
+MemoryWriter *writer = static_cast<MemoryWriter *>(userdata);
+const uint8_t *bytes = static_cast<const uint8_t *>(data);
+size_t oldSize = writer->data.size();
+writer->data.
+insert(writer
+->data.
+
+end(), bytes, bytes
+
++ size);
+LOGD_MP("[MemoryWriter] write: %zu bytes (buffer: %zu -> %zu)", size, oldSize,
+        writer->data.size());
+heif_error err = {heif_error_Ok, heif_suberror_Unspecified, nullptr};
+return
+err;
 }
 
 /**
@@ -292,10 +304,11 @@ static heif_error memory_writer_write(heif_context *ctx, const void *data,
  * - 主图像项目需要 Padding = 0
  * - 视频项目需要 Mime、Semantic、Length、Padding = 8
  */
-static std::string GenerateMotionPhotoXMP(size_t mp4VideoLength) {
-    LOGD_MP("[GenerateXMP] START - mp4VideoLength=%zu", mp4VideoLength);
+static std::string GenerateMotionPhotoXMP(size_t
+mp4VideoLength) {
+LOGD_MP("[GenerateXMP] START - mp4VideoLength=%zu", mp4VideoLength);
 
-    std::string xmp = R"(<x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="Adobe XMP Core 5.1.0-jc003">
+std::string xmp = R"(<x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="Adobe XMP Core 5.1.0-jc003">
   <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
     <rdf:Description rdf:about=""
         xmlns:GCamera="http://ns.google.com/photos/1.0/camera/"
@@ -328,14 +341,15 @@ static std::string GenerateMotionPhotoXMP(size_t mp4VideoLength) {
   </rdf:RDF>
 </x:xmpmeta>)";
 
-    LOGD_MP("[GenerateXMP] XMP size=%zu bytes", xmp.size());
-    LOGD_MP("[GenerateXMP] XMP fields: MotionPhoto=1, Version=1, TimestampUs=0");
-    LOGD_MP(
-            "[GenerateXMP] Primary: Mime=image/heic, Semantic=Primary, Padding=8");
-    LOGD_MP(
-            "[GenerateXMP] Video: Mime=video/mp4, Semantic=MotionPhoto, Length=%zu",
-            mp4VideoLength);
-    return xmp;
+LOGD_MP("[GenerateXMP] XMP size=%zu bytes", xmp.size());
+LOGD_MP("[GenerateXMP] XMP fields: MotionPhoto=1, Version=1, TimestampUs=0");
+LOGD_MP(
+        "[GenerateXMP] Primary: Mime=image/heic, Semantic=Primary, Padding=8");
+LOGD_MP(
+        "[GenerateXMP] Video: Mime=video/mp4, Semantic=MotionPhoto, Length=%zu",
+        mp4VideoLength);
+return
+xmp;
 }
 
 /**
@@ -346,7 +360,7 @@ static std::string GenerateMotionPhotoXMP(size_t mp4VideoLength) {
  * - 4 bytes: box type 'mpvd'
  * - N bytes: MP4 video data
  */
-static bool WriteMpvdBox(FILE *file, const std::vector<uint8_t> &mp4Data) {
+static bool WriteMpvdBox(FILE *file, const std::vector <uint8_t> &mp4Data) {
     LOGD_MP("[WriteMpvdBox] START - mp4Data size=%zu", mp4Data.size());
 
     // mpvd box: size(4) + type(4) + data(N)
@@ -403,7 +417,7 @@ static bool WriteMpvdBox(FILE *file, const std::vector<uint8_t> &mp4Data) {
  * 返回 image handle 用于后续添加 XMP metadata
  */
 static heif_image_handle *
-EncodePrimaryImageForMotionPhoto(const std::vector<uint8_t> &jpegBytes,
+EncodePrimaryImageForMotionPhoto(const std::vector <uint8_t> &jpegBytes,
                                  heif_context *ctx) {
     LOGD_MP("[EncodePrimary] START - jpegBytes size=%zu, ctx=%p",
             jpegBytes.size(), ctx);
@@ -452,9 +466,9 @@ EncodePrimaryImageForMotionPhoto(const std::vector<uint8_t> &jpegBytes,
 
     // 解码到 RGBA 格式
     size_t src_row_stride = static_cast<size_t>(width * comps);
-    std::vector<uint8_t> row(src_row_stride);
+    std::vector <uint8_t> row(src_row_stride);
     size_t rgba_stride = static_cast<size_t>(width) * 4;
-    std::vector<uint8_t> rgba(static_cast<size_t>(height) * rgba_stride);
+    std::vector <uint8_t> rgba(static_cast<size_t>(height) * rgba_stride);
     LOGD_MP("[EncodePrimary] Allocated RGBA buffer: %zu bytes (stride=%zu)",
             rgba.size(), rgba_stride);
 
@@ -463,7 +477,7 @@ EncodePrimaryImageForMotionPhoto(const std::vector<uint8_t> &jpegBytes,
         JSAMPROW rowptr = row.data();
         jpeg_read_scanlines(&cinfo, &rowptr, 1);
         size_t y = static_cast<size_t>(cinfo.output_scanline - 1);
-        uint8_t *dst = rgba.data() + y * rgba_stride;
+        uint8_t * dst = rgba.data() + y * rgba_stride;
 
         if (comps == 3) {
             for (int x = 0; x < width; ++x) {
@@ -504,7 +518,7 @@ EncodePrimaryImageForMotionPhoto(const std::vector<uint8_t> &jpegBytes,
     LOGD_MP("[EncodePrimary] heif_image created: %p", image);
 
     // 获取 HEVC 编码器
-    heif_encoder *encoder = nullptr;
+    heif_encoder * encoder = nullptr;
     heif_error err = heif_context_get_encoder_for_format(ctx, heif_compression_HEVC, &encoder);
     if (err.code != heif_error_Ok || !encoder) {
         heif_image_release(image);
@@ -554,6 +568,85 @@ EncodePrimaryImageForMotionPhoto(const std::vector<uint8_t> &jpegBytes,
     return handle;
 }
 
+// JPEG error handler to avoid exit
+struct my_error_mgr {
+  struct jpeg_error_mgr pub;
+  jmp_buf setjmp_buffer;
+};
+
+static void my_error_exit(j_common_ptr cinfo) {
+  my_error_mgr* myerr = (my_error_mgr*)cinfo->err;
+  (*cinfo->err->output_message)(cinfo);
+  longjmp(myerr->setjmp_buffer, 1);
+}
+
+static heif_image* DecodeJpegToHeifImage(const std::vector<uint8_t>& data) {
+    if (data.empty()) return nullptr;
+
+    struct jpeg_decompress_struct cinfo;
+    struct my_error_mgr jerr;
+
+    cinfo.err = jpeg_std_error(&jerr.pub);
+    jerr.pub.error_exit = my_error_exit;
+
+    if (setjmp(jerr.setjmp_buffer)) {
+        jpeg_destroy_decompress(&cinfo);
+        return nullptr;
+    }
+
+    jpeg_create_decompress(&cinfo);
+    jpeg_mem_src(&cinfo, data.data(), static_cast<unsigned long>(data.size()));
+
+    if (jpeg_read_header(&cinfo, TRUE) != JPEG_HEADER_OK) {
+        jpeg_destroy_decompress(&cinfo);
+        return nullptr;
+    }
+
+    cinfo.out_color_space = JCS_RGB;
+    jpeg_start_decompress(&cinfo);
+
+    int width = cinfo.output_width;
+    int height = cinfo.output_height;
+    int channels = cinfo.output_components;
+
+    if (channels != 3) {
+        LOGE_MP("DecodeJpegToHeifImage: Only RGB JPEG is supported (components=%d)", channels);
+        jpeg_finish_decompress(&cinfo);
+        jpeg_destroy_decompress(&cinfo);
+        return nullptr;
+    }
+
+    heif_image* image = nullptr;
+    heif_error err = heif_image_create(width, height, heif_colorspace_RGB, heif_chroma_interleaved_RGB, &image);
+    if (err.code != heif_error_Ok) {
+        LOGE_MP("DecodeJpegToHeifImage: Failed to create heif_image");
+        jpeg_finish_decompress(&cinfo);
+        jpeg_destroy_decompress(&cinfo);
+        return nullptr;
+    }
+
+    err = heif_image_add_plane(image, heif_channel_interleaved, width, height, 8);
+    if (err.code != heif_error_Ok) {
+        LOGE_MP("DecodeJpegToHeifImage: Failed to add plane");
+        heif_image_release(image);
+        jpeg_finish_decompress(&cinfo);
+        jpeg_destroy_decompress(&cinfo);
+        return nullptr;
+    }
+
+    int stride;
+    uint8_t* p = heif_image_get_plane(image, heif_channel_interleaved, &stride);
+
+    while (cinfo.output_scanline < cinfo.output_height) {
+        uint8_t* row_pointer = p + cinfo.output_scanline * stride;
+        jpeg_read_scanlines(&cinfo, &row_pointer, 1);
+    }
+
+    jpeg_finish_decompress(&cinfo);
+    jpeg_destroy_decompress(&cinfo);
+    return image;
+}
+
 /**
  * 生成 Google Motion Photo 格式的 HEIC 动态照片
  *
@@ -580,12 +673,18 @@ EncodePrimaryImageForMotionPhoto(const std::vector<uint8_t> &jpegBytes,
  *  1、libheif 提供了 XMP_metadata的操作 api，可以使用他们来操作
  *  2、primaryImageBytes、mp4VideoBytes分别是原始字节数组数据
  *  3、优先使用 libheif 自带 api。
+ *  4、hdr 数据
+ *   - 如果 hdr 可用，则需要用 auxiliary image + auxC + iref 来实现 GainMap 绑定。libheif 已经实现了此能力。
+ *  5、exif 数据
+ *   - 如果 exif data 数据可用，则可以使用 heif_context_add_exif_metadata  接口实现绑定。
  */
 extern "C" JNIEXPORT jstring
 
 JNICALL
 Java_com_seafile_seadroid2_jni_HeicNative_nativeGenGoogleMotionPhotoWithHeic(
         JNIEnv *env, jclass clazz, jbyteArray primaryImageBytes,
+        jbyteArray hdrBytes,
+        jbyteArray exifBytes,
         jbyteArray mp4VideoBytes, jstring outputPath) {
     LOGI_MP("============================================================");
     LOGI_MP("nativeGenGoogleMotionPhotoWithHeic: START");
@@ -600,7 +699,7 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeGenGoogleMotionPhotoWithHeic(
     LOGD_MP("[JNI] Output path: %s", outPath);
 
     // 提取 JPEG 数据
-    std::vector<uint8_t> jpegData;
+    std::vector <uint8_t> jpegData;
     if (primaryImageBytes) {
         jsize len = env->GetArrayLength(primaryImageBytes);
         LOGD_MP("[JNI] primaryImageBytes: array length = %d", len);
@@ -619,8 +718,49 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeGenGoogleMotionPhotoWithHeic(
         LOGD_MP("[JNI] primaryImageBytes: NULL");
     }
 
+    // 提取 HDR 数据
+    std::vector <uint8_t> hdrData;
+    if (hdrBytes) {
+        jsize len = env->GetArrayLength(hdrBytes);
+        LOGD_MP("[JNI] hdrBytes: array length = %d", len);
+        if (len > 0) {
+            hdrData.resize(len);
+            jbyte *p = env->GetByteArrayElements(hdrBytes, nullptr);
+            if (p) {
+                hdrData.resize(len);
+                memcpy(hdrData.data(), p, len);
+                env->ReleaseByteArrayElements(hdrBytes, p, JNI_ABORT);
+                LOGD_MP("[JNI] hdrBytes: copied %d bytes to vector", len);
+            } else {
+                LOGW_MP("[JNI] hdrBytes: GetByteArrayElements returned NULL");
+            }
+        }
+    } else {
+        LOGD_MP("[JNI] hdrBytes: NULL");
+    }
+
+    // 提取 EXIF 数据
+    std::vector <uint8_t> exifData;
+    if (exifBytes) {
+        jsize len = env->GetArrayLength(exifBytes);
+        LOGD_MP("[JNI] exifBytes: array length = %d", len);
+        if (len > 0) {
+            exifData.resize(len);
+            jbyte *p = env->GetByteArrayElements(exifBytes, nullptr);
+            if (p) {
+                memcpy(exifData.data(), p, len);
+                env->ReleaseByteArrayElements(exifBytes, p, JNI_ABORT);
+                LOGD_MP("[JNI] exifBytes: copied %d bytes to vector", len);
+            } else {
+                LOGW_MP("[JNI] exifBytes: GetByteArrayElements returned NULL");
+            }
+        }
+    } else {
+        LOGD_MP("[JNI] exifBytes: NULL");
+    }
+
     // 提取 MP4 视频数据
-    std::vector<uint8_t> mp4Data;
+    std::vector <uint8_t> mp4Data;
     if (mp4VideoBytes) {
         jsize len = env->GetArrayLength(mp4VideoBytes);
         LOGD_MP("[JNI] mp4VideoBytes: array length = %d", len);
@@ -661,7 +801,7 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeGenGoogleMotionPhotoWithHeic(
 
     // 创建 HEIF 上下文
     LOGD_MP("[Step 1/6] Creating HEIF context...");
-    heif_context *ctx = heif_context_alloc();
+    heif_context * ctx = heif_context_alloc();
     if (!ctx) {
         LOGE_MP("[Step 1/6] FAILED to allocate HEIF context");
         env->ReleaseStringUTFChars(outputPath, outPath);
@@ -701,6 +841,69 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeGenGoogleMotionPhotoWithHeic(
         return env->NewStringUTF("error: failed to add XMP metadata");
     }
     LOGD_MP("[Step 3/5] XMP metadata added to context");
+
+    // 添加 Exif metadata
+    if (!exifData.empty()) {
+        LOGD_MP("[Step 3/5] Adding Exif metadata (%zu bytes)...", exifData.size());
+        heif_error exifErr = heif_context_add_exif_metadata(
+                ctx, primaryHandle, exifData.data(), static_cast<int>(exifData.size()));
+        if (exifErr.code != heif_error_Ok) {
+            LOGW_MP("[Step 3/5] FAILED to add Exif metadata: %s (code=%d)",
+                    exifErr.message, exifErr.code);
+            // Exif 失败不应该阻断流程，仅记录警告
+        } else {
+            LOGD_MP("[Step 3/5] Exif metadata added successfully");
+        }
+    }
+
+    // 处理 HDR (GainMap)
+    if (!hdrData.empty()) {
+        LOGD_MP("[Step 3/5] HDR data available (%zu bytes), processing GainMap...", hdrData.size());
+
+        // 1. Decode hdrData to heif_image
+        heif_image* hdrImage = DecodeJpegToHeifImage(hdrData);
+        if (hdrImage) {
+            LOGD_MP("[Step 3/5] HDR JPEG decoded successfully (%dx%d)", 
+                    heif_image_get_width(hdrImage, heif_channel_interleaved), 
+                    heif_image_get_height(hdrImage, heif_channel_interleaved));
+
+            // Get encoder
+            heif_encoder* hdrEncoder = nullptr;
+            heif_error getEncErr = heif_context_get_encoder_for_format(ctx, heif_compression_HEVC, &hdrEncoder);
+            if (getEncErr.code != heif_error_Ok) {
+                 LOGE_MP("[Step 3/5] Failed to get HEVC encoder for HDR: %s", getEncErr.message);
+                 heif_image_release(hdrImage);
+            } else {
+                // 2. Encode heif_image to heif_image_handle
+                heif_image_handle* hdrHandle = nullptr;
+                heif_encoding_options* options = heif_encoding_options_alloc();
+                options->save_alpha_channel = 0;
+                
+                // Set encoding quality
+                heif_encoder_set_lossy_quality(hdrEncoder, 85);
+
+                heif_error encErr = heif_context_encode_image(ctx, hdrImage, hdrEncoder, options, &hdrHandle);
+                heif_encoding_options_free(options);
+                heif_image_release(hdrImage);
+                heif_encoder_release(hdrEncoder);
+
+                if (encErr.code == heif_error_Ok && hdrHandle) {
+                     // 3. Link as auxiliary image (Workaround: use thumbnail)
+                     heif_error linkErr = heif_context_assign_thumbnail(ctx, primaryHandle, hdrHandle);
+                     if (linkErr.code != heif_error_Ok) {
+                          LOGW_MP("[Step 3/5] FAILED to assign HDR as thumbnail: %s", linkErr.message);
+                     } else {
+                          LOGD_MP("[Step 3/5] HDR data encoded and assigned as thumbnail (GainMap workaround)");
+                     }
+                     heif_image_handle_release(hdrHandle);
+                } else {
+                     LOGE_MP("[Step 3/5] FAILED to encode HDR image: %s", encErr.message);
+                }
+            }
+        } else {
+             LOGE_MP("[Step 3/5] Failed to decode HDR JPEG data");
+        }
+    }
 
     heif_image_handle_release(primaryHandle);
     LOGD_MP("[Step 3/5] Primary handle released");
@@ -809,7 +1012,7 @@ struct MotionPhotoXmpInfo {
     std::string xmpContent;     // 原始 XMP 内容（用于调试）
 };
 
-static long SafeStol(const std::string& str, long defaultValue = 0) {
+static long SafeStol(const std::string &str, long defaultValue = 0) {
     try {
         return std::stol(str);
     } catch (...) {
@@ -817,7 +1020,7 @@ static long SafeStol(const std::string& str, long defaultValue = 0) {
     }
 }
 
-static int SafeStoi(const std::string& str, int defaultValue = 0) {
+static int SafeStoi(const std::string &str, int defaultValue = 0) {
     try {
         return std::stoi(str);
     } catch (...) {
@@ -859,7 +1062,7 @@ static std::string ExtractXmpValue(const std::string &xmp,
     return "";
 }
 
-static MotionPhotoXmpInfo ParseMotionPhotoXmpContent(const std::string& xmpContent) {
+static MotionPhotoXmpInfo ParseMotionPhotoXmpContent(const std::string &xmpContent) {
     MotionPhotoXmpInfo info;
     info.xmpContent = xmpContent;
 
@@ -998,7 +1201,7 @@ ParseHeicMotionPhotoXmpWithLibheif(const char *filePath) {
     LOGD_MP("[ParseHeicXMP] Parsing XMP from HEIC using libheif: %s", filePath);
 
     // 创建 HEIF context 并读取文件
-    heif_context *ctx = heif_context_alloc();
+    heif_context * ctx = heif_context_alloc();
     if (!ctx) {
         LOGE_MP("[ParseHeicXMP] Failed to allocate HEIF context");
         return info;
@@ -1026,7 +1229,7 @@ ParseHeicMotionPhotoXmpWithLibheif(const char *filePath) {
     LOGD_MP("[ParseHeicXMP] Found %d metadata blocks", numMetadata);
 
     if (numMetadata > 0) {
-        std::vector<heif_item_id> metadataIds(numMetadata);
+        std::vector <heif_item_id> metadataIds(numMetadata);
         heif_image_handle_get_list_of_metadata_block_IDs(
                 handle, nullptr, metadataIds.data(), numMetadata);
 
@@ -1052,7 +1255,7 @@ ParseHeicMotionPhotoXmpWithLibheif(const char *filePath) {
                         metadataSize);
 
                 if (metadataSize > 0) {
-                    std::vector<uint8_t> xmpData(metadataSize);
+                    std::vector <uint8_t> xmpData(metadataSize);
                     err = heif_image_handle_get_metadata(handle, id, xmpData.data());
                     if (err.code == heif_error_Ok) {
                         info.xmpContent = std::string(
@@ -1062,11 +1265,11 @@ ParseHeicMotionPhotoXmpWithLibheif(const char *filePath) {
 
                         // 解析 XMP 内容
                         info = ParseMotionPhotoXmpContent(info.xmpContent);
-                        
+
                         if (info.isMotionPhoto) {
                             LOGD_MP("[ParseHeicXMP] Motion Photo detected (v%d)", info.version);
                         }
-                        
+
                         break; // 找到 XMP 后停止
                     } else {
                         LOGE_MP("[ParseHeicXMP] Failed to read XMP data: %s", err.message);
@@ -1117,7 +1320,7 @@ ParseHeicMotionPhotoXmpWithLibheif(const char *filePath) {
  * https://developer.android.com/media/platform/motion-photo-format
  */
 static MotionPhotoXmpInfo
-ParseJpegMotionPhotoXmp(const std::vector<uint8_t> &fileData) {
+ParseJpegMotionPhotoXmp(const std::vector <uint8_t> &fileData) {
     MotionPhotoXmpInfo info;
 
     // XMP 标识符
@@ -1203,28 +1406,92 @@ ParseJpegMotionPhotoXmp(const std::vector<uint8_t> &fileData) {
 
 /**
  * 需求:
+ * 提取 JPEG 图片的 EXIF 数据。
+ * */
+static std::vector <uint8_t> extract_jpeg_exif(const char *path) {
+    std::vector <uint8_t> exifData;
+    FILE *file = fopen(path, "rb");
+    if (!file) {
+        LOGE_MP("[ExtractExif] Failed to open file: %s", path);
+        return exifData;
+    }
+
+    uint8_t header[2];
+    if (fread(header, 1, 2, file) != 2 || header[0] != 0xFF || header[1] != 0xD8) {
+        LOGE_MP("[ExtractExif] Not a JPEG file");
+        fclose(file);
+        return exifData;
+    }
+
+    while (true) {
+        int byte = fgetc(file);
+        if (byte == EOF) break;
+        if (byte != 0xFF) continue;
+
+        int type = fgetc(file);
+        if (type == EOF) break;
+        while (type == 0xFF) {
+            type = fgetc(file);
+        }
+
+        if (type == 0x00) continue; // FF 00 is not a marker (stuffed byte)
+        if (type == 0xDA || type == 0xD9) break; // SOS or EOI
+
+        // Segments without length
+        if (type == 0x01 || (type >= 0xD0 && type <= 0xD7)) continue;
+
+        // Read length
+        uint8_t lenBytes[2];
+        if (fread(lenBytes, 1, 2, file) != 2) break;
+        uint16_t length = (lenBytes[0] << 8) | lenBytes[1];
+        if (length < 2) break;
+
+        if (type == 0xE1) { // APP1
+            size_t payloadLen = length - 2;
+            std::vector <uint8_t> buffer(payloadLen);
+            if (fread(buffer.data(), 1, payloadLen, file) == payloadLen) {
+                // Check for "Exif\0\0"
+                if (payloadLen >= 6 &&
+                    buffer[0] == 'E' && buffer[1] == 'x' && buffer[2] == 'i' &&
+                    buffer[3] == 'f' && buffer[4] == 0x00 && buffer[5] == 0x00) {
+
+                    exifData.assign(buffer.begin() + 6, buffer.end());
+                    LOGD_MP("[ExtractExif] Found Exif data: %zu bytes", exifData.size());
+                    fclose(file);
+                    return exifData;
+                }
+            }
+        } else {
+            fseek(file, length - 2, SEEK_CUR);
+        }
+    }
+
+    fclose(file);
+    return exifData;
+}
+
+/**
+ * 需求:
  * 将 JPEG Motion Photo 动态照片转换为 HEIC Motion Photo 动态照片。
  *
  * 逻辑：
  * 1、提取 JPEG 文件里的 JPEG 图像字节和 VIDEO 视频字节数据
  *   1.1、提取 JPEG Motion Photo里的图像数据
  *   1.2、通过 nativeExtractGoogleJpegMotionPhotoVideo() 方法提取视频数据
- *
  * 2、通过 nativeGenGoogleMotionPhotoWithHeic() 方法生成 HEIC 文件
- *
  * 3、将生成后的文件写入到 outPath 文件地址里。并返回 outPath。
  *
  * @param hdrAndVideoSize long array
- * - 如果长度为3：[Image Length, HDR Length, Video Length]
- * - 如果长度为2：[Image Length, Video Length]
- * - 如果长度为1：[Video Length]
+ * - 长度为3：[Image offset, HDR offset, Video offset]
  * */
 extern "C" JNIEXPORT jstring
 
 JNICALL
 Java_com_seafile_seadroid2_jni_HeicNative_nativeConvertJpegMotionPhotoToHeic(
-        JNIEnv *env, jclass clazz, jstring inputJpegFilePath,
-        jlongArray hdrAndVideoSize, jstring outPath) {
+        JNIEnv *env, jclass clazz,
+        jstring inputJpegFilePath,
+        jlongArray hdrAndVideoSize,
+        jstring outPath) {
     LOGI_MP("============================================================");
     LOGI_MP("nativeConvertJpegMotionPhotoToHeic: START");
     LOGI_MP("============================================================");
@@ -1260,7 +1527,7 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeConvertJpegMotionPhotoToHeic(
     }
 
     // 读取整个文件到内存
-    std::vector<uint8_t> fileData(fileSize);
+    std::vector <uint8_t> fileData(fileSize);
     size_t bytesRead = fread(fileData.data(), 1, fileSize, file);
     fclose(file);
     if (bytesRead != static_cast<size_t>(fileSize)) {
@@ -1279,213 +1546,121 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeConvertJpegMotionPhotoToHeic(
     }
     LOGD_MP("[Convert] Valid JPEG header detected (FF D8 FF)");
 
-    // 解析 hdrAndVideoSize 参数获取各部分长度
-    // 根据注释：
-    // - 如果长度为3：[Image Length, HDR Length, Video Length]
-    // - 如果长度为2：[Image Length, Video Length]
-    // - 如果长度为1：[Video Length]
-    long imageLength = 0;
-    long hdrLength = 0;
-    long videoLength = 0;
+    // 解析 hdrAndVideoSize 参数获取各部分偏移量
+    // 长度固定为 3：[Image Offset, HDR Offset, Video Offset]
+    long jpegStart = 0;
+    long jpegLen = 0;
+    long hdrStart = 0;
+    long hdrLen = 0;
+    long videoStart = 0;
+    long videoLen = 0;
 
-    if (hdrAndVideoSize != nullptr) {
-        jsize arrayLen = env->GetArrayLength(hdrAndVideoSize);
-        if (arrayLen > 0) {
-            jlong *sizes = env->GetLongArrayElements(hdrAndVideoSize, nullptr);
-            if (sizes != nullptr) {
-                if (arrayLen == 1) {
-                    // [Video Length]
-                    videoLength = static_cast<long>(sizes[0]);
-                    LOGD_MP("[Convert] hdrAndVideoSize[1]: videoLength=%ld", videoLength);
-                } else if (arrayLen == 2) {
-                    // [Image Length, Video Length]
-                    imageLength = static_cast<long>(sizes[0]);
-                    videoLength = static_cast<long>(sizes[1]);
-                    LOGD_MP(
-                            "[Convert] hdrAndVideoSize[2]: imageLength=%ld, videoLength=%ld",
-                            imageLength, videoLength);
-                } else if (arrayLen >= 3) {
-                    // [Image Length, HDR Length, Video Length]
-                    imageLength = static_cast<long>(sizes[0]);
-                    hdrLength = static_cast<long>(sizes[1]);
-                    videoLength = static_cast<long>(sizes[2]);
-                    LOGD_MP("[Convert] hdrAndVideoSize[3]: imageLength=%ld, "
-                            "hdrLength=%ld, videoLength=%ld",
-                            imageLength, hdrLength, videoLength);
-                }
-                env->ReleaseLongArrayElements(hdrAndVideoSize, sizes, JNI_ABORT);
-            } else {
-                LOGE_MP("[Convert] Failed to get hdrAndVideoSize array elements");
-            }
-        } else {
-            LOGW_MP("[Convert] hdrAndVideoSize array is empty");
-        }
-    } else {
-        LOGW_MP("[Convert] hdrAndVideoSize parameter is null");
-    }
-
-    // 定位 MP4 起始位置与长度：优先使用 hdrAndVideoSize 参数，回退 ftyp 搜索
-    long mp4StartPos = -1;
-    uint32_t mp4Size = 0;
-    const char *locateMethod = "unknown";
-
-    // 使用 hdrAndVideoSize 参数定位视频
-    if (videoLength > 0) {
-        LOGI_MP("[Convert] Using hdrAndVideoSize parameter method...");
-        mp4StartPos = fileSize - videoLength;
-        if (mp4StartPos > 0 && mp4StartPos < fileSize) {
-            mp4Size = static_cast<uint32_t>(videoLength);
-            locateMethod = "hdrAndVideoSize parameter";
-            LOGD_MP("[Convert] hdrAndVideoSize method: MP4 starts at %ld, size=%u",
-                    mp4StartPos, mp4Size);
-
-            // 验证视频数据是否以 ftyp 开头
-            if (mp4StartPos + 8 <= fileSize) {
-                if (fileData[mp4StartPos + 4] == 'f' &&
-                    fileData[mp4StartPos + 5] == 't' &&
-                    fileData[mp4StartPos + 6] == 'y' &&
-                    fileData[mp4StartPos + 7] == 'p') {
-                    LOGD_MP("[Convert] hdrAndVideoSize method: Verified ftyp at "
-                            "calculated position");
-                } else {
-                    LOGW_MP("[Convert] hdrAndVideoSize method: No ftyp at calculated "
-                            "position");
-                    LOGW_MP("[Convert]   Expected 'ftyp', got: %02X %02X %02X %02X",
-                            fileData[mp4StartPos + 4], fileData[mp4StartPos + 5],
-                            fileData[mp4StartPos + 6], fileData[mp4StartPos + 7]);
-                }
-            }
-        } else {
-            LOGW_MP(
-                    "[Convert] hdrAndVideoSize method: Invalid calculated position %ld",
-                    mp4StartPos);
-            mp4StartPos = -1;
-        }
-    } else {
-        LOGD_MP("[Convert] No valid video length from hdrAndVideoSize parameter");
-    }
-
-    if (mp4StartPos < 0) {
-        LOGI_MP("[Convert] Falling back to ftyp search method (Huawei style)...");
-        const uint8_t ftypSignature[4] = {0x66, 0x74, 0x79, 0x70}; // "ftyp"
-        long ftypPos = -1;
-        long searchStart = (fileSize > 1024) ? 1024 : 0;
-        for (long i = searchStart; i < fileSize - 4; ++i) {
-            if (fileData[i] == ftypSignature[0] &&
-                fileData[i + 1] == ftypSignature[1] &&
-                fileData[i + 2] == ftypSignature[2] &&
-                fileData[i + 3] == ftypSignature[3]) {
-                ftypPos = i;
-                LOGD_MP("[Convert] ftyp method: Found 'ftyp' at offset %ld", ftypPos);
-                break;
-            }
-        }
-        if (ftypPos >= 4) {
-            mp4StartPos = ftypPos - 4;
-            mp4Size = static_cast<uint32_t>(fileSize - mp4StartPos);
-            locateMethod = "ftyp search (Huawei)";
-            LOGD_MP("[Convert] ftyp method: MP4 starts at %ld, size=%u", mp4StartPos,
-                    mp4Size);
-        } else {
-            LOGE_MP("[Convert] ftyp method: 'ftyp' not found");
-        }
-    }
-
-    if (mp4StartPos < 0 || mp4Size == 0) {
-        LOGE_MP("[Convert] Failed to locate MP4 video data");
+    if (hdrAndVideoSize == nullptr) {
+        LOGE_MP("[Convert] hdrAndVideoSize parameter is null");
         env->ReleaseStringUTFChars(inputJpegFilePath, filePath);
-        return env->NewStringUTF("error: failed to locate MP4 video");
+        return env->NewStringUTF("error: hdrAndVideoSize is null");
     }
 
-    // 确定 JPEG 图像结束位置
-    // 优先使用 hdrAndVideoSize 参数中的 imageLength
-    // 如果没有 imageLength，则搜索 JPEG EOI 标记 (FF D9)
-    long jpegEndPos = -1;
-
-    if (imageLength > 0) {
-        // 使用参数提供的 Image Length
-        jpegEndPos = imageLength;
-        LOGD_MP("[Convert] Using imageLength from hdrAndVideoSize parameter: %ld",
-                jpegEndPos);
-
-        // 验证 JPEG EOI 标记
-        if (jpegEndPos >= 2 && jpegEndPos <= fileSize) {
-            if (fileData[jpegEndPos - 2] == 0xFF &&
-                fileData[jpegEndPos - 1] == 0xD9) {
-                LOGD_MP("[Convert] Verified JPEG EOI marker at position %ld",
-                        jpegEndPos - 2);
-            } else {
-                LOGW_MP(
-                        "[Convert] Warning: No JPEG EOI marker at expected position %ld",
-                        jpegEndPos - 2);
-                LOGW_MP("[Convert]   Expected FF D9, got: %02X %02X",
-                        fileData[jpegEndPos - 2], fileData[jpegEndPos - 1]);
-            }
-        }
-    } else {
-        // 回退方法：搜索 JPEG EOI 标记 (FF D9)
-        LOGD_MP(
-                "[Convert] No imageLength available, searching for JPEG EOI marker...");
-        for (long i = mp4StartPos - 2; i >= 1; --i) {
-            if (fileData[i] == 0xFF && fileData[i + 1] == 0xD9) {
-                jpegEndPos = i + 2;
-                LOGD_MP("[Convert] Found JPEG EOI marker at position %ld", i);
-                break;
-            }
-        }
-        if (jpegEndPos < 0) {
-            LOGW_MP("[Convert] JPEG EOI not found before MP4, using mp4StartPos as "
-                    "JPEG end");
-            jpegEndPos = mp4StartPos;
-        }
+    jsize arrayLen = env->GetArrayLength(hdrAndVideoSize);
+    if (arrayLen != 3) {
+        LOGE_MP("[Convert] Invalid hdrAndVideoSize length: %d (expected 3)", arrayLen);
+        env->ReleaseStringUTFChars(inputJpegFilePath, filePath);
+        return env->NewStringUTF("error: invalid hdrAndVideoSize length");
     }
 
-    // 计算各部分的位置和大小
-    long jpegSize = jpegEndPos;
-    long hdrStartPos = jpegEndPos;
-    long hdrActualSize = mp4StartPos - jpegEndPos;
-
-    LOGD_MP("[Convert] File structure breakdown:");
-    LOGD_MP("[Convert]   JPEG: 0 - %ld (%ld bytes)", jpegEndPos, jpegSize);
-    if (hdrActualSize > 0) {
-        LOGD_MP("[Convert]   HDR/Padding: %ld - %ld (%ld bytes, expected HDR=%ld)",
-                hdrStartPos, mp4StartPos, hdrActualSize, hdrLength);
+    jlong *offsets = env->GetLongArrayElements(hdrAndVideoSize, nullptr);
+    if (offsets == nullptr) {
+        LOGE_MP("[Convert] Failed to get hdrAndVideoSize array elements");
+        env->ReleaseStringUTFChars(inputJpegFilePath, filePath);
+        return env->NewStringUTF("error: failed to get offsets");
     }
-    LOGD_MP("[Convert]   MP4: %ld - %ld (%u bytes)", mp4StartPos, fileSize,
-            mp4Size);
-    LOGD_MP("[Convert]   Total file size: %ld bytes", fileSize);
-    LOGD_MP("[Convert]   Locate method: %s", locateMethod);
+
+    jpegStart = static_cast<long>(offsets[0]);
+    hdrStart = static_cast<long>(offsets[1]);
+    videoStart = static_cast<long>(offsets[2]);
+
+    // 计算长度
+    // Image: [jpegStart, hdrStart)
+    // HDR:   [hdrStart, videoStart)
+    // Video: [videoStart, fileSize)
+    jpegLen = hdrStart - jpegStart;
+    hdrLen = videoStart - hdrStart;
+    videoLen = fileSize - videoStart;
+
+    LOGD_MP("[Convert] Offsets: Jpeg[%ld, len=%ld], HDR[%ld, len=%ld], Video[%ld, len=%ld]",
+            jpegStart, jpegLen, hdrStart, hdrLen, videoStart, videoLen);
+
+    env->ReleaseLongArrayElements(hdrAndVideoSize, offsets, JNI_ABORT);
+
+    // 验证偏移量和长度有效性
+    if (jpegStart < 0 || jpegLen <= 0 || hdrLen < 0 || videoLen <= 0 ||
+        videoStart > fileSize || hdrStart > videoStart || jpegStart > hdrStart) {
+        LOGE_MP("[Convert] Invalid offsets or lengths detected");
+        env->ReleaseStringUTFChars(inputJpegFilePath, filePath);
+        return env->NewStringUTF("error: invalid data offsets");
+    }
 
     // 构造 Java byte arrays
-    jbyteArray jpegArray = env->NewByteArray(static_cast<jsize>(jpegEndPos));
+    jbyteArray jpegArray = env->NewByteArray(static_cast<jsize>(jpegLen));
     if (!jpegArray) {
         LOGE_MP("[Convert] Failed to allocate JPEG byte array");
         env->ReleaseStringUTFChars(inputJpegFilePath, filePath);
         return env->NewStringUTF("error: failed to allocate JPEG array");
     }
-    env->SetByteArrayRegion(jpegArray, 0, static_cast<jsize>(jpegEndPos),
-                            reinterpret_cast<const jbyte *>(fileData.data()));
+    env->SetByteArrayRegion(jpegArray, 0, static_cast<jsize>(jpegLen),
+                            reinterpret_cast<const jbyte *>(fileData.data() + jpegStart));
 
-    jbyteArray mp4Array = env->NewByteArray(static_cast<jsize>(mp4Size));
+    jbyteArray hdrArray = nullptr;
+    if (hdrLen > 0) {
+        hdrArray = env->NewByteArray(static_cast<jsize>(hdrLen));
+        if (!hdrArray) {
+            LOGE_MP("[Convert] Failed to allocate HDR byte array");
+            env->DeleteLocalRef(jpegArray);
+            env->ReleaseStringUTFChars(inputJpegFilePath, filePath);
+            return env->NewStringUTF("error: failed to allocate HDR array");
+        }
+        env->SetByteArrayRegion(hdrArray, 0, static_cast<jsize>(hdrLen),
+                                reinterpret_cast<const jbyte *>(fileData.data() + hdrStart));
+    }
+
+    jbyteArray mp4Array = env->NewByteArray(static_cast<jsize>(videoLen));
     if (!mp4Array) {
         LOGE_MP("[Convert] Failed to allocate MP4 byte array");
         env->DeleteLocalRef(jpegArray);
+        if (hdrArray) env->DeleteLocalRef(hdrArray);
         env->ReleaseStringUTFChars(inputJpegFilePath, filePath);
         return env->NewStringUTF("error: failed to allocate MP4 array");
     }
     env->SetByteArrayRegion(
-            mp4Array, 0, static_cast<jsize>(mp4Size),
-            reinterpret_cast<const jbyte *>(fileData.data() + mp4StartPos));
+            mp4Array, 0, static_cast<jsize>(videoLen),
+            reinterpret_cast<const jbyte *>(fileData.data() + videoStart));
+
+    // 提取 Exif 数据
+    jbyteArray exifs = nullptr;
+    std::vector <uint8_t> exifDataVec = extract_jpeg_exif(filePath);
+    if (!exifDataVec.empty()) {
+        exifs = env->NewByteArray(static_cast<jsize>(exifDataVec.size()));
+        if (exifs) {
+            env->SetByteArrayRegion(exifs, 0, static_cast<jsize>(exifDataVec.size()),
+                                    reinterpret_cast<const jbyte *>(exifDataVec.data()));
+            LOGD_MP("[Convert] Extracted Exif data: %zu bytes", exifDataVec.size());
+        }
+    } else {
+        LOGD_MP("[Convert] No Exif data found in JPEG");
+    }
 
     // 调用生成 HEIC Motion Photo 的方法
     LOGI_MP("[Convert] Generating HEIC Motion Photo with "
             "nativeGenGoogleMotionPhotoWithHeic...");
     jstring genResult =
             Java_com_seafile_seadroid2_jni_HeicNative_nativeGenGoogleMotionPhotoWithHeic(
-                    env, nullptr, jpegArray, mp4Array, outPath);
+                    env, clazz, jpegArray, hdrArray, exifs, mp4Array, outPath);
+
+    if (exifs) env->DeleteLocalRef(exifs);
 
     // 释放大数组的局部引用
     env->DeleteLocalRef(jpegArray);
+    if (hdrArray) env->DeleteLocalRef(hdrArray);
     env->DeleteLocalRef(mp4Array);
 
     // 释放输入路径
@@ -1513,6 +1688,9 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeConvertJpegMotionPhotoToHeic(
         return genResult;
     }
 }
+
+
+
 
 
 /**
@@ -1582,7 +1760,7 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeExtractGoogleHeicMotionPhotoVide
     }
 
     // 读取整个文件到内存
-    std::vector<uint8_t> fileData(fileSize);
+    std::vector <uint8_t> fileData(fileSize);
     size_t bytesRead = fread(fileData.data(), 1, fileSize, file);
     fclose(file);
 
@@ -1882,7 +2060,7 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeExtractGoogleJpegMotionPhotoVide
     }
 
     // 读取整个文件到内存
-    std::vector<uint8_t> fileData(fileSize);
+    std::vector <uint8_t> fileData(fileSize);
     size_t bytesRead = fread(fileData.data(), 1, fileSize, file);
     fclose(file);
 
@@ -2160,7 +2338,7 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeCheckMotionPhotoType(
 
         // 读取整个文件
         fseek(file, 0, SEEK_SET);
-        std::vector<uint8_t> fileData(fileSize);
+        std::vector <uint8_t> fileData(fileSize);
         size_t bytesRead = fread(fileData.data(), 1, fileSize, file);
         fclose(file);
         file = nullptr;
@@ -2222,7 +2400,7 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeCheckMotionPhotoType(
         // 方式2: XMP 未确认，搜索 mpvd box 中的 ftyp 标识
         FILE *heicFile = fopen(filePath, "rb");
         if (heicFile) {
-            std::vector<uint8_t> fileData(fileSize);
+            std::vector <uint8_t> fileData(fileSize);
             fread(fileData.data(), 1, fileSize, heicFile);
             fclose(heicFile);
 

@@ -44,5 +44,6 @@ public final class MotionPhotoDescriptor {
         public Long length;
         public Long padding;
         public String mime;
+        public Long offset;
     }
 }
