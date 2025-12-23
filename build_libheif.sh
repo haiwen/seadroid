@@ -1,43 +1,42 @@
 #!/bin/bash
 #
-# LibHeif 1.20.2 Android 编译脚本 - macOS 专用版
+# LibHeif 1.20.2 Android Build Script for macOS
 #
-# 使用方法:
-#   1. 编辑下面的配置
-#   2. chmod +x build_libheif_macos.sh
-#   3. ./build_libheief_macos.sh
+# Usage:
+#   1. chmod +x build_libheif.sh
+#   2. ./build_libheief.sh
 #
 
-set -e  # 遇到错误立即退出
+set -e  # exit immediately when encountering an error
 
 # ============================================
-# 配置部分
+# Configuration
 # ============================================
 
-# 获取脚本所在目录（即项目根目录）
+# Get the directory where the script is located (i.e. the project root)
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# 目标项目路径（脚本所在目录）
+# Target project path (directory where the script is located)
 export PROJECT_DIR="$SCRIPT_DIR"
 
-# 工作目录（项目内的相对路径）
+# work directory relative paths within the project
 export BUILD_ROOT="$PROJECT_DIR/libheif-android-build"
 
-# Android NDK 路径（从环境变量获取）
-# 优先级: ANDROID_NDK_HOME > ANDROID_NDK > ANDROID_SDK_ROOT/ndk/最新版本
+# Android NDK path (taken from environment variables)
+# Priority: ANDROID_NDK_HOME > ANDROID_NDK > ANDROID_SDK_ROOT/ndk/the latest version
 if [ -n "$ANDROID_NDK_HOME" ] && [ -d "$ANDROID_NDK_HOME" ]; then
     export ANDROID_NDK="$ANDROID_NDK_HOME"
 elif [ -n "$ANDROID_NDK" ] && [ -d "$ANDROID_NDK" ]; then
-    # ANDROID_NDK 已设置，保持不变
+    # android_ndk set left unchanged
     :
 elif [ -n "$ANDROID_SDK_ROOT" ] && [ -d "$ANDROID_SDK_ROOT/ndk" ]; then
-    # 自动查找最新的 NDK 版本
+    # automatically find the latest ndk version
     NDK_VERSION=$(ls -1 "$ANDROID_SDK_ROOT/ndk" 2>/dev/null | sort -V | tail -n1)
     if [ -n "$NDK_VERSION" ]; then
         export ANDROID_NDK="$ANDROID_SDK_ROOT/ndk/$NDK_VERSION"
     fi
 elif [ -n "$ANDROID_HOME" ] && [ -d "$ANDROID_HOME/ndk" ]; then
-    # 兼容 ANDROID_HOME 环境变量
+    # compatible with android_home environment variables
     NDK_VERSION=$(ls -1 "$ANDROID_HOME/ndk" 2>/dev/null | sort -V | tail -n1)
     if [ -n "$NDK_VERSION" ]; then
         export ANDROID_NDK="$ANDROID_HOME/ndk/$NDK_VERSION"
@@ -47,7 +46,7 @@ fi
 # Android API Level
 export ANDROID_API=28
 
-# 要编译的架构 (不包含 x86_64，因为存在编译兼容性问题)
+# The schema to compile
 ABIS=(
     "armeabi-v7a"
     "arm64-v8a"
@@ -55,22 +54,22 @@ ABIS=(
     "x86_64"
 )
 
-# 版本信息
+# LibHeif version
 LIBHEIF_VERSION="v1.20.2"
 
 # ============================================
-# macOS 系统配置
+# macos system configuration
 # ============================================
 
-# 获取 CPU 核心数
+# get the number of cpu cores
 NPROC=$(sysctl -n hw.ncpu)
-echo "检测到 macOS 系统, CPU 核心数: $NPROC"
+echo "macos system detected cpu cores: $NPROC"
 
-# NDK strip 工具前缀
+# NDK strip tool prefix
 STRIP_PREFIX="darwin-x86_64"
 
 # ============================================
-# 颜色输出
+# color output
 # ============================================
 
 RED='\033[0;31m'
