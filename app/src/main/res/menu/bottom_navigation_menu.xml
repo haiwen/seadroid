@@ -1,27 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/tabs_library"
         android:icon="@drawable/icon_libraries"
-        app:tint="@color/primary_icon_tint_color"
         android:title="@string/tabs_library" />
 
     <item
         android:id="@+id/tabs_starred"
         android:icon="@drawable/icon_favorites"
-        app:tint="@color/primary_icon_tint_color"
         android:title="@string/tabs_starred" />
 
     <item
         android:id="@+id/tabs_activity"
         android:icon="@drawable/icon_activities"
-        app:tint="@color/primary_icon_tint_color"
         android:title="@string/tabs_activity" />
 
     <item
         android:id="@+id/tabs_settings"
         android:icon="@drawable/icon_settings"
-        android:title="@string/settings"
-        app:tint="@color/primary_icon_tint_color" />
+        android:title="@string/settings" />
 </menu>

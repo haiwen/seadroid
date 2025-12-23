@@ -16,11 +16,11 @@
             android:id="@+id/text_icon"
             android:layout_width="18dp"
             android:layout_height="18dp"
-            android:layout_marginTop="6dp"
+            android:layout_marginTop="5dp"
             android:padding="2dp"
             android:scaleType="fitCenter"
             android:src="@drawable/icon_editor_date"
-            android:tint="@color/tip_icon_tint_color" />
+            app:tint="@color/tip_icon_tint_color" />
 
         <TextView
             android:id="@+id/text_title"

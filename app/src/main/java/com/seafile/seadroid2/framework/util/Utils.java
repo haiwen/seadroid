@@ -203,6 +203,25 @@ public class Utils {
         return TextUtils.equals(mime, "image/jpeg");
     }
 
+    public static boolean isHeic(String name) {
+        String suffix = getFileSuffix(name);
+        if (TextUtils.isEmpty(suffix)) {
+            return false;
+        }
+        suffix = suffix.toLowerCase(Locale.ROOT);
+        if (TextUtils.equals("heic", suffix) || TextUtils.equals("heif", suffix)) {
+            return true;
+        }
+
+        String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(suffix);
+        return TextUtils.equals(mime, "image/heic")
+                || TextUtils.equals(mime, "image/heic-sequence");
+        // not support heif
+        // || TextUtils.equals(mime, "image/heif")
+        // || TextUtils.equals(mime, "image/heif-sequence");
+
+    }
+
     public static boolean isGif(String fileName) {
         if (TextUtils.isEmpty(fileName)) {
             return false;

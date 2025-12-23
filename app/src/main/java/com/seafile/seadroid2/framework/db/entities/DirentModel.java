@@ -77,10 +77,6 @@ public class DirentModel extends BaseModel implements Parcelable {
     //locally last modified time (mills)
     public long last_modified_at = 0;
 
-//    //transfer
-//    public String transfer_id;
-//    public String transfer_target_path;
-
     @Deprecated
     public TransferStatus transfer_status;
 
@@ -96,7 +92,7 @@ public class DirentModel extends BaseModel implements Parcelable {
     public String getFileExt() {
         if (TextUtils.isEmpty(file_ext)) {
             if (type.equals("dir")) {
-                return "";// Folders are ranked first (you can also use "~" to put them behind)
+                return "";
             }
 
             int lastDot = name.lastIndexOf('.');
@@ -144,47 +140,23 @@ public class DirentModel extends BaseModel implements Parcelable {
         return Icons.getFileIcon(name);
     }
 
-    /**
-     * You'll also need to check if it's a custom permission
-     */
     public boolean hasWritePermission() {
         if (TextUtils.isEmpty(permission)) {
             return false;
         }
-
-        if (permission.equals("cloud-edit")) {
+        if (permission.equals("cloud-edit") || permission.equals("preview")) {
             return false;
         }
-
-        if (permission.equals("preview")) {
-            return false;
-        }
-
         return permission.contains("w");
     }
 
-    /**
-     * You'll also need to check if it's a custom permission
-     */
     public boolean hasDownloadPermission() {
         if (TextUtils.isEmpty(permission)) {
             return false;
         }
-
-        if (permission.equals("cloud-edit")) {
-            return false;
-        }
-
-        if (permission.equals("preview")) {
-            return false;
-        }
-
-        return true;
+        return !permission.equals("cloud-edit") && !permission.equals("preview");
     }
 
-    /**
-     * is start with "custom-" ?
-     */
     public boolean isCustomPermission() {
         return !TextUtils.isEmpty(permission) && permission.startsWith("custom-");
     }
@@ -195,11 +167,8 @@ public class DirentModel extends BaseModel implements Parcelable {
     }
 
     public static DirentModel convertStarredModelToThis(StarredModel starredModel) {
-        if (starredModel == null) {
-            return null;
-        }
+        if (starredModel == null) return null;
         DirentModel direntModel = new DirentModel();
-
         direntModel.full_path = starredModel.path;
         direntModel.related_account = starredModel.related_account;
         direntModel.repo_id = starredModel.repo_id;
@@ -209,23 +178,12 @@ public class DirentModel extends BaseModel implements Parcelable {
         direntModel.parent_dir = Utils.getParentPath(starredModel.path);
         direntModel.name = starredModel.obj_name;
         direntModel.encoded_thumbnail_src = starredModel.encoded_thumbnail_src;
-//        direntModel.size = starredModel.size;
-//        direntModel.repo_id = starredModel.repo_encrypted;
-//        direntModel.deleted = starredModel.deleted;
-//        direntModel.repo_id = starredModel.user_email;
-//        direntModel.repo_id = starredModel.user_name;
-//        direntModel.repo_id = starredModel.user_contact_email;
-
         direntModel.uid = direntModel.getUID();
-
         return direntModel;
     }
 
     public static DirentModel convertDetailModelToThis(DirentFileModel model, String full_path, String repo_id, String repo_name) {
-        if (model == null) {
-            return null;
-        }
-
+        if (model == null) return null;
         DirentModel direntModel = new DirentModel();
         direntModel.full_path = full_path;
         direntModel.repo_id = repo_id;
@@ -238,22 +196,16 @@ public class DirentModel extends BaseModel implements Parcelable {
         direntModel.modifier_email = model.last_modifier_email;
         direntModel.modifier_name = model.last_modifier_name;
         direntModel.modifier_contact_email = model.last_modifier_contact_email;
-
         direntModel.size = model.size;
         direntModel.permission = model.permission;
         direntModel.id = model.id;
         direntModel.starred = model.starred;
-
         direntModel.uid = direntModel.getUID();
-
         return direntModel;
     }
 
     public static DirentModel convertActivityModelToThis(ActivityModel model) {
-        if (model == null) {
-            return null;
-        }
-
+        if (model == null) return null;
         DirentModel direntModel = new DirentModel();
         direntModel.related_account = model.related_account;
         direntModel.full_path = model.path;
@@ -263,36 +215,20 @@ public class DirentModel extends BaseModel implements Parcelable {
         direntModel.mtime = Times.convertMtime2Long(model.time);
         direntModel.parent_dir = Utils.getParentPath(model.path);
         direntModel.name = model.name;
-//        direntModel.encoded_thumbnail_src = model.encoded_thumbnail_src;
-//        direntModel.size = model.size;
-//        direntModel.repo_id = model.repo_encrypted;
-//        direntModel.deleted = model.deleted;
-//        direntModel.repo_id = model.user_email;
-//        direntModel.repo_id = model.user_name;
-//        direntModel.repo_id = model.user_contact_email;
-
         direntModel.uid = direntModel.getUID();
-
         return direntModel;
     }
 
     public static DirentModel convertSearchModelToThis(SearchModel searchModel) {
-        if (searchModel == null) {
-            return null;
-        }
-
+        if (searchModel == null) return null;
         DirentModel direntModel = new DirentModel();
         direntModel.related_account = searchModel.related_account;
         direntModel.full_path = searchModel.fullpath;
         direntModel.repo_id = searchModel.repo_id;
         direntModel.repo_name = searchModel.repo_name;
         direntModel.type = searchModel.is_dir ? "dir" : "file";
-//        direntModel.mtime = searchModel.last_modified;
         direntModel.parent_dir = Utils.getParentPath(searchModel.fullpath);
         direntModel.name = searchModel.name;
-//        direntModel.encoded_thumbnail_src = searchModel.thumbnail_url;
-//        direntModel.size = searchModel.size;
-
         direntModel.uid = direntModel.getUID();
         return direntModel;
     }
@@ -305,10 +241,6 @@ public class DirentModel extends BaseModel implements Parcelable {
         return mtime == that.mtime
                 && starred == that.starred
                 && size == that.size
-//                && is_locked == that.is_locked
-//                && is_freezed == that.is_freezed
-//                && locked_by_me == that.locked_by_me
-//                && lock_time == that.lock_time
                 && last_modified_at == that.last_modified_at
                 && Objects.equals(uid, that.uid)
                 && Objects.equals(full_path, that.full_path)
@@ -321,40 +253,13 @@ public class DirentModel extends BaseModel implements Parcelable {
                 && Objects.equals(related_account, that.related_account)
                 && Objects.equals(repo_id, that.repo_id)
                 && Objects.equals(repo_name, that.repo_name)
-//                && Objects.equals(lock_owner, that.lock_owner)
-//                && Objects.equals(lock_owner_name, that.lock_owner_name)
-//                && Objects.equals(lock_owner_contact_email, that.lock_owner_contact_email)
-//                && Objects.equals(modifier_email, that.modifier_email)
-//                && Objects.equals(modifier_name, that.modifier_name)
-//                && Objects.equals(modifier_contact_email, that.modifier_contact_email)
-//                && Objects.equals(encoded_thumbnail_src, that.encoded_thumbnail_src)
-//                && Objects.equals(local_file_path, that.local_file_path)
                 && Objects.equals(timestamp, that.timestamp);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(uid, full_path,
-                name,
-                parent_dir,
-                id,
-                type,
-                mtime,
-                permission,
-                starred,
-                dir_id,
-                related_account,
-                repo_id,
-                repo_name,
-                size,
-//                is_locked, is_freezed,
-//                locked_by_me, lock_time,
-//                lock_owner, lock_owner_name,
-//                lock_owner_contact_email, modifier_email,
-//                modifier_name, modifier_contact_email, encoded_thumbnail_src,
-//                last_modified_at, transfer_status,
-//                local_file_path,
-                timestamp);
+        return Objects.hash(uid, full_path, name, parent_dir, id, type, mtime, permission,
+                starred, dir_id, related_account, repo_id, repo_name, size, timestamp);
     }
 
     @Override
@@ -434,7 +339,7 @@ public class DirentModel extends BaseModel implements Parcelable {
         this.modifier_contact_email = source.readString();
         this.encoded_thumbnail_src = source.readString();
         this.last_modified_at = source.readLong();
-        int tmpTransfer_status = source.readInt();
+        // FIXED: Removed source.readInt() which was causing byte mismatch
         this.timestamp = source.readString();
     }
 
@@ -446,34 +351,7 @@ public class DirentModel extends BaseModel implements Parcelable {
     }
 
     protected DirentModel(Parcel in) {
-        this.uid = in.readString();
-        this.full_path = in.readString();
-        this.name = in.readString();
-        this.parent_dir = in.readString();
-        this.id = in.readString();
-        this.type = in.readString();
-        this.mtime = in.readLong();
-        this.permission = in.readString();
-        this.dir_id = in.readString();
-        this.starred = in.readByte() != 0;
-        this.size = in.readLong();
-        this.related_account = in.readString();
-        this.repo_id = in.readString();
-        this.repo_name = in.readString();
-        this.is_locked = in.readByte() != 0;
-        this.is_freezed = in.readByte() != 0;
-        this.locked_by_me = in.readByte() != 0;
-        this.lock_time = in.readLong();
-        this.lock_owner = in.readString();
-        this.lock_owner_name = in.readString();
-        this.lock_owner_contact_email = in.readString();
-        this.modifier_email = in.readString();
-        this.modifier_name = in.readString();
-        this.modifier_contact_email = in.readString();
-        this.encoded_thumbnail_src = in.readString();
-        this.last_modified_at = in.readLong();
-        int tmpTransfer_status = in.readInt();
-        this.timestamp = in.readString();
+        this.readFromParcel(in);
     }
 
     public static final Creator<DirentModel> CREATOR = new Creator<DirentModel>() {

@@ -1,8 +1,10 @@
 package com.seafile.seadroid2.framework.motionphoto;
 
-import java.util.Arrays;
+import com.seafile.seadroid2.annotation.Todo;
+
 import java.util.List;
 
+@Todo
 public final class MotionPhotoDescriptor {
 
     /**

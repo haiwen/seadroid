@@ -249,7 +249,7 @@ public class MainActivity extends BaseActivity {
     protected void onStart() {
         super.onStart();
 
-        startWatching();
+        startMediaMountWatching();
     }
 
     @Override
@@ -447,9 +447,11 @@ public class MainActivity extends BaseActivity {
         }
 
         boolean isTurnOn = Settings.BACKUP_SETTINGS_BACKGROUND_SWITCH.queryValue();
+        Intent daemonIntent = new Intent(this, FileDaemonService.class);
         if (isTurnOn) {
-            Intent daemonIntent = new Intent(this, FileDaemonService.class);
             ContextCompat.startForegroundService(this, daemonIntent);
+        } else {
+            stopService(daemonIntent);
         }
     }
 
@@ -684,7 +686,7 @@ public class MainActivity extends BaseActivity {
     /**
      * Start observing mount/unmount events
      */
-    public void startWatching() {
+    public void startMediaMountWatching() {
         IntentFilter filter = new IntentFilter();
         filter.addAction(Intent.ACTION_MEDIA_MOUNTED);
         filter.addAction(Intent.ACTION_MEDIA_REMOVED);

@@ -55,11 +55,11 @@ public class TransferModel implements Comparable<TransferModel> {
     public long created_at;
     public int retry_times = 0;
 
-    /**
-     *  Only motion photos in JPEG format will be converted to HEIC motion photos.
-     *  HEIC Motion Photo Temporary Cache Path.
-     * */
-    public String motion_photo_path;
+//    /**
+//     *  Only motion photos in JPEG format will be converted to HEIC motion photos.
+//     *  HEIC Motion Photo Temporary Cache Path.
+//     * */
+//    public String motion_photo_path;
 
 
     public long file_size; //文件大小
@@ -90,23 +90,23 @@ public class TransferModel implements Comparable<TransferModel> {
         return file_name.substring(0, file_name.lastIndexOf("."));
     }
 
-    public boolean hasExtraMotionPhoto() {
-        if (TextUtils.isEmpty(motion_photo_path)) {
-            return false;
-        }
-
-        boolean isExists = FileUtils.isFileExists(this.motion_photo_path);
-        if (!isExists) {
-            return false;
-        }
-
-        long length = FileUtils.getFileLength(this.motion_photo_path);
-        if (length <= 0) {
-            return false;
-        }
-
-        return true;
-    }
+//    public boolean hasExtraMotionPhoto() {
+//        if (TextUtils.isEmpty(motion_photo_path)) {
+//            return false;
+//        }
+//
+//        boolean isExists = FileUtils.isFileExists(this.motion_photo_path);
+//        if (!isExists) {
+//            return false;
+//        }
+//
+//        long length = FileUtils.getFileLength(this.motion_photo_path);
+//        if (length <= 0) {
+//            return false;
+//        }
+//
+//        return true;
+//    }
 
     @NonNull
     @Override

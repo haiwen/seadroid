@@ -97,15 +97,27 @@ public abstract class StorageManager implements MediaScannerConnection.OnScanCom
         classic.id = -1; // Android IDs start at 0. so "-1" is safe for us
 
         File[] externalMediaDirs = getDefaultMediaCacheDirs();
-        String rootPath = externalMediaDirs[0].getAbsolutePath();
+        String rootPath;
+
+        if (externalMediaDirs != null && externalMediaDirs.length > 0 && externalMediaDirs[0] != null) {
+            rootPath = externalMediaDirs[0].getAbsolutePath();
+        } else {
+            // 降级处理：使用内部存储路径
+            rootPath = getContext().getFilesDir().getAbsolutePath();
+        }
 
         // /storage/emulated/0/Android/media/package/Seafile/
         classic.mediaPath = new File(rootPath + "/Seafile/");
 
         // /storage/emulated/0/Android/data/package/cache
         File[] externalCacheDirs = getDefaultAppCacheDir();
-        String appCachePath = externalCacheDirs[0].getAbsolutePath();
-        classic.cachePath = new File(appCachePath);
+        File cacheFile;
+        if (externalCacheDirs != null && externalCacheDirs.length > 0 && externalCacheDirs[0] != null) {
+            cacheFile = externalCacheDirs[0];
+        } else {
+            cacheFile = getContext().getCacheDir();
+        }
+        classic.cachePath = cacheFile;
 
         fillLocationInfo(classic);
         return classic;

@@ -8,6 +8,7 @@ import androidx.core.util.Pair;
 
 import com.adobe.internal.xmp.XMPMetaFactory;
 import com.drew.imaging.ImageMetadataReader;
+import com.seafile.seadroid2.annotation.Todo;
 import com.seafile.seadroid2.framework.datastore.DataManager;
 
 import org.apache.commons.io.FileUtils;
@@ -26,6 +27,7 @@ import java.util.List;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+@Todo
 public final class MotionPhotoDetector {
     private MotionPhotoDetector() {
     }

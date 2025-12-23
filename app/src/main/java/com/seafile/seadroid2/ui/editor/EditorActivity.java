@@ -22,13 +22,20 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.Observer;
 
 import com.blankj.utilcode.util.EncryptUtils;
+import com.blankj.utilcode.util.FileIOUtils;
 import com.blankj.utilcode.util.NetworkUtils;
 import com.blankj.utilcode.util.SizeUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
+import com.seafile.seadroid2.annotation.Todo;
 import com.seafile.seadroid2.databinding.ActivityEditorBinding;
+import com.seafile.seadroid2.framework.datastore.DataManager;
+import com.seafile.seadroid2.framework.datastore.StorageManager;
+import com.seafile.seadroid2.framework.util.FileTools;
+import com.seafile.seadroid2.framework.util.FileUtils;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Toasts;
+import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
 import com.seafile.seadroid2.ui.editor.widget.HorizontalEditScrollView;
 import com.seafile.seadroid2.view.PerformEdit;
@@ -37,11 +44,18 @@ import com.yydcdut.markdown.MarkdownEditText;
 import com.yydcdut.markdown.MarkdownProcessor;
 import com.yydcdut.markdown.syntax.edit.EditFactory;
 
+import org.apache.commons.io.FilenameUtils;
+
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 import io.reactivex.functions.Consumer;
 
+/**
+ * Known issue: This page does not preview data properly if the text data is very large.
+ *
+ */
 public class EditorActivity extends BaseActivityWithVM<EditorViewModel> implements Toolbar.OnMenuItemClickListener {
 
     private ActivityEditorBinding binding;
@@ -59,12 +73,10 @@ public class EditorActivity extends BaseActivityWithVM<EditorViewModel> implemen
         outState.putString("local_path", localPath);
         outState.putString("repo_id", repoId);
         outState.putString("file_path_in_repo", filePathInRepo);
-
-        if (mMarkdownEditText != null) {
-            outState.putString("edit_content", mMarkdownEditText.getText().toString());
-        }
     }
 
+    // /storage/emulated/0/Android/media/com.seafile.seadroid2.debug/Seafile/chaohui.wang@seafile.com (dev.seafile.com)/同步测试_1671...le.seadroid2_issue_ed98babf76f88f4cc4a3b27705090a18_crash_session_675FEC7B03A600011A327A7FF029DA04_DNE_0_v2_stacktrace.txt
+    // /aaaQ/com.seafile.seadroid2_issue_ed98babf76f88f4cc4a3b27705090a18_crash_session_675FEC7B03A600011A327A7FF029DA04_DNE_0_v2_stacktrace.txt
     public static void start(Context context, String localPath, String repoId, String filePathInRepo) {
         Intent starter = new Intent(context, EditorActivity.class);
         starter.putExtra("local_path", localPath);
@@ -93,10 +105,8 @@ public class EditorActivity extends BaseActivityWithVM<EditorViewModel> implemen
             localPath = savedInstanceState.getString("local_path");
             repoId = savedInstanceState.getString("repo_id");
             filePathInRepo = savedInstanceState.getString("file_path_in_repo");
-            String editContent = savedInstanceState.getString("edit_content");
-            if (!TextUtils.isEmpty(editContent)) {
-                mMarkdownEditText.setText(editContent);
-            }
+
+            loadData();
         } else {
             Intent intent = getIntent();
             localPath = intent.getStringExtra("local_path");
@@ -110,7 +120,9 @@ public class EditorActivity extends BaseActivityWithVM<EditorViewModel> implemen
             loadData();
         }
 
-        getSupportActionBar().setTitle(new File(localPath).getName());
+        if (!TextUtils.isEmpty(localPath)) {
+            getSupportActionBar().setTitle(new File(localPath).getName());
+        }
     }
 
     private void initView() {
@@ -319,16 +331,76 @@ public class EditorActivity extends BaseActivityWithVM<EditorViewModel> implemen
         return super.onOptionsItemSelected(item);
     }
 
-
     private void saveFile() {
         String content = mMarkdownEditText.getText().toString();
 
         String md5 = EncryptUtils.encryptMD5ToString(content);
         if (TextUtils.equals(lastContentMD5, md5)) {
+            //
             finish();
             return;
         }
 
         getViewModel().save(repoId, localPath, filePathInRepo, content, filePathInRepo);
     }
+
+
+    private File lockFile = null;
+    private File getLockFile() {
+        if (lockFile != null) {
+            return lockFile;
+        }
+
+        String path = getLockFilePath();
+        lockFile = new File(path);
+        return lockFile;
+    }
+
+    private String getLockFilePath() {
+        File tempDir = StorageManager.getInstance().getTempDir();
+        String filePath = EncryptUtils.encryptMD5ToString(localPath);
+        String fileName = FilenameUtils.getName(localPath);
+        String p = Utils.pathJoin(tempDir.getAbsolutePath(), filePath);
+        return p + "-" + fileName + ".lock";
+    }
+
+
+    @Todo
+    private void acquireEditLock() {
+        if (TextUtils.isEmpty(localPath)) return;
+
+        new Thread(() -> {
+            try {
+                File lock = getLockFile();
+                if (!lock.exists()) {
+                    boolean created = lock.createNewFile();
+                    if (created) {
+                        FileIOUtils.writeFileFromString(lock, String.valueOf(System.currentTimeMillis()));
+                        SLogs.d("Editor", "Lock acquired: " + lock.getName());
+                    }
+                }
+            } catch (IOException e) {
+                SLogs.e("Editor", "Could not create lock file", e);
+            }
+        }).start();
+    }
+
+    @Todo
+    private void releaseEditLock() {
+        File lock = getLockFile();
+        if (lock != null && lock.exists()) {
+            boolean deleted = lock.delete();
+            if (deleted) {
+                SLogs.d("Editor", "Lock released: " + lock.getName());
+            }
+        }
+    }
+
+//    @Override
+//    public void onDestroy() {
+//
+//        releaseEditLock();
+//
+//        super.onDestroy();
+//    }
 }

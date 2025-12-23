@@ -5,11 +5,9 @@ import android.net.Uri;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import com.blankj.utilcode.util.CloneUtils;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.config.Constants;
@@ -17,26 +15,20 @@ import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.SaveTo;
 import com.seafile.seadroid2.enums.TransferResult;
 import com.seafile.seadroid2.enums.TransferStatus;
-import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.FileBackupStatusEntity;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
 import com.seafile.seadroid2.framework.http.HttpIO;
-import com.seafile.seadroid2.framework.motionphoto.MotionPhotoDescriptor;
-import com.seafile.seadroid2.framework.motionphoto.MotionPhotoDetector;
 import com.seafile.seadroid2.framework.notification.GeneralNotificationHelper;
 import com.seafile.seadroid2.framework.util.ExceptionUtils;
-import com.seafile.seadroid2.framework.util.FileTools;
 import com.seafile.seadroid2.framework.util.FileUtils;
 import com.seafile.seadroid2.framework.util.SafeLogs;
 import com.seafile.seadroid2.framework.util.Times;
-import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.ExistingFileStrategy;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.body.ProgressRequestBody;
 import com.seafile.seadroid2.framework.worker.body.ProgressUriRequestBody;
 import com.seafile.seadroid2.framework.worker.queue.TransferModel;
-import com.seafile.seadroid2.jni.HeicNative;
 import com.seafile.seadroid2.listener.FileTransferProgressListener;
 import com.seafile.seadroid2.ui.file.FileService;
 
@@ -190,50 +182,6 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
         }
     }
 
-    /**
-     * heic path
-     *
-     */
-    @Nullable
-    private String convertJpegToHeicIfMotionPhoto() {
-        try {
-
-            boolean isJpeg = Utils.isJpeg(currentTransferModel.file_name);
-            if (!isJpeg) {
-                return null;
-            }
-
-            MotionPhotoDescriptor descriptor = null;
-            if (currentTransferModel.full_path.startsWith("content://")) {
-                descriptor = MotionPhotoDetector.parseMotionPhotoXmpWithJpegUri(SeadroidApplication.getAppContext(), Uri.parse(currentTransferModel.full_path), true);
-
-                if (descriptor.isMotionPhoto) {
-                    currentTransferModel.motion_photo_path = descriptor.tempJpegPath;
-                }
-            } else {
-                descriptor = MotionPhotoDetector.parseMotionPhotoXmpWithJpegFile(currentTransferModel.full_path);
-                if (descriptor.isMotionPhoto) {
-                    currentTransferModel.motion_photo_path = currentTransferModel.full_path;
-                }
-            }
-
-            SafeLogs.e(TAG, descriptor.toString());
-
-            if (descriptor.isMotionPhoto) {
-                File tempFile = DataManager.createTempFile("temp-heic-motion-photo-", ".heic");
-                long[] hdrAndVideoSize = new long[descriptor.items.size()];
-                for (int i = 0; i < descriptor.items.size(); i++) {
-                    hdrAndVideoSize[i] = descriptor.items.get(i).length;
-                }
-
-                String outHeicPath = HeicNative.nativeConvertJpegMotionPhotoToHeic(currentTransferModel.motion_photo_path, hdrAndVideoSize, tempFile.getAbsolutePath());
-                return outHeicPath;
-            }
-        } catch (Exception e) {
-            SafeLogs.e(e);
-        }
-        return null;
-    }
 
     private void transferFile(Account account) throws SeafException {
         if (account == null) {
@@ -281,17 +229,18 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
         GlobalTransferCacheList.updateTransferModel(currentTransferModel);
 
         //
-        currentTransferModel.motion_photo_path = convertJpegToHeicIfMotionPhoto();
-
-        //
-        if (currentTransferModel.hasExtraMotionPhoto()) {
-            //upload heic motion photo
-            File heicFile = new File(currentTransferModel.motion_photo_path);
-            String fn = FileTools.getFileNameNoExtension(currentTransferModel.file_name);
-            fileRequestBody = new ProgressRequestBody(heicFile, _fileTransferProgressListener);
-            builder.addFormDataPart("file", fn + ".heic", fileRequestBody);
-
-        } else if (currentTransferModel.full_path.startsWith("content://")) {
+//        currentTransferModel.motion_photo_path = convertJpegToHeicIfMotionPhoto();
+//
+//        //
+//        if (currentTransferModel.hasExtraMotionPhoto()) {
+//            //upload heic motion photo
+//            File heicFile = new File(currentTransferModel.motion_photo_path);
+//            String fn = FileTools.getFileNameNoExtension(currentTransferModel.file_name);
+//            fileRequestBody = new ProgressRequestBody(heicFile, _fileTransferProgressListener);
+//            builder.addFormDataPart("file", fn + ".heic", fileRequestBody);
+//
+//        } else
+            if (currentTransferModel.full_path.startsWith("content://")) {
             //uri: content://
             Uri fileUri = Uri.parse(currentTransferModel.full_path);
             boolean isHasPermission = FileUtils.isUriHasPermission(getContext(), fileUri);
@@ -366,10 +315,10 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
                 newCall = null;
             }
 
-            //
-            if (currentTransferModel.hasExtraMotionPhoto()) {
-                com.blankj.utilcode.util.FileUtils.delete(currentTransferModel.motion_photo_path);
-            }
+//            //
+//            if (currentTransferModel.hasExtraMotionPhoto()) {
+//                com.blankj.utilcode.util.FileUtils.delete(currentTransferModel.motion_photo_path);
+//            }
         }
     }
 

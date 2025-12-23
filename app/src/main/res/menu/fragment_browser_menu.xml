@@ -4,16 +4,14 @@
 
     <item
         android:id="@+id/menu_action_search"
-        android:icon="@drawable/icon_sdoc_find_replace_32_19"
+        android:icon="@drawable/icon_search"
         android:title="@string/search_menu_item"
-        app:iconTint="@color/bar_icon_tint_color"
         app:showAsAction="ifRoom|collapseActionView" />
 
     <item
         android:id="@+id/menu_action_sort"
         android:icon="@drawable/icon_sort"
         android:title="@string/menu_action_view_and_sort"
-        app:iconTint="@color/bar_icon_tint_color"
         app:showAsAction="ifRoom" />
 
     <item

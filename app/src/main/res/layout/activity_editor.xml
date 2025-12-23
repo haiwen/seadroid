@@ -38,6 +38,7 @@
             android:background="@color/blue_bg"
             android:gravity="start|top"
             android:padding="16dp"
+            android:saveEnabled="false"
             android:textColor="@color/white" />
     </com.seafile.seadroid2.ui.editor.widget.EditScrollView>
 

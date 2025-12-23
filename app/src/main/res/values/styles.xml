@@ -4,8 +4,8 @@
     <!-- Toolbar -->
     <style name="App.Widget.ToolBarStyle" parent="Widget.Material3.Toolbar">
         <item name="colorControlNormal">@color/bar_icon_tint_color</item>
-        <item name="popupTheme">@style/ThemeOverlay.Material3.Light</item>
-        <item name="theme">@style/ThemeOverlay.Material3.Light</item>
+        <item name="android:popupTheme">@style/ToolbarOverlay</item>
+        <item name="android:theme">@style/ToolbarOverlay</item>
         <item name="android:background">@color/bar_background_color</item>
         <item name="titleTextColor">@color/bar_title_color</item>
         <item name="colorSurface">@color/white</item>
@@ -16,6 +16,10 @@
         <item name="titleTextAppearance">?attr/textAppearanceTitleMedium</item>
     </style>
 
+    <style name="ToolbarOverlay" parent="ThemeOverlay.Material3.Light">
+<!--        <item name="colorOnSurface">@color/bar_icon_tint_color</item>-->
+    </style>
+
     <style name="App.Widget.TabLayout" parent="Widget.Material3.TabLayout">
         <item name="tabIndicatorColor">@color/fancy_orange</item>
         <item name="android:background">@drawable/tab_background_drawable</item>
@@ -24,8 +28,8 @@
     </style>
 
     <style name="App.Widget.ToolBar.Editor" parent="">
-        <item name="popupTheme">@style/ThemeOverlay.Material3.Light</item>
-        <item name="theme">@style/ThemeOverlay.Material3.Light</item>
+        <item name="popupTheme">@style/ToolbarOverlay</item>
+        <item name="theme">@style/ToolbarOverlay</item>
         <item name="android:background">@color/toolbar_editor_background_color</item>
         <item name="titleTextColor">@color/toolbar_editor_title_color</item>
         <item name="android:textColorSecondary">#ffffff</item>
