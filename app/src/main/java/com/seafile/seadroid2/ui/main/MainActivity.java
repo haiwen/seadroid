@@ -9,6 +9,8 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -108,6 +110,8 @@ public class MainActivity extends BaseActivity {
 
         initOnBackPressedDispatcher();
 
+        resetOverflowIcon();
+
         initBottomNavigation();
 
         initViewPager();
@@ -122,6 +126,14 @@ public class MainActivity extends BaseActivity {
         registerComponent();
 
         requestServerInfo(true);
+    }
+
+    private void resetOverflowIcon() {
+        Drawable more = ContextCompat.getDrawable(getBaseContext(), R.drawable.icon_more_vertical_32_18);
+        if (more != null) {
+            more.setColorFilter(ContextCompat.getColor(getApplicationContext(), R.color.bar_icon_tint_color), PorterDuff.Mode.SRC_ATOP);
+            binding.toolbarActionbar.setOverflowIcon(more);
+        }
     }
 
     private void applyEdgeToEdgeInsets() {

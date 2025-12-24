@@ -216,6 +216,7 @@
     <item>相册备份</item>
   </string-array>
   <string name="navigate_to_directory">定位到目录</string>
+  <string name="go_up">返回到上一级</string>
   <string name="no_starred_file">无星标文件</string>
   <string name="added_to_upload_tasks">开始上传</string>
   <string name="added_photo_to_upload_tasks">图片开始上传</string>

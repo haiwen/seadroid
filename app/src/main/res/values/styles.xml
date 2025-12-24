@@ -4,6 +4,7 @@
     <!-- Toolbar -->
     <style name="App.Widget.ToolBarStyle" parent="Widget.Material3.Toolbar">
         <item name="colorControlNormal">@color/bar_icon_tint_color</item>
+        <item name="android:colorControlNormal">@color/bar_icon_tint_color</item>
         <item name="android:popupTheme">@style/ToolbarOverlay</item>
         <item name="android:theme">@style/ToolbarOverlay</item>
         <item name="android:background">@color/bar_background_color</item>
