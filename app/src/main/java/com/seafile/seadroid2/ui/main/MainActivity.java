@@ -131,7 +131,18 @@ public class MainActivity extends BaseActivity {
     private void resetOverflowIcon() {
         Drawable more = ContextCompat.getDrawable(getBaseContext(), R.drawable.icon_more_vertical_32_18);
         if (more != null) {
-            more.setColorFilter(ContextCompat.getColor(getApplicationContext(), R.color.bar_icon_tint_color), PorterDuff.Mode.SRC_ATOP);
+            NightMode nm = Settings.NIGHT_MODE.queryValue();
+            int c;
+            if (nm == NightMode.OFF) {
+                c = R.color.material_grey_900;
+            } else if (nm == NightMode.ON) {
+                c = R.color.material_grey_200;
+            } else if (isNightActive()) {
+                c = R.color.material_grey_200;
+            } else {
+                c = R.color.material_grey_900;
+            }
+            more.setColorFilter(ContextCompat.getColor(getApplicationContext(), c), PorterDuff.Mode.SRC_ATOP);
             binding.toolbarActionbar.setOverflowIcon(more);
         }
     }
@@ -648,6 +659,11 @@ public class MainActivity extends BaseActivity {
         AppCompatDelegate.setDefaultNightMode(futureNightMode.ordinal());
 
         restartThis();
+    }
+
+    private boolean isNightActive() {
+        int newNightMode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        return newNightMode == Configuration.UI_MODE_NIGHT_YES;
     }
 
     //todo replace by recreate()
