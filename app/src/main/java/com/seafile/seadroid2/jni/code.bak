@@ -1,0 +1,62 @@
+       boolean isHeic = Utils.isHeic(localFile.getName());
+        if (isHeic){
+            boolean isMP = HeicNative.isMotionPhoto(localFile.getAbsolutePath());
+            if (isMP){
+                try {
+                    File temp = DataManager.createTempFile("temp-",".jpeg");
+                    String outPath = HeicNative.nativeConvertHeicMotionPhotoToJpeg(localFile.getAbsolutePath(),temp.getAbsolutePath());
+                    if (!TextUtils.isEmpty(outPath)){
+                        SLogs.e(outPath);
+                        localFile = temp;
+                    }
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+
+
+        /**
+             * heic path
+             *
+             */
+            @Nullable
+            private String convertJpegToHeicIfMotionPhoto() {
+                try {
+
+                    boolean isJpeg = Utils.isJpeg(currentTransferModel.file_name);
+                    if (!isJpeg) {
+                        return null;
+                    }
+
+                    MotionPhotoDescriptor descriptor = null;
+                    if (currentTransferModel.full_path.startsWith("content://")) {
+                        descriptor = MotionPhotoDetector.parseMotionPhotoXmpWithJpegUri(SeadroidApplication.getAppContext(), Uri.parse(currentTransferModel.full_path), true);
+
+                        if (descriptor.isMotionPhoto) {
+                            currentTransferModel.motion_photo_path = descriptor.tempJpegPath;
+                        }
+                    } else {
+                        descriptor = MotionPhotoDetector.parseMotionPhotoXmpWithJpegFile(currentTransferModel.full_path);
+                        if (descriptor.isMotionPhoto) {
+                            currentTransferModel.motion_photo_path = currentTransferModel.full_path;
+                        }
+                    }
+
+                    SafeLogs.e(TAG, descriptor.toString());
+
+                    if (descriptor.isMotionPhoto) {
+                        File tempFile = DataManager.createTempFile("temp-heic-motion-photo-", ".heic");
+                        long[] hdrAndVideoSize = new long[descriptor.items.size()];
+                        for (int i = 0; i < descriptor.items.size(); i++) {
+                            hdrAndVideoSize[i] = descriptor.items.get(i).length;
+                        }
+
+                        String outHeicPath = HeicNative.nativeConvertJpegMotionPhotoToHeic(currentTransferModel.motion_photo_path, hdrAndVideoSize, tempFile.getAbsolutePath());
+                        return outHeicPath;
+                    }
+                } catch (Exception e) {
+                    SafeLogs.e(e);
+                }
+                return null;
+            }

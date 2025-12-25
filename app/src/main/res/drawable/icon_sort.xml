@@ -1,0 +1,15 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="32dp"
+    android:height="32dp"
+    android:viewportWidth="32"
+    android:viewportHeight="32">
+  <path
+      android:pathData="M24.28,8V9.92H7V8H24.28Z"
+      android:fillColor="@color/bar_icon_tint_color" />
+  <path
+      android:pathData="M20.44,15.04V16.96H7V15.04H20.44Z"
+      android:fillColor="@color/bar_icon_tint_color" />
+  <path
+      android:pathData="M17.24,22.08V24H7V22.08H17.24Z"
+      android:fillColor="@color/bar_icon_tint_color" />
+</vector>

@@ -30,7 +30,7 @@
         android:layout_height="16dp"
         android:layout_marginEnd="16dp"
         android:rotation="90"
-        android:src="@drawable/baseline_arrow_forward_24"
+        android:src="@drawable/icon_editor_next_page"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"

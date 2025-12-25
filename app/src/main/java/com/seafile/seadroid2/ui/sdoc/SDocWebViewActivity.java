@@ -4,11 +4,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.SpannableString;
 import android.text.TextUtils;
+import android.text.style.ForegroundColorSpan;
 import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -43,6 +46,7 @@ import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.GsonUtils;
 import com.blankj.utilcode.util.KeyboardUtils;
 import com.blankj.utilcode.util.NetworkUtils;
+import com.bumptech.glide.load.ResourceDecoder;
 import com.github.lzyzsd.jsbridge.CallBackFunction;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
@@ -50,6 +54,7 @@ import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.config.WebViewActionConstant;
 import com.seafile.seadroid2.databinding.ActivitySeaWebviewProBinding;
 import com.seafile.seadroid2.databinding.LayoutSdocBottomBarBinding;
+import com.seafile.seadroid2.databinding.LayoutSdocEditorBar2Binding;
 import com.seafile.seadroid2.databinding.LayoutSdocEditorBarBinding;
 import com.seafile.seadroid2.databinding.ToolbarActionbarProgressBarBinding;
 import com.seafile.seadroid2.enums.TextTypeEnum;
@@ -84,7 +89,8 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
     private ActivitySeaWebviewProBinding binding;
     private ToolbarActionbarProgressBarBinding toolBinding;
     private LayoutSdocBottomBarBinding bottomBarBinding;
-    private LayoutSdocEditorBarBinding editorBarBinding;
+
+    private LayoutSdocEditorBar2Binding editorBarBinding;
     private SeaWebView mWebView;
     private String repoId, repoName, path, fileName, targetUrl;
     private PermissionEntity repoPermission;
@@ -125,7 +131,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
 
         toolBinding = ToolbarActionbarProgressBarBinding.bind(binding.toolProgressBar.getRoot());
         bottomBarBinding = LayoutSdocBottomBarBinding.bind(binding.toolBottomBar.getRoot());
-        editorBarBinding = LayoutSdocEditorBarBinding.bind(binding.toolEditorBar.getRoot());
+        editorBarBinding = LayoutSdocEditorBar2Binding.bind(binding.toolEditorBar.getRoot());
 
         if (!NetworkUtils.isConnected()) {
             Toasts.show(R.string.network_unavailable);
@@ -181,16 +187,10 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
     public void applyEdgeToEdge() {
         ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(
-                    systemBars.left,
-                    0,
-                    systemBars.right,
-                    systemBars.bottom
-            );
+            v.setPadding(systemBars.left, 0, systemBars.right, systemBars.bottom);
 
-            Insets statusBars = insets.getInsets(WindowInsetsCompat.Type.statusBars());
             LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) toolBinding.statusBarGuideline.getLayoutParams();
-            lp.height = statusBars.top;
+            lp.height = systemBars.top;
             toolBinding.statusBarGuideline.setLayoutParams(lp);
             return insets;
         });
@@ -474,27 +474,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         resetEditorBarState();
 
         if (TextTypeEnum.isTextType(selectedTextTypeModel)) {
-            if (TextUtils.equals(TextTypeEnum.paragraph.name(), selectedTextTypeModel.type)) {
-                editorBarBinding.editorTextStyle.setText(getString(R.string.font_style_paragraph));
-            } else if (TextUtils.equals(TextTypeEnum.title.name(), selectedTextTypeModel.type)) {
-                editorBarBinding.editorTextStyle.setText(getString(R.string.font_style_title));
-            } else if (TextUtils.equals(TextTypeEnum.subtitle.name(), selectedTextTypeModel.type)) {
-                editorBarBinding.editorTextStyle.setText(getString(R.string.font_style_subtitle));
-            } else if (TextUtils.equals(TextTypeEnum.header1.name(), selectedTextTypeModel.type)) {
-                editorBarBinding.editorTextStyle.setText(getString(R.string.font_style_heading1));
-            } else if (TextUtils.equals(TextTypeEnum.header2.name(), selectedTextTypeModel.type)) {
-                editorBarBinding.editorTextStyle.setText(getString(R.string.font_style_heading2));
-            } else if (TextUtils.equals(TextTypeEnum.header3.name(), selectedTextTypeModel.type)) {
-                editorBarBinding.editorTextStyle.setText(getString(R.string.font_style_heading3));
-            } else if (TextUtils.equals(TextTypeEnum.header4.name(), selectedTextTypeModel.type)) {
-                editorBarBinding.editorTextStyle.setText(getString(R.string.font_style_heading4));
-            } else if (TextUtils.equals(TextTypeEnum.header5.name(), selectedTextTypeModel.type)) {
-                editorBarBinding.editorTextStyle.setText(getString(R.string.font_style_heading5));
-            } else if (TextUtils.equals(TextTypeEnum.header6.name(), selectedTextTypeModel.type)) {
-                editorBarBinding.editorTextStyle.setText(getString(R.string.font_style_heading6));
-            }
-
-//            editorBarBinding.editorTextStyleContainer.setChecked(true);
+            setEditorTextStyle();
 
         } else if (TextUtils.equals(TextTypeEnum.unordered_list.name(), selectedTextTypeModel.type)) {
             editorBarBinding.editorUnorderedListContainer.setChecked(true);
@@ -524,9 +504,31 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         }
     }
 
+    private void setEditorTextStyle() {
+        if (TextUtils.equals(TextTypeEnum.paragraph.name(), selectedTextTypeModel.type)) {
+            editorBarBinding.editorTextStyle.setImageResource(R.drawable.icon_editor_paragraph);
+        } else if (TextUtils.equals(TextTypeEnum.title.name(), selectedTextTypeModel.type)) {
+            editorBarBinding.editorTextStyle.setImageResource(R.drawable.icon_editor_title);
+        } else if (TextUtils.equals(TextTypeEnum.subtitle.name(), selectedTextTypeModel.type)) {
+            editorBarBinding.editorTextStyle.setImageResource(R.drawable.icon_editor_subtitle);
+        } else if (TextUtils.equals(TextTypeEnum.header1.name(), selectedTextTypeModel.type)) {
+            editorBarBinding.editorTextStyle.setImageResource(R.drawable.icon_editor_h1);
+        } else if (TextUtils.equals(TextTypeEnum.header2.name(), selectedTextTypeModel.type)) {
+            editorBarBinding.editorTextStyle.setImageResource(R.drawable.icon_editor_h2);
+        } else if (TextUtils.equals(TextTypeEnum.header3.name(), selectedTextTypeModel.type)) {
+            editorBarBinding.editorTextStyle.setImageResource(R.drawable.icon_editor_h3);
+        } else if (TextUtils.equals(TextTypeEnum.header4.name(), selectedTextTypeModel.type)) {
+            editorBarBinding.editorTextStyle.setImageResource(R.drawable.icon_editor_h4);
+        } else if (TextUtils.equals(TextTypeEnum.header5.name(), selectedTextTypeModel.type)) {
+            editorBarBinding.editorTextStyle.setImageResource(R.drawable.icon_editor_h5);
+        } else if (TextUtils.equals(TextTypeEnum.header6.name(), selectedTextTypeModel.type)) {
+            editorBarBinding.editorTextStyle.setImageResource(R.drawable.icon_editor_h6);
+        }
+    }
+
     private void resetEditorBarState() {
 
-        editorBarBinding.editorTextStyle.setText(getString(R.string.font_style_paragraph));
+        editorBarBinding.editorTextStyle.setImageResource(R.drawable.icon_editor_paragraph);
         editorBarBinding.editorCheckboxContainer.setChecked(false);
         editorBarBinding.editorOrderedListContainer.setChecked(false);
         editorBarBinding.editorUnorderedListContainer.setChecked(false);
@@ -549,16 +551,16 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
             color = ContextCompat.getColor(this, R.color.light_grey);
         }
 
-        editorBarBinding.editorTextStyle.setTextColor(color);
-
         editorBarBinding.editorTextStyle.setEnabled(isEnable);
         editorBarBinding.editorUnorderedListIcon.setEnabled(isEnable);
         editorBarBinding.editorOrderedListIcon.setEnabled(isEnable);
 
         ColorStateList stateList = ColorStateList.valueOf(color);
+
+        editorBarBinding.editorTextStyle.setImageTintList(stateList);
         editorBarBinding.editorUnorderedListIcon.setImageTintList(stateList);
         editorBarBinding.editorOrderedListIcon.setImageTintList(stateList);
-        editorBarBinding.editorTextArrowDown.setImageTintList(stateList);
+//        editorBarBinding.editorTextArrowDown.setImageTintList(stateList);
     }
 
 
@@ -748,6 +750,10 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
             getMenuInflater().inflate(R.menu.menu_sdoc_preview, menu);
             editMenuItem = menu.findItem(R.id.sdoc_edit);
             editMenuItem.setVisible(true);
+
+            String title = editMenuItem.getTitle().toString();
+            setToolMenuTitle(title);
+
             if (!isPageLoaded) {
                 editMenuItem.setEnabled(false);
             }
@@ -755,6 +761,13 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
 
 
         return true;
+    }
+
+    private void setToolMenuTitle(String title) {
+        SpannableString spanString = new SpannableString(title);
+        int blue = getColor(R.color.blue_900);
+        spanString.setSpan(new ForegroundColorSpan(blue), 0, spanString.length(), 0);
+        editMenuItem.setTitle(spanString);
     }
 
     @Override
@@ -880,7 +893,8 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
                 nextEditMode = !nextEditMode;
 
                 if (editMenuItem != null) {
-                    editMenuItem.setTitle(nextEditMode ? R.string.edit : R.string.complete);
+                    String title = getString(nextEditMode ? R.string.edit : R.string.complete);
+                    setToolMenuTitle(title);
                 }
 
                 if (nextEditMode) {

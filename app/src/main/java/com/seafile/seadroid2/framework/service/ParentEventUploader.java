@@ -1,11 +1,8 @@
 package com.seafile.seadroid2.framework.service;
 
 import android.content.Context;
-import android.database.Cursor;
 import android.net.Uri;
-import android.provider.OpenableColumns;
 import android.text.TextUtils;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -39,8 +36,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.Collections;
 
 import okhttp3.Call;
 import okhttp3.Headers;
@@ -233,33 +228,51 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
         currentTransferModel.transfer_status = TransferStatus.IN_PROGRESS;
         GlobalTransferCacheList.updateTransferModel(currentTransferModel);
 
-        long createdTime = -1;
-        //uri: content://
+        //
+//        currentTransferModel.motion_photo_path = convertJpegToHeicIfMotionPhoto();
+//
+//        //
+//        if (currentTransferModel.hasExtraMotionPhoto()) {
+//            //upload heic motion photo
+//            File heicFile = new File(currentTransferModel.motion_photo_path);
+//            String fn = FileTools.getFileNameNoExtension(currentTransferModel.file_name);
+//            fileRequestBody = new ProgressRequestBody(heicFile, _fileTransferProgressListener);
+//            builder.addFormDataPart("file", fn + ".heic", fileRequestBody);
+//
+//        } else
+
         if (currentTransferModel.full_path.startsWith("content://")) {
-            Uri uri = Uri.parse(currentTransferModel.full_path);
-            boolean isHasPermission = FileUtils.isUriHasPermission(getContext(), uri);
+            //uri: content://
+            Uri fileUri = Uri.parse(currentTransferModel.full_path);
+            boolean isHasPermission = FileUtils.isUriHasPermission(getContext(), fileUri);
             if (!isHasPermission) {
                 throw SeafException.PERMISSION_EXCEPTION;
             }
 
-            currentTransferModel.file_size = FileUploadUtils.resolveSize(getContext(), Uri.parse(currentTransferModel.full_path));
-
             uriRequestBody = new ProgressUriRequestBody(getContext(), Uri.parse(currentTransferModel.full_path), currentTransferModel.file_size, _fileTransferProgressListener);
             builder.addFormDataPart("file", currentTransferModel.file_name, uriRequestBody);
 
-            createdTime = FileUtils.getCreatedTimeFromUri(getContext(), uri);
         } else {
             //file
-            File file = new File(currentTransferModel.full_path);
-            if (!file.exists()) {
+            File originalFile = new File(currentTransferModel.full_path);
+            if (!originalFile.exists()) {
                 throw SeafException.NOT_FOUND_EXCEPTION;
             }
 
-            fileRequestBody = new ProgressRequestBody(file, _fileTransferProgressListener);
+            fileRequestBody = new ProgressRequestBody(originalFile, _fileTransferProgressListener);
             builder.addFormDataPart("file", currentTransferModel.file_name, fileRequestBody);
-            createdTime = FileUtils.getCreatedTimeFromPath(getContext(), file);
         }
 
+        //read create time/file size
+        long createdTime = -1;
+        if (currentTransferModel.full_path.startsWith("content://")) {
+            Uri fileUri = Uri.parse(currentTransferModel.full_path);
+            currentTransferModel.file_size = FileUploadUtils.resolveSize(getContext(), fileUri);
+            createdTime = FileUtils.getCreatedTimeFromUri(getContext(), fileUri);
+        } else {
+            File originalFile = new File(currentTransferModel.full_path);
+            createdTime = FileUtils.getCreatedTimeFromPath(getContext(), originalFile);
+        }
 
         if (createdTime != -1) {
             String cTime = Times.convertLong2Time(createdTime);
@@ -302,6 +315,11 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
                 newCall.cancel();
                 newCall = null;
             }
+
+//            //
+//            if (currentTransferModel.hasExtraMotionPhoto()) {
+//                com.blankj.utilcode.util.FileUtils.delete(currentTransferModel.motion_photo_path);
+//            }
         }
     }
 

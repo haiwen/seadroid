@@ -402,7 +402,7 @@ public class RepoViewModel extends BaseViewModel {
                 getObjListLiveData().setValue(results);
 
                 if (isLoadRemoteData && NetworkUtils.isConnected()) {
-//                    loadDirentsFromRemote(account, navContext);
+                    loadDirentsFromRemote(account, navContext);
                 } else {
                     getShowEmptyViewLiveData().setValue(CollectionUtils.isEmpty(results));
                 }

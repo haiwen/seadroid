@@ -5,26 +5,23 @@
 
     <item
         android:id="@+id/edit_undo"
-        android:icon="@drawable/baseline_undo_24"
         android:title="@string/undo"
         android:visible="true"
-        app:iconTint="@color/white"
+        android:icon="@drawable/icon_editor_undo"
         app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/edit_redo"
-        android:icon="@drawable/baseline_redo_24"
         android:title="@string/redo"
         android:visible="true"
-        app:iconTint="@color/white"
+        android:icon="@drawable/icon_editor_redo"
         app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/edit_save"
-        android:icon="@drawable/baseline_save_24"
         android:title="@string/lockpattern_confirm_button_text"
+        android:icon="@drawable/icon_save"
         android:visible="true"
-        app:iconTint="@color/white"
         app:showAsAction="ifRoom" />
 
 </menu>

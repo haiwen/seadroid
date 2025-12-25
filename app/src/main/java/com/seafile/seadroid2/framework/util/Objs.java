@@ -668,7 +668,7 @@ public class Objs {
             return;
         }
 
-        if (direntModel == null){
+        if (direntModel == null) {
             return;
         }
 
@@ -767,7 +767,6 @@ public class Objs {
      * 3. start the choosen app
      */
     public static void exportFile(Fragment context, File localFile) {
-
         Uri uri = FileProvider.getUriForFile(context.requireContext(), BuildConfig.FILE_PROVIDER_AUTHORITIES, localFile);
 
         final Intent sendIntent = new Intent();

@@ -48,7 +48,7 @@
     <!-- SDoc -->
     <dimen name="editor_bar_height">40dp</dimen>
     <dimen name="editor_icon_size">24dp</dimen>
-    <dimen name="editor_icon_padding">0dp</dimen>
+    <dimen name="editor_icon_padding">3dp</dimen>
     <!-- Content -->
     <dimen name="lv_margin_top">10dp</dimen> <!-- ListView -->
     <dimen name="lv_item_height">60dp</dimen>

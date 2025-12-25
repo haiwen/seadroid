@@ -19,6 +19,7 @@ import android.view.View;
 import android.webkit.MimeTypeMap;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.seafile.seadroid2.BuildConfig;
 import com.seafile.seadroid2.R;
@@ -176,10 +177,75 @@ public class Utils {
         return _decimalFormat.format(size / Math.pow(1000, digitGroups)) + " " + _units[digitGroups];
     }
 
-    public static boolean isViewableImage(String name) {
-        String suffix = name.substring(name.lastIndexOf('.') + 1).toLowerCase();
-        if (suffix.isEmpty())
+    private static @Nullable String getFileSuffix(String fileName) {
+        if (TextUtils.isEmpty(fileName)) {
+            return null;
+        }
+
+        if (!fileName.contains(".")) {
+            return null;
+        }
+
+        return fileName.substring(fileName.lastIndexOf('.') + 1).toLowerCase();
+    }
+
+    public static boolean isJpeg(String name) {
+        String suffix = getFileSuffix(name);
+        if (TextUtils.isEmpty(suffix)) {
             return false;
+        }
+        suffix = suffix.toLowerCase(Locale.ROOT);
+        if (TextUtils.equals("jpg", suffix) || TextUtils.equals("jpeg", suffix)) {
+            return true;
+        }
+
+        String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(suffix);
+        return TextUtils.equals(mime, "image/jpeg");
+    }
+
+    public static boolean isHeic(String name) {
+        String suffix = getFileSuffix(name);
+        if (TextUtils.isEmpty(suffix)) {
+            return false;
+        }
+        suffix = suffix.toLowerCase(Locale.ROOT);
+        if (TextUtils.equals("heic", suffix) || TextUtils.equals("heif", suffix)) {
+            return true;
+        }
+
+        String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(suffix);
+        return TextUtils.equals(mime, "image/heic")
+                || TextUtils.equals(mime, "image/heic-sequence");
+        // not support heif
+        // || TextUtils.equals(mime, "image/heif")
+        // || TextUtils.equals(mime, "image/heif-sequence");
+
+    }
+
+    public static boolean isGif(String fileName) {
+        if (TextUtils.isEmpty(fileName)) {
+            return false;
+        }
+
+        String suffix = getFileSuffix(fileName);
+        if (TextUtils.isEmpty(suffix)) {
+            return false;
+        }
+
+        suffix = suffix.toLowerCase(Locale.ROOT);
+        if (TextUtils.equals("gif", suffix)) {
+            return true;
+        }
+
+        String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(suffix);
+        return TextUtils.equals(mime, "image/gif");
+    }
+
+    public static boolean isViewableImage(String name) {
+        String suffix = getFileSuffix(name);
+        if (TextUtils.isEmpty(suffix)) {
+            return false;
+        }
 
         if (suffix.equals("svg"))
             // don't support svg preview
@@ -204,11 +270,11 @@ public class Utils {
     }
 
     public static boolean isVideoFile(String name) {
-        if (name == null)
+        String suffix = getFileSuffix(name);
+        if (TextUtils.isEmpty(suffix)) {
             return false;
-        String suffix = name.substring(name.lastIndexOf('.') + 1).toLowerCase();
-        if (TextUtils.isEmpty(suffix))
-            return false;
+        }
+
         if (suffix.equals("flv")) {
             return true;
         }
@@ -224,11 +290,11 @@ public class Utils {
         }
 
         String fileName = file.getName();
-        if (TextUtils.isEmpty(fileName)) {
-            return false;
-        }
+        return isTextFile(fileName);
+    }
 
-        String suffix = fileName.substring(fileName.lastIndexOf('.') + 1).toLowerCase();
+    public static boolean isTextFile(String fileName) {
+        String suffix = getFileSuffix(fileName);
         if (TextUtils.isEmpty(suffix)) {
             return false;
         }

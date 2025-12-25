@@ -231,7 +231,7 @@
         <item>Backup Photos</item>
     </string-array>
     <string name="navigate_to_directory">Navigate to directory</string>
-    <string name="navigate_up">Navigate up</string>
+    <string name="go_up">Go up</string>
     <string name="no_starred_file">No starred file yet</string>
     <string name="added_to_upload_tasks">Uploading started</string>
     <string name="added_photo_to_upload_tasks">Photo uploading started</string>

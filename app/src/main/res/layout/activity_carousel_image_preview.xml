@@ -61,63 +61,73 @@
 
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/gallery_delete_photo"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
             android:background="@drawable/ripple_icon_middle"
+            android:padding="8dp"
             android:scaleType="centerInside"
-            android:src="@drawable/baseline_delete_24"
+            android:src="@drawable/icon_delete"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/gallery_detail"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/tip_icon_tint_color" />
 
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/gallery_detail"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
             android:background="@drawable/ripple_icon_middle"
-            android:scaleType="center"
-            android:src="@drawable/baseline_info_24"
+            android:padding="8dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/icon_info"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/gallery_star_photo"
             app:layout_constraintStart_toEndOf="@+id/gallery_delete_photo"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/tip_icon_tint_color" />
 
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/gallery_star_photo"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
             android:background="@drawable/ripple_icon_middle"
+            android:padding="8dp"
             android:scaleType="centerInside"
-            android:src="@drawable/baseline_starred_outline_24"
+            android:src="@drawable/icon_unstarred"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/gallery_copy_photo"
             app:layout_constraintStart_toEndOf="@+id/gallery_detail"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/tip_icon_tint_color" />
 
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/gallery_copy_photo"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
             android:background="@drawable/ripple_icon_middle"
+            android:padding="8dp"
             android:scaleType="centerInside"
-            android:src="@drawable/baseline_copy_24"
+            android:src="@drawable/icon_copy"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/gallery_share_photo"
             app:layout_constraintStart_toEndOf="@+id/gallery_star_photo"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/tip_icon_tint_color" />
 
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/gallery_share_photo"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
             android:background="@drawable/ripple_icon_middle"
+            android:padding="8dp"
             android:scaleType="centerInside"
-            android:src="@drawable/baseline_share_24"
+            android:src="@drawable/icon_share"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/gallery_copy_photo"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/tip_icon_tint_color" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

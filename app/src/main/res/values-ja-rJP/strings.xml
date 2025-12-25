@@ -216,7 +216,6 @@
     <item>写真のバックアップ</item>
   </string-array>
   <string name="navigate_to_directory">ディレクトリーを移動</string>
-  <string name="navigate_up">アップナビゲーション</string>
   <string name="no_starred_file">スターを付けたファイルはありません</string>
   <string name="added_to_upload_tasks">アップロードが開始しました</string>
   <string name="added_photo_to_upload_tasks">写真のアップロードが開始しました</string>
@@ -613,6 +612,7 @@
   <string name="folder_backup_select_repo_update">バックアップ先を更新</string>
   <string name="UncaughtExceptionHandler_err">未処理の例外が発生しました</string>
   <string name="settings_file_backup_info_title">ファイルバックアップ情報</string>
+  <!--backup config-->
   <!--action-->
   <string name="pause">一時停止</string>
   <string name="paused">一時停止済み</string>
@@ -690,4 +690,6 @@
   <string name="backup_failed">バックアップが失敗しました</string>
   <string name="export_log_file_not_exists">ログファイルが存在しません</string>
   <string name="file_transfer_stopped">ファイル転送が停止しました</string>
+  <!--font-style-->
+  <!--sdoc system event-->
 </resources>

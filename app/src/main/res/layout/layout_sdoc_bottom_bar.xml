@@ -1,41 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="?actionBarSize"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_gravity="bottom"
     android:background="@color/bar_background_color"
     android:gravity="center_horizontal"
     android:orientation="horizontal"
     android:visibility="visible">
 
-    <com.google.android.material.imageview.ShapeableImageView
+    <FrameLayout
         android:id="@+id/sdoc_outline"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"
-        android:foreground="@drawable/ripple_icon_middle"
-        android:scaleType="centerInside"
-        android:src="@drawable/baseline_outline_28"
-        app:tint="@color/bottom_bar_icon_tint_color" />
+        android:foreground="@drawable/ripple_icon_middle">
 
-    <com.google.android.material.imageview.ShapeableImageView
+        <com.google.android.material.imageview.ShapeableImageView
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_gravity="center"
+            android:padding="2dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/icon_sdoc_table_of_content_outline"
+            app:tint="@color/primary_icon_tint_color" />
+
+    </FrameLayout>
+
+
+    <FrameLayout
         android:id="@+id/sdoc_profile"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"
-        android:foreground="@drawable/ripple_icon_middle"
-        android:scaleType="centerInside"
-        android:src="@drawable/baseline_attribute_28"
-        app:tint="@color/bottom_bar_icon_tint_color" />
+        android:foreground="@drawable/ripple_icon_middle">
 
-    <com.google.android.material.imageview.ShapeableImageView
+        <com.google.android.material.imageview.ShapeableImageView
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_gravity="center"
+            android:padding="2dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/icon_sdoc_info"
+            app:tint="@color/primary_icon_tint_color" />
+
+    </FrameLayout>
+
+    <FrameLayout
         android:id="@+id/sdoc_comment"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"
-        android:foreground="@drawable/ripple_icon_middle"
-        android:scaleType="centerInside"
-        android:src="@drawable/baseline_comment_28"
-        app:tint="@color/bottom_bar_icon_tint_color" />
+        android:foreground="@drawable/ripple_icon_middle">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_gravity="center"
+            android:padding="2dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/icon_context_comment"
+            app:tint="@color/primary_icon_tint_color" />
+
+    </FrameLayout>
 </LinearLayout>

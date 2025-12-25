@@ -217,7 +217,6 @@
     <item>Backup Φωτογραφιών</item>
   </string-array>
   <string name="navigate_to_directory">Μεταβείτε στο κατάλογο</string>
-  <string name="navigate_up">Μεταβείτε στο πάνω φάκελο</string>
   <string name="no_starred_file">Δεν υπάρχουν αρχεία με αστεράκι ακόμη</string>
   <string name="added_to_upload_tasks">Η μεταφόρτωση άρχισε</string>
   <string name="added_photo_to_upload_tasks">Άρχισε η μεταφόρτωση φωτογραφιών</string>
@@ -622,6 +621,7 @@
   <string name="folder_backup_select_repo_update">Ενημέρωση επιλογής βιβλιοθήκης για резервное αντιγράφου</string>
   <string name="UncaughtExceptionHandler_err">Σφάλμα μη διαχειρισμένου εξοπλισμού</string>
   <string name="settings_file_backup_info_title">Πληροφορίες резервного αντιγράφου αρχείου</string>
+  <!--backup config-->
   <!--action-->
   <string name="pause">Παύση</string>
   <string name="paused">Παύση</string>
@@ -699,4 +699,6 @@
   <string name="backup_failed">Αντίγραφο ασφαλείας απέτυχε</string>
   <string name="export_log_file_not_exists">Το αρχείο καταγραφής δεν υπάρχει</string>
   <string name="file_transfer_stopped">Μεταφορά αρχείου διακοπεί</string>
+  <!--font-style-->
+  <!--sdoc system event-->
 </resources>

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/root_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -9,10 +10,29 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <androidx.media3.ui.PlayerView
+            android:id="@+id/player_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:use_controller="false" />
+
         <com.seafile.seadroid2.view.photoview.PhotoView
             android:id="@+id/photo_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
+
+<!--        <ImageView-->
+<!--            android:id="@+id/btn_live_photo"-->
+<!--            android:layout_width="36dp"-->
+<!--            android:layout_height="36dp"-->
+<!--            android:layout_gravity="start"-->
+<!--            android:layout_marginStart="16dp"-->
+<!--            android:layout_marginTop="112dp"-->
+<!--            android:foreground="?selectableItemBackground"-->
+<!--            android:padding="4dp"-->
+<!--            android:visibility="gone"-->
+<!--            android:src="@drawable/icon_live_photo_play"-->
+<!--            app:tint="@color/white" />-->
 
         <ProgressBar
             android:id="@+id/progress_bar"
@@ -20,6 +40,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:visibility="gone" />
+
 
         <LinearLayout
             android:id="@+id/error_view"
@@ -42,6 +63,8 @@
                 android:gravity="center_horizontal"
                 android:text="@string/error_image_load" />
         </LinearLayout>
+
+
     </FrameLayout>
 
     <FrameLayout
@@ -94,4 +117,6 @@
             android:visibility="visible" />
 
     </FrameLayout>
+
+
 </FrameLayout>

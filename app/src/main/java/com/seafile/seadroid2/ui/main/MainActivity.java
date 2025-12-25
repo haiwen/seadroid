@@ -9,6 +9,8 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -108,6 +110,8 @@ public class MainActivity extends BaseActivity {
 
         initOnBackPressedDispatcher();
 
+        resetOverflowIcon();
+
         initBottomNavigation();
 
         initViewPager();
@@ -122,6 +126,27 @@ public class MainActivity extends BaseActivity {
         registerComponent();
 
         requestServerInfo(true);
+
+        startMediaMountWatching();
+    }
+
+    private void resetOverflowIcon() {
+        Drawable more = ContextCompat.getDrawable(getBaseContext(), R.drawable.icon_more_vertical_32_18);
+        if (more != null) {
+            NightMode nm = Settings.NIGHT_MODE.queryValue();
+            int c;
+            if (nm == NightMode.OFF) {
+                c = R.color.material_grey_900;
+            } else if (nm == NightMode.ON) {
+                c = R.color.material_grey_200;
+            } else if (isNightActive()) {
+                c = R.color.material_grey_200;
+            } else {
+                c = R.color.material_grey_900;
+            }
+            more.setColorFilter(ContextCompat.getColor(getApplicationContext(), c), PorterDuff.Mode.SRC_ATOP);
+            binding.toolbarActionbar.setOverflowIcon(more);
+        }
     }
 
     private void applyEdgeToEdgeInsets() {
@@ -248,8 +273,6 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onStart() {
         super.onStart();
-
-        startWatching();
     }
 
     @Override
@@ -447,9 +470,11 @@ public class MainActivity extends BaseActivity {
         }
 
         boolean isTurnOn = Settings.BACKUP_SETTINGS_BACKGROUND_SWITCH.queryValue();
+        Intent daemonIntent = new Intent(this, FileDaemonService.class);
         if (isTurnOn) {
-            Intent daemonIntent = new Intent(this, FileDaemonService.class);
             ContextCompat.startForegroundService(this, daemonIntent);
+        } else {
+            stopService(daemonIntent);
         }
     }
 
@@ -636,6 +661,11 @@ public class MainActivity extends BaseActivity {
         restartThis();
     }
 
+    private boolean isNightActive() {
+        int newNightMode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        return newNightMode == Configuration.UI_MODE_NIGHT_YES;
+    }
+
     //todo replace by recreate()
     private void restartThis() {
         Intent intent = getPackageManager().getLaunchIntentForPackage(getPackageName());
@@ -684,7 +714,7 @@ public class MainActivity extends BaseActivity {
     /**
      * Start observing mount/unmount events
      */
-    public void startWatching() {
+    public void startMediaMountWatching() {
         IntentFilter filter = new IntentFilter();
         filter.addAction(Intent.ACTION_MEDIA_MOUNTED);
         filter.addAction(Intent.ACTION_MEDIA_REMOVED);

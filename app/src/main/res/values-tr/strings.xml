@@ -217,7 +217,6 @@
     <item>Yedek Fotoğraflar</item>
   </string-array>
   <string name="navigate_to_directory">Bu klasöre git</string>
-  <string name="navigate_up">Bir üst klasöre git</string>
   <string name="no_starred_file">Henüz yıldızlı dosya yok</string>
   <string name="added_to_upload_tasks">Yükleme görevi eklendi</string>
   <string name="added_photo_to_upload_tasks">Fotoğraf yükleme görevi eklendi</string>
@@ -622,6 +621,7 @@
   <string name="folder_backup_select_repo_update">Yedekleme kütüphanesini güncelle</string>
   <string name="UncaughtExceptionHandler_err">Beklenmeyen bir hata oluştu</string>
   <string name="settings_file_backup_info_title">Dosya Yedekleme Hakkında</string>
+  <!--backup config-->
   <!--action-->
   <string name="pause">Durdur</string>
   <string name="paused">Durduruldu</string>
@@ -699,4 +699,6 @@
   <string name="backup_failed">Yedekleme başarısız</string>
   <string name="export_log_file_not_exists">Log dosyası bulunamadı</string>
   <string name="file_transfer_stopped">Dosya transferi durduruldu</string>
+  <!--font-style-->
+  <!--sdoc system event-->
 </resources>

@@ -4,9 +4,10 @@
     android:layout_width="48dp"
     android:layout_height="48dp"
     android:contentDescription="@string/menu_action_view_and_sort"
-    android:scaleType="center"
-    android:src="@drawable/baseline_sort_24"
     android:foreground="@drawable/ripple_icon_middle"
+    android:scaleType="centerInside"
+    android:padding="8dp"
+    android:src="@drawable/icon_sort"
     app:iconTint="@color/bar_icon_tint_color">
 
 </ImageView>

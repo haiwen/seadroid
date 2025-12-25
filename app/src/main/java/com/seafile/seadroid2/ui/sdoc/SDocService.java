@@ -4,6 +4,7 @@ import com.seafile.seadroid2.framework.model.sdoc.FileDetailModel;
 import com.seafile.seadroid2.framework.model.sdoc.FileRecordWrapperModel;
 import com.seafile.seadroid2.framework.model.sdoc.FileTagWrapperModel;
 import com.seafile.seadroid2.framework.model.sdoc.MetadataConfigModel;
+import com.seafile.seadroid2.framework.model.user.ParticipantsWrapperModel;
 import com.seafile.seadroid2.framework.model.user.UserWrapperModel;
 
 import io.reactivex.Single;
@@ -17,6 +18,9 @@ public interface SDocService {
 
     @GET("api/v2.1/repos/{repo_id}/related-users/")
     Single<UserWrapperModel> getRelatedUsers(@Path("repo_id") String repoId);
+
+    @GET("api/v2.1/seadoc/participants/{doc_uuid}/")
+    Single<ParticipantsWrapperModel> getParticipants(@Path("doc_uuid") String doc_uuid);
 
     @GET("api/v2.1/repos/{repo_id}/metadata/")
     Single<MetadataConfigModel> getMetadata(@Path("repo_id") String repoId);

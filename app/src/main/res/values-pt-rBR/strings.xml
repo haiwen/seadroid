@@ -212,7 +212,6 @@
   <string name="rename_dir">Renomear pasta</string>
   <string name="rename_successful">Renomeado com sucesso</string>
   <string name="navigate_to_directory">Navegar para este diretório</string>
-  <string name="navigate_up">Navegar para cima</string>
   <string name="no_starred_file">Nenhum arquivo selecionado ainda</string>
   <string name="added_to_upload_tasks">Upload iniciado</string>
   <string name="added_photo_to_upload_tasks">Upload de foto iniciado</string>
@@ -625,6 +624,7 @@
   <string name="folder_backup_select_repo_update">Atualizar repositório de backup</string>
   <string name="UncaughtExceptionHandler_err">Erro não capturado</string>
   <string name="settings_file_backup_info_title">Backup de Arquivo</string>
+  <!--backup config-->
   <!--action-->
   <string name="pause">Pausar</string>
   <string name="paused">Pausado</string>
@@ -702,4 +702,6 @@
   <string name="backup_failed">Backup falhou</string>
   <string name="export_log_file_not_exists">Arquivo de log não existe</string>
   <string name="file_transfer_stopped">Transferência de arquivo interrompida</string>
+  <!--font-style-->
+  <!--sdoc system event-->
 </resources>

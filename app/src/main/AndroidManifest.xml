@@ -135,6 +135,7 @@
 
         <activity
             android:name=".ui.editor.EditorActivity"
+            android:windowSoftInputMode="adjustResize"
             android:theme="@style/AppTheme.Editor" />
 
         <activity android:name=".ui.folder_backup.FolderBackupSelectedPathActivity" />
@@ -200,6 +201,7 @@
 
         <service
             android:name=".framework.file_monitor.FileDaemonService"
+            android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="dataSync" />
 

@@ -6,6 +6,8 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.content.pm.ServiceInfo;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -42,10 +44,18 @@ public class FileDaemonService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         SLogs.e(TAG, "onStartCommand()", "file daemon service started");
 
-        startForeground(NotificationUtils.NID_FILE_MONITOR_PERSISTENTLY, buildNotification());
+        // Android 14 requires specifying a type, assuming you define dataSync in the manifest
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            startForeground(
+                    NotificationUtils.NID_FILE_MONITOR_PERSISTENTLY,
+                    buildNotification(),
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
+            );
+        } else {
+            startForeground(NotificationUtils.NID_FILE_MONITOR_PERSISTENTLY, buildNotification());
+        }
 
         startPeriodicScanTask();
-
         return START_STICKY;
     }
 
@@ -116,17 +126,24 @@ public class FileDaemonService extends Service {
 
     @Override
     public void onDestroy() {
+        SLogs.e(TAG, "onDestroy()", "file daemon service destroy");
 
-        destroy();
+        // 1. Stop all scheduled tasks immediately to prevent new workers from starting during the shutdown
+        periodicHandler.removeCallbacks(periodicTask);
+        isPeriodicRunning = false;
+
+        // 2. Remove foreground notifications (must be completed before service destruction is complete)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            stopForeground(STOP_FOREGROUND_REMOVE);
+        } else {
+            stopForeground(true);
+        }
 
         super.onDestroy();
     }
 
-    private void destroy() {
-        SLogs.e(TAG, "onDestroy()", "file daemon service destroy");
-        periodicHandler.removeCallbacks(periodicTask);
-
-        stopForeground(true);
+    public void stopDaemon() {
         stopSelf();
     }
+
 }

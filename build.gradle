@@ -42,6 +42,6 @@ ext {
     compileSdkVersion = 35 // Android 15
     targetSdkVersion = 35 // Android 15
     supportLibVersion = '27.1.1'  // variable that can be referenced to keep support libs consistent
-    minSdkVersion = 26 //8.0 "Oreo"
+    minSdkVersion = 28 //9.0
     buildToolsVersion = '27.0.3'
 }

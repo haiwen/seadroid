@@ -1,0 +1,106 @@
+zhwanng@zhwanngdeMacBook-Pro ~ % /Users/zhwanng/Downloads/verify_motion_photo.sh /Users/zhwanng/Library/Containers/com.tencent.WeWorkMac/Data/Documents/Profiles/D656AF6E79AFB2D33B61BA07C4882F5F/Caches/Files/2025-12/4fd7a1ff70b6d2a1cb49896a04e020b2/IMG_20251216_173239_1365\ 11.heic
+=========================================
+验证 Motion Photo: /Users/zhwanng/Library/Containers/com.tencent.WeWorkMac/Data/Documents/Profiles/D656AF6E79AFB2D33B61BA07C4882F5F/Caches/Files/2025-12/4fd7a1ff70b6d2a1cb49896a04e020b2/IMG_20251216_173239_1365 11.heic
+=========================================
+
+【1. 文件信息】
+-rw-r--r--@ 1 zhwanng  staff   4.9M 12 17 16:22 /Users/zhwanng/Library/Containers/com.tencent.WeWorkMac/Data/Documents/Profiles/D656AF6E79AFB2D33B61BA07C4882F5F/Caches/Files/2025-12/4fd7a1ff70b6d2a1cb49896a04e020b2/IMG_20251216_173239_1365 11.heic
+
+【2. HEIC 结构 (heif-info)】
+MIME type: image/heic
+main brand: heic
+compatible brands: mif1, MiPr, miaf, MiHB, heic
+
+image: 3024x4032 (id=49), primary
+tiles: 6x8, tile size: 512x512
+colorspace: YCbCr, 4:2:0
+bit depth: 8
+thumbnail: 240x320
+color profile: prof
+alpha channel: no
+depth channel: no
+metadata:
+Exif: 2322 bytes
+XMP: 1975 bytes
+transformations:
+angle (ccw): 270
+region annotations:
+none
+properties:
+
+【3. XMP Metadata (exiftool)】
+--- Motion Photo 相关字段 ---
+Directory                       : /Users/zhwanng/Library/Containers/com.tencent.WeWorkMac/Data/Documents/Profiles/D656AF6E79AFB2D33B61BA07C4882F5F/Caches/Files/2025-12/4fd7a1ff70b6d2a1cb49896a04e020b2
+Motion Photo Version            : 1
+Motion Video Size               : 4059217
+Motion Photo                    : 1
+Motion Photo Presentation Timestamp Us: 500000
+Directory Item Semantic         : Primary, MotionPhoto
+Directory Item Padding          : 0, 8
+Motion Photo Video              : (Binary data 4059217 bytes, use -b option to extract)
+
+--- 完整 XMP 内容 ---
+<x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="XMP Core 6.0.0">
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+<rdf:Description rdf:about=""
+xmlns:photoshop="http://ns.adobe.com/photoshop/1.0/"
+xmlns:GCamera="http://ns.google.com/photos/1.0/camera/"
+xmlns:Container="http://ns.google.com/photos/1.0/container/"
+xmlns:Item="http://ns.google.com/photos/1.0/container/item/"
+xmlns:xmp="http://ns.adobe.com/xap/1.0/"
+xmlns:exif="http://ns.adobe.com/exif/1.0/">
+<photoshop:DateCreated>2025-12-16T17:32:39.639</photoshop:DateCreated>
+<photoshop:DateTimeOriginal>2025-12-16T17:32:39.639</photoshop:DateTimeOriginal>
+<GCamera:MotionPhotoVersion>1</GCamera:MotionPhotoVersion>
+<GCamera:MotionVideoSize>4059217</GCamera:MotionVideoSize>
+<GCamera:MotionPhoto>1</GCamera:MotionPhoto>
+<GCamera:MotionPhotoPresentationTimestampUs>500000</GCamera:MotionPhotoPresentationTimestampUs>
+<xmp:CreateDate>2025-12-16T17:32:39.639</xmp:CreateDate>
+<xmp:ModifyDate>2025-12-16T17:32:39</xmp:ModifyDate>
+<xmp:CreatorTool>18.7.2</xmp:CreatorTool>
+<exif:CompositeImage>2</exif:CompositeImage>
+<Container:Directory>
+<rdf:Seq>
+<rdf:li rdf:parseType="Resource">
+<Container:Item
+Item:Mime="image/heic"
+Item:Semantic="Primary"
+Item:Length="0"
+Item:Padding="0"/>
+</rdf:li>
+<rdf:li rdf:parseType="Resource">
+<Container:Item
+Item:Mime="video/quicktime"
+Item:Semantic="MotionPhoto"
+Item:Length="4059225"
+Item:Padding="8"/>
+</rdf:li>
+</rdf:Seq>
+</Container:Directory>
+</rdf:Description>
+</rdf:RDF>
+</x:xmpmeta>
+【4. mpvd Box 检查】
+✓ 找到 mpvd box
+--- mpvd box 位置 ---
+0010b110: 4446 3e0a 3c2f 783a 786d 706d 6574 613e  DF>.</x:xmpmeta>
+0010b120: 003d f059 6d70 7664 0000 0014 6674 7970  .=.Ympvd....ftyp
+0010b130: 7174 2020 0000 0000 7174 2020 0000 0008  qt  ....qt  ....
+0010b140: 7769 6465 003d d798 6d64 6174 c4ff ccff  wide.=..mdat....
+
+【5. Box 结构分析】
+--- 文件开头 (ftyp box) ---
+00000000: 0000 0024 6674 7970 6865 6963 0000 0000  ...$ftypheic....
+00000010: 6d69 6631 4d69 5072 6d69 6166 4d69 4842  mif1MiPrmiafMiHB
+00000020: 6865 6963 0000 0d6e 6d65 7461 0000 0000  heic...nmeta....
+00000030: 0000 0021 6864 6c72 0000 0000 0000 0000  ...!hdlr........
+
+✓ ftyp box 存在
+✓ meta box 存在
+✓ mdat box 存在
+✓ mpvd box 存在
+
+=========================================
+验证完成
+=========================================
+zhwanng@zhwanngdeMacBook-Pro ~ %

@@ -3,6 +3,8 @@ package com.seafile.seadroid2.framework.model.user;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.Objects;
+
 public class UserModel implements Parcelable {
     private String email;
     private String name;
@@ -39,6 +41,18 @@ public class UserModel implements Parcelable {
 
     public void setAvatarUrl(String avatar_url) {
         this.avatar_url = avatar_url;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        UserModel userModel = (UserModel) o;
+        return Objects.equals(email, userModel.email) && Objects.equals(name, userModel.name) && Objects.equals(contact_email, userModel.contact_email) && Objects.equals(avatar_url, userModel.avatar_url);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(email, name, contact_email, avatar_url);
     }
 
     @Override

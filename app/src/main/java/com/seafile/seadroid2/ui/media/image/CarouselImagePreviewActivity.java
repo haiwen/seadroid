@@ -301,11 +301,7 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
         getViewModel().getRefreshLiveData().observe(this, new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean aBoolean) {
-                if (aBoolean) {
-                    showLoadingDialog();
-                } else {
-                    dismissLoadingDialog();
-                }
+                showLoadingDialog(aBoolean);
             }
         });
 
@@ -498,10 +494,10 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
         }
 
         if (photoFragment.isBottomShowing()) {
-            binding.galleryDetail.setImageResource(R.drawable.baseline_info_24);
+//            binding.galleryDetail.setImageResource(R.drawable.icon_info);
             alphaBar(1f);
         } else {
-            binding.galleryDetail.setImageResource(R.drawable.baseline_info_grey_24);
+//            binding.galleryDetail.setImageResource(R.drawable.icon_info);
             alphaBar(0f);
         }
 
@@ -564,7 +560,7 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
                 binding.thumbnailRecyclerView.setVisibility(View.GONE);
                 binding.thumbnailRecyclerView.setAlpha(0f);
 
-                binding.galleryDetail.setImageResource(R.drawable.baseline_info_grey_24);
+//                binding.galleryDetail.setImageResource(R.drawable.baseline_info_grey_24);
 
                 setStatusBarAlpha(0);
             }
@@ -577,7 +573,7 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
                 binding.thumbnailRecyclerView.setVisibility(View.VISIBLE);
                 binding.thumbnailRecyclerView.setAlpha(1f);
 
-                binding.galleryDetail.setImageResource(R.drawable.baseline_info_24);
+//                binding.galleryDetail.setImageResource(R.drawable.baseline_info_24);
                 setStatusBarAlpha(255);
             }
         } else {
@@ -748,9 +744,9 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
         }
 
         if (direntModel.starred) {
-            binding.galleryStarPhoto.setImageResource(R.drawable.baseline_starred_filled_24);
+            binding.galleryStarPhoto.setImageResource(R.drawable.icon_starred);
         } else {
-            binding.galleryStarPhoto.setImageResource(R.drawable.baseline_starred_outline_24);
+            binding.galleryStarPhoto.setImageResource(R.drawable.icon_unstarred);
         }
     }
 

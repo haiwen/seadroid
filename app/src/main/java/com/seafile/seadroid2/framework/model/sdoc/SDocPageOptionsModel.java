@@ -15,6 +15,9 @@ public class SDocPageOptionsModel implements Parcelable {
     public boolean isStarred;
 
     public boolean enableMetadataManagement;
+    public String latestContributor;
+    public String latestContributorName;
+    public String lastModificationTime;
 
     public boolean canUse() {
         if (TextUtils.isEmpty(seadocServerUrl)
@@ -38,6 +41,10 @@ public class SDocPageOptionsModel implements Parcelable {
                 ", repoName='" + repoName + '\'' +
                 ", isLocked=" + isLocked +
                 ", isStarred=" + isStarred +
+                ", enableMetadataManagement=" + enableMetadataManagement +
+                ", latestContributor='" + latestContributor + '\'' +
+                ", latestContributorName='" + latestContributorName + '\'' +
+                ", lastModificationTime='" + lastModificationTime + '\'' +
                 '}';
     }
 
@@ -57,6 +64,9 @@ public class SDocPageOptionsModel implements Parcelable {
         dest.writeByte(this.isLocked ? (byte) 1 : (byte) 0);
         dest.writeByte(this.isStarred ? (byte) 1 : (byte) 0);
         dest.writeByte(this.enableMetadataManagement ? (byte) 1 : (byte) 0);
+        dest.writeString(this.latestContributor);
+        dest.writeString(this.latestContributorName);
+        dest.writeString(this.lastModificationTime);
     }
 
     public SDocPageOptionsModel() {
@@ -72,6 +82,9 @@ public class SDocPageOptionsModel implements Parcelable {
         this.isLocked = in.readByte() != 0;
         this.isStarred = in.readByte() != 0;
         this.enableMetadataManagement = in.readByte() != 0;
+        this.latestContributor = in.readString();
+        this.latestContributorName = in.readString();
+        this.lastModificationTime = in.readString();
     }
 
     public static final Creator<SDocPageOptionsModel> CREATOR = new Creator<SDocPageOptionsModel>() {

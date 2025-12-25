@@ -98,8 +98,25 @@ public class BaseActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        dismissLoadingDialog();
+        if (pendingDismissRunnable != null && loadingDialog != null && loadingDialog.getWindow() != null) {
+            loadingDialog.getWindow().getDecorView().removeCallbacks(pendingDismissRunnable);
+        }
+        pendingDismissRunnable = null;
+
+        safeDismiss();
         super.onDestroy();
+    }
+
+    private void safeDismiss() {
+        try {
+            if (loadingDialog != null && loadingDialog.isShowing()) {
+                loadingDialog.dismiss();
+            }
+        } catch (Exception e) {
+            // 忽略异常，防止因为 Activity 已经销毁导致的崩溃
+        } finally {
+            loadingDialog = null;
+        }
     }
 
     public boolean isDialogShowing() {
@@ -146,11 +163,18 @@ public class BaseActivity extends AppCompatActivity {
         if (loadingDialog == null || !loadingDialog.isShowing()) {
             return;
         }
+
+        // If the activity has already started to be destroyed, close it directly without delay
+        if (isFinishing() || isDestroyed()) {
+            safeDismiss();
+            return;
+        }
+
         long elapsed = System.currentTimeMillis() - dialogShowTimestamp;
         if (elapsed >= MIN_DIALOG_SHOW_TIME) {
-            loadingDialog.dismiss();
+            safeDismiss();
         } else {
-            // delay dismiss
+            //deferred destroy
             if (pendingDismissRunnable != null && loadingDialog.getWindow() != null) {
                 loadingDialog.getWindow().getDecorView().removeCallbacks(pendingDismissRunnable);
             }
@@ -158,10 +182,10 @@ public class BaseActivity extends AppCompatActivity {
             pendingDismissRunnable = new Runnable() {
                 @Override
                 public void run() {
-                    if (loadingDialog != null && loadingDialog.isShowing()) {
-                        loadingDialog.dismiss();
+                    // check the activity state and dialog status again
+                    if (!isFinishing() && !isDestroyed() && loadingDialog != null && loadingDialog.isShowing()) {
+                        safeDismiss();
                     }
-
                     pendingDismissRunnable = null;
                 }
             };
