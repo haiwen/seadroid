@@ -128,11 +128,11 @@ public class FileDaemonService extends Service {
     public void onDestroy() {
         SLogs.e(TAG, "onDestroy()", "file daemon service destroy");
 
-        // 1. 立即停止所有的定时任务，防止在关闭过程中还有新的 worker 启动
+        // 1. Stop all scheduled tasks immediately to prevent new workers from starting during the shutdown
         periodicHandler.removeCallbacks(periodicTask);
         isPeriodicRunning = false;
 
-        // 2. 移除前台通知 (必须在服务销毁完成前完成)
+        // 2. Remove foreground notifications (must be completed before service destruction is complete)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             stopForeground(STOP_FOREGROUND_REMOVE);
         } else {

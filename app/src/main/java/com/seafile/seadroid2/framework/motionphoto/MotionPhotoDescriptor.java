@@ -7,21 +7,15 @@ import java.util.List;
 @Todo
 public final class MotionPhotoDescriptor {
 
-    /**
-     * 是否被判定为动态照片
-     */
     public boolean isMotionPhoto = false;
     public long motionPhotoVersion;
     /**
-     * 建议的播放时间点（微秒）
+     * suggested playback time microseconds
      */
     public long motionPhotoPresentationTimestampUs = -1;
 
     public String tempJpegPath;
 
-    /**
-     * 信息来源（调试 / 统计用）
-     */
     public Source source;
 
     public List<MotionPhotoItem> items;

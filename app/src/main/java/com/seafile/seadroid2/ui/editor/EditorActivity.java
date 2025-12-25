@@ -75,8 +75,6 @@ public class EditorActivity extends BaseActivityWithVM<EditorViewModel> implemen
         outState.putString("file_path_in_repo", filePathInRepo);
     }
 
-    // /storage/emulated/0/Android/media/com.seafile.seadroid2.debug/Seafile/chaohui.wang@seafile.com (dev.seafile.com)/同步测试_1671...le.seadroid2_issue_ed98babf76f88f4cc4a3b27705090a18_crash_session_675FEC7B03A600011A327A7FF029DA04_DNE_0_v2_stacktrace.txt
-    // /aaaQ/com.seafile.seadroid2_issue_ed98babf76f88f4cc4a3b27705090a18_crash_session_675FEC7B03A600011A327A7FF029DA04_DNE_0_v2_stacktrace.txt
     public static void start(Context context, String localPath, String repoId, String filePathInRepo) {
         Intent starter = new Intent(context, EditorActivity.class);
         starter.putExtra("local_path", localPath);

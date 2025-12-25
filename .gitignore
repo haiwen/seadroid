@@ -68,3 +68,4 @@ seadroid-key
 build_count.txt
 /app/.cxx
 /libheif-android-build
+/.vscode

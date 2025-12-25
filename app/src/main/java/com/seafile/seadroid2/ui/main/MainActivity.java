@@ -126,6 +126,8 @@ public class MainActivity extends BaseActivity {
         registerComponent();
 
         requestServerInfo(true);
+
+        startMediaMountWatching();
     }
 
     private void resetOverflowIcon() {
@@ -271,8 +273,6 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onStart() {
         super.onStart();
-
-        startMediaMountWatching();
     }
 
     @Override

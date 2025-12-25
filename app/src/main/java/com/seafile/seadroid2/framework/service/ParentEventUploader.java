@@ -240,7 +240,8 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
 //            builder.addFormDataPart("file", fn + ".heic", fileRequestBody);
 //
 //        } else
-            if (currentTransferModel.full_path.startsWith("content://")) {
+
+        if (currentTransferModel.full_path.startsWith("content://")) {
             //uri: content://
             Uri fileUri = Uri.parse(currentTransferModel.full_path);
             boolean isHasPermission = FileUtils.isUriHasPermission(getContext(), fileUri);
@@ -262,8 +263,8 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
             builder.addFormDataPart("file", currentTransferModel.file_name, fileRequestBody);
         }
 
-        long createdTime = -1;
         //read create time/file size
+        long createdTime = -1;
         if (currentTransferModel.full_path.startsWith("content://")) {
             Uri fileUri = Uri.parse(currentTransferModel.full_path);
             currentTransferModel.file_size = FileUploadUtils.resolveSize(getContext(), fileUri);
