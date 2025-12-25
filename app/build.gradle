@@ -142,10 +142,11 @@ android {
 
                                 def buildCountFile = file("$rootDir/build_count.txt")
                                 def buildCount = 0
-                                if (buildCountFile.exists()) {
+                                if (!buildCountFile.exists()) {
+                                    buildCountFile.createNewFile()
+                                } else {
                                     buildCount = buildCountFile.text.toInteger()
                                 }
-
                                 buildCount++
                                 buildCountFile.text = buildCount.toString()
 
